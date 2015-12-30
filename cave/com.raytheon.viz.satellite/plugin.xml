@@ -62,4 +62,11 @@
               name="com.raytheon.viz.satellite.units">
         </units>
      </extension>
+     <extension
+           point="org.eclipse.ui.menus">
+        <menuContribution
+              allPopups="false"
+              locationURI="menu:models?after=top">
+        </menuContribution>
+     </extension>
 </plugin>

@@ -3,7 +3,7 @@
 # edex_camel  This shell script takes care of starting and stopping
 #                the AWIPS EDEX Camel instance.
 #
-# chkconfig: - 99 10
+# chkconfig: 35 99 10
 # description: Camel ESB System, which is the instance \
 #              used by AWIPS EDEX.
 # processname: start.sh
@@ -24,17 +24,7 @@ prog="start.sh"
 MEM=( `free -g | grep "Mem:"` )
 TOTAL_MEM=${MEM[1]}
 
-# determine services to load
-if [ -f /etc/rc.d/init.d/edexServiceList ]; then
-	. /etc/rc.d/init.d/edexServiceList
-else
-#    SERVICES=( 'request' 'ingest' 'ingestGrib' 'ingestDat')
-# Now that services could be full edex or datadelivery, don't want to start
-# defaults if list is missing to prevent start up of services on an unintended
-# server
-      echo "ERROR: /etc/rc.d/init.d/edexServiceList not found, exiting. You can manage intended service(s) by providing them as an argument until issue is resolved"
-      return 1
-fi
+SERVICES=( 'request' 'ingest' 'ingestGrib')
 
 # Who to run EDEX server as, usually "awips".  (NOT "root")
 export EDEXUSER=awips

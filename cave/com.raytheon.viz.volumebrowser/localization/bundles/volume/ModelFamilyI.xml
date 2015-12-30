@@ -11,21 +11,6 @@ ModFamI| |N|Winter: Big3 Fn Family| |OTHER | | \
 |100.|DivFn,900MB|1.|QPV2,900MB-800MB|21.|DivFn,900MB|0.|T,900MB-800MB|11.|EPVt2,900MB-800MB
 
 -->
-<!-- db rework -->
-<!--  |100.|DivFn,600MB|1.|QPV2,600MB-500MB|21.|PFrnt,600MB|0.|PFrnt,600MB|0.|Tdend,600MB-500MB\ -->
-<!--     |11.|EPVt2,600MB-500MB\ -->
-<!--     |0.|QPV1,500MB-300MB\ -->
-<!--    |100.|DivFn,700MB|1.|QPV2,700MB-600MB|21.|PFrnt,700MB|0.|PFrnt,700MB|0.|Tdend,700MB-600MB\ -->
-<!--     |11.|EPVt2,700MB-600MB\ -->
-<!--     |0.|QPV1,500MB-300MB\ -->
-<!--    |100.|DivFn,800MB|1.|QPV2,800MB-700MB|21.|PFrnt,800MB|0.|PFrnt,800MB|0.|Tdend,800MB-700MB\ -->
-<!--     |11.|EPVt2,800MB-700MB\ -->
-<!--     |0.|QPV1,500MB-300MB\ -->
-<!--    |100.|DivFn,900MB|1.|QPV2,900MB-800MB|21.|PFrnt,900MB|0.|PFrnt,900MB|0.|Tdend,900MB-800MB\ -->
-<!--     |11.|EPVt2,900MB-800MB\ -->
-<!--     |0.|QPV1,500MB-300MB\ -->
-<!--    |3.|4.|5. -->
-
 
 <bundle xmlns:ns2="group">
 	<displayList>
@@ -34,6 +19,7 @@ ModFamI| |N|Winter: Big3 Fn Family| |OTHER | | \
 			<descriptor xsi:type="mapDescriptor">
 
 				<!--|100.|DivFn,600MB-->
+				<!--not sure-->
 				<resource>
 					<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
 						<capabilities>
@@ -51,9 +37,6 @@ ModFamI| |N|Winter: Big3 Fn Family| |OTHER | | \
 							</mapping>
 							<mapping key="info.datasetId">
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.level.leveltwovalue">
-								<constraint constraintValue="-999999" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="pluginName">
 								<constraint constraintValue="grid" constraintType="EQUALS"/>
@@ -90,7 +73,7 @@ ModFamI| |N|Winter: Big3 Fn Family| |OTHER | | \
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="info.level.leveltwovalue">
-								<constraint constraintValue="500.0" constraintType="EQUALS"/>
+								<constraint constraintValue="500" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="pluginName">
 								<constraint constraintValue="grid" constraintType="EQUALS"/>
@@ -100,18 +83,17 @@ ModFamI| |N|Winter: Big3 Fn Family| |OTHER | | \
 								<constraint constraintValue="MB" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="info.level.levelonevalue">
-								<constraint constraintValue="600.0" constraintType="EQUALS"/>
+								<constraint constraintValue="600" constraintType="EQUALS"/>
 							</mapping>
 						</metadataMap>
 						<alertParser xsi:type="dataCubeAlertMessageParser"/>
 					</resourceData>
 				</resource>
 				
-				<!--|21.|PFrnt,600MB-->
+				<!--|21.|DivFn,600MB-->
 				<resource>
 					<loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
 						<capabilities>
-						    <capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="0.8" contrast="1.0"/>
 							<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
 						</capabilities>
 						<resourceType>PLAN_VIEW</resourceType>
@@ -122,49 +104,10 @@ ModFamI| |N|Winter: Big3 Fn Family| |OTHER | | \
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
 							<mapping key="info.parameter.abbreviation">
-								<constraint constraintValue="PFrnt" constraintType="EQUALS"/>
+								<constraint constraintValue="DivFn" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="info.datasetId">
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.level.leveltwovalue">
-								<constraint constraintValue="-999999" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="pluginName">
-								<constraint constraintValue="grid" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.level.masterLevel.name">
-								<!--not sure-->
-								<constraint constraintValue="MB" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.level.levelonevalue">
-								<constraint constraintValue="600" constraintType="EQUALS"/>
-							</mapping>
-						</metadataMap>
-						<alertParser xsi:type="dataCubeAlertMessageParser"/>
-					</resourceData>
-				</resource>
-				<!--|0.|PFrnt,600MB-->
-				<resource>
-					<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
-						<capabilities>
-							<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
-						</capabilities>
-						<resourceType>PLAN_VIEW</resourceType>
-					</loadProperties>
-					<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
-						<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
-					</properties>
-					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
-						<metadataMap>
-							<mapping key="info.parameter.abbreviation">
-								<constraint constraintValue="PFrnt" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.datasetId">
-								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.level.leveltwovalue">
-								<constraint constraintValue="-999999" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="pluginName">
 								<constraint constraintValue="grid" constraintType="EQUALS"/>
@@ -181,11 +124,11 @@ ModFamI| |N|Winter: Big3 Fn Family| |OTHER | | \
 					</resourceData>
 				</resource>
 				
-				<!--|0.|Tdend,600MB-500MB-->
+				<!--|0.|T,600MB-500MB-->
 				<resource>
 					<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
 						<capabilities>
-							<capability xsi:type="outlineCapability" lineStyle="DASHED" outlineOn="true" outlineWidth="1"/>
+							<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
 						</capabilities>
 						<resourceType>PLAN_VIEW</resourceType>
 					</loadProperties>
@@ -195,7 +138,7 @@ ModFamI| |N|Winter: Big3 Fn Family| |OTHER | | \
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
 							<mapping key="info.parameter.abbreviation">
-								<constraint constraintValue="Tdend" constraintType="EQUALS"/>
+								<constraint constraintValue="T" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="info.datasetId">
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
@@ -254,53 +197,16 @@ ModFamI| |N|Winter: Big3 Fn Family| |OTHER | | \
 						<alertParser xsi:type="dataCubeAlertMessageParser"/>
 					</resourceData>
 				</resource>
-				<!--|0.|QPV1,500MB-300MB-->
-				<resource>
-					<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
-						<capabilities>
-							<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
-						</capabilities>
-						<resourceType>PLAN_VIEW</resourceType>
-					</loadProperties>
-					<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
-						<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
-					</properties>
-					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
-						<metadataMap>
-							<mapping key="info.parameter.abbreviation">
-								<constraint constraintValue="QPV1" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.datasetId">
-								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.level.leveltwovalue">
-								<constraint constraintValue="300" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="pluginName">
-								<constraint constraintValue="grid" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.level.masterLevel.name">
-								<!--not sure-->
-								<constraint constraintValue="MB" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.level.levelonevalue">
-								<constraint constraintValue="500" constraintType="EQUALS"/>
-							</mapping>
-						</metadataMap>
-						<alertParser xsi:type="dataCubeAlertMessageParser"/>
-					</resourceData>
-				</resource>
-				
 				<timeMatcher xsi:type="d2DTimeMatcher" deltaFilter="0" forecastFilter="0"/>
 				<numberOfFrames>${frameCount}</numberOfFrames>
 			</descriptor>
 		</displays>
-		
+				
 		<!--2nd Panel - Top Right Panel-->
-		<displays xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="d2DMapRenderableDisplay" scale="CONUS" density="1.0" magnification="1.0" zoomLevel="1.0" mapCenter="-79.09835514095181 33.915979250804455 0.0">
+		<displays xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="d2DMapRenderableDisplay" scale="CONUS" density="1.0" magnification="1.0" zoomLevel="0.8015667796134949" mapCenter="-87.85607154045267 40.15162011360498 0.0">
 			<descriptor xsi:type="mapDescriptor">
-
 				<!--|100.|DivFn,700MB-->
+				<!--not sure-->
 				<resource>
 					<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
 						<capabilities>
@@ -371,11 +277,10 @@ ModFamI| |N|Winter: Big3 Fn Family| |OTHER | | \
 					</resourceData>
 				</resource>
 				
-				<!--|21.|PFrnt,700MB-->
+				<!--|21.|DivFn,700MB-->
 				<resource>
 					<loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
 						<capabilities>
-						<capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="0.8" contrast="1.0"/>
 							<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
 						</capabilities>
 						<resourceType>PLAN_VIEW</resourceType>
@@ -386,40 +291,7 @@ ModFamI| |N|Winter: Big3 Fn Family| |OTHER | | \
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
 							<mapping key="info.parameter.abbreviation">
-								<constraint constraintValue="PFrnt" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.datasetId">
-								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="pluginName">
-								<constraint constraintValue="grid" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.level.masterLevel.name">
-								<!--not sure-->
-								<constraint constraintValue="MB" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.level.levelonevalue">
-								<constraint constraintValue="700" constraintType="EQUALS"/>
-							</mapping>
-						</metadataMap>
-						<alertParser xsi:type="dataCubeAlertMessageParser"/>
-					</resourceData>
-				</resource>
-				<!--|0.|PFrnt,700MB-->
-				<resource>
-					<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
-						<capabilities>
-							<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
-						</capabilities>
-						<resourceType>PLAN_VIEW</resourceType>
-					</loadProperties>
-					<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
-						<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
-					</properties>
-					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
-						<metadataMap>
-							<mapping key="info.parameter.abbreviation">
-								<constraint constraintValue="PFrnt" constraintType="EQUALS"/>
+								<constraint constraintValue="DivFn" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="info.datasetId">
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
@@ -439,11 +311,11 @@ ModFamI| |N|Winter: Big3 Fn Family| |OTHER | | \
 					</resourceData>
 				</resource>
 				
-				<!--|0.|Tdend,700MB-600MB-->
+				<!--|0.|T,700MB-600MB-->
 				<resource>
 					<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
 						<capabilities>
-							<capability xsi:type="outlineCapability" lineStyle="DASHED" outlineOn="true" outlineWidth="1"/>
+							<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
 						</capabilities>
 						<resourceType>PLAN_VIEW</resourceType>
 					</loadProperties>
@@ -453,7 +325,7 @@ ModFamI| |N|Winter: Big3 Fn Family| |OTHER | | \
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
 							<mapping key="info.parameter.abbreviation">
-								<constraint constraintValue="Tdend" constraintType="EQUALS"/>
+								<constraint constraintValue="T" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="info.datasetId">
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
@@ -512,53 +384,16 @@ ModFamI| |N|Winter: Big3 Fn Family| |OTHER | | \
 						<alertParser xsi:type="dataCubeAlertMessageParser"/>
 					</resourceData>
 				</resource>
-				<!--|0.|QPV1,500MB-300MB-->
-				<resource>
-					<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
-						<capabilities>
-							<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
-						</capabilities>
-						<resourceType>PLAN_VIEW</resourceType>
-					</loadProperties>
-					<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
-						<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
-					</properties>
-					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
-						<metadataMap>
-							<mapping key="info.parameter.abbreviation">
-								<constraint constraintValue="QPV1" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.datasetId">
-								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.level.leveltwovalue">
-								<constraint constraintValue="300" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="pluginName">
-								<constraint constraintValue="grid" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.level.masterLevel.name">
-								<!--not sure-->
-								<constraint constraintValue="MB" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.level.levelonevalue">
-								<constraint constraintValue="500" constraintType="EQUALS"/>
-							</mapping>
-						</metadataMap>
-						<alertParser xsi:type="dataCubeAlertMessageParser"/>
-					</resourceData>
-				</resource>
-				
 				<timeMatcher xsi:type="d2DTimeMatcher" deltaFilter="0" forecastFilter="0"/>
 				<numberOfFrames>${frameCount}</numberOfFrames>
 			</descriptor>
 		</displays>
-
-		<!--3rd Panel - bottom left Panel-->
-		<displays xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="d2DMapRenderableDisplay" scale="CONUS" density="1.0" magnification="1.0" zoomLevel="1.0" mapCenter="-79.09835514095181 33.915979250804455 0.0">
+				
+		<!--3rd Panel - Bottom Left Panel-->
+		<displays xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="d2DMapRenderableDisplay" scale="CONUS" density="1.0" magnification="1.0" zoomLevel="0.8015667796134949" mapCenter="-87.91016225544631 40.17935304841683 0.0">
 			<descriptor xsi:type="mapDescriptor">
-
 				<!--|100.|DivFn,800MB-->
+				<!--not sure-->
 				<resource>
 					<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
 						<capabilities>
@@ -576,9 +411,6 @@ ModFamI| |N|Winter: Big3 Fn Family| |OTHER | | \
 							</mapping>
 							<mapping key="info.datasetId">
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.level.leveltwovalue">
-								<constraint constraintValue="-999999" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="pluginName">
 								<constraint constraintValue="grid" constraintType="EQUALS"/>
@@ -632,11 +464,10 @@ ModFamI| |N|Winter: Big3 Fn Family| |OTHER | | \
 					</resourceData>
 				</resource>
 				
-				<!--|21.|PFrnt,800MB-->
+				<!--|21.|DivFn,800MB-->
 				<resource>
 					<loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
 						<capabilities>
-						<capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="0.8" contrast="1.0"/>
 							<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
 						</capabilities>
 						<resourceType>PLAN_VIEW</resourceType>
@@ -647,49 +478,10 @@ ModFamI| |N|Winter: Big3 Fn Family| |OTHER | | \
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
 							<mapping key="info.parameter.abbreviation">
-								<constraint constraintValue="PFrnt" constraintType="EQUALS"/>
+								<constraint constraintValue="DivFn" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="info.datasetId">
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.level.leveltwovalue">
-								<constraint constraintValue="-999999" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="pluginName">
-								<constraint constraintValue="grid" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.level.masterLevel.name">
-								<!--not sure-->
-								<constraint constraintValue="MB" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.level.levelonevalue">
-								<constraint constraintValue="800" constraintType="EQUALS"/>
-							</mapping>
-						</metadataMap>
-						<alertParser xsi:type="dataCubeAlertMessageParser"/>
-					</resourceData>
-				</resource>
-				<!--|0.|PFrnt,800MB-->
-				<resource>
-					<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
-						<capabilities>
-							<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
-						</capabilities>
-						<resourceType>PLAN_VIEW</resourceType>
-					</loadProperties>
-					<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
-						<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
-					</properties>
-					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
-						<metadataMap>
-							<mapping key="info.parameter.abbreviation">
-								<constraint constraintValue="PFrnt" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.datasetId">
-								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.level.leveltwovalue">
-								<constraint constraintValue="-999999" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="pluginName">
 								<constraint constraintValue="grid" constraintType="EQUALS"/>
@@ -706,11 +498,11 @@ ModFamI| |N|Winter: Big3 Fn Family| |OTHER | | \
 					</resourceData>
 				</resource>
 				
-				<!--|0.|Tdend,800MB-700MB-->
+				<!--|0.|T,800MB-700MB-->
 				<resource>
 					<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
 						<capabilities>
-							<capability xsi:type="outlineCapability" lineStyle="DASHED" outlineOn="true" outlineWidth="1"/>
+							<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
 						</capabilities>
 						<resourceType>PLAN_VIEW</resourceType>
 					</loadProperties>
@@ -720,7 +512,7 @@ ModFamI| |N|Winter: Big3 Fn Family| |OTHER | | \
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
 							<mapping key="info.parameter.abbreviation">
-								<constraint constraintValue="Tdend" constraintType="EQUALS"/>
+								<constraint constraintValue="T" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="info.datasetId">
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
@@ -779,51 +571,14 @@ ModFamI| |N|Winter: Big3 Fn Family| |OTHER | | \
 						<alertParser xsi:type="dataCubeAlertMessageParser"/>
 					</resourceData>
 				</resource>
-				<!--|0.|QPV1,500MB-300MB-->
-				<resource>
-					<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
-						<capabilities>
-							<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
-						</capabilities>
-						<resourceType>PLAN_VIEW</resourceType>
-					</loadProperties>
-					<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
-						<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
-					</properties>
-					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
-						<metadataMap>
-							<mapping key="info.parameter.abbreviation">
-								<constraint constraintValue="QPV1" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.datasetId">
-								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.level.leveltwovalue">
-								<constraint constraintValue="300" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="pluginName">
-								<constraint constraintValue="grid" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.level.masterLevel.name">
-								<!--not sure-->
-								<constraint constraintValue="MB" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.level.levelonevalue">
-								<constraint constraintValue="500" constraintType="EQUALS"/>
-							</mapping>
-						</metadataMap>
-						<alertParser xsi:type="dataCubeAlertMessageParser"/>
-					</resourceData>
-				</resource>
-				
 				<timeMatcher xsi:type="d2DTimeMatcher" deltaFilter="0" forecastFilter="0"/>
 				<numberOfFrames>${frameCount}</numberOfFrames>
 			</descriptor>
-		</displays>		
-	    <!--4th panel bottom right-->
-		<displays xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="d2DMapRenderableDisplay" scale="CONUS" density="1.0" magnification="1.0" zoomLevel="1.0" mapCenter="-79.09835514095181 33.915979250804455 0.0">
+		</displays>
+				
+		<!--4th Panel - Bottom Right-->
+		<displays xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="d2DMapRenderableDisplay" scale="CONUS" density="1.0" magnification="1.0" zoomLevel="0.8015667796134949" mapCenter="-87.85607154045267 40.15162011360498 0.0">
 			<descriptor xsi:type="mapDescriptor">
-
 				<!--|100.|DivFn,900MB-->
 				<resource>
 					<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
@@ -842,9 +597,6 @@ ModFamI| |N|Winter: Big3 Fn Family| |OTHER | | \
 							</mapping>
 							<mapping key="info.datasetId">
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.level.leveltwovalue">
-								<constraint constraintValue="-999999" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="pluginName">
 								<constraint constraintValue="grid" constraintType="EQUALS"/>
@@ -898,11 +650,10 @@ ModFamI| |N|Winter: Big3 Fn Family| |OTHER | | \
 					</resourceData>
 				</resource>
 				
-				<!--|21.|PFrnt,900MB-->
+				<!--|21.|DivFn,900MB-->
 				<resource>
 					<loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
 						<capabilities>
-						<capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="0.8" contrast="1.0"/>
 							<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
 						</capabilities>
 						<resourceType>PLAN_VIEW</resourceType>
@@ -913,19 +664,15 @@ ModFamI| |N|Winter: Big3 Fn Family| |OTHER | | \
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
 							<mapping key="info.parameter.abbreviation">
-								<constraint constraintValue="PFrnt" constraintType="EQUALS"/>
+								<constraint constraintValue="DivFn" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="info.datasetId">
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.level.leveltwovalue">
-								<constraint constraintValue="-999999" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="pluginName">
 								<constraint constraintValue="grid" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="info.level.masterLevel.name">
-								<!--not sure-->
 								<constraint constraintValue="MB" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="info.level.levelonevalue">
@@ -935,7 +682,8 @@ ModFamI| |N|Winter: Big3 Fn Family| |OTHER | | \
 						<alertParser xsi:type="dataCubeAlertMessageParser"/>
 					</resourceData>
 				</resource>
-				<!--|0.|PFrnt,900MB-->
+				
+				<!--|0.|T,900MB-800MB-->
 				<resource>
 					<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
 						<capabilities>
@@ -949,44 +697,7 @@ ModFamI| |N|Winter: Big3 Fn Family| |OTHER | | \
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
 							<mapping key="info.parameter.abbreviation">
-								<constraint constraintValue="PFrnt" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.datasetId">
-								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.level.leveltwovalue">
-								<constraint constraintValue="-999999" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="pluginName">
-								<constraint constraintValue="grid" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.level.masterLevel.name">
-								<!--not sure-->
-								<constraint constraintValue="MB" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.level.levelonevalue">
-								<constraint constraintValue="900" constraintType="EQUALS"/>
-							</mapping>
-						</metadataMap>
-						<alertParser xsi:type="dataCubeAlertMessageParser"/>
-					</resourceData>
-				</resource>
-				
-				<!--|0.|Tdend,900MB-800MB-->
-				<resource>
-					<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
-						<capabilities>
-							<capability xsi:type="outlineCapability" lineStyle="DASHED" outlineOn="true" outlineWidth="1"/>
-						</capabilities>
-						<resourceType>PLAN_VIEW</resourceType>
-					</loadProperties>
-					<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
-						<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
-					</properties>
-					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
-						<metadataMap>
-							<mapping key="info.parameter.abbreviation">
-								<constraint constraintValue="Tdend" constraintType="EQUALS"/>
+								<constraint constraintValue="T" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="info.datasetId">
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
@@ -1035,7 +746,6 @@ ModFamI| |N|Winter: Big3 Fn Family| |OTHER | | \
 								<constraint constraintValue="grid" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="info.level.masterLevel.name">
-								<!--not sure-->
 								<constraint constraintValue="MB" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="info.level.levelonevalue">
@@ -1045,43 +755,6 @@ ModFamI| |N|Winter: Big3 Fn Family| |OTHER | | \
 						<alertParser xsi:type="dataCubeAlertMessageParser"/>
 					</resourceData>
 				</resource>
-				<!--|0.|QPV1,500MB-300MB-->
-				<resource>
-					<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
-						<capabilities>
-							<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
-						</capabilities>
-						<resourceType>PLAN_VIEW</resourceType>
-					</loadProperties>
-					<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
-						<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
-					</properties>
-					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
-						<metadataMap>
-							<mapping key="info.parameter.abbreviation">
-								<constraint constraintValue="QPV1" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.datasetId">
-								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.level.leveltwovalue">
-								<constraint constraintValue="300" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="pluginName">
-								<constraint constraintValue="grid" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.level.masterLevel.name">
-								<!--not sure-->
-								<constraint constraintValue="MB" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.level.levelonevalue">
-								<constraint constraintValue="500" constraintType="EQUALS"/>
-							</mapping>
-						</metadataMap>
-						<alertParser xsi:type="dataCubeAlertMessageParser"/>
-					</resourceData>
-				</resource>
-				
 				<timeMatcher xsi:type="d2DTimeMatcher" deltaFilter="0" forecastFilter="0"/>
 				<numberOfFrames>${frameCount}</numberOfFrames>
 			</descriptor>

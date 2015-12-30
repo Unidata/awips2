@@ -1,0 +1,138 @@
+ 5013     |   >700, 5013                     |Radar Summary               |PAWO82                     | 0
+ 5014     |   >700, 5014                     |Radar Legends               |PAWO82                     | 0
+ 5015     |   >700, 5015                     |Redbook graphic PAW883      |PAW883*                    | 0
+ 5021     |   >700, 5021                     |Redbook graphic PDKI59      |PDKI59*                    | 0
+ 5046     |   >700, 5046                     |Day 1 Excessive Rainfall    |PEI745                     | 0
+ 5047     |   >700, 5047                     |Precip Accum - 6hr          |PEIC43,PEID44,PEB*         | 0
+ 5048     |   >700, 5048                     |Instantaneous Precip        |PEIC61,PEIE62              | 0
+ 5050     |   >700, 5050                     |Precip Accum - 24hr         |PEIE41,PEII42,PEIK98       | 0
+ 5055     |   >700, 5055                     |1-5 day Total Precip        |PEIO46                     | 0
+ 5056     |   >700, 5056                     |Daily Precipitation         |PEWA31                     | 0
+ 5057     |   >700, 5057                     |Snow Cover Plot             |PEWA32                     | 0
+ 5058     |   >700, 5058                     |Precip H2O Plot             |PEWA33                     | 0
+ 5059     |   >700, 5059                     |Precip H2O Anal             |PEWA34                     | 0
+ 5062     |   >700, 5062                     |Wx Depiction Fcst           |PGIC42                     | 0
+ 5063     |   >700, 5063                     |24h Wx Depiction            |PGIE43                     | 0
+ 5064     |   >700, 5064                     |Wx Depiction plot           |PGWA31                     | 0
+ 5065     |   >700, 5065                     |Wx Depiction analysis       |PGWA32                     | 0
+ 5066     |   >700, 5066                     |Wx Depiction plot           |PGWA39*                    | 0
+ 5067     |   >700, 5067                     |Thunderstorm Prob           |PGWB44                     | 0
+ 5068     |   >700, 5068                     |Severe Thunderstorm Prob    |PGWB45                     | 0
+ 5069     |   >700, 5069                     |Day 1 Convective Outlook    |PGWE46                     | 0
+ 5072     |   >700, 5072                     |Day 2 Convective Outlook    |PGWI47                     | 0
+ 5101     |   >700, 5101                     |UKMO 500 hgt                |PHZ[MOQ]50                 | 0
+ 5102     |   >700, 5102                     |Redbook graphic PLQI51      |PLQI51*                    | 0
+ 5104     |   >700, 5104                     |Redbook graphic PNWA68      |PNWA68*                    | 0
+ 5107     |   >700, 5107                     |Redbook graphic POWA31      |POWA31*                    | 0
+ 5108     |   >1000, 5108                    |Day 3-7 Fronts/Press        |PPH[KMO]01,PPT[GR]98       | 0
+ 5111     |   >700, 5111                     |12-48 hr Fronts/Press       |PPI[CEGI]01                | 0
+ 5115     |   >700, 5115                     |MSL Pressure Analysis       |PPVA01                     | 0
+ 5204     |   >700, 5204                     |Surface Fronts Analysis     |PYIA01                     | 0
+ 5244     |   >2500, 5244                    |NA MSL Pres Anal            |PYAA98                     | 0
+ 5243     |   >2500, 5243                    |NA Surface Fronts           |PYBA98                     | 0
+ 5118     |   >700, 5118                     |UKMO MSLP                   |PPZ[MOQ]50                 | 0
+ 5134     |   >700, 5134                     |Sfc-500 RH plot             |PRWA51                     | 0
+ 5136     |   >700, 5136                     |Frzg Lvl/Turbulence Fcst    |PTIC94                     | 0
+ 5137     |   >700, 5137                     |24h Frzg Lvl Fcst           |PTIE94                     | 0
+ 5138     |   >700, 5138                     |1-5 Day Max Temp Anomaly    |PTIO52                     | 0
+ 5139     |   >700, 5139                     |1-5 Day Min Temp Anomaly    |PTIO53                     | 0
+ 5140     |   >700, 5140                     |Observed Max/Min Temps      |PTWA31                     | 0
+ 5141     |   >700, 5141                     |Min Temperatures            |PTWA32                     | 0
+ 5142     |   >700, 5142                     |Frzg Lvl Plot               |PTWA94                     | 0
+ 5145     |   >700, 5145                     |Frzg Lvl Analysis           |PTWA93                     | 0
+ 5146     |   >700, 5146                     |Redbook graphic PXVA01      |PXVA01*                    | 0
+ 5147     |   >700, 5147                     |Lifted-K Index Plot         |PXWA50                     | 0
+ 5154     |   >700, 5154                     |Sfc Geo Wind Plot           |PYWA31                     | 0
+ 5155     |   >700, 5155                     |Sfc Geo Relative Vort       |PYWA32                     | 0
+ 5159     |   >700, 5159                     |Day 3-7 Max/Min/PoP         |PYWK43,PYWM44,PYWO45,PYWQ46,PYWS98 | 0
+ 5160     |   >700, 5160                     |Redbook graphic PYWK62      |PYWK62*                    | 0
+ 5163     |   >700, 5163                     |Redbook graphic PZKY51      |PZKY51*                    | 0
+ 5164     |   >700, 5164                     |6-10, 8-14 day Precip Anom  |PEIY47,PETT00              | 0
+ 5169     |   >700, 5169                     |6-10, 8-14 day Temp Anomaly |PTIY51                     | 0
+ 5172     |   >700, 5172                     |6-10 day mean 500 Hgt       |PHBV50                     | 0
+ 5245     |   >1000, 5245                    |WATL wind/wave              |PWAA01*,PPAE89             | 0
+ 5248     |   >1000, 5248                    |EPAC wind/wave              |PWBA01*,PPBE89             | 0
+# 5289     |   >700, 5289                     |Precipitation Fcst          |PEIY50                     | 0
+# 5290     |   >700, 5290                     |Temperature/Wind Fcst       |PTIY98                     | 0
+# 5291     |   >700, 5291                     |Soil/Wildfire Fcst          |PYIY88                     | 0
+ 5298     |   >700, 5298                     |>= 85F for 3 days of 5      |PTAS90                     | 0
+ 5299     |   >700, 5299                     |>= 90F for 2 days of 5      |PTAS90                     | 0
+ 5300     |   >700, 5300                     |>= 95F for 1 day of 5       |PTAS90                     | 0
+ 5301     |   >700, 5301                     |>= 85F for 3 days of 7      |PTAT90                     | 0
+ 5302     |   >700, 5302                     |>= 90F for 2 days of 7      |PTAT95                     | 0
+ 5303     |   >700, 5303                     |>= 95F for 1 day of 7       |PTAT00                     | 0
+ 5312     |   >700, 5312                     |Tropical Surface Analysis   |PYNA98                     | 0
+ 5313     |   >700, 5313                     |Atl 850mb Strmlines/Winds Analysis |PWAA85              | 0
+ 5314     |   >700, 5314                     |Atl 200mb Strmlines/Winds Analysis |PWAA20              | 0
+ 5315     |   >700, 5315                     |Atl Deep Layer Mean Circ 1000-100mb|PWAA00              | 0
+ 5316     |   >700, 5316                     |Atl 850-200mb Winds/Shear Analysis |PWAA65              | 0
+ 5317     |   >700, 5317                     |E Pacific Wind/Seas Analysis       |PWBA88              | 0
+ 5318     |   >700, 5318                     |Pac Deep Layer Mean Circ 1000-100mb|PWDA00              | 0
+ 5319     |   >700, 5319                     |Pac 850-200mb Winds/Shear Analysis |PWDA65              | 0
+ 5320     |   >700, 5320                     |Caribbean Wind/Seas Fcst    |PWE*                       | 0
+ 5324     |   >700, 5324                     |Surface Analysis            |PYAA89                     | 0
+ 5325     |   >700, 5325                     |Sig Wave/Wind               |PJAA88,PJAI88              | 0
+ 5327     |   >700, 5327                     |Fronts/Press Fcst           |PPAE89                     | 0
+ 5328     |   >700, 5328                     |Fronts/Press/Winds Fcst     |PPAI88,PPAM89              | 0
+ 5330     |   >700, 5330                     |Surface Analysis            |PYBA89                     | 0
+ 5331     |   >700, 5331                     |Sig Wave/Wind               |PJBA88,PJBI88              | 0
+ 5333     |   >700, 5333                     |Fronts/Press Fcst           |PPBE89                     | 0
+ 5334     |   >700, 5334                     |Fronts/Press/Winds Fcst     |PPBI89,PPBM89              | 0
+ 5336     |   >700, 5336                     |24 Hr Dense Fog Fcst        |PGNE88                     | 0
+ 5337     |   >700, 5337                     |24 Hr Freezing Spray Fcst   |PGNE98                     | 0
+ 5338     |   >700, 5338                     |Day 6-7 Frontal Pos Fcst    |PPTG98,PPTR98              | 0
+ 5340     |   >700, 5340                     |Day 6-7 Temp and POP Fcst   |PYWQ46,PYWS98              | 0
+ 5342     |   >700, 5342                     |30 Day Precip Anomaly       |PEIV98                     | 0
+ 5343     |   >700, 5343                     |90 Day Seasonal Precip Outlook|PEIW*                    | 0
+ 5356     |   >700, 5356                     |30 Day Temp Anomaly         |PTIV98                     | 0
+ 5357     |   >700, 5357                     |90 Day Seasonal Temp Outlook|PTIW*                      | 0
+ 5370     |   >700, 5370                     |Fire Wx Outlook - Day 1     |PMWE98                     | 0
+ 5371     |   >700, 5371                     |Fire Wx Outlook - Day 2     |PMWI98                     | 0
+ 5374     |   >700, 5374                     |8-14 day Mean 500 Hgt       |PHTT50                     | 0
+ 5375     |   >700, 5375                     |8-14 day 500 Hgt Anom       |PHTT51                     | 0
+ 5376     |   >700, 5376                     |Day 1 Hail Outlook          |PENE00                     | 0
+ 5377     |   >700, 5377                     |Day 1 Convective Wind Outlook |PWNE00                   | 0
+ 5378     |   >700, 5378                     |Day 1 Tornado Outlook       |PGNE00                     | 0
+ 5379     |   >700, 5379                     |Day 2 Combined Severe Outlook |PGNI00                   | 0
+ 5380     |   >700, 5380                     |6-10 day 500 Hgt Anomaly    |PHNT50                     | 0
+ 5381     |   >700, 5381                     |Day 3 Heat Index Probabilities|PTNK98                   | 0
+ 5382     |   >700, 5382                     |Day 6 Heat Index Probabilities|PTNQ98                   | 0
+ 5386     |   >700, 5386                     |Day 4 Heat Index Probabilities|PTNM98                   | 0
+ 5387     |   >700, 5387                     |Day 5 Heat Index Probabilities|PTNO98                   | 0
+ 5388     |   >700, 5388                     |Day 7 Heat Index Probabilities|PTNS98                   | 0
+ 5383     |   >700, 5383                     |6-10 Day Max Heat Index Outlook|PTNR98                  | 0
+ 5247     |   >700, 5247                     |8-14 Day Max Heat Index Outlook|PTNT98                  | 0
+ 5384     |   >700, 5384                     |Day 3 Combined Severe Outlook|PZNK00                    | 0
+ 5385     |   >700, 5385                     |Day 3 Convective Outlook    |PGWK48                     | 0
+ 5389     |   >700, 5389                     |Sig River Flood Outlook     |PENJ88                     | 0
+ 5390     |   >700, 5390                     |Active Mesoscale Disc Sum   |PGNA00                     | 0
+ 5391     |   >700, 5391                     |Day 1 Prob 4+" Snow         |PSBB04                     | 0
+ 5392     |   >700, 5392                     |Day 1 Prob 8+" Snow         |PSBB08                     | 0
+ 5393     |   >700, 5393                     |Day 1 Prob 12+" Snow        |PSBB12                     | 0
+ 5394     |   >700, 5394                     |Day 1 Prob .25+" Ice        |PSBB25                     | 0
+ 5395     |   >700, 5395                     |Day 2 Prob 4+" Snow         |PSBC04                     | 0
+ 5396     |   >700, 5396                     |Day 2 Prob 8+" Snow         |PSBC08                     | 0
+ 5397     |   >700, 5397                     |Day 2 Prob 12+" Snow        |PSBD12                     | 0
+ 5398     |   >700, 5398                     |Day 2 Prob .25+" Ice        |PSBC25                     | 0
+ 5399     |   >700, 5399                     |Day 3 Prob 4+" Snow         |PSBD04                     | 0
+ 5400     |   >700, 5400                     |Day 3 Prob 8+" Snow         |PSBD08                     | 0
+ 5401     |   >700, 5401                     |Day 3 Prob 12+" Snow        |PSBD12                     | 0
+ 5402     |   >700, 5402                     |Day 3 Prob .25+" Ice        |PSBD25                     | 0
+ 5403     |   >700, 5403                     |3-Day Sig Winter Low Tracks |PSAO72                     | 0
+ 5404     |   >700, 5404                     |0.5 Mo (15-105 day) 50% POE Precip Outlook|PENV*        | 0
+ 5417     |   >700, 5417                     |0.5 Mo (15-105 day) 50% POE Temp Outlook  |PTNV*        | 0
+# 5430     |   >700, 5430                     |Day 4-8 Composite Severe Outlook|PGNM98                 | 0
+ 5431     |   >700, 5431                     |Fire Wx Outlook - Day 3-8   |PGNO98                     | 0
+ 5432     |   >700, 5432                     |3-7 day Precipitation Fcst  |PEIY97                     | 0
+ 5433     |   >700, 5433                     |8-14 day Precipitation Fcst |PEIY96                     | 0
+ 5434     |   >700, 5434                     |3-7 Temperature/Wind Fcst   |PTIY97                     | 0
+ 5435     |   >700, 5435                     |8-14 Temperature/Wind Fcst  |PTIY96                     | 0
+ 5436     |   >700, 5436                     |3-7 day Soil/Wildfire Fcst  |PYIY97                     | 0
+ 5437     |   >700, 5437                     |8-14 day Soil/Wildfire Fcst |PYIY96                     | 0
+ 5438     |   >700, 5438                     |Mesoscale Precip Discussion |PENA01                     | 0
+ 5439     |   >700, 5439                     |1-7 Day Total Precip        |PEIS46                     | 0
+ 5440     |   >700, 5440                     |Severe Weather Outlook - Day 4 |PGNW49                  | 0
+ 5441     |   >700, 5441                     |Severe Weather Outlook - Day 5 |PGNW50                  | 0
+ 5442     |   >700, 5442                     |Severe Weather Outlook - Day 6 |PGNW51                  | 0
+ 5443     |   >700, 5443                     |Severe Weather Outlook - Day 7 |PGNW52                  | 0
+ 5444     |   >700, 5444                     |Severe Weather Outlook - Day 8 |PGNW53                  | 0

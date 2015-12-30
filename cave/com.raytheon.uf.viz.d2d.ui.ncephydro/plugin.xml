@@ -34,69 +34,37 @@
                 </reference>
              </visibleWhen>
              <separator
-                   name="xxx"
+                   name="SPC"
                    visible="true">
              </separator>
-             <command id="SPC"
-                   commandId="com.raytheon.viz.ui.actions.titleAction"
-                   label="------ SPC ------">
-             </command>
              <separator
-                   name="xxx"
+                   name="TPC"
                    visible="true">
              </separator>
-             <command id="TPC"
-                   commandId="com.raytheon.viz.ui.actions.titleAction"
-                   label="------ TPC ------">
-             </command>
              <separator
-                   name="xxx"
+                   name="NCO"
                    visible="true">
-             </separator>
-             <command id="NCO"
-                   commandId="com.raytheon.viz.ui.actions.titleAction"
-                   label="------ NCO ------">
-             </command>
+             </separator>     
              <separator
-                   name="xxx"
+                   name="HPC"
                    visible="true">
              </separator>
-             <command id="HPC"
-                   commandId="com.raytheon.viz.ui.actions.titleAction"
-                   label="------ HPC ------">
-             </command>       
              <separator
-                   name="xxx"
+                   name="OPC"
                    visible="true">
              </separator>
-             <command id="MPC"
-                   commandId="com.raytheon.viz.ui.actions.titleAction"
-                   label="------ MPC ------">
-             </command>
              <separator
-                   name="xxx"
+                   name="CPC"
                    visible="true">
              </separator>
-             <command id="CPC"
-                   commandId="com.raytheon.viz.ui.actions.titleAction"
-                   label="------ CPC ------">
-             </command>
              <separator
-                   name="xxx"
+                   name="AWC"
                    visible="true">
              </separator>
-             <command id="AWC"
-                   commandId="com.raytheon.viz.ui.actions.titleAction"
-                   label="------ AWC ------">
-             </command>
-             <separator
-                   name="xxx"
+			 <separator
+                   name="HYDRO"
                    visible="true">
              </separator>
-             <command id="HYDRO"
-                   commandId="com.raytheon.viz.ui.actions.titleAction"
-                   label="------ Hydro ------">
-             </command>
              <separator name="QPE" visible="false"/>
              <separator name="QPF" visible="false"/>
              <separator name="HydroMenuEnd" visible="false"/>
@@ -104,10 +72,6 @@
                    name="xyx"
                    visible="true">
              </separator>
-             <command 
-                   commandId="com.raytheon.viz.ui.actions.titleAction"
-                   label="------ Local Analyses/Statistical Guidance ------">
-             </command>
           </menu>
 	</menuContribution>
 </extension>

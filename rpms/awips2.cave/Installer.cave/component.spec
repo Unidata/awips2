@@ -37,6 +37,7 @@ requires: openmotif
 requires: libMrm.so.4
 requires: libXp.so.6
 requires: libg2c.so.0
+requires: libstdc++
 
 %description
 %{_component_desc}
@@ -102,14 +103,6 @@ fi
 # testWS script
 TEXTWS_SCRIPT="rpms/utility/scripts/textWS.sh"
 cp %{_baseline_workspace}/${TEXTWS_SCRIPT} ${RPM_BUILD_ROOT}/awips2/cave
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-
-# text-workstation autostart script.
-CAVE_SCRIPTS_DIR="%{_baseline_workspace}/rpms/awips2.cave/Installer.cave/scripts"
-TEXTWS_AUTO_SCRIPT="${CAVE_SCRIPTS_DIR}/autostart/awips2-textws.desktop"
-cp -v ${TEXTWS_AUTO_SCRIPT} ${RPM_BUILD_ROOT}/etc/xdg/autostart
 if [ $? -ne 0 ]; then
    exit 1
 fi
@@ -180,12 +173,6 @@ if [ -d /awips2/cave ]; then
 fi
 
 %post
-# Remove the text-workstation autostart script if we have not been installed
-# on an xt workstation
-if [ ! "`hostname | cut -b 1-2`" = "xt" ]; then
-   rm -f /etc/xdg/autostart/awips2-textws.desktop
-fi
-
 MACHINE_BIT=`uname -i`
 if [ "${MACHINE_BIT}" = "i386" ]
 then
@@ -369,4 +356,3 @@ rm -rf ${RPM_BUILD_ROOT}
 %dir /awips2/cave/lib%{_build_bits}
 /awips2/cave/lib%{_build_bits}/*
 
-%attr(644,root,root) /etc/xdg/autostart/awips2-textws.desktop

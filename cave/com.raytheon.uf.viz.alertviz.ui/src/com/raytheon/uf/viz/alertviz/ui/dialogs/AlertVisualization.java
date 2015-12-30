@@ -94,6 +94,7 @@ import com.raytheon.uf.viz.core.VizApp;
  *                                     changing the icon on the timer action.  If it isn't running
  *                                     then set the icon to the default image.
  * 18 Mar 2015  4234       njensen     Remove reference to non-working python
+ * 29 Dec 2015             mjames@ucar Hiding dialog by default.
  * 
  * </pre>
  * 
@@ -239,10 +240,12 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
         this.display = display;
         this.runningStandalone = runningStandalone;
         ConfigurationManager.getInstance().addListener(this);
-        if (Boolean.getBoolean("SystemTray")) {
-            showAlertDlg = Boolean.getBoolean("ShowAlertVizBar");
-            doNotDisturb = true;
-        }
+//        if (Boolean.getBoolean("SystemTray")) {
+//            showAlertDlg = Boolean.getBoolean("ShowAlertVizBar");
+//            doNotDisturb = true;
+//        }
+        showAlertDlg = false;
+        doNotDisturb = true;
         initShell();
     }
 
@@ -326,6 +329,7 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
             @Override
             public void run() {
                 alertMessageDlg.open();
+                alertMessageDlg.showDialog(false);
             }
         });
     }

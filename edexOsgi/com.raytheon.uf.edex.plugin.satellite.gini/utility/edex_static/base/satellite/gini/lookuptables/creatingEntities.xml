@@ -40,4 +40,5 @@
     <entry index="27" value="NOAA17" />
     <entry index="28" value="NOAA18" />
     <entry index="29" value="NOAA19" />
+    <entry index="99" value="NEXRCOMP" />
 </numericLookupTable>

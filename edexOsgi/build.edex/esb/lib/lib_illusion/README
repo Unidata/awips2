@@ -1,0 +1,5 @@
+Deploy one of the two fake python libraries (libpython.so) depending on the
+architecture; deploy-install is capable of determining which library
+to deploy. The 32-bit libpython.so is installed with the 64-bit edex and the
+64-bit libpython.so is installed with the 32-bit edex to eliminate all or
+most of the LD_PRELOAD errors.

@@ -89,10 +89,13 @@
                     <resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
                         <metadataMap>
                             <mapping key="info.parameter.abbreviation">
-                                <constraint constraintValue="T" constraintType="EQUALS"/>
+                                <constraint constraintValue="dZ" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="info.datasetId">
                                 <constraint constraintValue="${modelName}" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.level.leveltwovalue">
+                                <constraint constraintValue="500.0" constraintType="IN"/>
                             </mapping>
                             <mapping key="pluginName">
                                 <constraint constraintValue="grid" constraintType="EQUALS"/>
@@ -101,10 +104,7 @@
                                 <constraint constraintValue="MB" constraintType="IN"/>
                             </mapping>
                             <mapping key="info.level.levelonevalue">
-                                <constraint constraintValue="850.0" constraintType="IN"/>
-                            </mapping>
-                              <mapping key="info.level.leveltwovalue">
-                                <constraint constraintValue="-999999" constraintType="EQUALS"/>
+                                <constraint constraintValue="1000.0" constraintType="IN"/>
                             </mapping>
                         </metadataMap>
                         <alertParser xsi:type="dataCubeAlertMessageParser"/>
@@ -115,7 +115,7 @@
                     <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
                         <capabilities>
                             
-                            <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="2"/>
+                            <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
                         </capabilities>
                         <resourceType>PLAN_VIEW</resourceType>
                     </loadProperties>
@@ -184,7 +184,7 @@
                     </resourceData>
                 </resource>
                 <resource>
-                    <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="true">
+                    <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
                         <capabilities>
                             
                             <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>

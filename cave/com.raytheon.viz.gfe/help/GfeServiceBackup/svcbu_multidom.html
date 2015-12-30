@@ -1,0 +1,249 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta name="Author" content="John Wagner">
+   <title>Service Backup GUI Help</title>
+</head>
+<body>
+<TABLE BORDER="0" WIDTH="100%">
+   <TR VALIGN="TOP">
+      <TD ALIGN="CENTER" VALIGN="TOP">
+       <H1><A NAME="#MULTIPLE_DOMAIN_HELP_PAGE"><FONT COLOR="#0000FF"><I>Service Backup GUI</I>
+           </FONT></H1>
+       <H2><i>Multiple Domains</i></H2></TD>
+   </TR>
+</TABLE><BR>
+<HR SIZE=5 NOSHADE>
+<p align="left">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </p>
+<p class="MsoNormal">If your site currently has two domains, you will notice 
+that there are several differences between your GUI and related programs and the 
+GUI and programs that appear in the help pages.&nbsp; These differences include</p>
+<p class="MsoNormal">
+<br><a href="#Banners" style="text-decoration: none">Banners</a>
+<br><a href="#Choose_Domain_GUI" style="text-decoration: none">Choose Domain GUI</a>
+<br><a href="#Clean_Up_Script" style="text-decoration: none">Clean Up Script</a>
+<br><a href="#Error_Messages" style="text-decoration: none">Error Messages</a>
+</p>
+<p class="MsoNormal">This page will explain the differences that you may 
+encounter while using the Service Backup GUI (In all of the examples below, CCC 
+is the 3 letter ID of the domain that is running the Service Backup GUI, DDD is 
+the 3 letter ID of the other domain that is not controlled by the Service Backup 
+GUI, XXX is a failed site being backed up by CCC, and YYY is a failed site that 
+DDD is performing service backup for.).</p>
+<hr>
+<p class="MsoNormal"><a name="Banners"><b>Banners</b></a>&nbsp;
+<a href="#MULTIPLE_DOMAIN_HELP_PAGE" style="text-decoration: none">[BACK 
+TO THE TOP]</a></p>
+<p class="MsoNormal">If you site has two domains, you will notice that there are 
+two banners at the top of the GUI.&nbsp; The top banner will reflect the state of the 
+Service Backup GUI for the domain that you are currently running it as.&nbsp; These 
+messages that appear in the GUI will not differ from those at single domain 
+sites that appear in the other Help pages.&nbsp; When you are in service backup mode, 
+the background of the banner will be orange.</p>
+<p class="MsoNormal">The lower banner will reflect the state of the Service 
+Backup GUI for the domain that you are not running the GUI as.&nbsp; When that domain 
+is in service backup mode, the background of the banner will be yellow.&nbsp; The 
+message in this banner will differ from those in the other help pages.&nbsp; You will 
+see these banners below and how they will effect the&nbsp; state of the Service 
+Backup GUI.</p>
+<p class="MsoNormal">&nbsp;</p>
+<p class="MsoNormal" align="center">
+<img border="0" src="multi_no_backup.gif" width="539" height="822"></p>
+<p class="MsoNormal" align="left">&nbsp;</p>
+<p class="MsoNormal" align="left">You will see this first banner when both 
+domains are not in service backup mode.&nbsp; At this point, you will be able to</p>
+<p class="MsoNormal" align="left">&nbsp;&nbsp;&nbsp; -Import a failed site's 
+configuration</p>
+<p class="MsoNormal" align="left">&nbsp;&nbsp;&nbsp; -Export CCC's configuration 
+to the central server for service backup (this option is only enabled when the 
+GUI is started as user ifps)</p>
+<p class="MsoNormal" align="left">&nbsp;&nbsp;&nbsp; -Export CCC's digital data 
+to the central server for service backup</p>
+<p class="MsoNormal" align="left">&nbsp;&nbsp;&nbsp; -Start GFE</p>
+<p class="MsoNormal" align="left">&nbsp;&nbsp;&nbsp; -Run the
+<a href="#Clean_Up_Script" style="text-decoration: none">clean up script</a></p>
+<p class="MsoNormal" align="left">&nbsp;</p>
+<p class="MsoNormal" align="center">
+<img border="0" src="multi_imprtMode.gif" width="539" height="854"></p>
+<p class="MsoNormal" align="left">&nbsp;</p>
+<p class="MsoNormal" align="left">You will see this banner when DDD is importing 
+a failed site's configuration.&nbsp; Until the import is finished, you will only 
+be allowed to </p>
+<p class="MsoNormal" align="left">&nbsp;&nbsp;&nbsp; -Export CCC's digital data 
+to the central server for service backup</p>
+<p class="MsoNormal" align="left">&nbsp;&nbsp;&nbsp; -Start GFE</p>
+<p class="MsoNormal" align="left">&nbsp;&nbsp;&nbsp; -Run the
+<a href="#Clean_Up_Script" style="text-decoration: none">clean up script</a></p>
+<p class="MsoNormal" align="left">&nbsp;</p>
+<p class="MsoNormal" align="center">
+<img border="0" src="multi_waitMode.gif" width="539" height="854"></p>
+<p class="MsoNormal" align="center">&nbsp;</p>
+<p class="MsoNormal" align="left">You will see this banner if DDD has finished 
+importing YYY's configuration and is waiting for YYY's server to start to begin 
+importing YYY's digital data.&nbsp; At this point, you will only be able to</p>
+<p class="MsoNormal" align="left">&nbsp;&nbsp;&nbsp; -Export CCC's digital data 
+to the central server for service backup</p>
+<p class="MsoNormal" align="left">&nbsp;&nbsp;&nbsp; -Start GFE</p>
+<p class="MsoNormal" align="left">&nbsp;&nbsp;&nbsp; -Run the
+<a href="#Clean_Up_Script" style="text-decoration: none">clean up script</a></p>
+<p class="MsoNormal" align="left">&nbsp;</p>
+<p class="MsoNormal" align="center">
+<img border="0" src="multi_imprtGrdMode.gif" width="539" height="854"></p>
+<p class="MsoNormal" align="center">&nbsp;</p>
+<p class="MsoNormal" align="left">You will see this banner while DDD is 
+importing YYY's digital data.&nbsp; Until the import is finished, you will only 
+be able to </p>
+<p class="MsoNormal" align="left">&nbsp;&nbsp;&nbsp; -Export CCC's digital data 
+to the central server for service backup</p>
+<p class="MsoNormal" align="left">&nbsp;&nbsp;&nbsp; -Start GFE</p>
+<p class="MsoNormal" align="left">&nbsp;&nbsp;&nbsp; -Run the
+<a href="#Clean_Up_Script" style="text-decoration: none">clean up script</a></p>
+<p class="MsoNormal">&nbsp;</p>
+<p class="MsoNormal" align="center">
+<img border="0" src="multi_svcbuMode.gif" width="539" height="854"></p>
+<p class="MsoNormal" align="center">&nbsp;</p>
+<p class="MsoNormal" align="left">You will see this message while DDD is backing 
+up YYY and DDD is not currently importing or exporting any digital data or 
+configuration files.&nbsp; At this point, you will be able to</p>
+<p class="MsoNormal" align="left">&nbsp;&nbsp;&nbsp; -Import a failed site's 
+configuration</p>
+<p class="MsoNormal" align="left">&nbsp;&nbsp;&nbsp; -Export CCC's configuration 
+to the central server for service backup (this option is only enabled when the 
+GUI is started as user ifps)</p>
+<p class="MsoNormal" align="left">&nbsp;&nbsp;&nbsp; -Export CCC's digital data 
+to the central server for service backup</p>
+<p class="MsoNormal" align="left">&nbsp;&nbsp;&nbsp; -Start GFE</p>
+<p class="MsoNormal" align="left">&nbsp;&nbsp;&nbsp; -Run the
+<a href="#Clean_Up_Script" style="text-decoration: none">clean up script</a></p>
+<p class="MsoNormal" align="left">&nbsp;</p>
+<p class="MsoNormal" align="center">
+<img border="0" src="multi_exprtbksiteGrdMode.gif" width="539" height="854"></p>
+<p class="MsoNormal" align="center">&nbsp;</p>
+<p class="MsoNormal" align="left">You will see this message while DDD is 
+exporting YYY's grids back to them.&nbsp; At this point, you will only be able 
+to</p>
+<p class="MsoNormal" align="left">&nbsp;&nbsp;&nbsp; -Export CCC's digital data 
+to the central server for service backup</p>
+<p class="MsoNormal" align="left">&nbsp;&nbsp;&nbsp; -Start GFE</p>
+<p class="MsoNormal" align="left">&nbsp;&nbsp;&nbsp; -Run the
+<a href="#Clean_Up_Script" style="text-decoration: none">clean up script</a></p>
+<p class="MsoNormal">&nbsp;</p>
+<p class="MsoNormal" align="center">
+<img border="0" src="multi_exprtbksiteGrdToCSMode.gif" width="539" height="854"></p>
+<p class="MsoNormal" align="left">You will see this message while DDD is 
+exporting YYY's grids to the central server.&nbsp; At this point, you will only be able 
+to</p>
+<p class="MsoNormal" align="left">&nbsp;&nbsp;&nbsp; -Export CCC's digital data 
+to the central server for service backup</p>
+<p class="MsoNormal" align="left">&nbsp;&nbsp;&nbsp; -Start GFE</p>
+<p class="MsoNormal" align="left">&nbsp;&nbsp;&nbsp; -Run the
+<a href="#Clean_Up_Script" style="text-decoration: none">clean up script</a></p>
+<p class="MsoNormal" align="left">&nbsp;</p>
+<p class="MsoNormal" align="center">
+<img border="0" src="multi_exprtMode.gif" width="539" height="880"></p>
+<p class="MsoNormal" align="center">&nbsp;</p>
+<p class="MsoNormal" align="left">You will see this message while DDD is 
+exporting their configuration to the central server for service backup.&nbsp; At 
+this point, you will only be able to</p>
+<p class="MsoNormal" align="left">&nbsp;&nbsp;&nbsp; -Export CCC's digital data 
+to the central server for service backup</p>
+<p class="MsoNormal" align="left">&nbsp;&nbsp;&nbsp; -Start GFE</p>
+<p class="MsoNormal" align="left">&nbsp;&nbsp;&nbsp; -Run the
+<a href="#Clean_Up_Script" style="text-decoration: none">clean up script</a></p>
+<p class="MsoNormal">&nbsp;</p>
+<p class="MsoNormal" align="center">
+<img border="0" src="multi_exprtGrdMode.gif" width="539" height="880"></p>
+<p class="MsoNormal" align="center">&nbsp;</p>
+<p class="MsoNormal" align="left">You will see this message while DDD is 
+exporting their grids to the central server for service backup.&nbsp; At this 
+point, you will only be able to</p>
+<p class="MsoNormal" align="left">&nbsp;&nbsp;&nbsp; -Import Configuration Data</p>
+<p class="MsoNormal" align="left">&nbsp;&nbsp;&nbsp; -Export CCC's digital data 
+to the central server for service backup</p>
+<p class="MsoNormal" align="left">&nbsp;&nbsp;&nbsp; -Start GFE</p>
+<p class="MsoNormal" align="left">&nbsp;&nbsp;&nbsp; -Run the
+<a href="#Clean_Up_Script" style="text-decoration: none">clean up script</a></p>
+<p class="MsoNormal">&nbsp;</p>
+<p class="MsoNormal"><a name="Choose_Domain_GUI"><b>Choose Domain GUI</b></a>&nbsp;
+<a href="#MULTIPLE_DOMAIN_HELP_PAGE" style="text-decoration: none">[BACK 
+TO THE TOP]</a></p>
+<p class="MsoNormal">If your site has multiple domains, the Choose Domain GUI 
+will allow you to select which domain to start the Service Backup GUI and GFE 
+as.&nbsp; The GUI also provides you with the location of that domain’s server.&nbsp; This 
+will hopefully make it easier to perform service backup for two failed sites.</p>
+<p class="MsoNormal">&nbsp;</p>
+<p class="MsoNormal" align="center">
+<img border="0" src="choose_domain_multi1.jpg" width="243" height="190"></p>
+<p class="MsoNormal" align="center"><font size="2">While you are not in service 
+backup mode, the Choose Domain GUI displays both domains and the location of 
+each domain's server</font></p>
+<p class="MsoNormal" align="center">&nbsp;</p>
+<p class="MsoNormal" align="center">
+<img border="0" src="choose_domain_multi2.jpg" width="243" height="234"></p>
+<p class="MsoNormal" align="center"><font size="2">While you are in service 
+backup mode, the Choose Domain GUI displays both domains and any failed site's 
+that are currently being backed up.&nbsp; </font></p>
+<p class="MsoNormal">&nbsp;</p>
+<p class="MsoNormal"><a name="Clean_Up_Script"><b>Clean Up Script</b></a>&nbsp;
+<a href="#MULTIPLE_DOMAIN_HELP_PAGE" style="text-decoration: none">[BACK 
+TO THE TOP]</a></p>
+<p class="MsoNormal">The clean up script will only allow you to clean up a 
+failed site's configuration as the domain that you initiated service backup as.&nbsp; 
+When backing up two failed sites, be sure to check what domain you are running 
+as to prevent cleaning up the wrong site.&nbsp;&nbsp; If you try to clean up a 
+failed site from the wrong domain, you will see the following message:</p>
+<p class="MsoNormal">&nbsp;</p>
+<p class="MsoNormal" align="center">
+<img border="0" src="xmessage_multidom_01.jpg" width="424" height="96"></p>
+<p class="MsoNormal" align="center">&nbsp;</p>
+<p class="MsoNormal" align="left"><b><a name="Error_Messages">Error Messages</a></b>&nbsp;
+<a href="#MULTIPLE_DOMAIN_HELP_PAGE" style="text-decoration: none">[BACK TO THE TOP]</a></p>
+<p class="MsoNormal" align="left">There are a few error messages that will only 
+appear if your site has multiple domains.&nbsp; These messages appear below, 
+along with a brief explanation of each one.</p>
+<p class="MsoNormal" align="left">&nbsp;</p>
+<p class="MsoNormal" align="center">
+<img border="0" src="xmessage_multidom_02.jpg" width="358" height="140"></p>
+<p class="MsoNormal" align="left">This message will appear when you try to 
+import a failed site's configuration while DDD is in the process of importing or 
+exporting data.&nbsp; Check the yellow banner at the top of the service backup 
+GUI to see what they are importing or exporting.&nbsp; Once they are finished, 
+you will be able to import a failed site's configuration.</p>
+<p class="MsoNormal" align="left">&nbsp;</p>
+<p class="MsoNormal" align="center">
+<img border="0" src="xmessage_multidom_03.jpg" width="340" height="140"></p>
+<p class="MsoNormal" align="left">This message will appear when you try to 
+import a failed site's digital data while DDD is in the process of&nbsp; 
+importing or exporting data.&nbsp; Check the yellow banner at the top of the 
+service backup GUI to see what they are importing or exporting.&nbsp; Once they 
+are finished, you will be able to import the failed site's digital data.</p>
+<p class="MsoNormal" align="left">&nbsp;</p>
+<p class="MsoNormal" align="center">
+<img border="0" src="xmessage_multidom_04.jpg" width="336" height="140"></p>
+<p class="MsoNormal" align="left">This message will appear when you try to 
+export grids back to a failed site while DDD is in the process of&nbsp; 
+importing or exporting data.&nbsp; Check the yellow banner at the top of the 
+service backup GUI to see what they are importing or exporting.&nbsp; Once they 
+are finished, you will be able to export the digital data back to the failed 
+site.</p>
+<p class="MsoNormal" align="left">&nbsp;</p>
+<p class="MsoNormal" align="center">
+<img border="0" src="xmessage_multidom_05.jpg" width="354" height="140"></p>
+<p class="MsoNormal" align="left">This message will appear when you try to 
+export your configuration to the central server while DDD is in the process of&nbsp; 
+importing or exporting data.&nbsp; Check the yellow banner at the top of the 
+service backup GUI to see what they are importing or exporting.&nbsp; Once they 
+are finished, you will be able to export your configuration to the central 
+server.</p>
+<p class="MsoNormal" align="left">&nbsp;</p>
+<p class="MsoNormal" align="center">
+<img border="0" src="xmessage_multidom_06.jpg" width="332" height="162"></p>
+<p class="MsoNormal" align="left">This message will appear when you try to 
+export a failed site's digital data to the central server while DDD is in the 
+process of importing or exporting data.&nbsp; Check the yellow banner at the top 
+of the service backup GUI to see what they are importing or exporting.&nbsp; 
+Once they are finished, you will be able to export a failed site's digital data 
+to the central server.</p>
+
+</body>
+</html>

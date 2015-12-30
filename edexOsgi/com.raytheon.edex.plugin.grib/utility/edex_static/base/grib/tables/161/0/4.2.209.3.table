@@ -23,6 +23,7 @@
 33:33:MESH Tracks (360 min. accum.):mm:MESHTrack360min
 34:34:MESH Tracks (1440 min. accum.):mm:MESHTrack1440min
 41:41:Vertically Integrated Liquid (VIL):kg/m^2:MRMSVIL
+42:42:Vertically Integrated Liquid Density:g/m^3:VILDensity
 43:43:Vertically Integrated Ice (VII):kg/m^2:VII
 44:44:18 dBZ Echo Top:km:EchoTop18
 45:45:30 dBZ Echo Top:km:EchoTop30

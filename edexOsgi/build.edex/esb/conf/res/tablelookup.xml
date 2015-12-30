@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+
+<tableLookup>
+
+	<center_7>
+		<subcenter_-1>
+			<version_0>nceptab_2</version_0>
+			<version_1>nceptab_1</version_1>
+			<version_2>nceptab_2</version_2>
+			<version_3>nceptab_3</version_3>
+			<version_129>nceptab_129</version_129>
+			<version_130>nceptab_130</version_130>
+			<version_131>nceptab_131</version_131>
+			<version_140>nceptab_140</version_140>
+		</subcenter_-1>
+		<subcenter_5>
+			<version_2>ncep_hpc_2</version_2>
+		</subcenter_5>
+		<subcenter_14>
+			<version_2>ncep_mdl_2</version_2>
+		</subcenter_14>
+	</center_7>
+
+	<center_8>
+		<subcenter_-1>
+			<version_0>nceptab_1</version_0>
+			<version_1>nceptab_1</version_1>
+			<version_2>nceptab_2</version_2>
+			<version_3>nceptab_3</version_3>
+			<version_129>nceptab_129</version_129>
+			<version_130>nceptab_130</version_130>
+			<version_131>nceptab_131</version_131>
+			<version_140>nceptab_140</version_140>
+		</subcenter_-1>
+	</center_8>
+
+	<center_9>
+		<subcenter_-1>
+			<version_0>nceptab_1</version_0>
+			<version_1>nceptab_1</version_1>
+			<version_2>nwso_2</version_2>
+			<version_3>nceptab_3</version_3>
+			<version_129>nceptab_129</version_129>
+			<version_130>nceptab_130</version_130>
+			<version_131>nceptab_131</version_131>
+			<version_140>nceptab_140</version_140>
+		</subcenter_-1>
+		<subcenter_161>
+			<version_2>nwso_kalr_2</version_2>
+		</subcenter_161>
+		<subcenter_162>
+			<version_2>nwso_kfwr_2</version_2>
+		</subcenter_162>
+		<subcenter_156>
+			<version_2>nwso_kkrf_2</version_2>
+		</subcenter_156>
+		<subcenter_157>
+			<version_2>nwso_kmsr_2</version_2>
+		</subcenter_157>
+		<subcenter_154>
+			<version_2>nwso_korn_2</version_2>
+		</subcenter_154>
+		<subcenter_159>
+			<version_2>nwso_kptr_2</version_2>
+		</subcenter_159>
+		<subcenter_155>
+			<version_2>nwso_krha_2</version_2>
+		</subcenter_155>
+		<subcenter_153>
+			<version_2>nwso_krsa_2</version_2>
+		</subcenter_153>
+		<subcenter_152>
+			<version_2>nwso_kstr_2</version_2>
+		</subcenter_152>
+		<subcenter_158>
+			<version_2>nwso_ktar_2</version_2>
+		</subcenter_158>
+		<subcenter_160>
+			<version_2>nwso_ktir_2</version_2>
+		</subcenter_160>
+		<subcenter_150>
+			<version_2>nwso_ktua_2</version_2>
+		</subcenter_150>
+		<subcenter_151>
+			<version_2>nwso_pacr_2</version_2>
+		</subcenter_151>
+	</center_9>
+	
+	<center_54>
+		<subcenter_0>
+			<version_2>cmcgem_2</version_2>
+		</subcenter_0>
+	</center_54>
+	
+	<center_57>
+		<subcenter_-1>
+			<version_2>afwa</version_2>
+			<version_3>afwa</version_3>
+			<version_128>af_128</version_128>
+			<version_129>af_129</version_129>
+			<version_130>afwa</version_130>
+		</subcenter_-1>
+	</center_57>
+	
+	<center_58>
+		<subcenter_0>
+			<version_2>fnmoc_2</version_2>
+		</subcenter_0>
+		<subcenter_42>
+			<version_2>af_2</version_2>
+		</subcenter_42>
+	</center_58>
+	
+	<center_59>
+		<subcenter_0>
+			<version_0>fsl_0_0</version_0>
+			<version_2>fsl_2_0</version_2>
+			<version_129>nceptab_129</version_129>
+		</subcenter_0>
+		<subcenter_2>
+			<version_0>fsl_2_0</version_0>
+		</subcenter_2>
+	</center_59>
+	
+	<center_60>
+		<subcenter_0>
+			<version_2>ncar_0_200</version_2>
+			<version_129>ncar_0_200</version_129>
+		</subcenter_0>
+		<subcenter_1>
+			<version_2>ncar_1_2</version_2>
+		</subcenter_1>
+	</center_60>
+	
+	<center_74>
+		<subcenter_0>
+			<version_2>nceptab_2</version_2>
+		</subcenter_0>
+	</center_74>
+	
+	<center_78>
+		<subcenter_-1>
+			<version_2>nceptab</version_2>
+		</subcenter_-1>
+	</center_78>
+	
+	<center_85>
+		<subcenter_-1>
+			<version_2>nc72_ecmwf_3</version_2>
+		</subcenter_-1>
+	</center_85>
+	
+	<center_98>
+		<subcenter_-1>
+			<version_1>nc72_ecmwf_3</version_1>
+			<version_2>ecmwf_2</version_2>
+			<version_3>nc72_ecmwf_3</version_3>
+			<version_128>ecmwf_128</version_128>
+			<version_140>ecmwf_140</version_140>
+			<version_160>ecmwf_160</version_160>
+			<version_162>ecmwf_162</version_162>
+		</subcenter_-1>
+	</center_98>
+	
+	<center_158>
+		<subcenter_0>
+			<version_0>fnmoc_2</version_0>
+		</subcenter_0>
+	</center_158>
+	
+	<center_250>
+		<subcenter_2>
+			<version_200>wrf_2_200</version_200>
+		</subcenter_2>
+	</center_250>
+
+</tableLookup>

@@ -136,6 +136,7 @@ import com.raytheon.viz.awipstools.IToolChangedListener;
  *  Feb 17, 2015  4135      bsteffen    Set no data value for derived products.
  *  Mar 3, 2015   DCS 14960 jgerth      Retrieve legend from style rules if available
  *  Apr 15, 2014  4388      bsteffen    Use fill value from record.
+ *  Jun 24, 2015            mjames@ucar Mute interrogating raw data error.
  * 
  * </pre>
  * 
@@ -509,7 +510,7 @@ public class SatResource extends
                             .getRecord().getCoverage());
                 }
             } catch (Exception e) {
-                throw new VizException("Error interrogating raw data", e);
+                //throw new VizException("Error interrogating raw data", e);
             }
         }
 

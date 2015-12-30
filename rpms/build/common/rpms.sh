@@ -65,7 +65,7 @@ function buildQPID()
       fi
    fi
    
-   cd ${WORKSPACE}/installers/RPMs/qpid-lib-0.30
+   cd ${WORKSPACE}/installers/RPMs/qpid-lib
    if [ $? -ne 0 ]; then
       echo "ERROR: Failed to build the qpid rpms."
       return 1
@@ -77,16 +77,18 @@ function buildQPID()
       return 1
    fi
 
-   #build 0.30
+   #build 
    export AWIPS_II_TOP_DIR
-   cd ${WORKSPACE}/installers/RPMs/qpid-java-broker-0.30
+   cd ${WORKSPACE}/installers/RPMs/qpid-java-broker/
    if [ $? -ne 0 ]; then
-      echo "ERROR: Failed to build Qpid Broker v0.30."
+      echo "ERROR: Failed to build Qpid Broker"
+      echo "could not cd to ${WORKSPACE}/installers/RPMs/qpid-java-broker/"
       return 1
    fi
    /bin/bash build.sh
    if [ $? -ne 0 ]; then
-      echo "ERROR: Failed to build Qpid Broker v0.30."
+      echo "ERROR: Failed to build Qpid Broker"
+      echo "build.sh failed"
       return 1
    fi
 
@@ -203,7 +205,9 @@ function unpackHttpdPypies()
    # into the: ${AWIPSII_TOP_DIR}/SOURCES directory.
    awips2_core_directory=${WORKSPACE}/rpms/awips2.core
    httpd_pypies_directory=${awips2_core_directory}/Installer.httpd-pypies
+   echo httpd_pypies_directory=${httpd_pypies_directory}
    httpd_SOURCES=${httpd_pypies_directory}/src/httpd-2.2.15-SOURCES.tar
+   echo httpd_SOURCES=${httpd_SOURCES}
 
    /bin/tar -xvf ${httpd_SOURCES} -C ${AWIPSII_TOP_DIR}/SOURCES
    if [ $? -ne 0 ]; then
@@ -211,6 +215,32 @@ function unpackHttpdPypies()
    fi
    cp -vf ${httpd_pypies_directory}/SOURCES/* ${AWIPSII_TOP_DIR}/SOURCES
    if [ $? -ne 0 ]; then
+      return 1
+   fi
+
+   return 0
+}
+function buildShapefiles()
+{
+   cd ${WORKSPACE}/rpms/awips2.shapefiles/deploy.builder
+   if [ $? -ne 0 ]; then
+      echo "ERROR: Failed to build the edex shapefile rpm."
+      return 1
+   fi
+
+   # Determine the build architecture.
+   export EDEX_BUILD_ARCH=`uname -i`
+   if [ "${EDEX_BUILD_ARCH}" = "i386" ]; then
+      export EDEX_BUILD_ARCH="x86"
+   fi
+
+   if [ $? -ne 0 ]; then
+      echo "ERROR: Failed to determine the architecture."
+      return 1
+   fi
+   /bin/bash build.sh
+   if [ $? -ne 0 ]; then
+      echo "ERROR: Failed to build the edex shapefile rpm."
       return 1
    fi
 

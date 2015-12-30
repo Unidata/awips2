@@ -1,0 +1,458 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Scientific.Physics.PhysicalQuantities</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="Scientific-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://dirac.cnrs-orleans.fr/ScientificPython/">Scientific Python</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="Scientific-module.html">Package&nbsp;Scientific</a> ::
+        <a href="Scientific.Physics-module.html">Package&nbsp;Physics</a> ::
+        Module&nbsp;PhysicalQuantities
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="Scientific.Physics.PhysicalQuantities-module.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<!-- ==================== MODULE DESCRIPTION ==================== -->
+<h1 class="epydoc">Module PhysicalQuantities</h1><p class="nomargin-top"></p>
+<p>Physical quantities with units.</p>
+  <p>This module provides a data type that represents a physical quantity 
+  together with its unit. It is possible to add and subtract these 
+  quantities if the units are compatible, and a quantity can be converted 
+  to another compatible unit. Multiplication, subtraction, and raising to 
+  integer powers is allowed without restriction, and the result will have 
+  the correct unit. A quantity can be raised to a non-integer power only if
+  the result can be represented by integer powers of the base units.</p>
+  <p>The values of physical constants are taken from the 1986 recommended 
+  values from CODATA. Other conversion factors (e.g. for British units) 
+  come from various sources. I can't guarantee for the correctness of all 
+  entries in the unit table, so use this at your own risk.</p>
+  <p>SI derived units; these automatically get prefixes: Y (1E+24), Z 
+  (1E+21), E (1E+18), P (1E+15), T (1E+12), G (1E+09), M (1E+06), k 
+  (1E+03), h (1E+02), da (1E+01), d (1E-01), c (1E-02), m (1E-03), mu 
+  (1E-06), n (1E-09), p (1E-12), f (1E-15), a (1E-18), z (1E-21), y 
+  (1E-24)</p>
+  <p>Hz        Hertz                      1/s N         Newton
+  m*kg/s**2 Pa        Pascal                     N/m**2 J         Joule
+  N*m W         Watt                       J/s C         Coulomb
+  s*A V         Volt                       W/A F         Farad
+  C/V ohm       Ohm                        V/A S         Siemens
+  A/V Wb        Weber                      V*s T         Tesla
+  Wb/m**2 H         Henry                      Wb/A lm        Lumen
+  cd*sr lx        Lux                        lm/m**2 Bq        Becquerel
+  1/s Gy        Gray                       J/kg Sv        Sievert
+  J/kg</p>
+  <p>Prefixed units for ohm:</p>
+  <p>Yohm, Zohm, Eohm, Pohm, Tohm, Gohm, Mohm, kohm, hohm, daohm, dohm, 
+  cohm, mohm, muohm, nohm, pohm, fohm, aohm, zohm, yohm</p>
+  <p>Prefixed units for rad:</p>
+  <p>Yrad, Zrad, Erad, Prad, Trad, Grad, Mrad, krad, hrad, darad, drad, 
+  crad, mrad, murad, nrad, prad, frad, arad, zrad, yrad</p>
+  <p>Prefixed units for mol:</p>
+  <p>Ymol, Zmol, Emol, Pmol, Tmol, Gmol, Mmol, kmol, hmol, damol, dmol, 
+  cmol, mmol, mumol, nmol, pmol, fmol, amol, zmol, ymol</p>
+  <p>Prefixed units for cd:</p>
+  <p>Ycd, Zcd, Ecd, Pcd, Tcd, Gcd, Mcd, kcd, hcd, dacd, dcd, ccd, mcd, 
+  mucd, ncd, pcd, fcd, acd, zcd, ycd</p>
+  <p>Prefixed units for Pa:</p>
+  <p>YPa, ZPa, EPa, PPa, TPa, GPa, MPa, kPa, hPa, daPa, dPa, cPa, mPa, 
+  muPa, nPa, pPa, fPa, aPa, zPa, yPa</p>
+  <p>Prefixed units for Hz:</p>
+  <p>YHz, ZHz, EHz, PHz, THz, GHz, MHz, kHz, hHz, daHz, dHz, cHz, mHz, 
+  muHz, nHz, pHz, fHz, aHz, zHz, yHz</p>
+  <p>Prefixed units for Wb:</p>
+  <p>YWb, ZWb, EWb, PWb, TWb, GWb, MWb, kWb, hWb, daWb, dWb, cWb, mWb, 
+  muWb, nWb, pWb, fWb, aWb, zWb, yWb</p>
+  <p>Prefixed units for lm:</p>
+  <p>Ylm, Zlm, Elm, Plm, Tlm, Glm, Mlm, klm, hlm, dalm, dlm, clm, mlm, 
+  mulm, nlm, plm, flm, alm, zlm, ylm</p>
+  <p>Prefixed units for Bq:</p>
+  <p>YBq, ZBq, EBq, PBq, TBq, GBq, MBq, kBq, hBq, daBq, dBq, cBq, mBq, 
+  muBq, nBq, pBq, fBq, aBq, zBq, yBq</p>
+  <p>Prefixed units for lx:</p>
+  <p>Ylx, Zlx, Elx, Plx, Tlx, Glx, Mlx, klx, hlx, dalx, dlx, clx, mlx, 
+  mulx, nlx, plx, flx, alx, zlx, ylx</p>
+  <p>Prefixed units for A:</p>
+  <p>YA, ZA, EA, PA, TA, GA, MA, kA, hA, daA, dA, cA, mA, muA, nA, pA, fA, 
+  aA, zA, yA</p>
+  <p>Prefixed units for C:</p>
+  <p>YC, ZC, EC, PC, TC, GC, MC, kC, hC, daC, dC, cC, mC, muC, nC, pC, fC, 
+  aC, zC, yC</p>
+  <p>Prefixed units for F:</p>
+  <p>YF, ZF, EF, PF, TF, GF, MF, kF, hF, daF, dF, cF, mF, muF, nF, pF, fF, 
+  aF, zF, yF</p>
+  <p>Prefixed units for H:</p>
+  <p>YH, ZH, EH, PH, TH, GH, MH, kH, hH, daH, dH, cH, mH, muH, nH, pH, fH, 
+  aH, zH, yH</p>
+  <p>Prefixed units for K:</p>
+  <p>YK, ZK, EK, PK, TK, GK, MK, kK, hK, daK, dK, cK, mK, muK, nK, pK, fK, 
+  aK, zK, yK</p>
+  <p>Prefixed units for J:</p>
+  <p>YJ, ZJ, EJ, PJ, TJ, GJ, MJ, kJ, hJ, daJ, dJ, cJ, mJ, muJ, nJ, pJ, fJ, 
+  aJ, zJ, yJ</p>
+  <p>Prefixed units for Sv:</p>
+  <p>YSv, ZSv, ESv, PSv, TSv, GSv, MSv, kSv, hSv, daSv, dSv, cSv, mSv, 
+  muSv, nSv, pSv, fSv, aSv, zSv, ySv</p>
+  <p>Prefixed units for N:</p>
+  <p>YN, ZN, EN, PN, TN, GN, MN, kN, hN, daN, dN, cN, mN, muN, nN, pN, fN, 
+  aN, zN, yN</p>
+  <p>Prefixed units for S:</p>
+  <p>YS, ZS, ES, PS, TS, GS, MS, kS, hS, daS, dS, cS, mS, muS, nS, pS, fS, 
+  aS, zS, yS</p>
+  <p>Prefixed units for T:</p>
+  <p>YT, ZT, ET, PT, TT, GT, MT, kT, hT, daT, dT, cT, mT, muT, nT, pT, fT, 
+  aT, zT, yT</p>
+  <p>Prefixed units for W:</p>
+  <p>YW, ZW, EW, PW, TW, GW, MW, kW, hW, daW, dW, cW, mW, muW, nW, pW, fW, 
+  aW, zW, yW</p>
+  <p>Prefixed units for V:</p>
+  <p>YV, ZV, EV, PV, TV, GV, MV, kV, hV, daV, dV, cV, mV, muV, nV, pV, fV, 
+  aV, zV, yV</p>
+  <p>Prefixed units for g:</p>
+  <p>Yg, Zg, Eg, Pg, Tg, Gg, Mg, kg, hg, dag, dg, cg, mg, mug, ng, pg, fg, 
+  ag, zg, yg</p>
+  <p>Prefixed units for sr:</p>
+  <p>Ysr, Zsr, Esr, Psr, Tsr, Gsr, Msr, ksr, hsr, dasr, dsr, csr, msr, 
+  musr, nsr, psr, fsr, asr, zsr, ysr</p>
+  <p>Prefixed units for m:</p>
+  <p>Ym, Zm, Em, Pm, Tm, Gm, Mm, km, hm, dam, dm, cm, mm, mum, nm, pm, fm, 
+  am, zm, ym</p>
+  <p>Prefixed units for Gy:</p>
+  <p>YGy, ZGy, EGy, PGy, TGy, GGy, MGy, kGy, hGy, daGy, dGy, cGy, mGy, 
+  muGy, nGy, pGy, fGy, aGy, zGy, yGy</p>
+  <p>Prefixed units for s:</p>
+  <p>Ys, Zs, Es, Ps, Ts, Gs, Ms, ks, hs, das, ds, cs, ms, mus, ns, ps, fs, 
+  as, zs, ys</p>
+  <p>Fundamental constants: c         speed of light             
+  299792458.*m/s mu0       permeability of vacuum     4.e-7*pi*N/A**2 eps0
+  permittivity of vacuum     1/mu0/c**2 Grav      gravitational constant
+  6.67259e-11*m**3/kg/s**2 hplanck   Planck constant            
+  6.6260755e-34*J*s hbar      Planck constant / 2pi      hplanck/(2*pi) e
+  elementary charge          1.60217733e-19*C me        electron mass
+  9.1093897e-31*kg mp        proton mass                1.6726231e-27*kg 
+  Nav       Avogadro number            6.0221367e23/mol k         Boltzmann
+  constant         1.380658e-23*J/K</p>
+  <p>Time units: min       minute                     60*s h         hour
+  60*min d         day                        24*h wk        week
+  7*d yr        year                       365.25*d</p>
+  <p>Length units: inch      inch                       2.54*cm ft        
+  foot                       12*inch yd        yard                       
+  3*ft mi        (British) mile             5280.*ft nmi       Nautical 
+  mile              1852.*m Ang       Angstrom                   1.e-10*m 
+  lyr       light year                 c*yr Bohr      Bohr radius
+  4*pi*eps0*hbar**2/me/e**2</p>
+  <p>Area units: ha        hectare                    10000*m**2 acres     
+  acre                       mi**2/640 b         barn
+  1.e-28*m</p>
+  <p>Volume units: l         liter                      dm**3 dl        
+  deci liter                 0.1*l cl        centi liter                
+  0.01*l ml        milli liter                0.001*l tsp       teaspoon
+  4.92892159375*ml tbsp      tablespoon                 3*tsp floz      
+  fluid ounce                2*tbsp cup       cup                        
+  8*floz pt        pint                       16*floz qt        quart
+  2*pt galUS     US gallon                  4*qt galUK     British gallon
+  4.54609*l</p>
+  <p>Mass units: amu       atomic mass units          1.6605402e-27*kg oz
+  ounce                      28.349523125*g lb        pound
+  16*oz ton       ton                        2000*lb</p>
+  <p>Force units: dyn       dyne (cgs unit)            1.e-5*N</p>
+  <p>Energy units: erg       erg (cgs unit)             1.e-7*J eV        
+  electron volt              e*V Hartree   Wavenumbers/inverse cm     
+  me*e**4/16/pi**2/eps0**2/hbar**2 Ken       Kelvin as energy unit      k*K
+  cal       thermochemical calorie     4.184*J kcal      thermochemical 
+  kilocalorie 1000*cal cali      international calorie      4.1868*J kcali
+  international kilocalorie  1000*cali Btu       British thermal unit
+  1055.05585262*J</p>
+  <p>Prefixed units for eV:</p>
+  <p>YeV, ZeV, EeV, PeV, TeV, GeV, MeV, keV, heV, daeV, deV, ceV, meV, 
+  mueV, neV, peV, feV, aeV, zeV, yeV</p>
+  <p>Power units: hp        horsepower                 745.7*W</p>
+  <p>Pressure units: bar       bar (cgs unit)             1.e5*Pa atm
+  standard atmosphere        101325.*Pa torr      torr = mm of mercury
+  atm/760 psi       pounds per square inch     6894.75729317*Pa</p>
+  <p>Angle units: deg       degrees                    pi*rad/180</p>
+  <p>Temperature units: degR      degrees Rankine            (5./9.)*K degC
+  degrees Celcius            &lt;PhysicalUnit degC&gt; degF      degree 
+  Fahrenheit          &lt;PhysicalUnit degF&gt;</p>
+
+<!-- ==================== CLASSES ==================== -->
+<a name="section-Classes"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td align="left" colspan="2" class="table-header">
+    <span class="table-header">Classes</span></td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="Scientific.Physics.PhysicalQuantities.PhysicalQuantity-class.html" class="summary-name">PhysicalQuantity</a><br />
+      Physical quantity with units
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="Scientific.Physics.PhysicalQuantities.PhysicalUnit-class.html" class="summary-name">PhysicalUnit</a><br />
+      Physical unit
+    </td>
+  </tr>
+</table>
+<!-- ==================== FUNCTIONS ==================== -->
+<a name="section-Functions"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td align="left" colspan="2" class="table-header">
+    <span class="table-header">Functions</span></td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="description"></a><span class="summary-sig-name">description</span>()</span><br />
+      Return a string describing all available units.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type"><code>bool</code></span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.Physics.PhysicalQuantities-module.html#isPhysicalQuantity" class="summary-sig-name">isPhysicalQuantity</a>(<span class="summary-sig-arg">x</span>)</span><br />
+      Returns:
+      <code>True</code> if x is a <a 
+      href="Scientific.Physics.PhysicalQuantities.PhysicalQuantity-class.html"
+      class="link">PhysicalQuantity</a></td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type"><code>bool</code></span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.Physics.PhysicalQuantities-module.html#isPhysicalUnit" class="summary-sig-name">isPhysicalUnit</a>(<span class="summary-sig-arg">x</span>)</span><br />
+      Returns:
+      <code>True</code> if x is a <a 
+      href="Scientific.Physics.PhysicalQuantities.PhysicalUnit-class.html" 
+      class="link">PhysicalUnit</a></td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+</table>
+<!-- ==================== VARIABLES ==================== -->
+<a name="section-Variables"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td align="left" colspan="2" class="table-header">
+    <span class="table-header">Variables</span></td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="prefix"></a><span class="summary-name">prefix</span> = <code title="'y'"><code class="variable-quote">'</code><code class="variable-string">y</code><code class="variable-quote">'</code></code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="unit"></a><span class="summary-name">unit</span> = <code title="'s'"><code class="variable-quote">'</code><code class="variable-string">s</code><code class="variable-quote">'</code></code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="value"></a><span class="summary-name">value</span> = <code title="1e-24">1e-24</code>
+    </td>
+  </tr>
+</table>
+<!-- ==================== FUNCTION DETAILS ==================== -->
+<a name="section-FunctionDetails"></a>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td align="left" colspan="2" class="table-header">
+    <span class="table-header">Function Details</span></td>
+</tr>
+</table>
+<a name="isPhysicalQuantity"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">isPhysicalQuantity</span>(<span class="sig-arg">x</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>x</code></strong> (any) - an object</li>
+    </ul></dd>
+    <dt>Returns: <code>bool</code></dt>
+        <dd><code>True</code> if x is a <a 
+          href="Scientific.Physics.PhysicalQuantities.PhysicalQuantity-class.html"
+          class="link">PhysicalQuantity</a></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="isPhysicalUnit"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">isPhysicalUnit</span>(<span class="sig-arg">x</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>x</code></strong> (any) - an object</li>
+    </ul></dd>
+    <dt>Returns: <code>bool</code></dt>
+        <dd><code>True</code> if x is a <a 
+          href="Scientific.Physics.PhysicalQuantities.PhysicalUnit-class.html"
+          class="link">PhysicalUnit</a></dd>
+  </dl>
+</td></tr></table>
+</div>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="Scientific-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://dirac.cnrs-orleans.fr/ScientificPython/">Scientific Python</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0 on Tue Oct 28 14:16:00 2008
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>
