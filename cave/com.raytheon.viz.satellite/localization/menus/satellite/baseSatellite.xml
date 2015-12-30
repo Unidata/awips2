@@ -34,7 +34,7 @@
 		
 	    <contribute xsi:type="satBundleItem" file="bundles/DefaultSatellite.xml" 
 	        menuText="Arctic IR" id="Arctic-3.9">
-	        <substitute key="element" value="Imager 3.5-4.0 micron IR"/>
+	        <substitute key="element" value="Imager 3.5-4.0 micro IR (Fog)"/>
 	        <substitute key="entity" value="COMP" /> 
 	        <substitute key="sector" value="Arctic" />     
 	        <substitute key="colormap" value="Sat/IR/Fog"/>
@@ -48,7 +48,7 @@
 	    </contribute>
 	    <contribute xsi:type="satBundleItem" file="bundles/DefaultSatellite.xml" 
 	        menuText="Arctic WV" id="Arctic-WV">
-	        <substitute key="element" value="Imager 6.7-6.5 micron WV"/>
+	        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
 	        <substitute key="entity" value="COMP" /> 
 	        <substitute key="sector" value="Arctic" />     
 	        <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
@@ -58,7 +58,7 @@
 		
 	    <contribute xsi:type="satBundleItem" file="bundles/DefaultSatellite.xml" 
 	        menuText="Antarctica IR" id="Arctic-IR1">
-	        <substitute key="element" value="Imager 3.5-4.0 micron IR"/>
+	        <substitute key="element" value="Imager 3.5-4.0 micro IR (Fog)"/>
 	        <substitute key="entity" value="COMP" /> 
 	        <substitute key="sector" value="Antarctic" />     
 	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
@@ -72,7 +72,7 @@
 	    </contribute>
 	    <contribute xsi:type="satBundleItem" file="bundles/DefaultSatellite.xml" 
 	        menuText="Antarctica WV" id="Arctic-WV">
-	        <substitute key="element" value="Imager 6.7-6.5 micron WV"/>
+	        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
 	        <substitute key="entity" value="COMP" /> 
 	        <substitute key="sector" value="Antarctica" />     
 	        <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>

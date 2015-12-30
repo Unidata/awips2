@@ -40,7 +40,7 @@
 </styleRule>
 <styleRule>
   <paramLevelMatches>
-     <parameter>Imager 6.7-6.5 micron WV</parameter>
+     <parameter>Imager 6.7-6.5 micron IR (WV)</parameter>
      <parameter>Sounder 6.51 micron imagery</parameter>
      <parameter>Sounder 7.02 micron imagery</parameter>
      <parameter>Sounder 7.43 micron imagery</parameter>
