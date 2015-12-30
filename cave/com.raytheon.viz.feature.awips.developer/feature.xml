@@ -130,10 +130,6 @@
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.uf.viz.useradmin.feature"
-         version="0.0.0"/>
-
-   <includes
          id="com.raytheon.uf.viz.kml.export.feature"
          version="0.0.0"/>
 
@@ -154,13 +150,6 @@
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.viz.avnfps.feature"
-         version="0.0.0"/>
-
-   <includes
-         version="0.0.0"/>
-
-   <includes
          id="com.raytheon.uf.viz.d2d.gfe.feature"
          version="0.0.0"/>
    <includes
@@ -177,10 +166,6 @@
 
    <includes
          id="com.raytheon.uf.viz.aviation.advisory.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="com.raytheon.uf.viz.datadelivery.feature"
          version="0.0.0"/>
 
    <includes
