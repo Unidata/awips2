@@ -298,7 +298,7 @@
 				<substitute key="TP" value="TP"/>
 				<substitute key="frameCount" value="41"/>
 			</contribute>
-			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyU.xml"
+			<contribute xsi:type="bundleItem" file="bundles/volume/MoistureTransport.xml"
 				    menuText="GFS 40km" id="gfs40" useReferenceTime="true">
 				<substitute key="modelName" value="GFS-40km"/>
 				<substitute key="TP" value="TP"/>
