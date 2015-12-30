@@ -5,11 +5,6 @@
    <include file="${edex.home}/conf/logback-edex-loggers.xml" />
    <include file="${edex.home}/conf/logback-edex-hibernate-logger.xml" />
 
-   <!--  <logger name="com.raytheon.uf.edex.datadelivery.provideragent" additivity="false">
-   		<level value="INFO"/>
-   		<appender-ref ref="ProviderAgent"/>
-   </logger>-->
-
    <!-- default logging --> 
    <root> 
       <level value="INFO"/>

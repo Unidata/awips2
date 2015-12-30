@@ -29,42 +29,6 @@
       </encoder>
    </appender> 
 
-   <!-- data delivery log --> 
-   <appender name="DataDeliveryLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-         <fileNamePattern>${edex.home}/logs/edex-${edex.run.mode}-datadelivery-%d{yyyyMMdd}.log</fileNamePattern>
-         <maxHistory>30</maxHistory>
-      </rollingPolicy> 
-
-      <encoder> 
-         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
-      </encoder>
-   </appender> 
-   
-   <!-- data delivery Notification log --> 
-   <appender name="NotificationLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-         <fileNamePattern>${edex.home}/logs/edex-${edex.run.mode}-notification-%d{yyyyMMdd}.log</fileNamePattern>
-         <maxHistory>30</maxHistory>
-      </rollingPolicy> 
-
-      <encoder> 
-         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
-      </encoder>
-   </appender> 
-   
-   <!-- data delivery Retrieval log --> 
-   <appender name="RetrievalLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-         <fileNamePattern>${edex.home}/logs/edex-${edex.run.mode}-retrieval-%d{yyyyMMdd}.log</fileNamePattern>
-         <maxHistory>30</maxHistory>
-      </rollingPolicy> 
-
-      <encoder> 
-         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
-      </encoder>
-   </appender> 
-
    <!-- Purge log -->
    <appender name="PurgeLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
       <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
@@ -140,71 +104,11 @@
    	  <level value="ERROR"/>
    </logger>
 
-   <logger name="com.raytheon.uf.common.datadelivery" additivity="false">
-        <level value="INFO"/>
-        <appender-ref ref="DataDeliveryLog"/>
-   </logger>
-   
-   <logger name="com.raytheon.uf.edex.datadelivery.service" additivity="false">
-        <level value="INFO"/>
-        <appender-ref ref="DataDeliveryLog"/>
-   </logger>
-   
-   <logger name="com.raytheon.uf.edex.datadelivery.request" additivity="false">
-        <level value="INFO"/>
-        <appender-ref ref="DataDeliveryLog"/>
-   </logger>
-   
-   <logger name="com.raytheon.uf.common.datadelivery.event" additivity="false">
-        <level value="INFO"/>
-        <appender-ref ref="NotificationLog"/>
-   </logger>
-   
-   <logger name="com.raytheon.uf.edex.datadelivery.event" additivity="false">
-        <level value="INFO"/>
-        <appender-ref ref="NotificationLog"/>
-   </logger>
-   
    <logger name="com.raytheon.uf.edex.registry.ebxml.services.notification" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="NotificationLog"/>
    </logger>
    
-   <logger name="com.raytheon.uf.edex.datadelivery.registry.federation" additivity="false">
-        <level value="INFO"/>
-        <appender-ref ref="NotificationLog"/>
-   </logger>
-   
-   <logger name="com.raytheon.uf.edex.datadelivery.registry.replication" additivity="false">
-        <level value="INFO"/>
-        <appender-ref ref="NotificationLog"/>
-   </logger>
-   
-   <logger name="com.raytheon.uf.common.datadelivery.retrieval" additivity="false">
-        <level value="INFO"/>
-        <appender-ref ref="RetrievalLog"/>
-   </logger>
-   
-   <logger name="com.raytheon.uf.edex.datadelivery.retrieval" additivity="false">
-        <level value="INFO"/>
-        <appender-ref ref="RetrievalLog"/>
-   </logger>
-
-   <logger name="com.raytheon.uf.common.datadelivery.bandwidth" additivity="false">
-        <level value="INFO"/>
-        <appender-ref ref="BandwidthManagerLog"/>
-   </logger>
-   
-   <logger name="com.raytheon.uf.edex.datadelivery.bandwidth" additivity="false">
-        <level value="INFO"/>
-        <appender-ref ref="BandwidthManagerLog"/>
-   </logger>
-
-   <logger name="com.raytheon.uf.edex.datadelivery.harvester.purge" additivity="false">
-        <level value="INFO"/>
-        <appender-ref ref="PurgeLog"/>
-   </logger>
-
    <!-- default logging --> 
    <root> 
       <level value="INFO"/>

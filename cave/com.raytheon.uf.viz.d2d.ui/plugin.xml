@@ -80,27 +80,13 @@
                    label="New Projection"
                    style="push">
              </command>
-             <command
-                   commandId="com.raytheon.viz.ui.loadSerialized"
-                   label="Load Map"
-                   style="push">
-             </command>
-             <command
-                   commandId="com.raytheon.viz.ui.openAWIPSProcedure"
-                   label="Load Bundle"
-                   style="push">
-             </command>
-             <menu
-                   id="import"
-                   label="Import">
-             </menu>
              <separator
                    name="bundleSeparator"
                    visible="true">
              </separator>
              <command
-                   commandId="com.raytheon.viz.ui.saveBundle"
-                   label="Save Map"
+                   commandId="com.raytheon.viz.ui.openAWIPSProcedure"
+                   label="Load Bundle"
                    style="push">
              </command>
              <command
@@ -113,23 +99,37 @@
                    label="Save Bundle Locally"
                    style="push">
              </command>
-             <menu
-                   id="export"
-                   label="Export">
-             </menu>
-             <separator
-                   name="saveSeparator"
-                   visible="true">
-             </separator>
              <command
                    commandId="com.raytheon.viz.ui.deleteAWIPSProcedure"
                    label="Manage Bundles"
                    style="push">
              </command>
              <separator
+                   name="saveSeparator"
+                   visible="true">
+             </separator>
+             <command
+                   commandId="com.raytheon.viz.ui.loadSerialized"
+                   label="Load Map"
+                   style="push">
+             </command>
+             <command
+                   commandId="com.raytheon.viz.ui.saveBundle"
+                   label="Save Map"
+                   style="push">
+             </command>
+             <separator
                    name="importExportSeparator"
                    visible="true">
              </separator>
+             <menu
+                   id="import"
+                   label="Import">
+             </menu>
+             <menu
+                   id="export"
+                   label="Export">
+             </menu>
           </menu>
           <menu
                 id="view"

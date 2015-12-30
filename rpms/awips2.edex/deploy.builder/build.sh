@@ -80,26 +80,6 @@ else
    echo "Building for architecture ... ${EDEX_BUILD_ARCH}."
 fi
 
-function patchDDSpecification()
-{
-   # copy the standard rpm feature specification into the
-   # data delivery rpm project directory
-   cp -v Installer.edex-component/component.spec \
-      Installer.edex-datadelivery/component.spec
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi   
-
-   # apply the specification patch
-   pushd . > /dev/null 2>&1
-   cd Installer.edex-datadelivery
-   patch -p1 -i datadelivery.patch0
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-   popd > /dev/null 2>&1
-}
-
 function buildRPM()
 {
    # Arguments:
@@ -156,12 +136,6 @@ cd ../
 buildRPM "Installer.edex"
 buildRPM "Installer.edex-configuration"
 #buildRPM "Installer.edex-shapefiles"
-
-## build the edex-datadelivery rpm
-#export COMPONENT_NAME="edex-datadelivery"
-#patchDDSpecification
-#buildRPM "Installer.edex-datadelivery"
-#unset COMPONENT_NAME
 
 DIST="${WORKSPACE}/build.edex/edex/dist"
 for edex_zip in `cd ${DIST}; ls -1;`;
