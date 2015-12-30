@@ -1,4 +1,0 @@
-Notes on running tests:
-
-1.  The order on the classpath of Hamcrest, Mockito, and JUnit is very  important to getting
-     the tests to run correctly.  There are different versions of Hamcrest classes in each.
