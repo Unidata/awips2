@@ -23,7 +23,7 @@
 <extension
          point="org.eclipse.ui.menus">
       <menuContribution
-            locationURI="menu:tools">  
+            locationURI="menu:tools?before=RadarTools">  
   		    <command
                  commandId="com.raytheon.viz.textworkstation.opentextworkstation"
                  label="Text Workstation"

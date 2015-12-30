@@ -126,10 +126,6 @@
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.uf.viz.nwsauth.feature"
-         version="0.0.0"/>
-
-   <includes
          id="com.raytheon.uf.viz.thinclient.feature"
          version="0.0.0"/>
 
@@ -162,17 +158,11 @@
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.uf.viz.dat.feature"
          version="0.0.0"/>
 
    <includes
          id="com.raytheon.uf.viz.d2d.gfe.feature"
          version="0.0.0"/>
-
-   <includes
-         id="com.raytheon.uf.viz.collaboration.feature"
-         version="0.0.0"/>
-
    <includes
          id="com.raytheon.uf.viz.gisdatastore.feature"
          version="0.0.0"/>
