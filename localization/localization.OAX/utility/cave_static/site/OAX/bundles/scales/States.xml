@@ -37,6 +37,7 @@
                         <resource>
                             <loadProperties loadWithoutData="false">
                                 <capabilities>
+                                    <capability xsi:type="shadeableCapability" shaded="false"/>
                                     <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
                                     <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
                                 </capabilities>
@@ -55,6 +56,7 @@
                         <resource>
                             <loadProperties loadWithoutData="false">
                                 <capabilities>
+                                    <capability xsi:type="shadeableCapability" shaded="false"/>
                                     <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
                                     <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
                                 </capabilities>
@@ -72,6 +74,7 @@
                         <resource>
                             <loadProperties loadWithoutData="false">
                                 <capabilities>
+                                    <capability xsi:type="shadeableCapability" shaded="false"/>
                                     <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
                                     <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
                                 </capabilities>
@@ -89,6 +92,7 @@
                         <resource>
                             <loadProperties loadWithoutData="false">
                                 <capabilities>
+                                    <capability xsi:type="shadeableCapability" shaded="false"/>
                                     <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
                                     <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
                                 </capabilities>
