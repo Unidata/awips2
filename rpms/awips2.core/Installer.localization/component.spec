@@ -66,9 +66,8 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-#./localization/localization.OAX/utility/edex_static/site/OAX/config/gfe/siteConfig.py
 # Copy the GFE files
-cp -rv %{_baseline_workspace}/%{_localization_directory}/utility/edex_static/site/OAX/config/gfe/ \
+cp -rv %{_baseline_workspace}/%{_localization_directory}/utility/edex_static/site/%{_localization_site}/config/gfe/ \
    ${RPM_BUILD_ROOT}/awips2/edex/data/utility/edex_static/site/%{_localization_site}/config/
 if [ $? -ne 0 ]; then
    exit 1
