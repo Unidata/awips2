@@ -8,8 +8,8 @@
 %define __prelink_undo_cmd %{nil}
 Name: awips2-ldm
 Summary: AWIPS II LDM Distribution
-Version: %{_ldm_version}
-Release: %{_component_version}.%{_component_release}
+Version: %{_component_version}
+Release: %{_component_release}
 Group: AWIPSII
 BuildRoot: /tmp
 BuildArch: noarch
