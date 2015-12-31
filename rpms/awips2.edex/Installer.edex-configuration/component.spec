@@ -50,21 +50,21 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-DEPLOY_SCRIPT="deploy.edex.awips2/deploy/deploy-esb-configuration.xml"
+DEPLOY_SCRIPT="build.edex/deploy-common/deploy-esb-configuration.xml"
 
 # use deploy-install to deploy edex-configuration.
 pushd . > /dev/null
 cd %{_baseline_workspace}
 /awips2/ant/bin/ant -f ${DEPLOY_SCRIPT} \
    -Desb.overwrite=true \
-   -Desb.directory=%{_baseline_workspace}/deploy.edex.awips2/esb \
+   -Desb.directory=%{_baseline_workspace}/build.edex/esb \
    -Dedex.root.directory=${RPM_BUILD_ROOT}/awips2/edex
 if [ $? -ne 0 ]; then
    exit 1
 fi
 popd > /dev/null
 
-DEPLOY_SCRIPT="deploy.edex.awips2/deploy/deploy-esb.xml"
+DEPLOY_SCRIPT="build.edex/deploy-common/deploy-esb.xml"
 
 BUILD_ARCH="%{_build_arch}"
 if [ "${BUILD_ARCH}" = "i386" ]; then
@@ -77,9 +77,9 @@ cd %{_baseline_workspace}
 /awips2/ant/bin/ant -f ${DEPLOY_SCRIPT} \
    -Ddeploy.data=true -Ddeploy.web=true \
    -Desb.overwrite=true \
-   -Desb.directory=%{_baseline_workspace}/deploy.edex.awips2/esb \
+   -Desb.directory=%{_baseline_workspace}/build.edex/esb \
    -Dedex.root.directory=${RPM_BUILD_ROOT}/awips2/edex \
-   -Dbasedir=%{_baseline_workspace}/deploy.edex.awips2 \
+   -Dbasedir=%{_baseline_workspace}/build.edex \
    -Dbasedirectories=%{_baseline_workspace} \
    -Darchitecture=${BUILD_ARCH}
 if [ $? -ne 0 ]; then
