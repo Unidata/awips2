@@ -1,0 +1,3 @@
+0 * * * * /awips2/ldm/bin/ldmadmin scour >> /awips2/ldm/logs/scour.log 2>&1
+# rotate logs
+0 17 * * * /awips2/ldm/bin/ldmadmin newlog
