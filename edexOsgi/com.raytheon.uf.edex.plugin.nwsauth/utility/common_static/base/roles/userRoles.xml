@@ -103,14 +103,7 @@
    
    <permission id="com.raytheon.localization.site/common_static/mixedCase"/>
    
-   <permission id="com.raytheon.localization.site/common_static/hazardServices"/>
-   <permission id="com.raytheon.localization.site/common_static/hazardServices/settings"/>
-   <permission id="com.raytheon.localization.site/common_static/hazardServices/hazardMetaData"/>
-
-   <permission id="com.raytheon.localization.site/common_static/python/events/productgen/products"/>
-   <permission id="com.raytheon.localization.site/common_static/python/events/productgen/formats"/>
-   <permission id="com.raytheon.localization.site/common_static/python/events/recommenders"/>
-   <permission id="com.raytheon.localization.site/common_static/python/textUtilities"/>
+   <permission id="com.raytheon.localization.site/common_static/HazardServices"/>
 
    <!-- TODO Localization permissions should be able to be plugin contributed.
         Improve code in the generically [poorly] named FileManager to support
@@ -153,13 +146,7 @@
       <userPermission>com.raytheon.localization.site/common_static/archiver/purger/retention</userPermission>
       <userPermission>com.raytheon.localization.site/common_static/archiver/purger/case</userPermission>
       <userPermission>com.raytheon.localization.site/common_static/damagepath</userPermission>
-      <userPermission>com.raytheon.localization.site/common_static/hazardServices</userPermission>
-      <userPermission>com.raytheon.localization.site/common_static/hazardServices/settings</userPermission>
-      <userPermission>com.raytheon.localization.site/common_static/hazardServices/hazardMetaData</userPermission>
-      <userPermission>com.raytheon.localization.site/common_static/python/events/productgen/products</userPermission>
-      <userPermission>com.raytheon.localization.site/common_static/python/events/productgen/formats</userPermission>
-      <userPermission>com.raytheon.localization.site/common_static/python/events/recommenders</userPermission>
-      <userPermission>com.raytheon.localization.site/common_static/python/textUtilities</userPermission>
+      <userPermission>com.raytheon.localization.site/common_static/HazardServices</userPermission>
       <userPermission>com.raytheon.localization.site/cave_static/spellchecker</userPermission>
    </user>
 </nwsRoleData>

@@ -158,6 +158,12 @@ if [ ! "`hostname | cut -b 1-2`" = "xt" ]; then
    rm -f /etc/xdg/autostart/awips2-textws.desktop
 fi
 
+# relocate any localization files installed by awips2-cave
+/bin/bash /awips2/cave/relocateLocalization.sh
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
 %preun
 %postun
 
