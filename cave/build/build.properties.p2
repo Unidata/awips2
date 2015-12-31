@@ -7,7 +7,7 @@ buildLabel=${buildType}.${buildId}
 timestamp=007
 archivePrefix=cave
 collectingFolder=${archivePrefix}
-
+allowBinaryCycles=true
 runPackager=true
 skipBase=true
 skipFetch=true
