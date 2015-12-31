@@ -20,8 +20,8 @@
 
 package com.raytheon.uf.edex.plugin.tcs;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
@@ -48,7 +48,7 @@ import com.raytheon.uf.edex.plugin.tcs.decoder.TCSDataAdapter;
  * @version 1.0
  */
 public class TCSDecoder {
-    private static Logger logger = LoggerFactory.getLogger(TCSDecoder.class);
+    //private static Logger logger = LoggerFactory.getLogger(TCSDecoder.class);
 
     private final String pluginName;
 
@@ -67,19 +67,12 @@ public class TCSDecoder {
         try {
             pdd = PointDataDescription.fromStream(this.getClass()
                     .getResourceAsStream("/res/pointdata/tcs.xml"));
-
-            logger.debug("PointDataDescription loaded");
-
         } catch (Exception e) {
-            logger.error("PointDataDescription failed", e);
-            logger.error("Plugin set to failSafe mode");
             setFailSafe(true);
         }
         try {
             createDAO(false);
         } catch (Exception e) {
-            logger.error("Dao creation failed", e);
-            logger.error("Plugin set to failSafe mode");
             setFailSafe(true);
         }
     }
@@ -102,8 +95,6 @@ public class TCSDecoder {
             return new PluginDataObject[0];
         }
 
-        logger.debug(traceId + " - Decoding data");
-
         if (data != null && data.length > 0) {
             TropicalCycloneSummary tcs = null;
             try {
@@ -116,7 +107,7 @@ public class TCSDecoder {
                 adapter.setData(data, traceId, headers);
                 tcs = adapter.getDecodedData();
             } catch (Exception e) {
-                logger.error(traceId + "-Error in decode", e);
+                //logger.error(traceId + "-Error in decode", e);
             } finally {
                 if ((tcs != null)) {
                     decodedData = new PluginDataObject[] { tcs };
@@ -125,7 +116,7 @@ public class TCSDecoder {
                 }
             }
         } else {
-            logger.info(traceId + "- No data in file");
+            //logger.info(traceId + "- No data in file");
             decodedData = new PluginDataObject[0];
         }
 
@@ -151,8 +142,6 @@ public class TCSDecoder {
         try {
             dao = new TropicalCycloneSummaryDao(pluginName);
         } catch (Exception e) {
-            logger.error("TropicalCycloneSummaryDao creation failed", e);
-            logger.error("Plugin set to failSafe mode");
             setFailSafe(true);
         }
     }
