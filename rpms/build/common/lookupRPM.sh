@@ -47,7 +47,7 @@ function lookupRPM()
       return 0
    fi
    if [ "${1}" = "awips2-python-h5py" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/h5py-1.3.0/"
+      export RPM_SPECIFICATION="${python_site__dir}/Installer.h5py/"
       return 0
    fi
    if [ "${1}" = "awips2-python-jimporter" ]; then
@@ -63,7 +63,7 @@ function lookupRPM()
       return 0
    fi
    if [ "${1}" = "awips2-python-numpy" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/numpy-1.7.2/"
+      export RPM_SPECIFICATION="${python_site__dir}/Installer.numpy"
       return 0
    fi
    if [ "${1}" = "awips2-python-pil" ]; then
@@ -83,11 +83,11 @@ function lookupRPM()
       return 0
    fi
    if [ "${1}" = "awips2-python-scientific" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/scientific-2.8"
+      export RPM_SPECIFICATION="${python_site__dir}/Installer.scientific"
       return 0
    fi
    if [ "${1}" = "awips2-python-scipy" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/scipy-0.15.0/"
+      export RPM_SPECIFICATION="${python_site__dir}/Installer.scipy"
       return 0
    fi
    if [ "${1}" = "awips2-python-pyparsing" ]; then
@@ -105,7 +105,7 @@ function lookupRPM()
 
 
    if [ "${1}" = "awips2-python-tables" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/tables-2.1.2/"
+      export RPM_SPECIFICATION="${python_site__dir}/Installer.tables"
       return 0
    fi
    if [ "${1}" = "awips2-python-thrift" ]; then
