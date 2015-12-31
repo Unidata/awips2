@@ -24,8 +24,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.dataplugin.exception.UnrecognizedDataException;
@@ -64,8 +64,8 @@ import com.raytheon.uf.edex.plugin.tcs.TropicalCycloneSummaryDao;
  */
 public abstract class TCSDataAdapter implements TCSConstants {
 
-    protected static Logger logger = LoggerFactory
-            .getLogger(TCSDataAdapter.class);
+//    protected static Logger logger = LoggerFactory
+//            .getLogger(TCSDataAdapter.class);
 
     protected PointDataDescription pointDataDescription;
 
@@ -104,7 +104,7 @@ public abstract class TCSDataAdapter implements TCSConstants {
         if (wmoHeader != null) {
             reports = findReports(message);
         } else {
-            logger.error(traceId + "- Missing or invalid WMOHeader");
+            //logger.error(traceId + "- Missing or invalid WMOHeader");
         }
         if ((reports != null) && (reports.size() > 0)) {
             currentReport = 0;
@@ -221,7 +221,7 @@ public abstract class TCSDataAdapter implements TCSConstants {
             currentReport = -1;
         } else {
             report = reports.get(currentReport++);
-            logger.debug("Getting report " + report);
+            //logger.debug("Getting report " + report);
 
             if (URI_MAP.containsKey(report.getDataURI())) {
                 report = null;
@@ -260,8 +260,8 @@ public abstract class TCSDataAdapter implements TCSConstants {
             adapter = new TCMData(pdd, dao, pluginName);
         } else {
             adapter = new NullData(pdd, dao, pluginName);
-            logger.error("No decoder adapter for file "
-                    + wmoHeader.getWmoHeader());
+//            logger.error("No decoder adapter for file "
+//                    + wmoHeader.getWmoHeader());
         }
 
         return adapter;
