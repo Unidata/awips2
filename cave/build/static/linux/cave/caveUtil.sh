@@ -46,7 +46,7 @@ if [ ${RC} -ne 0 ]; then
    exit 1
 fi
 
-# This script will be sourced by cave.sh.
+# This script will be sourced by run.sh.
 export CAVE_INI_ARG=
 
 BYTES_IN_KB=1024

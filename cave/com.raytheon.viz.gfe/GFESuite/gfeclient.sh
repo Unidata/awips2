@@ -26,7 +26,7 @@
 # ------------ ---------- ----------- --------------------------
 # Dec 05, 2013  #2593     rjpeter     set IGNORE_NUM_CAVES
 # Dec 05, 2013  #2590     dgilling    Remove duplicated code and call to 
-#                                     cave.sh.
+#                                     run.sh.
 #
 #
 
@@ -64,7 +64,7 @@ fi
 
 export IGNORE_NUM_CAVES=1
 
-source /awips2/cave/cave.sh -nosplash -noredirect -component gfeclient "$@" &
+source /awips2/cave/run.sh -nosplash -noredirect -component gfeclient "$@" &
 wait $!
 
 if [ -n "$xvfb" ]
