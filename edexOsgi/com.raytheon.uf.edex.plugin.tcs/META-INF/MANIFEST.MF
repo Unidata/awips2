@@ -21,5 +21,4 @@ Import-Package: com.raytheon.edex.esb,
  com.raytheon.uf.common.status,
  com.raytheon.uf.common.time,
  com.raytheon.uf.common.wmo,
- com.raytheon.uf.edex.core,
- org.slf4j
+ com.raytheon.uf.edex.core

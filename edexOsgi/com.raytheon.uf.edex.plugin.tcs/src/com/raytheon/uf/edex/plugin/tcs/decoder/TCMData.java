@@ -322,13 +322,13 @@ public class TCMData extends TCSDataAdapter {
                     }
                 }
             } catch (Exception e) {
-                logger.error("Error reading from reader", e);
+                //logger.error("Error reading from reader", e);
             } finally {
                 if (reader != null) {
                     try {
                         reader.close();
                     } catch (IOException ioe) {
-                        logger.error("Error closing reader", ioe);
+                        //logger.error("Error closing reader", ioe);
                     }
                 }
             }

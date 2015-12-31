@@ -49,7 +49,6 @@ public class NullData extends TCSDataAdapter{
     }
     
     public List<TropicalCycloneSummary> findReports(byte [] message) {
-        logger.info("Unknown data " + traceId);
         return new ArrayList<TropicalCycloneSummary>();
     }
 }
