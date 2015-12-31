@@ -23,7 +23,7 @@ do
 done
 
 CAVE_DIR=/awips2/cave
-$CAVE_DIR/cave.sh -component textws &
+$CAVE_DIR/run.sh -component textws &
 
 FXA_HOME=/awips/fxa
 . /awips/fxa/readenv.sh
