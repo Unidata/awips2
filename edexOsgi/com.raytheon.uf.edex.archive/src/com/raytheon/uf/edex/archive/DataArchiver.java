@@ -87,7 +87,7 @@ public class DataArchiver {
         }
 
         // default to /archive
-        archivePath = System.getProperty(PATH_PROPERTY, "/archive");
+        archivePath = System.getProperty(PATH_PROPERTY, "/awips2/archive");
     }
 
     public void archivePlugins() {

@@ -141,7 +141,7 @@
      -->
 <archive>
     <name>Processed</name>
-    <rootDir>/archive/</rootDir>
+    <rootDir>/awips2/archive/</rootDir>
     <defaultRetentionHours>168</defaultRetentionHours>
      <category>
         <name>Decision Assistance</name>
