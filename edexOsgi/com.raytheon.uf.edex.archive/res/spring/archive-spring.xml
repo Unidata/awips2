@@ -21,10 +21,10 @@
         xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
 
         <endpoint id="archiveCron"
-            uri="clusteredquartz://archive/archiveScheduled/?cron=${archive.cron}"/>
+            uri="clusteredquartz://awips2/archive/archiveScheduled/?cron=${archive.cron}"/>
 
         <endpoint id="archivePurgeCron"
-            uri="clusteredquartz://archive/archivePurgeScheduled/?cron=${archive.purge.cron}" />
+            uri="clusteredquartz://awips2/archive/archivePurgeScheduled/?cron=${archive.purge.cron}" />
 
         <!-- Archive on Scheduled timer -->
         <route id="archiveScheduled">
