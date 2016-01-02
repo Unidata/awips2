@@ -48,8 +48,8 @@ else
 fi
 
 if [ -z $6 ] ; then
-    PGBINDIR=''
-    PSQLBINDIR=''
+    PGBINDIR=/awips2/postgresql/bin/
+    PSQLBINDIR=/awips2/psql/bin/
 else
     PGBINDIR=${6}/postgresql/bin/
     PSQLBINDIR=${6}/psql/bin/
