@@ -61,7 +61,7 @@ import com.raytheon.uf.common.status.UFStatus;
  */
 public class BinLightningAESKey {
 	/** Default location to search for BinLightningAESKey.properties file, and keystore file (normally binLightningAESKeystore.jce as configured in properties file)  */
-	public static final String DEFAULT_KEYSTORE_LOC = "/usr/local/ldm";
+	public static final String DEFAULT_KEYSTORE_LOC = "/awips2/ldm";
 	
 	/** System property name that can used to specify configuration property file, which will overwrite the default keystore location */
 	public static final String SYS_PROP_FOR_CONF_FILE = "binlightning.aeskeypropfile";

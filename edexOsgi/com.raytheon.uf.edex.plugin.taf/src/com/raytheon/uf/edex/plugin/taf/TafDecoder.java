@@ -93,6 +93,9 @@ public class TafDecoder extends AbstractDecoder {
             } else {
                 TAFParts parts = input.tafParts;
                 if (parts.getTafHeader() != null) {
+                	/*
+                	 * This makes no sense.  If the TAF header is NOT NULL throw error? Why? (mjames@ucar)
+                	 */
                     logger.error("Could not parse TAF for input "
                             + parts.getTafHeader() + " in file " + traceId);
                 } else {
