@@ -5,6 +5,8 @@
 ##          Evan Bookbinder -- SEP 18 2013 Implemented config.vm ##
 ##          PHIL KURIMSKI   -- MAR 23 2015 simplified coding     ##
 ##          Phil Kurimski   -- Oct 22 2014 Mixed Case            ##
+##          Richard Barnhill -- Dec 30 2015 Per conversation with##
+##                              Evan, made default hailCTA ""    ##
 ###################################################################
 #parse("config.vm")
 ## Set null variables used in the template
@@ -354,6 +356,7 @@ ${area.name}...
 #######################################################################
 #set($windTag = "<34")
 #set($windCTA = "gusty winds")
+#set($hailCTA = "")
 #if(${list.contains(${bullets}, "34ktWind")})
 	#set($windTag = ">34")
 	#set($windType = "winds 34 knots or greater")
