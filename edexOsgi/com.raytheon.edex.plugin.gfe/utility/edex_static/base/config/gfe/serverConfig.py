@@ -69,9 +69,9 @@
 #
 #    05/29/2015          #17144    bhunder        Added weather Params for URMA25 and OCONUS RTMA
 #    09/02/2015          #4819     rferrel        Added HWRF.
-#    09/09/2015          16287     amoore         Additional validation of user input
 #    10/07/2015          #4958     dgilling       Added support for NationalBlend D2D data.
 #    10/13/2015          #4961     randerso       Updated NewTerrain/BaseTerrain database definitions
+#    09/09/2015          16287     amoore         Additional validation of user input
 #    10/30/2015          #17940    jendrowski     Responded to Code Review.  Mostly syntactical changes.
 ####################################################################################################
 
@@ -1905,7 +1905,7 @@ SITES = {
     'HUS' : ([1073,689], (19.0, 8.0), ( 67.0, 43.0), 'EST5EDT', Grid211,   "nc"),
     #'NHA' : ([1729,1601], (1.0,1.0), (1728.0, 1600.0), 'EST5EDT', GridForNHA, "nc"),
     'NHA' : ([1873,1361], (35.5,3.5), (58.5,42.5), 'EST5EDT', Grid211, "nc"),   # updated
-    }
+}
 
 # Get list of valid office types, for validation.
 VALID_OFFICE_TYPES = []
@@ -1916,6 +1916,7 @@ for siteValues in SITES.values():
     if officeType not in VALID_OFFICE_TYPES:
         # A new office type
         VALID_OFFICE_TYPES.append(officeType)
+
 #---------------------------------------------------------------------------
 #
 #  Time Constraint configuration section
@@ -3082,13 +3083,30 @@ DATABASES = [
 # Intersite coordination database parameter groupings, based on
 # OFFICIALDBS, but time constraint is always TC1
 ISCPARMS = []
+for wes, tc in (OFFICIALDBS + localISCParms):
+    ISCPARMS.append((wes, TC1))
+# We also add in any extraISCparms as needed, but only for office
+# types other than our own.
+for wes, officeType in (EXTRA_ISC_PARMS + localISCExtraParms):
+    if myOfficeType == officeType:
+        continue
     if type(officeType) != str:
         raise TypeError, "Office type not a str: " + `officeType`
     else:
         if officeType not in VALID_OFFICE_TYPES:
             raise ValueError, "Office type: " + str(officeType) + " does not match any of the following: [" + (', '.join(VALID_OFFICE_TYPES)) + "]"
+    for we in wes:
+        wecopy = list(we)
+        wecopy[0] = wecopy[0] + officeType  #rename the weather element
+        wecopy = tuple(wecopy)
+        ISCPARMS.append(([wecopy], TC1))
     
         
+# Restore database parameter groupings (based on OFFICIALDBS, but TC1)
+RESTOREPARMS = []
+for wes, tc in (OFFICIALDBS + localParms):
+    RESTOREPARMS.append((wes, TC1))
+
 #
 # new parameters for NewTerrain
 #
