@@ -25,13 +25,13 @@ import java.util.List;
 import java.util.Map;
 
 import com.raytheon.uf.common.monitor.data.CommonConfig;
+import com.raytheon.uf.common.monitor.data.MonitorConfigConstants;
 import com.raytheon.uf.common.monitor.data.ObConst;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.monitor.config.CommonTableConfig.CellType;
 import com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr;
-import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants;
 
 /**
  * This class is a container of ObStnHourReports objects for caller-specified
@@ -46,6 +46,7 @@ import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants;
  * Dec. 1, 2009  3424       zhao       Initial creation.
  * Jan 25, 2010  4281       zhao       Modified updateWorstValuesFog method.
  * Sep 18, 2015  3873       skorolev   Added moving platform's reports.Replaced MonitoringArea with areaConfig.
+ * Dec 26, 2015  5114       skorolev   Replaced MonitorConfigConstants import.
  * 
  * </pre>
  * 
@@ -62,16 +63,16 @@ public class ObZoneHourReports {
     private Date nominalTime;
 
     /** Monitoring area */
-    private String zone;
+    private final String zone;
 
     /** Thresholds manager */
-    private AbstractThresholdMgr thresholdMgr;
+    private final AbstractThresholdMgr thresholdMgr;
 
     /** application name (snow, fog, safeseas, etc) */
-    private CommonConfig.AppName appName;
+    private final CommonConfig.AppName appName;
 
     /** key is station id, value is ObStnHourReports object */
-    private HashMap<String, ObStnHourReports> zoneHourReports;
+    private final HashMap<String, ObStnHourReports> zoneHourReports;
 
     /**
      * this object stores worst values of the observation variables reported

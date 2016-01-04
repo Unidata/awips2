@@ -32,7 +32,6 @@ import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.monitor.data.ObConst;
@@ -60,7 +59,8 @@ import com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr;
  * Sep 04, 2014  3220      skorolev    Updated getStationTableData method.
  * Sep 25, 2015  3873      skorolev    Added multiHrsTabData.
  * Nov 12, 2015  3841      dhladky     Augmented Slav's update fix.
- * Dec 02  2015  3873      dhladky     Pulled 3841 changes to 16.1.1.
+ * Dec 02  2015  3873      dhladky    Pulled 3841 changes to 16.1.1.
+ * Jan 04, 2016  5115      skorolev    Replaced Mon.Name with App.Name.
  * Jan 11  2016  5219      dhladky     Fixed damage done to cache management by recent updates.
  * 
  * </pre>
@@ -84,7 +84,7 @@ public class ObMultiHrsReports {
     /**
      * application name (snow, fog, safeseas, etc)
      */
-    private CommonConfig.AppName appName;
+    private final CommonConfig.AppName appName;
 
     /**
      * FSSObs records cache. Key is nominal time, value is ObHourReports object
@@ -96,7 +96,7 @@ public class ObMultiHrsReports {
      */
     private ConcurrentHashMap<Date, TableData> multiHrsTabData = new ConcurrentHashMap<Date, TableData>();
 
-    private int maxFrames = ObConst.MAX_FRAMES;
+    private final int maxFrames = ObConst.MAX_FRAMES;
 
     private FSSObsMonitorConfigurationManager cfgMgr = null;
 
@@ -107,15 +107,8 @@ public class ObMultiHrsReports {
      */
     public ObMultiHrsReports(CommonConfig.AppName appName) {
         this.appName = appName;
-
         if (appName.equals(AppName.FOG) || appName.equals(AppName.SAFESEAS)) {
-            if (appName.equals(AppName.FOG)) {
-                cfgMgr = FSSObsMonitorConfigurationManager
-                        .getInstance(MonName.fog);
-            } else if (appName.equals(AppName.SAFESEAS)) {
-                cfgMgr = FSSObsMonitorConfigurationManager
-                        .getInstance(MonName.ss);
-            }
+            cfgMgr = FSSObsMonitorConfigurationManager.getInstance(appName);
             initFogAlgCellType();
         }
     }
@@ -128,7 +121,7 @@ public class ObMultiHrsReports {
      */
     public void addReport(ObReport report) {
         Date nominalTime = report.getRefHour();
-           
+
         /**
          * DR #8723: if wind speed is zero, wind direction should be N/A, not 0
          */
@@ -616,7 +609,8 @@ public class ObMultiHrsReports {
      * Updates table cache
      */
     public void updateTableCache() {
-        // rebuild the table cache
+        // clear and rebuild table data on config changes
+        multiHrsTabData.clear();
         for (Date time : multiHrsReports.keySet()) {
             getZoneTableData(time);
         }

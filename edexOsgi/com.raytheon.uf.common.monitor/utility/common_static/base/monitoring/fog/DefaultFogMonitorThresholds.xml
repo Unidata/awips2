@@ -21,6 +21,6 @@
 <Thresholds>
     <Area>
         <AreaID>DefaultValues</AreaID>
-        <AreaThreshold key = "Monitor.Meteo.visiblity" red = "4" yellow = "8"/>
+        <AreaThreshold key = "Monitor.Meteo.visibility" red = "4" yellow = "8"/>
     </Area>
 </Thresholds>

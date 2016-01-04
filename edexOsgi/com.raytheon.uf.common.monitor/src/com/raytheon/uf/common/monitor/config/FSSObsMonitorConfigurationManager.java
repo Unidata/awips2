@@ -41,6 +41,7 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.monitor.MonitorAreaUtils;
 import com.raytheon.uf.common.monitor.data.AdjacentWfoMgr;
+import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.monitor.events.MonitorConfigEvent;
 import com.raytheon.uf.common.monitor.events.MonitorConfigListener;
 import com.raytheon.uf.common.monitor.xml.AreaIdXML;
@@ -78,8 +79,7 @@ import com.vividsolutions.jts.io.ParseException;
  * Sep 17 2015  3873      skorolev   Corrected getInstance, addArea, addAdjArea and added getAdjAreaConfigXml.
  * Oct 20 2015  3841      skorolev   Changed save method.
  * Dec 02 2015  3873      dhladky    Pulled 3841 changes to 16.1.1.
- * 
- * 
+ * Jan 04 2016  5115      skorolev   Replaced Mon.Name with App.Name.
  * 
  * </pre>
  * 
@@ -132,11 +132,6 @@ public class FSSObsMonitorConfigurationManager implements
     /** Current site */
     private String currentSite;
 
-    /** Monitor Name **/
-    public enum MonName {
-        ss, fog, snow
-    };
-
     /** Default value for Timewindow in hours */
     private static final double DEFAULT_TIME = 2;
 
@@ -147,20 +142,15 @@ public class FSSObsMonitorConfigurationManager implements
     protected boolean isPopulated;
 
     /** Map for current configuration managers. */
-    private final static Map<MonName, FSSObsMonitorConfigurationManager> instanceMap = new HashMap<>();
+    private final static Map<AppName, FSSObsMonitorConfigurationManager> instanceMap = new HashMap<>();
 
     /**
      * Private Constructor
      * 
      * @param monitorName
      */
-    private FSSObsMonitorConfigurationManager(MonName monitorName) {
-        // Avoid confusion in file path
-        if (monitorName == MonName.ss) {
-            pluginName = "safeseas";
-        } else {
-            pluginName = monitorName.name();
-        }
+    private FSSObsMonitorConfigurationManager(AppName monitorName) {
+        pluginName = monitorName.name().toLowerCase();
         /** Path to Monitoring Area Configuration XML. */
         setConfigFileName(pluginName + File.separatorChar + "monitoringArea"
                 + File.separatorChar + "monitorAreaConfig.xml");
@@ -182,7 +172,7 @@ public class FSSObsMonitorConfigurationManager implements
      * @return
      */
     public static synchronized FSSObsMonitorConfigurationManager getInstance(
-            MonName monitor) {
+            AppName monitor) {
         FSSObsMonitorConfigurationManager instance = instanceMap.get(monitor);
         if (instance == null) {
             instance = new FSSObsMonitorConfigurationManager(monitor);
@@ -207,8 +197,7 @@ public class FSSObsMonitorConfigurationManager implements
         this.currentSite = lc.getContextName();
         lacf = pm.getLocalizationFile(lc, configFileName);
         try (InputStream inStrm = lacf.openInputStream()) {
-            configXml = (MonAreaConfigXML) jaxb
-                    .unmarshalFromInputStream(inStrm);
+            configXml = jaxb.unmarshalFromInputStream(inStrm);
         } catch (Exception e) {
             statusHandler
                     .handle(Priority.WARN,
@@ -387,7 +376,7 @@ public class FSSObsMonitorConfigurationManager implements
                 LocalizationLevel.SITE);
         LocalizationFile newXmlFile = pm.getLocalizationFile(lc,
                 getAdjAreaConfigFileName());
-        
+
         try {
             String path = newXmlFile.getFile().getAbsolutePath();
             jaxb.marshalToXmlFile(adjAreaConfigXml, path);
@@ -1092,7 +1081,7 @@ public class FSSObsMonitorConfigurationManager implements
      * @return
      */
     public static FSSObsMonitorConfigurationManager getObsManager(
-            MonName monitor) {
+            AppName monitor) {
         FSSObsMonitorConfigurationManager instance = getInstance(monitor);
         instance.readConfigXml();
         return instance;

@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.monitor.xml;
+package com.raytheon.uf.common.monitor.xml;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -26,65 +26,58 @@ import javax.xml.bind.annotation.XmlAttribute;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 
 /**
- * Class containing the XML data specifying the threshold key, red,
- * and yellow values. 
+ * Class containing the XML data specifying the threshold key, red, and yellow
+ * values.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
- * Date         Ticket#    Engineer    Description
+ * 
+ * Date         Ticket#    Engineer     Description
  * ------------ ---------- ----------- --------------------------
  * Dec 15, 2009 #3963      lvenable     Initial creation
- *
+ * Jan 04, 2016  5115      skorolev     moved from com.raytheon.uf.viz.monitor.xml
+ * 
  * </pre>
- *
+ * 
  * @author lvenable
  * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
-public class AreaThresholdXML implements ISerializableObject
-{
+public class AreaThresholdXML implements ISerializableObject {
     @XmlAttribute(name = "key")
     private String key;
-    
+
     @XmlAttribute(name = "red")
     private double red;
-    
+
     @XmlAttribute(name = "yellow")
     private double yellow;
-    
-    public AreaThresholdXML()
-    {        
+
+    public AreaThresholdXML() {
     }
 
-    public String getKey()
-    {
+    public String getKey() {
         return key;
     }
 
-    public void setKey(String key)
-    {
+    public void setKey(String key) {
         this.key = key;
     }
 
-    public double getRed()
-    {
+    public double getRed() {
         return red;
     }
 
-    public void setRed(double red)
-    {
+    public void setRed(double red) {
         this.red = red;
     }
 
-    public double getYellow()
-    {
+    public double getYellow() {
         return yellow;
     }
 
-    public void setYellow(double yellow)
-    {
+    public void setYellow(double yellow) {
         this.yellow = yellow;
     }
 }

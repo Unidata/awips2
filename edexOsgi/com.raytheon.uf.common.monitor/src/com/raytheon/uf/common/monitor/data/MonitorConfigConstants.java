@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.monitor.util;
+package com.raytheon.uf.common.monitor.data;
 
 import java.util.HashMap;
 
@@ -33,6 +33,7 @@ import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
  * ------------ ---------- ----------- --------------------------
  * Mar 16, 2009 2076       avarani     Initial creation
  * Sep 18, 2015 3873       skorolev    Corrected appName.
+ * Jan 04, 2016 5115       skorolev    Moved from com.raytheon.uf.viz.monitor.util. Corrected misspelling.
  * 
  * </pre>
  * 
@@ -47,6 +48,41 @@ public class MonitorConfigConstants {
     private static HashMap<String, Boolean> ryHigherMapFog;
 
     private static boolean rankSwellPeriodHigh = false;
+
+    /**
+     * Monitoring parameters
+     */
+    public final static String MON_METEO_WIND_SPEED = "Monitor.Meteo.wind_speed";
+
+    public final static String MON_METEO_GUST_SPEED = "Monitor.Meteo.gust_speed";
+
+    public final static String MON_METEO_PEAK_WIND = "Monitor.Meteo.peak_wind_speed";
+
+    public final static String MON_METEO_WAVE_HT = "Monitor.Meteo.wave_height";
+
+    public final static String MON_METEO_VIS = "Monitor.Meteo.visibility";
+
+    public final static String MON_SWELL_PRIM_HT = "Monitor.Swell.Primary.height";
+
+    public final static String MON_SWELL_PRIM_PD = "Monitor.Swell.Primary.period";
+
+    public final static String MON_SWELL_PRIM_DIR_FROM = "Monitor.Swell.Primary.dirFrom";
+
+    public final static String MON_SWELL_PRIM_DIR_TO = "Monitor.Swell.Primary.dirTo";
+
+    public final static String MON_SWELL_SEC_HT = "Monitor.Swell.Secondary.height";
+
+    public final static String MON_SWELL_SEC_PD = "Monitor.Swell.Secondary.period";
+
+    public final static String MON_SWELL_SEC_DIR_FROM = "Monitor.Swell.Secondary.dirFrom";
+
+    public final static String MON_SWELL_SEC_DIR_TO = "Monitor.Swell.Secondary.dirTo";
+
+    public final static String MON_METEO_TEMP = "Monitor.Meteo.temperature";
+
+    public final static String MON_METEO_WIND_CHILL = "Monitor.Meteo.wind_chill";
+
+    public final static String MON_METEO_SNOW_DEPTH = "Monitor.Meteo.snow_depth";
 
     /*
      * SAFESEAS
@@ -98,19 +134,16 @@ public class MonitorConfigConstants {
     }
 
     public static enum SafeSeasMonitor {
-        SS_MON_METEO_WIND_SPEED("Monitor.Meteo.wind_speed"), SS_MON_METEO_PEAK_WIND(
-                "Monitor.Meteo.peak_wind_speed"), SS_MON_METEO_GUST_SPEED(
-                "Monitor.Meteo.gust_speed"), SS_MON_METEO_WAVE_HT(
-                "Monitor.Meteo.wave_height"), SS_MON_METEO_VIS(
-                "Monitor.Meteo.visibility"), SS_MON_SWELL_PRIM_HT(
-                "Monitor.Swell.Primary.height"), SS_MON_SWELL_PRIM_PD(
-                "Monitor.Swell.Primary.period"), SS_MON_SWELL_PRIM_DIR_FROM(
-                "Monitor.Swell.Primary.dirFrom"), SS_MON_SWELL_PRIM_DIR_TO(
-                "Monitor.Swell.Primary.dirTo"), SS_MON_SWELL_SEC_HT(
-                "Monitor.Swell.Secondary.height"), SS_MON_SWELL_SEC_PD(
-                "Monitor.Swell.Secondary.period"), SS_MON_SWELL_SEC_DIR_FROM(
-                "Monitor.Swell.Secondary.dirFrom"), SS_MON_SWELL_SEC_DIR_TO(
-                "Monitor.Swell.Secondary.dirTo");
+        SS_MON_METEO_WIND_SPEED(MON_METEO_WIND_SPEED), SS_MON_METEO_PEAK_WIND(
+                MON_METEO_PEAK_WIND), SS_MON_METEO_GUST_SPEED(
+                MON_METEO_GUST_SPEED), SS_MON_METEO_WAVE_HT(MON_METEO_WAVE_HT), SS_MON_METEO_VIS(
+                MON_METEO_VIS), SS_MON_SWELL_PRIM_HT(MON_SWELL_PRIM_HT), SS_MON_SWELL_PRIM_PD(
+                MON_SWELL_PRIM_PD), SS_MON_SWELL_PRIM_DIR_FROM(
+                MON_SWELL_PRIM_DIR_FROM), SS_MON_SWELL_PRIM_DIR_TO(
+                MON_SWELL_PRIM_DIR_TO), SS_MON_SWELL_SEC_HT(MON_SWELL_SEC_HT), SS_MON_SWELL_SEC_PD(
+                MON_SWELL_SEC_PD), SS_MON_SWELL_SEC_DIR_FROM(
+                MON_SWELL_SEC_DIR_FROM), SS_MON_SWELL_SEC_DIR_TO(
+                MON_SWELL_SEC_DIR_TO);
 
         String XMLKey;
 
@@ -164,13 +197,11 @@ public class MonitorConfigConstants {
     }
 
     public static enum SnowMonitor {
-        SNOW_MON_METEO_WIND_SPEED("Monitor.Meteo.wind_speed"), SNOW_MON_METEO_PEAK_WIND(
-                "Monitor.Meteo.peak_wind_speed"), SNOW_MON_METEO_GUST_SPEED(
-                "Monitor.Meteo.gust_speed"), SNOW_MON_METEO_TEMP(
-                "Monitor.Meteo.temperature"), SNOW_MON_METEO_WIND_CHILL(
-                "Monitor.Meteo.wind_chill"), SNOW_MON_METEO_VIS(
-                "Monitor.Meteo.visibility"), SNOW_MON_METEO_SNOW_DEPTH(
-                "Monitor.Meteo.snow_depth");
+        SNOW_MON_METEO_WIND_SPEED(MON_METEO_WIND_SPEED), SNOW_MON_METEO_PEAK_WIND(
+                MON_METEO_PEAK_WIND), SNOW_MON_METEO_GUST_SPEED(
+                MON_METEO_GUST_SPEED), SNOW_MON_METEO_TEMP(MON_METEO_TEMP), SNOW_MON_METEO_WIND_CHILL(
+                MON_METEO_WIND_CHILL), SNOW_MON_METEO_VIS(MON_METEO_VIS), SNOW_MON_METEO_SNOW_DEPTH(
+                MON_METEO_SNOW_DEPTH);
 
         String XMLKey;
 
@@ -209,7 +240,7 @@ public class MonitorConfigConstants {
     }
 
     public static enum FogMonitor {
-        FOG_MONITOR_METEO_VIS("Monitor.Meteo.visiblity");
+        FOG_MONITOR_METEO_VIS(MON_METEO_VIS);
 
         String XMLKey;
 

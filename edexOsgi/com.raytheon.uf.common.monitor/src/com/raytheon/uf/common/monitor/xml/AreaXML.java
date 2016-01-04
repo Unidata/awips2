@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.monitor.xml;
+package com.raytheon.uf.common.monitor.xml;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,109 +34,93 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * AreaThresholdXML data.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 15, 2009 #3963      lvenable     Initial creation
- *
+ * Jan 04, 2016  5115      skorolev     moved from com.raytheon.uf.viz.monitor.xml
+ * 
  * </pre>
- *
+ * 
  * @author lvenable
  * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
-public class AreaXML implements ISerializableObject
-{
+public class AreaXML implements ISerializableObject {
     @XmlElement(name = "AreaID")
     private String areaId;
-    
-    @XmlElements( { @XmlElement(name = "AreaThreshold", type = AreaThresholdXML.class) })
+
+    @XmlElements({ @XmlElement(name = "AreaThreshold", type = AreaThresholdXML.class) })
     private ArrayList<AreaThresholdXML> areaThresholds;
-    
+
     private HashMap<String, Integer> areaThreshIdxMap;
-    
-    public AreaXML()
-    {        
+
+    public AreaXML() {
     }
 
-    public String getAreaId()
-    {
+    public String getAreaId() {
         return areaId;
     }
 
-    public void setAreaId(String areaId)
-    {
+    public void setAreaId(String areaId) {
         this.areaId = areaId;
     }
 
-    public ArrayList<AreaThresholdXML> getAreaThresholds()
-    {
+    public ArrayList<AreaThresholdXML> getAreaThresholds() {
         return areaThresholds;
     }
 
-    public void setAreaThresholds(ArrayList<AreaThresholdXML> areaThresholds)
-    {
+    public void setAreaThresholds(ArrayList<AreaThresholdXML> areaThresholds) {
         this.areaThresholds = areaThresholds;
     }
 
-    public double getRedValue(String key)
-    {
-        if (areaThreshIdxMap == null)
-        {
+    public double getRedValue(String key) {
+        if (areaThreshIdxMap == null) {
             createIndexMap();
         }
-        
+
         int idx = areaThreshIdxMap.get(key);
         return areaThresholds.get(idx).getRed();
     }
-    
-    public void setRedValue(String key, double value)
-    {
-        if (areaThreshIdxMap == null)
-        {
+
+    public void setRedValue(String key, double value) {
+        if (areaThreshIdxMap == null) {
             createIndexMap();
         }
-        
+
         int idx = areaThreshIdxMap.get(key);
         areaThresholds.get(idx).setRed(value);
     }
-    
-    public double getYellowValue(String key)
-    {
-        if (areaThreshIdxMap == null)
-        {
+
+    public double getYellowValue(String key) {
+        if (areaThreshIdxMap == null) {
             createIndexMap();
         }
-        
+
         int idx = areaThreshIdxMap.get(key);
         return areaThresholds.get(idx).getYellow();
     }
-    
-    public void setYellowValue(String key, double value)
-    {
-        if (areaThreshIdxMap == null)
-        {
+
+    public void setYellowValue(String key, double value) {
+        if (areaThreshIdxMap == null) {
             createIndexMap();
         }
-        
+
         int idx = areaThreshIdxMap.get(key);
         areaThresholds.get(idx).setYellow(value);
     }
-    
-    public AreaThresholdXML getAreaThresholdXML(String key)
-    {
+
+    public AreaThresholdXML getAreaThresholdXML(String key) {
         int idx = areaThreshIdxMap.get(key);
         return areaThresholds.get(idx);
     }
-    
-    private void createIndexMap()
-    {
+
+    private void createIndexMap() {
         areaThreshIdxMap = new HashMap<String, Integer>();
-        
-        for (int i = 0; i < areaThresholds.size(); i++)
-        {
+
+        for (int i = 0; i < areaThresholds.size(); i++) {
             areaThreshIdxMap.put(areaThresholds.get(i).getKey(), i);
         }
     }

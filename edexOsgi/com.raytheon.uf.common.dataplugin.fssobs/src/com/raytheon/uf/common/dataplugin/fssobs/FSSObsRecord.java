@@ -144,61 +144,61 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     @Transient
     @DynamicSerializeElement
     @XmlElement
-    private float windSpeed = -9999;
+    private float windSpeed = -9999f;
 
     // Wind gust in knots
     @Transient
     @DynamicSerializeElement
     @XmlElement
-    private float windGust = -9999;
+    private float windGust = -9999f;
 
     // Observed maximum wind speed in knots
     @Transient
     @DynamicSerializeElement
     @XmlElement
-    private float maxWindSpeed = -9999;
+    private float maxWindSpeed = -9999f;
 
     // Observed wind direction in azimuth degrees
     @Transient
     @DynamicSerializeElement
     @XmlElement
-    private float windDir;
+    private float windDir = -9999f;
 
     // Observed wind chill in Fahrenheit
     @Transient
     @DynamicSerializeElement
     @XmlElement
-    private float windChill = -9999;
+    private float windChill = -9999f;
 
     // Observed high resolution wave height in
     @Transient
     @DynamicSerializeElement
     @XmlElement
-    private float highResWaveHeight = -9999;
+    private float highResWaveHeight = -9999f;
 
     // Observed wave steepness in seconds ??? None
     @Transient
     @DynamicSerializeElement
     @XmlElement
-    private float waveSteepness = -9999;
+    private float waveSteepness = -9999f;
 
     // Observed visibility in Statute miles
     @Transient
     @DynamicSerializeElement
     @XmlElement
-    private float visibility = -9999;
+    private float visibility = -9999f;
 
     // Observed visibility in meters for Maritime obs.
     @Transient
     @DynamicSerializeElement
     @XmlElement
-    private float horzVisibility = -9999;
+    private float horzVisibility = -9999f;
 
     // Observed temperature in degrees in Farenheit
     @Transient
     @DynamicSerializeElement
     @XmlElement
-    private float temperature = -9999;
+    private float temperature = -9999f;
 
     // in feet
     @Transient

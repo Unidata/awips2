@@ -17,9 +17,11 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.monitor.thresholds;
+package com.raytheon.uf.common.monitor.config;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,12 +33,16 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
+import com.raytheon.uf.common.monitor.xml.AreaThresholdXML;
+import com.raytheon.uf.common.monitor.xml.AreaXML;
+import com.raytheon.uf.common.monitor.xml.ThresholdsXML;
+import com.raytheon.uf.common.serialization.SerializationException;
+import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.monitor.xml.AreaThresholdXML;
-import com.raytheon.uf.viz.monitor.xml.AreaXML;
-import com.raytheon.uf.viz.monitor.xml.ThresholdsXML;
 
 /**
  * This is a "generic" threshold manager class that handles display and monitor
@@ -51,6 +57,7 @@ import com.raytheon.uf.viz.monitor.xml.ThresholdsXML;
  * Dec 15, 2009 #3963      lvenable     Initial creation
  * Dec 4,  2012 #1351      skorolev     Cleaned code
  * Sep 18, 2015 #3873      skorolev     Added error message for corrupted or empty default threshold file.
+ * Dec 26, 2015 #5115      skorolev     Moved from com.raytheon.uf.viz.monitor.thresholds. Added getMonitorParameters().
  * 
  * </pre>
  * 
@@ -72,6 +79,10 @@ public class ThresholdMgr {
      */
     private String currFullPathAndFileName;
 
+    /** Single Type JAXB Manager */
+    private static final SingleTypeJAXBManager<ThresholdsXML> jaxb = SingleTypeJAXBManager
+            .createWithoutException(ThresholdsXML.class);
+
     /**
      * Constructor.
      * 
@@ -89,11 +100,14 @@ public class ThresholdMgr {
         try {
             ThresholdsXML newCfgXML = null;
             IPathManager pm = PathManagerFactory.getPathManager();
-            File path = pm.getStaticFile(currFullPathAndFileName);
+            File path = pm.getStaticFile(LocalizationType.COMMON_STATIC,
+                    currFullPathAndFileName);
             newCfgXML = JAXB.unmarshal(path, ThresholdsXML.class);
             this.setThresholdXML(newCfgXML);
         } catch (Exception e) {
-            statusHandler.handle(Priority.ERROR, e.getMessage());
+            statusHandler.handle(Priority.ERROR,
+                    "Problem reading the XML file: " + currFullPathAndFileName,
+                    e);
         }
     }
 
@@ -103,17 +117,19 @@ public class ThresholdMgr {
     public void saveThresholdXml() {
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext context = pm.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.SITE);
+                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
         LocalizationFile locFile = pm.getLocalizationFile(context,
                 currFullPathAndFileName);
         if (locFile.getFile().getParentFile().exists() == false) {
             locFile.getFile().getParentFile().mkdirs();
         }
-        try {
-            JAXB.marshal(cfgXML, locFile.getFile());
-            locFile.save();
-        } catch (Exception e) {
-            statusHandler.handle(Priority.ERROR, e.getMessage());
+        try (SaveableOutputStream outStrm = locFile.openOutputStream()) {
+            jaxb.marshalToStream(getThresholdXML(), outStrm);
+            outStrm.save();
+        } catch (SerializationException | IOException | LocalizationException e) {
+            statusHandler.handle(Priority.ERROR,
+                    "Problem saving the XML file: " + currFullPathAndFileName,
+                    e);
         }
     }
 
@@ -127,7 +143,7 @@ public class ThresholdMgr {
     }
 
     /**
-     * Create the configuration XML using the default values.
+     * Creates the Display configuration XML using the default values.
      * 
      * @param fullDefaultPathName
      *            Full default path and filename of the default XML file.
@@ -138,7 +154,7 @@ public class ThresholdMgr {
      *            values.
      * @return True if the configuration XML was successfully created.
      */
-    public boolean createConfigFromDefaults(String fullDefaultPathName,
+    public boolean createDisplayConfigFromDefaults(String fullDefaultPathName,
             List<String> areaIDs, ArrayList<String> keys) {
         try {
             IPathManager pm = PathManagerFactory.getPathManager();
@@ -146,6 +162,35 @@ public class ThresholdMgr {
             ThresholdsXML cfgXmlDefaults = JAXB.unmarshal(path,
                     ThresholdsXML.class);
             createXmlFromDefaults(cfgXmlDefaults, areaIDs, keys);
+        } catch (Exception e) {
+            statusHandler
+                    .handle(Priority.ERROR,
+                            "Default threshold configuration file "
+                                    + fullDefaultPathName
+                                    + " is corrupted.\nDelete the files in the folder on the server side and restart CAVE.");
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Creates the Monitor configuration XML using the default values.
+     * 
+     * @param fullDefaultPathName
+     * @param areaIDs
+     * @param threshKeys
+     * @return
+     */
+    public boolean createMonitorConfigFromDefaults(String fullDefaultPathName,
+            List<String> areaIDs, List<String> list) {
+        IPathManager pm = PathManagerFactory.getPathManager();
+        LocalizationContext lc = pm.getContext(LocalizationType.COMMON_STATIC,
+                LocalizationLevel.BASE);
+        LocalizationFile lacf = pm.getLocalizationFile(lc, fullDefaultPathName);
+        try (InputStream inStrm = lacf.openInputStream()) {
+            ThresholdsXML cfgXmlDefaults = jaxb
+                    .unmarshalFromInputStream(inStrm);
+            createXmlFromDefaults(cfgXmlDefaults, areaIDs, list);
         } catch (Exception e) {
             statusHandler
                     .handle(Priority.ERROR,
@@ -169,9 +214,9 @@ public class ThresholdMgr {
      *            values.
      */
     private void createXmlFromDefaults(ThresholdsXML cfgXmlDefaults,
-            List<String> areaIDs, ArrayList<String> keys) {
+            List<String> areaIDs, List<String> list) {
         cfgXML = new ThresholdsXML();
-        createAreas(cfgXmlDefaults, areaIDs, keys);
+        createAreas(cfgXmlDefaults, areaIDs, list);
     }
 
     /**
@@ -182,12 +227,12 @@ public class ThresholdMgr {
      * @param keys
      */
     private void createAreas(ThresholdsXML defaultThreshXML,
-            List<String> areaIDs, ArrayList<String> keys) {
+            List<String> areaIDs, List<String> list) {
         ArrayList<AreaXML> areas = new ArrayList<AreaXML>();
         for (String areaID : areaIDs) {
             AreaXML area = new AreaXML();
             area.setAreaId(areaID);
-            createAreaThreshold(area, defaultThreshXML, keys);
+            createAreaThreshold(area, defaultThreshXML, list);
             areas.add(area);
         }
         cfgXML.setAreas(areas);
@@ -205,9 +250,9 @@ public class ThresholdMgr {
      *            value.
      */
     private void createAreaThreshold(AreaXML area,
-            ThresholdsXML defaultThreshXML, ArrayList<String> keys) {
+            ThresholdsXML defaultThreshXML, List<String> list) {
         ArrayList<AreaThresholdXML> areaThreshArray = new ArrayList<AreaThresholdXML>();
-        for (String key : keys) {
+        for (String key : list) {
             AreaThresholdXML areaThresh = new AreaThresholdXML();
             areaThresh.setKey(key);
             areaThresh.setRed(defaultThreshXML.getAreas().get(0)
@@ -329,4 +374,20 @@ public class ThresholdMgr {
         newThreshXML.setAreas(newAreas);
         return newThreshXML;
     }
+
+    /**
+     * Gets parameters from current ThresholdXML.
+     * 
+     * @return params
+     */
+    public List<String> getMonitorParameters() {
+        List<String> retVal = new ArrayList<String>();
+        List<AreaThresholdXML> xmls = cfgXML.getAreas().get(0)
+                .getAreaThresholds();
+        for (AreaThresholdXML xml : xmls) {
+            retVal.add(xml.getKey());
+        }
+        return retVal;
+    }
+
 }
