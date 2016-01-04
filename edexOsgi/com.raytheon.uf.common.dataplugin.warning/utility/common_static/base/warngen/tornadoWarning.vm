@@ -1,6 +1,6 @@
 ################################################################################
 ## TORNADO WARNING TEMPLATE                                                   ##
-## VERSION AWIPS II         												  ##
+## VERSION AWIPS II         						      ##
 ##    RECENT CHANGES                                                          ##                                                     
 ##         Mike Dangelo 9-13-2012 minor tweaks to ${variables}                ## 
 ##         Mike Dangelo     2-4-2013  NWS Mets detected a svr                 ## 
@@ -14,11 +14,12 @@
 ##                                  SVS parseString, prevented largeTORCTA    ##
 ##                                  if confirmedLarge not selected as type.   ##  
 ##         Phil Kurimski 6-26-2014 fixed large tornado cta                    ## 
-##         Evan Bookbinder 9-5-2014 fixed law enf cta		                  ##
-##         MMD/DT/EB 3/26/2015 mixedCase Changes                     	     ##
+##         Evan Bookbinder 9-5-2014 fixed law enf cta		              ##
+##         MMD/DT/EB 3/26/2015 mixedCase Changes                     	      ##
 ##         Evan Bookbinder 6-15-2015 fixed incorrect softball/grapefruit hail ##
 ##         Evan Bookbinder 9-4-2015 cleaned up line-of-storm grammar          ##
-###############################################################################
+##         Evan Bookbinder 12-07-15 fixed default preAmble var (extra space)  ##
+################################################################################
 ## ESTABLISH SOME INITIAL VARIABLES
 #parse("config.vm")
 #set($hailSize = 0) 
@@ -26,7 +27,7 @@
 #set($reportType = "A Tornado was reported")
 #set($pathcastLead = "This tornadic storm")
 #set($moveLead = " Doppler radar showed this tornado moving")
-#set($preAmble = " TAKE COVER NOW! ")
+#set($preAmble = "TAKE COVER NOW! ")
 #if(${stormType} == "line")
 #set($reportType = "Tornado producing storms were reported")
 #set($pathcastLead = "These tornadic storms")

@@ -34,6 +34,7 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    Jul 07, 2015    16907         zhao           Modified to work with new ids- files 
+#    Dec 22, 2015    18341         zhao           Modified __writeHDFData to avoid 'bad' input
 
 import sys
 sys.argv = [__name__]
@@ -465,6 +466,8 @@ required NCDC data.
                             shape = f_col.descr._v_colObjects[col].shape[0] - 1
                             #datum = datum + [self.__get_msng(f_col.type)]*(f_col.shape[0]-len(datum))
 			    datum = datum + [self.__get_msng(f_col.type)] * (f_col.descr._v_colObjects[col].shape[0] - len(datum))
+                            if len(numpy.array(datum)) != len(row[col]):
+                                continue
 			    row[col] = numpy.array(datum).astype(f_col.type) 
 		    except Exception, e:
 			self.__updateMonitor(str(e) + '\n')

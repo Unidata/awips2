@@ -13,6 +13,7 @@
      Richard Barnhill        10-28-2013 Changed/added torEMER bulletGroup to keep it locked on followups 
      Mike Dangelo            1-23-2014 Changed parseStrings for default safety rules CTAs and law enf CTA
      Evan Bookbinder         9-5-2014 Fixed law enf CTA parse strings to match   
+     Evan Bookbinder         12-7-2015 Added TOR EMER CTA back into cta1 bullet group (undid 1/23/2014 change)
 -->
 
 <warngenConfig>
@@ -189,7 +190,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="specialEvent" bulletText="Special heads-up for large event/venue" parseString="THOSE ATTENDING"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="*********** CALLS TO ACTION (CHOOSE 1 OR MORE) **********" bulletType="title"/>
-  <bullet bulletName="torEmergencyCTA" bulletText="**TOR EMERGENCY CTA**" parseString="TORNADO EMERGENCY"/>
+  <bullet bulletName="torEmergencyCTA" bulletText="**TOR EMERGENCY CTA**" parseString="TORNADO EMERGENCY" bulletGroup="cta1"/>
   <bullet bulletName="replacesSVRCTA" bulletText="TOR Replaces Severe Thunderstorm Warning" parseString="TORNADO WARNING REPLACES THE SEVERE"/>
   <!-- There are two "default" safety rules. The first...which will probably be used by most offices...includes safety rules for mobile homes. The second...which is commented out...is for large urban areas that do not have mobile homes. If you wish to switch defaults or provide both options, remove comment tags as necessary and adjust the bulletDefault="true" as appropriate if both options are allowed -->
   <bullet bulletName="defaultMobileCTA" bulletText="Default safety rules -- includes mobile homes" parseString="IF YOU ARE IN A MOBILE HOME OR OUTDOORS" bulletDefault="true" bulletGroup="cta1"/>

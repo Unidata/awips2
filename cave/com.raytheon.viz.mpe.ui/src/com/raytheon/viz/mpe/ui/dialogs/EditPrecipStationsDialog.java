@@ -90,6 +90,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Dec 07, 2015  5171      bkowal      Allow the user to change point quality to verified when the
  *                                     24-hour value is partial.
  * 
+ * Dec 10, 2015  18391     snaples     Updated changeCustomFile to not remove grid when EditStations Apply is clicked.
+ *                  
  * </pre>
  * 
  * @author snaples
@@ -1353,11 +1355,7 @@ public class EditPrecipStationsDialog extends AbstractMPEDialog implements
 
         bv.restore_bad_values(pcpn_day, precipStationList, max_stations);
 
-        if (k == 1 || k == 3)
-            grids_flag = 1;
-
-        OtherPrecipOptions op = new OtherPrecipOptions();
-        op.send_expose();
+        if (k == 1 || k == 3) grids_flag = 1;
         return;
     }
 

@@ -11,13 +11,13 @@
      Phil Kurimski   05-20-2013 Added selection for very weak tornadoes and landspouts 
      Phil Kurimski   09-19-2013 added geospatialConfig.xml                   
      Mike Dangelo 1/23/2014 changed parseString for defaultCTAs to match iTW.vm statements, 
-     removed cta1 bulletGroup from COR to ensure it is selected when doing a COR for a torEMER
      Evan Bookbinder 2-18-2014 added dssEvents hook, 2014 IBW impacts
      Evan Bookbinder 10-24-2014 Fixed parse strings for Base TOR option for COR
                                 Fixed parseString for SqLn embedded TOR for COR
      Tomalak 3-24-2015 Converted Upper to Mixed Case for Impacts                           
      Evan Bookbinder 6-15-2015  Fixed incorrect softball and grapefruit hail sizes
      Phil Kurimski   10-20-2015 Added waterspout option to basis
+     Evan Bookbinder 12-7-2015 Added TOR EMER CTA back into cta1 bullet group (undid 1/23/2014 change)
 -->
 
 <warngenConfig>
@@ -210,7 +210,7 @@ do not have mobile homes. If you wish to switch defaults or provide a single opt
   <bullet bulletName="specialEvent" bulletText="Special heads-up for large event/venue" parseString="THOSE ATTENDING"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="*********** CALLS TO ACTION (CHOOSE 1 OR MORE) **********" bulletType="title"/>
-  <bullet bulletName="torEmergencyCTA" bulletText="**TOR EMERGENCY CTA** (CATASTROPHIC Tag use only)" parseString="TORNADO EMERGENCY"/>
+  <bullet bulletName="torEmergencyCTA" bulletText="**TOR EMERGENCY CTA** (CATASTROPHIC Tag use only)" parseString="TORNADO EMERGENCY" bulletGroup="cta1"/>
   <bullet bulletName="replacesSVRCTA" bulletText="TOR Replaces Severe Thunderstorm Warning" parseString="TORNADO WARNING REPLACES THE SEVERE"/>
 <!-- There are two "default" safety rules. The first...which will probably be used by most offices...includes safety rules for mobile homes. The second...which is commented out...is for large urban areas that
 do not have mobile homes. If you wish to switch defaults or provide a single option, add comment tags as necessary and adjust the bulletDefault="true" as appropriate if both options are allowed -->    

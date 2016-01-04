@@ -354,6 +354,9 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  * Sep 29 2015 4899         rferrel     Do not send product while in operational mode and
  *                                       simulated time.
  * 07Oct2015   RM 18132     D. Friedman Exlucde certain phensigs from automatic ETN incrementing.
+ * 19Nov2015   5141         randerso    Replace commas with ellipses if product not enabled for 
+ *                                      mixed case transmission
+ * 10Dec2015   5206         randerso    Replace commas with ellipses only in WarnGen products
  * 
  * </pre>
  * 
@@ -385,6 +388,10 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     private static List<String> gfePils = Arrays.asList("WSW", "NPW", "HLS",
             "CFW", "WCN", "FFA", "MWW", "RFW");
 
+    private static final List<String> warngenPils = Arrays.asList("AWW", "EWW",
+            "FFS", "FFW", "FLS", "FLW", "FRW", "MWS", "NOW", "SMW", "SPS",
+            "SVR", "SVS", "TOR");
+
     /**
      * Default list of VTEC phenomena significance codes for which the ETN
      * should not be changed when sending a NEW-action product.
@@ -392,6 +399,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     private static final List<String> defaultNoETNIncrementPhenSigs = Arrays
             .asList("HU.A", "HU.S", "HU.W", "TR.A", "TR.W", "SS.A", "SS.W",
                     "TY.A", "TY.W");
+
     /**
      * Path of ETN rules localization file
      */
@@ -4008,11 +4016,12 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                                                 .getCaretOffset()));
                         int caretOffsetOnLine = textEditor.getCaretOffset()
                                 - lineStartOffset;
-                        int numberOfSpaces = (textEditor.getTabs() - caretOffsetOnLine
-                                % textEditor.getTabs());
+                        int numberOfSpaces = (textEditor.getTabs() - (caretOffsetOnLine % textEditor
+                                .getTabs()));
                         String spaces = "";
-                        for (int x = 0; x < numberOfSpaces; x++)
+                        for (int x = 0; x < numberOfSpaces; x++) {
                             spaces += ' ';
+                        }
                         textEditor.insert(spaces);
                         textEditor.setCaretOffset(textEditor.getCaretOffset()
                                 + numberOfSpaces);
@@ -4231,6 +4240,14 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         // section
         setCurrentHeaderAndBody();
 
+        // if product a WarnGen product and is not enabled for mixed case
+        // transmission, replace all commas with ellipses
+        if (warngenPils.contains(product.getNnnid())
+                && !MixedCaseProductSupport.isMixedCase(product.getNnnid())) {
+            textEditor.setText(textEditor.getText()
+                    .replaceAll(", {0,1}", "..."));
+        }
+
         // Mark the uneditable warning text
         if (markUneditableText(textEditor)) {
             // Add listener to monitor attempt to edit locked text
@@ -4370,6 +4387,17 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         if (originalText != null) {
             textEditor.setText(originalText);
         }
+
+        // if product is not enabled for mixed case transmission,
+        // replace all commas with ellipses
+        StdTextProduct product = TextDisplayModel.getInstance()
+                .getStdTextProduct(token);
+        if ((product != null)
+                && !MixedCaseProductSupport.isMixedCase(product.getNnnid())) {
+            textEditor.setText(textEditor.getText()
+                    .replaceAll(", {0,1}", "..."));
+        }
+
         // Mark the uneditable warning text
         if (markUneditableText(textEditor)) {
             // Add listener to monitor attempt to edit locked text
@@ -4973,8 +5001,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             int startIndex = "Attachment:".length() + 1;
             sb.append(statusBarLabel.getText().substring(startIndex));
             sb.append(") will be transmitted with this message.");
-            int response = TextWSMessageBox.open(shell, "Notice", sb.toString(),
-                    SWT.OK | SWT.CANCEL);
+            int response = TextWSMessageBox.open(shell, "Notice",
+                    sb.toString(), SWT.OK | SWT.CANCEL);
             if (SWT.OK != response) {
                 return;
             }
@@ -5100,11 +5128,13 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                      * saveEditedProduct, does not actually save anything.
                      */
                     if (shouldSetETNtoNextValue(prod)) {
-                        statusHandler.handle(Priority.INFO, "Will increment ETN for this product.");
+                        statusHandler.handle(Priority.INFO,
+                                "Will increment ETN for this product.");
                         prod.setProduct(VtecUtil.getVtec(
                                 removeSoftReturns(prod.getProduct()), true));
                     } else {
-                        statusHandler.handle(Priority.INFO, "Will NOT increment ETN for this product.");
+                        statusHandler.handle(Priority.INFO,
+                                "Will NOT increment ETN for this product.");
                     }
                     /*
                      * This silly bit of code updates the ETN of a VTEC in the
@@ -5137,13 +5167,15 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             try {
                 if (!resend) {
                     if (shouldSetETNtoNextValue(prod)) {
-                        statusHandler.handle(Priority.INFO, "Will increment ETN for this product.");
+                        statusHandler.handle(Priority.INFO,
+                                "Will increment ETN for this product.");
                         body = VtecUtil
                                 .getVtec(removeSoftReturns(MixedCaseProductSupport
                                         .conditionalToUpper(prod.getNnnid(),
                                                 textEditor.getText())));
                     } else {
-                        statusHandler.handle(Priority.INFO, "Will NOT increment ETN for this product.");
+                        statusHandler.handle(Priority.INFO,
+                                "Will NOT increment ETN for this product.");
                     }
                 }
                 updateTextEditor(body);
@@ -5191,7 +5223,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         LocalizationFile lf = PathManagerFactory.getPathManager()
                 .getStaticLocalizationFile(ETN_RULES_FILE);
         if (lf == null) {
-            throw new Exception("ETN rules file (" + ETN_RULES_FILE + ") not found.");
+            throw new Exception("ETN rules file (" + ETN_RULES_FILE
+                    + ") not found.");
         }
         return JAXB.unmarshal(lf.getFile(), EtnRules.class);
     }
@@ -5201,14 +5234,15 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         try {
             excludedPhenSigs = getETNRules().getExcludePhenSigs();
         } catch (Exception e) {
-            statusHandler.handle(Priority.WARN,
-                    "Error loading ETN assignment rules.  Will use default rules.",
-                    e);
+            statusHandler
+                    .handle(Priority.WARN,
+                            "Error loading ETN assignment rules.  Will use default rules.",
+                            e);
             excludedPhenSigs = defaultNoETNIncrementPhenSigs;
         }
         boolean result = true;
         VtecObject vo = VtecUtil.parseMessage(prod.getProduct());
-        if (vo != null && excludedPhenSigs != null
+        if ((vo != null) && (excludedPhenSigs != null)
                 && excludedPhenSigs.contains(vo.getPhensig())) {
             result = false;
         }
@@ -6450,17 +6484,10 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                         return;
                     }
 
-                    // textEditor.setWordWrap(false);
-
                     // Set the text editor's contents to the warning message.
                     textEditor.removeVerifyListener(TextEditorDialog.this);
                     textEditor.setText(w);
-                    //
-                    // // Mark the uneditable warning text
-                    // if (markUneditableText(textEditor)) {
-                    // // Add listener to monitor attempt to edit locked text
-                    // textEditor.addVerifyListener(TextEditorDialog.this);
-                    // }
+
                     showDialog();
                     long t1 = System.currentTimeMillis();
                     SimpleDateFormat sdf = new SimpleDateFormat(
@@ -6471,7 +6498,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                             + "ms to show dialog");
                     enterEditor();
 
-                    if (autoWrapMenuItem != null && !autoWrapMenuItem.isDisposed()) {
+                    if ((autoWrapMenuItem != null)
+                            && !autoWrapMenuItem.isDisposed()) {
                         Menu menu = autoWrapMenuItem.getMenu();
                         for (MenuItem item : menu.getItems()) {
                             if (item.getSelection()) {
@@ -7089,6 +7117,15 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         }
 
         textEditor.append(textProduct);
+
+        // if product a WarnGen product and is not enabled for mixed case
+        // transmission, replace all commas with ellipses
+        if (warngenPils.contains(product.getNnnid())
+                && !MixedCaseProductSupport.isMixedCase(product.getNnnid())) {
+            textEditor.setText(textEditor.getText()
+                    .replaceAll(", {0,1}", "..."));
+        }
+
         markUneditableText(textEditor);
 
         // Update text display model with the product that was
@@ -8130,8 +8167,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                                 && (allText.charAt(eol + 1) == '\n')) {
                             deleteLen = 2;
                         } else if (allText.charAt(eol) == '\n') {
-                            if (allText.charAt(eol - 1) == '.'
-                                    && allText.charAt(eol - 2) != '.') {
+                            if ((allText.charAt(eol - 1) == '.')
+                                    && (allText.charAt(eol - 2) != '.')) {
                                 // do not extend this line.
                                 return;
                             } else {

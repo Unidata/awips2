@@ -14,7 +14,8 @@
 ##           Evan Bookbinder 9-4-2015  Fixed line of storms grammar                    ##
 ##           Mike Dangelo   10-20-2015 Standard CTAs                                   ##
 ##           Phil Kurimski  10-21-2015 Back to the future day! Insert default end stmt ##
-##           Phil/Dave       10-20-2015  Added Canned statement for CAN
+##           Phil/Dave       10-20-2015  Added Canned statement for CAN                ##
+##           Evan Bookbinder 12-7-2015 Added missing satellite source                  ##
 #########################################################################################
 #parse("config.vm")
 #if(${action} == "EXT")
@@ -151,6 +152,12 @@
 #if(${list.contains(${bullets}, "public")} && ${list.contains(${bullets}, "plainRain")})
   #set ($report = "the public reported ${cause} in !** LOCATION **! that will cause ${advTypeShort}${report2}")   
 #end
+#if(${list.contains(${bullets}, "satelliteEstimates")})
+  #set($report = "satellite estimates indicate ${cause} in !** LOCATION **! that will cause ${advTypeShort}${report2}.")
+#end     
+#if(${list.contains(${bullets}, "satelliteEstimates")} && ${list.contains(${bullets}, "thunder")})
+  #set($report = "satellite estimates indicate ${cause} from thunderstorms over !** LOCATION **! that will cause ${advTypeShort}${report2}.")
+#end     
 #### added by GP
 #if(${list.contains(${bullets}, "onlyGauge")})
   #set ($report = "gauge reports indicated !**EVENT TYPE**!." )   

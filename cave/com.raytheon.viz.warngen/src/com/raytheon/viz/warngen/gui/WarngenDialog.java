@@ -41,6 +41,8 @@ import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
@@ -62,6 +64,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 
+import com.raytheon.uf.common.auth.req.CheckAuthorizationRequest;
 import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
 import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
 import com.raytheon.uf.common.dataplugin.warning.config.BulletActionGroup;
@@ -81,8 +84,10 @@ import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.maps.MapManager;
+import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState.DisplayType;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState.Mode;
+import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.texteditor.msgs.IWarngenObserver;
 import com.raytheon.viz.texteditor.util.VtecUtil;
 import com.raytheon.viz.ui.EditorUtil;
@@ -170,6 +175,8 @@ import com.vividsolutions.jts.geom.Polygon;
  *  May  7, 2015 ASM #17438  D. Friedman Clean up debug and performance logging.
  *  Jun 05, 2015 DR 17428    D. Friedman Fixed duration-related user interface issues.  Added duration logging.
  *  Sep 22, 2015 4859        dgilling    Prevent product generation in DRT mode.
+ *  Dec  9, 2015 DR 18209    D. Friedman Support cwaStretch dam break polygons.
+ *  Dec 21, 2015 DCS 17942   D. Friedman Add advanced options tab
  * </pre>
  * 
  * @author chammack
@@ -371,7 +378,21 @@ public class WarngenDialog extends CaveSWTDialog implements
             }
         });
 
-        Composite mainComposite = new Composite(shell, SWT.NONE);
+        Composite parent = shell;
+        boolean advanced = isAdvancedOptionsEnabled();
+        CTabFolder tabs = null;
+        CTabItem tabItem = null;
+        if (advanced) {
+            tabs = new CTabFolder(shell, SWT.FLAT|SWT.TOP);
+            parent = tabs;
+        }
+
+        Composite mainComposite = new Composite(parent, SWT.NONE);
+        if (advanced) {
+            tabItem = new CTabItem(tabs, SWT.NONE);
+            tabItem.setText("Product");
+            tabItem.setControl(mainComposite);
+        }
         GridLayout gl = new GridLayout(1, false);
         gl.verticalSpacing = 2;
         gl.marginHeight = 1;
@@ -385,6 +406,12 @@ public class WarngenDialog extends CaveSWTDialog implements
         createBulletListAndLabel(mainComposite);
         createBottomButtons(mainComposite);
         setInstructions();
+
+        if (advanced) {
+            tabItem = new CTabItem(tabs, SWT.NONE);
+            tabItem.setText("Polygon Options");
+            tabItem.setControl(new PolygonOptionsComposite(tabs, warngenLayer));
+        }
     }
 
     @Override
@@ -1569,9 +1596,9 @@ public class WarngenDialog extends CaveSWTDialog implements
                 } else {
                     coordinates.add(coordinates.get(0));
                     PolygonUtil.truncate(coordinates, 2);
+                    setPolygonLocked(lockPolygon);
                     warngenLayer.createDamThreatArea(coordinates
                             .toArray(new Coordinate[coordinates.size()]));
-                    setPolygonLocked(lockPolygon);
                     warngenLayer.issueRefresh();
                     damBreakInstruct = null;
                 }
@@ -1892,9 +1919,16 @@ public class WarngenDialog extends CaveSWTDialog implements
             } else {
                 bulletListManager.recreateBulletsFromFollowup(
                         warngenLayer.getConfiguration(), action, oldWarning);
-                if (bulletListManager.isDamNameSeletcted()
-                        && (action != WarningAction.NEW)) {
+                if (bulletListManager.isDamNameSeletcted()) {
                     setPolygonLocked(true);
+                    /* Need to set the warning area again now that the dam bullets
+                     * are set up so that cwaStretch=true dam polygons will work.
+                     */
+                    try {
+                        warngenLayer.resetWarningPolygonAndAreaFromRecord(oldWarning);
+                    } catch (VizException e) {
+                        statusHandler.error("Error updating the warning area for selected dam", e);
+                    }
                 }
             }
             refreshBulletList();
@@ -2715,5 +2749,26 @@ public class WarngenDialog extends CaveSWTDialog implements
                 }
             }
         });
+    }
+
+    public boolean isCwaStretchDamBulletSelected() {
+        DamInfoBullet bullet = bulletListManager.getSelectedDamInfoBullet();
+        return bullet !=  null && bullet.isCwaStretch();
+    }
+
+    private static boolean isAdvancedOptionsEnabled() {
+        boolean hasPermission = false;
+
+        try {
+            String userId = LocalizationManager.getInstance().getCurrentUser();
+            CheckAuthorizationRequest request = new CheckAuthorizationRequest(
+                    userId, "advancedOptions", "WarnGen");
+            hasPermission = (Boolean) ThriftClient.sendRequest(request);
+        } catch (Exception e) {
+            statusHandler.error("error checking permissions", e);
+        }
+
+        return ((hasPermission && CAVEMode.getMode() == CAVEMode.PRACTICE)
+                || WarngenLayer.isWarngenDeveloperMode());
     }
 }
