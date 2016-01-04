@@ -43,6 +43,7 @@ import com.raytheon.uf.common.serialization.SerializationException;
  * ------------ ---------- ----------- --------------------------
  * Jun 5, 2015  4498       nabowle     Use JAXBManager to unmarshal. Rename to
  *                                     RcmUtil.
+ * Oct 15,2015  17789      wkwock      Change max TDWR radar ID to 3099
  * 
  * </pre>
  * 
@@ -52,7 +53,7 @@ public class RcmUtil {
 
     public static RadarType getRadarType(RadarConfig rc) {
         int id = rc.getNexradID();
-        if (id >= 3000 && id <= 3045) // TODO: 3045 is the current max, but...
+        if (id >= 3000 && id <= 3099) // TODO: 3099 is the current max, but...
             return RadarType.TDWR;
         else if (id >= 4000 && id < 4050) // TODO: may be 4050
             return RadarType.ASR;

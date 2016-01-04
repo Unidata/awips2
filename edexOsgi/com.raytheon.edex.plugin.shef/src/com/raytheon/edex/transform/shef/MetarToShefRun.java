@@ -1,4 +1,5 @@
 package com.raytheon.edex.transform.shef;
+
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
@@ -27,7 +28,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.edex.decodertools.core.filterimpl.AbstractFilterElement;
@@ -36,28 +36,30 @@ import com.raytheon.uf.edex.decodertools.core.filterimpl.AbstractFilterElement;
  * MetarToShefRun is for the metarToShefRun tag in Metar2ShefFilter tag
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date       Ticket# Engineer Description
  * ---------- ------- -------- --------------------------
  * 1/10/2013  15497   wkwock   Initial creation
- *
+ * 10/28/2015  4783   bkowal   Removed ISerializableObject.
+ * 
  * </pre>
- *
+ * 
  * @author wkwock
- * @version 1.0	
+ * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class MetarToShefRun implements ISerializableObject{
+public class MetarToShefRun {
     public static final String INCLUDE_TYPE = "INCLUDE";
-    
+
     public static final String EXCLUDE_TYPE = "EXCLUDE";
+
     @XmlElement
     @DynamicSerializeElement
     private String configFileName;
-    
+
     @XmlElement
     @DynamicSerializeElement
     private String metarToShefOptions;
@@ -69,14 +71,14 @@ public class MetarToShefRun implements ISerializableObject{
     @XmlElement
     @DynamicSerializeElement
     private String filterName;
-    
+
     /**
      * 
      * @param filterFile
      */
     void createFilter(File filterFile) {
     }
-    
+
     /**
      * 
      * @return
@@ -84,13 +86,13 @@ public class MetarToShefRun implements ISerializableObject{
     public String getConfigFileName() {
         return configFileName;
     }
-    
+
     /**
      * 
      * @param name
      */
     public void setConfigFileName(String name) {
-    	configFileName = name;
+        configFileName = name;
     }
 
     /**
@@ -100,13 +102,13 @@ public class MetarToShefRun implements ISerializableObject{
     public String getMetarToShefOptions() {
         return metarToShefOptions;
     }
-    
+
     /**
      * 
      * @param name
      */
     public void setMetarToShefOptions(String name) {
-    	metarToShefOptions = name;
+        metarToShefOptions = name;
     }
 
     /**
@@ -123,7 +125,7 @@ public class MetarToShefRun implements ISerializableObject{
     public List<AbstractFilterElement> getFilterElements() {
         return filterElements;
     }
-    
+
     /**
      * 
      * @param elements
@@ -131,7 +133,7 @@ public class MetarToShefRun implements ISerializableObject{
     public void setFilterElements(List<AbstractFilterElement> elements) {
         filterElements = elements;
     }
-    
+
     /**
      * 
      * @return
@@ -139,7 +141,7 @@ public class MetarToShefRun implements ISerializableObject{
     public String getFilterName() {
         return filterName;
     }
-    
+
     /**
      * 
      * @param name

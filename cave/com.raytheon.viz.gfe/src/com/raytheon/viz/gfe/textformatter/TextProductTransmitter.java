@@ -108,7 +108,7 @@ public final class TextProductTransmitter {
      */
     public ProductStateEnum transmitProduct(boolean practice)
             throws VizException, SimulatedTimeProhibitedOpException {
-        if (SimulatedTimeOperations.isTransmitAllowed()) {
+        if (!SimulatedTimeOperations.isTransmitAllowed()) {
             throw SimulatedTimeOperations
                     .constructProhibitedOpException("Transmit GFE text products.");
         }

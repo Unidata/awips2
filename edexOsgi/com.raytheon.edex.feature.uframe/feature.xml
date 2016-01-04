@@ -72,13 +72,6 @@
          id="com.raytheon.uf.edex.archive.feature"
          version="0.0.0"/>
 
-   <!-- Comment out this include before checking in. This plugin only for debugging. -->
-   <!--
-   <includes
-         id="com.raytheon.uf.edex.archive.feeder.feature"
-          version="0.0.0"/>
-   -->
-
    <includes
          id="com.raytheon.uf.edex.text.feature"
          version="0.0.0"/>
@@ -106,11 +99,6 @@
    <includes
          id="com.raytheon.uf.edex.ncep.feature"
          version="0.0.0"/>
-
-   <!-- Uncomment to deploy the National Central Operations EDEX plugins locally -->
-   <!-- includes
-         id="com.raytheon.uf.edex.ncep.nco.feature"
-         version="0.0.0"/-->
 
    <includes
          id="com.raytheon.uf.edex.binlightning.feature"
@@ -142,6 +130,10 @@
 
    <includes
          id="gov.noaa.nws.sr.oun.edex.mping.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="gov.nasa.msfc.sport.edex.glmdecoder.feature"
          version="0.0.0"/>
 
 </feature>

@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -75,6 +76,7 @@ import org.eclipse.pde.internal.core.product.ProductModel;
  * Oct 09, 2015 4759       bkowal      Added an exclude features parameter.
  * Oct 20, 2015 4759       bkowal      Handle non-Eclipse features that are
  *                                     embedded in other features.
+ * Oct 23, 2015 4759       bkowal      Support fully upgradeable RCP products.
  * 
  * </pre>
  * 
@@ -131,6 +133,13 @@ public class Main {
 
     private static final String OUTPUT_FILE_ARG = "outputFile";
 
+    /*
+     * A single feature that will act as a base feature. Other features listed
+     * in the product will be installed on top of this feature separately so
+     * that they become upgradeable.
+     */
+    private static final String BASE_UPGRADE_FEATURE_ARG = "baseUpgrade";
+
     private Path eclipsePluginsPath;
 
     private Path eclipseFeaturesPath;
@@ -148,6 +157,8 @@ public class Main {
     private String excludeFeatures;
 
     private String buildProduct;
+
+    private String baseFeature;
 
     private static final String COMMON_BASE_FEATURE = "com.raytheon.uf.common.base.feature";
 
@@ -216,6 +227,7 @@ public class Main {
         this.buildFeatures = System.getProperty(BUILD_FEATURES_ARG);
         this.excludeFeatures = System.getProperty(EXCLUDE_FEATURES_ARG);
         this.buildProduct = System.getProperty(BUILD_PRODUCT_ARG);
+        this.baseFeature = System.getProperty(BASE_UPGRADE_FEATURE_ARG);
         /*
          * At least one must be specified.
          */
@@ -233,6 +245,14 @@ public class Main {
             throw new Exception("Both property " + BUILD_FEATURES_ARG
                     + " and property " + BUILD_PRODUCT_ARG
                     + " cannot be specified at the same time.");
+        }
+        /*
+         * Both base feature and product must be specified.
+         */
+        if (this.baseFeature != null && this.buildProduct == null) {
+            throw new Exception("Property " + BUILD_PRODUCT_ARG
+                    + " must be specified when using the "
+                    + BASE_UPGRADE_FEATURE_ARG + " property.");
         }
 
         Path baseLocationPath = Paths.get(baseLocationDirectory);
@@ -313,7 +333,7 @@ public class Main {
          * Determine the minimum set of features that should be included in the
          * build order.
          */
-        Set<BuildFeature> featuresToBuild = new HashSet<>();
+        Set<BuildFeature> featuresToBuild = new LinkedHashSet<>();
         boolean allFeatures = false;
         ProductModel productModel = null;
         Path productPath = null;
@@ -361,8 +381,10 @@ public class Main {
                 featuresToBuild.addAll(this.buildFeaturesMap.values());
                 allFeatures = true;
             } else {
-                for (IProductFeature feature : productModel.getProduct()
-                        .getFeatures()) {
+                IProductFeature[] features = productModel.getProduct()
+                        .getFeatures();
+                for (int i = 0; i < features.length; i++) {
+                    IProductFeature feature = features[i];
                     BuildFeature buildFeature = this.buildFeaturesMap
                             .get(feature.getId());
                     if (buildFeature == null) {
@@ -378,7 +400,7 @@ public class Main {
 
         // Ensure all dependencies are present for the features that need to be
         // built.
-        if (allFeatures == false) {
+        if (allFeatures == false && this.buildProduct == null) {
             Set<BuildFeature> dependenciesToAdd = new HashSet<>();
             for (BuildFeature buildFeature : featuresToBuild) {
                 this.addDependentFeatures(dependenciesToAdd, buildFeature);
@@ -387,20 +409,28 @@ public class Main {
             featuresToBuild.addAll(dependenciesToAdd);
         }
 
-        List<BuildFeature> orderedFeatures = new ArrayList<>(
-                featuresToBuild.size());
-        for (BuildFeature buildFeature : featuresToBuild) {
-            this.topoSort(buildFeature, orderedFeatures, featuresToBuild);
-        }
+        /*
+         * Single dimensional sort is not enough. For, now as this is currently
+         * the case, the features are in the order that they will need to be
+         * built in the product.
+         */
+        List<BuildFeature> orderedFeatures = new LinkedList<>(featuresToBuild);
 
         if (productModel != null) {
             IProductModelFactory productModelFactory = productModel
                     .getFactory();
             List<IProductFeature> productFeatures = new LinkedList<>();
-            for (int i = 0; i < orderedFeatures.size(); i++) {
+            if (baseFeature == null) {
+                for (int i = 0; i < orderedFeatures.size(); i++) {
+                    IProductFeature productFeature = productModelFactory
+                            .createFeature();
+                    productFeature.setId(orderedFeatures.get(i).getId());
+                    productFeatures.add(productFeature);
+                }
+            } else {
                 IProductFeature productFeature = productModelFactory
                         .createFeature();
-                productFeature.setId(orderedFeatures.get(i).getId());
+                productFeature.setId(this.baseFeature);
                 productFeatures.add(productFeature);
             }
             productModel.getProduct().addFeatures(
@@ -736,7 +766,8 @@ public class Main {
                         featureChild.getId(), this.eclipseFeaturesPath);
                 if (resourcePaths.isEmpty()) {
                     throw new Exception("Failed to find feature with id: "
-                            + featureChild.getId() + "!");
+                            + featureChild.getId() + " for "
+                            + containingBuildFeature.getId() + "!");
                 }
                 embeddedBuildFeature = new BuildFeature(resourcePaths.get(0)
                         .resolve(BuildFeature.FILENAME), true);

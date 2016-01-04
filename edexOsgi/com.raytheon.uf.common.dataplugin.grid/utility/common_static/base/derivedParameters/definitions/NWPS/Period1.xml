@@ -19,7 +19,7 @@
         further_licensing_information.
     -->
 <DerivedParameter name="Period1" abbreviation="Period1" unit="s">
-    <Method name="Alias" level="Surface">
-    	<Field abbreviation="SWPER" level="Primary" />
+    <Method name="Alias" levels="Surface">
+        <Field abbreviation="SWPER" level="Primary" />
     </Method>
 </DerivedParameter>

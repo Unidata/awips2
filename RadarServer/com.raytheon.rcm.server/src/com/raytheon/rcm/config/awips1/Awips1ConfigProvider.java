@@ -64,6 +64,7 @@ import com.raytheon.rcm.server.Log;
  *  2009                     dfriedma    Initial version
  *  2012-04-30   DR 14904    D. Friedman Add backup links to dial ORPGs.
  *  2015-06-10   4498       nabowle     Rename Util->RcmUtil
+ *  2015-10-15   DCS 17789   wkwock      Change max TDWR radar ID to 3099
  * </pre>
  */
 public class Awips1ConfigProvider implements ConfigurationProvider {
@@ -502,8 +503,8 @@ public class Awips1ConfigProvider implements ConfigurationProvider {
             if (name.substring(1, 4).equalsIgnoreCase(namelet)) {
                 int nexradId = radars.get(name).getNexradID();
                 if (linespeed.equals("D6")) {
-                    // TODO: can we really rely on the 3045 number?
-                    if (nexradId >= 3000 && nexradId <= 3045)
+                    // TODO: can we really rely on the 3099 number?
+                    if (nexradId >= 3000 && nexradId <= 3099)
                         return name;
                 } else {
                     if (nexradId < 3000

@@ -44,9 +44,19 @@ class PirepPlotDelegate(PlotDelegate):
         windSpeed = int(rec.getFloat("windSpeed"))
         if windDir > -1080 or windSpeed > 0:
             sampleString += " %d/%dKT" % (windDir, windSpeed)
-        turbFreq = rec.getString("turbFreq")
-        turbInten = rec.getString("turbInten")
-        turbType = rec.getString("turbType")
+        
+        try:
+            turbFreq = rec.getString("turbFreq")
+        except ValueError:
+            turbFreq = ""
+        try:
+            turbInten = rec.getString("turbInten")
+        except ValueError:
+            turbInten = ""
+        try:
+            turbType = rec.getString("turbType")
+        except ValueError:
+            turbType = ""
         if turbFreq != "" or turbInten != "" or turbType != "":
             sampleString += " TB"
             if turbFreq != "":
@@ -58,7 +68,45 @@ class PirepPlotDelegate(PlotDelegate):
             if turbType != "":
                 sampleString += " "
                 sampleString += turbType
+                
+        try:
+            iceInten = rec.getString("iceInten")
+        except ValueError:
+            iceInten = ""
+        try:
+            iceType = rec.getString("iceType")
+        except ValueError:
+            icetype = ""
+        if iceInten != ""  or iceType != "":
+            sampleString += " IC"
+            if iceInten != "":
+                sampleString += " "
+                sampleString += iceInten
+            if iceType != "":
+                sampleString += " "
+                sampleString += iceType
         return sampleString
+    
+    def isValid(self, rec):
+        # DCS10257
+        # only show non-severe Turb/Ice data, non-UUA (urgent)
+        if rec.isValidParameter("obsText"):
+            obsText = rec.getString("obsText")
+            if "UUA" in obsText:
+                # urgent message
+                return False
+        if rec.isValidParameter("turbInten"):
+            turbInten = rec.getString("turbInten")
+            if (turbInten == "SEV") or (turbInten == "EXTRM"):
+                # high severity turbulence
+                return False
+        if rec.isValidParameter("iceInten"):
+            iceInten = rec.getString("iceInten")
+            if (iceInten == "SEV") or (iceInten == "EXTRM"):
+                # high severity turbulence, high severity icing
+                return False
+        # low or no severity, non-urgent data
+        return True
 
 plotDelegate = PirepPlotDelegate()
 
@@ -92,7 +140,8 @@ plotDelegate = PirepPlotDelegate()
 </style>
 <symbol overflow="visible" id="plotData" class="info">
   <text id="sampleParams1" plotMode="sample" plotParam="obsText,stationId,longitude,latitude,timeObs,flightLevel"> </text> 
-  <text id="sampleParams2" plotMode="sample" plotParam="temperature,windDir,windSpeed,turbInten,turbFreq,turbType"> </text> 
+  <text id="sampleParams2" plotMode="sample" plotParam="temperature,windDir,windSpeed,turbInten,turbFreq,turbType,iceInten,iceType"> </text> 
+  <text id="validityParams" plotMode="null" class="text" plotParam="obsText,turbInten,iceInten" x="0" y="0" visibility="hidden">0</text>
   <text id="fltLvlText" plotMode="text" plotParam="flightLevel" plotFormat="%3.0f" plotUnit="hft" style="text-anchor: start;" x="10px" y="-10px">75</text>
   <text id="tempText" plotMode="text" plotParam="temperature" plotFormat="%3.0f" style="text-anchor: end;" x="-10px" y="-10px">75</text>
   <g id="windVaneText" plotMode="barb" plotParam="windSpeed,windDir" plotUnit="kts" x="0" y="0" transform="rotate(0,0,0)">

@@ -38,6 +38,7 @@ import com.raytheon.viz.texteditor.TextWarningConstants;
  *    ------------  ----------  ----------- --------------------------
  *    06182008                  bwoodle     additional format method overloads, javadocs.
  *    Sep 12, 2014 ASM RM#15551 Qinglu Lin  Added formatUseNoonMidnight().
+ *    Oct 21, 2015   5022       randerso    Changes for mixed case WarnGen products
  * 
  * </pre>
  * 
@@ -110,11 +111,14 @@ public class DateUtil {
         return str;
     }
 
-    public String formatUseNoonMidnight(Date date, DateFormat format, int interval, String tz) {
-        return formatUseNoonMidnight(date, format, interval, getTimeZoneFromString(tz));
+    public String formatUseNoonMidnight(Date date, DateFormat format,
+            int interval, String tz) {
+        return formatUseNoonMidnight(date, format, interval,
+                getTimeZoneFromString(tz));
     }
 
-    public String formatUseNoonMidnight(Date date, DateFormat format, int interval, TimeZone tz) {
+    public String formatUseNoonMidnight(Date date, DateFormat format,
+            int interval, TimeZone tz) {
         String str;
         Date workingDate = date;
         if (interval > 0) {
@@ -125,9 +129,9 @@ public class DateUtil {
             str = format.format(workingDate);
         }
         Matcher m = timePtrn.matcher(str);
-        if(m.find()) {
-            str = str.replace("1200 AM", "MIDNIGHT");
-            str = str.replace("1200 PM", "NOON");
+        if (m.find()) {
+            str = str.replace("1200 AM", "midnight");
+            str = str.replace("1200 PM", "noon");
         }
         return str;
     }
@@ -194,11 +198,11 @@ public class DateUtil {
         Matcher m = periodPtrn.matcher(format(date, format, interval, tz));
         if (m.find()) {
             if (m.group(2).equalsIgnoreCase("AM")) {
-                return " MORNING";
+                return " morning";
             } else if (Integer.parseInt(m.group(1)) < 600) {
-                return " AFTERNOON";
+                return " afternoon";
             } else {
-                return " EVENING";
+                return " evening";
             }
         } else {
             return "";
