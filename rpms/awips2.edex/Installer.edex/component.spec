@@ -143,10 +143,6 @@ if [ -d $UTILITY ] && [ -f $UTIL_FILENAME ]; then
    rm -f $UTIL_FILENAME
 fi
 
-
-chmod 775 /awips2/edex/data/manual
-chmod 775 /awips2/edex/logs
-
 %preun
 if [ "${1}" = "1" ]; then
    exit 0
