@@ -94,12 +94,18 @@ import com.raytheon.viz.gfe.textformatter.TextFmtParserUtil;
  * 12/04/2015  13753       lshi        revert 13753
  *
  *
+ * 11/19/2015   5141       randerso    Changed upper() to also replace commas with ellipses
+ * 12/22/2015  18428       lshi        Issuing a Correction of a corrected product via an existing
+ *                                     Product Editor in GFE throws and error and unlocks text,
+ *                                     wordWrap
+ *
  * </pre>
  *
  * @author lvenable
  * @version 1.0
  *
  */
+
 public class StyledTextComp extends Composite {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(StyledTextComp.class);
@@ -306,7 +312,7 @@ public class StyledTextComp extends Composite {
                 updateTextStyle(event);
                 checkAutoWrap(event);
 
-                if (corMode && !updatingForCor) {
+                if (corMode && !updatingForCor && !isSystemTextChange()) {
                     updatingForCor = true;
                     try {
                         makeCorrections();
@@ -339,11 +345,9 @@ public class StyledTextComp extends Composite {
      */
     public void setProductText(String text) {
         newProduct = true;
-        textEditorST.setText(EMPTY);
-        textEditorST.setStyleRange(null);
-
         try {
             parseProductText(text);
+            textEditorST.setStyleRange(null);
             textEditorST.setText(text);
             lockText();
             findFramingCodes();
@@ -351,6 +355,7 @@ public class StyledTextComp extends Composite {
             newProduct = false;
         } catch (JepException e) {
             statusHandler.error(PRODUCT_PARSE_ERROR, e);
+            textEditorST.setText(EMPTY);
         }
     }
 
@@ -1293,7 +1298,7 @@ public class StyledTextComp extends Composite {
      *         <ol>
      *         <li value=0>The index in the old content of the first character</li>
      *         <li>The index in the old content of the last character</li>
-     *         <li>The length of the replacement text</li>
+     *         <li>The length of the replacemetruent text</li>
      *         </ol>
      */
     public int[] wordWrap(StyledText st, int cursorIndex, int width) {
@@ -1468,7 +1473,9 @@ public class StyledTextComp extends Composite {
         post = post.replaceAll("^\\s*", "");
 
         String text = pre + rchar + post;
-        st.replaceTextRange(startIndex, (1 + endIndex) - startIndex, text);
+        if (startIndex > 0) {
+            st.replaceTextRange(startIndex, (1 + endIndex) - startIndex, text);
+        }
         int newCaretOffset = startIndex + pre.length();
         st.setCaretOffset(newCaretOffset);
 
