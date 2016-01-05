@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
 # pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
+#
 # U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
-# 
+#
 # Contractor Name:        Raytheon Company
 # Contractor Address:     6825 Pine Street, Suite 340
 #                         Mail Stop B8
 #                         Omaha, NE 68106
 #                         402.291.0100
-# 
+#
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -22,7 +22,7 @@
 # NOTE: THIS FILE SHOULD NOT BE USER-MODIFIED.  INSTEAD REFER TO THE
 # LOCAL CONFIG DOCUMENTATION ON HOW TO OVERRIDE SETTINGS IN THIS FILE.
 #
-# Baseline GFE server configuration 
+# Baseline GFE server configuration
 #
 # ----------------------------------------------------------------------------
 #
@@ -30,7 +30,7 @@
 #
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
-#    08/09/2013          #1571     randerso       Changed projections to use the Java             
+#    08/09/2013          #1571     randerso       Changed projections to use the Java
 #                                                 ProjectionType enumeration
 #    10/03/2013          #2418     dgilling       Update for new pSurge 2.0 data.
 #    10/03/2013          #2424     randerso       Change localTC to use dateutil instead of pytz
@@ -42,7 +42,7 @@
 #    04/17/2014          #2934     dgilling       Remove alias for TPCSurgeProb D2D database.
 #    05/09/2014          #3148     randerso       Add tpHPCndfd to D2DAccumulativeElements for HPCERP
 #    06/20/2014          #3230     rferrel        Added URMA25.
-#    05/29/2014          #3224     randerso       Added "SPC":8 to D2DDBVERSIONS 
+#    05/29/2014          #3224     randerso       Added "SPC":8 to D2DDBVERSIONS
 #    07/09/2014          #3146     randerso       Removed unused import
 #    07/10/2014                    swhite         Add surge and tropical threat WEs and their dependencies
 #    01/08/2015          #15035    lshi           add site WNJ
@@ -51,13 +51,13 @@
 #                                                 Added Topo to ISCPARMS
 #    01/19/2015          #4014     dgilling       Added ETSS.
 #    02/11/2015          #4053     rferrel        Added GLWN and moved GLERL to display only for Great Lakes sites..
-#    01/19/2015          #4014     dgilling       Added ETSS. 
+#    01/19/2015          #4014     dgilling       Added ETSS.
 #    02/24/2015          #16692    byin           Added RTMA. Removed gfsLR and GWW233
 #    03/19/2015          #4300     randerso       Remove GUMa as it is obsolete (per Shannon White)
 #    03/30/2015          #17288    bhunder        Added Guam-RTMA to D2D models
 #    03/30/2015          #17206    yteng          Changed some parameters that are not rate parameters
 #    03/31/2015          #17288    bhunder        Added Weather Params for RTMA
-#    04/03/2015          #4367     dgilling       Change WindGust's time constraints back to TC1 
+#    04/03/2015          #4367     dgilling       Change WindGust's time constraints back to TC1
 #                                                 for Fcst/Official.
 #    04/08/2015          #4383     dgilling       Define FireWX ISC configuration parameters.
 #    04/15/2015          #17383    yteng          Change localTC to fix error that time constraints
@@ -69,17 +69,519 @@
 #
 #    05/29/2015          #17144    bhunder        Added weather Params for URMA25 and OCONUS RTMA
 #    09/02/2015          #4819     rferrel        Added HWRF.
-#    10/07/2015          #4958     dgilling       Added support for NationalBlend D2D data.  
+#    09/09/2015          16287     amoore         Additional validation of user input
+#    10/07/2015          #4958     dgilling       Added support for NationalBlend D2D data.
 #    10/13/2015          #4961     randerso       Updated NewTerrain/BaseTerrain database definitions
+#    10/30/2015          #17940    jendrowski     Responded to Code Review.  Mostly syntactical changes.
 ####################################################################################################
 
 #----------------------------------------------------------------------------
 # USEFUL DEFINES
 #----------------------------------------------------------------------------
-#import siteConfig, LogStream, config, imp
-import siteConfig,imp
 
+import siteConfig,imp
+import pprint
+import re
+import sys
+import LogStream
+from collections import defaultdict
 BASELINE = getattr(siteConfig, 'BASELINE', 0)
+
+#D scfp=open('/localapps/logs/scdebug.log','w')
+class dbConfig(object):
+    """Class to create GFE databases from modelDict"""
+    def __init__(self,modelDict):
+        self.modelDict=modelDict
+        self.dbs=[]
+        self.D2DMODELS=[]
+        self.D2DDBVERSIONS={}
+        self.D2DAccumulativeElements={}
+        self.INITMODULES={}
+        self.INITSKIPS={}
+
+    def addConfiguredModels(self,ignoreList=[]):
+        """Setup model databases defined in dbConfigDict.
+        ignoreList can be used to filter out specific models
+        """
+        for m in self.modelDict:
+            if m in ignoreList:
+                continue
+            # Don't allow BC model if regular is in ignore list
+            if m[-2:] == 'BC' and m[:-2] in ignoreList:
+                continue
+            self.addGfeDB(m,self.modelDict[m])
+        return
+    def addGfeDB(self,modelname,dbConfigDict):
+        """Does all the work needed for adding a model to GFE from entries
+        in dbConfigDict. This populates dbs and sets various self
+        variables.
+        """
+        if "DB" in dbConfigDict and "Parms" in dbConfigDict:
+            self.dbs.append((dbConfigDict["DB"],dbConfigDict["Parms"]))
+        if "D2DAccumulativeElements" in dbConfigDict:
+            self.D2DAccumulativeElements[modelname]=dbConfigDict["D2DAccumulativeElements"]
+        if "D2DDBVERSIONS" in dbConfigDict:
+            self.D2DDBVERSIONS[modelname]=dbConfigDict["D2DDBVERSIONS"]
+        if "D2DMODELS" in dbConfigDict:
+            self.D2DMODELS.append((dbConfigDict["D2DMODELS"],modelname))
+        if "INITMODULES" in dbConfigDict:
+            # Find if the model is used in any currently defined INITMODULES
+            entry=next((x for x in self.INITMODULES.iteritems() if len(x[1])==1 and modelname in x[1]),None)
+            if entry is not None:
+                del self.INITMODULES[entry[0]]
+            if type(dbConfigDict["INITMODULES"]) is tuple:
+                for mname in dbConfigDict["INITMODULES"][1]:
+                    entry=next((x for x in self.INITMODULES.iteritems() if len(x[1])==1 and mname in x[1]),None)
+                    if entry is not None:
+                        del self.INITMODULES[entry[0]]
+                self.INITMODULES[dbConfigDict["INITMODULES"][0]] = dbConfigDict["INITMODULES"][1]
+            else:
+                self.INITMODULES[dbConfigDict["INITMODULES"]]=[modelname]
+        if "INITSKIPS" in dbConfigDict:
+            self.INITSKIPS[modelname]=dbConfigDict["INITSKIPS"]
+
+#===============================================================================
+#          Utility methods to manage GFE configuration
+#===============================================================================
+def mergeModelDicts(baseDict,addDict):
+    """Combine serverConfig model dict and regional modelDict into one modelDict.
+    Settings in baseDict are maintained unless overridden in addDict. The merging
+    is done on a key by key basis of a specific model's dictionary (baseDict and
+    addDict are dictionaries of dictionaries)
+    This changes baseDict in place so the object passed in as baseDict is modified
+    in the caller's scope.
+    """
+    for m,v in addDict.iteritems():
+        if m not in baseDict:
+            baseDict[m]=v
+        else:
+            for key,val in v.iteritems():
+                baseDict[m][key]=val
+
+def updateModelDict(modelDict,model,key,value):
+    """Udates a specific entry for a model in modelDict.  model and key are dictionary
+    keys into modelDict and modelDict[model] respectively. If model is not defined
+    in modelDict, then a new entry is created. Otherwise, value replaces any existing
+    value in modelDict[model][key].
+    This changes modelDict in place so the object passed in as modelDict is modified
+    in the caller's scope.
+    """
+    if model in modelDict:
+        modelDict[model][key]=value
+    else:
+        modelDict[model]= {key : value}
+
+def alterModelDef(dbTuple, name=None, format=None, dbType=None, single=None,
+                  official=None, numver=None, purgeAge=None):
+    """Alter GFE database definition. The definition is used in the dbs setting
+    and has form:
+                     (name,  format,  type, single, official, numVer, purgeAge)
+    i.e., Practice = ("Fcst",  GRID, "Prac",   YES,       NO,      1,   24)
+
+    Won't use these exact names since some might conflict with builtins
+    Only supply what you want to change. To clone a model definition, just
+    supply name='newname'
+    """
+    n,f,t,s,o,v,p=dbTuple
+    l=[]
+    for old,new in [(n,name),(f,format),(t,dbType),(s,single),(o,official),
+                    (v,numver),(p,purgeAge)]:
+        if new is None:
+            l.append(old)
+        else:
+            l.append(new)
+    return tuple(l)
+
+def createModelDict(localsDict,dbs,D2DMODELS,D2DDBVERSIONS,D2DAccumulativeElements,
+                  INITMODULES,INITSKIPS):
+    """Convert serverConfig model configuration to a dictionary. This allows
+    legacy serverConfig settings in dbs,D2DMODELS,INITMODULES, etc. to be
+    maintained and then converted into a single dictionary where all settings
+    for a model are together.
+
+    WARNING: There can only be one version of a model in the dbs list. Fcst
+    practice and test databases have to be handled separately.  This is ok
+    because these databases are defined after any localConfig customizations
+    of the normal Fcst database.
+
+    modelDict contains the following keys. Only define what is needed, i.e.,
+    it is not required to have every key defined
+    "DB": Definition of the database, i.e., the first value in a dbs entry:
+          ("wrfems", GRID, "", NO,  NO,  3, 0). This must be a tuple. The name
+          in the DB entry must be the same as the model name used as the key
+          into the modelDict variable.
+
+    "Parms" : Definition of the weather element parameters in the database,
+          i.e., the second part of the dbs entry. This is a list of tuples.
+
+    "D2DMODELS" : D2D metadata database name for the source model.
+
+    "INITMODULES': Name of the SmartInit module. This should be just the module
+          name as a string, not a list.
+
+    "D2DAccumulativeElements" : List of parms that are accumulative
+
+    "D2DDBVERSIONS" : Number of versions of a D2D model to show in the Weather
+          Element Browser. Defaults to 2 if not supplied.
+
+    "INITSKIPS" : Used to skip model cycles.
+
+    Example for a model:
+
+    modelDict["CMCreg"]={
+         "DB": ("CMCreg", "GRID", "", NO, NO, 2, 0),
+         "Parms": [([Temp, Td, RH, Wind, WindGust, Sky, MixHgt, TransWind, QPF,
+                     PoP, SnowAmt, SnowRatio], TC3),
+                   ([PoP6, QPF6, QPF6hr, CQPF1],TC6NG),
+                   ([QPF12, PoP12],TC12NG),
+                   ([MinRH], MinRHTC), ([MaxRH], MaxRHTC),
+                   ([MaxT], MaxTTC), ([MinT], MinTTC),
+                  ],
+         "D2DMODELS": "Canadian-Reg",
+         "INITMODULES": "Local_CMCreg",
+         "D2DAccumulativeElements": ["tpgemreg","tprun","tp3hr","tp6hr"],
+         "D2DDBVERSIONS": 3,
+    }
+    """
+    # Create self initializing dictionary via collections.defaultdict
+    modelDict=defaultdict(dict)
+    parmsDict={}
+    tcDict={}
+
+    for n,v in sorted(localsDict.items()):
+        if type(v) is tuple and type(v[0]) is str and v[1] in [DISCRETE,SCALAR,VECTOR,WEATHER]:
+            parmsDict[n]=v
+        elif type(v) is tuple and len(v)==3 and type(v[0]) is int:
+            tcDict[n]=v
+
+    # Process dbs entries, i.e., model database definition
+    tcDict={}
+    for item in sorted(dbs):
+        plist=[]
+        parmTmpDict={}
+        pDict={}
+        for pt in item[1]:
+            parmsList=[]
+            # Try to find named parm setting
+            for p in pt[0]:
+                pname=p[0]
+                pDict[pname]=p
+                parmsList.append(pname)
+
+            # Try to get a named time constraint
+            name=next((name for name,v in tcDict.iteritems() if v == pt[1]), None)
+            if name is None:
+                name = `pt[1]`
+            tcDict[name]=pt[1]
+            if name in parmTmpDict:
+                parmTmpDict[name]+=parmsList
+            else:
+                parmTmpDict[name]=parmsList
+
+        # This consolidates parms by time constraint and sorts parm names.
+        for tc in sorted(parmTmpDict.keys()):
+            theParms=[]
+            for p in sorted(parmTmpDict[tc]):
+               theParms.append(pDict[p])
+            plist.append((theParms, tcDict[tc]))
+
+        modelDict[item[0][0]]={'DB':item[0],'Parms':plist}
+
+    for si,ml in INITMODULES.items():
+        m=ml[0]
+        modelDict[m]['INITMODULES']=si
+    for m,v in D2DDBVERSIONS.items():
+        modelDict[m]['D2DDBVERSIONS']=D2DDBVERSIONS[m]
+
+    for m,v in D2DAccumulativeElements.items():
+        modelDict[m]['D2DAccumulativeElements']=v
+    for m,v in INITSKIPS.items():
+        modelDict[m]['INITSKIPS']=v
+    for item in D2DMODELS:
+        if type(item) is str:
+           m=item
+           v=item
+        else:
+           v,m=item
+        if m in modelDict:
+            modelDict[m]['D2DMODELS']=v
+        else:
+            modelDict[m]={'D2DMODELS':v}
+    return modelDict
+
+def changeParm(modelDict,pname,value,modelList=['Fcst']):
+    """Alter a parm that is defined in modelDict Parm setting.
+
+    pname: name of parm. This is a string not the parm definition
+    value: the parm definition tuple. If the None object, then the parm
+        will be deleted.
+    modelList: List of model names to check. An empty list will check all
+        models in modelDict.
+    Return: Nothing. modelDict is altered in place.
+    """
+    if not modelList:
+        modelList=modelDict.keys()
+    for m in modelList:
+        if m not in modelDict or 'Parms' not in modelDict[m] or \
+                 not checkForParm(modelDict[m]['Parms'],pname):
+            continue
+
+        newpt=[]
+        # parms is tuple (parmList,TC)
+        for pList,tc in modelDict[m]['Parms']:
+            # This makes a copy of the list of parms, not a reference
+            # this is needed because we are changing the list in place.
+            theParms= list(pList)
+            matchParm=next((p for p in theParms if p[0] == pname),None)
+            if matchParm:
+                theParms.remove(matchParm)
+                if value is not None:
+                    theParms.append(value)
+            if theParms:
+                newpt.append((theParms,tc))
+        if newpt != modelDict[m]['Parms']:
+            modelDict[m]['Parms'] = newpt
+
+def changeParmTC(modelDict,pname,newTC,modelList=['Fcst']):
+    """Alter a parm in that is defined in modelDict Parm setting.
+
+    pname: name of parm. This is a string not the parm definition
+    newTC: the new Time Contraint (tuple)
+    modelList: List of model names to check. An empty list will check all
+        models in modelDict.
+    Return: Nothing. modelDict is altered in place.
+    """
+    if not modelList:
+        modelList=modelDict.keys()
+    for m in sorted(modelList):
+        if m not in modelDict or 'Parms' not in modelDict[m]:
+            continue
+#d        print m,"checkForParm=",checkForParm(modelDict[m]['Parms'],pname)
+        if not checkForParm(modelDict[m]['Parms'],pname):
+            continue
+
+        newpt=[]
+        # Parms is tuple (parmList,TC)
+        for pList,tc in modelDict[m]['Parms']:
+            # This makes a copy of the list of parms, not a reference
+            # this is needed because we are changing the list in place.
+            theParms= list(pList)
+            matchParm=next((p for p in theParms if p[0] == pname),None)
+#d            print m,matchParm,tc,newTC,len(theParms)
+            if matchParm:
+                theParms.remove(matchParm)
+                newpt.append(([matchParm],newTC))
+#d                print "Added",matchParm,newTC
+            if theParms:
+#d                print "restored",theParms," to",tc
+                newpt.append((theParms,tc))
+        if newpt != modelDict[m]['Parms']:
+#d            print 'Updated model',m
+            modelDict[m]['Parms'] = newpt
+#d            print modelDict[m]['Parms'],'\n'
+
+def checkForParm(parmDef,pname):
+    """Check a model parm definition if a parm named pname is in it.
+
+    parmDef: list of tuples, each tuple is a list of parms and a time
+        contraint. Call with modelDict[modelname]['Parms].
+    pname: Name of parm (string).
+    Returns: Boolean True if found, or False
+    """
+    for item in parmDef:
+        t=next((pt for pt in item[0] if pt[0] == pname),None)
+        if t is not None:
+            return True
+    return False
+
+def getParmNames(parmsDef):
+    """Return a list of parm names in a model parm definition
+
+    parmsDef: list of tuples, each tuple is a list of parms and a time
+        constraint. Call with modelDict[modelname]['Parms].
+    Returns: List of string parameter names
+
+    Here's an example of how to remove unused parms from Fcst, this can
+    run in localConfig:
+
+    parmsToRemove=[]
+    for p in getParmNames(serverConfig.modelDict['Fcst']):
+        pl=p.lower()
+        for t in ['period','swell','wave','surf', 'surge']:
+            if t in pl:
+                parmsToRemove.append(p)
+                break
+    removeParms(serverConfig.modelDict,'Fcst',parmsToRemove)
+    """
+    result=[]
+    for pList,tc in parmsDef:
+        # p is the parmDef tuple where first item is the parm name
+        newParms=[p[0] for p in pList]
+        result+=newParms
+    return sorted(result)
+
+def printServerConfig(moduleObj,localsDict, logFile="/awips2/edex/logs/localConfig.log"):
+    """Dump out ServerConfig final settings. localsDict is a dictionary of
+    local variables in localConfig, normally locals().
+    """
+    # serverConfig log text
+    scText=""
+    try:
+        with open(logFile,"w") as fp:
+            # Print out dbs entries, i.e., model database definition
+            dbs=DATABASES
+            for item in sorted(dbs):
+                scText += "\ndbs[%s]: %s\n" % (item[0][0], str(item[0]))
+                scText += _dumpParms(item[1])
+
+            # Dump out serverConfig settings likely to be modified by localConfig
+            scvars=["D2DMODELS", "INITMODULES",
+                    "D2DDBVERSIONS", "D2DAccumulativeElements",
+                    "REQUEST_ISC", "SEND_ISC_ON_SAVE",
+                    "SEND_ISC_ON_PUBLISH", "REQUESTED_ISC_PARMS",
+                    "ExtraWEPrecision", "INITSKIPS",
+                    "HazardKeys",
+                    "MAX_USER_BACKGROUND_PROCESSES",
+                   ]
+
+            for item in scvars:
+                scText += "\n%s:\n" % item
+                obj=getattr(moduleObj,item,None)
+                if type(obj) is list:
+                    obj.sort()
+                scText += pprint.pformat(obj) +'\n'
+
+            # This prints out all variables named parms*, i.e., parmsNAM12
+            for k in sorted(localsDict.keys()):
+                if k == "OFFICIALDBS" or re.match("parms[A-Z]+",k) is not None or \
+                         k == "extraISCparms":
+                    scText += "\n%s:\n" % k
+                    scText += _dumpParms(localsDict[k])
+            scText += printModelDict(localsDict)
+            fp.write(scText)
+    except IOError as e:
+        LogStream.logProblem("printServerConfig open file problem "+logFile+" - log not created\n" +LogStream.exc(e))
+
+def printModelDict(localsDict):
+    """Convert serverConfig model configuration to a dictionary. This writes
+    the dictionary as text. This does not create a usable modelDict, just one to
+    use to print out the dictionary as python code."""
+
+    modelDict={}
+    parmsDict={}
+    tcDict={}
+    dbs=DATABASES
+    scText=""
+    for n,v in localsDict.items():
+        if type(v) is tuple and type(v[0]) is str and v[1] in [DISCRETE,SCALAR,VECTOR,WEATHER]:
+            parmsDict[n]=v
+        elif type(v) is tuple and len(v)==3 and type(v[0]) is int:
+            tcDict[n]=v
+
+    scText += '\n'
+    for n in sorted(parmsDict):
+        scText += 'parmVar: %s = %s\n' % (n,`parmsDict[n]`)
+    scText += '\n'
+    for n in sorted(tcDict):
+        scText += 'TC: %s = %s\n' % (n,`tcDict[n]`)
+    scText += '\n'
+
+    # Print out dbs entries, i.e., model database definition
+    for item in sorted(dbs):
+        plist=[]
+        parmTmpDict={}
+        for pt in item[1]:
+            parmsList=[]
+            # Try to find named parm setting
+            for p in pt[0]:
+                name=next((name for name,v in parmsDict.iteritems() if v == p), None)
+                if name is not None:
+                    parmsList.append(name)
+                else:
+                    parmsList.append(p[0])
+            theParms='&nlq(['+', '.join(parmsList)+'], '
+            # Try to get a named time constraint
+            name=next((name for name,v in tcDict.iteritems() if v == pt[1]), None)
+            if name is None:
+                name = `pt[1]`
+            if name in parmTmpDict:
+                parmTmpDict[name]+=parmsList
+            else:
+                parmTmpDict[name]=parmsList
+        # This consolidates parms by time constraint and sorts parm names.
+        for tc in sorted(parmTmpDict.keys()):
+            parmTmpDict[tc]=sorted(parmTmpDict[tc])
+            theParms='&nlq(['+', '.join(parmTmpDict[tc])+'], '
+            plist.append(theParms + tc +')&nrq')
+
+        modelDict[item[0][0]]={'DB':item[0],'Parms':plist}
+    for si,ml in INITMODULES.items():
+        m=ml[0]
+        entry=si
+        if len(ml) > 1:
+            # Multiple d2d models for smartinit
+            # Try to get model from si name
+            if si.find('Local_') == 0:
+                m=si[6:]
+            entry=(si,ml)
+        if m in modelDict:
+            modelDict[m]['INITMODULES']=entry
+        else:
+            modelDict[m]={'INITMODULES':entry}
+
+    for m,v in D2DDBVERSIONS.items():
+        if m in modelDict:
+            modelDict[m]['D2DDBVERSIONS']=D2DDBVERSIONS[m]
+        else:
+            modelDict[m]={'D2DDBVERSIONS':D2DDBVERSIONS[m]}
+
+    for m,v in D2DAccumulativeElements.items():
+        if m in modelDict:
+            modelDict[m]['D2DAccumulativeElements']=v
+        else:
+            modelDict[m]={'D2DAccumulativeElements':v}
+    for m,v in INITSKIPS.items():
+        if m in modelDict:
+            modelDict[m]['INITSKIPS']=v
+        else:
+            modelDict[m]={'INITSKIPS':v}
+    for item in D2DMODELS:
+        if type(item) is str:
+           m=item
+           v=item
+        else:
+           v,m=item
+        if m in modelDict:
+            modelDict[m]['D2DMODELS']=v
+        else:
+            modelDict[m]={'D2DMODELS':v}
+
+    for m in sorted(modelDict):
+        text=pprint.pformat(modelDict[m],width=80,indent=0)
+        text=text.replace("'&nlq",'')
+        text=text.replace("&nrq'",'')
+        text=text.replace('"&nlq','')
+        text=text.replace('&nrq"','')
+        text=text.replace(", 'INITMODULES':",",\n'INITMODULES':")
+        text=text.replace(')]}','),\n         ]\n}')
+        text=text.replace('\n','\n            ')
+        scText += "modelDict['%s'] = {\n            %s\n\n" % (m,text[1:])
+    return scText
+
+def _dumpParms(parms):
+    """Pretty prints parms."""
+    pDict={}
+    result=""
+    for item in parms:
+        if type(item) is not tuple:
+            # Not a parm definition!
+            return
+        pList,tc = item
+        for p in pList:
+            pDict[p[0]]=(p,tc)
+    for k in sorted(pDict.keys()):
+        result += "    %s\n" % repr(pDict[k])
+    return result
 
 # imports the named module.  If the module
 # does not exist, it is just ignored.  But
@@ -92,7 +594,6 @@ def siteImport(modName):
         if fp:
             fp.close()
     except ImportError:
-        import LogStream
         LogStream.logEvent("No " + modName + " file found, using baseline settings.");
         return 0
     globals()[modName] = __import__(modName)
@@ -112,17 +613,62 @@ GFESUITE_PRDDIR = siteConfig.GFESUITE_PRDDIR
 
 SID = GFESUITE_SITEID
 
-ALASKA_SITES = ['AFG', 'AJK', 'AICE', 'ALU', 'AER', 'ACR', 'AFC']
-GreatLake_SITES = ['LOT', 'MKX', 'GRB', 'DLH', 'MQT', 'APX', 'GRR', 'DTX', 
-          'IWX', 'CLE', 'BUF', 'PBZ', 'ILN', 'IND', 'ILX', 'MPX', 'FGF']
-CONUS_EAST_SITES = ['ALY', 'AKQ', 'APX', 'BGM', 'BMX', 'BOX', 'BTV', 'BUF',
-                    'CAE', 'CAR', 'CHS', 'CLE', 'CTP', 'DTX', 'FFC', 'GRR',
-                    'GSP', 'GYX', 'ILM', 'ILN', 'IND', 'JAN', 'JAX', 'JKL',
-                    'LCH', 'LMK', 'LWX', 'MEG', 'MFL', 'MHX', 'MLB', 'MOB',
-                    'MQT', 'MRX', 'OKX', 'PAH', 'PBZ', 'PHI', 'RAH', 'RLX',
-                    'RNK', 'TAE', 'TBW', 'ALR', 'RHA', 'TAR', 'TIR']
-RFC_SITES = ["ACR", "FWR", "KRF", "MSR", "ORN", "PTR",
-          "RHA", "RSA", "STR", "TAR", "TIR", "TUA"]
+# Groups are a way of setting up groups of parms for special or optionally used
+# methodology. For example, the Probability of Weather Type methodology.
+groups={}
+groups['ALASKA_SITES'] = ['AFG', 'AJK', 'AICE', 'ALU', 'AER', 'ACR', 'AFC']
+groups['GreatLake_SITES'] = ['LOT', 'MKX', 'GRB', 'DLH', 'MQT', 'APX', 'GRR', 'DTX',
+                             'IWX', 'CLE', 'BUF', 'PBZ', 'ILN', 'IND', 'ILX', 'MPX', 'FGF']
+groups['CONUS_EAST_SITES'] = ['ALY', 'AKQ', 'APX', 'BGM', 'BMX', 'BOX', 'BTV', 'BUF',
+                              'CAE', 'CAR', 'CHS', 'CLE', 'CTP', 'DTX', 'FFC', 'GRR',
+                              'GSP', 'GYX', 'ILM', 'ILN', 'IND', 'JAN', 'JAX', 'JKL',
+                              'LCH', 'LMK', 'LWX', 'MEG', 'MFL', 'MHX', 'MLB', 'MOB',
+                              'MQT', 'MRX', 'OKX', 'PAH', 'PBZ', 'PHI', 'RAH', 'RLX',
+                              'RNK', 'TAE', 'TBW', 'ALR', 'RHA', 'TAR', 'TIR']
+groups['RFC_SITES'] = ["ACR", "ALR", "FWR", "KRF", "MSR", "ORN", "PTR",
+                       "RHA", "RSA", "STR", "TAR", "TIR", "TUA"]
+
+siteRegion={}
+# need to account for RFCs?
+siteRegion['AR'] = ['AFC','AFG','AJK']
+siteRegion['CR'] = ['ABR','APX','ARX','BIS','BOU','CYS','DDC','DLH','DMX','DTX',
+                    'DVN','EAX','FGF','FSD','GID','GJT','GLD','GRB','GRR','ICT',
+                    'ILX','IND','IWX','JKL','LBF','LMK','LOT','LSX','MKX','MPX',
+                    'MQT','OAX','PAH','PUB','RIW','SGF','TOP','UNR']
+siteRegion['ER'] = ['AKQ','ALY','BGM','BOX','BTV','BUF','CAE','CAR','CHS','CLE',
+                    'CTP','GSP','GYX','ILM','ILN','LWX','MHX','OKX','PBZ','PHI',
+                    'RAH','RLX','RNK']
+siteRegion['PR'] = ['GUM','HFO','PPG']
+siteRegion['SR'] = ['ABQ','AMA','BMX','BRO','CRP','EPZ','EWX','FFC','FWD','HGX',
+                    'HUN','JAN','JAX','KEY','LCH','LIX','LUB','LZK','MAF','MEG',
+                    'MFL','MLB','MOB','MRX','OHX','OUN','SHV','SJT','SJU','TAE',
+                    'TBW','TSA']
+siteRegion['WR'] = ['BOI','BYZ','EKA','FGZ','GGW','HNX','LKN','LOX','MFR','MSO',
+                    'MTR','OTX','PDT','PIH','PQR','PSR','REV','SEW','SGX','SLC',
+                    'STO','TFX','TWC','VEF']
+
+groups['OCONUS_SITES'] = groups['ALASKA_SITES'] + siteRegion['PR'] + ['SJU']
+
+myRegion='ALL'
+for r in siteRegion:
+    if SID in siteRegion[r]:
+        myRegion=r
+        break
+
+groups['powt']=siteRegion['CR']
+groups['marineSites']=["CAR","GYX","BOX","OKX","PHI","LWX","AKQ","MHX","ILM","CHS",
+                       "BRO","CRP","HGX","LCH","LIX","MOB","TAE","TBW","KEY","MFL",
+                       "MLB","JAX","SJU",
+                       "SEW","PQR","MFR","EKA","MTR","LOX","SGX"]
+# Override due to DR 17496 fix forcing TC3NG
+# These are coastal sites that need TC1
+groups['marineTC1']=["CAR","GYX","BOX","OKX","PHI","LWX","AKQ","ILM","CHS","MHX",
+                    ]
+groups['winterProbs']= ['AKQ','ALY','BGM','BOX','BTV','BUF','CAE','CAR','CHS','CLE',
+                    'CTP','GSP','GYX','ILM','ILN','LWX','MHX','OKX','PBZ','PHI',
+                    'RAH','RLX','RNK']
+
+groups['rainfallProbs'] = ["BOX"]
 
 #---------------------------------------------------------------------------
 #
@@ -158,17 +704,15 @@ Wind =    ("Wind", VECTOR, "kts", "Surface Wind", 125.0, 0.0, 0, NO)
 # special for TPC hurricane winds
 HiWind =    ("Wind", VECTOR, "kts", "Surface Wind", 200.0, 0.0, 0, NO)
 Weather = ("Wx", WEATHER, "wx", "Weather")
-IceAcc = ("IceAccum", SCALAR, "in", "Ice Accumulation", 12.0, 0.0, 1, YES)
+IceAcc = ("IceAccum", SCALAR, "in", "Ice Accumulation", 5.0, 0.0, 2, YES)
 SnowAmt = ("SnowAmt", SCALAR, "in", "Snowfall amount", 20.0, 0.0, 1, YES)
-StormTotalSnow = ("StormTotalSnow", SCALAR, "in","Storm Total Snow", 50.0,
-                  0.0, 1, NO)
+StormTotalSnow = ("StormTotalSnow", SCALAR, "in","Storm Total Snow", 50.0, 0.0, 1, NO)
 PoP     = ("PoP", SCALAR, "%", "Prob of Precip", 100.0, 0.0, 0, NO)
 PoP6    = ("PoP6", SCALAR, "%", "Prob of Precip (6hr)", 100.0, 0.0, 0, NO)
 PoP12   = ("PoP12", SCALAR, "%", "Prob of Precip (12hr)", 100.0, 0.0, 0, NO)
 TstmPrb3 = ("TstmPrb3", SCALAR, "%", "Prob of Tstorm (3hr)", 100.0, 0.0, 0, NO)
 TstmPrb6 = ("TstmPrb6", SCALAR, "%", "Prob of Tstorm (6hr)", 100.0, 0.0, 0, NO)
-TstmPrb12 = ("TstmPrb12", SCALAR, "%", "Prob of Tstorm (12hr)", 100.0, 0.0, 0,
-             NO)
+TstmPrb12 = ("TstmPrb12", SCALAR, "%", "Prob of Tstorm (12hr)", 100.0, 0.0, 0, NO)
 Sky     = ("Sky", SCALAR, "%", "Sky Condition", 100.0, 0.0, 0, NO)
 FzLevel = ("FzLevel", SCALAR, "ft", "Freezing level", 30000.0, 0.0, 0, NO)
 SnowLevel = ("SnowLevel", SCALAR, "ft", "Snow Level", 18000.0, 0.0, 0, NO)
@@ -179,9 +723,9 @@ PoP12hr = ("PoP12hr", SCALAR, "%", "12 hr Chance of Precip", 100.0, 0.0, 0, NO)
 QPF6hr = ("QPF6hr", SCALAR, "in", "6 hr Precipitation (in)", 5.0, 0.0, 2, YES)
 SnowAmt6hr = ("SnowAmt6hr", SCALAR, "in", "6 hr Snowfall", 30.0, 0.0, 1, YES)
 
-# Cobb SnowTool included. 
-SnowRatio = ('SnowRatio', SCALAR, '%', 'Snow Ratio', 40.0, 0.0, 1, NO)
-#totalVV = ('totalVV', SCALAR, 'ubar/s', 'Total VV', 400.0, 0.0, 0, YES) 
+# Cobb SnowTool included.
+SnowRatio = ('SnowRatio', SCALAR, 'none', 'Snow Ratio', 40.0, 0.0, 0, NO)
+#totalVV = ('totalVV', SCALAR, 'ubar/s', 'Total VV', 400.0, 0.0, 0, YES)
 cape = ("cape", SCALAR, "1unit", "CAPE", 8000.0, 0.0, 1, NO)
 ApparentT = ("ApparentT", SCALAR, "F", "Apparent Temperature", 130.0, -120.0, 0, NO)
 UWaveDir = ("UWaveDir", SCALAR, "m/s", "U WaveDir Comp", 0.50, -0.50, 3, NO)
@@ -189,28 +733,23 @@ VWaveDir = ("VWaveDir", SCALAR, "m/s", "V WaveDir Comp", 0.50, -0.50, 3, NO)
 LkSfcT = ("LkSfcT", SCALAR, "C", "Lake Surface T", 40.0, -2.0, 1, NO)
 SnowMap = ("SnowMap", SCALAR, "in", "Snowfall Map", 20.0, 0.0, 1, NO)
 WaveDir = ("WaveDir", VECTOR, "m/s", "Wave Direction", 5.0, 0.0, 2, NO)
-StormTotalQPF = ('StormTotalQPF', SCALAR, 'in', 'Storm Total QPF (in)', 10.0, 0.0, 2, NO)
+StormTotalQPF = ('StormTotalQPF', SCALAR, 'in', 'Storm Total QPF (in)', 36.0, 0.0, 2, NO)
 SeasonTotalSnow = ('SeasonTotalSnow', SCALAR, 'in', 'Season Total Snow (in)', 150.0, 0.0, 2, NO)
 
 # Marine Weather Elements
-WindWaveHeight = ("WindWaveHgt", SCALAR, "ft", "Wind Wave Height",
-  100.0, 0.0, 0, NO)
-WaveHeight = ("WaveHeight", SCALAR, "ft", "Total Wave Height",
-  100.0, 0.0, 0, NO)
+WindWaveHeight = ("WindWaveHgt", SCALAR, "ft", "Wind Wave Height", 100.0, 0.0, 0, NO)
+WaveHeight = ("WaveHeight", SCALAR, "ft", "Total Wave Height", 100.0, 0.0, 0, NO)
 Swell = ("Swell", VECTOR, "ft", "Primary Swell", 100.0, 0.0, 0, NO)
 Swell2 = ("Swell2", VECTOR, "ft", "Secondary Swell", 100.0, 0.0, 0, NO)
 Period = ("Period", SCALAR, "sec", "Primary Period", 20.0, 0.0, 0, NO)
 WindGust = ("WindGust", SCALAR, "kts", "Wind Gust", 125.0, 0.0, 0, NO)
-IceCoverage = ("IceCoverage", SCALAR, "%", "Ice Coverage Amount",
-  100.0, 0.0, 0, NO)
-SurfHeight = ("SurfHeight", SCALAR, "ft", "Total Wave Height",
-  100.0, 0.0, 0, NO)
+IceCoverage = ("IceCoverage", SCALAR, "%", "Ice Coverage Amount", 100.0, 0.0, 0, NO)
+SurfHeight = ("SurfHeight", SCALAR, "ft", "Total Wave Height", 100.0, 0.0, 0, NO)
 ##########DCS3499
-SigWaveHgt = ("SigWaveHgt", SCALAR, "ft", 
-  "Significant wave height of combined wind waves and swells",
-  30.0, 0.0, 0, NO)
-WindWaveHgt = ("WindWaveHgt", SCALAR, "ft", "Significant wave height of wind waves",
-  30.0, 0.0, 0, NO)
+SigWaveHgt = ("SigWaveHgt", SCALAR, "ft",
+              "Significant wave height of combined wind waves and swells",
+              30.0, 0.0, 0, NO)
+WindWaveHgt = ("WindWaveHgt", SCALAR, "ft", "Significant wave height of wind waves", 30.0, 0.0, 0, NO)
 WindWavePeriod = ("WindWavePeriod", SCALAR, "sec.", "Wind wave peak period", 20.0, 0.0, 0, NO)
 WindWaveDir = ("WindWaveDir", VECTOR, "degree", "Direction of wind waves", 100.0, 0.0, 0, NO)
 
@@ -275,40 +814,30 @@ FreeWind = ("FreeWind", VECTOR, "kts", "Free Air Wind", 125.0, 0.0, 0, NO)
 TransWind = ("TransWind", VECTOR, "kts", "Transport Wind", 125.0, 0.0, 0, NO)
 Stability = ("Stability",SCALAR,"cat","Stability", 6.0,1.0,0, NO)
 HrsOfSun = ("HrsOfSun",SCALAR,"hrs","Hours of Sun",24.0,0.0,1, NO)
-MarineLayer = ("MarineLayer",SCALAR,"ft","Depth of Marine Layer",
-  20000.0,0.0,0,NO)
-InvBurnOffTemp = ("InvBurnOffTemp",SCALAR,"F","Inversion Burn-off Temperature",
-  120.0,-30.0,0, NO)
+MarineLayer = ("MarineLayer",SCALAR,"ft","Depth of Marine Layer", 20000.0,0.0,0,NO)
+InvBurnOffTemp = ("InvBurnOffTemp",SCALAR,"F","Inversion Burn-off Temperature", 120.0,-30.0,0, NO)
 VentRate = ("VentRate", SCALAR, "kt*ft", "VentRate", 500000.0, 0.0, 0, NO)
 DSI = ("DSI", SCALAR, "index", "DSI", 6.0, 0.0, 0, NO)
-MaxRH      = ("MaxRH", SCALAR, "%", "Maximum Relative Humidity",
-  100.0, 0.0, 0, NO)
-MinRH      = ("MinRH", SCALAR, "%", "Minimum Relative Humidity",
-  100.0, 0.0, 0, NO)
+MaxRH      = ("MaxRH", SCALAR, "%", "Maximum Relative Humidity", 100.0, 0.0, 0, NO)
+MinRH      = ("MinRH", SCALAR, "%", "Minimum Relative Humidity", 100.0, 0.0, 0, NO)
 Wetflag = ("Wetflag", SCALAR, "yn", "1300LT WetFlag", 1.0, 0.0, 0, NO)
 Ttrend = ("Ttrend", SCALAR, "F", "24hr Temperature Trend", 50.0, -50.0, 0, NO)
-RHtrend = ("RHtrend", SCALAR, "F", "24hr Relative Humidity Trend",
-  100.0, -100.0, 0, NO)
+RHtrend = ("RHtrend", SCALAR, "F", "24hr Relative Humidity Trend", 100.0, -100.0, 0, NO)
 
 # HPC Delta weather elements
-DeltaMinT = ("DeltaMinT", SCALAR, "F", "Delta Minimum Temperature",
-  50.0, -50.0, 0, NO)
-DeltaMaxT = ("DeltaMaxT", SCALAR, "F", "Delta Maximum Temperature",
-  50.0, -50.0, 0, NO)
-DeltaWind = ("DeltaWind", VECTOR, "kts", "Surface Delta Wind",
-  125.0, 0.0, 0, NO)
-DeltaSky = ("DeltaSky", SCALAR, "%", "Delta Sky Condition",
-  100.0, -100.0, 0, NO)
-DeltaPoP = ("DeltaPoP", SCALAR, "%", "Delta Prob of Precip",
-  100.0, -100.0, 0, NO)
+DeltaMinT = ('DeltaMinT', SCALAR, 'F', 'DeltaMinT', 130.0, -80.0, 0, NO)
+DeltaMaxT = ('DeltaMaxT', SCALAR, 'F', 'DeltaMaxT', 130.0, -80.0, 0, NO)
+DeltaWind = ("DeltaWind", VECTOR, "kts", "Surface Delta Wind", 125.0, 0.0, 0, NO)
+DeltaSky = ("DeltaSky", SCALAR, "%", "Delta Sky Condition", 100.0, -100.0, 0, NO)
+DeltaPoP = ("DeltaPoP", SCALAR, "%", "Delta Prob of Precip", 100.0, -100.0, 0, NO)
 
 # Special LAPS parms
 Radar = ("Radar", SCALAR, "dbz", "Radar Reflectivity", 80.0, -20.0, 0, NO)
 
 # RTMA parms
 QPE =     ("QPE", SCALAR, "in", "QPE", 5.0, 0.0, 2, YES)
-#if SID in ALASKA_SITES: - not sure if this needs to be like that
-if SID in ALASKA_SITES or SID in ["HFO", "SJU", "GUM"]:
+#if SID in groups['ALASKA_SITES']: - not sure if this needs to be like that
+if SID in groups['OCONUS_SITES']:
     TUnc =     ("TUnc", SCALAR, "F", "Temperature Anl Uncertainty", 20.0, 0.0, 0, NO)
     TdUnc =    ("TdUnc", SCALAR, "F", "Dewpoint Anl Uncertainty", 25.0, 0.0, 0, NO)
 else:
@@ -325,7 +854,7 @@ Pressure = ("Pressure", SCALAR, "Pa", "Pressure", 110000.0, 0.0, 2, NO)
 WGustUnc =  ("WGustUnc", SCALAR, "kts", "WGust Anl Uncertainty", 12.0, 0.0, 0, NO)
 
 # NamDNG5 parms
-QPF3 =     ("QPF3", SCALAR, "in", "3HR QPF", 3.0, 0.0, 2, YES)
+QPF3 =     ("QPF3", SCALAR, "in", "3HR QPF", 5.0, 0.0, 2, YES)
 QPF6 =     ("QPF6", SCALAR, "in", "6HR QPF", 5.0, 0.0, 2, YES)
 QPF12 =    ("QPF12", SCALAR, "in", "12HR QPF", 10.0, 0.0, 2, YES)
 Vis =      ("Vis", SCALAR, "SM", "Visibility", 10.0, 0.0, 2, NO)
@@ -336,24 +865,18 @@ MinT3 =  ("MinT3", SCALAR, "F", "3hr Minimum Temperature", 120.0, -80.0, 0, NO)
 MaxRH3 = ("MaxRH3", SCALAR, "%", "3hr Maximum Relative Humidity", 100.0, 0.0, 0, NO)
 
 # Parms for Satellite
-SatVisE  = ("VisibleE", SCALAR, "count", "Satellite Albdo %",
-            255.0, 0.0, 0, NO)
+SatVisE  = ("VisibleE", SCALAR, "count", "Satellite Albdo %", 255.0, 0.0, 0, NO)
 SatIR11E = ("IR11E", SCALAR, "C", "11 micron temperature", 58.0, -111.0, 0, NO)
 SatIR13E = ("IR13E", SCALAR, "C", "13 micron temperature", 50.0, -111.0, 0, NO)
-SatIR39E = ("IR39E", SCALAR, "C", "3.9 micron temperature", 50.0,
-            -111.0, 0, NO)
-SatWVE   = ("WaterVaporE", SCALAR, "C", "water vapor temperature",
-            -11.0, -62.0, 0, NO)
+SatIR39E = ("IR39E", SCALAR, "C", "3.9 micron temperature", 50.0, -111.0, 0, NO)
+SatWVE   = ("WaterVaporE", SCALAR, "C", "water vapor temperature", -11.0, -62.0, 0, NO)
 SatFogE  = ("FogE", SCALAR, "C", "ir11 - ir39", 50.0, -111.0, 0, NO)
 
-SatVisW  = ("VisibleW", SCALAR, "count", "Satellite Albdo %",
-            255.0, 0.0, 0, NO)
+SatVisW  = ("VisibleW", SCALAR, "count", "Satellite Albdo %", 255.0, 0.0, 0, NO)
 SatIR11W = ("IR11W", SCALAR, "C", "11 micron temperature", 58.0, -111.0, 0, NO)
 SatIR13W = ("IR13W", SCALAR, "C", "13 micron temperature", 50.0, -111.0, 0, NO)
-SatIR39W = ("IR39W", SCALAR, "C", "3.9 micron temperature", 50.0,
-            -111.0, 0, NO)
-SatWVW   = ("WaterVaporW", SCALAR, "C", "water vapor temperature",
-            -11.0, -62.0, 0, NO)
+SatIR39W = ("IR39W", SCALAR, "C", "3.9 micron temperature", 50.0, -111.0, 0, NO)
+SatWVW   = ("WaterVaporW", SCALAR, "C", "water vapor temperature", -11.0, -62.0, 0, NO)
 SatFogW  = ("FogW", SCALAR, "C", "ir11 - ir39", 50.0, -111.0, 0, NO)
 
 # TPC Wind Probability parms
@@ -394,7 +917,7 @@ FloodingRainThreat = ("FloodingRainThreat", DISCRETE, "Cat", "Flooding Rain Thre
 StormSurgeThreat = ("StormSurgeThreat", DISCRETE, "Cat", "Storm Surge Threat", NO, Threat4Keys,2)
 WindThreat = ("WindThreat", DISCRETE, "Cat", "Wind Threat", NO, Threat4Keys,2)
 TornadoThreat = ("TornadoThreat", DISCRETE, "Cat", "Tornado Threat", NO, Threat4Keys,2)
-QPFtoFFGRatio = ("QPFtoFFGRatio", SCALAR, "1", "QPF to FFG Ratio", 8.0, 0.0, 0, NO) 
+QPFtoFFGRatio = ("QPFtoFFGRatio", SCALAR, "1", "QPF to FFG Ratio", 8.0, 0.0, 0, NO)
 
 # Hazards
 HazardKeys = []
@@ -587,11 +1110,432 @@ types = [NOWX, THUNDER, WATERSPOUT, RAIN, RAINSHOWERS,
          BLWGSAND, SMOKE, BLWGDUST, FROST, FRZSPRAY, VOLASH]
 
 
+# PARMS FROM NwsInitsConfig
+#-------------------------------------------------------------------------------
+# Discrete Keys
+#-------------------------------------------------------------------------------
+#
+AirKeys = [("<None>","None"), ("Watch","Watch"), ("Advisory","Advisory"),("Warning", "Warning"),]
+ThreatKeys=[('<None>', 'None'), ('Very Low', 'Very Low'), ('Low', 'Low'),
+            ('Moderate', 'Moderate'), ('High', 'High'), ('Extreme','Extreme')]
+#
+SevereKeys = [('NONE', '0'), ('TSTM', '2'), ('MRGL', '3'), ('SLGT', '4'), ('ENH', '5'), ('MOD', '6'), ('HIGH', '8')]
+
+AirQuality = ('AirQuality', DISCRETE, 'cat', 'Air Quality', 0,AirKeys)
+BasinFFP = ('BasinFFP', DISCRETE, 'none', 'Basin Flash Flood Potential', 0,
+                         [('Dry', 'Dry'), ('Low', 'Low'), ('Moderate', 'Moderate'), ('High', 'High'), ('Very High', 'Very High')])
+CLRIndx = ('CLRIndx', SCALAR, 'none', 'Clearing Index', 1050.0, 0.0, 0, NO)
+CQPF1 = ('CQPF1', SCALAR, 'in', '6hr Cont QPF', 10.0, 0.0, 2, NO)
+Ceiling = ('Ceiling', SCALAR, 'ft', 'Lowest Cloud Base Height', 25000.0, -30000.0, 0, NO)
+CigHgtCat = ('CigHgtCat', SCALAR, 'index', 'Cloud Ceiling Height Category', 6.0, 0.0, 0, NO)
+CloudBaseConditional = ('CloudBaseConditional', SCALAR, '100ft', 'Conditional Cloud Base Height', 250.0, 0.0, 0, NO)
+CloudBasePrimary = ('CloudBasePrimary', SCALAR, '100ft', 'Primary Cloud Base Height', 250.0, 0.0, 0, NO)
+CloudBaseSecondary = ('CloudBaseSecondary', SCALAR, '100ft', 'Secondary Cloud Base Height', 250.0, 0.0, 0, NO)
+ClimoET = ('ClimoET', SCALAR, 'in', 'ClimoET', 0.75, 0.0, 2, NO)
+ClimoETAprA = ('ClimoETAprA', SCALAR, 'in', 'ClimoET AprA', 0.75, 0.0, 2, NO)
+ClimoETAprB = ('ClimoETAprB', SCALAR, 'in', 'ClimoET AprB', 0.75, 0.0, 2, NO)
+ClimoETAugA = ('ClimoETAugA', SCALAR, 'in', 'ClimoET AugA', 0.75, 0.0, 2, NO)
+ClimoETAugB = ('ClimoETAugB', SCALAR, 'in', 'ClimoET AugB', 0.75, 0.0, 2, NO)
+ClimoETDecA = ('ClimoETDecA', SCALAR, 'in', 'ClimoET DecA', 0.75, 0.0, 2, NO)
+ClimoETDecB = ('ClimoETDecB', SCALAR, 'in', 'ClimoET DecB', 0.75, 0.0, 2, NO)
+ClimoETFebA = ('ClimoETFebA', SCALAR, 'in', 'ClimoET FebA', 0.75, 0.0, 2, NO)
+ClimoETFebB = ('ClimoETFebB', SCALAR, 'in', 'ClimoET FebB', 0.75, 0.0, 2, NO)
+ClimoETJanA = ('ClimoETJanA', SCALAR, 'in', 'ClimoET JanA', 0.75, 0.0, 2, NO)
+ClimoETJanB = ('ClimoETJanB', SCALAR, 'in', 'ClimoET JanB', 0.75, 0.0, 2, NO)
+ClimoETJulA = ('ClimoETJulA', SCALAR, 'in', 'ClimoET JulA', 0.75, 0.0, 2, NO)
+ClimoETJulB = ('ClimoETJulB', SCALAR, 'in', 'ClimoET JulB', 0.75, 0.0, 2, NO)
+ClimoETJunA = ('ClimoETJunA', SCALAR, 'in', 'ClimoET JunA', 0.75, 0.0, 2, NO)
+ClimoETJunB = ('ClimoETJunB', SCALAR, 'in', 'ClimoET JunB', 0.75, 0.0, 2, NO)
+ClimoETMarA = ('ClimoETMarA', SCALAR, 'in', 'ClimoET MarA', 0.75, 0.0, 2, NO)
+ClimoETMarB = ('ClimoETMarB', SCALAR, 'in', 'ClimoET MarB', 0.75, 0.0, 2, NO)
+ClimoETMayA = ('ClimoETMayA', SCALAR, 'in', 'ClimoET MayA', 0.75, 0.0, 2, NO)
+ClimoETMayB = ('ClimoETMayB', SCALAR, 'in', 'ClimoET MayB', 0.75, 0.0, 2, NO)
+ClimoETNovA = ('ClimoETNovA', SCALAR, 'in', 'ClimoET NovA', 0.75, 0.0, 2, NO)
+ClimoETNovB = ('ClimoETNovB', SCALAR, 'in', 'ClimoET NovB', 0.75, 0.0, 2, NO)
+ClimoETOctA = ('ClimoETOctA', SCALAR, 'in', 'ClimoET OctA', 0.75, 0.0, 2, NO)
+ClimoETOctB = ('ClimoETOctB', SCALAR, 'in', 'ClimoET OctB', 0.75, 0.0, 2, NO)
+ClimoETSepA = ('ClimoETSepA', SCALAR, 'in', 'ClimoET SepA', 0.75, 0.0, 2, NO)
+ClimoETSepB = ('ClimoETSepB', SCALAR, 'in', 'ClimoET SepB', 0.75, 0.0, 2, NO)
+ClimoPoP = ('ClimoPoP', SCALAR, '%', 'ClimoPoP', 100.0, 0.0, 0, NO)
+ClimoPoPAprA = ('ClimoPoPAprA', SCALAR, '%', 'ClimoPoP AprA', 100.0, 0.0, 0, NO)
+ClimoPoPAprB = ('ClimoPoPAprB', SCALAR, '%', 'ClimoPoP AprB', 100.0, 0.0, 0, NO)
+ClimoPoPAugA = ('ClimoPoPAugA', SCALAR, '%', 'ClimoPoP AugA', 100.0, 0.0, 0, NO)
+ClimoPoPAugB = ('ClimoPoPAugB', SCALAR, '%', 'ClimoPoP AugB', 100.0, 0.0, 0, NO)
+ClimoPoPDecA = ('ClimoPoPDecA', SCALAR, '%', 'ClimoPoP DecA', 100.0, 0.0, 0, NO)
+ClimoPoPDecB = ('ClimoPoPDecB', SCALAR, '%', 'ClimoPoP DecB', 100.0, 0.0, 0, NO)
+ClimoPoPFG = ('ClimoPoPFG', SCALAR, '%', 'ClimoPoP First Guess', 100.0, 0.0, 0, NO)
+ClimoPoPFebA = ('ClimoPoPFebA', SCALAR, '%', 'ClimoPoP FebA', 100.0, 0.0, 0, NO)
+ClimoPoPFebB = ('ClimoPoPFebB', SCALAR, '%', 'ClimoPoP FebB', 100.0, 0.0, 0, NO)
+ClimoPoPJanA = ('ClimoPoPJanA', SCALAR, '%', 'ClimoPoP JanA', 100.0, 0.0, 0, NO)
+ClimoPoPJanB = ('ClimoPoPJanB', SCALAR, '%', 'ClimoPoP JanB', 100.0, 0.0, 0, NO)
+ClimoPoPJulA = ('ClimoPoPJulA', SCALAR, '%', 'ClimoPoP JulA', 100.0, 0.0, 0, NO)
+ClimoPoPJulB = ('ClimoPoPJulB', SCALAR, '%', 'ClimoPoP JulB', 100.0, 0.0, 0, NO)
+ClimoPoPJunA = ('ClimoPoPJunA', SCALAR, '%', 'ClimoPoP JunA', 100.0, 0.0, 0, NO)
+ClimoPoPJunB = ('ClimoPoPJunB', SCALAR, '%', 'ClimoPoP JunB', 100.0, 0.0, 0, NO)
+ClimoPoPMarA = ('ClimoPoPMarA', SCALAR, '%', 'ClimoPoP MarA', 100.0, 0.0, 0, NO)
+ClimoPoPMarB = ('ClimoPoPMarB', SCALAR, '%', 'ClimoPoP MarB', 100.0, 0.0, 0, NO)
+ClimoPoPMayA = ('ClimoPoPMayA', SCALAR, '%', 'ClimoPoP MayA', 100.0, 0.0, 0, NO)
+ClimoPoPMayB = ('ClimoPoPMayB', SCALAR, '%', 'ClimoPoP MayB', 100.0, 0.0, 0, NO)
+ClimoPoPNovA = ('ClimoPoPNovA', SCALAR, '%', 'ClimoPoP NovA', 100.0, 0.0, 0, NO)
+ClimoPoPNovB = ('ClimoPoPNovB', SCALAR, '%', 'ClimoPoP NovB', 100.0, 0.0, 0, NO)
+ClimoPoPOctA = ('ClimoPoPOctA', SCALAR, '%', 'ClimoPoP OctA', 100.0, 0.0, 0, NO)
+ClimoPoPOctB = ('ClimoPoPOctB', SCALAR, '%', 'ClimoPoP OctB', 100.0, 0.0, 0, NO)
+ClimoPoPSepA = ('ClimoPoPSepA', SCALAR, '%', 'ClimoPoP SepA', 100.0, 0.0, 0, NO)
+ClimoPoPSepB = ('ClimoPoPSepB', SCALAR, '%', 'ClimoPoP SepB', 100.0, 0.0, 0, NO)
+CoastalFlood = ('CoastalFlood', DISCRETE, 'cat', 'Coastal Flood', 0, ThreatKeys)
+CondPredHgt = ('CondPredHgt', SCALAR, '100ft', 'Conditional Predominant Cloud Height', 250.0, 0.0, 0, NO)
+CondPredVsby = ('CondPredVsby', SCALAR, 'mi', 'Conditional Predominant Visibility', 10.0, 0.0, 2, NO)
+DenseFogSmoke = ('DenseFogSmoke', DISCRETE, 'cat', 'Dense Fog', 0, ThreatKeys)
+DepartNormFRET = ('DepartNormFRET', SCALAR, 'in', 'DepartNormFRET', 0.35, -0.35, 2, NO)
+Dryness = ('Dryness', DISCRETE, 'none', 'EGB Fuel Dryness', 0,
+           [('NoData', 'NoData'), ('Moist', 'Moist'), ('Dry', 'Dry'), ('VeryDry', 'VeryDry')])
+ExcessiveCold = ('ExcessiveCold', DISCRETE, 'cat', 'Extreme Cold', 0, ThreatKeys)
+ExcessiveHeat = ('ExcessiveHeat', DISCRETE, 'cat', 'Excessive Heat', 0, ThreatKeys)
+FFP = ('FFP', DISCRETE, 'none', 'Flash Flood Potential', 0,
+       [('Dry', 'Dry'), ('Low', 'Low'), ('Moderate', 'Moderate'), ('High', 'High'), ('Very High', 'Very High')])
+FFPI = ('FFPI', SCALAR, 'index', 'Flash Flood Potential Index', 10.0, 0.0, 2, NO)
+FRET = ('FRET', SCALAR, 'in', 'Forecast Reference ET', 0.75, 0.0, 2, NO)
+FRET7Day = ('FRET7Day', SCALAR, 'in/week', 'Weekly Forecast Reference ET', 5.0, 0.0, 2, NO)
+FireWeather = ('FireWeather', DISCRETE, 'cat', 'Wild Fire', 0, ThreatKeys)
+FlashFlood = ('FlashFlood', DISCRETE, 'cat', 'Flash Flood', 0, ThreatKeys)
+Flood = ('Flood', DISCRETE, 'cat', 'River Flood', 0, ThreatKeys)
+FrostFreeze = ('FrostFreeze', DISCRETE, 'cat', 'Frost/Freeze', 0, ThreatKeys)
+FuelMstr = ('FuelMstr', SCALAR, 'none', '10 Hour Fuel Moisture', 40.0, 1.0, 0, NO)
+HainesMid = ('HainesMid', SCALAR, 'cat', 'Mid Level Haines Index', 6.0, 2.0, 0, NO)
+HeatImpactLevels = ('HeatImpactLevels', SCALAR, 'none', 'HeatImpactLevels', 4.0, 0.0, 0, NO)
+HeatImpactLevelsMaxT = ('HeatImpactLevelsMaxT', SCALAR, 'none', 'HeatImpactLevelsMaxT', 4.0, 0.0, 0, NO)
+HeatImpactLevelsMinT = ('HeatImpactLevelsMinT', SCALAR, 'none', 'HeatImpactLevelsMinT', 4.0, 0.0, 0, NO)
+HeatOrangeMaxT = ('HeatOrangeMaxT', SCALAR, 'F', 'Heat Orange MaxT', 130.0, -80.0, 0, NO)
+HeatOrangeMinT = ('HeatOrangeMinT', SCALAR, 'F', 'Heat Orange MinT', 130.0, -80.0, 0, NO)
+HeatRedMaxT = ('HeatRedMaxT', SCALAR, 'F', 'Heat Red MaxT', 130.0, -80.0, 0, NO)
+HeatRedMinT = ('HeatRedMinT', SCALAR, 'F', 'Heat Red MinT', 130.0, -80.0, 0, NO)
+HeatYellowMaxT = ('HeatYellowMaxT', SCALAR, 'F', 'Heat Yellow MaxT', 130.0, -80.0, 0, NO)
+HeatYellowMinT = ('HeatYellowMinT', SCALAR, 'F', 'Heat Yellow MinT', 130.0, -80.0, 0, NO)
+HighWind = ('HighWind', DISCRETE, 'cat', 'High Wind', 0, ThreatKeys)
+IceAccum6hr = ('IceAccum6hr', SCALAR, 'in', '6-hr Ice Accumulation', 2.0, 0.0, 2, NO)
+LLWS = ('LLWS', VECTOR, 'kts', 'Low Level Wind Shear', 125.0, 0.0, 0, NO)
+LLWSHgt = ('LLWSHgt', SCALAR, '100 ft', 'Wind Shear Height', 20.0, 0.0, 0, NO)
+LTG = ('LTG', SCALAR, 'CNT', 'LTG', 100.0, 0.0, 0, NO)
+LTG12 = ('LTG12', SCALAR, 'CNT', 'LTG12', 100.0, 0.0, 0, NO)
+LTG24 = ('LTG24', SCALAR, 'CNT', 'LTG24', 100.0, 0.0, 0, NO)
+Lightning = ('Lightning', DISCRETE, 'cat', 'Lightning', 0, ThreatKeys)
+Max3 = ('Max3', SCALAR, 'F', '3hr Maximum Temperature', 120.0, -80.0, 0, NO)
+Max6 = ('Max6', SCALAR, 'F', '6hr Maximum Temperature', 120.0, -80.0, 0, NO)
+MaxApT = ('MaxApT', SCALAR, 'F', 'Max Apparent Temperature', 130.0, -120.0, 0, NO)
+MaxRHError = ('MaxRHError', SCALAR, '%', 'Maximum Relative Humidity Error', 100.0, -100.0, 0, NO)
+MaxRHFcst = ('MaxRHFcst', SCALAR, '%', 'Forecast Maximum Relative Humidity', 100.0, 0.0, 0, NO)
+MaxRHOb = ('MaxRHOb', SCALAR, '%', 'Observed Maximum Relative Humidity', 100.0, 0.0, 0, NO)
+MaxRHObs = ('MaxRHObs', SCALAR, '%', 'Maximum Observed RH', 100.0, 0.0, 0, NO)
+MaxT10 = ('MaxT10', SCALAR, 'F', '10th Percentile for MaxT', 110.0, 10.0, 0, NO)
+MaxT50 = ('MaxT50', SCALAR, 'F', '50th Percentile for MaxT', 110.0, 10.0, 0, NO)
+MaxT90 = ('MaxT90', SCALAR, 'F', '90th Percentile for MaxT', 110.0, 10.0, 0, NO)
+MaxTAloft = ('MaxTAloft', SCALAR, 'C', 'Max Temp in Warm Nose', 40.0, -20.0, 1, NO)
+MaxTError = ('MaxTError', SCALAR, 'F', 'Maximum Temperature Error', 120.0, -120.0, 0, NO)
+MaxTFcst = ('MaxTFcst', SCALAR, 'F', 'Observed Maximum Temperature', 120.0, -80.0, 0, NO)
+MaxTOb = ('MaxTOb', SCALAR, 'F', 'Observed Maximum Temperature', 120.0, -80.0, 0, NO)
+MaxTObs = ('MaxTObs', SCALAR, 'F', 'Maximum Temperature Obs', 130.0, -80.0, 0, NO)
+Min3 = ('Min3', SCALAR, 'F', '3hr Minimum Temperature', 120.0, -80.0, 0, NO)
+Min6 = ('Min6', SCALAR, 'F', '6hr Minimum Temperature', 120.0, -80.0, 0, NO)
+MinApT = ('MinApT', SCALAR, 'F', 'Min Apparent Temperature', 130.0, -120.0, 0, NO)
+MinRH3 = ('MinRH3', SCALAR, '%', '3hr Minimum Relative Humidity', 100.0, 0.0, 0, NO)
+MinRHError = ('MinRHError', SCALAR, '%', 'Minimum Relative Humidity Error', 100.0, -100.0, 0, NO)
+MinRHFcst = ('MinRHFcst', SCALAR, '%', 'Forecast Minimum Relative Humidity', 100.0, 0.0, 0, NO)
+MinRHOb = ('MinRHOb', SCALAR, '%', 'Observed Minimum Relative Humidity', 100.0, 0.0, 0, NO)
+MinRHObs = ('MinRHObs', SCALAR, '%', 'Minimum Observed RH', 100.0, 0.0, 0, NO)
+MinT10 = ('MinT10', SCALAR, 'F', '10th Percentile for MinT', 110.0, 10.0, 0, NO)
+MinT50 = ('MinT50', SCALAR, 'F', '50th Percentile for MinT', 110.0, 10.0, 0, NO)
+MinT6 = ('MinT6', SCALAR, 'F', 'Minimum Temperature 6Hr', 120.0, -80.0, 0, NO)
+MinT90 = ('MinT90', SCALAR, 'F', '90th Percentile for MinT', 110.0, 10.0, 0, NO)
+MinTError = ('MinTError', SCALAR, 'F', 'Minimum Temperature Error', 120.0, -120.0, 0, NO)
+MinTFcst = ('MinTFcst', SCALAR, 'F', 'Forecast Minimum Temperature', 120.0, -80.0, 0, NO)
+MinTOb = ('MinTOb', SCALAR, 'F', 'Observed Minimum Temperature', 120.0, -80.0, 0, NO)
+MinTObs = ('MinTObs', SCALAR, 'F', 'Minimum Temperature Obs', 120.0, -80.0, 0, NO)
+MixHgtAve = ('MixHgtAve', SCALAR, 'ft', 'Mixing Hgt Average', 20000.0, 0.0, 0, NO)
+MixHgtMSL = ('MixHgtMSL', SCALAR, 'ft', 'Mixing Height above sea level', 30000.0, 0.0, 0, NO)
+MixT1700 = ('MixT1700', SCALAR, 'F', '1700Foot MixingTemp', 110.0, -10.0, 0, NO)
+P95MaxT = ('P95MaxT', SCALAR, 'F', 'P95MaxT', 130.0, -80.0, 0, NO)
+P95MinT = ('P95MinT', SCALAR, 'F', 'P95MinT', 130.0, -80.0, 0, NO)
+     # EKDMOS
+PQPF06001 = ('PQPF06001', SCALAR, '%', '6hr Prob QPF > 0.01', 100.0, 0.0, 0, NO)
+PQPF06005 = ('PQPF06005', SCALAR, '%', '6hr Prob QPF > 0.05', 100.0, 0.0, 0, NO)
+PQPF06010 = ('PQPF06010', SCALAR, '%', '6hr Prob QPF > 0.10', 100.0, 0.0, 0, NO)
+PQPF06015 = ('PQPF06015', SCALAR, '%', '6hr Prob QPF > 0.15', 100.0, 0.0, 0, NO)
+PQPF06020 = ('PQPF06020', SCALAR, '%', '6hr Prob QPF > 0.20', 100.0, 0.0, 0, NO)
+PQPF06025 = ('PQPF06025', SCALAR, '%', '6hr Prob QPF > 0.25', 100.0, 0.0, 0, NO)
+PQPF06030 = ('PQPF06030', SCALAR, '%', '6hr Prob QPF > 0.30', 100.0, 0.0, 0, NO)
+PQPF06040 = ('PQPF06040', SCALAR, '%', '6hr Prob QPF > 0.40', 100.0, 0.0, 0, NO)
+PQPF06050 = ('PQPF06050', SCALAR, '%', '6hr Prob QPF > 0.50', 100.0, 0.0, 0, NO)
+PQPF06075 = ('PQPF06075', SCALAR, '%', '6hr Prob QPF > 0.75', 100.0, 0.0, 0, NO)
+PQPF06100 = ('PQPF06100', SCALAR, '%', '6hr Prob QPF > 1.00', 100.0, 0.0, 0, NO)
+PQPF06150 = ('PQPF06150', SCALAR, '%', '6hr Prob QPF > 1.50', 100.0, 0.0, 0, NO)
+PoP12Fcst = ('PoP12Fcst', SCALAR, '%', 'Forecast Prob. of Precip.', 100.0, 0.0, 0, NO)
+PoP3 = ('PoP3', SCALAR, '%', 'PoP3', 100.0, 0.0, 0, NO)
+PoPPCECMWF = ('PoPPatternClimoECMWF', SCALAR, '%', 'PatternClimoECMWF', 100.0, 0.0, 0, NO)
+PoPPCFIM = ('PoPPatternClimoFIM', SCALAR, '%', 'PatternClimoFIM', 100.0, 0.0, 0, NO)
+PoPPCGEM = ('PoPPatternClimoGEM', SCALAR, '%', 'PatternClimoGEM', 100.0, 0.0, 0, NO)
+PoPPCGFS = ('PoPPatternClimoGFS', SCALAR, '%', 'PatternClimoGFS', 100.0, 0.0, 0, NO)
+PoPPattern1 = ('PoPNortherlyFlow', SCALAR, '%', 'NortherlyFlow', 100.0, 0.0, 0, NO)
+PoPPattern10 = ('PoPRockiesRidge', SCALAR, '%', 'RockiesRidge', 100.0, 0.0, 0, NO)
+PoPPattern11 = ('PoPSouthernFirehose', SCALAR, '%', 'SouthernFirehose', 100.0, 0.0, 0, NO)
+PoPPattern12 = ('PoPNorthernFirehose', SCALAR, '%', 'NorthernFirehose', 100.0, 0.0, 0, NO)
+PoPPattern2 = ('PoPGreatBasinLow', SCALAR, '%', 'GreatBasinLow', 100.0, 0.0, 0, NO)
+PoPPattern3 = ('PoPBroadCyclonicFlow', SCALAR, '%', 'BroadCyclonicFlow', 100.0, 0.0, 0, NO)
+PoPPattern4 = ('PoPCoastalRidge', SCALAR, '%', 'CoastalRidge', 100.0, 0.0, 0, NO)
+PoPPattern5 = ('PoPNorthwestFlow', SCALAR, '%', 'NorthwestFlow', 100.0, 0.0, 0, NO)
+PoPPattern6 = ('PoPZonalFlow', SCALAR, '%', 'ZonalFlow', 100.0, 0.0, 0, NO)
+PoPPattern7 = ('PoPBroadAntiCyclonicFlow', SCALAR, '%', 'BroadAntiCyclonicFlow', 100.0, 0.0, 0, NO)
+PoPPattern8 = ('PoPDiffluentOnshoreFlow', SCALAR, '%', 'DiffluentOnshoreFlow', 100.0, 0.0, 0, NO)
+PoPPattern9 = ('PoPSouthwestFlow', SCALAR, '%', 'SouthwestFlow', 100.0, 0.0, 0, NO)
+PoPWG = ('PoPWG', SCALAR, '%', 'Climo PoP Work Grid', 30.0, -30.0, 0, NO)
+PPFFG = ("PPFFG", SCALAR, "%", "Prob of Excessive Rain in %", 100.0, 0.0 ,0, NO)
+PrecipDur = ('PrecipDur', SCALAR, 'hrs', 'Precipitation Duration', 12.0, 0.0, 1, YES)
+PredHgt = ('PredHgt', SCALAR, '100ft', 'Predominant Cloud Height', 250.0, 0.0, 0, NO)
+PredHgtCat = ('PredHgtCat', SCALAR, 'index', 'Predominant Cloud Height Category', 6.0, 0.0, 0, NO)
+PredHgtRH = ('PredHgtRH', SCALAR, '100ft', 'Pred Cloud Height from RH', 250.0, 1.0, 0, NO)
+PredHgtTempo = ('PredHgtTempo', SCALAR, '100ft', 'Predominant Cloud Height Tempo', 250.0, 0.0, 0, NO)
+PredVsby = ('PredVsby', SCALAR, 'mi', 'Predominant Visibility', 10.0, 0.0, 2, NO)
+Pres = ('Pres', SCALAR, 'mb', 'Pressure', 1100.0, 900.0, 2, NO)
+ProbDmgWind = ('ProbDmgWind', SCALAR, '%', 'Probability of Damaging Wind', 100.0, 0.0, 0, NO)
+ProbExtrmDmgWind = ('ProbExtrmDmgWind', SCALAR, '%', 'Probability of Extreme Damaging Wind', 100.0, 0.0, 0, NO)
+ProbExtrmHail = ('ProbExtrmHail', SCALAR, '%', 'Probability of Extreme Hail', 100.0, 0.0, 0, NO)
+ProbExtrmSvr = ('ProbExtrmSvr', SCALAR, '%', 'Probability of Extreme Severe', 100.0, 0.0, 0, NO)
+ProbExtrmTor = ('ProbExtrmTor', SCALAR, '%', 'Probability of Extreme Tornado', 100.0, 0.0, 0, NO)
+ProbSvrHail = ('ProbSvrHail', SCALAR, '%', 'Probability of Severe Hail', 100.0, 0.0, 0, NO)
+ProbTor = ('ProbTor', SCALAR, '%', 'Probability of Tornado', 100.0, 0.0, 0, NO)
+ProbTotSvr = ('ProbTotSvr', SCALAR, '%', 'Probability of Severe', 100.0, 0.0, 0, NO)
+ProbSnowGTT = ("ProbSnowGTT", SCALAR, "%", "Prob. snow > trace", 100.0, 0.0, 0, NO)
+ProbSnowGT1 = ("ProbSnowGT1", SCALAR, "%", "Prob. snow > 1 inch", 100.0, 0.0, 0, NO)
+ProbSnowGT2 = ("ProbSnowGT2", SCALAR, "%", "Prob. snow > 2 inches ", 100.0, 0.0, 0, NO)
+ProbSnowGT4 = ("ProbSnowGT4", SCALAR, "%", "Prob. snow > 4 inches ", 100.0, 0.0, 0, NO)
+ProbSnowGT6 = ("ProbSnowGT6", SCALAR, "%", "Prob. snow > 6 inches ", 100.0, 0.0, 0, NO)
+ProbSnowGT8 = ("ProbSnowGT8", SCALAR, "%", "Prob. snow > 8 inches", 100.0, 0.0, 0, NO)
+ProbSnowGT12 = ("ProbSnowGT12", SCALAR, "%", "Prob. snow > 12 inches", 100.0, 0.0, 0, NO)
+ProbSnowGT18 = ("ProbSnowGT18", SCALAR, "%", "Prob. snow > 18 inches", 100.0, 0.0, 0, NO)
+ProbSnowRT1 = ("ProbSnowRT1", SCALAR, "%", "Prob. snow T-1 inch", 100.0, 0.0, 0, NO)
+ProbSnowR12 = ("ProbSnowR12", SCALAR, "%", "Prob. snow 1-2 inches", 100.0, 0.0, 0, NO)
+ProbSnowR24 = ("ProbSnowR24", SCALAR, "%", "Prob. snow 2-4 inches ", 100.0, 0.0, 0, NO)
+ProbSnowR48 = ("ProbSnowR48", SCALAR, "%", "Prob. snow 4-8 inches ", 100.0, 0.0, 0, NO)
+ProbSnowR812 = ("ProbSnowR812", SCALAR, "%", "Prob. snow 8-12 inches ", 100.0, 0.0, 0, NO)
+ProbSnowR1218 = ("ProbSnowR1218", SCALAR, "%", "Prob. snow 12-18 inches", 100.0, 0.0, 0, NO)
+ProbSnowR18 = ("ProbSnowR18", SCALAR, "%", "Prob. snow > 18 inches", 100.0, 0.0, 0, NO)
+QPE06 = ('QPE06', SCALAR, 'in', 'QPE06', 10.0, 0.0, 2, YES)
+QPE06Ob = ('QPE06Ob', SCALAR, 'in', 'Observed Precip', 20.0, 0.0, 2, NO)
+QPE12 = ('QPE12', SCALAR, 'in', 'QPE12', 15.0, 0.0, 2, YES)
+QPE24 = ('QPE24', SCALAR, 'in', 'QPE24', 15.0, 0.0, 2, YES)
+QPFDS = ('QPFDS', SCALAR, 'in', 'QPFDS', 5.0, 0.0, 2, YES)
+QPFFcst = ('QPFFcst', SCALAR, 'in', 'Forecast Precip.', 10.0, 0.0, 2, NO)
+QPFPCECMWF = ('QPFPatternClimoECMWF', SCALAR, 'in', 'PatternClimoECMWF', 5.0, 0.0, 2, NO)
+QPFPCFIM = ('QPFPatternClimoFIM', SCALAR, 'in', 'PatternClimoFIM', 5.0, 0.0, 2, NO)
+QPFPCGEM = ('QPFPatternClimoGEM', SCALAR, 'in', 'PatternClimoGEM', 5.0, 0.0, 2, NO)
+QPFPCGFS = ('QPFPatternClimoGFS', SCALAR, 'in', 'PatternClimoGFS', 5.0, 0.0, 2, NO)
+QPFPattern1 = ('QPFNortherlyFlow', SCALAR, 'in', 'NortherlyFlow', 5.0, 0.0, 2, NO)
+QPFPattern10 = ('QPFRockiesRidge', SCALAR, 'in', 'RockiesRidge', 5.0, 0.0, 2, NO)
+QPFPattern11 = ('QPFSouthernFirehose', SCALAR, 'in', 'SouthernFirehose', 5.0, 0.0, 2, NO)
+QPFPattern12 = ('QPFNorthernFirehose', SCALAR, 'in', 'NorthernFirehose', 5.0, 0.0, 2, NO)
+QPFPattern2 = ('QPFGreatBasinLow', SCALAR, 'in', 'GreatBasinLow', 5.0, 0.0, 2, NO)
+QPFPattern3 = ('QPFBroadCyclonicFlow', SCALAR, 'in', 'BroadCyclonicFlow', 5.0, 0.0, 2, NO)
+QPFPattern4 = ('QPFCoastalRidge', SCALAR, 'in', 'CoastalRidge', 5.0, 0.0, 2, NO)
+QPFPattern5 = ('QPFNorthwestFlow', SCALAR, 'in', 'NorthwestFlow', 5.0, 0.0, 2, NO)
+QPFPattern6 = ('QPFZonalFlow', SCALAR, 'in', 'ZonalFlow', 5.0, 0.0, 2, NO)
+QPFPattern7 = ('QPFBroadAntiCyclonicFlow', SCALAR, 'in', 'BroadAntiCyclonicFlow', 5.0, 0.0, 2, NO)
+QPFPattern8 = ('QPFDiffluentOnshoreFlow', SCALAR, 'in', 'DiffluentOnshoreFlow', 5.0, 0.0, 2, NO)
+QPFPattern9 = ('QPFSouthwestFlow', SCALAR, 'in', 'SouthwestFlow', 5.0, 0.0, 2, NO)
+QPFPct = ('QPFPct', SCALAR, '%', 'QPFPct', 300.0, 0.0, 1, YES)
+QPFPctMonthlyClimo = ('QPFPctMonthlyClimo', SCALAR, '%', 'QPF Pct Monthly PRISMClimo', 200.0, 0.0, 0, NO)
+QPFRaw = ('QPFRaw', SCALAR, 'in', 'QPFRaw', 5.0, 0.0, 2, YES)
+QSE06 = ('QSE06', SCALAR, 'in', 'QSE06', 100.0, 0.0, 1, YES)
+RipCurrent = ('RipCurrent', DISCRETE, 'cat', 'Rip Current', 0, ThreatKeys)
+RipCurrentIndex = ('RipCurrentIndex', SCALAR, 'ft', 'Rip Current Index', 16.0, -1.0, 1, NO)
+RipRisk = ("RipRisk", SCALAR, "none", "Rip Current Risk", 3, 0, 0, NO)
+SPC12hrLP1 = ('SPC12hrLP1', SCALAR, '%', 'SPC 12HR Lightning Probability (1)', 100.0, 0.0, 0, NO)
+SPC12hrLP10 = ('SPC12hrLP10', SCALAR, '%', 'SPC 12HR Lightning Probability (10)', 100.0, 0.0, 0, NO)
+SPC12hrLP100 = ('SPC12hrLP100', SCALAR, '%', 'SPC 12HR Lightning Probability (100)', 100.0, 0.0, 0, NO)
+SPC24hrLP1 = ('SPC24hrLP1', SCALAR, '%', 'SPC 24HR Lightning Probability (1)', 100.0, 0.0, 0, NO)
+SPC24hrLP10 = ('SPC24hrLP10', SCALAR, '%', 'SPC 24HR Lightning Probability (10)', 100.0, 0.0, 0, NO)
+SPC24hrLP100 = ('SPC24hrLP100', SCALAR, '%', 'SPC 24HR Lightning Probability (100)', 100.0, 0.0, 0, NO)
+SPC3hrLP1 = ('SPC3hrLP1', SCALAR, '%', 'SPC 3HR Lightning Probability (1)', 100.0, 0.0, 0, NO)
+SPC3hrLP10 = ('SPC3hrLP10', SCALAR, '%', 'SPC 3HR Lightning Probability (10)', 100.0, 0.0, 0, NO)
+SPC3hrLP100 = ('SPC3hrLP100', SCALAR, '%', 'SPC 3HR Lightning Probability (100)', 100.0, 0.0, 0, NO)
+SevereHail = ('SevereHail', DISCRETE, 'cat', 'Severe Hail', 0, ThreatKeys)
+SevereTstmWind = ('SevereTstmWind', DISCRETE, 'cat', 'SevereTstmWind', 0, ThreatKeys)
+SnowAmt10Prcntl = ('SnowAmt10Prcntl', SCALAR, 'in', 'min case', 50.0, 0.0, 1, NO)
+SnowAmt50Prcntl = ('SnowAmt50Prcntl', SCALAR, 'in', 'avg case', 50.0, 0.0, 1, NO)
+SnowAmt90Prcntl = ('SnowAmt90Prcntl', SCALAR, 'in', 'max case', 50.0, 0.0, 1, NO)
+SnowDepth = ('SnowDepth', SCALAR, 'in', 'Snow Depth', 50.0, 0.0, 0, NO)
+SnowRatioCLIMO = ('SnowRatioCLIMO', SCALAR, '%', 'Snow Ratio Climatology SON-DJF-MAM', 40.0, 0.0, 1, YES)
+SnowRatioGFS = ('SnowRatioGFS', SCALAR, '%', 'Snow Ratio from GFS40', 40.0, 0.0, 1, YES)
+SnowRatioHPCMEAN = ('SnowRatioHPCMEAN', SCALAR, '%', 'Snow Ratio from HPC MEAN', 40.0, 0.0, 1, YES)
+SnowRatioNAM = ('SnowRatioNAM', SCALAR, '%', 'Snow Ratio from NAM40', 40.0, 0.0, 1, YES)
+SST = ("SST", SCALAR, "F", "Sea Sfc Temp", 100.0, 25.0, 0, NO)
+StormTide = ('StormTide', SCALAR, 'ft', 'Storm Tide', 30.0, -8.0, 1, NO)
+T10 = ('T10', SCALAR, 'F', '10th Percentile for T', 110.0, 10.0, 0, NO)
+T50 = ('T50', SCALAR, 'F', '50th Percentile for T', 110.0, 10.0, 0, NO)
+T90 = ('T90', SCALAR, 'F', '90th Percentile for T', 110.0, 10.0, 0, NO)
+TAloft = ('TAloft', SCALAR, 'F', 'Temperature Aloft', 120.0, -50.0, 1, NO)
+Td10 = ('Td10', SCALAR, 'F', '10th Percentile for DpT', 100.0, -20.0, 0, NO)
+Td50 = ('Td50', SCALAR, 'F', '50th Percentile for DpT', 100.0, -20.0, 0, NO)
+Td90 = ('Td90', SCALAR, 'F', '90th Percentile for DpT', 100.0, -20.0, 0, NO)
+TdAft = ('TdAft', SCALAR, 'F', 'Afternoon Dewpoint', 120.0, -80.0, 0, NO)
+TdAftError = ('TdAftError', SCALAR, 'F', 'Afternoon Dewpoint Error', 120.0, -120.0, 0, NO)
+TdAftFcst = ('TdAftFcst', SCALAR, 'F', 'Forecast Afternoon Dewpoint', 120.0, -120.0, 0, NO)
+TdAftOb = ('TdAftOb', SCALAR, 'F', 'Observed Afternoon Dewpoint', 120.0, -120.0, 0, NO)
+TdAftObs = ('TdAftObs', SCALAR, 'F', 'Afternoon Dewpoint Obs', 120.0, -80.0, 0, NO)
+TdMrn = ('TdMrn', SCALAR, 'F', 'Morning Dewpoint', 120.0, -80.0, 0, NO)
+TdMrnError = ('TdMrnError', SCALAR, 'F', 'Morning Dewpoint Error', 120.0, -120.0, 0, NO)
+TdMrnFcst = ('TdMrnFcst', SCALAR, 'F', 'Forecast Morning Dewpoint', 120.0, -120.0, 0, NO)
+TdMrnOb = ('TdMrnOb', SCALAR, 'F', 'Observed Morning Dewpoint', 120.0, -120.0, 0, NO)
+TdMrnObs = ('TdMrnObs', SCALAR, 'F', 'Morning Dewpoint Obs', 120.0, -80.0, 0, NO)
+Tornado = ('Tornado', DISCRETE, 'cat', 'Tornado', 0, ThreatKeys)
+TransWindAve = ('TransWindAve', VECTOR, 'mph', 'Transport Wind Average', 125.0, 0.0, 0, NO)
+Tw = ('Tw', SCALAR, 'F', 'Surface Wet Bulb Temp', 80.0, -50.0, 0, NO)
+VentRateAve = ('VentRateAve', SCALAR, 'mph-ft', 'Vent Rate Average', 500000.0, 0.0, 0, NO)
+Visibility = ('Visibility', SCALAR, 'SM', 'Visibility', 10.0, 0.0, 2, NO)
+VisibilityConditional = ('VisibilityConditional', SCALAR, 'SM', 'Conditional Visibility', 10.0, 0.0, 2, NO)
+Vsby = ('Vsby', SCALAR, 'mi', 'Visibility', 10.0, 0.0, 2, NO)
+WG1 = ('WG1', SCALAR, 'none', 'WorkGrid1', 100.0, -100.0, 0, NO)
+WinterWx = ('WinterWx', DISCRETE, 'cat', 'Winter Weather', 0, ThreatKeys)
+
+# Parameter set for Probability of weather type, Optional for sites.
+PoTBD = ('PotBlowingDust', SCALAR, '%', 'Prob of Blowing Dust', 100.0, 0.0, 0, NO)
+PoTBN = ('PotBlowingSand', SCALAR, '%', 'Prob of Blowing Sand', 100.0, 0.0, 0, NO)
+PoTBS = ('PotBlowingSnow', SCALAR, '%', 'Prob of Blowing Snow', 100.0, 0.0, 0, NO)
+PoTF = ('PotFog', SCALAR, '%', 'Prob of Fog', 100.0, 0.0, 0, NO)
+PoTFR = ('PotFrost', SCALAR, '%', 'Prob of Frost', 100.0, 0.0, 0, NO)
+PoTFl = ('PotFlurries', SCALAR, '%', 'Prob of Flurries', 100.0, 0.0, 0, NO)
+PoTH = ('PotHaze', SCALAR, '%', 'Prob of Haze', 100.0, 0.0, 0, NO)
+PoTIC = ('PotIceCrystals', SCALAR, '%', 'Prob of Ice Crystals', 100.0, 0.0, 0, NO)
+PoTIF = ('PotIceFog', SCALAR, '%', 'Prob of Ice Fog', 100.0, 0.0, 0, NO)
+PoTIP = ('PotSleet', SCALAR, '%', 'Prob of Sleet', 100.0, 0.0, 0, NO)
+PoTK = ('PotSmoke', SCALAR, '%', 'Prob of Smoke', 100.0, 0.0, 0, NO)
+PoTL = ('PotDrizzle', SCALAR, '%', 'Prob of Drizzle', 100.0, 0.0, 0, NO)
+PoTLWrk = ('PotDrizzleWork', SCALAR, '%', 'Prob of Drizzle Work', 100.0, 0.0, 0, NO)
+PoTR = ('PotRain', SCALAR, '%', 'Prob of Rain', 100.0, 0.0, 0, NO)
+PoTRW = ('PotRainShowers', SCALAR, '%', 'Prob of Rain Showers', 100.0, 0.0, 0, NO)
+PoTRWrk = ('PotRainWork', SCALAR, '%', 'Prob of Rain Work', 100.0, 0.0, 0, NO)
+PoTS = ('PotSnow', SCALAR, '%', 'Prob of Snow', 100.0, 0.0, 0, NO)
+PoTSW = ('PotSnowShowers', SCALAR, '%', 'Prob of Snow Showers', 100.0, 0.0, 0, NO)
+PoTSp = ('PotSprinkles', SCALAR, '%', 'Prob of Sprinkles', 100.0, 0.0, 0, NO)
+PoTT = ('PotThunder', SCALAR, '%', 'Prob of Thunder', 100.0, 0.0, 0, NO)
+PoTVA = ('PotVolcanicAsh', SCALAR, '%', 'Prob of Volcanic Ash', 100.0, 0.0, 0, NO)
+PoTWP = ('PotWaterspout', SCALAR, '%', 'Prob of Waterspout', 100.0, 0.0, 0, NO)
+PoTZF = ('PotFreezingFog', SCALAR, '%', 'Prob of Freezing Fog', 100.0, 0.0, 0, NO)
+PoTZL = ('PotFreezingDrizzle', SCALAR, '%', 'Prob of Freezing Drizzle', 100.0, 0.0, 0, NO)
+PoTZLWrk = ('PotFreezingDrizzleWork', SCALAR, '%', 'Prob of Freezing Drizzle Work', 100.0, 0.0, 0, NO)
+PoTZR = ('PotFreezingRain', SCALAR, '%', 'Prob of Freezing Rain', 100.0, 0.0, 0, NO)
+PoTZRWrk = ('PotFreezingRainWork', SCALAR, '%', 'Prob of Freezing Rain Work', 100.0, 0.0, 0, NO)
+PoTZY = ('PotFreezingSpray', SCALAR, '%', 'Prob of Freezing Spray', 100.0, 0.0, 0, NO)
+RoadTemp = ("RoadTemp", SCALAR, "F", "Road Temperature", 120.0, -50.0, 0, NO)
+SleetAmt = ("SleetAmt", SCALAR, "in", "Sleet Accumulation", 5.0, 0.0, 1, YES),
+IceLineAcc = ("IceLineAccum", SCALAR, "in", "Line Ice Accumulation", 3.00, 0.00, 2, YES)
+IceFlatAcc = ("IceFlatAccum", SCALAR, "in", "Flat Ice Accumulation", 3.00, 0.00, 2, YES)
+ProbIcePresent = ("ProbIcePresent", SCALAR, "%", "Prob of Ice Present", 100.0, 0.0, 0, NO)
+ProbRefreezeSleet = ("ProbRefreezeSleet", SCALAR, "%", "Prob of Refreeze into Sleet", 100.0, 0.0, 0, NO)
+PoWTpList=[PoTBD, PoTBN, PoTBS, PoTF, PoTFR, PoTFl, PoTH, PoTIC, PoTIF, PoTIP,
+           PoTK, PoTL, PoTLWrk, PoTR, PoTRW, PoTRWrk, PoTS, PoTSW, PoTSp, PoTT,
+           PoTVA, PoTWP, PoTZF, PoTZL, PoTZLWrk, PoTZR, PoTZRWrk, PoTZY,
+           RoadTemp, SleetAmt, IceLineAcc, IceFlatAcc, ProbIcePresent, ProbRefreezeSleet,
+          ]
+
+# Parameter set for Winter Weather probabilities, optional for sites.
+
+#  Define keys for total snow graphic - we'll need these in a bit
+StormTotalSnowWeb1Keys=[("0","0"),("<1","<1"),("1", "1"), ("2", "2"), ("3", "3"),
+             ("4", "4"), ("5", "5"), ("6", "6"), ("7", "7"), ("8", "8"),
+             ("9", "9"), ("10", "10"), ("11", "11"), ("12", "12"), ("13", "13"),
+             ("14", "14"), ("15", "15"), ("16", "16"), ("17", "17"), ("18", "18"), ("19", "19"),
+             ("20", "20"), ("21", "21"), ("22", "22"), ("23", "23"),("24","24"),
+             ("25", "25"), ("26", "26"), ("27", "27"), ("28", "28"),("29","29"),
+             ("30", "30"), ("31", "31"), ("32", "32"), ("33", "33"),("34","34"),
+             ("35", "35"), ("36", "36"), ("37","37"), ("38","38"), ("39","39"),
+             ("40", "40"), ("41", "41"), ("42", "42"), ("43", "43"),("44","44"),
+             ("45", "45"), ("46", "46"), ("47", "47"), ("48", "48"),(">48",">48"),]
+
+# Storm Total Snow related
+StormTotalSnowWPC = ("StormTotalSnowWPC", SCALAR, "in","WPC Storm Total Snow", 50.0, 0.0, 1, NO)
+StormTotalSnowWeb1 = ("StormTotalSnowWeb1", DISCRETE, "Cat", "Storm Total Snow Web1", NO, StormTotalSnowWeb1Keys)
+MinSnowWeb = ("MinSnowWeb", DISCRETE, "Cat", "Min Snow Web", NO, StormTotalSnowWeb1Keys)
+MaxSnowWeb = ("MaxSnowWeb", DISCRETE, "Cat", "Min Snow Web", NO, StormTotalSnowWeb1Keys)
+
+# Snow Percentiles
+SnowAmt5Prcntl = ("SnowAmt5Prcntl", SCALAR, "in","5 percentile", 50.0, -40.0, 1, NO)
+SnowAmt10Prcntl = ("SnowAmt10Prcntl", SCALAR, "in","10 percentile", 50.0, -40.0, 1, NO)
+SnowAmt25Prcntl = ("SnowAmt25Prcntl", SCALAR, "in","25 percentile", 50.0, -40.0, 1, NO)
+SnowAmt50Prcntl = ("SnowAmt50Prcntl", SCALAR, "in","50 percentile", 50.0, -40.0, 1, NO)
+SnowAmt75Prcntl = ("SnowAmt75Prcntl", SCALAR, "in","75 percentile", 50.0, -40.0, 1, NO)
+SnowAmt90Prcntl = ("SnowAmt90Prcntl", SCALAR, "in","90 percentile", 50.0, -40.0, 1, NO)
+SnowAmt95Prcntl = ("SnowAmt95Prcntl", SCALAR, "in","95 percentile", 50.0, -40.0, 1, NO)
+
+# Snow Exceedance Probabilities (Add others as needed)
+ProbSnowGET = ("ProbSnowGET", SCALAR, "%", "Prob. snow >= trace", 100.0, 0.0, 0, NO)
+ProbSnowGE1 = ("ProbSnowGE1", SCALAR, "%", "Prob. snow >= 1 inch", 100.0, 0.0, 0, NO)
+ProbSnowGE2 = ("ProbSnowGE2", SCALAR, "%", "Prob. snow >= 2 inches", 100.0, 0.0, 0, NO)
+ProbSnowGE4 = ("ProbSnowGE4", SCALAR, "%", "Prob. snow >= 4 inches", 100.0, 0.0, 0, NO)
+ProbSnowGE6 = ("ProbSnowGE6", SCALAR, "%", "Prob. snow >= 6 inches", 100.0, 0.0, 0, NO)
+ProbSnowGE8 = ("ProbSnowGE8", SCALAR, "%", "Prob. snow >= 8 inches", 100.0, 0.0, 0, NO)
+ProbSnowGE12 = ("ProbSnowGE12", SCALAR, "%", "Prob. snow >= 12 inches", 100.0, 0.0, 0, NO)
+ProbSnowGE18 = ("ProbSnowGE18", SCALAR, "%", "Prob. snow >= 18 inches", 100.0, 0.0, 0, NO)
+
+# Freezing Rain Percentiles
+IceAccum5Prcntl = ("IceAccum5Prcntl", SCALAR, "in","5 percentile", 5.0, -4.0, 2, NO)
+IceAccum10Prcntl = ("IceAccum10Prcntl", SCALAR, "in","10 percentile", 5.0, -4.0, 2, NO)
+IceAccum25Prcntl = ("IceAccum25Prcntl", SCALAR, "in","25 percentile", 5.0, -4.0, 2, NO)
+IceAccum50Prcntl = ("IceAccum50Prcntl", SCALAR, "in","50 percentile", 5.0, -4.0, 2, NO)
+IceAccum75Prcntl = ("IceAccum75Prcntl", SCALAR, "in","75 percentile", 5.0, -4.0, 2, NO)
+IceAccum90Prcntl = ("IceAccum90Prcntl", SCALAR, "in","90 percentile", 5.0, -4.0, 2, NO)
+IceAccum95Prcntl = ("IceAccum95Prcntl", SCALAR, "in","95 percentile", 5.0, -4.0, 2, NO)
+
+# Freezing rain accretion probabilities
+ProbIceGE001 = ("ProbIceGE001", SCALAR, "%", "Prob. ice >= 0.01", 100.0, 0.0, 0, NO)
+ProbIceGE010 = ("ProbIceGE010", SCALAR, "%", "Prob. ice >= 0.10", 100.0, 0.0, 0, NO)
+ProbIceGE025 = ("ProbIceGE025", SCALAR, "%", "Prob. ice >= 0.25", 100.0, 0.0, 0, NO)
+ProbIceGE050 = ("ProbIceGE050", SCALAR, "%", "Prob. ice >= 0.50", 100.0, 0.0, 0, NO)
+
+winterProbsParmList = [
+    StormTotalSnowWPC, StormTotalSnowWeb1, MinSnowWeb, MaxSnowWeb,
+    SnowAmt5Prcntl, SnowAmt10Prcntl, SnowAmt25Prcntl, SnowAmt50Prcntl,
+    SnowAmt75Prcntl, SnowAmt90Prcntl, SnowAmt95Prcntl, ProbSnowGET,
+    ProbSnowGE1, ProbSnowGE2, ProbSnowGE4, ProbSnowGE6, ProbSnowGE8,
+    ProbSnowGE12, ProbSnowGE18, IceAccum5Prcntl, IceAccum10Prcntl,
+    IceAccum25Prcntl, IceAccum50Prcntl, IceAccum75Prcntl, IceAccum90Prcntl,
+    IceAccum95Prcntl, ProbIceGE001, ProbIceGE010, ProbIceGE025, ProbIceGE050
+]
+
+# Add rainfall probability definitions
+
+# Rain Percentiles 
+QPF5Prcntl = ("QPF5Prcntl", SCALAR, "in","5 percentile", 36.0, -24.0, 2, NO)
+QPF10Prcntl = ("QPF10Prcntl", SCALAR, "in","10 percentile", 36.0, -24.0, 2, NO)
+QPF25Prcntl = ("QPF25Prcntl", SCALAR, "in","25 percentile", 36.0, -24.0, 2, NO)
+QPF50Prcntl = ("QPF50Prcntl", SCALAR, "in","50 percentile", 36.0, -24.0, 2, NO)
+QPF75Prcntl = ("QPF75Prcntl", SCALAR, "in","75 percentile", 36.0, -24.0, 2, NO)
+QPF90Prcntl = ("QPF90Prcntl", SCALAR, "in","90 percentile", 36.0, -24.0, 2, NO)
+QPF95Prcntl = ("QPF95Prcntl", SCALAR, "in","95 percentile", 36.0, -24.0, 2, NO)
+
+# Rain Exceedance Probabilities (Add others as needed)
+ProbRainGE001 = ("ProbRainGET", SCALAR, "%", "Prob. Rain >= 0.01 in", 100.0, 0.0, 0, NO)
+ProbRainGE010 = ("ProbRainGE1", SCALAR, "%", "Prob. Rain >= 0.10 in", 100.0, 0.0, 0, NO)
+ProbRainGE025 = ("ProbRainGE2", SCALAR, "%", "Prob. Rain >= 0.25 in", 100.0, 0.0, 0, NO)
+ProbRainGE050 = ("ProbRainGE4", SCALAR, "%", "Prob. Rain >= 0.50 in", 100.0, 0.0, 0, NO)
+ProbRainGE075 = ("ProbRainGE6", SCALAR, "%", "Prob. Rain >= 0.75 in", 100.0, 0.0, 0, NO)
+ProbRainGE100 = ("ProbRainGE8", SCALAR, "%", "Prob. Rain >= 1.00 in", 100.0, 0.0, 0, NO)
+ProbRainGE150 = ("ProbRainGE12", SCALAR, "%", "Prob. Rain >= 1.50 in", 100.0, 0.0, 0, NO)
+ProbRainGE200 = ("ProbRainGE18", SCALAR, "%", "Prob. Rain >= 2.00 in", 100.0, 0.0, 0, NO)
+ProbRainGE250 = ("ProbRainGE12", SCALAR, "%", "Prob. Rain >= 2.50 in", 100.0, 0.0, 0, NO)
+ProbRainGE300 = ("ProbRainGE18", SCALAR, "%", "Prob. Rain >= 3.00 in", 100.0, 0.0, 0, NO)
+
+rainfallProbsParmList = [
+    QPF5Prcntl, QPF10Prcntl, QPF25Prcntl, QPF50Prcntl, QPF75Prcntl, QPF90Prcntl,
+    QPF95Prcntl, ProbRainGE001, ProbRainGE010, ProbRainGE025, ProbRainGE050,
+    ProbRainGE075, ProbRainGE100, ProbRainGE150, ProbRainGE200, ProbRainGE250,
+    ProbRainGE300
+]
+
 #-----------------------------------
 # DO NOT CHANGE THE FOLLOWING SECTION
 #------------------------------------
 if not BASELINE and siteImport('localWxConfig'):
     types = localWxConfig.types
+
 
 #---------------------------------------------------------------------------
 #
@@ -789,23 +1733,18 @@ allProjections = [Grid201, Grid202, Grid203, Grid204, Grid205, Grid206,
 # of this section that adjusts the resolution for the RPP sites.
 
 #         [xdim, ydim] / (origin) /( extent)  / TimeZone / Projection / OfficeType
+
 SITES = {
 #WFOs
     # Experimental combined AFC site
-    'AFC' : ([1057, 449], (1.0, 19.00), (66.0, 28.0), 'America/Anchorage',
-              Grid214AK, "wfo"),
-
+    'AFC' : ([1057, 449], (1.0, 19.00),  (66.0, 28.0), 'America/Anchorage', Grid214AK, "wfo"),
     'ABQ' : ([145, 145], (36.00, 22.00), (9.0, 9.0), 'MST7MDT', Grid211,"wfo"),
     'ABR' : ([145, 145], (45.00, 35.00), (9.0, 9.0), 'CST6CDT', Grid211,"wfo"),
-    'AER' : ([369, 337], (44.00, 23.00), (23.0, 21.0), 'America/Anchorage',
-              Grid214AK, "wfo"),
-    'AFG' : ([313, 201], (27.0, 39.0), (39.0, 25.0), 'America/Anchorage',
-              Grid214AK, "wfo"),
-    'AJK' : ([337, 241], (62.0, 23.0), (21.0, 15.0), 'America/Juneau',
-              Grid214AK, "wfo"),
+    'AER' : ([369, 337], (44.00, 23.00), (23.0, 21.0), 'America/Anchorage', Grid214AK, "wfo"),
+    'AFG' : ([313, 201], (27.0, 39.0),   (39.0, 25.0), 'America/Anchorage', Grid214AK, "wfo"),
+    'AJK' : ([337, 241], (62.0, 23.0),   (21.0, 15.0), 'America/Juneau', Grid214AK, "wfo"),
     'AKQ' : ([145, 145], (68.00, 25.00), (9.0, 9.0), 'EST5EDT', Grid211, "wfo"),
-    'ALU' : ([433, 225], (1.0, 19.0), (54.0, 28.0), 'America/Anchorage',
-              Grid214AK, "wfo"),
+    'ALU' : ([433, 225], (1.0, 19.0),    (54.0, 28.0), 'America/Anchorage', Grid214AK, "wfo"),
     'ALY' : ([145, 145], (70.00, 33.00), (9.0, 9.0), 'EST5EDT', Grid211, "wfo"),
     'AMA' : ([145, 145], (41.00, 21.00), (9.0, 9.0), 'CST6CDT', Grid211, "wfo"),
     'APX' : ([145, 145], (58.00, 34.00), (9.0, 9.0), 'EST5EDT', Grid211, "wfo"),
@@ -815,9 +1754,9 @@ SITES = {
     'BMX' : ([145, 145], (58.00, 19.00), (9.0, 9.0), 'CST6CDT', Grid211, "wfo"),
     'BOI' : ([177, 177], (25.00, 34.00), (11.0, 11.0), 'MST7MDT', Grid211, "wfo"),
     'BOU' : ([145, 145], (38.00, 27.00), (9.0, 9.0), 'MST7MDT', Grid211, "wfo"),
-    'BOX' : ([193, 193], (74.00, 33.00), (12.0, 12.0), 'EST5EDT', Grid211, "wfo"),
+    'BOX' : ([187, 154], (75.375,34.59375), (5.8125,4.78125), "EST5EDT", Grid211, "wfo"), #updated
     'BRO' : ([145, 145], (44.00, 10.00), (9.0, 9.0), 'CST6CDT', Grid211, "wfo"),
-    'BTV' : ([145, 145], (72.00, 36.00), (9.0, 9.0), 'EST5EDT', Grid211, "wfo"),
+    'BTV' : ([193, 157], (72.00, 37.15), (6.0, 4.875), 'EST5EDT', Grid211, "wfo"), #updated
     'BUF' : ([145, 145], (66.00, 32.00), (9.0, 9.0), 'EST5EDT', Grid211, "wfo"),
     'BYZ' : ([145, 145], (36.00, 37.00), (9.0, 9.0), 'MST7MDT', Grid211, "wfo"),
     'CAE' : ([145, 145], (65.00, 20.00), (9.0, 9.0), 'EST5EDT', Grid211, "wfo"),
@@ -849,12 +1788,11 @@ SITES = {
     'GRR' : ([145, 145], (58.00, 33.00), (9.0, 9.0), 'EST5EDT', Grid211, "wfo"),
     'GSP' : ([145, 145], (63.00, 21.00), (9.0, 9.0), 'EST5EDT', Grid211, "wfo"),
     'GUM' : ([433, 225], (15.00, 20.00), (27.0, 14.0), 'Pacific/Guam', Grid204, "wfo"),
-    'GYX' : ([145, 145], (75.00, 37.00), (9.0, 9.0), 'EST5EDT', Grid211, "wfo"),
-    'HFO' : ([321, 225], (7.00,  11.00), (10.0, 7.0), 'Pacific/Honolulu',
-             Grid208, 'wfo'),
+    'GYX' : ([193,209],  (76.00, 37.375), (6.0, 6.5), 'EST5EDT', Grid211, "wfo"), #updated
+    'HFO' : ([321, 225], (7.00,  11.00), (10.0, 7.0), 'Pacific/Honolulu', Grid208, 'wfo'),
     'HGX' : ([145, 145], (48.00, 13.00), (9.0, 9.0), 'CST6CDT', Grid211, "wfo"),
     'HNX' : ([145, 145], (22.00, 24.00), (9.0, 9.0), 'PST8PDT', Grid211, "wfo"),
-    'HUN' : ([145, 145], (57.00, 20.00), (9.0, 9.0), 'CST6CDT', Grid211, "wfo"),
+    'HUN' : ([161, 161], (60.0, 22.0),   (5.0, 5.0), 'CST6CDT', Grid211, "wfo"), #updated
     'ICT' : ([145, 145], (45.00, 25.00), (9.0, 9.0), 'CST6CDT', Grid211, "wfo"),
     'ILM' : ([145, 145], (67.00, 21.00), (9.0, 9.0), 'EST5EDT', Grid211, "wfo"),
     'ILN' : ([145, 145], (60.00, 27.00), (9.0, 9.0), 'EST5EDT', Grid211, "wfo"),
@@ -864,7 +1802,7 @@ SITES = {
     'JAN' : ([145, 145], (54.00, 18.00), (9.0, 9.0), 'CST6CDT', Grid211, "wfo"),
     'JAX' : ([145, 145], (64.00, 14.00), (9.0, 9.0), 'EST5EDT', Grid211, "wfo"),
     'JKL' : ([145, 145], (61.00, 25.00), (9.0, 9.0), 'EST5EDT', Grid211, "wfo"),
-    'KEY' : ([145, 145], (66.00, 8.00), (9.0, 9.0), 'EST5EDT', Grid211, "wfo"),
+    'KEY' : ([145, 145], (66.00, 8.00),  (9.0, 9.0), 'EST5EDT', Grid211, "wfo"),
     'LBF' : ([145, 145], (43.00, 30.00), (9.0, 9.0), 'CST6CDT', Grid211, "wfo"),
     'LCH' : ([145, 145], (52.00, 15.00), (9.0, 9.0), 'CST6CDT', Grid211, "wfo"),
     'LIX' : ([145, 145], (54.00, 14.00), (9.0, 9.0), 'CST6CDT', Grid211, "wfo"),
@@ -876,7 +1814,7 @@ SITES = {
     'LUB' : ([145, 145], (39.00, 17.00), (9.0, 9.0), 'CST6CDT', Grid211, "wfo"),
     'LWX' : ([145, 145], (67.00, 27.00), (9.0, 9.0), 'EST5EDT', Grid211, "wfo"),
     'LZK' : ([145, 145], (51.00, 20.00), (9.0, 9.0), 'CST6CDT', Grid211, "wfo"),
-    'MAF' : ([145, 145], (40.00, 16.00), (9.0, 9.0), 'CST6CDT', Grid211, "wfo"),
+    'MAF' : ([205,247],  (40.375, 16.8125), (6.375, 7.6875), 'CST6CDT', Grid211, "wfo"), #updated
     'MEG' : ([145, 145], (54.00, 22.00), (9.0, 9.0), 'CST6CDT', Grid211, "wfo"),
     'MFL' : ([145, 145], (66.00, 9.00), (9.0, 9.0), 'EST5EDT', Grid211, "wfo"),
     'MFR' : ([145, 145], (20.00, 34.00), (9.0, 9.0), 'PST8PDT', Grid211, "wfo"),
@@ -906,13 +1844,13 @@ SITES = {
     'REV' : ([145, 145], (23.00, 29.00), (9.0, 9.0), 'PST8PDT', Grid211, "wfo"),
     'RIW' : ([145, 145], (35.00, 33.00), (9.0, 9.0), 'MST7MDT', Grid211, "wfo"),
     'RLX' : ([145, 145], (63.00, 26.00), (9.0, 9.0), 'EST5EDT', Grid211, "wfo"),
-    'RNK' : ([145, 145], (64.00, 24.00), (9.0, 9.0), 'EST5EDT', Grid211, "wfo"),
+    'RNK' : ([161, 161], (67.0,  26.00), (5.0, 5.0), 'EST5EDT', Grid211, 'wfo'), #updated
     'SEW' : ([145, 145], (21.00, 42.00), (9.0, 9.0), 'PST8PDT', Grid211, "wfo"),
     'SGF' : ([145, 145], (51.00, 24.00), (9.0, 9.0), 'CST6CDT', Grid211, "wfo"),
     'SGX' : ([145, 145], (24.00, 21.00), (9.0, 9.0), 'PST8PDT', Grid211, "wfo"),
     'SHV' : ([145, 145], (50.00, 17.00), (9.0, 9.0), 'CST6CDT', Grid211, "wfo"),
     'SJT' : ([145, 145], (43.00, 16.00), (9.0, 9.0), 'CST6CDT', Grid211, "wfo"),
-    'SJU': ([32, 28], (10.0, 10.0), (8.0, 7.0), 'America/Puerto_Rico',Grid210, "wfo"),
+    'SJU' : ([32, 28], (10.0, 10.0), (8.0, 7.0), 'America/Puerto_Rico',Grid210, "wfo"),
     'SLC' : ([161, 161], (30.00, 28.00), (10.0, 10.0), 'MST7MDT', Grid211, "wfo"),
     'STO' : ([145, 145], (20.00, 28.00), (9.0, 9.0), 'PST8PDT', Grid211, "wfo"),
     'TAE' : ([145, 145], (60.00, 15.00), (9.0, 9.0), 'EST5EDT', Grid211, "wfo"),
@@ -924,8 +1862,7 @@ SITES = {
     'UNR' : ([145, 145], (40.00, 34.00), (9.0, 9.0), 'MST7MDT', Grid211, "wfo"),
     'VEF' : ([145, 145], (26.00, 25.00), (9.0, 9.0), 'PST8PDT', Grid211, "wfo"),
 #RFCs
-    'ACR' : ([271, 173], (20.0, 21.0), (57.0, 40.0), 'America/Anchorage',
-             Grid214, "rfc"),    # this grid is at 10 km resolution
+    'ACR' : ([271, 173], (20.0, 21.0), (57.0, 40.0), 'America/Anchorage', Grid214, "rfc"),    # this grid is at 10 km resolution
     'ALR' : ([299, 278], (59.0, 11.0), (17.0, 19.0), 'CST6CDT', Grid211, "rfc"),
     'FWR' : ([362, 334], (36.0, 11.0), (20.0, 20.0), 'CST6CDT', Grid211, "rfc"),
     'KRF' : ([408, 356], (33.0, 27.0), (26.0, 22.0), 'CST6CDT', Grid211, "rfc"),
@@ -939,11 +1876,9 @@ SITES = {
     'TIR' : ([220, 171], (59.0, 25.0), (13.0, 12.0), 'EST5EDT', Grid211, "rfc"),
     'TUA' : ([281, 168], (39.0, 22.0), (18.0, 10.0), 'CST6CDT', Grid211, "rfc"),
 
-#Special Sites - Added Hawaiian High Seas domain 
+#Special Sites - Added Hawaiian High Seas domain
     'US' : ([267, 159], (18.0, 9.5), (67.0, 40.0), 'EDT5EDT', Grid211, "other"),
     'FSL' : ([161, 145], (38.50, 27.00), (10.0, 9.0), 'MST7MDT', Grid211, "other"),
-#    'NH1' : ([667, 461], (69.5, 4.5), (52.03125, 35.9375), 'EST5EDT', Grid204, "wfo"),
-#    'NH2' : ([950, 289], (-33.0, -7.0), (148.276, 45.0), 'EST5EDT', Grid210, "wfo"),
     'NH1' : ([838, 577], (887.0, 121.0), (837.0, 576.0), 'EST5EDT', NDFD_Oceanic_10K, "wfo"),
     'NH2' : ([1188, 363], (1328.0, 365.0), (1187.0, 362.0), 'EST5EDT', NDFD_Oceanic_10K, "wfo"),
     'ONA' : ([244, 383], (68.9375, 19.5625), (15.1875, 23.875), 'EST5EDT', Grid211, "wfo"),
@@ -952,10 +1887,10 @@ SITES = {
     'WNJ' : ([301, 346], (1000.0, 475.0), (300.0, 345.0), 'CST6CDT', NDFD_Oceanic_10K, "wfo"),
 
 #Ice Desk for AFC
-    'AICE' : ([560, 340], (9.0, 11.0), (29.0, 19.0), 'America/Anchorage',
-       Grid203, "nc"),
-#Nested for GUM (future)
-#    'GUMa': ([193, 193], (23.0, 26.0), (3.0, 3.0), 'Pacific/Guam', Grid204, "other"),
+    'AICE' : ([560, 340], (9.0, 11.0), (29.0, 19.0), 'America/Anchorage', Grid203, "nc"),
+    'AAWU' : ([705, 457], (1.0, 11.0), (88.0, 57.0), 'America/Anchorage', Grid214AK, 'nc'),
+    'AVAK' : ([465, 417], (8.0, 12.0), (29.0, 26.0), 'America/Anchorage', Grid203, 'nc'),
+
 #Regional Offices
     'VUY' : ([337,449], (62.00, 19.00), (21.0, 28.0), 'EST5EDT', Grid211, "ro"),
     'BCQ' : ([145,145], (50.00, 27.00), (9.0, 9.0), 'CST6CDT', Grid211, "ro"),
@@ -964,15 +1899,23 @@ SITES = {
     'PBP' : ([321,225], (7.00, 11.00), (10.0, 7.0), 'Pacific/Honolulu', Grid208, "ro"),
     'ARE' : ([369,337], (44.00, 23.00), (23.0, 21.0), 'America/Anchorage', Grid214AK, "ro"),
     'ARW' : ([433,225], (1.00, 19.00), (54.0, 21.0), 'America/Anchorage', Grid214AK, "ro"),
-    
+
 #National Centers
     'HAK' : ( [825,553], ( 1.0, 1.0), (103.0, 69.0), 'EST5EDT', Grid214AK, "nc"),
     'HUS' : ([1073,689], (19.0, 8.0), ( 67.0, 43.0), 'EST5EDT', Grid211,   "nc"),
     #'NHA' : ([1729,1601], (1.0,1.0), (1728.0, 1600.0), 'EST5EDT', GridForNHA, "nc"),
-    'NHA' : ([1833,1241], (41.5,5.0), (54.0,40.5), 'EST5EDT', Grid211, "nc"),
-}
+    'NHA' : ([1873,1361], (35.5,3.5), (58.5,42.5), 'EST5EDT', Grid211, "nc"),   # updated
+    }
 
-
+# Get list of valid office types, for validation.
+VALID_OFFICE_TYPES = []
+# List of all values of all sites.
+for siteValues in SITES.values():
+    # Office type is the 5th element of each site's values
+    officeType = siteValues[5]
+    if officeType not in VALID_OFFICE_TYPES:
+        # A new office type
+        VALID_OFFICE_TYPES.append(officeType)
 #---------------------------------------------------------------------------
 #
 #  Time Constraint configuration section
@@ -1001,6 +1944,7 @@ TC12     = (0, 12 * HOUR, HOUR)
 TC3NG    = (0, 3 * HOUR, 3 * HOUR)
 TC6NG    = (0, 6 * HOUR, 6 * HOUR)
 TC12NG   = (0, 12 * HOUR, 12 * HOUR)
+TC24NG   = (0, 24 * HOUR, 24 * HOUR)
 TC061212 = (6 * HOUR, 12 * HOUR, 12 * HOUR)
 Persistent = (0, 0, 0)     # special time constraint
 
@@ -1043,6 +1987,17 @@ FireWx1300TC = localTC(13*HOUR, 24*HOUR, 1*HOUR, 0)   #special FireWx 1pm snap
 #DR3511 DeltaMaxTTC  = localTC(7*HOUR, 24*HOUR, 16*HOUR, 0)  # just for HPCdeltaMaxT
 PWSDTC     = localTC(11*HOUR, 24*HOUR, 12*HOUR, 0)
 PWSNTC     = localTC(23*HOUR, 24*HOUR, 12*HOUR, 0)
+
+# From NwsInitsConfig
+LT24APT  = localTC(7*HOUR, 24*HOUR, 24*HOUR, 0)
+FireWxAvgTC = localTC( 12*HOUR,  24*HOUR,  6*HOUR, 0)
+LT4HH = localTC(11*HOUR, 24*HOUR, 4*HOUR, 0)
+SPC24 = (12*HOUR, 24*HOUR, 24*HOUR)
+# For WR
+TC0624NG=(6*HOUR,24*HOUR,24*HOUR)
+TC12NG6=(6*HOUR,12*HOUR,12*HOUR)
+# HIL Time Constraint
+HILTC=(6*HOUR,24*HOUR,24*HOUR)
 
 #---------------------------------------------------------------------------
 #
@@ -1163,7 +2118,7 @@ D2DDBVERSIONS = {
 #
 #---------------------------------------------------------------------------
 # Alaska OCONUS
-if SID in ALASKA_SITES:
+if SID in groups['ALASKA_SITES']:
     D2DMODELS = [('mesoEta216', 'NAM40'),
                  ('mesoEta217', 'NAM20'),
                  ('AVN203', 'GFS190'),
@@ -1224,7 +2179,7 @@ elif SID == "HFO":
                  ('TPCWindProb', 'TPCProb'),
                  ('ECMWF-HiRes','ECMWFHiRes'),
                  'RTOFS-Honolulu',
-                 ('estofsHI', 'ESTOFS'), 
+                 ('estofsHI', 'ESTOFS'),
                  'NPHwave15',
                  'WPHwave10',
                  'NPHwave4',
@@ -1290,7 +2245,7 @@ elif SID == "GUM":
                ]
 
 #CONUS sites
-elif SID in CONUS_EAST_SITES:
+elif SID in groups['CONUS_EAST_SITES']:
     D2DMODELS = [('GFS212', 'GFS40'),
                  ('AVN211', 'GFS80'),
                  ('ETA', 'NAM80'),
@@ -1329,7 +2284,7 @@ elif SID in CONUS_EAST_SITES:
                  ('nwpsCG1', 'nwpsCG1'),
                  ('nwpsTrkngCG0', 'nwpsTrkngCG0'),
                  'MOSGuide',
-            ##############DR17144  
+            ##############DR17144
                  ('RTMA25', 'RTMA'),
                  'NamDNG5',
                  ('TPCWindProb','TPCProb'),
@@ -1459,24 +2414,27 @@ else:   #######DCS3501 WEST_CONUS
                  ('NCOM-ALASKA', 'NCOMALASKA'),
                ]
 
-if SID in GreatLake_SITES:
+if SID in groups['GreatLake_SITES']:
     D2DMODELS.append(('GRLKwave', 'GLWM'))
     D2DMODELS.append('GLERL')
     D2DMODELS.append('GLWN')
 
+    #  Redefine the WaveHeight field to include a decimal point
+    WaveHeight = ("WaveHeight", SCALAR, "ft", "Wave Height", 40.0, 0.0, 1, NO)
+
 #---------------------------------------------------------------------------
 #
-#  Search path for netCDF data files. 
+#  Search path for netCDF data files.
 #  NOTE: This feature was implemented only backward compatibility with existing A1 datasets.
 #        New datasets should be generated in a from that can be ingested by A2
-#        It shoudl only be used for static datasets. 
-#        New files will not be recognized without a server restart. 
+#        It shoudl only be used for static datasets.
+#        New files will not be recognized without a server restart.
 #
 #---------------------------------------------------------------------------
 # Alaska OCONUS
-if SID in ALASKA_SITES:
+if SID in groups['ALASKA_SITES']:
     NETCDFDIRS = []
-    
+
 # Hawaii OCONUS
 elif SID == "HFO":
     NETCDFDIRS = [('/awips2/edex/data/gfe/topo/NED3ARCSTOPO','CRMTopo'),
@@ -1489,21 +2447,21 @@ elif SID == "SJU":
                   ('/awips2/edex/data/gfe/topo/NED3ARCSTOPONEW','NED'),
                   ('/awips2/edex/data/gfe/topo/VDATUMS','VDATUMS'),
                   ]
-    
+
 
 # Guam OCONUS
 elif SID == "GUM":
     NETCDFDIRS = []
-    
+
 #CONUS sites
-elif SID in CONUS_EAST_SITES:
+elif SID in groups['CONUS_EAST_SITES']:
     NETCDFDIRS = [('/awips2/edex/data/gfe/climo/PRISM'),
                   ('/awips2/edex/data/gfe/climo/NCDC'),
                   ('/awips2/edex/data/gfe/topo/NED3ARCSTOPO','CRMTopo'),
                   ('/awips2/edex/data/gfe/topo/NED3ARCSTOPONEW','NED'),
                   ('/awips2/edex/data/gfe/topo/VDATUMS','VDATUMS'),
                   ]
-        
+
 
 else:   #######DCS3501 WEST_CONUS
     NETCDFDIRS = [('/awips2/edex/data/gfe/climo/PRISM'),
@@ -1512,7 +2470,7 @@ else:   #######DCS3501 WEST_CONUS
                   ('/awips2/edex/data/gfe/topo/NED3ARCSTOPONEW','NED'),
                   ('/awips2/edex/data/gfe/topo/VDATUMS','VDATUMS'),
                   ]
-    
+
 
 #---------------------------------------------------------------------------
 #
@@ -1527,7 +2485,7 @@ else:   #######DCS3501 WEST_CONUS
 # satellite product.
 #
 # Examples:
-# 
+#
 #   "East CONUS/Imager Visible"
 #   "East CONUS/Imager 11 micron IR"
 #   "East CONUS/Imager 13 micron (IR)"
@@ -1535,7 +2493,7 @@ else:   #######DCS3501 WEST_CONUS
 #
 
 # Alaska OCONUS
-if SID in ALASKA_SITES:
+if SID in groups['ALASKA_SITES']:
     SATDATA = []
 
 # Hawaii OCONUS
@@ -1574,11 +2532,11 @@ else:
 #---------------------------------------------------------------------------
 #
 # RFCs
-if SID in RFC_SITES:
+if SID in groups['RFC_SITES']:
     INITMODULES = {}    #disable smart inits for RFCs
 
 # Alaska OCONUS
-elif SID in ALASKA_SITES:
+elif SID in groups['ALASKA_SITES']:
     INITMODULES = {
 #        "AKNAM40" : ["NAM40", "NAM20"],
         "AKWAVE" : ['AKWAVE'],
@@ -1591,8 +2549,8 @@ elif SID in ALASKA_SITES:
         "NAM12" : ["NAM12"],
         "GFS80" : ["GFS80"],
 #        "GFS190" : ["GFS190"],
-#DCS3501 
-        "HIRESWarw" : ["HIRESWarw"],                          
+#DCS3501
+        "HIRESWarw" : ["HIRESWarw"],
         "HIRESWnmm" : ["HIRESWnmm"],
 #DR20634        "SPC" : ["SPC"],
         "LAPS" : ["LAPS"],
@@ -1617,7 +2575,7 @@ elif SID in ALASKA_SITES:
 elif SID == "HFO":
     INITMODULES= {
         "GFS75" : ["GFS75"],
-#####DCS3501          
+#####DCS3501
         "HIRESWarw" : ["HIRESWarw"],
         "HIRESWnmm" : ["HIRESWnmm"],
 ##DR20634        "SPC" : ["SPC"],
@@ -1628,7 +2586,7 @@ elif SID == "HFO":
         "RTMA" : ['RTMA'],
         "NamDNG5" : ["NamDNG5"],
         "MOSGuide" : ['MOSGuide'],
-        "ESTOFS" : ["ESTOFS"], 
+        "ESTOFS" : ["ESTOFS"],
         "nwpsCG1" : ['nwpsCG1'],
         "nwpsTrkngCG0" : ['nwpsTrkngCG0'],
         }
@@ -1646,9 +2604,9 @@ elif SID == "SJU":
         "NAM12" : ["NAM12"],
         "GFS80" : ["GFS80"],
         "GFS40" : ["GFS40"],
-#####DCS3501 
+#####DCS3501
         "HIRESWarw" : ["HIRESWarw"],
-        "HIRESWnmm" : ["HIRESWnmm"], 
+        "HIRESWnmm" : ["HIRESWnmm"],
 #DR20634        "SPC" : ["SPC"],
         "LAPS" : ["LAPS"],
         "HPCQPF" : ['HPCQPF'],
@@ -1768,7 +2726,7 @@ D2DAccumulativeElements= {
     "HIRESWnmm": ["tp"],
     "RTMA": ["tp"],
     "URMA25": ["tp"],
-    "HPCERP": ["tpHPCndfd"], 
+    "HPCERP": ["tpHPCndfd"],
 #DR20634    "SPC": ["tp"],
 
     #Dummy ones for the transition from Eta to NAM.  These are ignored.
@@ -1842,120 +2800,15 @@ AUTO_CONFIGURE_NOTIFYTEXTPROD = 1   #0=off,1=on
 # DO NOT CHANGE THE FOLLOWING SECTION
 #------------------------------------
 # import the local config file
-localParms = localNAM12Parms = localRUC13Parms = localRUC80Parms = localNGM80Parms = []
-localGFS80Parms = localgfsLRParms = localNAM40Parms = localDBs = []
-localOPCWavEParms = localOPCWavNWParms = localOPCWavSWParms = []
-localMOSGuideParms = localGFS40Parms = []
-localNAM80Parms = localLAPSParms = localISCParms = localGWWParms = []
-localNAM95Parms = localNGM95Parms = localDGEXParms = []
-localMSASParms = localGLERLParms = localWNAWAVEParms = localAKWAVEParms = []
-localMOSParms = localHPCQPFParms = localRFCQPFParms = []
-#DR3511 localHPCDeltaParms = []
-localTCMParms = localSATParms = localGFS75Parms = localGFS190Parms = []
-localAKwave10Parms = localAKwave4Parms = localEPwave10Parms = localGlobalWaveParms = []
-localWCwave10Parms = localWCwave4Parms = localWNAwave10Parms = localWNAwave4Parms = []
-localENPwaveParms = []
-localGLWMParms = []     #####DCS3499
-localParms = localHIRESWarwParms = localHIRESWnmmParms = []    #######DCS3501
-#DR20634 localParms = localSPCParms = []
-localHPCGuideParms = []
-localRTMAParms = []
-localURMA25Parms = []  ###DR17144
-localNamDNG5Parms = []
-localSREFParms = []
-localTPCProbParms = []
-localGFSLAMPGridParms = []
-localETSSParms = []
-localHRRRParms = []
-localESTOFSParms = []
-localnwpsCG1Parms = []
-localnwpsTrkngCG0Parms = []
-localISCExtraParms = []
 
 myOfficeType = SITES[GFESUITE_SITEID][5]
 
-AdditionalISCRouting = [ 
+AdditionalISCRouting = [
    # Configure by adding entries to this list in the form of:
    # ([WeatherElements],  ModelName, EditAreaPrefix)
-   # Example: 
-   # ([Hazards, LAL, CWR], "ISCFire", "FireWxAOR_"), 
+   # Example:
+   # ([Hazards, LAL, CWR], "ISCFire", "FireWxAOR_"),
 ]
-
-if not BASELINE and siteImport('localConfig'):
-    #ensure office type is set properly in localConfig SITES[]
-    if len(SITES[GFESUITE_SITEID]) == 5:
-        a = list(SITES[GFESUITE_SITEID])
-        a.append(myOfficeType)
-        SITES[GFESUITE_SITEID] = tuple(a)
-    else:
-        myOfficeType = SITES[GFESUITE_SITEID]  #probably from localConfig
-
-    localESTOFSParms = getattr(localConfig, 'parmsESTOFS', localESTOFSParms)
-    localETSSParms = getattr(localConfig, 'parmsETSS', localETSSParms)
-    localnwpsCG1Parms = getattr(localConfig, 'parmsnwpsCG1', localnwpsCG1Parms)
-    localnwpsTrkngCG0Parms = getattr(localConfig, 'parmsnwpsTrkngCG0', localnwpsTrkngCG0Parms)
-    localParms = getattr(localConfig, 'parms', localParms)
-    localNAM12Parms = getattr(localConfig, 'parmsNAM12', localNAM12Parms)
-    localOPCWavEParms = getattr(localConfig, 'parmsOPCWavE', localOPCWavEParms)
-    localOPCWavSWParms = getattr(localConfig, 'parmsOPCWavSW',
-                                 localOPCWavSWParms)
-    localOPCWavNWParms = getattr(localConfig, 'parmsOPCWavNW',
-                                 localOPCWavNWParms)
-    localNAM40Parms = getattr(localConfig, 'parmsNAM40', localNAM40Parms)
-    localNAM80Parms = getattr(localConfig, 'parmsNAM80', localNAM80Parms)
-    localNAM95Parms = getattr(localConfig, 'parmsNAM95', localNAM95Parms)
-    localRUC13Parms = getattr(localConfig, 'parmsRUC13', localRUC13Parms)
-    localRUC80Parms = getattr(localConfig, 'parmsRUC80', localRUC80Parms)
-    localNGM80Parms = getattr(localConfig, 'parmsNGM80', localNGM80Parms)
-    localNGM95Parms = getattr(localConfig, 'parmsNGM95', localNGM95Parms)
-    localGFS40Parms = getattr(localConfig, 'parmsGFS40', localGFS40Parms)
-    localGFS80Parms = getattr(localConfig, 'parmsGFS80', localGFS80Parms)
-    localGFS190Parms = getattr(localConfig, 'parmsGFS190', localGFS190Parms)
-    localGFS75Parms = getattr(localConfig, 'parmsGFS75', localGFS75Parms)
-    localgfsLRParms = getattr(localConfig, 'parmsgfsLR', localgfsLRParms)
-    localISCParms = getattr(localConfig, 'parmsISC', localISCParms)
-    localGWWParms = getattr(localConfig, 'parmsGWW', localGWWParms)
-    localGLWMParms = getattr(localConfig, 'parmsGLWM', localGLWMParms)        #########DCS3499
-    localHIRESWarwParms = getattr(localConfig, 'parmsHIRESWarw', localHIRESWarwParms)   ########DCS3501
-    localHIRESWnmmParms = getattr(localConfig, 'parmsHIRESWnmm', localHIRESWnmmParms)
-    localHRRRParms = getattr(localConfig, 'parmsHRRR', localHRRRParms)
-#DR20634    localSPCParms = getattr(localConfig, 'parmsSPC', localSPCParms)
-    localWNAWAVEParms = getattr(localConfig, 'parmsWNAWAVE', localWNAWAVEParms)
-    localAKWAVEParms = getattr(localConfig, 'parmsAKWAVE', localAKWAVEParms)
-    localLAPSParms = getattr(localConfig, 'parmsLAPS', localLAPSParms)
-    localMOSGuideParms = getattr(localConfig, 'parmsMOSGuide',
-                                 localMOSGuideParms)
-    localSREFParms = getattr(localConfig, 'parmsSREF', localSREFParms)
-    localSATParms = getattr(localConfig, 'parmsSAT', localSATParms)
-    localMSASParms = getattr(localConfig, 'parmsMSAS', localMSASParms)
-    localGLERLParms = getattr(localConfig, 'parmsGLERL', localGLERLParms)
-    localDBs = getattr(localConfig, 'dbs', localDBs)
-    localMOSParms = getattr(localConfig, 'parmsMOS', localMOSParms)
-    localHPCQPFParms = getattr(localConfig, 'parmsHPCQPF', localHPCQPFParms)
-    localRFCQPFParms = getattr(localConfig, 'parmsRFCQPF', localRFCQPFParms)
-#DR3511    localHPCDeltaParms = getattr(localConfig, 'parmsHPCDelta',
-#DR3511                                 localHPCDeltaParms)
-    localTCMParms = getattr(localConfig, 'parmsTCM', localTCMParms)
-    localDGEXParms = getattr(localConfig, 'parmsDGEX', localDGEXParms)
-    localHPCGuideParms = getattr(localConfig, 'parmsHPCGuide',
-      localHPCGuideParms)
-    localRTMAParms = getattr(localConfig, 'parmsRTMA', localRTMAParms)
-    localURMA25Parms = getattr(localConfig, 'parmsURMA25', localURMA25Parms)   ###DR17144
-    localNamDNG5Parms = getattr(localConfig, 'parmsNamDNG5', localNamDNG5Parms)
-    localTPCProbParms = getattr(localConfig, 'parmsTPCProb', localTPCProbParms)
-    localAKwave10Parms = getattr(localConfig, 'parmsAKwave10', localAKwave10Parms)
-    localAKwave4Parms = getattr(localConfig, 'parmsAKwave4', localAKwave4Parms)
-    localEPwave10Parms = getattr(localConfig, 'parmsEPwave10', localEPwave10Parms)
-    localGlobalWaveParms = getattr(localConfig, 'parmsGlobalWave', localGlobalWaveParms)
-    localWCwave10Parms = getattr(localConfig, 'parmsWCwave10', localWCwave10Parms)
-    localWCwave4Parms = getattr(localConfig, 'parmsWCwave4', localWCwave4Parms)
-    localWNAwave10Parms = getattr(localConfig, 'parmsWNAwave10', localWNAwave10Parms)
-    localWNAwave4Parms = getattr(localConfig, 'parmsWNAwave4', localWNAwave4Parms)
-    localENPwaveParms = getattr(localConfig, 'parmsENPwave', localENPwaveParms)
-    localGFSLAMPGridParms = getattr(localConfig, 'parmsGFSLAMPGrid', localGFSLAMPGridParms)
-    #note that extraISCparms are not in the standard format. These
-    #are a list of ([p, p, p, p], officeType)
-    localISCExtraParms = getattr(localConfig, 'extraISCparms', localISCExtraParms)
 
 #---------------------------------------------------------------------------
 # Parm groups.  Combine parms with time constraints
@@ -2052,7 +2905,7 @@ OFFICIALDBS = [([Temp, Td, Wind, NWPSwind, Weather, Sky, FzLevel, SnowLevel], TC
           ]
 
 # Add wind/wave paramters based of site ID - DR 17496
-if SID in GreatLake_SITES:
+if SID in groups['GreatLake_SITES'] or SID in groups['marineTC1']:
     OFFICIALDBS.append(([WaveHeight, WindWaveHeight, SurfHeight, Swell, Swell2, Period, Period2], TC1))
 else:
     OFFICIALDBS.append(([WaveHeight, WindWaveHeight, SurfHeight, Swell, Swell2, Period, Period2], TC3NG))
@@ -2119,9 +2972,8 @@ HPCGUIDE_MODEL = [([MaxT], MaxTTC), ([MinT], MinTTC),
 TPCTCM_MODEL = [([HiWind], TC3)]
 
 # RTMA database parameter groupings
-#if SID in ALASKA_SITES: - not sure if this is right
 # DCS17288/DR17144
-if SID in ALASKA_SITES or SID in ["HFO", "SJU", "GUM"]:
+if SID in groups['OCONUS_SITES']:
     RTMAPARMS = [([Temp,Td,RH,Wind,Vis,Pressure,WindGust],TC1),
              ([MinT],MinTTC), ([MaxT],MaxTTC),
              ([MinRH],MinRHTC), ([MaxRH],MaxRHTC),
@@ -2166,91 +3018,79 @@ GFSLAMPGridPARMS=[([Temp, Td, Vis, CigHgt],TC1)]
 #---------------------------------------------------------------------------
 # Databases for a site.
 # list of (Database, [parms])
+# Official, Practice, TestFcst, Test are all set after Fcst is defined.
 #---------------------------------------------------------------------------
-DATABASES = [(Official, OFFICIALDBS + localParms),
-             (Fcst, OFFICIALDBS + localParms),
-             (Practice, OFFICIALDBS + localParms),
-             (TestFcst, OFFICIALDBS + localParms),
-             (NAM80, STD6_MODEL + localNAM80Parms),
-             (NAM95, STD6_MODEL + localNAM95Parms),
-             (RUC13, STD1_MODEL + localRUC13Parms),
-             (RUC80, STD1_MODEL + localRUC80Parms),
-             (NGM80, STD6_MODEL + localNGM80Parms),
-             (NGM95, STD6_MODEL + localNGM95Parms),
-             (GFS40, STD6_MODEL + localGFS40Parms),
-             (GFS80, STD6_MODEL + localGFS80Parms),
-             (GFS75, STD6_MODEL + localGFS75Parms),
-             (GFS190, STD6_MODEL + localGFS190Parms),
-             (NAM40, STD3_MODEL + localNAM40Parms),
-             (NAM12, STD3_MODEL + localNAM12Parms),
-             (gfsLR, STD12_MODEL + localgfsLRParms),
-             (GWW, WAVEPARMS + localGWWParms),
-             (WNAWAVE, WAVEPARMS + localWNAWAVEParms),
-             (AKWAVE, WAVEPARMS + localAKWAVEParms),
-             (AKwave10, WAVEPARMS + localAKwave10Parms),
-             (AKwave4, WAVEPARMS + localAKwave4Parms),
-             (EPwave10, WAVEPARMS + localEPwave10Parms),
-             (ESTOFS, ESTOFSPARMS + localESTOFSParms),
-             (ETSS, ETSSPARMS + localETSSParms),
-             (nwpsCG1, nwpsCG1_MODEL + localnwpsCG1Parms),
-             (nwpsTrkngCG0, nwpsTrkngCG0_MODEL + localnwpsTrkngCG0Parms),
-             (GlobalWave, WAVEPARMS + localGlobalWaveParms),
-             (GLWM, GLWMPARMS + localGLWMParms),            #####DCS3499
-             (HIRESWarw, STD3_MODEL + localHIRESWarwParms), #####DCS3501
-             (HIRESWnmm, STD3_MODEL + localHIRESWnmmParms),
-             (HRRR, HRRRPARMS + localHRRRParms),
-#DR20634             (SPC, SPCPARMS + localSPCParms),
-             (WCwave10, WAVEPARMS + localWCwave10Parms),
-             (WCwave4, WAVEPARMS + localWCwave4Parms),
-             (WNAwave10, WAVEPARMS + localWNAwave10Parms),
-             (WNAwave4, WAVEPARMS + localWNAwave4Parms),
-             (HPCGrid, MOS_MODEL + localMOSParms),
-             (HPCQPF, HPCQPF_MODEL + localHPCQPFParms),
-             (RFCQPF, RFCQPF_MODEL + localRFCQPFParms),
-#DR3511             (HPCDelta, HPCDELTA_MODEL + localHPCDeltaParms),
-             (HPCGuide, HPCGUIDE_MODEL + localHPCGuideParms),
-             (TPCTCM, TPCTCM_MODEL + localTCMParms),
-             (DGEX, STD6_MODEL + localDGEXParms),
-             (LAPS, LAPSPARMS + localLAPSParms),
-             (MOSGuide, MOSGuidePARMS + localMOSGuideParms),
-             (SREF, SREFPARMS + localSREFParms),
-             (OPCTAFBE, OPCTAFBPARMS + localOPCWavEParms),
-             (OPCTAFBNW, OPCTAFBPARMS + localOPCWavNWParms),
-             (OPCTAFBSW, OPCTAFBPARMS + localOPCWavSWParms),
-             (SAT, SATPARMS + localSATParms),
-             (MSAS, MSASPARMS + localMSASParms),
-             (GLERL, GLERLPARMS + localGLERLParms),
-             (RTMA, RTMAPARMS + localRTMAParms),
-             (URMA25, URMA25PARMS + localURMA25Parms),  ####DR17144
-             (NamDNG5, NamDNG5PARMS + localNamDNG5Parms),
-             (TPCProb, TPCProbPARMS + localTPCProbParms),
-             (ENPwave, ENPwave_parms + localENPwaveParms),
-             (GFSLAMPGrid, GFSLAMPGridPARMS + localGFSLAMPGridParms), 
-             (Test, OFFICIALDBS + localParms)] + localDBs
+DATABASES = [
+             (Fcst, OFFICIALDBS),
+             (NAM80, STD6_MODEL),
+             (NAM95, STD6_MODEL),
+             (RUC13, STD1_MODEL),
+             (RUC80, STD1_MODEL),
+             (NGM80, STD6_MODEL),
+             (NGM95, STD6_MODEL),
+             (GFS40, STD6_MODEL),
+             (GFS80, STD6_MODEL),
+             (GFS75, STD6_MODEL),
+             (GFS190, STD6_MODEL),
+             (NAM40, STD3_MODEL),
+             (NAM12, STD3_MODEL),
+             (gfsLR, STD12_MODEL),
+             (GWW, WAVEPARMS),
+             (WNAWAVE, WAVEPARMS),
+             (AKWAVE, WAVEPARMS),
+             (AKwave10, WAVEPARMS),
+             (AKwave4, WAVEPARMS),
+             (EPwave10, WAVEPARMS),
+             (ESTOFS, ESTOFSPARMS),
+             (ETSS, ETSSPARMS),
+             (nwpsCG1, nwpsCG1_MODEL),
+             (nwpsTrkngCG0, nwpsTrkngCG0_MODEL),
+             (GlobalWave, WAVEPARMS),
+             (GLWM, GLWMPARMS),
+             (HIRESWarw, STD3_MODEL),
+             (HIRESWnmm, STD3_MODEL),
+             (HRRR, HRRRPARMS),
+#DR20634             (SPC, SPCPARMS),
+             (WCwave10, WAVEPARMS),
+             (WCwave4, WAVEPARMS),
+             (WNAwave10, WAVEPARMS),
+             (WNAwave4, WAVEPARMS),
+             (HPCGrid, MOS_MODEL),
+             (HPCQPF, HPCQPF_MODEL),
+             (RFCQPF, RFCQPF_MODEL),
+#DR3511             (HPCDelta, HPCDELTA_MODEL),
+             (HPCGuide, HPCGUIDE_MODEL),
+             (TPCTCM, TPCTCM_MODEL),
+             (DGEX, STD6_MODEL),
+             (LAPS, LAPSPARMS),
+             (MOSGuide, MOSGuidePARMS),
+             (SREF, SREFPARMS),
+             (OPCTAFBE, OPCTAFBPARMS),
+             (OPCTAFBNW, OPCTAFBPARMS),
+             (OPCTAFBSW, OPCTAFBPARMS),
+             (SAT, SATPARMS),
+             (MSAS, MSASPARMS),
+             (GLERL, GLERLPARMS),
+             (RTMA, RTMAPARMS),
+             (URMA25, URMA25PARMS),
+             (NamDNG5, NamDNG5PARMS),
+             (TPCProb, TPCProbPARMS),
+             (ENPwave, ENPwave_parms),
+             (GFSLAMPGrid, GFSLAMPGridPARMS),
+            ]
 
 # Intersite coordination database parameter groupings, based on
 # OFFICIALDBS, but time constraint is always TC1
 ISCPARMS = []
-for wes, tc in (OFFICIALDBS + localISCParms):
-    ISCPARMS.append((wes, TC1))
-# We also add in any extraISCparms as needed, but only for office
-# types other than our own.
-for wes, officeType in (EXTRA_ISC_PARMS + localISCExtraParms):
-    if myOfficeType == officeType:
-        continue
-    for we in wes:
-        wecopy = list(we)
-        wecopy[0] = wecopy[0] + officeType  #rename the weather element
-        wecopy = tuple(wecopy)
-        ISCPARMS.append(([wecopy], TC1))
+    if type(officeType) != str:
+        raise TypeError, "Office type not a str: " + `officeType`
+    else:
+        if officeType not in VALID_OFFICE_TYPES:
+            raise ValueError, "Office type: " + str(officeType) + " does not match any of the following: [" + (', '.join(VALID_OFFICE_TYPES)) + "]"
+    
         
-# Restore database parameter groupings (based on OFFICIALDBS, but TC1)
-RESTOREPARMS = []
-for wes, tc in (OFFICIALDBS + localParms):
-    RESTOREPARMS.append((wes, TC1))
-
 #
-# Add new parameters for NewTerrain
+# new parameters for NewTerrain
 #
 NewTopo     = ("NewTopo",     SCALAR, "ft", "New Topo",      50000.0, -32000.0, 1, NO)
 PrevTopo    = ("PrevTopo",    SCALAR, "ft", "Previous Topo", 50000.0, -32000.0, 1, NO)
@@ -2270,11 +3110,6 @@ DATABASES.append((BaseTerrainDB, BaseTerrainParms))
 if type(REQUESTED_ISC_PARMS) is list and not "NewTopo" in REQUESTED_ISC_PARMS:
     REQUESTED_ISC_PARMS.append("NewTopo")
 ISCPARMS.append(([NewTopo], Persistent))
-
-
-# Now add the ISC and Restore databases to the DATABASES groupings
-DATABASES.append((Restore, RESTOREPARMS))
-DATABASES.append((ISC, ISCPARMS))
 
 for entry in AdditionalISCRouting:
     (parmList, dbName, editAreaPrefix) = entry
@@ -2334,13 +3169,13 @@ def doIt():
     sendiscOnSave, sendiscOnPublish, \
     requestedISCparms, \
     transmitScript) \
-       = doConfig.otherParse(\
+       = doConfig.otherParse(SITES.keys(), \
       GFESUITE_SERVER, GFESUITE_MHSID, \
       GFESUITE_PORT, INITMODULES,
       D2DAccumulativeElements,
-      INITSKIPS, D2DDBVERSIONS, LOG_FILE_PURGE_AFTER, 
+      INITSKIPS, D2DDBVERSIONS, LOG_FILE_PURGE_AFTER,
       GFESUITE_PRDDIR, GFESUITE_HOME,
-      ExtraWEPrecision, VTECPartners.VTEC_REMOTE_TABLE_FETCH_TIME, 
+      ExtraWEPrecision, VTECPartners.VTEC_REMOTE_TABLE_FETCH_TIME,
       AUTO_CONFIGURE_NOTIFYTEXTPROD, ISC_ROUTING_TABLE_ADDRESS,
       REQUESTED_ISC_SITES, REQUEST_ISC, SEND_ISC_ON_SAVE, SEND_ISC_ON_PUBLISH,
       REQUESTED_ISC_PARMS, TRANSMIT_SCRIPT)
@@ -2366,4 +3201,108 @@ def doIt():
     IFPConfigServer.transmitScript = transmitScript
     IFPConfigServer.iscRoutingConfig = doConfig.parseAdditionalISCRouting(AdditionalISCRouting)
 
+#D logfp=open('/localapps/logs/serverConfig.log','w')
+#D logfp.write('DATABASE names:\n')
+#D for m in sorted(DATABASES):
+#D     logfp.write('%s\n' % m[0][0])
+#D logfp.write('\n\nDATABASES\n')
+#D pprint.pprint(sorted(DATABASES),logfp,width=130)
+#D logfp.write('\n\nINITMODULES\n')
+#D pprint.pprint(INITMODULES,logfp,width=130)
+#D logfp.write('\n\nD2DMODELS\n')
+#D pprint.pprint(D2DMODELS,logfp,width=130)
+#D logfp.close()
+
+
+modelDict=createModelDict(locals(),DATABASES,D2DMODELS,D2DDBVERSIONS,D2DAccumulativeElements,
+                  INITMODULES,INITSKIPS)
+
+D2DMODELS=[]
+D2DDBVERSIONS={}
+D2DAccumulativeElements={}
+INITMODULES={}
+INITSKIPS={}
+
+ignoreDatabases=[]
+localParms = []
+localISCParms = []
+localISCExtraParms = []
+localLogFile = ''
+
+if not BASELINE and siteImport('localConfig'):
+    localParms = getattr(localConfig, 'parms', [])
+    localISCParms = getattr(localConfig, 'parmsISC', [])
+    localISCExtraParms = getattr(localConfig, 'extraISCparms', [])
+    localLogFile = getattr(localConfig, 'logFile', '')
+    modelDict['Fcst']['Parms'] += localParms
+    #ensure office type is set properly in localConfig SITES[]
+    if len(SITES[GFESUITE_SITEID]) == 5:
+        a = list(SITES[GFESUITE_SITEID])
+        a.append(myOfficeType)
+        SITES[GFESUITE_SITEID] = tuple(a)
+    else:
+        myOfficeType = SITES[GFESUITE_SITEID][5]  #probably from localConfig
+
+# Instantiate settings from modelDict
+db=dbConfig(modelDict)
+db.addConfiguredModels(ignoreDatabases)
+DATABASES = db.dbs
+D2DMODELS = db.D2DMODELS
+D2DDBVERSIONS = db.D2DDBVERSIONS
+D2DAccumulativeElements = db.D2DAccumulativeElements
+INITMODULES = db.INITMODULES
+INITSKIPS = db.INITSKIPS
+
+# Create Practice and test databases from Fcst
+DATABASES.append((Official, modelDict['Fcst']['Parms'])),
+DATABASES.append((Practice, modelDict['Fcst']['Parms'])),
+DATABASES.append((TestFcst, modelDict['Fcst']['Parms'])),
+DATABASES.append((Test, modelDict['Fcst']['Parms'])),
+
+# Intersite coordination database parameter groupings, based on
+# OFFICIALDBS, but time constraint is always TC1
+for wes, tc in (OFFICIALDBS + localISCParms):
+    ISCPARMS.append((wes, TC1))
+
+# We also add in any extraISCparms as needed, but only for office
+# types other than our own.
+for wes, officeType in (EXTRA_ISC_PARMS + localISCExtraParms):
+    if myOfficeType == officeType:
+        continue
+    for we in wes:
+        wecopy = list(we)
+        wecopy[0] = wecopy[0] + officeType  #rename the weather element
+        wecopy = tuple(wecopy)
+        ISCPARMS.append(([wecopy], TC1))
+
+# Restore database parameter groupings (based on OFFICIALDBS, but TC1)
+RESTOREPARMS = []
+for wes, tc in modelDict['Fcst']['Parms']:
+    RESTOREPARMS.append((wes, TC1))
+
+# Now add the ISC and Restore databases to the DATABASES groupings
+DATABASES.append((Restore, RESTOREPARMS))
+DATABASES.append((ISC, ISCPARMS))
+
+
+#D logfp=open('/localapps/logs/serverConfig2.log','w')
+#D logfp.write('DATABASE names:\n')
+#D for m in sorted(DATABASES):
+#D     logfp.write('%s\n' % m[0][0])
+#D logfp.write('\n\nDATABASES\n')
+#D pprint.pprint(sorted(DATABASES),logfp,width=130)
+#D logfp.write('\n\nINITMODULES\n')
+#D pprint.pprint(INITMODULES,logfp,width=130)
+#D logfp.write('\n\nD2DMODELS\n')
+#D pprint.pprint(D2DMODELS,logfp,width=130)
+#D logfp.close()
+
 doIt()
+
+#D logfp=open('/localapps/logs/SC_MD2.py','w')
+#D modelDict=createModelDict(locals(),DATABASES,D2DMODELS,D2DDBVERSIONS,D2DAccumulativeElements,
+#D                   INITMODULES,INITSKIPS,logfp)
+#D logfp.close()
+if localLogFile:
+    printServerConfig(sys.modules[__name__],vars(localConfig),localLogFile)
+#D scfp.close()

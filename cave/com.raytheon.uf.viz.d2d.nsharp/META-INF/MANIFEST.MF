@@ -29,3 +29,4 @@ Export-Package: com.raytheon.uf.viz.d2d.nsharp,
  com.raytheon.uf.viz.d2d.nsharp.rsc,
  com.raytheon.uf.viz.d2d.nsharp.vb
 Bundle-ClassPath: com.raytheon.uf.viz.d2d.nsharp.jar
+Import-Package: gov.noaa.nws.ncep.viz.soundingrequest

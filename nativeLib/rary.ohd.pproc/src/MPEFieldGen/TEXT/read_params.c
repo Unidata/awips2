@@ -378,6 +378,43 @@ extern int mpe_editor_call;
            case mlqmosaic:
               pMPEParams->mosaic_type = display_mlqMosaic;
               break;
+
+           case rdmosaic:
+              pMPEParams->mosaic_type = display_rdMosaic;
+              break;
+
+           case avgrdmosaic:
+              pMPEParams->mosaic_type = display_avgrdMosaic;
+              break;
+
+           case maxrdmosaic:
+              pMPEParams->mosaic_type = display_maxrdMosaic;
+              break;
+
+           case bdmosaic:
+              pMPEParams->mosaic_type = display_bdMosaic;
+              break;
+
+           case ldmosaic:
+              pMPEParams->mosaic_type = display_ldMosaic;
+              break;
+
+           case mdmosaic:
+              pMPEParams->mosaic_type = display_mdMosaic;
+              break;
+
+           case mldmosaic:
+              pMPEParams->mosaic_type = display_mldMosaic;
+              break;
+
+           case srdmosaic:
+              pMPEParams->mosaic_type = display_srdMosaic;
+              break;
+
+           case srdgmosaic:
+              pMPEParams->mosaic_type = display_srdgMosaic;
+              break;
+
            case p3lmosaic:
               pMPEParams->mosaic_type = display_p3Mosaic;
               break;

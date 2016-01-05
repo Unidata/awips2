@@ -1920,6 +1920,14 @@ class FWS_Overrides:
                 argDict["creationTime"] = self._getTime(self._creationDate, self._creationTime)
         return None
 
+    def _parseTime(self,date,t,rtz):
+        try:
+            cTime = time.strptime(t + ' ' + date + ' ' + rtz, '%H%M %m/%d/%y %Z')
+        except ValueError:
+            cTime = time.strptime(t + ' ' + date + ' ' + rtz, '%H%M %m/%d/%Y %Z')
+
+        return cTime
+        
     def _getTime(self, date, t):
         # Make a unix time integer from the given date and time strings
         if t == "":
@@ -1934,7 +1942,7 @@ class FWS_Overrides:
         ptz = rtz[0:1]
         offset = 0
         if otz == ptz:
-            cTime = time.strptime(t + ' ' + date + ' ' + rtz, '%H%M %m/%d/%y %Z')
+            cTime = self._parseTime (date,t,rtz)
         else:
             if ptz == "E":
                 if otz == "E":
@@ -1973,9 +1981,9 @@ class FWS_Overrides:
                 elif otz == "P":
                     offset = 0
             if stz[1:3] == rtz[1:3]:
-                cTime = time.strptime(t + ' ' + date + ' ' + stz, '%H%M %m/%d/%y %Z')
+                cTime = self._parseTime (date,t,stz)
             else:
-                cTime = time.strptime(t + ' ' + date + ' ' + dtz, '%H%M %m/%d/%y %Z')
+                cTime = self._parseTime (date,t,dtz)
 
         return time.mktime(cTime) + offset*3600
 
@@ -2004,9 +2012,7 @@ class FWS_Overrides:
         otz = stz[0:1]
         ptz = rtz[0:1]
         if otz == ptz:
-            self._fireDateTime = time.strptime(
-                self._fireTime + ' ' + self._fireDate + ' ' + rtz,
-                '%H%M %m/%d/%y %Z')
+            self._fireDateTime = self._parseTime (self._fireDate,self._fireTime,rtz)
             fcst = fcst + time.strftime(
                 'Forecast is based on ' + requestWords + ' time of %H%M %Z on %B %d. ',
                 self._fireDateTime)
@@ -2049,19 +2055,19 @@ class FWS_Overrides:
                 elif otz == "P":
                     offset = 0
             if stz[1:3] == rtz[1:3]:
-                self._fireDateTime = time.strptime(
-                    self._fireTime + ' ' + self._fireDate + ' ' + stz,
-                    '%H%M %m/%d/%y %Z')
+                self._fireDateTime = self._parseTime (self._fireDate,self._fireTime,stz)
                 tempTime = time.mktime(self._fireDateTime) + offset*3600
                 self._fireDateTime = time.localtime(tempTime)
             else:
-                self._fireDateTime = time.strptime(
-                    self._fireTime + ' ' + self._fireDate + ' ' + dtz,
-                    '%H%M %m/%d/%y %Z')
+                self._fireDateTime = self._parseTime (self._fireDate,self._fireTime,dtz)
                 tempTime = time.mktime(self._fireDateTime) + offset*3600
                 self._fireDateTime = time.localtime(tempTime)
-            fireDateTime = time.strptime(
-                self._fireTime + ' ' + self._fireDate, '%H%M %m/%d/%y')
+            try:
+                fireDateTime = time.strptime(
+                    self._fireTime + ' ' + self._fireDate, '%H%M %m/%d/%y')
+            except ValueError:
+                fireDateTime = time.strptime(
+                    self._fireTime + ' ' + self._fireDate, '%H%M %m/%d/%Y')
             fcst = fcst + time.strftime(
                 'Forecast is based on ' + requestWords + ' time of %H%M ' + rtz + ' on %B %d. ',
                 fireDateTime)

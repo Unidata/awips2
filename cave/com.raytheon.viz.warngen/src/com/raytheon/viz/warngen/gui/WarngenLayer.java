@@ -240,6 +240,9 @@ import com.vividsolutions.jts.io.WKTReader;
  * 04/24/2015  ASM #17394  D. Friedman Fix geometries that become invalid in local coordinate space.
  * 05/07/2015  ASM #17438  D. Friedman Clean up debug and performance logging.
  * 05/08/2015  ASM #17310  D. Friedman Log input polygon when output of AreaHatcher is invalid.
+ * 11/09/2015  DR 14905    Qinglu Lin  Added lastSelectedBackupSite and its accessors, and updated constructor.
+ * 11/25/2015  DR 17464    Qinglu Lin  Updated two updateWarnedAreas(), updateWarnedAreaState(), createSquare(),redrawBoxFromTrack(),
+ *                                     redrawBoxFromHatched(), createDamThreatArea(), createPolygonFromRecord(), addOrRemoveCounty().
  * </pre>
  * 
  * @author mschenke
@@ -252,6 +255,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
     private static final IPerformanceStatusHandler perfLog = PerformanceStatus
             .getHandler("WG:");
+
+    static String lastSelectedBackupSite;
 
     String uniqueFip = null;
 
@@ -814,6 +819,9 @@ public class WarngenLayer extends AbstractStormTrackResource {
             statusHandler.handle(Priority.SIGNIFICANT,
                     "Error loading config.xml", e);
         }
+
+        setBackupSite(WarngenLayer.getLastSelectedBackupSite());
+
         // Load default template
         String defaultTemplate = dialogConfig.getDefaultTemplate();
         if (defaultTemplate.equals("")) {
@@ -1536,7 +1544,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
     }
 
     public void setBackupSite(String site) {
-        if (site.equalsIgnoreCase("none")) {
+        if (site == null || site.equalsIgnoreCase("none")) {
             backupSite = null;
         } else {
             backupSite = site;
@@ -1947,20 +1955,14 @@ public class WarngenLayer extends AbstractStormTrackResource {
         }
     }
 
-    public void updateWarnedAreas(boolean snapHatchedAreaToPolygon)
-            throws VizException {
-        updateWarnedAreas(snapHatchedAreaToPolygon, false);
+    public void updateWarnedAreas() throws VizException {
+        updateWarnedAreas(false);
     }
 
     /**
-     * 
-     * @param snapHatchedAreaToPolygon
-     *            If True, any hatched area outside the polygon will be
-     *            eliminated.
      * @throws VizException
      */
-    public void updateWarnedAreas(boolean snapHatchedAreaToPolygon,
-            boolean preservedSelection) throws VizException {
+     public void updateWarnedAreas(boolean preservedSelection) throws VizException {
         if (getPolygon() == null) {
             return;
         }
@@ -1970,11 +1972,10 @@ public class WarngenLayer extends AbstractStormTrackResource {
         Geometry warningArea = state.getWarningArea();
         Geometry warningPolygon = state.getWarningPolygon();
         Geometry newWarningArea = createWarnedArea(
-                latLonToLocal((snapHatchedAreaToPolygon || (warningArea == null)) ? warningPolygon
-                        : warningArea), preservedSelection
+                latLonToLocal(warningPolygon), preservedSelection
                         && (warningArea != null) ? latLonToLocal(warningArea)
                         : null);
-        updateWarnedAreaState(newWarningArea, snapHatchedAreaToPolygon);
+        updateWarnedAreaState(newWarningArea);
 
         perfLog.logDuration("Determining hatchedArea",
                 System.currentTimeMillis() - t0);
@@ -2127,8 +2128,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
         }
     }
 
-    private void updateWarnedAreaState(Geometry newHatchedArea,
-            boolean snapToHatchedArea) throws VizException {
+    private void updateWarnedAreaState(Geometry newHatchedArea) throws VizException {
         try {
             // Ensure all geometries in local coords
             Geometry warningPolygon = latLonToLocal(state.getWarningPolygon());
@@ -2251,7 +2251,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     state.setWarningPolygon((Polygon) state
                             .getMarkedWarningPolygon().clone());
                     state.resetMarked();
-                    updateWarnedAreas(snapToHatchedArea);
+                    updateWarnedAreas();
                 }
             } else {
                 state.setWarningArea(localToLatLon(newHatchedArea));
@@ -2447,7 +2447,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
         LinearRing lr = gf.createLinearRing(c);
         state.setWarningPolygon(gf.createPolygon(lr, null));
 
-        updateWarnedAreas(true);
+        updateWarnedAreas();
     }
 
     public void redrawBoxFromTrack() throws VizException {
@@ -2619,7 +2619,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
             LinearRing lr = gf.createLinearRing(c);
             state.setWarningPolygon(gf.createPolygon(lr, null));
 
-            updateWarnedAreas(true);
+            updateWarnedAreas();
 
             /*
              * NOT LINE OF STORMS
@@ -2664,7 +2664,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
             LinearRing lr = gf.createLinearRing(c);
             state.setWarningPolygon(gf.createPolygon(lr, null));
 
-            updateWarnedAreas(true);
+            updateWarnedAreas();
         }
         if (dialog.box.getSelection()) {
             displayState.editable = false;
@@ -2704,7 +2704,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
                 if (hatched != null) {
                     state.setWarningPolygon(hatched);
-                    updateWarnedAreaState(hatchedArea, true);
+                    updateWarnedAreaState(hatchedArea);
                     issueRefresh();
                     // End of DR 15559
                     state.snappedToArea = true;
@@ -2752,7 +2752,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
         try {
             state.setWarningPolygon(gf.createPolygon(lr, null));
             state.rightClickSelected = false;
-            updateWarnedAreas(true);
+            updateWarnedAreas();
             displayState.dragMeGeom = gf.createPoint(pt);
             displayState.dragMePoint = gf.createPoint(pt);
             displayState.mode = Mode.TRACK;
@@ -2868,7 +2868,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
         state.setWarningPolygon(warnPolygon);
         state.setWarningArea(getWarningAreaFromPolygon(
                 state.getWarningPolygon(), record));
-        updateWarnedAreas(true, true);
+        updateWarnedAreas(true);
     }
 
     private DataTime recordFrameTime(AbstractWarningRecord warnRecord) {
@@ -3254,7 +3254,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
                             String fip = getFips(f);
                             if ((fip != null) && (uniqueFip != null)
                                     && fip.equals(uniqueFip)) {
-                                updateWarnedAreas(true);
+                                updateWarnedAreas();
                             }
                             break;
                         }
@@ -3844,4 +3844,15 @@ public class WarngenLayer extends AbstractStormTrackResource {
         return backupOfficeLoc;
     }
 
+    public String getBackupSite() {
+        return backupSite;
+    }
+
+    public static String getLastSelectedBackupSite() {
+        return lastSelectedBackupSite;
+    }
+
+    public static void setLastSelectedBackupSite(String backupSite) {
+        lastSelectedBackupSite = backupSite;
+    }
 }

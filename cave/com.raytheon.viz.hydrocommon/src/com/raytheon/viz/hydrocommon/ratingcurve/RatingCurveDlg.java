@@ -77,6 +77,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 22 Jan 2013  15682       lbousaidi   fix openfile problem and changed the path to
  *                                      whfs_import_dir for "Import Curve" button.
  * 15 Jul 2013  2088        rferrel     Make dialog non-blocking.
+ * 23 Oct 2015  14375       xwei        Fixed rating curve saving error. Fixed import rating curve format error.
  * </pre>
  * 
  * @author lvenable
@@ -290,6 +291,8 @@ public class RatingCurveDlg extends CaveSWTDialog {
      * Shift amount
      */
     private double shiftAmount = 0;
+    
+    private boolean deleteAllRatingCurve = false; 
 
     /**
      * Constructor.
@@ -366,6 +369,7 @@ public class RatingCurveDlg extends CaveSWTDialog {
         addSeparator();
         createBottomButtons();
         populateControls();
+        curveImportBtnSetEnabled(); 
     }
 
     /**
@@ -426,6 +430,23 @@ public class RatingCurveDlg extends CaveSWTDialog {
         recordDataLbl.setLayoutData(gd);
     }
 
+    
+    /**
+     * Create the rating curve canvas.
+     * 
+     */
+    private void curveImportBtnSetEnabled() {
+
+        if ( noShiftCurveDataList.getItemCount() == 0 && shiftCurveDataList.getItemCount() == 0 ) {
+        	curveImportBtn.setEnabled(true);	
+        } else {
+            curveImportBtn.setEnabled(false);	
+        }
+        
+
+    }
+    
+    
     /**
      * Create the rating curve canvas.
      * 
@@ -577,8 +598,14 @@ public class RatingCurveDlg extends CaveSWTDialog {
                 int response = messageDialog.open();
 
                 if (response == SWT.OK) {
-                    // get rid of every point
-                    removedPoints = noShiftCurveArray;
+                    
+                	
+                	deleteAllRatingCurve = true;                           
+                    // Add all rating curve points to the array.
+                    for (RatingCurveData d : noShiftCurveArray) {
+                           removedPoints.add(d);                      
+                    }
+                                        
                     noShiftCurveArray.clear();
                     noShiftCurveDataList.removeAll();
                     noShiftCurveDataList.redraw();
@@ -1093,7 +1120,7 @@ public class RatingCurveDlg extends CaveSWTDialog {
 
             // Read File Line By Line
             while ((strLine = br.readLine()) != null) {
-                String[] line = strLine.split(" ");
+                String[] line = strLine.trim().split(" ");
                 // should be ordered stage, flow separated by a space
                 if (line.length == 2) {
                     rci.add(new Double(line[0]), new Double(line[1]));
@@ -1121,6 +1148,15 @@ public class RatingCurveDlg extends CaveSWTDialog {
             newRatingCurve = false;
         }
 
+        if (removedPoints.size() != 0 && deleteAllRatingCurve) {
+            for (RatingCurveData rcd : removedPoints) {
+                   rcdm.clearAllRatingCurveData(rcd,lid);
+            }
+            deleteAllRatingCurve=false;
+            removedPoints = new ArrayList<RatingCurveData>();
+           
+        }
+        
         if (removedPoints.size() != 0) {
             for (RatingCurveData rcd : removedPoints) {
                 rcdm.deleteRatingCurveData(rcd, lid);
@@ -1145,6 +1181,8 @@ public class RatingCurveDlg extends CaveSWTDialog {
             }
             addedCurveShifts = new ArrayList<RatingCurveShiftData>();
         }
+        
+        curveImportBtnSetEnabled(); 
     }
 
     /**

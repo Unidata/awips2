@@ -81,6 +81,7 @@ import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.maps.MapManager;
+import com.raytheon.uf.viz.d2d.ui.map.SideView;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState.DisplayType;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState.Mode;
 import com.raytheon.viz.texteditor.msgs.IWarngenObserver;
@@ -170,6 +171,9 @@ import com.vividsolutions.jts.geom.Polygon;
  *  May  7, 2015 ASM #17438  D. Friedman Clean up debug and performance logging.
  *  Jun 05, 2015 DR 17428    D. Friedman Fixed duration-related user interface issues.  Added duration logging.
  *  Sep 22, 2015 4859        dgilling    Prevent product generation in DRT mode.
+ *  Nov  9, 2015 DR 14905    Qinglu Lin  Updated backupSiteSelected(), disposed(), initializeComponents(), populateBackupGroup(), and
+ *                                       createProductTypeGroup, and moved existing code to newly created setBackupCboColors() and setBackupSite().
+ *  Nov 25, 2015 DR 17464    Qinglu Lin  Updated changeTemplate().
  * </pre>
  * 
  * @author chammack
@@ -351,6 +355,10 @@ public class WarngenDialog extends CaveSWTDialog implements
         timer.cancel();
         updateTimeTask.cancel();
         CurrentWarnings.removeListener(this);
+        IDisplayPaneContainer container = warngenLayer.getResourceContainer();
+        if (container != null && ! (container instanceof SideView)) {
+            WarngenLayer.setLastSelectedBackupSite(warngenLayer.getBackupSite());
+        }
         warngenLayer = null;
     }
 
@@ -384,6 +392,7 @@ public class WarngenDialog extends CaveSWTDialog implements
         createTimeRangeGroup(mainComposite);
         createBulletListAndLabel(mainComposite);
         createBottomButtons(mainComposite);
+        setBackupSite();
         setInstructions();
     }
 
@@ -501,9 +510,6 @@ public class WarngenDialog extends CaveSWTDialog implements
         productType.setLayout(gl);
         productType.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true,
                 false));
-
-        createMainProductButtons(productType);
-        createOtherProductsList(productType);
     }
 
     /**
@@ -766,14 +772,21 @@ public class WarngenDialog extends CaveSWTDialog implements
         backupSiteCbo.add(NO_BACKUP_SELECTED);
         String[] CWAs = warngenLayer.getDialogConfig().getBackupCWAs()
                 .split(",");
+        int index = 0, selectedIndex = 0;
         for (String cwa : CWAs) {
             if (cwa.length() > 0) {
+                index += 1;
                 BackupData data = new BackupData(cwa);
                 backupSiteCbo.setData(data.site, data);
                 backupSiteCbo.add(data.site);
+                if (data.site.equals(warngenLayer.getBackupSite())) {
+                    selectedIndex = index;
+                    warngenLayer.setBackupSite(data.site);
+                }
             }
         }
-        backupSiteCbo.select(0);
+        backupSiteCbo.select(selectedIndex);
+        setBackupCboColors();
     }
 
     private void createTrackGroup(Composite backupTrackEditComp) {
@@ -1406,15 +1419,16 @@ public class WarngenDialog extends CaveSWTDialog implements
         hide();
     }
 
-    /**
-     * Action for when something is selected from the backup site combo
-     */
-    private void backupSiteSelected() {
+    private boolean setBackupSite() {
         if ((backupSiteCbo.getSelectionIndex() >= 0)
                 && (backupSiteCbo.getItemCount() > 0)) {
             int index = backupSiteCbo.getSelectionIndex();
             String backupSite = backupSiteCbo.getItem(index);
             warngenLayer.setBackupSite(backupSite);
+            IDisplayPaneContainer container = warngenLayer.getResourceContainer();
+            if (container != null && ! (container instanceof SideView)) {
+                WarngenLayer.setLastSelectedBackupSite(backupSite);
+            }
             if (backupSite.equalsIgnoreCase("none")) {
                 new TemplateRunnerInitJob().schedule();
             } else {
@@ -1439,11 +1453,24 @@ public class WarngenDialog extends CaveSWTDialog implements
                         .error("Error occurred while switching to the default template.",
                                 e);
             }
+            return true;
+        } else {
+            return false;
+        }
+    }
 
+    /**
+     * Action for when something is selected from the backup site combo
+     */
+    private void backupSiteSelected() {
+        if (setBackupSite()) {
             productType.layout(true, true);
             getShell().pack(true);
         }
+        setBackupCboColors();
+    }
 
+    private void setBackupCboColors() {
         if (backupSiteCbo.getSelectionIndex() == 0) {
             backupSiteCbo.setBackground(null);
             backupSiteCbo.setForeground(null);
@@ -1706,21 +1733,11 @@ public class WarngenDialog extends CaveSWTDialog implements
         boolean isDifferentAreaSources = !warngenLayer.getConfiguration()
                 .getHatchedAreaSource().getAreaSource()
                 .equalsIgnoreCase(lastAreaSource);
-        boolean snapHatchedAreaToPolygon = isDifferentAreaSources;
         boolean preservedSelection = !isDifferentAreaSources;
-        if (isDifferentAreaSources
-                || !warngenLayer.getConfiguration().getHatchedAreaSource()
-                        .getAreaSource().toLowerCase().equals("marinezones")) {
-            // If template has a different hatched area source from the previous
-            // template, then the warned area would be based on the polygon and
-            // not
-            // preserved.
-            try {
-                warngenLayer.updateWarnedAreas(snapHatchedAreaToPolygon,
-                        preservedSelection);
-            } catch (VizException e1) {
-                statusHandler.handle(Priority.PROBLEM, "WarnGen Error", e1);
-            }
+        try {
+            warngenLayer.updateWarnedAreas(preservedSelection);
+        } catch (VizException e1) {
+            statusHandler.handle(Priority.PROBLEM, "WarnGen Error", e1);
         }
         // Properly sets the "Create Text" button.
         setInstructions();

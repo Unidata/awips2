@@ -21,6 +21,7 @@ package com.raytheon.viz.hydrobase;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -39,6 +40,7 @@ import com.raytheon.viz.hydrocommon.datamanager.HydroDataManager;
  * ------------ ---------- ----------- --------------------------
  * Sep 2, 2009  2259       mpduff      Initial creation
  * May 14, 2012 14965      wkwock      Fix crash in query for data
+ * Jun 10, 2015 DCS15095   wkwock      Added edit/insert flood event feature.
  * 
  * </pre>
  * 
@@ -69,7 +71,7 @@ public class FloodReportDataManager extends HydroDataManager {
      * The selected location id.
      */
     private String selectedLid = null;
-    
+
     /**
      * The selected key for the dataMap.
      */
@@ -150,6 +152,28 @@ public class FloodReportDataManager extends HydroDataManager {
     }
 
     /**
+     * Get a list of lids from the riverstat table.
+     * 
+     * @param where
+     *            The where clause to constrain the query
+     * @return ArrayList<String> of location ids
+     */
+    public List<String> getLidListFromRiverStat(String where) {
+        List<String> lidList = new ArrayList<String>();
+        String query = "select distinct lid from riverstat ";
+
+        List<Object[]> rs = runQuery(query + where);
+
+        if (rs!=null) {
+            for (Object[] oa : rs) {
+                lidList.add((String) oa[0]);
+            }
+        }
+
+        return lidList;
+    }
+
+    /**
      * Get Flood Report data.
      * 
      * @param lid
@@ -157,7 +181,8 @@ public class FloodReportDataManager extends HydroDataManager {
      * @return FloodReportData object populated with data, null if problem or no
      *         data
      */
-    public ArrayList<FloodReportData> getFloodRptData(String lid, String start, String end) {
+    public ArrayList<FloodReportData> getFloodRptData(String lid, String start,
+            String end) {
         ArrayList<FloodReportData> dataList = new ArrayList<FloodReportData>();
         String lname = HydroDataCache.getInstance().getLocationMap().get(lid);
         double fs = getFloodStage(lid);
@@ -180,10 +205,10 @@ public class FloodReportDataManager extends HydroDataManager {
                 data.setLastCrest((Double) lastCrest[0]);
                 data.setLastCrestDate((Date) lastCrest[1]);
             }
-            
+
             dataList.add(data);
         }
-        
+
         return dataList;
     }
 
@@ -191,15 +216,14 @@ public class FloodReportDataManager extends HydroDataManager {
      * Get the flood stage for the site.
      * 
      * @param lid
-     *            The site
      * @return The flood stage for the site
      */
     public double getFloodStage(String lid) {
         double fs = -999;
 
-        ArrayList<Object[]> rs = runQuery("select fs from riverstat where lid = '"
+        List<Object[]> rs = runQuery("select fs from riverstat where lid = '"
                 + lid + "'");
-        if ((rs != null) && (rs.size() > 0) && rs.get(0)[0]!=null) {
+        if ((rs != null) && (rs.size() > 0) && rs.get(0)[0] != null) {
             fs = (Double) rs.get(0)[0];
         }
 
@@ -216,7 +240,7 @@ public class FloodReportDataManager extends HydroDataManager {
     public String getRiverBasin(String lid) {
         String basin = null;
 
-        ArrayList<Object[]> rs = runQuery("select rb from location where lid = '"
+        List<Object[]> rs = runQuery("select rb from location where lid = '"
                 + lid + "'");
         if (rs != null) {
             basin = (String) rs.get(0)[0];
@@ -235,7 +259,7 @@ public class FloodReportDataManager extends HydroDataManager {
     public String getState(String lid) {
         String state = null;
 
-        ArrayList<Object[]> rs = runQuery("select state from location where lid = '"
+        List<Object[]> rs = runQuery("select state from location where lid = '"
                 + lid + "'");
         if (rs != null) {
             state = (String) rs.get(0)[0];
@@ -254,7 +278,7 @@ public class FloodReportDataManager extends HydroDataManager {
     public String getRiver(String lid) {
         String river = null;
 
-        ArrayList<Object[]> rs = runQuery("select stream from riverstat where lid = '"
+        List<Object[]> rs = runQuery("select stream from riverstat where lid = '"
                 + lid + "'");
         if (rs != null) {
             river = (String) rs.get(0)[0];
@@ -273,9 +297,13 @@ public class FloodReportDataManager extends HydroDataManager {
     public int[] getFloodEventIds(String lid, String start, String end) {
         int[] id = null;
 
-        ArrayList<Object[]> rs = runQuery("select distinct flood_event_id from floodts where lid = '"
-                + lid + "' and obstime >= '" + start + "' and obstime <= '" + end + "'");
-        
+        List<Object[]> rs = runQuery("select distinct flood_event_id from floodts where lid = '"
+                + lid
+                + "' and obstime >= '"
+                + start
+                + "' and obstime <= '"
+                + end + "'");
+
         if ((rs != null) && (rs.size() > 0)) {
             id = new int[rs.size()];
             for (int i = 0; i < rs.size(); i++) {
@@ -301,7 +329,7 @@ public class FloodReportDataManager extends HydroDataManager {
         String query = "Select value, obstime from floodts where lid = '" + lid
                 + "' and flood_event_id = " + id + " order by obstime";
 
-        ArrayList<Object[]> rs = runQuery(query);
+        List<Object[]> rs = runQuery(query);
         lastCrest = new Object[rs.get(0).length];
         Object[] retVal = new Object[2];
         if ((rs != null) && (rs.size() > 0)) {
@@ -341,6 +369,27 @@ public class FloodReportDataManager extends HydroDataManager {
         }
 
         return retVal;
+    }
+
+    /**
+     * get the max flood_event_id of a lid. Default to 0.
+     * 
+     * @param lid
+     * @return
+     */
+    public int getMaxFloodeventID(String lid) {
+        String query = "Select max(flood_event_id) from floodts where lid = '"
+                + lid + "' and flood_event_id > 0";
+        List<Object[]> rs = runQuery(query);
+        Integer feID = new Integer(0);
+        if ((rs != null) && (rs.size() > 0)) {
+            feID = (Integer) rs.get(0)[0];
+            if (feID == null) {
+                return 0;
+            }
+        }
+
+        return feID.intValue();
     }
 
     /**
@@ -429,8 +478,7 @@ public class FloodReportDataManager extends HydroDataManager {
         if ((ptsMissing[INDEX_PT_A] == false)
                 && (ptsMissing[INDEX_PT_B] == false)) {
 
-            anchor1 = FloodReportUtils
-                    .floodreptInterp(ptA, ptB, floodStage);
+            anchor1 = FloodReportUtils.floodreptInterp(ptA, ptB, floodStage);
             ptsMissing[INDEX_ANCHOR1] = false;
         } else {
             if (ptA.getCrest() == floodStage) {
@@ -443,8 +491,7 @@ public class FloodReportDataManager extends HydroDataManager {
         }
 
         /*
-         * get last Anchor point, use index to continue loop where we left
-         * off
+         * get last Anchor point, use index to continue loop where we left off
          */
         for (int i = index; i < rs.size(); i++) {
             if (findLastAnchor == false) {
@@ -495,8 +542,7 @@ public class FloodReportDataManager extends HydroDataManager {
         /* interpolate to find time of recession below flood stage */
         if ((ptsMissing[INDEX_PT_C] == false)
                 && (ptsMissing[INDEX_PT_D] == false)) {
-            anchor2 = FloodReportUtils
-                    .floodreptInterp(ptC, ptD, floodStage);
+            anchor2 = FloodReportUtils.floodreptInterp(ptC, ptD, floodStage);
             ptsMissing[INDEX_ANCHOR2] = false;
         } else {
             if (ptC.getCrest() == floodStage) {
@@ -650,7 +696,8 @@ public class FloodReportDataManager extends HydroDataManager {
     }
 
     /**
-     * @param selectedKey the selectedKey to set
+     * @param selectedKey
+     *            the selectedKey to set
      */
     public void setSelectedKey(String selectedKey) {
         this.selectedKey = selectedKey;

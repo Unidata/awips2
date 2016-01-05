@@ -88,6 +88,8 @@ import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
  * Oct 02, 2014 3693        mapeters    Added Pattern constants.
  * Apr 22, 2015 DR 16923    MPorricelli Modified cleanMessage to eliminate extra spaces
  * Jul 13, 2015 4389        skorolev    Added correction of invalid (NUL) characters in the message.
+ * Nov 01, 2015 DR 14741    MPorricelli Modified WIND_VAR_DIR_EXP pattern to prevent its matching
+ *                                      some RVR strings
  * 
  * </pre>
  * 
@@ -116,9 +118,11 @@ public class MetarDecoder {
     private static final Pattern WIND_GROUP_EXP_MPS = Pattern
             .compile("(\\d{3}|VRB)(\\d{2,3})((G)(\\d{2,3}))?MPS");
 
-    // Variable wind direction
+    // Variable wind direction: e.g. 050V120
+    // Exclude case where RVR has similar construct:
+    // e.g R13R/0600V1200FT so it will not be read as var wind dir
     private static final Pattern WIND_VAR_DIR_EXP = Pattern
-            .compile("\\d{3}V\\d{3}");
+            .compile("\\d{3}V\\d{3}(?!\\d{1}FT)");
 
     /** Regular expression for the visibility */
     // private final Pattern VISIBILITY_EXP = Pattern

@@ -247,6 +247,7 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  * Sep 28, 2015 4898        rferrel     Disable sending of TAF when CAVE not in real time.
  * Oct 05, 2015 4855        skorolev    Fixed an unhandled event loop exception in createErrorStyleRange.
  * Oct 16, 2015 4645        skorolev    Added updateWordWrap.
+ * 10/23/2015   18061       zhao        Fixed a bug in checkBaiscSyntaxError() 
  * Nov 12, 2015 4834        njensen     Changed LocalizationOpFailedException to LocalizationException
  * Dec 09, 2015 4645        skorolev    Initiated wrapChk using ResourceTag. Removed popup menu persistance.
  * 
@@ -2042,7 +2043,7 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
             tafStartIndex += taf.length() + 2;
         }
 
-        if (doLogMessage) {
+        if (doLogMessage && errorFound) {
             msgStatComp.setMessageText(msg, qcColors[3].getRGB());
         }
 
