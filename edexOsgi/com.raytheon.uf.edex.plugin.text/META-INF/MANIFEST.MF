@@ -21,8 +21,7 @@ Export-Package: com.raytheon.uf.edex.plugin.text,
  com.raytheon.uf.edex.plugin.text.dbsrv.impl,
  com.raytheon.uf.edex.plugin.text.security
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Import-Package: com.raytheon.edex.uengine.runners,
- com.raytheon.uf.common.dataplugin.text,
+Import-Package: com.raytheon.uf.common.dataplugin.text,
  com.raytheon.uf.common.dataplugin.text.alarms,
  com.raytheon.uf.common.dataplugin.text.db,
  com.raytheon.uf.common.dataplugin.text.dbsrv,
