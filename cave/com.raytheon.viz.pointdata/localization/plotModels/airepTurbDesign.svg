@@ -56,6 +56,32 @@ class AirepPlotDelegate(PlotDelegate):
                 sampleString += turbType
         return sampleString
 
+    def isValid(self, rec):
+        # DCS10257
+        # need some turbulence data
+        # only show non-severe / no severity
+        if rec.isValidParameter("turbInten"):
+            turbInten = rec.getString("turbInten")
+        else:
+            turbInten = ""
+        if rec.isValidParameter("turbFreq"):
+            turbFreq = rec.getString("turbFreq")
+        else:
+            turbFreq = ""
+        if rec.isValidParameter("turbType"):
+            turbType = rec.getString("turbType")
+        else:
+            turbType = ""
+        if (turbInten == "") and (turbFreq == "") and (turbType == ""):
+            # no turbulence data present
+            return False
+        elif (turbInten == "SEV") or (turbInten == "EXTRM"):
+            # turbulence data present, but not correct severity
+            return False
+        else:
+            # turbulence data present, and if severity is present it is not high
+            return True
+
 plotDelegate = AirepPlotDelegate()
 
 </script>
@@ -91,6 +117,7 @@ plotDelegate = AirepPlotDelegate()
 <symbol overflow="visible" id="plotData" class="info">
   <text id="sampleParams1" plotMode="sample" plotParam="stationId,longitude,latitude,timeObs,flightLevel"> </text> 
   <text id="sampleParams2" plotMode="sample" plotParam="temperature,windDir,windSpeed,turbInten,turbFreq,turbType"> </text> 
+  <text id="validityParams" plotMode="null" class="text" plotParam="turbType" x="0" y="0" visibility="hidden">0</text>
   <text id="airepturbIntensity" plotMode="table" class="weather" plotLookupTable="turb_intens_trans.txt" plotParam="turbInten" x="0" y="0">0</text>
   <text id="airepturbFreq" plotMode="table" class="weather" plotLookupTable="turb_freq_trans.txt" plotParam="turbFreq" style="text-anchor: end" x="0" y="-10">0</text>
   <text id="airepfltLvlText" plotMode="text" plotParam="flightLevel" plotFormat="%3.0f" plotUnit="hft" style="text-anchor: end;" x="-15px" y="0px">75</text>

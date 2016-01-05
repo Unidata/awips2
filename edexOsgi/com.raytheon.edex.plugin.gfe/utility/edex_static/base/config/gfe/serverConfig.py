@@ -69,6 +69,7 @@
 #
 #    05/29/2015          #17144    bhunder        Added weather Params for URMA25 and OCONUS RTMA
 #    09/02/2015          #4819     rferrel        Added HWRF.
+#    09/09/2015          16287     amoore         Additional validation of user input
 #    10/07/2015          #4958     dgilling       Added support for NationalBlend D2D data.
 #    10/13/2015          #4961     randerso       Updated NewTerrain/BaseTerrain database definitions
 #    10/30/2015          #17940    jendrowski     Responded to Code Review.  Mostly syntactical changes.
@@ -1906,6 +1907,15 @@ SITES = {
     'NHA' : ([1873,1361], (35.5,3.5), (58.5,42.5), 'EST5EDT', Grid211, "nc"),   # updated
     }
 
+# Get list of valid office types, for validation.
+VALID_OFFICE_TYPES = []
+# List of all values of all sites.
+for siteValues in SITES.values():
+    # Office type is the 5th element of each site's values
+    officeType = siteValues[5]
+    if officeType not in VALID_OFFICE_TYPES:
+        # A new office type
+        VALID_OFFICE_TYPES.append(officeType)
 #---------------------------------------------------------------------------
 #
 #  Time Constraint configuration section
@@ -3072,6 +3082,13 @@ DATABASES = [
 # Intersite coordination database parameter groupings, based on
 # OFFICIALDBS, but time constraint is always TC1
 ISCPARMS = []
+    if type(officeType) != str:
+        raise TypeError, "Office type not a str: " + `officeType`
+    else:
+        if officeType not in VALID_OFFICE_TYPES:
+            raise ValueError, "Office type: " + str(officeType) + " does not match any of the following: [" + (', '.join(VALID_OFFICE_TYPES)) + "]"
+    
+        
 #
 # new parameters for NewTerrain
 #
@@ -3152,7 +3169,7 @@ def doIt():
     sendiscOnSave, sendiscOnPublish, \
     requestedISCparms, \
     transmitScript) \
-       = doConfig.otherParse(\
+       = doConfig.otherParse(SITES.keys(), \
       GFESUITE_SERVER, GFESUITE_MHSID, \
       GFESUITE_PORT, INITMODULES,
       D2DAccumulativeElements,

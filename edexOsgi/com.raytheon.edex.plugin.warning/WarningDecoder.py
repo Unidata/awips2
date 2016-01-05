@@ -48,6 +48,8 @@
 #                                       when decoding product not from a file.
 # Mar 26, 2015  4324     dgilling       Improve handling of all 0s time values in HVTEC strings.
 # Sep 23, 2015  4848     nabowle        Handle UGC-like lines in the text segment.
+# Nov 10, 2015  17068    ryu            Improve handling of lines starting with a UGC code
+#                                       but do not really begin new segments
 #
 #
 # @author rferrel
@@ -173,6 +175,8 @@ class StdWarningDecoder():
         self._endSegmentRE = r'^\$\$'
         self._dlineRE = r"^1?[0-9]{3} [AP]M [A-Z][A-Z]?[DS]T.*[A-Z][A-Z,a-z]{2} " + \
           r"[0123]?[0-9] 2[0-9]{3}.*$"
+        self._ugcRE = r'^[A-Z][A-Z][CZ][0-9]{3}[->]'
+        self._endTimeRE = r'-[0-3][0-9][0-2][0-9][0-5][0-9]-$'
 
         #maximum future time (used for until further notice)
         self._maxFutureTime = float(2**31 - 1)  #max signed int
@@ -353,7 +357,7 @@ usage: VTECDecoder -f productfilename -d -a activeTableName
         count = startLine
         dlineFlag = 0
         while count < 12 and count < len(self._lines):
-            if re.search(r'^[A-Z][A-Z][CZ][0-9][0-9][0-9].*',
+            if re.search(self._ugcRE,
                self._lines[count]):
                 if dlineFlag == 0:
                     return 0
@@ -386,10 +390,8 @@ usage: VTECDecoder -f productfilename -d -a activeTableName
         startOverviewLine = count  #next line after MND date line
 
         #search for the 1st UGC line 
-        ugcRE = r'^[A-Z][A-Z][CZ][0-9][0-9][0-9].*'
         while 1:
-            ugc_search = re.search(ugcRE, self._lines[count])
-            if ugc_search:
+            if self.checkForBeginSegment(count):
                 stopOverviewLine = count - 1
                 break
             count = count + 1
@@ -490,8 +492,7 @@ usage: VTECDecoder -f productfilename -d -a activeTableName
         count = lineStart   #start on line following PIL
         while 1:
             #look for the first UGC line
-            if re.search(r'^[A-Z][A-Z][CZ][0-9][0-9][0-9].*',
-              self._lines[count]):
+            if self.checkForBeginSegment(count):
                 LogStream.logDebug("First line of UGC found on line: ", count,
                   '[' + self._lines[count] + ']')
                 
@@ -503,15 +504,14 @@ usage: VTECDecoder -f productfilename -d -a activeTableName
                 nxt = 0  #number of lines from the first UGC line
                 ugc = "" #final UGC codes
                 while count+nxt < len(self._lines):
-                    if not re.search(r'.*[0-9][0-9][0-9][0-9][0-9][0-9]-',
-                      self._lines[count+nxt]):
-                        nxt = nxt + 1
-                    else:
+                    if re.search(self._endTimeRE, self._lines[count+nxt]):
                         LogStream.logDebug("Last line of UGC found on line: ",
                           count+nxt, '[' + self._lines[count+nxt] + ']')
                         ugc = string.join(self._lines[count:count+nxt+1],
                           sep="")
                         break
+
+                    nxt = nxt + 1
 
                     # if we hit the end, break out and let the len(ugc) check fail
                     if count+nxt == len(self._lines):
@@ -584,16 +584,11 @@ usage: VTECDecoder -f productfilename -d -a activeTableName
 
                     # found a probable UGC line, terminate the segment
                     # if a DDMMHH or VTEC can be found
-                    elif re.search(r'^[A-Z][A-Z][CZ][0-9][0-9][0-9].*',
-                      self._lines[count+nxt]):
-                        toCheck = count+nxt
-                        falsePositive = self.checkForFalseUGCLine(toCheck)
-
-                        if not falsePositive:
-                            segmentText = self._prepSegmentText(\
-                              self._lines[textFirst:count+nxt])
-                            nxt = nxt - 1  #back up one line to redo UGC outer loop
-                            break
+                    elif self.checkForBeginSegment(count+nxt):
+                        segmentText = self._prepSegmentText(\
+                            self._lines[textFirst:count+nxt])
+                        nxt = nxt - 1  #back up one line to redo UGC outer loop
+                        break
 
                     # end of file, terminate the segment
                     elif count+nxt+1 == len(self._lines):
@@ -625,9 +620,16 @@ usage: VTECDecoder -f productfilename -d -a activeTableName
             count = count + 1
             if count >= len(self._lines):
                 break
+
         for e in ugcList:
             LogStream.logVerbose("UGC/VTEC found: ", e[0], e[1])
         return ugcList
+
+    def checkForBeginSegment(self, start):
+        if re.search(self._ugcRE, self._lines[start]) and \
+                not self.checkForFalseUGCLine(start):
+            return True
+        return False
 
     def checkForFalseUGCLine(self, toCheck):
         # tries to determine if an apparent UGC line encountered in a text
@@ -641,11 +643,15 @@ usage: VTECDecoder -f productfilename -d -a activeTableName
         while toCheck < len(self._lines):
             # look for the end date or vtec line before "$$" or the end of the
             # file
-            if re.search(r'.*[0-9][0-9][0-9][0-9][0-9][0-9]-',
+            if re.search(self._endTimeRE,
                          self._lines[toCheck]) or \
                          re.search(self._vtecRE, self._lines[toCheck]):
                 falsePositive = False
                 break;
+
+            # blank line
+            if not self._lines[toCheck]:
+                break
 
             if re.search(self._endSegmentRE, self._lines[toCheck]):
                 break;

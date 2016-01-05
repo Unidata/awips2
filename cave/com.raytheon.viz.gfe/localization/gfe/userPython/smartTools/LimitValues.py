@@ -99,7 +99,7 @@ class Tool (SmartScript.SmartScript):
       #  you could get this from GridInfo, but you can't
       #
       resolution=1
-      if (WEname=="QPF"):
+      if (WEname=="QPF" or WEname=="IceAccum"):
          resolution=0.01
       if (WEname=="SnowAmt"):
          resolution=0.1

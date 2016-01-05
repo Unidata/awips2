@@ -62,6 +62,10 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 2/23/2015    RM#5694,7788 Chin Chen Use NCP's Nsharp text file loader
  *                                     and comment out openNspFile()
  * Aug 05, 2015 4486       rjpeter     Changed Timestamp to Date.
+ * Aug 31, 2011            bsteffen     Initial creation
+ * 2/23/2015    RM#5694,7788 Chin Chen  Use NCP's Nsharp text file loader
+ *                                      and comment out openNspFile()
+ *      
  * 
  * </pre>
  * 
