@@ -62,6 +62,9 @@ fi
 
 #Check if the build root directory has execute permissions.
 TMPFILE=${AWIPSII_BUILD_ROOT}/tmp.sh
+if [ ! -d ${AWIPSII_BUILD_ROOT} ]; then
+    mkdir -p ${AWIPSII_BUILD_ROOT}
+fi
 echo "#!/bin/bash" > ${TMPFILE}
 chmod a+x ${TMPFILE}
 ${TMPFILE}
