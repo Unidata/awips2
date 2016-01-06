@@ -126,7 +126,6 @@ if [ "${1}" = "-rh6" ]; then
    buildRPM "awips2-python-tpg"
    buildRPM "awips2-python-ufpy"
    buildRPM "awips2-python-dynamicserialize"
-   buildRPM "awips2-python-pycairo"
    buildRPM "awips2-python-shapely"
    buildRPM "awips2-python-jep"
    buildRPM "awips2-python-dateutil"
