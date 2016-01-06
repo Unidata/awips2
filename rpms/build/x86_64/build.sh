@@ -1,43 +1,15 @@
 #!/bin/bash
 
-function buildRPM()
+function usage()
 {
-   # Arguments:
-   #   ${1} == the name of the rpm.
-   lookupRPM "${1}"
-   if [ $? -ne 0 ]; then
-      echo "ERROR: '${1}' is not a recognized AWIPS II RPM."
-      exit 1
-   fi
-
-	buildRPMExec "${RPM_SPECIFICATION}"
+   echo "Usage: $0 OPTION [-nobinlightning]"
+   echo "   -buildRPM preform a build of an rpm."
+   echo "   -WA       perform a build of all work assignments."
+   echo "   -rh6      perform a full build of all the rpms."
+   echo "   -dev      call functions directly"
+   echo "   --help    display this message and exit."
 
    return 0
-}
-
-function buildRPMExec()
-{
-	# Arguments:
-	# 1) specs file location
-
-   /usr/bin/rpmbuild -bb \
-      --define '_topdir %(echo ${AWIPSII_TOP_DIR})' \
-      --define '_baseline_workspace %(echo ${WORKSPACE})' \
-      --define '_uframe_eclipse %(echo ${UFRAME_ECLIPSE})' \
-      --define '_awipscm_share %(echo ${AWIPSCM_SHARE})' \
-      --define '_build_root %(echo ${AWIPSII_BUILD_ROOT})' \
-      --define '_build_site %(echo ${AWIPSII_BUILD_SITE})' \
-      --define '_component_version %(echo ${AWIPSII_VERSION})' \
-      --define '_component_release %(echo ${AWIPSII_RELEASE})' \
-      --define '_component_build_date %(echo ${COMPONENT_BUILD_DATE})' \
-      --define '_component_build_time %(echo ${COMPONENT_BUILD_TIME})' \
-      --define '_component_build_system %(echo ${COMPONENT_BUILD_SYSTEM})' \
-      --buildroot ${AWIPSII_BUILD_ROOT} \
-      ${1}/component.spec
-   if [ $? -ne 0 ]; then
-      echo "ERROR: Failed to build RPM ${1}."
-      exit 1
-   fi
 }
 
 # This script will build all of the 64-bit rpms.
@@ -64,16 +36,6 @@ if [ $? -ne 0 ]; then
    echo "ERROR: Unable to source the common functions."
    exit 1
 fi
-source ${common_dir}/usage.sh
-if [ $? -ne 0 ]; then
-   echo "ERROR: Unable to source the common functions."
-   exit 1
-fi
-source ${common_dir}/rpms.sh
-if [ $? -ne 0 ]; then
-   echo "ERROR: Unable to source the common functions."
-   exit 1
-fi
 source ${common_dir}/systemInfo.sh
 if [ $? -ne 0 ]; then
    echo "ERROR: Unable to retrieve the system information."
@@ -87,9 +49,27 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
+source ${dir}/rpms.sh
+if [ $? -ne 0 ]; then
+   echo "ERROR: Unable to source the RPM functions."
+   exit 1
+fi
+
 source ${dir}/WA_rpm_build.sh
 if [ $? -ne 0 ]; then
 	echo "WARNING: Unable to find the WA-RPM Build Contributions."
+fi
+
+#Check if the build root directory has execute permissions.
+TMPFILE=${AWIPSII_BUILD_ROOT}/tmp.sh
+echo "#!/bin/bash" > ${TMPFILE}
+chmod a+x ${TMPFILE}
+${TMPFILE}
+RTN=$?
+rm -f ${TMPFILE}
+if [ $RTN -ne 0 ]; then
+   echo "Directory ${AWIPSII_BUILD_ROOT} does not have execute permissions!"
+   exit 1
 fi
 
 export LIGHTNING=true
@@ -120,14 +100,8 @@ fi
 
 if [ "${1}" = "-rh6" ]; then
    buildCAVE
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
    buildRPM "awips2-alertviz"
    buildEDEX
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
    buildRPM "awips2-common-base"
    buildRPM "awips2-notification"
    buildRPM "awips2-hydroapps-shared"
@@ -176,6 +150,7 @@ if [ "${1}" = "-rh6" ]; then
    buildRPM "awips2-aviation-shared"
    buildRPM "awips2-cli"
    buildRPM "awips2-edex-environment"
+   buildRPM "awips2-edex-shapefiles"
    buildRPM "awips2-data.gfe"
    buildRPM "awips2-gfesuite-client"
    buildRPM "awips2-gfesuite-server"
@@ -190,83 +165,6 @@ if [ "${1}" = "-rh6" ]; then
    buildRPM "awips2-data.hdf5-topo"
    buildRPM "awips2"
    buildRPM "awips2-yajsw"
-   exit 0
-fi
-
-if [ "${1}" = "-ade" ]; then
-   buildRPM "awips2-eclipse"
-   buildRPM "awips2-java"
-   buildRPM "awips2-ant"
-   buildRPM "awips2-python"
-   buildRPM "awips2-python-cherrypy"
-   buildRPM "awips2-python-dynamicserialize"
-   buildRPM "awips2-python-h5py"
-   buildRPM "awips2-python-matplotlib"
-   buildRPM "awips2-python-nose"
-   buildRPM "awips2-python-numpy"
-   buildRPM "awips2-python-pmw"
-   buildRPM "awips2-python-pupynere"
-   buildRPM "awips2-python-qpid"
-   buildRPM "awips2-python-scientific"
-   buildRPM "awips2-python-scipy"
-   buildRPM "awips2-python-tables"
-   buildRPM "awips2-python-thrift"
-   buildRPM "awips2-python-tpg"
-   buildRPM "awips2-python-ufpy"
-   buildRPM "awips2-python-werkzeug"
-   buildRPM "awips2-python-pycairo"
-   buildRPM "awips2-python-shapely"
-   buildRPM "awips2-python-jep"
-   buildRPM "awips2-qpid-lib"
-   buildRPM "awips2-qpid-java"
-   buildRPM "awips2-qpid-java-broker"
-   
-   # Package the ade.
-   # Create the containing directory.
-   ade_directory="awips2-ade-${AWIPSII_VERSION}-${AWIPSII_RELEASE}"
-   if [ -d ${WORKSPACE}/${ade_directory} ]; then
-      rm -rf ${WORKSPACE}/${ade_directory}
-      if [ $? -ne 0 ]; then
-         exit 1
-      fi
-   fi
-   mkdir -p ${WORKSPACE}/${ade_directory}
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-
-   # Copy the rpms to the directory.
-   cp -v ${AWIPSII_TOP_DIR}/RPMS/x86_64/* \
-      ${AWIPSII_TOP_DIR}/RPMS/noarch/* \
-      ${WORKSPACE}/${ade_directory}
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-
-   awips2_ade_directory="${WORKSPACE}/rpms/awips2.ade"
-   # Copy the install and uninstall script to the directory.
-   cp -v ${awips2_ade_directory}/tar.ade/scripts/*.sh \
-      ${WORKSPACE}/${ade_directory}
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-
-    # Build the source jar file
-    #ade_work_dir="/home/dmsys/Dim12/build/AWIPS2/AWIPS2-ADE-OB14.1.1-CM"
-    #cd $ade_work_dir
-    #./build_source_jar.sh
-    #cp -v /tmp/awips-component/tmp/awips2-ade-baseline-SOURCES.jar ${WORKSPACE}/${ade_directory}
-
-   # Tar the directory.
-   pushd . > /dev/null 2>&1
-   cd ${WORKSPACE}
-   tar -cvf ${ade_directory}.tar ${ade_directory}
-   popd > /dev/null 2>&1
-   RC=$?
-   if [ ${RC} -ne 0 ]; then
-      exit 1
-   fi
-
    exit 0
 fi
 
