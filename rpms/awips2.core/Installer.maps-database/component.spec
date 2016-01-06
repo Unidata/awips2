@@ -41,26 +41,15 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-# Determine which version of db we should use.
-RPM_COMMON_DIR="%{_baseline_workspace}/rpms/common/static.versions"
-
-if [ ! -f ${RPM_COMMON_DIR}/LATEST.maps ]; then
-   file ${RPM_COMMON_DIR}/LATEST.maps
-   exit 1
-fi
-VERSION_DIR=`cat ${RPM_COMMON_DIR}/LATEST.maps`
-
-STATIC_DATA_DIR="%{_awipscm_share}/awips2-static"
-
 # Copy the sql that is needed to create the maps database.
 PATH_TO_DDL="build.edex/opt/db/ddl"
 PATH_TO_MAPS_DDL="${PATH_TO_DDL}/maps"
 cp -r %{_baseline_workspace}/${PATH_TO_MAPS_DDL}/* \
    ${RPM_BUILD_ROOT}/awips2/database/sqlScripts/share/sql/maps
 
-PATH_TO_STATIC_DDL="${STATIC_DATA_DIR}/maps/${VERSION_DIR}/db"
+PATH_TO_STATIC_DDL="%{_static_files}/maps/db"
 if [ ! -d ${PATH_TO_STATIC_DDL} ]; then
-   file ${PATH_TO_STATIC_DDL}
+   echo "File ${PATH_TO_STATIC_DDL} not found!"
    exit 1
 fi
 cp ${PATH_TO_STATIC_DDL}/* \

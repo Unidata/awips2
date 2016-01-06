@@ -29,8 +29,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.raytheon.edex.uengine.runners.IMicroEngine;
-import com.raytheon.edex.uengine.runners.MicroEngine;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.message.DataURINotificationMessage;
 import com.raytheon.uf.common.dataplugin.text.db.ReplacementRecord;
@@ -40,7 +38,6 @@ import com.raytheon.uf.common.message.Message;
 import com.raytheon.uf.common.message.Property;
 import com.raytheon.uf.common.util.ReflectionUtil;
 import com.raytheon.uf.common.util.StringUtil;
-import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.plugin.text.subscription.runners.SubscribeQueryRunner;
 
 /**
@@ -70,6 +67,8 @@ import com.raytheon.uf.edex.plugin.text.subscription.runners.SubscribeQueryRunne
  * May 22, 2014 2536       bclement    moved from autobldsrv to edex.plugin.text
  * Sep 05, 2014 2926       bclement    get query results directly, removed decodeResponse()
  * Dec 09, 2015 5166       kbisanz     Update logging to use SLF4J.
+ * Jan 04, 2016 5203       tjensen     Removed dependency on uEngine. Replaced with calls to 
+ *                                     TextTriggerHandler.
  * 
  * </pre>
  * 
@@ -103,10 +102,10 @@ public class ScriptRunner {
      * @param event
      *            the Trigger event
      * 
-     * @throws EdexException
+     * @throws TriggerException
      *             if an error occurs
      */
-    public void runScripts(Object event) throws EdexException {
+    public void runScripts(Object event) throws TriggerException {
         List<String> triggers = decodeTrigger(event);
         for (String trigger : triggers) {
             Message query = prepareQueryMessage(trigger);
@@ -128,10 +127,10 @@ public class ScriptRunner {
      * 
      * @return the decoded trigger event
      * 
-     * @throws EdexException
+     * @throws TriggerException
      *             if an error occurs
      */
-    private List<String> decodeTrigger(Object event) throws EdexException {
+    private List<String> decodeTrigger(Object event) throws TriggerException {
         List<String> trigger = new ArrayList<String>();
         switch (ScriptRunnerType.translate(this.type)) {
         case TIMER:
@@ -223,8 +222,8 @@ public class ScriptRunner {
             }
             break;
         default:
-            throw new EdexException("Invalid scriptrunner type [" + this.type
-                    + "] configured");
+            throw new TriggerException("Invalid scriptrunner type ["
+                    + this.type + "] configured");
         }
         if (logger.isDebugEnabled()) {
             logger.debug("script runner fired: type= " + this.type
@@ -269,23 +268,21 @@ public class ScriptRunner {
             script = (StringUtil.isEmptyString(path) ? "" : path) + " "
                     + (StringUtil.isEmptyString(args) ? "" : args);
         }
-        IMicroEngine engine = null;
-        try {
-            engine = MicroEngine.getInstance(runner);
-            engine.setScript(script);
-            engine.setTrigger(trigger);
-            engine.initialize();
-            engine.execute();
-            logger.info("Executed script: runner= " + runner + ", script= "
-                    + script.replaceAll("\\n", "<ret>"));
-        } catch (Exception e) {
-            logger.error(generateErrorMsg(runner, script), e);
-        } finally {
-            if (engine != null) {
-                engine.release();
-            }
-        }
 
+        if (runner.toLowerCase().equals("ldad")
+                || runner.toLowerCase().equals("pil")) {
+            TextTriggerHandler exHandler = new TextTriggerHandler();
+            try {
+                exHandler.execute(script, trigger);
+                logger.info("Executed script: runner= " + runner + ", script= "
+                        + script.replaceAll("\\n", "<ret>"));
+            } catch (Exception e) {
+                logger.error(generateErrorMsg(runner, script), e);
+            }
+        } else {
+            logger.error("Unable to execute script '" + script
+                    + "' due to unexpected script runner type: " + runner);
+        }
     }
 
     /**
@@ -319,11 +316,11 @@ public class ScriptRunner {
      * 
      * @return subscription record list containing the results of the query
      * 
-     * @throws EdexException
+     * @throws TriggerException
      *             if an error occurs
      */
     private List<SubscriptionRecord> querySubscriptions(Message message)
-            throws EdexException {
+            throws TriggerException {
         SubscribeQueryRunner runner = new SubscribeQueryRunner(message);
         runner.execute();
         return runner.getDirectResults();
