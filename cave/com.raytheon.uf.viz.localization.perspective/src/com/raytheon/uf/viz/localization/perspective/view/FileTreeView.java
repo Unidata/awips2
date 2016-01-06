@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -124,14 +124,14 @@ import com.raytheon.uf.viz.localization.service.ILocalizationService;
 
 /**
  * File Tree View for the localization perspective.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 26, 2010            mnash       Initial creation
- * Feb 13, 2013  1610      mschenke    Fixed null pointer by repopulating LocalizationFileGroupData 
+ * Feb 13, 2013  1610      mschenke    Fixed null pointer by repopulating LocalizationFileGroupData
  *                                     objects even if they weren't expanded
  * May  1, 2013  1967      njensen     Fix for pydev 2.7
  * Sep 17, 2013  2285      mschenke    Made openFile refresh items if file not found
@@ -146,9 +146,10 @@ import com.raytheon.uf.viz.localization.service.ILocalizationService;
  * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
  * Nov 18, 2015 4834       njensen     Updated to register file observing on PathManager
  * Dec 03, 2015 4834       njensen     Updated for ILocalizationFile changes
- * 
+ * Jan 06, 2016 4834       nabowle     Fix single-user edit-save-edit-save.
+ *
  * </pre>
- * 
+ *
  * @author mnash
  * @version 1.0
  */
@@ -360,7 +361,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
 
     /**
      * Creation of the tree component
-     * 
+     *
      * @param parent
      *            composite to add tree to
      */
@@ -556,7 +557,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
 
     /**
      * Repopulates all expanded tree items in the tree.
-     * 
+     *
      * @param tree
      */
     private void repopulateTree(Tree tree) {
@@ -572,7 +573,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
 
     /**
      * Repopulates all tree items from this item down.
-     * 
+     *
      * @param item
      */
     private void repopulateTreeItem(TreeItem item) {
@@ -680,7 +681,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
 
     /**
      * Adds nodes to tree for path data object
-     * 
+     *
      * @param pd
      */
     private void addPathDataTreeNode(PathData pd) {
@@ -765,7 +766,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
     /**
      * Get the insertion index if one were to insert a tree item into the
      * curItems list with text of name
-     * 
+     *
      * @param curItems
      * @param name
      * @return
@@ -785,7 +786,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
 
     /**
      * Fill the context menu with localization file operatiosn
-     * 
+     *
      * @param mgr
      *            menu manager to fill
      */
@@ -982,7 +983,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
 
     /**
      * Builds a list of {@link LocalizationFile}s starting at the item passed in
-     * 
+     *
      * @param item
      * @param files
      *            (option) list to add entries to
@@ -1027,7 +1028,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
 
     /**
      * Refreshes the TreeItems passed in
-     * 
+     *
      * @param items
      */
     private void refresh(TreeItem... items) {
@@ -1058,7 +1059,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
 
     /**
      * Populates the given tree node's child items requesting data as needed
-     * 
+     *
      * @param parentItem
      *            The TreeItem node to populate
      * @return true if successful
@@ -1280,7 +1281,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
 
     /**
      * Adds a tree item given the data and the parent item
-     * 
+     *
      * @param parentItem
      * @param treeData
      * @return new TreeItem
@@ -1367,7 +1368,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
 
     /**
      * Get the ImageDescriptor for the provided file name.
-     * 
+     *
      * @param string
      *            The file name
      * @return The ImageDescriptor
@@ -1386,7 +1387,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
 
     /**
      * Get the image for the provided LocalizationFile.
-     * 
+     *
      * @param file
      *            The LocalizationFile
      * @return The image
@@ -1401,7 +1402,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
 
     /**
      * Get the image for the provided path.
-     * 
+     *
      * @param filePath
      *            The file path
      * @return The image
@@ -1491,7 +1492,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
 
     /**
      * Recursively search tree for node matching path starting at item
-     * 
+     *
      * @param item
      * @param ctx
      * @param path
@@ -1526,7 +1527,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
 
     /**
      * Select the TreeItem corresponding to the open/active editor.
-     * 
+     *
      * @param partRef
      *            The IWorkbenchPartReference
      */
@@ -1574,9 +1575,10 @@ public class FileTreeView extends ViewPart implements IPartListener2,
                             && ((docDelta.getFlags() & IResourceDelta.CONTENT) == IResourceDelta.CONTENT)) {
                         try {
                             LocalizationFile file = input.getLocalizationFile();
-                            if (file.getContext().getLocalizationLevel()
-                                    .isSystemLevel() == false) {
-                                input.getLocalizationFile().save();
+                            if (!file.getContext().getLocalizationLevel()
+                                    .isSystemLevel()
+                                    && input.getLocalizationFile().save()) {
+                                input.refreshLocalizationFile();
                             }
                         } catch (LocalizationException e) {
                             statusHandler.handle(
@@ -1751,7 +1753,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
 
     /**
      * Toggle Show All for a level
-     * 
+     *
      * @param level
      */
     public void toggleShowAllLevel(LocalizationLevel level) {
@@ -1760,7 +1762,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
 
     /**
      * Toggle Show for a level
-     * 
+     *
      * @param level
      */
     public void toggleShowLevel(LocalizationLevel level) {
@@ -1769,9 +1771,9 @@ public class FileTreeView extends ViewPart implements IPartListener2,
 
     /**
      * Check if level is showing all values not just current
-     * 
+     *
      * (e.g. Show all users, not just my user)
-     * 
+     *
      * @param level
      * @return true if showing all values
      */
@@ -1781,7 +1783,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
 
     /**
      * Check if level is shown
-     * 
+     *
      * @param level
      * @return true if shown
      */
@@ -1803,7 +1805,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
              * TODO We don't have the previous checksum available here so we
              * can't easily identify this change as an add vs update. We need to
              * handle this cleanly somehow.
-             * 
+             *
              * Temporary fix: Go with ADDED
              */
             t = FileChangeType.ADDED;
