@@ -2132,7 +2132,12 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
         	
             TraceData td = graphData.getTraces().get(selectedTraceId);
 
-            TimeSeriesPoint[] pointArray = td.getTsData();
+            TimeSeriesPoint[] pointArray = null;            
+            if (!zoomed) {
+                pointArray = td.getTsData();
+            } else {
+                pointArray = td.getZoomedTsData();
+            }
             
             for (int i = 0; i < pointArray.length; i++) {
                 if (setMissingRect.contains(pointArray[i].getPixelX(),
