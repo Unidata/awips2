@@ -6,6 +6,8 @@
 ##      Phil Kurimski   -- SEP 10 2012  OB12.9.1-12           ##
 ##      Evan Bookbinder    SEP 18 2013  Implemented config.vm ##
 ## UPDATED PHIL KURIMSKI -- MAR 24 2015 Mixed Case ##
+##          Richard Barnhill -- Dec 30 2015 Per conversation with##
+##                              Evan, made default hailCTA ""    ##
 ################################################################
 #parse("config.vm")
 ################################################
@@ -132,6 +134,7 @@ THIS IS A TEST MESSAGE. ##
 #######################################################################
 #set($windTag = "<34")
 #set($windCTA = "gusty winds")
+#set($hailCTA = "")
 #if(${list.contains(${bullets}, "34ktWind")})
 	#set($windTag = ">34")
 	#set($windType = "winds 34 knots or greater")

@@ -181,7 +181,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="*********** Optional Pathcast Section **********" bulletType="title"/>
   <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="pcast" parseString="WILL BE NEAR..."/>
-  <bullet bulletName="listoflocations" bulletText="Select for a list of locations" bulletGroup="pcast" parseString="&quot;LOCATIONS&quot;,&quot;INCLUDE...&quot;"/>
+  <bullet bulletName="listoflocations" bulletText="Select for a list of locations" bulletGroup="pcast" parseString="&quot;LOCATIONS&quot;,&quot;INCLUDE...&quot;" showString="LOCATIONS IMPACTED INCLUDE"/>
   <bullet bulletName="listoflocations" bulletText="Select for a list of locations" bulletGroup="pcast" parseString="WILL REMAIN OVER" showString="WILL REMAIN OVER"/>  
   <bullet bulletName="specialEvent" bulletText="Special heads-up for large event/venue" parseString="THOSE ATTENDING"/>
   <bullet bulletText="" bulletType="title"/>
@@ -240,7 +240,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="*********** Optional Pathcast Section **********" bulletType="title"/>
   <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="pcast" parseString="WILL BE NEAR..."/>
-  <bullet bulletName="listoflocations" bulletText="Select for a list of locations" bulletGroup="pcast" parseString="&quot;LOCATIONS&quot;,&quot;INCLUDE...&quot;"/>
+  <bullet bulletName="listoflocations" bulletText="Select for a list of locations" bulletGroup="pcast" parseString="&quot;LOCATIONS&quot;,&quot;INCLUDE...&quot;" showString="LOCATIONS IMPACTED INCLUDE"/>
   <bullet bulletName="listoflocations" bulletText="Select for a list of locations" bulletGroup="pcast" parseString="WILL REMAIN OVER" showString="WILL REMAIN OVER"/>  
   <bullet bulletName="specialEvent" bulletText="Special heads-up for large event/venue" parseString="THOSE ATTENDING"/>
   <bullet bulletText="" bulletType="title"/>
