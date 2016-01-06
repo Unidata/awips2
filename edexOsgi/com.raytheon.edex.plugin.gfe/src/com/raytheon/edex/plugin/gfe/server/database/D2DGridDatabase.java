@@ -80,6 +80,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.mapping.MultipleMappingException;
@@ -120,6 +121,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * 03/05/2015   #4169       randerso    Fix error handling in getDatabase
  * 06/29/2015   #4537       rferrel     Allow for durations less then 1 hour.
  * 07/13/2015   #4537       randerso    Additional changes to allow D2DParms with sub-hourly durations/intervals
+ * 12/03/2015   #5168       randerso    Added flag to use database time range if valid
  * 
  * </pre>
  * 
@@ -261,11 +263,15 @@ public class D2DGridDatabase extends VGridDatabase {
 
         private final Level level;
 
+        private boolean useDatabaseTimeRange = false;
+
         public D2DParm(ParmID parmId, GridParmInfo gpi,
-                Map<Integer, TimeRange> fcstHrToTimeRange, String... components) {
+                Map<Integer, TimeRange> fcstHrToTimeRange,
+                boolean dataTimeRangeValid, String... components) {
             this.parmId = parmId;
             this.gpi = gpi;
             this.fcstHrToTimeRange = fcstHrToTimeRange;
+            this.useDatabaseTimeRange = dataTimeRangeValid;
             this.components = components;
 
             this.timeRangeToFcstHr = new HashMap<TimeRange, Integer>(
@@ -305,6 +311,13 @@ public class D2DGridDatabase extends VGridDatabase {
 
         public Level getLevel() {
             return level;
+        }
+
+        /**
+         * @return true if time range in database should be used
+         */
+        public boolean useDatabaseTimeRange() {
+            return useDatabaseTimeRange;
         }
 
         @Override
@@ -498,7 +511,7 @@ public class D2DGridDatabase extends VGridDatabase {
         String d2dParmName = getD2DParmName(gfeParmName);
 
         D2DParm d2dParm = new D2DParm(pid, gpi, possibleInventorySlots,
-                d2dParmName);
+                atts.useDatabaseTimeRange(), d2dParmName);
         this.gfeParms.put(pid, d2dParm);
         this.d2dParms.put(compositeName(gfeParmName, level), d2dParm);
     }
@@ -547,6 +560,7 @@ public class D2DGridDatabase extends VGridDatabase {
         String vD2dParmName = getD2DParmName(vGfeParmName);
 
         D2DParm d2dParm = new D2DParm(pid, gpi, possibleInventorySlots,
+                uatts.useDatabaseTimeRange() && vatts.useDatabaseTimeRange(),
                 uD2dParmName, vD2dParmName);
         this.gfeParms.put(pid, d2dParm);
         this.d2dParms.put(compositeName(uGfeParmName, level), d2dParm);
@@ -604,11 +618,11 @@ public class D2DGridDatabase extends VGridDatabase {
         D2DParm parm = this.gfeParms.get(id);
         if (parm != null) {
             // get database inventory
-            List<Integer> dbInv = null;
+            List<DataTime> dbInv = null;
             try {
                 // get database inventory where all components are available
                 for (String component : parm.getComponents()) {
-                    List<Integer> compInv = d2dDao.queryFcstHourByParmId(
+                    List<DataTime> compInv = d2dDao.queryDataTimeByParmId(
                             d2dModelName, refTime, component, parm.getLevel());
 
                     if (dbInv == null) {
@@ -624,15 +638,22 @@ public class D2DGridDatabase extends VGridDatabase {
             }
 
             SortedSet<TimeRange> invSet = new TreeSet<TimeRange>();
-            for (Integer forecastTime : dbInv) {
-                TimeRange tr = parm.getFcstHrToTimeRange().get(forecastTime);
-                if (tr != null) {
-                    invSet.add(tr);
+            for (DataTime dataTime : dbInv) {
+                TimeRange tr = null;
+                if (parm.useDatabaseTimeRange()) {
+                    tr = dataTime.getValidPeriod();
+
                 } else {
-                    statusHandler.warn("No time range found for "
-                            + parm.getParmId() + " at forecast time "
-                            + forecastTime);
+                    tr = parm.getFcstHrToTimeRange()
+                            .get(dataTime.getFcstTime());
+
+                    if (tr == null) {
+                        statusHandler.warn("No time range found for "
+                                + parm.getParmId() + " at forecast time "
+                                + dataTime.getFcstTime());
+                    }
                 }
+                invSet.add(tr);
             }
             inventory = new ArrayList<TimeRange>(invSet);
         } else {
@@ -836,16 +857,23 @@ public class D2DGridDatabase extends VGridDatabase {
             if (parm == null) {
                 throw new GfeException("Unknown parmId: " + parmId);
             }
-            if (!GridPathProvider.STATIC_PARAMETERS.contains(parmId
-                    .getParmName())) {
-                fcstHr = parm.getTimeRangeToFcstHr().get(timeRange);
-                if (fcstHr == null) {
-                    throw new GfeException("Invalid time range " + timeRange
-                            + " for " + parmId);
+            boolean staticParm = GridPathProvider.STATIC_PARAMETERS
+                    .contains(parmId.getParmName());
+            if (!staticParm && parm.useDatabaseTimeRange()) {
+                d2dRecord = d2dDao.getGrid(d2dModelName, refTime,
+                        parm.getComponents()[0], parm.getLevel(), timeRange,
+                        gpi);
+            } else {
+                if (!staticParm) {
+                    fcstHr = parm.getTimeRangeToFcstHr().get(timeRange);
+                    if (fcstHr == null) {
+                        throw new GfeException("Invalid time range "
+                                + timeRange + " for " + parmId);
+                    }
                 }
+                d2dRecord = d2dDao.getGrid(d2dModelName, refTime,
+                        parm.getComponents()[0], parm.getLevel(), fcstHr, gpi);
             }
-            d2dRecord = d2dDao.getGrid(d2dModelName, refTime,
-                    parm.getComponents()[0], parm.getLevel(), fcstHr, gpi);
         } catch (Exception e) {
             throw new GfeException(
                     "Error retrieving D2D Grid record from database for "
@@ -1294,7 +1322,7 @@ public class D2DGridDatabase extends VGridDatabase {
     public GridUpdateNotification update(GridRecord record) {
         String d2dParamName = record.getParameter().getAbbreviation();
         Level level = record.getLevel();
-        Integer fcstHour = record.getDataTime().getFcstTime();
+        DataTime dataTime = record.getDataTime();
 
         D2DParm parm = getD2DParm(d2dParamName, level);
         if (parm == null) {
@@ -1316,14 +1344,14 @@ public class D2DGridDatabase extends VGridDatabase {
         // if wind see if other component is available
         if (otherComponent != null) {
             // get the other components times
-            List<Integer> otherTimes;
+            List<DataTime> otherTimes;
             try {
                 // TODO: could just query for desired fcstHour instead of all
-                otherTimes = d2dDao.queryFcstHourByParmId(d2dModelName,
+                otherTimes = d2dDao.queryDataTimeByParmId(d2dModelName,
                         refTime, otherComponent, parm.getLevel());
 
                 // if we don't have the other component for this time
-                if (!otherTimes.contains(fcstHour)) {
+                if (!otherTimes.contains(dataTime)) {
                     // need to wait for other component
                     return null;
                 }
@@ -1336,11 +1364,16 @@ public class D2DGridDatabase extends VGridDatabase {
             }
         }
 
-        TimeRange tr = getTimeRange(parmID, fcstHour);
-        if (tr == null) {
-            statusHandler.warn("Unexpected fcst hour (" + fcstHour + ") for "
-                    + parmID);
-            return null;
+        TimeRange tr = null;
+        if (parm.useDatabaseTimeRange()) {
+            tr = dataTime.getValidPeriod();
+        } else {
+            tr = getTimeRange(parmID, dataTime.getFcstTime());
+            if (tr == null) {
+                statusHandler.warn("Unexpected fcst hour ("
+                        + dataTime.getFcstTime() + ") for " + parmID);
+                return null;
+            }
         }
         List<GridDataHistory> histList = new ArrayList<GridDataHistory>();
         histList.add(new GridDataHistory(

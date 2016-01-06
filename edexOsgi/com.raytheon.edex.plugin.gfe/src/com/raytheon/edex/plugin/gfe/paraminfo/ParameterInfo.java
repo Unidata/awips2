@@ -44,6 +44,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  * Sep 12, 2012  #1117     dgilling     Create field to hold list of
  *                                      valid levels for each parameter.
  * Mar 20, 2013  #1774     randerso     Added getMinVal and getMaxVal
+ * Dec 03, 2015  #5168     randerso     Added dataTimeRangeValid flag
  * 
  * </pre>
  * 
@@ -60,6 +61,13 @@ public class ParameterInfo {
     public static final float MIN_VALUE = 0f;
 
     public static final float MAX_VALUE = 10000f;
+
+    /**
+     * True if the valid period in the grib data is correct and should be used
+     * by GFE
+     */
+    @XmlElement(required = false)
+    private boolean useDatabaseTimeRange = false;
 
     @XmlElement
     @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
@@ -121,6 +129,13 @@ public class ParameterInfo {
 
     public ParameterInfo(String parameterName) {
         this.short_name = parameterName;
+    }
+
+    /**
+     * @return true if database time range should be used
+     */
+    public boolean useDatabaseTimeRange() {
+        return useDatabaseTimeRange;
     }
 
     /**
@@ -203,7 +218,7 @@ public class ParameterInfo {
      */
     public float getMinVal() {
         float min = MIN_VALUE;
-        if (valid_range != null && valid_range.length == 2) {
+        if ((valid_range != null) && (valid_range.length == 2)) {
             min = valid_range[0];
         }
         return min;
@@ -214,7 +229,7 @@ public class ParameterInfo {
      */
     public float getMaxVal() {
         float min = MAX_VALUE;
-        if (valid_range != null && valid_range.length == 2) {
+        if ((valid_range != null) && (valid_range.length == 2)) {
             min = valid_range[1];
         }
         return min;
