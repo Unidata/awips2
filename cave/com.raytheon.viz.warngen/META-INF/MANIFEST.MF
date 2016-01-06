@@ -25,7 +25,8 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.viz.alerts,
  com.raytheon.uf.common.site,
  com.raytheon.viz.core.contours,
- com.raytheon.uf.viz.core.rsc
+ com.raytheon.uf.viz.core.rsc,
+ com.raytheon.uf.viz.d2d.ui
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.warngen,
  com.raytheon.viz.warngen.gis,

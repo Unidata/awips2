@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.viz.gl.triangulated;
 
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -79,8 +80,9 @@ import com.vividsolutions.jts.geom.Triangle;
  * SOFTWARE HISTORY
  * 
  * Date          Ticket#  Engineer  Description
- * ------------- -------- --------- --------------------------
+ * ------------- -------- --------- ---------------------------------
  * Aug 24, 2015  4709     bsteffen  Initial creation
+ * Dec 04, 2015  5146     bsteffen  Rewind attrib buffer before use.
  * 
  * </pre>
  * 
@@ -201,6 +203,9 @@ public class GLTriangulatedImage implements ITriangulatedImage {
             gl.glPolygonMode(GL.GL_BACK, GL.GL_FILL);
             gl.glPolygonMode(GL.GL_FRONT, GL.GL_FILL);
 
+            gl.glEnable(GL.GL_BLEND);
+            gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
+
             GLTextureObject cmapTexture = target
                     .getColorMapTexture(colorMapParameters);
 
@@ -243,8 +248,10 @@ public class GLTriangulatedImage implements ITriangulatedImage {
             vertexBuffer.rewind();
             gl.glVertexPointer(2, GL.GL_FLOAT, 0, vertexBuffer);
 
+            Buffer attribBufferData = attribBuffer.getData();
+            attribBufferData.rewind();
             program.setVertexAttributeData("attrib_value",
-                    attribBuffer.getTextureType(), attribBuffer.getData());
+                    attribBuffer.getTextureType(), attribBufferData);
 
             indexBuffer.rewind();
             gl.glDrawElements(GL.GL_TRIANGLES, indexBuffer.capacity(),
@@ -255,6 +262,8 @@ public class GLTriangulatedImage implements ITriangulatedImage {
 
             gl.glActiveTexture(GL.GL_TEXTURE1);
             gl.glBindTexture(GL.GL_TEXTURE_1D, 0);
+
+            gl.glDisable(GL.GL_BLEND);
         } finally {
             target.popGLState();
         }

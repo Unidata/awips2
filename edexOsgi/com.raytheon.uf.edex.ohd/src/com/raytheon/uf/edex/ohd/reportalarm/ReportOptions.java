@@ -40,6 +40,7 @@ import com.raytheon.uf.common.util.StringUtil;
  * Jun 15, 2011  9377      jnjanga      Initial creation
  * Jul 12, 2013  15711     wkwock       Fix verbose, observe mode, etc
  * Feb 12, 2014  #2783     dgilling     Major refactor, cleanup.
+ * Jul 02, 2015  16579     wkwock       Add hsa filter
  * 
  * </pre>
  * 
@@ -65,6 +66,8 @@ class ReportOptions {
 
     private static final String VERBOSE_MODE_KEY = "alarm_verbose";
 
+    private static final String HSA_KEY = "alarm_hsa_filter";
+
     private static final EnumSet<ReportMode> IGNORE_MINS = EnumSet.of(
             ReportMode.ALL, ReportMode.UNREPORTED, ReportMode.NEAREST,
             ReportMode.LATEST_MAXFCST);
@@ -85,6 +88,8 @@ class ReportOptions {
     private Integer minutes = null;
 
     private boolean verboseFlag;
+
+    private String hsa = null;
 
     /**
      * @param appsDefaults
@@ -118,6 +123,10 @@ class ReportOptions {
 
         if (isMinutesGiven() && IGNORE_MINS.contains(this.mode)) {
             statusHandler.warn("Minutes value ignored for this report mode.");
+        }
+
+        if (appsDefaults.getTokens().contains(HSA_KEY)) {
+            setHsa(appsDefaults.getToken(HSA_KEY));
         }
     }
 
@@ -216,6 +225,14 @@ class ReportOptions {
 
     private void setVerbose(boolean verboseFlg) {
         this.verboseFlag = verboseFlg;
+    }
+
+    public String getHsa() {
+        return hsa;
+    }
+
+    private void setHsa(String hsa) {
+        this.hsa = hsa;
     }
 
     public String getDbname() {

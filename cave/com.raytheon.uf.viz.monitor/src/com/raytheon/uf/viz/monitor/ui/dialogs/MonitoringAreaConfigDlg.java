@@ -86,6 +86,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Mar 08, 2015 3888          dhladky      Restored threshold pop-up when adding new stations/zones.
  * Sep 18, 2015 3873          skorolev     Added formIsValid method.
  * Oct 19, 2015 3841          skorolev     Corrected formIsValid messages.
+ * Nov 12, 2015 3841          dhladky      Augmented Slav's fix for moving platforms.
  * 
  * </pre>
  * 
@@ -197,13 +198,13 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
     private java.util.List<String> maZones = null;
 
     /** monitor area zones status. */
-    protected boolean maZonesRemoved = false;
+    protected boolean maZonesChanged = false;
 
     /** monitor area stations **/
     private java.util.List<String> maStations = null;
 
     /** monitor area stations status. */
-    protected boolean maStationsRemoved = false;
+    protected boolean maStationsChanged = false;
 
     /** monitor area additional zones **/
     private java.util.List<String> additionalZones = null;
@@ -254,6 +255,13 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
     private final static String MODIFY_THRESHOLD_MSG = "New zones have been added, and their monitoring thresholds "
             + "have been set to default values; would you like to modify "
             + "their threshold values now?";
+    
+    
+    /** County constant char */
+    private static final char C = 'C';
+    
+    /** Zone constant char */
+    private static final char Z = 'Z';
 
     /**
      * Constructor.
@@ -519,7 +527,6 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
             @Override
             public void widgetSelected(SelectionEvent event) {
                 removeZoneStn();
-                maZonesRemoved = true;
             }
         });
 
@@ -615,7 +622,6 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
             @Override
             public void widgetSelected(SelectionEvent event) {
                 removeAssociated();
-                maStationsRemoved = true;
             }
         });
 
@@ -1081,6 +1087,8 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
             configMgr.setShipDistance(shipDistance.getSelection());
             configMgr.setUseAlgorithms(fogChk.getSelection());
         }
+
+
     }
 
     /**
@@ -1163,6 +1171,8 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
                     .getAddedStations().contains(stnId));
             handleMonitorAreaListSelection();
         }
+        
+        maZonesChanged = true;
     }
 
     /**
@@ -1219,6 +1229,8 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
             configMgr.removeStationFromArea(stnZone,
                     entry.substring(0, entry.indexOf('#')));
         }
+        
+        maZonesChanged = true;
     }
 
     /**
@@ -1301,6 +1313,8 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
             configMgr.addNewStation(entry, stnId, stnType, configMgr
                     .getAddedStations().contains(stnId));
         }
+        
+        maStationsChanged = true;
     }
 
     /**
@@ -1339,11 +1353,15 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
                             .toArray(new String[additionalStns.size()]));
                 }
             }
+            
         } else { // Station mode
             String stn = monitorAreaList.getItem(monitorAreaList
                     .getSelectionIndex());
             configMgr.removeStationFromArea(entry, stn);
+           
         }
+        
+        maStationsChanged = true;
     }
 
     /**
@@ -1479,7 +1497,7 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
     public boolean formIsValid(String area, String latString, String lonString) {
         boolean retVal = true;
         if (area.equals("") || area.length() != 6
-                || (area.charAt(2) != 'C' && area.charAt(2) != 'Z')) {
+                || (area.charAt(2) != C && area.charAt(2) != Z)) {
             StringBuilder invalidMsg = new StringBuilder(INVALID_AREA_MSG_C);
             if (appName.equals(AppName.SNOW)) {
                 invalidMsg.append(".");
@@ -1557,8 +1575,8 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
      */
     protected void resetStatus() {
         this.timeWindowChanged = false;
-        this.maZonesRemoved = false;
-        this.maStationsRemoved = false;
+        this.maZonesChanged = false;
+        this.maStationsChanged = false;
         this.shipDistanceChanged = false;
         this.fogChkChanged = false;
     }
@@ -1572,8 +1590,8 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
         if (!configMgr.getAddedZones().isEmpty()
                 || !configMgr.getAddedStations().isEmpty()
                 || this.timeWindowChanged || this.shipDistanceChanged
-                || this.fogChkChanged || this.maZonesRemoved
-                || this.maStationsRemoved) {
+                || this.fogChkChanged || this.maZonesChanged
+                || this.maStationsChanged) {
             return true;
         }
         return false;

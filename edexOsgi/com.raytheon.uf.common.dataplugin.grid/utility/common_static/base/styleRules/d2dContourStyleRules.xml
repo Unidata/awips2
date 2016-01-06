@@ -2426,7 +2426,11 @@ F  | 1.8 |-459.67| 4 |    |   |..|8000F0FF| | 0 | 5
      <parameter>MxT6hr</parameter>    
      <parameter>MxT12hr</parameter>  
      <parameter>MnT12hr</parameter>   
-      <singleLevel units="SURFACE"></singleLevel>       
+     <singleLevel units="SURFACE"></singleLevel>
+     <rangeLevel units="HEIGHT_AGL">
+         <upper>10</upper>
+         <lower>0</lower>
+     </rangeLevel>
   </paramLevelMatches>
   <contourStyle>
      <displayUnits>F</displayUnits>    

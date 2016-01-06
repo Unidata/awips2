@@ -19,21 +19,63 @@
         further_licensing_information.
     -->
 <mapScales>
-	<mapScale displayName="N. Hemisphere" fileName="NHemisphere.xml">
-		<partId id="com.raytheon.uf.viz.d2d.ui.map.SideView:sideView1"/>
-	</mapScale>
-	<mapScale displayName="North American" fileName="NorthAmerican.xml">
-		<partId id="com.raytheon.uf.viz.d2d.ui.map.SideView:sideView2"/>
-	</mapScale>
-	<mapScale displayName="CONUS" fileName="CONUS.xml">
-		<partId view="false" id="com.raytheon.viz.ui.glmap.GLMapEditor"/>
-	</mapScale>
-	<mapScale displayName="Regional" fileName="Regional.xml">
-		<partId id="com.raytheon.uf.viz.d2d.ui.map.SideView:sideView3"/>
-	</mapScale>
-	<mapScale displayName="State(s)" fileName="States.xml">
-		<partId id="com.raytheon.uf.viz.d2d.ui.map.SideView:sideView4"/>
-	</mapScale>
-	<mapScale displayName="WFO" fileName="WFO.xml">
-	</mapScale>
+    <mapScale displayName="N. Hemisphere" fileName="NHemisphere.xml">
+        <partId id="com.raytheon.uf.viz.d2d.ui.map.SideView:sideView1" />
+    </mapScale>
+    <mapScale displayName="North American" fileName="NorthAmerican.xml">
+        <partId id="com.raytheon.uf.viz.d2d.ui.map.SideView:sideView2" />
+    </mapScale>
+    <mapScale displayName="CONUS" fileName="CONUS.xml">
+        <partId view="false" id="com.raytheon.viz.ui.glmap.GLMapEditor" />
+    </mapScale>
+    <mapScale displayName="Regional" fileName="Regional.xml">
+        <partId id="com.raytheon.uf.viz.d2d.ui.map.SideView:sideView3" />
+    </mapScale>
+
+    <mapScale displayName="State(s)" fileName="States.xml">
+        <partId id="com.raytheon.uf.viz.d2d.ui.map.SideView:sideView4" />
+    </mapScale>
+    <mapScale displayName="WFO" fileName="WFO.xml">
+    </mapScale>
+    <mapScale displayName="Puerto Rico" fileName="Puerto_Rico.xml">
+    </mapScale>
+    <mapScale displayName="Alaska" fileName="Alaska_Reg.xml">
+    </mapScale>
+    <mapScale displayName="Hawaii" fileName="Hawaii_state.xml">
+    </mapScale>
+    <mapScale displayName="Hawaii Regional" fileName="Hawaii_regional.xml">
+    </mapScale>
+    <mapScale displayName="Pacific" fileName="Pacific.xml">
+    </mapScale>
+    <mapScale displayName="Atlantic" fileName="Atlantic.xml">
+    </mapScale>
+    <mapScale displayName="Euro-Africa" fileName="EuroAfrica.xml">
+    </mapScale>
+    <mapScale displayName="Asia-Pacific" fileName="AsiaPacific.xml">
+    </mapScale>
+    <mapScale displayName="The World" fileName="World.xml">
+    </mapScale>
+    <mapScale displayName="DSS/IMET Northeast Reg" fileName="NorthEast_Reg.xml">
+    </mapScale>
+    <mapScale displayName="DSS/IMET Mid-Atlantic Reg" fileName="Mid-Atlantic_Reg.xml">
+    </mapScale>
+    <mapScale displayName="DSS/IMET Southeast Reg" fileName="SouthEast_Reg.xml">
+    </mapScale>
+    <mapScale displayName="DSS/IMET Gulf Coast Reg" fileName="GulfCoast_Reg.xml">
+    </mapScale>
+    <mapScale displayName="DSS/IMET Great Lakes Reg" fileName="GreatLakes_Reg.xml">
+    </mapScale>
+    <mapScale displayName="DSS/IMET Ozark-Tenn Valley Reg"
+        fileName="OzarkTennV_Reg.xml">
+    </mapScale>
+    <mapScale displayName="DSS/IMET Northern Plains Reg"
+        fileName="NrnPlains_Reg.xml">
+    </mapScale>
+    <mapScale displayName="DSS/IMET Southern Plains Reg"
+        fileName="SrnPlains_Reg.xml">
+    </mapScale>
+    <mapScale displayName="DSS/IMET Northwest Reg" fileName="NorthWest_Reg.xml">
+    </mapScale>
+    <mapScale displayName="DSS/IMET Southwest Reg" fileName="SouthWest_Reg.xml">
+    </mapScale>
 </mapScales>

@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Glmdecoder
+Bundle-SymbolicName: gov.nasa.msfc.sport.edex.plugin.glmdecoder
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: NASA SPoRT
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: ucar.nc2;bundle-version="4.2.0",
+ com.raytheon.uf.common.dataplugin;bundle-version="1.14.0",
+ com.raytheon.uf.common.dataplugin.binlightning;bundle-version="1.14.0",
+ com.raytheon.uf.common.status;bundle-version="1.14.1",
+ com.raytheon.uf.common.wmo;bundle-version="1.14.0"

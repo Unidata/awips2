@@ -33,7 +33,6 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Polygon;
 
-
 /**
  * 
  * A class containing all parameters necessary for an outline resource to be
@@ -45,6 +44,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 2, 2009            bsteffen     Initial creation
+ * Jul 7, 2015  10352     byin         Added labelSymbolId
  * 
  * </pre>
  * 
@@ -52,7 +52,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * @version 1.0
  */
 public class AdvisoryRecord {
-    
+
     private static GeometryFactory FACTORY = new GeometryFactory();
 
     protected static final UnitConverter NM_TO_METERS = NonSI.NAUTICAL_MILE
@@ -61,20 +61,22 @@ public class AdvisoryRecord {
     protected static final int NUM_VERTICES = 40;
 
     protected static final double ANGLE_STEP = 360.0 / NUM_VERTICES;
-    
+
     public enum AdvisoryResourceType {
         LINE, ISOL, AREA, TEXT
     }
 
     private AdvisoryResourceType type;
-    
+
     private Polygon polygon;
 
     private Coordinate[] line;
 
     private Coordinate labelLoc;
-    
+
     private String label;
+
+    private char labelSymbolId = 0;
 
     private String inspectString;
 
@@ -98,7 +100,7 @@ public class AdvisoryRecord {
         this.label = label;
         this.inspectString = inspectString;
     }
-    
+
     public AdvisoryRecord(Coordinate[] line, double diameter, String label,
             String inspectString) {
         this.type = AdvisoryResourceType.LINE;
@@ -144,7 +146,7 @@ public class AdvisoryRecord {
         this.label = label;
         this.inspectString = inspectString;
     }
-    
+
     public AdvisoryRecord(Coordinate center, double diameter, String label,
             String inspectString) {
         this.type = AdvisoryResourceType.ISOL;
@@ -167,7 +169,7 @@ public class AdvisoryRecord {
         this.label = label;
         this.inspectString = inspectString;
     }
-    
+
     /**
      * Convert a pair of Lat Lon coords to a pair of pixel coords in a certain
      * direction and a certain distance away
@@ -202,8 +204,7 @@ public class AdvisoryRecord {
      * @return a new Coordinate at the correct location
      */
     public static Coordinate getPointOnCircle(Coordinate center,
-            double distance,
-            double angle) {
+            double distance, double angle) {
         while (angle > 180) {
             angle -= 360;
         }
@@ -268,5 +269,12 @@ public class AdvisoryRecord {
         return inspectString;
     }
 
-    
+    public char getLabelSymbolId() {
+        return labelSymbolId;
+    }
+
+    public void setLabelSymbolId(char labelSymbolId) {
+        this.labelSymbolId = labelSymbolId;
+    }
+
 }

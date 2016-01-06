@@ -232,7 +232,7 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
     protected abstract void shellDisposeAction();
 
     /** List of opened plots. **/
-    private Map<String, CaveSWTDialog> openedDlgs = new HashMap<String, CaveSWTDialog>();
+    private final Map<String, CaveSWTDialog> openedDlgs = new HashMap<String, CaveSWTDialog>();
 
     /** row index in the station table. **/
     public int rowIndex;
@@ -793,8 +793,8 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
     private void zoomToZone(String zone) throws Exception {
         Coordinate zoneCenter = MonitorAreaUtils.getZoneCenter(zone);
         if (zoneCenter == null) { // Test a newly added zone.
-            AreaIdXML zoneXML = configMgr.getAreaXml(zone);
-            if (zoneXML != null // Coordinates do not the null values.
+            AreaIdXML zoneXML = getMonitorAreaConfigInstance().getAreaXml(zone);
+            if (zoneXML != null
                     && (zoneXML.getCLon() != null || zoneXML.getCLat() != null)) {
                 zoneCenter = new Coordinate(zoneXML.getCLon(),
                         zoneXML.getCLat());
@@ -1011,6 +1011,7 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
      */
     public void refreshZoneTableData(ObMultiHrsReports obData) {
         obData.getObHourReports().updateZones();
+        obData.updateTableCache();
         this.updateTableDlg(obData.getObHourReports());
     }
 }

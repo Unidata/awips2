@@ -62,8 +62,9 @@ import com.vividsolutions.jts.geom.Triangle;
  * SOFTWARE HISTORY
  * 
  * Date          Ticket#  Engineer  Description
- * ------------- -------- --------- --------------------------
+ * ------------- -------- --------- ----------------------------
  * Aug 18, 2015  4709     bsteffen  Initial creation
+ * Dec 04, 2015  5146     bsteffen  Limit the size of the image
  * 
  * </pre>
  * 
@@ -79,17 +80,26 @@ public class TriangleFlattener implements IColorMapDataRetrievalCallback {
 
     private Envelope envelope = new Envelope();
 
+    /*
+     * Limit the size of the image, this is general the size of the displayed
+     * area.
+     */
+    private Envelope maximumArea;
 
     public TriangleFlattener(IColorMapDataRetrievalCallback dataSource,
-            ITriangleLocationCallback locationSource) {
+            ITriangleLocationCallback locationSource, Envelope maximumArea) {
         this.dataSource = dataSource;
         this.locationSource = locationSource;
+        this.maximumArea = maximumArea;
     }
 
 
     protected void calculateEnvelope(double[][] coordinates) {
         for (double[] coordinate : coordinates) {
             envelope.expandToInclude(coordinate[0], coordinate[1]);
+        }
+        if (maximumArea != null) {
+            envelope = envelope.intersection(maximumArea);
         }
     }
 
@@ -126,6 +136,11 @@ public class TriangleFlattener implements IColorMapDataRetrievalCallback {
             Envelope triEnv = new Envelope(p0);
             triEnv.expandToInclude(p1);
             triEnv.expandToInclude(p2);
+
+            triEnv = triEnv.intersection(envelope);
+            if (triEnv.isNull()) {
+                continue;
+            }
 
             int minX = (int) ((triEnv.getMinX() - envelope.getMinX()) / dx);
             int maxX = (int) ((triEnv.getMaxX() - envelope.getMinX()) / dx);

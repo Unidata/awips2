@@ -147,6 +147,7 @@
         <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
         <conversion>0.03937</conversion>
         <mosaic>true</mosaic>
+        <guidanceType>RFC</guidanceType>
         <sourceFamily>RFCFFG</sourceFamily>
     </source>
     <!-- ARI sources -->

@@ -1795,9 +1795,9 @@ class SampleAnalysis(CommonUtils.CommonUtils):
             timeRange = subRange
             exec "result = " + primaryMethod
             # Handle no data
-            # If a subRange has no data return None
+            # If a subRange has no data continue
             if result is None:
-                return None
+                continue
             statsByRange.append((result, subRange))
         return statsByRange
 

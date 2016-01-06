@@ -3040,6 +3040,10 @@
 			<parameter>MxT12hr</parameter>
 			<parameter>MnT12hr</parameter>
 			<singleLevel units="SURFACE"></singleLevel>
+            <rangeLevel units="HEIGHT_AGL">
+                <upper>10</upper>
+                <lower>0</lower>
+            </rangeLevel>
 		</paramLevelMatches>
 		<imageStyle>
 			<displayUnits>F</displayUnits>

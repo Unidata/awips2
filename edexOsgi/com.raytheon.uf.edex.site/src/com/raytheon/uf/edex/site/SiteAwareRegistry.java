@@ -46,6 +46,9 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.registry.RegistryException;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.EdexException;
+import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
+import com.raytheon.uf.edex.database.cluster.ClusterTask;
+import com.raytheon.uf.edex.database.cluster.ClusterLockUtils.LockState;
 import com.raytheon.uf.edex.site.SiteActivationMessage.Action;
 
 /**
@@ -66,6 +69,8 @@ import com.raytheon.uf.edex.site.SiteActivationMessage.Action;
  * Dec 11, 2012  14360     ryu         No printing stack trace on activation exception
  * Mar 10, 2014  2721      randerso    Fix error when activeSites.txt contains blank lines.
  * Jul 10, 2014  2914      garmendariz Remove EnvProperties
+ * Nov 9, 2015   14734     yteng       Remove activeSites and add lock to synchronize access
+ *                                     to activeSites.txt to eliminate race conditions
  * Dec 21, 2015  4262      dgilling    Execute startup ISiteActivationListeners asynchronously.
  * 
  * </pre>
@@ -84,8 +89,6 @@ public class SiteAwareRegistry {
     private final ExecutorService activationThreadPool = Executors
             .newCachedThreadPool();
 
-    private Set<String> activeSites = new CopyOnWriteArraySet<String>();
-
     private Set<ISiteActivationListener> activationListeners = new CopyOnWriteArraySet<ISiteActivationListener>();
 
     private String routeId;
@@ -95,13 +98,11 @@ public class SiteAwareRegistry {
     }
 
     private SiteAwareRegistry() {
-        // read in the current activeSites
-        loadActiveSites();
-
         // initialize default site
+        Set<String> activeSites = getActiveSitesFromFile(true);
         String defaultSite = EDEXUtil.getEdexSite();
         if (!activeSites.contains(defaultSite)) {
-            activeSites.add(defaultSite);
+            updateActiveSites(Action.ACTIVATE, defaultSite);
         }
     }
 
@@ -123,7 +124,7 @@ public class SiteAwareRegistry {
                 activeSites.size());
 
         // inform of the current active sites
-        for (final String siteID : activeSites) {
+        for (final String siteID : getActiveSitesFromFile(true)) {
             Runnable activateSiteTask = new Runnable() {
 
                 @Override
@@ -131,8 +132,7 @@ public class SiteAwareRegistry {
                     try {
                         sa.activateSite(siteID);
                     } catch (Exception e) {
-                        // Stack trace is not printed per requirement for
-                        // DR14360
+                        // Stack trace is not printed per requirement for DR14360
                         statusHandler.error(e.getLocalizedMessage());
                     } finally {
                         activationComplete.countDown();
@@ -226,8 +226,7 @@ public class SiteAwareRegistry {
             mess.setSiteId(siteID);
             mess.setAction(Action.ACTIVATE);
             routeMessage(mess);
-            activeSites.add(siteID);
-            saveActiveSites();
+            updateActiveSites(Action.ACTIVATE, siteID);
         } catch (Exception e) {
             statusHandler
                     .handle(Priority.PROBLEM,
@@ -247,8 +246,7 @@ public class SiteAwareRegistry {
             mess.setSiteId(siteID);
             mess.setAction(Action.DEACTIVATE);
             routeMessage(mess);
-            activeSites.remove(siteID);
-            saveActiveSites();
+            updateActiveSites(Action.DEACTIVATE, siteID);
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Failed to send site de-activation message for site "
@@ -262,6 +260,7 @@ public class SiteAwareRegistry {
      * @param siteID
      */
     public void cycleSite(String siteID) {
+        Set<String> activeSites = getActiveSitesFromFile(true);
         if (activeSites.contains(siteID)) {
             try {
                 SiteActivationMessage mess = new SiteActivationMessage();
@@ -289,8 +288,7 @@ public class SiteAwareRegistry {
                     statusHandler.handle(Priority.PROBLEM,
                             "Failed to process site " + action + " for site "
                                     + siteID, e);
-                    activeSites.add(siteID);
-                    saveActiveSites();
+                    updateActiveSites(Action.ACTIVATE, siteID);
                 }
             }
             if (!Action.DEACTIVATE.equals(action)) {
@@ -300,8 +298,7 @@ public class SiteAwareRegistry {
                     statusHandler.handle(Priority.PROBLEM,
                             "Failed to process site " + action + " for site "
                                     + siteID, e);
-                    activeSites.remove(siteID);
-                    saveActiveSites();
+                    updateActiveSites(Action.DEACTIVATE, siteID);
                 }
             }
 
@@ -317,9 +314,16 @@ public class SiteAwareRegistry {
     /**
      * load the active site list
      */
-    private void loadActiveSites() {
-        // add cluster locking
-        activeSites.clear();
+    private Set<String> getActiveSitesFromFile(boolean useFileLock) {
+        ClusterTask ct = null;
+        if (useFileLock) {
+            do {
+                ct = ClusterLockUtils.lock("siteActivation", "readwrite",
+                        120000, true);
+            } while (!LockState.SUCCESSFUL.equals(ct.getLockState()));
+        }
+
+        Set<String> activeSites = new LinkedHashSet<String>();
         BufferedReader in = null;
         try {
             IPathManager pathMgr = PathManagerFactory.getPathManager();
@@ -349,13 +353,20 @@ public class SiteAwareRegistry {
                 statusHandler.handle(Priority.PROBLEM,
                         "Error loading active sites", e);
             }
+
+            if (useFileLock) {
+                ClusterLockUtils.deleteLock(ct.getId().getName(), ct
+                        .getId().getDetails());
+            }
         }
+
+        return activeSites;
     }
 
     /**
      * save the active site list
      */
-    private void saveActiveSites() {
+    private void saveActiveSites(Set<String> activeSites) {
         BufferedWriter out = null;
         IPathManager pathMgr = PathManagerFactory.getPathManager();
         LocalizationFile lf = pathMgr.getLocalizationFile(pathMgr.getContext(
@@ -388,6 +399,34 @@ public class SiteAwareRegistry {
             statusHandler.handle(Priority.PROBLEM, "Error saving active sites",
                     e);
         }
+    }
+
+    /**
+     *  update the active site list
+     *
+     * @param action
+     * @param siteID
+     */
+    private synchronized void updateActiveSites(Action action, String siteID) {
+        ClusterTask ct = null;
+        do {
+            ct = ClusterLockUtils.lock("siteActivation", "readwrite",
+                    120000, true);
+        } while (!LockState.SUCCESSFUL.equals(ct.getLockState()));
+
+        Set<String> activeSites = getActiveSitesFromFile(false);
+        if (Action.ACTIVATE.equals(action)) {
+            if (activeSites.add(siteID))
+                saveActiveSites(activeSites);
+        } else if (Action.DEACTIVATE.equals(action)) {
+            if (activeSites.remove(siteID))
+                saveActiveSites(activeSites);
+        } else {
+            statusHandler.handle(Priority.PROBLEM, "Error updating active sites");
+        }
+
+        ClusterLockUtils.deleteLock(ct.getId().getName(), ct
+                .getId().getDetails());
     }
 }
 

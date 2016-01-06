@@ -43,6 +43,7 @@ import com.raytheon.viz.hydrocommon.datamanager.HydroDataManager;
  * 15 Dec 2009  2422        mpduff      Added query for rating date and 
  *                                      USGS rating number.
  * Jul 21, 2015 4500        rjpeter     Use Number in blind cast.
+ * 23 Oct 2015  14375       xwei        Fixed rating curve saving error. Fixed import rating curve format error.
  * </pre>
  * 
  * @version 1.0
@@ -334,4 +335,23 @@ public class RatingCurveDataManager extends HydroDataManager {
 
         return label;
     }
+    
+    /**
+     * delete All Rating Curves for a lid
+     *
+     * @param lid
+     */
+    public void clearAllRatingCurveData(RatingCurveData rcd, String lid) {
+        if (lid != null) {
+           String query = "DELETE from rating WHERE lid='" + lid + "' ;" ;
+           try {
+                DirectDbQuery.executeStatement(query, HydroConstants.IHFS,
+                        QueryLanguage.SQL);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+           
+        }
+    }
+    
 }

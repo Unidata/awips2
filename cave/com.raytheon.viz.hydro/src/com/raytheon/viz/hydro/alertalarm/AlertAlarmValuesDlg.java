@@ -84,6 +84,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                      Both not existing, set as MISSING
  * Dec 07, 2012 1353       rferrel      Make dialog non-blocking.
  * Feb 05, 2013 1578       rferrel     Changes for non-blocking singleton TimeSeriesDlg.
+ * Jun 15, 2015 16579      wkwock      Add HSA filter.
  * 
  * </pre>
  * 
@@ -115,6 +116,11 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
      * Exceeding limits combo box.
      */
     private Combo exceedingCbo;
+
+    /**
+     * HSA combo box.
+     */
+    private Combo hsaCbo;
 
     /**
      * Sort by time radio button.
@@ -263,7 +269,7 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
      */
     private void createTopControls() {
         Composite topControlComp = new Composite(shell, SWT.NONE);
-        GridLayout topControlGl = new GridLayout(6, false);
+        GridLayout topControlGl = new GridLayout(8, false);
         topControlComp.setLayout(topControlGl);
 
         Label showLbl = new Label(topControlComp, SWT.NONE);
@@ -326,6 +332,25 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
             }
 
         });
+
+        GridData hsagd = new GridData(100, SWT.DEFAULT);
+        Label hsaLbl = new Label(topControlComp, SWT.RIGHT);
+        hsaLbl.setText("HSA");
+        hsaLbl.setLayoutData(hsagd);
+
+        hsaCbo = new Combo(topControlComp, SWT.DROP_DOWN | SWT.READ_ONLY);
+        populateHsa();
+        hsaCbo.select(0);
+        hsaCbo.addSelectionListener(new SelectionAdapter() {
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                queryAlertalarmval();
+                super.widgetSelected(e);
+            }
+
+        });
+
         gd = new GridData(370, SWT.DEFAULT);
         Label noteLbl = new Label(topControlComp, SWT.CENTER);
         noteLbl.setText("Note: SupVal is ObsValue for forecast diff threats\n"
@@ -333,6 +358,28 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
         noteLbl.setLayoutData(gd);
     }
 
+    /**
+     * Populate the HsaCbo
+     */
+    private void populateHsa() {
+        hsaCbo.add("All HSAs");
+        String hsaSql = "select distinct(hsa) from location order by hsa";
+
+        java.util.List<Object[]> rs;
+        try {
+            rs = (java.util.List<Object[]>) DirectDbQuery.executeQuery(
+            hsaSql , HydroConstants.IHFS, QueryLanguage.SQL);
+            if (rs.size() > 0) {
+                for (Object[] oa : rs) {
+                    hsaCbo.add((String) oa[0]);
+                }
+            }
+        } catch (VizException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getMessage(), e);
+        }
+
+    }
+    
     /**
      * Create the controls for sorting the data.
      */
@@ -499,6 +546,11 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
             myQuery.append(DIFF_CHECKSTR);
         }
 
+        //HSA filter
+        if (!hsaCbo.getItem(hsaCbo.getSelectionIndex()).equalsIgnoreCase("All HSAs")) {
+            myQuery.append(" and hsa='"+hsaCbo.getItem(hsaCbo.getSelectionIndex())+"'");
+        }
+        
         // Build 'sort' options based on toggle buttons on the dialog.
 
         if (locationRdo.getSelection()) {

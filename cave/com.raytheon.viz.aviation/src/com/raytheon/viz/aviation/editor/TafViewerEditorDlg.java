@@ -247,7 +247,10 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  * Sep 28, 2015 4898        rferrel     Disable sending of TAF when CAVE not in real time.
  * Oct 05, 2015 4855        skorolev    Fixed an unhandled event loop exception in createErrorStyleRange.
  * Oct 16, 2015 4645        skorolev    Added updateWordWrap.
+ * 10/23/2015   18061       zhao        Fixed a bug in checkBaiscSyntaxError() 
  * Nov 12, 2015 4834        njensen     Changed LocalizationOpFailedException to LocalizationException
+ * Nov 12, 2015 4834        njensen     Changed LocalizationOpFailedException to LocalizationException
+ * Dec 09, 2015 4645        skorolev    Initiated wrapChk using ResourceTag. Removed popup menu persistance.
  * 
  * </pre>
  * 
@@ -1944,6 +1947,11 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         wrapChk = new Button(controlsComp, SWT.CHECK);
         wrapChk.setText("Wrap");
         configMgr.setDefaultFontAndColors(wrapChk);
+        if (configMgr.getDataAsString(ResourceTag.Wrap).equals("word")) {
+            wrapChk.setSelection(true);
+        } else {
+            wrapChk.setSelection(false);
+        }
         wrapChk.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
@@ -2036,7 +2044,7 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
             tafStartIndex += taf.length() + 2;
         }
 
-        if (doLogMessage) {
+        if (doLogMessage && errorFound) {
             msgStatComp.setMessageText(msg, qcColors[3].getRGB());
         }
 
@@ -2752,6 +2760,8 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
                 return;
             }
             editorTafTabComp.getTextEditorControl().cut();
+            // Remove popup menu.
+            editorTafTabComp.getTextEditorControl().redraw();
         }
     }
 
@@ -2793,6 +2803,8 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
                 }
             } else {
                 editorTafTabComp.getTextEditorControl().copy();
+                // Remove popup menu.
+                editorTafTabComp.getTextEditorControl().redraw();
             }
         }
     }
@@ -2879,6 +2891,8 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         if (tabFolder.getSelectionIndex() != VIEWER_TAB_SELECTED) {
             // Assume editorTafTabComp is for the active tab.
             editorTafTabComp.undo();
+            // Remove popup menu.
+            editorTafTabComp.getTextEditorControl().redraw();
         }
     }
 
@@ -2891,6 +2905,8 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         if (tabFolder.getSelectionIndex() != VIEWER_TAB_SELECTED) {
             // Assume editorTafTabComp is for the active tab.
             editorTafTabComp.redo();
+            // Remove popup menu.
+            editorTafTabComp.getTextEditorControl().redraw();
         }
     }
 

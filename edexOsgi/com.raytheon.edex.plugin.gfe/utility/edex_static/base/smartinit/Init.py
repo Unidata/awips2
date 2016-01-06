@@ -590,7 +590,8 @@ class Forecaster(GridUtilities):
         times = self.__sortTimes(methods, validTime)        
         tr, numGrids = self.__process(methods, times, int(dbInfo[1]))
         stop = time.time()
-        msgTime = "Elapsed time: " + ("%-.1f" % (stop - start)) + "sec."
+        msgTime = "%s: Elapsed time: %-.1f sec." % (self.newdb().getModelIdentifier(), (stop - start))
+
         LogStream.logEvent(msgTime)
         #LogStream.logEvent("Network stats: ", self._client.getStats())
         self._announce(self.newdb(), tr, numGrids)
@@ -977,7 +978,7 @@ class Forecaster(GridUtilities):
 #            LogStream.logEvent("missing:",missing)
 
             if len(missing):              
-                LogStream.logEvent("Skipping calc" + we + " for some times due to the following " +
+                LogStream.logEvent(self.newdb().getModelIdentifier() + ": Skipping calc" + we + " for some times due to the following " +
                                    "missing data:", missing)
             # these become the times to run the method for
             rval.append(times)
@@ -1072,11 +1073,11 @@ class Forecaster(GridUtilities):
 
         doStore = False
         if mthd.im_func is Forecaster.__exists.im_func:
-            msg = "Get : " + we + " " + self._timeRangeStr(time)
+            msg = self.newdb().getModelIdentifier() + ": Get : " + we + " " + self._timeRangeStr(time)
             LogStream.logEvent(msg)            
         else:        
             doStore = True
-            msg = "Calc : " + we + " " + self._timeRangeStr(time)
+            msg = self.newdb().getModelIdentifier() + ": Calc : " + we + " " + self._timeRangeStr(time)
             LogStream.logEvent(msg)            
         
         try:
@@ -1096,7 +1097,7 @@ class Forecaster(GridUtilities):
                 parm = self.__getNewWE(we)          
                 self._ifpio.store(parm, cache['mtime'][0], cache[we][0])
         except:
-            LogStream.logProblem("Error while running method " + str(we) +
+            LogStream.logProblem(self.newdb().getModelIdentifier() + ": Error while running method " + str(we) +
                                  "\n" + LogStream.exc())
             cache[we] = (None, time)
 
