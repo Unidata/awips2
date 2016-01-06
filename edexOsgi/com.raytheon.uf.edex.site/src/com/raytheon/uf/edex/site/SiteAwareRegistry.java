@@ -47,8 +47,8 @@ import com.raytheon.uf.common.util.registry.RegistryException;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
-import com.raytheon.uf.edex.database.cluster.ClusterTask;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils.LockState;
+import com.raytheon.uf.edex.database.cluster.ClusterTask;
 import com.raytheon.uf.edex.site.SiteActivationMessage.Action;
 
 /**
@@ -89,7 +89,7 @@ public class SiteAwareRegistry {
     private final ExecutorService activationThreadPool = Executors
             .newCachedThreadPool();
 
-    private Set<ISiteActivationListener> activationListeners = new CopyOnWriteArraySet<ISiteActivationListener>();
+    private final Set<ISiteActivationListener> activationListeners = new CopyOnWriteArraySet<ISiteActivationListener>();
 
     private String routeId;
 
@@ -120,11 +120,12 @@ public class SiteAwareRegistry {
                             + sa.toString());
         }
 
+        Set<String> activeSites = getActiveSitesFromFile(true);
         final CountDownLatch activationComplete = new CountDownLatch(
                 activeSites.size());
 
         // inform of the current active sites
-        for (final String siteID : getActiveSitesFromFile(true)) {
+        for (final String siteID : activeSites) {
             Runnable activateSiteTask = new Runnable() {
 
                 @Override
@@ -132,7 +133,8 @@ public class SiteAwareRegistry {
                     try {
                         sa.activateSite(siteID);
                     } catch (Exception e) {
-                        // Stack trace is not printed per requirement for DR14360
+                        // Stack trace is not printed per requirement for
+                        // DR14360
                         statusHandler.error(e.getLocalizedMessage());
                     } finally {
                         activationComplete.countDown();
@@ -355,8 +357,8 @@ public class SiteAwareRegistry {
             }
 
             if (useFileLock) {
-                ClusterLockUtils.deleteLock(ct.getId().getName(), ct
-                        .getId().getDetails());
+                ClusterLockUtils.deleteLock(ct.getId().getName(), ct.getId()
+                        .getDetails());
             }
         }
 
@@ -402,31 +404,34 @@ public class SiteAwareRegistry {
     }
 
     /**
-     *  update the active site list
-     *
+     * update the active site list
+     * 
      * @param action
      * @param siteID
      */
     private synchronized void updateActiveSites(Action action, String siteID) {
         ClusterTask ct = null;
         do {
-            ct = ClusterLockUtils.lock("siteActivation", "readwrite",
-                    120000, true);
+            ct = ClusterLockUtils.lock("siteActivation", "readwrite", 120000,
+                    true);
         } while (!LockState.SUCCESSFUL.equals(ct.getLockState()));
 
         Set<String> activeSites = getActiveSitesFromFile(false);
         if (Action.ACTIVATE.equals(action)) {
-            if (activeSites.add(siteID))
+            if (activeSites.add(siteID)) {
                 saveActiveSites(activeSites);
+            }
         } else if (Action.DEACTIVATE.equals(action)) {
-            if (activeSites.remove(siteID))
+            if (activeSites.remove(siteID)) {
                 saveActiveSites(activeSites);
+            }
         } else {
-            statusHandler.handle(Priority.PROBLEM, "Error updating active sites");
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error updating active sites");
         }
 
-        ClusterLockUtils.deleteLock(ct.getId().getName(), ct
-                .getId().getDetails());
+        ClusterLockUtils.deleteLock(ct.getId().getName(), ct.getId()
+                .getDetails());
     }
 }
 
