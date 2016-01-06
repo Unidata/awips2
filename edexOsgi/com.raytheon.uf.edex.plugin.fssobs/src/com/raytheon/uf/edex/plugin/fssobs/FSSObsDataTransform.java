@@ -45,6 +45,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * Dec  3, 2010            skorolev    Initial creation
  * Jul 23, 2014 3410       bclement    location changed to floats
  * Sep 18, 2015 3873       skorolev    Fixed assigning timeObs for maritime record.
+ * Dec 02, 2015 3873       dhladky     Added missing point data params.
  * 
  * </pre>
  * 
@@ -283,6 +284,8 @@ public class FSSObsDataTransform {
     private static final String SOIL_TEMPERATURE = "soilTemperature";
 
     private static final String SOIL_MOISTURE = "soilMoisture";
+    
+    private static final String STATIONARY = "stationary";
 
     static {
         StringBuffer sb = new StringBuffer();
@@ -313,6 +316,12 @@ public class FSSObsDataTransform {
         OBS_PARAMS_LIST = sb.toString();
     }
 
+    /**
+     * Read the metar record, creating an FSSObs record.
+     * @param container
+     * @return
+     * @throws JAXBException
+     */
     public static FSSObsRecord fromMetarRecord(PointDataContainer container)
             throws JAXBException {
         container.setCurrentSz(container.getAllocatedSz());
@@ -474,6 +483,12 @@ public class FSSObsDataTransform {
         MESOWEST_PARAMS_LIST = sb.toString();
     }
 
+    /**
+     * Read the maritime record, creating an FSSObs record.
+     * @param container
+     * @return
+     * @throws JAXBException
+     */
     public static FSSObsRecord fromMaritimeRecord(PointDataContainer container)
             throws JAXBException {
         container.setCurrentSz(container.getAllocatedSz());
@@ -562,6 +577,7 @@ public class FSSObsDataTransform {
     }
 
     /**
+     * Read the MESOWEST record, creating an FSSOBS record.
      * @param result
      * @return
      */
@@ -628,10 +644,17 @@ public class FSSObsDataTransform {
         return fssr;
     }
 
+    /**
+     * Build the view and write to HDF5 file
+     * @param record
+     * @return
+     */
     public static PointDataView buildView(FSSObsRecord record) {
         pdc = PointDataContainer.build(fsspdd);
         PointDataView pdv = pdc.append();
 
+        pdv.setString(STATIONARY, Boolean.toString(record.isStationary()));
+        pdv.setString(REPORT_TYPE, record.getReportType());
         pdv.setFloat(CEILING, record.getCeiling());
         pdv.setFloat(DEWPOINT, record.getDewpoint());
         pdv.setFloat(DEWPOINT_DEPR, record.getDewpointDepr());
@@ -689,8 +712,6 @@ public class FSSObsDataTransform {
         pdv.setFloat(WIND_SPEED, record.getWindSpeed());
         pdv.setFloat(WIND_GUST, record.getWindGust());
         pdv.setFloat(HI_RES_WV_HGT, record.getHighResWaveHeight());
-
-        // pdv.setLong(TIME_NOMINAL, record.getRefHour().getTimeInMillis());
 
         record.setPointDataView(pdv);
         return pdv;

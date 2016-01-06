@@ -36,11 +36,8 @@ import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.M
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.monitor.data.ObConst;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.viz.monitor.ProcessObsJob;
 import com.raytheon.uf.viz.monitor.config.CommonTableConfig.CellType;
 import com.raytheon.uf.viz.monitor.config.CommonTableConfig.ObsHistType;
 import com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr;
@@ -61,7 +58,9 @@ import com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr;
  * Oct 31, 2012  1297      skorolev    Clean code.
  * Jan 29, 2013 15654      zhao        add Wind Chill calculation for SNOW 
  * Sep 04, 2014  3220      skorolev    Updated getStationTableData method.
- * Sep 25, 2015  3873      skorolev    Added multiHrsTabData. Corrected getEmptyZoneTableData().
+ * Sep 25, 2015  3873      skorolev    Added multiHrsTabData.
+ * Nov 12, 2015  3841      dhladky     Augmented Slav's update fix.
+ * Dec 02  2015  3873      dhladky    Pulled 3841 changes to 16.1.1.
  * 
  * </pre>
  * 
@@ -70,8 +69,6 @@ import com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr;
  */
 
 public class ObMultiHrsReports {
-    private final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(ObMultiHrsReports.class);
 
     /**
      * Thresholds manager
@@ -86,7 +83,7 @@ public class ObMultiHrsReports {
     /**
      * application name (snow, fog, safeseas, etc)
      */
-    private final CommonConfig.AppName appName;
+    private CommonConfig.AppName appName;
 
     /**
      * FSSObs records cache. Key is nominal time, value is ObHourReports object
@@ -98,7 +95,7 @@ public class ObMultiHrsReports {
      */
     private ConcurrentHashMap<Date, TableData> multiHrsTabData = new ConcurrentHashMap<Date, TableData>();
 
-    private final int maxFrames = ObConst.MAX_FRAMES;
+    private int maxFrames = ObConst.MAX_FRAMES;
 
     private FSSObsMonitorConfigurationManager cfgMgr = null;
 
@@ -130,6 +127,7 @@ public class ObMultiHrsReports {
      */
     public void addReport(ObReport report) {
         Date nominalTime = report.getRefHour();
+           
         /**
          * DR #8723: if wind speed is zero, wind direction should be N/A, not 0
          */
@@ -170,11 +168,15 @@ public class ObMultiHrsReports {
             // update multiHrsReports with new data
             obHourReports = multiHrsReports.get(nominalTime);
         }
-        obHourReports.addReport(report);
-        // update data cache
-        multiHrsReports.put(nominalTime, obHourReports);
-        TableData tblData = obHourReports.getZoneTableData();
-        multiHrsTabData.put(nominalTime, tblData);
+
+        if (report != null && obHourReports != null) {
+            obHourReports.addReport(report);
+            // update data cache
+            multiHrsReports.put(nominalTime, obHourReports);
+            TableData tblData = obHourReports.getZoneTableData();
+            multiHrsTabData.put(nominalTime, tblData);
+        }
+
     }
 
     /**
@@ -248,10 +250,8 @@ public class ObMultiHrsReports {
      * @return
      */
     public TableData getEmptyZoneTableData() {
-        long currentTime = SimulatedTime.getSystemTime().getMillis();
-        Date nominalTime = new Date(currentTime
-                - (ProcessObsJob.HOUR_BACK * TimeUtil.MILLIS_PER_HOUR));
-
+        Date nominalTime = TableUtil.getNominalTime(SimulatedTime
+                .getSystemTime().getTime());
         ObHourReports hourReports = new ObHourReports(nominalTime, appName,
                 thresholdMgr);
         TableData tabData = null;
@@ -259,6 +259,12 @@ public class ObMultiHrsReports {
             tabData = hourReports.getFogZoneTableData(fogAlgCellType);
         } else {
             tabData = hourReports.getZoneTableData();
+        }
+        // update data cache
+        multiHrsReports.put(nominalTime, hourReports);
+        // update cache with empty table data
+        if (multiHrsTabData.replace(nominalTime, tabData) == null) {
+            multiHrsTabData.put(nominalTime, tabData);
         }
         return tabData;
     }
@@ -519,7 +525,7 @@ public class ObMultiHrsReports {
      * @return
      */
     public ObHourReports getObHourReports() {
-        if (multiHrsReports.isEmpty()) {
+        if (multiHrsReports.isEmpty() || multiHrsTabData.isEmpty()) {
             ObHourReports obHrsReps = new ObHourReports(
                     TableUtil.getNominalTime(SimulatedTime.getSystemTime()
                             .getTime()), appName, thresholdMgr);
@@ -612,8 +618,12 @@ public class ObMultiHrsReports {
      * Updates table cache
      */
     public void updateTableCache() {
+        // clear and rebuild table data on config changes
+        multiHrsTabData.clear();
+        
         for (Date time : multiHrsReports.keySet()) {
-            getZoneTableData(time);
+            TableData tblData = getZoneTableData(time);
+            multiHrsTabData.put(time, tblData);
         }
     }
 }
