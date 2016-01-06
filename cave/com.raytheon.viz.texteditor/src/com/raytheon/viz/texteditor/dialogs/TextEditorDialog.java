@@ -356,6 +356,7 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  * 07Oct2015   RM 18132     D. Friedman Exlucde certain phensigs from automatic ETN incrementing.
  * 19Nov2015   5141         randerso    Replace commas with ellipses if product not enabled for 
  *                                      mixed case transmission
+ * 6Jan2016    RM18452   mgamazaychikov Fix NPE for null product in enterEditor
  * 
  * </pre>
  * 
@@ -4237,9 +4238,11 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
         // if product is not enabled for mixed case transmission,
         // replace all commas with ellipses
-        if (!MixedCaseProductSupport.isMixedCase(product.getNnnid())) {
-            textEditor.setText(textEditor.getText()
-                    .replaceAll(", {0,1}", "..."));
+        if (product != null) {
+            if (!MixedCaseProductSupport.isMixedCase(product.getNnnid())) {
+                textEditor.setText(textEditor.getText()
+                        .replaceAll(", {0,1}", "..."));
+            }
         }
 
         // Mark the uneditable warning text
