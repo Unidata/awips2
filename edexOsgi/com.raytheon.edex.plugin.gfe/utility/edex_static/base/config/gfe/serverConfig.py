@@ -3083,29 +3083,6 @@ DATABASES = [
 # Intersite coordination database parameter groupings, based on
 # OFFICIALDBS, but time constraint is always TC1
 ISCPARMS = []
-for wes, tc in (OFFICIALDBS + localISCParms):
-    ISCPARMS.append((wes, TC1))
-# We also add in any extraISCparms as needed, but only for office
-# types other than our own.
-for wes, officeType in (EXTRA_ISC_PARMS + localISCExtraParms):
-    if myOfficeType == officeType:
-        continue
-    if type(officeType) != str:
-        raise TypeError, "Office type not a str: " + `officeType`
-    else:
-        if officeType not in VALID_OFFICE_TYPES:
-            raise ValueError, "Office type: " + str(officeType) + " does not match any of the following: [" + (', '.join(VALID_OFFICE_TYPES)) + "]"
-    for we in wes:
-        wecopy = list(we)
-        wecopy[0] = wecopy[0] + officeType  #rename the weather element
-        wecopy = tuple(wecopy)
-        ISCPARMS.append(([wecopy], TC1))
-    
-        
-# Restore database parameter groupings (based on OFFICIALDBS, but TC1)
-RESTOREPARMS = []
-for wes, tc in (OFFICIALDBS + localParms):
-    RESTOREPARMS.append((wes, TC1))
 
 #
 # new parameters for NewTerrain
@@ -3287,6 +3264,11 @@ for wes, tc in (OFFICIALDBS + localISCParms):
 for wes, officeType in (EXTRA_ISC_PARMS + localISCExtraParms):
     if myOfficeType == officeType:
         continue
+    if type(officeType) != str:
+        raise TypeError, "Office type not a str: " + `officeType`
+    else:
+        if officeType not in VALID_OFFICE_TYPES:
+            raise ValueError, "Office type: " + str(officeType) + " does not match any of the following: [" + (', '.join(VALID_OFFICE_TYPES)) + "]"
     for we in wes:
         wecopy = list(we)
         wecopy[0] = wecopy[0] + officeType  #rename the weather element
