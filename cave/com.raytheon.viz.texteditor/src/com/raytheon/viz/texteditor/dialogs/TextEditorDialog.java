@@ -356,7 +356,7 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  * 07Oct2015   RM 18132     D. Friedman Exlucde certain phensigs from automatic ETN incrementing.
  * 19Nov2015   5141         randerso    Replace commas with ellipses if product not enabled for 
  *                                      mixed case transmission
- * 10Dec2015   5206         randerso    Replace commas with ellipses only in WarnGen products
+ * 6Jan2016    RM18452   mgamazaychikov Fix NPE for null product in enterEditor
  * 
  * </pre>
  * 
@@ -4242,10 +4242,12 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
         // if product a WarnGen product and is not enabled for mixed case
         // transmission, replace all commas with ellipses
-        if (warngenPils.contains(product.getNnnid())
-                && !MixedCaseProductSupport.isMixedCase(product.getNnnid())) {
-            textEditor.setText(textEditor.getText()
-                    .replaceAll(", {0,1}", "..."));
+        if (product != null) {
+            if (warngenPils.contains(product.getNnnid())
+                    && !MixedCaseProductSupport.isMixedCase(product.getNnnid())) {
+                textEditor.setText(textEditor.getText().replaceAll(", {0,1}",
+                        "..."));
+            }
         }
 
         // Mark the uneditable warning text
@@ -7118,10 +7120,9 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
         textEditor.append(textProduct);
 
-        // if product a WarnGen product and is not enabled for mixed case
-        // transmission, replace all commas with ellipses
-        if (warngenPils.contains(product.getNnnid())
-                && !MixedCaseProductSupport.isMixedCase(product.getNnnid())) {
+        // if product is not enabled for mixed case transmission,
+        // replace all commas with ellipses
+        if (!MixedCaseProductSupport.isMixedCase(product.getNnnid())) {
             textEditor.setText(textEditor.getText()
                     .replaceAll(", {0,1}", "..."));
         }
