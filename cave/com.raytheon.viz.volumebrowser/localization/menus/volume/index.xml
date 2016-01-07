@@ -19,43 +19,20 @@
         further_licensing_information.
     -->
 <menuContributionFile>
-	
-    <include installTo="menu:models" 
-             fileName="menus/volume/allFamilies.xml">
-             <substitute key="modelName" value="NAM-40km" />
-             <substitute key="frameCount" value="41" />
-             <substitute key="TP" value="TP"/>
-    </include>
-    <include installTo="menu:models" 
-             fileName="menus/volume/allFamilies.xml">
-             <substitute key="modelName" value="GFS-40km" />
-             <substitute key="frameCount" value="5" />
-             <substitute key="TP" value="TP"/>
-    </include>
-    <include installTo="menu:models" 
-             fileName="menus/volume/allFamilies.xml">
-             <substitute key="modelName" value="RAP-13km" />
-             <substitute key="frameCount" value="5" />
-             <substitute key="TP" value="TP"/>
-    </include>
-    <include installTo="menu:models" 
-             fileName="menus/volume/allFamilies.xml">
-             <substitute key="modelName" value="DGEX" />
-             <substitute key="frameCount" value="5" />
-             <substitute key="TP" value="TP"/>
-    </include>
-    <include installTo="menu:models" 
-             fileName="menus/volume/allFamilies.xml">
-             <substitute key="modelName" value="NamDNG" />
-             <substitute key="frameCount" value="5" />
-             <substitute key="TP" value="TP"/>
-    </include>
-    <!-- 
+	<substitute key="GFSmodel" value="GFS 40km" />
+	<substitute key="NAM12model" value="NAM12" />
+	<substitute key="NAM40model" value="NAM-40km" />
+	<substitute key="ARWmodel1" value="HiResW-ARW-East" />
+	<substitute key="ARWmodel2" value="HiResW-ARW-West" />
+	<substitute key="MMMmodel1" value="HiResW-NMM-East" />
+	<substitute key="MMMmodel2" value="HiResW-NMM-West" />
+	<substitute key="HRRRmodel" value="HRRR" />
+	<substitute key="RAP13model" value="RAP-13km" />
+	<substitute key="RAPmodel" value="RAP-40km" />
+	<substitute key="RAP20model" value="RAP-20km" />
     <include installTo="menu:models" 
              fileName="menus/volume/ModelFamilies.xml">
     </include>
-    
-    
     <include subMenu="4-Panel 500MB Height / Vorticity / Omega" installTo="menu:models" 
              fileName="menus/volume/baseFourPanelFamilies.xml">
     </include>
@@ -65,5 +42,4 @@
     <include installTo="menu:models" 
              fileName="menus/volume/baseStdEnvPackage.xml">
     </include>
-    -->
 </menuContributionFile>
