@@ -938,12 +938,29 @@ public class ArealDefinitionsDlg extends CaveSWTDialog {
             }
 
             // Load the linesegs table
-            HydroGeoProcessor proc = new HydroGeoProcessor();
+            HydroGeoProcessor proc;
+            try {
+                proc = new HydroGeoProcessor();
+            } catch (Exception e) {
+                statusHandler.error(
+                        "Error initializing the Hydro GeoProcessor", e);
+                log("Error initializing the Hydro GeoProcessor");
+                return;
+            }
 
             if (selectedType != ArealTypeSelection.RESERVOIRS) {
                 for (GeoAreaData data : geoDataList) {
+
                     /* do the main processing */
-                    HrapBinList binList = proc.getHrapBinList(data);
+                    HrapBinList binList;
+                    try {
+                        binList = proc.getHrapBinList(data);
+                    } catch (Exception e) {
+                        statusHandler.error("Error processing input data", e);
+                        log("Error processing input data");
+                        return;
+                    }
+
                     log("Processing area " + data.getAreaId() + ":"
                             + "  Writing " + binList.getNumRows() + " rows");
                     dman.putLineSegs(data.getAreaId(), binList);
