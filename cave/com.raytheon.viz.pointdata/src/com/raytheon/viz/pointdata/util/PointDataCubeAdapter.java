@@ -76,7 +76,7 @@ public class PointDataCubeAdapter extends DefaultDataCubeAdapter {
     private static String[] supportedPlugins = { "obs", "madis",
             "modelsounding", "bufrssmi", "bufrquikscat", "lsr", "sfcobs",
             "goessounding", "bufrascat", "poessounding", "profiler", "bufrua",
-            "ldadmesonet", "ldadhydro", "qc", "fssobs", "bufrmosAVN",
+            "qc", "fssobs", "bufrmosAVN",
             "bufrmosETA", "bufrmosGFS", "bufrmosHPC", "bufrmosLAMP",
             "bufrmosMRF", "bufrmosNGM", "airep", "pirep", "nctaf" };
 
