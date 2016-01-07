@@ -110,12 +110,6 @@
          version="0.0.0"/>
 
    <plugin
-         id="com.raytheon.uf.common.dataplugin.ldadhydro"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
          id="com.raytheon.uf.viz.app.launcher"
          download-size="0"
          install-size="0"
