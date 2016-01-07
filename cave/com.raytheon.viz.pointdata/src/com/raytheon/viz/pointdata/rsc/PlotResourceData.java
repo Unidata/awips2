@@ -147,7 +147,6 @@ public class PlotResourceData extends AbstractRequestableResourceData {
         pluginProps.put("radar", new PluginPlotProperties(false));
         pluginProps.put("tcg", new PluginPlotProperties(false));
         pluginProps.put("svrwx", new PluginPlotProperties(false));
-        pluginProps.put("ldadhydro", new PluginPlotProperties(false));
         pluginProps.put("textPoints", new PluginPlotProperties(false));
 
         /*
@@ -170,7 +169,6 @@ public class PlotResourceData extends AbstractRequestableResourceData {
         pluginProps.put("bufrmosLAMP", new PluginPlotProperties());
         pluginProps.put("bufrmosMRF", new PluginPlotProperties());
         pluginProps.put("bufrmosNGM", new PluginPlotProperties());
-        pluginProps.put("ldadmesonet", new PluginPlotProperties());
         pluginProps.put("qc", new PluginPlotProperties());
         pluginProps.put("bufrascat", new PluginPlotProperties());
         pluginProps.put("bufrhdw", new PluginPlotProperties());

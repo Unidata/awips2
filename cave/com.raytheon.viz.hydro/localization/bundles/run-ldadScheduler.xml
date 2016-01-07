@@ -1,5 +1,0 @@
-<launcher title="LDAD Scheduler" >
-    <application runDir="/awips2/fxa/bin" 
-                 path="/awips2/fxa/bin"
-                 name="ldadScheduler" />
-</launcher>
