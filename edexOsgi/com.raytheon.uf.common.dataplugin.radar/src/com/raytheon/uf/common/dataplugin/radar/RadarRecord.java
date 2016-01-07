@@ -229,10 +229,10 @@ public class RadarRecord extends PersistablePluginDataObject implements
      * volumeScanNumber and different elevationNumbers. A value of 0 is used for
      * products where the volume scan number is not defined.
      */
-//    @Column
-//    @DynamicSerializeElement
-//    @XmlElement(nillable = false)
-//    private int volumeScanNumber;
+    @Column
+    @DynamicSerializeElement
+    @XmlElement(nillable = false)
+    private int volumeScanNumber;
 
     @Column
     @DynamicSerializeElement
@@ -491,13 +491,13 @@ public class RadarRecord extends PersistablePluginDataObject implements
         this.elevationNumber = elevationNumber;
     }
 
-//    public int getVolumeScanNumber() {
-//        return volumeScanNumber;
-//    }
-//
-//    public void setVolumeScanNumber(int volumeScanNumber) {
-//        this.volumeScanNumber = volumeScanNumber;
-//    }
+    public int getVolumeScanNumber() {
+        return volumeScanNumber;
+    }
+
+    public void setVolumeScanNumber(int volumeScanNumber) {
+        this.volumeScanNumber = volumeScanNumber;
+    }
 
     /**
      * @return the elevation angle

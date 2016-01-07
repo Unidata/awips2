@@ -339,7 +339,7 @@ public class RadarDecoder extends AbstractDecoder {
                 record.setOperationalMode(l3Radar.getOperationalMode());
 
                 record.setElevationNumber(l3Radar.getElevationNumber());
-                //record.setVolumeScanNumber(l3Radar.getVolumeScanNumber());
+                record.setVolumeScanNumber(l3Radar.getVolumeScanNumber());
                 // some products don't have real elevation angles, 0 is a
                 // default value
                 if (record.getElevationNumber() == 0) {
