@@ -16,7 +16,6 @@ echo "Running 'yum clean all'"
 echo ''
 yum clean all
 
-
 if [[ $(rpm -qa | grep awips2-edex) ]]; then
   echo "found EDEX RPMs installed"
 else
@@ -31,12 +30,23 @@ service qpidd stop
 service httpd-pypies stop
 service edex_postgres stop
 service edex_ldm stop
+service qpidd stop
 
 # check that /awips2/data_store exists, if not, create it
 if [ ! -d /awips2/data_store ]; then
   mkdir -p /awips2/data_store
 fi
 chown -R awips:fxalpha /awips2/data_store
+
+if [[ $1 -eq "reinstall" ]]; then
+  echo ''
+  echo 'Removing and reinstalling EDEX...'
+  echo ''
+  echo "Running 'yum groupremove awips2-server'"
+  echo ''
+  yum groupremove awips2-server -y 2>&1 /dev/null
+  rm -rf /awips2/data/ awips2/database/ 
+fi
 
 echo ''
 echo "Running 'yum groupinstall awips2-server'"
