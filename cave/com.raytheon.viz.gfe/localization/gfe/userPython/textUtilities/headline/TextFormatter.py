@@ -169,13 +169,13 @@ class TextFormatter:
 
             try:
                 text = product.generateForecast(argDict)
-            except RuntimeError, e:
+            except RuntimeError as e:
                 msg = e.message
                 if msg.find('java.lang.ThreadDeath') > -1:
                     self.log.info("Formatter Canceled")
                 else:
                     self.log.error("Caught Exception: ", exc_info=True)
-                raise Exception
+                raise e
 
             # requirement for TEST phrasing for TEST products
             if argDict.get('testMode', 0):
