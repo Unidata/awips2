@@ -687,7 +687,6 @@ public class Tool {
             }
         }
         parmMgr.deleteTemporaryParms();
-        coordinator.shutdown();
 
         // Report Skipped or Created Grids
         String msg = "Tool: " + toolname + " -- ";
