@@ -55,10 +55,6 @@ fi
 if [ $? -ne 0 ]; then
    exit 1
 fi
-/bin/mkdir -p %{_build_root}/etc/profile.d
-if [ $? -ne 0 ]; then
-   exit 1
-fi
 /bin/mkdir -p %{_build_root}/etc/ld.so.conf.d
 if [ $? -ne 0 ]; then
    exit 1
@@ -127,10 +123,6 @@ do
 done
 
 # copy environment scripts to their destination
-/bin/cp profile.d/* %{_build_root}/etc/profile.d
-if [ $? -ne 0 ]; then
-   exit 1
-fi
 /bin/cp ld.so.conf.d/* %{_build_root}/etc/ld.so.conf.d
 if [ $? -ne 0 ]; then
    exit 1
@@ -313,8 +305,6 @@ rm -rf ${RPM_BUILD_ROOT}
 %dir /awips2/ldm
 %dir /awips2/ldm/SOURCES
 /awips2/ldm/SOURCES/*
-%attr(755,root,root) /etc/profile.d/awipsLDM.csh
-%attr(755,root,root) /etc/profile.d/awipsLDM.sh
 %attr(755,root,root) /etc/init.d/edex_ldm
 %attr(600,awips,fxalpha) /var/spool/cron/awips
 %attr(755,root,root) /etc/ld.so.conf.d/awips2-ldm.conf

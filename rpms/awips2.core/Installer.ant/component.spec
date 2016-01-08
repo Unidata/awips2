@@ -60,7 +60,6 @@ function copyLegal()
 }
 
 mkdir -p ${RPM_BUILD_ROOT}/awips2/ant
-mkdir -p ${RPM_BUILD_ROOT}/etc/profile.d
 
 _core_rpms="%{_baseline_workspace}/rpms/awips2.core"
 _installer_ant="${_core_rpms}/Installer.ant"
@@ -73,9 +72,6 @@ tar -xf ${_installer_ant}/src/${ANT_TAR_FILE} \
 cp -r %{_build_root}/awips2/apache-ant-1.7.1/* \
    %{_build_root}/awips2/ant 
 rm -rf %{_build_root}/awips2/apache-ant-1.7.1
-
-PROFILE_D_DIR="rpms/awips2.core/Installer.ant/scripts/profile.d"
-cp %{_baseline_workspace}/${PROFILE_D_DIR}/* %{_build_root}/etc/profile.d 
 
 copyLegal "awips2/ant"
 
@@ -99,8 +95,6 @@ rm -rf ${RPM_BUILD_ROOT}
 
 %files
 %defattr(-,awips,fxalpha,-)
-%attr(755,root,root) /etc/profile.d/awips2Ant.csh
-%attr(755,root,root) /etc/profile.d/awips2Ant.sh
 %dir /awips2/ant
 %dir /awips2/ant/bin
 %attr(755,awips,fxalpha) /awips2/ant/bin/ant

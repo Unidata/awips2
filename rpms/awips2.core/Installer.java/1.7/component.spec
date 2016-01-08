@@ -206,8 +206,6 @@ rm -rf %{_java_build_loc}
 
 %files
 %defattr(644,awips,fxalpha,755)
-%attr(755,root,root) /etc/profile.d/awips2Java.csh
-%attr(755,root,root) /etc/profile.d/awips2Java.sh
 %dir /awips2/java
 %dir /awips2/java/bin
 
