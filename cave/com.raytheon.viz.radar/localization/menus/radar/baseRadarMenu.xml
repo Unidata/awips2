@@ -15,10 +15,6 @@
 		id="RadarMenuTwdrRadarsSubMenu">
 		<contribute xsi:type="subinclude" fileName="menus/radar/tdwrRadars.xml" />
 	</contribute>
-	<contribute xsi:type="subMenu" menuText="MRMS"
-                id="RadarMenuMRMSSubMenu">
-				<contribute xsi:type="subinclude" fileName="menus/mrms/mrmsProducts.xml"/>
-        </contribute>
 	<contribute xsi:type="titleItem" titleText="------ FNEXRAD Composites ------"
 		id="RadarMosaic" />
 	<!--  Unidata Composite -->
@@ -42,21 +38,6 @@
         <substitute key="element" value="HHC"/>
         <substitute key="colormap" value="Radar/HHC NEXRCOMP"/>
     </contribute>	
-     <contribute xsi:type="bundleItem" file="bundles/DefaultRadarComposite.xml" 
-                menuText="N0R - Base Reflectivity" id="N0R">
-        <substitute key="element" value="N0R"/>
-        <substitute key="colormap" value="Radar/OSF/16 Level Reflectivity"/>
-    </contribute>	
-     <contribute xsi:type="bundleItem" file="bundles/DefaultRadarComposite.xml" 
-                menuText="N1P - One Hour Precipiation" id="N1P">
-        <substitute key="element" value="N1P"/>
-        <substitute key="colormap" value="Radar/8-bit STP"/>
-    </contribute>	
-    <contribute xsi:type="bundleItem" file="bundles/DefaultRadarComposite.xml" 
-                menuText="NTP - Storm Total Precipiation" id="NTP">
-        <substitute key="element" value="NTP"/>
-        <substitute key="colormap" value="Radar/8-bit STP"/>
-    </contribute>
 	<contribute xsi:type="titleItem" titleText="------ Mosaic ------"
 		id="RadarMosaic" />
 	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
@@ -125,30 +106,6 @@
 		<substitute key="product" value="79" />
 		<substitute key="elevation" value="0.0" />
 		<substitute key="name" value="N3P - Three Hour Precip" />
-	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
-		menuText="User Selectable Precip" id="RadarUserSelectablePrecip">
-		<substitute key="product" value="31" />
-		<substitute key="elevation" value="0.0" />
-		<substitute key="name" value="User Selectable Precip" />
-	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
-		menuText="Layer 1 Max Refl" id="RadarLayer1MaxRefl">
-		<substitute key="product" value="65" />
-		<substitute key="elevation" value="0.0" />
-		<substitute key="name" value="Layer 1 Max Refl" />
-	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
-		menuText="Layer 2 Max Refl" id="RadarLayer2MaxRefl">
-		<substitute key="product" value="66" />
-		<substitute key="elevation" value="0.0" />
-		<substitute key="name" value="Layer 2 Max Refl" />
-	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
-		menuText="Layer 3 Max Refl" id="RadarLayer3MaxRefl">
-		<substitute key="product" value="67" />
-		<substitute key="elevation" value="0.0" />
-		<substitute key="name" value="Layer 3 Max Refl" />
 	</contribute>
 	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
 		menuText="EET - Enhanced Echo Tops" id="RadarEchoTops">
