@@ -11,41 +11,6 @@ ModFamM| |N|Winter: Big3 Qn Family| |OTHER | | \
 		<!--Top Left Panel-->
 		<displays xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="d2DMapRenderableDisplay" scale="CONUS" density="1.0" magnification="1.0" zoomLevel="0.8015667796134949" mapCenter="-87.91016225544631 40.17935304841683 0.0">
 			<descriptor xsi:type="mapDescriptor">
-				<!--|100.|fnD,600MB|-->
-				<resource>
-					<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
-						<capabilities>
-							<capability xsi:type="outlineCapability" alpha="1.0" interpolationState="true" brightness="1.0" contrast="1.0"/>
-						</capabilities>
-						<resourceType>PLAN_VIEW</resourceType>
-					</loadProperties>
-					<properties renderingOrderId="CONTOUR" isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
-						<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
-					</properties>
-					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
-						<metadataMap>
-							<mapping key="info.parameter.abbreviation">
-								<constraint constraintValue="fnD" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.datasetId">
-								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.level.leveltwovalue">
-								<constraint constraintValue="-999999" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="pluginName">
-								<constraint constraintValue="grid" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.level.masterLevel.name">
-								<constraint constraintValue="MB" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.level.levelonevalue">
-								<constraint constraintValue="600.0" constraintType="EQUALS"/>
-							</mapping>
-						</metadataMap>
-						<alertParser xsi:type="dataCubeAlertMessageParser"/>
-					</resourceData>
-				</resource>
 				
 				<!--|1.|QPV2,600MB-500MB\-->
 				<resource>
@@ -127,7 +92,7 @@ ModFamM| |N|Winter: Big3 Qn Family| |OTHER | | \
 						</capabilities>
 						<resourceType>PLAN_VIEW</resourceType>
 					</loadProperties>
-					<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
+					<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
 						<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
 					</properties>
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
@@ -198,42 +163,6 @@ ModFamM| |N|Winter: Big3 Qn Family| |OTHER | | \
 		<!--2nd Panel - Top Right Panel-->
 		<displays xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="d2DMapRenderableDisplay" scale="CONUS" density="1.0" magnification="1.0" zoomLevel="0.8015667796134949" mapCenter="-87.85607154045267 40.15162011360498 0.0">
 			<descriptor xsi:type="mapDescriptor">
-				<!--|100.|fnD,700MB\ No documentation on how to create a new pane-->
-				<resource>
-					<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
-						<capabilities>
-							<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
-						</capabilities>
-						<resourceType>PLAN_VIEW</resourceType>
-					</loadProperties>
-					<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
-						<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
-					</properties>
-					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
-						<metadataMap>
-							<mapping key="info.parameter.abbreviation">
-								<constraint constraintValue="fnD" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.datasetId">
-								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.level.leveltwovalue">
-								<constraint constraintValue="-999999" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="pluginName">
-								<constraint constraintValue="grid" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.level.masterLevel.name">
-								<constraint constraintValue="MB" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.level.levelonevalue">
-								<constraint constraintValue="700.0" constraintType="EQUALS"/>
-							</mapping>
-						</metadataMap>
-						<alertParser xsi:type="dataCubeAlertMessageParser"/>
-					</resourceData>
-				</resource>
-				
 				<!--|1.|QPV2,700MB-600MB\-->
 				<resource>
 					<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
@@ -314,7 +243,7 @@ ModFamM| |N|Winter: Big3 Qn Family| |OTHER | | \
 						</capabilities>
 						<resourceType>PLAN_VIEW</resourceType>
 					</loadProperties>
-					<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
+					<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
 						<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
 					</properties>
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
@@ -385,41 +314,6 @@ ModFamM| |N|Winter: Big3 Qn Family| |OTHER | | \
 		<!--3rd Panel - Bottom Left Panel-->
 		<displays xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="d2DMapRenderableDisplay" scale="CONUS" density="1.0" magnification="1.0" zoomLevel="0.8015667796134949" mapCenter="-87.91016225544631 40.17935304841683 0.0">
 			<descriptor xsi:type="mapDescriptor">
-				<!--|100.|fnD,800MB\ No documentation on how to create a new pane-->
-				<resource>
-					<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
-						<capabilities>
-							<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
-						</capabilities>
-						<resourceType>PLAN_VIEW</resourceType>
-					</loadProperties>
-					<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
-						<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
-					</properties>
-					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
-						<metadataMap>
-							<mapping key="info.parameter.abbreviation">
-								<constraint constraintValue="fnD" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.datasetId">
-								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.level.leveltwovalue">
-								<constraint constraintValue="-999999" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="pluginName">
-								<constraint constraintValue="grid" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.level.masterLevel.name">
-								<constraint constraintValue="MB" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.level.levelonevalue">
-								<constraint constraintValue="800.0" constraintType="EQUALS"/>
-							</mapping>
-						</metadataMap>
-						<alertParser xsi:type="dataCubeAlertMessageParser"/>
-					</resourceData>
-				</resource>		
 				
 				<!--|1.|QPV2,800MB-700MB\-->
 				<resource>
@@ -501,7 +395,7 @@ ModFamM| |N|Winter: Big3 Qn Family| |OTHER | | \
 						</capabilities>
 						<resourceType>PLAN_VIEW</resourceType>
 					</loadProperties>
-					<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
+					<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
 						<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
 					</properties>
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
@@ -571,42 +465,7 @@ ModFamM| |N|Winter: Big3 Qn Family| |OTHER | | \
 		
 		<!--4th Panel - Bottom Right-->
 		<displays xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="d2DMapRenderableDisplay" scale="CONUS" density="1.0" magnification="1.0" zoomLevel="0.8015667796134949" mapCenter="-87.85607154045267 40.15162011360498 0.0">
-			<descriptor xsi:type="mapDescriptor">
-				<!--|100.|fnD,900MB\-->
-				<resource>
-					<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
-						<capabilities>
-							<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
-						</capabilities>
-						<resourceType>PLAN_VIEW</resourceType>
-					</loadProperties>
-					<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
-						<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
-					</properties>
-					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
-						<metadataMap>
-							<mapping key="info.parameter.abbreviation">
-								<constraint constraintValue="fnD" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.datasetId">
-								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.level.leveltwovalue">
-								<constraint constraintValue="-999999" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="pluginName">
-								<constraint constraintValue="grid" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.level.masterLevel.name">
-								<constraint constraintValue="MB" constraintType="EQUALS"/>
-							</mapping>
-							<mapping key="info.level.levelonevalue">
-								<constraint constraintValue="900.0" constraintType="EQUALS"/>
-							</mapping>
-						</metadataMap>
-						<alertParser xsi:type="dataCubeAlertMessageParser"/>
-					</resourceData>
-				</resource>		
+			<descriptor xsi:type="mapDescriptor">	
 				
 				<!--|1.|QPV2,900MB-800MB\-->
 				<resource>
@@ -688,7 +547,7 @@ ModFamM| |N|Winter: Big3 Qn Family| |OTHER | | \
 						</capabilities>
 						<resourceType>PLAN_VIEW</resourceType>
 					</loadProperties>
-					<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
+					<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
 						<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
 					</properties>
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
