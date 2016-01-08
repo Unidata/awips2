@@ -72,10 +72,6 @@ mkdir -p ${RPM_BUILD_ROOT}/etc/xdg/autostart
 if [ $? -ne 0 ]; then
    exit 1
 fi
-mkdir -p ${RPM_BUILD_ROOT}/etc/profile.d
-if [ $? -ne 0 ]; then
-   exit 1
-fi
 
 CAVE_DIST_DIR="%{_baseline_workspace}/rpms/awips2.cave/setup/dist"
 
@@ -85,13 +81,6 @@ cp ${CAVE_DIST_DIR}/%{_component_zip_file_name} \
 cd ${RPM_BUILD_ROOT}/awips2
 unzip %{_component_zip_file_name}
 rm -f %{_component_zip_file_name}
-
-# Our profile.d scripts
-PROFILE_D_DIR="%{_baseline_workspace}/rpms/common/environment/awips2-cave/profile.d"
-cp ${PROFILE_D_DIR}/* ${RPM_BUILD_ROOT}/etc/profile.d
-if [ $? -ne 0 ]; then
-   exit 1
-fi
 
 # The AWIPS II version script.
 VERSIONS_SCRIPT="rpms/utility/scripts/versions.sh"
@@ -319,10 +308,6 @@ fi
 rm -rf ${RPM_BUILD_ROOT}
 
 %files
-%defattr(644,root,root,-)
-/etc/profile.d/awips2Cave.csh
-/etc/profile.d/awips2Cave.sh
-
 %defattr(644,awips,fxalpha,755)
 %dir /awips2
 %dir /awips2/cave

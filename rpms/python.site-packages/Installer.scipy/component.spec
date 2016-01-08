@@ -55,7 +55,7 @@ fi
 
 export BLAS=/awips2/python/lib
 export LAPACK=/awips2/python/lib
-source /etc/profile.d/awips2Python.sh
+source /etc/profile.d/awips2.sh
 RC=$?
 if [ ${RC} -ne 0 ]; then
    exit 1

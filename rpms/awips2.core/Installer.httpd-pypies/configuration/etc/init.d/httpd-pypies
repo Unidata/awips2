@@ -75,7 +75,7 @@ check13 () {
 # when not running is also a failure.  So we just do it the way init scripts
 # are expected to behave here.
 start() {		
-        source /etc/profile.d/awips2HDF5Tools.sh
+        source /etc/profile.d/awips2.sh
         echo -n $"Starting logging service:"
         nohup su awips -c "$loggingCmd > /tmp/pypiesLoggingService.log 2>&1" > /dev/null &
         RC=$?

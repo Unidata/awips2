@@ -73,16 +73,8 @@ cp -r %{_baseline_workspace}/${CLI_PROJECT_DIR}/impl/* ${RPM_BUILD_ROOT}/awips2/
 
 copyLegal "awips2/fxa"
 
-# Copy our profile.d scripts.
-CLI_DIRECTORY="rpms/awips2.core/Installer.cli"
-PROFILE_D_DIRECTORY="${CLI_DIRECTORY}/scripts/profile.d"
-mkdir -p ${RPM_BUILD_ROOT}/etc/profile.d
-cp %{_baseline_workspace}/${PROFILE_D_DIRECTORY}/* \
-   ${RPM_BUILD_ROOT}/etc/profile.d
-
 # Copy fxa data files
 cp -r  %{_baseline_workspace}/${CLI_DIRECTORY}/fxa/* ${RPM_BUILD_ROOT}/awips2/fxa/
-
 
 %pre
 if [ "${1}" = "2" ]; then
@@ -131,8 +123,6 @@ rm -rf ${RPM_BUILD_ROOT}
 %docdir /awips2/fxa/licenses
 %dir /awips2/fxa/licenses
 /awips2/fxa/licenses/*
-/etc/profile.d/awips2CLI.csh
-/etc/profile.d/awips2CLI.sh
 %defattr(755,awips,fxalpha,755)
 %dir /awips2/fxa/bin
 %dir /awips2/fxa/data
