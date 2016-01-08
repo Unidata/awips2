@@ -40,6 +40,7 @@ import com.raytheon.uf.edex.plugin.lsr.decoder.LSRParser;
  * ------------ ---------- ----------- --------------------------
  * Jan 21, 2009       1939 jkorman     Initial creation
  * Dec 09, 2013       2581 njensen     Updated javadoc
+ * Jan 08, 2016       5226 tgurney     Reject ob with bad location
  * 
  * </pre>
  * 
@@ -114,7 +115,13 @@ public class LSRDecoder {
                 while (parser.hasNext()) {
                     report = parser.next();
                     if (report != null) {
-                        obsList.add(report);
+                        if (report.getLocation() == null) {
+                            logger.warn(traceId
+                                    + " - Discarding report with bad location: "
+                                    + report);
+                        } else {
+                            obsList.add(report);
+                        }
                     }
                 }
             } catch (Exception e) {
