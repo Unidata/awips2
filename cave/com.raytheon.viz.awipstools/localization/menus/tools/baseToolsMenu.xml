@@ -31,8 +31,8 @@
 		menuText="Choose By ID..." id="chooseByIDTool" />
   
     <!-- TODO move into damage path plugin somehow -->
-    <contribute xsi:type="bundleItem" file="bundles/tools/DamagePath.xml"
-        menuText="Damage Path" id="damagePathTool" timeQuery="false" />
+<!--    <contribute xsi:type="bundleItem" file="bundles/tools/DamagePath.xml"
+        menuText="Damage Path" id="damagePathTool" timeQuery="false" /> -->
 		
 	<contribute xsi:type="bundleItem" file="bundles/tools/DistanceBearing.xml"
 		menuText="Distance Bearing" id="distanceBearingTool" timeQuery="false" />
