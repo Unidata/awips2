@@ -83,6 +83,7 @@ import com.vividsolutions.jts.io.WKTWriter;
  *                                    code.  Wrote ticket #3047 for common_obs_spatial
  *                                    for the city/state issues.
  * Nov 11, 2014  3401     rferrel     Add Enter key events.
+ * Jan 16, 2016  DR 11474 A. Rickert  Parsing Lat/Lon with parseDouble for better accuracy
  * 
  * </pre>
  * 
@@ -470,7 +471,7 @@ public class PutHomeCursorDialog extends CaveSWTDialog implements
         } else if (latLonRadio.getSelection()) {
             Coordinate c = new Coordinate();
             try {
-                c.x = Float.parseFloat(lonTextField.getText());
+                c.x = Double.parseDouble(lonTextField.getText());
             } catch (NumberFormatException nfe) {
                 MessageDialog
                         .openError(shell, "Put Home Cursor Error",
@@ -479,7 +480,7 @@ public class PutHomeCursorDialog extends CaveSWTDialog implements
                 return;
             }
             try {
-                c.y = Float.parseFloat(latTextField.getText());
+                c.y = Double.parseDouble(latTextField.getText());
                 if ((c.y < -180) || c.y > 180) {
                     MessageDialog
                             .openError(new Shell(), "Put Home Cursor Error",
