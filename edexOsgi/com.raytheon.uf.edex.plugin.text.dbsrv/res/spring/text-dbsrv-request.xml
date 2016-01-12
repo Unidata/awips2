@@ -1,0 +1,82 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+     http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="getAfosIdHandler" class="com.raytheon.uf.edex.plugin.text.dbsrv.handler.GetAfosIdHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.common.dataplugin.text.request.GetAfosIdRequest"/>
+        <constructor-arg ref="getAfosIdHandler"/>
+    </bean>
+
+    <bean id="getPartialAfosIdHandler" class="com.raytheon.uf.edex.plugin.text.dbsrv.handler.GetPartialAfosIdHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.common.dataplugin.text.request.GetPartialAfosIdRequest"/>
+        <constructor-arg ref="getPartialAfosIdHandler"/>
+    </bean>
+
+    <bean id="getWmoIdHandler" class="com.raytheon.uf.edex.plugin.text.dbsrv.handler.GetWmoIdHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.common.dataplugin.text.request.GetWmoIdRequest"/>
+        <constructor-arg ref="getWmoIdHandler"/>
+    </bean>
+
+    <!-- textdb -->
+
+    <bean id="executeAfosCmdHandler" class="com.raytheon.uf.edex.plugin.text.dbsrv.handler.ExecuteAfosCmdHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.common.dataplugin.text.request.ExecuteAfosCmdRequest"/>
+        <constructor-arg ref="executeAfosCmdHandler"/>
+    </bean>
+
+    <bean id="executeAwipsCmdHandler" class="com.raytheon.uf.edex.plugin.text.dbsrv.handler.ExecuteAwipsCmdHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.common.dataplugin.text.request.ExecuteAwipsCmdRequest"/>
+        <constructor-arg ref="executeAwipsCmdHandler"/>
+    </bean>
+
+    <bean id="executeWmoCmdHandler" class="com.raytheon.uf.edex.plugin.text.dbsrv.handler.ExecuteWmoCmdHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.common.dataplugin.text.request.ExecuteWmoCmdRequest"/>
+        <constructor-arg ref="executeWmoCmdHandler"/>
+    </bean>
+
+    <bean id="remoteRetrievalHandler" class="com.raytheon.uf.edex.plugin.text.dbsrv.handler.RemoteRetrievalHandler">
+        <property name="rrManager" ref="remoteRetrievalManager" />
+    </bean>
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.common.dataplugin.text.request.RemoteRetrievalRequest"/>
+        <constructor-arg ref="remoteRetrievalHandler"/>
+    </bean>
+
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.common.dataplugin.text.dbsrv.TextDBRequest"/>
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.plugin.text.dbsrv.TextDBRequestHandler">
+                <constructor-arg ref="textdbsrv" />
+            </bean>
+        </constructor-arg>
+    </bean>
+
+    <bean id="remoteRetrievalManager" class="com.raytheon.uf.edex.plugin.text.dbsrv.handler.RemoteRetrievalManager">
+        <property name="rrDelegate" ref="textdbRemoteRetrievalTarget" />
+    </bean>
+
+    <camelContext id="textdbsrv-request-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
+
+        <proxy id="textdbRemoteRetrievalTarget"
+            serviceInterface="com.raytheon.uf.edex.plugin.text.dbsrv.handler.RemoteRetrievalManager$IRRDelegate"
+            serviceUrl="direct-vm:remoteRetrievalExternalRoute" />
+
+        <route id="remoteRetrievalExternal">
+            <from uri="direct-vm:remoteRetrievalExternalRoute" />
+            <!-- Convert from BeanInvocation if needed. -->
+            <convertBodyTo type="com.raytheon.uf.common.dataplugin.text.request.RemoteRetrievalRequest" />
+            <bean ref="serializationUtil" method="transformToThrift" />
+            <to uri="jms-mhs:queue:fxa.mhs.request?requestTimeout=122000" pattern="InOut" />
+            <bean ref="serializationUtil" method="transformFromThrift" />
+        </route>
+
+    </camelContext>
+
+</beans>

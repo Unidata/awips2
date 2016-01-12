@@ -51,6 +51,7 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.wmo.AFOSProductId;
 import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.core.EDEXUtil;
+import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.plugin.text.dao.AfosToAwipsDao;
 import com.raytheon.uf.edex.plugin.text.db.TextDB;
@@ -89,6 +90,9 @@ import com.raytheon.uf.edex.plugin.text.impl.separator.WMOMessageSeparator;
  */
 
 public class TextDecoder extends AbstractDecoder {
+
+    private static final String textToStageNotificationRoute = "jms-durable:queue:textToStageNotification";
+
     private static final long MILLIS_PER_HOUR = 60 * 60 * 1000;
 
     private static final long NOT_FOUND_LOG_PERIOD = 24 * MILLIS_PER_HOUR;
@@ -101,7 +105,8 @@ public class TextDecoder extends AbstractDecoder {
     private static String badTxtDir = EDEXUtil.getEdexData() + File.separator
             + "badTxt";
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private static final Logger logger = LoggerFactory
+            .getLogger(TextDecoder.class);
 
     private String pluginName;
 
@@ -485,10 +490,15 @@ public class TextDecoder extends AbstractDecoder {
     }
 
     public String[] transformToProductIds(PluginDataObject[] pdos) {
-        TextRecord[] trs = (TextRecord[]) pdos;
         String[] rval = new String[pdos.length];
-        for (int i = 0; i < trs.length; i++) {
-            rval[i] = trs[i].getProductId();
+
+        try {
+            for (int i = 0; i < pdos.length; i++) {
+                TextRecord tr = (TextRecord) pdos[i];
+                rval[i] = tr.getProductId();
+            }
+        } catch (Exception e) {
+            logger.error("Error transforming PDOs to Product IDs: ", e);
         }
         return rval;
     }
@@ -505,4 +515,41 @@ public class TextDecoder extends AbstractDecoder {
         }
         return Arrays.asList(pdo).iterator();
     }
+
+    /**
+     * Wraps a string containing an id in a TextRecord.
+     * 
+     * @param id
+     *            the id to put in a TextRecord
+     * @return PluginDataObject array (TextRecord) containing the id.
+     */
+    public PluginDataObject[] transformStringToTextRecord(String id) {
+
+        TextRecord tr = new TextRecord();
+        tr.setProductId(id);
+
+        PluginDataObject[] pdos = new TextRecord[1];
+        pdos[0] = tr;
+        return pdos;
+    }
+
+    /**
+     * 
+     * Sends an asynchronous message to the textToStageNotification queue. This
+     * is basically a wrapper of the utility method that handles/logs any
+     * errors.
+     * 
+     * @param message
+     *            the message to send
+     */
+    public static void sendTextToQueue(String message) {
+        try {
+            EDEXUtil.getMessageProducer().sendAsyncUri(
+                    textToStageNotificationRoute, message);
+        } catch (EdexException e) {
+            logger.warn("Unable to send product '" + message + "' to queue '"
+                    + textToStageNotificationRoute + "'", e);
+        }
+    }
+
 }

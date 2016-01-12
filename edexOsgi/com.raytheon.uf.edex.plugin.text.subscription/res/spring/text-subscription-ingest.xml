@@ -1,0 +1,62 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+    http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <!-- define the bean that handles automatic faxing of products. -->
+    <bean id="autoFaxManager" class="com.raytheon.uf.edex.plugin.text.subscription.AutoFaxManager">
+    </bean>
+
+    <!-- define the bean that handles Quartz scheduled script running -->
+    <bean id="timerScriptRunner" class="com.raytheon.uf.edex.plugin.text.subscription.services.ScriptRunner" >
+        <property name="type" value="timer" />
+    </bean>
+
+    <camelContext id="clustered-text-subscription-camel"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler">
+
+        <!-- AutoFax route -->
+        <route id="autoFaxRoute">
+            <from uri="vm:autoFaxRoute" />
+            <doTry>
+                <bean ref="autoFaxManager" method="processEvent" />
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:autoFax?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+
+        <!-- Quartz Timer triggered script runner -->
+        <route id="runnerScheduled">
+            <from uri="runnerCron" />
+            <doTry>
+                <bean ref="timerScriptRunner" method="runScripts" />
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:subscription?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+
+        <route id="textToWatchWarnRoute">
+            <from uri="direct-vm:textToWatchWarn" />
+            <bean ref="textDecoder" method="transformToProductIds" />
+            <to uri="jms-durable:queue:watchwarn" />
+        </route>
+
+        <!-- Watch/Warn triggered script runner -->
+        <route id="watchWarn">
+           <from uri="jms-durable:queue:watchwarn"/>
+           <doTry>
+               <bean ref="textScriptRunner" method="runScripts" />
+               <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:subscription?level=ERROR"/>
+               </doCatch>
+           </doTry>
+        </route>
+    </camelContext>
+
+</beans>
