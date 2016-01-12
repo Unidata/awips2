@@ -34,6 +34,7 @@ import com.raytheon.viz.mpe.ui.DisplayFieldData;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 1, 2009  2685       mpduff      Initial creation.
+ * Nov 16, 2016 18098      lbousaidi   Added RubberPolyData attribute persistent.
  * 
  * </pre>
  * 
@@ -86,6 +87,7 @@ public class RubberPolyData {
         this.precipValue = precipValue;
         this.editPoints = hrapPoints;
         this.visible = visible;
+        this.persistent = persistent;
     }
 
     /**

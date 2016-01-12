@@ -95,14 +95,14 @@
 ## WILL BE USED TO HEIGHTEN AWARENESS OF THIS DANGEROUS SITUATION
 ############################################################################
 #if(${list.contains($bullets, "considerableTornado")})
-#set ($torimpact = "You are in a life threatening situation. Flying debris may be deadly to those caught without shelter. Mobile homes will be destroyed. Considerable damage to homes, businesses, and vehicles is likely and complete destruction is possible.")
+#set ($torimpact = "You are in a life-threatening situation. Flying debris may be deadly to those caught without shelter. Mobile homes will be destroyed. Considerable damage to homes, businesses, and vehicles is likely and complete destruction is possible.")
 #end
 ############################################################################
 ## IF A TORNADO EMERGENCY IS SELECTED THE FOLLOWING IMPACT STATEMENT 
 ## WILL BE USED TO HEIGHTEN AWARENESS OF THIS DANGEROUS SITUATION
 ############################################################################
 #if(${list.contains($bullets, "torEmergency")})
-#set ($torimpact = "You are in a life threatening situation. Flying debris may be deadly to those caught without shelter. Mobile homes will be destroyed. Considerable damage to homes, businesses, and vehicles is likely and complete destruction is possible.")
+#set ($torimpact = "You are in a life-threatening situation. Flying debris may be deadly to those caught without shelter. Mobile homes will be destroyed. Considerable damage to homes, businesses, and vehicles is likely and complete destruction is possible.")
 #end
 ############################################################################
 ## Since the SVS template uses both the torimpact and svrimpact variables

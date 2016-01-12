@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
@@ -31,12 +32,15 @@ import java.util.regex.Pattern;
 
 import org.hibernate.Session;
 
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo;
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataquery.db.QueryParam.QueryOperand;
+import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.query.DatabaseQuery;
 import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
@@ -62,20 +66,20 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
  * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
  * Aug 05, 2015 4486       rjpeter     Changed Timestamp to Date.
  * Aug 14, 2015 17801      bhunderm    Fixed logic to choose the parm with lesser
- *                                     duration when have multiple grids for same fcsthr. 
+ *                                     duration when have multiple grids for same fcsthr.
+ * Dec 03, 2015 5168       randerso    Added ability to retrieve D2D data by fcsthr or timerange
  * </pre>
  * 
  * @author randerso
  * @version 1.0
  */
 
-// **********************************************************************
-// TODO: Can this be merged into GridDao/D2DGridDatabase?
-// **********************************************************************
 public class GFED2DDao extends GridDao {
-    private static final String FCST_TIME = "dataTime.fcstTime";
+    private static final String FCSTTIME_ID = PluginDataObject.DATATIME_ID
+            + ".fcstTime";
 
-    private static final String REF_TIME = "dataTime.refTime";
+    private static final String REFTIME_ID = PluginDataObject.DATATIME_ID
+            + ".refTime";
 
     /**
      * Constructor
@@ -100,10 +104,10 @@ public class GFED2DDao extends GridDao {
     public List<Integer> getForecastTimes(String d2dModelName, Date refTime)
             throws DataAccessLayerException {
         DatabaseQuery query = new DatabaseQuery(GridRecord.class.getName());
-        query.addDistinctParameter(FCST_TIME);
+        query.addDistinctParameter(FCSTTIME_ID);
         query.addQueryParam(GridConstants.DATASET_ID, d2dModelName);
-        query.addQueryParam(REF_TIME, refTime);
-        query.addOrder(FCST_TIME, true);
+        query.addQueryParam(REFTIME_ID, refTime);
+        query.addOrder(FCSTTIME_ID, true);
 
         @SuppressWarnings("unchecked")
         List<Integer> vals = (List<Integer>) this.queryByCriteria(query);
@@ -112,7 +116,7 @@ public class GFED2DDao extends GridDao {
 
     /**
      * Retrieves a GridRecord from the grib metadata database based on a ParmID,
-     * TimeRange, and GridParmInfo.
+     * forecastTime, and GridParmInfo.
      * 
      * @param d2dModelName
      * @param refTime
@@ -135,17 +139,80 @@ public class GFED2DDao extends GridDao {
         try {
             s = getSession();
             // TODO: clean up so we only make one db query
-            SortedMap<Integer, Integer> rawTimes = queryByParmId(d2dModelName,
+            SortedMap<DataTime, Integer> rawTimes = queryByParmId(d2dModelName,
                     refTime, d2dParmName, d2dLevel, s);
 
             // if forecastTime is null just pick one,
             // this is for static data since all times are the same
+            Integer id = null;
             if (forecastTime == null) {
-                forecastTime = rawTimes.keySet().iterator().next();
+                id = rawTimes.values().iterator().next();
+            } else {
+                for (Entry<DataTime, Integer> entry : rawTimes.entrySet()) {
+                    if (entry.getKey().getFcstTime() == forecastTime) {
+                        id = entry.getValue();
+                        break;
+                    }
+                }
             }
 
-            GridRecord retVal = (GridRecord) s.get(GridRecord.class,
-                    rawTimes.get(forecastTime));
+            GridRecord retVal = (GridRecord) s.get(GridRecord.class, id);
+            return retVal;
+
+        } finally {
+            if (s != null) {
+                try {
+                    s.close();
+                } catch (Exception e) {
+                    logger.error("Error occurred closing database session", e);
+                }
+            }
+        }
+    }
+
+    /**
+     * Retrieves a GridRecord from the grib metadata database based on a ParmID,
+     * TimeRange, and GridParmInfo.
+     * 
+     * @param d2dModelName
+     * @param refTime
+     * @param d2dParmName
+     * @param d2dLevel
+     * @param timeRange
+     *            The valid period of the desired GridRecord, null for any
+     *            record
+     * @param info
+     *            The GridParmInfo for the requested d2d grid.
+     * @return The GridRecord from the grib metadata database
+     * @throws DataAccessLayerException
+     *             If errors occur while querying the metadata database
+     */
+    public GridRecord getGrid(String d2dModelName, Date refTime,
+            String d2dParmName, Level d2dLevel, TimeRange timeRange,
+            GridParmInfo info) throws DataAccessLayerException {
+        Session s = null;
+
+        try {
+            s = getSession();
+            // TODO: clean up so we only make one db query
+            SortedMap<DataTime, Integer> rawTimes = queryByParmId(d2dModelName,
+                    refTime, d2dParmName, d2dLevel, s);
+
+            // if forecastTime is null just pick one,
+            // this is for static data since all times are the same
+            Integer id = null;
+            if (timeRange == null) {
+                id = rawTimes.values().iterator().next();
+            } else {
+                for (Entry<DataTime, Integer> entry : rawTimes.entrySet()) {
+                    if (entry.getKey().getValidPeriod().equals(timeRange)) {
+                        id = entry.getValue();
+                        break;
+                    }
+                }
+            }
+
+            GridRecord retVal = (GridRecord) s.get(GridRecord.class, id);
             return retVal;
 
         } finally {
@@ -175,21 +242,21 @@ public class GFED2DDao extends GridDao {
      * @throws DataAccessLayerException
      *             If errors occur while querying the metadata database
      */
-    public SortedMap<Integer, Integer> queryByParmId(String d2dModelName,
+    public SortedMap<DataTime, Integer> queryByParmId(String d2dModelName,
             Date refTime, String d2dParmName, Level d2dLevel, Session s)
             throws DataAccessLayerException {
 
         DatabaseQuery query;
         query = new DatabaseQuery(GridRecord.class.getName());
-        query.addReturnedField(FCST_TIME);
+        query.addReturnedField(PluginDataObject.DATATIME_ID);
         query.addReturnedField("id");
         query.addReturnedField(GridConstants.PARAMETER_ABBREVIATION);
         query.addQueryParam(GridConstants.DATASET_ID, d2dModelName);
-        query.addQueryParam(REF_TIME, refTime);
+        query.addQueryParam(REFTIME_ID, refTime);
         query.addQueryParam(GridConstants.PARAMETER_ABBREVIATION, d2dParmName
                 + "%hr", QueryOperand.LIKE);
         query.addQueryParam(GridConstants.LEVEL_ID, d2dLevel.getId());
-        query.addOrder(FCST_TIME, true);
+        query.addOrder(FCSTTIME_ID, true);
         query.addOrder(GridConstants.PARAMETER_ABBREVIATION, true);
 
         @SuppressWarnings("unchecked")
@@ -210,30 +277,30 @@ public class GFED2DDao extends GridDao {
             }
         }
 
-        SortedMap<Integer, Integer> dataTimes = new TreeMap<Integer, Integer>();
+        SortedMap<DataTime, Integer> dataTimes = new TreeMap<DataTime, Integer>();
         if (firstTry.isEmpty()) {
             query = new DatabaseQuery(GridRecord.class.getName());
-            query.addReturnedField(FCST_TIME);
+            query.addReturnedField(PluginDataObject.DATATIME_ID);
             query.addReturnedField("id");
             query.addQueryParam(GridConstants.DATASET_ID, d2dModelName);
-            query.addQueryParam(REF_TIME, refTime);
+            query.addQueryParam(REFTIME_ID, refTime);
             query.addQueryParam(GridConstants.PARAMETER_ABBREVIATION,
                     d2dParmName);
             query.addQueryParam(GridConstants.LEVEL_ID, d2dLevel.getId());
-            query.addOrder(FCST_TIME, true);
+            query.addOrder(FCSTTIME_ID, true);
 
             @SuppressWarnings("unchecked")
             List<Object[]> secondTry = (List<Object[]>) this
                     .queryByCriteria(query);
 
             for (Object[] row : secondTry) {
-                dataTimes.put((Integer) row[0], (Integer) row[1]);
+                dataTimes.put((DataTime) row[0], (Integer) row[1]);
             }
         } else {
             int i = 0;
             while (i < firstTry.size()) {
                 Object[] row = firstTry.get(i++);
-                Integer fcstHr = (Integer) row[0];
+                DataTime dataTime = (DataTime) row[0];
                 Integer id = (Integer) row[1];
                 Matcher matcher = pattern.matcher((String) row[2]);
                 int dur = Integer.MAX_VALUE;
@@ -243,7 +310,8 @@ public class GFED2DDao extends GridDao {
 
                 while (i < firstTry.size()) {
                     Object[] nextRow = firstTry.get(i);
-                    if (fcstHr.equals(nextRow[0])) {
+                    DataTime nextDataTime = (DataTime) nextRow[0];
+                    if (dataTime.getFcstTime() == nextDataTime.getFcstTime()) {
                         i++;
                         String nextParam = (String) nextRow[2];
                         Matcher nextMatcher = pattern.matcher(nextParam);
@@ -258,33 +326,33 @@ public class GFED2DDao extends GridDao {
                         break;
                     }
                 }
-                dataTimes.put(fcstHr, id);
+                dataTimes.put(dataTime, id);
             }
         }
         return dataTimes;
     }
 
     /**
-     * Retrieve the available Forecast Hours by D2D parm id.
+     * Retrieve the available Data Times by D2D parm id.
      * 
      * @param d2dModelName
      * @param refTime
      * @param d2dParmName
      * @param d2dLevel
-     * @return the list of forecast hours, empty if none
+     * @return the list of data times, empty if none
      * @throws DataAccessLayerException
      */
-    public List<Integer> queryFcstHourByParmId(String d2dModelName,
+    public List<DataTime> queryDataTimeByParmId(String d2dModelName,
             Date refTime, String d2dParmName, Level d2dLevel)
             throws DataAccessLayerException {
-        List<Integer> timeList = new ArrayList<Integer>();
+        List<DataTime> timeList = new ArrayList<>();
         Session s = null;
         try {
             s = getSession();
 
-            SortedMap<Integer, Integer> results = queryByParmId(d2dModelName,
+            SortedMap<DataTime, Integer> results = queryByParmId(d2dModelName,
                     refTime, d2dParmName, d2dLevel, s);
-            for (Integer o : results.keySet()) {
+            for (DataTime o : results.keySet()) {
                 timeList.add(o);
             }
         } finally {
@@ -312,9 +380,9 @@ public class GFED2DDao extends GridDao {
     public List<Date> getModelRunTimes(String d2dModelName, int maxRecords)
             throws DataAccessLayerException {
         DatabaseQuery query = new DatabaseQuery(GridRecord.class.getName());
-        query.addDistinctParameter(REF_TIME);
+        query.addDistinctParameter(REFTIME_ID);
         query.addQueryParam(GridConstants.DATASET_ID, d2dModelName);
-        query.addOrder(REF_TIME, false);
+        query.addOrder(REFTIME_ID, false);
         if (maxRecords > 0) {
             query.setMaxResults(maxRecords);
         }

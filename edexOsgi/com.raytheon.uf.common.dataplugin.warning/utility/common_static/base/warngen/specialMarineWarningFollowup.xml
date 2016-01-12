@@ -7,7 +7,9 @@
                           Evan Bookbinder 09-11-2012 Added settings for locations shapefile
                                                      Added new areaSource variable  
                           Phil Kurimski 09-16-2013 Fixed multiple selections in pathcast 
-                          Phil Kurimski 09-19-2013 added geospatialConfig.xml                       
+                          Phil Kurimski 09-19-2013 added geospatialConfig.xml      
+                          Richard Barnhill 12-30-2015 changed genericCTA and gustyWindsCTA to eliminate references to (,)
+                          Richard Barnhill 12-30-2015 added showString for list of locations so correct one displays and not both.                 
 -->
 
 <!-- INCLUDE ALL GEOSPTATIAL INFORMATION FOR THIS PRODUCT
@@ -168,13 +170,13 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="*********** Optional Pathcast Section **********" bulletType="title"/>
   <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="pcast" parseString="WILL BE NEAR..."/>
-  <bullet bulletName="listoflocations" bulletText="Select for a list of locations" bulletGroup="pcast" parseString="&quot;LOCATIONS&quot;,&quot;INCLUDE...&quot;"/>
+  <bullet bulletName="listoflocations" bulletText="Select for a list of locations" bulletGroup="pcast" parseString="&quot;LOCATIONS&quot;,&quot;INCLUDE...&quot;" showString="LOCATIONS IMPACTED INCLUDE"/>
   <bullet bulletName="listoflocations" bulletText="Select for a list of locations" bulletGroup="pcast" parseString="WILL REMAIN OVER" showString="WILL REMAIN OVER"/>  
   <bullet bulletName="specialEvent" bulletText="Special heads-up for large event/venue" parseString="THOSE ATTENDING"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText=" ****** CALLS TO ACTION (CHOOSE 1 OR MORE) ****** " bulletType="title"/>
-  <bullet bulletName="genericCTA" bulletText="As thunderstorms move over the water.." parseString="OVER THE WATER, BOATERS CAN EXPECT"/>
-  <bullet bulletName="gustyWindsCTA" bulletText="Mariners can expect gusty winds.." parseString="MARINERS CAN EXPECT GUSTY WINDS, HIGH WAVES"/>
+  <bullet bulletName="genericCTA" bulletText="As thunderstorms move over the water.." parseString="BOATERS CAN EXPECT GUSTY WINDS"/>
+  <bullet bulletName="gustyWindsCTA" bulletText="Mariners can expect gusty winds.." parseString="BOATERS SHOULD SEEK SAFE HARBOR IMMEDIATELY UNTIL"/>
   <bullet bulletName="hailWindsCTA" bulletText="Mariners can expect cta with hail/wind speeds" parseString="MARINERS CAN EXPECT WIND GUSTS "/>
   <bullet bulletName="nonThunderstormCTA" bulletText="Non thunderstorm winds - mariners can expect gusty winds.." parseString="MARINERS CAN EXPECT GUSTY WINDS AND INCREASING WAVES"/>
   <bullet bulletName="waterspoutCTA" bulletText="Thunderstorms can produce waterspouts" parseString="THUNDERSTORMS CAN PRODUCE SUDDEN WATERSPOUTS"/>
@@ -221,13 +223,13 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="*********** Optional Pathcast Section **********" bulletType="title"/>
   <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="pcast" parseString="WILL BE NEAR..."/>
-  <bullet bulletName="listoflocations" bulletText="Select for a list of locations" bulletGroup="pcast" parseString="&quot;LOCATIONS&quot;,&quot;INCLUDE...&quot;"/>
+  <bullet bulletName="listoflocations" bulletText="Select for a list of locations" bulletGroup="pcast" parseString="&quot;LOCATIONS&quot;,&quot;INCLUDE...&quot;" showString="LOCATIONS IMPACTED INCLUDE"/>
   <bullet bulletName="listoflocations" bulletText="Select for a list of locations" bulletGroup="pcast" parseString="WILL REMAIN OVER" showString="WILL REMAIN OVER"/>  
   <bullet bulletName="specialEvent" bulletText="Special heads-up for large event/venue" parseString="THOSE ATTENDING"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText=" ****** CALLS TO ACTION (CHOOSE 1 OR MORE) ****** " bulletType="title"/>
-  <bullet bulletName="genericCTA" bulletText="As thunderstorms move over the water.." parseString="OVER THE WATER, BOATERS CAN EXPECT"/>
-  <bullet bulletName="gustyWindsCTA" bulletText="Mariners can expect gusty winds.." parseString="MARINERS CAN EXPECT GUSTY WINDS, HIGH WAVES"/>
+  <bullet bulletName="genericCTA" bulletText="As thunderstorms move over the water.." parseString="BOATERS CAN EXPECT GUSTY WINDS"/>
+  <bullet bulletName="gustyWindsCTA" bulletText="Mariners can expect gusty winds.." parseString="BOATERS SHOULD SEEK SAFE HARBOR IMMEDIATELY UNTIL"/>
   <bullet bulletName="hailWindsCTA" bulletText="Mariners can expect cta with hail/wind speeds" parseString="MARINERS CAN EXPECT WIND GUSTS "/>
   <bullet bulletName="nonThunderstormCTA" bulletText="Non thunderstorm winds - mariners can expect gusty winds.." parseString="MARINERS CAN EXPECT GUSTY WINDS AND INCREASING WAVES"/>
   <bullet bulletName="waterspoutCTA" bulletText="Thunderstorms can produce waterspouts" parseString="THUNDERSTORMS CAN PRODUCE SUDDEN WATERSPOUTS"/>

@@ -44,7 +44,8 @@ import com.raytheon.viz.hydrocommon.whfslib.colorthreshold.NamedColorUseSet;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 12, 2011            lvenable     Initial creation
- * 
+ * Nov 2015      DR 18xxx  pstilles     fixed problem with qpe grid written to file
+ *                                      reported by OHRFC
  * </pre>
  * 
  * @author lvenable
@@ -54,47 +55,45 @@ import com.raytheon.viz.hydrocommon.whfslib.colorthreshold.NamedColorUseSet;
 public class BestEstimate1HrQpeDlg extends BasePostAnalysisDlg {
 
     private static final int HOURS_PER_DAY = 24;
-	/**
+    /**
      * File combo box.
      */
     private Combo fileCbo = null;
     private String selectedFileName = null;
-    
+
     private List<String> xmrgFileList = null;
     private PostAnalysisManager paMgr = null;
-	private String qpeDirectory = null;
-	private String adjustedDirectory = null;
-    
-    
+    private String qpeDirectory = null;
+    private String adjustedDirectory = null;
+
     private double[][] biasRatioGrid = null;
     private double[][] disaggGrid = null;
-    
-    
+
     /**
      * Constructor.
      * 
      * @param parentShell
      *            Parent shell.
      */
-    public BestEstimate1HrQpeDlg(Shell parentShell, double[][] biasRatioGrid, double[][] disaggGrid) {
+    public BestEstimate1HrQpeDlg(Shell parentShell, double[][] biasRatioGrid,
+            double[][] disaggGrid) {
         super(parentShell);
 
         setText("1hr Best Estimate QPE Fields");
         paMgr = new PostAnalysisManager();
         xmrgFileList = paMgr.getListOfAvailableXmrgFiles();
-        
+
         this.biasRatioGrid = biasRatioGrid;
         this.disaggGrid = disaggGrid;
-        
-    	qpeDirectory = paMgr.getXmrgFileDirectory().getAbsolutePath();
-    	
-    	File paFileDirectory = paMgr.getPostAnalysisFileDirectory();
-    	
-    	if (paFileDirectory != null)
-    	{
-    		adjustedDirectory = paFileDirectory.getAbsolutePath();
-    	}
-    	
+
+        qpeDirectory = paMgr.getXmrgFileDirectory().getAbsolutePath();
+
+        File paFileDirectory = paMgr.getPostAnalysisFileDirectory();
+
+        if (paFileDirectory != null) {
+            adjustedDirectory = paFileDirectory.getAbsolutePath();
+        }
+
     }
 
     /*
@@ -133,70 +132,66 @@ public class BestEstimate1HrQpeDlg extends BasePostAnalysisDlg {
      */
     @Override
     protected String[] getMapLabelNames() {
-        String[] names = new String[] { "1hr Best Estimate QPE", "1hr Best Estimate QPE(Grid Bias Applied)" };
+        String[] names = new String[] { "1hr Best Estimate QPE",
+                "1hr Best Estimate QPE(Grid Bias Applied)" };
         return names;
     }
-    
-    
-    private void loadAdjustAndSaveAllQPEFiles(String destinationDirectoryName)
-    {
-    	for (String fileName: xmrgFileList)
-    	{
-    		loadAdjustAndSave(fileName, destinationDirectoryName);
-    	}
+
+    private void loadAdjustAndSaveAllQPEFiles(String destinationDirectoryName) {
+        for (String fileName : xmrgFileList) {
+            loadAdjustAndSave(fileName, destinationDirectoryName);
+        }
     }
-    
-    private void loadAdjustAndSave(String fileName, String destinationDirectoryName)
-    {
-    	String header = "BestEstimate1HrQPEDlg.loadAdjustAndSave(): ";
-    	
-    	String originalFilePath = qpeDirectory + '/' + fileName;
-    	String destinationFilePath = destinationDirectoryName + '/' + fileName;
-    	
-    	double[][] adjustedGrid = paMgr.readGridData(originalFilePath, true, true);
-    	
-    	if (adjustedGrid != null)
-    	{
-    	    applyGridAdjustments(adjustedGrid, biasRatioGrid, disaggGrid);
 
-    	    float[] dataArray = paMgr.convertToSingleArray(adjustedGrid, false, true);
-    	    short[] shortArray= paMgr.convertToShortArray(dataArray, 1.0f);
+    private void loadAdjustAndSave(String fileName,
+            String destinationDirectoryName) {
+        String header = "BestEstimate1HrQPEDlg.loadAdjustAndSave(): ";
 
-    	    XmrgFile file = new XmrgFile();  
+        String originalFilePath = qpeDirectory + '/' + fileName;
+        String destinationFilePath = destinationDirectoryName + '/' + fileName;
 
-    	    file.setData(shortArray);
-    	    file.setHrapExtent(paMgr.getExtent());
-    	    file.setHeader(paMgr.getXmrgHeader());
+        double[][] adjustedGrid = paMgr.readGridData(originalFilePath, true,
+                true);
 
-    	    try
-    	    {
-    	        file.save(destinationFilePath);
-    	        System.out.println(header + "Saved xmrg file to " + destinationFilePath);
-    	    }
-    	    catch (Exception e)
-    	    {
-    	        e.printStackTrace();
-    	    }
-    	}
-    	
+        if (adjustedGrid != null) {
+            applyGridAdjustments(adjustedGrid, biasRatioGrid, disaggGrid);
+
+            float[] dataArray = paMgr.convertToSingleArray(adjustedGrid, false,
+                    false);
+            short[] shortArray = paMgr.convertToShortArray(dataArray, 1.0f);
+
+            XmrgFile file = new XmrgFile();
+
+            file.setData(shortArray);
+            file.setHrapExtent(paMgr.getExtent());
+            file.setHeader(paMgr.getXmrgHeader());
+
+            try {
+                file.save(destinationFilePath);
+                System.out.println(header + "Saved xmrg file to "
+                        + destinationFilePath);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 
     /**
      * Save separate action.
      */
     private void saveSeparateAction() {
-   	
-    	loadAdjustAndSaveAllQPEFiles(adjustedDirectory);
-    
+
+        loadAdjustAndSaveAllQPEFiles(adjustedDirectory);
+
     }
 
     /**
      * Save overwrite action.
      */
-    private void saveOverwriteAction()
-    {
+    private void saveOverwriteAction() {
 
-    	loadAdjustAndSaveAllQPEFiles(qpeDirectory);
+        loadAdjustAndSaveAllQPEFiles(qpeDirectory);
     }
 
     /**
@@ -208,110 +203,86 @@ public class BestEstimate1HrQpeDlg extends BasePostAnalysisDlg {
         gd.widthHint = 300;
         fileCbo = new Combo(shell, SWT.DROP_DOWN | SWT.BORDER | SWT.READ_ONLY);
         fileCbo.setLayoutData(gd);
-        
-        for (String fileName : xmrgFileList)
-        {
-        	  fileCbo.add(fileName);
+
+        for (String fileName : xmrgFileList) {
+            fileCbo.add(fileName);
         }
-        
-        fileCbo.addSelectionListener(new SelectionAdapter() 
-        {
-        	public void widgetSelected(SelectionEvent event) {
-        		
-        		System.out.println("fileCbo.addSelectionListener().widgetSelected() ");
-        		
-        		selectedFileName = fileCbo.getText();
-        		
+
+        fileCbo.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent event) {
+
+                selectedFileName = fileCbo.getText();
+
                 loadImage(event.data);
             }
-        } );
-        
-        //make an initial selection    	
+        });
+
+        // make an initial selection
         fileCbo.select(0);
         selectedFileName = fileCbo.getText();
         loadImage(null);
-      
+
     }
 
-    
     private void loadImage(Object data) {
-		
-    	String header = "BestEstimate1HrQpeDir.loadImage(): ";
-    	
-    	System.out.println(header + " method called.");
-    	
-   
-		String filePath1 = qpeDirectory + '/' + selectedFileName;
-	//	String filePath2 = adjustedDirectory + '/' + selectedFileName;
-		
-		
-		System.out.println(header + " filePath1 = " + filePath1);
-	//	System.out.println(header + " filePath2 = " + filePath2);
-		
-		//do this temporarily until I have enough good fake data
-	//	filePath1 = "/home/cgobs2/xmrg_data/MMOSAIC2011081901z";
-		
-		setDataFileName1(filePath1);
-		
-	//	filePath2 = "/home/cgobs2/xmrg_data/MMOSAIC2011081901z";  //do this temporarily until I build the adjusted data
-		
-		//save the first image as a grid (a 2D array) so that I can then hold the adjusted grid in memory and then adjust it
-		double[][] adjustedGrid = paMgr.readGridData(filePath1, false, false);
-		applyGridAdjustments(adjustedGrid, biasRatioGrid, disaggGrid);
-		
-		float[] dataArray2 = paMgr.convertToSingleArray(adjustedGrid, false, false);
-		setDataArray2(dataArray2);
-		setExtent2(paMgr.getExtent());
-		
-		long newEndTime = paMgr.getTimeFromFileName(selectedFileName);
-		String newEndTimeString = "ending at " + getDateTimeStringFromLongTime(newEndTime);
-		//refresh the ColorLegend
-		
-		colorLegendMgr.setDateTimeStringForLegend(newEndTimeString);
-		
-		//refresh the maps
-		mapsComp.refresh();
-	}
-    
-    private void applyGridAdjustments(double[][] adjustedGrid, 
-    								  double[][] biasGrid,
-    								  double[][] disaggGrid)
-    {
-    	
-    		try
-    		{
-    	
-        	int rowCount = adjustedGrid.length;
-        	int colCount = adjustedGrid[0].length;
-        		
-        	for (int row = 0; row < rowCount; row++)
-        	{
-        		for (int col = 0; col < colCount; col++)
-        		{
-        			double biasValue = biasGrid[col][row];
-        			double disaggValue = disaggGrid[col][row] / HOURS_PER_DAY;
-        			
-        			if (biasValue > 0.0)
-        			{
-        			    adjustedGrid[row][col] *= biasValue;
-        			}
-        			else if (disaggValue > 0.0)
-        			{
-        				adjustedGrid[row][col] = disaggValue;
-        			}
-         		
-        		}
-        		
-        	}
-    		}
-    		catch (Throwable t)
-    		{
-    			t.printStackTrace();
-    		}
-      
-	}
 
-	/*
+        String header = "BestEstimate1HrQpeDir.loadImage(): ";
+
+        String filePath1 = qpeDirectory + '/' + selectedFileName;
+
+        setDataFileName1(filePath1);
+
+        // save the first image as a grid (a 2D array) so that can then hold
+        // the adjusted grid in memory and then adjust it
+        double[][] adjustedGrid = paMgr.readGridData(filePath1, false, false);
+        applyGridAdjustments(adjustedGrid, biasRatioGrid, disaggGrid);
+
+        float[] dataArray2 = paMgr.convertToSingleArray(adjustedGrid, false,
+                false);
+        setDataArray2(dataArray2);
+        setExtent2(paMgr.getExtent());
+
+        long newEndTime = paMgr.getTimeFromFileName(selectedFileName);
+        String newEndTimeString = "ending at "
+                + getDateTimeStringFromLongTime(newEndTime);
+
+        // refresh the ColorLegend
+        colorLegendMgr.setDateTimeStringForLegend(newEndTimeString);
+
+        // refresh the maps
+        mapsComp.refresh();
+    }
+
+    private void applyGridAdjustments(double[][] adjustedGrid,
+            double[][] biasGrid, double[][] disaggGrid) {
+
+        try {
+
+            int rowCount = adjustedGrid.length;
+            int colCount = adjustedGrid[0].length;
+
+            for (int row = 0; row < rowCount; row++) {
+                for (int col = 0; col < colCount; col++) {
+                    double biasValue = biasGrid[col][row];
+                    double disaggValue = disaggGrid[col][row] / HOURS_PER_DAY;
+
+                    if (biasValue > 0.0) {
+                        adjustedGrid[row][col] *= biasValue;
+
+                    } else if (disaggValue > 0.0) {
+                        adjustedGrid[row][col] = disaggValue;
+                    }
+
+                }
+
+            }
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+
+    }
+
+    /*
      * (non-Javadoc)
      * 
      * @see com.raytheon.viz.mpe.ui.dialogs.postanalysis.BasePostAnalysisDlg#
@@ -322,21 +293,17 @@ public class BestEstimate1HrQpeDlg extends BasePostAnalysisDlg {
         return 1;
     }
 
+    @Override
+    protected NamedColorUseSet createNamedColorUseSet1() {
 
-	@Override
-	protected NamedColorUseSet createNamedColorUseSet1() {
-		
-		return PostAnalysisManager.getNamedColorUseSet("PRECIP_ACCUM");
-		//NamedColorUseSet namedColorUseSet1 = TestDriver.getNamedColorUseSet1Hr();
-		//return namedColorUseSet1;
-	}
+        return PostAnalysisManager.getNamedColorUseSet("PRECIP_ACCUM");
 
+    }
 
-	@Override
-	protected NamedColorUseSet createNamedColorUseSet2() {
-		return PostAnalysisManager.getNamedColorUseSet("PRECIP_ACCUM");
-		//NamedColorUseSet namedColorUseSet2 = TestDriver.getNamedColorUseSet1Hr();
-		//return namedColorUseSet2;
-	}
-	
+    @Override
+    protected NamedColorUseSet createNamedColorUseSet2() {
+        return PostAnalysisManager.getNamedColorUseSet("PRECIP_ACCUM");
+
+    }
+
 }

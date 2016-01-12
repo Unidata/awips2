@@ -57,14 +57,13 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrobase.data.GeoAreaData;
 import com.raytheon.viz.hydrobase.data.GeoDataManager;
 import com.raytheon.viz.hydrobase.data.HrapBinList;
-import com.raytheon.viz.hydrobase.data.LineSegment;
+import com.raytheon.viz.hydrobase.data.HydroGeoProcessor;
 import com.raytheon.viz.hydrocommon.HydroConstants;
 import com.raytheon.viz.hydrocommon.HydroConstants.ArealTypeSelection;
 import com.raytheon.viz.hydrocommon.texteditor.TextEditorDlg;
 import com.raytheon.viz.hydrocommon.whfslib.GeoUtil;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
-import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * This class displays the Areal Definitions dialog.
@@ -79,6 +78,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 16 Jul 2013  2088       rferrel     Changes for non-blocking TextEditorDlg.
  * 29 June 2015 14630      xwei        Fixed : Not able to import basins.dat with apostrophe and incorrect data posted
  * 30 June 2015 17360      xwei        Fixed : basins.dat import failed if the first line does not have Lat Lon
+ * Dec 18, 2015 5217       mduff       Changes to fix importing geo files.
  * 
  * </pre>
  * 
@@ -656,8 +656,8 @@ public class ArealDefinitionsDlg extends CaveSWTDialog {
     private void importGeoArea() {
         GeoDataManager dman = GeoDataManager.getInstance();
         Date now = Calendar.getInstance(TimeZone.getTimeZone("GMT")).getTime();
+        long start = now.getTime();
         openLogFile();
-        log("=====================================");
         log("Starting import of "
                 + HydroConstants.GEOAREA_DATANAMES[selectedType.ordinal()]
                 + " on " + HydroConstants.DATE_FORMAT.format(now));
@@ -674,15 +674,19 @@ public class ArealDefinitionsDlg extends CaveSWTDialog {
 
         // Open the file for reading
         File f = getAreaFilename();
+        BufferedReader in = null;
         try {
-            BufferedReader in = new BufferedReader(new FileReader(f));
+            in = new BufferedReader(new FileReader(f));
             String line = null;
             while ((line = in.readLine()) != null) {
+                if (line.length() == 0) {
+                    // Skip any blank lines
+                    continue;
+                }
                 saveDataBlock = true;
                 linenum++;
 
                 // Process the header line
-
                 /*
                  * extract each of the attributes from the header block for the
                  * subsequent set of points
@@ -694,7 +698,7 @@ public class ArealDefinitionsDlg extends CaveSWTDialog {
                 /* Remove any excess whitespace. */
                 str = str.trim();
                 str = str.replaceAll("\\s{2,}", " ");
-                str = str.replaceAll("'", "''"); 
+                str = str.replaceAll("'", "''");
 
                 String[] parts = str.split(" ");
                 int numParts = parts.length;
@@ -704,10 +708,11 @@ public class ArealDefinitionsDlg extends CaveSWTDialog {
                  * point is found then assume this line has two lat/lon values
                  * at the end.
                  */
-                if (numParts == 6 && parts[numParts - 2].contains(".")
+                if (numParts > 2 && parts[numParts - 2].contains(".")
                         && parts[numParts - 1].contains(".")) {
                     intLat = Double.parseDouble(parts[numParts - 2]);
-                    intLon = Double.parseDouble(parts[numParts - 1]);
+                    // * -1 for hydro perspective
+                    intLon = Double.parseDouble(parts[numParts - 1]) * -1;
 
                     if ((intLat < 0) || (intLat > 90)) {
                         log("ERROR:  invalid interior " + intLat
@@ -723,16 +728,16 @@ public class ArealDefinitionsDlg extends CaveSWTDialog {
                 }
 
                 int shiftNum = 0;
-                if ( numParts == 4 ){
-                	shiftNum = 2;
+                if (numParts == 4) {
+                    shiftNum = 2;
                 }
-                
+
                 /*
                  * get the number of lat-lon pairs that follow, from the end of
                  * the line
                  */
-                nPts = Integer.parseInt(parts[numParts - 3 + shiftNum]); 
-                
+                nPts = Integer.parseInt(parts[numParts - 3 + shiftNum]);
+
                 double[] lonPoints = new double[nPts];
                 double[] latPoints = new double[nPts];
 
@@ -740,7 +745,8 @@ public class ArealDefinitionsDlg extends CaveSWTDialog {
                  * get the stream order, which is not always specified, from the
                  * field preceding the num of lat-lon pairs
                  */
-                int streamOrder = Integer.parseInt(parts[numParts - 4 + shiftNum]);
+                int streamOrder = Integer.parseInt(parts[numParts - 4
+                        + shiftNum]);
 
                 if ((streamOrder < -1) || (streamOrder > 50)) {
                     log("WARNING: Error reading stream order in line "
@@ -757,7 +763,6 @@ public class ArealDefinitionsDlg extends CaveSWTDialog {
                 }
 
                 name.trimToSize();
-
                 String nameString = null;
                 if (name.length() > LOC_AREANAME_LEN) {
                     log(String
@@ -798,8 +803,8 @@ public class ArealDefinitionsDlg extends CaveSWTDialog {
                         saveDataBlock = false;
                     } else {
                         double lat = Double.parseDouble(latlon[0]);
-                        double lon = Double.parseDouble(latlon[1]);
-                        
+                        double lon = Double.parseDouble(latlon[1]) * -1;
+
                         /* Test the bounds of the longitude value. */
                         if ((lon < -180) || (lon > 180)) {
                             log("ERROR reading or invalid lon for id "
@@ -837,10 +842,22 @@ public class ArealDefinitionsDlg extends CaveSWTDialog {
                 geoData.setSaveDataBlock(saveDataBlock);
                 geoDataList.add(geoData);
             } // end while ((line = in.readLine()) != null)
-
-            in.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            statusHandler.error(
+                    "Error reading "
+                            + HydroConstants.GEOAREA_DATANAMES[listCbo
+                                    .getSelectionIndex()] + ".dat file", e);
+            log("Error reading "
+                    + HydroConstants.GEOAREA_DATANAMES[listCbo
+                            .getSelectionIndex()] + ".dat file");
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    // no op
+                }
+            }
         }
 
         if (geoDataList.size() <= 0) {
@@ -865,7 +882,10 @@ public class ArealDefinitionsDlg extends CaveSWTDialog {
 
                     log("DELETE " + numSegDel);
                 } catch (VizException e) {
-                    e.printStackTrace();
+                    statusHandler.error(
+                            "Could not delete rows corresponding to GeoArea type "
+                                    + selectedType.toString()
+                                    + " from the LineSegs database table.", e);
                     log("Could not delete rows corresponding to GeoArea type");
                     log(selectedType.toString()
                             + " from the LineSegs database table.");
@@ -885,7 +905,10 @@ public class ArealDefinitionsDlg extends CaveSWTDialog {
 
                 log("DELETE " + numGeoDel);
             } catch (VizException e) {
-                e.printStackTrace();
+                statusHandler.error(
+                        "Could not delete rows from the GeoArea table "
+                                + "corresponding to boundary_type "
+                                + selectedType.toString(), e);
                 log("Could not delete rows from the GeoArea table");
                 log("corresponding to boundary_type " + selectedType.toString());
                 closeLogFile();
@@ -901,7 +924,9 @@ public class ArealDefinitionsDlg extends CaveSWTDialog {
                             throw new VizException();
                         }
                     } catch (VizException e) {
-                        e.printStackTrace();
+                        statusHandler.error(
+                                "ERROR:  Database write failed for "
+                                        + data.getAreaId(), e);
                         log("ERROR:  Database write failed for "
                                 + data.getAreaId());
                     }
@@ -913,13 +938,14 @@ public class ArealDefinitionsDlg extends CaveSWTDialog {
             }
 
             // Load the linesegs table
+            HydroGeoProcessor proc = new HydroGeoProcessor();
 
             if (selectedType != ArealTypeSelection.RESERVOIRS) {
                 for (GeoAreaData data : geoDataList) {
                     /* do the main processing */
-                    HrapBinList binList = getHrapBinListForArea(data);
+                    HrapBinList binList = proc.getHrapBinList(data);
                     log("Processing area " + data.getAreaId() + ":"
-                            + "  Writing " + binList.getNumRows() + "rows");
+                            + "  Writing " + binList.getNumRows() + " rows");
                     dman.putLineSegs(data.getAreaId(), binList);
                 }
             }
@@ -927,74 +953,8 @@ public class ArealDefinitionsDlg extends CaveSWTDialog {
 
         now = Calendar.getInstance(TimeZone.getTimeZone("GMT")).getTime();
         log("Import completed on " + HydroConstants.DATE_FORMAT.format(now));
-
+        log("Import time: " + ((now.getTime() - start) / 1000) + " seconds");
         closeLogFile();
-    }
-
-    /**
-     * This function uses areaId to search the database for the polygon
-     * associated with the area. Then it fills the HrapBinList structure by
-     * finding all the HRAP bins whose centers are inside the area.
-     * 
-     * @param data
-     *            The GeoAreaData
-     * @return The HrapBinList
-     */
-    private HrapBinList getHrapBinListForArea(GeoAreaData data) {
-        HrapBinList binList = new HrapBinList();
-
-        ArrayList<Coordinate> points = getPointsFromArea(data);
-
-        java.util.List<LineSegment> segments = LineSegmentUtil
-                .getSegmentsFromPoints(points);
-
-        binList = LineSegmentUtil.getHrapBinListFromSegments(segments);
-
-        return binList;
-    }
-
-    /**
-     * Creates an array of points from the information pointed to by the GeoArea
-     * pointer. Ensures that (1) the last point is the same as the first and (2)
-     * that if n points in a row are the same in the database, only one point is
-     * propagated to the points array
-     * 
-     * @param data
-     *            The GeoAreaData object
-     */
-    private ArrayList<Coordinate> getPointsFromArea(GeoAreaData data) {
-        ArrayList<Coordinate> points = new ArrayList<Coordinate>();
-
-        /* init the first point */
-        Coordinate coord = new Coordinate(data.getLon()[0], data.getLat()[0]);
-        points.add(coord);
-        double[] lat = data.getLat();
-        double[] lon = data.getLon();
-
-        /*
-         * for each input point from the database, starting with the second
-         * point
-         */
-        for (int i = 1; i < data.getNumberPoints(); i++) {
-
-            /* if input points are different */
-            if ((lat[i] != lat[i - 1]) || (lon[i] != lon[i - 1])) {
-                coord = new Coordinate(lon[i], lat[i]);
-                points.add(coord);
-            }
-        }
-
-        /*
-         * if the first point and the last point are not the same, add a final
-         * point that is the same as the first
-         */
-        if (!LineSegmentUtil.pointsEqual(points.get(0),
-                points.get(points.size() - 1))) {
-            coord = new Coordinate(lon[0], lat[0]);
-            points.add(coord);
-        }
-
-        return points;
     }
 
     /**
@@ -1023,7 +983,7 @@ public class ArealDefinitionsDlg extends CaveSWTDialog {
             }
             logFileOpen = false;
         } catch (IOException e) {
-            e.printStackTrace();
+            statusHandler.error("Error closing log file", e);
         }
     }
 
@@ -1042,7 +1002,7 @@ public class ArealDefinitionsDlg extends CaveSWTDialog {
             try {
                 logger.write(stmt + "\n");
             } catch (IOException e) {
-                e.printStackTrace();
+                statusHandler.error("Error writing to log file", e);
             }
         }
     }

@@ -5,6 +5,7 @@
 ## Modified by Phil Kurimski 9-18-2013 OB13.5.2-5 for FFW Emergency
 ##             Evan Bookbinder 9-18-2013 Implemented config.vm
 ##             Mike Dangelo/Phil Kurimski 03/23-26/2015 MixEd CAse
+##             Mike Dangelo 10/20/15 standard CTAs
 ######################################################################
 ## This template can be used for any pre-defined polygon that a site 
 ## needs to issue a FFW for outside of a dam break.
@@ -279,83 +280,63 @@ ${burnCTA}
 
 #if(${list.contains(${bullets}, "ffwEmergencyCTA")} || ${list.contains(${bullets}, "ffwEmergency")})
 #if(${list.contains(${bullets}, "ffwEmergency")})
-Move to higher ground now! This is an extremely dangerous and life threatening situation. Do not attempt to travel unless you are fleeing an area subject to flooding or under an evacuation order.
+Move to higher ground now. This is an extremely dangerous and life-threatening situation. Do not attempt to travel unless you are fleeing an area subject to flooding or under an evacuation order.
 
 #else
 !** YOU SELECTED THE FLASH FLOOD EMERGENCY CTA WITHOUT SELECTING THE FLASH FLOOD EMERGENCY HEADER. PLEASE CLOSE THIS WINDOW AND RE-GENERATE THIS WARNING **!
 
 #end
 #end
+#if(${list.contains(${bullets}, "burnAreasCTA")})
+Move away from recently burned areas. Life-threatening flooding of creeks, roads and normally dry arroyos is likely. The heavy rains will likely trigger rockslides, mudslides and debris flows in steep terrain, especially in and around these areas.
+
+#end
+#if(${list.contains(${bullets}, "TADD_CTA")})
+Turn around, don't drown when encountering flooded roads. Most flood deaths occur in vehicles.
+
+#end
 #if(${list.contains(${bullets}, "actQuicklyCTA")})
-Move to higher ground now! Act quickly to protect your life.
+Move to higher ground now. Act quickly to protect your life.
 
 #end
 #if(${list.contains(${bullets}, "childSafetyCTA")})
-Keep children away from storm drains, culvert, screeks and streams. Water levels can rise rapidly and sweep children away.
-
-#end
-#if(${list.contains(${bullets}, "urbanFloodingCTA")})
-Excessive runoff from heavy rainfall will cause flooding of small creeks and streams, urban areas, highways, streets and underpasses as well as other drainage areas and low lying spots. 
-
-#end
-#if(${list.contains(${bullets}, "ruralFloodingCTA")})
-Excessive runoff from heavy rainfall will cause flooding of small creeks and streams, country roads, as well as farmland as well as other drainage areas and low lying spots.
-
-#end
-#if(${list.contains(${bullets}, "ruralUrbanCTA")})
-Excessive runoff from heavy rainfall will cause flooding of small creeks and streams, highways and underpasses.  additionally, country roads and farmlands along the banks of creeks, streams and other low lying areas are subject to flooding.
+Keep children away from storm drains, culverts, creeks and streams. Water levels can rise rapidly and sweep children away.
 
 #end
 #if(${list.contains(${bullets}, "nighttimeCTA")})
 Be especially cautious at night when it is harder to recognize the dangers of flooding. 
 
 #end
-#if(${list.contains(${bullets}, "safetyCTA")})
-Do not enter or cross flowing water or water of unknown depth. 
+#if(${list.contains(${bullets}, "urbanCTA")})
+Excessive runoff from heavy rainfall will cause flooding of small creeks and streams, urban areas, highways, streets and underpasses as well as other drainage areas and low lying spots. 
+
+#end
+#if(${list.contains(${bullets}, "ruralCTA")})
+Excessive runoff from heavy rainfall will cause flooding of small creeks and streams, country roads, farmland, and other low lying spots.
 
 #end
 #if(${list.contains(${bullets}, "stayAwayCTA")})
 Stay away or be swept away. River banks and culverts can become unstable and unsafe. 
 
 #end
-#if(${list.contains(${bullets}, "dontDriveCTA")})
-Do not drive your vehicle into areas where the water covers the roadway. The water depth may be too great to allow your car to cross safely.  Move to higher ground.
-
-#end
-#if(${list.contains(${bullets}, "turnAroundCTA")})
-If you encounter flooded roads, Turn Around, Don't Drown! Most flood deaths occur in vehicles.
+#if(${list.contains(${bullets}, "lowSpotsCTA")})
+In hilly terrain there are hundreds of low water crossings which are potentially dangerous in heavy rain. Do not attempt to cross flooded roads. Find an alternate route.
 
 #end
 #if(${list.contains(${bullets}, "arroyosCTA")})
 Remain alert for flooding even in locations not receiving rain. Arroyos, streams, and rivers can become raging killer currents in a matter of minutes, even from distant rainfall.
 
 #end
-#if(${list.contains(${bullets}, "burnAreasCTA")})
-Move away from recently burned areas. Life threatening flooding of creeks, roads and normally dry arroyos is likely. The heavy rains will likely trigger rockslides, mudslides and debris flows in steep terrain, especially in and around these areas.
-
-#end
-#if(${list.contains(${bullets}, "autoSafetyCTA")})
-Flooding is occurring or is imminent. Most flood related deaths occur in automobiles. Do not attempt to cross water covered bridges, dips, or low water crossings. Never try to cross a flowing stream, even a small one, on foot. To escape rising water find another route over higher ground.
-
-#end
 #if(${list.contains(${bullets}, "camperSafetyCTA")})
 Flooding is occurring or is imminent. It is important to know where you are relative to streams, rivers, or creeks which can become killers in heavy rains. Campers and hikers should avoid streams or creeks.
 
 #end
-#if(${list.contains(${bullets}, "lowSpotsCTA")})
-In hilly terrain there are hundreds of low water crossings which are potentially dangerous in heavy rain.  Do not attempt to travel across flooded roads. Find an alternate route.  It takes only a few inches of swiftly flowing water to carry vehicles away.
+#if(${list.contains(${bullets}, "reportFloodingCTA")})
+Please report flooding to your local law enforcement agency when you can do so safely. 
 
 #end
 #if(${list.contains(${bullets}, "ffwMeansCTA")})
-A Flash Flood Warning means that flooding is imminent or occurring. If you are in the warning area move to higher ground immediately. Residents living along streams and creeks should take immediate precautions to protect life and property. Do not attempt to cross swiftly flowing waters or waters of unknown depth by foot or by automobile. 
-
-#end
-#if(${list.contains(${bullets}, "powerFloodCTA")})
-Do not underestimate the power of flood waters. Only a few inches of rapidly flowing water can quickly carry away your vehicle.
-
-#end
-#if(${list.contains(${bullets}, "reportFloodingCTA")})
-Please report to your local law enforcement agency when you can do so safely. 
+A Flash Flood Warning means that flooding is imminent or occurring. If you are in the warned area move to higher ground immediately. Residents living along streams and creeks should take immediate precautions to protect life and property. 
 
 #end
 #if(${ctaSelected} == "YES") 

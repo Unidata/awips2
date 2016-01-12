@@ -7,6 +7,7 @@
       Evan Bookbinder 03-01-2013 Fixed Group Settings
       Evan Bookbinder 06-07-2013 Fixed CTAs
       Phil Kurimski   09-19-2013 added geospatialConfig.xml
+      Mike Dangelo    10-22-2015 checked for mixed case = passed
 -->
 <warngenConfig>
 

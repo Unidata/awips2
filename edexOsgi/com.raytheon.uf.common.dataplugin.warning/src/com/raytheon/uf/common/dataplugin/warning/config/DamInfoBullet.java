@@ -31,6 +31,7 @@ import javax.xml.bind.annotation.XmlAttribute;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 24, 2011            jsanchez     Initial creation
+ * Dec  9, 2015 ASM #18209 D. Friedman  Support cwaStretch.
  * 
  * </pre>
  * 
@@ -43,11 +44,22 @@ public class DamInfoBullet extends Bullet {
     @XmlAttribute
     private String coords;
 
+    @XmlAttribute
+    private boolean cwaStretch;
+
     public String getCoords() {
         return coords;
     }
 
     public void setCoords(String coords) {
         this.coords = coords;
+    }
+
+    public boolean isCwaStretch() {
+        return cwaStretch;
+    }
+
+    public void setCwaStretch(boolean cwaStretch) {
+        this.cwaStretch = cwaStretch;
     }
 }

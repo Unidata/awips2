@@ -63,4 +63,6 @@
   <parameter name="skyCover" numDims="2" type="STRING" size="8" dimension="maxSkyCover"/>
   <parameter name="totCloudAmount" numDims="1" type="INT" />
   <parameter name="stnName" numDims="1" type="STRING" size="64"/>
+  <parameter name="reportType" numDims="1" type="STRING" size="64"/>
+  <parameter name="stationary" numDims="1" type="STRING" size="64"/>
 </pointDataDescription>

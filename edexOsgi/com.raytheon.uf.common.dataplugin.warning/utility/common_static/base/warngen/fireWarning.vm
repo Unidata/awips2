@@ -46,7 +46,7 @@ ${requestedBy}
 ### FIRE WEATHER EMERGENCY #
 ############################
 #if(${list.contains(${bullets}, "fireEmergency")})
-THIS IS A FIRE EMERGENCY FOR !** EDIT LOCATION(S) **!...TAKE IMMEDIATE SAFETY PRECAUTIONS NOW.
+This is a Fire Emergency for !** EDIT LOCATION(S) **!. Take immediate safety precautions now.
 
 #end
 #if(${list.contains(${bullets}, "generic")})
