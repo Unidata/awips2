@@ -54,11 +54,11 @@ import com.raytheon.uf.common.archive.config.ArchiveConstants.Type;
 import com.raytheon.uf.common.archive.config.select.ArchiveSelect;
 import com.raytheon.uf.common.archive.config.select.CategorySelect;
 import com.raytheon.uf.common.archive.exception.ArchiveException;
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
@@ -100,6 +100,7 @@ import com.raytheon.uf.common.util.FileUtil;
  * Jun 29, 2015 4583       rferrel     Log detail error message when archive configuration is invalid.
  * Aug 18, 2015 3806       njensen     Use SaveableOutputStream to save
  * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
+ * Jan 12, 2016 5244       njensen     Replaced calls to deprecated LocalizationFile methods
  * 
  * </pre>
  * 
@@ -107,6 +108,7 @@ import com.raytheon.uf.common.util.FileUtil;
  * @version 1.0
  */
 public class ArchiveConfigManager {
+
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(ArchiveConfigManager.class);
 
@@ -119,7 +121,7 @@ public class ArchiveConfigManager {
     /** Localization manager. */
     protected final IPathManager pathMgr;
 
-    private final Map<String, LocalizationFile> archiveNameToLocalizationFileMap = new HashMap<String, LocalizationFile>();
+    private final Map<String, ILocalizationFile> archiveNameToLocalizationFileMap = new HashMap<>();
 
     /** Mapping of archive configuration data keyed to the name. */
     private final Map<String, ArchiveConfig> archiveMap = new HashMap<String, ArchiveConfig>();
@@ -146,8 +148,8 @@ public class ArchiveConfigManager {
      * 
      * @return archiveConfigList
      */
-    private LocalizationFile[] getArchiveConfigFiles() {
-        LocalizationFile[] files = pathMgr.listStaticFiles(ARCHIVE_DIR,
+    private ILocalizationFile[] getArchiveConfigFiles() {
+        ILocalizationFile[] files = pathMgr.listStaticFiles(ARCHIVE_DIR,
                 new String[] { ".xml" }, false, true);
         return files;
     }
@@ -327,7 +329,7 @@ public class ArchiveConfigManager {
      * @param lFile
      * @param archiveConfig
      */
-    public void saveArchiveConfig(LocalizationFile lFile,
+    public void saveArchiveConfig(ILocalizationFile lFile,
             ArchiveConfig archiveConfig) {
         try {
             marshalArchiveConfigToXmlFile(archiveConfig, lFile);
@@ -343,8 +345,8 @@ public class ArchiveConfigManager {
     public void reset() {
         archiveMap.clear();
         archiveNameToLocalizationFileMap.clear();
-        LocalizationFile[] files = getArchiveConfigFiles();
-        for (LocalizationFile lFile : files) {
+        ILocalizationFile[] files = getArchiveConfigFiles();
+        for (ILocalizationFile lFile : files) {
             try {
                 ArchiveConfig archiveConfig = unmarshalArhiveConfigFromXmlFile(lFile);
                 if ((archiveConfig != null) && archiveConfig.isValid()) {
@@ -354,7 +356,7 @@ public class ArchiveConfigManager {
                 } else {
                     StringBuilder sb = new StringBuilder(
                             "Bad Archive configuration file: ");
-                    sb.append(lFile.getFile().getName());
+                    sb.append(lFile.getPath());
                     if (archiveConfig != null) {
                         sb.append(archiveConfig.createErrorMsg());
                     }
@@ -363,11 +365,9 @@ public class ArchiveConfigManager {
             } catch (DataBindingException ex) {
                 statusHandler.handle(Priority.ERROR,
                         "Bad Archive configuration file \""
-                                + lFile.getFile().getName() + "\": ", ex);
-            } catch (IOException e) {
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
-            } catch (LocalizationException e) {
+ + lFile.getPath()
+                                + "\": ", ex);
+            } catch (IOException | LocalizationException e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);
             }
@@ -382,12 +382,12 @@ public class ArchiveConfigManager {
                 LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
         for (String archiveName : archiveMap.keySet()) {
             ArchiveConfig archiveConfig = archiveMap.get(archiveName);
-            LocalizationFile lFile = archiveNameToLocalizationFileMap
+            ILocalizationFile lFile = archiveNameToLocalizationFileMap
                     .get(archiveName);
             if (lFile.getContext().getLocalizationLevel() != LocalizationLevel.SITE) {
                 // Modify the site not the base file.
-                LocalizationFile tlFile = pathMgr.getLocalizationFile(
-                        siteContext, lFile.getName());
+                ILocalizationFile tlFile = pathMgr.getLocalizationFile(
+                        siteContext, lFile.getPath());
                 lFile = tlFile;
             }
             saveArchiveConfig(lFile, archiveConfig);
@@ -891,7 +891,7 @@ public class ArchiveConfigManager {
      * @throws LocalizationException
      */
     private void marshalArchiveConfigToXmlFile(ArchiveConfig archiveConfig,
-            LocalizationFile lFile) throws IOException, LocalizationException {
+            ILocalizationFile lFile) throws IOException, LocalizationException {
         try (SaveableOutputStream sos = lFile.openOutputStream()) {
             JAXB.marshal(archiveConfig, sos);
             sos.save();
@@ -908,7 +908,7 @@ public class ArchiveConfigManager {
      * @throws LocalizationException
      */
     private ArchiveConfig unmarshalArhiveConfigFromXmlFile(
-            LocalizationFile lFile) throws IOException, LocalizationException,
+            ILocalizationFile lFile) throws IOException, LocalizationException,
             DataBindingException {
         ArchiveConfig archiveConfig = null;
         try (InputStream stream = lFile.openInputStream()) {
@@ -926,7 +926,7 @@ public class ArchiveConfigManager {
     public void deleteSelection(String fileName) throws LocalizationException {
         LocalizationContext siteContext = pathMgr.getContext(
                 LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
-        LocalizationFile lFile = pathMgr.getLocalizationFile(siteContext,
+        ILocalizationFile lFile = pathMgr.getLocalizationFile(siteContext,
                 ARCHIVE_DIR + "/" + fileName);
         lFile.delete();
     }
@@ -941,15 +941,12 @@ public class ArchiveConfigManager {
         SelectConfig selections = null;
         LocalizationContext siteContext = pathMgr.getContext(
                 LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
-        LocalizationFile lFile = pathMgr.getLocalizationFile(siteContext,
+        ILocalizationFile lFile = pathMgr.getLocalizationFile(siteContext,
                 ARCHIVE_DIR + "/" + fileName);
         if (lFile.exists()) {
             try (InputStream stream = lFile.openInputStream()) {
                 selections = unmarshallSelectionStream(stream);
-            } catch (LocalizationException e) {
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
-            } catch (IOException e) {
+            } catch (LocalizationException | IOException e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);
             }
@@ -994,16 +991,16 @@ public class ArchiveConfigManager {
      * @return selectNames
      */
     public String[] getSelectionNames(ArchiveConstants.Type type) {
-        LocalizationFile[] files = pathMgr.listStaticFiles(ARCHIVE_DIR
+        ILocalizationFile[] files = pathMgr.listStaticFiles(ARCHIVE_DIR
                 + IPathManager.SEPARATOR + type.selectionDir,
                 new String[] { ArchiveConstants.configFileExt }, false, true);
         String[] names = new String[files.length];
         int extLen = ArchiveConstants.configFileExt.length();
         int i = 0;
         StringBuilder sb = new StringBuilder();
-        for (LocalizationFile lFile : files) {
+        for (ILocalizationFile lFile : files) {
             sb.setLength(0);
-            sb.append(lFile.getName());
+            sb.append(lFile.getPath());
             sb.setLength(sb.length() - extLen);
             names[i] = sb.substring(sb.lastIndexOf(IPathManager.SEPARATOR) + 1);
             ++i;
@@ -1024,7 +1021,7 @@ public class ArchiveConfigManager {
             throws LocalizationException, IOException {
         LocalizationContext siteContext = pathMgr.getContext(
                 LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
-        LocalizationFile lFile = pathMgr.getLocalizationFile(siteContext,
+        ILocalizationFile lFile = pathMgr.getLocalizationFile(siteContext,
                 ARCHIVE_DIR + IPathManager.SEPARATOR + fileName);
 
         try (SaveableOutputStream sos = lFile.openOutputStream()) {

@@ -31,11 +31,11 @@ import com.raytheon.uf.common.dataplugin.warning.config.AreaSourceConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.config.GeospatialConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.config.WarngenConfiguration;
 import com.raytheon.uf.common.geospatial.SpatialException;
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.serialization.SerializationException;
@@ -68,6 +68,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  * Jun 17, 2014  DR 17390  Qinglu Lin  Updated getMetaDataMap() for lonField and latField.
  * Aug 21, 2014   3353     rferrel     Generating Geo Spatial data set no longer on the UI thread.
  * Feb 24, 2015   3978     njensen     Use openInputStream() for reading file contents
+ * Jan 12, 2016 5244       njensen     Replaced calls to deprecated LocalizationFile methods
  * 
  * </pre>
  * 
@@ -227,11 +228,11 @@ public class GeospatialFactory {
                 LocalizationType.COMMON_STATIC, LocalizationLevel.CONFIGURED);
         context.setContextName(site);
 
-        LocalizationFile lf = pathMgr.getLocalizationFile(context,
+        ILocalizationFile lf = pathMgr.getLocalizationFile(context,
                 METADATA_FILE);
         if (lf.exists()) {
-            try {
-                return jaxb.unmarshalFromXmlFile(lf.getFile());
+            try (InputStream is = lf.openInputStream()) {
+                return jaxb.unmarshalFromInputStream(is);
             } catch (Exception e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);
@@ -291,7 +292,7 @@ public class GeospatialFactory {
                 LocalizationType.COMMON_STATIC, LocalizationLevel.CONFIGURED);
         context.setContextName(site);
 
-        LocalizationFile lf = pathMgr.getLocalizationFile(context, GEO_DIR
+        ILocalizationFile lf = pathMgr.getLocalizationFile(context, GEO_DIR
                 + fileName);
 
         if (lf.exists()) {
@@ -300,10 +301,10 @@ public class GeospatialFactory {
                         GeospatialDataSet.class, is);
             } catch (IOException e) {
                 throw new SerializationException("Error reading file "
-                        + lf.getName(), e);
+                        + lf.getPath(), e);
             }
         } else {
-            System.out.println("Attempted to load: " + lf.getName()
+            statusHandler.info("Attempted to load: " + lf.getPath()
                     + " for site " + site + ", but file does not exist.");
         }
 
