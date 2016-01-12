@@ -124,9 +124,9 @@ import com.raytheon.uf.viz.localization.service.ILocalizationService;
 
 /**
  * File Tree View for the localization perspective.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
@@ -147,9 +147,10 @@ import com.raytheon.uf.viz.localization.service.ILocalizationService;
  * Nov 18, 2015 4834       njensen     Updated to register file observing on PathManager
  * Dec 03, 2015 4834       njensen     Updated for ILocalizationFile changes
  * Jan 06, 2016 4834       nabowle     Fix single-user edit-save-edit-save.
- *
+ * Jan 11, 2016 5242       kbisanz     Replaced calls to deprecated LocalizationFile methods
+ * 
  * </pre>
- *
+ * 
  * @author mnash
  * @version 1.0
  */
@@ -170,7 +171,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
             } else if ((o1.isDirectory() == false) && o2.isDirectory()) {
                 return -1;
             } else {
-                int nameVal = o1.getName().compareTo(o2.getName());
+                int nameVal = o1.getPath().compareTo(o2.getPath());
                 if (nameVal == 0) {
                     // exact same name, check levels
                     LocalizationLevel l1 = o1.getContext()
@@ -228,7 +229,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
                 for (TreeItem appItem : tree.getItems()) {
                     for (TreeItem rootItem : appItem.getItems()) {
                         TreeItem found = find(rootItem, file.getContext(),
-                                file.getName(), false);
+                                file.getPath(), false);
                         if (found != null) {
                             /*
                              * File found. If updated, set the time stamp to
@@ -361,7 +362,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
 
     /**
      * Creation of the tree component
-     *
+     * 
      * @param parent
      *            composite to add tree to
      */
@@ -557,7 +558,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
 
     /**
      * Repopulates all expanded tree items in the tree.
-     *
+     * 
      * @param tree
      */
     private void repopulateTree(Tree tree) {
@@ -573,7 +574,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
 
     /**
      * Repopulates all tree items from this item down.
-     *
+     * 
      * @param item
      */
     private void repopulateTreeItem(TreeItem item) {
@@ -681,7 +682,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
 
     /**
      * Adds nodes to tree for path data object
-     *
+     * 
      * @param pd
      */
     private void addPathDataTreeNode(PathData pd) {
@@ -766,7 +767,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
     /**
      * Get the insertion index if one were to insert a tree item into the
      * curItems list with text of name
-     *
+     * 
      * @param curItems
      * @param name
      * @return
@@ -786,7 +787,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
 
     /**
      * Fill the context menu with localization file operatiosn
-     *
+     * 
      * @param mgr
      *            menu manager to fill
      */
@@ -983,7 +984,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
 
     /**
      * Builds a list of {@link LocalizationFile}s starting at the item passed in
-     *
+     * 
      * @param item
      * @param files
      *            (option) list to add entries to
@@ -1028,7 +1029,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
 
     /**
      * Refreshes the TreeItems passed in
-     *
+     * 
      * @param items
      */
     private void refresh(TreeItem... items) {
@@ -1059,7 +1060,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
 
     /**
      * Populates the given tree node's child items requesting data as needed
-     *
+     * 
      * @param parentItem
      *            The TreeItem node to populate
      * @return true if successful
@@ -1104,8 +1105,8 @@ public class FileTreeView extends ViewPart implements IPartListener2,
 
             for (LocalizationFile file : files) {
                 if (checkName
-                        && (file.getName().isEmpty() || data.getPath().equals(
-                                file.getName()))) {
+                        && (file.getPath().isEmpty() || data.getPath().equals(
+                                file.getPath()))) {
                     continue;
                 }
                 if (file.exists()) {
@@ -1181,11 +1182,11 @@ public class FileTreeView extends ViewPart implements IPartListener2,
         FileTreeEntryData data = (FileTreeEntryData) parentItem.getData();
         data.setRequestedChildren(true);
         PathData pd = data.getPathData();
-        Map<String, List<LocalizationFile>> processedFiles = new HashMap<String, List<LocalizationFile>>();
-        Set<String> processedPaths = new HashSet<String>();
+        Map<String, List<LocalizationFile>> processedFiles = new HashMap<>();
+        Set<String> processedPaths = new HashSet<>();
         // we are expanding a folder
         for (LocalizationFile file : files) {
-            String name = file.getName();
+            String name = file.getPath();
             if (processedPaths.contains(name) == false) {
                 FileTreeEntryData treeData = null;
                 if (file.isDirectory()) {
@@ -1200,7 +1201,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
             if (file.isDirectory() == false) {
                 List<LocalizationFile> entryFiles = processedFiles.get(name);
                 if (entryFiles == null) {
-                    entryFiles = new ArrayList<LocalizationFile>();
+                    entryFiles = new ArrayList<>();
                     processedFiles.put(name, entryFiles);
                 }
                 entryFiles.add(file);
@@ -1281,7 +1282,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
 
     /**
      * Adds a tree item given the data and the parent item
-     *
+     * 
      * @param parentItem
      * @param treeData
      * @return new TreeItem
@@ -1368,7 +1369,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
 
     /**
      * Get the ImageDescriptor for the provided file name.
-     *
+     * 
      * @param string
      *            The file name
      * @return The ImageDescriptor
@@ -1386,23 +1387,23 @@ public class FileTreeView extends ViewPart implements IPartListener2,
     }
 
     /**
-     * Get the image for the provided LocalizationFile.
-     *
+     * Get the image for the provided ILocalizationFile.
+     * 
      * @param file
-     *            The LocalizationFile
+     *            The ILocalizationFile
      * @return The image
      */
-    private Image getImage(LocalizationFile file) {
+    private Image getImage(ILocalizationFile file) {
         String name = null;
         if (file != null) {
-            name = file.getName();
+            name = file.getPath();
         }
         return getImage(name);
     }
 
     /**
      * Get the image for the provided path.
-     *
+     * 
      * @param filePath
      *            The file path
      * @return The image
@@ -1427,9 +1428,9 @@ public class FileTreeView extends ViewPart implements IPartListener2,
         }
     }
 
-    private TreeItem find(LocalizationFile file, boolean populateToFind,
+    private TreeItem find(ILocalizationFile file, boolean populateToFind,
             boolean nearestParent) {
-        return find(file.getName(), file.getContext(), populateToFind,
+        return find(file.getPath(), file.getContext(), populateToFind,
                 nearestParent);
     }
 
@@ -1492,7 +1493,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
 
     /**
      * Recursively search tree for node matching path starting at item
-     *
+     * 
      * @param item
      * @param ctx
      * @param path
@@ -1527,7 +1528,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
 
     /**
      * Select the TreeItem corresponding to the open/active editor.
-     *
+     * 
      * @param partRef
      *            The IWorkbenchPartReference
      */
@@ -1753,7 +1754,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
 
     /**
      * Toggle Show All for a level
-     *
+     * 
      * @param level
      */
     public void toggleShowAllLevel(LocalizationLevel level) {
@@ -1762,7 +1763,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
 
     /**
      * Toggle Show for a level
-     *
+     * 
      * @param level
      */
     public void toggleShowLevel(LocalizationLevel level) {
@@ -1771,9 +1772,9 @@ public class FileTreeView extends ViewPart implements IPartListener2,
 
     /**
      * Check if level is showing all values not just current
-     *
+     * 
      * (e.g. Show all users, not just my user)
-     *
+     * 
      * @param level
      * @return true if showing all values
      */
@@ -1783,7 +1784,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
 
     /**
      * Check if level is shown
-     *
+     * 
      * @param level
      * @return true if shown
      */
@@ -1805,7 +1806,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
              * TODO We don't have the previous checksum available here so we
              * can't easily identify this change as an add vs update. We need to
              * handle this cleanly somehow.
-             *
+             * 
              * Temporary fix: Go with ADDED
              */
             t = FileChangeType.ADDED;

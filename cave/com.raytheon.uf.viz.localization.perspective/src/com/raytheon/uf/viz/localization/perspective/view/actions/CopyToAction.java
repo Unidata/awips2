@@ -57,6 +57,7 @@ import com.raytheon.uf.viz.localization.service.ILocalizationService;
  * Oct 13, 2015 4410       bsteffen    Allow localization perspective to mix
  *                                     files for multiple Localization Types.
  * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
+ * Jan 11, 2016 5242       kbisanz     Replaced calls to deprecated LocalizationFile methods
  * 
  * </pre>
  * 
@@ -116,7 +117,7 @@ public class CopyToAction extends AbstractToAction {
         IPathManager pm = PathManagerFactory.getPathManager();
         ILocalizationFile newFile = pm.getLocalizationFile(
                 pm.getContext(file.getContext().getLocalizationType(), level),
-                file.getName());
+                file.getPath());
         removeAlternateTypeFiles(level);
         copyFile(newFile);
     }
@@ -133,8 +134,8 @@ public class CopyToAction extends AbstractToAction {
 
         for (LocalizationType type : pathData.getTypes()) {
             if (type != file.getContext().getLocalizationType()) {
-                LocalizationFile altFile = pm.getLocalizationFile(
-                        pm.getContext(type, level), file.getName());
+                ILocalizationFile altFile = pm.getLocalizationFile(
+                        pm.getContext(type, level), file.getPath());
                 if (altFile.exists()) {
                     try {
                         altFile.delete();

@@ -40,7 +40,7 @@ import com.raytheon.uf.common.json.JsonException;
 import com.raytheon.uf.common.json.geo.GeoJsonMapUtil;
 import com.raytheon.uf.common.json.geo.IGeoJsonService;
 import com.raytheon.uf.common.json.geo.SimpleGeoJsonService;
-import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.util.Pair;
 import com.vividsolutions.jts.geom.Geometry;
@@ -63,6 +63,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *                                     15.1 version of damage path tool.
  * Jul 01, 2015  #4375     dgilling    Remove isValid check to imported 
  *                                     polygons.
+ * Jan 11, 2016  #5242     kbisanz     Replaced calls to deprecated LocalizationFile methods
  * 
  * </pre>
  * 
@@ -76,7 +77,7 @@ public final class DamagePathLoader {
 
     private final Collection<Pair<Polygon, Map<String, String>>> damagePathData;
 
-    public DamagePathLoader(LocalizationFile locFile)
+    public DamagePathLoader(ILocalizationFile locFile)
             throws LocalizationException, IOException, JsonException {
         this(locFile, null);
     }
@@ -86,8 +87,9 @@ public final class DamagePathLoader {
         this(null, Paths.get(filePath));
     }
 
-    private DamagePathLoader(LocalizationFile locFileSource, Path realFileSource)
-            throws LocalizationException, IOException, JsonException {
+    private DamagePathLoader(ILocalizationFile locFileSource,
+            Path realFileSource) throws LocalizationException, IOException,
+            JsonException {
         this.damagePathData = new ArrayList<>();
 
         if (locFileSource != null) {
@@ -101,7 +103,7 @@ public final class DamagePathLoader {
         return damagePathData;
     }
 
-    private void loadFromLocalizationFile(final LocalizationFile locFile)
+    private void loadFromLocalizationFile(final ILocalizationFile locFile)
             throws LocalizationException, IOException, JsonException {
         try (InputStream is = locFile.openInputStream()) {
             loadFromInputStream(is);

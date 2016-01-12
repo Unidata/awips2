@@ -43,6 +43,7 @@ import com.raytheon.uf.common.json.geo.GeoJsonMapUtil;
 import com.raytheon.uf.common.json.geo.IGeoJsonService;
 import com.raytheon.uf.common.json.geo.SimpleGeoJsonService;
 import com.raytheon.uf.common.localization.FileUpdatedMessage;
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.ILocalizationFileObserver;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -88,7 +89,8 @@ import com.vividsolutions.jts.geom.Polygon;
  *                                     INFO level, fix geotools CRS warning.
  * Aug 05, 2015  4635      dgilling    Default save location for damage path
  *                                     is now at SITE level.
- * Aug 18, 2015  3806      njensen     Use SaveableOutputStream to save                                     
+ * Aug 18, 2015  3806      njensen     Use SaveableOutputStream to save
+ * Jan 11, 2016  5242      kbisanz     Replaced calls to deprecated LocalizationFile methods
  * 
  * </pre>
  * 
@@ -133,7 +135,7 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
     private final Job loadJob = new Job("Loading Damage Path") {
         @Override
         protected IStatus run(IProgressMonitor monitor) {
-            LocalizationFile prevFile = getValidDamagePathFile();
+            ILocalizationFile prevFile = getValidDamagePathFile();
             if (prevFile != null) {
                 loadDamagePath(prevFile);
 
@@ -154,7 +156,7 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
     private final Job saveJob = new Job("Saving Damage Path") {
         @Override
         protected IStatus run(IProgressMonitor monitor) {
-            LocalizationFile file = getDamagePathFile();
+            ILocalizationFile file = getDamagePathFile();
             saveDamagePath(file);
             return Status.OK_STATUS;
         }
@@ -231,11 +233,11 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
      * future release, remove this function and replace uses with
      * getDamagePathFile.
      */
-    private LocalizationFile getValidDamagePathFile() {
+    private ILocalizationFile getValidDamagePathFile() {
         LocalizationContext ctx = getContext();
-        LocalizationFile file = PathManagerFactory.getPathManager()
+        ILocalizationFile file = PathManagerFactory.getPathManager()
                 .getLocalizationFile(ctx, PATH);
-        LocalizationFile oldFile = PathManagerFactory.getPathManager()
+        ILocalizationFile oldFile = PathManagerFactory.getPathManager()
                 .getLocalizationFile(ctx, OLD_PATH);
         if (file.exists()) {
             return file;
@@ -249,14 +251,14 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
     @Override
     public void fileUpdated(FileUpdatedMessage message) {
         if (message.getFileName().equals(PATH)) {
-            LocalizationFile file = getDamagePathFile();
+            ILocalizationFile file = getDamagePathFile();
             if (file.exists()) {
                 loadDamagePath(file);
             }
         }
     }
 
-    protected void loadDamagePath(LocalizationFile file) {
+    protected void loadDamagePath(ILocalizationFile file) {
         try {
             DamagePathLoader loader = new DamagePathLoader(file);
             Collection<Pair<Polygon, Map<String, String>>> newData = loader
@@ -279,11 +281,11 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
             }
         } catch (Exception e) {
             statusHandler.error(
-                    "Error loading damage path file " + file.getName(), e);
+                    "Error loading damage path file " + file.getPath(), e);
         }
     }
 
-    protected void saveDamagePath(LocalizationFile file) {
+    protected void saveDamagePath(ILocalizationFile file) {
         try (SaveableOutputStream sos = file.openOutputStream()) {
             IGeoJsonService json = new SimpleGeoJsonService();
             SimpleFeatureCollection featureCollection = buildFeatureCollection();
@@ -291,7 +293,7 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
             sos.save();
         } catch (Throwable t) {
             statusHandler.error(
-                    "Error saving damage path file " + file.getName(), t);
+                    "Error saving damage path file " + file.getPath(), t);
         }
     }
 

@@ -39,11 +39,11 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
@@ -57,8 +57,9 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  *                                     Initial creation
- * Dec 6, 2012  1353       rferrel     Make dialog non-blocking.
- * Apr 01, 2013  1830      mpduff      Don't allow base files.
+ * Dec 06, 2012 1353       rferrel     Make dialog non-blocking.
+ * Apr 01, 2013 1830       mpduff      Don't allow base files.
+ * Jan 11, 2016 5242       kbisanz     Replaced calls to deprecated LocalizationFile methods
  * 
  * </pre>
  * 
@@ -87,9 +88,7 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
 
     private List cfgFileList;
 
-    private LocalizationFile[] locFiles;
-
-    private TreeMap<String, LocalizationFile> locFileMap;
+    private TreeMap<String, ILocalizationFile> locFileMap;
 
     private Text newFileNameTF;
 
@@ -122,7 +121,7 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
 
     @Override
     protected void initializeComponents(Shell shell) {
-        locFileMap = new TreeMap<String, LocalizationFile>();
+        locFileMap = new TreeMap<>();
         controlFont = new Font(shell.getDisplay(), "Monospace", 10, SWT.NORMAL);
 
         createListControl();
@@ -278,7 +277,7 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
         LocalizationContext context = pm.getContext(
                 LocalizationType.CAVE_STATIC, level);
         String newFileName = "ffmp/guiConfig/" + fileName;
-        LocalizationFile selectedFile = pm.getLocalizationFile(context,
+        ILocalizationFile selectedFile = pm.getLocalizationFile(context,
                 newFileName);
 
         FFMPConfig.getInstance().saveFFMPBasinConfig(selectedFile);
@@ -318,12 +317,12 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
         String[] extensions = new String[] { ".xml" };
         IPathManager pm = PathManagerFactory.getPathManager();
 
-        ArrayList<LocalizationContext> contextList = new ArrayList<LocalizationContext>();
+        java.util.List<LocalizationContext> contextList = new ArrayList<>();
         contextList.add(pm.getContext(LocalizationType.CAVE_STATIC,
                 LocalizationLevel.SITE));
         contextList.add(pm.getContext(LocalizationType.CAVE_STATIC,
                 LocalizationLevel.USER));
-        locFiles = pm.listFiles(contextList
+        ILocalizationFile[] locFiles = pm.listFiles(contextList
                 .toArray(new LocalizationContext[contextList.size()]),
                 "ffmp/guiConfig", extensions, false, true);
 
@@ -333,7 +332,7 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
 
         for (int i = 0; i < locFiles.length; i++) {
             locFileMap.put(locFiles[i].getContext().getLocalizationLevel()
-                    + ":" + locFiles[i].getName(), locFiles[i]);
+                    + ":" + locFiles[i].getPath(), locFiles[i]);
         }
 
         for (String str : locFileMap.keySet()) {

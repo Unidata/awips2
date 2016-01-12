@@ -24,8 +24,8 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.handlers.HandlerUtil;
 
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -41,7 +41,7 @@ import com.raytheon.viz.ui.dialogs.localization.VizLocalizationFileListDlg.Mode;
  * <pre>
  * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * Sep 13, 2007             chammack    Initial Creation.
@@ -50,7 +50,8 @@ import com.raytheon.viz.ui.dialogs.localization.VizLocalizationFileListDlg.Mode;
  * Jun 02, 2015 #4401       bkowal      Updated to use {@link VizLocalizationFileListDlg}.
  * Jun 30, 2015 #4401       bkowal      Specify the localization type when constructing a
  *                                      {@link VizLocalizationFileListDlg}.
- * Nov 12, 2015  4834       njensen     Changed LocalizationOpFailedException to LocalizationException
+ * Nov 12, 2015 4834        njensen     Changed LocalizationOpFailedException to LocalizationException
+ * Jan 11, 2016 5242        kbisanz     Replaced calls to deprecated LocalizationFile methods
  * 
  * </pre>
  * 
@@ -63,13 +64,6 @@ public class DeleteAWIPSProcedure extends AbstractHandler {
 
     private VizLocalizationFileListDlg listDlg;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.core.commands.AbstractHandler#execute(org.eclipse.core.commands
-     * .ExecutionEvent)
-     */
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
         if (listDlg == null || listDlg.getShell() == null
@@ -82,15 +76,15 @@ public class DeleteAWIPSProcedure extends AbstractHandler {
 
                 @Override
                 public void dialogClosed(Object returnValue) {
-                    if (returnValue instanceof LocalizationFile) {
-                        LocalizationFile selectedFile = (LocalizationFile) returnValue;
+                    if (returnValue instanceof ILocalizationFile) {
+                        ILocalizationFile selectedFile = (ILocalizationFile) returnValue;
                         try {
                             selectedFile.delete();
                         } catch (LocalizationException e) {
                             statusHandler.handle(
                                     Priority.PROBLEM,
                                     "Error deleting procedure: "
-                                            + selectedFile.getName());
+                                            + selectedFile.getPath());
                         }
                     }
                 }
