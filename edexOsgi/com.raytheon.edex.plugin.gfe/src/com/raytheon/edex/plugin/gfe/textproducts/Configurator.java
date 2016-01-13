@@ -36,12 +36,13 @@ import com.raytheon.edex.utility.ProtectedFiles;
 import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
 import com.raytheon.uf.common.dataquery.db.QueryResult;
 import com.raytheon.uf.common.dataquery.db.QueryResultRow;
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.python.PyUtil;
 import com.raytheon.uf.common.python.PythonScript;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -77,6 +78,8 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * Apr 27, 2015 4259        njensen     Updated for new JEP API
  * Jul 13, 2015 4500        rjpeter     Removed SqlQueryTask.
  * Dec 15, 2015 5166        kbisanz     Update logging to use SLF4J
+ * Jan 08, 2016 5237        tgurney     Replace calls to deprecated LocalizationFile
+ *                                      methods
  * </pre>
  * 
  * @author jelkins
@@ -207,7 +210,7 @@ public class Configurator {
         context.setContextName(siteID);
 
         // regenerate siteCFG.py
-        LocalizationFile lf = null;
+        ILocalizationFile lf = null;
         try {
             lf = pathMgr.getLocalizationFile(context,
                     FileUtil.join("python", "gfe", "SiteCFG.py"));
@@ -257,7 +260,10 @@ public class Configurator {
                 out.println("}");
             } // out is closed here
 
-            lf.save();
+            try (SaveableOutputStream lfStream = lf.openOutputStream()) {
+                lfStream.save();
+            }
+
         } catch (Exception e) {
             statusHandler.error(e.getLocalizedMessage(), e);
         }
