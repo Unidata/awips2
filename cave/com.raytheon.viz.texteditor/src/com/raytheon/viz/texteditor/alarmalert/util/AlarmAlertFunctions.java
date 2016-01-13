@@ -83,6 +83,8 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * 09/09/2014   3580       mapeters    Removed IQueryTransport usage (no longer exists).
  * 12/03/2014   ASM #16829 D. Friedman Lazy initialization of alarmAlertBell
  * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
+ * 11/29/2015   ASM #14995 m.gamazaychikov Made sure that non-standard latlons in 
+ * 					   LAT...LON string did not result in error.
  * 
  * </pre>
  * 
@@ -535,6 +537,9 @@ public class AlarmAlertFunctions {
         String body = stp.getProduct();
         if (body.contains("LAT...LON")) {
             Coordinate[] coords = getLatLonCoords(body);
+            if (coords.length == 0) {
+                return null;
+            }
             GeometryFactory gf = new GeometryFactory();
             return gf.createLinearRing(coords);
         }
@@ -593,6 +598,9 @@ public class AlarmAlertFunctions {
         boolean pair = false;
         Double dlat, dlong;
         StringTokenizer latlonTokens = new StringTokenizer(latLon);
+        if (latLon.length() == 0) {
+            return coordinates;
+        }
         while (latlonTokens.hasMoreTokens()) {
             currentToken = latlonTokens.nextToken();
             if (!currentToken.equals(latlon)) {

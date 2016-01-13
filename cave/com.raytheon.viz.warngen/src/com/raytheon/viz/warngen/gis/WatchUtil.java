@@ -91,6 +91,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * May  7, 2015 ASM #17438 D. Friedman  Clean up debug and performance logging.
  * Jun 04, 2015 RODO #4522 randerso     Added proper primary key to ActiveTableRecord
  * Jul 16, 2015 ASM #17741 D. Friedman  Use acceptable timestamp format in query
+ * Dec 15, 2015 ASM #17933 mgamazaychikov Return feAreas from determineAffectedPortions.
  * </pre>
  * 
  * @author jsanchez
@@ -560,9 +561,7 @@ public class WatchUtil {
             }
         }
 
-        Set<String> affectedPortions = new HashSet(
-                Area.converFeAreaToPartList(mungeFeAreas(feAreas)));
-        return affectedPortions;
+        return feAreas;
     }
 
     private List<Watch> generateMarineWatchItems(Watch template,
