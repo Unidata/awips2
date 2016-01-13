@@ -46,6 +46,8 @@ import com.raytheon.viz.hydrocommon.util.QualityCodeUtil;
  * June 1, 2011 9499       djingtao    convertDurNameToValue()
  * July 12, 2011 9709      djingtao    modify tsAccumToInc3()
  * Aug 25, 2015 4794       mpduff      Added 5 min duration.
+ * Jan 13, 2015 5243       tgurney     Fix convertDur2Short() handling of
+ *                                     numeric characters
  * </pre>
  * 
  * @author mpduff
@@ -144,7 +146,7 @@ public class TimeSeriesUtil {
     public static final int ALL_ONES = 2147483647;
 
     private static final HashBiMap<Integer, Character> durationMap = HashBiMap
-            .create(21);
+            .create(23);
     static {
         durationMap.put(0, 'I');
         durationMap.put(1, 'U');
@@ -172,6 +174,13 @@ public class TimeSeriesUtil {
     }
 
     public static short convertDur2Short(char dur) {
+        int durAsInt = Character.getNumericValue(dur);
+        if (durAsInt >= 0) {
+            if (!durationMap.containsKey(durAsInt)) {
+                return 0;
+            }
+            return (short) durAsInt;
+        }
         if (!durationMap.containsValue(dur)) {
             return 0;
         }
