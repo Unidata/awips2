@@ -174,6 +174,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *  Nov  9, 2015 DR 14905    Qinglu Lin  Updated backupSiteSelected(), disposed(), initializeComponents(), populateBackupGroup(), and
  *                                       createProductTypeGroup, and moved existing code to newly created setBackupCboColors() and setBackupSite().
  *  Nov 25, 2015 DR 17464    Qinglu Lin  Updated changeTemplate().
+ *  Dec 10, 2015 DR 17908    Qinglu Lin  Updated changeStartEndTimes(), recreateDurations(), changeSelected(), and extSelected().
  * </pre>
  * 
  * @author chammack
@@ -1750,8 +1751,10 @@ public class WarngenDialog extends CaveSWTDialog implements
         }
         setDurations(warngenLayer.getConfiguration().getDurations());
         durList.setText(defaultDuration.displayString);
-        endTime = DurationUtil.calcEndTime(startTime, defaultDuration.minutes);
-        end.setText(df.format(endTime.getTime()));
+        if (warngenLayer.getConfiguration().isEnableDuration()) {
+            endTime = DurationUtil.calcEndTime(startTime, defaultDuration.minutes);
+            end.setText(df.format(endTime.getTime()));
+        }
 
         warngenLayer.getStormTrackState().newDuration = defaultDuration.minutes;
         warngenLayer.getStormTrackState().geomChanged = true;
@@ -1956,7 +1959,7 @@ public class WarngenDialog extends CaveSWTDialog implements
     private void changeSelected() {
         statusHandler.debug("changeSelected");
         if ((validPeriodDlg == null) || validPeriodDlg.isDisposed()) {
-            validPeriodDlg = new ValidPeriodDialog(shell, startTime, endTime);
+            validPeriodDlg = new ValidPeriodDialog(shell, (Calendar) startTime.clone(), (Calendar) endTime.clone());
             validPeriodDlg.setCloseCallback(new ICloseCallback() {
 
                 @Override
@@ -1966,7 +1969,11 @@ public class WarngenDialog extends CaveSWTDialog implements
                             + duration);
                     if (duration != -1) {
                         durationList.setEnabled(false);
-                        endTime.add(Calendar.MINUTE, duration);
+                        if (warngenLayer.getConfiguration().isEnableDuration()) {
+                            endTime.add(Calendar.MINUTE, duration);
+                        } else {
+                            endTime = (Calendar) validPeriodDlg.getEndTime().clone();
+                        }
                         end.setText(df.format(endTime.getTime()));
                         warngenLayer.getStormTrackState().newDuration = duration;
                         warngenLayer.getStormTrackState().geomChanged = true;
@@ -2128,17 +2135,17 @@ public class WarngenDialog extends CaveSWTDialog implements
             FollowupData fd = (FollowupData) updateListCbo
                     .getData(updateListCbo.getItem(updateListCbo
                             .getSelectionIndex()));
+            startTime = TimeUtil.newCalendar();
+            start.setText(df.format(startTime.getTime()));
             if ((fd == null)
                     || (WarningAction.valueOf(fd.getAct()) == WarningAction.NEW)) {
-                startTime = TimeUtil.newCalendar();
-                endTime = DurationUtil.calcEndTime(this.startTime, duration);
-                start.setText(df.format(this.startTime.getTime()));
-                end.setText(df.format(this.endTime.getTime()));
+                endTime = DurationUtil.calcEndTime(startTime, duration);
             } else if (WarningAction.valueOf(fd.getAct()) == WarningAction.EXT) {
-                startTime = TimeUtil.newCalendar();
-                endTime = DurationUtil.calcEndTime(extEndTime, duration);
-                end.setText(df.format(this.endTime.getTime()));
+                if (warngenLayer.getConfiguration().isEnableDuration()) {
+                    endTime = DurationUtil.calcEndTime(extEndTime, duration);
+                }
             }
+            end.setText(df.format(endTime.getTime()));
         }
     }
 
@@ -2359,9 +2366,8 @@ public class WarngenDialog extends CaveSWTDialog implements
         warngenLayer.getStormTrackState().duration = duration;
 
         startTime = TimeUtil.newCalendar();
-        extEndTime = newWarn.getEndTime();
-        endTime = DurationUtil.calcEndTime(extEndTime, duration);
-        end.setText(df.format(this.endTime.getTime()));
+        extEndTime = (Calendar) newWarn.getEndTime().clone();
+        endTime = extEndTime;
 
         changeStartEndTimes();
         try {

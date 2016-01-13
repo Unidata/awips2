@@ -90,6 +90,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometry;
  *                                         refactored WarngenLayer::filterArea.
  *    Mar  9, 2014 ASM #17190  D. Friedman Use fipsField and areaField for unique area ID.
  *    May  7, 2015 ASM #17438  D. Friedman Clean up debug and performance logging.
+ *    Dec 15, 2015 ASM #17933 mgamazaychikov Update calculation of partOfParentRegion.
  * </pre>
  * 
  * @author chammack
@@ -267,7 +268,7 @@ public class Area {
                         .get(parentAreaField));
                 String feArea = (String) regionFeature.attributes
                         .get("FE_AREA");
-                area.partOfParentRegion = converFeAreaToPartList(feArea);
+                area.partOfParentRegion = Arrays.asList(feArea);
             }
 
             // Search against point matches

@@ -65,6 +65,7 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * Dec 08, 2014  #4953     randerso    Updated Jep include path to allow use of
  *                                     LocalizationSupport
  * Jul 13, 2015   4500     rjpeter     Fix SQL Injection concerns.
+ * Dec 15, 2015 RM17933 mgamazaychikov Add four new corners to PART_OF_STATE.
  * </pre>
  * 
  * @author wldougher
@@ -121,6 +122,10 @@ public class AreaDictionaryMaker {
         PART_OF_STATE.put("wc", "west central");
         PART_OF_STATE.put("wu", "western upper");
         PART_OF_STATE.put("ww", "western");
+        PART_OF_STATE.put("ws", "southwest");
+        PART_OF_STATE.put("es", "southeast");
+        PART_OF_STATE.put("wn", "northwest");
+        PART_OF_STATE.put("en", "northeast");
     }
 
     protected IPathManager pathMgr = PathManagerFactory.getPathManager();
