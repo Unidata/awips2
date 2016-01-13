@@ -251,6 +251,7 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  * 12/09/2015  ASM #18209  D. Friedman Support cwaStretch dam break polygons.
  * 12/21/2015  DCS 17942   D. Friedman Support "extension area": polygon can extend past normal features into WFO's marine/land areas.
  *                                     Show preview of redrawn polygon when developer mode property is set.
+ * 01/06/2016  ASM #18453  D. Friedman Cache extension areas so they are not regenerated on Restart or (limited) template changes.
  * </pre>
  * 
  * @author mschenke
@@ -417,6 +418,14 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 }
             }
             return fipsIds;
+        }
+
+        private boolean isEquivalentTo(GeospatialDataAccessor other) {
+            return other != null && geoData == other.geoData
+                    && ((areaConfig.getFipsField() == null && other.areaConfig.getFipsField() == null)
+                            || (areaConfig.getFipsField() != null
+                                && areaConfig.getFipsField().equals(
+                                    other.areaConfig.getFipsField())));
         }
 
     }
@@ -777,6 +786,23 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
     }
 
+    private static class ExtensionAreaRecord {
+        private GeospatialDataAccessor primaryGDA;
+        private GeospatialDataAccessor gda;
+        private ExtensionAreaOptions options;
+        private Geometry geometry;
+        private Geometry extensionAreaVis;
+        public ExtensionAreaRecord(GeospatialDataAccessor primaryGDA,
+                GeospatialDataAccessor gda, ExtensionAreaOptions options,
+                Geometry geometry, Geometry extensionAreaVis) {
+            this.primaryGDA = primaryGDA;
+            this.gda = gda;
+            this.options = options;
+            this.geometry = geometry;
+            this.extensionAreaVis = extensionAreaVis;
+        }
+    }
+
     private class ExtensionAreaManager extends Job implements IChangeListener {
         private ExtensionAreaOptions options = new ExtensionAreaOptions();
         private WritableValue observableOptions = new WritableValue(options, null);
@@ -784,8 +810,9 @@ public class WarngenLayer extends AbstractStormTrackResource {
         private GeospatialDataAccessor primaryGDA;
         private GeospatialDataAccessor gda;
 
-        private Geometry geometry;
         private FutureTask<Geometry> geometryFuture;
+
+        private Map<String, ExtensionAreaRecord> cache = new HashMap<String, ExtensionAreaRecord>(3);
 
         public ExtensionAreaManager() {
             super("Generate extension area");
@@ -815,7 +842,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
             boolean recreateArea = true;
             ExtensionAreaOptions oldOptions = this.options;
             if (oldOptions != null) {
-                if (primaryGDA == geoAccessor
+                if (primaryGDA != null && primaryGDA.isEquivalentTo(geoAccessor)
                         && oldOptions.getDistance() == options.getDistance()
                         && oldOptions.getSimplificationTolerance() ==
                                 options.getSimplificationTolerance()) {
@@ -824,7 +851,6 @@ public class WarngenLayer extends AbstractStormTrackResource {
             }
             this.options = options.clone();
             if (recreateArea) {
-                geometry = null;
                 if (geometryFuture != null) {
                     geometryFuture.cancel(true);
                     geometryFuture = null;
@@ -844,10 +870,12 @@ public class WarngenLayer extends AbstractStormTrackResource {
                         error = e;
                     }
                     if (gda != null) {
-                        geometryFuture = new FutureTask<Geometry>(
-                                new ExtensionAreaGeometryTask(options,
-                                        primaryGDA, gda));
-                        schedule();
+                        if (! useCachedArea(primaryGDA, gda, options)) {
+                            geometryFuture = new FutureTask<Geometry>(
+                                    new ExtensionAreaGeometryTask(options,
+                                            primaryGDA, gda));
+                            schedule();
+                        }
                     } else {
                         statusHandler.handle(Priority.WARN,
                                 "Could not determine geospatial data type for polygon extension area",
@@ -863,6 +891,40 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     statusHandler.error("Error re-hatching", e);
                 }
                 issueRefresh();
+            }
+        }
+
+        private boolean useCachedArea(GeospatialDataAccessor primaryGDA,
+                GeospatialDataAccessor gda, ExtensionAreaOptions options) {
+            ExtensionAreaRecord ear = null;
+
+            synchronized (cache) {
+                ear = cache.get(primaryGDA.areaConfig.getAreaSource());
+            }
+            if (ear != null && ear.primaryGDA.isEquivalentTo(primaryGDA) &&
+                    ear.gda.isEquivalentTo(gda) &&
+                    ear.options.getDistance() == options.getDistance() &&
+                    ear.options.getSimplificationTolerance() == options.getSimplificationTolerance()) {
+                this.geometryFuture = new FutureTask<Geometry>(new Runnable() {
+                    @Override
+                    public void run() {
+                        // do nothing
+                    }
+                }, ear.geometry);
+                this.geometryFuture.run();
+                extensionAreaVis = ear.extensionAreaVis;
+                return true;
+            }
+            return false;
+        }
+
+        private void cacheArea(GeospatialDataAccessor primaryGDA,
+                GeospatialDataAccessor gda, ExtensionAreaOptions options,
+                Geometry area, Geometry vis) {
+            synchronized (cache) {
+                cache.put(primaryGDA.areaConfig.getAreaSource(),
+                        new ExtensionAreaRecord(primaryGDA, gda, options, area,
+                                vis));
             }
         }
 
@@ -949,7 +1011,9 @@ public class WarngenLayer extends AbstractStormTrackResource {
             }
             Geometry r = GeometryUtil.union(g);
             r = createExtensionAreaFromLocal(r);
-            extensionAreaVis = extensionGDA.buildArea(r, false);
+            Geometry vis = extensionGDA.buildArea(r, false);
+            extensionAreaManager.cacheArea(primaryGDA, extensionGDA, options, r, vis);
+            extensionAreaVis = vis;
             issueRefresh();
             return r;
         }
@@ -1280,6 +1344,9 @@ public class WarngenLayer extends AbstractStormTrackResource {
         }
         if (coveredAreaFrame != null) {
             coveredAreaFrame.dispose();
+        }
+        if (extensionAreaShadedShape != null) {
+            extensionAreaShadedShape.dispose();
         }
 
         manager.dispose();

@@ -20,6 +20,7 @@
 package com.raytheon.viz.mpe.ui.actions;
 
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
+import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.mpe.ui.dialogs.GroupEditStationsDialog;
 import com.raytheon.viz.mpe.ui.dialogs.QcPrecipOptionsDialog;
@@ -37,6 +38,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jun 17, 2009            snaples     Initial creation
  * May 06, 2011   #8994    jpiatt      Added set precipitation value as zero
  * Sep 04, 2014    283     cgobs       Fixed possible selection of filtered-out gages
+ * Dec 2015        17388   ptilles     Add test for mpe_dqc_6hr_24hr_set_bad token value
  * </pre>
  * 
  * @author snaples
@@ -80,25 +82,23 @@ public class GroupEditPrecipStns {
                 continue;
             }
 
-            //precip filter
+            // precip filter
             if (DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stn[i].frain[time_pos].data < QcPrecipOptionsDialog
                     .getPointFilterValue()) {
                 continue;
             }
 
-            //reverse precip filter
+            // reverse precip filter
             if (DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stn[i].frain[time_pos].data > QcPrecipOptionsDialog
                     .getPointFilterReverseValue()) {
                 continue;
             }
-            
-            //elevation filter
-            if (DailyQcUtils.precip_stations.get(i).elev <  DailyQcUtils.elevation_filter_value)
-            {
+
+            // elevation filter
+            if (DailyQcUtils.precip_stations.get(i).elev < DailyQcUtils.elevation_filter_value) {
                 continue;
             }
-            
-            
+
             /* Retrieve the latitude and longitude of this station. */
             lat = DailyQcUtils.precip_stations.get(i).lat;
             lon = DailyQcUtils.precip_stations.get(i).lon;
@@ -198,17 +198,24 @@ public class GroupEditPrecipStns {
             }
         }
 
-        /* 6 hour data set bad set 24 hour bad too */
+        /* 6 hour data set bad */
+        /* check value of mpe_dqc_6hr_24hr_set_bad token */
+        /* if token = ON, then change 24hr QC code to Bad for this station */
+        /* if token = OFF, then do not change 24hr QC code for this station */
+
+        boolean mpe_dqc_6hr_24hr_set_bad = AppsDefaults.getInstance()
+                .getBoolean("mpe_dqc_6hr_24hr_set_bad", true);
 
         if (time_pos != 4
                 && GroupEditStationsDialog.group_qual == 1
                 && DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stn[isave].frain[4].qual != 5
                 && DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stn[isave].frain[4].qual != 4) {
-            DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stn[isave].frain[4].qual = (short) GroupEditStationsDialog.group_qual;
+            if (mpe_dqc_6hr_24hr_set_bad) {
+                DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stn[isave].frain[4].qual = (short) GroupEditStationsDialog.group_qual;
+            }
         }
 
         for (k = 0; k < 5; k++) {
-
             if (k < 4) {
                 time_pos = DailyQcUtils.pcpn_day * 4 + k;
             } else {
