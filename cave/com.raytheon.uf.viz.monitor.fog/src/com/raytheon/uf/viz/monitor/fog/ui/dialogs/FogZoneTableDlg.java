@@ -61,6 +61,7 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg;
  * Apr 28, 2014 3086       skorolev    Updated getConfigMgr method.
  * Sep 04, 2014 3220       skorolev    Removed "site". Added check on dispose.
  * Sep 18, 2015 3873       skorolev    Adjusted to AppName and MonName.
+ * Dec 17, 2015 3873       dhladky     Abstracted handling of dialogTime and Zone dialog events.
  * 
  * </pre>
  * 
@@ -148,13 +149,10 @@ public class FogZoneTableDlg extends ZoneTableDlg {
         if (me.getSource() instanceof FogMonitor) {
 
             FogMonitor fog = (FogMonitor) me.getSource();
-            Date date = fog.getDialogDate();
+            Date date = fog.getDialogTime();
             if (date != null) {
                 Date nominalTime = date;
                 ObMultiHrsReports obData = fog.getObData();
-                if (!isLinkedToFrame()) {
-                    nominalTime = obData.getLatestNominalTime();
-                }
                 FogDataGenerator fdg = new FogDataGenerator();
                 Map<String, CellType> fogAlgCellType = fdg.getAlgCellTypes(fog
                         .getAlgorithmData(nominalTime));
