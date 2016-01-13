@@ -14,8 +14,8 @@
    </configIni>
 
    <launcherArgs>
-      <programArgs>-data @user.home/caveData -user @user.home/caveData -clean -consoleLog -alertviz -component thinclient</programArgs>
-      <vmArgs>-Xmx1536M
+      <programArgs>-data @user.home/caveData -user @user.home/caveData -clean -consoleLog -component thinclient -alertviz</programArgs>
+      <vmArgs>-Xmx3536M
 -XX:+UseG1GC
 -Dosgi.instance.area.readOnly=true
 -Declipse.log.enabled=false
@@ -53,11 +53,9 @@
       </win>
    </launcher>
 
-
    <vm>
       <windows include="true">jdk1.6.0</windows>
    </vm>
-
 
    <plugins>
    </plugins>
