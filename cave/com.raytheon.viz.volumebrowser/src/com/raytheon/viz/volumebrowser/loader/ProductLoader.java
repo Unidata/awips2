@@ -35,8 +35,6 @@ import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.procedures.Bundle;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
-import com.raytheon.uf.viz.core.rsc.ResourceList;
-import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
 import com.raytheon.viz.core.rsc.ICombinedResourceData;
 import com.raytheon.viz.core.rsc.ICombinedResourceData.CombineOperation;
@@ -64,8 +62,10 @@ import com.raytheon.viz.volumebrowser.vbui.ProductTableComp;
  * SOFTWARE HISTORY
  * 
  * Date          Ticket#  Engineer  Description
- * ------------- -------- --------- --------------------------
+ * ------------- -------- --------- --------------------------------------------
  * Aug 03, 2015  3861     bsteffen  Initial Creation
+ * Jan 13, 2016  5246     bsteffen  Create editor with new display so map
+ *                                  resources are preserved.
  * 
  * </pre>
  * 
@@ -157,22 +157,9 @@ public class ProductLoader {
                 .getClass().getName());
 
         IEditorPart activeEditor = EditorUtil.getActiveEditor();
-        AbstractRenderableDisplay clonedDisplay = display.cloneDisplay();
-        /*
-         * Must clear non-system resources so that the editor that is opened
-         * does not initialize the resources, they need to be initialized by the
-         * bundle product loader instead.
-         */
-        ResourceList resources = clonedDisplay.getDescriptor()
-                .getResourceList();
-        for (ResourcePair resourcePair : resources) {
-            ResourceProperties resourceProps = resourcePair.getProperties();
-            if (resourceProps.isSystemResource() == false) {
-                resources.remove(resourcePair);
-            }
-        }
+
         AbstractEditor editor = UiUtil.createOrOpenEditor(editorId,
-                clonedDisplay);
+                display.createNewDisplay());
 
         if (editor != null) {
             if (activeEditor != null && editor != activeEditor
