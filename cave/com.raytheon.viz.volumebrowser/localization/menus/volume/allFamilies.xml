@@ -98,7 +98,7 @@
 		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyHelicity.xml"
 				    menuText="Helicity / Storm-Relative Flow" id="" useReferenceTime="true">
 		<substitute key="frameCount" value="${frameCount}"/>
-		</contribute>
+		</contribute>		
 		<!--
 		<contribute xsi:type="subMenu" menuText="4-Panel">
 			
