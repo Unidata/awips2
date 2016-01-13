@@ -36,7 +36,6 @@ import com.raytheon.uf.viz.d2d.ui.dialogs.procedures.ProcedureDlg;
 import com.raytheon.viz.ui.VizWorkbenchManager;
 import com.raytheon.viz.ui.actions.LoadPerspectiveHandler;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
-import com.raytheon.viz.ui.dialogs.localization.VizLocalizationFileListDlg;
 import com.raytheon.viz.ui.dialogs.localization.VizOpenLocalizationFileListDlg;
 
 /**
@@ -56,6 +55,7 @@ import com.raytheon.viz.ui.dialogs.localization.VizOpenLocalizationFileListDlg;
  *    Jun 02, 2015 #4401       bkowal      Updated to use {@link VizOpenLocalizationFileListDlg}.
  *    Jun 30, 2015 #4401       bkowal      Specify the localization type when constructing a
  *                                         {@link VizOpenLocalizationFileListDlg}.
+ *    Jan 11, 2016 5242        kbisanz     Replaced calls to deprecated LocalizationFile methods
  * </pre>
  * 
  * @author chammack
@@ -68,13 +68,6 @@ public class OpenAWIPSProcedure extends AbstractHandler {
     private static final IUFStatusHandler log = UFStatus
             .getHandler(OpenAWIPSProcedure.class);
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.core.commands.AbstractHandler#execute(org.eclipse.core.commands
-     * .ExecutionEvent)
-     */
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
         if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
@@ -95,7 +88,7 @@ public class OpenAWIPSProcedure extends AbstractHandler {
                             log.info("Loading display file: "
                                     + f.getAbsolutePath());
                             ProcedureDlg.displayDialog(LocalizationUtil
-                                    .extractName(selectedFile.getName()), p,
+                                    .extractName(selectedFile.getPath()), p,
                                     VizWorkbenchManager.getInstance()
                                             .getCurrentWindow().getShell());
                         }

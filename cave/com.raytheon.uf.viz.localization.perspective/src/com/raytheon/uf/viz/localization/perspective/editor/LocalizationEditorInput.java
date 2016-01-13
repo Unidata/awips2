@@ -40,22 +40,23 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
- *
+ * 
  * Editor input for localization files
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 3,  2010            mschenke    Initial creation
  * Nov 27, 2013            mschenke    Moved into localization.perspective project
- * Feb 11, 2015  4108      randerso    Implmented hashCode() and equals()
- * Jan 06, 2016  4834      nabowle     add refreshLocalizationFile().
- *
+ * Feb 11, 2015 4108       randerso    Implmented hashCode() and equals()
+ * Jan 06, 2016 4834       nabowle     add refreshLocalizationFile().
+ * Jan 11, 2016 5242       kbisanz     Replaced calls to deprecated LocalizationFile methods
+ * 
  * </pre>
- *
+ * 
  * @author mschenke
  * @version 1.0
  */
@@ -88,7 +89,7 @@ public class LocalizationEditorInput implements IFileEditorInput,
 
     public void setLocalizationFile(LocalizationFile localizationFile) {
         this.localizationFile = localizationFile;
-        name = LocalizationUtil.extractName(localizationFile.getName());
+        name = LocalizationUtil.extractName(localizationFile.getPath());
         file = null;
     }
 
@@ -133,7 +134,7 @@ public class LocalizationEditorInput implements IFileEditorInput,
 
     @Override
     public String getToolTipText() {
-        String tip = localizationFile.getName();
+        String tip = localizationFile.getPath();
         if (localizationFile.isProtected()) {
             tip += " (Protected @ " + localizationFile.getProtectedLevel()
                     + ")";
@@ -174,7 +175,7 @@ public class LocalizationEditorInput implements IFileEditorInput,
     @Override
     public void saveState(IMemento memento) {
         LocalizationContext ctx = localizationFile.getContext();
-        memento.putString(FILE_NAME_ID, localizationFile.getName());
+        memento.putString(FILE_NAME_ID, localizationFile.getPath());
         memento.putString(CONTEXT_NAME_ID, ctx.getContextName());
         memento.putString(CONTEXT_TYPE_ID, ctx.getLocalizationType().name());
         memento.putString(CONTEXT_LEVEL_ID, ctx.getLocalizationLevel().name());

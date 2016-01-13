@@ -50,6 +50,7 @@ import com.raytheon.uf.viz.localization.service.ILocalizationService;
  * Mar 25, 2011            mschenke    Initial creation
  * Oct 13, 2015 4410       bsteffen    Allow localization perspective to mix
  *                                     files for multiple Localization Types.
+ * Jan 11, 2016 5242       kbisanz     Replaced calls to deprecated LocalizationFile methods
  * 
  * 
  * </pre>
@@ -80,14 +81,6 @@ public class MoveFileAction extends CopyToAction {
         setEnabled(delete.isEnabled());
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.localization.perspective.view.actions.AbstractToAction
-     * #isLevelEnabled(com.raytheon.uf.common.localization.LocalizationContext.
-     * LocalizationLevel)
-     */
     @Override
     protected boolean isLevelEnabled(LocalizationLevel level) {
         boolean enabled = super.isLevelEnabled(level);
@@ -105,7 +98,7 @@ public class MoveFileAction extends CopyToAction {
                         page.getWorkbenchWindow().getShell(),
                         "Move Confirmation",
                         "Are you sure you want to move "
-                                + LocalizationUtil.extractName(file.getName())
+                                + LocalizationUtil.extractName(file.getPath())
                                 + " to "
                                 + level
                                 + " replacing any existing file and deleting this file?");
@@ -113,7 +106,7 @@ public class MoveFileAction extends CopyToAction {
             IPathManager pm = PathManagerFactory.getPathManager();
             final LocalizationFile newFile = pm.getLocalizationFile(
                     pm.getContext(file.getContext().getLocalizationType(),
-                            level), file.getName());
+                            level), file.getPath());
             removeAlternateTypeFiles(level);
             // Make sure we select the file after the drop
             final ILocalizationFileObserver[] observers = new ILocalizationFileObserver[1];
@@ -121,7 +114,7 @@ public class MoveFileAction extends CopyToAction {
                 @Override
                 public void fileUpdated(FileUpdatedMessage message) {
                     if (message.getContext().equals(newFile.getContext())
-                            && message.getFileName().equals(newFile.getName())
+                            && message.getFileName().equals(newFile.getPath())
                             && message.getChangeType() != FileChangeType.DELETED) {
                         service.fileUpdated(message);
                         VizApp.runAsync(new Runnable() {

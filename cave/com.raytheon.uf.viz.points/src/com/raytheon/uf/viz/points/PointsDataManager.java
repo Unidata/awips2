@@ -51,6 +51,7 @@ import org.geotools.referencing.datum.DefaultEllipsoid;
 import com.raytheon.uf.common.awipstools.GetWfoCenterPoint;
 import com.raytheon.uf.common.localization.FileUpdatedMessage;
 import com.raytheon.uf.common.localization.FileUpdatedMessage.FileChangeType;
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.ILocalizationFileObserver;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -90,6 +91,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Oct 20, 2014 #3418      dlovely     Fixed a possible NPE in loadPoint.
  * Nov 12, 2015  4834      njensen     Changed LocalizationOpFailedException to LocalizationException
  * Dec 09, 2015  4834      njensen     updates for API changes to LocalizationFile
+ * Jan 11, 2016 5242       kbisanz     Replaced calls to deprecated LocalizationFile methods
  * 
  * </pre>
  * 
@@ -397,7 +399,7 @@ public class PointsDataManager implements ILocalizationFileObserver {
      */
     private void storePoint(LocalizationFile dir, Point point, String fileName) {
         LocalizationFile lFile = pathMgr.getLocalizationFile(userCtx, dir
-                .getName().trim() + IPathManager.SEPARATOR + fileName);
+                .getPath().trim() + IPathManager.SEPARATOR + fileName);
 
         try {
             marshalPointToXmlFile(point, lFile);
@@ -446,7 +448,7 @@ public class PointsDataManager implements ILocalizationFileObserver {
                     processRequests();
                 }
             } else {
-                String dirPath = pointsDir.getName().trim();
+                String dirPath = pointsDir.getPath().trim();
                 String name = D2D_POINTS_GROUP.replace(' ',
                         PointUtilities.DELIM_CHAR);
                 String path = dirPath + IPathManager.SEPARATOR + name;
@@ -531,7 +533,7 @@ public class PointsDataManager implements ILocalizationFileObserver {
      */
     private Coordinate loadHome() {
         LocalizationFile lFile = pathMgr.getLocalizationFile(
-                pointsDir.getContext(), pointsDir.getName().trim()
+                pointsDir.getContext(), pointsDir.getPath().trim()
                         + IPathManager.SEPARATOR + HOME_LOCATION_FILE);
         Point point = null;
         if (lFile.exists()) {
@@ -556,7 +558,7 @@ public class PointsDataManager implements ILocalizationFileObserver {
         points.clear();
         childrenKeyMap.clear();
 
-        String path = pointsDir.getName().trim();
+        String path = pointsDir.getPath().trim();
         LocalizationFile[] files = pathMgr.listFiles(userCtx, path,
                 new String[] { POINT_FILENAME_EXT }, true, false);
 
@@ -683,7 +685,7 @@ public class PointsDataManager implements ILocalizationFileObserver {
      * @return lFile
      */
     private LocalizationFile getGroupDir(Point point) {
-        String path = (pointsDir.getName() + point.getGroup().replace(' ',
+        String path = (pointsDir.getPath() + point.getGroup().replace(' ',
                 PointUtilities.DELIM_CHAR));
         LocalizationFile dir = pathMgr.getLocalizationFile(userCtx, path);
         return dir;
@@ -766,7 +768,7 @@ public class PointsDataManager implements ILocalizationFileObserver {
      */
     private String getPointFilename(Point point) {
         StringBuilder sb = new StringBuilder();
-        sb.append(pointsDir.getName().trim());
+        sb.append(pointsDir.getPath().trim());
         String group = point.getGroup();
         if (!group.startsWith(IPathManager.SEPARATOR)) {
             sb.append(IPathManager.SEPARATOR);
@@ -787,7 +789,7 @@ public class PointsDataManager implements ILocalizationFileObserver {
     private String getPointDirName(Point node) {
         String group = node.getGroup();
         StringBuilder sb = new StringBuilder();
-        sb.append(pointsDir.getName().trim());
+        sb.append(pointsDir.getPath().trim());
         if (group.length() > 0) {
             if (group.startsWith(IPathManager.SEPARATOR) == false) {
                 sb.append(IPathManager.SEPARATOR);
@@ -893,14 +895,14 @@ public class PointsDataManager implements ILocalizationFileObserver {
         String path = getPointDirName(parent);
         StringBuilder sb = new StringBuilder(path);
 
-        LocalizationFile[] dirs = pathMgr.listStaticFiles(sb.toString(),
+        ILocalizationFile[] dirs = pathMgr.listStaticFiles(sb.toString(),
                 new String[0], false, false);
         sb.append(IPathManager.SEPARATOR).append(GROUP_TEMP_PREFIX);
         int end = sb.length();
 
         List<String> names = new ArrayList<String>();
-        for (LocalizationFile lf : dirs) {
-            names.add(lf.getName().trim());
+        for (ILocalizationFile lf : dirs) {
+            names.add(lf.getPath().trim());
         }
 
         int cnt = 0;
@@ -1022,7 +1024,7 @@ public class PointsDataManager implements ILocalizationFileObserver {
     private IPointNode createGroup(String parent, String name) {
         StringBuilder sb = new StringBuilder();
         sb.append(parent);
-        sb.replace(0, pointsDir.getName().trim().length(), "");
+        sb.replace(0, pointsDir.getPath().trim().length(), "");
         sb.append(IPathManager.SEPARATOR).append(name);
         Point gPoint = new GroupNode(name);
         gPoint.setGroup(sb.toString().replace(PointUtilities.DELIM_CHAR, ' '));
@@ -1036,14 +1038,14 @@ public class PointsDataManager implements ILocalizationFileObserver {
         LocalizationFile[] files = pathMgr.listFiles(userCtx, parent,
                 new String[] {}, false, false);
         for (LocalizationFile lf : files) {
-            if (groupPath.equals(lf.getName().trim())) {
+            if (groupPath.equals(lf.getPath().trim())) {
                 return null;
             }
         }
 
         try {
             // Must create a file in the directory to force its creation.
-            String p = lFile.getName().trim() + IPathManager.SEPARATOR
+            String p = lFile.getPath().trim() + IPathManager.SEPARATOR
                     + GROUP_INFO;
             LocalizationFile lf = pathMgr.getLocalizationFile(userCtx, p);
             OutputStream outStream = lf.openOutputStream();
@@ -1076,13 +1078,13 @@ public class PointsDataManager implements ILocalizationFileObserver {
      * @return groups
      */
     public String[] getGroupList() {
-        LocalizationFile[] files = pathMgr.listFiles(userCtx, pointsDir
-                .getName().trim(), new String[] {}, true, false);
+        ILocalizationFile[] files = pathMgr.listFiles(userCtx, pointsDir
+                .getPath().trim(), new String[] {}, true, false);
         String[] groups = new String[files.length - 1];
-        int start = files[0].getName().trim().length();
+        int start = files[0].getPath().trim().length();
         for (int index = 1; index < files.length; ++index) {
-            LocalizationFile lf = files[index];
-            groups[index - 1] = lf.getName().trim().substring(start)
+            ILocalizationFile lf = files[index];
+            groups[index - 1] = lf.getPath().trim().substring(start)
                     .replace(PointUtilities.DELIM_CHAR, ' ');
         }
         Arrays.sort(groups);
@@ -1154,7 +1156,7 @@ public class PointsDataManager implements ILocalizationFileObserver {
         boolean stateChange = false;
 
         StringBuilder sb = new StringBuilder(message.getFileName());
-        sb.replace(0, pointsDir.getName().length(), "");
+        sb.replace(0, pointsDir.getPath().length(), "");
         sb.replace(sb.lastIndexOf(IPathManager.SEPARATOR), sb.length(), "");
         String groupKey = sb.toString().replace(PointUtilities.DELIM_CHAR, ' ');
 
@@ -1292,7 +1294,7 @@ public class PointsDataManager implements ILocalizationFileObserver {
         boolean stateChange = false;
         StringBuilder sb = new StringBuilder(message.getFileName());
         sb.setLength(sb.lastIndexOf(IPathManager.SEPARATOR));
-        sb.replace(0, pointsDir.getName().length(), "");
+        sb.replace(0, pointsDir.getPath().length(), "");
         String key = sb.toString().replace(PointUtilities.DELIM_CHAR, ' ');
         String parentKey = null;
         int index = key.lastIndexOf(IPathManager.SEPARATOR);

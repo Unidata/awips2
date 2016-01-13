@@ -34,6 +34,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -67,6 +68,7 @@ import com.raytheon.uf.viz.alertviz.config.Source;
  * Apr 07, 2015 4346       rferrel     Created {@link #retrieveBaseConfiguration}.
  * May 20, 2015 4346       rjpeter     Updated to also load from common_static.
  * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
+ * Jan 11, 2016 5242       kbisanz     Replaced calls to deprecated LocalizationFile methods
  * 
  * </pre>
  * 
@@ -319,10 +321,10 @@ public class ConfigurationManager {
     private void loadFromLocalizationType(LocalizationType type) {
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext[] contexts = pm.getLocalSearchHierarchy(type);
-        LocalizationFile[] files = pm.listFiles(contexts, CONFIG_DIR,
+        ILocalizationFile[] files = pm.listFiles(contexts, CONFIG_DIR,
                 EXTENSIONS, true, true); // Win32
 
-        for (LocalizationFile file : files) {
+        for (ILocalizationFile file : files) {
             LocalizationContext fileContext = file.getContext();
 
             /*
@@ -331,8 +333,8 @@ public class ConfigurationManager {
              */
             if ((fileContext.getLocalizationLevel() != LocalizationLevel.BASE)
                     || ((fileContext.getLocalizationLevel() == LocalizationLevel.BASE) && DEFAULT_BASE_CONFIG
-                            .getLocalizationFileName().equals(file.getName()))) {
-                String fileName = file.getName();
+                            .getLocalizationFileName().equals(file.getPath()))) {
+                String fileName = file.getPath();
                 LocalizationContext locContext = file.getContext();
                 String name = fileName.substring(
                         fileName.lastIndexOf(IPathManager.SEPARATOR) + 1, // win32
@@ -400,7 +402,7 @@ public class ConfigurationManager {
         for (LocalizationFile f : files) {
             // Merge other base files with the default.
             if (!DEFAULT_BASE_CONFIG.getLocalizationFileName().equals(
-                    f.getName())) {
+                    f.getPath())) {
                 Configuration fileConfig = retrieveConfiguration(f);
                 Configuration mergeConfig = configuration.mergeUnder(
                         fileConfig, true);

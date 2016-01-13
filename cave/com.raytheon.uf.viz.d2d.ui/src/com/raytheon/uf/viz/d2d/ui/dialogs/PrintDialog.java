@@ -27,8 +27,7 @@ import java.awt.image.ComponentColorModel;
 import java.awt.image.IndexColorModel;
 import java.awt.image.WritableRaster;
 import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -63,12 +62,13 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.core.IDisplayPane;
@@ -85,7 +85,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
- * TODO Add Description
+ * Class representing a print dialog with various print settings.
  * 
  * <pre>
  * 
@@ -94,12 +94,12 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 15, 2011            bkowal     Initial creation
- * ======================================
- * AWIPS2 DR Work
  * 08/15/2012         1053 jkorman     Added capability to save/restore user
  * print settings.
  * 10/12/2012         1229 rferrel    Made dialog non-blocking.
  * 12/09/2014   ASM #11982 D. Friedman Fix print-to-file
+ * 01/11/2016         5242 kbisanz     Replaced calls to deprecated LocalizationFile methods
+ * 
  * 
  * </pre>
  * 
@@ -651,8 +651,8 @@ public class PrintDialog extends CaveSWTDialog {
         } else if (this.fileRadioButton.getSelection()) {
             printerSettings.selectedPrinter = this.printToFileData;
             printerSettings.selectedPrinter.printToFile = true;
-            printerSettings.selectedPrinter.fileName =
-                    this.destinationFileText.getText();
+            printerSettings.selectedPrinter.fileName = this.destinationFileText
+                    .getText();
         }
         printerSettings.selectedPrinter.copyCount = this.copiesSpinner
                 .getSelection();
@@ -910,25 +910,15 @@ public class PrintDialog extends CaveSWTDialog {
         LocalizationContext ctx = initUserLocalization();
 
         // Get a list of localization files!
-        LocalizationFile f = PathManagerFactory.getPathManager()
+        ILocalizationFile f = PathManagerFactory.getPathManager()
                 .getLocalizationFile(ctx, SETTINGS_FILENAME);
-        OutputStream strm = null;
-        try {
-            strm = f.openOutputStream();
+
+        try (SaveableOutputStream strm = f.openOutputStream()) {
             JAXB.marshal(settings, strm);
             // Ensure that the file is saved on the server!
-            f.save();
+            strm.save();
         } catch (Exception e) {
             statusHandler.error("Could not save user print settings", e);
-        } finally {
-            if (f != null) {
-                try {
-                    strm.close();
-                } catch (IOException ioe) {
-                    statusHandler.error("Could not close user print settings",
-                            ioe);
-                }
-            }
         }
     }
 
@@ -940,15 +930,15 @@ public class PrintDialog extends CaveSWTDialog {
         LocalizationContext ctx = initUserLocalization();
 
         // Get a list of localization files!
-        LocalizationFile f = PathManagerFactory.getPathManager()
+        ILocalizationFile f = PathManagerFactory.getPathManager()
                 .getLocalizationFile(ctx, SETTINGS_FILENAME);
         // If its not there, no previous settings have been saved. Just exit.
         if (f.exists()) {
             UserPrintSettings settings = null;
-            try {
+            try (InputStream strm = f.openInputStream()) {
 
-                settings = (UserPrintSettings) JAXB.unmarshal(
-                        f.openInputStream(), UserPrintSettings.class);
+                settings = (UserPrintSettings) JAXB.unmarshal(strm,
+                        UserPrintSettings.class);
 
             } catch (Exception e) {
                 statusHandler.error(
