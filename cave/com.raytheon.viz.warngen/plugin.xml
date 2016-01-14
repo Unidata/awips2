@@ -70,7 +70,7 @@
 				</command>
 			</toolbar>
 		</menuContribution>
-		<menuContribution locationURI="menu:tools">
+		<menuContribution locationURI="menu:tools?after=tools.W">
 			<command
 				commandId="com.raytheon.viz.warngen.gui.WarngenAction"
 				label="Warngen">
