@@ -9,6 +9,7 @@
      Modified by Phil Kurimski    09-19-2013 added geospatialConfig.xml
      Modified by Gene Petrescu    09-20-2013 added Alaska Modifications (G
      Modified by Mike Rega        01-18-2014 added Alaska GP changes for 14.2.1
+                 Mike Dangelo     10-20-2015 Standard CTAs
 -->
 
 <warngenConfig>
@@ -61,10 +62,11 @@ turned on unless the corresponding .vm file is turned on in a given template's .
    <!-- Enable/disables the system to lock text based on various patterns -->
  <autoLockText>true</autoLockText>
  
-<!-- if trackEnabled is set to 'true' = makes third bullet initial position and movement 
+ <!-- if trackEnabled is set to 'true' = makes third bullet initial position and movement 
 as well as fourth bullet pathcast (which are optional info) available to forecaster.   
 Must be paired with proper vm code (also commented out in flashFloodWarningFollowup.vm)! -->
-<trackEnabled>false</trackEnabled> 
+  <trackEnabled>false</trackEnabled> 
+  <!-- <trackEnabled>true</trackEnabled> --> 
  
  <!-- durations: the list of possible durations of the warning -->
   <!-- THE DURATIONS REALLY SERVE NO PURPOSE IN A FOLLOWUP BUT WILL CRASH WARNGEN IF REMVOED -->
@@ -72,6 +74,20 @@ Must be paired with proper vm code (also commented out in flashFloodWarningFollo
  <durations>
   <duration>30</duration>
  </durations>
+ 
+  <!-- UNCOMMENT IF YOU HAVE YOUR RIVER DRAINAGE BASINS SETUP 
+  <pointSource variable="riverdrainages">
+ 	<pointSource>ffmp_basins</pointSource>
+    <geometryDecimationTolerance>0.064</geometryDecimationTolerance>
+ 	<pointField>streamname</pointField>
+ 	<filter>
+ 		<mapping key="cwa">
+ 			<constraint constraintValue="$warngenCWAFilter" constraintType="EQUALS" />
+ 		</mapping>
+ 	</filter>
+ 	<withinPolygon>true</withinPolygon>
+ </pointSource>
+--> 
 
 <lockedGroupsOnFollowup>ic,ffwEMER</lockedGroupsOnFollowup> 
 <bulletActionGroups>
@@ -133,16 +149,20 @@ Must be paired with proper vm code (also commented out in flashFloodWarningFollo
   <bullet bulletName="drainages" bulletText="Automated list of drainages" parseString="THIS INCLUDES THE FOLLOWING STREAMS AND DRAINAGES" loadMap="River Drainage Basins"/>
   <bullet bulletText="**** CALL TO ACTIONS (CHOOSE 1 OR MORE) ****" bulletType="title"/>
 <!-- end all call to action bullets with "CTA" ex: "obviousNameCTA" -->
-  <bullet bulletName="ffwEmergencyCTA" bulletText="**FLASH FLOOD EMERGENCY CTA**" parseString="FLASH FLOOD EMERGENCY"/>
-  <bullet bulletName="actQuicklyCTA" bulletText="Act Quickly..." parseString="HIGHER GROUND NOW! ACT QUICKLY TO PROTECT YOUR LIFE."/>
-  <bullet bulletName="childSafetyCTA" bulletText="Child Safety..." parseString="KEEP CHILDREN AWAY FROM STORM DRAINS"/>
-  <bullet bulletName="nighttimeCTA" bulletText="Nighttime flooding..." parseString="BE ESPECIALLY CAUTIOUS AT NIGHT WHEN"/>
-  <bullet bulletName="safetyCTA" bulletText="Safety...by foot or motorist" parseString="DO NOT ENTER OR CROSS FLOWING WATER"/>
-  <bullet bulletName="turnAroundCTA" bulletText="Turn around...dont drown" parseString="TURN AROUND, DON'T DROWN"/>
-  <bullet bulletName="stayAwayCTA" bulletText="Stay away or be swept away" parseString="STAY AWAY OR BE SWEPT AWAY"/>
-  <bullet bulletName="arroyosCTA" bulletText="Arroyos..." parseString="ARROYOS, STREAMS, AND RIVERS CAN BECOME RAGING KILLER CURRENTS"/>
-  <bullet bulletName="burnAreasCTA" bulletText="Burn Areas..." parseString="MOVE AWAY FROM RECENTLY BURNED AREAS"/>
-  <bullet bulletName="reportFloodingCTA" bulletText="Report flooding to local law enforcement" parseString="PLEASE REPORT FLOODING"/>
+  <bullet bulletName="ffwEmergencyCTA" bulletText="FLASH FLOOD EMERGENCY" parseString=" DO NOT ATTEMPT TO TRAVEL UNLESS YOU ARE FLEEING AN AREA SUBJECT TO FLOODING OR ARE UNDER AN EVACUATION ORDER"/>
+  <bullet bulletName="TADD_CTA" bulletText="Turn around, don't drown" parseString="TURN AROUND, DON'T DROWN"/>
+  <bullet bulletName="actQuicklyCTA" bulletText="Act Quickly" parseString="ACT QUICKLY TO PROTECT YOUR LIFE"/>
+  <bullet bulletName="childSafetyCTA" bulletText="Child Safety" parseString="KEEP CHILDREN AWAY"/>
+  <bullet bulletName="nighttimeCTA" bulletText="Nighttime flooding" parseString="AT NIGHT WHEN IT IS HARDER TO RECOGNIZE"/>
+  <bullet bulletName="urbanCTA" bulletText="Urban areas" parseString="URBAN AREAS, HIGHWAYS, STREETS AND UNDERPASSES"/>
+  <bullet bulletName="ruralCTA" bulletText="Rural areas" parseString="COUNTRY ROADS, FARMLAND, AND OTHER LOW LYING SPOTS"/>
+  <bullet bulletName="stayAwayCTA" bulletText="Stay away" parseString="STAY AWAY OR BE SWEPT AWAY"/>
+  <bullet bulletName="lowSpotsCTA" bulletText="Low spots in hilly terrain" parseString="IN HILLY TERRAIN THERE ARE HUNDREDS OF LOW WATER CROSSINGS"/>
+  <bullet bulletName="arroyosCTA" bulletText="Arroyos" parseString="ARROYOS"/>
+  <bullet bulletName="burnAreasCTA" bulletText="Burn Areas" parseString="RECENTLY BURNED AREAS"/>
+  <bullet bulletName="camperSafetyCTA" bulletText="Camper/Hiker Safety" parseString="CAMPERS AND HIKERS"/>
+  <bullet bulletName="reportFloodingCTA" bulletText="Report flooding to law enforcement" parseString="REPORT FLOODING TO YOUR LOCAL LAW ENFORCEMENT"/>
+  <bullet bulletName="ffwMeansCTA" bulletText="Flash Flood Warning means" parseString="A FLASH FLOOD WARNING MEANS"/>
   </bullets>
 </bulletActionGroup>
 <bulletActionGroup action="COR" phen="FF" sig="W">
@@ -184,31 +204,21 @@ Must be paired with proper vm code (also commented out in flashFloodWarningFollo
   <bullet bulletName="particularStream" bulletText="Flooding is occurring in a particular stream/river" parseString="FLOOD WATERS ARE MOVING DOWN"/>
   <bullet bulletName="drainages" bulletText="Automated list of drainages" parseString="THIS INCLUDES THE FOLLOWING STREAMS AND DRAINAGES" loadMap="River Drainage Basins"/>
   <bullet bulletText="**** CALL TO ACTIONS (CHOOSE 1 OR MORE) ****" bulletType="title"/>
-<!-- end all call to action bullets with "CTA" ex: "obviousNameCTA" -->
-  <bullet bulletName="ffwEmergencyCTA" bulletText="**FLASH FLOOD EMERGENCY CTA**" parseString="FLASH FLOOD EMERGENCY"/>
-  <bullet bulletName="actQuicklyCTA" bulletText="Act Quickly..." parseString="HIGHER GROUND NOW! ACT QUICKLY TO PROTECT YOUR LIFE."/>
-  <bullet bulletName="childSafetyCTA" bulletText="Child Safety..." parseString="KEEP CHILDREN AWAY FROM STORM DRAINS"/>
-  <bullet bulletName="nighttimeCTA" bulletText="Nighttime flooding..." parseString="BE ESPECIALLY CAUTIOUS AT NIGHT WHEN"/>
-  <bullet bulletName="safetyCTA" bulletText="Safety...by foot or motorist" parseString="DO NOT ENTER OR CROSS FLOWING WATER"/>
-  <bullet bulletName="turnAroundCTA" bulletText="Turn around...dont drown" parseString="TURN AROUND, DON'T DROWN"/>
-  <bullet bulletName="stayAwayCTA" bulletText="Stay away or be swept away" parseString="STAY AWAY OR BE SWEPT AWAY"/>
-  <bullet bulletName="arroyosCTA" bulletText="Arroyos..." parseString="ARROYOS, STREAMS, AND RIVERS CAN BECOME RAGING KILLER CURRENTS"/>
-  <bullet bulletName="burnAreasCTA" bulletText="Burn Areas..." parseString="MOVE AWAY FROM RECENTLY BURNED AREAS"/>
-  <bullet bulletName="reportFloodingCTA" bulletText="Report flooding to local law enforcement" parseString="PLEASE REPORT FLOODING"/>
+  <bullet bulletName="ffwEmergencyCTA" bulletText="FLASH FLOOD EMERGENCY" parseString=" DO NOT ATTEMPT TO TRAVEL UNLESS YOU ARE FLEEING AN AREA SUBJECT TO FLOODING OR ARE UNDER AN EVACUATION ORDER"/>
+  <bullet bulletName="TADD_CTA" bulletText="Turn around, don't drown" parseString="TURN AROUND, DON'T DROWN"/>
+  <bullet bulletName="actQuicklyCTA" bulletText="Act Quickly" parseString="ACT QUICKLY TO PROTECT YOUR LIFE"/>
+  <bullet bulletName="childSafetyCTA" bulletText="Child Safety" parseString="KEEP CHILDREN AWAY"/>
+  <bullet bulletName="nighttimeCTA" bulletText="Nighttime flooding" parseString="AT NIGHT WHEN IT IS HARDER TO RECOGNIZE"/>
+  <bullet bulletName="urbanCTA" bulletText="Urban areas" parseString="URBAN AREAS, HIGHWAYS, STREETS AND UNDERPASSES"/>
+  <bullet bulletName="ruralCTA" bulletText="Rural areas" parseString="COUNTRY ROADS, FARMLAND, AND OTHER LOW LYING SPOTS"/>
+  <bullet bulletName="stayAwayCTA" bulletText="Stay away" parseString="STAY AWAY OR BE SWEPT AWAY"/>
+  <bullet bulletName="lowSpotsCTA" bulletText="Low spots in hilly terrain" parseString="IN HILLY TERRAIN THERE ARE HUNDREDS OF LOW WATER CROSSINGS"/>
+  <bullet bulletName="arroyosCTA" bulletText="Arroyos" parseString="ARROYOS"/>
+  <bullet bulletName="burnAreasCTA" bulletText="Burn Areas" parseString="RECENTLY BURNED AREAS"/>
+  <bullet bulletName="camperSafetyCTA" bulletText="Camper/Hiker Safety" parseString="CAMPERS AND HIKERS"/>
+  <bullet bulletName="reportFloodingCTA" bulletText="Report flooding to law enforcement" parseString="REPORT FLOODING TO YOUR LOCAL LAW ENFORCEMENT"/>
+  <bullet bulletName="ffwMeansCTA" bulletText="Flash Flood Warning means" parseString="A FLASH FLOOD WARNING MEANS"/>
  </bullets>
 </bulletActionGroup>
 </bulletActionGroups>
-
- <pointSource variable="riverdrainages">
- 	<pointSource>ffmp_basins</pointSource>
-    <geometryDecimationTolerance>0.064</geometryDecimationTolerance>
- 	<pointField>streamname</pointField>
- 	<filter>
- 		<mapping key="cwa">
- 			<constraint constraintValue="$warngenCWAFilter" constraintType="EQUALS" />
- 		</mapping>
- 	</filter>
- 	<withinPolygon>true</withinPolygon>
- </pointSource>
-
 </warngenConfig>

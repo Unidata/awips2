@@ -48,6 +48,7 @@ from dynamicserialize import DynamicSerializationManager
 #    05/27/11        3050          cjeanbap       Added if-statement to check Priority
 #                                                 value
 #    07/27/15        4654          skorolev       Added filters
+#    11/11/15        5120          rferrel        Cannot serialize empty filters.
 #
 class NotificationMessage:
   
@@ -115,9 +116,9 @@ class NotificationMessage:
        # of the message to AlertViz   
        # 9581 is global distribution thru ThriftClient to Edex
        # 61999 is local distribution
-    if (self.port == 61999):
+    if (int(self.port) == 61999):
         # use stomp.py
-        conn = stomp.Connection(host_and_ports=[(self.host, self.port)])
+        conn = stomp.Connection(host_and_ports=[(self.host, 61999)])
         timeout = threading.Timer(5.0, self.connection_timeout, [conn])
 
         try:
@@ -134,7 +135,8 @@ class NotificationMessage:
         sm.set("category", self.category)
         sm.set("sourceKey", self.source)
         sm.set("audioFile", self.audioFile)
-        sm.set("filters", self.filters)
+        if self.filters is not None and len(self.filters) > 0:
+            sm.set("filters", self.filters)
         msg = ET.SubElement(sm, "message")
         msg.text = self.message
         details = ET.SubElement(sm, "details")

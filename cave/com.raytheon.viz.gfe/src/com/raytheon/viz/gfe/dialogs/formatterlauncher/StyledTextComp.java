@@ -91,6 +91,10 @@ import com.raytheon.viz.gfe.textformatter.TextFmtParserUtil;
  * 08/06/2015  13753       lshi        use isSystemTextChange instead of isUpdateTime
  * 14 OCT 2015 4959        dgilling    Use WordWrapperPythonExecutor to get 
  *                                     python calls off UI thread.
+ * 12/04/2015  13753       lshi        revert 13753
+ * 12/22/2015  18428       lshi        Issuing a Correction of a corrected product via an existing
+ *                                     Product Editor in GFE throws and error and unlocks text,
+ *                                     wordWrap
  * 
  * </pre>
  * 
@@ -1281,7 +1285,7 @@ public class StyledTextComp extends Composite {
      *         <ol>
      *         <li value=0>The index in the old content of the first character</li>
      *         <li>The index in the old content of the last character</li>
-     *         <li>The length of the replacement text</li>
+     *         <li>The length of the replacemetruent text</li>
      *         </ol>
      */
     public int[] wordWrap(int cursorIndex, int width) {
@@ -1447,7 +1451,9 @@ public class StyledTextComp extends Composite {
         post = post.replaceAll("^\\s*", "");
 
         String text = pre + rchar + post;
-        st.replaceTextRange(startIndex, (1 + endIndex) - startIndex, text);
+        if (startIndex > 0) {
+            st.replaceTextRange(startIndex, (1 + endIndex) - startIndex, text);
+        }
         int newCaretOffset = startIndex + pre.length();
         st.setCaretOffset(newCaretOffset);
 

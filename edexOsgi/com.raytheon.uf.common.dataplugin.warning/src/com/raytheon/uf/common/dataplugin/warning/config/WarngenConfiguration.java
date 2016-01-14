@@ -62,6 +62,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  *    Oct 22, 2013  2361       njensen     Removed ISerializableObject
  *    Apr 28, 2014  3033       jsanchez    Properly handled back up configuration (*.xml) files.
  *    Aug 28, 2014 ASM #15658  D. Friedman Add marine zone watch wording option.
+ *    Dec 21, 2015 DCS 17942   D. Friedman Add extension area specification.
  * </pre>
  * 
  * @author chammack
@@ -153,6 +154,9 @@ public class WarngenConfiguration {
 
     @XmlElement(name = "lockedGroupsOnFollowup")
     private String lockedGroupsOnFollowup;
+
+    @XmlElement
+    private ExtensionArea extensionArea;
 
     /**
      * Method used to load a configuration file for a newly selected Warngen
@@ -520,6 +524,14 @@ public class WarngenConfiguration {
 
     public void setHatchedAreaSource(AreaSourceConfiguration hatchedAreaSource) {
         this.hatchedAreaSource = hatchedAreaSource;
+    }
+
+    public ExtensionArea getExtensionArea() {
+        return extensionArea;
+    }
+
+    public void setExtensionArea(ExtensionArea extensionArea) {
+        this.extensionArea = extensionArea;
     }
 
 }

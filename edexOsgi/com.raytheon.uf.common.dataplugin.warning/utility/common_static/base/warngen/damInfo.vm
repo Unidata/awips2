@@ -62,8 +62,8 @@
     #set($ctaSelected = "YES")
     #set($sitespecSelected = "YES")
     #set($hycType = "THE ${riverName} BELOW ${damName}")
-    #set($emergencyHeadline = "TOWNS AND CITIES IMMEDIATELY BELOW ${damName} ON THE ${riverName}")
-    #set($emergencyHeadline = "#capitalize(${emergencyHeadline} 'ALL')")
+    #set($emergencyText = "towns and cities immediately below ${damName} on the ${riverName}")
+    #set($emergencyHeadline = "#capitalize(${emergencyText} 'ALL')")
     #set($headline = "for ${reportType2} ${damName} on the ${riverName} ")
 ## The following line will capitalize the headline in the product.
 ## If the headline will be mixed case just comment out the line below.    

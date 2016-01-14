@@ -66,6 +66,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Mar 10, 2015 14575      snaples     Added additional status flags.
  * Oct 14, 2015 17977      snaples     Fixed loadData to read station
  *                                     lists when new area, which means it needs to read some tokens also.
+ * Nov 25, 2015 17986      snaples     Updated array func to adjust QC codes for update to dialogs.
  * 
  * </pre>
  * 
@@ -437,7 +438,7 @@ public class DailyQcUtils {
 
     public static int new_area_flag = 0;
 
-    public int func[] = { 8, 0, 3, 1, 2 };
+    public int func[] = { 8, 3, 0, 1, 2 };
 
     public static int hrgt12z = -1;
 

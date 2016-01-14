@@ -30,6 +30,7 @@ import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
 import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
@@ -48,6 +49,7 @@ import com.raytheon.viz.ui.tools.ModalToolManager;
  * 11Apr2011     8738        jpiatt      Initial Creation.
  * Jun 30, 2015  14317       snaples     Fixed issue when toggling back from Areal Zoom, 
  *                                       not going to Pan mode.
+ * Dec 02, 2015  18104       snaples     Fixed issue of not unzooming when using Pan/Zoom tools.
  * 
  * </pre>
  * 
@@ -97,20 +99,28 @@ public class MPEZoomAction extends AbstractHandler {
 							if (container != null) {
 								pane = container.getActiveDisplayPane();
 								if (pane != null) {
-									unZoomedExtent = pane.getRenderableDisplay().getExtent();
+								    unZoomedExtent = pane.getRenderableDisplay().getExtent();
 								}
 
 							}
 							
 						}
-
 						mgr.activateToolSet(ZOOM_ID);
 						break;
-
 					} else {
-					
-						pane.getRenderableDisplay().setExtent(unZoomedExtent);
-						pane.getDescriptor().getRenderableDisplay().refresh();
+					    if (display == null) {
+					        container = EditorUtil.getActiveVizContainer();
+					        if (container != null) {
+					            pane = container.getActiveDisplayPane();
+					            if (pane != null) { 
+					                if (unZoomedExtent == null){
+					                    unZoomedExtent = MPEDisplayManager.getDefaultExtent();
+					                }
+					            }
+					        }
+					    }
+					    pane.getDescriptor().getRenderableDisplay().setExtent(unZoomedExtent);
+					    pane.getDescriptor().getRenderableDisplay().refresh();
 						mgr.activateToolSet(PAN_ID);
 						break;
 					}

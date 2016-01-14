@@ -104,23 +104,7 @@
         </antcall>
         <antcall target="build">
             <param name="feature"
-                value="com.raytheon.uf.edex.datadelivery.client.feature" />
-        </antcall>
-        <antcall target="build">
-            <param name="feature"
                 value="com.raytheon.uf.edex.registry.feature" />
-        </antcall>
-        <antcall target="build">
-            <param name="feature"
-                value="com.raytheon.uf.edex.datadelivery.core.feature" />
-        </antcall>
-        <antcall target="build">
-            <param name="feature"
-                value="com.raytheon.uf.edex.datadelivery.feature" />
-        </antcall>
-        <antcall target="build">
-            <param name="feature"
-                value="com.raytheon.uf.edex.dataprovideragent.feature" />
         </antcall>
         <antcall target="build">
             <param name="feature"
@@ -147,23 +131,24 @@
 	   wa.features=feature1,feature2
     -->
     <target name="wa-build" depends="main-build" description="Builds work assignment specific features after the main build">
-        <for param="wa.feature.list.file">
-            <fileset dir="${basedir}" includes="*-wa-build.properties" />
-            <sequential>
-                <var name="wa.features" unset="true" />
-                <property file="@{wa.feature.list.file}" />
-                <for list="${wa.features}" param="wa.feature">
-                    <sequential>
-                        <antcall target="build">
-                            <param name="feature" value="@{wa.feature}" />
-                        </antcall>
-                    </sequential>
-                </for>
-            </sequential>
-        </for>
+    	<if>
+    		<available file="${basedir}/features.txt" type="file" />
+    		<then>
+    			<loadfile property="wa.features"
+    				srcfile="${basedir}/features.txt" />
+    			<for param="line" list="${wa.features}" 
+    			delimiter="${line.separator}">
+            		<sequential>
+                		<antcall target="build">
+                    		<param name="feature" value="@{line}" />
+                		</antcall>
+            		</sequential>    				
+    			</for>
+    		</then>
+    	</if>
 
-    <antcall target="wa-cleanup" />
-	<antcall target="clean" />
+    	<antcall target="wa-cleanup" />
+		<antcall target="clean" />
     </target>
 	
 	<target name="wa-cleanup" description="Removes references to WA-specific features that should not be built as an RPM.">

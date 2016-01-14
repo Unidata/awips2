@@ -28,7 +28,6 @@ import com.raytheon.uf.viz.core.alerts.AlertMessage;
 import com.raytheon.uf.viz.thinclient.Activator;
 import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
 import com.raytheon.uf.viz.thinclient.refresh.TimedRefresher.RefreshTimerTask;
-import com.raytheon.viz.alerts.jobs.AutoUpdater;
 import com.raytheon.viz.alerts.observers.ProductAlertObserver;
 
 /**
@@ -40,10 +39,12 @@ import com.raytheon.viz.alerts.observers.ProductAlertObserver;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Nov 10, 2011            mschenke     Initial creation
- * Feb 21, 2014 DR 16744   D. Friedman  Update all alert observers
+ * Date          Ticket#  Engineer   Description
+ * ------------- -------- ---------- -------------------------------------------
+ * Nov 10, 2011  7393     mschenke   Initial creation
+ * Feb 21, 2014  16744    dfriedman  Update all alert observers
+ * Dec 04, 2015  5169     bsteffen   Allow ProductAlertObserver to send messages
+ *                                   to the AutoUpdater
  * 
  * </pre>
  * 
@@ -71,8 +72,6 @@ public class DataRefreshTask implements RefreshTimerTask {
                 s.add(am.dataURI);
             }
             ProductAlertObserver.processDataURIAlerts(s);
-
-            new AutoUpdater().alertArrived(alerts);
         }
     }
 
