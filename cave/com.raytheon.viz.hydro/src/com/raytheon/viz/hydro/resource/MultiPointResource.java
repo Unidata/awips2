@@ -136,6 +136,7 @@ import com.vividsolutions.jts.index.strtree.STRtree;
  * Jun 26, 2015 17386       xwei        Fixed : HydroView crashes in when Refresh Data after loading saved display files
  * Jul 06, 2015 4215        mpduff      Correct the fact that user's cannot click and view time series.
  * Oct 05, 2015 17978       lbousaidi   Enable TimeStep GUI to display multiple values and Parameter Codes for a given lid
+ * Dec 05, 2015 18357       xwei        Fixed error in opening Timeseries for Timesteps
  * 
  * </pre>
  * 
@@ -225,8 +226,6 @@ public class MultiPointResource extends
 
     private STRtree strTree = new STRtree();
     
-    private STRtree strTreeTimeStep = new STRtree();
-
     private IFont font;
 
     private int fontSize;
@@ -1498,13 +1497,14 @@ public class MultiPointResource extends
     	if (pcOptions.getQueryMode() == 1){
     		
     		dataMapTimeStep.clear();
-            strTreeTimeStep = new STRtree();
+            
     	}else{
     		
     		dataMap.clear();
-    		strTree = new STRtree();
+    		
     	}
     	
+    	strTree = new STRtree();
     }
 
     private class TimeSeriesLaunchAction extends AbstractRightClickAction {

@@ -174,6 +174,9 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  * 08/10/2015   4721       randerso    Changed getNNNid() to use the productID field (not textdbPil)
  * 09/15/2015   4858       dgilling    Disable store/transmit in DRT mode.
  * 10/26/2015  18244       lshi        fixed NullPointerException (pds, updateIssueExpireTimes)
+ * 12/14/2015  18367       ryu         Disable finalization of ETN when product is stored to text database.
+ * 12/16/2015  18410       lshi        For corrected products, both WMO time and MND time should
+ *                                     match the current time
  * </pre>
  *
  * @author lvenable
@@ -1147,7 +1150,8 @@ public class ProductEditorComp extends Composite implements
             // prevent the launching of another dialog until the modal dialog is
             // closed.
             StoreTransmitDlg storeDlg = new StoreTransmitDlg(parent.getShell(),
-                    showStore, this, transmissionCB, pid, !textComp.isCorMode());
+                    showStore, this, transmissionCB, pid, 
+                    !textComp.isCorMode() && (action == Action.TRANSMIT));
             storeDlg.open();
         }
     }
@@ -1973,18 +1977,18 @@ public class ProductEditorComp extends Composite implements
         // else it will continue on.
 
         if (textComp != null) {
-            // Update Issue time
             try {
                 textComp.startUpdate();
                 ProductDataStruct pds = textComp.getProductDataStruct();
                 if (pds != null) {
-                    if (!textComp.isCorMode()) {
-                        TextIndexPoints pit = pds.getPIT();
-                        if (pit != null) {
-                            String time = purgeTimeFmt.format(now);
-                            textComp.replaceText(pit, time);
-                        }
+                    // update WMO time
+                    //if (!textComp.isCorMode()) {  ## uncomment this if want to keep WMO time original
+                    TextIndexPoints pit = pds.getPIT();
+                    if (pit != null) {
+                        String time = purgeTimeFmt.format(now);
+                        textComp.replaceText(pit, time);
                     }
+                   // }
 
                     // Update MND time
                     TextIndexPoints tip = pds.getMndMap().get("nwstime");

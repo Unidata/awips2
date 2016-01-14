@@ -140,12 +140,4 @@
 		<unit>K</unit>
 		<resolution>750.0</resolution>
 	</channelInfo>
-	
-    <!-- DNB/NCC -->
-    <channelInfo id="10">
-        <channelType>Moderate</channelType>
-        <wavelength>0.7</wavelength>
-        <channel>10</channel>
-        <resolution>750.0</resolution>
-    </channelInfo>
 </viirsHeaderMapping>

@@ -70,7 +70,7 @@ import com.raytheon.viz.gfe.textformatter.TextFmtParserUtil;
 
 /**
  * Composite containing the product editor.
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
@@ -91,13 +91,19 @@ import com.raytheon.viz.gfe.textformatter.TextFmtParserUtil;
  *                                     editing of framing codes.
  * 07/02/2015  13753       lshi        Update times for products in Product Editor
  * 08/06/2015  13753       lshi        use isSystemTextChange instead of isUpdateTime
+ * 12/04/2015  13753       lshi        revert 13753
+ *
+ *
  * 11/19/2015   5141       randerso    Changed upper() to also replace commas with ellipses
- * 
+ * 12/22/2015  18428       lshi        Issuing a Correction of a corrected product via an existing
+ *                                     Product Editor in GFE throws and error and unlocks text,
+ *                                     wordWrap
+ *
  * </pre>
- * 
+ *
  * @author lvenable
  * @version 1.0
- * 
+ *
  */
 
 public class StyledTextComp extends Composite {
@@ -202,7 +208,7 @@ public class StyledTextComp extends Composite {
 
     /**
      * Constructor.
-     * 
+     *
      * @param parent
      *            Parent composite.
      * @param wrapMode
@@ -324,7 +330,7 @@ public class StyledTextComp extends Composite {
 
     /**
      * Get the StyledText editor.
-     * 
+     *
      * @return The StyledText editor.
      */
     public StyledText getTextEditorST() {
@@ -333,7 +339,7 @@ public class StyledTextComp extends Composite {
 
     /**
      * Set the product text.
-     * 
+     *
      * @param text
      *            The product text.
      */
@@ -503,7 +509,7 @@ public class StyledTextComp extends Composite {
 
     /**
      * Parse the product text string.
-     * 
+     *
      * @param productText
      *            Complete product text.
      * @throws JepException
@@ -599,7 +605,7 @@ public class StyledTextComp extends Composite {
 
     /**
      * Replacement of the text in the given range with new text.
-     * 
+     *
      * @param tip
      *            the range of text to be replaced
      * @param text
@@ -708,7 +714,7 @@ public class StyledTextComp extends Composite {
      * A verify event occurs after the user has done something to modify the
      * text (typically typed a key), but before the text is modified. The doit
      * field in the verify event indicates whether or not to modify the text.
-     * 
+     *
      * @param event
      *            Verify event that was fired.
      */
@@ -798,7 +804,7 @@ public class StyledTextComp extends Composite {
     /**
      * Check if there is selected text and if there is locked text in the
      * selected text.
-     * 
+     *
      * @return True if there is selected text that contains locked text.
      */
     private boolean selectionHasLockedText() {
@@ -812,12 +818,12 @@ public class StyledTextComp extends Composite {
 
     /**
      * Check if there is locked text in the specified range of text.
-     * 
+     *
      * @param offset
      *            The starting point of the locked text search.
      * @param length
      *            The length of the search.
-     * 
+     *
      * @return Whether or not there is text in the range that contains locked
      *         text.
      */
@@ -835,7 +841,7 @@ public class StyledTextComp extends Composite {
 
     /**
      * Check if the key being pressed is a "non-edit" key.
-     * 
+     *
      * @param event
      *            Verify event.
      * @return True if the key is an arrow or "non-edit" key.
@@ -869,7 +875,7 @@ public class StyledTextComp extends Composite {
 
     /**
      * Handle the mouse down event.
-     * 
+     *
      * @param e
      *            Event fired.
      */
@@ -984,7 +990,7 @@ public class StyledTextComp extends Composite {
     /**
      * Checks if the system is editing, e.g. updating the issue time every
      * minute, vs a user typing text in the text area
-     * 
+     *
      * @return
      */
     private boolean isSystemTextChange() {
@@ -1022,13 +1028,11 @@ public class StyledTextComp extends Composite {
 
     protected void upper() {
         String text = textEditorST.getText();
-        if (isUpperCase(text) && !text.contains(",")) {
+        if (isUpperCase(text)) {
             return;
         }
-        text = text.toUpperCase();
-        text = text.replaceAll(", {0,1}", "...");
         int topIdx = textEditorST.getTopIndex();
-        setProductText(text);
+        setProductText(textEditorST.getText().toUpperCase());
         textEditorST.setTopIndex(topIdx);
     }
 
@@ -1142,7 +1146,7 @@ public class StyledTextComp extends Composite {
 
     /**
      * Getter for the column at which wrap and auto-wrap will wrap the text.
-     * 
+     *
      * @return the column number
      */
     public int getWrapColumn() {
@@ -1151,7 +1155,7 @@ public class StyledTextComp extends Composite {
 
     /**
      * Getter for the column at which wrap and auto-wrap will wrap the text.
-     * 
+     *
      * @param wrapColumn
      *            the column number
      */
@@ -1190,7 +1194,7 @@ public class StyledTextComp extends Composite {
     /**
      * Query the prefs for setting. If it does not exist, use colorDft as its
      * value. Create an SWT Color for display from the value and return it.
-     * 
+     *
      * @param prefs
      *            A preference store which might have config values.
      * @param display
@@ -1213,7 +1217,7 @@ public class StyledTextComp extends Composite {
 
     /**
      * Send a PROBLEM message if color1 is exactly equal to color2.
-     * 
+     *
      * @param color1
      *            the first color
      * @param color2
@@ -1240,7 +1244,7 @@ public class StyledTextComp extends Composite {
      * <p>
      * The getter name is different to avoid confusion with the getFgColor()
      * method of Control.
-     * 
+     *
      * @return the foreground Color
      */
     public Color getFgndColor() {
@@ -1251,7 +1255,7 @@ public class StyledTextComp extends Composite {
      * Get the framed text color of the StyledTextComp. This is the actual
      * color, not a copy. It will be disposed when the StyledTextComp is, and
      * should not be disposed before then.
-     * 
+     *
      * @return the frameColor
      */
     public Color getFrameColor() {
@@ -1262,7 +1266,7 @@ public class StyledTextComp extends Composite {
      * Get the insert color of the StyledTextComp. This is the actual color, not
      * a copy. It will be disposed when the StyledTextComp is, and should not be
      * disposed before then.
-     * 
+     *
      * @return the insertColor
      */
     public Color getInsertColor() {
@@ -1273,7 +1277,7 @@ public class StyledTextComp extends Composite {
      * Get the locked text color of the StyledTextComp. This is the actual
      * color, not a copy. It will be disposed when the StyledTextComp is, and
      * should not be disposed before then.
-     * 
+     *
      * @return the lockColor
      */
     public Color getLockColor() {
@@ -1283,7 +1287,7 @@ public class StyledTextComp extends Composite {
     /**
      * Word wrap the text in the block around cursorIndex. Adjust the cursor
      * position to account for inserted or deleted whitespace.
-     * 
+     *
      * @param st
      *            The StyledText in which word wrap is to be performed
      * @param cursorIndex
@@ -1294,7 +1298,7 @@ public class StyledTextComp extends Composite {
      *         <ol>
      *         <li value=0>The index in the old content of the first character</li>
      *         <li>The index in the old content of the last character</li>
-     *         <li>The length of the replacement text</li>
+     *         <li>The length of the replacemetruent text</li>
      *         </ol>
      */
     public int[] wordWrap(StyledText st, int cursorIndex, int width) {
@@ -1469,7 +1473,9 @@ public class StyledTextComp extends Composite {
         post = post.replaceAll("^\\s*", "");
 
         String text = pre + rchar + post;
-        st.replaceTextRange(startIndex, (1 + endIndex) - startIndex, text);
+        if (startIndex > 0) {
+            st.replaceTextRange(startIndex, (1 + endIndex) - startIndex, text);
+        }
         int newCaretOffset = startIndex + pre.length();
         st.setCaretOffset(newCaretOffset);
 

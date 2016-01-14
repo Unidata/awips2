@@ -356,6 +356,10 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  * 07Oct2015   RM 18132     D. Friedman Exlucde certain phensigs from automatic ETN incrementing.
  * 19Nov2015   5141         randerso    Replace commas with ellipses if product not enabled for 
  *                                      mixed case transmission
+ * 10Dec2015   5206         randerso    Replace commas with ellipses only in WarnGen products
+ * 06Jan2016   5225         randerso    Fix problem with mixed case not getting converted to upper case 
+ *                                      when multiple text editors are open on the same product.
+ * 6Jan2016    RM18452   mgamazaychikov Fix NPE for null product in enterEditor
  * 
  * </pre>
  * 
@@ -386,6 +390,10 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      */
     private static List<String> gfePils = Arrays.asList("WSW", "NPW", "HLS",
             "CFW", "WCN", "FFA", "MWW", "RFW");
+
+    private static final List<String> warngenPils = Arrays.asList("AWW", "EWW",
+            "FFS", "FFW", "FLS", "FLW", "FRW", "MWS", "NOW", "SMW", "SPS",
+            "SVR", "SVS", "TOR");
 
     /**
      * Default list of VTEC phenomena significance codes for which the ETN
@@ -4235,11 +4243,14 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         // section
         setCurrentHeaderAndBody();
 
-        // if product is not enabled for mixed case transmission,
-        // replace all commas with ellipses
-        if (!MixedCaseProductSupport.isMixedCase(product.getNnnid())) {
-            textEditor.setText(textEditor.getText()
-                    .replaceAll(", {0,1}", "..."));
+        // if product a WarnGen product and is not enabled for mixed case
+        // transmission, replace all commas with ellipses
+        if (product != null) {
+            if (warngenPils.contains(product.getNnnid())
+                    && !MixedCaseProductSupport.isMixedCase(product.getNnnid())) {
+                textEditor.setText(textEditor.getText().replaceAll(", {0,1}",
+                        "..."));
+            }
         }
 
         // Mark the uneditable warning text
@@ -5090,7 +5101,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             try {
                 updateTextEditor(body);
                 if ((inEditMode || resend)
-                        && saveEditedProduct(false, resend, true)) {
+                        && saveEditedProduct(prod, false, resend, true)) {
                     inEditMode = false;
                 }
                 if (!resend) {
@@ -5142,9 +5153,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     updateTextEditor(copyEtn(prod.getProduct(), body));
                 }
 
-                String product = TextDisplayModel.getInstance().getProduct(
-                        token);
-
+                String product = prod.getProduct();
                 OUPRequest req = createOUPRequest(prod, product);
 
                 if (notify != null) {
@@ -5174,7 +5183,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 }
                 updateTextEditor(body);
                 if ((inEditMode || resend)
-                        && saveEditedProduct(false, resend, false)) {
+                        && saveEditedProduct(prod, false, resend, false)) {
                     inEditMode = false;
                 }
                 SendPracticeProductRequest req = new SendPracticeProductRequest();
@@ -5336,7 +5345,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             userInformation("This product MUST be edited in GFE! \n Please exit and return to GFE. \n Action Aborted!");
             return;
         }
-        boolean successful = saveEditedProduct(false, false, false);
+        boolean successful = saveEditedProduct(product, false, false, false);
         if (successful) {
             // reset the editor status flags
             saved = true;
@@ -5351,17 +5360,19 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     /**
      * Saves the edited product.
      * 
+     * @param product
+     *            StdTextProduct to be saved
      * @param isAutoSave
      *            true if auto save operation
      * @param resend
      *            true if product is to be resent
+     * @param isOperationalSend
+     *            true if operational send
      * 
      * @return true is the save was successful
      */
-    synchronized private boolean saveEditedProduct(boolean isAutoSave,
-            boolean resend, boolean isOperationalSend) {
-        StdTextProduct product = TextDisplayModel.getInstance()
-                .getStdTextProduct(token);
+    synchronized private boolean saveEditedProduct(StdTextProduct product,
+            boolean isAutoSave, boolean resend, boolean isOperationalSend) {
         if ((product != null)
                 && gfeForbidden(product.getCccid(), product.getNnnid())) {
             // Pop up forbidden window.
@@ -7555,7 +7566,11 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                         public void run() {
                             if (!shell.isDisposed()) {
                                 if (autoSave == AutoSaveTask.this) {
-                                    saveEditedProduct(true, false, false);
+                                    StdTextProduct product = TextDisplayModel
+                                            .getInstance().getStdTextProduct(
+                                                    token);
+                                    saveEditedProduct(product, true, false,
+                                            false);
                                 }
                             }
                         }
