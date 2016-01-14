@@ -20,6 +20,7 @@
 package com.raytheon.edex.plugin.warning.gis;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -61,12 +62,13 @@ import com.raytheon.uf.common.geospatial.ISpatialQuery.SearchMode;
 import com.raytheon.uf.common.geospatial.SpatialException;
 import com.raytheon.uf.common.geospatial.SpatialQueryFactory;
 import com.raytheon.uf.common.geospatial.SpatialQueryResult;
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
@@ -114,6 +116,10 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  *                                     caught exception in updateFeatures() & topologySimplifyQueryResults(),
  *                                     and added composeMessage().
  * Aug 05, 2015 4486       rjpeter     Changed Timestamp to Date.
+ * Jan 08, 2016  5237      tgurney     Replaced LocalizationFile with ILocalizationFile
+ *                                     (and removed calls to deprecated methods found
+ *                                     only on the former)
+ * 
  * </pre>
  * 
  * @author rjpeter
@@ -863,9 +869,15 @@ public class GeospatialDataGenerator {
             context.setContextName(site);
 
             byte[] data = SerializationUtil.transformToThrift(geoData);
-            LocalizationFile lf = pathMgr.getLocalizationFile(context,
+            ILocalizationFile lf = pathMgr.getLocalizationFile(context,
                     GeospatialFactory.GEO_DIR + fileName);
-            lf.write(data);
+            try (SaveableOutputStream sos = lf.openOutputStream()) {
+                sos.write(data);
+                sos.save();
+            } catch (IOException e) {
+                throw new LocalizationException("Could not write to file "
+                        + lf.getPath(), e);
+            }
 
             curTime.setFileName(fileName);
             times.put(curTime.getMetaData(), curTime);
@@ -876,7 +888,13 @@ public class GeospatialDataGenerator {
 
             lf = pathMgr.getLocalizationFile(context,
                     GeospatialFactory.METADATA_FILE);
-            lf.write(xml.getBytes());
+            try (SaveableOutputStream sos = lf.openOutputStream()) {
+                sos.write(xml.getBytes());
+                sos.save();
+            } catch (IOException e) {
+                throw new LocalizationException("Could not write to file "
+                        + lf.getPath(), e);
+            }
         } finally {
             if (ct != null) {
                 ClusterLockUtils.unlock(ct, false);
@@ -891,14 +909,14 @@ public class GeospatialDataGenerator {
         LocalizationContext context = pathMgr.getContext(
                 LocalizationType.COMMON_STATIC, LocalizationLevel.CONFIGURED);
         context.setContextName(site);
-        LocalizationFile lf = pathMgr.getLocalizationFile(context,
+        ILocalizationFile lf = pathMgr.getLocalizationFile(context,
                 GeospatialFactory.GEO_DIR + fileName);
         if (lf.exists()) {
             try {
                 lf.delete();
             } catch (Exception e) {
                 statusHandler.handle(Priority.WARN,
-                        "Failed to delete area geometry file " + lf.getName(),
+                        "Failed to delete area geometry file " + lf.getPath(),
                         e);
             }
         }
