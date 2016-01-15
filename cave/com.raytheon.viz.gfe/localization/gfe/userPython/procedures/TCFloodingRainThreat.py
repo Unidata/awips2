@@ -115,7 +115,7 @@ class Procedure (SmartScript.SmartScript):
 
         return trList
         
-    # Returns a list of model names matching the specified model name,
+    # Returns a list of database IDs matching the specified model name,
     # weather element name and level
     def getModelList(self, modelName, weName, weLevel):
         modelList = []
@@ -126,7 +126,7 @@ class Procedure (SmartScript.SmartScript):
             if modelName in dbID.modelName():
                 if weName in pName:
                     if weLevel in level:
-                        if dbID.modelIdentifier() not in modelList:   
+                        if dbID not in modelList:   
                             modelList.append(dbID)
         return modelList
 
