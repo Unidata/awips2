@@ -81,6 +81,7 @@ import com.vividsolutions.jts.geom.Geometry;
  *                                      issuance of an CANCON and restart of CAVE.
  * Oct 16, 2013 2439       rferrel      Restrict retrieval of warnings to prevent getting future warnings.
  * May  7, 2015 ASM #17438 D. Friedman  Clean up debug and performance logging.
+ * Dec  7, 2015 ASM #18017 D. Friedman  Allow corrections after partial cancellation.
  * </pre>
  * 
  * @author mschenke
@@ -304,8 +305,18 @@ public class CurrentWarnings {
                         || (action == WarningAction.CON) || (action == WarningAction.EXT))
                         && t.contains(current.getTime())) {
                     rval.add(warning);
-                } else if ((action == WarningAction.CAN)
-                        || (action == WarningAction.EXP)) {
+                } else if (action == WarningAction.CAN) {
+                    for (AbstractWarningRecord otherWarning : records) {
+                        WarningAction otherAction = WarningAction
+                                .valueOf(otherWarning.getAct());
+                        if ((otherAction == WarningAction.NEW || otherAction == WarningAction.CON)
+                                && warning.getUgcZones().equals(
+                                        otherWarning.getUgcZones())) {
+                            rval.clear();
+                            return rval;
+                        }
+                    }
+                } else if ((action == WarningAction.EXP)) {
                     rval.clear();
                     return rval;
                 }

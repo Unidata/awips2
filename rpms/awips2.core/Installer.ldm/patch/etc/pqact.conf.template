@@ -89,7 +89,10 @@ HDS	^(ZEGZ98) (K.{3}) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-
 # YSQA88 KMSR 011220 /mNWS_185 !grib/nws/NWS_185/#255/201102010600/F000/MSTAV/sfc/
 # YEQA88 KMSR 011210 !grib2/nws/NWS_255/#255/201102010600F000/WEASD/0
 
-HDS	^([YZ][ES]QA88) KMSR (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})/(F[0-9]{3})/([^/]*)
+HDS	^([YZ][ES]QA88) KMSR (..)(..)(..)[^!]*!(grib)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})/(F[0-9]{3})/([^/]*)
+	FILE	-overwrite -log -close -edex	/data_store/\5/(\2:yyyy)(\2:mm)\2/\3/\6/GRID\7/\9Z_\(10)_\(11)-\1_KMSR_\2\3\4_(seq).\5.%Y%m%d%H
+
+HDS	^([YZ][ES]QA88) KMSR (..)(..)(..)[^!]*!(grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
 	FILE	-overwrite -log -close -edex	/data_store/\5/(\2:yyyy)(\2:mm)\2/\3/\6/GRID\7/\9Z_\(10)_\(11)-\1_KMSR_\2\3\4_(seq).\5.%Y%m%d%H
 
 # AWIPS 1: GRID    ^HAXA00.*KWBC                   /img/SBN/Raw

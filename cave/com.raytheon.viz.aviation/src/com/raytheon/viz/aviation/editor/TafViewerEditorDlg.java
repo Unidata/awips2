@@ -96,7 +96,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.python.PyUtil;
 import com.raytheon.uf.common.python.PythonScript;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -248,6 +248,8 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  * Oct 05, 2015 4855        skorolev    Fixed an unhandled event loop exception in createErrorStyleRange.
  * Oct 16, 2015 4645        skorolev    Added updateWordWrap.
  * 10/23/2015   18061       zhao        Fixed a bug in checkBaiscSyntaxError() 
+ * Nov 12, 2015 4834        njensen     Changed LocalizationOpFailedException to LocalizationException
+ * Dec 09, 2015 4645        skorolev    Initiated wrapChk using ResourceTag. Removed popup menu persistance.
  * 
  * </pre>
  * 
@@ -1944,6 +1946,11 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         wrapChk = new Button(controlsComp, SWT.CHECK);
         wrapChk.setText("Wrap");
         configMgr.setDefaultFontAndColors(wrapChk);
+        if (configMgr.getDataAsString(ResourceTag.Wrap).equals("word")) {
+            wrapChk.setSelection(true);
+        } else {
+            wrapChk.setSelection(false);
+        }
         wrapChk.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
@@ -2431,7 +2438,7 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
                 e.printStackTrace();
                 setMessageStatusError("An IOException occured while saving file "
                         + filepath);
-            } catch (LocalizationOpFailedException e) {
+            } catch (LocalizationException e) {
                 e.printStackTrace();
                 setMessageStatusError("A LocalizationOpFailedException occured while saving file "
                         + filepath);
@@ -2752,6 +2759,8 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
                 return;
             }
             editorTafTabComp.getTextEditorControl().cut();
+            // Remove popup menu.
+            editorTafTabComp.getTextEditorControl().redraw();
         }
     }
 
@@ -2793,6 +2802,8 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
                 }
             } else {
                 editorTafTabComp.getTextEditorControl().copy();
+                // Remove popup menu.
+                editorTafTabComp.getTextEditorControl().redraw();
             }
         }
     }
@@ -2879,6 +2890,8 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         if (tabFolder.getSelectionIndex() != VIEWER_TAB_SELECTED) {
             // Assume editorTafTabComp is for the active tab.
             editorTafTabComp.undo();
+            // Remove popup menu.
+            editorTafTabComp.getTextEditorControl().redraw();
         }
     }
 
@@ -2891,6 +2904,8 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         if (tabFolder.getSelectionIndex() != VIEWER_TAB_SELECTED) {
             // Assume editorTafTabComp is for the active tab.
             editorTafTabComp.redo();
+            // Remove popup menu.
+            editorTafTabComp.getTextEditorControl().redraw();
         }
     }
 

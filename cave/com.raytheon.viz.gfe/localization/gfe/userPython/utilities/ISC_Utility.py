@@ -964,10 +964,10 @@ class ISC_Utility(SmartScript.SmartScript):
             cnt[numpy.less(cnt, 1)] = 1
             if GridType.VECTOR.equals(wxType):
                 sum /= cnt
-                sum[noISC]= minLimit
+                sum[noISC]= minlimit
                 
                 sumv /= cnt
-                sumv[noISC] = minLimit
+                sumv[noISC] = minlimit
 
                 (mag,direc)=self.UVToMagDir(sum,sumv)
                 (baseMag,baseDir)=baseGrid

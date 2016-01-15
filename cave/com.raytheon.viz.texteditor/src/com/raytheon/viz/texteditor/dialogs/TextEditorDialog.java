@@ -356,6 +356,7 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  *                                       simulated time.
  * Sep 30, 2015   4860      skorolev    Corrected misspelling.
  * 07Oct2015   RM 18132     D. Friedman Exlucde certain phensigs from automatic ETN incrementing.
+ * 11Dec2015   RM14752   mgamazaychikov Fix problems with wrapping in the impact section.
  * Nov 05, 2015 5039        rferrel     Prevent wrapping text to a component name line and clean up of streams.
  * 
  * </pre>
@@ -8011,6 +8012,13 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             inPathcast = true;
         }
 
+        // is this the impact paragraph?
+        if (paragraphStart.startsWith("  IMPACT...") ||
+            paragraphStart.startsWith("  HAZARD...") ||
+            paragraphStart.startsWith("  SOURCE...") ) {
+            padding = "           ";
+        }
+
         if (paragraphStart.matches(METAR_PARAGRAPH)) {
             padding = "     ";
         } else if (checkParagraphPadding(paragraphStart)) {
@@ -8091,7 +8099,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             // if the next line does not start a new paragraph
             if (!isParagraphStart(lineNumber + 1)) {
                 // if the next line is not empty
-                if (!textEditor.getLine(lineNumber + 1).trim().isEmpty()) {
+                if (!textEditor.getLine(lineNumber + 1).trim().isEmpty() ||
+                    (textEditor.getLine(lineNumber + 1).length() == padding.length()+1)   ) {
                     // Determine what kind of end of line marker line has.
                     int deleteLen = 0;
 

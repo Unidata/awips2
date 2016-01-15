@@ -56,6 +56,8 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
  * Sep 10, 2009            njensen     Initial creation
  * Apr 10, 2013 1735       rferrel     Convert to ThinClient and DbQueryRequests.
  * Sep 16, 2015 4880       njensen     Optimized requests for data
+ * Dec 01, 2015 5156       rferrel     {@linkplain #getCcfpData(long)} do not shrink dtList 
+ *                                      when it contains 3 or fewer elements.
  * 
  * </pre>
  * 
@@ -136,10 +138,12 @@ public class MonitorDataUtil {
                 return new CcfpRecord[0];
             }
 
-            // filter so only the three most recent periods are included
+            // filter so no more then the three most recent periods are included
             Collections.sort(dtList,
                     Collections.reverseOrder(new DataTimeComparator()));
-            dtList = dtList.subList(0, 3);
+            if (dtList.size() > 3) {
+                dtList = dtList.subList(0, 3);
+            }
             String[] dts = new String[dtList.size()];
             for (int index = 0; index < dts.length; ++index) {
                 dts[index] = dtList.get(index).toString();

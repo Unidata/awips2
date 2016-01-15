@@ -52,6 +52,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Apr 28, 2014 3086      skorolev     Removed local getAreaConfigMgr method.
  * Feb 10, 2015 3886      skorolev     Added fixed width for dialog.
  * Aug 17, 2015 3841      skorolev     Corrected handleAddNewAction method.
+ * Nov 12, 2015 3841      dhladky      Augmented Slav's fix for moving platforms.
  * 
  * </pre>
  * 
@@ -80,6 +81,24 @@ public class AddNewZoneDlg extends CaveSWTDialog {
 
     /** Monitoring Area Configuration Dialog. */
     private final MonitoringAreaConfigDlg macDlg;
+    
+    /** County constant char */
+    private static final char C = 'C';
+    
+    /** Zone constant char */
+    private static final char Z = 'Z';
+    
+    /** Upper Latitude Boundary **/
+    private static double upLatBound = 90.0;
+    
+    /** Lower Latitude Boundary **/
+    private static double lowLatBound = -90.0;
+    
+    /** Upper Longitude Boundary **/
+    private static double upLonBound = 180.0;
+    
+    /** Lower Longitude Boundary **/
+    private static double lowLonBound = -180.0;
 
     /**
      * Constructor.
@@ -280,40 +299,41 @@ public class AddNewZoneDlg extends CaveSWTDialog {
      */
     private void handleAddNewAction(String areaId, String latString,
             String lonString) throws NumberFormatException {
+
+        ZoneType type = ZoneType.REGULAR;
+        char charAt = idTF.getText().charAt(2);
+        if (!appName.equals(AppName.SNOW)) {
+            if (marineZoneRdo.getSelection()) {
+                type = ZoneType.MARITIME;
+            }
+            // correct zone type
+            if (marineZoneRdo.getSelection() && charAt != Z) {
+                String z = idTF.getText().substring(2).replace(charAt, Z);
+                idTF.setText(idTF.getText().substring(0, 2) + z);
+            }
+            if (countyRdo.getSelection() && charAt != C) {
+                String c = idTF.getText().substring(2).replace(charAt, C);
+                idTF.setText(idTF.getText().substring(0, 2) + c);
+            }
+        } else if (appName.equals(AppName.SNOW) && charAt != C) {
+            String c = idTF.getText().substring(2).replace(charAt, C);
+            idTF.setText(idTF.getText().substring(0, 2) + c);
+        }
+        double lat = Double.parseDouble(latString.trim());
+        double lon = Double.parseDouble(lonString.trim());
+        if (lat > upLatBound || lat < lowLatBound || lon > upLonBound || lon < lowLonBound) {
+            macDlg.latLonErrorMsg(latString, lonString);
+            return;
+        }
+        areaId = idTF.getText();
         if (macDlg.isExistingZone(areaId)) {
             macDlg.displayInputErrorMsg("The Area ID, "
                     + areaId
                     + ", is already in your Monitoring Area or among your Additional Zones.");
             return;
+        } else {
+            macDlg.configMgr.addNewArea(areaId, lat, lon, type);
+            macDlg.addZoneToMA(areaId);
         }
-        double lat = Double.parseDouble(latString.trim());
-        double lon = Double.parseDouble(lonString.trim());
-        ZoneType type = ZoneType.REGULAR;
-        // correct third character for METARs
-        char chr = idTF.getText().charAt(2);
-        if (chr != 'C') {
-            String c = idTF.getText().substring(2).replace(chr, 'C');
-            idTF.setText(idTF.getText().substring(0, 2) + c);
-            areaId = idTF.getText();
-        }
-        if (!appName.equals(AppName.SNOW)) {
-            // correct zone type
-            if (marineZoneRdo.getSelection() || idTF.getText().charAt(2) == 'Z') {
-                type = ZoneType.MARITIME;
-            }
-            // correct third character for MARITIMEs
-            char chrm = idTF.getText().charAt(2);
-            if (marineZoneRdo.getSelection() && chrm != 'Z') {
-                String z = idTF.getText().substring(2).replace(chr, 'Z');
-                idTF.setText(idTF.getText().substring(0, 2) + z);
-                areaId = idTF.getText();
-            }
-        }
-        if (lat > 90.0 || lat < -90.0 || lon > 180.0 || lon < -180.0) {
-            macDlg.latLonErrorMsg(latString, lonString);
-            return;
-        }
-        macDlg.configMgr.addNewArea(areaId, lat, lon, type);
-        macDlg.addZoneToMA(areaId);
     }
 }

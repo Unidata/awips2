@@ -60,6 +60,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Apr 28, 2014 3086      skorolev     Removed local getAreaConfigMgr method.
  * Nov 10, 2014 3741      skorolev     Fixed configXML issue.
  * Aug 17, 2015 3841      skorolev     Made editable a content of ID field.
+ * Nov 12, 2015 3841      dhladky      Augmented Slav's update fixes.
  * 
  * </pre>
  * 
@@ -391,7 +392,7 @@ public class EditNewZoneDlg extends CaveSWTDialog {
                 cfgMgr.removeAdjArea(zoneXML);
             }
             macDlg.populateLeftLists("");
-            macDlg.maZonesRemoved = true;
+            macDlg.maZonesChanged = true;
             return true;
         } else {
             bottomLbl.setText("No zones have been deleted.");

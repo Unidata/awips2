@@ -33,6 +33,7 @@ import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.monitor.data.ObConst.ReportType;
+import com.raytheon.uf.common.monitor.xml.AreaIdXML;
 import com.raytheon.uf.common.monitor.xml.StationIdXML;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -59,6 +60,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Mar 17  2015  3888       dhladky    check for nulls
  * Sep 25  2015  3873       skorolev   Corrected addReport for moving platforms.
  * Oct 19  2015  3841       skorolev   Added try to saveConfigXml
+ * Nov 12  2015  3841       dhladky    Augmented Slav's fix for moving platforms.
  * 
  * </pre>
  * 
@@ -164,9 +166,22 @@ public class ObHourReports {
             try {
                 // use only marine zones
                 if (zone.charAt(2) == 'Z') {
+
                     Coordinate zcoor = MonitorAreaUtils.getZoneCenter(zone);
-                    double shipToZone = distance(latShip, lonShip, zcoor.y,
-                            zcoor.x);
+                    double latZone;
+                    double lonZone;
+
+                    if (zcoor != null) {
+                        latZone = zcoor.y;
+                        lonZone = zcoor.x;
+                    } else {
+                        // Newly added zone
+                        AreaIdXML zoneXML = configMgr.getAreaXml(zone);
+                        latZone = zoneXML.getCLat();
+                        lonZone = zoneXML.getCLon();
+                    }
+                    double shipToZone = distance(latShip, lonShip, latZone,
+                            lonZone);
                     if (shipToZone <= shipDist) {
                         // associate moving platform with monitoring zone.
                         shipZones.add(zone);
@@ -184,8 +199,9 @@ public class ObHourReports {
                     continue;
                 }
             } catch (SpatialException e) {
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
+                statusHandler.handle(Priority.PROBLEM,
+                        "Could not determine distance from moving platform to zone: Platform: "
+                                + report.getPlatformId() + " Zone: " + zone, e);
             }
         }
         // Update configuration file.
@@ -214,9 +230,12 @@ public class ObHourReports {
      */
     public TableData getZoneTableData() {
         TableData tblData = new TableData(appName);
-        for (String zone : hourReports.keySet()) {
-            tblData.addTableRowData(this.getObZoneHourReports(zone)
-                    .getZoneTableRowData());
+        // Area configuration manager controls what gets displayed
+        for (String zone : configMgr.getAreaList()) {
+            if (hourReports.containsKey(zone)) {
+                tblData.addTableRowData(this.getObZoneHourReports(zone)
+                        .getZoneTableRowData());
+            }
         }
         return tblData;
     }
@@ -229,15 +248,18 @@ public class ObHourReports {
      */
     public TableData getFogZoneTableData(Map<String, CellType> algCellType) {
         TableData tblData = new TableData(AppName.FOG);
-        for (String zone : hourReports.keySet()) {
-            CellType theAlgCellType;
-            if (algCellType.containsKey(zone)) {
-                theAlgCellType = algCellType.get(zone);
-            } else {
-                theAlgCellType = CellType.NotAvailable;
+        // Area configuration manager controls what gets displayed
+        for (String zone : configMgr.getAreaList()) {
+            if (hourReports.containsKey(zone)) {
+                CellType theAlgCellType;
+                if (algCellType.containsKey(zone)) {
+                    theAlgCellType = algCellType.get(zone);
+                } else {
+                    theAlgCellType = CellType.NotAvailable;
+                }
+                tblData.addTableRowData(this.getObZoneHourReports(zone)
+                        .getFogZoneTableRowData(theAlgCellType));
             }
-            tblData.addTableRowData(this.getObZoneHourReports(zone)
-                    .getFogZoneTableRowData(theAlgCellType));
         }
         return tblData;
     }
@@ -250,15 +272,18 @@ public class ObHourReports {
      */
     public TableData getSSZoneTableData(Map<String, CellType> fogCellType) {
         TableData tblData = new TableData(AppName.SAFESEAS);
-        for (String zone : hourReports.keySet()) {
-            CellType theFogCellType;
-            if (fogCellType.containsKey(zone)) {
-                theFogCellType = fogCellType.get(zone);
-            } else {
-                theFogCellType = CellType.NotAvailable;
+        // Area configuration manager controls what gets displayed
+        for (String zone : configMgr.getAreaList()) {
+            if (hourReports.containsKey(zone)) {
+                CellType theFogCellType;
+                if (fogCellType.containsKey(zone)) {
+                    theFogCellType = fogCellType.get(zone);
+                } else {
+                    theFogCellType = CellType.NotAvailable;
+                }
+                tblData.addTableRowData(this.getObZoneHourReports(zone)
+                        .getSSZoneTableRowData(theFogCellType));
             }
-            tblData.addTableRowData(this.getObZoneHourReports(zone)
-                    .getSSZoneTableRowData(theFogCellType));
         }
         return tblData;
     }
@@ -310,7 +335,7 @@ public class ObHourReports {
             if (!hourReports.keySet().contains(zone)) {
                 hourReports.put(zone, new ObZoneHourReports(nominalTime, zone,
                         appName, thresholdMgr));
-            }
+            } 
         }
         // add and(or) remove stations
         for (String zone : updtZones) {
