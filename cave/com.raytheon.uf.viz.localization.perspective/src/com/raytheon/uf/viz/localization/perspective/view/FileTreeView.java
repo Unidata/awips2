@@ -20,6 +20,7 @@
 package com.raytheon.uf.viz.localization.perspective.view;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -95,6 +96,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -148,6 +150,8 @@ import com.raytheon.uf.viz.localization.service.ILocalizationService;
  * Dec 03, 2015 4834       njensen     Updated for ILocalizationFile changes
  * Jan 06, 2016 4834       nabowle     Fix single-user edit-save-edit-save.
  * Jan 11, 2016 5242       kbisanz     Replaced calls to deprecated LocalizationFile methods
+ * Jan 15, 2016 5242       kbisanz     Replaced LocalizationFile with
+ *                                     ILocalizationFile where possible
  * 
  * </pre>
  * 
@@ -162,10 +166,10 @@ public class FileTreeView extends ViewPart implements IPartListener2,
             .getHandler(FileTreeView.class);
 
     private static class FileTreeFileComparator implements
-            Comparator<LocalizationFile> {
+            Comparator<ILocalizationFile> {
 
         @Override
-        public int compare(LocalizationFile o1, LocalizationFile o2) {
+        public int compare(ILocalizationFile o1, ILocalizationFile o2) {
             if (o1.isDirectory() && (o2.isDirectory() == false)) {
                 return 1;
             } else if ((o1.isDirectory() == false) && o2.isDirectory()) {
@@ -212,11 +216,11 @@ public class FileTreeView extends ViewPart implements IPartListener2,
 
     private class FileUpdateRefresher implements Runnable {
 
-        private final LocalizationFile file;
+        private final ILocalizationFile file;
 
         private final FileChangeType type;
 
-        public FileUpdateRefresher(LocalizationFile file, FileChangeType type) {
+        public FileUpdateRefresher(ILocalizationFile file, FileChangeType type) {
             this.file = file;
             this.type = type;
         }
@@ -836,8 +840,8 @@ public class FileTreeView extends ViewPart implements IPartListener2,
             }
         }
 
-        final List<LocalizationFile> fileList = new ArrayList<LocalizationFile>();
-        final List<LocalizationFileEntryData> fileDataList = new ArrayList<LocalizationFileEntryData>();
+        final List<LocalizationFile> fileList = new ArrayList<>();
+        final List<LocalizationFileEntryData> fileDataList = new ArrayList<>();
         // get list of files selected
         if (selected.length > 0) {
             // Open File(s) list
@@ -877,7 +881,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
 
             mgr.add(new CopyToAction(fileDataList.get(0), this));
             mgr.add(new DeleteAction(getSite().getPage(), fileList
-                    .toArray(new LocalizationFile[fileList.size()])));
+                    .toArray(new LocalizationFile[0])));
 
             mgr.add(new Separator());
         } else if ((selected.length == 1)
@@ -891,7 +895,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
                     .toArray(new LocalizationFile[fileList.size()])));
             mgr.add(new Separator());
         } else {
-            List<LocalizationFile> toDelete = new ArrayList<LocalizationFile>();
+            List<ILocalizationFile> toDelete = new ArrayList<>();
             for (TreeItem item : selected) {
                 int prevSize = toDelete.size();
                 if (item.getData() instanceof FileTreeEntryData) {
@@ -983,17 +987,18 @@ public class FileTreeView extends ViewPart implements IPartListener2,
     }
 
     /**
-     * Builds a list of {@link LocalizationFile}s starting at the item passed in
+     * Builds a list of {@link ILocalizationFile}s starting at the item passed
+     * in
      * 
      * @param item
      * @param files
      *            (option) list to add entries to
      * @return list of files
      */
-    private List<LocalizationFile> buildFileList(TreeItem item,
-            List<LocalizationFile> files) {
+    private List<ILocalizationFile> buildFileList(TreeItem item,
+            List<ILocalizationFile> files) {
         if (files == null) {
-            files = new ArrayList<LocalizationFile>();
+            files = new ArrayList<>();
         }
 
         FileTreeEntryData data = (FileTreeEntryData) item.getData();
@@ -1094,7 +1099,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
         IPathManager pathManager = PathManagerFactory.getPathManager();
 
         boolean success = false;
-        List<LocalizationFile> currentList = new ArrayList<LocalizationFile>();
+        List<LocalizationFile> currentList = new ArrayList<>();
         LocalizationFile[] files = pathManager.listFiles(
                 getTreeSearchContexts(types), path, filter, false, !recursive);
         if (files == null) {
@@ -1232,7 +1237,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
         PathData pd = fData.getPathData();
         Set<LocalizationLevel> levels = new HashSet<>();
         Set<LocalizationLevel> redundantLevels = new HashSet<>();
-        for (LocalizationFile file : files) {
+        for (ILocalizationFile file : files) {
             LocalizationLevel level = file.getContext().getLocalizationLevel();
             if (!levels.add(level)) {
                 redundantLevels.add(level);
@@ -1289,7 +1294,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
      */
     private TreeItem addTreeItem(TreeItem parentItem, FileTreeEntryData treeData) {
         String name = treeData.getName();
-        LocalizationFile file = null;
+        ILocalizationFile file = null;
         int idx = parentItem.getItemCount();
         if (treeData instanceof LocalizationFileEntryData) {
             LocalizationFileEntryData entryData = (LocalizationFileEntryData) treeData;
@@ -1575,13 +1580,17 @@ public class FileTreeView extends ViewPart implements IPartListener2,
                             && (docDelta.getKind() == IResourceDelta.CHANGED)
                             && ((docDelta.getFlags() & IResourceDelta.CONTENT) == IResourceDelta.CONTENT)) {
                         try {
-                            LocalizationFile file = input.getLocalizationFile();
+                            ILocalizationFile file = input
+                                    .getLocalizationFile();
                             if (!file.getContext().getLocalizationLevel()
-                                    .isSystemLevel()
-                                    && input.getLocalizationFile().save()) {
+                                    .isSystemLevel()) {
+                                try (SaveableOutputStream sos = file
+                                        .openOutputStream()) {
+                                    sos.save();
+                                }
                                 input.refreshLocalizationFile();
                             }
-                        } catch (LocalizationException e) {
+                        } catch (LocalizationException | IOException e) {
                             statusHandler.handle(
                                     Priority.PROBLEM,
                                     "Error saving file: "
@@ -1611,7 +1620,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
         IPathManager pathManager = PathManagerFactory.getPathManager();
 
         FileChangeType type = message.getChangeType();
-        LocalizationFile file = pathManager.getLocalizationFile(context,
+        ILocalizationFile file = pathManager.getLocalizationFile(context,
                 filePath);
 
         if (file != null) {
