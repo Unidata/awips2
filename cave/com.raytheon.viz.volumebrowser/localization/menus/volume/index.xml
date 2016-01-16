@@ -71,6 +71,7 @@
              <substitute key="frameCount" value="1" />
              <substitute key="TP" value="TP"/>
     </include>
+
 	<include installTo="menu:models" 
              fileName="menus/volume/allFamilies.xml">
              <substitute key="modelName" value="GFS" />
@@ -97,7 +98,13 @@
     </include>
 	<include installTo="menu:models" 
              fileName="menus/volume/allFamilies.xml">
-             <substitute key="modelName" value="NAM12" />
+             <substitute key="modelName" value="NAM-12km" />
+             <substitute key="frameCount" value="1" />
+             <substitute key="TP" value="TP3hr"/>
+    </include>
+	<include installTo="menu:models" 
+             fileName="menus/volume/allFamilies.xml">
+             <substitute key="modelName" value="NAM-20km" />
              <substitute key="frameCount" value="1" />
              <substitute key="TP" value="TP3hr"/>
     </include>
@@ -134,13 +141,19 @@
              <substitute key="TP" value="TP"/>
     </include>
 	<include installTo="menu:models" 
-             fileName="menus/volume/allFamilies.xml">
+             fileName="menus/volume/mesoFamilies.xml">
              <substitute key="modelName" value="RTMA" />
              <substitute key="frameCount" value="2" />
              <substitute key="TP" value="TP"/>
     </include>
 	<include installTo="menu:models" 
-             fileName="menus/volume/allFamilies.xml">
+             fileName="menus/volume/mesoFamilies.xml">
+             <substitute key="modelName" value="RTMA-5km" />
+             <substitute key="frameCount" value="2" />
+             <substitute key="TP" value="TP"/>
+    </include>
+	<include installTo="menu:models" 
+             fileName="menus/volume/mesoFamilies.xml">
              <substitute key="modelName" value="URMA25" />
              <substitute key="frameCount" value="2" />
              <substitute key="TP" value="TP"/>
