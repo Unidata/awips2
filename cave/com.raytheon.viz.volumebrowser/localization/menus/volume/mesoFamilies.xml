@@ -20,17 +20,8 @@
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<contribute xsi:type="subMenu" menuText="${modelName}">
-		<contribute xsi:type="bundleItem" file="bundles/volume/ETSRG.xml"
-			    menuText="Extra Tropical Storm Surge" id="" useReferenceTime="true">
-			<substitute key="frameCount" value="${frameCount}"/>
-		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/ETCWL.xml"
-			    menuText="Extra Tropical Comb. Storm Surge and Tide" id="" useReferenceTime="true">
-			<substitute key="frameCount" value="${frameCount}"/>
-		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/ELEV.xml"
-			    menuText="Ocean Surface Elevation" id="" useReferenceTime="true">
-			<substitute key="frameCount" value="${frameCount}"/>
+		<contribute xsi:type="bundleItem" file="bundles/volume/2mTemperature.xml"
+			    menuText="2m Temperature and 10m Wind" id="" useReferenceTime="true">
 		</contribute>
 	</contribute>
 </menuTemplate>

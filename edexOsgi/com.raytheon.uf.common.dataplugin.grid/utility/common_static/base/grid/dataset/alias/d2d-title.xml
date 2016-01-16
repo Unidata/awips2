@@ -64,7 +64,8 @@
 	<alias base="ENSEMBLE">GFSensemble</alias>
 	<alias base="ETA207">NAM95</alias>
 	<alias base="ETA212">NAMWX</alias>
-	<alias base="ETA218">NAM-12km</alias>
+	<alias base="NAM-12km">NAM12</alias>
+	<alias base="NAM-12km">NAM12</alias>
 	<alias base="ETA242">AK-NAM12</alias>
 	<alias base="EtaBufr">NAM Bufr</alias>
 	<alias base="ETA">NAM80</alias>
