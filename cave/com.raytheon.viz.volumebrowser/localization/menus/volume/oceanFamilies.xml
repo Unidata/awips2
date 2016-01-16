@@ -20,102 +20,17 @@
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<contribute xsi:type="subMenu" menuText="${modelName}">
-
-		<contribute xsi:type="bundleItem" file="bundles/volume/PrecipMSLP.xml"
-			    menuText="MSLP and Precipitation" id="" useReferenceTime="true">
+		<contribute xsi:type="bundleItem" file="bundles/volume/ETSRG.xml"
+			    menuText="Extra Tropical Storm Surge" id="" useReferenceTime="true">
 			<substitute key="frameCount" value="${frameCount}"/>
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultSurface.xml"
-			    menuText="Surface Wind / Temperature" id="" useReferenceTime="true">
+		<contribute xsi:type="bundleItem" file="bundles/volume/ETCWL.xml"
+			    menuText="Extra Tropical Comb. Storm Surge and Tide" id="" useReferenceTime="true">
 			<substitute key="frameCount" value="${frameCount}"/>
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/500mbHeight.xml"
-			    menuText="500MB Height / Vorticity" id="" useReferenceTime="true">
+		<contribute xsi:type="bundleItem" file="bundles/volume/ELEV.xml"
+			    menuText="Ocean Surface Elevation" id="" useReferenceTime="true">
 			<substitute key="frameCount" value="${frameCount}"/>
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
-			    menuText="700MB Height / Vertical Velocity" id="" useReferenceTime="true">
-			<substitute key="frameCount" value="${frameCount}"/>
-		</contribute>
-		<!--ModFamU (Briefing Family)-->
-		<contribute xsi:type="bundleItem" file="bundles/volume/MidLevelDivergence.xml"
-			    menuText="Mid-Level Divergence / Vorticity" id="" useReferenceTime="true">
-			<substitute key="frameCount" value="${frameCount}"/>
-		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/MoistureTransport.xml"
-			    menuText="Moisture Transport / Precip Type" id="" useReferenceTime="true">
-			<substitute key="frameCount" value="${frameCount}"/>
-		</contribute>
-
-		<!--ModFamA (NonSupercell Tor Family)-->
-		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyA.xml"
-			    menuText="Nonsupercell Tornado Threat / Wind" id="" useReferenceTime="true">
-			<substitute key="frameCount" value="${frameCount}"/>
-		</contribute>
-		<!-- 
-		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyB.xml"
-			    menuText="Storm Initiation / CAPE" id="" useReferenceTime="true">
-			<substitute key="frameCount" value="${frameCount}"/>
-		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyC.xml"
-			    menuText="Hail Family" id="" useReferenceTime="true">
-			<substitute key="frameCount" value="${frameCount}"/>
-		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyYY.xml"
-			    menuText="CAPE / CIN / Helicity" id="" useReferenceTime="true">
-			<substitute key="frameCount" value="${frameCount}"/>
-		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyX.xml"
-			    menuText="MCS Parameters" id="" useReferenceTime="true">
-			<substitute key="frameCount" value="${frameCount}"/>
-		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyH.xml"
-			    menuText="Lapse Rate / Buoyancy / Wind" id="" useReferenceTime="true">
-			<substitute key="frameCount" value="${frameCount}"/>
-		</contribute>
-		<contribute xsi:type="subMenu" menuText="4-Panel">
-			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyE.xml"
-				    menuText="Nonsupercell Tornado Threat" id="" useReferenceTime="true">
-			<substitute key="frameCount" value="${frameCount}"/>
-			</contribute>
-			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyF.xml"
-				    menuText="Nonsupercell / Isentropic" id="" useReferenceTime="true">
-			<substitute key="frameCount" value="${frameCount}"/>
-			</contribute>
-			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyI.xml"
-				    menuText="Instability / Divergence" id="" useReferenceTime="true">
-			<substitute key="frameCount" value="${frameCount}"/>
-			</contribute>
-			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyJ.xml"
-				    menuText="Frontogenesis / Precipitation" id="" useReferenceTime="true">
-			<substitute key="frameCount" value="${frameCount}"/>
-			</contribute>
-			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyL.xml"
-				    menuText="Moisture / Precipiation" id="" useReferenceTime="true">
-			<substitute key="frameCount" value="${frameCount}"/>
-			</contribute>
-			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyV.xml"
-				    menuText="Bulk Shear / Buoyancy" id="" useReferenceTime="true">
-			<substitute key="frameCount" value="${frameCount}"/>
-			</contribute>
-			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyW.xml"
-				    menuText="Supercell Parameters" id="" useReferenceTime="true">
-			<substitute key="frameCount" value="${frameCount}"/>
-			</contribute>
-			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyY.xml"
-				    menuText="Helicity / Shear / Buoyancy" id="" useReferenceTime="true">
-			<substitute key="frameCount" value="${frameCount}"/>
-			</contribute>
-			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyM.xml"
-				    menuText="Winter: Slantwise Instability" id="" useReferenceTime="true">
-			<substitute key="frameCount" value="${frameCount}"/>
-			</contribute>
-		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyD.xml"
-			    menuText="Winter: Thickness / Divergence / Snow" id="" useReferenceTime="true">
-			<substitute key="frameCount" value="${frameCount}"/>
-		</contribute>
-		
-		-->
 	</contribute>
 </menuTemplate>
