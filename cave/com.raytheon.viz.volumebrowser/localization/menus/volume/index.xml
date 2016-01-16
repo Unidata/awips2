@@ -160,7 +160,7 @@
     </include>
 	<include installTo="menu:models" 
              fileName="menus/volume/allFamilies.xml">
-             <substitute key="modelName" value="UKMET" />
+             <substitute key="modelName" value="UKMET-NorthernHemisphere" />
              <substitute key="frameCount" value="1" />
              <substitute key="TP" value="TP6hr"/>
     </include>
