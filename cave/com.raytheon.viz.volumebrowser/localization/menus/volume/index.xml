@@ -62,31 +62,31 @@
 	<include installTo="menu:models" 
              fileName="menus/volume/allFamilies.xml">
              <substitute key="modelName" value="CMC" />
-             <substitute key="frameCount" value="41" />
+             <substitute key="frameCount" value="1" />
              <substitute key="TP" value="TP"/>
     </include>
 	<include installTo="menu:models" 
              fileName="menus/volume/allFamilies.xml">
              <substitute key="modelName" value="DGEX" />
-             <substitute key="frameCount" value="18" />
+             <substitute key="frameCount" value="1" />
              <substitute key="TP" value="TP"/>
     </include>
 	<include installTo="menu:models" 
              fileName="menus/volume/allFamilies.xml">
              <substitute key="modelName" value="GFS" />
-             <substitute key="frameCount" value="82" />
+             <substitute key="frameCount" value="1" />
              <substitute key="TP" value="TP"/>
     </include>
 	<include installTo="menu:models" 
              fileName="menus/volume/allFamilies.xml">
              <substitute key="modelName" value="GFS-40km" />
-             <substitute key="frameCount" value="41" />
+             <substitute key="frameCount" value="1" />
              <substitute key="TP" value="TP"/>
     </include>
 	<include installTo="menu:models" 
              fileName="menus/volume/allFamilies.xml">
              <substitute key="modelName" value="HRRR" />
-             <substitute key="frameCount" value="16" />
+             <substitute key="frameCount" value="1" />
              <substitute key="TP" value="TP"/>
     </include>
 	<include installTo="menu:models" 
@@ -98,13 +98,13 @@
 	<include installTo="menu:models" 
              fileName="menus/volume/allFamilies.xml">
              <substitute key="modelName" value="NAM12" />
-             <substitute key="frameCount" value="29" />
+             <substitute key="frameCount" value="1" />
              <substitute key="TP" value="TP3hr"/>
     </include>
 	<include installTo="menu:models" 
              fileName="menus/volume/allFamilies.xml">
              <substitute key="modelName" value="NAM-40km" />
-             <substitute key="frameCount" value="29" />
+             <substitute key="frameCount" value="1" />
              <substitute key="TP" value="TP3hr"/>
     </include>
 	<include installTo="menu:models" 
@@ -124,13 +124,13 @@
 	<include installTo="menu:models" 
              fileName="menus/volume/allFamilies.xml">
              <substitute key="modelName" value="RAP-13km" />
-             <substitute key="frameCount" value="19" />
+             <substitute key="frameCount" value="1" />
              <substitute key="TP" value="TP"/>
     </include>
 	<include installTo="menu:models" 
              fileName="menus/volume/allFamilies.xml">
              <substitute key="modelName" value="RAP-40km" />
-             <substitute key="frameCount" value="19" />
+             <substitute key="frameCount" value="1" />
              <substitute key="TP" value="TP"/>
     </include>
 	<include installTo="menu:models" 
@@ -148,7 +148,7 @@
 	<include installTo="menu:models" 
              fileName="menus/volume/allFamilies.xml">
              <substitute key="modelName" value="UKMET" />
-             <substitute key="frameCount" value="15" />
+             <substitute key="frameCount" value="1" />
              <substitute key="TP" value="TP6hr"/>
     </include>
 	
@@ -161,13 +161,13 @@
     <include installTo="menu:models" 
              fileName="menus/volume/oceanFamilies.xml">
              <substitute key="modelName" value="estofsUS" />
-             <substitute key="frameCount" value="41" />
+             <substitute key="frameCount" value="1" />
              <substitute key="TP" value="TP"/>
     </include>
     <include installTo="menu:models" 
              fileName="menus/volume/oceanFamilies.xml">
              <substitute key="modelName" value="ETSS" />
-             <substitute key="frameCount" value="41" />
+             <substitute key="frameCount" value="1" />
              <substitute key="TP" value="TP"/>
     </include>
 	<!--
