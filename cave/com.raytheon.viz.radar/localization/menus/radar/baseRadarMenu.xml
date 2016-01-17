@@ -11,7 +11,7 @@
 		id="RadarMenuDialRadarsSubMenu">
 		<contribute xsi:type="subinclude" fileName="menus/radar/dialRadars.xml" />
 	</contribute>
-	<contribute xsi:type="subMenu" menuText="TWDR Stations"
+	<contribute xsi:type="subMenu" menuText="TDWR Stations"
 		id="RadarMenuTwdrRadarsSubMenu">
 		<contribute xsi:type="subinclude" fileName="menus/radar/tdwrRadars.xml" />
 	</contribute>
