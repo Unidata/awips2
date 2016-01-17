@@ -19,16 +19,18 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<contribute xsi:type="subMenu" menuText="${modelName}">
-
+	<contribute xsi:type="subMenu" menuText="${menuName}">
 		<contribute xsi:type="bundleItem" file="bundles/volume/PrecipMSLP.xml"
 			    menuText="MSLP and Precipitation" id="" useReferenceTime="true">
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/SurfaceTempWind.xml"
-			    menuText="Surface Temperature and Wind" id="" useReferenceTime="true">
+			    menuText="Sfc Temperature and Wind" id="" useReferenceTime="true">
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/DewpointTemp.xml"
-			    menuText="Dewpoint Temperature" id="" useReferenceTime="true">
+			    menuText="Sfc Dewpoint Temperature" id="" useReferenceTime="true">
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/SfcRH.xml"
+			    menuText="Sfc Relative Humidity" id="" useReferenceTime="true">
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/30mbMeanDewpoint.xml"
 			    menuText="30mb Mean Dewpoint" id="" useReferenceTime="true">
@@ -97,45 +99,35 @@
 			    menuText="700MB Vertical Velocity" id="" useReferenceTime="true">
 			    <substitute key="level" value="700.0" />
 		</contribute>
-		
 		<contribute xsi:type="subMenu" menuText="Isentropic">
 			<contribute xsi:type="bundleItem" file="bundles/volume/Isentropic.xml"
-				    menuText="290K RH, Wind, Pressure" id="" useReferenceTime="true">
+				    menuText="290K RH Wind Pressure" id="" useReferenceTime="true">
 				    	<substitute key="level" value="290.0" />
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/Isentropic.xml"
-				    menuText="300K RH, Wind, Pressure" id="" useReferenceTime="true">
+				    menuText="300K RH Wind Pressure" id="" useReferenceTime="true">
 				    	<substitute key="level" value="300.0" />
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/Isentropic.xml"
-				    menuText="310K RH, Wind, Pressure" id="" useReferenceTime="true">
+				    menuText="310K RH Wind Pressure" id="" useReferenceTime="true">
 				    	<substitute key="level" value="310.0" />
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/Isentropic.xml"
-				    menuText="320K RH, Wind, Pressure" id="" useReferenceTime="true">
+				    menuText="320K RH Wind Pressure" id="" useReferenceTime="true">
 				    	<substitute key="level" value="320.0" />
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/Isentropic.xml"
-				    menuText="330K RH, Wind, Pressure" id="" useReferenceTime="true">
+				    menuText="330K RH Wind Pressure" id="" useReferenceTime="true">
 				    	<substitute key="level" value="330.0" />
 			</contribute>
 		</contribute>
-				<!--
-		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyJ.xml"
-				    menuText="Frontogenesis" id="" useReferenceTime="true">
-		</contribute>
+		
+		<!--
 		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyB.xml"
 			    menuText="Storm Initiation / CAPE" id="" useReferenceTime="true">
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
-			    menuText="700MB Height / Vertical Velocity" id="" useReferenceTime="true">
-		</contribute>
-		
 		<contribute xsi:type="bundleItem" file="bundles/volume/MidLevelDivergence.xml"
 			    menuText="Mid-Level Divergence / Vorticity" id="" useReferenceTime="true">
-		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/MoistureTransport.xml"
-			    menuText="Moisture Transport / Precip Type" id="" useReferenceTime="true">
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/Buoyancy.xml"
 			    menuText="Surface Wind / Pressure / Buoyancy" id="" useReferenceTime="true">
@@ -143,28 +135,19 @@
 		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyA.xml"
 			    menuText="Nonsupercell Tornado Threat / Wind" id="" useReferenceTime="true">
 		</contribute>
-		
-		
-		
 		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyYY.xml"
 			    menuText="CAPE / CIN / Helicity" id="" useReferenceTime="true">
 		</contribute>
-		
-		
 		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyH.xml"
 			    menuText="Lapse Rate / Buoyancy / Wind" id="" useReferenceTime="true">
 		</contribute>
-		
 		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyM.xml"
 				    menuText="4-Panel Slantwise Instability" id="" useReferenceTime="true">
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyY.xml"
 				    menuText="Surface Buoyancy" id="" useReferenceTime="true">
 		</contribute>
-		
-		
 		<contribute xsi:type="subMenu" menuText="4-Panel">
-			
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyE.xml"
 				    menuText="Nonsupercell Tornado Threat" id="" useReferenceTime="true">
 			</contribute>
@@ -186,7 +169,6 @@
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyY.xml"
 				    menuText="Helicity / Shear / Buoyancy" id="" useReferenceTime="true">
 			</contribute>
-			
 		</contribute>
 		-->
 	</contribute>

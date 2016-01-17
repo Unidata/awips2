@@ -19,9 +19,18 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<contribute xsi:type="subMenu" menuText="${modelName}">
+	<contribute xsi:type="subMenu" menuText="${menuName}">
 		<contribute xsi:type="bundleItem" file="bundles/volume/2mTemperature.xml"
 			    menuText="2m Temperature and 10m Wind" id="" useReferenceTime="true">
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/DewpointTemp.xml"
+			    menuText="2m Dewpoint Temperature" id="" useReferenceTime="true">
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/SfcRH.xml"
+			    menuText="Sfc Relative Humidity" id="" useReferenceTime="true">
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/Precip.xml"
+			    menuText="1 Hr Precip Accumulation" id="" useReferenceTime="true">
 		</contribute>
 	</contribute>
 </menuTemplate>
