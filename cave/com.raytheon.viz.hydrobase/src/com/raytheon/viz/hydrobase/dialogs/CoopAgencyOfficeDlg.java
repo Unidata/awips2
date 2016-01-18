@@ -51,6 +51,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 02 Sep 2008             lvenable    Initial creation.
  * 05 Dec 2008  1744       askripsky   Connected data
  * 17 Apr 2013  1790       rferrel     Make dialog non-blocking.
+ * 15 Jan 2015  5054       randerso    Remove unnecessary new Shell
  * 
  * </pre>
  * 
@@ -218,6 +219,7 @@ public class CoopAgencyOfficeDlg extends CaveSWTDialog {
         availList.setLayoutData(gd);
         availList.setFont(controlFont);
         availList.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 updateDisplay();
             }
@@ -236,6 +238,7 @@ public class CoopAgencyOfficeDlg extends CaveSWTDialog {
         addBtn.setText("Add -->");
         addBtn.setLayoutData(gd);
         addBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 saveData();
             }
@@ -246,6 +249,7 @@ public class CoopAgencyOfficeDlg extends CaveSWTDialog {
         deleteBtn.setText("Delete >");
         deleteBtn.setLayoutData(gd);
         deleteBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 deleteData();
             }
@@ -302,6 +306,7 @@ public class CoopAgencyOfficeDlg extends CaveSWTDialog {
         closeBtn.setText("Close");
         closeBtn.setLayoutData(gd);
         closeBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 close();
             }
@@ -363,16 +368,16 @@ public class CoopAgencyOfficeDlg extends CaveSWTDialog {
     private void saveData() {
         // Check to see if the values are valid
         if (agencyTF.getText().length() > 8) {
-            MessageBox messageBox = new MessageBox(new Shell(),
-                    SWT.ICON_WARNING | SWT.OK);
+            MessageBox messageBox = new MessageBox(getShell(), SWT.ICON_WARNING
+                    | SWT.OK);
             messageBox.setText("Agency too long");
             messageBox.setMessage("Agency cannot be longer than 8 characters");
             messageBox.open();
 
             return;
         } else if (officeTF.getText().length() > 20) {
-            MessageBox messageBox = new MessageBox(new Shell(),
-                    SWT.ICON_WARNING | SWT.OK);
+            MessageBox messageBox = new MessageBox(getShell(), SWT.ICON_WARNING
+                    | SWT.OK);
             messageBox.setText("Office too long");
             messageBox.setMessage("Office cannot be longer than 20 characters");
             messageBox.open();
@@ -414,8 +419,8 @@ public class CoopAgencyOfficeDlg extends CaveSWTDialog {
             // Refresh the data
             populateListControl();
         } else {
-            MessageBox messageBox = new MessageBox(new Shell(),
-                    SWT.ICON_WARNING | SWT.OK);
+            MessageBox messageBox = new MessageBox(getShell(), SWT.ICON_WARNING
+                    | SWT.OK);
             messageBox.setText("No Agency/Office Selected");
             messageBox
                     .setMessage("Please select an Agency/Office from the Selected list to delete");

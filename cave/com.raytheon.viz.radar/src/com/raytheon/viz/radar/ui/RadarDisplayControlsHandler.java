@@ -23,12 +23,31 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.handlers.HandlerUtil;
 
+/**
+ * Opens RadarDisplayControlDlg
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Jan 14, 2016   5054     randerso    Set parent to active workbench window
+ *                                     instead of dummy shell
+ * 
+ * </pre>
+ * 
+ * @author randerso
+ * @version 1.0
+ */
 public class RadarDisplayControlsHandler extends AbstractHandler {
 
     @Override
-    public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        RadarDisplayControlDlg dlg = new RadarDisplayControlDlg(new Shell());
+    public Object execute(ExecutionEvent event) throws ExecutionException {
+        Shell shell = HandlerUtil.getActiveShell(event);
+        RadarDisplayControlDlg dlg = new RadarDisplayControlDlg(shell);
         dlg.open();
 
         return null;

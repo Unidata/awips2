@@ -42,13 +42,13 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.ui.PlatformUI;
@@ -101,6 +101,8 @@ import com.raytheon.uf.viz.alertviz.ui.audio.IAudioAction;
  * 26 Aug 2013  #2293      lvenable    Fixed color memory leaks.
  * 02 Jun 2015  4473       mschenke    Remember dialog position
  * 28 Oct 2015  5054       randerso    Fix lots of multimonitor display issues.
+ * 14 Jan 2016  5054       randerso    Fix the Tips window to display on the correct monitor
+ *                                     Removed duplicate parent shell
  * 
  * </pre>
  * 
@@ -266,8 +268,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
     public Object open() {
         display = parentShell.getDisplay();
 
-        Shell shell1 = new Shell(parentShell, SWT.NO_TRIM);
-        shell = new Shell(shell1, SWT.ON_TOP);
+        shell = new Shell(parentShell, SWT.ON_TOP | SWT.NO_TRIM);
         shell.setBounds(restoreDialogPosition());
 
         shell.addDisposeListener(new DisposeListener() {
@@ -971,24 +972,23 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
             return;
         }
 
-        Shell shell = new Shell();
-        shell.addDisposeListener(new DisposeListener() {
+        infoTextShell = new Shell(this.shell.getDisplay());
+        infoTextShell.addDisposeListener(new DisposeListener() {
             @Override
             public void widgetDisposed(DisposeEvent e) {
                 infoTextShell = null;
             }
         });
 
-        infoTextShell = shell;
-
-        shell.setLayout(new FillLayout());
-        shell.setSize(800, 900);
-
-        shell.setText(" AlertViz Tips! ");
+        infoTextShell.setMinimumSize(300, 200);
+        infoTextShell.setLayout(new GridLayout());
+        infoTextShell.setText(" AlertViz Tips! ");
 
         // create the styled text widget
-        StyledText widget = new StyledText(shell, SWT.MULTI | SWT.WRAP
+        StyledText widget = new StyledText(infoTextShell, SWT.MULTI
                 | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+        GridData layoutData = new GridData(SWT.FILL, SWT.FILL, true, true);
+        widget.setLayoutData(layoutData);
 
         widget.setText("----------------------------------------------\n"
                 + " Here are some basic tips on how to use the AlertViz Main GUI: \n\n"
@@ -1028,7 +1028,26 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
                 + "5 - Perhaps not even important enough for a notice of any kind.  Informational. \n\n"
                 + "------------------------------------------------------------\n\n");
 
-        shell.open();
+        infoTextShell.layout();
+        infoTextShell.pack();
+
+        Rectangle b = this.shell.getBounds();
+        Monitor m = this.shell.getMonitor();
+
+        // attempt to position tips window above or below alertviz bar
+
+        // if tips window would be partially off screen it will be forced on
+        // screen by eclipse/window manager
+        if (b.y < (m.getBounds().height - (b.y + b.height))) {
+            // space below alertviz bar > than space above so position below
+            infoTextShell.setLocation(b.x, b.y + b.height);
+        } else {
+            // space above alertviz bar > than space below so position above
+            infoTextShell.setLocation(b.x, b.y
+                    - infoTextShell.getBounds().height);
+        }
+
+        infoTextShell.open();
     }
 
     /**

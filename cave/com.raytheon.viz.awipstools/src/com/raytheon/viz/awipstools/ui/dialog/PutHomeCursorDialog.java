@@ -83,6 +83,7 @@ import com.vividsolutions.jts.io.WKTWriter;
  *                                    code.  Wrote ticket #3047 for common_obs_spatial
  *                                    for the city/state issues.
  * Nov 11, 2014  3401     rferrel     Add Enter key events.
+ * Jan 15, 2015  5054     randerso    Remove unnecessary new Shell
  * 
  * </pre>
  * 
@@ -482,7 +483,7 @@ public class PutHomeCursorDialog extends CaveSWTDialog implements
                 c.y = Float.parseFloat(latTextField.getText());
                 if ((c.y < -180) || c.y > 180) {
                     MessageDialog
-                            .openError(new Shell(), "Put Home Cursor Error",
+                            .openError(shell, "Put Home Cursor Error",
                                     "Latitude must be between -90 and 90.  Please correct.");
 
                     latTextField.setFocus();
@@ -490,7 +491,7 @@ public class PutHomeCursorDialog extends CaveSWTDialog implements
                 }
             } catch (NumberFormatException nfe) {
                 MessageDialog
-                        .openError(new Shell(), "Put Home Cursor Error",
+                        .openError(shell, "Put Home Cursor Error",
                                 "The input for the Latitude not a number.  Please correct.");
                 latTextField.setFocus();
                 return;

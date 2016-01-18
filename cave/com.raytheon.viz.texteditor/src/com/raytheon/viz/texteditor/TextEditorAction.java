@@ -27,7 +27,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.viz.texteditor.dialogs.TextEditorDialog;
-import com.raytheon.viz.ui.dialogs.CaveSWTDialogBase.CAVE;
+import com.raytheon.viz.ui.dialogs.CaveSWTDialog.CAVE;
 
 /**
  * Action for unimplemented features. To be used temporarily until final
@@ -37,10 +37,11 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialogBase.CAVE;
  * 
  * SOFTWARE HISTORY
  * 
- * Date       	Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * 6/27/06                  randerso    Initial creation.
- * 10/11/2007   482         grichard    Reformatted file.
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 6/27/06                  randerso   Initial creation.
+ * 10/11/2007   482         grichard   Reformatted file.
+ * 01/18/2016   5045        randerso   Merged CaveSWTDialog and CaveSWTDialogBase
  * 
  * </pre>
  * 

@@ -37,6 +37,7 @@ import java.util.regex.Pattern;
 import javax.xml.bind.JAXB;
 
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.common.dataplugin.text.alarms.AlarmAlertProduct;
 import com.raytheon.uf.common.dataplugin.text.alarms.AlarmAlertProduct.ProductType;
@@ -77,13 +78,15 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * ------------ ---------- ----------- --------------------------
  * Sep 18, 2009            mnash       Initial creation
  * 03/19/2012              D. Friedman Fix determination of "Alarm" entries.
- * 12/07/2012	15555	   m.gamazaychikov	Added methods and constants for 
- * 											the implementation of proximity alarm
- * 07/24/2014   3423       randerso    Ensure ringBell is called on UI thread
- * 09/09/2014   3580       mapeters    Removed IQueryTransport usage (no longer exists).
- * 12/03/2014   ASM #16829 D. Friedman Lazy initialization of alarmAlertBell
- * 11/29/2015   ASM #14995 m.gamazaychikov Made sure that non-standard latlons in 
- * 					   LAT...LON string did not result in error.
+ * 12/07/2012   15555  m.gamazaychikov Added methods and constants for 
+ *                                     the implementation of proximity alarm
+ * 07/24/2014    3423      randerso    Ensure ringBell is called on UI thread
+ * 09/09/2014    3580      mapeters    Removed IQueryTransport usage (no longer exists).
+ * 12/03/2014   16829      D. Friedman Lazy initialization of alarmAlertBell
+ * 11/29/2015   14995  m.gamazaychikov Made sure that non-standard latlons in 
+ *                                     LAT...LON string did not result in error.
+ * 15/01/2016    5054      randerso    Use proper parent shell
+ * 
  * 
  * </pre>
  * 
@@ -876,8 +879,11 @@ public class AlarmAlertFunctions {
      */
     public static AlarmAlertBell getAlarmalertbell() {
         if (alarmAlertBell == null) {
-            // No synchronize because this must be called on the UI thread anyway.
-            alarmAlertBell = new AlarmAlertBell(new Shell());
+            // No synchronize because this must be called on the UI thread
+            // anyway.
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
+            alarmAlertBell = new AlarmAlertBell(shell);
         }
         return alarmAlertBell;
     }
