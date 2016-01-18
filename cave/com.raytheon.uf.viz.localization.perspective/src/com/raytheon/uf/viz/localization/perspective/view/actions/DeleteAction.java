@@ -32,6 +32,7 @@ import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -58,6 +59,8 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * Feb 18, 2015 4132      mapeters     Fixed issue with deleting overrides.
  * Jun 29, 2015 946       rferrel      Do not allow delete of a protected level file.
  * Nov 13, 2015 4946      mapeters     Use SWTMessageBox instead of MessageDialog.
+ * Jan 15, 2016 5242      kbisanz      Replaced LocalizationFile with
+ *                                     ILocalizationFile where possible
  * 
  * </pre>
  * 
@@ -138,7 +141,7 @@ public class DeleteAction extends Action {
      * Delete the selected files and all associated file extension variations.
      */
     private void deleteFiles() {
-        List<IEditorReference> toClose = new ArrayList<IEditorReference>();
+        List<IEditorReference> toClose = new ArrayList<>();
         // check for open editors and close them
         for (IEditorReference ref : page.getEditorReferences()) {
             IEditorInput input = null;
@@ -150,10 +153,11 @@ public class DeleteAction extends Action {
                                 + "file was open (in order to close it)", e);
             }
             if (input instanceof LocalizationEditorInput) {
-                LocalizationFile editorFile = ((LocalizationEditorInput) input)
+                ILocalizationFile editorFile = ((LocalizationEditorInput) input)
                         .getLocalizationFile();
-                for (LocalizationFile file : toDelete) {
-                    if ((editorFile.compareTo(file) == 0)
+                String editorFilePath = editorFile.getPath();
+                for (ILocalizationFile file : toDelete) {
+                    if ((editorFilePath.equals(file.getPath()))
                             && editorFile.getContext()
                                     .equals(file.getContext())) {
                         toClose.add(ref);
@@ -169,7 +173,7 @@ public class DeleteAction extends Action {
                     false);
         }
 
-        for (LocalizationFile file : toDelete) {
+        for (ILocalizationFile file : toDelete) {
             try {
                 deleteFile(file);
             } catch (Exception e) {
@@ -186,7 +190,7 @@ public class DeleteAction extends Action {
      *            The file to delete
      * @throws Exception
      */
-    private void deleteFile(LocalizationFile file) throws Exception {
+    private void deleteFile(ILocalizationFile file) throws Exception {
         if (file.isDirectory() == false) {
             // Check for file extension
             String name = LocalizationUtil.extractName(file.getPath());
@@ -218,7 +222,7 @@ public class DeleteAction extends Action {
 
                     for (String extension : extensions) {
                         String deletePath = path + "." + extension;
-                        LocalizationFile result = pathManager
+                        ILocalizationFile result = pathManager
                                 .getLocalizationFile(ctx, deletePath);
                         if (result != null) {
                             result.delete();

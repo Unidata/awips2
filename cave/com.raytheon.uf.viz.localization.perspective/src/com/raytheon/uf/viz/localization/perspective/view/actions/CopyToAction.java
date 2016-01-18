@@ -85,14 +85,6 @@ public class CopyToAction extends AbstractToAction {
         this(data.getFile(), data.getPathData(), service);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.localization.perspective.view.actions.AbstractToAction
-     * #isLevelEnabled(com.raytheon.uf.common.localization.LocalizationContext.
-     * LocalizationLevel)
-     */
     @Override
     protected boolean isLevelEnabled(LocalizationLevel level) {
         boolean enabled = super.isLevelEnabled(level);
@@ -103,15 +95,6 @@ public class CopyToAction extends AbstractToAction {
         return enabled;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.localization.filetreeview.actions.AbstractToAction
-     * #run
-     * (com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
-     * )
-     */
     @Override
     protected void run(LocalizationLevel level) {
         IPathManager pm = PathManagerFactory.getPathManager();
