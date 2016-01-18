@@ -93,9 +93,9 @@ fi
 
 export LIGHTNING=true
 # Determine if the optional '-nobinlightning' argument has been specified.
-if [ "${2}" = "-nobinlightning" ]; then
-   LIGHTNING=false
-fi
+#if [ "${2}" = "-nobinlightning" ]; then
+#   LIGHTNING=false
+#fi
 
 if [ "${1}" = "-buildRPM" -a -n "${2}" ]; then
    echo "Building RPM: ${2}"
@@ -118,10 +118,11 @@ if [ "${1}" = "-WA" ]; then
 fi
 
 if [ "${1}" = "-python" ]; then
-   buildRPM "awips2-python"
+   buildRPM "awips2-python-h5py"
+
+   #buildRPM "awips2-python"
    #buildRPM "awips2-python-cherrypy"
    #buildRPM "awips2-python-dynamicserialize"
-   #buildRPM "awips2-python-h5py"
    #buildRPM "awips2-python-jimporter"
    #buildRPM "awips2-python-matplotlib"
    #buildRPM "awips2-python-nose"
@@ -279,11 +280,10 @@ fi
 if [ "${1}" = "-postgres" ]; then
 #   buildRPM "awips2-postgres"
 #   buildRPM "awips2-database-server-configuration"
-#   buildRPM "awips2-database-standalone-configuration"
+   buildRPM "awips2-database-standalone-configuration"
    buildRPM "awips2-database"
    buildRPM "awips2-maps-database"
    buildRPM "awips2-ncep-database"
-#   buildRPM "awips2-pgadmin3"
 
    exit 0
 fi
@@ -548,13 +548,13 @@ if [ "${1}" = "-shp" ]; then
 fi
 
 if [ "${1}" = "-edex" ]; then
-   buildRPM "awips2-common-base"
+   #buildRPM "awips2-common-base"
    #buildRPM "awips2"
    buildEDEX
    #buildRPM "awips2-data.hdf5-topo"
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
+   #if [ $? -ne 0 ]; then
+   #   exit 1
+   #fi
    #buildRPM "awips2-python-dynamicserialize"
 
    exit 0
