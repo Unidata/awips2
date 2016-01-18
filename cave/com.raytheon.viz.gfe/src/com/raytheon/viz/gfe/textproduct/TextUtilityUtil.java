@@ -22,13 +22,23 @@
  */
 package com.raytheon.viz.gfe.textproduct;
 
-import java.io.File;
-
 import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
+import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.viz.gfe.core.script.AbstractScriptUtil;
 
 /**
- * A concrete implementation of IScriptUtil for working with Procedure scripts.
+ * An implementation of PythonFileTemplate for making new Text Utilities.
+ * 
+ * <pre>
+ *
+ * SOFTWARE HISTORY
+ *
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * ???                     wldougher   Initial creation
+ * Jan 19, 2016  4834      njensen     Removed dead method
+ *
+ * </pre>
  * 
  * @author wldougher
  * 
@@ -39,44 +49,22 @@ public class TextUtilityUtil extends AbstractScriptUtil {
 
     private static final String SCRIPT_TYPE = "Utility";
 
-    private static final String FILETYPE = "TEXT_PRODUCT";
-
     private static final String PATH_PREFIX = GfePyIncludeUtil.TEXT_UTILITIES
-            + File.separator + "regular";
+            + IPathManager.SEPARATOR + "regular";
 
-    /**
-     * @see com.raytheon.viz.gfe.core.script.IScriptUtil#getScriptType()
-     */
     @Override
     public String getScriptType() {
         return SCRIPT_TYPE;
     }
 
-    /**
-     * @see com.raytheon.viz.gfe.core.script.AbstractScriptUtil#getScriptTypePathPrefix
-     *      ()
-     */
     @Override
     public String getScriptTypePathPrefix() {
         return PATH_PREFIX;
     }
 
-    /**
-     * @see com.raytheon.viz.gfe.core.script.AbstractScriptUtil#getVelocityTemplateName
-     *      ()
-     */
     @Override
     protected String getVelocityTemplateName() {
         return TEMPLATE_FILENAME;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.script.IScriptUtil#getFileType()
-     */
-    @Override
-    public String getFileType() {
-        return FILETYPE;
-    }
 }

@@ -23,7 +23,7 @@ import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
 import com.raytheon.viz.gfe.core.script.AbstractScriptUtil;
 
 /**
- * TODO Add Description
+ * An implementation of PythonFileTemplate for making new Configs.
  * 
  * <pre>
  *
@@ -31,15 +31,17 @@ import com.raytheon.viz.gfe.core.script.AbstractScriptUtil;
  *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 8, 2010            mpduff     Initial creation
+ * Oct 08, 2010            mpduff      Initial creation
+ * Jan 19, 2016  4834      njensen     Removed dead method
  *
  * </pre>
- *
+ * 
  * @author mpduff
- * @version 1.0	
+ * @version 1.0
  */
 
 public class ConfigUtil extends AbstractScriptUtil {
+
     private static final String TEMPLATE_FILENAME = "config.vm";
 
     private static final String scriptType = "Config";
@@ -51,39 +53,19 @@ public class ConfigUtil extends AbstractScriptUtil {
         super();
     }
 
-    /**
-     * @see com.raytheon.viz.gfe.core.script.IScriptUtil#getScriptType()
-     */
     @Override
     public String getScriptType() {
         return scriptType;
     }
 
-    /**
-     * @see com.raytheon.viz.gfe.core.script.AbstractScriptUtil#getScriptTypePathPrefix
-     *      ()
-     */
     @Override
     public String getScriptTypePathPrefix() {
         return GfePyIncludeUtil.CONFIG;
     }
 
-    /**
-     * @see com.raytheon.viz.gfe.core.script.AbstractScriptUtil#getVelocityTemplateName
-     *      ()
-     */
     @Override
     protected String getVelocityTemplateName() {
         return TEMPLATE_FILENAME;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.script.IScriptUtil#getFileType()
-     */
-    @Override
-    public String getFileType() {
-        return "CONFIG";
-    }
 }

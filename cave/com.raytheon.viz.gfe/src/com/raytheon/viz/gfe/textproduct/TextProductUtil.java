@@ -26,7 +26,18 @@ import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
 import com.raytheon.viz.gfe.core.script.AbstractScriptUtil;
 
 /**
- * A concrete implementation of IScriptUtil for working with Procedure scripts.
+ * An implementation of PythonFileTemplate for making new Text Products.
+ * 
+ * <pre>
+ *
+ * SOFTWARE HISTORY
+ *
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * ???                     wldougher   Initial creation
+ * Jan 19, 2016  4834      njensen     Removed dead method
+ *
+ * </pre>
  * 
  * @author wldougher
  * 
@@ -37,9 +48,6 @@ public class TextProductUtil extends AbstractScriptUtil {
 
     private static final String SCRIPT_TYPE = "Text Product";
 
-    /**
-     * @see com.raytheon.viz.gfe.core.script.IScriptUtil#getScriptType()
-     */
     @Override
     public String getScriptType() {
         return SCRIPT_TYPE;
@@ -49,32 +57,14 @@ public class TextProductUtil extends AbstractScriptUtil {
         return SCRIPT_TYPE;
     }
 
-    /**
-     * @see com.raytheon.viz.gfe.core.script.AbstractScriptUtil#getScriptTypePathPrefix
-     *      ()
-     */
     @Override
     public String getScriptTypePathPrefix() {
         return GfePyIncludeUtil.TEXT_PRODUCTS;
     }
 
-    /**
-     * @see com.raytheon.viz.gfe.core.script.AbstractScriptUtil#getVelocityTemplateName
-     *      ()
-     */
     @Override
     protected String getVelocityTemplateName() {
         return TEMPLATE_FILENAME;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.script.IScriptUtil#getFileType()
-     */
-    @Override
-    public String getFileType() {
-        return "TEXT_PRODUCT";
     }
 
 }
