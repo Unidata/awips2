@@ -8,6 +8,7 @@
     <info>
         <title>NAM80</title>
         <datasetId>ETA</datasetId>
+        <alias>NAM-80km</alias>
         <dt>6</dt>
     </info>
     <info>
@@ -113,12 +114,13 @@
     <info>
         <title>NAM40</title>
         <datasetId>mesoEta212</datasetId>
+        <alias>NAM-40km</alias>
         <dt>3</dt>
     </info>
     <info>
         <title>NAM20</title>
         <datasetId>mesoEta215</datasetId>
-        <alias>mesoEta212</alias>
+        <alias>NAM-20km</alias>
         <dt>3</dt>
     </info>
     <info>
@@ -284,6 +286,7 @@
     <info>
         <title>NAM12</title>
         <datasetId>ETA218</datasetId>
+        <alias>NAM-12km</alias>
         <dt>3</dt>
     </info>
     <info>

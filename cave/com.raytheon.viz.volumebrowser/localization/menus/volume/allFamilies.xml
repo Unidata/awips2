@@ -55,8 +55,16 @@
 			    menuText="500MB Vertical Velocity" id="" useReferenceTime="true">
 			    <substitute key="level" value="500.0" />
 		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/VerticalVelocity.xml"
+			    menuText="700MB Vertical Velocity" id="" useReferenceTime="true">
+			    <substitute key="level" value="700.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/VerticalVelocity.xml"
+			    menuText="850MB Vertical Velocity" id="" useReferenceTime="true">
+			    <substitute key="level" value="850.0" />
+		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/Trenberth.xml"
-			    menuText="Thickness / Vortcity (Trenberth)" id="" useReferenceTime="true">
+			    menuText="Thickness / Vorticity Advection (Trenberth)" id="" useReferenceTime="true">
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/WindHeight.xml"
 			    menuText="850MB Wind / Height" id="" useReferenceTime="true">
@@ -91,13 +99,13 @@
 		<contribute xsi:type="bundleItem" file="bundles/volume/MCS.xml"
 			    menuText="MCS Parameters" id="" useReferenceTime="true">
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/VerticalVelocity.xml"
-			    menuText="850MB Vertical Velocity" id="" useReferenceTime="true">
-			    <substitute key="level" value="850.0" />
+		<contribute xsi:type="bundleItem" file="bundles/volume/Isentropic.xml"
+	    menuText="270K RH Wind Pressure" id="" useReferenceTime="true">
+	    	<substitute key="level" value="270.0" />
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/VerticalVelocity.xml"
-			    menuText="700MB Vertical Velocity" id="" useReferenceTime="true">
-			    <substitute key="level" value="700.0" />
+		<contribute xsi:type="bundleItem" file="bundles/volume/Isentropic.xml"
+	    menuText="280K RH Wind Pressure" id="" useReferenceTime="true">
+	    	<substitute key="level" value="280.0" />
 		</contribute>
 		<contribute xsi:type="subMenu" menuText="Isentropic">
 			<contribute xsi:type="bundleItem" file="bundles/volume/Isentropic.xml"
@@ -115,10 +123,6 @@
 			<contribute xsi:type="bundleItem" file="bundles/volume/Isentropic.xml"
 				    menuText="320K RH Wind Pressure" id="" useReferenceTime="true">
 				    	<substitute key="level" value="320.0" />
-			</contribute>
-			<contribute xsi:type="bundleItem" file="bundles/volume/Isentropic.xml"
-				    menuText="330K RH Wind Pressure" id="" useReferenceTime="true">
-				    	<substitute key="level" value="330.0" />
 			</contribute>
 		</contribute>
 		
