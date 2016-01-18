@@ -46,10 +46,6 @@
                             <capability xsi:type="magnificationCapability" magnification="1.0"/>
                             <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="SOLID"/>
                             <capability xsi:type="displayTypeCapability" displayType="IMAGE"/>
-							<capability xsi:type="colorMapCapability">
-                                <colorMapParameters colorMapName="Grid/Vertical Velocity">
-                                </colorMapParameters>
-                            </capability>
                         </capabilities>
                         <resourceType>PLAN_VIEW</resourceType>
                     </loadProperties>

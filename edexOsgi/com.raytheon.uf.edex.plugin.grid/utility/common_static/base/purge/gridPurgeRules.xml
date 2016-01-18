@@ -7,7 +7,7 @@
         <period>07-00:00:00</period>
     </defaultRule>
 	<rule>
-		<keyValue>AK-NAM-11km</keyValue>
+		<keyValue>AKNAM11</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
@@ -31,15 +31,15 @@
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<keyValue>RAP-13km</keyValue>
+		<keyValue>RAP13</keyValue>
 		<versionsToKeep>8</versionsToKeep>
 	</rule>
 	<rule>
-		<keyValue>RAP-20km</keyValue>
+		<keyValue>RAP20</keyValue>
 		<versionsToKeep>8</versionsToKeep>
 	</rule>
 	<rule>
-		<keyValue>RAP-40km</keyValue>
+		<keyValue>RAP40</keyValue>
 		<versionsToKeep>8</versionsToKeep>
 	</rule>
 	<rule>
@@ -91,7 +91,7 @@
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<keyValue>GFS-40km</keyValue>
+		<keyValue>GFS40</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
@@ -107,7 +107,7 @@
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<keyValue>GFSLAMP5km</keyValue>
+		<keyValue>GFSLAMP5</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<!-- Purge rules for the GFSensemble models -->
@@ -160,7 +160,7 @@
 		<versionsToKeep>3</versionsToKeep>
 	</rule>
 	<rule>
-		<keyValue>LAMP-2p5km</keyValue>
+		<keyValue>LAMP2p5</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
@@ -168,7 +168,7 @@
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<keyValue>NAM-4km</keyValue>
+		<keyValue>NAM4</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
@@ -176,7 +176,7 @@
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<keyValue>NAM-40km</keyValue>
+		<keyValue>NAM40</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
@@ -204,11 +204,11 @@
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<keyValue>RTMA-5km</keyValue>
+		<keyValue>RTMA5</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<keyValue>SREF-40km</keyValue>
+		<keyValue>SREF40</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<!-- Purge rule for the UKMET (UKMET-NorthernHemisphere) model -->

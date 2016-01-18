@@ -14,7 +14,7 @@
 				<constraint constraintValue="grid"/>
 			</mapping>
 			<mapping key="info.datasetId">
-                <constraint constraintValue="NAM-12km"/>
+                <constraint constraintValue="NAM12"/>
             </mapping>
         </constraints>
 	</source>
@@ -25,7 +25,7 @@
 				<constraint constraintValue="grid"/>
 			</mapping>
 			<mapping key="info.datasetId">
-                <constraint constraintValue="GFS-40km"/>
+                <constraint constraintValue="GFS40"/>
             </mapping>
         </constraints>
 	</source>
@@ -36,7 +36,7 @@
 				<constraint constraintValue="grid"/>
 			</mapping>
 			<mapping key="info.datasetId">
-                <constraint constraintValue="RAP-13km"/>
+                <constraint constraintValue="RAP13"/>
             </mapping>
         </constraints>
 	</source>

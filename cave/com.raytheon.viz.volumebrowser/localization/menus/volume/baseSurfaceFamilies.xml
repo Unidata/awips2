@@ -57,12 +57,12 @@
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultSurface.xml"
 			menuText="NAM 40km" id="nam40surface" useReferenceTime="true">
-			<substitute key="modelName" value="NAM-40km"/>
+			<substitute key="modelName" value="NAM40"/>
 			<substitute key="TP" value="TP3hr"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultSurface.xml"
 			menuText="RAP 13km" id="rap13surface" useReferenceTime="true">
-			<substitute key="modelName" value="RAP-13km"/>
+			<substitute key="modelName" value="RAP13"/>
 			<substitute key="TP" value="TP3hr"/>
 		</contribute>
 

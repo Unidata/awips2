@@ -243,7 +243,7 @@
 	</model>
 
 	<model>
-		<name>NAM-40km</name>
+		<name>NAM40</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>212</grid>
@@ -253,7 +253,7 @@
 	</model>
 
 	<model>
-		<name>NAM-20km</name>
+		<name>NAM20</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>215</grid>
@@ -747,7 +747,7 @@
 	</model>
 
 	<model>
-		<name>RAP-40km</name>
+		<name>RAP40</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>236</grid>
@@ -757,7 +757,7 @@
 	</model>
 	
 	<model>
-		<name>RAP-20km</name>
+		<name>RAP20</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>252</grid>
@@ -849,7 +849,7 @@
 	</model>
 
 	<model>
-		<name>AK-NAM-11km</name>
+		<name>AKNAM11</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>242</grid>
@@ -859,7 +859,7 @@
 	</model>
 
 	<model>
-		<name>NAM-4km</name>
+		<name>NAM4</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>227</grid>
@@ -1030,7 +1030,7 @@
 	</model>
 
 	<model>
-		<name>GFS-40km</name>
+		<name>GFS40</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>212</grid>
@@ -1102,7 +1102,7 @@
 	</model>
 
 	<model>
-		<name>RAP-13km</name>
+		<name>RAP13</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>130</grid>
@@ -1122,7 +1122,7 @@
 	</model>
 
 	<model>
-		<name>RTMA-5km</name>
+		<name>RTMA5</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
 		<grid>197</grid>
@@ -1876,7 +1876,7 @@
 	</model>
 
         <model>
-                <name>NDFD-5km</name>
+                <name>NDFD5</name>
                 <center>8</center>
                 <subcenter>65535</subcenter>
                 <grid>197</grid>
@@ -1886,7 +1886,7 @@
         </model>
 
 	<model>
-		<name>NAM-90km</name>
+		<name>NAM90</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>104</grid>
@@ -1916,7 +1916,7 @@
 	</model>
 
 	<model>
-		<name>NAM-32km</name>
+		<name>NAM32</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>221</grid>
@@ -2417,7 +2417,7 @@
 	</model>
 
 	<model>
-		<name>SREF-40km-2</name>
+		<name>SREF40-2</name>
 		<center>7</center>
 		<subcenter>2</subcenter>
 		<grid>212</grid>
@@ -2430,7 +2430,7 @@
 	</model>
 
 	<model>
-		<name>SREF-40km-0</name>
+		<name>SREF40-0</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>212</grid>
@@ -3228,7 +3228,7 @@
 	</model>
 
 	<model>
-		<name>GFSLAMP5km</name>
+		<name>GFSLAMP5</name>
 		<center>7</center>
 		<subcenter>14</subcenter>
                 <grid>197</grid>
@@ -3248,7 +3248,7 @@
 	</model>
 
 	<model>
-		<name>LAMP-2p5km</name>
+		<name>LAMP2p5</name>
 		<center>7</center>
 		<subcenter>14</subcenter>
 		<grid>184</grid>
