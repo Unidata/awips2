@@ -97,6 +97,7 @@ import com.vividsolutions.jts.precision.SimpleGeometryPrecisionReducer;
  * 09/22/2015  DR 18033   Qinglu Lin   Updated removeOverlaidLinesegments(), removed one computeSlope().
  * 12/09/2015  DR 18209   D. Friedman  Support cwaStretch.
  * 12/21/2015  DCS 17942  D. Friedman  Support extension area.  Work around glitch in contour adjustment.
+ * 01/11/2016  DR 18474   D. Friedman  Do not allow expansion of polygon into extension area on followup.
  * </pre>
  * 
  * @author mschenke
@@ -141,8 +142,12 @@ public class PolygonUtil {
             Polygon oldWarningPolygon, boolean cwaStretch)
             throws VizException {
         float[][] contourAreaData = toFloatData(origWarningArea);
-        if (extensionArea != null)
+        if (extensionArea != null) {
+            if (oldWarningPolygon != null) {
+                extensionArea = GeometryUtil.intersection(extensionArea, oldWarningPolygon);
+            }
             toFloatData(extensionArea, contourAreaData);
+        }
 
         /*
          * If we have an oldWarningPolygon, we can take a shortcut and see if
