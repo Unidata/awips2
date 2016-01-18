@@ -62,6 +62,7 @@ import com.raytheon.viz.pointdata.rsc.retrieve.PointDataPlotInfoRetriever;
  * Oct 27, 2015  4798     bsteffen  Move SVG localization url handler
  *                                  registration.
  * Nov 16, 2015  5119     bsteffen  Remove bufquikscat
+ * Jan 19, 2016  5253     tgurney   Remove svrwx dependency on dataURI
  * 
  * </pre>
  * 
@@ -146,7 +147,6 @@ public class PlotResourceData extends AbstractRequestableResourceData {
          */
         pluginProps.put("radar", new PluginPlotProperties(false));
         pluginProps.put("tcg", new PluginPlotProperties(false));
-        pluginProps.put("svrwx", new PluginPlotProperties(false));
         pluginProps.put("ldadhydro", new PluginPlotProperties(false));
         pluginProps.put("textPoints", new PluginPlotProperties(false));
 
@@ -155,6 +155,8 @@ public class PlotResourceData extends AbstractRequestableResourceData {
          * default behavior, but for now they are included so we have a
          * comprehensive list of which plugins use certain behaviors.
          */
+
+        pluginProps.put("svrwx", new PluginPlotProperties());
         pluginProps.put("obs", new PluginPlotProperties());
         pluginProps.put("goessounding", new PluginPlotProperties());
         pluginProps.put("poessounding", new PluginPlotProperties());
