@@ -65,6 +65,9 @@ import com.raytheon.uf.edex.plugin.bufrmos.MOSPointDataState;
  * May 14, 2014 2536       bclement    removed TimeTools usage
  * Jul 14, 2015 4543       dgilling    Stop using relative indexing to perform
  *                                     parameter mapping.
+ * Jan 19, 2016 4677       tgurney     Stop manually generating primary key
+ *                                     with generateId() (now using sequence
+ *                                     instead)
  * </pre>
  * 
  * @author jkorman
@@ -188,7 +191,6 @@ public class BufrMOSDataAdapter {
                 } // for
 
                 // lookup mosLocation from cache
-                location.generateId();
                 location = locationCache.getLocation(location);
 
                 fcstData.setLocation(location);
