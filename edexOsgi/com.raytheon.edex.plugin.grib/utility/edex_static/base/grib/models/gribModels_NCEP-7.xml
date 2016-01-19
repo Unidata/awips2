@@ -2993,6 +2993,17 @@
         </process>
     </model>
 
+    <model>
+        <name>PWPF</name>
+        <center>7</center>
+        <subcenter>5</subcenter>
+        <grid>184</grid>
+        <process>
+            <id>222</id>
+            <id>223</id>
+        </process>
+    </model>
+
     <!-- END SUBCENTER 5: HYDROMETEROLOGICAL PREDICTION CENTER -->
 
     <!-- SUBCENTER 6: MARINE PREDICTION CENTER -->
