@@ -54,6 +54,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Jul 22, 2015 4360       rferrel     Named unique constraint;
  *                                      stationid, latitude and longitude no longer nullable.
  * Jan 12, 2016 4677       tgurney     Make id a sequence-generated field.
+ * Jan 19, 2016 4677       tgurney     Remove generateId method
  * 
  * </pre>
  * 
@@ -123,10 +124,6 @@ public class BufrMosDataLocation extends PersistableDataObject {
      */
     public void setStationId(String stationId) {
         this.stationId = stationId;
-    }
-
-    public void generateId() {
-        this.id = hashCode();
     }
 
     public Integer getId() {
