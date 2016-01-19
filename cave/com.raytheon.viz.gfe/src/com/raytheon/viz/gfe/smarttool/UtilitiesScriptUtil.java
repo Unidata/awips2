@@ -23,7 +23,7 @@ import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
 import com.raytheon.viz.gfe.core.script.AbstractScriptUtil;
 
 /**
- * TODO Add Description
+ * An implementation of PythonFileTemplate for making new Utilities.
  * 
  * <pre>
  * 
@@ -31,7 +31,8 @@ import com.raytheon.viz.gfe.core.script.AbstractScriptUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 3, 2011            dgilling     Initial creation
+ * May 03, 2011            dgilling    Initial creation
+ * Jan 19, 2016  4834      njensen     Removed dead method
  * 
  * </pre>
  * 
@@ -52,45 +53,16 @@ public class UtilitiesScriptUtil extends AbstractScriptUtil {
         super();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.script.IScriptUtil#getFileType()
-     */
-    @Override
-    public String getFileType() {
-        return SCRIPT_TYPE.toUpperCase();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.script.AbstractScriptUtil#getScriptType()
-     */
     @Override
     public String getScriptType() {
         return SCRIPT_TYPE;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.script.AbstractScriptUtil#getScriptTypePathPrefix
-     * ()
-     */
     @Override
     public String getScriptTypePathPrefix() {
         return GfePyIncludeUtil.UTILITIES;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.script.AbstractScriptUtil#getVelocityTemplateName
-     * ()
-     */
     @Override
     protected String getVelocityTemplateName() {
         return TEMPLATE_FILENAME;

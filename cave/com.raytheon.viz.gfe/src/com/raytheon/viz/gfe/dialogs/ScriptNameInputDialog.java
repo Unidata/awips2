@@ -30,11 +30,9 @@ import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.Activator;
 import com.raytheon.viz.gfe.GFEException;
-import com.raytheon.viz.gfe.constants.StatusConstants;
 import com.raytheon.viz.gfe.core.script.ExistMode;
-import com.raytheon.viz.gfe.core.script.IScriptUtil;
+import com.raytheon.viz.gfe.core.script.PythonFileTemplate;
 
 /**
  * A dialog for the user to input the name of a script.
@@ -43,9 +41,10 @@ import com.raytheon.viz.gfe.core.script.IScriptUtil;
  * 
  */
 public class ScriptNameInputDialog extends InputDialog {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(ScriptNameInputDialog.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ScriptNameInputDialog.class);
 
-    protected IScriptUtil util;
+    protected PythonFileTemplate util;
 
     protected ExistMode mode;
 
@@ -63,10 +62,11 @@ public class ScriptNameInputDialog extends InputDialog {
      * @param validator
      *            The validator to apply to the input field. This is called for
      *            each character typed.
+     * @param util
      */
     public ScriptNameInputDialog(Shell parentShell, String dialogTitle,
             String dialogMessage, String initialValue,
-            IInputValidator validator, IScriptUtil util) {
+            IInputValidator validator, PythonFileTemplate util) {
         super(parentShell, dialogTitle, dialogMessage, initialValue, validator);
         this.util = util;
         mode = ExistMode.NONE;
@@ -89,8 +89,7 @@ public class ScriptNameInputDialog extends InputDialog {
                 super.okPressed();
             }
         } catch (GFEException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error validating name", e);
+            statusHandler.handle(Priority.PROBLEM, "Error validating name", e);
         }
     }
 
