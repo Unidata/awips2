@@ -527,17 +527,6 @@
                   </reference>
                </visibleWhen>
             </command>
-            <command
-                  commandId="com.raytheon.viz.ui.actions.magnificationbutton"
-                  id="com.raytheon.viz.ui.actions.magnification"
-                  label="Mag: ?.??"
-                  style="pulldown">
-               <visibleWhen>
-                  <reference
-                        definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
-                  </reference>
-               </visibleWhen>
-            </command>
          </toolbar>
          <toolbar
                id="NC-1">
