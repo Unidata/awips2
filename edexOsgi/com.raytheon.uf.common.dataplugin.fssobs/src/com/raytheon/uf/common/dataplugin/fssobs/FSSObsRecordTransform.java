@@ -37,8 +37,9 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 8, 2011            skorolev     Initial creation
+ * Mar 8, 2011             skorolev    Initial creation
  * Jul 23, 2014 3410       bclement    location changed to floats
+ * Dec 02, 2015 3873       dhladky     Added reportType, stationary
  * 
  * </pre>
  * 
@@ -132,6 +133,10 @@ public class FSSObsRecordTransform {
     private static final String WIND_GUST = "windGust";
 
     private static final String WIND_SPEED = "windSpeed";
+    
+    private static final String STATIONARY = "stationary";
+    
+    private static final String REPORT_TYPE = "reportType";
 
     public static final String[] FSSOBS_PARAMS = { DATA_URI, LONGITUDE,
             LATITUDE, ELEVATION, CEILING, DEWPOINT, DEWPOINT_DEPR,
@@ -143,7 +148,7 @@ public class FSSObsRecordTransform {
             SKY_COVER, SNOW_INC_HOURLY, SNOW_INC_TOTAL, SNOW_DEPTH,
             STATION_NAME, TEMPERATURE, TIME_OBS, REF_HOUR, CLOUD_AMOUNT_TOT,
             VISIBILITY, WAVE_HEIGHT, WV_HGT, WV_PD, WV_STEEPNESS, WIND_DIR,
-            WIND_GUST, WIND_SPEED };
+            WIND_GUST, WIND_SPEED, STATIONARY, REPORT_TYPE };
 
     public static final String FSSOBS_PARAMS_LIST;
 
@@ -181,10 +186,15 @@ public class FSSObsRecordTransform {
         return records.toArray(new FSSObsRecord[records.size()]);
     }
 
+    /**
+     * Reconstitutes an FSSObsRecord from the pointData view.
+     * @param pdv
+     * @return
+     */
     private static FSSObsRecord toFSSObsRecord(PointDataView pdv) {
         FSSObsRecord obs = null;
         if (pdv != null) {
-            // String uri = pdv.getString(DATA_URI);
+
             obs = new FSSObsRecord();
             obs.setDataURI(pdv.getString(DATA_URI));
             SurfaceObsLocation loc = new SurfaceObsLocation(
@@ -194,6 +204,8 @@ public class FSSObsRecordTransform {
             loc.assignLocation(lat, lon);
             loc.setElevation(pdv.getNumber(ELEVATION).intValue());
             obs.setLocation(loc);
+            obs.setStationary(Boolean.parseBoolean(pdv.getString(STATIONARY)));
+            obs.setReportType(pdv.getString(REPORT_TYPE));
             obs.setCeiling(pdv.getFloat(CEILING));
             obs.setDewpoint(pdv.getNumber(DEWPOINT).floatValue());
             obs.setDewpointDepr(pdv.getFloat(DEWPOINT_DEPR));

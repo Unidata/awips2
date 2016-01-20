@@ -13,6 +13,7 @@
      Phil Kurimski           09-16-2013 Fixed some spelling errors
      Phil Kurimski           09-19-2013 added geospatialConfig.xml
      Evan Bookbinder         09-05-2014 Fixed law enf CTA parse string
+     Evan Bookbinder         06-15-2015 Fixed incorrect softball/grapefruit hail sizes     
 -->
 <warngenConfig>
 
@@ -116,8 +117,8 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="tennisBallHail" bulletText="Tennis ball hail (2 1/2&quot;)" bulletGroup="hailThreat" parseString="TENNIS BALL SIZE"/>
   <bullet bulletName="baseballHail" bulletText="Baseball size hail (2 3/4&quot;)" bulletGroup="hailThreat" parseString="BASEBALL SIZE"/>
   <bullet bulletName="threeinchHail" bulletText="Three inch hail (3&quot;)" bulletGroup="hailThreat" parseString="THREE INCHES IN DIAMETER"/>
-  <bullet bulletName="grapefruitHail" bulletText="Grapefruit size hail (4&quot;)" bulletGroup="hailThreat" parseString="GRAPEFRUIT SIZE"/>
-  <bullet bulletName="softballHail" bulletText="Softball size hail (4 1/4&quot;)" bulletGroup="hailThreat" parseString="SOFTBALL SIZE"/>
+  <bullet bulletName="softballHail" bulletText="Softball size hail (4&quot;)" bulletGroup="hailThreat" parseString="SOFTBALL SIZE"/>
+  <bullet bulletName="grapefruitHail" bulletText="Grapefruit size hail (4 1/2&quot;)" bulletGroup="hailThreat" parseString="GRAPEFRUIT SIZE"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="************ LOCATIONS IMPACTED  **************" bulletType="title"/>
   <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="pcast" parseString="WILL BE NEAR..."/>
@@ -172,8 +173,8 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="tennisBallHail" bulletText="Tennis ball hail (2 1/2&quot;)" bulletGroup="hailThreat" parseString="TENNIS BALL SIZE"/>
   <bullet bulletName="baseballHail" bulletText="Baseball size hail (2 3/4&quot;)" bulletGroup="hailThreat" parseString="BASEBALL SIZE"/>
   <bullet bulletName="threeinchHail" bulletText="Three inch hail (3&quot;)" bulletGroup="hailThreat" parseString="THREE INCHES IN DIAMETER"/>
-  <bullet bulletName="grapefruitHail" bulletText="Grapefruit size hail (4&quot;)" bulletGroup="hailThreat" parseString="GRAPEFRUIT SIZE"/>
-  <bullet bulletName="softballHail" bulletText="Softball size hail (4 1/4&quot;)" bulletGroup="hailThreat" parseString="SOFTBALL SIZE"/>
+  <bullet bulletName="softballHail" bulletText="Softball size hail (4&quot;)" bulletGroup="hailThreat" parseString="SOFTBALL SIZE"/>
+  <bullet bulletName="grapefruitHail" bulletText="Grapefruit size hail (4 1/2&quot;)" bulletGroup="hailThreat" parseString="GRAPEFRUIT SIZE"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="************ LOCATIONS IMPACTED  **************" bulletType="title"/>
   <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="pcast" parseString="WILL BE NEAR..."/>

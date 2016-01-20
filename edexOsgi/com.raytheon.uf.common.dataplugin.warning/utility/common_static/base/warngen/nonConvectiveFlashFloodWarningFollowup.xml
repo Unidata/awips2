@@ -14,7 +14,8 @@
          Modified Evan Bookbinder        10-24-2014 commented out AK additions from baseline and
                                                     corrected their bulletGroup="" settings  
                                                     Added floodSeverity bullets
-         Modified Mike Rega				10-27-2014 fixed EMER floodSeverity=3 error        
+         Modified Mike Rega				10-27-2014 fixed EMER floodSeverity=3 error
+         Mike Dangelo                   10-21-2015 added SM-only option        
 -->
 
 <warngenConfig>
@@ -101,7 +102,8 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="glacier" bulletText="Glacial-dammed lake outburst" bulletGroup="ic" parseString=".GO." showString=".GO."/>
   <bullet bulletName="icejam" bulletText="Ice jam" bulletGroup="ic" parseString=".IJ." showString=".IJ."/>
   <bullet bulletName="rain" bulletText="Rapid rain induced snowmelt" bulletGroup="ic" parseString=".RS." showString=".RS."/>
-<!-- Uncomment for Alaska
+  <bullet bulletName="onlyMelt" bulletText="Rapid snowmelt only" bulletGroup="ic" parseString=".SM." showString=".SM."/>
+<!-- Uncomment for Alaska 
   <bullet bulletName="volcano" bulletText="Volcano induced snowmelt" bulletGroup="ic" parseString="VOLCANIC INDUCED SNOWMELT" showString=".SM."/>
   <bullet bulletName="volcanoLahar" bulletText="Volcano induced lahar/debris flow" bulletGroup="ic" parseString="VOLCANIC INDUCED DEBRIS FLOW" showString=".SM."/>
 Alaska end -->
@@ -148,7 +150,8 @@ Alaska end -->
   <bullet bulletName="glacier" bulletText="Glacial-dammed lake outburst" bulletGroup="ic" parseString=".GO." showString=".GO."/>
   <bullet bulletName="icejam" bulletText="Ice jam" bulletGroup="ic" parseString=".IJ." showString=".IJ."/>
   <bullet bulletName="rain" bulletText="Rapid rain induced snowmelt" bulletGroup="ic" parseString=".RS." showString=".RS."/>
-<!-- Uncomment for Alaska
+  <bullet bulletName="onlyMelt" bulletText="Rapid snowmelt only" bulletGroup="ic" parseString=".SM." showString=".SM."/>
+<!-- Uncomment for Alaska  but note that allowing for more than one "SM" bullet may cause follow-up inconsistencies.
   <bullet bulletName="volcano" bulletText="Volcano induced snowmelt" bulletGroup="ic" parseString="VOLCANIC INDUCED SNOWMELT" showString=".SM."/>
   <bullet bulletName="volcanoLahar" bulletText="Volcano induced lahar/debris flow" bulletGroup="ic" parseString="VOLCANIC INDUCED DEBRIS FLOW" showString=".SM."/>
 Alaska end -->
@@ -195,8 +198,9 @@ Alaska end -->
   <bullet bulletName="floodgate" bulletText="Floodgate opening" bulletGroup="ic" parseString="FLOODGATE RELEASE" showString="FLOODGATE RELEASE"/>
   <bullet bulletName="glacier" bulletText="Glacial-dammed lake outburst" bulletGroup="ic" parseString=".GO." showString=".GO."/>
   <bullet bulletName="icejam" bulletText="Ice jam" bulletGroup="ic" parseString=".IJ." showString=".IJ."/>
-  <bullet bulletName="rain" bulletText="Rapid rain induced snowmelt" bulletGroup="ic" parseString="EXTREMELY RAPID RAIN SNOWMELT" showString=".RS."/>
-<!-- Uncomment for Alaska
+  <bullet bulletName="rain" bulletText="Rapid rain induced snowmelt" bulletGroup="ic" parseString=".RS." showString=".RS."/>
+  <bullet bulletName="onlyMelt" bulletText="Rapid snowmelt only" bulletGroup="ic" parseString=".SM." showString=".SM."/>
+<!-- Uncomment for Alaska  but note that allowing for more than one "SM" bullet may cause follow-up inconsistencies.
   <bullet bulletName="volcano" bulletText="Volcano induced snowmelt" bulletGroup="ic" parseString="VOLCANIC INDUCED SNOWMELT" showString=".SM."/>
   <bullet bulletName="volcanoLahar" bulletText="Volcano induced lahar/debris flow" bulletGroup="ic" parseString="VOLCANIC INDUCED DEBRIS FLOW" showString=".SM."/>
 Alaska end -->
@@ -225,21 +229,25 @@ Alaska end -->
   <bullet bulletName="drainages" bulletText="Automated list of drainages" parseString="THIS INCLUDES THE FOLLOWING STREAMS AND DRAINAGES"/>
   <bullet bulletName="floodMoving" bulletText="Flooding is occurring in a particular stream/river" parseString="FLOOD WATERS ARE MOVING DOWN"/>
   <bullet bulletText="****** CALLS TO ACTION (choose 1 or more) ******" bulletType="title"/>
-  <bullet bulletName="ffwEmergencyCTA" bulletText="**FLASH FLOOD EMERGENCY CTA**" parseString="FLASH FLOOD EMERGENCY"/>
-  <bullet bulletName="actQuicklyCTA" bulletText="Act Quickly..." bulletDefault="true" parseString="HIGHER GROUND NOW! ACT QUICKLY TO PROTECT YOUR LIFE."/>
-  <bullet bulletName="childSafetyCTA" bulletText="Child Safety..." parseString="KEEP CHILDREN AWAY FROM STORM DRAINS"/>
-  <bullet bulletName="nighttimeCTA" bulletText="Nighttime flooding..." parseString="BE ESPECIALLY CAUTIOUS AT NIGHT WHEN"/>
-  <bullet bulletName="safetyCTA" bulletText="Safety...by foot or motorist" parseString="DO NOT ENTER OR CROSS FLOWING WATER"/>
-  <bullet bulletName="turnAroundCTA" bulletText="Turn around...dont drown" parseString="TURN AROUND, DON'T DROWN!"/>
-  <bullet bulletName="stayAwayCTA" bulletText="Stay away or be swept away" parseString="STAY AWAY OR BE SWEPT AWAY"/>
-  <bullet bulletName="arroyosCTA" bulletText="Arroyos..." parseString="ARROYOS, STREAMS, AND RIVERS CAN BECOME RAGING KILLER CURRENTS"/>
-  <bullet bulletName="burnAreasCTA" bulletText="Burn Areas..." parseString="MOVE AWAY FROM RECENTLY BURNED AREAS"/>
+  <bullet bulletName="ffwEmergencyCTA" bulletText="FLASH FLOOD EMERGENCY" parseString=" DO NOT ATTEMPT TO TRAVEL UNLESS YOU ARE FLEEING AN AREA SUBJECT TO FLOODING OR ARE UNDER AN EVACUATION ORDER"/>
+  <bullet bulletName="TADD_CTA" bulletText="Turn around, don't drown" parseString="TURN AROUND, DON'T DROWN"/>
+  <bullet bulletName="actQuicklyCTA" bulletText="Act Quickly" parseString="ACT QUICKLY TO PROTECT YOUR LIFE"/>
+  <bullet bulletName="childSafetyCTA" bulletText="Child Safety" parseString="KEEP CHILDREN AWAY"/>
+  <bullet bulletName="nighttimeCTA" bulletText="Nighttime flooding" parseString="AT NIGHT WHEN IT IS HARDER TO RECOGNIZE"/>
+  <bullet bulletName="urbanCTA" bulletText="Urban areas" parseString="URBAN AREAS, HIGHWAYS, STREETS AND UNDERPASSES"/>
+  <bullet bulletName="ruralCTA" bulletText="Rural areas" parseString="COUNTRY ROADS, FARMLAND, AND OTHER LOW LYING SPOTS"/>
+  <bullet bulletName="stayAwayCTA" bulletText="Stay away" parseString="STAY AWAY OR BE SWEPT AWAY"/>
+  <bullet bulletName="lowSpotsCTA" bulletText="Low spots in hilly terrain" parseString="IN HILLY TERRAIN THERE ARE HUNDREDS OF LOW WATER CROSSINGS"/>
+  <bullet bulletName="arroyosCTA" bulletText="Arroyos" parseString="ARROYOS"/>
+  <bullet bulletName="burnAreasCTA" bulletText="Burn Areas" parseString="RECENTLY BURNED AREAS"/>
+  <bullet bulletName="camperSafetyCTA" bulletText="Camper/Hiker Safety" parseString="CAMPERS AND HIKERS"/>
+  <bullet bulletName="reportFloodingCTA" bulletText="Report flooding to law enforcement" parseString="REPORT FLOODING TO YOUR LOCAL LAW ENFORCEMENT"/>
+  <bullet bulletName="ffwMeansCTA" bulletText="Flash Flood Warning means" parseString="A FLASH FLOOD WARNING MEANS"/>
 <!-- Uncomment for Alaska
   <bullet bulletName="volcanicFloodCTA" bulletText="Volanic Snowmelt..." parseString="VOLCANIC SNOWMELT"/>
   <bullet bulletName="volcanicLaharCTA" bulletText="Volanic Lahar..." parseString="VOLCANIC LAHARS"/>
   <bullet bulletName="glacierOutburstCTA" bulletText="Glacier Outburst..." parseString="STAY AWAY FROM"/>
 Alaska end -->
-  <bullet bulletName="reportFloodingCTA" bulletText="Report flooding to local law enforcement" parseString="PLEASE REPORT TO YOUR LOCAL LAW ENFORCEMENT AGENCY WHEN YOU CAN"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="************************************************************" bulletType="title"/>
   <bullet bulletText="* The next sections apply only if one of the dam break *" bulletType="title"/>
@@ -286,8 +294,9 @@ Alaska end -->
   <bullet bulletName="floodgate" bulletText="Floodgate opening" bulletGroup="ic" parseString="FLOODGATE RELEASE" showString="FLOODGATE RELEASE"/>
   <bullet bulletName="glacier" bulletText="Glacial-dammed lake outburst" bulletGroup="ic" parseString=".GO." showString=".GO."/>
   <bullet bulletName="icejam" bulletText="Ice jam" bulletGroup="ic" parseString=".IJ." showString=".IJ."/>
-  <bullet bulletName="rain" bulletText="Rapid rain induced snowmelt" bulletGroup="ic" parseString="EXTREMELY RAPID RAIN SNOWMELT" showString=".RS."/>
-<!-- Uncomment for Alaska
+  <bullet bulletName="rain" bulletText="Rapid rain induced snowmelt" bulletGroup="ic" parseString=".RS." showString=".RS."/>
+  <bullet bulletName="onlyMelt" bulletText="Rapid snowmelt only" bulletGroup="ic" parseString=".SM." showString=".SM."/>
+<!-- Uncomment for Alaska  but note that allowing for more than one "SM" bullet may cause follow-up inconsistencies.
   <bullet bulletName="volcano" bulletText="Volcano induced snowmelt" bulletGroup="ic" parseString="VOLCANIC INDUCED SNOWMELT" showString=".SM."/>
   <bullet bulletName="volcanoLahar" bulletText="Volcano induced lahar/debris flow" bulletGroup="ic" parseString="VOLCANIC INDUCED DEBRIS FLOW" showString=".SM."/>
 Alaska end -->
@@ -316,21 +325,25 @@ Alaska end -->
   <bullet bulletName="drainages" bulletText="Automated list of drainages" parseString="THIS INCLUDES THE FOLLOWING STREAMS AND DRAINAGES"/>
   <bullet bulletName="floodMoving" bulletText="Flooding is occurring in a particular stream/river" parseString="FLOOD WATERS ARE MOVING DOWN"/>
   <bullet bulletText="****** CALLS TO ACTION (choose 1 or more) ******" bulletType="title"/>
-  <bullet bulletName="ffwEmergencyCTA" bulletText="**FLASH FLOOD EMERGENCY CTA**" parseString="FLASH FLOOD EMERGENCY"/>
-  <bullet bulletName="actQuicklyCTA" bulletText="Act Quickly..." bulletDefault="true" parseString="HIGHER GROUND NOW! ACT QUICKLY TO PROTECT YOUR LIFE."/>
-  <bullet bulletName="childSafetyCTA" bulletText="Child Safety..." parseString="KEEP CHILDREN AWAY FROM STORM DRAINS"/>
-  <bullet bulletName="nighttimeCTA" bulletText="Nighttime flooding..." parseString="BE ESPECIALLY CAUTIOUS AT NIGHT WHEN"/>
-  <bullet bulletName="safetyCTA" bulletText="Safety...by foot or motorist" parseString="DO NOT ENTER OR CROSS FLOWING WATER"/>
-  <bullet bulletName="turnAroundCTA" bulletText="Turn around...dont drown" parseString="TURN AROUND, DON'T DROWN!"/>
-  <bullet bulletName="stayAwayCTA" bulletText="Stay away or be swept away" parseString="STAY AWAY OR BE SWEPT AWAY"/>
-  <bullet bulletName="arroyosCTA" bulletText="Arroyos..." parseString="ARROYOS, STREAMS, AND RIVERS CAN BECOME RAGING KILLER CURRENTS"/>
-  <bullet bulletName="burnAreasCTA" bulletText="Burn Areas..." parseString="MOVE AWAY FROM RECENTLY BURNED AREAS"/>
+  <bullet bulletName="ffwEmergencyCTA" bulletText="FLASH FLOOD EMERGENCY" parseString=" DO NOT ATTEMPT TO TRAVEL UNLESS YOU ARE FLEEING AN AREA SUBJECT TO FLOODING OR ARE UNDER AN EVACUATION ORDER"/>
+  <bullet bulletName="TADD_CTA" bulletText="Turn around, don't drown" parseString="TURN AROUND, DON'T DROWN"/>
+  <bullet bulletName="actQuicklyCTA" bulletText="Act Quickly" parseString="ACT QUICKLY TO PROTECT YOUR LIFE"/>
+  <bullet bulletName="childSafetyCTA" bulletText="Child Safety" parseString="KEEP CHILDREN AWAY"/>
+  <bullet bulletName="nighttimeCTA" bulletText="Nighttime flooding" parseString="AT NIGHT WHEN IT IS HARDER TO RECOGNIZE"/>
+  <bullet bulletName="urbanCTA" bulletText="Urban areas" parseString="URBAN AREAS, HIGHWAYS, STREETS AND UNDERPASSES"/>
+  <bullet bulletName="ruralCTA" bulletText="Rural areas" parseString="COUNTRY ROADS, FARMLAND, AND OTHER LOW LYING SPOTS"/>
+  <bullet bulletName="stayAwayCTA" bulletText="Stay away" parseString="STAY AWAY OR BE SWEPT AWAY"/>
+  <bullet bulletName="lowSpotsCTA" bulletText="Low spots in hilly terrain" parseString="IN HILLY TERRAIN THERE ARE HUNDREDS OF LOW WATER CROSSINGS"/>
+  <bullet bulletName="arroyosCTA" bulletText="Arroyos" parseString="ARROYOS"/>
+  <bullet bulletName="burnAreasCTA" bulletText="Burn Areas" parseString="RECENTLY BURNED AREAS"/>
+  <bullet bulletName="camperSafetyCTA" bulletText="Camper/Hiker Safety" parseString="CAMPERS AND HIKERS"/>
+  <bullet bulletName="reportFloodingCTA" bulletText="Report flooding to law enforcement" parseString="REPORT FLOODING TO YOUR LOCAL LAW ENFORCEMENT"/>
+  <bullet bulletName="ffwMeansCTA" bulletText="Flash Flood Warning means" parseString="A FLASH FLOOD WARNING MEANS"/>
 <!-- Uncomment for Alaska  
   <bullet bulletName="volcanicFloodCTA" bulletText="Volanic Snowmelt..." parseString="VOLCANIC SNOWMELT"/>
   <bullet bulletName="volcanicLaharCTA" bulletText="Volanic Lahar..." parseString="VOLCANIC LAHARS"/>
   <bullet bulletName="glacierOutburstCTA" bulletText="Glacier Outburst..." parseString="STAY AWAY FROM"/>
 Alaska end -->
-  <bullet bulletName="reportFloodingCTA" bulletText="Report flooding to local law enforcement" parseString="PLEASE REPORT TO YOUR LOCAL LAW ENFORCEMENT AGENCY WHEN YOU CAN"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="************************************************************" bulletType="title"/>
   <bullet bulletText="* The next sections apply only if one of the dam break *" bulletType="title"/>

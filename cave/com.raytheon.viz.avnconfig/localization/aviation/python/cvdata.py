@@ -43,6 +43,10 @@
 # Generates ceiling/visibility distribution by month, hour and wind direction
 # George Trojan, SAIC/MDL, December 2005
 # last update: 03/14/06
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    -----------------------------------
+#    Dec 22, 2015    18342         zhao           Modified _process() to also pass 'jnt_count'
+
 
 import logging, os, time, cPickle
 import Avn, ClimLib
@@ -174,7 +178,7 @@ def get_data(table, queue):
             for windDir in range(num_wind_dir):
                 for flightCat in range(num_cat+1):                  
                     sendObj = [month, hour, windDir, flightCat, float(cig_count[month][hour][windDir][flightCat]),
-                               float(vis_count[month][hour][windDir][flightCat])]#, float(jnt_count[month][hour][windDir][flightCat])]
+                               float(vis_count[month][hour][windDir][flightCat]), float(jnt_count[month][hour][windDir][flightCat])]
                     #print "sendObj", sendObj
                     queue.put(sendObj)
     queue.put("done")

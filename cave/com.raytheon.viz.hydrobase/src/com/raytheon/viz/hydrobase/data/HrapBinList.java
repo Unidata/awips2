@@ -30,7 +30,8 @@ import java.util.List;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 15, 2009 2772           mpduff     Initial creation.
+ * Sep 15, 2009 2772       mpduff      Initial creation.
+ * Dec 18, 2015 5217       mduff       Changed Long to Integer.
  * 
  * </pre>
  * 
@@ -40,13 +41,13 @@ import java.util.List;
 
 public class HrapBinList {
     /** the rows */
-    private List<Long> rows = new ArrayList<Long>();
+    private List<Integer> rows = new ArrayList<>();
 
     /** The beginning columns */
-    private List<Long> beginCols = new ArrayList<Long>();
+    private List<Integer> beginCols = new ArrayList<>();
 
     /** The ending columns */
-    private List<Long> endCols = new ArrayList<Long>();
+    private List<Integer> endCols = new ArrayList<>();
 
     /** The number of rows */
     private long numRows;
@@ -60,7 +61,7 @@ public class HrapBinList {
     /**
      * @return the rows
      */
-    public List<Long> getRows() {
+    public List<Integer> getRows() {
         return rows;
     }
 
@@ -68,14 +69,14 @@ public class HrapBinList {
      * @param rows
      *            the rows to set
      */
-    public void setRows(List<Long> rows) {
+    public void setRows(List<Integer> rows) {
         this.rows = rows;
     }
 
     /**
      * @return the beginCols
      */
-    public List<Long> getBeginCols() {
+    public List<Integer> getBeginCols() {
         return beginCols;
     }
 
@@ -83,14 +84,14 @@ public class HrapBinList {
      * @param beginCols
      *            the beginCols to set
      */
-    public void setBeginCols(List<Long> beginCols) {
+    public void setBeginCols(List<Integer> beginCols) {
         this.beginCols = beginCols;
     }
 
     /**
      * @return the endCols
      */
-    public List<Long> getEndCols() {
+    public List<Integer> getEndCols() {
         return endCols;
     }
 
@@ -98,7 +99,7 @@ public class HrapBinList {
      * @param endCols
      *            the endCols to set
      */
-    public void setEndCols(List<Long> endCols) {
+    public void setEndCols(List<Integer> endCols) {
         this.endCols = endCols;
     }
 
@@ -145,5 +146,11 @@ public class HrapBinList {
      */
     public void setArea(double area) {
         this.area = area;
+    }
+
+    public void addData(double row, double startCol, double endCol) {
+        this.rows.add((int) row);
+        this.beginCols.add((int) startCol);
+        this.endCols.add((int) endCol);
     }
 }

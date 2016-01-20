@@ -48,8 +48,10 @@ import com.vividsolutions.jts.geom.Coordinate;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 16, 2008            randerso     Initial creation
- * Mar 31, 2014     2689   mpduff      Log input values on conversion failure.
+ * Sep 16, 2008            randerso    Initial creation
+ * Mar 31, 2014   2689     mpduff      Log input values on conversion failure.
+ * Dec 09, 2015  18391     snaples     Updated gridmapper to use CELL CENTER instead of corner.
+ * 
  * </pre>
  * 
  * @author randerso
@@ -208,7 +210,7 @@ public class HRAP {
                         false);
 
                 gridMapper = new GridToEnvelopeMapper(gridRange, userRange);
-                gridMapper.setPixelAnchor(PixelInCell.CELL_CORNER);
+                gridMapper.setPixelAnchor(PixelInCell.CELL_CENTER);
                 gridMapper.setReverseAxis(new boolean[] { false, false });
 
             } catch (Exception e) {

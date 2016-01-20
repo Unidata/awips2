@@ -39,6 +39,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 15, 2011            rjpeter     Initial creation
+ * Dec  9, 2015 ASM #18209 D. Friedman Support cwaStretch.
  * 
  * </pre>
  * 
@@ -79,6 +80,10 @@ public class GeospatialMetadata {
     @XmlAttribute
     @DynamicSerializeElement
     private String timeZoneField;
+
+    @XmlAttribute
+    @DynamicSerializeElement
+    private Double cwaStretch;
 
     public String getAreaSource() {
         return areaSource;
@@ -144,6 +149,14 @@ public class GeospatialMetadata {
         this.fipsField = fipsField;
     }
 
+    public Double getCwaStretch() {
+        return cwaStretch;
+    }
+
+    public void setCwaStretch(Double cwaStretch) {
+        this.cwaStretch = cwaStretch;
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -165,6 +178,8 @@ public class GeospatialMetadata {
                 + ((timeZoneField == null) ? 0 : timeZoneField.hashCode());
         result = prime * result
                 + ((timeZoneSource == null) ? 0 : timeZoneSource.hashCode());
+        result = prime * result
+                + ((cwaStretch == null) ? 0 : cwaStretch.hashCode());
         return result;
     }
 
@@ -211,6 +226,11 @@ public class GeospatialMetadata {
             if (other.timeZoneSource != null)
                 return false;
         } else if (!timeZoneSource.equals(other.timeZoneSource))
+            return false;
+        if (cwaStretch == null) {
+            if (other.cwaStretch != null)
+                return false;
+        } else if (!cwaStretch.equals(other.cwaStretch))
             return false;
         return true;
     }

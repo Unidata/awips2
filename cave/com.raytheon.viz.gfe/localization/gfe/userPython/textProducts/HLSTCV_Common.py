@@ -1,4 +1,4 @@
-# Version 2015.2.10-1
+# Version 2015.11.18-0
 
 import GenericHazards
 import JsonSupport
@@ -157,7 +157,7 @@ class TextProduct(GenericHazards.TextProduct):
         dict["pwsD64"] = (0, 5)
         dict["pwsN64"] = (0, 5)
         dict["InundationMax"] = (0, 5)
-        dict["InundationTiming"] = (0, 5)
+        dict["InundationTiming"] = (0, 3)
         return dict
     
     ###############################################################
@@ -620,6 +620,17 @@ class TextProduct(GenericHazards.TextProduct):
         #  wording with rainfall for the TCV
         self._extraSampleTimeRange = self.makeTimeRange(startTime-12*3600, 
                                                         startTime)
+        
+        # Create a special time range list broken into 6 hour chunks for surge
+        startTime6Hour = self._calculateStartTime(time.gmtime(self._issueTime_secs), use6Hour=True)
+        timeRange6Hour = self.makeTimeRange(startTime6Hour, startTime6Hour+120*3600)
+        subRanges = self.divideRange(timeRange6Hour, self._resolution(use6Hour=True))
+        trList = []
+        for index, tr in enumerate(subRanges):
+            self.debug_print("In _determineTimeRanges (6 hour) -> tr = %s" % 
+                             (self._pp.pformat(tr)), 1)
+            trList.append((tr, "Label"))
+        self._timeRangeList6Hour = trList
 
         # Determine the time range list according to the resolution
         subRanges = self.divideRange(self._timeRange, self._resolution())
@@ -661,14 +672,14 @@ class TextProduct(GenericHazards.TextProduct):
                          (self._pp.pformat(self._periodList)), 1)
         self._timeRangeList = trList
     
-    def _calculateStartTime(self, localCreationTime):
+    def _calculateStartTime(self, localCreationTime, use6Hour=False):
         year = localCreationTime[0]
         month = localCreationTime[1]
         day = localCreationTime[2]
         hour = localCreationTime[3]
         
         #  Define a variable to control which resolution we want
-        resolution = self._resolution()          #  6 is also a valid option
+        resolution = self._resolution(use6Hour)          #  6 is also a valid option
         
         #  If we are more than halfway though a block we would want
         if hour % resolution > resolution / 2:
@@ -691,8 +702,11 @@ class TextProduct(GenericHazards.TextProduct):
         
         return startTime
     
-    def _resolution(self):
-        return 3
+    def _resolution(self, use6Hour=False):
+        if use6Hour:
+            return 6
+        else:
+            return 3
 
     def _formatPeriod(self, period, wholePeriod=False, shiftToLocal=True, useEndTime=False,
                       resolution=3):
@@ -811,11 +825,14 @@ class TextProduct(GenericHazards.TextProduct):
         #  This pattern will handle multiple word names
         #  (including certain special characters).
         #  This is for the NHC format.
-        mndSearch = re.search("(?im)^.*?(?P<stormType>HURRICANE|(SUB|POST.?)?TROPICAL " +
-                              "(STORM|DEPRESSION|CYCLONE)|(SUPER )?TYPHOON|" +
-                              "REMNANTS OF) (?P<stormName>[A-Z0-9\-\(\) ]+?)" +
-                              "(?P<advisoryType>SPECIAL |INTERMEDIATE )?ADVISORY " +
-                              "NUMBER[ ]+(?P<advisoryNumber>[A-Z0-9]+)[ ]*", tcp)
+        mndSearch = re.search("(?im)^.*?(?P<stormType>HURRICANE|" +
+                              "(POTENTIAL|SUB|POST.?)" +
+                              "?TROPICAL (STORM|DEPRESSION|CYCLONE)|" +
+                              "(SUPER )?TYPHOON|REMNANTS OF) " +
+                              "(?P<stormName>[A-Z0-9\-\(\) ]+?)" +
+                              "(?P<advisoryType>SPECIAL |INTERMEDIATE )" +
+                              "?ADVISORY NUMBER[ ]+" +
+                              "(?P<advisoryNumber>[A-Z0-9]+)[ ]*", tcp)
         
         if mndSearch is not None:
             self._stormType = mndSearch.group("stormType").strip()

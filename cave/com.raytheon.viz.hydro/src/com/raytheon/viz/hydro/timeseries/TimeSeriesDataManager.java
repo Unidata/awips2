@@ -75,6 +75,8 @@ import com.raytheon.viz.hydrocommon.util.DbUtils;
  * Jul 21, 2015 4500       rjpeter     Use Number in blind cast.
  * Aug 05, 2015 4486       rjpeter     Changed Timestamp to Date.
  * Aug 18, 2015 4793       rjpeter     Use Number in blind cast.
+ * Nov 06, 2015 17846      lbousaidi   modify edit and insertRejectedData so that quality_code.
+ *                                     is reset from Bad to Good after data QC.
  * </pre>
  * 
  * @author dhladky
@@ -98,6 +100,12 @@ public class TimeSeriesDataManager extends HydroDataManager {
     private boolean sortChanged = false;
 
     private static SimpleDateFormat dateFormat;
+
+    /** Quality control value for manual "Good" */
+    private final int QC_MANUAL_PASSED = 121;
+
+    /** Quality control value for manual "Bad". */
+    private final int QC_MANUAL_FAILED = 123;
 
     /**
      * Map holding the location id and display class.
@@ -954,6 +962,9 @@ public class TimeSeriesDataManager extends HydroDataManager {
                 qualityCode = new Integer(dr.getQualityCode());
             }
 
+            dr.setQualityCode(TimeSeriesUtil.setQcCode(QC_MANUAL_PASSED,
+                    dr.getQualityCode()));
+
             sb.append("insert into rejecteddata(lid, pe, dur, ts, extremum, ");
             sb.append("probability, validtime, basistime, postingtime, value, ");
             sb.append("revision, shef_qual_code, product_id, producttime, quality_code, ");
@@ -993,7 +1004,7 @@ public class TimeSeriesDataManager extends HydroDataManager {
             sb.append("'" + productID + "', ");
             sb.append("'" + HydroConstants.DATE_FORMAT.format(productTime)
                     + "', ");
-            sb.append(qualityCode + ", ");
+            sb.append(dr.getQualityCode() + ", ");
             sb.append("'M', ");
             sb.append("'" + LocalizationManager.getInstance().getCurrentUser()
                     + "');");
@@ -1150,11 +1161,14 @@ public class TimeSeriesDataManager extends HydroDataManager {
         for (int i = 0; i < editList.size(); i++) {
             ForecastData data = editList.get(i);
             String tablename = DbUtils.getTableName(data.getPe(), data.getTs());
-
+            //set the QC to GOOD when you set data to missing.
+            data.setQualityCode(TimeSeriesUtil.setQcCode(QC_MANUAL_PASSED,
+                    data.getQualityCode()));
             SqlBuilder sql = new SqlBuilder(tablename);
             sql.setSqlType(SqlBuilder.UPDATE);
             sql.addDouble("value", data.getValue());
             sql.addString("shef_qual_code", "M");
+            sql.addInt("quality_code", data.getQualityCode());
             sql.addInt("revision", 1);
             sql.addString("postingTime", HydroConstants.DATE_FORMAT.format(now));
             if (data.getProductTime() == null) {
