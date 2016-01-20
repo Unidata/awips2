@@ -61,9 +61,9 @@ import com.raytheon.rcm.server.StatusManager.RadarStatus;
 
 /**
  * Manages current RPS lists and requests for changes to RPS lists.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
@@ -73,8 +73,9 @@ import com.raytheon.rcm.server.StatusManager.RadarStatus;
  * 2014-02-03   DR 14762   D. Friedman Handle updated national RPS lists.
  * 2015-06-10   4498       nabowle     Rename Util->RcmUtil
  * 2015-09-08   DR 17944   D. Friedman Handle elevation list file updates.
+ * 2016-01-20   5271       bkowal      Fix resource leak.
  * </pre>
- *
+ * 
  */
 public class RPSListManager extends RadarEventAdapter {
 
@@ -181,11 +182,13 @@ public class RPSListManager extends RadarEventAdapter {
             return "Error getting radar status";
         }
 
-        int[] cuts = ElevationInfo.getInstance().getScanElevations(radarID, currentVCP);
+        int[] cuts = ElevationInfo.getInstance().getScanElevations(radarID,
+                currentVCP);
         if (cuts == null && RcmUtil.getRadarType(rc) == RadarType.WSR)
             cuts = gsmCuts;
 
-        if (list.getVcp() != RpsList.UNSPECIFIED_VCP && list.getVcp() != currentVCP) {
+        if (list.getVcp() != RpsList.UNSPECIFIED_VCP
+                && list.getVcp() != currentVCP) {
             if (store)
                 return null; // TODO: Should warn instead.
             else
@@ -240,13 +243,13 @@ public class RPSListManager extends RadarEventAdapter {
             rpsList = null;
 
         if (rpsList == null) {
-            int[] cuts = ElevationInfo.getInstance().
-                getScanElevations(rc.getRadarID(), gsm.vcp);
+            int[] cuts = ElevationInfo.getInstance().getScanElevations(
+                    rc.getRadarID(), gsm.vcp);
             if (cuts == null && RcmUtil.getRadarType(rc) == RadarType.WSR)
                 cuts = gsm.cuts;
 
-            rpsList = getMergedRpsListForRadar(rc, gsm.opMode, gsm.vcp,
-                    cuts, null);
+            rpsList = getMergedRpsListForRadar(rc, gsm.opMode, gsm.vcp, cuts,
+                    null);
 
             // TODO: Should persist this (wouldn't need clone code)
             if (rpsList != null)
@@ -259,7 +262,7 @@ public class RPSListManager extends RadarEventAdapter {
 
     /**
      * From AWIPS 1 ProductRequestList::addMiniVolumeProduct() (DCS 3411)
-     *
+     * 
      * For TDWR VCP80, 2 products might be generated in one volume (2 mini
      * volumes) for some products. Parameter lowerLayer is used to specify these
      * 2 products: 1 - generated at mid volume; 2 - generated at end volume
@@ -267,7 +270,7 @@ public class RPSListManager extends RadarEventAdapter {
      * implementation ---------------------------------------------------------
      * Searches list for mini volume products, add a new entry with lowerLayer 1
      * CZ(35-38),ET(41),VIL(57),STI(58),HI(59),TVS(61),MD(141),DMD(149)
-     *
+     * 
      */
     /*
      * This must be kept in sync with
@@ -279,8 +282,8 @@ public class RPSListManager extends RadarEventAdapter {
             return;
 
         /*
-         * We want to put these products at the end of the list so that they
-         * do not have priority over existing products.
+         * We want to put these products at the end of the list so that they do
+         * not have priority over existing products.
          */
         Selector sel = new Selector();
         sel.radarType = RadarType.TDWR;
@@ -290,8 +293,8 @@ public class RPSListManager extends RadarEventAdapter {
             Request r = reqs.get(i);
             sel.code = (int) r.productCode;
             RadarProduct prod = ProductInfo.getInstance().selectOne(sel);
-            if (prod != null && prod.params.contains(Param.MINI_VOLUME) &&
-                    r.getMiniVolume() != 1) {
+            if (prod != null && prod.params.contains(Param.MINI_VOLUME)
+                    && r.getMiniVolume() != 1) {
                 Request r2 = r.clone();
                 r2.setMiniVolume(1);
                 reqs.add(r2);
@@ -321,14 +324,14 @@ public class RPSListManager extends RadarEventAdapter {
             Log.warnf("Cannot determine maximum RPS list size for %s",
                     rc.getRadarID());
         if (requestCount < 0)
-            Log.warnf("Cannot number of requests in RPS list for %s", rc
-                    .getRadarID());
+            Log.warnf("Cannot number of requests in RPS list for %s",
+                    rc.getRadarID());
         if (maxSize >= 0 && requestCount >= 0 && requestCount > maxSize) {
             int truncCount = 0;
             int i;
             for (i = reqs.length - 1; i >= 0; --i) {
-                truncCount += RpsList.getRequestCount(reqs[i], rc.getRadarID(), rpsList.getVcp(),
-                        RcmUtil.getRadarType(rc));
+                truncCount += RpsList.getRequestCount(reqs[i], rc.getRadarID(),
+                        rpsList.getVcp(), RcmUtil.getRadarType(rc));
                 if (requestCount - truncCount <= maxSize)
                     break;
             }
@@ -337,8 +340,10 @@ public class RPSListManager extends RadarEventAdapter {
 
             int originalCount = requestCount;
             requestCount = requestCount - truncCount;
-            Log.warnf("Truncated list for %s from %d entries (%d requests) to %d entries (%d requests)",
-                    rc.getRadarID(), reqs.length, originalCount, i, requestCount);
+            Log.warnf(
+                    "Truncated list for %s from %d entries (%d requests) to %d entries (%d requests)",
+                    rc.getRadarID(), reqs.length, originalCount, i,
+                    requestCount);
             // TODO: Also need to send a message to Guardian
             reqs = Arrays.copyOf(reqs, i);
             rpsList = new RpsList(rpsList.getOpMode(), rpsList.getVcp(), reqs);
@@ -346,8 +351,8 @@ public class RPSListManager extends RadarEventAdapter {
             Log.warnf("Sending empty RPS list to %s", rc.getRadarID());
         }
 
-        Log.eventf("%s: Sending RPS list with %d entries (%d requests)", rc.getRadarID(),
-                rpsList.getRequests().length, requestCount);
+        Log.eventf("%s: Sending RPS list with %d entries (%d requests)",
+                rc.getRadarID(), rpsList.getRequests().length, requestCount);
         byte[] msg = ProductRequest.encode(rpsList.getRequests());
         radarServer.getConnectionManager().sendMessageToRadar(rc.getRadarID(),
                 msg);
@@ -396,8 +401,7 @@ public class RPSListManager extends RadarEventAdapter {
                 path = new File(dir, rc.getRadarID().toUpperCase()
                         + ".currentVCP");
                 fo = new FileOutputStream(path);
-                try {
-                    PrintWriter p = new PrintWriter(fo);
+                try (PrintWriter p = new PrintWriter(fo)) {
                     p.printf("VCP%d\n", rpsList.getVcp());
                     p.flush();
                 } finally {
@@ -431,7 +435,7 @@ public class RPSListManager extends RadarEventAdapter {
     /**
      * Constructs a an RPS list for the given parameters, merging national and
      * local lists as appropriate.
-     *
+     * 
      * @param rc
      * @param opMode
      * @param vcp
@@ -487,14 +491,12 @@ public class RPSListManager extends RadarEventAdapter {
         maybeAddSPGMiniVolumeProducts(rc, reqs, vcp);
 
         /*
-         * AWIPS 1 disabled duplicate merging for TDWRs because some requests
-         * in the national RPS list would disappear. This was due to incorrect
-         * handling of multi-elevation requests. AWIPS 2 handles
-         * multi-elevation request correctly. (See DCS 3472, DRs 19386, 20239,
-         * and 20244.)
-         *
-         * if (vcp == 80 || vcp == 90)
-         *     elevList = null;
+         * AWIPS 1 disabled duplicate merging for TDWRs because some requests in
+         * the national RPS list would disappear. This was due to incorrect
+         * handling of multi-elevation requests. AWIPS 2 handles multi-elevation
+         * request correctly. (See DCS 3472, DRs 19386, 20239, and 20244.)
+         * 
+         * if (vcp == 80 || vcp == 90) elevList = null;
          */
 
         RadarType radarType = RcmUtil.getRadarType(rc);
@@ -518,7 +520,7 @@ public class RPSListManager extends RadarEventAdapter {
                          * later multi-elevation request that subsumes it to be
                          * lost when the list is truncated to fix the maximum
                          * number of products.
-                         *
+                         * 
                          * On the other hand, this could cause products listed
                          * before index j to be lost because the RPG counts each
                          * elevation in a multi-elevation request as a separate
@@ -599,8 +601,8 @@ public class RPSListManager extends RadarEventAdapter {
 
     private void resetRpsListForRadar(RadarConfig rc) {
         String radarID = rc.getRadarID();
-        RadarStatus status = radarServer.getStatusManager()
-                .getRadarStatus(radarID);
+        RadarStatus status = radarServer.getStatusManager().getRadarStatus(
+                radarID);
         byte[] gsmData = null;
         if (status != null)
             gsmData = status.getCurrentGSM();
@@ -609,10 +611,8 @@ public class RPSListManager extends RadarEventAdapter {
         if (gsmData != null) {
             handleGSM(rc, gsmData);
         } else {
-            Log.debugf(
-                    "RPS-relevant configuration changed for %s, but "
-                            + "it is not connected.  Cannot send a list now.",
-                    radarID);
+            Log.debugf("RPS-relevant configuration changed for %s, but "
+                    + "it is not connected.  Cannot send a list now.", radarID);
         }
     }
 }

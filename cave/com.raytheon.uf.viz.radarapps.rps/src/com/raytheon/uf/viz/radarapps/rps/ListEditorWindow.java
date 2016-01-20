@@ -100,9 +100,9 @@ import com.raytheon.uf.viz.radarapps.products.ui.RadarProductUI;
 
 /**
  * RPS List Editor window
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
@@ -111,8 +111,9 @@ import com.raytheon.uf.viz.radarapps.products.ui.RadarProductUI;
  * 2013-01-31   DR 15458   D. Friedman Send RPS list so that it will be
  *                                     accepted for any VCP.
  * 2015-06-10   4498       nabowle     Rename Util->RcmUtil
+ * 2016-01-20   5271       bkowal      Code cleanup.
  * </pre>
- *
+ * 
  */
 public class ListEditorWindow {
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -452,8 +453,9 @@ public class ListEditorWindow {
 
     protected void onClose(ShellEvent e) {
         e.doit = false;
-        if (!checkUnsaved())
+        if (!checkUnsaved()) {
             return;
+        }
         // TODO: reset if just going to make invisible...
         listEditor.dispose();
     }
@@ -479,8 +481,9 @@ public class ListEditorWindow {
         SendRpsList msg = new SendRpsList();
         msg.radarIDs = Arrays.asList(rpg);
         msg.requests = Arrays.asList(listEditor.getRpsList().getRequests());
-        /* Specify that the RadarServer should accept this list no matter
-         * what VCP the RPG is currently using.
+        /*
+         * Specify that the RadarServer should accept this list no matter what
+         * VCP the RPG is currently using.
          */
         msg.vcp = RpsList.UNSPECIFIED_VCP;
         String error = null;
@@ -566,10 +569,11 @@ public class ListEditorWindow {
 
         RadarProduct rp = ProductInfo.getInstance().getPoductForCode(
                 req.productCode);
-        Collection<RadarProduct> variants = ProductInfo.getInstance().select(
-                new ProductInfo.Selector(null, rp.mnemonic, null, null));
         StringBuilder sb = new StringBuilder();
         if (rp != null) {
+            Collection<RadarProduct> variants = ProductInfo.getInstance()
+                    .select(new ProductInfo.Selector(null, rp.mnemonic, null,
+                            null));
             if (rp.name != null)
                 sb.append(rp.name);
             /*
@@ -645,7 +649,6 @@ public class ListEditorWindow {
             sb.append(String.format("Product #%d", req.productCode));
         }
         return sb.toString();
-        // return element.toString();
     }
 
     private VCPInfo chooseVcp(String message) {
@@ -736,45 +739,6 @@ public class ListEditorWindow {
         listEditor.setPath(new File(fn));
         listEditor.setUntitled(false);
         return listEditor.saveList();
-    }
-
-    private void onStoreList() {
-        if (!sendCheck())
-            return;
-
-        StoreDialog sd = new StoreDialog(getShell(), listEditor);
-        if (sd.open() == Window.OK) {
-            if (!checkListLength(sd.getRadarIDs(), sd.getVcps()))
-                return;
-
-            RcmClient client = RadarApps.getRcmSystem().getClient();
-            for (int vcp : sd.getVcps()) {
-                SendRpsList msg = new SendRpsList();
-                msg.radarIDs = sd.getRadarIDs();
-                if (msg.radarIDs.size() == 0)
-                    return;
-                msg.requests = Arrays.asList(listEditor.getRpsList()
-                        .getRequests());
-                msg.vcp = vcp;
-                msg.store = true;
-
-                String error = null;
-                try {
-                    ReplyObj ro = client.sendRequest(msg, 2000);
-                    error = ro.error;
-                } catch (IOException e) {
-                    error = e.toString();
-                }
-                if (error != null) {
-                    MessageBox mb = new MessageBox(getShell(), SWT.ICON_ERROR
-                            | SWT.OK);
-                    mb.setText("Error");
-                    mb.setMessage(error);
-                    mb.open();
-                } else
-                    listEditor.setDirty(false);
-            }
-        }
     }
 
     private boolean sendCheck() {
