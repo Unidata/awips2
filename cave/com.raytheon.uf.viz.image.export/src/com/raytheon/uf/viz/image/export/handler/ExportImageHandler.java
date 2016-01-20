@@ -80,6 +80,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * Jul 26, 2006           chammack    Initial Creation.
  * Jan 20, 2014  2312     bsteffen    Move to image export plugin, animation.
  * Dec 4, 2014   DR16713  jgerth      Support for date and time in file name
+ * Jan 18, 2016  ----     mjames@ucar Append yyyy.MM.dd.HH.mm.ss to image filename
  * 
  * </pre>
  * 
@@ -213,21 +214,22 @@ public class ExportImageHandler extends AbstractImageCaptureHandler {
                 for (Map.Entry<DataTime, BufferedImage> entry : dtbiHash.entrySet()) {
                     i++;
                     BufferedImage bi = entry.getValue();
+                    String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date()); 
                     if (options.getDateTimeSelection() == DateTimeSelection.DATETIME) {
                         DataTime key = entry.getKey();
                         Date validTime = key.getValidTimeAsDate();
                         if (validTime != null && !isFakeTime(key)) {
-                            path = basePath + "-" + sdf.format(validTime) + "." + suffix;
+                            path = basePath + "-" + sdf.format(validTime) + "-" + timeStamp + "." + suffix;
                             if (path.equals(ppath)) {
-                                path = basePath + "-" + sdf.format(validTime) + "-" + twoDigit.format(i).toString() + "." + suffix;
+                                path = basePath + "-" + sdf.format(validTime) + "-" + twoDigit.format(i).toString() + "-" + timeStamp + "." + suffix;
                             }
                         } else {
-                            path = basePath + "-" + twoDigit.format(i).toString() + "." + suffix;
+                            path = basePath + "-" + twoDigit.format(i).toString() + "-" + timeStamp + "." + suffix;
                         }
                     } else if (dtbiHash.size() > 1) {
-                        path = basePath + "-" + twoDigit.format(i).toString() + "." + suffix;
+                        path = basePath + "-" + twoDigit.format(i).toString() + "-" + timeStamp + "." + suffix;
                     } else {
-                        path = basePath + "." + suffix;
+                        path = basePath + "-" + timeStamp + "." + suffix;
                     }
                     ppath = path;
                     stream = new FileImageOutputStream(new File(path));
