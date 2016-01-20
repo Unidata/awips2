@@ -133,6 +133,7 @@ import com.raytheon.viz.avnconfig.TafSiteData;
 import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.texteditor.TextDisplayModel;
 import com.raytheon.viz.texteditor.msgs.IAviationObserver;
+import com.raytheon.viz.texteditor.util.AviationTextUtility;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
@@ -250,6 +251,7 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  * 10/23/2015   18061       zhao        Fixed a bug in checkBaiscSyntaxError() 
  * Nov 12, 2015 4834        njensen     Changed LocalizationOpFailedException to LocalizationException
  * Dec 09, 2015 4645        skorolev    Initiated wrapChk using ResourceTag. Removed popup menu persistance.
+ * Jan 07, 2016 4860        skorolev    Initiated TextDisplayModel at start of dialog.
  * 
  * </pre>
  * 
@@ -568,6 +570,9 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         this.stationList = stationList;
 
         setText("AvnFPS TAF Editor");
+        // Initiate TextDisplayModel
+        TextDisplayModel.getInstance().setTextAviation(
+                new AviationTextUtility());
         SimulatedTime.getSystemTime().addSimulatedTimeChangeListener(this);
     }
 
