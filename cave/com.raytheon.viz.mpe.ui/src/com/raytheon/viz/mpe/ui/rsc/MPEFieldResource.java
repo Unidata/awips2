@@ -83,7 +83,10 @@ import com.raytheon.viz.mpe.ui.rsc.MPEFieldResourceData.MPEFieldFrame;
  *                                      properly when mapping to screen.	
  * Mar 10, 2014 17059      snaples      Added case for Prism data for unit conversion correction.
  * Mar 19, 2014 17109      snaples      Removed code that added an hour to SATPRE, the base file reference time has been adjusted.
- * 												 
+ * Nov 05, 2015 18095      lbousaidi    Fixed hour substitued for satellite field precip when drawing polygon.
+ * Dec 04, 2015 5165/14513 mduff        Set this resource on the display manager if not set in the display manager.
+ * Dec 08, 2015 5180       bkowal       Made the hour substitution special case precise.
+ * 
  * </pre>
  * 
  * @author mschenke
@@ -95,8 +98,10 @@ public class MPEFieldResource extends
         implements IPolygonEditsChangedListener {
 
     private static final short MISSING_VALUE = -899;
-    private static final int  BIG_VALUE = 1000 ;
-    private static final int  RATIO_CONVERSION_FACTOR = 100;
+
+    private static final int BIG_VALUE = 1000;
+
+    private static final int RATIO_CONVERSION_FACTOR = 100;
 
     private ContourPreferences contourPreferences;
 
@@ -124,6 +129,12 @@ public class MPEFieldResource extends
         contourPreferences = createContourPreferences(getCapability(
                 ColorMapCapability.class).getColorMapParameters());
         PolygonEditManager.registerListener(this);
+        MPEDisplayManager displayManager = MPEDisplayManager
+                .getInstance(descriptor.getRenderableDisplay());
+        MPEFieldResource rsc = displayManager.getDisplayedFieldResource();
+        if (rsc == null) {
+            displayManager.setDisplayedResource(this);
+        }
     }
 
     /*
@@ -182,8 +193,21 @@ public class MPEFieldResource extends
                 subData = dataMap.get(edit.getSubDrawSource());
                 if (subData == null) {
                     try {
+                        Date date = frame.getDate();
+                        /*
+                         * SATPRE MPE file time stamp is the start time of the
+                         * hour. i.e. a 12z -13z product has a time stamp of
+                         * 12z.
+                         */
+                        Calendar cal = Calendar.getInstance();
+                        cal.setTime(date);
+                        if (edit.getSubDrawSource() == DisplayFieldData.satPre) {
+                            cal.add(Calendar.HOUR, -1);
+                        }
+
                         XmrgFile subFile = MPEDisplayManager.getXmrgFile(
-                                edit.getSubDrawSource(), frame.getDate());
+                                edit.getSubDrawSource(), cal.getTime());
+
                         subFile.load();
                         subData = subFile.getData();
                         dataMap.put(edit.getSubDrawSource(), subData);
@@ -330,242 +354,208 @@ public class MPEFieldResource extends
             timeToLoad.setTime(currTime.getRefTime());
             timeToLoad.add(Calendar.HOUR, -i);
 
-                    	
-            if (displayField==DisplayFieldData.satPre) {
-            	 //SATPRE MPE file time stamp is the start time of the hour 
-            	 //i.e. a 12z -13z product has a time stamp of 12z.             	
-            	 timeToLoad.add(Calendar.HOUR, -1);             	 
+            if (displayField == DisplayFieldData.satPre) {
+                // SATPRE MPE file time stamp is the start time of the hour
+                // i.e. a 12z -13z product has a time stamp of 12z.
+                timeToLoad.add(Calendar.HOUR, -1);
             }
-            	 
-           
-            
-            if (displayField.isAComparisonField() )
-            {
-            	ComparisonFields comparisonFields = displayField.getComparisonFields();
-            	DisplayFieldData field1 = comparisonFields.getField1();
-            	DisplayFieldData field2 = comparisonFields.getField2();
-            	
-            	XmrgFile file1 = MPEDisplayManager.getXmrgFile(field1,
-            			timeToLoad.getTime()); 
-            	
-            	XmrgFile file2 = MPEDisplayManager.getXmrgFile(field2,
-            			timeToLoad.getTime());
-            	
-            	boolean isDifference = false;
-            	boolean isRatio = false;
-            	
-            	if (displayField.equals(DisplayFieldData.precipDifferenceField))
-            	{
-            		isDifference = true;
 
-            	}
-            	else if (displayField.equals(DisplayFieldData.precipRatioField))
-            	{
-            		isRatio = true;
-            	}
-            	
-            	try {
-            		file1.load();
-            		file2.load();
-            	} catch (IOException e) {
-            		Activator.statusHandler.handle(
-            				Priority.INFO,
-            				"Error loading XMRG file for "
-            						+ field1 + " or " + field2 
-            						+ " at time "
-            						+ MPEDateFormatter
-            						.format_MMM_dd_yyyy_HH(timeToLoad
-            								.getTime()), e);
-            		continue;
-            	}
-            	
-               	Rectangle fileExtent = file1.getHrapExtent();
-            	short[] file1Data = file1.getData();
-            	short[] file2Data = file2.getData();
-            	           	
-            	for (int y = 0; y < displayExtent.height; ++y) {
-            		for (int x = 0; x < displayExtent.width; ++x) {
-            			
-            			int px = x + displayExtent.x;
-            			int py = y + displayExtent.y;
-            			if (px >= fileExtent.x
-            					&& px < (fileExtent.x + fileExtent.width)
-            					&& py >= fileExtent.y
-            					&& py < (fileExtent.y + fileExtent.height))
-            			{
-            				int frameIdx = y * displayExtent.width + x;
-            				int fx = px - fileExtent.x;
-            				int fy = py - fileExtent.y;
-            				int fileIdx = fy * fileExtent.width + fx;
-            				
-            				short value1 = file1Data[fileIdx];
-            				short value2 = file2Data[fileIdx];
-            				
-            			
-            				short fi = 0;
-            				
-            				if (isDifference)
-            				{
-            					short diffValue = calculateDifference(value1, value2);
-            					fi = diffValue;
-            				}
-            				else if (isRatio)
-            				{
-            					double ratio = calculateRatio(value1, value2);
- 
-            					if (ratio != MISSING_VALUE)
-            					{
-            						fi = (short) ( ratio * RATIO_CONVERSION_FACTOR );
-            					}
-            					else
-            					{
-            						fi = MISSING_VALUE;
-            					}
-            					           				
-            				}
-            				
-            				//short fc = frameData[frameIdx];
-            				//fc is initial value of frameData[frameIdx],
-            				//it is used to help accumulate precip in a multi-hour accum situation
-            				frameData[frameIdx] = fi;
+            if (displayField.isAComparisonField()) {
+                ComparisonFields comparisonFields = displayField
+                        .getComparisonFields();
+                DisplayFieldData field1 = comparisonFields.getField1();
+                DisplayFieldData field2 = comparisonFields.getField2();
 
-            			} //end if (px >=)
-            		} //end  for x
-            	} //end for y
-            	
-            }
-            else //is a non-comparison field
+                XmrgFile file1 = MPEDisplayManager.getXmrgFile(field1,
+                        timeToLoad.getTime());
+
+                XmrgFile file2 = MPEDisplayManager.getXmrgFile(field2,
+                        timeToLoad.getTime());
+
+                boolean isDifference = false;
+                boolean isRatio = false;
+
+                if (displayField.equals(DisplayFieldData.precipDifferenceField)) {
+                    isDifference = true;
+
+                } else if (displayField
+                        .equals(DisplayFieldData.precipRatioField)) {
+                    isRatio = true;
+                }
+
+                try {
+                    file1.load();
+                    file2.load();
+                } catch (IOException e) {
+                    Activator.statusHandler.handle(
+                            Priority.INFO,
+                            "Error loading XMRG file for "
+                                    + field1
+                                    + " or "
+                                    + field2
+                                    + " at time "
+                                    + MPEDateFormatter
+                                            .format_MMM_dd_yyyy_HH(timeToLoad
+                                                    .getTime()), e);
+                    continue;
+                }
+
+                Rectangle fileExtent = file1.getHrapExtent();
+                short[] file1Data = file1.getData();
+                short[] file2Data = file2.getData();
+
+                for (int y = 0; y < displayExtent.height; ++y) {
+                    for (int x = 0; x < displayExtent.width; ++x) {
+
+                        int px = x + displayExtent.x;
+                        int py = y + displayExtent.y;
+                        if (px >= fileExtent.x
+                                && px < (fileExtent.x + fileExtent.width)
+                                && py >= fileExtent.y
+                                && py < (fileExtent.y + fileExtent.height)) {
+                            int frameIdx = y * displayExtent.width + x;
+                            int fx = px - fileExtent.x;
+                            int fy = py - fileExtent.y;
+                            int fileIdx = fy * fileExtent.width + fx;
+
+                            short value1 = file1Data[fileIdx];
+                            short value2 = file2Data[fileIdx];
+
+                            short fi = 0;
+
+                            if (isDifference) {
+                                short diffValue = calculateDifference(value1,
+                                        value2);
+                                fi = diffValue;
+                            } else if (isRatio) {
+                                double ratio = calculateRatio(value1, value2);
+
+                                if (ratio != MISSING_VALUE) {
+                                    fi = (short) (ratio * RATIO_CONVERSION_FACTOR);
+                                } else {
+                                    fi = MISSING_VALUE;
+                                }
+
+                            }
+
+                            // short fc = frameData[frameIdx];
+                            // fc is initial value of frameData[frameIdx],
+                            // it is used to help accumulate precip in a
+                            // multi-hour accum situation
+                            frameData[frameIdx] = fi;
+
+                        } // end if (px >=)
+                    } // end for x
+                } // end for y
+
+            } else // is a non-comparison field
             {
 
-            	XmrgFile file = MPEDisplayManager.getXmrgFile(displayField,
-            			timeToLoad.getTime()); 
-            	try {
-            	    long fileLength = file.getFile().length();
-            	    //System.out.printf("FileName = %s, length = %d\n", file.getFile().getPath(), fileLength);
-            	    if (fileLength > 0)
-            	    {
-            	        file.load();
-            	    }
-            	    else //can't read the file since it is empty
-            	    {
-            	        continue;
-            	    }
-            	} catch (IOException e) {
-            		Activator.statusHandler.handle(
-            				Priority.INFO,
-            				"Error loading XMRG file for "
-            						+ displayField
-            						+ " at time "
-            						+ MPEDateFormatter
-            						.format_MMM_dd_yyyy_HH(timeToLoad
-            								.getTime()), e);
-            		continue;
-            	}
+                XmrgFile file = MPEDisplayManager.getXmrgFile(displayField,
+                        timeToLoad.getTime());
+                try {
+                    long fileLength = file.getFile().length();
+                    // System.out.printf("FileName = %s, length = %d\n",
+                    // file.getFile().getPath(), fileLength);
+                    if (fileLength > 0) {
+                        file.load();
+                    } else // can't read the file since it is empty
+                    {
+                        continue;
+                    }
+                } catch (IOException e) {
+                    Activator.statusHandler.handle(
+                            Priority.INFO,
+                            "Error loading XMRG file for "
+                                    + displayField
+                                    + " at time "
+                                    + MPEDateFormatter
+                                            .format_MMM_dd_yyyy_HH(timeToLoad
+                                                    .getTime()), e);
+                    continue;
+                }
 
-       
+                Rectangle fileExtent = file.getHrapExtent();
+                short[] fileData = file.getData();
+                for (int y = 0; y < displayExtent.height; ++y) {
+                    for (int x = 0; x < displayExtent.width; ++x) {
+                        int px = x + displayExtent.x;
+                        int py = y + displayExtent.y;
+                        if (px >= fileExtent.x
+                                && px < (fileExtent.x + fileExtent.width)
+                                && py >= fileExtent.y
+                                && py < (fileExtent.y + fileExtent.height)) {
+                            int frameIdx = y * displayExtent.width + x;
+                            int fx = px - fileExtent.x;
+                            int fy = py - fileExtent.y;
+                            int fileIdx = fy * fileExtent.width + fx;
+                            short fi = fileData[fileIdx];
+                            short fc = frameData[frameIdx];
 
-            	Rectangle fileExtent = file.getHrapExtent();
-            	short[] fileData = file.getData();
-            	for (int y = 0; y < displayExtent.height; ++y) {
-            		for (int x = 0; x < displayExtent.width; ++x) {
-            			int px = x + displayExtent.x;
-            			int py = y + displayExtent.y;
-            			if (px >= fileExtent.x
-            					&& px < (fileExtent.x + fileExtent.width)
-            					&& py >= fileExtent.y
-            					&& py < (fileExtent.y + fileExtent.height)) {
-            				int frameIdx = y * displayExtent.width + x;
-            				int fx = px - fileExtent.x;
-            				int fy = py - fileExtent.y;
-            				int fileIdx = fy * fileExtent.width + fx;
-            				short fi = fileData[fileIdx];
-            				short fc = frameData[frameIdx];
-            				
-            				if (fc < 0 && fi >= 0) 
-            				{
-            					//orig precip is missing, and this hour's value is valid (> = 0)
-            					// so set the value to the current hour's value
-            					frameData[frameIdx] = fi;
-            				}
-            				else if (fc >= 0 && fi > 0)
-            				{
-            					//some previous hour's precip has been recorded and this hour's value is valid (> = 0)
-            					//so accumulate
-            					frameData[frameIdx] += fi;
-            				}
-            			} //end if (px >=)
-            		} //end  for x
-            	} //end for y
-            } //end else is a non-comparison field
-            
-        } //end for i
+                            if (fc < 0 && fi >= 0) {
+                                // orig precip is missing, and this hour's value
+                                // is valid (> = 0)
+                                // so set the value to the current hour's value
+                                frameData[frameIdx] = fi;
+                            } else if (fc >= 0 && fi > 0) {
+                                // some previous hour's precip has been recorded
+                                // and this hour's value is valid (> = 0)
+                                // so accumulate
+                                frameData[frameIdx] += fi;
+                            }
+                        } // end if (px >=)
+                    } // end for x
+                } // end for y
+            } // end else is a non-comparison field
+
+        } // end for i
 
         return new MPEFieldFrame(currTime.getRefTime(), frameData,
                 PolygonEditManager.getPolygonEdits(resourceData.getFieldData(),
                         currTime.getRefTime()));
     }
-    
-    private short calculateDifference(short value1, short value2)
-    {
+
+    private short calculateDifference(short value1, short value2) {
         short result = 0;
-        
-        if (( value1 >= 0) && (value2 >= 0) )
-        {
-            result = (short) (value1 - value2 );
-        }
-        else
-        {
+
+        if ((value1 >= 0) && (value2 >= 0)) {
+            result = (short) (value1 - value2);
+        } else {
             result = MISSING_VALUE;
         }
-        
-        
-       
-        
+
         return result;
-        
+
     }
-    
-    
-    private double calculateRatio(short numerator, short denominator)
-    {
-		double result = 0;
-		
-		if (denominator > 0)
-		{
-			if (numerator >= 0)
-			{
-				result = numerator / denominator;
-			}
-			else
-			{
-				result = MISSING_VALUE;
-			}
-		}
-		
-		else if (denominator == 0)
-		{
-			if (numerator == 0)
-			{
-				result = 1.0; //if no rain, they are in agreeement, so show this
-			}
-			else if (numerator > 0)
-			{
-				result = BIG_VALUE;
-			}
-			else // numerator is missing
-			{
-				result = MISSING_VALUE;
-			}
-		}
-		else
-		{
-			result = MISSING_VALUE;
-		}
-	
-		return result;
-	
+
+    private double calculateRatio(short numerator, short denominator) {
+        double result = 0;
+
+        if (denominator > 0) {
+            if (numerator >= 0) {
+                result = numerator / denominator;
+            } else {
+                result = MISSING_VALUE;
+            }
+        }
+
+        else if (denominator == 0) {
+            if (numerator == 0) {
+                result = 1.0; // if no rain, they are in agreeement, so show
+                              // this
+            } else if (numerator > 0) {
+                result = BIG_VALUE;
+            } else // numerator is missing
+            {
+                result = MISSING_VALUE;
+            }
+        } else {
+            result = MISSING_VALUE;
+        }
+
+        return result;
+
     }
-    
 
     /*
      * (non-Javadoc)
@@ -610,66 +600,63 @@ public class MPEFieldResource extends
         int length = data.length;
         short[] imageData = new short[length];
         switch (cvuse) {
-            case Locbias:
-            case LocbiasDP:
-            case Height:
-            case Index:
-            case Locspan:
-            case LocspanDP:
-            case mintempPrism:
-            case maxtempPrism:
-            	for (int i = 0; i < length; ++i) {
-                    short value = data[i];
-                    if (value == MISSING_VALUE) {
-                        imageData[i] = 0;
-                    } else {
-                        imageData[i] = (short) dataToImage.convert(value);
-                    }
-                } 
-            	break;
-            
-            case Prism:
-                for (int i = 0; i < length; ++i) {
-                    short value = data[i];
-                    if (value < 0) {
-                        imageData[i] = 0;
-                    } else {
-                        imageData[i] = (short) dataToImage.convert(value);
-                    }
-                } 
-                break;   
-            	
-            case precipDifferenceField:
-            case precipRatioField:
-            	for (int i = 0; i < length; ++i) {
-                    short value = data[i];
-                    if (value == MISSING_VALUE) {
-                        imageData[i] = 0;
-                    } 
-                    else 
-                    {
-                        imageData[i] = (short) dataToImage.convert(value);
-                    }        	
-                } 
-            	break;
-            	
-                
-            default :
-            	for (int i = 0; i < length; ++i) {
-                    short value = data[i];
-                    if (value == MISSING_VALUE) {
-                        imageData[i] = 0;
-                    } else if(value <= 0){
-                	    imageData[i] = 1;
-                    } else if(value > 0 && value < 25){
-                    	value = 10;
-                	    imageData[i] = (short) dataToImage.convert(value);
-                    } else {
-                        imageData[i] = (short) dataToImage.convert(value);
-                    }        	
-                } 
-            	break;
+        case Locbias:
+        case LocbiasDP:
+        case Height:
+        case Index:
+        case Locspan:
+        case LocspanDP:
+        case mintempPrism:
+        case maxtempPrism:
+            for (int i = 0; i < length; ++i) {
+                short value = data[i];
+                if (value == MISSING_VALUE) {
+                    imageData[i] = 0;
+                } else {
+                    imageData[i] = (short) dataToImage.convert(value);
+                }
             }
+            break;
+
+        case Prism:
+            for (int i = 0; i < length; ++i) {
+                short value = data[i];
+                if (value < 0) {
+                    imageData[i] = 0;
+                } else {
+                    imageData[i] = (short) dataToImage.convert(value);
+                }
+            }
+            break;
+
+        case precipDifferenceField:
+        case precipRatioField:
+            for (int i = 0; i < length; ++i) {
+                short value = data[i];
+                if (value == MISSING_VALUE) {
+                    imageData[i] = 0;
+                } else {
+                    imageData[i] = (short) dataToImage.convert(value);
+                }
+            }
+            break;
+
+        default:
+            for (int i = 0; i < length; ++i) {
+                short value = data[i];
+                if (value == MISSING_VALUE) {
+                    imageData[i] = 0;
+                } else if (value <= 0) {
+                    imageData[i] = 1;
+                } else if (value > 0 && value < 25) {
+                    value = 10;
+                    imageData[i] = (short) dataToImage.convert(value);
+                } else {
+                    imageData[i] = (short) dataToImage.convert(value);
+                }
+            }
+            break;
+        }
         return new GriddedImageDisplay2(ShortBuffer.wrap(imageData),
                 gridGeometry, this);
     }

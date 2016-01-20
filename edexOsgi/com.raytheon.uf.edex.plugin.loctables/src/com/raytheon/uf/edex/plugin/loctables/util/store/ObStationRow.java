@@ -35,6 +35,7 @@ import com.vividsolutions.jts.geom.Point;
  * ------------ ---------- ----------- --------------------------
  * Apr 14, 2010            jkorman     Initial creation
  * Oct 12, 2015 4911       rjpeter     Updated requiresUpdate.
+ * Dec 04, 2015 4911       rjpeter     Added additional fields to requiresUpdate.
  * </pre>
  * 
  * @author jkorman
@@ -346,6 +347,14 @@ public class ObStationRow {
     public boolean requiresUpdate(ObStation b) {
         boolean newStation = false;
 
+        /*
+         * For non ICAO stations this isn't part of the key
+         */
+        if (copyItem(getIcao(), b.getIcao())) {
+            b.setIcao(getIcao());
+            newStation = true;
+        }
+
         if (copyItem(getName(), b.getName())) {
             b.setName(getName());
             newStation = true;
@@ -358,6 +367,11 @@ public class ObStationRow {
 
         if (copyItem(getState(), b.getState())) {
             b.setState(getState());
+            newStation = true;
+        }
+
+        if (copyItem(getWmoIndex(), b.getWmoIndex())) {
+            b.setWmoIndex(getWmoIndex());
             newStation = true;
         }
 

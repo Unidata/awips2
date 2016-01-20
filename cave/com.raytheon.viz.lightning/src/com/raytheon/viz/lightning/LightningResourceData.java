@@ -22,8 +22,10 @@ package com.raytheon.viz.lightning;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -34,12 +36,18 @@ import javax.xml.bind.annotation.XmlElement;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
 import com.raytheon.uf.common.dataplugin.binlightning.LightningConstants;
+import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.SimulatedTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
@@ -50,16 +58,19 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Feb 18, 2009            chammack     Initial creation
- * Feb 27, 2013 DCS 152    jgerth       Support for WWLLN and multiple sources
- * Jun 19, 2014 3214       bclement     added pulse and cloud flash support
- * Jul 07, 2014 3333       bclement     removed plotLightSource field
- * Mar 05, 2015 4233       bsteffen     include source in cache key.
- * Jul 01, 2015 4597       bclement     added DisplayType
- * Jul 02, 2015 4605       bclement     don't show current bin as available
- * Sep 25, 2015 4605       bsteffen     repeat binning
+ * 
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Feb 18, 2009  1959     chammack  Initial creation
+ * Feb 27, 2013  DCS 152  jgerth    Support for WWLLN and multiple sources
+ * Jun 19, 2014  3214     bclement  added pulse and cloud flash support
+ * Jul 07, 2014  3333     bclement  removed plotLightSource field
+ * Mar 05, 2015  4233     bsteffen  include source in cache key.
+ * Jul 01, 2015  4597     bclement  added DisplayType
+ * Jul 02, 2015  4605     bclement  don't show current bin as available
+ * Sep 25, 2015  4605     bsteffen  repeat binning
+ * Nov 04, 2015  5090     bsteffen  Add ability to get available times from a
+ *                                  range.
  * 
  * </pre>
  * 
@@ -156,6 +167,55 @@ public class LightningResourceData extends AbstractRequestableResourceData {
             rval = pastTimes.toArray(new DataTime[0]);
         }
         return rval;
+    }
+
+    @Override
+    protected DataTime[] getAvailableTimes(
+            Map<String, RequestConstraint> constraintMap, BinOffset binOffset)
+            throws VizException {
+        if (binOffset != null
+                && binOffset.getInterval() <= TimeUtil.SECONDS_PER_MINUTE) {
+            return getAvailableTimesFromRange(constraintMap, binOffset);
+        } else {
+            return super.getAvailableTimes(constraintMap, binOffset);
+
+        }
+    }
+
+    /**
+     * Replacement for {@link #getAvailableTimes(Map, BinOffset)} that includes
+     * the binned end times in the result. Normally binning is only applied to
+     * the start time of the range, so it is possible to miss frames where data
+     * is available at the end of the range. For very small bins it is necessary
+     * to use both start and end time to ensure all frames are displayed.
+     */
+    protected DataTime[] getAvailableTimesFromRange(
+            Map<String, RequestConstraint> constraintMap, BinOffset binOffset)
+            throws VizException {
+        DbQueryRequest request = new DbQueryRequest(constraintMap);
+        request.addRequestField(PluginDataObject.STARTTIME_ID);
+        request.addRequestField(PluginDataObject.ENDTIME_ID);
+        request.setDistinct(true);
+        DbQueryResponse response = (DbQueryResponse) ThriftClient
+                .sendRequest(request);
+        Date[] startTimes = response.getFieldObjects(
+                PluginDataObject.STARTTIME_ID, Date.class);
+        Date[] endTimes = response.getFieldObjects(PluginDataObject.ENDTIME_ID,
+                Date.class);
+        Set<DataTime> binnedTimes = new HashSet<>(startTimes.length);
+        for (Date time : startTimes) {
+            DataTime dataTime = new DataTime(time);
+            dataTime = binOffset.getNormalizedTime(dataTime);
+            binnedTimes.add(dataTime);
+        }
+        for (Date time : endTimes) {
+            DataTime dataTime = new DataTime(time);
+            dataTime = binOffset.getNormalizedTime(dataTime);
+            binnedTimes.add(dataTime);
+        }
+        DataTime[] allTimes = binnedTimes.toArray(new DataTime[0]);
+        Arrays.sort(allTimes);
+        return allTimes;
     }
 
     @Override

@@ -3194,7 +3194,10 @@
         <name>MOSGuide</name>
         <center>7</center>
         <subcenter>14</subcenter>
-        <grid>184</grid>
+        <grids>
+            <id>184</id>
+            <id>NBM</id>
+        </grids>
         <process>
             <id>96</id>
         </process>
@@ -3305,7 +3308,10 @@
         <name>EKDMOS</name>
         <center>7</center>
         <subcenter>14</subcenter>
-        <grid>184</grid>
+        <grids>
+            <id>184</id>
+            <id>NBM</id>
+        </grids>
         <process>
             <id>114</id>
         </process>

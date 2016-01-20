@@ -41,6 +41,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * May 15, 2014 3086       skorolev     Changed type for timeWindow element.
  * Sep 03, 2015 3841       skorolev     Added containsArea method.
  * 
+ * 
  * </pre>
  * 
  * @author lvenable

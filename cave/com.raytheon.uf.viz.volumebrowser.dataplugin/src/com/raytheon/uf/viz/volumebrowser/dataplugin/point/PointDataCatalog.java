@@ -75,6 +75,7 @@ import com.vividsolutions.jts.geom.LineString;
  * Jul 23, 2014  3410     bclement  location changed to floats
  * Sep 09, 2014  3356     njensen   Remove CommunicationException
  * Aug 03, 2015  3861     bsteffen  Move resource creation to ProductCreators
+ * Oct 22, 2015  4970     bsteffen  Add ldadmesonet to supported plugins.
  * 
  * </pre>
  * 
@@ -320,7 +321,7 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
     @Override
     protected String[] getPlugins() {
         return new String[] { "goessounding", "poessounding", "profiler",
-                "bufrua", "obs", "bufrmosLAMP" };
+                "bufrua", "obs", "bufrmosLAMP", "ldadmesonet" };
         // njensen removed bufrmosAVN, bufrmosETA, bufrmosGFS, bufrmosHPC,
         // bufrmosMRF, bufrmosNGM
         // TODO ideally this list should not be in code, and should contain all

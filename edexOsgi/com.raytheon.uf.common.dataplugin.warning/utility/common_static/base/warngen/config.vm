@@ -3,8 +3,9 @@
 ## If you have any questions please contact Evan Bookbinder - WFO EAX
 ## CREATED 9/20/2013
 ## Edited by Mike Rega       01-17-2014 added Alaska changes for 14.12.1
-## Edited by Evan Bookbinder 09-16-2014 Changes for 2015 Impact-based warnings
 ## Edited by Evan Bookbinder 03-23-2015 Changes for mixed-case!
+## Edited by Evan Bookbinder 10-23-2015 Changes for 2016 Impact-based warnings
+##                                      SITES WILL NEED TO MERGE OVERRIDES
 ############################################################################
 ### SET LAND REFERENCE DISTANCE UNITS (UNIT is in ALL CAPS)
 #set($landDistanceUnits = "MILES")
@@ -18,9 +19,9 @@
 ### SET "NEAR" WORDING
 #set($nearPhrase = "near")
 
-### SET DISTANCE (LAND) AT OR BELOW WHICH STORM REFERENCE MILEAGE WILL BE SHOWN AS"OVER"
+### SET DISTANCE (LAND) AT OR BELOW WHICH STORM REFERENCE MILEAGE WILL BE SHOWN AS "OVER"
 #set($maxLandOverDistance = 2)
-### SET DISTANCE (LAND) AT OR BELOW WHICH STORM REFERENCE MILEAGE WILL BE SHOWN AS"OVER"
+### SET DISTANCE (LAND) AT OR BELOW WHICH STORM REFERENCE MILEAGE WILL BE SHOWN AS "OVER"
 #set($maxMarineOverDistance = 2)
 ### SET "OVER" WORDING
 #set($overPhrase = "over")
@@ -71,9 +72,6 @@
 ###
 ### CHANGES BELOW ANTICIPATED FOR 2016 IBW EXPERIMENT.
 ###
-#set($svrHailConsiderableThreshold = 1.75)
-#set($svrHailExtremeThreshold = 4)
+#set($svrHailConsiderableThreshold = 2.75)
 #set($svrWindConsiderableThreshold = 80)
-#set($svrWindExtremeThreshold = 100)
-#set($svrDamageConsiderablePhrase = "SEVERE DAMAGE THREAT...CONSIDERABLE")
-#set($svrDamageExtremePhrase = "SEVERE DAMAGE THREAT...EXTREME")
+#set($svrDamageThreat = "SEVERE DAMAGE THREAT...CONSIDERABLE")

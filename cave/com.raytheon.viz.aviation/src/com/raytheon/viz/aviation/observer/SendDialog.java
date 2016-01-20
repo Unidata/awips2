@@ -31,6 +31,7 @@ import java.util.regex.Pattern;
 import javax.xml.bind.JAXB;
 
 import org.apache.commons.collections.ListUtils;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -51,8 +52,10 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.tafqueue.ServerResponse;
 import com.raytheon.uf.common.tafqueue.TafQueueRecord;
+import com.raytheon.uf.common.tafqueue.TafQueueRecord.TafQueueState;
 import com.raytheon.uf.common.tafqueue.TafQueueRequest;
 import com.raytheon.uf.common.tafqueue.TafQueueRequest.Type;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.auth.UserController;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
@@ -84,6 +87,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 06May2014    3091       rferrel     Use OUP authorization to bring up send dialog.
  * 20May2015    4510       rferrel     Added {@link #getForecasterId()}.
  * Sep 25, 2015 4918       rferrel     Allow selection of forecaster to send a TAF.
+ * Nov 06, 2015 5108       rferrel     Display warning when forecast xmittime will result in a
+ *                                      header time the same as any existing pending forecast.
  * 
  * </pre>
  * 
@@ -456,15 +461,66 @@ public class SendDialog extends CaveSWTDialog {
         request.setType(Type.CREATE);
         request.setUser(UserController.getUserObject());
 
-        Calendar xmitTime = Calendar.getInstance();
-        xmitTime.setTimeZone(TimeZone.getTimeZone("GMT"));
+        Calendar xmitTime = TimeUtil.newGmtCalendar();
         xmitTime.set(Calendar.HOUR_OF_DAY, hourSpnr.getSelection());
         xmitTime.set(Calendar.MINUTE, minuteSpnr.getSelection());
         xmitTime.set(Calendar.SECOND, secondSpnr.getSelection());
+        xmitTime.set(Calendar.MILLISECOND, 0);
         String xmitTimestamp = String.format(TIMESTAMP_FORMAT,
                 xmitTime.get(Calendar.DAY_OF_MONTH),
                 xmitTime.get(Calendar.HOUR_OF_DAY),
                 xmitTime.get(Calendar.MINUTE));
+
+        /*
+         * Check for pending entries with same xmitTimestamp. The header
+         * timestamp is always adjusted to the xmitTimestamp.
+         */
+        TafQueueRequest pendingRequest = new TafQueueRequest();
+        pendingRequest.setType(Type.GET_TAFS);
+        pendingRequest.setUser(UserController.getUserObject());
+        pendingRequest.setXmitTime(xmitTime.getTime());
+        pendingRequest.setState(TafQueueState.PENDING);
+        ServerResponse<List<String>> pendingResponse = null;
+        try {
+            pendingResponse = (ServerResponse<List<String>>) ThriftClient
+                    .sendRequest(pendingRequest);
+        } catch (VizException e1) {
+            String msg = "Unable to get pending TAFs. ";
+            statusHandler.handle(Priority.PROBLEM, msg, e1);
+            msgStatComp.setMessageText(msg,
+                    shell.getDisplay().getSystemColor(SWT.COLOR_RED).getRGB());
+            return;
+        }
+
+        List<String> pendingList = pendingResponse.getPayload();
+
+        if (!pendingList.isEmpty()) {
+            StringBuilder message = new StringBuilder("The pending queue ");
+            if (pendingList.size() == 1) {
+                message.append("has a product with the same header time");
+            } else {
+                message.append("has products with the same header time");
+            }
+
+            msgStatComp.setMessageText(message.toString() + ".", shell
+                    .getDisplay().getSystemColor(SWT.COLOR_RED).getRGB());
+            message.append(":\n");
+            for (String filename : pendingList) {
+                message.append(filename.split(",", 2)[1]).append("\n");
+            }
+            message.append("\nSelect OK to transmit this product with the same header time.");
+
+            MessageDialog dlg = new MessageDialog(shell,
+                    "Duplicate Transmission Time", null, message.toString(),
+                    MessageDialog.WARNING, new String[] { "OK", "Cancel" }, 1);
+            if (0 != dlg.open()) {
+                return;
+            } else {
+                statusHandler
+                        .info("WARNING multiple products with same header time in the pending queue.");
+            }
+        }
+
         // BBB
         String in = tabComp.getTextEditorControl().getText();
         String bbb = tabComp.getBBB();

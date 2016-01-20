@@ -151,6 +151,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * May  7, 2015 ASM #17438 D. Friedman Clean up debug and performance logging.
  * May 29, 2015   4440     randerso    Fix resource leak (file not closed)
  * Jul 15, 2015 DR17716 mgamazaychikov Change to Geometry class in total intersection calculations.
+ * Oct 21, 2105   5021     randerso    Fix issue with CORs for mixed case
  * </pre>
  * 
  * @author njensen
@@ -356,15 +357,13 @@ public class TemplateRunner {
                                             .getNumGeometries()];
                                     n1 = warningArea.getNumGeometries();
                                     for (int j = 0; j < n1; j++) {
-                                        poly1[j] = warningArea
-                                                .getGeometryN(j);
+                                        poly1[j] = warningArea.getGeometryN(j);
                                     }
                                     poly2 = new Geometry[timezoneGeom
                                             .getNumGeometries()];
                                     n2 = timezoneGeom.getNumGeometries();
                                     for (int j = 0; j < n2; j++) {
-                                        poly2[j] = timezoneGeom
-                                                .getGeometryN(j);
+                                        poly2[j] = timezoneGeom.getGeometryN(j);
                                     }
                                     // Calculate the total size of intersection
                                     for (Geometry p1 : poly1) {
@@ -685,7 +684,7 @@ public class TemplateRunner {
                 // track
                 context.put("corEventTime", eventTime);
 
-                String message = oldWarn.getRawmessage();
+                String message = oldWarn.getRawmessage().toUpperCase();
                 if (!stormTrackState.originalTrack) {
                     context.put("TMLtime", oldWarn.getStartTime().getTime());
                 } else {
@@ -735,21 +734,26 @@ public class TemplateRunner {
                 if (oldWarn.getAct().equals("NEW")) {
                     int untilIndex = message.indexOf("UNTIL");
                     int atIndex = -1;
-                    int elipsisIndex = -1;
+                    int hhmmEnd = -1;
                     if (untilIndex > 0) {
                         atIndex = message.indexOf("AT", untilIndex);
                         if (atIndex > 0) {
-                            int hhmmIndex = atIndex + 3;
-                            elipsisIndex = message.indexOf("...", hhmmIndex);
-                            if (elipsisIndex > 0) {
-                                context.put("corToNewMarker", "cortonewmarker");
-                                context.put("corEventtime", message.substring(
-                                        hhmmIndex, elipsisIndex));
+                            int hhmmStart = atIndex + 3;
+                            hhmmEnd = message.indexOf(", ", hhmmStart);
+                            if (hhmmEnd < 0) {
+                                // check for ellipsis
+                                hhmmEnd = message.indexOf("...", hhmmStart);
+                            } else {
+                                if (hhmmEnd > 0) {
+                                    context.put("corToNewMarker", "cortonewmarker");
+                                    context.put("corEventtime",
+                                            message.substring(hhmmStart, hhmmEnd));
+                                }
                             }
                         }
                     }
-                    if ((untilIndex < 0) || (atIndex < 0) || (elipsisIndex < 0)) {
-                        throw new VizException("Cannot find * AT line.");
+                    if ((untilIndex < 0) || (atIndex < 0) || (hhmmEnd < 0)) {
+                        throw new VizException("Cannot find * At line.");
                     }
                 }
 

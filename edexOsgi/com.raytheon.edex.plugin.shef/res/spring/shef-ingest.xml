@@ -30,7 +30,7 @@
 	</bean>
 
 	<bean id="synopticToShefFilter"
-		class="com.raytheon.uf.edex.decodertools.core.filterimpl.PluginDataObjectFilter">
+		class="com.raytheon.edex.transform.shef.SynopticToShefFilter">
 		<constructor-arg type="java.lang.String" value="synopticToShefFilter.xml" />
 		<constructor-arg type="java.lang.String" value="SITE" />
 	</bean>

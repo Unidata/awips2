@@ -54,6 +54,7 @@ import com.raytheon.uf.common.wmo.WMOTimeParser;
  * 20120918           1185 jkorman     Added save to archive capability.  
  * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
  * Jul 01, 2015 16903      lbousaidi   added routine for synoptic data
+ * Oct 29, 2015 4783       bkowal      Made {@link #metar2ShefOptions} protected.
  * </pre>
  * 
  * @author jkorman
@@ -123,7 +124,7 @@ public abstract class AbstractShefTransformer<T extends PluginDataObject>
 
     private String commandLineOptions = null;
 
-    private String metar2ShefOptions = null;
+    protected String metar2ShefOptions = null;
 
     private boolean archiveEnabled = false;
     

@@ -1,9 +1,3 @@
-#--------------------------------------------------------------------------
-# SVN: $Revision$ - $Date$
-#
-#     Converted with gfePorter R3342 on Oct 01, 2013 18:43 GMT
-#     Not tested. Remove these 2 lines when ported and tested.
-#
 # ----------------------------------------------------------------------------
 # This software is in the public domain, furnished "as is", without technical
 # support, and with no warranty, express or implied, as to its usefulness for
@@ -12,7 +6,7 @@
 # CopyNHCProposed
 #
 # Author: T LeFebvre/P. Santos
-# Last Modified: Sept 18, 2014
+# Last Modified: Dec 10, 2015 for 16.1.2
 # ----------------------------------------------------------------------------
 
 # The MenuItems list defines the GFE menu item(s) under which the
@@ -54,27 +48,13 @@ class Procedure (SmartScript.SmartScript):
     # This method will work in either an AWIPS I or AWIPS II environment.
     def makeTimeRange(self, start=0, end=0):            
         
-        try:  # AWIPS 1 code
-            import TimeRange
-            import AbsTime
-            import AFPS
-            if start == 0 and end == 0:
-                return TimeRange.TimeRange.allTimes()
+        if start == 0 and end == 0:
+            return TimeRange.allTimes()
             
-            startTime = AbsTime.AbsTime(start)
-            endTime = AbsTime.AbsTime(end)
+        startTime = AbsTime.AbsTime(start)
+        endTime = AbsTime.AbsTime(end)
     
-            tr = TimeRange.TimeRange(startTime, endTime)
-
-        except:   # AWIPS 2 code
-            import TimeRange, AbsTime
-            if start == 0 and end == 0:
-                return TimeRange.allTimes()
-            
-            startTime = AbsTime.AbsTime(start)
-            endTime = AbsTime.AbsTime(end)
-    
-            tr = TimeRange.TimeRange(startTime, endTime)
+        tr = TimeRange.TimeRange(startTime, endTime)
 
         return tr
 
@@ -116,7 +96,6 @@ class Procedure (SmartScript.SmartScript):
             return 
 
         weNames = ["ProposedSS"]
-        #weNames = ["ProposedSS"]
 
         # Remove any pre-existing grids first
         for weName in weNames:
@@ -141,9 +120,15 @@ class Procedure (SmartScript.SmartScript):
                 continue
 
             gridTR = trList[-1]  # only interested in the latest grid
-            
+           
             iscGrid, iscKeys = self.getGrids("ISC", iscWeName, "SFC", gridTR)
+            
+            start = gridTR.endTime().unixTime() - (48 * 3600)
+            end = gridTR.endTime().unixTime()
+            createTR = self.makeTimeRange(start, end)
 
             self.createGrid("Fcst", weName, "DISCRETE", (iscGrid, iscKeys),
-                            timeRange, discreteKeys=iscKeys, discreteOverlap=0,
+                            createTR, discreteKeys=iscKeys, discreteOverlap=0,
+                            #trList, discreteKeys=iscKeys, discreteOverlap=0,
                             discreteAuxDataLength=0, defaultColorTable="StormSurgeHazards")
+                            

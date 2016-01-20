@@ -26,7 +26,7 @@
 -Dlogback.statusListenerClass=com.raytheon.uf.common.logback.UFLogbackInternalStatusListener
 -Dthrift.stream.maxsize=200
 -Dviz.memory.warn.threshold=98
--Dhttps.certificate.check=false
+-Dhttps.certificate.check=true
 -XX:+UnlockExperimentalVMOptions
 -XX:G1HeapRegionSize=4M
 -XX:InitiatingHeapOccupancyPercent=25
@@ -105,7 +105,6 @@
       <feature id="com.raytheon.viz.hydro.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.uf.viz.dat.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.uf.viz.d2d.gfe.feature" version="1.0.0.qualifier"/>
-      <feature id="com.raytheon.uf.viz.collaboration.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.uf.viz.d2d.damagepath.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.uf.viz.gisdatastore.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.uf.viz.d2d.ui.awips.feature" version="1.0.0.qualifier"/>

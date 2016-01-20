@@ -70,6 +70,7 @@ import com.raytheon.viz.aviation.monitor.GfsMonitorObserver;
 import com.raytheon.viz.aviation.monitor.IGridDataRetrieveListener;
 import com.raytheon.viz.aviation.monitor.LtgMonitorObserver;
 import com.raytheon.viz.aviation.monitor.MetarMonitorObserver;
+import com.raytheon.viz.aviation.monitor.NotifyAudioManager;
 import com.raytheon.viz.aviation.monitor.PythonMonitorJob;
 import com.raytheon.viz.aviation.monitor.RltgMonitorObserver;
 import com.raytheon.viz.aviation.monitor.ScheduledMonitorTask;
@@ -95,11 +96,11 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * TafMonitorDlg (Terminal Aerodome Forecast Monitor Dialog) class.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 1/24/2008    817         grichard    Initial creation.
@@ -147,9 +148,10 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 03/07/2013   1735        rferrel     Performance speed up for retrieving grid data.
  * 08/09/2013   2033        mschenke    Switched File.separator to IPathManager.SEPARATOR
  * Sep 15, 2015 4880        njensen     Removed reference to ForecastModel
- * 
+ * 10/20/2015   17445       yteng       Reset alert time for audio alert.
+ *
  * </pre>
- * 
+ *
  * @author grichard
  * @version 1.0
  */
@@ -331,6 +333,7 @@ public class TafMonitorDlg extends CaveSWTDialog implements
         initializeData();
         initializeComponents();
         setupMonitoring();
+        NotifyAudioManager.resetAlertTime();
 
         shell.addShellListener(new ShellAdapter() {
             @Override

@@ -1,25 +1,28 @@
-##########################################################
-## TORNADO WARNING TEMPLATE                             ##
-## FOR CR IMPACT BASED TOR INITIATIVE                   ## 
-## CREATED BY PHIL KURIMSKI - WFO DTX                   ##
-## UPDATED -- 2-04-2012 OB13.2.1-5 impact stmts         ##
-## UPDATED -- Bookbinder 2/22/13 2013 IBW Changes       ##
-## UPDATED -- Kurimski 5/20/13 Addl IBW Changes         ##
-## UPDATED -- Kurimski 9/17/13 Tor Emer Headline        ##
-## UPDATED -- Bookbinder 9/18/2013 implement config.vm  ## 
-## UPDATED -- Dangelo 1/24/2014 added logic to keep defaultCTAs 
-##            from being used in a TOR EMER (duplication) ##
-## UPDATED -- Bookbinder 2/27/2014 TOR EMER CTA           ##
+#############################################################################
+## IMPACT-BASED TORNADO WARNING TEMPLATE                             	   ##
+## CREATED BY PHIL KURIMSKI - WFO GRB                                      ##
+## UPDATED -- 2-04-2012 OB13.2.1-5 impact stmts                            ##
+## UPDATED -- Bookbinder 2/22/13 2013 IBW Changes                          ##
+## UPDATED -- Kurimski 5/20/13 Addl IBW Changes                            ##
+## UPDATED -- Kurimski 9/17/13 Tor Emer Headline                           ##
+## UPDATED -- Bookbinder 9/18/2013 implement config.vm                     ## 
+## UPDATED -- Dangelo 1/24/2014 added logic to keep defaultCTAs from being ##
+##                              used in a TOR EMER (duplication)           ##
+## UPDATED -- Bookbinder 2/27/2014 TOR EMER CTA                            ##
 ## UPDATED -- Bookbinder 6/24/14 Added code to prevent Lg/Vlnt TOR w/ base ##
-## UPDATED -- Tomalak/Bookbinder 3/24/15 CONVERT TO MIXED CASE  ##
-## UPDATED -- Phil Kurimski   3/26/2015 Fixed Preamble  ##
-################################################################
+## UPDATED -- Tomalak/Bookbinder 3/24/15 CONVERT TO MIXED CASE             ##
+## UPDATED -- Phil Kurimski   3/26/2015 Fixed Preamble                     ##
+## UPDATED -- Bookbinder 6/15/15 Fixed softball and grapefruit hail sizes  ##
+## UPDATED -- Phil Kurimski 10-20-2015 Added waterspout option to basis    ##
+##            Bookbinder 10-20-2015 Fixed extraSource var for tornado info ##
+##            Bookbinder 12-07-15 fixed lowercase preAmble on lne 283      ##
+#############################################################################
 ## NOTE: Impact Statements for IBW templates are contained in impactStatements.vm
 ################################################################
 ## ESTABLISH SOME INITIAL VARIABLES ############################
 ################################################################
 #parse("config.vm")
-#set($preAmble = "Take cover now! ")
+#set($preAmble = "TAKE COVER NOW! ")
 #set($hailSize = 0) 
 #set($reportType = "A tornado was reported")
 #set($pathcastLead = "This tornadic storm")
@@ -161,17 +164,17 @@
   #set($hailTag = "3.00IN")
   #set($hailHazard = "hail up to three inches in diameter")
 #end
-#if(${list.contains(${bullets}, "grapefruitHail")})
-  #set($hailThreat = "dangerous and extremely large destructive hail up to grapefruit size") 
-  #set($hailSize = 4.00)
-  #set($hailTag = "4.00IN")
-  #set($hailHazard = "grapefruit size hail")
-#end
 #if(${list.contains(${bullets}, "softballHail")})
   #set($hailThreat = "dangerous and extremely large destructive hail up to softball size") 
-  #set($hailSize = 4.25)
-  #set($hailTag = "4.25IN")
+  #set($hailSize = 4.00)
+  #set($hailTag = "4.00IN")
   #set($hailHazard = "softball size hail")
+#end
+#if(${list.contains(${bullets}, "grapefruitHail")})
+  #set($hailThreat = "dangerous and extremely large destructive hail up to grapefruit size") 
+  #set($hailSize = 4.50)
+  #set($hailTag = "4.50IN")
+  #set($hailHazard = "grapefruit size hail")
 #end
 #if(${hailSize} >= 1.50)
   #if(${stormType} == "line")
@@ -254,7 +257,7 @@ This is a test message. ##
   #set($torHazard = "Damaging tornado")
   #set($confirmed = "confirmed ")
   #set($source = "Radar confirmed tornado.")
-  #set($preAmble = "To repeat, a tornado is on the ground. Take cover now! ")
+  #set($preAmble = "To repeat, a tornado is on the ground. TAKE COVER NOW! ")
   #if(${stormType} == "line")
     #set($reportType = "tornado producing storms were located")
     #set($pathcastLead = "These tornadic storms")
@@ -278,7 +281,7 @@ This is a test message. ##
     #set($pathcastLead = "The tornado")
     #set($moveLead = " Doppler radar showed this tornado moving")
   #end 
-  #set($preAmble = "to repeat, a large, extremely dangerous and potentially deadly tornado is on the ground. to protect your life, ")
+  #set($preAmble = "To repeat, a large, extremely dangerous and potentially deadly tornado is on the ground. to protect your life, ")
 #end
 *#
 #if(${list.contains(${bullets}, "spotter")})
@@ -295,7 +298,7 @@ This is a test message. ##
     #set($pathcastLead = "The tornado")
 ##    #set($moveLead = " Doppler radar showed this tornado moving")
   #end 
-  #set($preAmble = "To repeat, a tornado is on the ground. Take cover now! ")
+  #set($preAmble = "To repeat, a tornado is on the ground. TAKE COVER NOW! ")
 #end
 #if(${list.contains(${bullets}, "lawEnforcement")})
   #set($torTag = "OBSERVED")
@@ -311,7 +314,7 @@ This is a test message. ##
     #set($pathcastLead = "The tornado")
 ##    #set($moveLead = " Doppler radar showed this tornado moving")
   #end 
-  #set($preAmble = "To repeat, a tornado is on the ground. Take cover now! ") 
+  #set($preAmble = "To repeat, a tornado is on the ground. TAKE COVER NOW! ") 
 #end
 #if(${list.contains(${bullets}, "emergencyManagement")})
   #set($torTag = "OBSERVED")
@@ -327,7 +330,7 @@ This is a test message. ##
     #set($pathcastLead = "The tornado")
 ##    #set($moveLead = " Doppler radar showed this tornado moving")
   #end 
-  #set($preAmble = "To repeat, a tornado is on the ground. Take cover now! ") 
+  #set($preAmble = "To repeat, a tornado is on the ground. TAKE COVER NOW! ") 
 #end
 #if(${list.contains(${bullets}, "public")})
   #set($torTag = "OBSERVED")
@@ -343,7 +346,22 @@ This is a test message. ##
     #set($pathcastLead = "The tornado")
 ##    #set($moveLead = " Doppler radar showed this tornado moving")
   #end 
-  #set($preAmble = "To repeat, a tornado is on the ground. Take cover now! ")
+  #set($preAmble = "To repeat, a tornado is on the ground. TAKE COVER NOW! ")
+#end
+#if(${list.contains(${bullets}, "waterspout")})
+  #set($torTag = "OBSERVED")
+  #set($source = "Weather spotters confirmed waterspout moving onshore.")
+  #set($confirmed = "confirmed ")
+  #if(${stormType} == "line")
+    #set($reportType = "confirmed waterspouts were located just offshore")
+    #set($pathcastLead = "These tornadoes")
+    #set($source = "Weather spotters confirmed waterspouts moving onshore.")
+##    #set($moveLead = " A tornado may develop at any time. Doppler radar showed these dangerous storms moving")
+  #else
+    #set($reportType = "a confirmed waterspout was located just offshore")
+    #set($pathcastLead = "This tornado")
+##    #set($moveLead = " A tornado may develop at any time. Doppler radar showed this dangerous storm moving")
+  #end  
 #end
 #if(${list.contains(${bullets}, "spotterFunnelCloud")})
   ##set($reportType = "trained weather spotters reported a funnel cloud")
@@ -375,7 +393,7 @@ This is a test message. ##
   #set($reportType = "a ${confirmed}large and extremely dangerous tornado was located") 
   #set($torHazard = "Damaging tornado")
   #set($torThreat = "<L>TORNADO DAMAGE THREAT...CONSIDERABLE</L>")
-  #set($pdstor = "This is a PARTICULARLY DANGEROUS SITUATION.")
+  #set($pdstor = "This is a PARTICULARLY DANGEROUS SITUATION. TAKE COVER NOW!")
   #if(${stormType} == "line")
     #set($pathcastLead = "These tornadic storms")
 ##    #set($moveLead = " Doppler radar showed these tornadic storms moving")
@@ -383,7 +401,7 @@ This is a test message. ##
     #set($pathcastLead = "The tornado")
 ##    #set($moveLead = " Doppler radar showed this tornado moving")
   #end 
-  #set($preAmble = "To repeat, a large, extremely dangerous and potentially deadly tornado is ${torGround}. To protect your life, take cover now! ")
+  #set($preAmble = "To repeat, a large, extremely dangerous and potentially deadly tornado is ${torGround}. To protect your life, TAKE COVER NOW! ")
 #end
 ############################################################################
 ## IF A TORNADO EMERGENCY IS SELECTED THE FOLLOWING WILL OVERRIDE CERTAIN
@@ -395,7 +413,7 @@ This is a test message. ##
   #set($torTag = "OBSERVED")
   #set($torHazard = "Deadly tornado")
   #set($torThreat = "<L>TORNADO DAMAGE THREAT...CATASTROPHIC</L>")
-  #set($pdstor = "TORNADO EMERGENCY for !** EDIT LOCATION(S) **!. Take cover now! This is a PARTICULARLY DANGEROUS SITUATION.")
+  #set($pdstor = "TORNADO EMERGENCY for !** Edit Location(s) **!. This is a PARTICULARLY DANGEROUS SITUATION. TAKE COVER NOW!")
   #if(${stormType} == "line")
     #set($pathcastLead = "These tornadic storms")
 ##    #set($moveLead = " Doppler radar showed these tornadic storms moving")
@@ -406,7 +424,7 @@ This is a test message. ##
   #if(${list.contains(${bullets}, "doppler")}||${list.contains(${bullets}, "dopplerSquall")})
     #set($source = "Weather spotters confirmed tornado.")
   #end
-  #set($preAmble = "To repeat, a large, extremely dangerous and deadly tornado is on the ground. To protect your life, take cover now! ")
+  #set($preAmble = "To repeat, a large, extremely dangerous and deadly tornado is on the ground. To protect your life, TAKE COVER NOW! ")
 #end
 
 ####################################################
@@ -417,7 +435,7 @@ This is a test message. ##
 ###### If Additional Information is selected
 ######################################################
 #if(${list.contains(${bullets}, "extraReportTornado")})
- #set($extraSource = " At !**ENTER TIME...ENTER TORNADO/REPORT DAMAGE**!, was reported !**ENTER LOCATION**!.") 
+ #set($source = "${source} At !**ENTER TIME...ENTER TORNADO/REPORT DAMAGE**!, was reported !**ENTER LOCATION**!.") 
 #end
 ##########################################################
 ## Check to see if wind is selected for the hazard phrase
@@ -476,15 +494,23 @@ This is a test message. ##
 
 #wrapText("HAZARD...#capitalize(${hazard} 'FIRST')" 2 11)
 
-#wrapText("SOURCE...#capitalize(${source}${extraSource} 'FIRST')" 2 11)
+#wrapText("SOURCE...#capitalize(${source} 'FIRST')" 2 11)
 
 #wrapText("IMPACT...${torimpact}" 2 11)
 
 
 #if(${stormType} == "line")
+#if(${list.contains(${bullets}, "waterspout")})
+#set($otherLead = "These tornadoes")
+#else
 #set($otherLead = "These tornadic storms")
+#end
+#else
+#if(${list.contains(${bullets}, "waterspout")})
+#set($otherLead = "This tornado")
 #else
 #set($otherLead = "This tornadic thunderstorm")
+#end
 #end
 #if(${list.contains(${bullets}, "pathcast")})
 * ##
@@ -514,10 +540,10 @@ This is a test message. ##
 ##############################################
 #if(${list.contains(${bullets}, "specialEvent")})
 #if(${stormType} == "line")
-Those attending !**EVENT/VENUE NAME OR LOCATION**! are in the path of these storms and should prepare for imminent dangerous and potentially life threatening weather conditions. Seek shelter now!
+Those attending !**EVENT/VENUE NAME OR LOCATION**! are in the path of these storms and should prepare for imminent, dangerous, and potentially life-threatening weather conditions. Seek shelter now!
 
 #else
-Those attending !**EVENT/VENUE NAME OR LOCATION**! are in the path of this storm and should prepare for imminent dangerous and potentially life threatening weather conditions. Seek shelter now!
+Those attending !**EVENT/VENUE NAME OR LOCATION**! are in the path of this storm and should prepare for imminent, dangerous, and potentially life-threatening weather conditions. Seek shelter now!
 
 #end
 #end
@@ -549,7 +575,7 @@ PRECAUTIONARY/PREPAREDNESS ACTIONS...
 ##
 #if(${list.contains(${bullets}, "torEmergencyCTA")} || ${list.contains(${bullets}, "torEmergency")})
 #if(${list.contains(${bullets}, "torEmergency")})
-To repeat, a large, extremely dangerous and potentially deadly tornado is on the ground. To protect your life, take cover now! Move to an interior room on the lowest floor of a sturdy building. Avoid windows. If in a mobile home, a vehicle or outdoors.. Move to the closest substantial shelter and protect yourself from flying debris.
+To repeat, a large, extremely dangerous and potentially deadly tornado is on the ground. To protect your life, TAKE COVER NOW! Move to an interior room on the lowest floor of a sturdy building. Avoid windows. If in a mobile home, a vehicle or outdoors.. Move to the closest substantial shelter and protect yourself from flying debris.
 
 #else
 !** YOU SELECTED THE TORNADO EMERGENCY CTA WITHOUT SELECTING THE TORNADO EMERGENCY HEADER. PLEASE CLOSE THIS WINDOW AND RE-GENERATE THIS WARNING **!
@@ -577,11 +603,11 @@ Motorists should not take shelter under highway overpasses. If you cannot safely
 
 #end
 #if(${list.contains(${bullets}, "rainWrappedCTA")})
-Heavy rainfall may hide this tornado. Do not wait to see or hear the tornado. Take cover now!
+Heavy rainfall may hide this tornado. Do not wait to see or hear the tornado. TAKE COVER NOW!
 
 #end
 #if(${list.contains(${bullets}, "nighttimeCTA")})
-Tornadoes are extremely difficult to see and confirm at night. Do not wait to see or hear the tornado. Take cover now!
+Tornadoes are extremely difficult to see and confirm at night. Do not wait to see or hear the tornado. TAKE COVER NOW!
 
 #end
 

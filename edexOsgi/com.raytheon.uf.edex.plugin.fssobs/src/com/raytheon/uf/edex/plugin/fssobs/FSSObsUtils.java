@@ -60,6 +60,7 @@ import com.raytheon.uf.edex.pointdata.PointDataQuery;
  * Apr 28, 2014 3086       skorolev    Updated getStations method.
  * Sep 04, 2014 3220       skorolev    Removed getStations method.
  * Sep 18, 2015 3873       skorolev    Removed identical constant definitions.
+ * Dec 02, 2015 3873       dhladky     Logging change.
  * 
  * </pre>
  * 
@@ -352,7 +353,7 @@ public class FSSObsUtils {
             case "":
                 break;
             default:
-                statusHandler.error("Get unknown sky cover " + sc);
+                statusHandler.warn("Get unknown sky cover " + sc);
                 break;
             }
         }

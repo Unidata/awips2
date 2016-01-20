@@ -1,17 +1,9 @@
 #!/bin/sh
+export DISPLAY=":0.0"
+export FXA_HOME=/awips2/cave/caveEnvironment
+export TMCP_HOME=/awips2/cave/caveEnvironment
 
-# Need to make sure we determine what TMCP_HOME should
-# be if it is not set.
-dir=${0%/*}
-if [ "$dir" = "$0" ]; then
- dir="."
-fi
-cd "$dir/.."
+$FXA_HOME/bin/MonitorTestMode >& /dev/null &
 
-if [ ! -n "${TMCP_HOME}" ]
-then
-    export TMCP_HOME=.
-fi
 
-DISPLAY=$1:0.0; export DISPLAY
-$TMCP_HOME/bin/MonitorTestMode  &
+

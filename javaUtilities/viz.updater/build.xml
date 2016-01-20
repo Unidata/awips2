@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="create_run_jar" name="Create Runnable Jar for Project viz.updater with Jar-in-Jar Loader">
+	<property name="dest.dir" value="/tmp" />
+	<property name="eclipse.dir" value="/opt/eclipse" />
+	<property name="baseline.dir" value="/common/bkowal/git/Baseline-4759/AWIPS2_baseline/javaUtilities" />
+	
+	<path id="ECLIPSE.classpath">
+		<pathelement path="${eclipse.dir}/plugins/org.eclipse.osgi_3.8.2.v20130124-134944.jar" />
+		<pathelement path="${eclipse.dir}/plugins/org.eclipse.pde.core_3.8.1.v20130115-200504.jar" />
+		<pathelement path="${eclipse.dir}/plugins/org.eclipse.core.resources_3.8.1.v20121114-124432.jar" />
+		<pathelement path="${eclipse.dir}/plugins/org.eclipse.debug.core_3.7.100.v20120521-2012.jar" />
+		<pathelement path="${eclipse.dir}/plugins/org.eclipse.equinox.common_3.6.100.v20120522-1841.jar" />
+		<pathelement path="${eclipse.dir}/plugins/org.eclipse.core.runtime_3.8.0.v20120521-2346.jar" />
+		<pathelement path="${eclipse.dir}/plugins/org.eclipse.core.jobs_3.5.200.v20120521-2346.jar" />
+		<pathelement path="${eclipse.dir}/plugins/org.eclipse.core.runtime.compatibility.registry_3.5.100.v20120521-2346/runtime_registry_compatibility.jar" />
+		<pathelement path="${eclipse.dir}/plugins/org.eclipse.equinox.registry_3.5.200.v20120522-1841.jar" />
+		<pathelement path="${eclipse.dir}/plugins/org.eclipse.equinox.preferences_3.5.1.v20121031-182809.jar" />
+		<pathelement path="${eclipse.dir}/plugins/org.eclipse.core.contenttype_3.4.200.v20120523-2004.jar" />
+		<pathelement path="${eclipse.dir}/plugins/org.eclipse.equinox.app_1.3.100.v20120522-1841.jar" />
+		<pathelement path="${eclipse.dir}/plugins/org.eclipse.jdt.launching_3.6.101.v20130111-183046.jar" />
+		<pathelement path="${eclipse.dir}/plugins/org.eclipse.jdt.core_3.8.3.xx-20140403-1300-e42-SNAPSHOT.jar" />
+		<pathelement path="${eclipse.dir}/plugins/org.eclipse.jdt.compiler.apt_1.0.600.v20130116-050536.jar" />
+		<pathelement path="${eclipse.dir}/plugins/org.eclipse.jdt.compiler.tool_1.0.200.v20130116-050536.jar" />
+	</path>
+	
+	<target name="compile">
+		<javac destdir="${baseline.dir}/viz.updater/bin" 
+			srcdir="${baseline.dir}/viz.updater/src" 
+			executable="/awips2/java/bin/javac" fork="true"
+			classpathref="ECLIPSE.classpath">
+			
+			<include name="**/*.java" />
+			
+		</javac>
+	</target>
+	
+	<target name="retrieve-jar-zip">
+		<mkdir dir="${baseline.dir}/viz.updater/lib" />
+		<unzip src="${eclipse.dir}/plugins/org.eclipse.jdt.ui_3.8.2.v20130107-165834.jar"
+			dest="${baseline.dir}/viz.updater/lib" 
+			overwrite="true">
+			
+        	<patternset>
+        		<include name="jar-in-jar-loader.zip" />
+        	</patternset>			
+			
+		</unzip>
+	</target>
+	
+    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
+    <!--ANT 1.7 is required                                        -->
+    <target name="create_run_jar" depends="compile, retrieve-jar-zip">
+        <jar destfile="${dest.dir}/VizUpdater.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
+                <attribute name="Rsrc-Main-Class" value="viz.updater.Main"/>
+                <attribute name="Class-Path" value="."/>
+                <attribute name="Rsrc-Class-Path" value="./ org.eclipse.osgi_3.8.2.v20130124-134944.jar org.eclipse.pde.core_3.8.1.v20130115-200504.jar org.eclipse.core.resources_3.8.1.v20121114-124432.jar org.eclipse.debug.core_3.7.100.v20120521-2012.jar org.eclipse.equinox.common_3.6.100.v20120522-1841.jar org.eclipse.core.runtime_3.8.0.v20120521-2346.jar org.eclipse.core.jobs_3.5.200.v20120521-2346.jar runtime_registry_compatibility.jar org.eclipse.equinox.registry_3.5.200.v20120522-1841.jar org.eclipse.equinox.preferences_3.5.1.v20121031-182809.jar org.eclipse.core.contenttype_3.4.200.v20120523-2004.jar org.eclipse.equinox.app_1.3.100.v20120522-1841.jar org.eclipse.jdt.launching_3.6.101.v20130111-183046.jar org.eclipse.jdt.core_3.8.3.xx-20140403-1300-e42-SNAPSHOT.jar org.eclipse.jdt.compiler.apt_1.0.600.v20130116-050536.jar org.eclipse.jdt.compiler.tool_1.0.200.v20130116-050536.jar"/>
+            </manifest>
+            <zipfileset src="${baseline.dir}/viz.updater/lib/jar-in-jar-loader.zip"/>
+            <zipfileset dir="${eclipse.dir}/plugins" includes="org.eclipse.osgi_3.8.2.v20130124-134944.jar"/>
+            <zipfileset dir="${eclipse.dir}/plugins" includes="org.eclipse.pde.core_3.8.1.v20130115-200504.jar"/>
+            <zipfileset dir="${eclipse.dir}/plugins" includes="org.eclipse.core.resources_3.8.1.v20121114-124432.jar"/>
+            <zipfileset dir="${eclipse.dir}/plugins" includes="org.eclipse.debug.core_3.7.100.v20120521-2012.jar"/>
+            <zipfileset dir="${eclipse.dir}/plugins" includes="org.eclipse.equinox.common_3.6.100.v20120522-1841.jar"/>
+            <zipfileset dir="${eclipse.dir}/plugins" includes="org.eclipse.core.runtime_3.8.0.v20120521-2346.jar"/>
+            <zipfileset dir="${eclipse.dir}/plugins" includes="org.eclipse.core.jobs_3.5.200.v20120521-2346.jar"/>
+            <zipfileset dir="${eclipse.dir}/plugins/org.eclipse.core.runtime.compatibility.registry_3.5.100.v20120521-2346" includes="runtime_registry_compatibility.jar"/>
+            <zipfileset dir="${eclipse.dir}/plugins" includes="org.eclipse.equinox.registry_3.5.200.v20120522-1841.jar"/>
+            <zipfileset dir="${eclipse.dir}/plugins" includes="org.eclipse.equinox.preferences_3.5.1.v20121031-182809.jar"/>
+            <zipfileset dir="${eclipse.dir}/plugins" includes="org.eclipse.core.contenttype_3.4.200.v20120523-2004.jar"/>
+            <zipfileset dir="${eclipse.dir}/plugins" includes="org.eclipse.equinox.app_1.3.100.v20120522-1841.jar"/>
+            <zipfileset dir="${eclipse.dir}/plugins" includes="org.eclipse.jdt.launching_3.6.101.v20130111-183046.jar"/>
+            <zipfileset dir="${eclipse.dir}/plugins" includes="org.eclipse.jdt.core_3.8.3.xx-20140403-1300-e42-SNAPSHOT.jar"/>
+            <zipfileset dir="${eclipse.dir}/plugins" includes="org.eclipse.jdt.compiler.apt_1.0.600.v20130116-050536.jar"/>
+            <zipfileset dir="${eclipse.dir}/plugins" includes="org.eclipse.jdt.compiler.tool_1.0.200.v20130116-050536.jar"/>
+            <fileset dir="${baseline.dir}/viz.updater/bin"/>
+        </jar>
+    </target>
+</project>

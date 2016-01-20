@@ -1,20 +1,22 @@
-########################################################################
-## SEVERE THUNDERSTORM WARNING TEMPLATE                               ##
-## CREATED BY EVAN BOOKBINDER - WFO EAX                               ##
-## RECENT VERSION HISTORY                                             ##  
-##       BY QINGLU LIN     8-14-2012 DR 14493 use TMLtime             ##
-##        Mike Dangelo     9-13-2012 minor tweaks to some ${variables}## 
-##        Mike Dangelo     2-4-2013  NWS Mets detected a svr          ## 
-##        Evan Bookbinder  9-16-2013 Fixed CTA                        ##
-##        Evan Bookbinder  9-18-2013 Implemented config.vm            ##
-##        Evan Bookbinder  9-5-2014 fixed law enf cta                 ##
+##########################################################################
+## SEVERE THUNDERSTORM WARNING TEMPLATE                                 ##
+## CREATED BY EVAN BOOKBINDER - WFO PBZ                                 ##
+## RECENT VERSION HISTORY                                               ##  
+##       BY QINGLU LIN     8-14-2012 DR 14493 use TMLtime               ##
+##        Mike Dangelo     9-13-2012 minor tweaks to some ${variables}  ## 
+##        Mike Dangelo     2-4-2013  NWS Mets detected a svr            ## 
+##        Evan Bookbinder  9-16-2013 Fixed CTA                          ##
+##        Evan Bookbinder  9-18-2013 Implemented config.vm              ##
+##        Evan Bookbinder  9-5-2014 fixed law enf cta                   ##
 ##        Mike Dangelo     26 Mar 2015 Mixed Case edits               ##
-########################################################################
+##        Evan Bookbinder  6-15-15 fixed softball/grapefruit hail size  ##
+##        Evan Bookbinder  9-04-15 fixed line of storms grammar         ##
+##########################################################################
 ##
 #parse("config.vm")
 ##SET SOME INITIAL VARIABLES
 #if(${stormType} == "line")
-  #set($report = "a line of severe thunderstorms was reported")
+  #set($report = "severe thunderstorms were reported")
   #set($reportType1 = "line of severe thunderstorms")
   #set($reportType2 = "These storms were")
 #else
@@ -157,15 +159,15 @@
   #set($hailThreat = "softball size") 
   #set($hailLead = "large destructive hail up to ") 
   #set($hailTrail = "")
-  #set($hailSize = 4.25)  
-  #set($hailTag = "4.25IN")
+  #set($hailSize = 4.00)  
+  #set($hailTag = "4.00IN")
 #end
 #if(${list.contains(${bullets}, "grapefruitHail")})
   #set($hailThreat = "grapefruit size") 
   #set($hailLead = "large destructive hail up to ") 
   #set($hailTrail = "")
-  #set($hailSize = 4.00)  
-  #set($hailTag = "4.00IN")
+  #set($hailSize = 4.50)  
+  #set($hailTag = "4.50IN")
 #end
 ###################################################################
 ### CHANGE MND EAS INSTRUCTIONS FOR REALLY SEVERE STORMS ##########

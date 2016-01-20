@@ -1,24 +1,24 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
 # pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
+#
 # U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
-# 
+#
 # Contractor Name:        Raytheon Company
 # Contractor Address:     6825 Pine Street, Suite 340
 #                         Mail Stop B8
 #                         Omaha, NE 68106
 #                         402.291.0100
-# 
+#
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
 #     SOFTWARE HISTORY
-#    
+#
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    02/16/12        14439         jdynina        modified haines thresholds
@@ -26,16 +26,18 @@
 #    07/25/12        #957          dgilling       implement edit areas as args to calc methods.
 #    10/05/12        15158         ryu            add Forecaster.getDb()
 #    04/04/13        #1787         randerso       fix validTime check to work with accumulative parms
-#                                                 fix logging so you can actually determine why 
+#                                                 fix logging so you can actually determine why
 #                                                 a smartInit is not calculating a parameter
 #    10/29/2013      #2476         njensen        Improved getting wx/discrete keys when retrieving data
 #    10/27/2014      #3766         randerso       Changed _getLatest to include error text returned from InitClient.createDB()
-#    Apr 23, 2015    4259          njensen        Updated for new JEP API 
+#    Apr 23, 2015    #4259         njensen        Updated for new JEP API
 #    08/06/2015      4718          dgilling       Prevent numpy 1.9 from wasting memory by
 #                                                 upcasting scalars too high when using where.
 #    Aug 13, 2015    4704          randerso       Added NumpyJavaEnforcer support for smartInits
 #                                                 additional code cleanup
-# 
+#    Dec 03, 2015    #5168         randerso       Fixed problems running calc methods with both accumulative
+#                                                 and non-accumulative weather elements as inputs 
+#
 ##
 import string, sys, re, time, types, getopt, fnmatch, LogStream, DatabaseID, JUtil, AbsTime, TimeRange
 import SmartInitParams
@@ -46,7 +48,35 @@ pytime = time
 
 import RollBackImporter
 rollbackImporter = RollBackImporter.RollBackImporter()
+
+
+MAX_TIME = 2**31-1
+
+def printTR(tr):
+    if tr is None:
+        return "None"
     
+    if hasattr(tr, 'java_name'):
+        tr = TimeRange.encodeJavaTimeRange(tr)
+
+    msg = '('
+    stime = time.gmtime(tr[0])
+    etime = time.gmtime(tr[1])
+    stime = time.strftime('%Y%m%d_%H%M', stime)
+    etime = time.strftime('%Y%m%d_%H%M', etime)
+    msg += stime + ", " + etime
+    msg += ')'
+    return msg
+
+def printTRs(trList):
+    msg = '['
+    for tr in trList:
+        s = printTR(tr)
+        msg += s
+        msg += ', '
+
+    msg += ']'
+    return msg
 
 #--------------------------------------------------------------------------
 # Main program that calls model-specific algorithms to generate ifp grids.
@@ -87,7 +117,7 @@ class MDB:
         for db in self.__dbs:
             keyLow = key.lower()
             for k in JUtil.javaStringListToPylist(db.getKeys()):
-                if k.lower() == keyLow: 
+                if k.lower() == keyLow:
                     return db.getItem(key)
 
         #for db in self.__dbs:
@@ -296,15 +326,13 @@ class GridUtilities:
         return hainesT + hainesM
 
 
-
-
 #-------------------------------------------------------------------------
 # Weather Element calculations
 #-------------------------------------------------------------------------
 class Forecaster(GridUtilities):
     def __init__(self, srcName, dstName=None):
         self._srcName = srcName
-        self._dstName = dstName        
+        self._dstName = dstName
         self._ndbkeys = None
         self.__dbParms = None
         #host, port = self._getServer()
@@ -312,7 +340,7 @@ class Forecaster(GridUtilities):
         #if Options is not None and Options.has_key('userID'):
         #    self._client = ifpc.IFPC(host, port, Options['userID'])
         #else:
-        #    self._client = ifpc.IFPC(host, port)        
+        #    self._client = ifpc.IFPC(host, port)
         self.whichHainesIndex = "HIGH"   # or "LOW", or "MEDIUM"
 
         if self._srcName is not None:
@@ -337,10 +365,10 @@ class Forecaster(GridUtilities):
             msg = "No databases for " + self._srcName
             LogStream.logProblem(msg)
             return
-                
+
         if self.newdb() is None:
             return
-                
+
         self.__topo = self.getTopo() * .3048
         srcdbkeys = self.srcdb().getKeys()
         if "staticTopo_Dflt" in srcdbkeys:
@@ -352,7 +380,7 @@ class Forecaster(GridUtilities):
                 self.__stopo = None
         else:
             self.__stopo = None
-        
+
         self._editAreas = self._client.getEditAreaNames()
         
         self.__gridShape = self.__topo.shape
@@ -543,22 +571,22 @@ class Forecaster(GridUtilities):
     # Returns the topography grid.
     #--------------------------------------------------------------------------
     def getTopo(self):
-        topo = self._client.getTopo()        
+        topo = self._client.getTopo()
         topo = topo.getNDArray()
-        return topo  
+        return topo
 
     #--------------------------------------------------------------------------
     # Returns a dictionary of magical values that will be used in other
     # functions.
     #--------------------------------------------------------------------------
     def magicArgs(self):
-        rval = { "topo" : (self.__topo, (0, sys.maxint)),
-                 "stopo" : (self.__stopo, (0, sys.maxint)),
-                 "ctime" : (None, (0, sys.maxint)),
-                 "stime" : (None, (0, sys.maxint)),
-                 "mtime" : (None, (0, sys.maxint))}
+        rval = { "topo" : (self.__topo, (0, MAX_TIME)),
+                 "stopo" : (self.__stopo, (0, MAX_TIME)),
+                 "ctime" : (None, (0, MAX_TIME)),
+                 "stime" : (None, (0, MAX_TIME)),
+                 "mtime" : (None, (0, MAX_TIME))}
         for i in self._editAreas:
-            rval[i] = (None, (0, sys.maxint))
+            rval[i] = (None, (0, MAX_TIME))
         return rval
 
     #--------------------------------------------------------------------------
@@ -566,8 +594,8 @@ class Forecaster(GridUtilities):
     #--------------------------------------------------------------------------
     def run(self):
         dbName = SmartInitParams.params['dbName']
-        validTime = SmartInitParams.params['validTime']   
-        
+        validTime = SmartInitParams.params['validTime']
+
         dbInfo = dbName.split(':')
         self.__dbName = dbInfo[0]
 
@@ -575,7 +603,7 @@ class Forecaster(GridUtilities):
         self.__init()
         if self.newdb() is None:
             return
-        
+
         msgDest = "Destination database:" + self.newdb().getModelIdentifier()
 
         if validTime is not None:
@@ -587,10 +615,11 @@ class Forecaster(GridUtilities):
         self._ifpio = IFPIO(self.srcdb(), self.newdb())
         self._ifpio.setLevels(self.levels())
         methods = self.__getMethods()
-        times = self.__sortTimes(methods, validTime)        
+        times = self.__sortTimes(methods, validTime)
         tr, numGrids = self.__process(methods, times, int(dbInfo[1]))
         stop = time.time()
-        msgTime = "Elapsed time: " + ("%-.1f" % (stop - start)) + "sec."
+        msgTime = "%s: Elapsed time: %-.1f sec." % (self.newdb().getModelIdentifier(), (stop - start))
+
         LogStream.logEvent(msgTime)
         #LogStream.logEvent("Network stats: ", self._client.getStats())
         self._announce(self.newdb(), tr, numGrids)
@@ -606,7 +635,7 @@ class Forecaster(GridUtilities):
             modelTime = AbsTime.AbsTime(db.getModelTime())
             modelTime = modelTime.unixTime()
         else:
-            modelTime = 0        
+            modelTime = 0
         modelIdentifier = db.getShortModelIdentifier()
 
         if modelTime != 0:
@@ -648,14 +677,14 @@ class Forecaster(GridUtilities):
                                    " is empty.")
             else:
                 srcdbs.append(db)
-                
+
         srcdb = MDB(srcdbs)
 
         # I (njensen) removed most of what was here.  It was looking at
         # the available D2D netcdf data, and then forming a GFE db id
-        # from that for the target.  Instead I'm just passing in 
+        # from that for the target.  Instead I'm just passing in
         # the target from Java.
-                
+
         newdb = self.__dbName.replace("D2D", "")
         if fcstName and fcstName != modelName:
             newdb = newdb.replace(modelName, fcstName)
@@ -672,7 +701,7 @@ class Forecaster(GridUtilities):
                 break
         if singletonNeeded:
             newdb = newdb[:-13] + '00000000_0000'
-            newdb = self.getDb(newdb)    
+            newdb = self.getDb(newdb)
         else:
             sr = client.createDB(newdb)
             if sr.isOkay():
@@ -681,7 +710,7 @@ class Forecaster(GridUtilities):
                 msg = "Unable to create database for " + str(newdb) + ":\n" + \
                       str(sr.message())
                 LogStream.logProblem(msg)
-                newdb = None   
+                newdb = None
 
         return srcdb, newdb
 
@@ -744,7 +773,7 @@ class Forecaster(GridUtilities):
     #--------------------------------------------------------------------------
     #  Returns true if the two timeRanges overlap (share a common time period).
     #--------------------------------------------------------------------------
-    def _overlaps(self, tr1, tr2):        
+    def _overlaps(self, tr1, tr2):
         if self._contains(tr2, tr1[0]) or self._contains(tr1, tr2[0]):
             return 1
         return 0
@@ -780,7 +809,7 @@ class Forecaster(GridUtilities):
                 wenameLevel = wename
             else:
                 wenameLevel = wename + "_SFC"
-            #if wenameLevel not in self.newdb().keys():            
+            #if wenameLevel not in self.newdb().keys():
             if wenameLevel not in JUtil.javaStringListToPylist(self.newdb().getKeys()):
                 msg = wenameLevel + " not in " + \
                       self.newdb().getModelIdentifier() + " " + "SKIPPING"
@@ -788,7 +817,7 @@ class Forecaster(GridUtilities):
                 continue
             rval = filter(lambda x,y=wenameLevel : x[0] != y, rval)
             rval.append((wenameLevel, mthd, fargs))
-        return rval        
+        return rval
 
     #--------------------------------------------------------------------------
     #  Gets and returns a list of dependencies.
@@ -814,13 +843,13 @@ class Forecaster(GridUtilities):
         rval = []
         methods = self.__getObjMethods(self.__class__)
         while len(methods):
-            rval += self.__getdeps(methods[0], methods)                
+            rval += self.__getdeps(methods[0], methods)
         return rval
 
     def __request(self, db, pname, time):
-        if pname[-2:] == "_c":                    
+        if pname[-2:] == "_c":
             time = self.__getSrcWE(
-                pname[:-2] + "_MB500", 0).getTimeRange(time[0])            
+                pname[:-2] + "_MB500", 0).getTimeRange(time[0])
             rval = (pname[:-2], time, 1)
         else:
             time = self.__getSrcWE(pname, 0).getTimeRange(time[0])
@@ -843,9 +872,11 @@ class Forecaster(GridUtilities):
     # Internal function that returns the time periods shared by tr and times.
     #--------------------------------------------------------------------------
     def __compTimes(self, tr, times):
+        # TODO: surely there's a better way to do this
+
         for time in times:
             if len(time) == 0:
-                return []   
+                return []
 
         rval = []
         if len(times) == 1:
@@ -876,7 +907,7 @@ class Forecaster(GridUtilities):
         rval = []
         calced = []
         for we, mthd, args in methods:
-#            LogStream.logEvent("Evaluating times for calc"+we)
+#             LogStream.logEvent("Evaluating times for", mthd.func_name)
             calced.append(we)
             args = filter(lambda x, ma=self.magicArgs().keys() + [we]:
                           x not in ma, args)
@@ -884,7 +915,7 @@ class Forecaster(GridUtilities):
             for a in args:
                 nargs = nargs + self.__unpackParm(a)
 
-            ttimes = [] 
+            ttimes = []
             for p in nargs:
                 # p is an arg, e.g. gh_MB900
                 try:
@@ -901,7 +932,7 @@ class Forecaster(GridUtilities):
                     for i in range(size):
                        jtr = ranges.get(i)
                        valid = False
-                       
+
                        if validTime is None:
                            valid = True
                        else:
@@ -909,33 +940,24 @@ class Forecaster(GridUtilities):
                           # need both accumulative and non-accumulative parms
                           valid = validTime.getTime() >= jtr.getStart().getTime() and \
                                   validTime.getTime() <= jtr.getEnd().getTime()
-                       
+
                        if valid:
-                          timelist = TimeRange.encodeJavaTimeRange(jtr)        
+                          timelist = TimeRange.encodeJavaTimeRange(jtr)
                           pylist.append(timelist)
 
                     ttimes.append(pylist)
-                    
-#                msg = "Times available for " + p + " " + str(validTime) + ":\n"
-#                timeList = ttimes[len(ttimes)-1]
-#                for xtime in timeList:
-#                    msg += '('                                                
-#                    stime = time.gmtime(xtime[0])
-#                    etime = time.gmtime(xtime[1])
-#                    stime = time.strftime('%Y%m%d_%H%M', stime)
-#                    etime = time.strftime('%Y%m%d_%H%M', etime)
-#                    msg += stime + ", " + etime
-#                    msg += ')\n'
-#                LogStream.logEvent(msg)                    
+
+#                 msg = "Times available for " + p + " " + str(validTime) + ":\n"
+#                 timeList = ttimes[-1]
+#                 msg += printTRs(timeList)
+#                 LogStream.logEvent(msg)
 
             # compare the times of each parm and find where they match up
             times = self.__compTimes(None, ttimes)
-#            LogStream.logEvent("nargs:",nargs)
-#            LogStream.logEvent("ttimes:",ttimes)
-#            LogStream.logEvent("times:",times)
+#             LogStream.logEvent("times:", printTRs(times))
 
             hadDataButSkipped = {}
-            for i in range(len(ttimes)):                
+            for i in range(len(ttimes)):
                 timeList = ttimes[i]
                 parmName = nargs[i]
                 for xtime in timeList:
@@ -944,29 +966,32 @@ class Forecaster(GridUtilities):
                             hadDataButSkipped[xtime].append(parmName)
                         else:
                             hadDataButSkipped[xtime] = [parmName]
-#            LogStream.logEvent("hadDataButSkipped:",hadDataButSkipped)
+#             msg = "hadDataButSkipped: {"
+#             for tr in hadDataButSkipped:
+#                 msg += printTR(tr)
+#                 msg += ": "
+#                 msg += str(hadDataButSkipped[tr])
+#                 msg += ", "
+#             msg += "}"
+#             LogStream.logEvent(msg)
 
-            hadNoData = []            
+            hadNoData = []
             for i in range(len(nargs)):
                 timeList = ttimes[i]
                 parmName = nargs[i]
                 if len(timeList) == 0:
                     hadNoData.append(parmName)
-#            LogStream.logEvent("hadNoData:",hadNoData)
+#             LogStream.logEvent("hadNoData:",hadNoData)
 
-            missing = {}                                    
+            missing = {}
             for xtime in hadDataButSkipped:
-                stime = time.gmtime(xtime[0])
-                etime = time.gmtime(xtime[1])
-                stime = time.strftime('%Y%m%d_%H%M', stime)
-                etime = time.strftime('%Y%m%d_%H%M', etime)
-                msg = stime + ", " + etime
+                msg = printTR(xtime)
                 missing[msg] = []
-                
+
                 for parmName in nargs:
                     if not hadDataButSkipped[xtime].__contains__(parmName):
                         missing[msg].append(parmName)
-                        
+
             if len(missing) == 0 and len(hadNoData) > 0:
                 msg = ''
                 if (validTime is not None):
@@ -974,10 +999,10 @@ class Forecaster(GridUtilities):
                     vtime = time.gmtime(vtime)
                     msg = time.strftime('%Y%m%d_%H%M', vtime)
                 missing[msg] = hadNoData
-#            LogStream.logEvent("missing:",missing)
+#             LogStream.logEvent("missing:",missing)
 
-            if len(missing):              
-                LogStream.logEvent("Skipping calc" + we + " for some times due to the following " +
+            if len(missing):
+                LogStream.logEvent(self.newdb().getModelIdentifier() + ": Skipping calc" + we + " for some times due to the following " +
                                    "missing data:", missing)
             # these become the times to run the method for
             rval.append(times)
@@ -998,105 +1023,122 @@ class Forecaster(GridUtilities):
 
     def __recursiveArg(self, cache, arg, time):
         p = self.newdb().getItem(arg)
-        #p = self.newdb()[arg + "_SFC"]
-        tr = p.getTimeRange(time[0])
-        pytr = TimeRange.encodeJavaTimeRange(tr)
-        pkeys = TimeRange.javaTimeRangeListToPyList(p.getKeys())
-        if  pytr in pkeys:            
+        
+#         tr = p.getTimeRange(time[0])
+        tr = TimeRange.TimeRange(AbsTime.AbsTime(time[0]), AbsTime.AbsTime(time[1])).toJavaObj()
+        times = p.getKeys(tr)
+        if times:
+            tr = times[0]
+            LogStream.logEvent("retrieving", arg, printTR(tr))
+
+            pytr = TimeRange.encodeJavaTimeRange(tr)
             jslice = p.getItem(tr)
             slice = jslice.getNDArray()
             if type(slice) is ndarray and slice.dtype == int8:
                 # discrete or weather
                 keys = JUtil.javaObjToPyVal(jslice.getKeyList())
-                slice = [slice, keys]           
+                slice = [slice, keys]
             cache[arg] = (slice, pytr)
-        else:            
+        else:
+            LogStream.logEvent("no data for", arg, printTR(tr))
             cache[arg] = (None, time)
 
     def __argFill(self, cache, method, time):
         we, mthd, args = method
+        LogStream.logEvent("getting arguments for", mthd.func_name, printTR(time))
+
         gargs = []
         if self._ndbkeys is None:
             self._ndbkeys = JUtil.javaStringListToPylist(self.newdb().getKeys())
-        ndbkeys = self._ndbkeys        
+        ndbkeys = self._ndbkeys
         for arg in args:
             if arg in self._editAreas:
                 if cache[arg][0] is None:
                     p = self.newdb().getItem(we)
                     ea = p.getEditArea(arg).getNDArray()
-                    cache[arg] = (ea, (0, sys.maxint))
+                    cache[arg] = (ea, (0, MAX_TIME))
                 gargs.append(cache[arg][0])
                 continue
-            if not cache.has_key(arg):                
+            if not cache.has_key(arg):
                 if arg in ndbkeys:
                     self.__recursiveArg(cache, arg, time)
                 else:
-                    val = self._ifpio.get(self.__request(self.srcdb(),
-                                                         arg, time))
+                    req = self.__request(self.srcdb(), arg, time)
+                    val = self._ifpio.get(req)
                     if arg[-2:] == "_c":
                         self.pres = val[0]
                         val = val[1]
-                    cache[arg] = (val, time)
+                    cache[arg] = (val, TimeRange.encodeJavaTimeRange(req[1]))
             else:
                 if cache[arg][1] is not None and \
-                   not self._overlaps(time, cache[arg][1]):                    
+                   not self._overlaps(time, cache[arg][1]):
                     if arg in ndbkeys:
                         self.__recursiveArg(cache, arg, time)
-                        val = cache[arg][0]
-                    else:                        
-                        val = self._ifpio.get(self.__request(self.srcdb(),
-                                                             arg, time))                                        
-                    if arg[-2:] == "_c":
-                        self.pres = val[0]
-                        val = val[1]
-                    cache[arg] = (val, time)
-            
+                    else:
+                        req = self.__request(self.srcdb(), arg, time)
+                        val = self._ifpio.get(req)
+                        if arg[-2:] == "_c":
+                            self.pres = val[0]
+                            val = val[1]
+                        cache[arg] = (val, TimeRange.encodeJavaTimeRange(req[1]))
+                else:
+                    LogStream.logEvent("using cached", arg, printTR(cache[arg][1]))
+
             gargs.append(cache[arg][0])
         return gargs
 
     def __runMethod(self, method, time, cache):
         we, mthd, args = method
-        
+
         if self.mostRecentCacheClear != time:
-            self.mostRecentCacheClear = time            
+            self.mostRecentCacheClear = time
             for key in cache.keys():
                 cacheValue = cache[key]
-                if len(cacheValue) == 2 and key.find('_') > -1:
-                    # these are WeatherElements, if they are for time ranges that
-                    # we've completed calculations for, immediately set them to
-                    # None to free up the memory                    
-                    if time[0] != cacheValue[1][0]:
+                if len(cacheValue) == 2:
+                    # if they are for time ranges that we've completed calculations for, 
+                    # immediately set them to None to free up the memory
+                    if not self._overlaps(cacheValue[1],time):
+                        LogStream.logEvent("Clearing", key, printTR(cacheValue[1]))
                         cache[key] = (None, cacheValue[1])
-            
+
         gargs = self.__argFill(cache, method, time)
 
         doStore = False
         if mthd.im_func is Forecaster.__exists.im_func:
-            msg = "Get : " + we + " " + self._timeRangeStr(time)
-            LogStream.logEvent(msg)            
-        else:        
+            msg = self.newdb().getModelIdentifier() + ": Get : " + we + " " + self._timeRangeStr(time)
+            LogStream.logEvent(msg)
+        else:
             doStore = True
-            msg = "Calc : " + we + " " + self._timeRangeStr(time)
-            LogStream.logEvent(msg)            
-        
+            msg = self.newdb().getModelIdentifier() + ": Calc : " + we + " " + self._timeRangeStr(time)
+            LogStream.logEvent(msg)
+
         try:
             rval = apply(mthd, tuple(gargs))
-        
-            if type(rval) is not ndarray:
-                if type(rval) is not tuple:
-                    jrval = rval
-                    rval = rval.getNDArray()
-                    if type(rval) is ndarray and rval.dtype == int8:
-                        # discrete or weather
-                        keys = JUtil.javaObjToPyVal(jrval.getKeyList())
-                        rval = [rval, keys]
+
+            if rval is not None:
+                if type(rval) is not ndarray and rval is not None:
+                    if type(rval) is not tuple:
+                        jrval = rval
+                        rval = rval.getNDArray()
+                        if type(rval) is ndarray and rval.dtype == int8:
+                            # discrete or weather
+                            keys = JUtil.javaObjToPyVal(jrval.getKeyList())
+                            rval = [rval, keys]
+            else:
+                LogStream.logEvent("No value returned from calc"+str(we))
+
+            s = 'grid'
+            if rval is None:
+                s = 'None'
+            LogStream.logEvent("Caching", we, s, printTR(time))
             cache[we] = (rval, time)
-                  
+
             if rval is not None and cache['mtime'][0] is not None and doStore:
-                parm = self.__getNewWE(we)          
+                parm = self.__getNewWE(we)
+                LogStream.logEvent("Storing", we, printTR(cache['mtime'][0]))
                 self._ifpio.store(parm, cache['mtime'][0], cache[we][0])
         except:
-            LogStream.logProblem("Error while running method " + str(we) +
+            LogStream.logProblem(self.newdb().getModelIdentifier() + ": Error while running method " + str(we) +
                                  "\n" + LogStream.exc())
             cache[we] = (None, time)
 
@@ -1112,12 +1154,12 @@ class Forecaster(GridUtilities):
         for i in xrange(len(methods)):
             for t in times[i]:
                 lst.append((methods[i], t, i))
-        lst.sort(self.__tsort)        
+        lst.sort(self.__tsort)
         return lst
 
-    def __exists(self, mtime, wename):        
-        #parm = self.__getNewWE(wename + "_SFC")        
-        parm = self.__getNewWE(wename)        
+    def __exists(self, mtime, wename):
+        #parm = self.__getNewWE(wename + "_SFC")
+        parm = self.__getNewWE(wename)
         return parm.getItem(mtime)
 
     def __prune(self, lst):
@@ -1130,7 +1172,7 @@ class Forecaster(GridUtilities):
             #parm = self.__getNewWE(m[0] + "_SFC")
             tr = TimeRange.encodeJavaTimeRange(parm.getTimeRange(t[0]))
             if tr is None:
-                continue                        
+                continue
             parmtr = TimeRange.javaTimeRangeListToPyList(parm.getKeys())
             if tr in parmtr:
                 # Skip (maybe)
@@ -1170,35 +1212,35 @@ class Forecaster(GridUtilities):
     def sourceBaseTime(self):
         modelTime = self.srcdb().getModelTime()
         if modelTime is None:
-            modelTime = 0 
+            modelTime = 0
         t = AbsTime.AbsTime(modelTime)
         return t.unixTime()
-        
+
     # JULIYA MODIFY HERE
     def __process(self, methods, times, mode):
         numGrids = 0
         trSpan = None
-        cache = self.magicArgs()  
+        cache = self.magicArgs()
         all = mode#Options['all'] manual=1 automatic=0
-        list = self.__flattenTimes(methods, times)                    
+        list = self.__flattenTimes(methods, times)
         if not all:
             list = self.__prune(list)
 
         self.mostRecentCacheClear = None
         for m, t, i in list:
-            cache['ctime'] = (t, (0, sys.maxint))
+            cache['ctime'] = (t, (0, MAX_TIME))
             parm = self.__getNewWE(m[0])
             tr = parm.getTimeRange(t[0])
-            
-            # A valid time range was not found so the parameter 
+
+            # A valid time range was not found so the parameter
             # cannot be calculated, so continue
             if not tr.isValid():
                 continue
-            
-            cache['mtime'] = (tr, (0, sys.maxint))
-            cache['wename'] = (m[0], (0, sys.maxint))
-            cache['stime'] = (t[0] - self.sourceBaseTime(), (0, sys.maxint))
-            
+
+            cache['mtime'] = (tr, (0, MAX_TIME))
+            cache['wename'] = (m[0], (0, MAX_TIME))
+            cache['stime'] = (t[0] - self.sourceBaseTime(), (0, MAX_TIME))
+
             try:
                 self.__runMethod(m, t, cache)
                 numGrids = numGrids + 1
@@ -1224,7 +1266,7 @@ class IFPIO:
 
     def getSrcWE(self, wename, lock=1):
         rval = None
-        try:            
+        try:
             rval = self.__srcwes[wename]
         except:
             rval = self.eta.getItem(wename)
@@ -1239,21 +1281,27 @@ class IFPIO:
             self.__newwes[wename] = rval
         return rval
 
-    def get(self, qv):        
+    def get(self, qv):
         if len(qv) == 2:
             name, time = qv
             docube = 0
         else:
-            name, time, docube = qv        
+            name, time, docube = qv
         if not docube:
-            slice = self.getSrcWE(name, 0).getItem(time)
+            p = self.getSrcWE(name, 0)
+            times = p.getKeys(time)
+            if times:
+                time = times[0]
+                LogStream.logEvent("retrieving", name, printTR(time))
+            
+            slice = p.getItem(time)
             out = slice.getNDArray()
-            if type(out) is ndarray and out.dtype == int8:            
+            if type(out) is ndarray and out.dtype == int8:
                 # discrete or weather
                 keys = JUtil.javaObjToPyVal(slice.getKeyList())
-                out = [out, keys]            
+                out = [out, keys]
         else:
-            out = self._getcube(self.eta, name, time)
+            out = self._getcube(name, time)
         return out
 
     #--------------------------------------------------------------------------
@@ -1269,20 +1317,14 @@ class IFPIO:
         return self._levels
 
     #--------------------------------------------------------------------------
-    #  Returns the data cube for the specified db, parm, and time.
+    #  Returns the data cube for the specified parm, and time.
     #--------------------------------------------------------------------------
-    def _getcube(self, db, parm, time):
+    def _getcube(self, parm, time):
         lvls = self.levels()
         lst = []
         pres = []
         for l in lvls:
-            p = self.getSrcWE(parm + "_" + l, 0)
-            jslice = p.getItem(time)            
-            slice = jslice.getNDArray()
-            if type(slice) is ndarray and slice.dtype == int8:
-                # discrete or weather
-                keys = JUtil.javaObjToPyVal(jslice.getKeyList())
-                slice = [slice, keys]            
+            slice = self.get((parm + "_" + l, time))
             lst.append(slice)
             pres.append(int(l[2:]))
         # only scalars will be ndarray, otherwise it was vector, discrete, or wx
@@ -1293,7 +1335,7 @@ class IFPIO:
                 ml.append(i[0])
                 dl.append(i[1])
             rval = (array(ml), array(dl))
-        else:            
+        else:
             rval = array(lst)
         return (pres, rval)
 
@@ -1302,15 +1344,15 @@ class IFPIO:
     # specified time
     #--------------------------------------------------------------------------
     def store(self, newwe, time, grid):
-        gridType = newwe.getGridType()            
+        gridType = newwe.getGridType()
         if gridType == "SCALAR":
             grid = clip(grid, newwe.getMinAllowedValue(), newwe.getMaxAllowedValue())
         elif gridType == "VECTOR":
             mag = clip(grid[0], newwe.getMinAllowedValue(), newwe.getMaxAllowedValue())
             dir = clip(grid[1], 0, 359.5)
             grid = (mag, dir)
-        tr = TimeRange.encodeJavaTimeRange(time)        
-        # safety checks        
+        tr = TimeRange.encodeJavaTimeRange(time)
+        # safety checks
         wrongType = None
         saved = False
         if type(grid) is ndarray:
@@ -1324,16 +1366,16 @@ class IFPIO:
                 dirGrid = NumpyJavaEnforcer.checkdTypes(grid[1], float32)
                 # vector save
                 newwe.setItemVector(newwe.getTimeRange(tr[0]), magGrid, dirGrid)
-                saved = True                                                    
+                saved = True
             elif type(grid[0]) is ndarray and type(grid[1]) is list:
                 bgrid = NumpyJavaEnforcer.checkdTypes(grid[0], int8)
-                    
+
                 if gridType == "DISCRETE":
                     newwe.setItemDiscrete(newwe.getTimeRange(tr[0]), bgrid, str(grid[1]))
                 elif gridType == "WEATHER":
                     newwe.setItemWeather(newwe.getTimeRange(tr[0]), bgrid, str(grid[1]))
-                    
-                saved = True                
+
+                saved = True
         if not saved:
             if wrongType is None:
                 wrongType = type(grid)
@@ -1343,10 +1385,10 @@ class IFPIO:
 #--------------------------------------------------------------------------
 # Main program
 #--------------------------------------------------------------------------
-def runFromJava(dbName, model, validTime):    
+def runFromJava(dbName, model, validTime):
     SmartInitParams.params['dbName'] = dbName
     SmartInitParams.params['validTime'] = validTime
-    
+
     mod = __import__(model)
     mod.main()
     rollbackImporter.rollback()

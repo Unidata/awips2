@@ -98,6 +98,7 @@ function buildCAVERPM()
       --define '_build_arch %(echo ${CAVE_BUILD_ARCH})' \
       --define '_build_bits %(echo ${CAVE_BUILD_BITS})' \
       --define '_component_name %(echo ${RPM_NAME})' \
+      --define '_uframe_eclipse %(echo ${UFRAME_ECLIPSE})' \
       --buildroot ${AWIPSII_BUILD_ROOT} ${COMPONENT_SPECS}
    # If We Are Unable To Build An RPM, Fail The Build:
    if [ $? -ne 0 ]; then
@@ -150,76 +151,16 @@ if [ $? -ne 0 ]; then
 fi
 
 _context_qualifier=`date +"%Y%m%d%H"`
-
-cd ${prepare_dir}
-# Next, stage the plugins and determine what needs to be built.
-# In another scenario that jar utility could be ran again with only the subset of features
-# that need to be built prior to the repository build.
-/awips2/java/bin/java -jar -DbaseLocation=${UFRAME_ECLIPSE} \
-    -DbuildDirectory=${pde_build_dir} -DstagingDirectory=${WORKSPACE} -DbuildFeatures=* \
-    -DexcludeFeatures=com.raytheon.viz.feature.awips.developer,com.raytheon.uf.viz.feature.alertviz \
-    AwipsDependencyEvaluator.jar
-if [ $? -ne 0 ]; then
-    exit 1
-fi
-	
 _pde_launcher_jar=${UFRAME_ECLIPSE}/plugins/org.eclipse.equinox.launcher_1.3.0.v20120522-1813.jar
 _pde_product_xml=${UFRAME_ECLIPSE}/plugins/org.eclipse.pde.build_3.8.2.v20121114-140810/scripts/productBuild/productBuild.xml
-
-# Complete the CAVE RCP build.
-/awips2/java/bin/java -jar ${_pde_launcher_jar} -application org.eclipse.ant.core.antRunner \
-    -buildfile ${_pde_product_xml} -DbaseLocation=${UFRAME_ECLIPSE} \
-    -Dbuilder=${pde_base_dir} -DbuildDirectory=${pde_build_dir} \
-    -DforceContextQualifier=${_context_qualifier} \
-    -Dbase=${pde_base_dir} -Dproduct=${WORKSPACE}/${awips_product}
-if [ $? -ne 0 ]; then
-    exit 1
-fi
-
-# Copy the CAVE binary to the location expected by the RPM build
-cp ${pde_build_dir}/I.CAVE/CAVE-linux.gtk.x86_64.zip ${WORKSPACE}/rpms/awips2.cave/setup/dist/
-
-cd ${WORKSPACE}/rpms/awips2.cave
-buildCAVERPM "Installer.cave" "awips2-cave"
-buildCAVERPM "Installer.cave-wrapper" ""
-
-rm -rf ${pde_build_dir}
-mkdir -p ${pde_build_dir}
-cd ${prepare_dir}
-# Next, stage the plugins and determine what needs to be built.
-# In another scenario that jar utility could be ran again with only the subset of features
-# that need to be built prior to the repository build.
-/awips2/java/bin/java -jar -DbaseLocation=${UFRAME_ECLIPSE} \
-    -DbuildDirectory=${pde_build_dir} -DstagingDirectory=${WORKSPACE} -DbuildFeatures=* \
-    -DexcludeFeatures=com.raytheon.viz.feature.awips.developer,com.raytheon.uf.viz.feature.alertviz \
-    AwipsDependencyEvaluator.jar
-if [ $? -ne 0 ]; then
-    exit 1
-fi
-
-# Complete the nawips CAVE RCP build.
-/awips2/java/bin/java -jar ${_pde_launcher_jar} -application org.eclipse.ant.core.antRunner \
-    -buildfile ${_pde_product_xml} -DbaseLocation=${UFRAME_ECLIPSE} \
-    -Dbuilder=${pde_base_dir} -DbuildDirectory=${pde_build_dir} \
-    -DforceContextQualifier=${_context_qualifier} \
-    -Dbase=${pde_base_dir} -Dproduct=${WORKSPACE}/${ncep_product}
-if [ $? -ne 0 ]; then
-    exit 1
-fi
-
-# Copy the CAVE binary to the location expected by the RPM build
-cp ${pde_build_dir}/I.CAVE/CAVE-linux.gtk.x86_64.zip ${WORKSPACE}/rpms/awips2.cave/setup/dist/
-
-cd ${WORKSPACE}/rpms/awips2.cave
-buildCAVERPM "Installer.cave" "awips2-cave-ncep"
 
 cd ${prepare_dir}
 # Prepare for the CAVE repository build. Need to create more resuse for a single build
 # properties file so that it can be used for both product and feature builds.
-pde_build_dir=${pde_base_dir}/p2
-pde_base_dir=${pde_base_dir}/p2
+pde2_build_dir=${pde_base_dir}/p2
+pde2_base_dir=${pde_base_dir}/p2
 /awips2/java/bin/java -jar -DbaseLocation=${UFRAME_ECLIPSE} \
-    -DbuildDirectory=${pde_build_dir} -DstagingDirectory=${WORKSPACE} -DbuildFeatures=* \
+    -DbuildDirectory=${pde2_build_dir} -DstagingDirectory=${WORKSPACE} -DbuildFeatures=* \
     -DexcludeFeatures=com.raytheon.viz.feature.awips.developer,com.raytheon.uf.viz.feature.alertviz \
     AwipsDependencyEvaluator.jar
 if [ $? -ne 0 ]; then
@@ -227,27 +168,27 @@ if [ $? -ne 0 ]; then
 fi
 
 _pde_build_xml=${UFRAME_ECLIPSE}/plugins/org.eclipse.pde.build_3.8.2.v20121114-140810/scripts/build.xml
-repo_dist_dir=${pde_build_dir}/dist
+repo_dist_dir=${pde2_build_dir}/dist
 
-mkdir -p ${pde_base_dir}
-repo_dist_dir=${pde_build_dir}/dist
-p2_repo_dir=${pde_build_dir}/repository
+mkdir -p ${pde2_base_dir}
+repo_dist_dir=${pde2_build_dir}/dist
+p2_repo_dir=${pde2_build_dir}/repository
 if [ -d ${REPO_DEST} ]; then
    rm -rf ${REPO_DEST}
 fi
 mkdir -p ${REPO_DEST}
 
-cp -v ${build_project_dir}/build.properties.p2 ${pde_base_dir}/build.properties
+cp -v ${build_project_dir}/build.properties.p2 ${pde2_base_dir}/build.properties
 for feature in `cat ${build_project_dir}/features.txt`; do
 /awips2/java/bin/java -jar ${_pde_launcher_jar} -application org.eclipse.ant.core.antRunner \
     -buildfile ${_pde_build_xml} -DbaseLocation=${UFRAME_ECLIPSE} \
-    -Dbuilder=${pde_base_dir} -DbuildDirectory=${pde_build_dir} \
+    -Dbuilder=${pde2_base_dir} -DbuildDirectory=${pde2_build_dir} \
     -DtopLevelElementType=feature -DforceContextQualifier=${_context_qualifier} \
-    -Dbase=${pde_base_dir} -DtopLevelElementId=${feature} \
+    -Dbase=${pde2_base_dir} -DtopLevelElementId=${feature} \
     -Dconfigs=linux,gtk,x86_64
     if [ $? -ne 0 ]; then
         exit 1
-    fi  
+    fi
 
     pushd . > /dev/null 2>&1    
     # zip the built repository.
@@ -264,3 +205,142 @@ for feature in `cat ${build_project_dir}/features.txt`; do
         exit 1
     fi
 done
+
+cd ${prepare_dir}
+# Next, stage the plugins and determine what needs to be built.
+/awips2/java/bin/java -jar -DbaseLocation=${UFRAME_ECLIPSE} \
+    -DbuildDirectory=${pde_build_dir} -DstagingDirectory=${WORKSPACE} -DbuildFeatures=* \
+    -DexcludeFeatures=com.raytheon.viz.feature.awips.developer,com.raytheon.uf.viz.feature.alertviz \
+    AwipsDependencyEvaluator.jar
+if [ $? -ne 0 ]; then
+    exit 1
+fi
+
+cd ${prepare_dir}
+# Next, stage the plugins and determine what needs to be built.
+# In another scenario that jar utility could be ran again with only the subset of features
+# that need to be built prior to the repository build.
+/awips2/java/bin/java -jar -DbaseLocation=${UFRAME_ECLIPSE} \
+    -DbuildDirectory=${pde_build_dir} -DstagingDirectory=${WORKSPACE} \
+    -DbuildProduct=${awips_product} -DbaseUpgrade=com.raytheon.viz.feature.awips \
+    -DoutputFile=${prepare_dir}/awipsInstall.txt \
+    -DexcludeFeatures=com.raytheon.viz.feature.awips.developer,com.raytheon.uf.viz.feature.alertviz \
+    AwipsDependencyEvaluator.jar
+if [ $? -ne 0 ]; then
+    exit 1
+fi
+
+# Complete the CAVE RCP build.
+/awips2/java/bin/java -jar ${_pde_launcher_jar} -application org.eclipse.ant.core.antRunner \
+    -buildfile ${_pde_product_xml} -DbaseLocation=${UFRAME_ECLIPSE} \
+    -Dbuilder=${pde_base_dir} -DbuildDirectory=${pde_build_dir} \
+    -DforceContextQualifier=${_context_qualifier} \
+    -Dbase=${pde_base_dir} -Dproduct=${WORKSPACE}/${awips_product}
+if [ $? -ne 0 ]; then
+    exit 1
+fi
+
+_repo_install_staging=${prepare_dir}/repo-staging
+
+unzip ${pde_build_dir}/I.CAVE/CAVE-linux.gtk.x86_64.zip -d ${pde_build_dir}/I.CAVE 
+
+for feature in `cat ${prepare_dir}/awipsInstall.txt`; do
+    if [ -d ${_repo_install_staging} ]; then
+        rm -rf ${_repo_install_staging}
+    fi
+    mkdir ${_repo_install_staging}
+    
+    unzip ${REPO_DEST}/${feature}.zip -d ${_repo_install_staging}
+    
+    CAVE_EXE="${pde_build_dir}/I.CAVE/cave/cave"
+    NOSPLASH_ARG="-nosplash"
+    DIRECTOR_APP="-application org.eclipse.equinox.p2.director"
+    DESTINATION_ARG="-destination ${pde_build_dir}/I.CAVE/cave"
+    INSTALL_ARG="-i ${feature}.feature.group"
+    UNINSTALL_ARG="-u ${feature}.feature.group"
+    # Used to ensure that the awips2-java is used.
+    VM_ARG=/awips2/java/bin/java
+    REPO="-repository file:${_repo_install_staging}"
+    
+    COMMON_CMD="${CAVE_EXE} -vm ${VM_ARG} ${NOSPLASH_ARG} ${DIRECTOR_APP} ${DESTINATION_ARG}"
+    INSTALL_CMD="${COMMON_CMD} ${INSTALL_ARG} ${REPO}"
+    ${INSTALL_CMD}
+    if [ $? -ne 0 ]; then
+        exit 1
+    fi 
+done
+
+rm -fv ${pde_build_dir}/I.CAVE/CAVE-linux.gtk.x86_64.zip
+pushd . > /dev/null 2>&1
+cd ${pde_build_dir}/I.CAVE
+zip -r CAVE-linux.gtk.x86_64.zip cave 
+popd > /dev/null
+cp ${pde_build_dir}/I.CAVE/CAVE-linux.gtk.x86_64.zip ${WORKSPACE}/rpms/awips2.cave/setup/dist/
+
+cd ${WORKSPACE}/rpms/awips2.cave
+buildCAVERPM "Installer.cave" "awips2-cave"
+buildCAVERPM "Installer.cave-wrapper" ""
+
+rm -rf ${pde_build_dir}
+mkdir -p ${pde_build_dir}
+
+cd ${prepare_dir}
+/awips2/java/bin/java -jar -DbaseLocation=${UFRAME_ECLIPSE} \
+    -DbuildDirectory=${pde_build_dir} -DstagingDirectory=${WORKSPACE} \
+    -DbuildProduct=${ncep_product} -DbaseUpgrade=com.raytheon.viz.feature.awips \
+    -DoutputFile=${prepare_dir}/ncepInstall.txt \
+    -DexcludeFeatures=com.raytheon.viz.feature.awips.developer,com.raytheon.uf.viz.feature.alertviz \
+    AwipsDependencyEvaluator.jar
+if [ $? -ne 0 ]; then
+    exit 1
+fi
+
+# Complete the nawips CAVE RCP build.
+/awips2/java/bin/java -jar ${_pde_launcher_jar} -application org.eclipse.ant.core.antRunner \
+    -buildfile ${_pde_product_xml} -DbaseLocation=${UFRAME_ECLIPSE} \
+    -Dbuilder=${pde_base_dir} -DbuildDirectory=${pde_build_dir} \
+    -DforceContextQualifier=${_context_qualifier} \
+    -Dbase=${pde_base_dir} -Dproduct=${WORKSPACE}/${ncep_product}
+if [ $? -ne 0 ]; then
+    exit 1
+fi
+
+unzip ${pde_build_dir}/I.CAVE/CAVE-linux.gtk.x86_64.zip -d ${pde_build_dir}/I.CAVE 
+
+for feature in `cat ${prepare_dir}/ncepInstall.txt`; do
+    if [ -d ${_repo_install_staging} ]; then
+        rm -rf ${_repo_install_staging}
+    fi
+    mkdir ${_repo_install_staging}
+    
+    unzip ${REPO_DEST}/${feature}.zip -d ${_repo_install_staging}
+    
+    CAVE_EXE="${pde_build_dir}/I.CAVE/cave/cave"
+    NOSPLASH_ARG="-nosplash"
+    DIRECTOR_APP="-application org.eclipse.equinox.p2.director"
+    DESTINATION_ARG="-destination ${pde_build_dir}/I.CAVE/cave"
+    INSTALL_ARG="-i ${feature}.feature.group"
+    UNINSTALL_ARG="-u ${feature}.feature.group"
+    # Used to ensure that the awips2-java is used.
+    VM_ARG=/awips2/java/bin/java
+    REPO="-repository file:${_repo_install_staging}"
+    
+    COMMON_CMD="${CAVE_EXE} -vm ${VM_ARG} ${NOSPLASH_ARG} ${DIRECTOR_APP} ${DESTINATION_ARG}"
+    INSTALL_CMD="${COMMON_CMD} ${INSTALL_ARG} ${REPO}"
+    ${INSTALL_CMD}
+    if [ $? -ne 0 ]; then
+        exit 1
+    fi 
+done
+
+rm -fv ${pde_build_dir}/I.CAVE/CAVE-linux.gtk.x86_64.zip
+pushd . > /dev/null 2>&1
+cd ${pde_build_dir}/I.CAVE
+zip -r CAVE-linux.gtk.x86_64.zip cave 
+popd > /dev/null
+
+# Copy the CAVE binary to the location expected by the RPM build
+cp ${pde_build_dir}/I.CAVE/CAVE-linux.gtk.x86_64.zip ${WORKSPACE}/rpms/awips2.cave/setup/dist/
+
+cd ${WORKSPACE}/rpms/awips2.cave
+buildCAVERPM "Installer.cave" "awips2-cave-ncep"
