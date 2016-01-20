@@ -24,6 +24,7 @@ import com.raytheon.uf.viz.monitor.data.ObReport;
  * May 15, 2012 14510      zhao         Modified generateObReport()
  * Jan 06, 2014  2653      skorolev     Included SNOW data into ObReport.
  * Sep 20, 2015  3873      skorolev     Added IsStationary and getReportType.
+ * Dec 02, 2015  3873      dhladky      Fixed missing parameters.
  * 
  * 
  * </pre>
@@ -48,6 +49,7 @@ public class GenerateFSSObReport {
         // Generate the observation report.
         ObReport obReport = new ObReport();
         FSSObsRecord fssData = (FSSObsRecord) report;
+
         try {
             obReport.setObservationTime(fssData.getTimeObs().getTime());
             obReport.setRefHour(fssData.getRefHour().getTime());
@@ -59,7 +61,7 @@ public class GenerateFSSObReport {
             obReport.setTimesFromFssobDataURI(report.getDataURI());
         }
         obReport.setPlatformId(fssData.getPlatformId());
-        obReport.setStationary(fssData.getIsStationary());
+        obReport.setStationary(fssData.isStationary());
         obReport.setLatitude((float) fssData.getLatitude());
         obReport.setLongitude((float) fssData.getLongitude());
         // Table data:
@@ -117,19 +119,31 @@ public class GenerateFSSObReport {
         return obReport;
     }
 
+    /**
+     * Retrieve the type of the report.  ReportType Enumeration
+     */
     private static ReportType getReportType(String reportType) {
         if (reportType == null) {
             reportType = "";
         }
         switch (reportType) {
-        case "1003":
-        case "1004":
-        case "1005":
-        case "1006":
-        case "1007":
+        case "1003": 
+            return ReportType.SYNOPTIC_SHIP;
+        case "1004": 
+            return ReportType.SYNOPTIC_CMAN;
+        case "1005": 
+            return ReportType.SYNOPTIC_MOORED_BUOY;
+        case "1006": 
+            return ReportType.DRIFTING_BUOY;
+        case "1007": 
             return ReportType.MARITIME;
-            // TODO:MESONET
-        default:
+        case "SPECI": 
+            return ReportType.SPECI;
+        case "METAR": 
+            return ReportType.METAR;
+        case "MESONET": 
+            return ReportType.MESONET;
+        default:  
             return ReportType.METAR;
         }
     }

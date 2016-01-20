@@ -5,6 +5,10 @@ path_to_script=`readlink -f $0`
 RUN_FROM_DIR=`dirname ${path_to_script}`
 BASE_ENV_DIR=`dirname ${RUN_FROM_DIR}`
 
+#DR 18113 rehost. /awips/fxa/... Has kicked the bit-bucket.
+export TMCP_HOME=/awips2/cave/caveEnvironment
+export FXA_HOME=/awips2/cave/caveEnvironment
+
 if [ ! -n "${TMCP_HOME}" ]
 then
    echo -e "\e[1;31mTMCP_HOME is not set.\e[m"
@@ -37,19 +41,24 @@ then
    then
       echo -e "\e[1;31mFXA_WARNGEN_PRODUCT_ID is not set.\e[m"
       echo -e "\e[0;32mSetting FXA_WARNGEN_PRODUCT_ID to '${TMP_HOST_NUMBER}'.\e[m"
-      export FXA_WARNGEN_PRODUCT_ID=${TMP_HOST_NUMBER}      
+      export FXA_WARNGEN_PRODUCT_ID=${TMP_HOST_NUMBER}
    else
       echo "FXA_WARNGEN_PRODUCT_ID is '${FXA_WARNGEN_PRODUCT_ID}'."
    fi
+else
+   echo -e  "\e[1;31mPartner host \""${ALT_HOST}"\" is unreachable by network!\e[m"
+   echo  ${ALT_HOME} 
+   echo
 fi
 
 export LD_LIBRARY_PATH=$TMCP_HOME/lib:$LD_LIBRARY_PATH
 
 # for TMCP logs
-if [ ! -d $HOME/tmcpLogs ]; then
-   mkdir $HOME/tmcpLogs
+if [ ! -d $HOME/caveData/tmcpLogs ]; then
+   mkdir -p $HOME/caveData/tmcpLogs
 fi
+export LOG_DIR=$HOME/caveData/tmcpLogs
 
-export LOG_DIR=$HOME/tmcpLogs
 
 $TMCP_HOME/bin/tmcp
+

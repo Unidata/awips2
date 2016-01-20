@@ -87,6 +87,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Sep 18, 2015 3873          skorolev     Added formIsValid method.
  * Oct 19, 2015 3841          skorolev     Corrected formIsValid messages.
  * Nov 12, 2015 3841          dhladky      Augmented Slav's fix for moving platforms.
+ * Dec 02, 2015 3873      dhladky      Pulled 3841 to 16.1.1.
  * 
  * </pre>
  * 

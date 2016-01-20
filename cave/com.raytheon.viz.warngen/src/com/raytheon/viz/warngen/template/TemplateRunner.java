@@ -740,10 +740,15 @@ public class TemplateRunner {
                         if (atIndex > 0) {
                             int hhmmStart = atIndex + 3;
                             hhmmEnd = message.indexOf(", ", hhmmStart);
-                            if (hhmmEnd > 0) {
-                                context.put("corToNewMarker", "cortonewmarker");
-                                context.put("corEventtime",
-                                        message.substring(hhmmStart, hhmmEnd));
+                            if (hhmmEnd < 0) {
+                                // check for ellipsis
+                                hhmmEnd = message.indexOf("...", hhmmStart);
+                            } else {
+                                if (hhmmEnd > 0) {
+                                    context.put("corToNewMarker", "cortonewmarker");
+                                    context.put("corEventtime",
+                                            message.substring(hhmmStart, hhmmEnd));
+                                }
                             }
                         }
                     }

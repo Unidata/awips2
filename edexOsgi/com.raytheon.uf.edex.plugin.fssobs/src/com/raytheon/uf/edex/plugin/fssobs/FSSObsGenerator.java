@@ -64,6 +64,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Sep 18, 2015 3873       skorolev     Added moving platforms testing.
  * Oct 19, 2015 3841       skorolev     Corrected isNearZone.
  * Nov 12, 2015 3841       dhladky      Augmented Slav's moving platform fix.
+ * Dec 02, 2015 3873       dhladky      Fixed performance problems, missing params.
  * 
  * </pre>
  * 
@@ -75,6 +76,16 @@ public class FSSObsGenerator extends CompositeProductGenerator implements
         MonitorConfigListener {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(FSSObsGenerator.class);
+
+    /** List of fixed types **/
+    protected static final String[] stationaryTypes = new String[] {
+            ObConst.METAR, ObConst.MESONET, ObConst.SPECI,
+            ObConst.SYNOPTIC_CMAN, ObConst.SYNOPTIC_MOORED_BUOY };
+
+    /** list of moving types **/
+    protected static final String[] movingTypes = new String[] {
+            ObConst.SYNOPTIC_SHIP, ObConst.DRIFTING_BUOY,
+            ObConst.SYNOPTIC_MAROB };
 
     /** Name of composite generator */
     private static final String genName = "FSSObs";
@@ -112,37 +123,69 @@ public class FSSObsGenerator extends CompositeProductGenerator implements
     public void generateProduct(URIGenerateMessage genMessage) {
 
         FSSObsConfig fss_config = null;
-        boolean isStationary = true;
+               
         try {
             fss_config = new FSSObsConfig(genMessage, this);
             this.setPluginDao(new FSSObsDAO(productType));
         } catch (Exception e) {
-            statusHandler.handle(Priority.PROBLEM, "Couldn't read FSSObs configuration information.", e);
+            statusHandler.handle(Priority.PROBLEM,
+                    "Couldn't read FSSObs configuration information.", e);
         }
         List<FSSObsRecord> fssRecs = new ArrayList<FSSObsRecord>();
         for (String uri : genMessage.getUris()) {
-            // Test if moving platforms are within configuration distance
-            if (uri.contains(ObConst.SYNOPTIC_SHIP)
-                    || uri.contains(ObConst.DRIFTING_BUOY)
-                    || uri.contains(ObConst.SYNOPTIC_MAROB)) {
-                isStationary = false;
-                try {
-                    if (!isNearZone(uri)) {
-                        continue;
+            
+            boolean isStationary = true;
+            String reportType = null;
+            boolean inRange = false;
+            
+            // check if moving type
+            for (String t : movingTypes) {
+                if (uri.contains(t)) {
+                    reportType = t;
+                    isStationary = false;
+
+                    try {
+                        if (isNearZone(uri)) {
+                            inRange = true;
+                            statusHandler.handle(Priority.INFO,
+                                    "===> Moving platform in Range " + uri);
+                        }
+                    } catch (SpatialException e) {
+                        statusHandler
+                                .handle(Priority.PROBLEM,
+                                        "URI: "
+                                                + uri
+                                                + " could not be checked for Location information.",
+                                        e);
+                        // If the location info is bad. we don't want it.
+                        inRange = false;
                     }
-                } catch (SpatialException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "URI: "+uri+" could not be checked for Location information.", e);
-                    // If the location info is bad.  we don't want it.
-                    continue;
+
+                    break;
                 }
             }
 
-            FSSObsRecord fssObsRec = new FSSObsRecord();
-            fssObsRec.setIsStationary(isStationary);
-            fssObsRec = fss_config.getTableRow(uri);
-            FSSObsDataTransform.buildView(fssObsRec);
-            fssRecs.add(fssObsRec);
+            if (isStationary) {
+                // determine stationary type
+                for (String t : stationaryTypes) {
+                    if (uri.contains(t)) {
+                        reportType = t;
+                        inRange = true;
+                        break;
+                    }
+                }
+            }
+
+            // We only want what we know how to decode
+            if (reportType != null && inRange) {
+                
+                FSSObsRecord fssObsRec = new FSSObsRecord();
+                fssObsRec.setReportType(reportType);
+                fssObsRec.setStationary(isStationary);
+                fssObsRec = fss_config.getTableRow(uri);
+                FSSObsDataTransform.buildView(fssObsRec);
+                fssRecs.add(fssObsRec);
+            }
         }
 
         if (!fssRecs.isEmpty()) {
@@ -152,7 +195,7 @@ public class FSSObsGenerator extends CompositeProductGenerator implements
                     + fssRecs.size() + " records.");
         }
     }
-
+    
     /**
      * Checks if ship is near monitoring zones and should be included in FSSObs
      * data.
@@ -174,12 +217,15 @@ public class FSSObsGenerator extends CompositeProductGenerator implements
             retVal = checkMarineZones(getSSConfig(), ssShipDist, latShip,
                     lonShip);
         }
+        
         double fogShipDist = getFogConfig().getShipDistance();
-        if (fogShipDist != 0.0) {
+        
+        if (fogShipDist != 0.0 && !retVal) {
             // check Fog zones
             retVal = checkMarineZones(getFogConfig(), fogShipDist, latShip,
                     lonShip);
         }
+        
         return retVal;
     }
 

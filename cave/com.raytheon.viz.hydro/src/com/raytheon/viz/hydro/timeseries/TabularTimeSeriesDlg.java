@@ -133,6 +133,8 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  * Jul 21, 2015 4500       rjpeter     Use Number in blind cast.
  * Oct 13, 2015 4933       rferrel     Refactored to use selected variables.
  * Oct 27, 2015 4900       mduff       Don't transmit SHEF files if in DRT.
+ * Nov 06, 2015 17846      lbousaidi   change the query so that after QC, the quality_code  
+ *                                     is reset from Bad to Good.
  * </pre>
  * 
  * @author lvenable
@@ -1866,10 +1868,6 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 
         String tablename = DbUtils.getTableName(pe, ts);
 
-        String sql = "update " + tablename + " set value = "
-                + HydroConstants.MISSING_VALUE
-                + ", revision= 1, shef_qual_code = 'M' " + ", postingtime= '"
-                + HydroConstants.DATE_FORMAT.format(postTime) + "'  ";
 
         DataRecord dr = new DataRecord();
         int[] selectionIndices = bottomListControl.getSelectionIndices();
@@ -1904,6 +1902,11 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                     td.getQualityCode()));
 
             dr.setRevision((short) 1);
+
+            String sql = "update " + tablename + " set value = "
+                    + HydroConstants.MISSING_VALUE + ", revision= 1, shef_qual_code = 'M' , quality_code= '"
+                    + dr.getQualityCode() + "' " + ", postingtime= '"
+                    + HydroConstants.DATE_FORMAT.format(postTime) + "'  ";
 
             /* code to update an observation to MISSING */
             if (ts.toUpperCase().startsWith("R")

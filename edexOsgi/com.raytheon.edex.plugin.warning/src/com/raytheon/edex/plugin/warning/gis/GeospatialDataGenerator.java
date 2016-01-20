@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.Timer;
@@ -40,6 +41,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import javax.xml.bind.JAXBException;
+
+import org.geotools.geometry.jts.JTS;
+import org.opengis.referencing.operation.MathTransform;
 
 import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.uf.common.dataplugin.warning.WarningConstants;
@@ -58,6 +62,7 @@ import com.raytheon.uf.common.dataplugin.warning.util.StringUtil;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.geospatial.ISpatialQuery.SearchMode;
+import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.SpatialException;
 import com.raytheon.uf.common.geospatial.SpatialQueryFactory;
 import com.raytheon.uf.common.geospatial.SpatialQueryResult;
@@ -82,6 +87,7 @@ import com.raytheon.uf.edex.database.cluster.ClusterLockUtils.LockState;
 import com.raytheon.uf.edex.database.cluster.ClusterTask;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
@@ -114,6 +120,7 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  *                                     caught exception in updateFeatures() & topologySimplifyQueryResults(),
  *                                     and added composeMessage().
  * Aug 05, 2015 4486       rjpeter     Changed Timestamp to Date.
+ * Dec  9, 2015 ASM# 18209 D. Friedman Support cwaStretch features outside CWA.
  * </pre>
  * 
  * @author rjpeter
@@ -417,14 +424,26 @@ public class GeospatialDataGenerator {
             if (generate) {
                 dataSet = new GeospatialDataSet();
                 GeospatialData[] areas = null;
+                GeospatialData[] primaryAreas = null;
+                GeospatialData[] stretchAreas = null;
 
                 // generate data
                 try {
-                    areas = queryGeospatialData(site, metaData);
+                    GeospatialData[][] areaArrays =
+                            queryGeospatialData(site, metaData);
+                    primaryAreas = areaArrays[0];
+                    stretchAreas = areaArrays[1];
                 } catch (Exception e) {
                     throw new SpatialException(
                             "Unable to generate area geometries.  Error occurred looking up geometries.",
                             e);
+                }
+
+                areas = new GeospatialData[primaryAreas.length
+                        + (stretchAreas != null ? stretchAreas.length : 0)];
+                System.arraycopy(primaryAreas, 0, areas, 0, primaryAreas.length);
+                if (stretchAreas != null) {
+                    System.arraycopy(stretchAreas, 0, areas, primaryAreas.length, stretchAreas.length);
                 }
 
                 GeometryFactory gf = new GeometryFactory();
@@ -446,7 +465,8 @@ public class GeospatialDataGenerator {
                             e);
                 }
 
-                dataSet.setAreas(areas);
+                dataSet.setAreas(primaryAreas);
+                dataSet.setCwaStretchAreas(stretchAreas);
 
                 // Get parent areas that intersect with cwa
                 try {
@@ -525,6 +545,7 @@ public class GeospatialDataGenerator {
         rval.setParentAreaSource(geoConfig.getParentAreaSource());
         rval.setAreaNotationField(areaConfig.getAreaNotationField());
         rval.setParentAreaField(areaConfig.getParentAreaField());
+        rval.setCwaStretch(areaConfig.getCwaStretch());
         return rval;
     }
 
@@ -572,23 +593,16 @@ public class GeospatialDataGenerator {
         return rval;
     }
 
-    private GeospatialData[] queryGeospatialData(String site,
+    private GeospatialData[][] queryGeospatialData(String site,
             GeospatialMetadata metaData) throws SpatialException,
             InterruptedException, ExecutionException {
+        GeospatialData[] cwaStretchData = null;
         String areaSource = metaData.getAreaSource();
 
-        HashMap<String, RequestConstraint> map = new HashMap<String, RequestConstraint>(
-                2);
-        String name = "cwa";
-        if (areaSource.equalsIgnoreCase(WarningConstants.MARINE)) {
-            name = "wfo";
-        }
-        map.put(name, new RequestConstraint(site, ConstraintType.LIKE));
-
         List<String> areaFields = metaData.getAreaFields();
-        SpatialQueryResult[] features = SpatialQueryFactory.create().query(
-                areaSource, areaFields.toArray(new String[areaFields.size()]),
-                null, map, SearchMode.WITHIN);
+        String[] areaFieldsArray = areaFields.toArray(new String[areaFields.size()]);
+        SpatialQueryResult[] features = queryAreaFeatures(areaSource, site, ConstraintType.LIKE,
+                areaFieldsArray, null, SearchMode.WITHIN);
 
         // clip against County Warning Area
         if (!areaSource.equalsIgnoreCase(WarningConstants.MARINE)) {
@@ -603,6 +617,12 @@ public class GeospatialDataGenerator {
                             cwaAreaFields.toArray(new String[cwaAreaFields
                                     .size()]), null, cwaMap, SearchMode.WITHIN);
             updateFeatures(features, cwaFeatures, areaSource);
+
+            if (metaData.getCwaStretch() != null
+                    && metaData.getCwaStretch() > 0) {
+                cwaStretchData = queryCwaStretchGeospatialData(site,
+                        areaFieldsArray, cwaFeatures, metaData);
+            }
         }
 
         boolean emptyFeatureFound = false;
@@ -629,8 +649,119 @@ public class GeospatialDataGenerator {
         topologySimplifyQueryResults(features, areaSource);
 
         // convert to GeospatialData
-        GeospatialData[] rval = new GeospatialData[features.length];
+        GeospatialData[] rval = convertToGeospatialData(features);
 
+        return new GeospatialData[][] { rval, cwaStretchData };
+    }
+
+    private SpatialQueryResult[] queryAreaFeatures(String areaSource, String site,
+            ConstraintType siteConstraint, String[] areaFields,
+            Geometry searchArea, SearchMode searchMode) throws SpatialException {
+        HashMap<String, RequestConstraint> map = new HashMap<String, RequestConstraint>(
+                2);
+        if (site != null) {
+            String name = "cwa";
+            if (areaSource.equalsIgnoreCase(WarningConstants.MARINE)) {
+                name = "wfo";
+            }
+            map.put(name, new RequestConstraint(site, ConstraintType.LIKE));
+        }
+
+        return SpatialQueryFactory.create().query(areaSource, areaFields,
+                searchArea, map, searchMode);
+    }
+
+    private GeospatialData[] queryCwaStretchGeospatialData(String site,
+            String[] areaFields, SpatialQueryResult[] cwaFeatures,
+            GeospatialMetadata metaData) throws SpatialException,
+            InterruptedException, ExecutionException {
+
+        /*
+         * Get bounding box (in local projection) of CWA and add a margin
+         * specified in kilometers by the cwaStretch value.
+         */
+        String areaSource = metaData.getAreaSource();
+        ArrayList<Geometry> cwaFeatureGeoms = new ArrayList<Geometry>(
+                cwaFeatures.length);
+        for (SpatialQueryResult sqr : cwaFeatures) {
+            cwaFeatureGeoms.add(sqr.geometry);
+        }
+        Geometry cwaFeaturesGeometry = new GeometryFactory()
+                .buildGeometry(cwaFeatureGeoms);
+        Coordinate c = cwaFeaturesGeometry.getCentroid()
+                .getCoordinate();
+        Geometry stretchEnvelope = null;
+        try {
+            MathTransform latLonToLocal = MapUtil.getTransformFromLatLon(MapUtil
+                    .constructStereographic(MapUtil.AWIPS_EARTH_RADIUS,
+                            MapUtil.AWIPS_EARTH_RADIUS, c.y, c.x));
+            MathTransform localToLatLon = latLonToLocal.inverse();
+            Geometry g = JTS.transform(cwaFeaturesGeometry.getEnvelope(), latLonToLocal);
+            g = g.buffer(metaData.getCwaStretch() * 1000);
+            g = JTS.transform(g, localToLatLon);
+            stretchEnvelope = g;
+        } catch (Exception e) {
+            statusHandler
+                    .handle(Priority.ERROR,
+                            String.format(
+                                    "Error determining bound of CWA stretch area for site=%s, areaSource=%s",
+                                    site, areaSource), e);
+            return null;
+        }
+
+        /* Get all CWA geometries in the margin, excluding the primary CWA. */
+        String cwaSource = "cwa";
+        List<String> cwaAreaFields = new ArrayList<String>(Arrays.asList("wfo", "gid"));
+        HashMap<String, RequestConstraint> cwaMap = new HashMap<String, RequestConstraint>(2);
+        cwaMap.put("wfo", new RequestConstraint(site, ConstraintType.NOT_EQUALS));
+        SpatialQueryResult[] stretchCwaFeatures = SpatialQueryFactory
+                .create()
+                .query(cwaSource,
+                        cwaAreaFields.toArray(new String[cwaAreaFields.size()]),
+                        stretchEnvelope, cwaMap, SearchMode.INTERSECTS);
+
+        /* Group the geometries for each CWA together. */
+        HashMap<String, ArrayList<SpatialQueryResult>> stretchCwaFeaturesBySite = new HashMap<String, ArrayList<SpatialQueryResult>>();
+        for (SpatialQueryResult sqr : stretchCwaFeatures) {
+            String wfo = (String) sqr.attributes.get("wfo");
+            ArrayList<SpatialQueryResult> features = stretchCwaFeaturesBySite.get(wfo);
+            if (features == null) {
+                features = new ArrayList<SpatialQueryResult>();
+                stretchCwaFeaturesBySite.put(wfo, features);
+            }
+            features.add(sqr);
+        }
+
+        /*
+         * For each non-primary CWA, query the area features that are inside the
+         * margin.
+         */
+        ArrayList<SpatialQueryResult> allFeatures = new ArrayList<SpatialQueryResult>();
+        for (Entry<String, ArrayList<SpatialQueryResult>> entry : stretchCwaFeaturesBySite.entrySet()) {
+            SpatialQueryResult[] features = queryAreaFeatures(areaSource,
+                    entry.getKey(), ConstraintType.LIKE, areaFields,
+                    stretchEnvelope, SearchMode.INTERSECTS);
+            updateFeatures(
+                    features,
+                    entry.getValue().toArray(
+                            new SpatialQueryResult[entry.getValue().size()]),
+                    areaSource);
+            for (SpatialQueryResult sqr : features) {
+                if (! sqr.geometry.isEmpty()) {
+                    allFeatures.add(sqr);
+                }
+            }
+        }
+
+        SpatialQueryResult[] features = allFeatures
+                .toArray(new SpatialQueryResult[allFeatures.size()]);
+        topologySimplifyQueryResults(features, areaSource);
+
+        return convertToGeospatialData(features);
+    }
+
+    private GeospatialData[] convertToGeospatialData(SpatialQueryResult[] features) {
+        GeospatialData[] rval = new GeospatialData[features.length];
         for (int i = 0; i < features.length; i++) {
             SpatialQueryResult r = features[i];
             GeospatialData data = new GeospatialData();
@@ -638,7 +769,6 @@ public class GeospatialDataGenerator {
             data.geometry = r.geometry;
             rval[i] = data;
         }
-
         return rval;
     }
 

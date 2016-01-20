@@ -96,6 +96,8 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * Feb 14, 2013 1616       bsteffen    Add option for interpolation of colormap
  *                                     parameters, disable colormap interpolation
  *                                     by default.
+ * Nov 19, 2015 18105      lbousaidi   Removed time and PrecipField legend on the right
+ *                                     side of cave to give space to basin info. 
  * 
  * </pre>
  * 
@@ -897,16 +899,8 @@ public class MPELegendResource extends
                     } else if (rsc.getStatus() != ResourceStatus.INITIALIZED) {
                         continue;
                     } else {
-                        legend.label = rsc.getName();
+                        legend.label="";
                         legend.resource = resourcePair;
-                        if (rsc.isTimeAgnostic() == false) {
-                            DataTime date = frameInfo.getTimeForResource(rsc);
-                            String time = " No Data Available";
-                            if (date != null) {
-                                time = " - " + date.getLegendString();
-                            }
-                            legend.label += time;
-                        }
                     }
 
                     if (!vis) {
