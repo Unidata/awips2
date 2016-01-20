@@ -45,6 +45,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Monitor;
 
 import com.raytheon.uf.common.menus.xml.CommonToolBarContribution;
 import com.raytheon.uf.common.menus.xml.VariableSubstitution;
@@ -95,6 +96,8 @@ import com.raytheon.viz.volumebrowser.xml.VbSourceList;
  *                                    selection correctly and prevent menu
  *                                    items from being referenced on
  *                                    multiple menus.
+ * Jan 12, 2016 #5055      randerso   Added support for adjusting split of toolbar menus 
+ *                                    when dialog resized.
  * 
  * </pre>
  * 
@@ -199,9 +202,7 @@ public class DataListsProdTableComp extends Composite implements
     /**
      * One of either source, field, or plane
      */
-    public class SelectionControl {
-
-        private final Composite composite;
+    public class SelectionControl extends Composite {
 
         private ListController list;
 
@@ -219,28 +220,29 @@ public class DataListsProdTableComp extends Composite implements
         }
 
         SelectionControl(Composite parent, DataSelection dataSelection) {
+            super(parent, SWT.NONE);
 
             data = dataSelection;
 
-            composite = new Composite(parent, SWT.NONE);
             GridLayout gl = new GridLayout(1, false);
-            gl.marginHeight = 2;
-            gl.marginWidth = 2;
-            composite.setLayout(gl);
-            composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-                    false));
+            gl.marginHeight = 0;
+            gl.marginWidth = 0;
+            gl.verticalSpacing = 0;
+            setLayout(gl);
+            setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 
             StringBuilder labelText = new StringBuilder();
             labelText.append(dataSelection.toString().charAt(0));
             labelText.append(dataSelection.toString().toLowerCase()
                     .substring(1));
 
-            Label label = new Label(composite, SWT.CENTER);
+            Label label = new Label(this, SWT.CENTER);
             label.setText(labelText.toString());
             label.setFont(italicFont);
             label.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
 
-            toolbar = new MultiToolbar(composite, SWT.NONE);
+            toolbar = new MultiToolbar(this, SWT.NONE);
+            toolbar.setData(labelText.toString());
             toolbar.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
             toolbar.addToolItemSelectionListener(new SelectionAdapter() {
 
@@ -294,12 +296,12 @@ public class DataListsProdTableComp extends Composite implements
          * 
          */
         private void initializeFind(String labelText) {
-            find = new Combo(composite, SWT.DROP_DOWN);
+            find = new Combo(this, SWT.DROP_DOWN);
 
             find.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
             find.setToolTipText("Find " + labelText + "...");
             find.setVisible(false);
-            ((GridData) find.getLayoutData()).heightHint = 0;
+            ((GridData) find.getLayoutData()).exclude = true;
 
             new AutoFindComboInput(find);
 
@@ -344,12 +346,12 @@ public class DataListsProdTableComp extends Composite implements
         public void toggleFind() {
             if (find.isVisible()) {
                 find.setVisible(false);
-                ((GridData) find.getLayoutData()).heightHint = 0;
-                composite.pack();
+                ((GridData) find.getLayoutData()).exclude = true;
+                pack();
             } else {
                 find.setVisible(true);
-                ((GridData) find.getLayoutData()).heightHint = SWT.DEFAULT;
-                composite.pack();
+                ((GridData) find.getLayoutData()).exclude = false;
+                pack();
             }
         }
 
@@ -915,17 +917,17 @@ public class DataListsProdTableComp extends Composite implements
         createFieldsToolBarItems(setting, spaceTime);
         createPlanesToolBarItems(setting, spaceTime);
 
-        int sourcesWidth = sourceControl.toolbar.computeSize(-1, -1).x;
-        int fieldsWidth = fieldControl.toolbar.computeSize(-1, -1).x;
-        int planesWidth = planeControl.toolbar.computeSize(-1, -1).x;
-        int totalWidth = sourcesWidth + fieldsWidth + planesWidth;
-        int screenWidth = getDisplay().getPrimaryMonitor().getBounds().width;
-        // If the total width of the toolbars is bigger than X% of the monitor
-        // make multiple rows.
-        if (screenWidth * 0.90 < totalWidth) {
-            // Divide by 70% of screen Width to allow some fudge factor when
-            // laying it all out.
-            int numBars = totalWidth / (int) (screenWidth * 0.7) + 1;
+        // find width of smallest monitor
+        int screenWidth = Integer.MAX_VALUE;
+        for (Monitor m : getDisplay().getMonitors()) {
+            screenWidth = Math.min(screenWidth, m.getBounds().width);
+        }
+
+        int numBars = 1;
+        int width = this.computeSize(SWT.DEFAULT, SWT.DEFAULT).x;
+        while (width >= screenWidth * 0.90) {
+            numBars++;
+
 
             // The current value of the active data selection is unknown, so set
             // it explicitly to the desired value.
@@ -937,11 +939,42 @@ public class DataListsProdTableComp extends Composite implements
 
             setActiveDataSelection(DataSelection.PLANES);
             planeControl.toolbar.splitToMultipleBars(numBars);
+
+            width = this.computeSize(SWT.DEFAULT, SWT.DEFAULT).x;
         }
 
         this.pack();
 
         updateMenuInventory();
+
+    }
+
+    /**
+     * called to re-split the toolbars when shell is resized
+     */
+    public void resizeToolbars() {
+
+        int numBars = 1;
+
+        numBars = Math.max(numBars, sourceControl.toolbar.barsNeeded());
+        numBars = Math.max(numBars, fieldControl.toolbar.barsNeeded());
+        numBars = Math.max(numBars, planeControl.toolbar.barsNeeded());
+
+        if (numBars != sourceControl.toolbar.getNumBars()) {
+
+            // The current value of the active data selection is unknown, so set
+            // it explicitly to the desired value.
+            setActiveDataSelection(DataSelection.SOURCES);
+            sourceControl.toolbar.splitToMultipleBars(numBars);
+
+            setActiveDataSelection(DataSelection.FIELDS);
+            fieldControl.toolbar.splitToMultipleBars(numBars);
+
+            setActiveDataSelection(DataSelection.PLANES);
+            planeControl.toolbar.splitToMultipleBars(numBars);
+
+            this.pack();
+        }
 
     }
 

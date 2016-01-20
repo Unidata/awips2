@@ -79,6 +79,7 @@ import com.raytheon.viz.mpe.util.WriteQPFGrids;
  * May 02, 2013 15956      wkwock      Fix incorrect contents in precip_LLL_grid_yyyymmdd.nc file
  * Mar 10, 2015 14575      snaples     Added status check to make sure that we close everything before exiting.
  * Jun 25, 2015 17462      snaples     Fixed loop of basins for temp and freezing.
+ * Jan 15, 2016 5054       randerso    Added proper constructor with parent shell parameter
  * 
  * </pre>
  * 
@@ -109,10 +110,17 @@ public class SaveLevel2Data {
 
     public static int[] qctype_flag = new int[NUM_QCTYPE];
 
-    private Shell shell = new Shell();
-    
+    private final Shell shell;
+
     DailyQcUtils dqc = DailyQcUtils.getInstance();
 
+    /**
+     * @param shell
+     *            parent shell for dialogs
+     */
+    public SaveLevel2Data(Shell shell) {
+        this.shell = shell;
+    }
 
     public int check_new_area(Date curDate, String area, int days) {
         int j, m;
@@ -132,8 +140,7 @@ public class SaveLevel2Data {
                 if (dqc.pdata[j] == null) {
                     return 0;
                 }
-                if (dqc.pdata[j].used[m] != 1
-                        || dqc.pdata[j].level != 1) {
+                if (dqc.pdata[j].used[m] != 1 || dqc.pdata[j].level != 1) {
                     continue;
                 }
 
@@ -152,8 +159,7 @@ public class SaveLevel2Data {
         for (j = 0; j < MAX_GAGEQC_DAYS; j++) {
             for (m = 0; m < 5; m++) {
                 /* not databased */
-                if (dqc.zdata[j].used[m] != 1
-                        || dqc.zdata[j].level[m] != 1) {
+                if (dqc.zdata[j].used[m] != 1 || dqc.zdata[j].level[m] != 1) {
                     continue;
                 }
 
@@ -167,8 +173,7 @@ public class SaveLevel2Data {
         for (j = 0; j < MAX_GAGEQC_DAYS; j++) {
             for (m = 0; m < 5; m++) {
                 /* not databased */
-                if (dqc.tdata[j].used[m] != 1
-                        || dqc.tdata[j].level[m] != 1) {
+                if (dqc.tdata[j].used[m] != 1 || dqc.tdata[j].level[m] != 1) {
                     continue;
                 }
 
@@ -201,8 +206,7 @@ public class SaveLevel2Data {
 
             for (m = 0; m < 5; m++) {
 
-                if (dqc.pdata[j].used[m] != 1
-                        || dqc.pdata[j].level != 1) {
+                if (dqc.pdata[j].used[m] != 1 || dqc.pdata[j].level != 1) {
                     continue;
                 }
 
@@ -231,8 +235,7 @@ public class SaveLevel2Data {
 
             for (m = 0; m < 5; m++) {
 
-                if (dqc.zdata[j].used[m] != 1
-                        || dqc.zdata[j].level[m] != 1) {
+                if (dqc.zdata[j].used[m] != 1 || dqc.zdata[j].level[m] != 1) {
                     continue;
                 }
 
@@ -260,8 +263,7 @@ public class SaveLevel2Data {
 
             for (m = 0; m < 6; m++) {
 
-                if (dqc.tdata[j].used[m] != 1
-                        || dqc.tdata[j].level[m] != 1) {
+                if (dqc.tdata[j].used[m] != 1 || dqc.tdata[j].level[m] != 1) {
                     continue;
                 }
 
@@ -279,17 +281,6 @@ public class SaveLevel2Data {
             }
 
         }
-
-        // int mode = 0;
-        // SendtoDatabaseDialog dlg = new SendtoDatabaseDialog(shell,
-        // ttext.toString(), mode);
-        // int rv = (Integer) dlg.open();
-        //
-        // if (rv == 1) {
-        // ok_dbase();
-        // } else {
-        // check_saved_datasets();
-        // }
     }
 
     private void check_saved_datasets() {
@@ -300,8 +291,7 @@ public class SaveLevel2Data {
             for (m = 0; m < 5; m++) {
 
                 /* not databased */
-                if (dqc.pdata[j].used[m] != 3
-                        && dqc.pdata[j].used[m] != 2) {
+                if (dqc.pdata[j].used[m] != 3 && dqc.pdata[j].used[m] != 2) {
                     continue;
                 }
 
@@ -361,11 +351,9 @@ public class SaveLevel2Data {
 
             for (m = 0; m < 5; m++) {
 
-                if (dqc.pdata[j].used[m] != 3
-                        && dqc.pdata[j].used[m] != 2) {
+                if (dqc.pdata[j].used[m] != 3 && dqc.pdata[j].used[m] != 2) {
 
-                    if (dqc.zdata[j].used[m] != 3
-                            && dqc.zdata[j].used[m] != 2) {
+                    if (dqc.zdata[j].used[m] != 3 && dqc.zdata[j].used[m] != 2) {
 
                         if (dqc.tdata[j].used[m] != 3
                                 && dqc.tdata[j].used[m] != 2) {
@@ -462,8 +450,7 @@ public class SaveLevel2Data {
         int num_period_qc = 0;
         String fname_nc = "";
         float[][] datavals = new float[hrap_grid.maxi][hrap_grid.maxj];
-        if (dqc.mpe_dqc_save_grib == true
-                || dqc.mpe_dqc_save_netcdf == true) {
+        if (dqc.mpe_dqc_save_grib == true || dqc.mpe_dqc_save_netcdf == true) {
             for (int h = 0; h < hrap_grid.maxj; h++) {
                 for (int i = 0; i < hrap_grid.maxi; i++) {
                     datavals[i][h] = (dqc.pcp.value[i][h] / 100.f);
@@ -499,12 +486,11 @@ public class SaveLevel2Data {
         // logMessage("\nSTATUS: 2) type value in type/source in level2 file is ##%s##\n",type);
         save_isom = dqc.isom;
 
-//        MPEDisplayManager mpd = MPEDisplayManager.getCurrent();
+        // MPEDisplayManager mpd = MPEDisplayManager.getCurrent();
 
         if ((DailyQcUtils.qpf_flag == true || DailyQcUtils.maxmin_flag == true || DailyQcUtils.z_flag == true)
                 && dqc.pcpn_day == 0
-                && (dqc.curHr18_00 == 1
-                        || dqc.curHr00_06 == 1 || dqc.curHr06_12 == 1)) {
+                && (dqc.curHr18_00 == 1 || dqc.curHr00_06 == 1 || dqc.curHr06_12 == 1)) {
             /*
              * if run DQC at the time frames such as curHr18_00 or curHr00_06 or
              * curHr06_12, for precipitation, do not display the 24 hr
@@ -609,8 +595,7 @@ public class SaveLevel2Data {
              */
 
             if (j == 0
-                    && (dqc.curHr00_06 == 1
-                            || dqc.curHr06_12 == 1 || dqc.curHr18_00 == 1)) {
+                    && (dqc.curHr00_06 == 1 || dqc.curHr06_12 == 1 || dqc.curHr18_00 == 1)) {
             } else {
                 EstDailyStations eds = new EstDailyStations();
                 eds.estimate_daily_stations(j, dqc.precip_stations,
@@ -621,8 +606,7 @@ public class SaveLevel2Data {
             }
 
             QCStations qcs = new QCStations();
-            qcs.quality_control_stations(j, dqc.precip_stations,
-                    max_stations);
+            qcs.quality_control_stations(j, dqc.precip_stations, max_stations);
             CheckConsistency cc = new CheckConsistency();
             cc.check_consistency(j, dqc.precip_stations, max_stations);
 
@@ -655,7 +639,7 @@ public class SaveLevel2Data {
                 }
             }
 
-            //save for each 6 hour periods
+            // save for each 6 hour periods
             for (l = 0; l < 5; l++) {
 
                 if (dqc.pdata[j].used[l] == 0 || qctype_flag[0] == -1) {
@@ -685,21 +669,20 @@ public class SaveLevel2Data {
                 }
 
                 RenderPcp rcp = new RenderPcp();
-                rcp.render_pcp(j, l, ll, max_stations,
-                        dqc.precip_stations, hrap_grid,
-                        dqc.pdata, dqc.pcp_in_use);
+                rcp.render_pcp(j, l, ll, max_stations, dqc.precip_stations,
+                        hrap_grid, dqc.pdata, dqc.pcp_in_use);
 
                 String dbuf = String.format("%s%s_%04d%02d%02d", grid_file,
                         timefile[2][l], gm.get(Calendar.YEAR),
                         gm.get(Calendar.MONTH) + 1,
                         gm.get(Calendar.DAY_OF_MONTH));
 
-                //copy dqc.pcp.value to datavals
-               	for (int h = 0; h < hrap_grid.maxj; h++) {
-               		for (int i = 0; i < hrap_grid.maxi; i++) {
-               			datavals[i][h] = (dqc.pcp.value[i][h] / 100.f);
-               		}
-               	}
+                // copy dqc.pcp.value to datavals
+                for (int h = 0; h < hrap_grid.maxj; h++) {
+                    for (int i = 0; i < hrap_grid.maxi; i++) {
+                        datavals[i][h] = (dqc.pcp.value[i][h] / 100.f);
+                    }
+                }
 
                 /* output grid to file in ascii xmrg format */
                 WriteQPFGrids wqg = new WriteQPFGrids();
@@ -735,8 +718,8 @@ public class SaveLevel2Data {
                 cm.create_map(num);
 
             }
-            
-            //save the whole days
+
+            // save the whole days
             for (l = 0; l < 5; l++) {
 
                 if (dqc.pdata[j].used[l] == 0 || qctype_flag[0] == -1) {
@@ -766,16 +749,15 @@ public class SaveLevel2Data {
                 }
 
                 RenderPcp rcp = new RenderPcp();
-                rcp.render_pcp(j, l, ll, max_stations,
-                        dqc.precip_stations, hrap_grid,
-                        dqc.pdata, dqc.pcp_in_use);
+                rcp.render_pcp(j, l, ll, max_stations, dqc.precip_stations,
+                        hrap_grid, dqc.pdata, dqc.pcp_in_use);
 
-                //copy dqc.pcp.value to datavals
-               	for (int h = 0; h < hrap_grid.maxj; h++) {
-               		for (int i = 0; i < hrap_grid.maxi; i++) {
-               			datavals[i][h] = (dqc.pcp.value[i][h] / 100.f);
-               		}
-               	}
+                // copy dqc.pcp.value to datavals
+                for (int h = 0; h < hrap_grid.maxj; h++) {
+                    for (int i = 0; i < hrap_grid.maxi; i++) {
+                        datavals[i][h] = (dqc.pcp.value[i][h] / 100.f);
+                    }
+                }
 
                 String dbuf = String.format("%s%s_%04d%02d%02d", grid_file,
                         timefile[2][l], gm.get(Calendar.YEAR),
@@ -806,8 +788,8 @@ public class SaveLevel2Data {
             }
 
             EstMissingStations ems = new EstMissingStations();
-            ems.estimate_missing_stations(j, dqc.precip_stations,
-                    max_stations, dqc.pdata);
+            ems.estimate_missing_stations(j, dqc.precip_stations, max_stations,
+                    dqc.pdata);
 
             old_time = dqc.pdata[j].data_time;
 
@@ -832,8 +814,7 @@ public class SaveLevel2Data {
                     mbuf.setLength(0);
                     gm.setTime(dqc.pdata[j].data_time);
                     pbuf.append(String.format("PPD%s%s", type,
-                            dqc.precip_stations.get(m).parm
-                                    .substring(4)));
+                            dqc.precip_stations.get(m).parm.substring(4)));
                     buf.append(String.format(".AR %s %02d%02d%02d DH12/%s ",
                             dqc.precip_stations.get(m).hb5,
                             gm.get(Calendar.YEAR), gm.get(Calendar.MONTH) + 1,
@@ -912,8 +893,7 @@ public class SaveLevel2Data {
                     buf.setLength(0);
                     mbuf.setLength(0);
                     pbuf.append(String.format("PPQ%s%s", type,
-                            dqc.precip_stations.get(m).parm
-                                    .substring(4)));
+                            dqc.precip_stations.get(m).parm.substring(4)));
                     buf.append(String.format(
                             ".ER %s %02d%02d%02d DH18/%s/DIH+6/",
                             dqc.precip_stations.get(m).hb5,
@@ -1051,8 +1031,8 @@ public class SaveLevel2Data {
 
             if (mean_areal_precip_global[m] != null) {
                 if (mean_areal_precip_global[m].hb5 == "") {
-                System.out.println("MAP.hb5 is empty, continuing. ");
-                continue;
+                    System.out.println("MAP.hb5 is empty, continuing. ");
+                    continue;
                 }
             }
 
@@ -1172,8 +1152,7 @@ public class SaveLevel2Data {
 
                             /* fix for polygon basins */
 
-                            if (dqc.mpe_rfc_name
-                                    .equalsIgnoreCase("cbrfc")
+                            if (dqc.mpe_rfc_name.equalsIgnoreCase("cbrfc")
                                     && mean_areal_precip_global[m].hb5.length() == 7) {
                                 temp = mean_areal_precip_global[m].lz[h];
                             } else if (l == 0) {
@@ -1250,9 +1229,9 @@ public class SaveLevel2Data {
             /* write stddev file */
             gm.setTime(dqc.pdata[j].data_time);
 
-            String ebuf = String.format("%s%04d%02d%02d",
-                    dqc.pcpn_dev_file, gm.get(Calendar.YEAR),
-                    gm.get(Calendar.MONTH) + 1, gm.get(Calendar.DAY_OF_MONTH));
+            String ebuf = String.format("%s%04d%02d%02d", dqc.pcpn_dev_file,
+                    gm.get(Calendar.YEAR), gm.get(Calendar.MONTH) + 1,
+                    gm.get(Calendar.DAY_OF_MONTH));
             System.out.println("Writing out Precip Dev file. ");
 
             try {
@@ -1264,8 +1243,7 @@ public class SaveLevel2Data {
                 }
                 if (fp != null) {
                     mbuf.setLength(0);
-                    mbuf.append(String.format("%f",
-                            dqc.pdata[j].stddev));
+                    mbuf.append(String.format("%f", dqc.pdata[j].stddev));
                     fp.write(mbuf.toString());
                     fp.newLine();
                     fp.close();
@@ -1306,8 +1284,7 @@ public class SaveLevel2Data {
 
                 if (fp != null) {
                     mbuf.setLength(0);
-                    mbuf.append(String.format("%f",
-                            dqc.tdata[j].stddev));
+                    mbuf.append(String.format("%f", dqc.tdata[j].stddev));
                     fp.write(mbuf.toString());
                     fp.newLine();
                     fp.close();
@@ -1357,8 +1334,7 @@ public class SaveLevel2Data {
                  * level 1 pass through here to the save data question
                  */
 
-                if ((dqc.zdata[j].used[m] == 3
-                        || dqc.zdata[j].used[m] == 2 || dqc.zdata[j].used[m] == 1)
+                if ((dqc.zdata[j].used[m] == 3 || dqc.zdata[j].used[m] == 2 || dqc.zdata[j].used[m] == 1)
                         && qctype_flag[2] == 1) {
                     break;
                 }
@@ -1374,9 +1350,8 @@ public class SaveLevel2Data {
             if (dqc.mpe_dqc_save_netcdf == true) {
 
                 /* create name of netCDF file */
-                fname_nc = String.format("%s%04d%02d%02d.nc",
-                        dqc.zgrid_file, gm.get(Calendar.YEAR),
-                        gm.get(Calendar.MONTH) + 1,
+                fname_nc = String.format("%s%04d%02d%02d.nc", dqc.zgrid_file,
+                        gm.get(Calendar.YEAR), gm.get(Calendar.MONTH) + 1,
                         gm.get(Calendar.DAY_OF_MONTH));
 
                 // logMessage ("netcdf file = %s\n", fname_nc);
@@ -1435,13 +1410,11 @@ public class SaveLevel2Data {
                 // gm->tm_mday, gm->tm_year + 1900);
 
                 RenderZ rz = new RenderZ();
-                rz.render_z(j, l, 0, max_zstations,
-                        dqc.freezing_stations, hrap_grid,
-                        dqc.zdata, dqc.pcp_in_use);
+                rz.render_z(j, l, 0, max_zstations, dqc.freezing_stations,
+                        hrap_grid, dqc.zdata, dqc.pcp_in_use);
 
                 String dbuf = String.format("%s%s_%04d%02d%02d",
-                        dqc.zgrid_file,
-                        ztimefile[dqcTimeStringIndex][l],
+                        dqc.zgrid_file, ztimefile[dqcTimeStringIndex][l],
                         gm.get(Calendar.YEAR), gm.get(Calendar.MONTH) + 1,
                         gm.get(Calendar.DAY_OF_MONTH));
 
@@ -1485,9 +1458,9 @@ public class SaveLevel2Data {
             old_time = dqc.zdata[j].data_time;
             gm.setTime(old_time);
 
-            String fbuf = String.format("%s%04d%02d%02d",
-                    dqc.zpoint2_file, gm.get(Calendar.YEAR),
-                    gm.get(Calendar.MONTH) + 1, gm.get(Calendar.DAY_OF_MONTH));
+            String fbuf = String.format("%s%04d%02d%02d", dqc.zpoint2_file,
+                    gm.get(Calendar.YEAR), gm.get(Calendar.MONTH) + 1,
+                    gm.get(Calendar.DAY_OF_MONTH));
 
             try {
                 if (fp == null) {
@@ -1504,8 +1477,7 @@ public class SaveLevel2Data {
 
                     pbuf = new StringBuilder();
                     pbuf.append(String.format("HZI%s%s", type,
-                            dqc.freezing_stations.get(m).parm
-                                    .substring(4)));
+                            dqc.freezing_stations.get(m).parm.substring(4)));
 
                     if (dqcEndingObsTime == 12) {
                         buf.setLength(0);
@@ -1542,9 +1514,8 @@ public class SaveLevel2Data {
                             }
                         } else {
                             mbuf.setLength(0);
-                            mbuf.append(String
-                                    .format("%4.1f",
-                                            dqc.zdata[j].zstn[m].zlevel2[k].data));
+                            mbuf.append(String.format("%4.1f",
+                                    dqc.zdata[j].zstn[m].zlevel2[k].data));
                             if (dqc.zdata[j].zstn[m].zlevel2[k].qual == 8) {
                                 mbuf.append("S");
                             }
@@ -1731,8 +1702,7 @@ public class SaveLevel2Data {
 
                             int h = j * 4 + (3 - k);
 
-                            if (dqc.mpe_rfc_name
-                                    .equalsIgnoreCase("cbrfc")
+                            if (dqc.mpe_rfc_name.equalsIgnoreCase("cbrfc")
                                     && mean_areal_precip_global[m].hb5.length() == 7) {
                                 temp = mean_areal_precip_global[m].zlz[h];
 
@@ -1829,14 +1799,13 @@ public class SaveLevel2Data {
             /* re-create all pcpn and maps if necessary */
 
             if (j == 0
-                    && (dqc.curHr00_06 == 1
-                            || dqc.curHr06_12 == 1 || dqc.curHr18_00 == 1)) {
+                    && (dqc.curHr00_06 == 1 || dqc.curHr06_12 == 1 || dqc.curHr18_00 == 1)) {
                 // do not estimate
             } else {
 
                 EstDailyTStations edt = new EstDailyTStations();
-                edt.estimate_daily_tstations(j,
-                        dqc.temperature_stations, max_tstations);
+                edt.estimate_daily_tstations(j, dqc.temperature_stations,
+                        max_tstations);
             }
 
             QCTStations qct = new QCTStations();
@@ -1845,9 +1814,9 @@ public class SaveLevel2Data {
 
             gm.setTime(dqc.tdata[j].data_time);
 
-            String fbuf = String.format("%s%04d%02d%02d",
-                    dqc.temp_bad_file, gm.get(Calendar.YEAR),
-                    gm.get(Calendar.MONTH) + 1, gm.get(Calendar.DAY_OF_MONTH));
+            String fbuf = String.format("%s%04d%02d%02d", dqc.temp_bad_file,
+                    gm.get(Calendar.YEAR), gm.get(Calendar.MONTH) + 1,
+                    gm.get(Calendar.DAY_OF_MONTH));
 
             BadTValues btv = new BadTValues();
             btv.write_bad_tvalues(fbuf, j);
@@ -1855,9 +1824,8 @@ public class SaveLevel2Data {
             if (dqc.mpe_dqc_save_netcdf == true) {
 
                 /* create name of netCDF file */
-                fname_nc = String.format("%s%04d%02d%02d.nc",
-                        dqc.tgrid_file, gm.get(Calendar.YEAR),
-                        gm.get(Calendar.MONTH) + 1,
+                fname_nc = String.format("%s%04d%02d%02d.nc", dqc.tgrid_file,
+                        gm.get(Calendar.YEAR), gm.get(Calendar.MONTH) + 1,
                         gm.get(Calendar.DAY_OF_MONTH));
 
                 // logMessage ("netcdf file = %s\n", fname_nc);
@@ -1914,22 +1882,21 @@ public class SaveLevel2Data {
                 RenderT rt = new RenderT();
                 if (l == 5) {
                     rt.render_t(j, l, 2, max_tstations,
-                            dqc.temperature_stations, hrap_grid,
-                            dqc.tdata, dqc.pcp_in_use);
+                            dqc.temperature_stations, hrap_grid, dqc.tdata,
+                            dqc.pcp_in_use);
                 } else if (l == 4) {
                     rt.render_t(j, l, 1, max_tstations,
-                            dqc.temperature_stations, hrap_grid,
-                            dqc.tdata, dqc.pcp_in_use);
+                            dqc.temperature_stations, hrap_grid, dqc.tdata,
+                            dqc.pcp_in_use);
                 } else {
                     RenderT6 rt6 = new RenderT6();
                     rt6.render_t6(j, l, 0, max_tstations,
-                            dqc.temperature_stations, hrap_grid,
-                            dqc.tdata, dqc.pcp_in_use);
+                            dqc.temperature_stations, hrap_grid, dqc.tdata,
+                            dqc.pcp_in_use);
                 }
 
                 String dbuf = String.format("%s%s_%04d%02d%02d",
-                        dqc.tgrid_file,
-                        dqc.ttimefile[dqcTimeStringIndex][l],
+                        dqc.tgrid_file, dqc.ttimefile[dqcTimeStringIndex][l],
                         gm.get(Calendar.YEAR), gm.get(Calendar.MONTH) + 1,
                         gm.get(Calendar.DAY_OF_MONTH));
 
@@ -1974,9 +1941,8 @@ public class SaveLevel2Data {
             }
 
             EstMissingTStations emt = new EstMissingTStations();
-            emt.estimate_missing_tstations(j,
-                    dqc.temperature_stations, max_tstations,
-                    dqc.tdata);
+            emt.estimate_missing_tstations(j, dqc.temperature_stations,
+                    max_tstations, dqc.tdata);
 
             old_time = dqc.tdata[j].data_time;
             gm.setTime(old_time);
@@ -1999,8 +1965,7 @@ public class SaveLevel2Data {
                     gm.add(Calendar.SECOND, -86400);
                     pbuf.setLength(0);
                     pbuf.append(String.format("TAI%s%cZZ", type,
-                            dqc.temperature_stations.get(m).parm
-                                    .charAt(4)));
+                            dqc.temperature_stations.get(m).parm.charAt(4)));
 
                     if (dqcEndingObsTime == 12) {
                         buf.setLength(0);
@@ -2034,9 +1999,8 @@ public class SaveLevel2Data {
                             }
                         } else {
                             mbuf.setLength(0);
-                            mbuf.append(String
-                                    .format("%3d",
-                                            (int) dqc.tdata[j].tstn[m].tlevel2[k].data));
+                            mbuf.append(String.format("%3d",
+                                    (int) dqc.tdata[j].tstn[m].tlevel2[k].data));
                             if (dqc.tdata[j].tstn[m].tlevel2[k].qual == 8) {
                                 mbuf.append("V");
                             }
@@ -2079,8 +2043,7 @@ public class SaveLevel2Data {
 
                     pbuf.setLength(0);
                     pbuf.append(String.format("TAI%s%cXZ", type,
-                            dqc.temperature_stations.get(m).parm
-                                    .charAt(4)));
+                            dqc.temperature_stations.get(m).parm.charAt(4)));
 
                     buf.setLength(0);
                     buf.append(String.format(".AR %s %02d%02d%02d DH12/%s ",
@@ -2096,9 +2059,8 @@ public class SaveLevel2Data {
                         mbuf.append("   M ");
                     } else {
                         mbuf.setLength(0);
-                        mbuf.append(String
-                                .format("%3d",
-                                        (int) dqc.tdata[j].tstn[m].tlevel2[4].data));
+                        mbuf.append(String.format("%3d",
+                                (int) dqc.tdata[j].tstn[m].tlevel2[4].data));
 
                         if (dqc.tdata[j].tstn[m].tlevel2[4].qual == 8) {
                             mbuf.append("V");
@@ -2138,8 +2100,7 @@ public class SaveLevel2Data {
                     buf.setLength(0);
 
                     pbuf.append(String.format("TAI%s%cNZ", type,
-                            dqc.temperature_stations.get(m).parm
-                                    .charAt(4)));
+                            dqc.temperature_stations.get(m).parm.charAt(4)));
 
                     buf.append(String.format(".AR %s %02d%02d%02d DH12/%s ",
                             dqc.temperature_stations.get(m).hb5,
@@ -2152,9 +2113,8 @@ public class SaveLevel2Data {
                         mbuf.append("   M ");
                     } else {
                         mbuf.setLength(0);
-                        mbuf.append(String
-                                .format("%3d",
-                                        (int) dqc.tdata[j].tstn[m].tlevel2[5].data));
+                        mbuf.append(String.format("%3d",
+                                (int) dqc.tdata[j].tstn[m].tlevel2[5].data));
                         if (dqc.tdata[j].tstn[m].tlevel2[5].qual == 8) {
                             mbuf.append("V");
                         }
@@ -2337,8 +2297,7 @@ public class SaveLevel2Data {
 
                             int h = j * 4 + (3 - k);
 
-                            if (dqc.mpe_rfc_name
-                                    .equalsIgnoreCase("cbrfc")
+                            if (dqc.mpe_rfc_name.equalsIgnoreCase("cbrfc")
                                     && mean_areal_precip_global[m].hb5.length() == 7) {
 
                                 temp = mean_areal_precip_global[m].tlz[h];
@@ -2408,8 +2367,7 @@ public class SaveLevel2Data {
 
             }
 
-            btv.restore_bad_tvalues(j, dqc.temperature_stations,
-                    max_tstations);
+            btv.restore_bad_tvalues(j, dqc.temperature_stations, max_tstations);
 
             archive_flag[j] = 1;
 
@@ -2423,10 +2381,8 @@ public class SaveLevel2Data {
 
         int pcpn_day = dqc.pcpn_day;
 
-        if (DailyQcUtils.qpf_flag == true
-                || DailyQcUtils.z_flag == true
-                || DailyQcUtils.maxmin_flag == true) 
-        {
+        if (DailyQcUtils.qpf_flag == true || DailyQcUtils.z_flag == true
+                || DailyQcUtils.maxmin_flag == true) {
 
             if (DailyQcUtils.qpf_flag == true) {
                 QcPrecipOptionsDialog.dataSet.clear();

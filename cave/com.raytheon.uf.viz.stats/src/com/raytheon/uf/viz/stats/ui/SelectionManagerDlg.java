@@ -42,7 +42,7 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
 import com.raytheon.uf.common.stats.data.GraphData;
-import com.raytheon.viz.ui.dialogs.CaveSWTDialogBase;
+import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
  * Stats Selection Manager Dialog.
@@ -55,6 +55,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialogBase;
  * ------------ ---------- ----------- --------------------------
  * Oct 18, 2012            lvenable    Initial creation
  * Jan 17, 2013  1357      mpduff      Added selection state handling.
+ * Jan 15, 2016 5054       randerso    Change to subclass CaveSWTDialog
  * 
  * </pre>
  * 
@@ -62,7 +63,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialogBase;
  * @version 1.0
  */
 
-public class SelectionManagerDlg extends CaveSWTDialogBase {
+public class SelectionManagerDlg extends CaveSWTDialog {
     /** Main Composite */
     private Composite mainComp;
 
@@ -85,8 +86,8 @@ public class SelectionManagerDlg extends CaveSWTDialogBase {
     public SelectionManagerDlg(Shell parentShell, GraphData graphData,
             IGroupSelection callback) {
         super(parentShell, SWT.DIALOG_TRIM | SWT.MIN | SWT.RESIZE,
-                CAVE.DO_NOT_BLOCK | CAVE.MODE_INDEPENDENT
-                        | CAVE.INDEPENDENT_SHELL);
+                CAVE.DO_NOT_BLOCK | CAVE.PERSPECTIVE_INDEPENDENT
+                        | CAVE.MODE_INDEPENDENT | CAVE.INDEPENDENT_SHELL);
         setText("Selection Manager");
 
         this.callback = callback;
