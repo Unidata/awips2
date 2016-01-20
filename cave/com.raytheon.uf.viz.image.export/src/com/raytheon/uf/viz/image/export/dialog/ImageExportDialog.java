@@ -58,7 +58,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Oct 28, 2014  3767     bsteffen    Automatically change filename if selected
  *                                    format does not support all options.
  * Dec 4, 2014   DR16713  jgerth      Support for date/time selection
- * 
+ * Jan 18, 2016  ----     mjames@ucar datetimeButton selected by default
+ *  
  * </pre>
  * 
  * @author bsteffen
@@ -141,8 +142,7 @@ public class ImageExportDialog extends CaveSWTDialog {
         datetimeButton = new Button(group, SWT.CHECK);
         datetimeButton.setLayoutData(gridData);
         datetimeButton.setText("Include date and time in file name");
-        datetimeButton
-                .setSelection(options.getDateTimeSelection() == DateTimeSelection.DATETIME);
+        datetimeButton.setSelection(true);
         datetimeButton
                 .setToolTipText("Append the date and time to the file name when Animate is not selected.");
     }

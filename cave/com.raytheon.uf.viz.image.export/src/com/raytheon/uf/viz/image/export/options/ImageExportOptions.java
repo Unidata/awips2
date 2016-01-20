@@ -39,6 +39,8 @@ import com.raytheon.uf.viz.core.datastructure.LoopProperties;
  * Mar 10, 2014  2867     bsteffen    Better frame range validation.
  * Oct 28, 2014  3767     bsteffen    Change default name to screenCapture.png
  * Dec 4, 2014   DR16713  jgerth      Support for date/time selection
+ * Jan 18, 2016  ----     mjames@ucar Save images to /awips2/export/<username> rather than
+ *                                    /awips2/eclipse (and avoid guessing that /home/awips exists)
  * 
  * </pre>
  * 
@@ -85,7 +87,7 @@ public class ImageExportOptions {
 
     }
 
-    private File fileLocation = new File("screenCapture.png");
+    private File fileLocation = new File("/awips2/export/" + System.getProperty("user.name") + "/screenCapture.png");
 
     private ImageFormat imageFormat = ImageFormat.SEQUENCE;
 
