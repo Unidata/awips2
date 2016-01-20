@@ -40,7 +40,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Monitor;
-import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.jms.notification.INotificationObserver;
@@ -287,7 +286,6 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
         // --------------------------------------------------
         // Create Select User ID menu item
         // --------------------------------------------------
-            @Override
         MenuItem exitMenuItem = new MenuItem(fileMenu, SWT.NONE);
         exitMenuItem.setText("Exit");
         exitMenuItem.addSelectionListener(new SelectionAdapter() {
@@ -351,9 +349,6 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
         });
     }
 
-            @Override
-            @Override
-            @Override
     private void createAwipsLabel() {
         GridData gd = new GridData(300, 20);
         Label awipsBlankLabel = new Label(shell, SWT.NONE);

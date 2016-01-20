@@ -48,6 +48,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.ui.PlatformUI;
@@ -512,8 +513,8 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
     }
 
     public void setMaxLogSize(final int maxLogSize) {
-        if (txtMsgCompArray != null && txtMsgCompArray.size() > 0
-                && maxLogSize != txtMsgCompArray.get(0).getMaxLogSize()) {
+        if ((txtMsgCompArray != null) && (txtMsgCompArray.size() > 0)
+                && (maxLogSize != txtMsgCompArray.get(0).getMaxLogSize())) {
             for (TextMsgControlComp comp : txtMsgCompArray) {
                 comp.setMaxLogSize(maxLogSize);
             }
@@ -628,7 +629,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
     }
 
     public void resetTabControl() {
-        boolean isOpen = tabControlDlg != null && !tabControlDlg.isDisposed()
+        boolean isOpen = (tabControlDlg != null) && !tabControlDlg.isDisposed()
                 && tabControlDlg.isOpened();
         reLayout();
         // TODO: Need to determine which tabs to open and populate them.
@@ -656,7 +657,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
             RGB[] prevForeground = new RGB[size];
             dispose();
             for (int i = 0; i < txtMsgCompArray.size(); i++) {
-                if (txtMsgCompArray.get(i) != null
+                if ((txtMsgCompArray.get(i) != null)
                         && !txtMsgCompArray.get(i).isDisposed()) {
                     prevMessageText[i] = txtMsgCompArray.get(i)
                             .getMessageText();
@@ -674,9 +675,11 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
             open();
             result = true;
             for (int i = 0; i < txtMsgCompArray.size(); i++) {
-                if (i < prevMessageText.length && prevMessageText[i] != null) {
+                if ((i < prevMessageText.length)
+                        && (prevMessageText[i] != null)) {
                     txtMsgCompArray.get(i).setMessageText(prevMessageText[i]);
-                    if (prevBackground[i] != null && prevForeground[i] != null) {
+                    if ((prevBackground[i] != null)
+                            && (prevForeground[i] != null)) {
                         txtMsgCompArray.get(i).setMessageTextBackAndForeground(
                                 prevBackground[i], prevForeground[i]);
                     }
@@ -1091,7 +1094,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
         errorBtnBgColor = new Color(display, 237, 233, 227);
         errorBtn.setBackground(errorBtnBgColor);
 
-        if (tabControlDlg == null || tabControlDlg.isDisposed()) {
+        if ((tabControlDlg == null) || tabControlDlg.isDisposed()) {
             tabControlDlg = TabControlDlg.getInstance(shell);
         }
         if (textMsgLog == null) {
@@ -1150,14 +1153,14 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
 
         for (Source source : sourceMap.values()) {
             String name = source.getName();
-            if (source.isMonitor() && name != null) {
+            if (source.isMonitor() && (name != null)) {
                 String imageFile = source.getConfigurationMonitor()
                         .getMonitorMetadata().getImageFile();
                 boolean omitMonitor = source.getConfigurationMonitor()
                         .getMonitorMetadata().getOmit();
                 AlertMonitor monitor = alertMonitors.get(name);
 
-                if (imageFile != null
+                if ((imageFile != null)
                         && (!imageFile.equals("null") && !imageFile.equals(""))) {
                     if (monitor != null) {
                         monitor.setImageName(imageFile);
