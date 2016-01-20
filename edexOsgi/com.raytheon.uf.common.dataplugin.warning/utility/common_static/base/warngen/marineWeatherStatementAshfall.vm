@@ -9,7 +9,8 @@
 ##   Phil Kurimski   SEP 16 2013    OB13.5.2-4      ##
 ##   Evan Bookbinder SEP 18 2013 Implemented config.vm ##
 ##   Phil Kurimski   MAR 24 2015 Mixed Case         ##
-#########################################################
+##   Mike Rega       OCT 29 2015 Mixed Case Updates ##
+######################################################
 #parse("config.vm")
 ##########################################
 ## Set null variables used in the template
@@ -66,11 +67,11 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 ## Section to create line wording based on track type.
 #######################################################################
 #set($stormline = "${headerType}")
-#set($pathheader = "the ${headerType}")
+#set($pathheader = "The ${headerType}")
 #if(${stormType} == "line")
 	#set($stormline = "line of ${headerType}s")
 	#set($pathheader = "${headerType}s")
-	#set($headerType = "a ${headerType}s")
+	#set($headerType = "A ${headerType}s")
 #end
 #######################################################################
 ## Corrective coding (following this segemnt) to prevent the use of 
@@ -91,15 +92,15 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 ########################################################
 
-#set($headerType1 = "...${headerType} EXPECTED OVER THE COASTAL WATERS...")
+#set($headerType1 = "...${headerType} expected over the coastal waters...")
 #if(${list.contains(${bullets}, "ashadv")})
-#	#set($headerType1 = "...ASHFALL ADVISORY IN EFFECT FOR ${headerType}...")
+#	#set($headerType1 = "...Ashfall Advisory in effect for ${headerType}...")
 #end
 #if(${list.contains(${bullets}, "approachHead")})
-#	#set($headerType1 = "...${headerType} APPROACHING THE COASTAL WATERS...")
+#	#set($headerType1 = "...${headerType} approaching the coastal waters...")
 #end
 #if(${list.contains(${bullets}, "overHead")})
-#	#set($headerType1 = "...${headerType} OVER THE COASTAL WATERS...")
+#	#set($headerType1 = "...${headerType} over the coastal waters...")
 #end
 #######################################################################
 ## Added Hail Section
@@ -231,7 +232,7 @@ Ash is an eye and respiratory irritant and is abrasive. Those with respiratory s
 
 #end
 #if(${list.contains(${bullets}, "reportCTA")})
-Report severe weather to the coast guard. They will relay your report to the National Weather Service in ${officeLoc}.
+Report severe weather to the Coast Guard. They will relay your report to the National Weather Service in ${officeLoc}.
 
 #end
 #if(${ctaSelected} == "YES")

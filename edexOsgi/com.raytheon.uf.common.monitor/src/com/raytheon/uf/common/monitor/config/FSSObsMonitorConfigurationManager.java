@@ -38,7 +38,6 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.monitor.MonitorAreaUtils;
 import com.raytheon.uf.common.monitor.data.AdjacentWfoMgr;
@@ -78,6 +77,9 @@ import com.vividsolutions.jts.io.ParseException;
  * Feb 24 2015  3220      dhladky    Made sure config file is read in on change.
  * Sep 17 2015  3873      skorolev   Corrected getInstance, addArea, addAdjArea and added getAdjAreaConfigXml.
  * Oct 20 2015  3841      skorolev   Changed save method.
+ * Dec 02 2015  3873      dhladky    Pulled 3841 changes to 16.1.1.
+ * 
+ * 
  * 
  * </pre>
  * 
@@ -354,12 +356,13 @@ public class FSSObsMonitorConfigurationManager implements
                 LocalizationLevel.SITE);
         LocalizationFile newXmlFile = pm.getLocalizationFile(lc,
                 getConfigFileName());
-        try (SaveableOutputStream outStrm = newXmlFile.openOutputStream()) {
-            jaxb.marshalToStream(configXml, outStrm);
-            outStrm.save();
-        } catch (IOException e) {
+
+        try {
+            String path = newXmlFile.getFile().getAbsolutePath();
+            jaxb.marshalToXmlFile(configXml, path);
+        } catch (Exception e) {
             statusHandler.handle(Priority.ERROR,
-                    "There is a problem to save configuration XML file: "
+                    "There was a problem to save configuration XML file: "
                             + getConfigFileName(), e);
         }
         lacf = newXmlFile;
@@ -384,10 +387,15 @@ public class FSSObsMonitorConfigurationManager implements
                 LocalizationLevel.SITE);
         LocalizationFile newXmlFile = pm.getLocalizationFile(lc,
                 getAdjAreaConfigFileName());
-
-        SaveableOutputStream outStrm = newXmlFile.openOutputStream();
-        jaxb.marshalToStream(adjAreaConfigXml, outStrm);
-        outStrm.save();
+        
+        try {
+            String path = newXmlFile.getFile().getAbsolutePath();
+            jaxb.marshalToXmlFile(adjAreaConfigXml, path);
+        } catch (Exception e) {
+            statusHandler.handle(Priority.ERROR,
+                    "There was a problem saving Adjacent Area Configuration XML file: "
+                            + getAdjAreaConfigFileName(), e);
+        }
     }
 
     /**

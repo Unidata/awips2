@@ -7,4 +7,6 @@
 ### #set ($dupcounties = ["29115","MO024","20107","KS060"])
 ### IF YOU DO NOT HAVE DUPLICATE COUNTY NAMES USE THE FOLLOWING SYNTAX:
 ### Null example: #set ($dupcounties = [""])
-#set ($dupcounties = [""])
+### #set ($dupcounties = [""])
+### SET LWX FREDERICK CO VA, FREDERICK CO MD
+#set ($dupcounties = ["51069","VA028","24021","MD004"])

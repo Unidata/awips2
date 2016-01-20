@@ -350,8 +350,25 @@
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>tp</short_name>
-    <long_name>total precipitation</long_name>
+    <useDatabaseTimeRange>true</useDatabaseTimeRange>
+    <short_name>tp3hr</short_name>
+    <long_name>total precipitation 3hr</long_name>
+    <units>mm</units>
+    <udunits>millimeter</udunits>
+    <uiname>totPrecip</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <useDatabaseTimeRange>true</useDatabaseTimeRange>
+    <short_name>tp6hr</short_name>
+    <long_name>total precipitation 6hr</long_name>
     <units>mm</units>
     <udunits>millimeter</udunits>
     <uiname>totPrecip</uiname>

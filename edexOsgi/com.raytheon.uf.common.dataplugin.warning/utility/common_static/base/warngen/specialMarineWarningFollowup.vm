@@ -3,7 +3,10 @@
 ## CREATED BY PHIL KURIMSKI - WFO DTX                            ##
 ##  UPDATED Phil Kurimski   -- SEP 17 2013  OB13.5.2-4           ##
 ##          Evan Bookbinder -- SEP 18 2013 Implemented config.vm ##
-##          PHIL KURIMSKI   -- MAR 24 2015 mixed case            ##
+##          PHIL KURIMSKI   -- MAR 23 2015 simplified coding     ##
+##          Phil Kurimski   -- Oct 22 2014 Mixed Case            ##
+##          Richard Barnhill -- Dec 30 2015 Per conversation with##
+##                              Evan, made default hailCTA ""    ##
 ###################################################################
 #parse("config.vm")
 ## Set null variables used in the template
@@ -43,7 +46,6 @@ National Weather Service ${officeShort}
 ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 #if(${productClass}=="T")
-
 ...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
 
 #end
@@ -54,27 +56,22 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #set($CORCAN = "false")
 #end
 #if(${action}=="CANCON")
-
 ${ugclinecan}
 /${productClass}.CAN.${vtecOffice}.MA.W.${oldvtec}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz}, 15)}/
 #elseif(${CORCAN}=="true")
-
 ${ugclinecan}
 /${productClass}.COR.${vtecOffice}.MA.W.${oldvtec}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz}, 15)}/
 #else
-
 ${ugcline}
 /${productClass}.${action}.${vtecOffice}.MA.W.${oldvtec}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz}, 15)}/
 #end
 ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 #if(${productClass}=="T")
-
 ...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
 
 #end
 #if(${productClass}=="T")
-
 THIS IS A TEST MESSAGE.##
 #end
 #######################################
@@ -92,7 +89,7 @@ THIS IS A TEST MESSAGE.##
   #set($expcanHLTag = "EXPIRED AT ${dateUtil.format(${expire}, ${timeFormat.clock}, 15, ${localtimezone})}")
   #set($expcanBODYTag = "HAS BEEN ALLOWED TO EXPIRE")
 #elseif(${action}=="EXP")
-  #set($expcanHLTag = "WILL EXPIRE AT #headlineExpire(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone})")
+  #set($expcanHLTag = "WILL EXPIRE AT ${dateUtil.format(${expire}, ${timeFormat.clock}, 15, ${localtimezone})}")
   #set($expcanBODYTag = "WILL BE ALLOWED TO EXPIRE")
 #elseif(${action}=="CAN" || ${action}=="CANCON" || ${CORCAN}=="true")
   #set($expcanHLTag = "IS CANCELLED")
@@ -103,7 +100,6 @@ THIS IS A TEST MESSAGE.##
 ################################
 ##
 #if(${action}=="EXP" || ${action}=="CAN")
-
 ...THE ${warningType} ##
 ${expcanHLTag}...
 
@@ -139,7 +135,6 @@ ${area.name}...
 ## End of the marine zone combination script
 #######################################################################
 #elseif(${action}=="CANCON" || ${CORCAN}=="true")
-
 ...THE ${warningType} ##
 ${expcanHLTag}...
 
@@ -339,24 +334,19 @@ ${area.name}...
 #set($eventType = "thunderstorm")
 #if(${list.contains(${bullets}, "thunderstorm")})
 	#set($eventType = "thunderstorm")
-	#set($eventType2 = "storm")
 	#set($severeType = "strong")
 #end
 #if(${list.contains(${bullets}, "shower")})
 	#set($eventType = "shower")
-	#set($eventType2 = ${eventType})
 #end
 #if(${list.contains(${bullets}, "cloud")})
 	#set($eventType = "cloud")
-	#set($eventType2 = ${eventType})
 #end
 #if(${list.contains(${bullets}, "front")})
 	#set($eventType = "front")
-	#set($eventType2 = ${eventType})
 #end
 #if(${list.contains(${bullets}, "volcano")})
 	#set($eventType = "volcano")
-	#set($eventType2 = ${eventType})
 #end
 #######################################################################
 ## Added a Threat Section to the template that includes Wind...Hail 
@@ -366,6 +356,7 @@ ${area.name}...
 #######################################################################
 #set($windTag = "<34")
 #set($windCTA = "gusty winds")
+#set($hailCTA = "")
 #if(${list.contains(${bullets}, "34ktWind")})
 	#set($windTag = ">34")
 	#set($windType = "winds 34 knots or greater")
@@ -446,7 +437,7 @@ ${area.name}...
 	#set($threat = "${spoutType}, ${windType}, and ${hailType}")
 #elseif(${spoutType} && ${hailType})
 	#set($threat = "${spoutType} and ${hailType}")
-#elseif(${spoutType} && ${windlType})
+#elseif(${spoutType} && ${windType})
 	#set($threat = "${spoutType} and ${windType}")
 #elseif(${windType} && ${hailType})
 	#set($threat = "${windType} and ${hailType}")
@@ -485,39 +476,36 @@ ${area.name}...
 ## Section to create line wording based on track type.
 #######################################################################
 #set($stormline = "a ${eventType}")
-#set($secondStorm = "This ${eventType2} was")
 #set($pathheader = "The ${eventType}")
 #set($specialEvent = "This ${eventType}")
 #set($reportType2 = "The ${eventType} was")
 #if(${stormType} == "line")
-	#set($stormline = "a line of ${eventType}s")
+	#set($stormline = "${eventType}s")
 	#set($secondStorm = "These ${eventType2}s were")
-	#set($pathheader = "${eventType}s")
+	#set($pathheader = "${eventType}S")
 	#set($specialEvent = "these ${eventType}s")
 	#set($reportType2 = "the ${eventType}s were")
 #end
 #######################################################################
-## Corrective coding to prevent the use of "Line of Fronts" in the Product.
+## Corrective coding to prevent the use of "Line of Fronts" in the Product
 #######################################################################
 #if(${eventType} == "front")
 	#set($stormline = "a ${eventType}")
-	#set($secondStorm = "This ${eventType2} was")
 	#set($pathheader = "The ${eventType}")
 	#set($specialEvent = "this ${eventType}")
 	#set($reportType2 = "the ${eventType} was")
-##	#set($stormType = "")
+	#set($stormType = "")
 #end
 #######################################################################
-## Coding for volcanoes...this will override all other selections.
+## Coding for volcanos...this will override all other selections.
 #######################################################################
 #set($impacted = "Locations impacted include...")
 #if(${eventType} == "volcano")
 	#set($stormline = "an eruption of !** NAME OF VOLCANO**! volcano")
-	#set($secondStorm = "This ${eventType2} was")
 	#set($pathheader = "the ${volcanoPath}")
 	#set($reportType2 = "the ${volcanoPath} was")
 	#set($specialEvent = "the ${volcanoPath}")
-##	#set($stormType = "")
+	#set($stormType = "")
 	#set($impacted = "Locations impacted by ${volcanoPath} include...")
 #end
 #######################################################################
@@ -527,38 +515,35 @@ ${area.name}...
 #set($report = "!** YOU DIDN'T SELECT A REPORTER **! ${eventType}")
 #if(${list.contains(${bullets}, "doppler")})
   #set($capable = "capable of ")
-  #set($report = "Doppler radar indicated ${stormline} ${capable}producing ${threat}. ${secondStorm} ")
+  #set($report = "Doppler radar indicated ${stormline}, ${capable}producing ${threat}, ")
 #end
 #if(${list.contains(${bullets}, "doppler")} && ${list.contains(${bullets}, "sightedSpout")})
-  #set($report = "Doppler radar indicated ${stormline} producing ${threat}. ${secondStorm} ")
+  #set($report = "Doppler radar indicated ${stormline}, producing ${threat}, ")
 #end
 #if(${list.contains(${bullets}, "marineSpotter")})
-  #set($report = "marine weather spotters reported ${stormline} ${capable}producing ${threat}. ${secondStorm} ") 
+  #set($report = "marine weather spotters reported ${stormline}, ${capable}producing ${threat}, ") 
 #end
 #if(${list.contains(${bullets}, "mariner")})
-  #set($report = "a mariner reported ${stormline} ${capable}producing ${threat}. ${secondStorm} ") 
+  #set($report = "a mariner reported ${stormline}, ${capable}producing ${threat}, ") 
 #end
 #if(${list.contains(${bullets}, "public")})
-  #set($report = "the public reported ${stormline} ${capable}producing ${threat}. ${secondStorm} ") 
+  #set($report = "the public reported ${stormline}, ${capable}producing ${threat}, ") 
 #end
 #if(${list.contains(${bullets}, "pilot")})
-  #set($report = "a pilot reported ${stormline} ${capable}producing ${threat}. ${secondStorm} ") 
+  #set($report = "a pilot reported ${stormline}, ${capable}producing ${threat}, ") 
 #end
 #if(${list.contains(${bullets}, "satellite")})
-  #set($capable = "capable of ")
-  #set($report = "satellite imagery indicated ${stormline} ${capable}producing ${threat}. ${secondStorm} ")
+  #set($capable = "a pilot reported ")
+  #set($report = "satellite imagery indicated ${stormline}, ${capable}producing ${threat}, ")
 #end
 #if(${list.contains(${bullets}, "satellite")} && ${list.contains(${bullets}, "sightedSpout")})
-  #set($report = "satellite imagery indicated ${stormline} producing ${threat}. ${secondStorm} ")
+  #set($report = "satellite imagery indicated ${stormline}, producing ${threat}, ")
 #end
-## Storm current location description
 
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
 #end
-#thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
-, ${report}located ##
-##At ${dateUtil.format(${event}, ${timeFormat.clock}, ${localtimezone})}, ${report}located ##
+At ${dateUtil.format(${event}, ${timeFormat.clock}, ${localtimezone})}, ${report}located ##
 ##Many of the variables passed below are controlled by config.vm
 #if(${stormType} == "line")
 #handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxMarineNearDistance}, ${overPhrase}, ${maxMarineOverDistance}, ${marineDistanceUnits}, ${useSecondReferenceLine})
@@ -581,7 +566,7 @@ ${debrisflowInfo}
 ######## GENERATE ADDITIONAL REPORTS  #######
 #############################################
 #if(${list.contains(${bullets}, "addlRpt")})
-in addition, at !**ENTER TIME, PHENOMENA**! was reported !**ENTER LOCATION**!.
+In addition, at !**enter time, phenomena**! was reported !**enter location**!.
 #end
 
 ###################################################
@@ -612,13 +597,7 @@ THIS IS A TEST MESSAGE. ##
 ##############################################
 
 #if(${list.contains(${bullets}, "specialEvent")})
-#if(${stormType} == "line")
-Those attending the !**EVENT/VENUE NAME OR LOCATION**! are in the path of these storms and should prepare for imminent dangerous weather conditions. Seek shelter now!
-
-#else
-Those attending the !**EVENT/VENUE NAME OR LOCATION**! are in the path of this storm and should prepare for imminent dangerous weather conditions. Seek shelter now!
-
-#end
+Those attending !**EVENT/VENUE NAME OR LOCATION**! are in the path of ${specialEvent} and should prepare for imminent dangerous weather conditions. Seek shelter now!
 #end
 
 ## Comment out #parse command below to pull in Dynamic DSS Event Info
@@ -667,10 +646,10 @@ Mariners can expect gusty winds, high waves, dangerous lightning, and heavy rain
 #end
 #if(${list.contains(${bullets}, "hailWindsCTA")})
 #if(${stormType} == "line")
-Mariners can expect ${windCTA}${hailCTA}, high waves, dangerous lightning, and heavy rains. Boaters should seek safe harbor immediately...until these storms pass.
+Mariners can expect ${windCTA}${hailCTA}, high waves, dangerous lightning, and heavy rains. Boaters should seek safe harbor immediately until these storms pass.
 
 #else
-Mariners can expect ${windCTA}${hailCTA}, high waves, dangerous lightning, and heavy rains. Boaters should seek safe harbor immediately...until this storm passes.
+Mariners can expect ${windCTA}${hailCTA}, high waves, dangerous lightning, and heavy rains. Boaters should seek safe harbor immediately until this storm passes.
 
 #end
 #end
@@ -687,7 +666,7 @@ Frequent lightning is occurring with this storm. If caught on the open water sta
 
 #end
 #if(${list.contains(${bullets}, "reportCTA")})
-Report severe weather to the coast guard or nearest law enforcement agency. They will relay your report to the National Weather Service office.
+Report severe weather to the Coast Guard or nearest law enforcement agency. They will relay your report to the National Weather Service office.
 
 #end
 #if(${ctaSelected} == "YES")

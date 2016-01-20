@@ -61,6 +61,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Sep 25  2015  3873       skorolev   Corrected addReport for moving platforms.
  * Oct 19  2015  3841       skorolev   Added try to saveConfigXml
  * Nov 12  2015  3841       dhladky    Augmented Slav's fix for moving platforms.
+ * Dec 02  2015  3873       dhladky    Pulled 3841 changes to 16.1.1.
  * 
  * </pre>
  * 
@@ -204,12 +205,12 @@ public class ObHourReports {
                                 + report.getPlatformId() + " Zone: " + zone, e);
             }
         }
-        // Update configuration file.
         try {
             configMgr.saveConfigXml();
-        } catch (LocalizationException | SerializationException e) {
-            statusHandler.handle(Priority.PROBLEM, "Unable to save "
-                    + configMgr.getConfigFileName(), e);
+        } catch (LocalizationException e) {
+            statusHandler.handle(Priority.PROBLEM, "Problem saving Localization file!", e);
+        } catch (SerializationException e) {
+            statusHandler.handle(Priority.PROBLEM, "Problem serializaing Localization File!", e);
         }
         return shipZones;
     }

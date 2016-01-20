@@ -11,14 +11,16 @@
    Marine zone UGCs are matched against entries in their given order; the first
    match is used.  The order of the entries also determines the order of the
    values passed to the template.
+
+   10/28/15 Mike Rega - mixed case changes
  -->
 <zoneWordingConfig>
-    <entry match="^LEZ.*" replace="THE ADJACENT WATERS OF LAKE ERIE" />
-    <entry match="^LHZ.*" replace="THE ADJACENT WATERS OF LAKE HURON" />
-    <entry match="^LMZ.*" replace="THE ADJACENT WATERS OF LAKE MICHIGAN" />
-    <entry match="^LOZ.*" replace="THE ADJACENT WATERS OF LAKE ONTARIO" />
-    <entry match="^LSZ.*" replace="THE ADJACENT WATERS OF LAKE SUPERIOR" />
-    <entry match="^LCZ.*" replace="THE ADJACENT WATERS OF LAKE SAINT CLAIRE" />
+    <entry match="^LEZ.*" replace="the adjacent waters of Lake Erie" />
+    <entry match="^LHZ.*" replace="the adjacent waters of Lake Huron" />
+    <entry match="^LMZ.*" replace="the adjacent waters of Lake Michigan" />
+    <entry match="^LOZ.*" replace="the adjacent waters of Lake Ontario" />
+    <entry match="^LSZ.*" replace="the adjacent waters of Lake Superior" />
+    <entry match="^LCZ.*" replace="the adjacent waters of Lake Saint Claire" />
     <entry match="^SLZ.*" replace="" /> <!-- Saint Lawrence River -->
-    <entry match="^.*" replace="THE ADJACENT COASTAL WATERS" />
+    <entry match="^.*" replace="the adjacent coastal waters" />
 </zoneWordingConfig>

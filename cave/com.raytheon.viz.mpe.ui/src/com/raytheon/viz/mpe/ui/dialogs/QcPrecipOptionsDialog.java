@@ -68,6 +68,8 @@ import com.raytheon.viz.mpe.util.DailyQcUtils;
  * Mar 10, 2015 14575      snaples     Added additional status flag.
  * Jul 9, 2015  14618      snaples     Cleaned up code issues.
  * Sep 11, 2015 17988      snaples     Fixed issue with wait cursor not showing when Rendering Grids.
+ * Nov 18, 2015 18093      snaples     Fixed problem with arrows being disabled when new
+ *                                     day rollover >18Z occurs.
  * Jan 15, 2016 5054       randerso    Use proper parent shell
  * 
  * </pre>
@@ -336,20 +338,17 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
      * Initialize the dialog components.
      */
     private void initializeComponents() {
-        // pdata = dqc.pdata;
         DailyQcUtils.points_flag = 1;
         DailyQcUtils.grids_flag = -1;
         DailyQcUtils.map_flag = -1;
         DailyQcUtils.contour_flag = -1;
         if (DailyQcUtils.pdata == null || (DailyQcUtils.pdata.length <= 0)) {
-            Date currDate = ChooseDataPeriodDialog.prevDate;
+            Date currDate = ChooseDataPeriodDialog.getCurrentHydroEditDate();
             String QcArea = ChooseDataPeriodDialog.prevArea;
             int qcDays = MPEDisplayManager.getCurrent().getDqcDays();
             // checks to see if area or date has changed since last data load
             dqc_good = dqc.qcDataReload(currDate, QcArea, qcDays, false);
-            // pdata = dqc.pdata;
         }
-        // pcp_in_use = dqc.pcp_in_use;
         dataSet.clear();
         dataSet.addAll(dataType);
 

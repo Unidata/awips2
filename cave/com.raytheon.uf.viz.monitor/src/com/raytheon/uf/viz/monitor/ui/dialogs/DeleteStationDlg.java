@@ -55,6 +55,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Apr 28, 2014 3086      skorolev     Removed local getAreaConfigMgr method.
  * Aug 17, 2015 3841      skorolev     Corrected deleteSelected method.
  * Nov 12, 2015 3841      dhladky      Augmented Slav's work.
+ * Dec 02, 2015 3873      dhladky      Pulled 3841 to 16.1.1.
  * 
  * </pre>
  * 

@@ -32,6 +32,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 15, 2011            rjpeter     Initial creation
+ * Dec  9, 2015 ASM #18209 D. Friedman Support cwaStretch.
  * 
  * </pre>
  * 
@@ -48,6 +49,9 @@ public class GeospatialDataSet {
     
     @DynamicSerializeElement
     private GeospatialData[] timezones;
+
+    @DynamicSerializeElement
+    private GeospatialData[] cwaStretchAreas;
 
     public GeospatialData[] getAreas() {
         return areas;
@@ -72,5 +76,13 @@ public class GeospatialDataSet {
     public void setTimezones(GeospatialData[] timezones) {
         this.timezones = timezones;
     }
-    
+
+    public GeospatialData[] getCwaStretchAreas() {
+        return cwaStretchAreas;
+    }
+
+    public void setCwaStretchAreas(GeospatialData[] cwaStretchAreas) {
+        this.cwaStretchAreas = cwaStretchAreas;
+    }
+
 }
