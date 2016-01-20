@@ -147,8 +147,43 @@ fi
 # From 15.1.1 deltaScripts
 #
 # New column volumeScanNumber for plugin Radar
-#
-echo "Updating radar table to include volume scan number."
+POSTGRESQL_INSTALL="/awips2/postgresql"
+DATABASE_INSTALL="/awips2/database"
+AWIPS2_DATA_DIRECTORY="/awips2/data"
+PSQL_INSTALL="/awips2/psql"
+POSTMASTER="${POSTGRESQL_INSTALL}/bin/postmaster"
+PG_CTL="${POSTGRESQL_INSTALL}/bin/pg_ctl"
+DROPDB="${POSTGRESQL_INSTALL}/bin/dropdb"
+PSQL="${PSQL_INSTALL}/bin/psql"
+DB_OWNER=`ls -ld ${AWIPS2_DATA_DIRECTORY} | grep -w 'data' | awk '{print $3}'`
+
+# Determine if PostgreSQL is running.
+I_STARTED_POSTGRESQL="NO"
+su ${DB_OWNER} -c \
+   "${PG_CTL} status -D ${AWIPS2_DATA_DIRECTORY} > /dev/null 2>&1"
+RC="$?"
+
+# Start PostgreSQL if it is not running.
+if [ ! "${RC}" = "0" ]; then
+   echo "Starting PostgreSQL As User - ${DB_OWNER}..."
+   su ${DB_OWNER} -c \
+      "${POSTMASTER} -D ${AWIPS2_DATA_DIRECTORY} > /dev/null 2>&1 &"
+   RC="$?"
+   if [ ! "${RC}" = "0" ]; then
+      echo "Error - failed to start the PostgreSQL Server."
+      printFailureMessage
+   fi
+   sleep 5
+   I_STARTED_POSTGRESQL="YES"
+else
+   echo "Found Running PostgreSQL Server..."
+   su ${DB_OWNER} -c \
+      "${PG_CTL} status -D ${AWIPS2_DATA_DIRECTORY}"
+fi
+
+
+echo "15.1.1 Updating radar table to include volume scan number."
+
 SQL="
 DO \$\$
 BEGIN
@@ -167,6 +202,17 @@ fi
 /awips2/psql/bin/psql -U awips -d metadata -c "UPDATE radar SET volumescannumber=0 WHERE volumescannumber IS NULL;"
 echo "Done"
 
+# stop PostgreSQL if we started it.
+if [ "${I_STARTED_POSTGRESQL}" = "YES" ]; then
+   echo "Stopping PostgreSQL As User - ${DB_OWNER}..."
+   su ${DB_OWNER} -c \
+      "${PG_CTL} stop -D /awips2/data"
+   RC="$?"
+   if [ ! "${RC}" = "0" ]; then
+      echo "Warning: Failed to shutdown PostgreSQL."
+   fi
+   sleep 10
+fi
 
 
 %preun
