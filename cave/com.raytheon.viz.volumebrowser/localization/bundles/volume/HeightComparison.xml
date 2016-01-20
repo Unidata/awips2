@@ -63,6 +63,7 @@
 						<alertParser xsi:type="dataCubeAlertMessageParser" />
 					</resourceData>
 				</resource>
+				<!--
 				<resource>
 					<loadProperties xsi:type="gridLoadProperties"
 						displayType="CONTOUR" loadWithoutData="false">
@@ -104,6 +105,7 @@
 						<alertParser xsi:type="dataCubeAlertMessageParser" />
 					</resourceData>
 				</resource>
+				-->
 				<resource>
 					<loadProperties xsi:type="gridLoadProperties"
 						displayType="CONTOUR" loadWithoutData="false">
@@ -115,7 +117,7 @@
 						<resourceType>PLAN_VIEW</resourceType>
 					</loadProperties>
 					<properties renderingOrderId="CONTOUR" isSystemResource="false"
-						isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
+						isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
 						<pdProps maxDisplayWidth="100000000" minDisplayWidth="0" />
 					</properties>
 					<resourceData xsi:type="gridResourceData"
@@ -155,7 +157,7 @@
 						<resourceType>PLAN_VIEW</resourceType>
 					</loadProperties>
 					<properties renderingOrderId="CONTOUR" isSystemResource="false"
-						isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
+						isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
 						<pdProps maxDisplayWidth="100000000" minDisplayWidth="0" />
 					</properties>
 					<resourceData xsi:type="gridResourceData"
@@ -195,7 +197,7 @@
 						<resourceType>PLAN_VIEW</resourceType>
 					</loadProperties>
 					<properties renderingOrderId="CONTOUR" isSystemResource="false"
-						isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
+						isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
 						<pdProps maxDisplayWidth="100000000" minDisplayWidth="0" />
 					</properties>
 					<resourceData xsi:type="gridResourceData"
@@ -235,7 +237,7 @@
 						<resourceType>PLAN_VIEW</resourceType>
 					</loadProperties>
 					<properties renderingOrderId="CONTOUR" isSystemResource="false"
-						isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
+						isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
 						<pdProps maxDisplayWidth="100000000" minDisplayWidth="0" />
 					</properties>
 					<resourceData xsi:type="gridResourceData"
@@ -275,7 +277,7 @@
 						<resourceType>PLAN_VIEW</resourceType>
 					</loadProperties>
 					<properties renderingOrderId="CONTOUR" isSystemResource="false"
-						isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
+						isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
 						<pdProps maxDisplayWidth="100000000" minDisplayWidth="0" />
 					</properties>
 					<resourceData xsi:type="gridResourceData"
