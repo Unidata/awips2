@@ -60,6 +60,7 @@ import com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr;
  * Sep 04, 2014  3220      skorolev    Updated getStationTableData method.
  * Sep 25, 2015  3873      skorolev    Added multiHrsTabData.
  * Nov 12, 2015  3841      dhladky     Augmented Slav's update fix.
+ * Dec 02  2015  3873      dhladky    Pulled 3841 changes to 16.1.1.
  * 
  * </pre>
  * 
@@ -126,6 +127,7 @@ public class ObMultiHrsReports {
      */
     public void addReport(ObReport report) {
         Date nominalTime = report.getRefHour();
+           
         /**
          * DR #8723: if wind speed is zero, wind direction should be N/A, not 0
          */
@@ -166,11 +168,15 @@ public class ObMultiHrsReports {
             // update multiHrsReports with new data
             obHourReports = multiHrsReports.get(nominalTime);
         }
-        obHourReports.addReport(report);
-        // update data cache
-        multiHrsReports.put(nominalTime, obHourReports);
-        TableData tblData = obHourReports.getZoneTableData();
-        multiHrsTabData.put(nominalTime, tblData);
+
+        if (report != null && obHourReports != null) {
+            obHourReports.addReport(report);
+            // update data cache
+            multiHrsReports.put(nominalTime, obHourReports);
+            TableData tblData = obHourReports.getZoneTableData();
+            multiHrsTabData.put(nominalTime, tblData);
+        }
+
     }
 
     /**

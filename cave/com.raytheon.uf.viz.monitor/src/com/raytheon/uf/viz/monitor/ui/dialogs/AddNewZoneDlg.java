@@ -53,6 +53,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Feb 10, 2015 3886      skorolev     Added fixed width for dialog.
  * Aug 17, 2015 3841      skorolev     Corrected handleAddNewAction method.
  * Nov 12, 2015 3841      dhladky      Augmented Slav's fix for moving platforms.
+ * Dec 02, 2015 3873      dhladky      Pulled 3841 to 16.1.1.
  * 
  * </pre>
  * 
@@ -89,16 +90,16 @@ public class AddNewZoneDlg extends CaveSWTDialog {
     private static final char Z = 'Z';
     
     /** Upper Latitude Boundary **/
-    private static double upLatBound = 90.0;
+    public static double upLatBound = 90.0;
     
     /** Lower Latitude Boundary **/
-    private static double lowLatBound = -90.0;
+    public static double lowLatBound = -90.0;
     
     /** Upper Longitude Boundary **/
-    private static double upLonBound = 180.0;
+    public static double upLonBound = 180.0;
     
     /** Lower Longitude Boundary **/
-    private static double lowLonBound = -180.0;
+    public static double lowLonBound = -180.0;
 
     /**
      * Constructor.

@@ -99,4 +99,13 @@
           recursive="true">
        </path>
     </extension>
+   <extension
+         point="com.raytheon.viz.ui.contextualMenu">
+      <contextualMenu
+            actionClass="com.raytheon.viz.warngen.gui.ShowExtensionAreaToggleAction"
+            capabilityClass="com.raytheon.viz.warngen.gui.WarngenLayer"
+            name="com.raytheon.viz.warngen.ShowExtensionAreaToggle"
+            sortID="600">
+      </contextualMenu>
+   </extension>
 </plugin>

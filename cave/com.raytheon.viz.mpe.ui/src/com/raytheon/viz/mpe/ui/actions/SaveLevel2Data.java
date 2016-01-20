@@ -79,6 +79,7 @@ import com.raytheon.viz.mpe.util.WriteQPFGrids;
  * May 02, 2013 15956      wkwock      Fix incorrect contents in precip_LLL_grid_yyyymmdd.nc file
  * Mar 10, 2015 14575      snaples     Added status check to make sure that we close everything before exiting.
  * Jun 25, 2015 17462      snaples     Fixed loop of basins for temp and freezing.
+ * Dec 07, 2015 5172       bkowal      Prevent NPE on close. Cleanup all warnings and e print stack trace usage.
  * Jan 15, 2016 5054       randerso    Added proper constructor with parent shell parameter
  * 
  * </pre>
@@ -473,22 +474,16 @@ public class SaveLevel2Data {
                 type = "2";
             }
 
-            // logMessage(
-            // "\nSTATUS: 1) type value in type/source in level2 file is ##%s##\n",
-            // type);
-
             first = 1;
         }
 
         for (k = 0; k < 10; k++) {
             archive_flag[k] = -1;
         }
-        // logMessage("\nSTATUS: 2) type value in type/source in level2 file is ##%s##\n",type);
         save_isom = dqc.isom;
 
-        // MPEDisplayManager mpd = MPEDisplayManager.getCurrent();
 
-        if ((DailyQcUtils.qpf_flag == true || DailyQcUtils.maxmin_flag == true || DailyQcUtils.z_flag == true)
+       if ((DailyQcUtils.qpf_flag == true || DailyQcUtils.maxmin_flag == true || DailyQcUtils.z_flag == true)
                 && dqc.pcpn_day == 0
                 && (dqc.curHr18_00 == 1 || dqc.curHr00_06 == 1 || dqc.curHr06_12 == 1)) {
             /*
@@ -565,8 +560,8 @@ public class SaveLevel2Data {
                 return;
             }
 
-            System.out
-                    .println("******   SAVE LEVEL 2 DATA - Version 11092011   ******");
+            statusHandler
+                    .info("******   SAVE LEVEL 2 DATA - Version 11092011   ******");
 
             for (m = 0; m < 5; m++) {
                 /*
@@ -799,7 +794,7 @@ public class SaveLevel2Data {
             fbuf = String.format("%s%04d%02d%02d", proc_pcpn_file,
                     gm.get(Calendar.YEAR), gm.get(Calendar.MONTH) + 1,
                     gm.get(Calendar.DAY_OF_MONTH));
-            System.out.println("Writing Level 2 Point Precip data. ");
+            statusHandler.info("Writing Level 2 Point Precip data. ");
             try {
                 if (fp == null) {
                     File fo = new File(fbuf.toString());
@@ -1031,7 +1026,7 @@ public class SaveLevel2Data {
 
             if (mean_areal_precip_global[m] != null) {
                 if (mean_areal_precip_global[m].hb5 == "") {
-                    System.out.println("MAP.hb5 is empty, continuing. ");
+                    statusHandler.info("MAP.hb5 is empty, continuing. ");
                     continue;
                 }
             }
@@ -1042,7 +1037,7 @@ public class SaveLevel2Data {
             fbuf = String.format("%s%04d%02d%02d", map_file,
                     gm.get(Calendar.YEAR), gm.get(Calendar.MONTH) + 1,
                     gm.get(Calendar.DAY_OF_MONTH));
-            System.out.println("Writing out MAP file: " + fbuf);
+            statusHandler.info("Writing out MAP file: " + fbuf);
 
             try {
                 if (fp == null) {
@@ -1050,8 +1045,8 @@ public class SaveLevel2Data {
                     fo.setReadable(true, false);
                     fo.setWritable(true, false);
                     fp = new BufferedWriter(new FileWriter(fo));
-                    System.out.println("Creating new MAP file. ");
-                    System.out.println("One zone flag is set to: "
+                    statusHandler.info("Creating new MAP file. ");
+                    statusHandler.info("One zone flag is set to: "
                             + one_zone_flag);
                 }
                 /*
@@ -1185,8 +1180,8 @@ public class SaveLevel2Data {
                             fp.newLine();
                         } else if (one_zone_flag == 1 && l == 0) {
                             fp.write(xbuf.toString());
-                            System.out
-                                    .println("Writing out record to One Zone MAP file: "
+                            statusHandler
+                                    .info("Writing out record to One Zone MAP file: "
                                             + xbuf.toString());
                             fp.newLine();
                         } else {
@@ -1196,7 +1191,7 @@ public class SaveLevel2Data {
                 }
 
                 fp.close();
-                System.out.println("Finished writing out MAP file. ");
+                statusHandler.info("Finished writing out MAP file. ");
                 fp = null;
 
             } catch (IOException e) {
@@ -1213,7 +1208,8 @@ public class SaveLevel2Data {
                     }
 
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    statusHandler.error("Failed to close the MAP file: " + fbuf
+                            + ".", e);
                 }
             }
 
@@ -1232,7 +1228,7 @@ public class SaveLevel2Data {
             String ebuf = String.format("%s%04d%02d%02d", dqc.pcpn_dev_file,
                     gm.get(Calendar.YEAR), gm.get(Calendar.MONTH) + 1,
                     gm.get(Calendar.DAY_OF_MONTH));
-            System.out.println("Writing out Precip Dev file. ");
+            statusHandler.info("Writing out Precip Dev file. ");
 
             try {
                 if (fp == null) {
@@ -1250,7 +1246,7 @@ public class SaveLevel2Data {
                     fp = null;
 
                 }
-                System.out.println("Finished writing Precip Dev file. ");
+                statusHandler.info("Finished writing Precip Dev file. ");
 
             } catch (IOException e) {
                 statusHandler.handle(Priority.PROBLEM,
@@ -1308,7 +1304,8 @@ public class SaveLevel2Data {
                     }
 
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    statusHandler.error("Failed to close file: " + ebuf + ".",
+                            e);
                 }
             }
 
@@ -1556,7 +1553,8 @@ public class SaveLevel2Data {
                     }
 
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    statusHandler.error("Failed to close file: " + fbuf + ".",
+                            e);
                 }
             }
 
@@ -1753,7 +1751,8 @@ public class SaveLevel2Data {
                     }
 
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    statusHandler.error("Failed to close file: " + fbuf + ".",
+                            e);
                 }
             }
 
@@ -2162,7 +2161,8 @@ public class SaveLevel2Data {
                     }
 
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    statusHandler.error("Failed to write file: " + fbuf + ".",
+                            e);
                 }
             }
             /* build map file */
@@ -2355,7 +2355,8 @@ public class SaveLevel2Data {
                     }
 
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    statusHandler.error("Failed to close file: " + fbuf + ".",
+                            e);
                 }
             }
             for (m = 0; m < 6; m++) {
@@ -2464,30 +2465,8 @@ public class SaveLevel2Data {
         try {
             d6h.disagg6hr();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler.error("Failed to read disagg station list!", e);
         }
-
-        /* Free DailyQC resources. */
-
-        // if (MPEDisplayManager.getCurrent().isQpf() == true) {
-        // MPEDisplayManager.getCurrent().setQpf(false);
-        // }
-        //
-        // if (MPEDisplayManager.getCurrent().isMaxmin() == true) {
-        // MPEDisplayManager.getCurrent().setMaxmin(false);
-        // }
-        //
-        // if (MPEDisplayManager.getCurrent().isZflag() == true) {
-        // MPEDisplayManager.getCurrent().setZflag(false);
-        // }
-
-        // FreeDQCData dqd = new FreeDQCData();
-        // dqd.free_dqc_data();
-
-        // if (QcPrecipOptionsDialog.isOpen == true) {
-        // QcPrecipOptionsDialog.destroy(false);
-        // }
         dqc.isom = save_isom;
     }
 
@@ -2516,35 +2495,10 @@ public class SaveLevel2Data {
     }
 
     private void cancel_dbase() {
-        // String qcarea = dqc.currentQcArea;
         qdays = dqc.qcDays;
+        if (MPEDisplayManager.getCurrent() == null) {
+            return;
+        }
         currntDate = MPEDisplayManager.getCurrent().getCurrentEditDate();
-
-        /* The datasets have all been QC'd and saved to the database. */
-        /* Go ahead and load the new DailyQC dataset. */
-        // if (MPEDisplayManager.getCurrent().isQpf() == true) {
-        // MPEDisplayManager.getCurrent().setQpf(false);
-        // }
-        //
-        // if (MPEDisplayManager.getCurrent().isMaxmin() == true) {
-        // MPEDisplayManager.getCurrent().setMaxmin(false);
-        // }
-        //
-        // if (MPEDisplayManager.getCurrent().isZflag() == true) {
-        // MPEDisplayManager.getCurrent().setZflag(false);
-        // }
-
-        // /* Free the data from the previous run. */
-        // DailyQcUtils dqc = new DailyQcUtils();
-        // dqc.qcDataReload(currntDate, qcarea, qdays);
-
-        // FreeDQCData dqd = new FreeDQCData();
-        // dqd.free_dqc_data();
     }
-
-    // private void ok_dbase() {
-    // Date prevDate = ChooseDataPeriodDialog.prevDate;
-    // DailyQcUtils dqc = new DailyQcUtils();
-    // dqc.qcDataReload(prevDate, qarea, qdays);
-    // }
 }

@@ -24,6 +24,9 @@ import java.nio.charset.Charset;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.DirectPosition2D;
@@ -33,6 +36,7 @@ import org.opengis.referencing.crs.ProjectedCRS;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
+import org.osgi.framework.Bundle;
 
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
@@ -41,9 +45,7 @@ import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.status.StatusConstants;
 import com.raytheon.viz.redbook.Activator;
-import com.raytheon.viz.redbookua.rsc.RedbookUpperAirResource;
 
 /**
  * Decoder for redbook upper air products.
@@ -54,6 +56,7 @@ import com.raytheon.viz.redbookua.rsc.RedbookUpperAirResource;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 24, 2010 1029       dfriedma    Initial creation
+ * Nov 17, 2015 5134       njensen     Fixed loading pointDataDescription
  * 
  * </pre>
  * 
@@ -289,20 +292,17 @@ public class RedbookUpperAirDecoder {
 
     private static synchronized PointDataDescription getPointDataDescription() {
         if (pointDataDescription == null) {
-            InputStream is = RedbookUpperAirResource.class
-                    .getResourceAsStream("/res/pointdata/redbookua.xml");
-            if (is != null) {
-                try {
-                    try {
-                        pointDataDescription = PointDataDescription
-                                .fromStream(is);
-                    } finally {
-                        is.close();
-                    }
-                } catch (Exception e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Could load point data description", e);
+            Bundle bundle = Activator.getDefault().getBundle();
+            IPath path = new Path("/res/pointdata/redbookua.xml");
+            try (InputStream is = FileLocator.openStream(bundle, path, false)) {
+                if (is != null) {
+                    pointDataDescription = PointDataDescription.fromStream(is);
                 }
+            } catch (Exception e) {
+                statusHandler
+                        .handle(Priority.PROBLEM,
+                                "Couldn't load point data description for redbookua",
+                                e);
             }
         }
         return pointDataDescription;

@@ -46,6 +46,7 @@ import com.raytheon.uf.edex.plugin.fssobs.FSSObsUtils;
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Sep 04, 2014 3220       skorolev    Removed cwa and monitorUse from data set.
  * Sep 18, 2015 3873       skorolev    Removed identical constant definitions.
+ * Dec 02, 2015 3873       dhladky     Logging change.
  * Dec 14, 2015 5166       kbisanz     Update logging to use SLF4J
  * 
  * </pre>
@@ -87,32 +88,25 @@ public class FSSObsConfig {
     public FSSObsRecord getTableRow(String uri) {
         String dt = uri.substring(1)
                 .substring(0, uri.substring(1).indexOf("/"));
-        if (dt.equals("obs")) {
-            try {
-                tableRow = FSSObsUtils.getRecordFromMetar(uri);
 
-            } catch (PluginException e) {
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
-            }
-        } else if (dt.equals("sfcobs")) {
-            try {
+        try {
+            
+            if (dt.equals("obs")) {
+                tableRow = FSSObsUtils.getRecordFromMetar(uri);
+            } else if (dt.equals("sfcobs")) {
                 tableRow = FSSObsUtils.getRecordFromMaritime(uri);
-            } catch (PluginException e) {
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
-            }
-        } else if (dt.equals("ldadmesonet")) {
-            try {
+            } else if (dt.equals("ldadmesonet")) {
                 tableRow = FSSObsUtils.getRecordFromMesowest(uri);
-            } catch (Exception e) {
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
             }
+
+        } catch (PluginException e) {
+            statusHandler.handle(Priority.PROBLEM, "Could not create type: "
+                    + dt + " URI: " + uri, e);
         }
+
         if (tableRow.getRelativeHumidity() == ObConst.MISSING) {
             Float RH = FSSObsUtils.getRH(tableRow.getDewpoint(),
-                    tableRow.getTemperature());
+               tableRow.getTemperature());
             tableRow.setRelativeHumidity(RH);
         }
         float[] snowData = FSSObsUtils.getSnowData(tableRow);

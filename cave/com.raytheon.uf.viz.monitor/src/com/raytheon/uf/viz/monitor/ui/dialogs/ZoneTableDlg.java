@@ -101,6 +101,7 @@ import com.vividsolutions.jts.io.ParseException;
  * Nov 03, 2014 3741      skorolev     Updated zoom procedures.
  * Sep 25, 2015 3873      skorolev     Added center definition for moving platforms.
  * Nov 09, 2015 3841      dhladky      Update all tables when zones/stations are updated.
+ * Dec 02, 2015 3873      dhladky      Pulled 3841 to 16.1.1.
  * 
  * </pre>
  * 
