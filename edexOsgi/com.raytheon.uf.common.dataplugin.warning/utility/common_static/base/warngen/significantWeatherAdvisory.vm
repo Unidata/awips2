@@ -1,24 +1,28 @@
-###################################################################
-## SPS - SIGNIFICANT WEATHER ADVISORY                            ##
-## WRITTEN BY:                                                   ##
-## TOM BIRCHARD WFO HFO/EVAN BOOKBINDER WFO EAX                  ##
-## Modified by:                                                  ##
-##             Phil Kurimski 16 Sep 2013 OB13.5.2-4              ## 
-##             Evan Bookbinder Sep 18 2013 Implemented config.vm ##
-##             Mike Dangelo 26 Jun  2014 made inclusion of both  ##
-##                       watches dependent on GUI bullet choices ##
-##             Mike Dangelo 26 Mar 2015 Mixed Case edits         ##
-###################################################################
+######################################################################################
+## SPS - SIGNIFICANT WEATHER ADVISORY                                               ##
+## WRITTEN BY:                                                                      ##
+## TOM BIRCHARD WFO HFO/EVAN BOOKBINDER WFO PBZ                                     ##
+## Modified by:                                                                     ##
+##    Phil Kurimski 9/16/2013  OB13.5.2-4 MAJOR RELEASE                             ## 
+##    Evan Bookbinder 9/18/2013 Implemented config.vm                               ##
+##    Mike Dangelo   6/24/2014  Made inclusion of both watches dependent on GUI     ##
+##                              bullet choices                                      ##
+##             Mike Dangelo 26 Mar 2015 Mixed Case edits                            ##
+##    Evan Bookbinder 6/15/15   Fixed horrible grammar on line-based selections     ##
+##    Evan Bookbinder 9/4/15    Replaced flash flooding with localized flooding in  ##
+##                              torrentainRain CTA so as not to imply need for FFW  ##
+##    Phil Kurimski 10/20/2015  Fixed line of storms wording/added campers CTA      ##
+######################################################################################
 ##
 ##SET SOME INITIAL VARIABLES
 #parse("config.vm")
 #if(${stormType} == "line")
-  #set($report = "a line of strong thunderstorms were reported")
-  #set($reportType1 = "line of strong thunderstorms")
+  #set($report = "strong thunderstorms were reported")
+  #set($reportType1 = "strong thunderstorms")
   #set($reportType2 = "these storms were")
 #else
   #set($report = "a strong thunderstorm was reported")
-  #set($reportType1 = "strong thunderstorm")
+  #set($reportType1 = "a strong thunderstorm")
   #set($reportType2 = "this storm was")
 #end
 #set($windThreat = "")
@@ -28,27 +32,27 @@
 #### CREATE BASIS WORDING ###################################
 #############################################################
 #if(${list.contains(${bullets}, "doppler")})
-  #set($report = "Doppler radar was tracking a ${reportType1}")
+  #set($report = "Doppler radar was tracking ${reportType1}")
   #set($reportAuthSVR = "capable of producing")
 #end
 #if(${list.contains(${bullets}, "stormSpotters")})
-  #set($report = "trained weather spotters reported a ${reportType1}")
+  #set($report = "trained weather spotters reported ${reportType1}")
   #set($reportAuthSVR = "producing") 
 #end
 #if(${list.contains(${bullets}, "lawEnforcement")})
-  #set($report = "local law enforcement reported a ${reportType1}")
+  #set($report = "local law enforcement reported ${reportType1}")
   #set($reportAuthSVR = "producing") 
 #end
 #if(${list.contains(${bullets}, "emergencyMgmt")})
-  #set($report = "emergency management reported a ${reportType1}")
+  #set($report = "emergency management reported ${reportType1}")
   #set($reportAuthSVR = "producing") 
 #end
 #if(${list.contains(${bullets}, "public")})
-  #set($report = "the public reported a ${reportType1}")
+  #set($report = "the public reported ${reportType1}")
   #set($reportAuthSVR = "producing") 
 #end
 #if(${list.contains(${bullets}, "amateurRadio")})
-  #set($report = "amateur radio operators reported a ${reportType1}")
+  #set($report = "amateur radio operators reported ${reportType1}")
   #set($reportAuthSVR = "producing") 
 #end
 ###################################################
@@ -125,7 +129,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 ${ugcline}
 #foreach (${area} in ${areas})
-#capitalize(${area.name} "ALL")
+#capitalize(${area.name} "FIRST")
 #if(${includeStateAbbreviation}==true)
  ${area.stateabbr}##
 #end
@@ -173,7 +177,7 @@ THIS IS A TEST MESSAGE. ##
 . ${reportType2} nearly stationary. ${smallHail}
 #else
 #if(${stormType} == "line")
-, and moving ## 
+. Movement was ## 
 #else
 , moving ##
 #end
@@ -268,20 +272,20 @@ PRECAUTIONARY/PREPAREDNESS ACTIONS...
  
 #if(${list.contains(${bullets}, "torrentialRainfallCTA")})
 #if(${stormType} == "line")
-Torrential rainfall is also occurring with these storms, and may lead to flash flooding. Do not drive your vehicle through flooded roadways.
+Torrential rainfall is also occurring with these storms, and may lead to localized flooding. Do not drive your vehicle through flooded roadways.
 
 #else
-Torrential rainfall is also occurring with this storm, and may lead to flash flooding. Do not drive your vehicle through flooded roadways.
+Torrential rainfall is also occurring with this storm, and may lead to localized flooding. Do not drive your vehicle through flooded roadways.
 
 #end
 #end
 
 #if(${list.contains(${bullets}, "lightningCTA")})
 #if(${stormType} == "line")
-Frequent cloud to ground lightning is occurring with these storms. Lightning can strike 15 miles away from a thunderstorm. Seek a safe shelter inside a building or vehicle.
+Frequent cloud to ground lightning is occurring with these storms. Lightning can strike 10 miles away from a thunderstorm. Seek a safe shelter inside a building or vehicle.
 
 #else
-Frequent cloud to ground lightning is occurring with this storm. Lightning can strike 15 miles away from a thunderstorm. Seek a safe shelter inside a building or vehicle.
+Frequent cloud to ground lightning is occurring with this storm. Lightning can strike 10 miles away from a thunderstorm. Seek a safe shelter inside a building or vehicle.
 
 #end
 #end
@@ -305,10 +309,21 @@ To report severe weather, contact your nearest law enforcement agency. They will
 ##
 
 #if(${list.contains(${bullets}, "boatersCTA")})
-If on or near !**NAME OF LAKE**!, get out of the water and move indoors or inside a vehicle. Remember, lightning can strike out to 15 miles from the parent thunderstorm. If you can hear thunder, you are close enough to be struck by lightning. Move to safe shelter now! Do not be caught on the water in a thunderstorm.
+If on or near !**NAME OF LAKE**!, get out of the water and move indoors or inside a vehicle. Remember, lightning can strike out to 10 miles from the parent thunderstorm. If you can hear thunder, you are close enough to be struck by lightning. Move to safe shelter now! Do not be caught on the water in a thunderstorm.
 
 #end
 
+##
+
+#if(${list.contains(${bullets}, "camperCTA")})
+#if(${stormType} == "line")
+Persons in campgrounds should consider seeking sturdy shelter until these storms pass.
+
+#else
+Persons in campgrounds should consider seeking sturdy shelter until this storm passes.
+
+#end
+#end
 ##
 #if(${ctaSelected} == "YES") 
 &&

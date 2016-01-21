@@ -11,6 +11,7 @@
                Chad Gimmestad  9-17-2013 made additional info bullet names/labels consistent
                Phil Kurimski  09-19-2013 added geospatialConfig.xml
                Mike Rega 5/23/14 DR 17380 svr wx watch logic OB14.3.1
+               Mike Dangelo 10-22-2015 checked for mixed case     
 -->
 <warngenConfig>
 

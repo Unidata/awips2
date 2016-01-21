@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.TimeZone;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
@@ -51,18 +52,20 @@ import com.raytheon.viz.grid.inv.RadarUpdater;
 import com.raytheon.viz.grid.util.RadarAdapter;
 
 /**
- * TODO Add Description
+ * Replacement for {@link DataUpdateTree} which will perform updates by querying
+ * the server for updates for any tree items.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Dec 13, 2011            bsteffen     Initial creation
- * Feb 21, 2014 DR 16744   D. Friedman  Add radar/grid updates
- * Apr  1, 2014 DR 17220   D. Friedman Handle uninitialized grid inventory
- * Dec 15, 2014 3923       bsteffen    Retrieve pdo for grid instead of dataURI.
+ * Date          Ticket#  Engineer   Description
+ * ------------- -------- ---------- ------------------------------------------
+ * Dec 13, 2011           bsteffen   Initial creation
+ * Feb 21, 2014  16744    dfriedman  Add radar/grid updates
+ * Apr 01, 2014  17220    dfriedman  Handle uninitialized grid inventory
+ * Dec 15, 2014  3923     bsteffen   Retrieve pdo for grid instead of dataURI.
+ * Dec 04, 2015  5169     bsteffen   Do not send duplicate grid updates.
  * 
  * </pre>
  * 
@@ -107,6 +110,14 @@ public class ThinClientDataUpdateTree extends DataUpdateTree {
                 continue;
             }
             Map<String, RequestConstraint> metadata = pair.metadata;
+            RequestConstraint pluginConstraint = metadata
+                    .get(PluginDataObject.PLUGIN_NAME_ID);
+            if (pluginConstraint != null
+                    && (pluginConstraint.evaluate(GridConstants.GRID) || pluginConstraint
+                            .evaluate("radar"))) {
+                /* Grid and radar do their updates differently. */
+                continue;
+            }
             metadata = new HashMap<String, RequestConstraint>(metadata);
             metadata.put("insertTime", new RequestConstraint(time,
                     ConstraintType.GREATER_THAN));
@@ -176,7 +187,8 @@ public class ThinClientDataUpdateTree extends DataUpdateTree {
     private void getGridUpdates(String time, Set<AlertMessage> messages) {
         Map<String, RequestConstraint> newQuery = new HashMap<String, RequestConstraint>();
         DbQueryRequest dbRequest = new DbQueryRequest();
-        newQuery.put("pluginName", new RequestConstraint("grid"));
+        newQuery.put(PluginDataObject.PLUGIN_NAME_ID, new RequestConstraint(
+                GridConstants.GRID));
         newQuery.put("insertTime", new RequestConstraint(time,
                 ConstraintType.GREATER_THAN));
         dbRequest.setConstraints(newQuery);

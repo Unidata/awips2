@@ -73,6 +73,8 @@
 #    10/07/2015          #4958     dgilling       Added support for NationalBlend D2D data.
 #    10/13/2015          #4961     randerso       Updated NewTerrain/BaseTerrain database definitions
 #    10/30/2015          #17940    jendrowski     Responded to Code Review.  Mostly syntactical changes.
+#    11/05/2015          #18182    ryu            Change D2DDBVERSIONS value for HPCERP to 24 
+#
 ####################################################################################################
 
 #----------------------------------------------------------------------------
@@ -1903,9 +1905,9 @@ SITES = {
 #National Centers
     'HAK' : ( [825,553], ( 1.0, 1.0), (103.0, 69.0), 'EST5EDT', Grid214AK, "nc"),
     'HUS' : ([1073,689], (19.0, 8.0), ( 67.0, 43.0), 'EST5EDT', Grid211,   "nc"),
-    #'NHA' : ([1729,1601], (1.0,1.0), (1728.0, 1600.0), 'EST5EDT', GridForNHA, "nc"),
-    'NHA' : ([1873,1361], (35.5,3.5), (58.5,42.5), 'EST5EDT', Grid211, "nc"),   # updated
-    }
+    'NHA' : ([1873,1361], (35.5, 3.5), (58.5, 42.5), 'EST5EDT', Grid211, "nc"),
+
+}
 
 # Get list of valid office types, for validation.
 VALID_OFFICE_TYPES = []
@@ -1916,6 +1918,7 @@ for siteValues in SITES.values():
     if officeType not in VALID_OFFICE_TYPES:
         # A new office type
         VALID_OFFICE_TYPES.append(officeType)
+
 #---------------------------------------------------------------------------
 #
 #  Time Constraint configuration section
@@ -2104,7 +2107,7 @@ D2DDBVERSIONS = {
       "MSAS": 6,
       "LAPS": 6,
       "Satellite": 6,
-      "HPCERP": 5,
+      "HPCERP": 24,
       "TPCProb": 30,
       "TPCStormSurge": 1,
       "CRMTopo": 1,
@@ -3082,13 +3085,7 @@ DATABASES = [
 # Intersite coordination database parameter groupings, based on
 # OFFICIALDBS, but time constraint is always TC1
 ISCPARMS = []
-    if type(officeType) != str:
-        raise TypeError, "Office type not a str: " + `officeType`
-    else:
-        if officeType not in VALID_OFFICE_TYPES:
-            raise ValueError, "Office type: " + str(officeType) + " does not match any of the following: [" + (', '.join(VALID_OFFICE_TYPES)) + "]"
-    
-        
+
 #
 # new parameters for NewTerrain
 #
@@ -3269,6 +3266,11 @@ for wes, tc in (OFFICIALDBS + localISCParms):
 for wes, officeType in (EXTRA_ISC_PARMS + localISCExtraParms):
     if myOfficeType == officeType:
         continue
+    if type(officeType) != str:
+        raise TypeError, "Office type not a str: " + `officeType`
+    else:
+        if officeType not in VALID_OFFICE_TYPES:
+            raise ValueError, "Office type: " + str(officeType) + " does not match any of the following: [" + (', '.join(VALID_OFFICE_TYPES)) + "]"
     for we in wes:
         wecopy = list(we)
         wecopy[0] = wecopy[0] + officeType  #rename the weather element

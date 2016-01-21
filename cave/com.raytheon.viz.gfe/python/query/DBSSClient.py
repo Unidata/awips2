@@ -24,6 +24,7 @@
 #    ------------    ----------    -----------    --------------------------
 #    Sep 01, 2014    3572          randerso       Fix getTopo       
 #    Apr 23, 2015    4259          njensen        Updated for new JEP API
+#    Dec  2, 2015    18356         yteng          Fix typo in __getitem__
 #
 ########################################################################
 import DatabaseID, AbsTime, JUtil
@@ -64,7 +65,7 @@ class DBSSWE:
                 if type(result) is numpy.ndarray and result.dtype == numpy.int8:                
                     # discrete or weather
                     dkeys = JUtil.javaObjToPyVal(slice.getKeyList())
-                    result = [result, keys] 
+                    result = [result, dkeys] 
                 return result
         return None
 

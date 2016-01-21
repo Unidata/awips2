@@ -52,6 +52,8 @@ import com.raytheon.uf.edex.ohd.MainMethod;
  *                                     memory.
  * Mar 28, 2014   2952     mpduff      Changed to use UFStatus for logging.
  * Apr 10, 2014   2675     mpduff      Removed call to GAFF.
+ * Nov 05, 2015  15045     snaples     Removed file name and setup to use script to 
+ *                                     run decoder on all radar products in gather directory.
  * 
  * </pre>
  * 
@@ -84,14 +86,13 @@ public class DecodeDpaSrv {
         }
 
         String path = appsDefaults.getToken("pproc_bin");
-        int exitValue = MainMethod.runProgram("ksh", path + "/Run_DecodeDPA",
-                outFile.getAbsolutePath());
+        int exitValue = MainMethod.runProgram("ksh", path + "/Run_DecodeDPA");
 
         // Output result
         if (exitValue == 0) {
-            logger.info("DpaDecoder decoded product: " + outFile);
+            logger.info("Dpa gather was run successfully.");
         } else {
-            logger.error("DPA Product not decoded. DpaDecoder process terminated with exit code: "
+            logger.error("DPA gather failed and the process terminated with exit code: "
                     + exitValue);
         }
         return null;

@@ -31,7 +31,7 @@
 #    05/01/14        3095          bsteffen       Move numeric data access to new plugin.
 #    08/06/14        3185          njensen        Only import Java classes when necessary
 #    Apr 23, 2015    4259          njensen        Updated for new JEP API
-#
+#    11/02/15        5079          dgilling       Fix typo in getRawData.
 #    
 # 
 #
@@ -86,7 +86,7 @@ class JGridData(IGridData, JData.JData):
             self.jobj.populateData(unitDest)
         else:
             self.jobj.populateData(dest)        
-        data = np.array(dest.getBuffer().array, dtype=np.float32)
+        data = np.array(dest.getArray(), dtype=np.float32)
         data = data.reshape((nx, ny))
         return data
     

@@ -89,6 +89,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 10/15/2012   1229       rferrel      Changes for non-blocking HelpUsageDlg.
  * 16 Aug 2013  #2256      lvenable    Fixed image and cursor memory leaks.
  * 19Mar2014    #2925       lvenable    Added dispose checks for runAsync.
+ * 12/22/2015   18342      zhao        Modified code for 'jnt' in objReceived() 
  * 
  * </pre>
  * 
@@ -886,7 +887,7 @@ public class CigVisDistributionDlg extends CaveSWTDialog implements
                 int flightCat = (Integer) list.get(3);
                 float cig = (Float) list.get(4);
                 float vis = (Float) list.get(5);
-                float jnt = Math.min(cig, vis);
+                float jnt = (Float) list.get(6);
 
                 data.set(month, hour, windDir, flightCat, vis, cig, jnt);
             } else {

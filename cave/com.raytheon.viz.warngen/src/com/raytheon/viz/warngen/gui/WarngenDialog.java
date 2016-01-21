@@ -41,6 +41,8 @@ import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
@@ -62,6 +64,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 
+import com.raytheon.uf.common.auth.req.CheckAuthorizationRequest;
 import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
 import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
 import com.raytheon.uf.common.dataplugin.warning.config.BulletActionGroup;
@@ -81,9 +84,11 @@ import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.maps.MapManager;
+import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.d2d.ui.map.SideView;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState.DisplayType;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState.Mode;
+import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.texteditor.msgs.IWarngenObserver;
 import com.raytheon.viz.texteditor.util.VtecUtil;
 import com.raytheon.viz.ui.EditorUtil;
@@ -174,6 +179,9 @@ import com.vividsolutions.jts.geom.Polygon;
  *  Nov  9, 2015 DR 14905    Qinglu Lin  Updated backupSiteSelected(), disposed(), initializeComponents(), populateBackupGroup(), and
  *                                       createProductTypeGroup, and moved existing code to newly created setBackupCboColors() and setBackupSite().
  *  Nov 25, 2015 DR 17464    Qinglu Lin  Updated changeTemplate().
+ *  Dec  9, 2015 DR 18209    D. Friedman Support cwaStretch dam break polygons.
+ *  Dec 10, 2015 DR 17908    Qinglu Lin  Updated changeStartEndTimes(), recreateDurations(), changeSelected(), and extSelected().
+ *  Dec 21, 2015 DCS 17942   D. Friedman Add advanced options tab
  * </pre>
  * 
  * @author chammack
@@ -379,7 +387,21 @@ public class WarngenDialog extends CaveSWTDialog implements
             }
         });
 
-        Composite mainComposite = new Composite(shell, SWT.NONE);
+        Composite parent = shell;
+        boolean advanced = isAdvancedOptionsEnabled();
+        CTabFolder tabs = null;
+        CTabItem tabItem = null;
+        if (advanced) {
+            tabs = new CTabFolder(shell, SWT.FLAT|SWT.TOP);
+            parent = tabs;
+        }
+
+        Composite mainComposite = new Composite(parent, SWT.NONE);
+        if (advanced) {
+            tabItem = new CTabItem(tabs, SWT.NONE);
+            tabItem.setText("Product");
+            tabItem.setControl(mainComposite);
+        }
         GridLayout gl = new GridLayout(1, false);
         gl.verticalSpacing = 2;
         gl.marginHeight = 1;
@@ -394,6 +416,12 @@ public class WarngenDialog extends CaveSWTDialog implements
         createBottomButtons(mainComposite);
         setBackupSite();
         setInstructions();
+
+        if (advanced) {
+            tabItem = new CTabItem(tabs, SWT.NONE);
+            tabItem.setText("Polygon Options");
+            tabItem.setControl(new PolygonOptionsComposite(tabs, warngenLayer));
+        }
     }
 
     @Override
@@ -1596,9 +1624,9 @@ public class WarngenDialog extends CaveSWTDialog implements
                 } else {
                     coordinates.add(coordinates.get(0));
                     PolygonUtil.truncate(coordinates, 2);
+                    setPolygonLocked(lockPolygon);
                     warngenLayer.createDamThreatArea(coordinates
                             .toArray(new Coordinate[coordinates.size()]));
-                    setPolygonLocked(lockPolygon);
                     warngenLayer.issueRefresh();
                     damBreakInstruct = null;
                 }
@@ -1750,8 +1778,10 @@ public class WarngenDialog extends CaveSWTDialog implements
         }
         setDurations(warngenLayer.getConfiguration().getDurations());
         durList.setText(defaultDuration.displayString);
-        endTime = DurationUtil.calcEndTime(startTime, defaultDuration.minutes);
-        end.setText(df.format(endTime.getTime()));
+        if (warngenLayer.getConfiguration().isEnableDuration()) {
+            endTime = DurationUtil.calcEndTime(startTime, defaultDuration.minutes);
+            end.setText(df.format(endTime.getTime()));
+        }
 
         warngenLayer.getStormTrackState().newDuration = defaultDuration.minutes;
         warngenLayer.getStormTrackState().geomChanged = true;
@@ -1909,9 +1939,16 @@ public class WarngenDialog extends CaveSWTDialog implements
             } else {
                 bulletListManager.recreateBulletsFromFollowup(
                         warngenLayer.getConfiguration(), action, oldWarning);
-                if (bulletListManager.isDamNameSeletcted()
-                        && (action != WarningAction.NEW)) {
+                if (bulletListManager.isDamNameSeletcted()) {
                     setPolygonLocked(true);
+                    /* Need to set the warning area again now that the dam bullets
+                     * are set up so that cwaStretch=true dam polygons will work.
+                     */
+                    try {
+                        warngenLayer.resetWarningPolygonAndAreaFromRecord(oldWarning);
+                    } catch (VizException e) {
+                        statusHandler.error("Error updating the warning area for selected dam", e);
+                    }
                 }
             }
             refreshBulletList();
@@ -1956,7 +1993,7 @@ public class WarngenDialog extends CaveSWTDialog implements
     private void changeSelected() {
         statusHandler.debug("changeSelected");
         if ((validPeriodDlg == null) || validPeriodDlg.isDisposed()) {
-            validPeriodDlg = new ValidPeriodDialog(shell, startTime, endTime);
+            validPeriodDlg = new ValidPeriodDialog(shell, (Calendar) startTime.clone(), (Calendar) endTime.clone());
             validPeriodDlg.setCloseCallback(new ICloseCallback() {
 
                 @Override
@@ -1966,7 +2003,11 @@ public class WarngenDialog extends CaveSWTDialog implements
                             + duration);
                     if (duration != -1) {
                         durationList.setEnabled(false);
-                        endTime.add(Calendar.MINUTE, duration);
+                        if (warngenLayer.getConfiguration().isEnableDuration()) {
+                            endTime.add(Calendar.MINUTE, duration);
+                        } else {
+                            endTime = (Calendar) validPeriodDlg.getEndTime().clone();
+                        }
                         end.setText(df.format(endTime.getTime()));
                         warngenLayer.getStormTrackState().newDuration = duration;
                         warngenLayer.getStormTrackState().geomChanged = true;
@@ -2128,17 +2169,17 @@ public class WarngenDialog extends CaveSWTDialog implements
             FollowupData fd = (FollowupData) updateListCbo
                     .getData(updateListCbo.getItem(updateListCbo
                             .getSelectionIndex()));
+            startTime = TimeUtil.newCalendar();
+            start.setText(df.format(startTime.getTime()));
             if ((fd == null)
                     || (WarningAction.valueOf(fd.getAct()) == WarningAction.NEW)) {
-                startTime = TimeUtil.newCalendar();
-                endTime = DurationUtil.calcEndTime(this.startTime, duration);
-                start.setText(df.format(this.startTime.getTime()));
-                end.setText(df.format(this.endTime.getTime()));
+                endTime = DurationUtil.calcEndTime(startTime, duration);
             } else if (WarningAction.valueOf(fd.getAct()) == WarningAction.EXT) {
-                startTime = TimeUtil.newCalendar();
-                endTime = DurationUtil.calcEndTime(extEndTime, duration);
-                end.setText(df.format(this.endTime.getTime()));
+                if (warngenLayer.getConfiguration().isEnableDuration()) {
+                    endTime = DurationUtil.calcEndTime(extEndTime, duration);
+                }
             }
+            end.setText(df.format(endTime.getTime()));
         }
     }
 
@@ -2359,9 +2400,8 @@ public class WarngenDialog extends CaveSWTDialog implements
         warngenLayer.getStormTrackState().duration = duration;
 
         startTime = TimeUtil.newCalendar();
-        extEndTime = newWarn.getEndTime();
-        endTime = DurationUtil.calcEndTime(extEndTime, duration);
-        end.setText(df.format(this.endTime.getTime()));
+        extEndTime = (Calendar) newWarn.getEndTime().clone();
+        endTime = extEndTime;
 
         changeStartEndTimes();
         try {
@@ -2732,5 +2772,26 @@ public class WarngenDialog extends CaveSWTDialog implements
                 }
             }
         });
+    }
+
+    public boolean isCwaStretchDamBulletSelected() {
+        DamInfoBullet bullet = bulletListManager.getSelectedDamInfoBullet();
+        return bullet !=  null && bullet.isCwaStretch();
+    }
+
+    private static boolean isAdvancedOptionsEnabled() {
+        boolean hasPermission = false;
+
+        try {
+            String userId = LocalizationManager.getInstance().getCurrentUser();
+            CheckAuthorizationRequest request = new CheckAuthorizationRequest(
+                    userId, "advancedOptions", "WarnGen");
+            hasPermission = (Boolean) ThriftClient.sendRequest(request);
+        } catch (Exception e) {
+            statusHandler.error("error checking permissions", e);
+        }
+
+        return ((hasPermission && CAVEMode.getMode() == CAVEMode.PRACTICE)
+                || WarngenLayer.isWarngenDeveloperMode());
     }
 }
