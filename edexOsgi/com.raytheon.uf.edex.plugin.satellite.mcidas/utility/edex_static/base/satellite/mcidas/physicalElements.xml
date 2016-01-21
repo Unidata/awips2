@@ -52,7 +52,7 @@
 		<entry><key ss="86" band="6"/><value name="Imager 2.3 micron IR" /></entry>
 		<entry><key ss="86" band="7"/><value name="Imager 3.9 micron IR" units="IRPixel" /></entry>
 		<entry><key ss="86" band="8"/><value name="Imager 6.2 micron WV" units="IRPixel" /></entry>
-		<entry><key ss="86" band="9"/><value name="Imager 6.9 micron IR" /></entry>
+		<entry><key ss="86" band="9"/><value name="Imager 6.9 micron WV" units="IRPixel" /></entry>
 		<entry><key ss="86" band="10"/><value name="Imager 7.3 micron IR" /></entry>
 		<entry><key ss="86" band="11"/><value name="Imager 8.6 micron IR" /></entry>
 		<entry><key ss="86" band="12"/><value name="Imager 9.5 micron IR" /></entry>
