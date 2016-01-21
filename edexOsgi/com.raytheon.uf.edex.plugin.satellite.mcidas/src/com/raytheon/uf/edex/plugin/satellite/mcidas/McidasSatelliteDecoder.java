@@ -511,7 +511,7 @@ public class McidasSatelliteDecoder {
     	// GOES-East UNIWISC McIDAS AREA files
     	} else if (1261 <= areaNumber && areaNumber <= 1524) {
     		areaNumber = 1261; 
-    		    	// HIMAWARI-8 McIDAS AREA files
+    	// HIMAWARI-8 McIDAS AREA files
     	} else if (5900 <= areaNumber && areaNumber <= 5999) {
     		areaNumber = 5900; 
     	// METEOSAT-10 UNIWISC McIDAS AREA files
