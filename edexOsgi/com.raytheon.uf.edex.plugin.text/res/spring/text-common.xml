@@ -33,6 +33,7 @@
         <property name="includes">
            <list>
                 <value>com.raytheon.uf.common.dataplugin.text</value>
+                <value>com.raytheon.uf.common.dataplugin.text.subscription</value>
                 <value>com.raytheon.uf.edex.database</value>
            </list>
         </property>
