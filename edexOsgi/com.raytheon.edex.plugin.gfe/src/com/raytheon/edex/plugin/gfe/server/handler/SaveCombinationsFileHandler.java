@@ -84,10 +84,10 @@ public class SaveCombinationsFileHandler implements
         String fileName = FileUtil.join(COMBO_FILE_DIR, comboName) + ".py";
         ILocalizationFile lf = pm.getLocalizationFile(localization, fileName);
 
-        Writer outWriter = null;
-        try {
-            outWriter = new BufferedWriter(new OutputStreamWriter(
-                    lf.openOutputStream()));
+        try (SaveableOutputStream lfStream = lf.openOutputStream();
+                Writer outWriter = new BufferedWriter(new OutputStreamWriter(
+                        lfStream))) {
+
             String zoneComments = "\n# Automatically generated combinations file\n# "
                     + comboName + "\n\nCombinations = [\n";
             outWriter.write(zoneComments);
@@ -109,12 +109,7 @@ public class SaveCombinationsFileHandler implements
                 outWriter.write(nextLineToWrite.toString());
             }
             outWriter.write("]");
-        } finally {
-            if (outWriter != null) {
-                outWriter.close();
-            }
-        }
-        try (SaveableOutputStream lfStream = lf.openOutputStream()) {
+            outWriter.close();
             lfStream.save();
         }
 
