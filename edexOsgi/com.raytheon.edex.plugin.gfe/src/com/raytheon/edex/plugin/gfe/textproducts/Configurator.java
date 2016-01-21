@@ -112,6 +112,8 @@ public class Configurator {
      * <p>
      * Get the siteID and determine the appropriate paths.
      * </p>
+     * 
+     * @param siteID
      */
     public Configurator(String siteID) {
 
@@ -217,7 +219,8 @@ public class Configurator {
 
             CoreDao dao = new CoreDao(DaoConfig.forDatabase("maps"));
             QueryResult results = dao.executeMappedSQLQuery(CWA_QUERY);
-            try (PrintWriter out = new PrintWriter(lf.openOutputStream())) {
+            try (SaveableOutputStream lfStream = lf.openOutputStream();
+                    PrintWriter out = new PrintWriter(lfStream)) {
                 out.println("##");
                 out.println("# Contains information about products, regions, etc. for each site");
                 out.println("# in the country.");
@@ -258,9 +261,7 @@ public class Configurator {
                         "Washington DC", ""));
 
                 out.println("}");
-            } // out is closed here
-
-            try (SaveableOutputStream lfStream = lf.openOutputStream()) {
+                out.close();
                 lfStream.save();
             }
 
