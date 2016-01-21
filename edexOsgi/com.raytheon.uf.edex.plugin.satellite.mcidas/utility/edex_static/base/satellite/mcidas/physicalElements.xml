@@ -47,7 +47,7 @@
 		<entry><key ss="86" band="1"/><value name="Imager Blue .47 micron Visible" /></entry>
 		<entry><key ss="86" band="2"/><value name="Imager Green .51 micron Visible" /></entry>
 		<entry><key ss="86" band="3"/><value name="Imager Red .64 micron Visible" /></entry>
-		<entry><key ss="86" band="4"/><value name="Imager 0.86 micron IR" /></entry>
+		<entry><key ss="86" band="4"/><value name="Imager .86 micron IR" /></entry>
 		<entry><key ss="86" band="5"/><value name="Imager 1.6 micron IR" /></entry>
 		<entry><key ss="86" band="6"/><value name="Imager 2.3 micron IR" /></entry>
 		<entry><key ss="86" band="7"/><value name="Imager 3.9 micron IR" units="IRPixel" /></entry>
