@@ -66,15 +66,17 @@ import com.raytheon.viz.ui.personalities.awips.CAVE;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Aug  4, 2011            njensen     Initial creation
- * Apr 23, 2013 1939       randerso    Return null from initializeSerialization
- * Nov 14, 2013 2361       njensen     Remove initializeSerialization()
- * Nov 06, 2014  3356      njensen     Always initialize ILocalizationAdapter   
- *                                      in case cache preference is not enabled
- * Feb 23, 2015  4164      dlovely     Call AlertViz initialize.
- * Jun 26, 2015 4474       bsteffen    Register the PathManager as an OSGi service.
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Aug 04, 2011  10477    njensen   Initial creation
+ * Apr 23, 2013  1939     randerso  Return null from initializeSerialization
+ * Nov 14, 2013  2361     njensen   Remove initializeSerialization()
+ * Nov 06, 2014  3356     njensen   Always initialize ILocalizationAdapter in
+ *                                  case cache preference is not enabled
+ * Feb 23, 2015  4164     dlovely   Call AlertViz initialize.
+ * Jun 26, 2015  4474     bsteffen  Register the PathManager as an OSGi service.
+ * Dec 04, 2015  5169     bsteffen  Allow ProductAlertObserver to send messages
+ *                                  to the AutoUpdater
  * 
  * </pre>
  * 
@@ -215,11 +217,7 @@ public class ThinClientComponent extends CAVE implements IThinClientComponent {
     @Override
     protected void initializeObservers() {
         ThinClientNotificationManagerJob.getInstance();
-        IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-        if (store.getBoolean(ThinClientPreferenceConstants.P_DISABLE_JMS) == false) {
-            // JMS Enabled, register product alerts
-            registerProductAlerts();
-        }
+        registerProductAlerts();
         initializeAlertViz();
     }
 

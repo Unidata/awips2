@@ -1,17 +1,22 @@
 ##############################
 ## FLOOD ADVISORY FOLLOW-UP ##
 ##############################
-##################################################################################
-## RECENT VERSION HISTORY:
-##           Phil Kurimski   2-28-2012  for OB 12.2.1-3                         ##
-##           Mike Dangelo    9-13-2012 minor tweaks to ${variables}             ##
-##           Phil Kurimski   2-05-2013 for OB13.2.1-3 Added rain so far section ##
-##           Mike Dangelo    9-18-2013 added initial position and pathcasting options
-##           Evan Bookbinder 9-18-2013 implemented config.vm                    ##
-##           Mike Rega       1-18-2014 added Alaska GP changes for 14.2.1       ##
-##           Phil Kurimski   06-24-2014 altered urbanCTA for more succinct words ##
-##           Mike Dangelo    3-26-2015  Mixed Case changes                      ##
-##################################################################################
+#########################################################################################
+## RECENT VERSION HISTORY:                                                             ##
+##           Phil Kurimski   2-28-2012  for OB 12.2.1-3                                ##
+##           Mike Dangelo    9-13-2012 minor tweaks to ${variables}                    ##
+##           Phil Kurimski   2-05-2013 for OB13.2.1-3 Added rain so far section        ##
+##           Mike Dangelo    9-18-2013 added initial position and pathcasting options  ##
+##           Evan Bookbinder 9-18-2013 implemented config.vm                           ##
+##           Mike Rega       1-18-2014 added Alaska GP changes for 14.2.1              ##
+##           Phil Kurimski   6-24-2014 altered urbanCTA for more succinct words        ##
+##           Mike Dangelo    3-26-2015 Mixed Case changes                              ##
+##           Evan Bookbinder 9-4-2015  Fixed line of storms grammar                    ##
+##           Mike Dangelo   10-20-2015 Standard CTAs                                   ##
+##           Phil Kurimski  10-21-2015 Back to the future day! Insert default end stmt ##
+##           Phil/Dave       10-20-2015  Added Canned statement for CAN                ##
+##           Evan Bookbinder 12-7-2015 Added missing satellite source                  ##
+#########################################################################################
 #parse("config.vm")
 #if(${action} == "EXT")
 	#set($starttime = "000000T0000Z")
@@ -147,6 +152,12 @@
 #if(${list.contains(${bullets}, "public")} && ${list.contains(${bullets}, "plainRain")})
   #set ($report = "the public reported ${cause} in !** LOCATION **! that will cause ${advTypeShort}${report2}")   
 #end
+#if(${list.contains(${bullets}, "satelliteEstimates")})
+  #set($report = "satellite estimates indicate ${cause} in !** LOCATION **! that will cause ${advTypeShort}${report2}.")
+#end     
+#if(${list.contains(${bullets}, "satelliteEstimates")} && ${list.contains(${bullets}, "thunder")})
+  #set($report = "satellite estimates indicate ${cause} from thunderstorms over !** LOCATION **! that will cause ${advTypeShort}${report2}.")
+#end     
 #### added by GP
 #if(${list.contains(${bullets}, "onlyGauge")})
   #set ($report = "gauge reports indicated !**EVENT TYPE**!." )   
@@ -183,7 +194,7 @@ ${ugcline}
 /${productClass}.${action}.${vtecOffice}.FA.Y.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz}, 15)}/
 /00000.N.${ic}.000000T0000Z.000000T0000Z.000000T0000Z.OO/
 #foreach (${area} in ${areas}) 
-#capitalize(${area.name} "ALL")
+#capitalize(${area.name} "FIRST")
 #if(${includeStateAbbreviation}==true)
  ${area.stateabbr}##
 #end
@@ -216,13 +227,20 @@ THIS IS A TEST MESSAGE.##
 #end
 #### GP End
 
-#if(${list.contains(${bullets}, "recedingWater")})
-The high water is receding, and is no longer expected to pose a threat. Please continue to heed any road closures.
-#end
-#if(${list.contains(${bullets}, "rainEnded")})
-The heavy rain has ended, and flooding is no longer expected to pose a threat.
+#if(${list.contains(${bullets}, "recedingWater")} && ${list.contains(${bullets}, "rainEnded")})
 
+The heavy rain has ended and flood waters have receded, no longer posing a threat to life or property. Please continue to heed any road closures.
+#elseif(${list.contains(${bullets}, "recedingWater")})
+
+Flood waters have receded, and are no longer expected to pose a threat to life or property. Please continue to heed any road closures.
+#elseif(${list.contains(${bullets}, "rainEnded")})
+
+The heavy rain has ended, and flooding is no longer expected to pose a threat.
+#else
+
+!** The heavy rain has ended. !** OR **! The flood water is receding. Therefore, the flooding threat has ended. **!
 #end
+
 #end
 ########################
 ## FLOOD ADVISORY EXP ##
@@ -280,16 +298,22 @@ THIS IS A TEST MESSAGE.##
 
 THIS IS A TEST MESSAGE. ##
 #end
+#if(${ic} == "DR")
+Flooding will continue !** Specify location(s) **! due to an upstream dam floodgate release.
+
+#else
 ############# IF TRACK IS ENABLED AND stormPosition SELECTED ###############################################
 #if(${list.contains(${bullets},"stormPosition")})
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
 #set($phenom="")
+#set($waswere="was")
 #if(${stormType} == "line" && ${list.contains(${bullets}, "thunder")})
-  #set($phenom="a line of thunderstorms producing ")
+  #set($phenom="thunderstorms producing ")
+  #set($waswere="were")
 #elseif(${list.contains(${bullets}, "thunder")})
   #set($phenom="a thunderstorm producing ")
 #end
-, ${phenom}heavy rain was located ##
+, ${phenom}heavy rain ${waswere} located ##
 #handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceLine})
 #if(${movementSpeed} < ${landStationary} || ${stationary})
 , and is stationary. ##
@@ -308,6 +332,7 @@ ${rainAmount}
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
 , ${report}. ${rainAmount}
 
+#end
 #end
 ############################################
 ######## (CITY LIST) #########
@@ -368,36 +393,52 @@ Minor flooding is occurring near !** ENTER LOCATION **!.
 PRECAUTIONARY/PREPAREDNESS ACTIONS...
 
 #end
-#if(${list.contains(${bullets}, "dontdrownCTA")})
-Most flood deaths occur in automobiles. Never drive your vehicle into areas where the water covers the roadway. Flood waters are usually deeper than they appear. Just one foot of flowing water is powerful enough to sweep vehicles off the road. When encountering flooded roads make the smart choice, Turn Around, Don't Drown!
+#if(${list.contains(${bullets}, "TADD_CTA")})
+Turn around, don't drown when encountering flooded roads. Most flood deaths occur in vehicles.
+
+#end
+#if(${list.contains(${bullets}, "childSafetyCTA")})
+Keep children away from storm drains, culverts, creeks and streams. Water levels can rise rapidly and sweep children away.
+
+#end
+#if(${list.contains(${bullets}, "nighttimeCTA")})
+Be especially cautious at night when it is harder to recognize the dangers of flooding. 
 
 #end
 #if(${list.contains(${bullets}, "urbanCTA")})
-Excessive runoff from heavy rainfall will cause elevated levels on small creeks and streams, and ponding of water in urban areas, highways, streets and underpasses as well as other poor drainage areas and low lying spots.
+Excessive runoff from heavy rainfall will cause flooding of small creeks and streams, urban areas, highways, streets and underpasses as well as other drainage areas and low lying spots. 
 
 #end
 #if(${list.contains(${bullets}, "ruralCTA")})
-Excessive runoff from heavy rainfall will cause flooding of small creeks and streams, as well as farm and country roads. do not attempt to travel across flooded roads. Find alternate routes.
+Excessive runoff from heavy rainfall will cause flooding of small creeks and streams, country roads, farmland, and other low lying spots.
 
 #end
-#if(${list.contains(${bullets}, "donotdriveCTA")})
-Do not drive your vehicle into areas where the water covers the roadway. The water depth may be too great to allow your car to cross safely. Move to higher ground.
+#if(${list.contains(${bullets}, "stayAwayCTA")})
+Stay away or be swept away. River banks and culverts can become unstable and unsafe. 
 
 #end
-#if(${list.contains(${bullets}, "lowspotsCTA")})
-In hilly terrain there are hundreds of low water crossings which are potentially dangerous in heavy rain. Do not attempt to travel across flooded roads. Find alternate routes. It takes only a few inches of swiftly flowing water to carry vehicles away.
+#if(${list.contains(${bullets}, "lowSpotsCTA")})
+In hilly terrain there are hundreds of low water crossings which are potentially dangerous in heavy rain. Do not attempt to cross flooded roads. Find an alternate route.
 
 #end
-#if(${list.contains(${bullets}, "powerCTA")})
-Do not underestimate the power of flood waters. Only a few inches of rapidly flowing water can quickly carry away your vehicle.
+#if(${list.contains(${bullets}, "arroyosCTA")})
+Remain alert for flooding even in locations not receiving rain. Arroyos, streams, and rivers can become raging killer currents in a matter of minutes, even from distant rainfall.
+
+#end
+#if(${list.contains(${bullets}, "burnAreasCTA")})
+Move away from recently burned areas. Life threatening flooding of creeks, roads and normally dry arroyos is likely. The heavy rains will likely trigger rockslides, mudslides and debris flows in steep terrain, especially in and around these areas.
+
+#end
+#if(${list.contains(${bullets}, "camperSafetyCTA")})
+Flooding is occurring or is imminent. It is important to know where you are relative to streams, rivers, or creeks which can become killers in heavy rains. Campers and hikers should avoid streams or creeks.
 
 #end
 #if(${list.contains(${bullets}, "reportFloodingCTA")})
-To report flooding, have the nearest law enforcement agency relay your report to the National Weather Service forecast office.
+Please report flooding to your local law enforcement agency when you can do so safely. 
 
 #end
 #if(${list.contains(${bullets}, "advisoryMeansCTA")})
-A Flood Advisory means river or stream flows are elevated or ponding of water in urban or other areas is occurring or is imminent.
+A Flood Advisory means river or stream flows are elevated, or ponding of water in urban or other areas is occurring or is imminent. 
 
 #end
 #if(${ctaSelected} == "YES") 
@@ -432,7 +473,7 @@ ${ugclinecan}
 /${productClass}.CAN.${vtecOffice}.FA.Y.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz}, 15)}/
 /00000.N.${ic}.000000T0000Z.000000T0000Z.000000T0000Z.OO/
 #foreach (${area} in ${cancelareas}) 
-#capitalize(${area.name} "ALL")
+#capitalize(${area.name} "FIRST")
 #if(${includeStateAbbreviation}==true)
  ${area.stateabbr}##
 #end
@@ -478,7 +519,7 @@ ${ugcline}
 /${productClass}.CON.${vtecOffice}.FA.Y.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz}, 15)}/
 /00000.N.${ic}.000000T0000Z.000000T0000Z.000000T0000Z.OO/
 #foreach (${area} in ${areas}) 
-#capitalize(${area.name} "ALL")
+#capitalize(${area.name} "FIRST")
 #if(${includeStateAbbreviation}==true)
  ${area.stateabbr}##
 #end
@@ -515,14 +556,14 @@ THIS IS A TEST MESSAGE. ##
 #if(${list.contains(${bullets},"stormPosition")})
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
 #if(${stormType} == "line")
-, a line of thunderstorms producing heavy rain was located ##
+, thunderstorms producing heavy rain were located ##
 #handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceLine})
 #else
 , a thunderstorm producing heavy rain was located ##
 #handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceCell})
 #end
 #if(${movementSpeed} < ${landStationary} || ${stationary})
-, and is stationary. ##
+. Movement is stationary. ##
 #else
 #if(${stormType} == "line")
 , and moving ## 
@@ -596,36 +637,52 @@ Minor flooding is occurring near !** Enter Location **!.
 PRECAUTIONARY/PREPAREDNESS ACTIONS...
 
 #end
-#if(${list.contains(${bullets}, "dontdrownCTA")})
-Most flood deaths occur in automobiles. Never drive your vehicle into areas where the water covers the roadway. Flood waters are usually deeper than they appear. Just one foot of flowing water is powerful enough to sweep vehicles off the road. When encountering flooded roads make the smart choice, Turn Around, Don't Drown!
+#if(${list.contains(${bullets}, "TADD_CTA")})
+Turn around, don't drown when encountering flooded roads. Most flood deaths occur in vehicles.
+
+#end
+#if(${list.contains(${bullets}, "childSafetyCTA")})
+Keep children away from storm drains, culverts, creeks and streams. Water levels can rise rapidly and sweep children away.
+
+#end
+#if(${list.contains(${bullets}, "nighttimeCTA")})
+Be especially cautious at night when it is harder to recognize the dangers of flooding. 
 
 #end
 #if(${list.contains(${bullets}, "urbanCTA")})
-Excessive runoff from heavy rainfall will cause ponding of water in urban areas, highways, streets and underpasses as well as other poor drainage areas and low lying spots. Do not attempt to travel across flooded roads. Find alternate routes. 
+Excessive runoff from heavy rainfall will cause flooding of small creeks and streams, urban areas, highways, streets and underpasses as well as other drainage areas and low lying spots. 
 
 #end
 #if(${list.contains(${bullets}, "ruralCTA")})
-Excessive runoff from heavy rainfall will cause flooding of small creeks and streams, as well as farm and country roads. Do not attempt to travel across flooded roads. Find alternate routes.
+Excessive runoff from heavy rainfall will cause flooding of small creeks and streams, country roads, farmland, and other low lying spots.
 
 #end
-#if(${list.contains(${bullets}, "donotdriveCTA")})
-Do not drive your vehicle into areas where the water covers the roadway. The water depth may be too great to allow your car to cross safely. Move to higher ground.
+#if(${list.contains(${bullets}, "stayAwayCTA")})
+Stay away or be swept away. River banks and culverts can become unstable and unsafe. 
 
 #end
-#if(${list.contains(${bullets}, "lowspotsCTA")})
-In hilly terrain there are hundreds of low water crossings which are potentially dangerous in heavy rain. Do not attempt to travel across flooded roads. Find alternate routes. It takes only a few inches of swiftly flowing water to carry vehicles away.
+#if(${list.contains(${bullets}, "lowSpotsCTA")})
+In hilly terrain there are hundreds of low water crossings which are potentially dangerous in heavy rain. Do not attempt to cross flooded roads. Find an alternate route.
 
 #end
-#if(${list.contains(${bullets}, "powerCTA")})
-Do not underestimate the power of flood waters. Only a few inches of rapidly flowing water can quickly carry away your vehicle.
+#if(${list.contains(${bullets}, "arroyosCTA")})
+Remain alert for flooding even in locations not receiving rain. Arroyos, streams, and rivers can become raging killer currents in a matter of minutes, even from distant rainfall.
+
+#end
+#if(${list.contains(${bullets}, "burnAreasCTA")})
+Move away from recently burned areas. Life threatening flooding of creeks, roads and normally dry arroyos is likely. The heavy rains will likely trigger rockslides, mudslides and debris flows in steep terrain, especially in and around these areas.
+
+#end
+#if(${list.contains(${bullets}, "camperSafetyCTA")})
+Flooding is occurring or is imminent. It is important to know where you are relative to streams, rivers, or creeks which can become killers in heavy rains. Campers and hikers should avoid streams or creeks.
 
 #end
 #if(${list.contains(${bullets}, "reportFloodingCTA")})
-To report flooding, have the nearest law enforcement agency relay your report to the National Weather Service forecast office.
+Please report flooding to your local law enforcement agency when you can do so safely. 
 
 #end
 #if(${list.contains(${bullets}, "advisoryMeansCTA")})
-A Flood Advisory means river or stream flows are elevated, or ponding of water in urban or other areas is occurring or is imminent. Do not attempt to travel across flooded roads. Find alternate routes. It takes only a few inches of swiftly flowing water to carry vehicles away.
+A Flood Advisory means river or stream flows are elevated, or ponding of water in urban or other areas is occurring or is imminent. 
 
 #end
 #if(${ctaSelected} == "YES") 
@@ -778,36 +835,52 @@ Minor flooding is occurring near !** ENTER LOCATION **!.
 PRECAUTIONARY/PREPAREDNESS ACTIONS...
 
 #end
-#if(${list.contains(${bullets}, "dontdrownCTA")})
-Most flood deaths occur in automobiles. Never drive your vehicle into areas where the water covers the roadway. Flood waters are usually deeper than they appear. Just one foot of flowing water is powerful enough to sweep vehicles off the road. When encountering flooded roads make the smart choice, Turn Around, Don't Drown!
+#if(${list.contains(${bullets}, "TADD_CTA")})
+Turn around, don't drown when encountering flooded roads. Most flood deaths occur in vehicles.
+
+#end
+#if(${list.contains(${bullets}, "childSafetyCTA")})
+Keep children away from storm drains, culverts, creeks and streams. Water levels can rise rapidly and sweep children away.
+
+#end
+#if(${list.contains(${bullets}, "nighttimeCTA")})
+Be especially cautious at night when it is harder to recognize the dangers of flooding. 
 
 #end
 #if(${list.contains(${bullets}, "urbanCTA")})
-Excessive runoff from heavy rainfall will cause ponding of water in urban areas, highways, streets and underpasses as well as other poor drainage areas and low lying spots. Do not attempt to travel across flooded roads. Find alternate routes. It takes only a few inches of swiftly flowing water to carry vehicles away.
+Excessive runoff from heavy rainfall will cause flooding of small creeks and streams, urban areas, highways, streets and underpasses as well as other drainage areas and low lying spots. 
 
 #end
 #if(${list.contains(${bullets}, "ruralCTA")})
-Excessive runoff from heavy rainfall will cause flooding of small creeks and streams, as well as farm and country roads. Do not attempt to travel across flooded roads. Find alternate routes.
+Excessive runoff from heavy rainfall will cause flooding of small creeks and streams, country roads, farmland, and other low lying spots.
 
 #end
-#if(${list.contains(${bullets}, "donotdriveCTA")})
-Do not drive your vehicle into areas where the water covers the roadway. The water depth may be too great to allow your car to cross safely. Move to higher ground.
+#if(${list.contains(${bullets}, "stayAwayCTA")})
+Stay away or be swept away. River banks and culverts can become unstable and unsafe. 
 
 #end
-#if(${list.contains(${bullets}, "lowspotsCTA")})
-In hilly terrain there are hundreds of low water crossings which are potentially dangerous in heavy rain. Do not attempt to travel across flooded roads. Find alternate routes. It takes only a few inches of swiftly flowing water to carry vehicles away.
+#if(${list.contains(${bullets}, "lowSpotsCTA")})
+In hilly terrain there are hundreds of low water crossings which are potentially dangerous in heavy rain. Do not attempt to cross flooded roads. Find an alternate route.
 
 #end
-#if(${list.contains(${bullets}, "powerCTA")})
-Do not underestimate the power of flood waters. Only a few inches of rapidly flowing water can quickly carry away your vehicle.
+#if(${list.contains(${bullets}, "arroyosCTA")})
+Remain alert for flooding even in locations not receiving rain. Arroyos, streams, and rivers can become raging killer currents in a matter of minutes, even from distant rainfall.
+
+#end
+#if(${list.contains(${bullets}, "burnAreasCTA")})
+Move away from recently burned areas. Life threatening flooding of creeks, roads and normally dry arroyos is likely. The heavy rains will likely trigger rockslides, mudslides and debris flows in steep terrain, especially in and around these areas.
+
+#end
+#if(${list.contains(${bullets}, "camperSafetyCTA")})
+Flooding is occurring or is imminent. It is important to know where you are relative to streams, rivers, or creeks which can become killers in heavy rains. Campers and hikers should avoid streams or creeks.
 
 #end
 #if(${list.contains(${bullets}, "reportFloodingCTA")})
-To report flooding, have the nearest law enforcement agency relay your report to the National Weather Service forecast office.
+Please report flooding to your local law enforcement agency when you can do so safely. 
 
 #end
 #if(${list.contains(${bullets}, "advisoryMeansCTA")})
-A Flood Advisory means river or stream flows are elevated, or ponding of water in urban or other areas is occurring or is imminent. Do not attempt to travel across flooded roads. Find alternate routes. It takes only a few inches of swiftly flowing water to carry vehicles away.
+A Flood Advisory means river or stream flows are elevated, or ponding of water in urban or other areas is occurring or is imminent. 
 
 #end
 #if(${ctaSelected} == "YES") 

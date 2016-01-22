@@ -61,7 +61,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------- -------- ----------- --------------------------
  * Jun 11, 2014  2061     bsteffen    Remove IDecoderGettable
  * Sep 04, 2014  3220     skorolev    Removed cwa and monitorUse from record.
- * Jul 23, 2015  2360     rferrel     Add name to unique constraint.
+ * Dec 02, 2015  3873     dhladky     Method naming fixes.
  * 
  * </pre>
  */
@@ -120,7 +120,7 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     @Transient
     @DynamicSerializeElement
     @XmlElement
-    private boolean isStationary;
+    private boolean stationary;
 
     // Actual time of the observation
     @Transient
@@ -441,13 +441,6 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     }
 
     /**
-     * @return the isStationary
-     */
-    public boolean isStationary() {
-        return isStationary;
-    }
-
-    /**
      * @return the refHour
      */
     public Calendar getRefHour() {
@@ -717,18 +710,6 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
      */
     public void setLocation(SurfaceObsLocation location) {
         this.location = location;
-    }
-
-    /**
-     * @param isStationary
-     *            the isStationary to set
-     */
-    public void setIsStationary(boolean isStationary) {
-        this.isStationary = isStationary;
-    }
-
-    public boolean getIsStationary() {
-        return isStationary;
     }
 
     /**
@@ -1115,4 +1096,21 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     public String getPluginName() {
         return PLUGIN_NAME;
     }
+
+    /**
+     * Is this a moving or stationary platform
+     * @return
+     */
+    public boolean isStationary() {
+        return stationary;
+    }
+
+    /**
+     * Set moving or stationary platform
+     * @param stationary
+     */
+    public void setStationary(boolean stationary) {
+        this.stationary = stationary;
+    }
+
 }

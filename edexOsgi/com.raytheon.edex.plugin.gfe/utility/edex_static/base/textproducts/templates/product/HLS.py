@@ -1,4 +1,4 @@
-#  Version 2015.7.22-0
+#  Version 2015.8.27-0
 
 import GenericHazards
 import string, time, os, re, types, copy, LogStream, collections
@@ -549,7 +549,21 @@ class TextProduct(HLSTCV_Common.TextProduct):
         productDict['stormInformation'] = stormInfoDict
     
     def _situationOverview(self, productDict, productSegmentGroup, productSegment):
-        productDict['situationOverview'] = "Succinctly describe the expected evolution of the event for the cwa; which hazards are of greater (or lesser) concern, forecast focus, etc."
+        overviewSectionTitle = ".Situation Overview...\n"
+        
+        # Get the WRKHLS product that has the situation overview we want
+        wrkhlsProduct = self.getPreviousProduct("WRKHLS")
+        
+        # Try finding the situation overview
+        overviewSearch = re.search("(?ism).*^%s(.+?)^\." % (overviewSectionTitle), wrkhlsProduct)
+        
+        # If we found the overview
+        if overviewSearch is not None:
+            # Clean it up
+            productDict['situationOverview'] = self._cleanText(overviewSearch.group(1).strip())
+        else:
+            # Use generic text for the situation overview
+            productDict['situationOverview'] = self._frame("Succinctly describe the expected evolution of the event for the cwa; which hazards are of greater (or lesser) concern, forecast focus, etc.")
     
     def _windSection(self, productDict, productSegmentGroup, productSegment):
         sectionDict = dict()
@@ -1607,9 +1621,10 @@ class TextProduct(HLSTCV_Common.TextProduct):
             #  Updated version to handle WFO GUM advisories.  This pattern will
             #  handle multiple word names (including certain special characters)
             #  This is for the NHC format.
-            mndSearch = re.search("(?im)^.*?(HURRICANE|(SUB|POST.?)?TROPICAL " +
-                                  "(STORM|DEPRESSION|CYCLONE)|(SUPER )?TYPHOON|" +
-                                  "REMNANTS OF) ([A-Z0-9\-\(\) ]+?)" +
+            mndSearch = re.search("(?im)^.*?(HURRICANE|(POTENTIAL|SUB|POST.?)" +
+                                  "?TROPICAL (STORM|DEPRESSION|CYCLONE)|" +
+                                  "(SUPER )?TYPHOON|REMNANTS OF) " +
+                                  "([A-Z0-9\-\(\) ]+?)" +
                                   "(SPECIAL |INTERMEDIATE )?ADVISORY", tcp)
 
             #  Display some debug info - if flag is set
@@ -2663,8 +2678,7 @@ class LegacyFormatter():
         title = "Situation Overview"
         text = title + "\n" + "-"*len(title) + "\n\n"
         
-        text += self._textProduct.indentText(self._textProduct._frame(overviewText),
-                                             maxWidth=self._textProduct._lineLength)
+        text += self._textProduct.indentText(overviewText, maxWidth=self._textProduct._lineLength)
         text += "\n"
         
         return text

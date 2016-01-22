@@ -6,6 +6,7 @@
 ##     MIKE DANGELO 06-25-2014 removed bullet format/went to free form text       ##
 ##                 per request of local offices, moved ugcline per local examples ## 
 ##     Mike Dangelo   26 March 2015   Mixed Case Changes                          ##
+##     Evan Bookbinder 10-21-2015 Cleaned up blank spaces and phrasing    #       ##
 ####################################################################################
 #parse("config.vm")
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
@@ -44,10 +45,10 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #######################################################################
 #set ($site = "!** YOU DIDN'T SELECT AN AIRPORT **!")
 #if(${list.contains(${bullets}, "HSV")})
-  #set ($site = "Huntsville International Airport /HSV/")
+  #set ($site = "Huntsville International Airport /HSV/.")
 #end
 #if(${list.contains(${bullets}, "MSL")})
-  #set ($site = "Northwest Alabama Regional Airport (in Muscle Shoals) /MSL/") 
+  #set ($site = "Northwest Alabama Regional Airport (in Muscle Shoals) /MSL/.") 
 #end
 ######################################################
 ###### Storm current location description   ##########
@@ -71,7 +72,7 @@ ${site}
 THIS IS A TEST MESSAGE. ##
 #end
 
-For the following threats...
+The following weather hazards are expected:
 
 ###################################################################
 ## Create threats based on selections in the xml file
@@ -79,24 +80,20 @@ For the following threats...
 ###################################################################
 #if(${list.contains(${bullets}, "wind")})
 Wind gusts 30 knots or higher.
-
 #end
 #if(${list.contains(${bullets}, "lightning")})
 Cloud to ground lightning within 5 nm of the airport.
-
 #end
 #if(${list.contains(${bullets}, "hail")})
 Hail of 1/2 inch or greater.
-
 #end
 #if(${list.contains(${bullets}, "freezingRain")})
 The onset of freezing rain.
-
 #end
 #if(${list.contains(${bullets}, "sleetSnow")})
 The onset of accumulating sleet or snow.
-
 #end
+
 
 #end
 #############

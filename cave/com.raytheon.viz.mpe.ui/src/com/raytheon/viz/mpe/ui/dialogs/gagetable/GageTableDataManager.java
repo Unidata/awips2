@@ -65,6 +65,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Mar 05, 2014 17114      lbousaidi   display PC data in gage table. 
  * Sep 04, 2014 16699      cgobs       Fixed 14.3.1 issue with reading MPE field data.
  * Oct 19, 2015 18090      lbousaidi   fixed best estimate qpe display.
+ * Nov 18, 2015 18093      snaples     Added selectedGridIndex to maintain selected grid after table refresh.
+ * 
  * </pre>
  * 
  * @author mpduff
@@ -199,6 +201,7 @@ public class GageTableDataManager {
      * The selected grid.
      */
     private String selectedGrid = null;
+    private int selectedGridIndex = 0;
 
     static {
         sdf = new SimpleDateFormat("yyyyMMddHH");
@@ -1267,6 +1270,21 @@ public class GageTableDataManager {
      */
     public void setSelectedGrid(String selectedGrid) {
         this.selectedGrid = selectedGrid;
+    }
+
+    /**
+     * @return the selectedGridIndex value
+     */
+    public int getSelectedGridIndex() {
+        return selectedGridIndex;
+    }
+        
+    /**
+     * @param selectedGridIndex
+     *             the int value of the selected GridIndex
+     */
+    public void setSelectedGridIndex(int selectedGridIndex) {
+        this.selectedGridIndex = selectedGridIndex;
     }
 
     /**

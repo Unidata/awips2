@@ -69,11 +69,13 @@
 #
 #    05/29/2015          #17144    bhunder        Added weather Params for URMA25 and OCONUS RTMA
 #    09/02/2015          #4819     rferrel        Added HWRF.
+#    09/09/2015          16287     amoore         Additional validation of user input
 #    10/07/2015          #4958     dgilling       Added support for NationalBlend D2D data.
 #    10/13/2015          #4961     randerso       Updated NewTerrain/BaseTerrain database definitions
-#    09/09/2015          16287     amoore         Additional validation of user input
 #    10/30/2015          #17940    jendrowski     Responded to Code Review.  Mostly syntactical changes.
+#    11/05/2015          #18182    ryu            Change D2DDBVERSIONS value for HPCERP to 24 
 #    12/22/2015          #14152    jwatson        Added Sky, Wind to GFSLAMPGrid parms
+#
 ####################################################################################################
 
 #----------------------------------------------------------------------------
@@ -1900,8 +1902,8 @@ SITES = {
 #National Centers
     'HAK' : ( [825,553], ( 1.0, 1.0), (103.0, 69.0), 'EST5EDT', Grid214AK, "nc"),
     'HUS' : ([1073,689], (19.0, 8.0), ( 67.0, 43.0), 'EST5EDT', Grid211,   "nc"),
-    #'NHA' : ([1729,1601], (1.0,1.0), (1728.0, 1600.0), 'EST5EDT', GridForNHA, "nc"),
-    'NHA' : ([1873,1361], (35.5,3.5), (58.5,42.5), 'EST5EDT', Grid211, "nc"),   # updated
+    'NHA' : ([1873,1361], (35.5, 3.5), (58.5, 42.5), 'EST5EDT', Grid211, "nc"),
+
 }
 
 # Get list of valid office types, for validation.
@@ -2102,7 +2104,7 @@ D2DDBVERSIONS = {
       "MSAS": 6,
       "LAPS": 6,
       "Satellite": 6,
-      "HPCERP": 5,
+      "HPCERP": 24,
       "TPCProb": 30,
       "TPCStormSurge": 1,
       "CRMTopo": 1,

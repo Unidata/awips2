@@ -27,6 +27,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Feb 15, 2013 1638       mschenke    Moved DataURINotificationMessage to uf.common.dataplugin
  * Sep 04, 2014 3220       skorolev    Removed CWA from filter.
  * Sep 17, 2015 3873       skorolev    Added pattern for moving platforms.
+ * Dec 02, 2015 3873       dhladky     Revamped for better performance.
  * 
  * </pre>
  * 
@@ -37,29 +38,11 @@ public class FSSObsURIFilter extends URIFilter {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(URIFilter.class);
 
-    /** Station ID **/
-    private String stn;
-
     /** Station coordinates **/
     private Coordinate stationCoor = null;
 
     /** Patterns used for matching URI's **/
     private HashMap<String, Pattern> patternKeys = null;
-
-    /** METAR Pattern **/
-    private Pattern metarPattern = null;
-
-    /** Maritime Pattern **/
-    private Pattern maritimePattern = null;
-
-    /** Mesowest Pattern **/
-    private Pattern mesowestPattern = null;
-
-    /** Pattern for moving platforms **/
-    private Pattern movingPattern = null;
-
-    /** Current data type #METAR, #Maritime or #Mesonet **/
-    private String dataType;
 
     /** All filtered stations */
     private Set<String> stations = null;
@@ -95,34 +78,45 @@ public class FSSObsURIFilter extends URIFilter {
      */
     @Override
     public void setMatchURIs() {
+        
         Pattern pat = Pattern.compile("#");
+        /**
+         * For non moving platforms we setup specific patterns as they are fixed locations.
+         */
         for (String st : stations) {
             String[] tokens = pat.split(st);
-            setStn(tokens[0]);
-            setDataType(tokens[1]);
-            switch (getDataType()) {
+            String station = tokens[0];
+            String dataType = tokens[1];
+            switch (dataType) {
             case ObConst.METAR:
-                setMetarPattern();
-                getMatchURIs().put(getMetarPattern(), 0l);
+                Pattern metarPattern = getMetarPattern(station);
+                statusHandler.info("Adding Pattern for type: "+ObConst.METAR+" Pattern: "+metarPattern.toString());
+                getMatchURIs().put(metarPattern, 0l);
                 break;
             case ObConst.MARITIME:
-                setMaritimePattern();
-                getMatchURIs().put(getMaritimePattern(), 0l);
+                Pattern maritimePattern = getMaritimePattern(station);
+                statusHandler.info("Adding Pattern for type: "+ObConst.MARITIME+" Pattern: "+maritimePattern.toString());
+                getMatchURIs().put(maritimePattern, 0l);
                 break;
             case ObConst.MESONET:
-                setMesowestPattern();
-                getMatchURIs().put(getMesowestPattern(), 0l);
+                Pattern mesowestPattern = getMesowestPattern(station);
+                statusHandler.info("Adding Pattern for type: "+ObConst.MESONET+" Pattern: "+mesowestPattern.toString());
+                getMatchURIs().put(mesowestPattern, 0l);
                 break;
             default:
-                statusHandler.error("Get unknown data type " + getDataType());
+                statusHandler.error("Get unknown data type " + dataType);
                 break;
             }
         }
-        String[] repTyps = { ObConst.SYNOPTIC_SHIP, ObConst.DRIFTING_BUOY,
-                ObConst.SYNOPTIC_MAROB };
-        for (String rt : repTyps) {
-            setMovingPattern(rt);
-            getMatchURIs().put(getMovingPattern(), 0l);
+        
+        /**
+         * Moving types aren't fixed, we use a general pattern and then filter upon discovery.
+         */
+        
+        for (String rt : FSSObsGenerator.movingTypes) {
+            Pattern movingPattern = getMovingPattern(rt);
+            statusHandler.info("Adding Pattern for type: "+rt+" Pattern: "+movingPattern.toString());
+            getMatchURIs().put(movingPattern, 0l);
         }
     }
 
@@ -275,121 +269,53 @@ public class FSSObsURIFilter extends URIFilter {
 
     /**
      * Gets Metar Pattern.
-     * 
-     * @return MetarPattern
      */
-    public Pattern getMetarPattern() {
+    private Pattern getMetarPattern(String station) {
+        // "/obs/2010-11-01_14:15:00.0/METAR<SPECI???>/null/K0A9/36.371/-82.173"
+        Pattern metarPattern = Pattern.compile("/obs/" + wildCard + uriSeperator
+                + wildCard + uriSeperator + "null" + uriSeperator + station
+                + uriSeperator);
         return metarPattern;
     }
 
     /**
-     * Sets Metar Pattern.
+     * Gets Maritime Pattern
      */
-    public void setMetarPattern() {
-        // "/obs/2010-11-01_14:15:00.0/METAR<SPECI???>/null/K0A9/36.371/-82.173"
-        metarPattern = Pattern.compile("/obs/" + wildCard + uriSeperator
-                + wildCard + uriSeperator + "null" + uriSeperator + getStn()
-                + uriSeperator);
-    }
-
-    /**
-     * Gets Maritime Pattern.
-     * 
-     * @return MaritimePattern
-     */
-    public Pattern getMaritimePattern() {
-        return maritimePattern;
-    }
-
-    /**
-     * Sets Maritime Pattern
-     */
-    public void setMaritimePattern() {
+    private Pattern getMaritimePattern(String station) {
         // /sfcobs/2010-10-28_10:36:00.0/1004[5]/null/BEPB6/32.373/-64.703
-        maritimePattern = Pattern.compile("/sfcobs/" + wildCard + uriSeperator
-                + wildCard + uriSeperator + "null" + uriSeperator + getStn()
+        Pattern maritimePattern = Pattern.compile("/sfcobs/" + wildCard + uriSeperator
+                + wildCard + uriSeperator + "null" + uriSeperator + station
                 + uriSeperator);
+        return maritimePattern;
     }
 
     /**
      * Gets Mesowest Pattern.
      * 
-     * @return the mesowestPattern
-     */
-    public Pattern getMesowestPattern() {
-        return mesowestPattern;
-    }
-
-    /**
-     * Sets Mesowest Pattern.
-     * 
      * @param mesowestPattern
      *            the mesowestPattern to set
      */
-    public void setMesowestPattern() {
+    private Pattern getMesowestPattern(String station) {
         // There is no dataURI for ldadmesonet data
         // /ldadmesonet/2011-06-29_22:10:00.0/mesonet/NWSRAWS/RINN4/41.1181/-74.2403
-        mesowestPattern = Pattern.compile("/ldadmesonet/" + wildCard
+        Pattern mesowestPattern = Pattern.compile("/ldadmesonet/" + wildCard
                 + uriSeperator + wildCard + uriSeperator + wildCard
-                + uriSeperator + getStn());
+                + uriSeperator + station);
+        return mesowestPattern;
     }
 
-    /**
-     * Gets pattern for moving platforms and MAROBs
-     * 
-     * @return
-     */
-    public Pattern getMovingPattern() {
-        return movingPattern;
-    }
 
     /**
      * Sets pattern for ships "1003", drifting buoys "1006" and MAROBs "1007".
      * 
      * @param reportType
      */
-    public void setMovingPattern(String reportType) {
+    private Pattern getMovingPattern(String reportType) {
         // /sfcobs/2010-10-28_10:36:00.0/1003<6,7>/null/BEPB6/32.373/-64.703
-        this.movingPattern = Pattern.compile("/sfcobs/" + wildCard
+       Pattern movingPattern = Pattern.compile("/sfcobs/" + wildCard
                 + uriSeperator + reportType + uriSeperator + wildCard
                 + uriSeperator);
+       return movingPattern;
     }
 
-    /**
-     * Gets station name
-     * 
-     * @return the stn
-     */
-    public String getStn() {
-        return stn;
-    }
-
-    /**
-     * Sets station name.
-     * 
-     * @param stn
-     *            the stn to set
-     */
-    public void setStn(String stn) {
-        this.stn = stn;
-    }
-
-    /**
-     * Sets data type.
-     * 
-     * @param the
-     *            dataType to set
-     */
-    public void setDataType(String type) {
-        this.dataType = type;
-    }
-
-    /**
-     * Gets data type.
-     * 
-     * @return the dataType
-     */
-    public String getDataType() {
-        return dataType;
-    }
 }

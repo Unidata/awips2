@@ -56,7 +56,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Nov 20, 2012 1297      skorolev     Changes for non-blocking dialog.
  * Apr 23, 2014 3054      skorolev     Added MESONET handling.
  * Apr 28, 2014 3086      skorolev     Removed local getAreaConfigMgr method.
- * Aug 17, 2015 3841      skorolev     Corrected handleAddNewStation method.
+ * Dec 02, 2015 3873      dhladky      Pulled 3841 to 16.1.1.
  * 
  * </pre>
  * 
@@ -68,7 +68,7 @@ public class AddNewStationDlg extends CaveSWTDialog {
             .getHandler(AddNewStationDlg.class);
 
     /** Application name. */
-    private final AppName appName;
+    private AppName appName;
 
     /** METAR radio button. */
     private Button metarRdo;
@@ -86,10 +86,10 @@ public class AddNewStationDlg extends CaveSWTDialog {
     private Text stationTF;
 
     /** Zone */
-    private final String area;
+    private String area;
 
     /** Call back interface */
-    private final MonitoringAreaConfigDlg macDlg;
+    private MonitoringAreaConfigDlg macDlg;
 
     /**
      * Constructor.
@@ -261,11 +261,8 @@ public class AddNewStationDlg extends CaveSWTDialog {
                     + "' is already in your Monitoring Area or among your Additional Stations.");
             return;
         }
-
         macDlg.addNewStationAction(stn);
-        // add station to area configuration
-        macDlg.getInstance().addNewStation(area, stn, type, true);
-        // update stations in the area configuration
+        macDlg.getInstance().addNewStation(area, stn, type, false);
         macDlg.getInstance().getStations().add(stn);
     }
 
