@@ -10,7 +10,6 @@ Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.common.pointdata,
  com.raytheon.uf.edex.pointdata,
  org.geotools,
- org.apache.commons.logging,
  org.dom4j,
  javax.persistence,
  javax.measure
