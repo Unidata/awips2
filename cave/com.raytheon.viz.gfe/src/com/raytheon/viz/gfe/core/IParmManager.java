@@ -38,7 +38,6 @@ import com.raytheon.viz.gfe.core.msgs.IParmInventoryChangedListener;
 import com.raytheon.viz.gfe.core.msgs.IParmListChangedListener;
 import com.raytheon.viz.gfe.core.msgs.ISystemTimeRangeChangedListener;
 import com.raytheon.viz.gfe.core.parm.Parm;
-import com.raytheon.viz.gfe.core.parm.vcparm.VCModuleJobPool;
 
 /**
  * Placeholder for ParmManager interface
@@ -549,5 +548,4 @@ public interface IParmManager extends IParmInventoryChangedListener,
 
     public JobPool getNotificationPool();
 
-    public VCModuleJobPool getVCModulePool();
 }
