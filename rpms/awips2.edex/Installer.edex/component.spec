@@ -155,7 +155,8 @@ POSTMASTER="${POSTGRESQL_INSTALL}/bin/postmaster"
 PG_CTL="${POSTGRESQL_INSTALL}/bin/pg_ctl"
 DROPDB="${POSTGRESQL_INSTALL}/bin/dropdb"
 PSQL="${PSQL_INSTALL}/bin/psql"
-DB_OWNER=`ls -ld ${AWIPS2_DATA_DIRECTORY} | grep -w 'data' | awk '{print $3}'`
+#DB_OWNER=`ls -ld ${AWIPS2_DATA_DIRECTORY} | grep -w 'data' | awk '{print $3}'`
+DB_OWNER="awips"
 
 # Determine if PostgreSQL is running.
 I_STARTED_POSTGRESQL="NO"
@@ -193,13 +194,13 @@ EXCEPTION
 END;
 \$\$
 "
-/awips2/psql/bin/psql -U awips -d metadata -c "${SQL}"
+/awips2/psql/bin/psql -U ${DB_OWNER} -d metadata -c "${SQL}"
 if [[ $? != 0 ]]
 then
     echo "Failed to update radar table."
     exit 1
 fi
-/awips2/psql/bin/psql -U awips -d metadata -c "UPDATE radar SET volumescannumber=0 WHERE volumescannumber IS NULL;"
+/awips2/psql/bin/psql -U ${DB_OWNER} -d metadata -c "UPDATE radar SET volumescannumber=0 WHERE volumescannumber IS NULL;"
 echo "Done"
 
 # stop PostgreSQL if we started it.
