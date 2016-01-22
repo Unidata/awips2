@@ -188,7 +188,7 @@
 			<param name="feature" value="com.raytheon.uf.viz.kml.export.feature" />
 		</antcall>
                 <antcall target="p2.build.repo">
-                        <param name="feature" value="com.raytheon.viz.dat.feature" />
+                        <param name="feature" value="com.raytheon.uf.viz.dat.feature" />
                 </antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.viz.gfe.feature" />
