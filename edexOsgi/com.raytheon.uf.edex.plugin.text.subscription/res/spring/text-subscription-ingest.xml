@@ -12,7 +12,7 @@
         <property name="type" value="timer" />
     </bean>
 
-    <camelContext id="clustered-text-subscription-camel"
+    <camelContext id="text-subscription-camel"
         xmlns="http://camel.apache.org/schema/spring"
         errorHandlerRef="errorHandler">
 

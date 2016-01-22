@@ -71,26 +71,22 @@ public class AutoFaxManager {
         }
     }
 
-    public void processEvent(Object event) throws EdexException {
+    public void processEvent(PluginDataObject[] pdos) throws EdexException {
         List<String> trigger = new ArrayList<String>();
-        if (event instanceof PluginDataObject[]) {
-            PluginDataObject[] pdos = (PluginDataObject[]) event;
-            for (PluginDataObject pdo : pdos) {
-                try {
-                    if (pdo instanceof TextRecord) {
-                        TextRecord tr = (TextRecord) pdo;
-                        String prodID = tr.getProductId();
-                        if (logger.isDebugEnabled()) {
-                            logger.debug("Processing trigger: " + prodID
-                                    + ", class = "
-                                    + pdo.getClass().getSimpleName());
-                        }
-                        trigger.add(prodID);
+        for (PluginDataObject pdo : pdos) {
+            try {
+                if (pdo instanceof TextRecord) {
+                    TextRecord tr = (TextRecord) pdo;
+                    String prodID = tr.getProductId();
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Processing trigger: " + prodID
+                                + ", class = " + pdo.getClass().getSimpleName());
                     }
-                } catch (Exception e) {
-                    logger.warn("Unable to extract product information from ["
-                            + pdo.toString() + "] skipping...");
+                    trigger.add(prodID);
                 }
+            } catch (Exception e) {
+                logger.warn("Unable to extract product information from ["
+                        + pdo.toString() + "] skipping...");
             }
         }
         sendFaxes(trigger);
@@ -113,10 +109,14 @@ public class AutoFaxManager {
                         // Shove it out to all the autofax subscribers to this
                         // PIL.
                         try {
-                            FaxSender.sendFax(faxRecord.getCompany(), faxRecord
-                                    .getId().getFaxNumber(), faxRecord
-                                    .getRecipient(), faxText, faxRecord.getId()
-                                    .getAfosPil());
+                            logger.info("Sending fax to '"
+                                    + faxRecord.getCompany()
+                                    + "' for AFOS PIL: " + afosPil);
+                            String status = FaxSender.sendFax(faxRecord
+                                    .getCompany(), faxRecord.getId()
+                                    .getFaxNumber(), faxRecord.getRecipient(),
+                                    faxText, faxRecord.getId().getAfosPil());
+                            logger.info(status);
                         } catch (IOException e) {
                             logger.warn("Error sending fax for AFOS PIL: "
                                     + afosPil);
