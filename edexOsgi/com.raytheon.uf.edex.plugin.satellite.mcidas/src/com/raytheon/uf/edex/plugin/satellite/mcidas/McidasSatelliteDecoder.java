@@ -75,9 +75,10 @@ import com.raytheon.uf.edex.plugin.satellite.mcidas.util.McidasSatelliteLookups.
  *                                      IDataRecord required by the SatelliteDao
  * 12/03/2013   DR 16841    D. Friedman Allow record overwrites
  * 09/18/2014   3627        mapeters    Updated deprecated method calls.
- * 05/11/2015           	mjames@ucar PS (south and north) stereogrpahic support added.
- * 05/19/2015				mjames@ucar	Added decoding of GVAR native projection products
- * 07/12/2015				mjames@ucar	Account for GOES E and W UNIWISC AREA file numbers
+ * 05/11/2015   ----        mjames@ucar PS (south and north) stereogrpahic support added.
+ * 05/19/2015	----        mjames@ucar Added decoding of GVAR native projection products
+ * 07/12/2015	----        mjames@ucar Account for GOES E and W UNIWISC AREA file numbers
+ * 01/21/2016   ----        mjames@ucar Cleanup
  * </pre>
  * 
  * @author
@@ -505,17 +506,17 @@ public class McidasSatelliteDecoder {
 
     private String getAreaName(int areaNumber) {
     	// GOES-West UNIWISC McIDAS AREA files
-    	if ( (1161 <= areaNumber && areaNumber <= 1254) ||
+    	if ( (1161 < areaNumber && areaNumber <= 1254) ||
     			(1801 <= areaNumber && areaNumber <= 1854) ){
     		areaNumber = 1161; 
     	// GOES-East UNIWISC McIDAS AREA files
-    	} else if (1261 <= areaNumber && areaNumber <= 1524) {
+    	} else if (1261 < areaNumber && areaNumber <= 1524) {
     		areaNumber = 1261; 
     	// HIMAWARI-8 McIDAS AREA files
-    	} else if (5900 <= areaNumber && areaNumber <= 5999) {
+    	} else if (5900 < areaNumber && areaNumber <= 5999) {
     		areaNumber = 5900; 
     	// METEOSAT-10 UNIWISC McIDAS AREA files
-    	} else if (6000 <= areaNumber && areaNumber <= 6099) {
+    	} else if (6000 < areaNumber && areaNumber <= 6099) {
     		areaNumber = 6000; 
     	}
         String value = McidasSatelliteLookups.getInstance().getAreaName(
