@@ -99,15 +99,16 @@
 		<contribute xsi:type="bundleItem" file="bundles/volume/MCS.xml"
 			    menuText="MCS Parameters" id="" useReferenceTime="true">
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/Isentropic.xml"
-	    menuText="270K RH Wind Pressure" id="" useReferenceTime="true">
-	    	<substitute key="level" value="270.0" />
-		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/Isentropic.xml"
-	    menuText="280K RH Wind Pressure" id="" useReferenceTime="true">
-	    	<substitute key="level" value="280.0" />
-		</contribute>
+
 		<contribute xsi:type="subMenu" menuText="Isentropic">
+			<contribute xsi:type="bundleItem" file="bundles/volume/Isentropic.xml"
+		    menuText="270K RH Wind Pressure" id="" useReferenceTime="true">
+		    	<substitute key="level" value="270.0" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/volume/Isentropic.xml"
+		    menuText="280K RH Wind Pressure" id="" useReferenceTime="true">
+		    	<substitute key="level" value="280.0" />
+			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/Isentropic.xml"
 				    menuText="290K RH Wind Pressure" id="" useReferenceTime="true">
 				    	<substitute key="level" value="290.0" />
