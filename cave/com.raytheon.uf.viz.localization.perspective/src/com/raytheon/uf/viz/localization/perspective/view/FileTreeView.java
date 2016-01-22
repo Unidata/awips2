@@ -20,7 +20,6 @@
 package com.raytheon.uf.viz.localization.perspective.view;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -96,7 +95,6 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -1582,15 +1580,17 @@ public class FileTreeView extends ViewPart implements IPartListener2,
                         try {
                             ILocalizationFile file = input
                                     .getLocalizationFile();
+                            /*
+                             * TODO can't easily replace the deprecated save()
+                             * call because if we use openOutputStream() it will
+                             * overwrite the file contents
+                             */
                             if (!file.getContext().getLocalizationLevel()
-                                    .isSystemLevel()) {
-                                try (SaveableOutputStream sos = file
-                                        .openOutputStream()) {
-                                    sos.save();
-                                }
+                                    .isSystemLevel()
+                                    && input.getLocalizationFile().save()) {
                                 input.refreshLocalizationFile();
                             }
-                        } catch (LocalizationException | IOException e) {
+                        } catch (LocalizationException e) {
                             statusHandler.handle(
                                     Priority.PROBLEM,
                                     "Error saving file: "
