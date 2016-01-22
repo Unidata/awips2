@@ -90,10 +90,7 @@ import com.raytheon.viz.gfe.core.parm.ABVParmID;
 import com.raytheon.viz.gfe.core.parm.DbParm;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.core.parm.ParmDisplayAttributes.VisMode;
-import com.raytheon.viz.gfe.core.parm.VCParm;
 import com.raytheon.viz.gfe.core.parm.VParm;
-import com.raytheon.viz.gfe.core.parm.vcparm.VCModule;
-import com.raytheon.viz.gfe.core.parm.vcparm.VCModuleJobPool;
 import com.raytheon.viz.gfe.types.MutableInteger;
 
 /**
@@ -244,8 +241,6 @@ public class ParmManager implements IParmManager, IMessageClient {
 
     private RWLArrayList<Parm> parms;
 
-    // virtual parm definitions (modulename = key)
-    private List<VCModule> vcModules;
 
     private ListenerList availableSourcesListeners;
 
@@ -283,23 +278,17 @@ public class ParmManager implements IParmManager, IMessageClient {
 
     private JobPool notificationPool;
 
-    private VCModuleJobPool vcModulePool;
-
     private final GridLocation gloc;
 
     private List<DatabaseID> availableServerDatabases;
 
     private List<DatabaseID> availableVParmDatabases;
 
-    private List<DatabaseID> availableVCParmDatabases;
-
     private List<DatabaseID> iscDbs;
 
     private final Map<DatabaseID, List<ParmID>> parmIDCacheServer;
 
     private final Map<DatabaseID, List<ParmID>> parmIDCacheVParm;
-
-    private final Map<DatabaseID, List<ParmID>> parmIDCacheVCParm;
 
     /**
      * Constructor
@@ -320,11 +309,6 @@ public class ParmManager implements IParmManager, IMessageClient {
         this.availableSourcesListeners = new ListenerList(ListenerList.IDENTITY);
         this.newModelListeners = new ListenerList(ListenerList.IDENTITY);
         this.parmIdChangedListeners = new ListenerList(ListenerList.IDENTITY);
-
-        // Get virtual parm definitions
-        vcModules = initVirtualCalcParmDefinitions();
-        vcModulePool = new VCModuleJobPool("GFE Virtual ISC Python executor",
-                this.dataManager, vcModules.size() + 2, Boolean.TRUE);
 
         PythonPreferenceStore prefs = Activator.getDefault()
                 .getPreferenceStore();
@@ -463,7 +447,6 @@ public class ParmManager implements IParmManager, IMessageClient {
         this.systemTimeRange = recalcSystemTimeRange();
         this.parmIDCacheServer = new HashMap<DatabaseID, List<ParmID>>();
         this.parmIDCacheVParm = new HashMap<DatabaseID, List<ParmID>>();
-        this.parmIDCacheVCParm = new HashMap<DatabaseID, List<ParmID>>();
 
         updateDatabaseLists();
 
@@ -505,11 +488,6 @@ public class ParmManager implements IParmManager, IMessageClient {
         }
 
         notificationPool.cancel();
-
-        vcModulePool.cancel();
-        for (VCModule module : vcModules) {
-            module.dispose();
-        }
     }
 
     private DatabaseID decodeDbString(final String string) {
@@ -711,11 +689,6 @@ public class ParmManager implements IParmManager, IMessageClient {
     public List<DatabaseID> getAvailableDbs() {
         List<DatabaseID> dbs = new ArrayList<DatabaseID>(
                 availableServerDatabases);
-        for (DatabaseID dbId : availableVCParmDatabases) {
-            if (!dbs.contains(dbId)) {
-                dbs.add(dbId);
-            }
-        }
         for (DatabaseID dbId : availableVParmDatabases) {
             if (!dbs.contains(dbId)) {
                 dbs.add(dbId);
@@ -897,33 +870,6 @@ public class ParmManager implements IParmManager, IMessageClient {
 
         if (parmIds == null) {
             parmIds = new ArrayList<ParmID>();
-        }
-
-        // look up the information in the vcparm database cache
-        cacheParmIDs = null;
-        synchronized (this.parmIDCacheVCParm) {
-            cacheParmIDs = this.parmIDCacheVCParm.get(dbID);
-        }
-        if (cacheParmIDs != null) {
-            parmIds.addAll(cacheParmIDs);
-        } else if (availableVCParmDatabases.contains(dbID)) { // make cache
-                                                              // entry
-            List<ParmID> pids = new ArrayList<ParmID>();
-            parms.acquireReadLock();
-            try {
-                for (VCModule mod : vcModules) {
-                    ParmID pid = mod.getGpi().getParmID();
-                    if (pid.getDbId().equals(dbID)) {
-                        pids.add(pid);
-                    }
-                }
-            } finally {
-                parms.releaseReadLock();
-            }
-            parmIds.addAll(pids);
-            synchronized (this.parmIDCacheVCParm) {
-                this.parmIDCacheVCParm.put(dbID, pids);
-            }
         }
 
         // look up the information in the vparm database cache
@@ -1232,18 +1178,6 @@ public class ParmManager implements IParmManager, IMessageClient {
                 }
             }
         }
-
-        synchronized (this.parmIDCacheVCParm) {
-            for (DatabaseID removedDb : removedDbs) {
-                this.parmIDCacheVCParm.remove(removedDb);
-            }
-
-            for (Parm p : addedParms) {
-                if (p instanceof VCParm) {
-                    addToCache(p, parmIDCacheVCParm);
-                }
-            }
-        }
     }
 
     /**
@@ -1300,7 +1234,6 @@ public class ParmManager implements IParmManager, IMessageClient {
 
         this.availableServerDatabases = new ArrayList<DatabaseID>(
                 availableDatabases);
-        this.availableVCParmDatabases = determineVCParmDatabases(vcModules);
         this.availableVParmDatabases = new ArrayList<DatabaseID>();
         parms.acquireReadLock();
         try {
@@ -1328,11 +1261,6 @@ public class ParmManager implements IParmManager, IMessageClient {
             // look for the first match. That's why we don't use
             // availableDbs()
             // and simplify the three loops into one.
-            for (DatabaseID dbid : availableVCParmDatabases) {
-                if (dbid.getModelName().equals("ISC") && !iscDbs.contains(dbid)) {
-                    iscDbs.add(dbid);
-                }
-            }
             for (DatabaseID dbid : availableVParmDatabases) {
                 if (dbid.getModelName().equals("ISC") && !iscDbs.contains(dbid)) {
                     iscDbs.add(dbid);
@@ -1344,25 +1272,6 @@ public class ParmManager implements IParmManager, IMessageClient {
                 }
             }
         }
-    }
-
-    /**
-     * Determines the set of virtual calculated databases, from the definitions.
-     * 
-     * @param definitions
-     *            The list of VCParm definitions as VCModules.
-     * @return The unique list of DatabaseIDs defined.
-     */
-    private List<DatabaseID> determineVCParmDatabases(List<VCModule> definitions) {
-        List<DatabaseID> dbs = new ArrayList<DatabaseID>();
-        for (VCModule mod : definitions) {
-            DatabaseID id = mod.getGpi().getParmID().getDbId();
-            if (!dbs.contains(id)) {
-                dbs.add(id);
-            }
-        }
-
-        return dbs;
     }
 
     /**
@@ -1388,13 +1297,6 @@ public class ParmManager implements IParmManager, IMessageClient {
         // already created?
         if (getParm(pid) != null) {
             return null; // already in existance
-        }
-
-        // check first if parm is a virtual calculated?
-        int index = vcIndex(pid);
-        if (index != -1) {
-            return createVirtualCalculatedParm(vcModules.get(index),
-                    displayable);
         }
 
         // database parm?
@@ -1426,17 +1328,6 @@ public class ParmManager implements IParmManager, IMessageClient {
 
         return new DbParm(pid, gpi, mutableParm, displayable, this.dataManager);
 
-    }
-
-    private Parm createVirtualCalculatedParm(final VCModule module,
-            boolean displayable) {
-        // already exists?
-        if (getParm(module.getGpi().getParmID()) != null) {
-            return null; // already exists
-        }
-
-        Parm parm = new VCParm(dataManager, displayable, module);
-        return parm;
     }
 
     /**
@@ -1852,28 +1743,8 @@ public class ParmManager implements IParmManager, IMessageClient {
     private List<ParmID> dependentParms(final ParmID pid, boolean considerISC) {
         List<ParmID> ret = new ArrayList<ParmID>(1);
 
-        // check for a virtual calculated parm
-        int index = vcIndex(pid);
-        if (index != -1) {
-            Collection<ParmID> dp = vcModules.get(index).dependentParms();
-            for (ParmID depPId : dp) {
-                if (!ret.contains(depPId)) {
-                    ret.add(depPId);
-                }
-
-                if (vcIndex(depPId) != -1) { // vcparm
-                    List<ParmID> dpa = dependentParms(depPId, considerISC);
-                    for (ParmID recPId : dpa) {
-                        if (!ret.contains(recPId)) {
-                            ret.add(recPId);
-                        }
-                    }
-                }
-            }
-        }
-
         // isc dependent parm? (showISC and mutable database)
-        else if (considerISC) {
+        if (considerISC) {
             if (pid.getDbId().equals(getMutableDatabase())) {
                 ParmID iscP = getISCParmID(pid);
                 if (!ret.contains(iscP) && !iscP.equals(new ParmID())) {
@@ -3089,91 +2960,9 @@ public class ParmManager implements IParmManager, IMessageClient {
         return new ABVParmID(this).parse(expression);
     }
 
-    /**
-     * @return
-     */
-    private List<VCModule> initVirtualCalcParmDefinitions() {
-        // retrieve the inventory from the ifpServer
-        IPathManager pathMgr = PathManagerFactory.getPathManager();
-        LocalizationContext[] contexts = new LocalizationContext[] {
-                pathMgr.getContext(LocalizationType.COMMON_STATIC,
-                        LocalizationLevel.BASE),
-                pathMgr.getContext(LocalizationType.COMMON_STATIC,
-                        LocalizationLevel.SITE),
-                pathMgr.getContext(LocalizationType.COMMON_STATIC,
-                        LocalizationLevel.USER) };
-
-        Map<String, LocalizationFile> modMap = new HashMap<>();
-        for (LocalizationContext context : contexts) {
-            LocalizationFile[] files = pathMgr.listFiles(context,
-                    FileUtil.join("gfe", "vcmodule"), new String[] { "py" },
-                    false, true);
-            for (LocalizationFile lf : files) {
-                try {
-                    String modName = lf.getFile(false).getName()
-                            .split("\\.(?=[^\\.]+$)")[0];
-                    modMap.put(modName, lf);
-                } catch (LocalizationException e) {
-                    statusHandler.error(
-                            "Error getting local file name for VCModule " + lf,
-                            e);
-                }
-            }
-        }
-
-        List<VCModule> definitions = new ArrayList<VCModule>(modMap.size());
-        for (Entry<String, LocalizationFile> entry : modMap.entrySet()) {
-            String modName = entry.getKey();
-            LocalizationFile modFile = entry.getValue();
-            try {
-                // gets the module from the ifpServer
-                modFile.getFile(true);
-
-                // create the VCModule
-                statusHandler.debug("Loading VCModule: " + modFile);
-                VCModule m = new VCModule(dataManager, this, modName);
-                if (!m.isValid()) {
-                    statusHandler.error("Error creating VCModule " + modFile,
-                            m.getErrorString());
-                    continue;
-                }
-                definitions.add(m);
-            } catch (LocalizationException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Unable to retrieve VCMODULE " + modFile.toString(), e);
-                continue;
-            }
-
-        }
-
-        return definitions;
-    }
-
-    /**
-     * Returns the Virtual Parm index into vcModules for the given ParmID.
-     * 
-     * @param pid
-     *            ParmID to search for.
-     * @return The index of the ParmID if it is in vcModules. Else, -1.
-     */
-    private int vcIndex(ParmID pid) {
-        for (int i = 0; i < vcModules.size(); i++) {
-            if (vcModules.get(i).getGpi().getParmID().equals(pid)) {
-                return i;
-            }
-        }
-
-        return -1;
-    }
-
     @Override
     public JobPool getNotificationPool() {
         return notificationPool;
-    }
-
-    @Override
-    public VCModuleJobPool getVCModulePool() {
-        return vcModulePool;
     }
 
     @Override
