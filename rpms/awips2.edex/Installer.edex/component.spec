@@ -197,11 +197,11 @@ END;
 /awips2/psql/bin/psql -U ${DB_OWNER} -d metadata -c "${SQL}"
 if [[ $? != 0 ]]
 then
-    echo "Failed to update radar table."
-    exit 1
+    echo "Radar update not needed. Continuing..."
+else
+  /awips2/psql/bin/psql -U ${DB_OWNER} -d metadata -c "UPDATE radar SET volumescannumber=0 WHERE volumescannumber IS NULL;"
+  echo "Done"
 fi
-/awips2/psql/bin/psql -U ${DB_OWNER} -d metadata -c "UPDATE radar SET volumescannumber=0 WHERE volumescannumber IS NULL;"
-echo "Done"
 
 # stop PostgreSQL if we started it.
 if [ "${I_STARTED_POSTGRESQL}" = "YES" ]; then
