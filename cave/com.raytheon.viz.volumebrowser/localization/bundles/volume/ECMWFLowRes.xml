@@ -33,7 +33,7 @@
 								<constraint constraintValue="GH" constraintType="EQUALS" />
 							</mapping>
 							<mapping key="info.datasetId">
-								<constraint constraintValue="ECMF-NorthernHemisphere"
+								<constraint constraintValue="ECMF-Global"
 									constraintType="EQUALS" />
 							</mapping>
 							<mapping key="pluginName">
@@ -61,7 +61,7 @@
 								<constraint constraintValue="AV" constraintType="EQUALS" />
 							</mapping>
 							<mapping key="info.datasetId">
-								<constraint constraintValue="ECMF-NorthernHemisphere"
+								<constraint constraintValue="ECMF-Global"
 									constraintType="EQUALS" />
 							</mapping>
 							<mapping key="info.level.leveltwovalue">
@@ -89,7 +89,7 @@
 								<constraint constraintValue="msl-P" constraintType="EQUALS" />
 							</mapping>
 							<mapping key="info.datasetId">
-								<constraint constraintValue="ECMF-NorthernHemisphere"
+								<constraint constraintValue="ECMF-Global"
 									constraintType="EQUALS" />
 							</mapping>
 							<mapping key="pluginName">
@@ -108,7 +108,7 @@
 								<constraint constraintValue="dZ" constraintType="EQUALS" />
 							</mapping>
 							<mapping key="info.datasetId">
-								<constraint constraintValue="ECMF-NorthernHemisphere"
+								<constraint constraintValue="ECMF-Global"
 									constraintType="EQUALS" />
 							</mapping>
 							<mapping key="info.level.leveltwovalue">
@@ -136,7 +136,7 @@
 								<constraint constraintValue="GH" constraintType="EQUALS" />
 							</mapping>
 							<mapping key="info.datasetId">
-								<constraint constraintValue="ECMF-NorthernHemisphere"
+								<constraint constraintValue="ECMF-Global"
 									constraintType="EQUALS" />
 							</mapping>
 							<mapping key="pluginName">
