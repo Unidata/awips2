@@ -2977,6 +2977,7 @@
 		<grid>197</grid>
 		<process>
 			<id>180</id>
+			<id>224</id>
 		</process>
 	</model>
 
@@ -3192,6 +3193,16 @@
 		<center>7</center>
 		<subcenter>14</subcenter>
 		<grid>184</grid>
+		<process>
+			<id>96</id>
+		</process>
+	</model>
+
+	<model>
+		<name>MOSGuideExtended</name>
+		<center>7</center>
+		<subcenter>14</subcenter>
+		<grid>187</grid>
 		<process>
 			<id>96</id>
 		</process>
