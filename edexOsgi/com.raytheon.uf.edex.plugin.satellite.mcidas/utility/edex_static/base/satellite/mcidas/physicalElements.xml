@@ -66,7 +66,6 @@
 		<entry><key ss="180" band="2"/><value name="Imager 3.5-4.0 micro IR (Fog)" units="IRPixel" /></entry>
 		<entry><key ss="180" band="3"/><value name="Imager 6.7-6.5 micron IR (WV)" units="IRPixel" /></entry>
 		<entry><key ss="180" band="4"/><value name="Imager 11 micron IR" /></entry>
-		<entry><key ss="180" band="5"/><value name="Imager 12 micron IR" /></entry>
 		<entry><key ss="180" band="6"/><value name="Imager 13 micron IR" /></entry>
 		
 		<!-- GOES15 -->
@@ -74,7 +73,6 @@
 		<entry><key ss="184" band="2"/><value name="Imager 3.5-4.0 micro IR (Fog)" units="IRPixel" /></entry>
 		<entry><key ss="184" band="3"/><value name="Imager 6.7-6.5 micron IR (WV)" units="IRPixel" /></entry>
 		<entry><key ss="184" band="4"/><value name="Imager 11 micron IR" /></entry>
-		<entry><key ss="184" band="5"/><value name="Imager 12 micron IR" /></entry>
 		<entry><key ss="184" band="6"/><value name="Imager 13 micron IR" /></entry>
 		
 		<!-- Arctic -->
@@ -82,12 +80,14 @@
 		<entry><key ss="401" band="2"/><value name="Imager 3.5-4.0 micro IR (Fog)" units="IRPixel" /> /></entry>
 		<entry><key ss="401" band="3"/><value name="Imager 6.7-6.5 micron IR (WV)" units="IRPixel" /></entry>
 		<entry><key ss="401" band="4"/><value name="Imager 11 micron IR" /></entry>
-		<entry><key ss="401" band="5"/><value name="Imager 12 micron IR" /></entry>
+		<entry><key ss="401" band="6"/><value name="Imager 12 micron IR" /></entry>
 		
 		<!-- Antarctic -->
 		<entry><key ss="72" band="1"/><value name="Imager Visible" /></entry>
+		<entry><key ss="72" band="2"/><value name="Imager 3.5-4.0 micro IR (Fog)" units="IRPixel" /> /></entry>
 		<entry><key ss="72" band="3"/><value name="Imager 6.7-6.5 micron IR (WV)" units="IRPixel" /></entry>
 		<entry><key ss="72" band="4"/><value name="Imager 11 micron IR" /></entry>
+		<entry><key ss="72" band="6"/><value name="Imager 12 micron IR" /></entry>
 
 		<!-- SOUNDER -->
 		<entry><key ss="185" band="1"/><value name="Imager Visible" /></entry>
@@ -105,8 +105,5 @@
 		<entry><key ss="185" band="30"/><value name="CAPE" /></entry>
 		<entry><key ss="185" band="31"/><value name="Sounder Based Total Column Ozone" /></entry>
 		<entry><key ss="10" band="31"/><value name="Sounder Based Derived Surface Skin Temp (SFC Skin)" /></entry>
-
-
-		
 	</map>
 </physicalElements>
