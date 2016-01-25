@@ -51,7 +51,7 @@
 	<alias base="ECMF8">ECMWF-LowRes</alias>
 	<alias base="ECMF9">ECMWF-LowRes</alias>
 	<alias base="ECMF-MODEL0">ECMWF-MODEL0</alias>
-	<alias base="ECMF-NorthernHemisphere">ECMWF-LowRes</alias>
+	<alias base="ECMF-Global">ECMWF-LowRes</alias>
 	<alias base="ENPWAVE253">ENPwave</alias>
 	<alias base="ENSEMBLE37">GFSensemble</alias>
 	<alias base="ENSEMBLE38">GFSensemble</alias>
