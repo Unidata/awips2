@@ -24,7 +24,7 @@ import com.raytheon.viz.grid.util.RadarProductCodeMapping;
 
 /**
  * 
- * Listens for updates to radatr products and transforms them into grid updates
+ * Listens for updates to radar products and transforms them into grid updates
  * so that radar data being used in grid derived parameters will update.
  * 
  * <pre>
