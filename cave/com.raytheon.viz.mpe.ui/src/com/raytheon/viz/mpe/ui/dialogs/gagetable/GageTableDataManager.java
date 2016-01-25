@@ -66,6 +66,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Sep 04, 2014 16699      cgobs       Fixed 14.3.1 issue with reading MPE field data.
  * Oct 19, 2015 18090      lbousaidi   fixed best estimate qpe display.
  * Nov 18, 2015 18093      snaples     Added selectedGridIndex to maintain selected grid after table refresh.
+ * Jan 13, 2016 18092      snaples     Removed redundant call, that resulted in a circle.
  * 
  * </pre>
  * 
@@ -1217,7 +1218,6 @@ public class GageTableDataManager {
      */
     public void reloadData() {
     	getTableData();
-        getTableRowData();
     }
 
     /**
