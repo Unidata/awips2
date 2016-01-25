@@ -21,37 +21,35 @@
 <vbSourceList>
     <vbSource key="CPCoutlook211" category="SfcGrid"
         views="PLANVIEW TIMESERIES" />
-    <vbSource key="ENPWAVE253" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="estofsUS" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="GFE" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="GFSGuide" category="SfcGrid" views="PLANVIEW TIMESERIES" />
-    <vbSource key="GFSLAMPGrid" name="GFSLAMPGrid" category="SfcGrid"
-        views="PLANVIEW TIMESERIES" />
+    <vbSource key="GFSLAMP" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+    <vbSource key="LAMP2p5" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="GWW233" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="HurWave238" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="HurWave253" category="SfcGrid" views="PLANVIEW TIMESERIES" />
-    <vbSource key="MOSGuide" category="SfcGrid" views="PLANVIEW TIMESERIES" />
-    <vbSource key="HurWind175" category="SfcGrid" views="PLANVIEW TIMESERIES" />
-    <vbSource key="GWW233" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="HurWind250" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+    <vbSource key="HurWind226" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+    <vbSource key="MOSGuide" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+    <vbSource key="MOSGuideExtended" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+    <vbSource key="HPCqpfNDFD" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+    <vbSource key="GWW233" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="WNAWAVE238" category="SfcGrid" views="PLANVIEW TIMESERIES" />
-    <vbSource key="HPCGuide" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="AKWAVE239" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+    <vbSource key="ENPWAVE253" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+    <vbSource key="HPCGuide" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="HPE" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="MPE-Local" category="SfcGrid" views="PLANVIEW TIMESERIES" />
-    <vbSource key="FNMOC-WW3" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="NamDNG" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+    <vbSource key="NAM4" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="NAM12" category="SfcGrid" views="PLANVIEW TIMESERIES" />
-    <vbSource key="NAM-40km" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+    <vbSource key="NAM40" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="RFCqpf" category="SfcGrid" views="PLANVIEW TIMESERIES" />
-    <vbSource key="RTGSST" category="SfcGrid" views="PLANVIEW TIMESERIES" />
-    <vbSource key="RTGSSTHR" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="RTMA" category="SfcGrid" views="PLANVIEW TIMESERIES" />
-    <vbSource key="RTMA-5km" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="SeaIce" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="SPCGuide" category="SfcGrid" views="PLANVIEW TIMESERIES" />
-    <vbSource key="HurWind226" category="SfcGrid" views="PLANVIEW TIMESERIES" />
-    <vbSource key="FNMOC-WW3-EU" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+    <vbSource key="FNMOC-WW3" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="FNMOC-NCODA" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="FNMOC-FAROP" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="URMA25" category="SfcGrid" views="PLANVIEW TIMESERIES" />

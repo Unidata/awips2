@@ -72,8 +72,8 @@
     </include>
 	<include installTo="menu:models" 
              fileName="menus/volume/allFamilies.xml">
-             <substitute key="modelName" value="ECMF-NorthernHemisphere" />
-             <substitute key="menuName" value="ECMF Norhtern Hemisphere" />
+             <substitute key="modelName" value="ECMF-Global" />
+             <substitute key="menuName" value="ECMWF Global" />
              <substitute key="frameCount" value="1" />
              <substitute key="TP" value="TP6hr"/>
     </include>
