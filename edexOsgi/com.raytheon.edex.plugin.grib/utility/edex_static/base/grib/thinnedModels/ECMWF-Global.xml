@@ -20,7 +20,7 @@
     -->
     
 <compositeModel>
-	<modelName>ECMF-NorthernHemisphere</modelName>
-	<grid>372</grid>
-	<componentModels>ECMF2:ECMF1:ECMF4:ECMF3</componentModels>
+	<modelName>ECMF-Global</modelName>
+	<grid>14573</grid>
+	<componentModels>ECMF10:ECMF9:ECMF12:ECMF11:ECMF2:ECMF1:ECMF4:ECMF3</componentModels>
 </compositeModel>
