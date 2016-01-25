@@ -103,6 +103,7 @@ import com.raytheon.uf.viz.alertviz.ui.audio.IAudioAction;
  * 28 Oct 2015  5054       randerso    Fix lots of multimonitor display issues.
  * 14 Jan 2016  5054       randerso    Fix the Tips window to display on the correct monitor
  *                                     Removed duplicate parent shell
+ * 25 Jan 2016  5054       randerso    Converted to stand alone window
  * 
  * </pre>
  * 
@@ -120,11 +121,6 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
 
     private static final ScopedPreferenceStore dialogPrefs = new ScopedPreferenceStore(
             InstanceScope.INSTANCE, Activator.PLUGIN_ID);
-
-    /**
-     * Parent shell.
-     */
-    private final Shell parentShell;
 
     /**
      * Local shell.
@@ -234,20 +230,21 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
     /**
      * Constructor.
      * 
-     * @param parentShell
-     *            Parent shell.
+     * @param display
+     *            Parent display.
      * @param audioCB
      *            Audio callback.
      * @param showDialog
      *            Show dialog flag.
      * @param configData
      *            Configuration data.
+     * @param alertAudioMgr
      */
-    public AlertMessageDlg(Shell parentShell, IAudioAction audioCB,
+    public AlertMessageDlg(Display display, IAudioAction audioCB,
             boolean showDialog, Configuration configData,
             AlertAudioMgr alertAudioMgr) {
+        this.display = display;
         this.showDialog = showDialog;
-        this.parentShell = parentShell;
 
         this.alertAudioMgr = alertAudioMgr;
         this.audioCB = audioCB;
@@ -261,14 +258,19 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
     }
 
     /**
+     * @return the shell
+     */
+    public Shell getShell() {
+        return shell;
+    }
+
+    /**
      * Open method used to display the dialog.
      * 
      * @return True/False.
      */
     public Object open() {
-        display = parentShell.getDisplay();
-
-        shell = new Shell(parentShell, SWT.ON_TOP | SWT.NO_TRIM);
+        shell = new Shell(display, SWT.ON_TOP | SWT.NO_TRIM);
         shell.setBounds(restoreDialogPosition());
 
         shell.addDisposeListener(new DisposeListener() {
@@ -321,6 +323,13 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
     }
 
     /**
+     * @return true if dialog is disposed
+     */
+    public boolean isDisposed() {
+        return (shell == null) || shell.isDisposed();
+    }
+
+    /**
      * Dispose of all the message timers.
      */
     public void dispose() {
@@ -341,6 +350,10 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
 
         for (AlertMonitor monitor : alertMonitors.values()) {
             monitor.dispose();
+        }
+
+        if (shell != null) {
+            shell.dispose();
         }
 
         ConfigurationManager.getInstance().getCustomLocalization()
@@ -513,8 +526,8 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
     }
 
     public void setMaxLogSize(final int maxLogSize) {
-        if (txtMsgCompArray != null && txtMsgCompArray.size() > 0
-                && maxLogSize != txtMsgCompArray.get(0).getMaxLogSize()) {
+        if ((txtMsgCompArray != null) && (txtMsgCompArray.size() > 0)
+                && (maxLogSize != txtMsgCompArray.get(0).getMaxLogSize())) {
             for (TextMsgControlComp comp : txtMsgCompArray) {
                 comp.setMaxLogSize(maxLogSize);
             }
@@ -629,7 +642,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
     }
 
     public void resetTabControl() {
-        boolean isOpen = tabControlDlg != null && !tabControlDlg.isDisposed()
+        boolean isOpen = (tabControlDlg != null) && !tabControlDlg.isDisposed()
                 && tabControlDlg.isOpened();
         reLayout();
         // TODO: Need to determine which tabs to open and populate them.
@@ -657,7 +670,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
             RGB[] prevForeground = new RGB[size];
             dispose();
             for (int i = 0; i < txtMsgCompArray.size(); i++) {
-                if (txtMsgCompArray.get(i) != null
+                if ((txtMsgCompArray.get(i) != null)
                         && !txtMsgCompArray.get(i).isDisposed()) {
                     prevMessageText[i] = txtMsgCompArray.get(i)
                             .getMessageText();
@@ -675,9 +688,11 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
             open();
             result = true;
             for (int i = 0; i < txtMsgCompArray.size(); i++) {
-                if (i < prevMessageText.length && prevMessageText[i] != null) {
+                if ((i < prevMessageText.length)
+                        && (prevMessageText[i] != null)) {
                     txtMsgCompArray.get(i).setMessageText(prevMessageText[i]);
-                    if (prevBackground[i] != null && prevForeground[i] != null) {
+                    if ((prevBackground[i] != null)
+                            && (prevForeground[i] != null)) {
                         txtMsgCompArray.get(i).setMessageTextBackAndForeground(
                                 prevBackground[i], prevForeground[i]);
                     }
@@ -1092,13 +1107,13 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
         errorBtnBgColor = new Color(display, 237, 233, 227);
         errorBtn.setBackground(errorBtnBgColor);
 
-        if (tabControlDlg == null || tabControlDlg.isDisposed()) {
+        if ((tabControlDlg == null) || tabControlDlg.isDisposed()) {
             tabControlDlg = TabControlDlg.getInstance(shell);
         }
         if (textMsgLog == null) {
             String[] categories = new String[] { "Causes", "Catch", "Error",
                     "Exception" };
-            textMsgLog = new TextMsgLog(parentShell, categories, 0, messageVec);
+            textMsgLog = new TextMsgLog(shell, categories, 0, messageVec);
             textMsgLog.setIndex(0);
         }
         if (opened) {
@@ -1124,7 +1139,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
         if (textMsgLog == null) {
             String[] categories = new String[] { "Causes", "Catch", "Error",
                     "Exception" };
-            textMsgLog = new TextMsgLog(parentShell, categories, 0, messageVec);
+            textMsgLog = new TextMsgLog(shell, categories, 0, messageVec);
             textMsgLog.setIndex(0);
         }
         textMsgLog.addMessage(statMsg);
@@ -1151,14 +1166,14 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
 
         for (Source source : sourceMap.values()) {
             String name = source.getName();
-            if (source.isMonitor() && name != null) {
+            if (source.isMonitor() && (name != null)) {
                 String imageFile = source.getConfigurationMonitor()
                         .getMonitorMetadata().getImageFile();
                 boolean omitMonitor = source.getConfigurationMonitor()
                         .getMonitorMetadata().getOmit();
                 AlertMonitor monitor = alertMonitors.get(name);
 
-                if (imageFile != null
+                if ((imageFile != null)
                         && (!imageFile.equals("null") && !imageFile.equals(""))) {
                     if (monitor != null) {
                         monitor.setImageName(imageFile);

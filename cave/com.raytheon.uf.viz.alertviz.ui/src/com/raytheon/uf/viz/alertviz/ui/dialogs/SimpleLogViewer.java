@@ -36,7 +36,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
@@ -71,6 +70,7 @@ import com.raytheon.uf.viz.alertviz.config.TrayConfiguration;
  * Jun 02, 2015 4473       njensen     Cleaned up warnings
  * Jul 01, 2015 4473       njensen     Fix update of table on alert arrival
  * Jun 29, 2015 4311       randerso    Reworking AlertViz dialogs to be resizable.
+ * Jan 25, 2016 5054       randerso    Converted to stand alone window
  * 
  * </pre>
  * 
@@ -78,7 +78,7 @@ import com.raytheon.uf.viz.alertviz.config.TrayConfiguration;
  * @version 1.0
  */
 
-public class SimpleLogViewer extends Dialog implements IAlertArrivedCallback {
+public class SimpleLogViewer implements IAlertArrivedCallback {
 
     private Display display;
 
@@ -104,13 +104,12 @@ public class SimpleLogViewer extends Dialog implements IAlertArrivedCallback {
 
     /**
      * 
-     * @param parent
+     * @param display
      */
-    public SimpleLogViewer(Shell parent) {
-        super(parent, SWT.NONE);
+    public SimpleLogViewer(Display display) {
         first = true;
 
-        display = parent.getDisplay();
+        this.display = display;
 
         // Create a new shell object and set the text for the dialog.
         shell = new Shell(display, SWT.DIALOG_TRIM | SWT.MIN | SWT.TITLE
