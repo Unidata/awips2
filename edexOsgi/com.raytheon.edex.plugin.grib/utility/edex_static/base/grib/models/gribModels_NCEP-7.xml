@@ -3199,6 +3199,16 @@
 	</model>
 
 	<model>
+		<name>MOSGuideExtended</name>
+		<center>7</center>
+		<subcenter>14</subcenter>
+		<grid>187</grid>
+		<process>
+			<id>96</id>
+		</process>
+	</model>
+
+	<model>
 		<name>MOSGuide-AK</name>
 		<center>7</center>
 		<subcenter>14</subcenter>
