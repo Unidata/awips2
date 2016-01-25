@@ -52,9 +52,10 @@ import com.raytheon.uf.edex.plugin.pointset.netcdf.PointSetNetcdfDecoder;
  * SOFTWARE HISTORY
  * 
  * Date          Ticket#  Engineer  Description
- * ------------- -------- --------- ----------------------------------
+ * ------------- -------- --------- --------------------------------------------
  * Aug 11, 2015  4709     bsteffen  Initial creation
- * Jan 21, 2016  5208     bsteffen  Move parameter persistence to dao
+ * Jan 21, 2016  5208     bsteffen  Move parameter persistence to dao and
+ *                                  validate
  * 
  * </pre>
  * 
@@ -229,6 +230,59 @@ public class ProductDescription {
             return null;
         }
         return latitude.getName();
+    }
+
+    public void validate() throws InvalidDescriptionException {
+        if (data == null) {
+            throw new InvalidDescriptionException(
+                    "A data element is not present.");
+        }
+        try {
+            data.validate();
+        } catch (InvalidDescriptionException e) {
+            throw new InvalidDescriptionException("Invalid data: "
+                    + e.getMessage(), e);
+        }
+        if (datasetId == null) {
+            throw new InvalidDescriptionException(
+                    "A dataset id element is not present.");
+        }
+        try {
+            datasetId.validate();
+        } catch (InvalidDescriptionException e) {
+            throw new InvalidDescriptionException("Invalid dataset id: "
+                    + e.getMessage(), e);
+        }
+        if (parameter == null) {
+            throw new InvalidDescriptionException(
+                    "A parameter element is not present.");
+        }
+        try {
+            parameter.validate();
+        } catch (InvalidDescriptionException e) {
+            throw new InvalidDescriptionException("Invalid parameter: "
+                    + e.getMessage(), e);
+        }
+        if (level == null) {
+            throw new InvalidDescriptionException(
+                    "A level element is not present.");
+        }
+        try {
+            level.validate();
+        } catch (InvalidDescriptionException e) {
+            throw new InvalidDescriptionException("Invalid level: "
+                    + e.getMessage(), e);
+        }
+        if (dataTime == null) {
+            throw new InvalidDescriptionException(
+                    "A data time element is not present.");
+        }
+        try {
+            dataTime.validate();
+        } catch (InvalidDescriptionException e) {
+            throw new InvalidDescriptionException("Invalid data time: "
+                    + e.getMessage(), e);
+        }
     }
 
 

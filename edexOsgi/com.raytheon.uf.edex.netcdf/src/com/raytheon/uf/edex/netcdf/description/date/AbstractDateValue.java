@@ -29,26 +29,27 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 
 import ucar.nc2.NetcdfFile;
 
-import com.raytheon.uf.edex.netcdf.description.AttributeDescription;
 import com.raytheon.uf.edex.netcdf.description.AbstractFieldDescription;
+import com.raytheon.uf.edex.netcdf.description.AttributeDescription;
 import com.raytheon.uf.edex.netcdf.description.ValueDescription;
 import com.raytheon.uf.edex.netcdf.description.VariableDescription;
 import com.raytheon.uf.edex.netcdf.description.exception.InvalidDescriptionException;
 
 /**
- *
+ * 
  * Base class to extract a {@link Date} from a {@link NetcdfFile}.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date          Ticket#  Engineer  Description
- * ------------- -------- --------- --------------------------
+ * ------------- -------- --------- -----------------
  * Aug 25, 2015  4699     nabowle   Initial creation
- *
+ * Jan 25, 2016  5208     bsteffen  Add validation.
+ * 
  * </pre>
- *
+ * 
  * @author nabowle
  */
 @XmlSeeAlso({ FormattedDateValue.class, EpochOffsetDateValue.class })
@@ -70,4 +71,17 @@ public abstract class AbstractDateValue {
 
     public abstract Date getDate(NetcdfFile file)
             throws InvalidDescriptionException;
+
+    public void validate() throws InvalidDescriptionException {
+        if (field == null) {
+            throw new InvalidDescriptionException(
+                    "A field element is not present.");
+        }
+        try {
+            field.validate();
+        } catch (InvalidDescriptionException e) {
+            throw new InvalidDescriptionException("Invalid field: "
+                    + e.getMessage(), e);
+        }
+    }
 }

@@ -30,20 +30,21 @@ import com.raytheon.uf.edex.netcdf.description.exception.InvalidDescriptionExcep
 
 /**
  * Base class for field descriptions.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Aug 26, 2015 4699       nabowle     Initial creation
- * Sep 09, 2015 4696       nabowle     Add retrieval at different indices and
- *                                     getLength().
- * Dec 08, 2015 5059       nabowle     Add isNumeric() and isPresent().
- *
+ * 
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Aug 26, 2015  4699     nabowle   Initial creation
+ * Sep 09, 2015  4696     nabowle   Add retrieval at different indices and
+ *                                  getLength().
+ * Dec 08, 2015  5059     nabowle   Add isNumeric() and isPresent().
+ * Jan 25, 2016  5208     bsteffen  Add validation.
+ * 
  * </pre>
- *
+ * 
  * @author nabowle
  * @version 1.0
  */
@@ -116,5 +117,12 @@ public abstract class AbstractFieldDescription {
      */
     public abstract boolean isPresent(NetcdfFile file)
             throws InvalidDescriptionException;
+
+    public void validate() throws InvalidDescriptionException {
+        if (name == null) {
+            throw new InvalidDescriptionException(
+                    "The name attribute is not present.");
+        }
+    }
 
 }
