@@ -36,9 +36,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
 
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
@@ -55,10 +55,10 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                     Initial creation.
  * Oct 12, 2012 1229       rferrel     Made subclass of CaveSWTDialog
  *                                      and non-blocking.
+ * Jan 20, 2016 5242       njensen     Replaced calls to deprecated LocalizationFile methods
  * 
  * </pre>
  * 
- * @version 1.0
  */
 public class OpenDlg extends CaveSWTDialog {
 
@@ -75,19 +75,18 @@ public class OpenDlg extends CaveSWTDialog {
     /**
      * List of localized files used to generate the file list.
      */
-    private LocalizationFile[] locFiles;
+    private ILocalizationFile[] locFiles;
 
     /**
      * Uses file's display name as key to get the associated localized file.
      */
-    private Map<String, LocalizationFile> locFileMap;
+    private Map<String, ILocalizationFile> locFileMap;
 
     /**
      * Constructor
      * 
      * @param parent
      *            shell
-     * @param type
      */
     public OpenDlg(Shell parent) {
         super(parent, SWT.TITLE, CAVE.DO_NOT_BLOCK);
@@ -118,7 +117,7 @@ public class OpenDlg extends CaveSWTDialog {
      * Set up the dialog's display components.
      */
     private void initializeComponents() {
-        locFileMap = new TreeMap<String, LocalizationFile>();
+        locFileMap = new TreeMap<>();
         controlFont = new Font(shell.getDisplay(), "Monospace", 10, SWT.NORMAL);
 
         createListControl();
@@ -176,7 +175,7 @@ public class OpenDlg extends CaveSWTDialog {
             public void widgetSelected(SelectionEvent event) {
                 int selectedIndex = cfgFileList.getSelectionIndex();
                 String str = cfgFileList.getItem(selectedIndex);
-                LocalizationFile selectedFile = locFileMap.get(str);
+                ILocalizationFile selectedFile = locFileMap.get(str);
                 setReturnValue(selectedFile);
                 close();
             }
@@ -203,7 +202,7 @@ public class OpenDlg extends CaveSWTDialog {
         LocalizationType[] types = new LocalizationType[] {
                 LocalizationType.CAVE_CONFIG, LocalizationType.CAVE_STATIC,
                 LocalizationType.COMMON_STATIC };
-        ArrayList<LocalizationFile> localFiles = new ArrayList<LocalizationFile>();
+        java.util.List<ILocalizationFile> localFiles = new ArrayList<>();
         for (LocalizationType type : types) {
             LocalizationContext[] contexts = PathManagerFactory
                     .getPathManager().getLocalSearchHierarchy(type);
@@ -213,13 +212,13 @@ public class OpenDlg extends CaveSWTDialog {
                                 extensions, true, true)));
             }
         }
-        locFiles = localFiles.toArray(new LocalizationFile[0]);
+        locFiles = localFiles.toArray(new ILocalizationFile[0]);
         if (locFiles == null) {
             return;
         }
 
         for (int i = 0; i < locFiles.length; i++) {
-            if (locFiles[i].getName().startsWith("aviation/avnsetup") == false) {
+            if (locFiles[i].getPath().startsWith("aviation/avnsetup") == false) {
                 String contextName = locFiles[i].getContext().getContextName();
                 if (contextName == null) {
                     contextName = " - " + "BASE";
@@ -227,7 +226,7 @@ public class OpenDlg extends CaveSWTDialog {
                     contextName = " - " + contextName;
                 }
                 locFileMap
-                        .put(locFiles[i].getName() + contextName, locFiles[i]);
+                        .put(locFiles[i].getPath() + contextName, locFiles[i]);
             }
         }
 
