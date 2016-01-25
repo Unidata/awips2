@@ -300,7 +300,7 @@
 								<constraint constraintValue="${level}" constraintType="IN" />
 							</mapping>
 							<mapping key="info.datasetId">
-								<constraint constraintValue="ECMF-NorthernHemisphere"
+								<constraint constraintValue="ECMF-Global"
 									constraintType="EQUALS" />
 							</mapping>
 						</metadataMap>

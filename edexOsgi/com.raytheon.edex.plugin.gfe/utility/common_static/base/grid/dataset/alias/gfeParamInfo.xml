@@ -170,7 +170,7 @@
     <alias base="ecmwf">ecmwf</alias>
     <alias base="ECMWFHiRes">ecmwf</alias>
     <alias base="ECMWF-HiRes">ecmwf</alias>
-    <alias base="ECMF-NorthernHemisphere">ecmfNH</alias>
+    <alias base="ECMF-Global">ecmfNH</alias>
     <alias base="ECMF1">ecmfNH</alias>
     <alias base="ECMF2">ecmfNH</alias>
     <alias base="ECMF3">ecmfNH</alias>

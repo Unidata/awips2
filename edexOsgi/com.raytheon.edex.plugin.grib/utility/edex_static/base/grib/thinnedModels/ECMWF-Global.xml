@@ -18,19 +18,9 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter abbreviation="AV" name="Vorticity" unit="/s">
-    <Method name="Vorticity.executeWrapX" models="UKMET-NorthernHemisphere AVN-NorthernHemisphere ECMF-Global ECMWF-HiRes">
-    	<Field abbreviation="uW"/>
-    	<Field abbreviation="vW"/>
-    	<Field abbreviation="coriolis"/>
-       	<Field abbreviation="dx"/>
-    	<Field abbreviation="dy"/>
-    </Method>
-    <Method name="Vorticity">
-    	<Field abbreviation="uW"/>
-    	<Field abbreviation="vW"/>
-    	<Field abbreviation="coriolis"/>
-       	<Field abbreviation="dx"/>
-    	<Field abbreviation="dy"/>
-    </Method>
-</DerivedParameter>
+    
+<compositeModel>
+	<modelName>ECMF-Global</modelName>
+	<grid>14573</grid>
+	<componentModels>ECMF9:ECMF10:ECMF12:ECMF11:ECMF2:ECMF1:ECMF4:ECMF3</componentModels>
+</compositeModel>
