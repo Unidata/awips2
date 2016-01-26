@@ -19,43 +19,40 @@
         further_licensing_information.
     -->
 <vbSourceList>
+    <vbSource key="CMC" category="Volume" />
     <vbSource key="DGEX" category="Volume" />
     <vbSource key="GFS" category="Volume" />
     <vbSource key="GFS201" category="Volume" />
-    <vbSource key="GFS-40km" category="Volume" />
+    <vbSource key="GFS40" category="Volume" />
     <vbSource key="GFSGuide" category="Volume" />
+    <vbSource key="ECMF-Global" category="Volume" />
     <vbSource key="ENSEMBLE" category="Volume" views="PLANVIEW TIMESERIES" />
+    <vbSource key="HRRR" category="Volume" />
+    <vbSource key="NAM4" category="Volume" />
+    <vbSource key="NAM12" category="Volume" />
+    <vbSource key="NAM40" category="Volume" />
+    <vbSource key="NamDNG" category="Volume" />
+    <vbSource key="NAVGEM" category="Volume" />
+    <vbSource key="NDFD" category="Volume" />
+    <vbSource key="URMA25" category="Volume" />    
+    <vbSource key="RTMA" category="Volume" />
+    <vbSource key="RAP13" category="Volume" />
+    <vbSource key="RAP40" category="Volume" />
+    <vbSource key="NOHRSC-SNOW" category="Volume" />
+    <vbSource key="FNMOC-FAROP" category="Volume" />
+    <vbSource key="FNMOC-NCODA" category="Volume" />
+    <vbSource key="FNMOC-WW3" category="Volume" />
+    <vbSource key="COAMPS-EU" category="Volume" />
+    <vbSource key="COAMPS-WA" category="Volume" />
     <vbSource key="HiResW-ARW-East" category="Volume" />
     <vbSource key="HiResW-ARW-West" category="Volume" />
     <vbSource key="HiResW-NMM-East" category="Volume" />
     <vbSource key="HiResW-NMM-West" category="Volume" />
-    <vbSource key="CMC" category="Volume" />
-    <vbSource key="HRRR" category="Volume" />
-    <vbSource key="NAM-4km" category="Volume" />
-    <vbSource key="NAM12" category="Volume" />
-    <vbSource key="NAM-40km" category="Volume" />
-    <vbSource key="NamDNG" category="Volume" />
-    <vbSource key="NAVGEM" category="Volume" />
-    <vbSource key="NDFD" category="Volume" />
-    <vbSource key="FNMOC-FAROP" category="Volume" />
-    <vbSource key="FNMOC-NCODA" category="Volume" />
-    <vbSource key="FNMOC-WW3" category="Volume" />
-    <vbSource key="FNMOC-WW3-EU" category="Volume" />
-    <vbSource key="COAMPS-EU" category="Volume" />
-    <vbSource key="COAMPS-WA" category="Volume" />
-    <vbSource key="URMA25" category="Volume" />    
-    <vbSource key="RTMA" category="Volume" />
-    <vbSource key="RAP-13km" category="Volume" />
-    <vbSource key="RAP-20km" category="Volume" />
-    <vbSource key="GFS254" category="Volume" />
-    <vbSource key="SREF-40km" category="Volume" views="PLANVIEW TIMESERIES" />
+    <vbSource key="SeaIce" category="Volume" />
     <vbSource key="GWW233" category="Volume" />
     <vbSource key="GLERL" category="Volume" />
     <vbSource key="HurWave238" category="Volume" />
     <vbSource key="HurWave253" category="Volume" />
-    <vbSource key="SeaIce" category="Volume" />
-    <vbSource key="SeaIce220" category="Volume" />
-    <vbSource key="SeaIce235" category="Volume" />
     <vbSource key="WNAWAVE238" category="Volume" />
     <vbSource key="ENPWAVE253" category="Volume" />
     <vbSource key="AKWAVE239" category="Volume" />
