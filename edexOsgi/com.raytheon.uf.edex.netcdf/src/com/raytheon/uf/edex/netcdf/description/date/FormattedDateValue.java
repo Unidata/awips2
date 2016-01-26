@@ -32,22 +32,23 @@ import ucar.nc2.NetcdfFile;
 import com.raytheon.uf.edex.netcdf.description.exception.InvalidDescriptionException;
 
 /**
- *
+ * 
  * Contains the information necessary to extract a {@link Date} from a
  * {@link NetcdfFile} in a specific format.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date          Ticket#  Engineer  Description
- * ------------- -------- --------- --------------------------
+ * ------------- -------- --------- --------------------------------------------
  * Aug 11, 2015  4709     bsteffen  Initial creation
  * Aug 25, 2015  4699     nabowle   Extracted from Pointset netcdf plugin,
  *                                  renamed, and refactored.
- *
+ * Jan 25, 2016  5208     bsteffen  Add validation.
+ * 
  * </pre>
- *
+ * 
  * @author bsteffen
  */
 @XmlAccessorType(XmlAccessType.NONE)
@@ -66,19 +67,41 @@ public class FormattedDateValue extends AbstractDateValue {
         this.dateFormat = dateFormat;
     }
 
+    private SimpleDateFormat getSimpleDateFormat()
+            throws InvalidDescriptionException {
+        if (sdf == null) {
+            try {
+                sdf = new SimpleDateFormat(dateFormat);
+            } catch (IllegalArgumentException e) {
+                throw new InvalidDescriptionException(
+                        "Unable to parse date format", e);
+            }
+        }
+        return sdf;
+    }
+
+    @Override
     public synchronized Date getDate(NetcdfFile file)
             throws InvalidDescriptionException {
         String dateString = getField().getString(file);
         if (dateString == null) {
             return null;
         }
-        if (sdf == null) {
-            sdf = new SimpleDateFormat(dateFormat);
-        }
         try {
-            return sdf.parse(dateString);
+            return getSimpleDateFormat().parse(dateString);
         } catch (ParseException e) {
             throw new InvalidDescriptionException(e);
         }
     }
+
+    @Override
+    public synchronized void validate() throws InvalidDescriptionException {
+        super.validate();
+        if (dateFormat == null) {
+            throw new InvalidDescriptionException(
+                    "The data format attribute is not present.");
+        }
+        getSimpleDateFormat();
+    }
+
 }

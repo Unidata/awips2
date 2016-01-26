@@ -58,7 +58,6 @@ import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.edex.netcdf.decoder.util.NetcdfDecoderUtils;
-import com.raytheon.uf.edex.netcdf.description.VariableDescription;
 import com.raytheon.uf.edex.netcdf.description.exception.InvalidDescriptionException;
 import com.raytheon.uf.edex.plugin.pointset.netcdf.description.PointSetProductDescriptions;
 import com.raytheon.uf.edex.plugin.pointset.netcdf.description.ProductDescription;
@@ -83,7 +82,7 @@ import com.raytheon.uf.edex.plugin.pointset.netcdf.description.TriangulationDesc
  * ------------- -------- --------- --------------------------------------------
  * Aug 11, 2015  4709     bsteffen  Initial creation
  * Jan 21, 2016  5208     bsteffen  Decode scale, offset, units, long_name when
- *                                  they are present
+ *                                  they are present and extra validation.
  * 
  * </pre>
  * 
@@ -242,8 +241,7 @@ public class PointSetNetcdfDecoder {
             }
         }
 
-        PointSetRecord record = description.getRecord(file,
-                levelFactory);
+        PointSetRecord record = description.getRecord(file, levelFactory);
         if (record == null) {
             if (debug) {
                 logger.debug(
@@ -401,8 +399,12 @@ public class PointSetNetcdfDecoder {
                         inputStream, PointSetProductDescriptions.class);
                 for (ProductDescription description : unmarshalled
                         .getDescriptions()) {
-                    if (validate(file.getPath(), description)) {
+                    try {
+                        description.validate();
                         descriptions.addDescription(description);
+                    } catch (InvalidDescriptionException e) {
+                        logger.warn("Discarding data description from {}: {}.",
+                                file.getPath(), e.getMessage(), e);
                     }
                 }
             } catch (LocalizationException | IOException e) {
@@ -421,19 +423,4 @@ public class PointSetNetcdfDecoder {
         this.levelFactory = levelFactory;
     }
 
-    protected boolean validate(String fileName, ProductDescription description) {
-        VariableDescription data = description.getData();
-        if (data == null) {
-            logger.warn(
-                    "Discarding data description from {} because no data element is present.",
-                    fileName);
-            return false;
-        } else if (data.getName() == null) {
-            logger.warn(
-                    "Discarding data description from {} because data element has no name.",
-                    fileName);
-            return false;
-        }
-        return true;
-    }
 }
