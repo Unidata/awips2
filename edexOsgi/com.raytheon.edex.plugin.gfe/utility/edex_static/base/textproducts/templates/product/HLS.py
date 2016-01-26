@@ -1,4 +1,4 @@
-#  Version 2015.8.27-0
+#  Version 2016.01.26-0
 
 import GenericHazards
 import string, time, os, re, types, copy, LogStream, collections
@@ -549,21 +549,16 @@ class TextProduct(HLSTCV_Common.TextProduct):
         productDict['stormInformation'] = stormInfoDict
     
     def _situationOverview(self, productDict, productSegmentGroup, productSegment):
-        overviewSectionTitle = ".Situation Overview...\n"
-        
+        # Use generic text for the situation overview
+        productDict['situationOverview'] = self._frame("Succinctly describe the expected evolution of the event for the cwa; which hazards are of greater (or lesser) concern, forecast focus, etc.")
+
         # Get the WRKHLS product that has the situation overview we want
-        wrkhlsProduct = self.getPreviousProduct("WRKHLS")
-        
-        # Try finding the situation overview
-        overviewSearch = re.search("(?ism).*^%s(.+?)^\." % (overviewSectionTitle), wrkhlsProduct)
+        wrkhlsProduct = self.getPreviousProduct("WRKHLS").strip()
         
         # If we found the overview
-        if overviewSearch is not None:
-            # Clean it up
-            productDict['situationOverview'] = self._cleanText(overviewSearch.group(1).strip())
-        else:
-            # Use generic text for the situation overview
-            productDict['situationOverview'] = self._frame("Succinctly describe the expected evolution of the event for the cwa; which hazards are of greater (or lesser) concern, forecast focus, etc.")
+        if len(wrkhlsProduct) > 0:
+            # Frame the imported overview and use it instead of the generic text
+            productDict['situationOverview'] = self._frame(wrkhlsProduct)
     
     def _windSection(self, productDict, productSegmentGroup, productSegment):
         sectionDict = dict()
@@ -2754,4 +2749,3 @@ class LegacyFormatter():
             self._textProduct.debug_print("subpart newtext = '%s'" % (self._pp.pformat(newtext)))
             text += newtext
         return text
-
