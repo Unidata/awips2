@@ -11,7 +11,7 @@
 	<property name="destination.directory"
 		value="" />
 	<property name="awipscm.dir" 
-		value="/awipscm" />
+		value="/awips2/jenkins/buildspace/workspace/awipscm" />
 	<property name="openfire.tar.dir" 
         value="${awipscm.dir}/awips2-static/foss/openfire" />
 	
