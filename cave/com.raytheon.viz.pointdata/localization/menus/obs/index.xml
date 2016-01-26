@@ -19,7 +19,7 @@
         further_licensing_information.
     -->
 <menuContributionFile>
-<include installTo="menu:obs?after=SURFACE" 
+    <include installTo="menu:obs?after=SURFACE" 
              fileName="menus/obs/baseSurface.xml"/>
     <include installTo="menu:obs?after=METAR" 
              fileName="menus/obs/baseMetar.xml"/>
@@ -27,4 +27,6 @@
              fileName="menus/obs/baseSynoptic.xml"/>
     <include installTo="menu:obs?after=MARITIME" 
              fileName="menus/obs/baseMaritime.xml"/>
+	<include installTo="menu:obs?after=MOS" 
+             fileName="menus/obs/baseTDLSurface.xml"/>
 </menuContributionFile>

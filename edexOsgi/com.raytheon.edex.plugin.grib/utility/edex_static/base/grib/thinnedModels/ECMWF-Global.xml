@@ -22,5 +22,5 @@
 <compositeModel>
 	<modelName>ECMF-Global</modelName>
 	<grid>14573</grid>
-	<componentModels>ECMF9:ECMF10:ECMF12:ECMF11:ECMF2:ECMF1:ECMF4:ECMF3</componentModels>
+	<componentModels>ECMF10:ECMF9:ECMF12:ECMF11:ECMF2:ECMF1:ECMF4:ECMF3</componentModels>
 </compositeModel>
