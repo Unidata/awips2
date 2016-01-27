@@ -40,6 +40,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Shell;
@@ -98,6 +99,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 12 Aug 2013  2256        lvenable    Removed unnecessary font code and other code clean up.
  * 06 May 2014  3091        rferrel     Use OUP authorization to bring up send dialog.
  * 15 Sep 2015  4880        njensen     Removed ForecastModel reference
+ * 26 Jan 2016  5054        randerso    Change top level dialog to be parented to the display
  * 
  * </pre>
  * 
@@ -162,10 +164,10 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
     /**
      * Create a non-blocking dialog.
      * 
-     * @param parent
+     * @param display
      */
-    public AviationDialog(Shell parent) {
-        super(parent, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT
+    public AviationDialog(Display display) {
+        super(display, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT
                 | CAVE.INDEPENDENT_SHELL | CAVE.DO_NOT_BLOCK);
         setText("AvnFPS Menu");
 
@@ -236,8 +238,8 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
             if (productDisplayList == null) {
                 productDisplayList = new ArrayList<String>();
             }
-            if (productDisplayList.size() == 0
-                    && config.getDefaultProduct() != null) {
+            if ((productDisplayList.size() == 0)
+                    && (config.getDefaultProduct() != null)) {
                 productDisplayList.add(config.getDefaultProduct());
             }
         } catch (Exception e) {
@@ -326,7 +328,7 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 shell.setVisible(false);
-                if (tafMonitorDlg == null
+                if ((tafMonitorDlg == null)
                         || tafMonitorDlg.getShell().isDisposed()) {
                     ResourceConfigMgr configMgr = ResourceConfigMgr
                             .getInstance();
@@ -351,7 +353,8 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 shell.setVisible(false);
-                if (climateMenuDlg == null || climateMenuDlg.getShell() == null
+                if ((climateMenuDlg == null)
+                        || (climateMenuDlg.getShell() == null)
                         || climateMenuDlg.isDisposed()) {
                     // Create an array of message types
                     StatusMessageType[] msgTypes = new StatusMessageType[4];
@@ -528,7 +531,7 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
                         "Error no stations configured for " + product);
             }
         } else {
-            if (tafMonitorDlg == null || tafMonitorDlg.getShell() == null
+            if ((tafMonitorDlg == null) || (tafMonitorDlg.getShell() == null)
                     || tafMonitorDlg.isDisposed()) {
                 tafMonitorDlg = new TafMonitorDlg(shell, stationList,
                         productDisplayList);
@@ -537,7 +540,7 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
                     @Override
                     public void dialogClosed(Object returnValue) {
                         tafMonitorDlg = null;
-                        if (dlgCount.decrementAndGet() == 0
+                        if ((dlgCount.decrementAndGet() == 0)
                                 && !productDisplayList.isEmpty()) {
                             shell.dispose();
                         }

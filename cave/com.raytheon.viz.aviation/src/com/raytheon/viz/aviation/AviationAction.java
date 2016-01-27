@@ -26,8 +26,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
+import org.eclipse.swt.widgets.Display;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -48,6 +47,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 7/09/2010    5078        rferrel     Added check of config
  *                                      files in execute.
  * 10/19/2010   7347        rferrel     Replace reference to TAF_SITE_CONFIG.
+ * 01/26/2016   5054        randerso    Change top level dialog to be parented to the display
  * 
  * </pre>
  * 
@@ -62,7 +62,7 @@ public class AviationAction extends AbstractHandler {
     private AviationDialog aviationDlg;
 
     @Override
-    public Object execute(ExecutionEvent arg0) throws ExecutionException {
+    public Object execute(ExecutionEvent event) throws ExecutionException {
         // Do nothing if needed configuration files are missing or
         // unreadable.
         try {
@@ -76,10 +76,8 @@ public class AviationAction extends AbstractHandler {
             return null;
         }
 
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
-        if (aviationDlg == null || aviationDlg.getShell().isDisposed()) {
-            aviationDlg = new AviationDialog(shell);
+        if ((aviationDlg == null) || aviationDlg.getShell().isDisposed()) {
+            aviationDlg = new AviationDialog(Display.getCurrent());
             aviationDlg.setCloseCallback(new ICloseCallback() {
 
                 @Override
