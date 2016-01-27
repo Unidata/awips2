@@ -102,18 +102,20 @@ rm -rf ${RPM_BUILD_ROOT}
 %defattr(775,awips,fxalpha,775)
 %dir /awips2/GFESuite/hti
 /awips2/GFESuite/hti/*
+%dir /awips2/GFESuite/nwps/bin
+/awips2/GFESuite/nwps/bin/*
+%dir /awips2/GFESuite/nwps/etc
+/awips2/GFESuite/nwps/etc/*
+%dir /awips2/GFESuite/nwps/domains
+/awips2/GFESuite/nwps/domains/*
 %defattr(755,awips,fxalpha,755)
 %dir /awips2/GFESuite/bin
 /awips2/GFESuite/bin/*
 %dir /awips2/GFESuite/hti/bin
 /awips2/GFESuite/hti/bin/*
-%dir /awips2/GFESuite/nwps/bin
-/awips2/GFESuite/nwps/bin/*
 %defattr(755,awips,fxalpha,777)
 %dir /awips2/GFESuite/hti/etc
 /awips2/GFESuite/hti/etc/*
-%dir /awips2/GFESuite/nwps/domains
-/awips2/GFESuite/nwps/domains/*
 %defattr(644,awips,fxalpha,755)
 %dir /awips2/GFESuite/bin/src
 /awips2/GFESuite/bin/src/*

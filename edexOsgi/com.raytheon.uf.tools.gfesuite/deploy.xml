@@ -48,6 +48,10 @@
 			<isfalse value="${client.build}"/>
 	</condition>
 	
+	<condition property="deploy.nwps" value="yes">
+			<isfalse value="${client.build}"/>
+	</condition>
+
 	<condition property="deploy.svcBackup" value="yes">
 		<and>
 			<isfalse value="${client.build}"/>
@@ -72,11 +76,10 @@
 		<echo message="Updating ${gfe.suite.bin} with latest GFESuite tools" />
 		<echo message="deploy.client=${deploy.client}" />
 		<mkdir dir="${gfe.suite.bin}"/>
-		<mkdir dir="${gfe.suite.hti}"/>
-		<mkdir dir="${gfe.suite.nwps}"/>
 		<antcall target="-deploy.cli.common"/>
 		<antcall target="-deploy.hti"/>
 		<antcall target="-deploy.nwps"/>
+		<antcall target="-deploy.nwps.client"/>
 		<antcall target="-deploy.svcBackup"/>
 		<!-- <antcall target="-deploy.cli.client"/> -->
 		<antcall target="-set.permissions"/>
@@ -101,15 +104,17 @@
 	<target name="-deploy.hti" if="deploy.hti" 
 		description="Deploys HTI software to a specific directory">
 		<!-- copy the CLI tools to the deploy directory -->
+		<mkdir dir="${gfe.suite.hti}"/>
 		<echo message="Copying in HTI files" />
 		<copy todir="${gfe.suite.hti}" overwrite="true">
 			<fileset dir="${basedir}/hti"/>
 		</copy>
 	</target>
 		
-	<target name="-deploy.nwps" 
+	<target name="-deploy.nwps" if="deploy.nwps"
 		description="Deploys NWPS software to a specific directory">
 		<!-- copy the CLI tools to the deploy directory -->
+		<mkdir dir="${gfe.suite.nwps}"/>
 		<echo message="Copying in NWPS files" />
 		<copy todir="${gfe.suite.nwps}" overwrite="true">
 			<fileset dir="${basedir}/nwps"/>
