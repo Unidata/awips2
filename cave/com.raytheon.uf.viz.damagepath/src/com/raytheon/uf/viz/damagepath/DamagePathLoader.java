@@ -37,7 +37,6 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.Name;
 
 import com.raytheon.uf.common.json.JsonException;
-import com.raytheon.uf.common.json.geo.GeoJsonMapUtil;
 import com.raytheon.uf.common.json.geo.IGeoJsonService;
 import com.raytheon.uf.common.json.geo.SimpleGeoJsonService;
 import com.raytheon.uf.common.localization.ILocalizationFile;
@@ -64,6 +63,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * Jul 01, 2015  #4375     dgilling    Remove isValid check to imported 
  *                                     polygons.
  * Jan 11, 2016  #5242     kbisanz     Replaced calls to deprecated LocalizationFile methods
+ * Feb 18, 2016  #5287     dgilling    Updated for new metadata fields.
  * 
  * </pre>
  * 
@@ -138,7 +138,6 @@ public final class DamagePathLoader {
                     Map<String, String> properties = new LinkedHashMap<>();
                     Name defaultGeomAttrib = feature
                             .getDefaultGeometryProperty().getName();
-                    properties.put(GeoJsonMapUtil.ID_KEY, feature.getID());
                     for (Property p : feature.getProperties()) {
                         if (!defaultGeomAttrib.equals(p.getName())) {
                             properties.put(p.getName().toString(), p.getValue()
