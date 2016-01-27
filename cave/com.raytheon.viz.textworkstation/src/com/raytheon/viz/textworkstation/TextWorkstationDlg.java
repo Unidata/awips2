@@ -36,6 +36,7 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
@@ -93,11 +94,12 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 02Oct2012    1229        rferrel     Option to allow blocking when top dialog.
  * 13Dec2012    1353        rferrel     Fix bug introduced in the Show all dialogs.
  * 30Jan2013    DR 14736    D. Friedman Display local time.
- * 24Jun2013	DR 15733	XHuang		Display MAX_BUTTON_CNT (8 button).
+ * 24Jun2013	DR 15733    XHuang      Display MAX_BUTTON_CNT (8 button).
  * 25July2013   DR 15733    Greg Hull   Make dflt and max number of Text Buttons configurable.
  * 28Oct2015    5054        randerso    Make TextWorkstationDlg appear in upper left corner of 
  *                                      monitor where parent shell is located
  * Dec 14, 2015 4834        njensen     Remove dead menu items
+ * Jan 26, 2016 5054        randerso    Changed to use display as parent
  * 
  * </pre>
  * 
@@ -151,15 +153,14 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
     private long initStartTime;
 
     /**
-     * Create dialog specifying NONE for blocking and DO_NOT_BLOCK for
-     * non-blocking dialog.
+     * Create top level Text Workstation Dialog
      * 
-     * @param parent
+     * @param display
+     * 
      */
-    public TextWorkstationDlg(Shell parent) {
-        super(parent, SWT.DIALOG_TRIM | SWT.MIN /* | SWT.RESIZE */,
-                CAVE.PERSPECTIVE_INDEPENDENT | CAVE.INDEPENDENT_SHELL
-                        | CAVE.DO_NOT_BLOCK);
+    public TextWorkstationDlg(Display display) {
+        super(display, SWT.DIALOG_TRIM | SWT.MIN, CAVE.PERSPECTIVE_INDEPENDENT
+                | CAVE.INDEPENDENT_SHELL | CAVE.DO_NOT_BLOCK);
 
         setText("Text Workstation");
 
@@ -198,7 +199,7 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
     protected void initializeComponents(final Shell shell) {
         setReturnValue(false);
 
-        notify = new NotifyExpiration(getParent());
+        notify = new NotifyExpiration(getDisplay());
         font = new Font(shell.getDisplay(), "Monospace", 10, SWT.NORMAL);
 
         fontAwipsLabel = new Font(shell.getDisplay(), "Helvetica", 24,
@@ -238,17 +239,26 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
     protected void preOpened() {
         super.preOpened();
 
-        // set location to upper left corner of monitor containing parent shell
-        Point parentLoc = getParent().getShell().getLocation();
+        Monitor monitor = null;
+        if (getParent() != null) {
+            monitor = getParent().getShell().getMonitor();
+
+        } else {
+            Point cursor = getDisplay().getCursorLocation();
+            for (Monitor m : getDisplay().getMonitors()) {
+                Rectangle bounds = m.getBounds();
+                if (bounds.contains(cursor)) {
+                    monitor = m;
+                    break;
+                }
+            }
+        }
 
         Point loc = new Point(0, 0);
-        for (Monitor monitor : getDisplay().getMonitors()) {
+        if (monitor != null) {
             Rectangle bounds = monitor.getBounds();
-            if (bounds.contains(parentLoc)) {
-                loc.x = bounds.x;
-                loc.y = bounds.y;
-                break;
-            }
+            loc.x = bounds.x;
+            loc.y = bounds.y;
         }
         shell.setLocation(loc);
     }
@@ -284,7 +294,7 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
         fileMenuItem.setMenu(fileMenu);
 
         // --------------------------------------------------
-        // Create Select User ID menu item
+        // Create Exit menu item
         // --------------------------------------------------
         MenuItem exitMenuItem = new MenuItem(fileMenu, SWT.NONE);
         exitMenuItem.setText("Exit");
@@ -448,7 +458,7 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
 
     private synchronized void createWarngenDisplay() {
         if (wgDlg == null) {
-            wgDlg = new TextEditorDialog(getParent(), "Text Warngen", false,
+            wgDlg = new TextEditorDialog(getShell(), "Text Warngen", false,
                     "9", true);
         }
     }

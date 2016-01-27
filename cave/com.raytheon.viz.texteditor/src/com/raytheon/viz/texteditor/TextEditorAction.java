@@ -30,8 +30,7 @@ import com.raytheon.viz.texteditor.dialogs.TextEditorDialog;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog.CAVE;
 
 /**
- * Action for unimplemented features. To be used temporarily until final
- * behavior is implemented.
+ * Text Editor Action: opens a new Text Editor Dialog
  * 
  * <pre>
  * 

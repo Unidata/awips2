@@ -103,6 +103,7 @@ import com.raytheon.uf.viz.alertviz.ui.audio.IAudioAction;
  * 28 Oct 2015  5054       randerso    Fix lots of multimonitor display issues.
  * 14 Jan 2016  5054       randerso    Fix the Tips window to display on the correct monitor
  *                                     Removed duplicate parent shell
+ * 25 Jan 2016  5054       randerso    Converted to stand alone window
  * 
  * </pre>
  * 
@@ -120,11 +121,6 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
 
     private static final ScopedPreferenceStore dialogPrefs = new ScopedPreferenceStore(
             InstanceScope.INSTANCE, Activator.PLUGIN_ID);
-
-    /**
-     * Parent shell.
-     */
-    private final Shell parentShell;
 
     /**
      * Local shell.
@@ -234,20 +230,21 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
     /**
      * Constructor.
      * 
-     * @param parentShell
-     *            Parent shell.
+     * @param display
+     *            Parent display.
      * @param audioCB
      *            Audio callback.
      * @param showDialog
      *            Show dialog flag.
      * @param configData
      *            Configuration data.
+     * @param alertAudioMgr
      */
-    public AlertMessageDlg(Shell parentShell, IAudioAction audioCB,
+    public AlertMessageDlg(Display display, IAudioAction audioCB,
             boolean showDialog, Configuration configData,
             AlertAudioMgr alertAudioMgr) {
+        this.display = display;
         this.showDialog = showDialog;
-        this.parentShell = parentShell;
 
         this.alertAudioMgr = alertAudioMgr;
         this.audioCB = audioCB;
@@ -261,14 +258,19 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
     }
 
     /**
+     * @return the shell
+     */
+    public Shell getShell() {
+        return shell;
+    }
+
+    /**
      * Open method used to display the dialog.
      * 
      * @return True/False.
      */
     public Object open() {
-        display = parentShell.getDisplay();
-
-        shell = new Shell(parentShell, SWT.ON_TOP | SWT.NO_TRIM);
+        shell = new Shell(display, SWT.ON_TOP | SWT.NO_TRIM);
         shell.setBounds(restoreDialogPosition());
 
         shell.addDisposeListener(new DisposeListener() {
@@ -321,6 +323,13 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
     }
 
     /**
+     * @return true if dialog is disposed
+     */
+    public boolean isDisposed() {
+        return (shell == null) || shell.isDisposed();
+    }
+
+    /**
      * Dispose of all the message timers.
      */
     public void dispose() {
@@ -341,6 +350,10 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
 
         for (AlertMonitor monitor : alertMonitors.values()) {
             monitor.dispose();
+        }
+
+        if (shell != null) {
+            shell.dispose();
         }
 
         ConfigurationManager.getInstance().getCustomLocalization()
@@ -1100,7 +1113,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
         if (textMsgLog == null) {
             String[] categories = new String[] { "Causes", "Catch", "Error",
                     "Exception" };
-            textMsgLog = new TextMsgLog(parentShell, categories, 0, messageVec);
+            textMsgLog = new TextMsgLog(shell, categories, 0, messageVec);
             textMsgLog.setIndex(0);
         }
         if (opened) {
@@ -1126,7 +1139,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
         if (textMsgLog == null) {
             String[] categories = new String[] { "Causes", "Catch", "Error",
                     "Exception" };
-            textMsgLog = new TextMsgLog(parentShell, categories, 0, messageVec);
+            textMsgLog = new TextMsgLog(shell, categories, 0, messageVec);
             textMsgLog.setIndex(0);
         }
         textMsgLog.addMessage(statMsg);

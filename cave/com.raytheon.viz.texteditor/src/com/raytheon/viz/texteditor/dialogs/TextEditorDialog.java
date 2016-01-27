@@ -364,7 +364,6 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  *                                      mixed case transmission
  * 10Dec2015   5206         randerso    Replace commas with ellipses only in WarnGen products
  * 11Dec2015   RM14752   mgamazaychikov Fix problems with wrapping in the impact section.
- * 11Dec2015   RM14752   mgamazaychikov Fix problems with wrapping in the impact section.
  * 
  * </pre>
  * 

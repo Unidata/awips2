@@ -38,7 +38,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
@@ -101,6 +100,7 @@ import com.raytheon.uf.viz.alertviz.ui.dialogs.ConfigurationFileDlg.Function;
  * 26 Aug 2013   #2293     lvenable    Fixed color memory leak and cleaned up some code.
  * 23 Oct 2013   2303      bgonzale    Old patch to fix tool tip layout.
  * 28 Oct 2005   5054      randerso    Removed bar position as it was written but never read
+ * 25 Jan 2016   5054      randerso    Converted to stand alone window
  * 
  * </pre>
  * 
@@ -108,8 +108,8 @@ import com.raytheon.uf.viz.alertviz.ui.dialogs.ConfigurationFileDlg.Function;
  * @version 1.0
  * 
  */
-public class AlertVisConfigDlg extends Dialog implements
-        IConfigurationChangedListener, INeedsSaveListener {
+public class AlertVisConfigDlg implements IConfigurationChangedListener,
+        INeedsSaveListener {
 
     private final String CONFIG_LABEL = "Current Config: ";
 
@@ -265,16 +265,16 @@ public class AlertVisConfigDlg extends Dialog implements
     /**
      * Constructor.
      * 
-     * @param parent
-     *            Parent shell.
+     * @param display
      * @param configData
      *            Configuration data.
      */
-    public AlertVisConfigDlg(Shell parent, final AlertMessageDlg alertMsgDlg,
-            Configuration configData, ConfigContext configContext,
+    public AlertVisConfigDlg(Display display,
+            final AlertMessageDlg alertMsgDlg, Configuration configData,
+            ConfigContext configContext,
             IConfigurationChangedListener configurationChangeListener,
             IRestartListener restartListener) {
-        super(parent, 0);
+        this.display = display;
         this.configData = configData;
         this.configContext = configContext;
         sourceMap = configData.getSources();
@@ -307,8 +307,6 @@ public class AlertVisConfigDlg extends Dialog implements
      * @return True/False.
      */
     public Object open() {
-        Shell parent = getParent();
-        display = parent.getDisplay();
         shell = new Shell(display, SWT.DIALOG_TRIM | SWT.MIN | SWT.RESIZE
                 | SWT.MAX);
         shell.setText("Alert Visualization Configuration");
@@ -1140,7 +1138,7 @@ public class AlertVisConfigDlg extends Dialog implements
                     sourceMap.keySet());
             Boolean saveInfo = (Boolean) newSrcCatDlg.open();
 
-            if (saveInfo != null && saveInfo == true) {
+            if ((saveInfo != null) && (saveInfo == true)) {
                 String name = newSrcCatDlg.getTextKey();
                 String desc = newSrcCatDlg.getDescription();
 
