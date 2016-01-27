@@ -34,6 +34,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * -------------- ---------- ----------- --------------------------
  * July 17, 2015             Pwang       Initial creation for STQ: Spot Request
  *                                       Data plugin
+ * Jan  21, 2016  18524      pwang       Added the setter to avoid Archiver error
  * 
  * </pre>
  * 
@@ -487,7 +488,15 @@ public class SpotRequestRecord extends PersistablePluginDataObject implements
     public String getStqSymbol() {
         return stqSymbol;
     }
-
+    
+    /**
+     * setStqSymbol (only for serialization / archive)
+     * 
+     * @param stqSymbol
+     */
+    public void setStqSymbol(String stqSymbol) {
+        this.stqSymbol = stqDispSymbol;
+    }
 
     /**
      * toString
