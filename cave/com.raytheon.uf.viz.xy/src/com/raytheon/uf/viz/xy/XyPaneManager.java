@@ -43,6 +43,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.VizConstants;
+import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.globals.IGlobalChangedListener;
@@ -62,9 +63,10 @@ import com.raytheon.viz.ui.panes.VizDisplayPane;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 13, 2011            mschenke     Initial creation
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Jan 13, 2011           mschenke  Initial creation
+ * Jan 13, 2016  5246     bsteffen  instantiate resources when a pane is added.
  * 
  * </pre>
  * 
@@ -241,7 +243,8 @@ public class XyPaneManager extends PaneManager implements
                     insetComp.setVisible(false);
                 }
             }
-
+            IDescriptor descriptor = renderableDisplay.getDescriptor();
+            descriptor.getResourceList().instantiateResources(descriptor, true);
             addPane(renderableDisplay, graphComposite);
             graphPane = displayPanes.get(displayPanes.size() - 1);
             graphComposite.setLayout(new FormLayout());
