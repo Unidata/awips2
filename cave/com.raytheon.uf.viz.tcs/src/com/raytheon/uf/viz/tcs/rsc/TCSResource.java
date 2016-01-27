@@ -39,8 +39,6 @@ import com.raytheon.uf.common.dataplugin.tcs.Radius;
 import com.raytheon.uf.common.dataplugin.tcs.TropicalCycloneSummary;
 import com.raytheon.uf.common.dataplugin.tcs.util.TCSConstants;
 import com.raytheon.uf.common.dataplugin.tcs.util.TcsUtil;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.time.DataTime;
@@ -82,6 +80,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Sep 17, 2014  3632     bclement  fixed index out of bounds
  * Nov 05, 2015  5070     randerso  Adjust font sizes for dpi scaling
  * Nov 30, 2015  5149     bsteffen  Rename TcsUtil, update class javadoc
+ * Jan 27, 2016  5285     tgurney   Remove dependency on dataURI
  * 
  * </pre>
  * 
@@ -149,8 +148,10 @@ public class TCSResource extends
                 / paintProps.getView().getExtent().getWidth();
         double scale = (PLOT_WIDTH / 2.0) / screenToWorldRatio;
 
-        DataTime dt = resourceData.isHourlyForecast ? new DataTime(paintProps
-                .getDataTime().getRefTime()) : paintProps.getDataTime();
+        DataTime dt = paintProps.getDataTime();
+        if (resourceData.isHourlyForecast && dt != null) {
+            dt = new DataTime(dt.getRefTime());
+        }
         Collection<TropicalCycloneSummary> toParse = recordsToParse.get(dt);
         if (toParse != null && toParse.size() > 0) {
             updateRecords(dt);
@@ -504,18 +505,10 @@ public class TCSResource extends
 
     protected void updateRecords(DataTime dataTime) throws VizException {
         PointDataContainer pdc = null;
-        RequestConstraint constraint = new RequestConstraint();
-        Map<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>();
-
-        for (TropicalCycloneSummary record : recordsToParse.get(dataTime)) {
-            constraint.setConstraintType(ConstraintType.IN);
-            constraint.addToConstraintValueList(record.getDataURI());
-        }
-        constraints.put(DATAURI, constraint);
         // Request the point data
         pdc = PointDataRequest.requestPointDataAllLevels(dataTime, resourceData
                 .getMetadataMap().get("pluginName").getConstraintValue(),
-                getParameters(), null, constraints);
+                getParameters(), null, resourceData.getMetadataMap());
 
         if (recordsToDisplay.containsKey(dataTime)) {
             recordsToDisplay.get(dataTime).combine(pdc);
