@@ -22,11 +22,11 @@ package com.raytheon.viz.hydrobase.data;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.hydro.spatial.HRAP;
 import com.raytheon.viz.hydrocommon.util.HrapUtil;
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LinearRing;
-import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygon;
 
 /**
@@ -47,18 +47,36 @@ import com.vividsolutions.jts.geom.Polygon;
  */
 
 public class HydroGeoProcessor {
-    public static GeometryFactory factory = new GeometryFactory();
+    private final Geometry[][] hrapGeometries;
 
-    public HydroGeoProcessor() {
+    /**
+     * Constructor. Set up the hrapGeometry cache.
+     * 
+     * @throws Exception
+     */
+    public HydroGeoProcessor() throws Exception {
+        HRAP hrap = HRAP.getInstance();
+        Coordinate ll = hrap.getLatLonLL();
+        Coordinate ur = hrap.getLatLonUR();
+
+        Coordinate hrapLL = HrapUtil.latLonToHrap(ll);
+        Coordinate hrapUR = HrapUtil.latLonToHrap(ur);
+        int cols = (int) Math.floor(hrapUR.x - hrapLL.x);
+        int rows = (int) Math.floor(hrapUR.y - hrapLL.y);
+        hrapGeometries = new Geometry[rows][cols];
     }
 
-    public HrapBinList getHrapBinList(GeoAreaData geoData) {
+    /**
+     * Get the HrapBinList.
+     * 
+     * @param GeoAreaData
+     *            data for the feature to check
+     */
+    public HrapBinList getHrapBinList(GeoAreaData geoData) throws Exception {
         List<Coordinate> coords = getPointsFromArea(geoData);
         Coordinate[] minMaxXY = getMinMaxXY(coords);
 
-        LinearRing lr = factory.createLinearRing(coords
-                .toArray(new Coordinate[0]));
-        Polygon poly = factory.createPolygon(lr, null);
+        Polygon poly = MapUtil.getPolygon(coords.toArray(new Coordinate[0]));
 
         Coordinate minC = minMaxXY[0];
         Coordinate maxC = minMaxXY[1];
@@ -66,15 +84,10 @@ public class HydroGeoProcessor {
         Coordinate hrapMin = HrapUtil.latLonToHrap(minC);
         Coordinate hrapMax = HrapUtil.latLonToHrap(maxC);
 
-        double wfoMinX = hrapMin.x;
-        double wfoMinY = hrapMin.y;
-        double wfoMaxX = hrapMax.x;
-        double wfoMaxY = hrapMax.y;
-
-        double maxRow = Math.floor(wfoMaxY);
-        double maxCol = Math.floor(wfoMaxX);
-        double minRow = Math.floor(wfoMinY);
-        double minCol = Math.floor(wfoMinX);
+        int maxRow = (int) Math.floor(hrapMax.y);
+        int maxCol = (int) Math.floor(hrapMax.x);
+        int minRow = (int) Math.floor(hrapMin.y);
+        int minCol = (int) Math.floor(hrapMin.x);
 
         /* expand the box to make sure polygon has been covered */
         minRow -= 2;
@@ -82,29 +95,36 @@ public class HydroGeoProcessor {
         maxRow += 2;
         maxCol += 2;
 
+        int rows = maxRow - minRow;
+        int cols = maxCol - minCol;
+
         int rowCtr = 0;
-        double rowNum = 0;
-        double startCol = 0;
-        double endCol = 0;
+        int rowNum = 0;
+        int colNum = 0;
+        int startCol = 0;
+        int endCol = 0;
         int binCtr = 0;
         double area = 0;
 
         HrapBinList binList = new HrapBinList();
 
-        for (double r = minRow + 0.5; r <= maxRow; r++) { // row
-            rowNum = r;
+        for (int r = 0; r < rows; r++) {
+            rowNum = r + minRow;
             startCol = -1;
-
-            for (double c = minCol + 0.5; c <= maxCol; c++) {
-                Coordinate coord = new Coordinate(c, r);
-                Coordinate gridCell = HrapUtil.hrapToLatLon(coord);
-                Point p = factory.createPoint(gridCell);
-                if (poly.intersects(p)) { // inside
-                    endCol = c;
+            colNum = 0;
+            for (int c = 0; c < cols; c++) {
+                colNum = c + minCol;
+                Coordinate coord = new Coordinate(colNum, rowNum);
+                if (hrapGeometries[rowNum][colNum] == null) {
+                    hrapGeometries[rowNum][colNum] = HrapUtil
+                            .getGridCellPolygon(coord);
+                }
+                if (poly.intersects(hrapGeometries[rowNum][colNum])) {
+                    endCol = c + cols;
                     binCtr++;
                     if (startCol == -1) {
                         // First cell in the row
-                        startCol = c;
+                        startCol = c + cols;
                         rowCtr++;
                     }
                     area += HrapUtil.getHrapBinArea(coord);
@@ -139,13 +159,15 @@ public class HydroGeoProcessor {
         for (Coordinate c : coords) {
             if (c.x > maxX) {
                 maxX = c.x;
-            } else if (c.x < minX) {
+            }
+            if (c.x < minX) {
                 minX = c.x;
             }
 
             if (c.y > maxY) {
                 maxY = c.y;
-            } else if (c.y < minY) {
+            }
+            if (c.y < minY) {
                 minY = c.y;
             }
         }

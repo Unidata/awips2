@@ -56,6 +56,7 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg;
  * Apr 28, 2014 3086       skorolev    Updated getConfigMgr method.
  * Sep 04, 2014 3220       skorolev    Removed "site". Added check on dispose.
  * Sep 18, 2015 3873       skorolev    Adjusted to AppName and MonName.
+ * Dec 17, 2015 3873       dhladky     Abstracted handling of dialogTime and Zone dialog events.
  * 
  * </pre>
  * 
@@ -145,9 +146,6 @@ public class SnowZoneTableDlg extends ZoneTableDlg {
             SnowMonitor monitor = (SnowMonitor) me.getSource();
             Date date = monitor.getDialogTime();
             if (date != null) {
-                if (!isLinkedToFrame()) {
-                    date = monitor.getObData().getLatestNominalTime();
-                }
                 this.updateTableDlg(monitor.getObData().getObHourReports(date));
             }
         }

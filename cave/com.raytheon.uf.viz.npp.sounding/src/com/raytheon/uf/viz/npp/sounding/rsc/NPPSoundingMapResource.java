@@ -108,7 +108,7 @@ public class NPPSoundingMapResource extends
         });
     }
 
-    Collection<NPPSoundingRecord> getCurrentRecords() {
+    protected Collection<NPPSoundingRecord> getCurrentRecords() {
         return groupedRecords.get(descriptor.getTimeForResource(this));
     }
 
@@ -189,7 +189,7 @@ public class NPPSoundingMapResource extends
                 && getProperties().isVisible();
     }
 
-    double getRadius() {
+    protected double getRadius() {
         return 5 * getCapability(MagnificationCapability.class)
                 .getMagnification();
     }
