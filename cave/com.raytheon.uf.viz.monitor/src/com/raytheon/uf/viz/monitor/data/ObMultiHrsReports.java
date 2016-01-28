@@ -60,7 +60,8 @@ import com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr;
  * Sep 04, 2014  3220      skorolev    Updated getStationTableData method.
  * Sep 25, 2015  3873      skorolev    Added multiHrsTabData.
  * Nov 12, 2015  3841      dhladky     Augmented Slav's update fix.
- * Dec 02  2015  3873      dhladky    Pulled 3841 changes to 16.1.1.
+ * Dec 02  2015  3873      dhladky     Pulled 3841 changes to 16.1.1.
+ * Jan 11  2016  5219      dhladky     Fixed damage done to cache management by recent updates.
  * 
  * </pre>
  * 
@@ -260,12 +261,7 @@ public class ObMultiHrsReports {
         } else {
             tabData = hourReports.getZoneTableData();
         }
-        // update data cache
-        multiHrsReports.put(nominalTime, hourReports);
-        // update cache with empty table data
-        if (multiHrsTabData.replace(nominalTime, tabData) == null) {
-            multiHrsTabData.put(nominalTime, tabData);
-        }
+
         return tabData;
     }
 
@@ -548,12 +544,14 @@ public class ObMultiHrsReports {
      * @return
      */
     public ObHourReports getObHourReports(Date nominalTime) {
-        if (nominalTime == null || !multiHrsReports.containsKey(nominalTime)) {
+        if (nominalTime != null && !multiHrsReports.containsKey(nominalTime)) {
+            return new ObHourReports(nominalTime, appName, thresholdMgr);
+        } else if (nominalTime == null) {
             return new ObHourReports(TableUtil.getNominalTime(SimulatedTime
                     .getSystemTime().getTime()), appName, thresholdMgr);
+        } else {
+            return multiHrsReports.get(nominalTime);
         }
-
-        return multiHrsReports.get(nominalTime);
     }
 
     /**
@@ -618,12 +616,9 @@ public class ObMultiHrsReports {
      * Updates table cache
      */
     public void updateTableCache() {
-        // clear and rebuild table data on config changes
-        multiHrsTabData.clear();
-        
+        // rebuild the table cache
         for (Date time : multiHrsReports.keySet()) {
-            TableData tblData = getZoneTableData(time);
-            multiHrsTabData.put(time, tblData);
+            getZoneTableData(time);
         }
     }
 }

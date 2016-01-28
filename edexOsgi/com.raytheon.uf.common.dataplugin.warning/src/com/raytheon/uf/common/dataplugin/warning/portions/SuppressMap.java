@@ -54,6 +54,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Aug 2, 2010            jsanchez     Initial creation
  * Aug 15,2013  2177      jsanchez     Refactored.
  * Dec  4,2013  2604      jsanchez     Moved out of viz.warngen.
+ * Jan  4, 2016 15688     Qinglu Lin   Updated loadFile().
  * 
  * </pre>
  * 
@@ -136,18 +137,20 @@ public class SuppressMap {
                 String line = null;
                 try {
                     while ((line = fis.readLine()) != null) {
-                        m = ugcPattern.matcher(line);
-                        if (m.find()) {
-                            List<Direction> suppressedDirections = new ArrayList<Direction>();
-                            String ugc = m.group();
-                            if (line.indexOf("ns") > 5) {
-                                suppressedDirections = NORTH_SOUTH;
-                            } else if (line.indexOf("ew") > 5) {
-                                suppressedDirections = EAST_WEST;
-                            } else {
-                                suppressedDirections = ALL;
+                        if (line.length() >= 1 && ! line.substring(0,1).equals("#")) {
+                            m = ugcPattern.matcher(line);
+                            if (m.find()) {
+                                List<Direction> suppressedDirections = new ArrayList<Direction>();
+                                String ugc = m.group();
+                                if (line.indexOf("ns") > 5) {
+                                    suppressedDirections = NORTH_SOUTH;
+                                } else if (line.indexOf("ew") > 5) {
+                                    suppressedDirections = EAST_WEST;
+                                } else {
+                                    suppressedDirections = ALL;
+                                }
+                                areas.put(ugc, suppressedDirections);
                             }
-                            areas.put(ugc, suppressedDirections);
                         }
                     }
                 } catch (IOException e) {

@@ -29,7 +29,6 @@ export NELON="-78.41"
 export SWLAT="24.10"
 export SWLON="-83.54"
 export RES="2.0"
-#export RES="6"
 export TSTEP="3"
 #
 #========================================================================
@@ -47,9 +46,11 @@ export TSTEP="3"
 # You can choose STA or NON for a particular nested grid.
 #  
 export NESTGRIDS="4"
+export NESTINCG1="YES"
+#
 # MIAMI BEACH - HAULOVER INLET
 export NELATN1="26.00"
-export NELONN1="-79.87"
+export NELONN1="-80.03"
 export SWLATN1="25.85"
 export SWLONN1="-80.13"
 export RESN1=".1"
@@ -65,8 +66,8 @@ export RESN2=".120"
 export TSTEPN2="3"
 export STATN2="NON"
 #
-# JUPITER - JUPITER INLET - CAM AVAILABLE
-export NELATN3="26.945"
+# JUPITER - JUPITER INLET - CAM AVAILABLE - Slightly Different at WCOSS
+export NELATN3="26.95"
 export NELONN3="-80.02"
 export SWLATN3="26.89"
 export SWLONN3="-80.07"
@@ -119,7 +120,7 @@ export GEORESWT="3.0"
 # *CAUTION* CHANGE THEM ONLY IF YOU KNOW WHAT YOU ARE DOING
 # RECOMENDED VALUES WVTRKPA="10. 1. 0.25 0.1 10. 1."
 #               dirKnob, perKnob, hsKnob, wetPts, dirTimeKnob, tpTimeKnob
-export WVTRKPA="10. 1. 0.25 0.1 10. 1."
+export WVTRKPA="40. 9. 0.25 0.1 40. 9."
 #
 #========================================================================
 #                   CURRENTS DEFINITION (SEE SWAN MANUAL)               =
@@ -213,11 +214,69 @@ export RIPCONT="5m"
 # POIN '5mcont' 279.887  25.8725 
 #
 #$RIP LINES
-#$ Ray for 5m contour data.
+#$ Points along ~ 5m contour.
 #$
-#RAY 'ray1' 279.88 25.85 279.91 25.85 8 279.88 25.895 279.91 25.895
-#ISOLINE '5mcont' 'ray1' BOTtom 5
-#TABLE '5mcont' HEAD '5m_contour_CG2' TIME XP YP HSIGN TPS DIR DSPR VEL WATL WIND OUTPUT YYYYMMDD.HHMM H.M HR
-#$
+#POINTS '5mcont' &
+#279.892  25.8500 &
+#279.890  25.8556 &
+#279.889  25.8611 &
+#279.888  25.8667 &
+#279.887  25.8722 &
+#279.886  25.8778 &
+#279.886  25.8833 &
+#279.886  25.8889 &
+#279.885  25.8950 &
+#279.885  25.9056 &
+#279.886  25.9111 &
+#279.886  25.9167 &
+#279.887  25.9222 &
+#279.887  25.9278 &
+#279.887  25.9333 &
+#279.886  25.9389 &
+#279.886  25.9444 &
+#279.887  25.9500 &
+#279.887  25.9556 &
+#279.887  25.9611 &
+#279.888  25.9667 &
+#279.888  25.9722 &
+#279.888  25.9778 &
+#279.889  25.9833 &
+#279.889  25.9889 &
+#279.889  25.9944 &
+#279.889  26.0000
+#TABLE '5mcont' HEAD '5m_contour_CG2' TIME XP YP HSIGN TPS DIR DSPR VEL WATL WIND OUTPUT 20110825.1200 1.0 HR
 #$END RIP
+#
+#========================================================================
+#                    RUNUP PROGRAM (SEE NWPS MANUAL)              =
+#========================================================================
+# IF RUNUP PROGRAM WILL BE RUN, then RIPCONT=1, Otherwise =0;
+# Setting up RIPCONT here to zero will permanently disable RIP program.
+#
+export RUNUPPROG="1"
+export RUNUPDOMAIN="CG4"
+export RUNUPCONT="20m"
+#
+#___________________________________________________________________________
+# RAY Section: Define a pair of rays to drop data out along critical contours
+#              for rip current program.
+#
+# Example: SEE ABOVE FOR RIPCURRENT
+#_____________________________________________________________________________
+#
+# THE FOLLOWING LINES MUST BE COMMENTED. IF YOU ADD RUNUP COMMAND LINES FOR YOUR
+# DOMAIN, ADD THEM WITH THE "#" AS A FIRST CHARACTER, IF YOU DECIDE NOT TO USE
+# RUNUP (RUNUPCONT="0") THEY WILL REMAIN AS A COMMENTED LINES. IF YOU DECIDE TO USE
+# IT NWPS WILL INCLUDE THE INFORMATION IN THE ACTUAL
+# INPUT FILES WITH NOT COMMENT CHARACTER
+# POIN '20mcont' 279.887  25.8725 
+#
+#$RUNUP LINES
+#$ Ray for 20m contour data.
+#$
+#RAY 'ray2' 279.95 26.895 279.98 26.895 50 279.95 26.94 279.98 26.94
+#ISOLINE '20mcont' 'ray2' BOTtom 20
+#TABLE '20mcont' HEAD '20m_contour_CG4' TIME XP YP HSIGN TPS DIR VEL WATL WIND OUTPUT 20110825.1200 1.0 HR
+#$
+#$END RUNUP
 #

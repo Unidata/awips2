@@ -1,82 +1,112 @@
 #!/bin/bash
 
+# Last  Modified: 10/15/2015
+# By: Pablo Santos and Joseph Maloney
+# Version: AWIPS 2 Version 16.2.1
+
 NWPSLOCAL="/awips2/GFESuite/nwps"
+umask 002
+
 #
-# The following two variables need to be set to your regional LDM. This is the same
-# ldm servers you can reach from your ldad. If you do not know this info contact your
-# regional folks. This is how the input files for NWPS run requests will be routed to
-# NCO/WCOSS when that option is chosen from the GUI.
-#
-LDMSERVER1="srh-ls-cpnrs1.srh.noaa.gov"
-LDMSERVER2="srh-ls-cpnrs2.srh.noaa.gov"
-
-if [ ! -e ${NWPSLOCAL}/input ]
-then
-    mkdir ${NWPSLOCAL}/input
-    chmod 777 ${NWPSLOCAL}/input
-fi
-if [ ! -e ${NWPSLOCAL}/logs ]
-then
-    mkdir ${NWPSLOCAL}/logs
-    chmod 777 ${NWPSLOCAL}/logs
-fi
-if [ ! -e ${NWPSLOCAL}/var ]
-then
-    mkdir ${NWPSLOCAL}/var
-    chmod 777 ${NWPSLOCAL}/var
-fi
-
-logfile=${NWPSLOCAL}/logs/nwps_runManual_Outside_AWIPS.log
-rm -f ${NWPSLOCAL}/logs/*
-rm -f ${NWPSLOCAL}/wcoss/*
-
 PATH="/awips2/GFESuite/bin:/bin:/usr/bin:/usr/local/bin"
-siteid=$(hostname|cut -c5-7)
-SITEID=$(echo ${siteid} | tr [:lower:] [:upper:])
-
+siteid=$(hostname -s|cut -c 5-)
+source ${NWPSLOCAL}/etc/sitevars.${siteid} ${siteid}
+#
 SSHARGS="-x -o stricthostkeychecking=no"
 SCPARGS="-o stricthostkeychecking=no"
-HOST="ldad@ls1-${siteid}"
-DIR="/data/ldad/nwps/input"
-
+#
 Program="/awips2/GFESuite/bin/ifpnetCDF"
-DB="${SITEID}_GRID__Fcst_00000000_0000"
 GFESERVER="ec"
 RUNSERVER="px"
-WRKSWN="${NWPSLOCAL}/SUAWRKNWP.dat"
 
-Output_Dir="${NWPSLOCAL}/input"
-
-date=$(date "+%D  %H:%M:%S")
-Output_File="${Output_Dir}/Wind_File"
-textfile="${Output_Dir}/$(date +%Y%m%d%H%M)_WIND.txt"
-wcoss_textfile="${siteid}_$(date +%Y%m%d%H%M)_WIND.txt"
-flagfile="${Output_Dir}/SWANflag"
-cp ${NWPSLOCAL}/domains/${SITEID} ${NWPSLOCAL}/wcoss/${siteid}_domain_setup.cfg
-chmod 666 ${NWPSLOCAL}/wcoss/${siteid}_domain_setup.cfg
-
-### LOCK FILE STUFF:
-
-source ${NWPSLOCAL}/bin/process_lock.sh
-PROGRAMname="$0"
-LOCKfile="${NWPSLOCAL}/logs/runManual_Outside_AWIPS.lck"
-MINold="0"
-LockFileCheck $MINold
-CreateLockFile
-
-### FUNCTIONS:
+# FUNCTIONS
 
 function logit () {
         echo "$@" | tee -a $logfile
 }
 
+GFEDomainname=${1} 
+logit "Processing $GFEDomainname"
+gfedomainname=$(echo ${GFEDomainname} | tr [:upper:] [:lower:])
+
+cd ${NWPSLOCAL}
+
+if [ ! -e ${NWPSLOCAL}/${GFEDomainname} ]
+then
+    mkdir ${NWPSLOCAL}/${GFEDomainname}
+    chmod 777 ${NWPSLOCAL}/${GFEDomainname}
+fi
+
+if [ ! -e ${NWPSLOCAL}/input/${GFEDomainname} ]
+then
+    mkdir -p ${NWPSLOCAL}/input/${GFEDomainname}
+    chmod -R 777 ${NWPSLOCAL}/input
+fi
+
+if [ ! -e ${NWPSLOCAL}/wcoss/${GFEDomainname} ]
+then
+    mkdir -p ${NWPSLOCAL}/wcoss/${GFEDomainname}
+    chmod -R 777 ${NWPSLOCAL}/wcoss
+fi
+
+if [ ! -e ${NWPSLOCAL}/logs ]
+then
+    mkdir ${NWPSLOCAL}/logs
+    chmod 777 ${NWPSLOCAL}/logs
+fi
+
+logfile=${NWPSLOCAL}/logs/${GFEDomainname}_nwps_runManual_Outside_AWIPS.log
+##################################################################
+### START A CLEAN LOG FILE:
+#
+rm -f $logfile
+echo " " > $logfile
+STARTED=$(date)
+logit "STARTED FOR ${GFEDomainname}: $STARTED"
+
+DB="${GFEDomainname}_GRID__Fcst_00000000_0000"
+
+if [ ${MULTISITE} == "Yes" ]
+then
+Output_Dir="${NWPSLOCAL}/input/${GFEDomainname}"
+else
+Output_Dir="${NWPSLOCAL}/input"
+fi
+
+WRKSWN="${NWPSLOCAL}/${GFEDomainname}/SUAWRKNWP.dat"
+date=$(date "+%D  %H:%M:%S")
+Output_File="${Output_Dir}/Wind_File"
+textfile="${Output_Dir}/$(date +%Y%m%d%H%M)_WIND.txt"
+wcoss_textfile="${gfedomainname}_$(date +%Y%m%d%H%M)_WIND.txt"
+flagfile="${Output_Dir}/SWANflag"
+
+### LOCK FILE STUFF:
+
+source ${NWPSLOCAL}/bin/process_lock.sh
+PROGRAMname="$0"
+LOCKfile="${NWPSLOCAL}/logs/runManual_Outside_AWIPS_${GFEDomainname}.lck"
+MINold="300"
+LockFileCheck $MINold
+CreateLockFile
+
+### CHECK THAT THIS IS THE px2 (or px1 if failed over) HOST MACHINE:
+
+HOST=$(hostname|cut -c1-2)
+if [[ $HOST != $RUNSERVER ]]
+then
+        logit "YOU ARE RUNNING FROM $HOST. THIS SCRIPT SHOULD ONLY BE RAN FROM $RUNSERVER."
+        logit "Exiting ... "
+        RemoveLockFile
+        exit 1
+fi
+
 ### RUN OPTIONS:
 
-if [ -e ${NWPSLOCAL}/var/inp_args ]
+if [ -e ${NWPSLOCAL}/${GFEDomainname}_var/inp_args ]
 
 then
 
-    inp_args=`cat ${NWPSLOCAL}/var/inp_args`
+    inp_args=`cat ${NWPSLOCAL}/${GFEDomainname}_var/inp_args`
     IFS=':' read -a inp <<< "${inp_args}"
 
     RUNLEN=${inp[0]}
@@ -97,53 +127,18 @@ then
     logit "Arguments are: $RUNLEN $WNA $NEST $GS $WINDS $WEB $PLOT $DELTAC $HOTSTART $WATERLEVELS $CORE $EXCD $WHERETORUN"
     logit " "
 
-    rm -f ${NWPSLOCAL}/var/inp_args
+    rm -f ${NWPSLOCAL}/${GFEDomainname}_var/inp_args
+    rm -f ${NWPSLOCAL}/wcoss/${GFEDomainname}/* | tee -a $logfile
+    rm -f ${Output_Dir}/* | tee -a $logfile
+    cp ${NWPSLOCAL}/domains/${GFEDomainname} ${NWPSLOCAL}/wcoss/${GFEDomainname}/${gfedomainname}_domain_setup.cfg
+    chmod 666 ${NWPSLOCAL}/wcoss/${GFEDomainname}/${gfedomainname}_domain_setup.cfg
 
 else
 
-    logit "No arguments or arguments file provided. No run to process. Exiting."
+    logit "No arguments or arguments file provided. No run to process. Exiting ${GFEDomainname}."
     RemoveLockFile
-    exit 1
+    continue
 fi
-
-### CHECK FOR GFECRON USER RUNNING THIS SCRIPT:
-
-USER_ID=$(id --user --name)
-if [[ "$USER_ID" != "gfecron" ]]
-then
-        logit "ONLY GFECRON USER IS ALLOWED TO RUN THIS SCRIPT."
-        logit "Exiting ..."
-        RemoveLockFile
-        exit 1
-fi
-
-
-### CHECK THAT THIS IS THE px2 (or px1 if failed over) HOST MACHINE:
-
-HOST=$(hostname|cut -c1-2)
-if [[ $HOST != $RUNSERVER ]]
-then
-        logit "YOU ARE RUNNING FROM $HOST. THIS SCRIPT SHOULD ONLY BE RAN FROM $RUNSERVER."
-        logit "Exiting ... "
-        RemoveLockFile
-        exit 1
-fi
-
-
-##################################################################
-### MAKE CRONTAB FRIENDLY:
-
-cd ${NWPSLOCAL}
-
-##################################################################
-### START A CLEAN LOG FILE:
-
-echo " " > $logfile
-STARTED=$(date)
-logit "STARTED: $STARTED"
-
-logit " "
-# logit "Program called with: $0 $@"
 
 logit " "
 ##################################################################
@@ -158,7 +153,7 @@ logit " "
 echo "" > $WRKSWN
 echo "____________________NWPS RUN REQUEST DETAILS__________" >> $WRKSWN
 echo "" >> $WRKSWN
-echo "Run initiated at: ${date}" >> $WRKSWN
+echo "Run for ${GFEDomainname} initiated at: ${date}" >> $WRKSWN
 echo "" >> $WRKSWN
 echo "Runlength: ${RUNLEN}" >> $WRKSWN
 echo "Boundary Conditions: ${WNA}" >> $WRKSWN
@@ -174,26 +169,112 @@ echo "Running model in: ${WHERETORUN}" >> $WRKSWN
 echo "" >> $WRKSWN
 echo "______________________________________________________" >> $WRKSWN
 
-scp ${SCPARGS} $WRKSWN ldad@ls1:/data/Incoming/
+#scp ${SCPARGS} $WRKSWN ldad@ls1:/data/Incoming/
 
 ##################################################################
 logit "### CREATE THE WIND NETCDF FILE AND SEND OVER TO SWAN BOX FOR PROCESSING:"
-
-rm -vf $Output_Dir/*  | tee -a $logfile
 
 logit "$Program -o $Output_File -d $DB -h $GFESERVER -g -p NWPSwind"
 $Program -o $Output_File -d $DB -h $GFESERVER -g -p NWPSwind | tee -a $logfile
 
 /usr/local/netcdf/bin/ncdump $Output_File > $textfile
 sed -i "s/NWPSwind/Wind/g" $textfile
-cp $textfile ${NWPSLOCAL}/wcoss/${wcoss_textfile}
-chmod 666 ${NWPSLOCAL}/wcoss/${wcoss_textfile}
+cp $textfile ${NWPSLOCAL}/wcoss/${GFEDomainname}/${wcoss_textfile}
+chmod 666 ${NWPSLOCAL}/wcoss/${GFEDomainname}/${wcoss_textfile}
 
 gzip $textfile
 touch $flagfile
 
 chmod 666 $textfile.gz
 chmod 666 $flagfile
+
+
+echo "$RUNLEN:$WNA:$NEST:$GS:$WINDS:$WEB:$PLOT:$DELTAC:$HOTSTART:$WATERLEVELS:$CORE:$EXCD" > ${NWPSLOCAL}/wcoss/${GFEDomainname}/${gfedomainname}_inp_args.ctl
+chmod 666 ${NWPSLOCAL}/wcoss/${GFEDomainname}/${gfedomainname}_inp_args.ctl
+cd ${NWPSLOCAL}/wcoss/${GFEDomainname}
+NWPSWINDGRID="NWPSWINDGRID_${gfedomainname}_$(date +%Y%m%d%H%M)_$$.tar.gz"
+tar cvfz ${NWPSWINDGRID} ${gfedomainname}_inp_args.ctl ${gfedomainname}_domain_setup.cfg ${wcoss_textfile}
+scp ${NWPSWINDGRID} ldad@ls1:/tmp/
+
+function WCOSSUpload {
+    logit " "
+    logit "RUNNING IN NCEP"
+    logit " "
+    
+    logit "Running ldmsend to ${REGION} LDM servers for WCOSS run"
+
+    if [ "${LDMSEND}" == "/usr/local/ldm/util/ldmsend_nws" ]
+    then
+	status1=$(ssh ldad@ls1 "cd /tmp; ${LDMSEND} -vxnl- -h ${LDMSERVER1} -f EXP -o 3600 -r 1 -R 100 -T 25 -p '^NWPSWINDGRID_.*' ${NWPSWINDGRID}" 2>> ${logfile})
+	status2=$(ssh ldad@ls1 "cd /tmp; ${LDMSEND} -vxnl- -h ${LDMSERVER2} -f EXP -o 3600 -r 1 -R 100 -T 25 -p '^NWPSWINDGRID_.*' ${NWPSWINDGRID}" 2>> ${logfile})
+	
+	if [ "${status1}" == "PASS" ] && [ "${status2}" == "PASS" ]
+	then
+	    echo "" >> $WRKSWN
+	    echo "____________________NWPS WIND GRID UPLOAD PASSED__________" >> $WRKSWN
+	    echo "" >> $WRKSWN
+	    echo "INFO - Wind grid upload run for ${GFEDomainname} passed: ${date}" >> $WRKSWN
+	    echo "" >> $WRKSWN
+	    echo "INFO - Uploaded to ${REGION} LDM servers" >> $WRKSWN
+	    echo "" >> $WRKSWN
+	    echo "INFO - Model run was initiated" >> $WRKSWN
+	    echo "" >> $WRKSWN
+	    echo "______________________________________________________" >> $WRKSWN
+	    scp ${SCPARGS} $WRKSWN ldad@ls1:/data/Incoming/
+	fi
+
+	if [ "${status1}" != "PASS" ] && [ "${status2}" != "PASS" ]
+	then
+	    echo "" >> $WRKSWN
+	    echo "____________________NWPS WIND GRID UPLOAD FAILED__________" >> $WRKSWN
+	    echo "" >> $WRKSWN
+	    echo "ERROR - Wind grid upload run for ${GFEDomainname} failed: ${date}" >> $WRKSWN
+	    echo "" >> $WRKSWN
+	    echo "ERROR - Could not upload to any ${REGION} LDM server" >> $WRKSWN
+	    echo "ERROR - Upload failed to ${LDMSERVER1} and ${LDMSERVER2}" >> $WRKSWN
+	    echo "" >> $WRKSWN
+	    echo "ERROR - No model run was initiated" >> $WRKSWN
+	    echo "" >> $WRKSWN
+	    echo "______________________________________________________" >> $WRKSWN
+	    scp ${SCPARGS} $WRKSWN ldad@ls1:/data/Incoming/
+	else
+	    if [ "${status1}" != "PASS" ]
+	    then
+		echo "" >> $WRKSWN
+		echo "____________________NWPS WIND GRID UPLOAD WARNING__________" >> $WRKSWN
+		echo "" >> $WRKSWN
+		echo "" >> $WRKSWN
+		echo "WARN - Could not upload to ${REGION} LDM server #1" >> $WRKSWN
+		echo "WRAN - Upload failed to ${LDMSERVER1}" >> $WRKSWN
+		echo "" >> $WRKSWN
+		echo "INFO - Model run was initiated from ${LDMSERVER2}" >> $WRKSWN
+		echo "" >> $WRKSWN
+		echo "______________________________________________________" >> $WRKSWN
+		scp ${SCPARGS} $WRKSWN ldad@ls1:/data/Incoming/
+	    fi
+	    if [ "${status2}" != "PASS" ]
+	    then
+		echo "" >> $WRKSWN
+		echo "____________________NWPS WIND GRID UPLOAD WARNING__________" >> $WRKSWN
+		echo "" >> $WRKSWN
+		echo "" >> $WRKSWN
+		echo "WARN - Could not upload to ${REGION} LDM server #2" >> $WRKSWN
+		echo "WRAN - Upload failed to ${LDMSERVER2}" >> $WRKSWN
+		echo "" >> $WRKSWN
+		echo "INFO - Model run was initiated from ${LDMSERVER1}" >> $WRKSWN
+		echo "" >> $WRKSWN
+		echo "______________________________________________________" >> $WRKSWN
+		scp ${SCPARGS} $WRKSWN ldad@ls1:/data/Incoming/
+	    fi
+	fi
+
+    else
+	ssh ldad@ls1 "cd /tmp; /usr/local/ldm/bin/ldmsend -v -h ${LDMSERVER1} -f EXP ${NWPSWINDGRID}" 2>&1 | tee -a ${logfile}
+	ssh ldad@ls1 "cd /tmp; /usr/local/ldm/bin/ldmsend -v -h ${LDMSERVER2} -f EXP ${NWPSWINDGRID}" 2>&1 | tee -a ${logfile}
+        scp ${SCPARGS} $WRKSWN ldad@ls1:/data/Incoming/
+    fi
+    ssh ldad@ls1 rm -fv /tmp/${NWPSWINDGRID}
+}
 
 if [ $WHERETORUN == "Both" ]
 then
@@ -203,37 +284,30 @@ then
     logit " "
     logit "### ROUTING 3 WIND FILES NEEDED BY SWAN THROUGH LDAD TO LOCAL WORKSTATION:"
 
-    ssh ldad@ls1 mkdir -p ${DIR}
-    scp ${SCPARGS} $Output_File ldad@ls1:${DIR}  | tee -a $logfile
-    scp ${SCPARGS} $textfile.gz ldad@ls1:${DIR}  | tee -a $logfile
-    scp ${SCPARGS} $flagfile ldad@ls1:${DIR}     | tee -a $logfile
+    if [ $MULTISITE == "Yes" ]
+    then
 
-    logit " "
-    #########################################################################
-    logit "##################################################################"
-    logit "### SENDING WIND FILES TO NWPS SYSTEM VIA LDAD TO TRIGGER NEW RUN"
-    logit "### Start Time is: $(date)"
-    logit "##################################################################"
-    logit " "
+       logit "Running ldmsend to workstation"
+       ssh ldad@ls1 "cd /tmp; /usr/local/ldm/bin/ldmsend -v -h ${WORKSTATION} -f EXP ${NWPSWINDGRID}" 2>&1 | tee -a $logfile
 
-    logit "Runtime Parameters are: $RUNLEN:$WNA:$NEST:$GS:$WINDS:$WEB:$PLOT:$DELTAC:$HOTSTART:$WATERLEVELS:$CORE:$EXCD"
+    else
 
-    ssh ${SSHARGS} ldad@ls1 echo "$RUNLEN:$WNA:$NEST:$GS:$WINDS:$WEB:$PLOT:$DELTAC:$HOTSTART:$WATERLEVELS:$CORE:$EXCD > /data/ldad/nwps/input/inp_args" 2>&1 | tee -a $logfile
+       logit "ssh ldad@ls1 mkdir -p ${DIR}"
+       logit "scp ${SCPARGS} $Output_File ldad@ls1:${DIR}"
+       logit "scp ${SCPARGS} $textfile.gz ldad@ls1:${DIR}"
+       logit "scp ${SCPARGS} $flagfile ldad@ls1:${DIR}"
 
-    logit " "
-    logit "RUNNING IN NCEP"
-    logit " "
-    echo "$RUNLEN:$WNA:$NEST:$GS:$WINDS:$WEB:$PLOT:$DELTAC:$HOTSTART:$WATERLEVELS:$CORE:$EXCD" > ${NWPSLOCAL}/wcoss/${siteid}_inp_args.ctl
+       ssh ldad@ls1 mkdir -p ${DIR}
+       scp ${SCPARGS} $Output_File ldad@ls1:${DIR}  | tee -a $logfile
+       scp ${SCPARGS} $textfile.gz ldad@ls1:${DIR}  | tee -a $logfile
+       scp ${SCPARGS} $flagfile ldad@ls1:${DIR}     | tee -a $logfile
 
-    chmod 666 ${NWPSLOCAL}/wcoss/${siteid}_inp_args.ctl
+       logit "Runtime Parameters are: $RUNLEN:$WNA:$NEST:$GS:$WINDS:$WEB:$PLOT:$DELTAC:$HOTSTART:$WATERLEVELS:$CORE:$EXCD"
+       ssh ${SSHARGS} ldad@ls1 echo "$RUNLEN:$WNA:$NEST:$GS:$WINDS:$WEB:$PLOT:$DELTAC:$HOTSTART:$WATERLEVELS:$CORE:$EXCD > ${DIR}/inp_args" 2>&1 | tee -a $logfile
 
-    cd ${NWPSLOCAL}/wcoss/
-    NWPSWINDGRID="NWPSWINDGRID_${siteid}_$(date +%Y%m%d%H%M)_$$.tar.gz"
-    tar cvfz ${NWPSWINDGRID} ${siteid}_inp_args.ctl ${siteid}_domain_setup.cfg ${wcoss_textfile}
-    scp ${NWPSWINDGRID} ldad@ls1:/tmp/
-    ssh ldad@ls1 "cd /tmp; /usr/local/ldm/bin/ldmsend -v -h ${LDMSERVER1} -f EXP ${NWPSWINDGRID}" 2>&1 | tee -a $logfile
-    ssh ldad@ls1 "cd /tmp; /usr/local/ldm/bin/ldmsend -v -h ${LDMSERVER2} -f EXP ${NWPSWINDGRID}" 2>&1 | tee -a $logfile
-    ssh ldad@ls1 rm -fv /tmp/${NWPSWINDGRID}
+    fi
+
+    WCOSSUpload
 
 elif [ $WHERETORUN == "Local" ]
 then
@@ -243,39 +317,34 @@ then
     logit " "
     logit "### ROUTING 3 WIND FILES NEEDED BY SWAN THROUGH LDAD TO LOCAL WORKSTATION:"
 
-    ssh ldad@ls1 mkdir -p ${DIR}
-    scp ${SCPARGS} $Output_File ldad@ls1:${DIR}  | tee -a $logfile
-    scp ${SCPARGS} $textfile.gz ldad@ls1:${DIR}  | tee -a $logfile
-    scp ${SCPARGS} $flagfile ldad@ls1:${DIR}     | tee -a $logfile
+    if [ $MULTISITE == "Yes" ]
+    then
 
-    logit " "
-    #########################################################################
-    logit "##################################################################"
-    logit "### SENDING WIND FILES TO NWPS SYSTEM VIA LDAD TO TRIGGER NEW RUN"
-    logit "### Start Time is: $(date)"
-    logit "##################################################################"
-    logit " "
+       logit "Running ldmsend to workstation"
+       ssh ldad@ls1 "cd /tmp; /usr/local/ldm/bin/ldmsend -v -h ${WORKSTATION} -f EXP ${NWPSWINDGRID}" 2>&1 | tee -a $logfile
 
-    logit "Runtime Parameters are: $RUNLEN:$WNA:$NEST:$GS:$WINDS:$WEB:$PLOT:$DELTAC:$HOTSTART:$WATERLEVELS:$CORE:$EXCD"
+    else
 
-    ssh ${SSHARGS} ldad@ls1 echo "$RUNLEN:$WNA:$NEST:$GS:$WINDS:$WEB:$PLOT:$DELTAC:$HOTSTART:$WATERLEVELS:$CORE:$EXCD > /data/ldad/nwps/input/inp_args" 2>&1 | tee -a $logfile
+       logit "ssh ldad@ls1 mkdir -p ${DIR}"
+       logit "scp ${SCPARGS} $Output_File ldad@ls1:${DIR}"
+       logit "scp ${SCPARGS} $textfile.gz ldad@ls1:${DIR}"
+       logit "scp ${SCPARGS} $flagfile ldad@ls1:${DIR}"
+
+       ssh ldad@ls1 mkdir -p ${DIR}
+       scp ${SCPARGS} $Output_File ldad@ls1:${DIR}  | tee -a $logfile
+       scp ${SCPARGS} $textfile.gz ldad@ls1:${DIR}  | tee -a $logfile
+       scp ${SCPARGS} $flagfile ldad@ls1:${DIR}     | tee -a $logfile
+
+       logit "Runtime Parameters are: $RUNLEN:$WNA:$NEST:$GS:$WINDS:$WEB:$PLOT:$DELTAC:$HOTSTART:$WATERLEVELS:$CORE:$EXCD"
+       ssh ${SSHARGS} ldad@ls1 echo "$RUNLEN:$WNA:$NEST:$GS:$WINDS:$WEB:$PLOT:$DELTAC:$HOTSTART:$WATERLEVELS:$CORE:$EXCD > ${DIR}/inp_args" 2>&1 | tee -a $logfile
+
+    fi
+    ssh ldad@ls1 rm -fv /tmp/${NWPSWINDGRID}
+    scp ${SCPARGS} $WRKSWN ldad@ls1:/data/Incoming/
 
 else
 
-    logit " "
-    logit "RUNNING IN NCEP"
-    logit " "
-    echo "$RUNLEN:$WNA:$NEST:$GS:$WINDS:$WEB:$PLOT:$DELTAC:$HOTSTART:$WATERLEVELS:$CORE:$EXCD" > ${NWPSLOCAL}/wcoss/${siteid}_inp_args.ctl
-
-    chmod 666 ${NWPSLOCAL}/wcoss/${siteid}_inp_args.ctl
-
-    cd ${NWPSLOCAL}/wcoss/
-    NWPSWINDGRID="NWPSWINDGRID_${siteid}_$(date +%Y%m%d%H%M)_$$.tar.gz"
-    tar cvfz ${NWPSWINDGRID} ${siteid}_inp_args.ctl ${siteid}_domain_setup.cfg ${wcoss_textfile}
-    scp ${NWPSWINDGRID} ldad@ls1:/tmp/
-    ssh ldad@ls1 "cd /tmp; /usr/local/ldm/bin/ldmsend -v -h ${LDMSERVER1} -f EXP ${NWPSWINDGRID}" 2>&1 | tee -a $logfile
-    ssh ldad@ls1 "cd /tmp; /usr/local/ldm/bin/ldmsend -v -h ${LDMSERVER2} -f EXP ${NWPSWINDGRID}" 2>&1 | tee -a $logfile
-    ssh ldad@ls1 rm -fv /tmp/${NWPSWINDGRID}
+    WCOSSUpload
 
 fi
 
@@ -286,7 +355,8 @@ RemoveLockFile
 
 ##################################################################
 logit " "
-logit "STARTED: $STARTED"
-logit "FINISHED: $(date)"
+date
+logit "FINISHED ${GFEDomainname}: $(date)"
 logit " "
+
 exit 0

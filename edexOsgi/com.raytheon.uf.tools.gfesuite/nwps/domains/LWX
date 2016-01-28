@@ -46,6 +46,7 @@ export TSTEP="3"
 # You can choose STA or NON for a particular nested grid.
 #  
 export NESTGRIDS="0"
+export NESTINCG1="YES"
 # LWX Nest
 export NELATN1=""
 export NELONN1=""
