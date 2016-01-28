@@ -31,6 +31,7 @@ import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
 import com.raytheon.uf.common.ohd.AppsDefaults;
+import com.raytheon.uf.common.ohd.AppsDefaultsDirKeys;
 
 /**
  * TODO Add Description
@@ -41,6 +42,7 @@ import com.raytheon.uf.common.ohd.AppsDefaults;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 2, 2009            snaples     Initial creation
+ * Jan 26, 2016 5264      bkowal      Use the apps defaults dir constant.
  * 
  * </pre>
  * 
@@ -61,7 +63,7 @@ public class Q2FileUnzip {
 
         File filename = null;
         AppsDefaults appsDefaults = AppsDefaults.getInstance();
-        pathName = appsDefaults.getToken("mpe_qmosaic_dir");
+        pathName = appsDefaults.getToken(AppsDefaultsDirKeys.MPE_QMOSAIC_DIR);
 
         File pn = new File(pathName);
         if (pn.exists() == false) {

@@ -24,28 +24,30 @@ import java.io.File;
 import com.raytheon.edex.db.dao.DefaultPluginDao;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.ohd.AppsDefaults;
+import com.raytheon.uf.common.ohd.AppsDefaultsDirKeys;
 
 /**
  * Dao for SHEF Data.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  *                                     Initial creation
  * Jul 30, 2015 1574       nabowle     Override purgeOrphanedData() to noop
- *
+ * Jan 26, 2016 5264       bkowal      Use the apps defaults dir constant.
+ * 
  * </pre>
- *
+ * 
  * @author nabowle
  * @version 1.0
  */
 public class ShefDao extends DefaultPluginDao {
 
     /**
-     *
+     * 
      * @param pluginName
      * @throws PluginException
      */
@@ -55,8 +57,7 @@ public class ShefDao extends DefaultPluginDao {
 
     @Override
     public void purgeAllData() {
-        logger
-                .warn("Shef Purge All behavior not specified. No data will be purged.");
+        logger.warn("Shef Purge All behavior not specified. No data will be purged.");
     }
 
     @Override
@@ -65,8 +66,8 @@ public class ShefDao extends DefaultPluginDao {
          * Purge the file system
          */
         logger.info("Purging Hydro file system...");
-        File metarInputFile = new File(AppsDefaults.getInstance()
-                .getToken("whfs_local_data_dir")
+        File metarInputFile = new File(AppsDefaults.getInstance().getToken(
+                AppsDefaultsDirKeys.WHFS_LOCAL_DATA_DIR)
                 + "/metar_input");
         if (!metarInputFile.exists()) {
             metarInputFile.mkdir();

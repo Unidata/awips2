@@ -27,7 +27,9 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import com.raytheon.uf.common.ohd.AppsDefaults;
+import com.raytheon.uf.common.ohd.AppsDefaultsDirKeys;
 import com.raytheon.uf.common.util.FileUtil;
+
 /**
  * TODO Returns HRAP Coordinates
  * 
@@ -37,6 +39,7 @@ import com.raytheon.uf.common.util.FileUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 18, 2014  17067      snaples     Added trim to readline to prevent parsing issues.
+ * Jan 26, 2016  5264       bkowal      Use the apps defaults dir constant.
  * 
  * </pre>
  * 
@@ -49,7 +52,7 @@ public class HRAPCoordinates {
         // read the coord file
         AppsDefaults appsDefaults = AppsDefaults.getInstance();
 
-        String geoDataDir = appsDefaults.getToken("geo_data");
+        String geoDataDir = appsDefaults.getToken(AppsDefaultsDirKeys.GEO_DATA);
         String officeId = appsDefaults.getToken("st3_rfc");
         String coordFilename = FileUtil.join(geoDataDir, officeId, "ascii",
                 "coord_" + officeId + ".dat");

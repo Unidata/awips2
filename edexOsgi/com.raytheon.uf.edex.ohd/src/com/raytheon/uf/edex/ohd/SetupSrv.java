@@ -29,6 +29,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.ohd.AppsDefaults;
+import com.raytheon.uf.common.ohd.AppsDefaultsDirKeys;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.util.FileUtil;
@@ -43,6 +44,7 @@ import com.raytheon.uf.edex.core.EdexException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 28, 2014   2952     mpduff      Changed to use UFStatus for logging.
+ * Jan 26, 2016   5264     bkowal      Use the apps defaults dir constant.
  * 
  * </pre>
  * 
@@ -93,7 +95,8 @@ public class SetupSrv implements ServiceInterface {
     private void copyLocalizationFiles() throws EdexException {
         IPathManager pm = PathManagerFactory.getPathManager();
 
-        String apps_dir = AppsDefaults.getInstance().getToken("apps_dir");
+        String apps_dir = AppsDefaults.getInstance().getToken(
+                AppsDefaultsDirKeys.APPS_DIR);
 
         File[] hydroappsSourceDirectories = {
                 pm.getFile(pm.getContext(LocalizationType.COMMON_STATIC,
@@ -125,7 +128,7 @@ public class SetupSrv implements ServiceInterface {
 
         String[] asciiFiles = { "rfc_boundary.dat", "state.dat" };
 
-        List<String[]> setupScripts = new ArrayList<String[]>();
+        List<String[]> setupScripts = new ArrayList<>();
 
         String geo_util = appsDefaults.getToken("geo_util");
         String create_bas_bound = FileUtil.join(geo_util,
