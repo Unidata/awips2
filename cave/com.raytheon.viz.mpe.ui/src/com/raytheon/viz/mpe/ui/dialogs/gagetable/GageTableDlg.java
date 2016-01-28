@@ -20,11 +20,11 @@
 package com.raytheon.viz.mpe.ui.dialogs.gagetable;
 
 import java.awt.BorderLayout;
+import java.awt.CardLayout;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -109,6 +109,7 @@ import com.raytheon.viz.mpe.ui.dialogs.gagetable.xml.GageTableSortType;
  * Nov 18, 2015 18093      snaples    Fixed GridComboListener to trigger table update when changing compare column.
  * Dec 02, 2015 18094      lbousaidi  added the sorting method for multi column sorting.
  * Dec 07, 2015 18137      lbousaidi  fixed sorting after editing gages.
+ * Jan 13, 2016 18092      snaples    Updated to have column adjustment by drag and drop.
  *
  * </pre>
  *
@@ -208,6 +209,8 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
     private final Map<String, GageTableRowData> editMap = new HashMap<String, GageTableRowData>();
 
     private MPEDisplayManager displayManager;
+    
+    private GageTableDataManager dataManager;
 
     /**
      * Constructor.
@@ -230,6 +233,8 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
         for (String colName : GageTableConstants.BASE_COLUMNS) {
             baseColumns.add(colName);
         }
+        dataManager = GageTableDataManager.getInstance();
+
 
     }
 
@@ -237,8 +242,6 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
      * Open the dialog.
      */
     public void open() {
-        // Instantiate the product and data manager classes
-        GageTableDataManager dataManager = GageTableDataManager.getInstance();
 
         readSettingsFile();
 
@@ -280,8 +283,6 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
         setLocation(xCoord - (bounds.width / 2), yCoord - (bounds.height / 2));
 
         setVisible(true);
-        // tableModel.refreshTable();
-
         displayManager.registerEditTimeChangedListener(this);
     }
 
@@ -392,10 +393,6 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
 
         JMenu fileMenu = new JMenu("File");
         fileMenu.setMnemonic('F');
-        JMenuItem columnSelectionMenuItem = new JMenuItem("Column Selection");
-        columnSelectionMenuItem.setMnemonic('C');
-        fileMenu.add(columnSelectionMenuItem);
-
         JMenuItem refreshMenuItem = new JMenuItem("Refresh");
         refreshMenuItem.setMnemonic('R');
         fileMenu.add(refreshMenuItem);
@@ -403,9 +400,6 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
         JMenuItem saveSettingsMenuItem = new JMenuItem("Save Settings");
         saveSettingsMenuItem.setMnemonic('S');
         fileMenu.add(saveSettingsMenuItem);
-
-        columnSelectionMenuItem
-                .addActionListener(new ChangeColumnsDisplayedMenuListener());
 
         RefreshMenuListener RefreshMenuListener = new RefreshMenuListener();
         refreshMenuItem.addActionListener(RefreshMenuListener);
@@ -569,8 +563,7 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
      * Create the JTable.
      */
     private void createJTable(Container container) {
-        gageTablePanel = new JPanel();
-        gageTablePanel.setLayout(new GridLayout(1, 1));
+        gageTablePanel = new JPanel(new CardLayout());
         table = null;
         table = new JTable();
         tableModel = new GageTableModel();
@@ -624,6 +617,7 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
         constraints.gridwidth = 2;
         constraints.gridheight = 1;
 
+        
         container.add(gageTablePanel, constraints);
     }
 
@@ -669,86 +663,7 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
         // Scroll the area into view
         viewport.setViewPosition(rect.getLocation());
     }
-
-    /**
-     * Launch the item selection dialog.
-     */
-    private void launchItemSelectionDlg() {
-        GageTableProductManager manager = GageTableProductManager.getInstance();
-        GageTableDataManager dataManager = GageTableDataManager.getInstance();
-
-        List<GageTableColumn> availableProductColumnList = new ArrayList<GageTableColumn>();
-        Map<String, GageTableColumn> prodMap = manager
-                .getGageTableProductColumnMap();
-
-        Set<String> keySet = prodMap.keySet();
-
-        Iterator<String> iter = keySet.iterator();
-
-        while (iter.hasNext()) {
-            availableProductColumnList.add(prodMap.get(iter.next()));
-        }
-
-        List<String> availableListItems = new ArrayList<String>();
-
-        // Add the non-data columns
-        String[] baseColumns = GageTableConstants.BASE_COLUMNS;
-        for (String s : baseColumns) {
-            availableListItems.add(s);
-        }
-
-        for (GageTableColumn c : availableProductColumnList) {
-            GageTableProductDescriptor desc = c.getProductDescriptor();
-            availableListItems.add(desc.getProductName());
-        }
-
-        List<GageTableColumn> selectedProductColumnList = manager
-                .getSelectedColumns();
-
-        String[] selectedListItems = new String[selectedProductColumnList
-                .size()];
-        for (int i = 0; i < selectedProductColumnList.size(); i++) {
-            selectedListItems[i] = selectedProductColumnList.get(i).getName();
-        }
-
-        // Launch the dialog
-        ItemsSelectionDialog dlg = new ItemsSelectionDialog(
-                this,
-                "Gage Table Column Selector",
-                availableListItems.toArray(new String[availableListItems.size()]),
-                selectedListItems);
-
-        // Get the selected columns for display
-        String[] selectedColumns = dlg.getSelectedItems();
-
-        Map<String, GageTableColumn> colMap = manager
-                .getGageTableProductColumnMap();
-        List<GageTableColumn> colList = new ArrayList<GageTableColumn>();
-
-        for (int i = 0; i < selectedColumns.length; i++) {
-            String value = selectedColumns[i];
-            if (colMap.get(manager.lookupProductPrefix(value)) == null) {
-                GageTableColumn c = new GageTableColumn(null);
-                c.setDataColumn(false);
-                c.setName(value);
-                colList.add(c);
-            } else {
-                GageTableColumn col = colMap.get(manager
-                        .lookupProductPrefix(value));
-                col.setName(value);
-                col.setPrefix(manager.lookupProductPrefix(value));
-                colList.add(col);
-            }
-        }
-
-        manager.setSelectedColumns(colList);
-        dataManager.setColumnDataList(colList);
-
-        // Fire event to notify listeners of changes
-        GageTableUpdateEvent event = new GageTableUpdateEvent(this, true);
-        manager.fireUpdateEvent(event);
-    }
-
+   
     /**
      * Read the settings XML file. There is a single file for the site.
      */
@@ -983,16 +898,6 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
             // Refresh the display
             tableModel.refreshTable();
             SwingUtilities.updateComponentTreeUI(table);
-        }
-    }
-
-    /**
-     * Action listener for the Change Columns Menu item.
-     */
-    private class ChangeColumnsDisplayedMenuListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            launchItemSelectionDlg();
         }
     }
 
@@ -1401,6 +1306,7 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
         // Fire event to notify listeners of changes
         GageTableUpdateEvent event = new GageTableUpdateEvent(this, true);
         GageTableProductManager.getInstance().fireUpdateEvent(event);
+        sortAllRowsBy(tableModel, sortColumnIndex, ascending);
     }
 
     /**

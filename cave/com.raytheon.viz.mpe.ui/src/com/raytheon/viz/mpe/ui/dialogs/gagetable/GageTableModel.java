@@ -23,7 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.TimeZone;
 import java.util.Vector;
 
-import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableModel;
 
 /**
  * GageTable Dialog table model.
@@ -34,6 +34,7 @@ import javax.swing.table.AbstractTableModel;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 29, 2009 2476       mpduff     Initial creation
+ * Jan 13, 2016 18092      snaples    Updated to use DefaultTableModel instead of Abstract
  * 
  * </pre>
  * 
@@ -41,7 +42,7 @@ import javax.swing.table.AbstractTableModel;
  * @version 1.0
  */
 
-public class GageTableModel extends AbstractTableModel implements
+public class GageTableModel extends DefaultTableModel implements
         GageTableListener {
     private static final long serialVersionUID = -814822107762024666L;
 
@@ -53,16 +54,22 @@ public class GageTableModel extends AbstractTableModel implements
     /**
      * Row data.
      */
-    private Vector<Vector<String>> rows = null;
+    private static Vector<Vector<String>> rows = null;
 
     /**
      * Column data.
      */
-    private Vector<String> columns = null;
-
+    private static Vector<String> columns = null;
+    
+    
     static {
         sdf = new SimpleDateFormat("yyyyMMddHH");
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+        GageTableDataManager dataManager = GageTableDataManager.getInstance();
+        
+        // Get the data
+        rows = dataManager.getRows();
+        columns = dataManager.getColumns();
     }
 
     /**
@@ -72,11 +79,11 @@ public class GageTableModel extends AbstractTableModel implements
         GageTableProductManager productManager = GageTableProductManager
                 .getInstance();
         GageTableDataManager dataManager = GageTableDataManager.getInstance();
-        productManager.addGageTableListener(this);
         
         // Get the data
         rows = dataManager.getRows();
         columns = dataManager.getColumns();
+        productManager.addGageTableListener(this);
     }
 
     /**
@@ -98,8 +105,8 @@ public class GageTableModel extends AbstractTableModel implements
      *      The new column data
      */
     public void updateData(Vector<Vector<String>> rows, Vector<String> columns) {
-        this.rows = rows;
-        this.columns = columns;
+        GageTableModel.rows = rows;
+        GageTableModel.columns = columns;
     }
     
     /**
@@ -181,7 +188,7 @@ public class GageTableModel extends AbstractTableModel implements
      *      The Vector of data
      */
     public void setDataVector(Vector<Vector<String>> rows) {
-        this.rows = rows;
+        GageTableModel.rows = rows;
     }
 
     /**
@@ -195,7 +202,7 @@ public class GageTableModel extends AbstractTableModel implements
      * @param columns the columns to set
      */
     public void setColumns(Vector<String> columns) {
-        this.columns = columns;
+        GageTableModel.columns = columns;
     }
 
     @Override

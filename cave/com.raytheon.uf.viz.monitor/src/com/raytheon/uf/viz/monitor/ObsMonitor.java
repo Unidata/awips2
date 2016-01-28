@@ -20,6 +20,7 @@
 package com.raytheon.uf.viz.monitor;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -47,6 +48,7 @@ import com.raytheon.uf.viz.datacube.DataCubeContainer;
 import com.raytheon.uf.viz.monitor.data.ObReport;
 import com.raytheon.uf.viz.monitor.events.IMonitorConfigurationEvent;
 import com.raytheon.uf.viz.monitor.events.IMonitorThresholdEvent;
+import com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
@@ -65,6 +67,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Sep 04, 2014 3220       skorolev    Removed cwa and monitorUsefrom vals.
  * Sep 18, 2015 3873       skorolev    Included common definitions.
  * Oct 21, 2015 3873       dhladky     Get Obs load off UI thread.
+ * Dec 17, 2015 3873       dhladky     Abstracted handling of dialogTime and Zone dialog events.
  * 
  * </pre>
  * 
@@ -78,7 +81,11 @@ public abstract class ObsMonitor extends Monitor {
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(ObsMonitor.class);
     
+    /** Thread job to load obs with.  **/
     protected ProcessObsJob obsJob = null;
+    
+    /** Time which Zone/County dialog shows. **/
+    protected Date dialogTime = null;
 
     /*
      * (non-Javadoc)
@@ -167,6 +174,13 @@ public abstract class ObsMonitor extends Monitor {
      */
     @Override
     protected abstract void processNotifyMessage(NotificationMessage filtered);
+    
+    /**
+     * Get the Zone table Dialog implementations
+     * 
+     * @return
+     */
+    protected abstract ZoneTableDlg getZoneDialog();
 
     /*
      * (non-Javadoc)
@@ -320,4 +334,26 @@ public abstract class ObsMonitor extends Monitor {
     public void setGeoAdjAreas(Geometry geoAdjAreas) {
         this.geoAdjAreas = geoAdjAreas;
     }
+    
+    /**
+     * Sets the Resource Drawtime
+     * 
+     * @param drawTime
+     */
+    public void updateDialogTime(Date dialogTime) {
+        if (getZoneDialog().linkedToFrame) {
+            this.dialogTime = dialogTime;
+            fireMonitorEvent(getZoneDialog().getClass().getName());
+        }
+    }
+    
+    /**
+     * The date for the dialog to stay in step with
+     * 
+     * @return
+     */
+    public Date getDialogTime() {
+        return dialogTime;
+    }
+
 }
