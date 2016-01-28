@@ -79,7 +79,6 @@
 		<antcall target="-deploy.cli.common"/>
 		<antcall target="-deploy.hti"/>
 		<antcall target="-deploy.nwps"/>
-		<antcall target="-deploy.nwps.client"/>
 		<antcall target="-deploy.svcBackup"/>
 		<!-- <antcall target="-deploy.cli.client"/> -->
 		<antcall target="-set.permissions"/>
