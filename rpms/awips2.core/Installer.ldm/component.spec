@@ -170,6 +170,7 @@ cp ${_ldm_dir}/SOURCES/%{_ldm_src_tar} ${_ldm_dir}
 #/bin/tar -xf %{_ldm_src_tar} \
 #   -C ${_ldm_dir}
 cd ${_ldm_dir}
+mkdir -p ${_ldm_root_dir}/src
 gunzip -c %{_ldm_src_tar} | pax -r '-s:/:/src/:'
 if [ $? -ne 0 ]; then
    exit 1

@@ -104,6 +104,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Mar 04, 2015 #15639     zhao         Added 'heightHint' to 'Idents' list so GUI won't become too large 
  * Jul 07, 2015 16907      zhao         Changed 'ish-' to 'isd-' 
  * Jan 15, 2016 18482      zhao         Add a "Usage" to "Help..." 
+ * Jan 21, 2016 18395      zhao         Modified processData()
  * 
  * </pre>
  * 
@@ -1132,7 +1133,7 @@ public class ClimateDataMenuDlg extends CaveSWTDialog {
         java.util.List<String> itemList = new ArrayList<String>(
                 Arrays.asList(items));
         setWait(true);
-        dataMgr.processData(appendRdo.getSelection(), this);
+        dataMgr.processData(appendRdo.getSelection(), itemList, this);
         scriptsBtn(false);
         processBtn(false);
     }
