@@ -57,7 +57,8 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * Apr 25, 2014 DR 16668   D. Friedman Handle partial cancellations
  * Apr 28, 2015 4027       randerso    Expunged Calendar from ActiveTableRecord
  * Nov 03, 2015 5086       rferrel     Generate sound while displaying warning expire message.
- * Jan 26, 2016 5054       randerso    Changed to use display as parent
+ * Jan 26, 2016 5054       randerso    Changed to use display as parent,
+ *                                     code cleanup
  * 
  * </pre>
  * 
@@ -84,6 +85,11 @@ public class NotifyExpirationTask extends TimerTask {
 
     private Display display;
 
+    /**
+     * @param display
+     * @param productId
+     * @param vtecObject
+     */
     public NotifyExpirationTask(Display display, String productId,
             VtecObject vtecObject) {
         this.display = display;
@@ -107,7 +113,8 @@ public class NotifyExpirationTask extends TimerTask {
                 public void run() {
                     SWTMessageBox mb = new SWTMessageBox(
                             NotifyExpirationTask.this.display,
-                            "Watch/Warning Expires Soon", message, SWT.OK);
+                            "Watch/Warning Expires Soon", message,
+                            SWT.ICON_WARNING | SWT.OK);
                     mb.setCloseCallback(new ICloseCallback() {
 
                         @Override

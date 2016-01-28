@@ -364,9 +364,10 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  *                                      mixed case transmission
  * 10Dec2015   5206         randerso    Replace commas with ellipses only in WarnGen products
  * 11Dec2015   RM14752   mgamazaychikov Fix problems with wrapping in the impact section.
- * 6Jan2016    RM18452   mgamazaychikov Fix NPE for null product in enterEditor
+ * 06Jan2016    RM18452  mgamazaychikov Fix NPE for null product in enterEditor
  * 06Jan2016   5225         randerso    Fix problem with mixed case not getting converted to upper case 
  *                                      when multiple text editors are open on the same product.
+ * 27Jan2016   5054         randerso    Removed ignored second ICON from Cancel confirmation
  * 
  * </pre>
  * 
@@ -4306,7 +4307,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             // Notify the user that any unsaved changes will be lost.
             SWTMessageBox mb = new SWTMessageBox(shell, "Cancel Editor",
                     "Any unsaved changes will be lost. Cancel anyway?",
-                    SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.ICON_WARNING);
+                    SWT.ICON_QUESTION | SWT.YES | SWT.NO);
             mb.setCloseCallback(new ICloseCallback() {
 
                 @Override
@@ -7758,7 +7759,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     break;
                 }
             }
-            int x = rect.x + rect.width / 4;
+            int x = rect.x + (rect.width / 4);
             int y = rect.y;
 
             int index = getText().indexOf(" ");
@@ -8059,9 +8060,9 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         }
 
         // is this the impact paragraph?
-        if (paragraphStart.startsWith("  IMPACT...") ||
-            paragraphStart.startsWith("  HAZARD...") ||
-            paragraphStart.startsWith("  SOURCE...") ) {
+        if (paragraphStart.startsWith("  IMPACT...")
+                || paragraphStart.startsWith("  HAZARD...")
+                || paragraphStart.startsWith("  SOURCE...")) {
             padding = "           ";
         }
 
@@ -8145,8 +8146,9 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             // if the next line does not start a new paragraph
             if (!isParagraphStart(lineNumber + 1)) {
                 // if the next line is not empty
-                if (!textEditor.getLine(lineNumber + 1).trim().isEmpty() ||
-                    (textEditor.getLine(lineNumber + 1).length() == padding.length()+1)   ) {
+                if (!textEditor.getLine(lineNumber + 1).trim().isEmpty()
+                        || (textEditor.getLine(lineNumber + 1).length() == (padding
+                                .length() + 1))) {
                     // Determine what kind of end of line marker line has.
                     int deleteLen = 0;
 
