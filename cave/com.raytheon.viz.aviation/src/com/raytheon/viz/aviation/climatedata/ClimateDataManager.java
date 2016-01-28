@@ -208,6 +208,7 @@ public class ClimateDataManager implements PyProcessListener {
                 PythonClimateDataProcess pythonScript = null;
                 try {
                     long t0 = System.currentTimeMillis();
+                    String ishDir = ClimateDataPython.getIshFilePath();
                     pythonScript = ClimateDataPython.getClimateInterpreter();
                     Map<String, Object> args = new HashMap<String, Object>();
                     args.put("stnPickle", stnPickle);
