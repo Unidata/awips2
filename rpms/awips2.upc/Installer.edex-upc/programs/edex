@@ -327,6 +327,7 @@ edex_conf_check() { # check that IP and hostname are set correctly. if not, call
 
 edex_start() { # start all edex services
 	edex_conf_check
+	edex_cleanup
 	su -c "service edex_postgres start"
 	su -c "service httpd-pypies start"
 	su -c "service qpidd start"
@@ -360,7 +361,10 @@ edex_purge() {
 edex_purge_reset() {
         su - awips -c 'psql metadata -c "update purgejobs set failedcount = 0;"' >& /dev/null
 }
-
+edex_cleanup() {
+	rm -rf /awips2/edex/data/manual/*
+	rm -rf /awips2/qpid/edexMessageStore/edex/
+}
 edex_users(){
         if [ "${args[1]}" != '' ]; then
                 YMD=${args[1]}
