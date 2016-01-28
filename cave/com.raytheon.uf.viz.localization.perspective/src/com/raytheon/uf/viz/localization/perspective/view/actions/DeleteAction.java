@@ -61,6 +61,7 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * Nov 13, 2015 4946      mapeters     Use SWTMessageBox instead of MessageDialog.
  * Jan 15, 2016 5242      kbisanz      Replaced LocalizationFile with
  *                                     ILocalizationFile where possible
+ * Jan 27, 2016 5054      randerso     Cleaned up SWTMessageBox
  * 
  * </pre>
  * 
@@ -119,7 +120,7 @@ public class DeleteAction extends Action {
 
             SWTMessageBox messageDialog = new SWTMessageBox(shell,
                     "Delete Confirmation", msg.toString(), SWT.OK | SWT.CANCEL
-                            | SWT.ICON_QUESTION, SWT.PRIMARY_MODAL, false, true);
+                            | SWT.ICON_QUESTION);
 
             messageDialog.setCloseCallback(new ICloseCallback() {
 
@@ -207,7 +208,7 @@ public class DeleteAction extends Action {
                             file.getPath().lastIndexOf(name));
 
                     String prefix = "";
-                    for (int i = 0; i < parts.length - 1; ++i) {
+                    for (int i = 0; i < (parts.length - 1); ++i) {
                         if (i > 0) {
                             prefix += ".";
                         }
