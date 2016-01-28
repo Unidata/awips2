@@ -203,7 +203,8 @@ public class PointSetResource extends
              * com.raytheon.uf.common.style.level.Level exposes units
              */
             Unit<?> unitsOut = result.getUpperMeasure().getUnit();
-            if (!unitsIn.equals(unitsOut) && unitsIn.isCompatible(unitsOut)) {
+            if (unitsIn != null && !unitsIn.equals(unitsOut)
+                    && unitsIn.isCompatible(unitsOut)) {
                 UnitConverter converter = unitsIn.getConverterTo(unitsOut);
                 double lowerValue = level.getLevelonevalue();
                 double upperValue = level.getLeveltwovalue();
@@ -221,7 +222,8 @@ public class PointSetResource extends
              * com.raytheon.uf.common.style.level.Level exposes units
              */
             Unit<?> unitsOut = result.getMeasure().getUnit();
-            if (!unitsIn.equals(unitsOut) && unitsIn.isCompatible(unitsOut)) {
+            if (unitsIn != null && !unitsIn.equals(unitsOut)
+                    && unitsIn.isCompatible(unitsOut)) {
                 double value = level.getLevelonevalue();
                 value = unitsIn.getConverterTo(unitsOut).convert(value);
                 result.setValue(value);
