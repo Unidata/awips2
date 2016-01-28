@@ -60,6 +60,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  *                                      in case they were written by another member of the cluster.
  * Mar 12, 2013 1646       mpduff       Format the output.
  * Nov 12, 2015 4834       njensen      Changed LocalizationOpFailedException to LocalizationException
+ * Jan 27, 2016 5237       tgurney      Replace deprecated LocalizationFile method call
  * 
  * </pre>
  * 
@@ -113,7 +114,7 @@ class FileManager {
         LocalizationContext context = pm.getContext(
                 LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
         LocalizationFile locFile = pm
-                .getLocalizationFile(context, lf.getName());
+                .getLocalizationFile(context, lf.getPath());
         try {
             JAXBManager jaxbManager = getJaxbManager();
             Marshaller marshaller = jaxbManager.getJaxbContext()

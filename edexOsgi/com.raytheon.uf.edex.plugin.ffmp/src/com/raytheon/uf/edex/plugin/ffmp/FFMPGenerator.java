@@ -142,6 +142,7 @@ import com.raytheon.uf.edex.plugin.ffmp.common.FFTIRatioDiff;
  * Sep 09, 2015 4756       dhladky     Further generalization of FFG processing.
  * Sep 21, 2015 4756       dhladky     Allow ARCHIVE types to not be purged out.
  * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
+ * Jan 27, 2016 5237       tgurney     Replace deprecated LocalizationFile method calls
  * 
  * </pre>
  * 
@@ -998,13 +999,13 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                     FileUtil.file2bytes(f.getFile(), true));
         } catch (FileNotFoundException fnfe) {
             statusHandler.handle(Priority.ERROR,
-                    "Unable to locate file " + f.getName());
+                    "Unable to locate file " + f.getPath());
         } catch (SerializationException se) {
             statusHandler.handle(Priority.ERROR,
-                    "Unable to read file " + f.getName());
+                    "Unable to read file " + f.getPath());
         } catch (IOException ioe) {
             statusHandler.handle(Priority.ERROR,
-                    "General IO problem with file " + f.getName(), ioe);
+                    "General IO problem with file " + f.getPath(), ioe);
         }
 
         return sbl;
@@ -1747,16 +1748,16 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                     FileUtil.file2bytes(f.getFile(), true));
         } catch (FileNotFoundException fnfe) {
             statusHandler.handle(Priority.ERROR,
-                    "Unable to locate file " + f.getName(), fnfe);
+                    "Unable to locate file " + f.getPath(), fnfe);
         } catch (SerializationException se) {
             statusHandler.handle(Priority.ERROR, "Unable to serialize file "
-                    + f.getName(), se);
+                    + f.getPath(), se);
         } catch (IOException ioe) {
             statusHandler.handle(Priority.ERROR,
-                    "IO problem reading file " + f.getName(), ioe);
+                    "IO problem reading file " + f.getPath(), ioe);
         } catch (Exception e) {
             statusHandler.handle(Priority.ERROR,
-                    "General Exception reading file " + f.getName(), e);
+                    "General Exception reading file " + f.getPath(), e);
         }
 
         return ffti;
