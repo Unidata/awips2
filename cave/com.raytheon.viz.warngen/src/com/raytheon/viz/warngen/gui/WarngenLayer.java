@@ -805,7 +805,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
     private class ExtensionAreaManager extends Job implements IChangeListener {
         private ExtensionAreaOptions options = new ExtensionAreaOptions();
-        private WritableValue observableOptions = new WritableValue(options, null);
+        private WritableValue observableOptions;
 
         private GeospatialDataAccessor primaryGDA;
         private GeospatialDataAccessor gda;
@@ -816,7 +816,6 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
         public ExtensionAreaManager() {
             super("Generate extension area");
-            observableOptions.addChangeListener(this);
         }
 
         public GeospatialDataAccessor getGDA() {
@@ -831,8 +830,16 @@ public class WarngenLayer extends AbstractStormTrackResource {
             return options.isEnabled() && options.getDistance() > 0.0;
         }
 
-        public void setExtensionAreaConfig(ExtensionArea extensionAreaConfig) {
-            observableOptions.setValue(new ExtensionAreaOptions(extensionAreaConfig));
+        public synchronized void setExtensionAreaConfig(ExtensionArea extensionAreaConfig) {
+            /* This could be called from a thread other than the main, before
+             * observable options has been initialized.
+             */
+            ExtensionAreaOptions options = new ExtensionAreaOptions(extensionAreaConfig);
+            if (observableOptions != null) {
+                observableOptions.setValue(options);
+            } else {
+                realizeOptions(options);
+            }
         }
 
         private void realizeOptions(ExtensionAreaOptions options) {
@@ -964,16 +971,23 @@ public class WarngenLayer extends AbstractStormTrackResource {
         }
 
         @Override
-        public void handleChange(ChangeEvent event) {
+        public synchronized void handleChange(ChangeEvent event) {
             ExtensionAreaOptions options = (ExtensionAreaOptions) ((WritableValue) event
                     .getObservable()).getValue();
             realizeOptions(options != null ? options : new ExtensionAreaOptions());
         }
 
+        public synchronized WritableValue getObservableExtensionAreaOptions() {
+            if (observableOptions == null) {
+                observableOptions = new WritableValue(options, null);
+                observableOptions.addChangeListener(this);
+            }
+            return observableOptions;
+        }
     }
 
     public WritableValue getObservableExtensionAreaOptions() {
-        return extensionAreaManager.observableOptions;
+        return extensionAreaManager.getObservableExtensionAreaOptions();
     }
 
     private class ExtensionAreaGeometryTask implements Callable<Geometry> {
@@ -1208,13 +1222,6 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
         setSpeedAndAngle();
         setDuration();
-
-        observableExtensionAreaVisible.addChangeListener(new IChangeListener() {
-            @Override
-            public void handleChange(ChangeEvent event) {
-                issueRefresh();
-            }
-        });
     }
 
     @Override
@@ -1462,7 +1469,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
             }
         }
 
-        if ((Boolean) observableExtensionAreaVisible.getValue()) {
+        if ((Boolean) getObservableExtensionAreaVisible().getValue()) {
             if (extensionAreaVis != null) {
                 extensionAreaShadedShape.reset();
                 JTSCompiler comp = new JTSCompiler(extensionAreaShadedShape, null, descriptor);
@@ -1655,7 +1662,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
     private Geometry extensionAreaVis;
 
-    private WritableValue observableExtensionAreaVisible = new WritableValue(false, null);
+    private WritableValue observableExtensionAreaVisible;
 
     private RGB extensionAreaVisualizationColor = new RGB(240, 128, 128);
 
@@ -1664,15 +1671,24 @@ public class WarngenLayer extends AbstractStormTrackResource {
     private IShadedShape extensionAreaShadedShape = null;
 
     public WritableValue getObservableExtensionAreaVisible() {
+        if (observableExtensionAreaVisible == null) {
+            observableExtensionAreaVisible = new WritableValue(false, null);
+            observableExtensionAreaVisible.addChangeListener(new IChangeListener() {
+                @Override
+                public void handleChange(ChangeEvent event) {
+                    issueRefresh();
+                }
+            });
+        }
         return observableExtensionAreaVisible;
     }
 
     public boolean isExtensionAreaVisible() {
-        return (Boolean) observableExtensionAreaVisible.getValue();
+        return (Boolean) getObservableExtensionAreaVisible().getValue();
     }
 
     public void setExtensionAreaVisualized(boolean visible) {
-        observableExtensionAreaVisible.setValue(visible);
+        getObservableExtensionAreaVisible().setValue(visible);
     }
 
     public RGB getExtensionAreaVisualizationColor() {
