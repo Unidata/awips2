@@ -22,6 +22,8 @@ uniform float width;
 uniform int band;
 uniform int expectedMask;
 
+uniform float gamma;
+
 int toBitMask(float alpha) {
 	return int((alpha * maskMultiplier) + 0.5);
 }
@@ -56,9 +58,9 @@ vec4 applyColorBand(int colorband) {
 	// Lookup raw data value
 	float dataValue = textureToDataValue(rawDataTex, rawData, gl_TexCoord[0].st);
 
-	float r = curVal.r;
-	float g = curVal.g;
-	float b = curVal.b;
+    float r = pow(curVal.r, gamma);
+    float g = pow(curVal.g, gamma);
+    float b = pow(curVal.b, gamma);
 	float a = curVal.a;
 
 	if (dataValue != rawData.noDataValue && dataValue == dataValue) {
