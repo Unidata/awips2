@@ -118,9 +118,10 @@ if [ "${1}" = "-WA" ]; then
 fi
 
 if [ "${1}" = "-python" ]; then
-   buildRPM "awips2-python-h5py"
+   #buildRPM "awips2-python-h5py"
+   #buildRPM "awips2-python-qpid"
 
-   #buildRPM "awips2-python"
+   buildRPM "awips2-python"
    #buildRPM "awips2-python-cherrypy"
    #buildRPM "awips2-python-dynamicserialize"
    #buildRPM "awips2-python-jimporter"
@@ -538,7 +539,8 @@ if [ "${1}" = "-viz" ]; then
    if [ $? -ne 0 ]; then
       exit 1
    fi
-   #buildRPM "awips2-alertviz"
+   buildRPM "awips2-alertviz"
+   buildRPM "awips2-notification"
    exit 0
 fi
 
@@ -587,7 +589,6 @@ if [ "${1}" = "-qpid" ]; then
    if [ $? -ne 0 ]; then
       exit 1
    fi
-
    exit 0
 fi
 
