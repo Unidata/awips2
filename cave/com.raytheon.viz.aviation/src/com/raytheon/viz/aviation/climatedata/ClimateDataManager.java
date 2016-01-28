@@ -45,6 +45,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * May 10, 2011 9059       rferrel     Extended times outs on executes
  * Jun 01, 2011 7878       rferrel     Adjusted time out when creating nc files
  * Jul 10, 2015 16907      zhao        Changed time limit from 600 to 6000 for processData() & assessData()
+ * Jan 21, 2016 18395      zhao        Modified processData()
  * 
  * </pre>
  * 
@@ -197,7 +198,7 @@ public class ClimateDataManager implements PyProcessListener {
         t.start();
     }
 
-    public void processData(final boolean append, final ClimateDataMenuDlg win) {
+    public void processData(final boolean append, final List<String> items, final ClimateDataMenuDlg win) {
         this.win = win;
 
         Runnable run = new Runnable() {
@@ -210,6 +211,10 @@ public class ClimateDataManager implements PyProcessListener {
                     pythonScript = ClimateDataPython.getClimateInterpreter();
                     Map<String, Object> args = new HashMap<String, Object>();
                     args.put("stnPickle", stnPickle);
+                    args.put("append", append);
+                    args.put("sites", items);
+                    args.put("climateDir", ishDir);
+                    numSites = items.size();
                     pythonScript.execute("process", args,
                             ClimateDataManager.this, 6000 * numSites);
                     long t1 = System.currentTimeMillis();
