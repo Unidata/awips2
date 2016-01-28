@@ -76,6 +76,7 @@
 #    Sep 16, 2015    4871          randerso       Return modified varDict from called Tool/Procedure
 #
 #    Sep 11, 2015    4858          dgilling       Remove notification processing from publishElements.
+#    Jan 28, 2016    5129          dgilling       Support changes to IFPClient.
 ########################################################################
 import types, string, time, sys
 from math import *
@@ -685,7 +686,7 @@ class SmartScript(BaseTool.BaseTool):
         from com.raytheon.viz.gfe.edittool import GridID
         gid = GridID(parm, gridTime.javaDate())
 
-        wxType = self.__dataMgr.getClient().getGridParmInfo(parm.getParmID()).getGridType()
+        wxType = self.__dataMgr.getClient().getPythonClient().getGridParmInfo(parm.getParmID()).getGridType()
         if GridType.SCALAR.equals(wxType):
             from com.raytheon.uf.common.dataplugin.gfe.slice import ScalarGridSlice
             slice = ScalarGridSlice()
@@ -1947,7 +1948,7 @@ class SmartScript(BaseTool.BaseTool):
         for element in elementList:
             # get the inventory for this element from the server
             parm = self.getParm("Fcst", element, "SFC")
-            recList = self.__dataMgr.getClient().getGridInventory(parm.getParmID())
+            recList = self.__dataMgr.getClient().getPythonClient().getGridInventory(parm.getParmID())
             publishTimeRange = timeRange
             if recList is not None:
                 recSize = recList.size()
