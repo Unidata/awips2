@@ -26,45 +26,52 @@ import dafTestsArgsUtil
 import sys
 import unittest
 
-class ObsTestCase(baseDafTestCase.DafTestCase):
+class HydroTestCase(baseDafTestCase.DafTestCase):
     """
-    Tests that obs data can be retrieved through the DAF, simply ensuring
+    Tests that hydro data can be retrieved through the DAF, simply ensuring
     that no unexpected exceptions are thrown while retrieving it and that the
     returned data is not None.
     """
 
-    datatype = "obs"
+    datatype = "hydro"
+
+    table = "public.height"
 
     @classmethod
     def setUpClass(cls):
-        print("STARTING OBS TESTS\n\n")
+        print("STARTING HYDRO TESTS\n\n")
 
     def testParameters(self):
         req = DAL.newDataRequest(self.datatype)
+        req.addIdentifier("table", self.table)
 
         self.runParametersTest(req)
 
     def testLocations(self):
         req = DAL.newDataRequest(self.datatype)
+        req.addIdentifier("table", self.table)
 
         self.runLocationsTest(req)
 
     def testTimes(self):
         req = DAL.newDataRequest(self.datatype)
-        req.setLocationNames("KOMA")
+        req.addIdentifier("table", self.table)
+        req.setParameters("lid", "quality_code")
 
         self.runTimesTest(req)
 
     def testGeometryData(self):
         req = DAL.newDataRequest(self.datatype)
-        req.setLocationNames("KOMA")
-        req.setParameters("temperature", "seaLevelPress", "dewpoint")
+        req.addIdentifier("table", self.table)
+        req.setParameters("lid", "quality_code")
 
-        self.runGeometryDataTest(req)
+        # Limit the times in the geometry data test to limit the amount of data
+        # returned.
+        self.runGeometryDataTest(req, limitTimes=True)
 
     @classmethod
     def tearDownClass(cls):
-        print("OBS TESTS COMPLETE\n\n\n")
+        print("HYDRO TESTS COMPLETE\n\n\n")
 
 if __name__ == '__main__':
     dafTestsArgsUtil.parseAndHandleArgs()

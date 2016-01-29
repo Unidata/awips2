@@ -21,11 +21,12 @@
 from __future__ import print_function
 from ufpy.dataaccess import DataAccessLayer as DAL
 
-import dafTestsUtil
+import baseDafTestCase
+import dafTestsArgsUtil
 import sys
 import unittest
 
-class TestAirep(unittest.TestCase):
+class AirepTestCase(baseDafTestCase.DafTestCase):
     """
     Tests that airep data can be retrieved through the DAF, simply ensuring
     that no unexpected exceptions are thrown while retrieving it and that the
@@ -41,28 +42,28 @@ class TestAirep(unittest.TestCase):
     def testParameters(self):
         req = DAL.newDataRequest(self.datatype)
 
-        dafTestsUtil.testParameters(req)
+        self.runParametersTest(req)
 
     def testLocations(self):
         req = DAL.newDataRequest(self.datatype)
 
-        dafTestsUtil.testLocations(req)
+        self.runLocationsTest(req)
 
     def testTimes(self):
         req = DAL.newDataRequest(self.datatype)
 
-        dafTestsUtil.testTimes(req)
+        self.runTimesTest(req)
 
     def testGeometryData(self):
         req = DAL.newDataRequest(self.datatype)
         req.setParameters("flightLevel", "reportType")
 
-        dafTestsUtil.testGeometryData(req)
+        self.runGeometryDataTest(req)
 
     @classmethod
     def tearDownClass(cls):
         print("AIREP TESTS COMPLETE\n\n\n")
 
 if __name__ == '__main__':
-    dafTestsUtil.parseAndHandleArgs()
+    dafTestsArgsUtil.parseAndHandleArgs()
     unittest.main(argv=sys.argv[:1])

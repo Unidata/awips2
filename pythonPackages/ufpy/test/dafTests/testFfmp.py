@@ -26,18 +26,25 @@ import dafTestsArgsUtil
 import sys
 import unittest
 
-class ObsTestCase(baseDafTestCase.DafTestCase):
+class FfmpTestCase(baseDafTestCase.DafTestCase):
     """
-    Tests that obs data can be retrieved through the DAF, simply ensuring
+    Tests that ffmp data can be retrieved through the DAF, simply ensuring
     that no unexpected exceptions are thrown while retrieving it and that the
     returned data is not None.
     """
 
-    datatype = "obs"
+    datatype = "ffmp"
+
+    @staticmethod
+    def addIdentifiers(req):
+        req.addIdentifier("wfo", "OAX")
+        req.addIdentifier("siteKey", "hpe")
+        req.addIdentifier("dataKey", "hpe")
+        req.addIdentifier("huc", "ALL")
 
     @classmethod
     def setUpClass(cls):
-        print("STARTING OBS TESTS\n\n")
+        print("STARTING FFMP TESTS\n\n")
 
     def testParameters(self):
         req = DAL.newDataRequest(self.datatype)
@@ -46,25 +53,26 @@ class ObsTestCase(baseDafTestCase.DafTestCase):
 
     def testLocations(self):
         req = DAL.newDataRequest(self.datatype)
+        self.addIdentifiers(req)
 
         self.runLocationsTest(req)
 
     def testTimes(self):
         req = DAL.newDataRequest(self.datatype)
-        req.setLocationNames("KOMA")
+        self.addIdentifiers(req)
 
         self.runTimesTest(req)
 
     def testGeometryData(self):
         req = DAL.newDataRequest(self.datatype)
-        req.setLocationNames("KOMA")
-        req.setParameters("temperature", "seaLevelPress", "dewpoint")
+        self.addIdentifiers(req)
+        req.setParameters("DHR")
 
         self.runGeometryDataTest(req)
 
     @classmethod
     def tearDownClass(cls):
-        print("OBS TESTS COMPLETE\n\n\n")
+        print("FFMP TESTS COMPLETE\n\n\n")
 
 if __name__ == '__main__':
     dafTestsArgsUtil.parseAndHandleArgs()

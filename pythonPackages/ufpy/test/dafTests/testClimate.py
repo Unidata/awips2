@@ -26,45 +26,51 @@ import dafTestsArgsUtil
 import sys
 import unittest
 
-class ObsTestCase(baseDafTestCase.DafTestCase):
+class ClimateTestCase(baseDafTestCase.DafTestCase):
     """
-    Tests that obs data can be retrieved through the DAF, simply ensuring
+    Tests that climate data can be retrieved through the DAF, simply ensuring
     that no unexpected exceptions are thrown while retrieving it and that the
     returned data is not None.
     """
 
-    datatype = "obs"
+    datatype = "climate"
+
+    table = "public.cli_asos_monthly"
 
     @classmethod
     def setUpClass(cls):
-        print("STARTING OBS TESTS\n\n")
+        print("STARTING CLIMATE TESTS\n\n")
 
     def testParameters(self):
         req = DAL.newDataRequest(self.datatype)
+        req.addIdentifier("table", self.table)
 
         self.runParametersTest(req)
 
     def testLocations(self):
         req = DAL.newDataRequest(self.datatype)
+        req.addIdentifier("table", self.table)
 
         self.runLocationsTest(req)
 
     def testTimes(self):
         req = DAL.newDataRequest(self.datatype)
-        req.setLocationNames("KOMA")
+        req.addIdentifier("table", self.table)
+        req.setParameters("maxtemp_mon", "min_sea_press")
 
         self.runTimesTest(req)
 
     def testGeometryData(self):
         req = DAL.newDataRequest(self.datatype)
-        req.setLocationNames("KOMA")
-        req.setParameters("temperature", "seaLevelPress", "dewpoint")
+        req.addIdentifier("table", self.table)
+        req.setLocationNames("KFNB")
+        req.setParameters("maxtemp_mon", "min_sea_press")
 
         self.runGeometryDataTest(req)
 
     @classmethod
     def tearDownClass(cls):
-        print("OBS TESTS COMPLETE\n\n\n")
+        print("CLIMATE TESTS COMPLETE\n\n\n")
 
 if __name__ == '__main__':
     dafTestsArgsUtil.parseAndHandleArgs()

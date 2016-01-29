@@ -21,11 +21,12 @@
 from __future__ import print_function
 from ufpy.dataaccess import DataAccessLayer as DAL
 
-import dafTestsUtil
+import baseDafTestCase
+import dafTestsArgsUtil
 import sys
 import unittest
 
-class TestGrid(unittest.TestCase):
+class GridTestCase(baseDafTestCase.DafTestCase):
     """
     Tests that grid data can be retrieved through the DAF, primarily ensuring
     that no unexpected exceptions are thrown while retrieving it and that the
@@ -45,26 +46,26 @@ class TestGrid(unittest.TestCase):
         req = DAL.newDataRequest(self.datatype)
         req.addIdentifier("info.datasetId", self.model)
 
-        dafTestsUtil.testParameters(req)
+        self.runParametersTest(req)
 
     def testLocations(self):
         req = DAL.newDataRequest(self.datatype)
         req.addIdentifier("info.datasetId", self.model)
 
-        dafTestsUtil.testLocations(req)
+        self.runLocationsTest(req)
 
     def testLevels(self):
         req = DAL.newDataRequest(self.datatype)
         req.addIdentifier("info.datasetId", self.model)
 
-        dafTestsUtil.testLevels(req)
+        self.runLevelsTest(req)
 
     def testTimes(self):
         req = DAL.newDataRequest(self.datatype)
         req.addIdentifier("info.datasetId", self.model)
         req.setLevels("2FHAG")
 
-        dafTestsUtil.testTimes(req)
+        self.runTimesTest(req)
 
     def testGridData(self):
         req = DAL.newDataRequest(self.datatype)
@@ -72,21 +73,21 @@ class TestGrid(unittest.TestCase):
         req.setLevels("2FHAG")
         req.setParameters("T")
 
-        dafTestsUtil.testGridData(req)
+        self.runGridDataTest(req)
 
     @classmethod
     def tearDownClass(cls):
         print("GRID TESTS COMPLETE\n\n\n")
 
 def getArgs():
-    parser = dafTestsUtil.getParser()
-    parser.add_argument("-m", action="store", dest="model", default=TestGrid.model,
+    parser = dafTestsArgsUtil.getParser()
+    parser.add_argument("-m", action="store", dest="model", default=GridTestCase.model,
                         help="model to retrieve data for",
                         metavar="modelName")
     return parser.parse_args()
 
 if __name__ == '__main__':
     args = getArgs()
-    dafTestsUtil.handleArgs(args)
-    TestGrid.model = args.model
+    dafTestsArgsUtil.handleArgs(args)
+    GridTestCase.model = args.model
     unittest.main(argv=sys.argv[:1])

@@ -21,12 +21,12 @@
 from __future__ import print_function
 from ufpy.dataaccess import DataAccessLayer as DAL
 
-import baseBufrMosTest
-import dafTestsUtil
+import baseBufrMosTestCase
+import dafTestsArgsUtil
 import sys
 import unittest
 
-class TestBufrMosMrf(baseBufrMosTest.BaseBufrMosTest):
+class BufrMosMrfTestCase(baseBufrMosTestCase.BufrMosTestCase):
     """
     Tests that bufrmosMRF data can be retrieved through the DAF, simply ensuring
     that no unexpected exceptions are thrown while retrieving it and that the
@@ -46,12 +46,12 @@ class TestBufrMosMrf(baseBufrMosTest.BaseBufrMosTest):
         req.setLocationNames("KOMA")
         req.setParameters("forecastHr", "maxTempDay")
 
-        dafTestsUtil.testGeometryData(req)
+        self.runGeometryDataTest(req)
 
     @classmethod
     def tearDownClass(cls):
         print("BUFRMOSMRF TESTS COMPLETE\n\n\n")
 
 if __name__ == '__main__':
-    dafTestsUtil.parseAndHandleArgs()
+    dafTestsArgsUtil.parseAndHandleArgs()
     unittest.main(argv=sys.argv[:1])

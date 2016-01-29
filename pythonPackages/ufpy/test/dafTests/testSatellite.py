@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 ##
 # This software was developed and / or modified by Raytheon Company,
 # pursuant to Contract DG133W-05-CQ-1067 with the US Government.
@@ -26,18 +27,19 @@ import dafTestsArgsUtil
 import sys
 import unittest
 
-class ObsTestCase(baseDafTestCase.DafTestCase):
+class SatelliteTestCase(baseDafTestCase.DafTestCase):
     """
-    Tests that obs data can be retrieved through the DAF, simply ensuring
-    that no unexpected exceptions are thrown while retrieving it and that the
-    returned data is not None.
+    Tests that satellite data can be retrieved through the DAF, primarily
+    ensuring that no unexpected exceptions are thrown while retrieving it and
+    that the returned data is not None. The only data validation that is
+    performed is to check that all retrieved grid data have the same shape.
     """
 
-    datatype = "obs"
+    datatype = "satellite"
 
     @classmethod
     def setUpClass(cls):
-        print("STARTING OBS TESTS\n\n")
+        print("STARTING SATELLITE TESTS\n\n")
 
     def testParameters(self):
         req = DAL.newDataRequest(self.datatype)
@@ -51,20 +53,22 @@ class ObsTestCase(baseDafTestCase.DafTestCase):
 
     def testTimes(self):
         req = DAL.newDataRequest(self.datatype)
-        req.setLocationNames("KOMA")
+        req.setLocationNames("West CONUS")
 
         self.runTimesTest(req)
 
-    def testGeometryData(self):
+    def testGridData(self):
         req = DAL.newDataRequest(self.datatype)
-        req.setLocationNames("KOMA")
-        req.setParameters("temperature", "seaLevelPress", "dewpoint")
+        req.setParameters("Imager 11 micron IR")
+        req.setLocationNames("West CONUS")
 
-        self.runGeometryDataTest(req)
+        # Limit the times in the grid data test to limit the amount of data
+        # returned.
+        self.runGridDataTest(req, limitTimes=True)
 
     @classmethod
     def tearDownClass(cls):
-        print("OBS TESTS COMPLETE\n\n\n")
+        print("SATELLITE TESTS COMPLETE\n\n\n")
 
 if __name__ == '__main__':
     dafTestsArgsUtil.parseAndHandleArgs()

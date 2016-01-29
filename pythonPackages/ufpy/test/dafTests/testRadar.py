@@ -19,6 +19,7 @@
 ##
 
 from __future__ import print_function
+from shapely.geometry import box
 from ufpy.dataaccess import DataAccessLayer as DAL
 
 import baseDafTestCase
@@ -26,18 +27,36 @@ import dafTestsArgsUtil
 import sys
 import unittest
 
-class ObsTestCase(baseDafTestCase.DafTestCase):
+class RadarTestCase(baseDafTestCase.DafTestCase):
     """
-    Tests that obs data can be retrieved through the DAF, simply ensuring
+    Tests that radar data can be retrieved through the DAF, simply ensuring
     that no unexpected exceptions are thrown while retrieving it and that the
     returned data is not None.
     """
 
-    datatype = "obs"
+    datatype = "radar"
+
+    bbox = ["-96", "41", "-97", "42"]
+        """
+        Request area (box around KOAX)
+        """
+
+    envelope = None
+
+    @classmethod
+    def getReqEnvelope(cls):
+        if not cls.envelope:
+            x1, y1, x2, y2 = map(float, cls.bbox)
+            minX = min(x1, x2)
+            maxX = max(x1, x2)
+            minY = min(y1, y2)
+            maxY = max(y1, y2)
+            cls.envelope = box(minX, minY, maxX, maxY)
+        return cls.envelope
 
     @classmethod
     def setUpClass(cls):
-        print("STARTING OBS TESTS\n\n")
+        print("STARTING RADAR TESTS\n\n")
 
     def testParameters(self):
         req = DAL.newDataRequest(self.datatype)
@@ -49,22 +68,30 @@ class ObsTestCase(baseDafTestCase.DafTestCase):
 
         self.runLocationsTest(req)
 
+    def testLevels(self):
+        req = DAL.newDataRequest(self.datatype)
+
+        self.runLevelsTest(req)
+
     def testTimes(self):
         req = DAL.newDataRequest(self.datatype)
-        req.setLocationNames("KOMA")
+        req.setEnvelope(self.getReqEnvelope())
 
         self.runTimesTest(req)
 
-    def testGeometryData(self):
+    def testGridData(self):
         req = DAL.newDataRequest(self.datatype)
-        req.setLocationNames("KOMA")
-        req.setParameters("temperature", "seaLevelPress", "dewpoint")
+        req.setEnvelope(self.getReqEnvelope())
+        req.setLocationNames("koax")
+        req.setParameters("94")
 
-        self.runGeometryDataTest(req)
+        # Limit the times in the grid data test to limit the amount of data
+        # returned, don't test shapes since they may differ.
+        self.runGridDataTest(req, limitTimes=True, testSameShape=False)
 
     @classmethod
     def tearDownClass(cls):
-        print("OBS TESTS COMPLETE\n\n\n")
+        print("RADAR TESTS COMPLETE\n\n\n")
 
 if __name__ == '__main__':
     dafTestsArgsUtil.parseAndHandleArgs()

@@ -19,14 +19,13 @@
 ##
 
 from __future__ import print_function
-from ufpy.dataaccess import DataAccessLayer as DAL
 
-import baseBufrMosTest
-import dafTestsUtil
+import baseBufrMosTestCase
+import dafTestsArgsUtil
 import sys
 import unittest
 
-class TestBufrMosLamp(baseBufrMosTest.BaseBufrMosTest):
+class BufrMosLampTestCase(baseBufrMosTestCase.BufrMosTestCase):
     """
     Tests that bufrmosLAMP data can be retrieved through the DAF, simply
     ensuring that no unexpected exceptions are thrown while retrieving it and
@@ -46,5 +45,5 @@ class TestBufrMosLamp(baseBufrMosTest.BaseBufrMosTest):
         print("BUFRMOSLAMP TESTS COMPLETE\n\n\n")
 
 if __name__ == '__main__':
-    dafTestsUtil.parseAndHandleArgs()
+    dafTestsArgsUtil.parseAndHandleArgs()
     unittest.main(argv=sys.argv[:1])

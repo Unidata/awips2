@@ -26,18 +26,18 @@ import dafTestsArgsUtil
 import sys
 import unittest
 
-class ProfilerTestCase(baseDafTestCase.DafTestCase):
+class ModelSoundingTestCase(baseDafTestCase.DafTestCase):
     """
-    Tests that profiler data can be retrieved through the DAF, simply ensuring
-    that no unexpected exceptions are thrown while retrieving it and that the
-    returned data is not None.
+    Tests that modelsounding data can be retrieved through the DAF, simply
+    ensuring that no unexpected exceptions are thrown while retrieving it and
+    that the returned data is not None.
     """
 
-    datatype = "profiler"
+    datatype = "modelsounding"
 
     @classmethod
     def setUpClass(cls):
-        print("STARTING PROFILER TESTS\n\n")
+        print("STARTING MODELSOUNDING TESTS\n\n")
 
     def testParameters(self):
         req = DAL.newDataRequest(self.datatype)
@@ -46,41 +46,48 @@ class ProfilerTestCase(baseDafTestCase.DafTestCase):
 
     def testLocations(self):
         req = DAL.newDataRequest(self.datatype)
+        req.addIdentifier("reportType", "ETA")
 
         self.runLocationsTest(req)
 
     def testTimes(self):
         req = DAL.newDataRequest(self.datatype)
+        req.addIdentifier("reportType", "ETA")
+        req.setLocationNames("KOMA")
 
         self.runTimesTest(req)
 
     def testGeometryData(self):
         req = DAL.newDataRequest(self.datatype)
-        req.setParameters("temperature", "pressure", "uComponent", "vComponent")
+        req.addIdentifier("reportType", "ETA")
+        req.setLocationNames("KOMA")
+        req.setParameters("temperature", "pressure", "specHum", "sfcPress", "temp2", "q2")
 
         print("Testing getGeometryData()")
 
         geomData = DAL.getGeometryData(req)
-        self.assertIsNotNone(geomData)
         print("Number of geometry records: " + str(len(geomData)))
         print("Sample geometry data:")
         for record in geomData[:self.sampleDataLimit]:
-            print("level:", record.getLevel(), end="")
+            print("level=" + record.getLevel(), end="")
             # One dimensional parameters are reported on the 0.0UNKNOWN level.
             # 2D parameters are reported on MB levels from pressure.
             if record.getLevel() == "0.0UNKNOWN":
-                print(" temperature=" + record.getString("temperature") + record.getUnit("temperature"), end="")
-                print(" pressure=" + record.getString("pressure") + record.getUnit("pressure"), end="")
+                print(" sfcPress=" + record.getString("sfcPress") + record.getUnit("sfcPress"), end="")
+                print(" temp2=" + record.getString("temp2") + record.getUnit("temp2"), end="")
+                print(" q2=" + record.getString("q2") + record.getUnit("q2"), end="")
+
             else:
-                print(" uComponent=" + record.getString("uComponent") + record.getUnit("uComponent"), end="")
-                print(" vComponent=" + record.getString("vComponent") + record.getUnit("vComponent"), end="")
-            print(" geometry:", record.getGeometry())
+                print(" pressure=" + record.getString("pressure") + record.getUnit("pressure"), end="")
+                print(" temperature=" + record.getString("temperature") + record.getUnit("temperature"), end="")
+                print(" specHum=" + record.getString("specHum") + record.getUnit("specHum"), end="")
+            print(" geometry=" + str(record.getGeometry()))
 
         print("getGeometryData() complete\n\n")
 
     @classmethod
     def tearDownClass(cls):
-        print("PROFILER TESTS COMPLETE\n\n\n")
+        print("MODELSOUNDING TESTS COMPLETE\n\n\n")
 
 if __name__ == '__main__':
     dafTestsArgsUtil.parseAndHandleArgs()

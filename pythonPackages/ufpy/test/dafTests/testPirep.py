@@ -21,11 +21,12 @@
 from __future__ import print_function
 from ufpy.dataaccess import DataAccessLayer as DAL
 
-import dafTestsUtil
+import baseDafTestCase
+import dafTestsArgsUtil
 import sys
 import unittest
 
-class TestPirep(unittest.TestCase):
+class PirepTestCase(baseDafTestCase.DafTestCase):
     """
     Tests that pirep data can be retrieved through the DAF, simply ensuring
     that no unexpected exceptions are thrown while retrieving it and that the
@@ -43,18 +44,18 @@ class TestPirep(unittest.TestCase):
     def testParameters(self):
         req = DAL.newDataRequest(self.datatype)
 
-        dafTestsUtil.testParameters(req)
+        self.runParametersTest(req)
 
     def testLocations(self):
         req = DAL.newDataRequest(self.datatype)
 
-        dafTestsUtil.testLocations(req)
+        self.runLocationsTest(req)
 
     def testTimes(self):
         req = DAL.newDataRequest(self.datatype)
         req.setLocationNames(self.station)
 
-        dafTestsUtil.testTimes(req)
+        self.runTimesTest(req)
 
     def testGeometryData(self):
         req = DAL.newDataRequest(self.datatype)
@@ -64,10 +65,10 @@ class TestPirep(unittest.TestCase):
         print("Testing getGeometryData()")
 
         geomData = DAL.getGeometryData(req)
-        assert geomData is not None
+        self.assertIsNotNone(geomData)
         print("Number of geometry records: " + str(len(geomData)))
         print("Sample geometry data:")
-        for record in geomData[:dafTestsUtil.sampleDataLimit]:
+        for record in geomData[:self.sampleDataLimit]:
             print("level=", record.getLevel(), end="")
             # One dimensional parameters are reported on the 0.0UNKNOWN level.
             # 2D parameters are reported on MB levels from pressure.
@@ -86,14 +87,14 @@ class TestPirep(unittest.TestCase):
         print("PIREP TESTS COMPLETE\n\n\n")
 
 def getArgs():
-    parser = dafTestsUtil.getParser()
-    parser.add_argument("-s", action="store", dest="station", default=TestPirep.station,
+    parser = dafTestsArgsUtil.getParser()
+    parser.add_argument("-s", action="store", dest="station", default=PirepTestCase.station,
                         help="stationId",
                         metavar="station")
     return parser.parse_args()
 
 if __name__ == '__main__':
     args = getArgs()
-    dafTestsUtil.handleArgs(args)
-    TestPirep.station = args.station
+    dafTestsArgsUtil.handleArgs(args)
+    PirepTestCase.station = args.station
     unittest.main(argv=sys.argv[:1])

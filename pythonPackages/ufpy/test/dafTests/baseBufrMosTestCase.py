@@ -18,26 +18,14 @@
 # further licensing information.
 ##
 
-from __future__ import print_function
 from ufpy.dataaccess import DataAccessLayer as DAL
 
 import baseDafTestCase
-import dafTestsArgsUtil
-import sys
-import unittest
 
-class ObsTestCase(baseDafTestCase.DafTestCase):
+class BufrMosTestCase(baseDafTestCase.DafTestCase):
     """
-    Tests that obs data can be retrieved through the DAF, simply ensuring
-    that no unexpected exceptions are thrown while retrieving it and that the
-    returned data is not None.
+    Base class for testing that bufrmos data can be retrieved through the DAF.
     """
-
-    datatype = "obs"
-
-    @classmethod
-    def setUpClass(cls):
-        print("STARTING OBS TESTS\n\n")
 
     def testParameters(self):
         req = DAL.newDataRequest(self.datatype)
@@ -58,14 +46,6 @@ class ObsTestCase(baseDafTestCase.DafTestCase):
     def testGeometryData(self):
         req = DAL.newDataRequest(self.datatype)
         req.setLocationNames("KOMA")
-        req.setParameters("temperature", "seaLevelPress", "dewpoint")
+        req.setParameters("temperature", "dewpoint")
 
         self.runGeometryDataTest(req)
-
-    @classmethod
-    def tearDownClass(cls):
-        print("OBS TESTS COMPLETE\n\n\n")
-
-if __name__ == '__main__':
-    dafTestsArgsUtil.parseAndHandleArgs()
-    unittest.main(argv=sys.argv[:1])

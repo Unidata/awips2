@@ -26,18 +26,18 @@ import dafTestsArgsUtil
 import sys
 import unittest
 
-class ObsTestCase(baseDafTestCase.DafTestCase):
+class PracticeWarningTestCase(baseDafTestCase.DafTestCase):
     """
-    Tests that obs data can be retrieved through the DAF, simply ensuring
-    that no unexpected exceptions are thrown while retrieving it and that the
-    returned data is not None.
+    Tests that practicewarning data can be retrieved through the DAF, simply
+    ensuring that no unexpected exceptions are thrown while retrieving it and
+    that the returned data is not None.
     """
 
-    datatype = "obs"
+    datatype = "practicewarning"
 
     @classmethod
     def setUpClass(cls):
-        print("STARTING OBS TESTS\n\n")
+        print("STARTING PRACTICE WARNING TESTS\n\n")
 
     def testParameters(self):
         req = DAL.newDataRequest(self.datatype)
@@ -51,20 +51,19 @@ class ObsTestCase(baseDafTestCase.DafTestCase):
 
     def testTimes(self):
         req = DAL.newDataRequest(self.datatype)
-        req.setLocationNames("KOMA")
+        req.setParameters("countyheader", "productclass")
 
         self.runTimesTest(req)
 
     def testGeometryData(self):
         req = DAL.newDataRequest(self.datatype)
-        req.setLocationNames("KOMA")
-        req.setParameters("temperature", "seaLevelPress", "dewpoint")
+        req.setParameters("countyheader", "productclass")
 
         self.runGeometryDataTest(req)
 
     @classmethod
     def tearDownClass(cls):
-        print("OBS TESTS COMPLETE\n\n\n")
+        print("PRACTICE WARNING TESTS COMPLETE\n\n\n")
 
 if __name__ == '__main__':
     dafTestsArgsUtil.parseAndHandleArgs()

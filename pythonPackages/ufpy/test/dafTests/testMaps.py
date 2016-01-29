@@ -21,11 +21,12 @@
 from __future__ import print_function
 from ufpy.dataaccess import DataAccessLayer as DAL
 
-import dafTestsUtil
+import baseDafTestCase
+import dafTestsArgsUtil
 import sys
 import unittest
 
-class TestMaps(unittest.TestCase):
+class MapsTestCase(baseDafTestCase.DafTestCase):
     """
     Tests that maps data can be retrieved through the DAF, simply ensuring
     that no unexpected exceptions are thrown while retrieving it and that the
@@ -45,7 +46,7 @@ class TestMaps(unittest.TestCase):
         req.addIdentifier("table", "mapdata.county")
         req.addIdentifier("geomField", "the_geom")
 
-        dafTestsUtil.testParameters(req)
+        self.runParametersTest(req)
 
     def testLocations(self):
         req = DAL.newDataRequest(self.datatype)
@@ -53,7 +54,7 @@ class TestMaps(unittest.TestCase):
         req.addIdentifier("geomField", "the_geom")
         req.addIdentifier("locationField", "cwa")
 
-        dafTestsUtil.testLocations(req)
+        self.runLocationsTest(req)
 
     def testGeometryData(self):
         req = DAL.newDataRequest(self.datatype)
@@ -65,21 +66,21 @@ class TestMaps(unittest.TestCase):
         req.addIdentifier("cwa", self.site)
         req.setParameters("countyname", "state", "fips")
 
-        dafTestsUtil.testGeometryData(req)
+        self.runGeometryDataTest(req)
 
     @classmethod
     def tearDownClass(cls):
         print("MAPS TESTS COMPLETE\n\n\n")
 
 def getArgs():
-    parser = dafTestsUtil.getParser()
-    parser.add_argument("-s", action="store", dest="site", default=TestMaps.site,
+    parser = dafTestsArgsUtil.getParser()
+    parser.add_argument("-s", action="store", dest="site", default=MapsTestCase.site,
                         help="site to retrieve data for",
                         metavar="siteID")
     return parser.parse_args()
 
 if __name__ == '__main__':
     args = getArgs()
-    dafTestsUtil.handleArgs(args)
-    TestMaps.site = args.site
+    dafTestsArgsUtil.handleArgs(args)
+    MapsTestCase.site = args.site
     unittest.main(argv=sys.argv[:1])
