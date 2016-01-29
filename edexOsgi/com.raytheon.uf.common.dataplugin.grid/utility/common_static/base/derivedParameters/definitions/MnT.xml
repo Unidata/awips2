@@ -3,9 +3,42 @@
   <Method levels="Surface" name="Alias">
     <Field abbreviation="MnT" level="2FHAG" />
   </Method>
-  <Method levels="Surface" models="RTMA" name="Min">
-    <Field abbreviation="T24hr" />
-  </Method>
+    <Method name="Min" levels="Surface" models="RTMA25 AK-RTMA AK-RTMA3 HI-RTMA PR-RTMA URMA25" dtime="true">
+        <Field abbreviation="T" timeShift="0"/>
+        <Field abbreviation="T" timeShift="-3600"/>
+        <Field abbreviation="T" timeShift="-7200"/>
+        <Field abbreviation="T" timeShift="-10800"/>
+        <Field abbreviation="T" timeShift="-14400"/>
+        <Field abbreviation="T" timeShift="-18000"/>
+        <Field abbreviation="T" timeShift="-21600"/>
+        <Field abbreviation="T" timeShift="-25200"/>
+        <Field abbreviation="T" timeShift="-28800"/>
+        <Field abbreviation="T" timeShift="-32400"/>
+        <Field abbreviation="T" timeShift="-36000"/>
+        <Field abbreviation="T" timeShift="-39600"/>
+        <Field abbreviation="T" timeShift="-43200"/>
+        <Field abbreviation="T" timeShift="-46800"/>
+        <Field abbreviation="T" timeShift="-50400"/>
+        <Field abbreviation="T" timeShift="-54000"/>
+        <Field abbreviation="T" timeShift="-57600"/>
+        <Field abbreviation="T" timeShift="-61200"/>
+        <Field abbreviation="T" timeShift="-64800"/>
+        <Field abbreviation="T" timeShift="-68400"/>
+        <Field abbreviation="T" timeShift="-72000"/>
+        <Field abbreviation="T" timeShift="-75600"/>
+        <Field abbreviation="T" timeShift="-79200"/>
+        <Field abbreviation="T" timeShift="-82800"/>
+    </Method>
+    <Method name="Min" levels="Surface" models="Guam-RTMA" dtime="true">
+        <Field abbreviation="T" timeShift="0"/>
+        <Field abbreviation="T" timeShift="-10800"/>
+        <Field abbreviation="T" timeShift="-21600"/>
+        <Field abbreviation="T" timeShift="-32400"/>
+        <Field abbreviation="T" timeShift="-43200"/>
+        <Field abbreviation="T" timeShift="-54000"/>
+        <Field abbreviation="T" timeShift="-64800"/>
+        <Field abbreviation="T" timeShift="-75600"/>
+    </Method>
   <Method levels="Surface" name="Min">
     <Field abbreviation="T24hr" />
   </Method>
