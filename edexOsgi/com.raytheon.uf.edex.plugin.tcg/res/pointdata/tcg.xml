@@ -27,6 +27,4 @@
   
   <parameter name="stormType" numDims="1" type="STRING" />
   <parameter name="stormName" numDims="1" type="STRING" />
-  <parameter name="modelName" numDims="1" type="STRING" />
-  <parameter name="productType" numDims="1" type="STRING" />
 </pointDataDescription>

@@ -63,6 +63,7 @@ import com.raytheon.viz.pointdata.rsc.retrieve.PointDataPlotInfoRetriever;
  *                                  registration.
  * Nov 16, 2015  5119     bsteffen  Remove bufquikscat
  * Jan 19, 2016  5253     tgurney   Remove svrwx dependency on dataURI
+ * Jan 28, 2016  5286     tgurney   Remove tcg dependency on dataURI
  * 
  * </pre>
  * 
@@ -146,7 +147,6 @@ public class PlotResourceData extends AbstractRequestableResourceData {
          * little unique we can get rid of this
          */
         pluginProps.put("radar", new PluginPlotProperties(false));
-        pluginProps.put("tcg", new PluginPlotProperties(false));
         pluginProps.put("ldadhydro", new PluginPlotProperties(false));
         pluginProps.put("textPoints", new PluginPlotProperties(false));
 
@@ -156,6 +156,7 @@ public class PlotResourceData extends AbstractRequestableResourceData {
          * comprehensive list of which plugins use certain behaviors.
          */
 
+        pluginProps.put("tcg", new PluginPlotProperties());
         pluginProps.put("svrwx", new PluginPlotProperties());
         pluginProps.put("obs", new PluginPlotProperties());
         pluginProps.put("goessounding", new PluginPlotProperties());

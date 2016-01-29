@@ -19,75 +19,38 @@
  **/
 package com.raytheon.uf.edex.plugin.tcg;
 
-import java.util.List;
-
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.tcg.TropicalCycloneGuidance;
-import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
 
 /**
  * 
+ * DAO for TropicalCycloneGuidance (TCG)
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
+ * 
+ * Date         Ticket#    Engineer     Description
+ * ------------ ---------- -----------  --------------------------
  * Oct 28, 2009            jsanchez     Initial creation
- *
+ * Jan 28, 2016       5286 tgurney      Remove dead code
+ * 
  * </pre>
- *
+ * 
  * @author jsanchez
- * @version 1.0 
+ * @version 1.0
  */
-public class TropicalCycloneGuidanceDao extends PointDataPluginDao<TropicalCycloneGuidance> {
+public class TropicalCycloneGuidanceDao extends
+        PointDataPluginDao<TropicalCycloneGuidance> {
 
     /**
      * Creates a new TropicalCycloneGuidanceDao
-     * @throws PluginException 
+     * 
+     * @throws PluginException
      */
     public TropicalCycloneGuidanceDao(String pluginName) throws PluginException {
         super(pluginName);
-    }
-    
-    /**
-     * Retrieves an tcg report using the datauri .
-     * 
-     * @param dataURI
-     *            The dataURI to match against.
-     * @return The report record if it exists.
-     */
-    public TropicalCycloneGuidance queryByDataURI(String dataURI) {
-        TropicalCycloneGuidance report = null;
-        List<?> obs = null;
-        try {
-            obs = queryBySingleCriteria("dataURI", dataURI);
-        } catch (DataAccessLayerException e) {
-            e.printStackTrace();
-        }
-        if ((obs != null) && (obs.size() > 0)) {
-            report = (TropicalCycloneGuidance) obs.get(0);
-        }
-        return report;
-    }
-    /**
-     * Queries for to determine if a given data uri exists on the tcg table.
-     * 
-     * @param dataUri
-     *            The DataURI to find.
-     * @return An array of objects. If not null, there should only be a single
-     *         element.
-     */
-    public Object[] queryDataUriColumn(final String dataUri) {
-
-        String sql = "select datauri from awips.tcg where datauri='"
-                + dataUri + "';";
-
-        Object[] results = executeSQLQuery(sql);
-
-        return results;
     }
 
     @Override
@@ -106,4 +69,3 @@ public class TropicalCycloneGuidanceDao extends PointDataPluginDao<TropicalCyclo
     }
 
 }
-

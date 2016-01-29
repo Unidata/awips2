@@ -21,8 +21,6 @@ package com.raytheon.uf.common.dataplugin.tcg;
 
 import java.util.Calendar;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -62,6 +60,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Oct 15, 2013 2361       njensen     Removed XML annotations
  * Jul 28, 2015 4360       rferrel     Named unique constraint. Made productType and modelName non-nullable.
+ * Jan 28, 2016 5286       tgurney     Drop dataURI column and update unique constraint.
  * 
  * </pre>
  * 
@@ -70,7 +69,9 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "tcgseq")
-@Table(name = "tcg", uniqueConstraints = { @UniqueConstraint(name = "uk_tcg_datauri_fields", columnNames = { "dataURI" }) })
+@Table(name = "tcg", uniqueConstraints = { @UniqueConstraint(name = "uk_tcg_datauri_fields", columnNames = {
+        "refTime", "productType", "modelName", "latitude", "longitude",
+        "stationId" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
@@ -153,17 +154,6 @@ public class TropicalCycloneGuidance extends PersistablePluginDataObject
 
     public void setModelName(String modelName) {
         this.modelName = modelName;
-    }
-
-    /**
-     * Set the data uri for this observation.
-     * 
-     * @param dataURI
-     */
-    @Override
-    public void setDataURI(String dataURI) {
-        super.setDataURI(dataURI);
-        identifier = dataURI;
     }
 
     @Override
@@ -279,13 +269,6 @@ public class TropicalCycloneGuidance extends PersistablePluginDataObject
         }
         sb.append(String.format("%6.2f %7.2f:", getLatitude(), getLongitude()));
         return sb.toString();
-    }
-
-    @Override
-    @Column
-    @Access(AccessType.PROPERTY)
-    public String getDataURI() {
-        return super.getDataURI();
     }
 
     @Override

@@ -139,7 +139,7 @@ public abstract class TCGDataAdapter {
 
     /**
      * Does this parser contain any more reports.
-     *
+     * 
      * @return Does this parser contain any more reports.
      */
     public boolean hasNext() {
@@ -157,7 +157,7 @@ public abstract class TCGDataAdapter {
     /**
      * Get the next available report. Returns a null reference if no more
      * reports are available.
-     *
+     * 
      * @return The next available report.
      */
     public TropicalCycloneGuidance next() {
@@ -190,8 +190,6 @@ public abstract class TCGDataAdapter {
 
                 view.setString("stormType", report.getType().toString());
                 view.setString("stormName", report.getStormName());
-                view.setString("modelName", report.getModelName());
-                view.setString("productType", report.getProductType());
 
                 report.setPointDataView(view);
             }
@@ -200,7 +198,7 @@ public abstract class TCGDataAdapter {
     }
 
     /**
-     *
+     * 
      * @param obsData
      * @return
      */

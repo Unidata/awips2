@@ -32,7 +32,8 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.edex.plugin.tcg.TropicalCycloneGuidanceDao;
 
 /**
- * TODO Add Description
+ * Parser for subset of Tropical Cyclone Guidance data that contains storm track
+ * predictions based on the Quasi-Lagrangian Limited Area (QLM) model.
  * 
  * <pre>
  * 
@@ -46,6 +47,7 @@ import com.raytheon.uf.edex.plugin.tcg.TropicalCycloneGuidanceDao;
  *                                     processing archive  data.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Jul 23, 2014 3410       bclement    location changed to floats
+ * Jan 28, 2016 5286       tgurney     Generate unique stationId
  * 
  * </pre>
  * 
@@ -103,6 +105,7 @@ public class QLMData extends TCGDataAdapter {
                                 stationId);
                         location.setLongitude((float) fp.longitude);
                         location.setLatitude((float) fp.latitude);
+                        location.generateCoordinateStationId();
 
                         rpt.setWmoHeader(wmoHeader.getWmoHeader());
                         rpt.setTraceId(traceId);
