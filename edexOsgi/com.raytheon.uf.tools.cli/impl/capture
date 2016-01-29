@@ -7,17 +7,21 @@ edexGrepString="edex.run.mode="
 xorgLogPath="/var/log"
 
 # the remote servers to grab top on.  Use to get general state of servers
-REMOTE_SERVERS_TO_CHECK="${DX_SERVERS}"
-
-# in case environ variable is undefined
-if [ "$REMOTE_SERVERS_TO_CHECK" == "" ]; then
+if [ ! -z "${DX_SERVERS}" ]; then
+   REMOTE_SERVERS_TO_CHECK="${DX_SERVERS}"
+else
    REMOTE_SERVERS_TO_CHECK="dx1f dx2f dx3 dx4"
+fi
+if [ ! -z "${PX_SERVERS}" ]; then
+   REMOTE_SERVERS_TO_CHECK="${REMOTE_SERVERS_TO_CHECK} ${PX_SERVERS}"
+else
+   REMOTE_SERVERS_TO_CHECK="${REMOTE_SERVERS_TO_CHECK} px1 px2"
 fi
 
 # the database host to grab current running queries for
 DATABASE_HOST="dx1f"
 
-# Flags to control what data capure grabs, to enable flag must be YES, anything else will be considered off.
+# Flags to control what data capture grabs, to enable flag must be YES, anything else will be considered off.
 RUN_JSTACK="Y"
 JSTACK_ITERATIONS="15"
 RUN_JMAP="Y"
@@ -590,7 +594,9 @@ else
            caveProcNums="$caveProcNums $children"
        fi
    done
-   procs=$(ps --no-header -fp $caveProcNums)
+   if [ ! "${caveProcNums}" = "" ]; then
+       procs=$(ps --no-header -fp $caveProcNums)
+   fi
 fi
 
 if [ ! -z "$cavePid" ]; then
