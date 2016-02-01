@@ -86,6 +86,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Sep 18, 2015 3873       skorolev    Removed common definitions. Replaced deprecated NotificationMessage.
  * Oct 19, 2015 3841       skorolev    Corrected constructor.
  * Oct 21, 2015 3873       dhladky     Get Obs load off UI thread.
+ * Dec 17, 2015 3873       dhladky     Abstracted handling of dialogTime and Zone dialog events.
  * 
  * </pre>
  * 
@@ -127,9 +128,6 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
 
     /** List of SAFESEAS resource listeners **/
     private final List<ISSResourceListener> safeSeasResources = new ArrayList<ISSResourceListener>();
-
-    /** Time which Zone/County dialog shows. **/
-    private Date dialogTime = null;
 
     /** list of coordinates for each zone **/
     private Map<String, Geometry> zoneGeometries = null;
@@ -397,35 +395,6 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
     protected void process(ObReport result) throws Exception {
         obData.addReport(result);
         fireMonitorEvent(this);
-    }
-
-    /**
-     * SSResource updates the dialogTime
-     * 
-     * @param dialogTime
-     */
-    @Override
-    public void updateDialogTime(Date dialogTime) {
-        this.dialogTime = dialogTime;
-        fireMonitorEvent(zoneDialog.getClass().getName());
-    }
-
-    /**
-     * Gets Dialog Time.
-     * 
-     * @return dialogTime
-     */
-    public Date getDialogTime() {
-        return dialogTime;
-    }
-
-    /**
-     * Sets the dialogTime
-     * 
-     * @param dialogTime
-     */
-    public void setDialogTime(Date dialogTime) {
-        this.dialogTime = dialogTime;
     }
 
     /**

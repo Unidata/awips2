@@ -75,7 +75,6 @@
 #    10/30/2015          #17940    jendrowski     Responded to Code Review.  Mostly syntactical changes.
 #    11/05/2015          #18182    ryu            Change D2DDBVERSIONS value for HPCERP to 24 
 #    12/22/2015          #14152    jwatson        Added Sky, Wind to GFSLAMPGrid parms
-#
 ####################################################################################################
 
 #----------------------------------------------------------------------------
