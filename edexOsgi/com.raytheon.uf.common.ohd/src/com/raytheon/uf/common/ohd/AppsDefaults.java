@@ -30,15 +30,15 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.raytheon.uf.common.localization.ILocalizationPathObserver;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
 
 /*
@@ -69,6 +69,7 @@ import com.raytheon.uf.common.util.FileUtil;
  * Sep 22, 2014 3356       njensen      Fix constructor usage in viz finding VizApp class
  * Jan 26, 2016 5264       bkowal       Added validation of certain directories. Fixed
  *                                      warnings.
+ * Feb 01, 2016 5264       bkowal       Replace status handler with slf4j logging.
  * 
  * </pre>
  * 
@@ -76,8 +77,7 @@ import com.raytheon.uf.common.util.FileUtil;
  * @version 1.0
  */
 public class AppsDefaults {
-    private final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(getClass());
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private static final String Apps_defaults_FILENAME = Paths.get("hydro",
             "Apps_defaults").toString();
@@ -154,9 +154,9 @@ public class AppsDefaults {
                 _envProperties.put("apps_dir",
                         FileUtil.join(shareDir, "hydroapps"));
             } catch (Exception e) {
-                statusHandler
-                        .error("Failed to determine the location of the hydroapps share directory.",
-                                e);
+                logger.error(
+                        "Failed to determine the location of the hydroapps share directory.",
+                        e);
             }
         }
 
@@ -171,21 +171,21 @@ public class AppsDefaults {
             Set<String> tokenSet = new HashSet<String>();
             userMap = new HashMap<>();
             if (_appsDefaultsUserFile.exists()) {
-                statusHandler.info("USER file exists, updating map...");
+                logger.info("USER file exists, updating map...");
                 update(userMap, _appsDefaultsUserFile);
                 tokenSet.addAll(userMap.keySet());
             }
 
             siteMap = new HashMap<>();
             if (_appsDefaultsSiteFile.exists()) {
-                statusHandler.info("SITE file exists, updating map...");
+                logger.info("SITE file exists, updating map...");
                 update(siteMap, _appsDefaultsSiteFile);
                 tokenSet.addAll(siteMap.keySet());
             }
 
             baseMap = new HashMap<>();
             if (_appsDefaultsNationalFile.exists()) {
-                statusHandler.info("BASE file exists, updating map...");
+                logger.info("BASE file exists, updating map...");
                 update(baseMap, _appsDefaultsNationalFile);
                 tokenSet.addAll(baseMap.keySet());
             }
@@ -206,8 +206,8 @@ public class AppsDefaults {
 
     private void checkAppsDefaults(Map<String, String> propertiesMap,
             String containingFile) {
-        statusHandler.info("Validating Apps Defaults properties in: "
-                + containingFile + " ...");
+        logger.info("Validating Apps Defaults properties in: " + containingFile
+                + " ...");
         for (String key : AppsDefaultsDirKeys.DIR_KEYS_TO_VALIDATE) {
             String valueToValidate = propertiesMap.get(key);
             if (valueToValidate == null) {
@@ -231,11 +231,10 @@ public class AppsDefaults {
                     .append(". Property has been ignored. Valid values must map to a location within one of the specified directories: ")
                     .append(AppsDefaultsDirKeys.getValidRootsAsString())
                     .append(".");
-            statusHandler.error(sb.toString());
+            logger.error(sb.toString());
         }
-        statusHandler
-                .info("Finished validation of Apps Defaults properties in: "
-                        + containingFile + ".");
+        logger.info("Finished validation of Apps Defaults properties in: "
+                + containingFile + ".");
     }
 
     private void updateDirectories() {
@@ -248,39 +247,38 @@ public class AppsDefaults {
                 LocalizationType.COMMON_STATIC, LocalizationLevel.USER),
                 Apps_defaults_FILENAME);
         if (_appsDefaultsUserFile.exists()) {
-            statusHandler.info("Setting user Apps_defaults file: "
+            logger.info("Setting user Apps_defaults file: "
                     + _appsDefaultsUserFile);
         } else {
-            statusHandler.info("No user Apps_defaults file found.");
+            logger.info("No user Apps_defaults file found.");
         }
 
         _appsDefaultsSiteFile = pm.getLocalizationFile(pm.getContext(
                 LocalizationType.COMMON_STATIC, LocalizationLevel.SITE),
                 Apps_defaults_FILENAME);
         if (_appsDefaultsSiteFile.exists()) {
-            statusHandler.info("Setting site Apps_defaults file: "
+            logger.info("Setting site Apps_defaults file: "
                     + _appsDefaultsSiteFile);
         } else {
-            statusHandler.warn("No site Apps_defaults file found.");
+            logger.warn("No site Apps_defaults file found.");
         }
 
         _appsDefaultsNationalFile = pm.getLocalizationFile(pm.getContext(
                 LocalizationType.COMMON_STATIC, LocalizationLevel.BASE),
                 Apps_defaults_FILENAME);
         if (_appsDefaultsNationalFile.exists()) {
-            statusHandler.info("Setting base Apps_defaults file: "
+            logger.info("Setting base Apps_defaults file: "
                     + _appsDefaultsNationalFile);
         } else {
-            statusHandler.error("No base Apps_defaults file found.");
+            logger.error("No base Apps_defaults file found.");
         }
 
         if (this.appsDefaultsObserver == null) {
             appsDefaultsObserver = new ILocalizationPathObserver() {
                 @Override
                 public void fileChanged(ILocalizationFile file) {
-                    statusHandler
-                            .info("Detected change in Apps_defaults file: "
-                                    + file.toString() + " ...");
+                    logger.info("Detected change in Apps_defaults file: "
+                            + file.toString() + " ...");
                     initialize();
                 }
             };
@@ -309,7 +307,7 @@ public class AppsDefaults {
         if (file != null && file.exists()) {
             BufferedReader reader = null;
             try {
-                statusHandler.info("Reading " + file + " into AppsDefaults");
+                logger.info("Reading " + file + " into AppsDefaults");
                 reader = new BufferedReader(new InputStreamReader(
                         file.openInputStream()));
                 String line = null;
@@ -324,14 +322,14 @@ public class AppsDefaults {
                     }
                 }
             } catch (Exception e) {
-                statusHandler.error("Error reading file " + file, e);
+                logger.error("Error reading file " + file, e);
             } finally {
                 try {
                     if (reader != null) {
                         reader.close();
                     }
                 } catch (IOException e) {
-                    statusHandler.error("Error closing file " + file, e);
+                    logger.error("Error closing file " + file, e);
                 }
             }
         }
@@ -581,8 +579,7 @@ public class AppsDefaults {
                 recursionCount--;
             } else {
                 middle = "ERROR_ERROR_ERROR";
-                statusHandler
-                        .error("You probably have a cycle in your Apps Defaults File's refer backs, please check it");
+                logger.error("You probably have a cycle in your Apps Defaults File's refer backs, please check it");
             }
             if ((referBackEndIndex + RFR_CLOSE.length()) < tokenValue.length()) {
                 end = tokenValue.substring(
@@ -893,13 +890,13 @@ public class AppsDefaults {
         String contextVar = setAppContextVar(callingContext, false);
         boolean isOn = getBoolean(contextVar, true);
 
-        if (statusHandler.isPriorityEnabled(Priority.WARN)) {
+        if (logger.isWarnEnabled()) {
             StringBuilder sb = new StringBuilder(
                     "App Execution Token for App Context ");
             sb.append(contextVar);
             sb.append(" is ");
             sb.append(isOn);
-            statusHandler.warn(sb.toString());
+            logger.warn(sb.toString());
         }
 
         return isOn;
@@ -925,13 +922,13 @@ public class AppsDefaults {
         String contextVar = setAppContextVar(callingContext, true);
         boolean isOn = getBoolean(contextVar, true);
 
-        if (statusHandler.isPriorityEnabled(Priority.WARN)) {
+        if (logger.isWarnEnabled()) {
             StringBuilder sb = new StringBuilder(
                     "App Execution Token for App Context ");
             sb.append(contextVar);
             sb.append(" is ");
             sb.append(isOn);
-            statusHandler.warn(sb.toString());
+            logger.warn(sb.toString());
         }
 
         return isOn;
