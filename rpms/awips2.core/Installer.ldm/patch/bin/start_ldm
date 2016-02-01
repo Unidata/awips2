@@ -23,8 +23,8 @@ if [ "$myhost" = "cpsbn" ]; then
   fi
   chmod 664 /dev/p_LOST && chgrp fxalpha /dev/p_LOST
 
-  if [ -f /etc/rc.config.d/AWIPS ];then
-   . /etc/rc.config.d/AWIPS
+  if [ -f /etc/profile.d/AWIPS.sh ];then
+   . /etc/profile.d/AWIPS.sh
   else
    echo "AWIPS file not found.Install AWIPS and proceed."
    echo "Exiting."
@@ -34,6 +34,10 @@ if [ "$myhost" = "cpsbn" ]; then
 # Start AWIPS-I retransmission process
 # Move to a2cp1apps to prevent duplicate retransmission request from both CPs
 #  $PROJECT/bin/start_sbn_retransmit
+# Start mon_client to read from /dev/p_LOST pipe; start_sbn_retransmit writes 
+# to this pipe
+
+  $PROJECT/bin/mon_client
 
 # Setup shared memory for LDM to store retransmission params
 

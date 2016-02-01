@@ -104,6 +104,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Mar 04, 2015 #15639     zhao         Added 'heightHint' to 'Idents' list so GUI won't become too large 
  * Jul 07, 2015 16907      zhao         Changed 'ish-' to 'isd-' 
  * Nov 30, 2015  4834      njensen      Remove LocalizationOpFailedException
+ * Jan 15, 2016 18482      zhao         Add a "Usage" to "Help..." 
  * 
  * </pre>
  * 
@@ -510,7 +511,41 @@ public class ClimateDataMenuDlg extends CaveSWTDialog {
                 if (mustCreate(usageDlg)) {
                     String description = "CLimate Data Update Dialog Help";
 
-                    String helpText = "This dialog is used to create and append climatology data files.\n\nMenu Bar\nFile:\n\tQuit:   Close the dialog immediately\n\nCommands:\n\tShow observations history:  Opens a graphical display showing the current\n\t\t\t\t\tinventory of climate data available.\n\tUpdate NCDC \"isd\" files:    Opens a dialog allowing the user to generate\n\t\t\t\t\tautomated scripts for downloading the Integrated\n\t\t\t\t\tSurface Hourly (ISH) Database.\n\nTools:\n\tPulldown menu consist of the AvnFPS Climate Tools that read the HDF5 climate\n\t\tfiles.\n\nOptions:\n\tAppend: Add new data to existing climate data file\n\tCreate: Generate new climate data files, regardless of whether a file for\n\t\t\tthat site already exists\n\nFields:\n\tSITE ID:    Site ID of the site currently selected, or \n\t\t\ta user entered site ID if creating a new data file\n\tMETAR AFOS ID:  The AFOS ID used to retrieve location's METAR product for\n\t\t\tuse in AvnFPS's climate Cig/Vis Trend tool.\n\nIdents:\n\tList of current site IDs.\n\nSite info list:\n\tList of IDs and years of data available for each selected site\n\nMonitor area:\n\tArea where all informative messages are displayed.\n\nButtons:\n\n\tAssess Data:\n\tAfter sites are selected, click this to start the creation\n\t\tor append process\n\n\tGenerate Scripts:\n\tGenerate download scripts to retrieve data files from NCDC\n\n\tProcess Data:\n\tIncorporate NCDC data into HDF5 file(s).\n\n\tValidate Data:\n\tTemporarily move newly changed/created files to a location\n\t\tso that AvnFPS climate tools can examine the new climate\n\t\tfile.\n\n\tCommit:\n\tMove newly changed/created files to its permanent location. \n\tClicking this will also generate new station climate qc \n\t\tfiles (files that end in .nc in the data/climate directory)\n\n\tReject:\n\tReject the newly created files in favor of the original file(s),\n\t\tif available. This action deletes newly created files.\n\n\tSave Log:\n\tSave all output in the Monitor area to a file";
+                    String helpText = "This dialog is used to create and append climatology data files.\n\n" +
+                                "Menu Bar\nFile:\n\tQuit:   Close the dialog immediately\n\nCommands:\n\tShow " +
+                                "observations history:  Opens a graphical display showing the current\n\t\t\t\t\t" +
+                                "inventory of climate data available.\n\tUpdate NCDC \"isd\" files:    Opens " +
+                                "a dialog allowing the user to generate\n\t\t\t\t\tautomated scripts for " +
+                                "downloading the Integrated\n\t\t\t\t\tSurface Hourly (ISH) Database.\n\nTools:" +
+                                "\n\tPulldown menu consist of the AvnFPS Climate Tools that read the HDF5 climate\n" +
+                                "\t\tfiles.\n\nOptions:\n\tAppend: Add new data to existing climate data file\n\t" +
+                                "Create: Generate new climate data files, regardless of whether a file for\n\t\t\tthat " +
+                                "site already exists\n\nFields:\n\tSITE ID:    Site ID of the site currently selected, " +
+                                "or \n\t\t\ta user entered site ID if creating a new data file\n\tMETAR AFOS ID:  " +
+                                "The AFOS ID used to retrieve location's METAR product for\n\t\t\tuse in AvnFPS's " +
+                                "climate Cig/Vis Trend tool.\n\nIdents:\n\tList of current site IDs.\n\nSite info " +
+                                "list:\n\tList of IDs and years of data available for each selected site\n\nMonitor Area:" +
+                                "\n\tArea where all informative messages are displayed.\n\nButtons:\n\n\tAssess Data:" +
+                                "\n\tAfter sites are selected, click this to start the creation\n\t\tor append process" +
+                                "\n\n\tGenerate Scripts:\n\tGenerate download scripts to retrieve data files from NCDC\n\n\t" +
+                                "Process Data:\n\tIncorporate NCDC data into HDF5 file(s).\n\n\tValidate:\n\t" +
+                                "Temporarily move newly changed/created files to a location\n\t\tso that AvnFPS climate " +
+                                "tools can examine the new climate\n\t\tfile.\n\n\tCommit:\n\tMove newly changed/created " +
+                                "files to its permanent location. \n\tClicking this will also generate new station " +
+                                "climate qc \n\t\tfiles (files that end in .nc in the data/climate directory)\n\n\tReject:" +
+                                "\n\tReject the newly created files in favor of the original file(s),\n\t\tif available. " +
+                                "This action deletes newly created files.\n\n\tSave Log:\n\tSave all output in the " +
+                                "Monitor area to a file\n\n\nUsage: \n\n\t(0)\tSelect \"Append\" to update existing climate data " +
+                                "file(s) or \"Create\"\n\t\tto generate new climate data file(s)\n\n\t(1)\tSelect one or more sites " +
+                                "from the \"Idents\" list (to select two or \n\t\tmore sites, hold down the Ctrl key and then " +
+                                "click each site that you \n\t\twant to select)\n\n\t(2)\tClick \"Assess Data\" to start processing; " +
+                                "and then click \"Generate Scripts\" \n\t\tand follow the instructions displayed to generate " +
+                                "a script and use the \n\t\tscript to download data from NCDC and then move the data to " +
+                                "\n\t\t/awips2/edex/data/share/aviation/tmp\n\n\t(3)\tClick \"Process Data\" to incorporate " +
+                                "the data into HDF5 file(s) (this \n\t\tprocess may take a while)\n\n\t(4)\tClick \"Validate\" " +
+                                "and use an AvnFPS climate tool to examine the new climate \n\t\tdata file(s)\n\n\t(5)\tClick " +
+                                "\"Commit\" to accept or \"Reject\" to reject the new climate data file(s)\n\n\t" +
+                                "(6)\tClick \"Save Log\" to save all output in Monitor Area (this step is optional)\n\n\n";
                     usageDlg = new HelpUsageDlg(shell, description, helpText);
                     usageDlg.open();
                 } else {

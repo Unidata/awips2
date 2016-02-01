@@ -454,7 +454,8 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
         }
         if (tmDescriptor != null) {
             if (tmDescriptor != descriptor
-                    && tmDescriptor.getTimeMatcher() == this) {
+                    && tmDescriptor.getTimeMatcher() == this
+                    && hasContainer(descriptor)) {
                 if (validateDescriptor(tmDescriptor)) {
                     redoTimeMatching(tmDescriptor);
                 } else {
@@ -1067,6 +1068,11 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
             }
         }
         return false;
+    }
+
+    private boolean hasContainer(IDescriptor descriptor) {
+        IRenderableDisplay display = descriptor.getRenderableDisplay();
+        return display.getContainer() != null;
     }
 
     private static boolean validateDescriptor(IDescriptor descriptor) {

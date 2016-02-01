@@ -1,9 +1,9 @@
 from Init import *
 import os
 
-class nwpsTrkngCG0Forecaster(Forecaster):
+class nwpsTrkngCG0localForecaster(Forecaster):
     def __init__(self):
-        Forecaster.__init__(self, "nwpsTrkngCG0", "nwpsTrkngCG0")
+        Forecaster.__init__(self, "nwpsTrkngCG0local", "nwpsTrkngCG0local")
         
     def _calcPeriodN(self, swper):
         return swper
@@ -56,21 +56,21 @@ class nwpsTrkngCG0Forecaster(Forecaster):
         return self._calcWaveN(swell_OSEQD10, swdir_OSEQD10)
 
 def main():
-    nwpsTrkngCG0Forecaster().run()
-    chkfile = "/tmp/nwps/CGTrack"
-    chkfiledir = "/tmp/nwps"
+    nwpsTrkngCG0localForecaster().run()
+    chkfile = "/tmp/nwpslocal/CGTrack"
+    chkfiledir = "/tmp/nwpslocal"
     try:
         os.makedirs(chkfiledir)
     except OSError:
         pass
     if not os.path.isfile(chkfile):
         open(chkfile, 'a').close()
-        os.system('/awips2/GFESuite/bin/sendGfeMessage -s -m "TRACKING WAVE GRIDS ARE NOW IN GFE"')
+        os.system('/awips2/GFESuite/bin/sendGfeMessage -s -m "BOOO TRACKING WAVE GRIDS ARE NOW IN GFE"')
     filemodtime = os.stat(chkfile).st_mtime
     twominutesago = time.time() - 120
     if (twominutesago - filemodtime) > 0:
         os.utime(chkfile, None)
-        os.system('/awips2/GFESuite/bin/sendGfeMessage -s -m "TRACKING WAVE GRIDS ARE NOW IN GFE"')
+        os.system('/awips2/GFESuite/bin/sendGfeMessage -s -m "STOP TRACKING ME! TRACKING WAVE GRIDS ARE NOW IN GFE"')
 
 if __name__ == "__main__":
     main()
