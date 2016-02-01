@@ -30,13 +30,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
-
 import com.raytheon.uf.common.dataplugin.level.Level;
-import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMapping;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
 import com.raytheon.uf.common.dataplugin.level.util.LevelUtilities;
@@ -64,15 +58,17 @@ import com.raytheon.viz.volumebrowser.vbui.VolumeBrowserAction;
  * <pre>
  * 
  * SOFTWARE HISTORY
+ * 
  * Date          Ticket#  Engineer  Description
- * ------------- -------- --------- --------------------------
- * Apr 14, 2010           bsteffen  Initial creation
+ * ------------- -------- --------- --------------------------------------------
+ * Apr 14, 2010  5021     bsteffen  Initial creation
  * Jul 25, 2013  2112     bsteffen  Fix volume browser sounding errors.
- * Jan 30, 2014  2725     ekladstr  updated exception handling during move of derived
- *                                  parameters to common
+ * Jan 30, 2014  2725     ekladstr  updated exception handling during move of
+ *                                  derived parameters to common
  * Sep 09, 2014  3356     njensen   Remove CommunicationException
  * May 18, 2015  4412     bsteffen  Use all level mappings for plane names
  * Aug 03, 2015  3861     bsteffen  Move resource creation to ProductCreators
+ * Feb 01, 2016  5275     bsteffen  Extract InventoryUpdateJob
  * 
  * </pre>
  * 
@@ -84,6 +80,8 @@ public abstract class AbstractInventoryDataCatalog extends AbstractDataCatalog {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(AbstractInventoryDataCatalog.class);
 
+    public static final String SOUNDING_PARAMETER = "Snd";
+
     protected static final String[] soundingParams = { "T", "GH", "uW", "vW",
             "DpT" };
 
@@ -92,121 +90,135 @@ public abstract class AbstractInventoryDataCatalog extends AbstractDataCatalog {
                 .getInventory(getDefaultPlugin());
     }
 
+    /**
+     * Check if there are any plugins supported by this catalog which are
+     * supported by the {@link ProductCreatorManager} for the provided
+     * {@link ResourceType}.
+     */
+    private boolean supportedResourceType(ResourceType resourceType) {
+        ProductCreatorManager theMan = ProductCreatorManager.getInstance();
+        for (String pluginName : getPlugins()) {
+            if (theMan.getCreator(pluginName, resourceType) != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public void getAvailableData(AvailableDataRequest request) {
         ResourceType resourceType = VolumeBrowserAction.getVolumeBrowserDlg()
                 .getDialogSettings().getViewSelection().getResourceType();
-        boolean load = false;
-        for (String pluginName : getPlugins()) {
-            if (ProductCreatorManager.getInstance().getCreator(pluginName,
-                    resourceType) != null) {
-                load = true;
-                break;
-            }
-        }
-        if (!load) {
+        if (!supportedResourceType(resourceType)) {
             return;
         }
-        String[] selectedSources = request.getSelectedSources();
-        String[] selectedFields = request.getSelectedFields();
-        String[] selectedPlanes = request.getSelectedPlanes();
-        boolean sourcesEmpty = selectedSources == null
-                || selectedSources.length == 0;
-        boolean fieldsEmpty = selectedFields == null
-                || selectedFields.length == 0;
-        // TODO find some way to filter sounding to soundingParams
-        request.addAvailableField("Snd");
         final AbstractInventory inventory = getInventory();
         if (inventory == null) {
             return;
         }
-        final Collection<String> sources3D = get3DSources(selectedPlanes);
-        Collection<String> sourcesToProcess = null;
-        Collection<String> sourcesToProcessFiltered3D = null;
-        if (!sourcesEmpty) {
-            sourcesToProcessFiltered3D = sourcesToProcess = new ArrayList<String>(
-                    Arrays.asList(selectedSources));
-            if (sources3D != null) {
-                sourcesToProcessFiltered3D = new ArrayList<String>(
-                        sourcesToProcess);
-                sourcesToProcessFiltered3D.retainAll(sources3D);
-            }
+        MenuItemManager menuManager = MenuItemManager.getInstance();
+
+        boolean isSounding = false;
+
+        InventoryUpdateJob job = new InventoryUpdateJob(inventory);
+
+        /* Get all possible sources */
+        job.setAllPossibleSources(menuManager
+                .getAvailableKeys(DataSelection.SOURCES));
+
+        /*
+         * Get all possible parameters --- must transform Snd into other
+         * parameters
+         */
+        Set<String> possibleParameters = menuManager
+                .getAvailableKeys(DataSelection.FIELDS);
+        if (possibleParameters.contains(SOUNDING_PARAMETER)) {
+            isSounding = true;
+            possibleParameters = new HashSet<>(possibleParameters);
+            possibleParameters.remove(SOUNDING_PARAMETER);
+            possibleParameters.addAll(Arrays.asList(soundingParams));
         }
-        Collection<String> paramsToProcess = null;
-        if (!fieldsEmpty) {
-            paramsToProcess = Arrays.asList(selectedFields);
-            if (paramsToProcess.contains("Snd")) {
-                paramsToProcess = new ArrayList<String>(paramsToProcess);
-                paramsToProcess.addAll(Arrays.asList(soundingParams));
+        job.setAllPossibleParameters(possibleParameters);
+
+        /*
+         * Get all possible levels --- must perform level mappings and take into
+         * account when planes contains points and lines, luckily getLevels does
+         * all that for us.
+         */
+        Set<String> possiblePlanes = menuManager
+                .getAvailableKeys(DataSelection.PLANES);
+
+        Set<Level> possibleLevels = getLevels(
+                possiblePlanes.toArray(new String[0]), null);
+        job.setAllPossibleLevels(possibleLevels);
+
+        /* Get the selected sources */
+        String[] selectedSources = request.getSelectedSources();
+        List<String> selectedSourcesAsList = null;
+        if(selectedSources != null && selectedSources.length > 0){
+            selectedSourcesAsList = Arrays.asList(selectedSources);
+            job.setSelectedSources(selectedSourcesAsList);
+        }
+        
+        /*
+         * Get the selected parameters --- must transform Snd into other
+         * parameters
+         */
+        String[] selectedFields = request.getSelectedFields();
+        if(selectedFields != null && selectedFields.length > 0){
+            Collection<String> selectedParameters = Arrays.asList(selectedFields);
+            if(selectedParameters.contains(SOUNDING_PARAMETER)){
+                selectedParameters = new HashSet<>(selectedParameters);
+                selectedParameters.remove(SOUNDING_PARAMETER);
+                selectedParameters.addAll(Arrays.asList(soundingParams));
             }
+            job.setSelectedParameters(selectedParameters);
+        }
+        
+        /*
+         * Get the selected levels --- must perform level mappings and take into
+         * account when planes contains points and lines, luckily getLevels does
+         * all that for us.
+         */
+        String[] selectedPlanes = request.getSelectedPlanes();
+        if (selectedPlanes != null && selectedPlanes.length > 0) {
+            Set<Level> selectedLevels = getLevels(selectedPlanes, null);
+            job.setSelectedLevels(selectedLevels);
         }
 
-        final Collection<Level> levelsToProcess = getLevels(selectedPlanes,
-                null);
-        final Collection<Level> levelsToProcessFiltered3D = getLevels(
-                selectedPlanes, selectedSources);
-        if (request.isCanceled()) {
-            return;
+        if (selectedPlanes != null && selectedPlanes.length > 0) {
+            job.setPlaneFilteredSources(get3DSources(selectedPlanes));
         }
+
+        job.schedule();
+
         Collection<? extends Level> levels3D = get3DLevels();
 
-        // Make final versions of everything to pass into the thread.
-        final Collection<String> fSourcesToProcess = sourcesToProcess;
-        final Collection<String> fSourcesToProcessFiltered3D = sourcesToProcessFiltered3D;
-        final Collection<String> fParamsToProcess = paramsToProcess;
-
-        // The result queues.
-        final BlockingQueue<String> sourceQueue = new LinkedBlockingQueue<String>();
-        final BlockingQueue<String> fieldQueue = new LinkedBlockingQueue<String>();
-        final BlockingQueue<String> levelQueue = new LinkedBlockingQueue<String>();
-        // Query the inventory in a new Thread, this allows us to update the UI
-        // as things are added to the queue, and also allows us to interupt this
-        // thread if the availableDataRequest is canceled.
-        Job inventoryJob = new Job("Loading available inventory") {
-
-            @Override
-            protected IStatus run(IProgressMonitor monitor) {
-                try {
-                    inventory.checkSources(sources3D, fParamsToProcess,
-                            levelsToProcess, sourceQueue);
-                    inventory.checkParameters(fSourcesToProcessFiltered3D,
-                            null, levelsToProcessFiltered3D, false, fieldQueue);
-                    inventory.checkLevels(fSourcesToProcess, fParamsToProcess,
-                            null, levelQueue);
-                } catch (InterruptedException e) {
-                    // no-op
-                }
-                return Status.OK_STATUS;
-            }
-
-        };
-        inventoryJob.setSystem(true);
-        inventoryJob.schedule();
-
-        while (inventoryJob.getResult() == null || !sourceQueue.isEmpty()
-                || !fieldQueue.isEmpty() || !levelQueue.isEmpty()) {
-            String source = sourceQueue.poll();
+        while (!job.isDone()) {
+            String source = job.pollSource();
             while (source != null) {
                 request.addAvailableSource(source);
-                source = sourceQueue.poll();
+                source = job.pollSource();
             }
-            String field = fieldQueue.poll();
+            String field = job.pollParameter();
             while (field != null) {
+                if (isSounding) {
+                    request.addAvailableField(SOUNDING_PARAMETER);
+                }
                 request.addAvailableField(field);
-                field = fieldQueue.poll();
+                field = job.pollParameter();
             }
-            String levelStr = levelQueue.poll();
-            while (levelStr != null) {
-                // Convert levels into planes.
-                Level level = LevelFactory.getInstance().getLevel(levelStr);
-
+            Level level = job.pollLevel();
+            while (level != null) {
+                /* Convert levels into planes. */
                 if (levels3D.contains(level)) {
-                    for (String plane : get3DPlanes(sourcesToProcess)) {
+                    for (String plane : get3DPlanes(selectedSourcesAsList)) {
                         request.addAvailablePlane(plane);
                     }
                 }
-                request.addAvailablePlane("spatial-"
-                        + level.getMasterLevel().getName());
+                String spatialPlane = "spatial-"
+                        + level.getMasterLevel().getName();
+                request.addAvailablePlane(spatialPlane);
                 Collection<LevelMapping> lms = LevelMappingFactory.getInstance(
                         LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
                         .getAllLevelMappingsForLevel(level);
@@ -216,14 +228,11 @@ public abstract class AbstractInventoryDataCatalog extends AbstractDataCatalog {
                         request.addAvailablePlane(lm.getKey());
                     }
                 }
-                levelStr = levelQueue.poll();
+                level = job.pollLevel();
 
             }
             if (request.isCanceled()) {
-                Thread thread = inventoryJob.getThread();
-                if (thread != null) {
-                    thread.interrupt();
-                }
+                job.interrupt();
                 break;
             }
             try {
@@ -234,7 +243,7 @@ public abstract class AbstractInventoryDataCatalog extends AbstractDataCatalog {
         }
     }
 
-    // GIven a list of planes, return the sources that are valid for any point
+    // Given a list of planes, return the sources that are valid for any point
     // or line planes
     protected Collection<String> get3DSources(String[] planes) {
         return null;

@@ -19,20 +19,26 @@
  **/
 package com.raytheon.viz.volumebrowser.datacatalog;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * 
- * TODO Add Description
+ * Data structure allowing async communication between the background thread
+ * that is determining which menu items should be available and the man UI
+ * thread which is updating the menu items to show availability.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * May 24, 2011            bsteffen     Initial creation
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * May 24, 2011  9493     bsteffen  Initial creation
+ * Feb 01, 2016  5275     bsteffen  Track all available items and add to queue
+ *                                  only once.
  * 
  * </pre>
  * 
@@ -48,6 +54,12 @@ public class AvailableDataRequest {
 
     private final BlockingQueue<String> planeQueue;
 
+    private final Set<String> availableSources;
+
+    private final Set<String> availableFields;
+
+    private final Set<String> availablePlanes;
+
     private final String[] selectedSources;
 
     private final String[] selectedFields;
@@ -62,6 +74,9 @@ public class AvailableDataRequest {
         this.sourceQueue = new LinkedBlockingQueue<String>();
         this.fieldQueue = new LinkedBlockingQueue<String>();
         this.planeQueue = new LinkedBlockingQueue<String>();
+        this.availableSources = new HashSet<>();
+        this.availableFields = new HashSet<>();
+        this.availablePlanes = new HashSet<>();
     }
 
     public String[] getSelectedSources() {
@@ -77,15 +92,21 @@ public class AvailableDataRequest {
     }
 
     public void addAvailableSource(String source) {
-        sourceQueue.add(source);
+        if (availableSources.add(source)) {
+            sourceQueue.add(source);
+        }
     }
 
     public void addAvailableField(String field) {
-        fieldQueue.add(field);
+        if (availableFields.add(field)) {
+            fieldQueue.add(field);
+        }
     }
 
     public void addAvailablePlane(String plane) {
-        planeQueue.add(plane);
+        if (availablePlanes.add(plane)) {
+            planeQueue.add(plane);
+        }
     }
 
     public String getAvailableSource() {
