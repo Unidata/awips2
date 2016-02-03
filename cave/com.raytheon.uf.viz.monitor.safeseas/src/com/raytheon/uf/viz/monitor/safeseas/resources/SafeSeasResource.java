@@ -22,6 +22,9 @@ package com.raytheon.uf.viz.monitor.safeseas.resources;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
+
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.fog.FogRecord;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -29,6 +32,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.IDescriptor.FramesInfo;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -48,9 +52,10 @@ import com.raytheon.uf.viz.monitor.safeseas.listeners.ISSResourceListener;
  * 
  *    SOFTWARE HISTORY
  *   
- *    Date             Ticket#     Engineer    Description
- *    ------------ ----------  ----------- --------------------------
- *    July 21, 2010    4891        skorolev    Initial Creation.
+ *    Date           Ticket#     Engineer    Description
+ *    ------------   ----------  ----------- --------------------------
+ *    July 21, 2010  4891        skorolev    Initial Creation.
+ *    Jan  28, 2016  DR 16771    arickert    Opening the SafeSeas dialog here instead of SafeSeasAction.java
  * 
  * </pre>
  * 
@@ -96,8 +101,23 @@ public class SafeSeasResource extends
 
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
-        // TODO Auto-generated method stub
-
+        // Open the Monitor for this resource just before we've completed the
+        // resource initialization. That is, when
+        //     status = ResourceStatus.INITIALIZED in AbstractVizResource.java
+        VizApp.runAsync(new Runnable() {
+            
+            @Override
+            public void run() {
+                SafeSeasMonitor monitor = SafeSeasMonitor.getInstance();                                                                                           
+                if (monitor.getZoneDialog() == null || 
+                    monitor.getZoneDialog().isDisposed()) {                                                                                                 
+                    Shell shell = PlatformUI.getWorkbench()
+                                            .getActiveWorkbenchWindow()                                                                             
+                                            .getShell();                                                                                                                           
+                    monitor.launchDialog("zone", shell);                                                                                                           
+                }       
+            } 
+        });
     }
 
     @Override

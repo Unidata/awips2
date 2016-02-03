@@ -27,6 +27,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
 import org.geotools.referencing.GeodeticCalculator;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
@@ -243,6 +245,22 @@ public class ScanResource extends
         addScanRadarListener(this);
         gc = new GeodeticCalculator(descriptor.getCRS());
         initialCenter(getScan().getStationCoordinate(resourceData.icao));
+        
+        final ScanMonitor scan = ScanMonitor.getInstance();
+        final String icao = resourceData.icao;
+        // Open the Monitor for this resource just before we've completed the
+        // resource initialization. That is, when
+        //     status = ResourceStatus.INITIALIZED in AbstractVizResource.java
+        VizApp.runAsync(new Runnable() {
+            
+            @Override
+            public void run() {
+                Shell shell = PlatformUI.getWorkbench()
+                                        .getActiveWorkbenchWindow()
+                                        .getShell();
+                scan.launchDialog(shell, icao, table);
+            }
+        });
     }
 
     @Override
