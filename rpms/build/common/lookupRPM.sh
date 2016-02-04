@@ -260,7 +260,7 @@ function lookupRPM()
       return 0
    fi
    if [ "${1}" = "awips2-eclipse" ]; then
-      export RPM_SPECIFICATION="${awips2_ade_dir}/Installer.eclipse"
+      export RPM_SPECIFICATION="${installer_dir}/eclipse"
       return 0
    fi
    if [ "${1}" = "awips2-yajsw" ]; then

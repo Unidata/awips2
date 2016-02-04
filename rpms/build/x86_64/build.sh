@@ -136,6 +136,7 @@ if [ "${1}" = "-rh6" ]; then
    buildRPM "awips2-ant"
    buildRPM "awips2-maven"
    buildRPM "awips2-tools"
+   buildRPM "awips2-eclipse"
    buildRPM "awips2-postgresql"
    buildRPM "awips2-pgadmin3"
    buildRPM "awips2-httpd-pypies"
