@@ -4,7 +4,7 @@ Bundle-Name: Registry
 Bundle-SymbolicName: com.raytheon.uf.edex.registry.ebxml
 Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: com.raytheon.uf.common.registry.schemas.ebxml;bundle-version="1.0.0",
  org.apache.commons.beanutils;bundle-version="1.8.3",
  org.springframework;bundle-version="2.5.6",

@@ -4,7 +4,7 @@ Bundle-Name: Volume Browser Plug-in
 Bundle-SymbolicName: com.raytheon.viz.volumebrowser;singleton:=true
 Bundle-Version: 1.13.0.qualifier
 Bundle-Vendor: Raytheon
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,

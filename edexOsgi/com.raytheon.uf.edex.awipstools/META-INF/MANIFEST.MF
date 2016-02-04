@@ -4,7 +4,7 @@ Bundle-Name: Awipstools Plug-in
 Bundle-SymbolicName: com.raytheon.uf.edex.awipstools
 Bundle-Version: 1.12.1174.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: com.raytheon.uf.common.serialization;bundle-version="1.12.1112",
  com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1112",
  com.raytheon.uf.common.awipstools;bundle-version="1.12.1112",

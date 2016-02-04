@@ -12,7 +12,7 @@ Require-Bundle: com.raytheon.edex.common;bundle-version="1.11.13",
  com.raytheon.edex.plugin.ldad;bundle-version="1.0.0",
  com.raytheon.uf.common.pointdata;bundle-version="1.11.17",
  com.raytheon.uf.edex.pointdata
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: com.raytheon.edex.plugin.ldadprofiler.common,
  com.raytheon.edex.plugin.ldadprofiler.dao
 Import-Package: com.raytheon.uf.common.status,

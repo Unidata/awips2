@@ -4,7 +4,7 @@ Bundle-Name: Nws Authorization Plug-in
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.nwsauth
 Bundle-Version: 1.12.1174.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: com.raytheon.uf.edex.auth;bundle-version="1.12.2",
  com.raytheon.uf.common.auth;bundle-version="1.12.2",
  com.raytheon.uf.common.plugin.nwsauth;bundle-version="1.0.0",

@@ -4,7 +4,7 @@ Bundle-Name: Acars Decoder Plug-in
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.acars
 Bundle-Version: 1.14.1.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: com.raytheon.edex.common;bundle-version="1.14.0",
  com.raytheon.uf.common.dataplugin.acars;bundle-version="1.14.0",
  com.raytheon.uf.common.pointdata;bundle-version="1.13.0",

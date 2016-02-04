@@ -4,7 +4,7 @@ Bundle-Name: NetCDF Bufr
 Bundle-SymbolicName: com.raytheon.uf.common.nc.bufr
 Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: ucar.nc2,
  ucar.nc2.bufrsplitter,
  com.raytheon.uf.common.status,

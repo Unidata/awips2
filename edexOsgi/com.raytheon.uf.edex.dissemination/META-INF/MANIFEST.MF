@@ -4,7 +4,7 @@ Bundle-Name: Dissemination Plug-in
 Bundle-SymbolicName: com.raytheon.uf.edex.dissemination
 Bundle-Version: 1.12.1174.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Import-Package: com.raytheon.edex.exception,
  com.raytheon.uf.common.dataplugin.text,

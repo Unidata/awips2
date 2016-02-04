@@ -4,7 +4,7 @@ Bundle-Name: Parameter
 Bundle-SymbolicName: com.raytheon.uf.edex.parameter
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.raytheon.edex.db.dao,
  com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.datastorage,

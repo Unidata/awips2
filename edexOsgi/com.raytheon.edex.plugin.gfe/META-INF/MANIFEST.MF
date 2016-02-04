@@ -68,4 +68,4 @@ Import-Package: com.raytheon.edex.db.dao,
  com.raytheon.uf.edex.site,
  org.apache.commons.logging,
  org.hibernate
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7

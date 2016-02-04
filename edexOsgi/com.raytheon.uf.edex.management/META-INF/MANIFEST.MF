@@ -4,7 +4,7 @@ Bundle-Name: Management
 Bundle-SymbolicName: com.raytheon.uf.edex.management
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.raytheon.uf.common.comm,
  com.raytheon.uf.common.management.request.diagnostic,
  com.raytheon.uf.common.serialization.comm

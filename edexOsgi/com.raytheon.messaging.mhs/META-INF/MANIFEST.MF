@@ -4,5 +4,5 @@ Bundle-Name: Mhs Plug-in
 Bundle-SymbolicName: com.raytheon.messaging.mhs
 Bundle-Version: 1.12.1174.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: com.raytheon.messaging.mhs

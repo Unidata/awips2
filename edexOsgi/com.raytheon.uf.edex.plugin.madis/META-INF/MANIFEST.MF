@@ -4,7 +4,7 @@ Bundle-Name: Madis
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.madis
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: com.raytheon.uf.edex.pointdata;bundle-version="1.12.1174",
  com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
  com.raytheon.uf.common.dataplugin.madis;bundle-version="1.0.0",

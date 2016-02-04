@@ -25,6 +25,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.geotools.coverage.grid.GeneralGridGeometry;
+
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
@@ -125,9 +127,8 @@ public class SatelliteDao extends PluginDao {
             dataStore.addDataRecord(storageRecord);
 
             SatMapCoverage coverage = satRecord.getCoverage();
-
-            GridDownscaler downScaler = new GridDownscaler(
-                    coverage.getGridGeometry());
+            GeneralGridGeometry gridGeom = coverage.getGridGeometry();
+            GridDownscaler downScaler = new GridDownscaler( gridGeom );
 
             Rectangle fullScale = downScaler.getDownscaleSize(0);
             BufferWrapper dataSource = BufferWrapper.wrapArray(

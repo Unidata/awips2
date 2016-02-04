@@ -4,7 +4,7 @@ Bundle-Name: RCM Library Plug-in
 Bundle-SymbolicName: com.raytheon.rcm.lib
 Bundle-Version: 1.12.1174.qualifier
 Bundle-Vendor: Raytheon
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: com.raytheon.rcm.alertreq,
  com.raytheon.rcm.config,
  com.raytheon.rcm.config.awips1,

@@ -4,7 +4,7 @@ Bundle-Name: Wfs
 Bundle-SymbolicName: com.raytheon.uf.edex.wfs
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: org.geotools;bundle-version="2.6.4",
  com.raytheon.edex.common;bundle-version="1.12.1174",
  com.raytheon.uf.edex.ogc.common;bundle-version="1.0.0",

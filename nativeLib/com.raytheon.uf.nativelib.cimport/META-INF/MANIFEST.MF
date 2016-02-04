@@ -5,5 +5,5 @@ Bundle-SymbolicName: com.raytheon.uf.nativelib.cimport;singleton:=true
 Bundle-Version: 1.12.1152.qualifier
 Bundle-Vendor: RAYTHEON
 Require-Bundle: org.eclipse.core.runtime
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: org.eclipse.core.resources
