@@ -49,6 +49,7 @@ import java.util.regex.Pattern;
 import javax.xml.bind.JAXB;
 import javax.xml.bind.JAXBException;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -367,6 +368,9 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  * 6Jan2016    RM18452   mgamazaychikov Fix NPE for null product in enterEditor
  * 06Jan2016   5225         randerso    Fix problem with mixed case not getting converted to upper case 
  *                                      when multiple text editors are open on the same product.
+ * 04Feb2016   5076         dgilling    Prevent text editor from adding multiple
+ *                                      copies of header to edited product after
+ *                                      save/cancel cycling.
  * 
  * </pre>
  * 
@@ -4384,15 +4388,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             searchReplaceDlg.setEditMode(inEditMode);
         }
 
-        // Restore the contents of the text editor if needed
-        // Note: this block conpensates for the unusual behavior of the AWIPS-I
-        // cancel editor functionality. Basically, once a product has been saved
-        // cancelling DOES NOT roll back changes in AWIPS-I!
-        if (saved) {
-            replaceWorkProductId();
-            originalText = combineOriginalMessage();
-        }
-
         if (originalText != null) {
             textEditor.setText(originalText);
         }
@@ -5103,7 +5098,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             try {
                 updateTextEditor(body);
                 if ((inEditMode || resend)
-                        && saveEditedProduct(prod, false, resend, true)) {
+                        && !saveEditedProduct(prod, false, resend, true)
+                                .isEmpty()) {
                     inEditMode = false;
                 }
                 if (!resend) {
@@ -5185,7 +5181,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 }
                 updateTextEditor(body);
                 if ((inEditMode || resend)
-                        && saveEditedProduct(prod, false, resend, false)) {
+                        && !saveEditedProduct(prod, false, resend, false)
+                                .isEmpty()) {
                     inEditMode = false;
                 }
                 SendPracticeProductRequest req = new SendPracticeProductRequest();
@@ -5349,12 +5346,12 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             userInformation("This product MUST be edited in GFE! \n Please exit and return to GFE. \n Action Aborted!");
             return;
         }
-        boolean successful = saveEditedProduct(product, false, false, false);
-        if (successful) {
+        String savedProduct = saveEditedProduct(product, false, false, false);
+        if (!savedProduct.isEmpty()) {
             // reset the editor status flags
             saved = true;
             replaceWorkProductId();
-            originalText = combineOriginalMessage();
+            originalText = savedProduct;
             if (warnGenFlag == true) {
                 originalText = removeSoftReturns(originalText);
             }
@@ -5373,16 +5370,16 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * @param isOperationalSend
      *            true if operational send
      * 
-     * @return true is the save was successful
+     * @return The text of the saved product if successful. Empty string if not.
      */
-    synchronized private boolean saveEditedProduct(StdTextProduct product,
+    synchronized private String saveEditedProduct(StdTextProduct product,
             boolean isAutoSave, boolean resend, boolean isOperationalSend) {
         if ((product != null)
                 && gfeForbidden(product.getCccid(), product.getNnnid())) {
             // Pop up forbidden window.
             inEditMode = false;
             userInformation("This product MUST be edited in GFE! \n Please exit and return to GFE. \n Action Aborted!");
-            return false;
+            return StringUtils.EMPTY;
         }
         boolean successful = false;
 
@@ -5397,7 +5394,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         // Convert the text in the text editor to uppercase
         if (!isAutoSave) {
             if (!verifyRequiredFields()) {
-                return false;
+                return StringUtils.EMPTY;
             }
             replaceWorkProductId();
 
@@ -5482,7 +5479,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             successful = true;
         } else {
             if (!saveStoredTextProduct(storedProduct)) {
-                return false;
+                return StringUtils.EMPTY;
             }
 
             // Update the TextProductInfo table within the Text Database when a
@@ -5494,7 +5491,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             successful = saveTextProductInfo();
         }
 
-        return successful;
+        return (successful) ? productText.trim() : StringUtils.EMPTY;
     }
 
     /**
@@ -8059,9 +8056,9 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         }
 
         // is this the impact paragraph?
-        if (paragraphStart.startsWith("  IMPACT...") ||
-            paragraphStart.startsWith("  HAZARD...") ||
-            paragraphStart.startsWith("  SOURCE...") ) {
+        if (paragraphStart.startsWith("  IMPACT...")
+                || paragraphStart.startsWith("  HAZARD...")
+                || paragraphStart.startsWith("  SOURCE...")) {
             padding = "           ";
         }
 
@@ -8145,8 +8142,9 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             // if the next line does not start a new paragraph
             if (!isParagraphStart(lineNumber + 1)) {
                 // if the next line is not empty
-                if (!textEditor.getLine(lineNumber + 1).trim().isEmpty() ||
-                    (textEditor.getLine(lineNumber + 1).length() == padding.length()+1)   ) {
+                if (!textEditor.getLine(lineNumber + 1).trim().isEmpty()
+                        || (textEditor.getLine(lineNumber + 1).length() == padding
+                                .length() + 1)) {
                     // Determine what kind of end of line marker line has.
                     int deleteLen = 0;
 
