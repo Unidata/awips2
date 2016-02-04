@@ -4,7 +4,7 @@ Bundle-Name: Management
 Bundle-SymbolicName: com.raytheon.uf.common.management
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Import-Package: com.raytheon.uf.common.serialization.comm
 Require-Bundle: com.raytheon.uf.common.serialization

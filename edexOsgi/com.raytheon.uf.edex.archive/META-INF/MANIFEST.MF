@@ -4,7 +4,7 @@ Bundle-Name: Edex Archive
 Bundle-SymbolicName: com.raytheon.uf.edex.archive
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: com.raytheon.uf.edex.archive,
  com.raytheon.uf.edex.archive.purge
 Import-Package: com.raytheon.uf.common.archive.config,

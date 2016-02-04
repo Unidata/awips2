@@ -4,7 +4,7 @@ Bundle-Name: Vaa Plug-in
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.vaa
 Bundle-Version: 1.13.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: com.raytheon.uf.edex.decodertools,
  org.geotools,
  javax.persistence,

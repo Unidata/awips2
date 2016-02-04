@@ -4,7 +4,7 @@ Bundle-Name: NUCAPS EDEX Plugin
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.npp.nucaps
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: com.raytheon.uf.edex.plugin.npp;bundle-version="1.0.0",
  com.raytheon.uf.edex.plugin.npp.sounding;bundle-version="1.0.0",
  com.raytheon.uf.common.dataplugin.npp.nucaps;bundle-version="1.0.0";visibility:=reexport,

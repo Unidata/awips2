@@ -4,7 +4,7 @@ Bundle-Name: Bufrquikscat Plug-in
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.bufrquikscat
 Bundle-Version: 1.12.1174.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: com.raytheon.uf.common.dataplugin.bufrquikscat
 Require-Bundle: com.raytheon.uf.common.pointdata,
  javax.persistence,

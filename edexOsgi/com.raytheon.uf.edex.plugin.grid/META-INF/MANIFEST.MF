@@ -4,7 +4,7 @@ Bundle-Name: Grid
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.grid
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.raytheon.uf.common.inventory.tree,
  com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.dataplugin.persist,

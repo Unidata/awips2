@@ -4,7 +4,7 @@ Bundle-Name: Edex Menus
 Bundle-SymbolicName: com.raytheon.uf.edex.menus
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: com.raytheon.uf.common.menus;bundle-version="1.12.1174";visibility:=reexport,
  com.raytheon.uf.common.localization;bundle-version="1.12.1174",
  com.raytheon.uf.common.status;bundle-version="1.12.1174",

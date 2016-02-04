@@ -4,7 +4,7 @@ Bundle-Name: Radar Apps Core Plug-in
 Bundle-SymbolicName: com.raytheon.uf.viz.radarapps.core;singleton:=true
 Bundle-Version: 1.12.1174.qualifier
 Bundle-Vendor: Raytheon
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: org.eclipse.ui,
  com.raytheon.rcm.lib;bundle-version="1.0.0",
  org.apache.activemq;bundle-version="5.2.0",

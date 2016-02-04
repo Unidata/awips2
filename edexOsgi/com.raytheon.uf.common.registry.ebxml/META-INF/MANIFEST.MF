@@ -4,7 +4,7 @@ Bundle-Name: com.raytheon.uf.common.registry.ebxml
 Bundle-SymbolicName: com.raytheon.uf.common.registry.ebxml
 Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: com.raytheon.uf.common.registry,
  com.raytheon.uf.common.registry.annotations,
  com.raytheon.uf.common.registry.constants,

@@ -4,7 +4,7 @@ Bundle-Name: Preciprate Plug-in
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.preciprate
 Bundle-Version: 1.12.1174.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: com.raytheon.uf.edex.cpgsrv;bundle-version="1.11.7";resolution:=optional,
  com.raytheon.edex.common;bundle-version="1.11.7",
  com.raytheon.uf.common.monitor;bundle-version="1.11.7",

@@ -4,7 +4,7 @@ Bundle-Name: RPG Environmental Data Plug-in
 Bundle-SymbolicName: com.raytheon.edex.rpgenvdata
 Bundle-Version: 1.12.1174.qualifier
 Bundle-Vendor: Raytheon
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: com.raytheon.uf.common.localization;bundle-version="1.11.24",
  com.raytheon.uf.common.status;bundle-version="1.11.24",
  com.raytheon.rcm.lib;bundle-version="1.11.24",

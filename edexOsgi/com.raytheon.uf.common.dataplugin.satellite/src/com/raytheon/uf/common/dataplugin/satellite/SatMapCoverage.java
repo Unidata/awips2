@@ -123,7 +123,7 @@ public class SatMapCoverage extends PersistableDataObject<Object> implements
      * 5=Polar Stereographic, 7585 = native satellite navigation e.g.
      * GVAR, ...
      * 
-     * @deprecated This field is only useful for GINI satellite format decoding
+     * This field is only useful for GINI satellite format decoding
      *             and should not be in the coverage object
      */
     @Column

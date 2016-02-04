@@ -4,7 +4,7 @@ Bundle-Name: Bufrobs
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.bufrobs
 Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: com.raytheon.uf.common.nc.bufr,
  ucar.nc2,
  ucar.nc2.bufrsplitter,

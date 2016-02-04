@@ -4,7 +4,7 @@ Bundle-Name: NUCAPS Common Plugin
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.npp.nucaps
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
  com.raytheon.uf.common.dataplugin.npp.sounding;bundle-version="1.0.0";visibility:=reexport,
  com.raytheon.uf.common.pointdata;bundle-version="1.12.1174",

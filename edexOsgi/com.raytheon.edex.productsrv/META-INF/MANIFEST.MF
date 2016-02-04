@@ -9,7 +9,7 @@ Require-Bundle: com.raytheon.edex.common,
  org.jep,
  com.raytheon.uf.common.localization
 Export-Package: com.raytheon.edex.services
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.raytheon.uf.common.message,
  com.raytheon.uf.common.message.response,
  com.raytheon.uf.common.python,

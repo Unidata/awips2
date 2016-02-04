@@ -4,7 +4,7 @@ Bundle-Name: Hpe Grib Preprocessor
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.hpe
 Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Require-Bundle: com.raytheon.uf.common.status;bundle-version="1.12.1174",
  com.raytheon.uf.edex.database;bundle-version="1.0.0",

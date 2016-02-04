@@ -4,4 +4,4 @@ Bundle-Name: Wes2Bridge Datalink Utility
 Bundle-SymbolicName: com.raytheon.wes2bridge.datalink
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7

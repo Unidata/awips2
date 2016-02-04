@@ -4,5 +4,5 @@ Bundle-Name: Ldad Plug-in
 Bundle-SymbolicName: com.raytheon.edex.plugin.ldad
 Bundle-Version: 1.12.1174.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: com.raytheon.edex.plugin.ldad.common

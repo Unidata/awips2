@@ -4,7 +4,7 @@ Bundle-Name: Wes2Bridge Configuration Utility
 Bundle-SymbolicName: com.raytheon.wes2bridge.configuration
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: org.apache.commons.configuration;bundle-version="1.6.0",
  org.apache.commons.lang;bundle-version="2.3.0",
  com.raytheon.wes2bridge.common;bundle-version="1.0.0"
