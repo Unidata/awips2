@@ -2123,6 +2123,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                     }
 
                     dialog.addDeletePoint(data);
+                    deleteList.add( getZoomOffset(selectedTraceId) + i ); 
                 }
             }
 
