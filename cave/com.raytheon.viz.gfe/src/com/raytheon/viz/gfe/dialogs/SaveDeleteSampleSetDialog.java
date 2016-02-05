@@ -39,11 +39,11 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.common.dataplugin.gfe.sample.SampleId;
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -64,6 +64,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Oct 24, 2012 1287       rferrel     Code clean up for non-blocking dialog.
  * Sep 15, 2014 3592       randerso    Re-implemented to match A1
  * Nov 19, 2014 5129       dgilling    Support SampleSetManager changes.
+ * Feb 05, 2016 5242       dgilling    Remove calls to deprecated Localization APIs.
  * 
  * </pre>
  * 
@@ -237,9 +238,9 @@ public class SaveDeleteSampleSetDialog extends CaveJFACEDialog {
             IPathManager pm = PathManagerFactory.getPathManager();
             LocalizationContext ctx = pm.getContext(
                     LocalizationType.COMMON_STATIC, LocalizationLevel.USER);
-            LocalizationFile lf = pm.getLocalizationFile(ctx,
+            ILocalizationFile lf = pm.getLocalizationFile(ctx,
                     SampleSetManager.SAMPLE_SETS_DIR + id.getName() + ".xml");
-            boolean verify = AccessMgr.verifyDelete(lf.getName(), lf
+            boolean verify = AccessMgr.verifyDelete(lf.getPath(), lf
                     .getContext().getLocalizationType(), false);
             if (!verify) {
                 return;

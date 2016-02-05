@@ -46,6 +46,7 @@ import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.LocalizationUtil;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
@@ -82,6 +83,7 @@ import com.raytheon.viz.gfe.textformatter.CombinationsFileUtil.ComboData.Entry;
  * Oct 07, 2015     #4695  dgilling    Code cleanup to remove compile warnings.
  * Nov 12, 2015      4834  njensen     Changed LocalizationOpFailedException to LocalizationException
  * Nov 18, 2015     #5129  dgilling    Support new IFPClient.
+ * Feb 05, 2016      5242  dgilling    Remove calls to deprecated Localization APIs.
  * 
  * </pre>
  * 
@@ -156,8 +158,8 @@ public class CombinationsFileUtil {
     }
 
     public static String fileToId(LocalizationFile file) {
-        File f = new File(file.getName());
-        String id = f.getName().replace(".xml", "");
+        String id = LocalizationUtil.extractName(file.getPath()).replace(
+                ".xml", "");
         id = FileUtil.unmangle(id);
 
         return id;
@@ -215,7 +217,7 @@ public class CombinationsFileUtil {
             throws SerializationException, IOException, LocalizationException {
         LocalizationFile lf = idToFile(id);
         try (InputStream in = lf.openInputStream()) {
-            ComboData comboData = (ComboData) jaxb.unmarshalFromInputStream(in);
+            ComboData comboData = jaxb.unmarshalFromInputStream(in);
 
             Map<String, Integer> comboDict = new HashMap<String, Integer>(
                     comboData.combos.size());

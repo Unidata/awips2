@@ -57,6 +57,7 @@ import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.LocalizationUtil;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.site.notify.SiteActivationNotification;
@@ -149,7 +150,8 @@ import com.raytheon.viz.gfe.types.MutableInteger;
  * 10/30/2014    #3775     randerso    Changed to createMutableDb before getting initial database inventory
  * 01/13/2015    #3955     randerso    Changed getProductDatabase() to return mutableDb for EditTopo
  * 03/12/2015    #4246     randerso    Changes to support VCModules at base, site, and user levels
- * 11/17/2015    #5129     dgilling    Changes to support new IFPClienbt
+ * 11/17/2015    #5129     dgilling    Changes to support new IFPClient
+ * 02/05/2016    #5242     dgilling    Remove calls to deprecated Localization APIs.
  * </pre>
  * 
  * @author chammack
@@ -3129,15 +3131,9 @@ public class ParmManager implements IParmManager, IMessageClient {
                     FileUtil.join("gfe", "vcmodule"), new String[] { "py" },
                     false, true);
             for (LocalizationFile lf : files) {
-                try {
-                    String modName = lf.getFile(false).getName()
-                            .split("\\.(?=[^\\.]+$)")[0];
-                    modMap.put(modName, lf);
-                } catch (LocalizationException e) {
-                    statusHandler.error(
-                            "Error getting local file name for VCModule " + lf,
-                            e);
-                }
+                String modName = LocalizationUtil.extractName(lf.getPath())
+                        .replace(".py", "");
+                modMap.put(modName, lf);
             }
         }
 

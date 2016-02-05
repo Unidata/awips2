@@ -81,6 +81,7 @@ import com.raytheon.uf.common.dataplugin.gfe.slice.IGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.ScalarGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.weather.WeatherSubKey;
 import com.raytheon.uf.common.dataplugin.gfe.weather.WxDefinition;
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -117,6 +118,7 @@ import com.raytheon.uf.common.time.TimeRange;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 13, 2015  #5129     dgilling     Initial creation
+ * Feb 05, 2016  #5242     dgilling     Replace calls to deprecated Localization APIs.
  * 
  * </pre>
  * 
@@ -572,7 +574,7 @@ public class IFPClient {
                 LocalizationType.COMMON_STATIC, SAMPLE_SETS_DIR,
                 new String[] { ".xml" }, false, true);
         for (LocalizationFile lf : files) {
-            String name = LocalizationUtil.extractName(lf.getName()).replace(
+            String name = LocalizationUtil.extractName(lf.getPath()).replace(
                     ".xml", "");
             inv.add(new SampleId(name, false, lf.getContext()
                     .getLocalizationLevel()));
@@ -599,7 +601,7 @@ public class IFPClient {
                 new String[] { ".xml" }, false, true);
         if (contents != null) {
             for (LocalizationFile lf : contents) {
-                String area = LocalizationUtil.extractName(lf.getName())
+                String area = LocalizationUtil.extractName(lf.getPath())
                         .replace(".xml", "");
                 refIDs.add(new ReferenceID(area, false, lf.getContext()
                         .getLocalizationLevel()));
@@ -625,7 +627,7 @@ public class IFPClient {
         LocalizationContext ctx = pm.getContext(LocalizationType.COMMON_STATIC,
                 LocalizationLevel.USER);
         for (SampleData sample : sampleData) {
-            LocalizationFile lf = pm.getLocalizationFile(ctx, SAMPLE_SETS_DIR
+            ILocalizationFile lf = pm.getLocalizationFile(ctx, SAMPLE_SETS_DIR
                     + IPathManager.SEPARATOR + sample.getSampleId().getName()
                     + ".xml");
             try (SaveableOutputStream out = lf.openOutputStream()) {
@@ -660,7 +662,7 @@ public class IFPClient {
         LocalizationContext ctx = pm.getContext(LocalizationType.COMMON_STATIC,
                 LocalizationLevel.USER);
         for (ReferenceData refData : referenceData) {
-            LocalizationFile lf = pm.getLocalizationFile(ctx, EDIT_AREAS_DIR
+            ILocalizationFile lf = pm.getLocalizationFile(ctx, EDIT_AREAS_DIR
                     + IPathManager.SEPARATOR + refData.getId().getName()
                     + ".xml");
             try (SaveableOutputStream out = lf.openOutputStream()) {
@@ -694,7 +696,7 @@ public class IFPClient {
                 LocalizationLevel.USER);
         for (SampleId id : ids) {
             try {
-                LocalizationFile lf = pm.getLocalizationFile(ctx,
+                ILocalizationFile lf = pm.getLocalizationFile(ctx,
                         SAMPLE_SETS_DIR + IPathManager.SEPARATOR + id.getName()
                                 + ".xml");
                 lf.delete();
@@ -722,7 +724,7 @@ public class IFPClient {
                 LocalizationLevel.USER);
         for (ReferenceID id : ids) {
             try {
-                LocalizationFile lf = pm.getLocalizationFile(ctx,
+                ILocalizationFile lf = pm.getLocalizationFile(ctx,
                         EDIT_AREAS_DIR + IPathManager.SEPARATOR + id.getName()
                                 + ".xml");
                 lf.delete();
@@ -773,14 +775,14 @@ public class IFPClient {
         for (SampleId id : ids) {
             String filePath = SAMPLE_SETS_DIR + IPathManager.SEPARATOR
                     + id.getName() + ".xml";
-            LocalizationFile lf = PathManagerFactory.getPathManager()
+            ILocalizationFile lf = PathManagerFactory.getPathManager()
                     .getStaticLocalizationFile(LocalizationType.COMMON_STATIC,
                             filePath);
 
             if (lf != null) {
                 try (InputStream in = lf.openInputStream()) {
-                    SampleData sampleData = (SampleData) SampleData
-                            .getJAXBManager().unmarshalFromInputStream(in);
+                    SampleData sampleData = SampleData.getJAXBManager()
+                            .unmarshalFromInputStream(in);
                     sampleData.setSampleId(id);
                     data.add(sampleData);
                 } catch (Exception e) {
@@ -844,13 +846,13 @@ public class IFPClient {
         for (ReferenceID id : ids) {
             String filePath = EDIT_AREAS_DIR + IPathManager.SEPARATOR
                     + id.getName() + ".xml";
-            LocalizationFile lf = PathManagerFactory.getPathManager()
+            ILocalizationFile lf = PathManagerFactory.getPathManager()
                     .getStaticLocalizationFile(LocalizationType.COMMON_STATIC,
                             filePath);
             if (lf != null) {
                 try (InputStream in = lf.openInputStream()) {
-                    ReferenceData refData = (ReferenceData) ReferenceData
-                            .getJAXBManager().unmarshalFromInputStream(in);
+                    ReferenceData refData = ReferenceData.getJAXBManager()
+                            .unmarshalFromInputStream(in);
                     refData.setId(new ReferenceID(id.getName(), false, lf
                             .getContext().getLocalizationLevel()));
                     refData.setGloc(gridLocation);

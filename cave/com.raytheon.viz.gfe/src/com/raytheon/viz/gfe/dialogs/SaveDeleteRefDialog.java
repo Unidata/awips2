@@ -44,11 +44,11 @@ import org.eclipse.swt.widgets.Text;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData.RefType;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceID;
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -71,6 +71,7 @@ import com.raytheon.viz.ui.widgets.ToggleSelectList;
  * Sep 10, 2010            randerso     Initial creation
  * Oct 24, 2012 1287       rferrel     Code clean up part of non-blocking dialog.
  * Nov 18, 2015 5129       dgilling    Code cleanup to support ReferenceSetManager changes.
+ * Feb 05, 2016 5242       dgilling    Remove calls to deprecated Localization APIs.
  * 
  * </pre>
  * 
@@ -349,10 +350,10 @@ public class SaveDeleteRefDialog extends CaveJFACEDialog {
             IPathManager pm = PathManagerFactory.getPathManager();
             LocalizationContext ctx = pm.getContext(
                     LocalizationType.COMMON_STATIC, LocalizationLevel.USER);
-            LocalizationFile lf = pm.getLocalizationFile(ctx,
+            ILocalizationFile lf = pm.getLocalizationFile(ctx,
                     ReferenceSetManager.EDIT_AREAS_DIR + IPathManager.SEPARATOR
                             + id.getName() + ".xml");
-            boolean verify = AccessMgr.verifyDelete(lf.getName(), lf
+            boolean verify = AccessMgr.verifyDelete(lf.getPath(), lf
                     .getContext().getLocalizationType(), false);
             if (!verify) {
                 return false;

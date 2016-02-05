@@ -21,10 +21,11 @@ package com.raytheon.viz.gfe.dialogs;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -62,16 +63,16 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.viz.gfe.Activator;
@@ -91,6 +92,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Oct 28, 2015 5054       randerso    Place GfeConfigDialog on current monitor if 
  *                                     parent shell is not visible.
  * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
+ * Feb 05, 2016 5242       dgilling    Remove calls to deprecated Localization APIs.
  * 
  * </pre>
  * 
@@ -411,60 +413,38 @@ public class GFEConfigDialog extends CaveJFACEDialog {
         IPathManager pathMgr = PathManagerFactory.getPathManager();
         LocalizationContext context = pathMgr.getContext(
                 LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
-        LocalizationFile lf = pathMgr.getLocalizationFile(context, LAST_CONFIG);
-        File file = lf.getFile();
+        ILocalizationFile lf = pathMgr
+                .getLocalizationFile(context, LAST_CONFIG);
 
-        BufferedWriter out = null;
-        try {
-            out = new BufferedWriter(new FileWriter(file));
+        try (SaveableOutputStream outStream = lf.openOutputStream();
+                Writer out = new BufferedWriter(new OutputStreamWriter(
+                        outStream))) {
             out.write(config);
+            out.close();
+            outStream.save();
         } catch (IOException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error saving config file selection", e);
-        } finally {
-            if (out != null) {
-                try {
-                    out.close();
-                } catch (IOException e) {
-                    // nothing to do
-                }
-            }
-        }
-
-        try {
-            lf.save();
+            statusHandler.error("Error writing config file selection", e);
         } catch (LocalizationException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error saving config file selection", e);
+            statusHandler.error("Error saving config file selection", e);
         }
     }
 
     private void loadLastConfig() {
-        config = null;
-
         IPathManager pathMgr = PathManagerFactory.getPathManager();
         LocalizationContext context = pathMgr.getContext(
                 LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
-        LocalizationFile lf = pathMgr.getLocalizationFile(context, LAST_CONFIG);
-        File file = lf.getFile();
+        ILocalizationFile lf = pathMgr
+                .getLocalizationFile(context, LAST_CONFIG);
 
-        if (file.exists()) {
-            BufferedReader in = null;
-            try {
-                in = new BufferedReader(new FileReader(file));
+        config = null;
+        if (lf.exists()) {
+            try (InputStream inStream = lf.openInputStream();
+                    BufferedReader in = new BufferedReader(
+                            new InputStreamReader(inStream))) {
                 config = in.readLine();
-            } catch (IOException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error loading config file selection", e);
+            } catch (IOException | LocalizationException e) {
+                statusHandler.error("Error loading config file selection", e);
                 config = null;
-            } finally {
-                if (in != null) {
-                    try {
-                        in.close();
-                    } catch (IOException e) {
-                        // nothing to do
-                    }
-                }
             }
         }
 

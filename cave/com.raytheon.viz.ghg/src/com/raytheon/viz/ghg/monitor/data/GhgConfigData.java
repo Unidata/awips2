@@ -20,6 +20,7 @@
 package com.raytheon.viz.ghg.monitor.data;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -31,7 +32,6 @@ import java.util.Set;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
 import jep.JepException;
@@ -44,15 +44,18 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.python.PyUtil;
 import com.raytheon.uf.common.python.PythonScript;
+import com.raytheon.uf.common.serialization.SerializationException;
+import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -89,6 +92,7 @@ import com.raytheon.viz.ui.statusline.StatusStore;
  * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
  * Dec 16, 2015 5184       dgilling    Remove viz.gfe dependencies.
  * Feb 05, 2016 5316       randerso    Moved notification of filter change into this class
+ * Feb 05, 2016 #5242      dgilling    Remove calls to deprecated Localization APIs.
  * </pre>
  * 
  * @author lvenable
@@ -783,21 +787,19 @@ public final class GhgConfigData {
         IPathManager pathMgr = PathManagerFactory.getPathManager();
         LocalizationContext locCtx = pathMgr.getContext(
                 LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
-        LocalizationFile localizationFile = pathMgr.getLocalizationFile(locCtx,
-                CONFIG_PATH);
-        File configFile = localizationFile.getFile();
+        ILocalizationFile localizationFile = pathMgr.getLocalizationFile(
+                locCtx, CONFIG_PATH);
 
-        try {
-            JAXBContext ctx = JAXBContext.newInstance(GhgConfigXml.class);
-            Marshaller marshaller = ctx.createMarshaller();
-            marshaller.marshal(config, configFile);
-            localizationFile.save();
+        try (SaveableOutputStream outStream = localizationFile
+                .openOutputStream()) {
+            SingleTypeJAXBManager<GhgConfigXml> jaxb = SingleTypeJAXBManager
+                    .createWithoutException(GhgConfigXml.class);
+            jaxb.marshalToStream(config, outStream);
+            outStream.save();
             StatusStore.updateStatus(StatusConstants.CATEGORY_GHG,
                     "Saved configuration", StatusMessage.Importance.REGULAR);
-
-        } catch (JAXBException | LocalizationException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error saving GHG Monitor configuration", e);
+        } catch (IOException | LocalizationException | SerializationException e) {
+            statusHandler.error("Error saving GHG Monitor configuration", e);
         }
     }
 
