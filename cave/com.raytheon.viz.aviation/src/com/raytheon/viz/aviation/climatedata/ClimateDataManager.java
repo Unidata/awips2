@@ -225,6 +225,9 @@ public class ClimateDataManager implements PyProcessListener {
                 } catch (JepException e) {
                     statusHandler.handle(Priority.PROBLEM,
                             "Error retrieving climate data", e);
+                } catch (VizException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Error retrieving climate data", e); 
                 } finally {
                     if (pythonScript != null) {
                         pythonScript.dispose();
