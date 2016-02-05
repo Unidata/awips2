@@ -5436,13 +5436,20 @@
  <styleRule>
 
     <paramLevelMatches>
-      <parameter>SPC</parameter>
       <parameter>OGRD</parameter>
       <parameter>BARO</parameter>
       <parameter>SPBARO</parameter>
     </paramLevelMatches>
     <imageStyle>
       <displayUnits>cm/sec</displayUnits>
+    </imageStyle>
+  </styleRule>
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>SPC</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayUnits>m/s</displayUnits>
     </imageStyle>
   </styleRule>
 
