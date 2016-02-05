@@ -18,8 +18,8 @@ START_TIME=`date "+%s"`
 timestamp=`date +%Y_%m_%d_%H:%M:%S`
 
 # set all awips2 components into the path.
-export PATH=/awips2/java/bin:/awips2/python/bin:/awips2/ant/bin:/usr/local/heroku/bin:/home/mjames/util:/awips2/eclipse:/usr/lib64/qt-3.3/bin:/bin:/usr/local/bin:/bin:/usr/bin:/usr/ccs/bin:/usr/local/apache-maven-3.2.5/bin
-export LD_LIBRARY_PATH=/awips2/java/lib:/awips2/python/lib:${LD_LIBRARY_PATH}
+#export PATH=/awips2/java/bin:/awips2/python/bin:/awips2/ant/bin:/usr/local/heroku/bin:/home/mjames/util:/awips2/eclipse:/usr/lib64/qt-3.3/bin:/bin:/usr/local/bin:/bin:/usr/bin:/usr/ccs/bin
+#export LD_LIBRARY_PATH=/awips2/java/lib:/awips2/python/lib:${LD_LIBRARY_PATH}
 export JAVA_HOME=/awips2/java
 export ANT_HOME=/awips2/ant
 
@@ -109,10 +109,10 @@ export rpm_end_dir="${AWIPSII_VERSION}-${AWIPSII_RELEASE}"
 #mkdir -p /awips2/jenkins/build/rpms/${rpm_end_dir}
 
 if [ "$(ls -A ${AWIPSII_TOP_DIR}/RPMS/x86_64/)" ]; then
-    mv ${AWIPSII_TOP_DIR}/RPMS/x86_64/* /awips2/jenkins/build/rpms/awips2_$AWIPSII_VERSION/x86_64/
+    mv ${AWIPSII_TOP_DIR}/RPMS/x86_64/* /awips2/jenkins/build/rpms/awips2_15.1.1/x86_64/
 fi
 if [ "$(ls -A ${AWIPSII_TOP_DIR}/RPMS/noarch/)" ]; then
-   mv ${AWIPSII_TOP_DIR}/RPMS/noarch/* /awips2/jenkins/build/rpms/awips2_$AWIPSII_VERSION/noarch/
+   mv ${AWIPSII_TOP_DIR}/RPMS/noarch/* /awips2/jenkins/build/rpms/awips2_15.1.1/noarch/
 fi
 
 END_TIME=`date "+%s"`

@@ -7,14 +7,13 @@ buildLabel=${buildType}.${buildId}
 timestamp=007
 archivePrefix=cave
 collectingFolder=${archivePrefix}
-allowBinaryCycles=true
 runPackager=true
 skipBase=true
 skipFetch=true
 skipMaps=true
 baseos=linux
 basews=gtk
-basearch=x86_64
+basearch=x86
 
 logExtension=.log
 javacDebugInfo=false

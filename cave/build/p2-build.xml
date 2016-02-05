@@ -187,9 +187,9 @@
 		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.kml.export.feature" />
 		</antcall>
-                <antcall target="p2.build.repo">
-                        <param name="feature" value="com.raytheon.uf.viz.dat.feature" />
-                </antcall>
+		<antcall target="p2.build.repo">
+			<param name="feature" value="com.raytheon.uf.viz.nwsauth.feature" />
+		</antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.viz.gfe.feature" />
 		</antcall>
@@ -233,6 +233,9 @@
 			<param name="feature" value="com.raytheon.uf.viz.thinclient.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
+			<param name="feature" value="com.raytheon.uf.viz.useradmin.feature" />
+		</antcall>
+		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.registry.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
@@ -247,14 +250,17 @@
 		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.acarssounding.feature" />
 		</antcall>
-                <antcall target="p2.build.repo">
-                <param name="feature" value="com.raytheon.uf.viz.ncep.npp.feature" />
-                </antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.viz.avnfps.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
+			<param name="feature" value="com.raytheon.uf.viz.dat.feature" />
+		</antcall>
+		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.d2d.gfe.feature" />
+		</antcall>
+		<antcall target="p2.build.repo">
+			<param name="feature" value="com.raytheon.uf.viz.collaboration.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.gisdatastore.feature" />
@@ -425,6 +431,15 @@
 			<then>
 				<delete includeemptydirs="true">
 					<fileset dir="${basedir}/cave/p2/features/com.raytheon.uf.common.base.feature" />
+				</delete>
+			</then>
+		</if>
+		<!-- Remove 'com.raytheon.uf.viz.collaboration.product.feature' -->
+		<if>
+			<available file="${basedir}/cave/p2/features/com.raytheon.uf.viz.collaboration.product.feature" type="dir" />
+			<then>
+				<delete includeemptydirs="true">
+					<fileset dir="${basedir}/cave/p2/features/com.raytheon.uf.viz.collaboration.product.feature" />
 				</delete>
 			</then>
 		</if>
