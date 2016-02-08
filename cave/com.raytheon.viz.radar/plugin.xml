@@ -173,14 +173,6 @@
       </menuContribution>
    </extension>
    <extension
-         point="org.eclipse.ui.themes">
-      <fontDefinition
-            id="com.raytheon.viz.radar.rsc.graphic.RadarGraphicsPage"
-            label="Radar Graphics Font"
-            value="Monospace-regular-10">
-      </fontDefinition>
-   </extension>
-   <extension
          point="com.raytheon.uf.viz.core.graphicsExtension">
       <graphicsExtension
             class="com.raytheon.viz.radar.rsc.image.GeneralRadialMeshExtension">

@@ -107,8 +107,10 @@ import com.vividsolutions.jts.geom.LineString;
  * Jun 04, 2014  3232     bsteffen    Cleanup.
  * Aug 11, 2014  3504     mapeters    Replaced deprecated IODataPreparer
  *                                    instances with IRenderedImageCallback.
- * Sep 03, 2014  3574     njensen      Properly dispose objects
- * Nov 06, 2014  16776    zwang        Handle AMDA product MBA
+ * Sep 03, 2014  3574     njensen     Properly dispose objects
+ * Nov 06, 2014  16776    zwang       Handle AMDA product MBA
+ * Feb 08, 2016  5318     randerso    Font should not be preference based because the
+ *                                    size must match the table outline
  * 
  * </pre>
  * 
@@ -230,8 +232,8 @@ public class RadarGraphicsPage implements IRenderable {
     public void addSymbologyPacket(SymbologyPacket sp, CoordinateSystem cs)
             throws VizException {
         List<ReferencedGeometry> localGeometries = new ArrayList<ReferencedGeometry>();
-        if (sp instanceof UnlinkedVectorPacket
-                || sp instanceof UnlinkedContourVectorPacket) {
+        if ((sp instanceof UnlinkedVectorPacket)
+                || (sp instanceof UnlinkedContourVectorPacket)) {
             List<UnlinkedVector> vectors = (List<UnlinkedVector>) RadarHelper
                     .getItems(sp);
 
@@ -699,8 +701,8 @@ public class RadarGraphicsPage implements IRenderable {
 
                     if ((!onLowestElev.equals("") && onLowestElev
                             .equalsIgnoreCase("Y"))
-                            || (!baseHeight.equals("") && Double
-                                    .parseDouble(baseHeight) <= 1)) {
+                            || (!baseHeight.equals("") && (Double
+                                    .parseDouble(baseHeight) <= 1))) {
                         iconType = MesocycloneType.MESOCYCLONE_WITH_SPIKES;
                     } else {
                         iconType = MesocycloneType.MESOCYCLONE;
@@ -731,7 +733,7 @@ public class RadarGraphicsPage implements IRenderable {
                 float prevLat;
                 float prevLon;
                 // Forecast Positions
-                if (numFcstPos > 0
+                if ((numFcstPos > 0)
                         && (currentSettings.getDmdTrackType().equals(
                                 TrackTypes.FORECAST) || currentSettings
                                 .getDmdTrackType().equals(
@@ -777,7 +779,7 @@ public class RadarGraphicsPage implements IRenderable {
                 }
 
                 // Past Positions
-                if (numPastPos > 0
+                if ((numPastPos > 0)
                         && (currentSettings.getDmdTrackType().equals(
                                 TrackTypes.PAST) || currentSettings
                                 .getDmdTrackType().equals(
@@ -926,7 +928,7 @@ public class RadarGraphicsPage implements IRenderable {
             barb.setColor(this.color);
 
             // plot the wind arrow in the same length as 50 kts
-            double spd = Math.sqrt(pU * pU + pV * pV);
+            double spd = Math.sqrt((pU * pU) + (pV * pV));
             if (spd > 0) {
                 pU *= 50.0 / spd;
                 pV *= 50.0 / spd;
@@ -934,15 +936,14 @@ public class RadarGraphicsPage implements IRenderable {
 
             barb.setWind(pU, pV, false);
             final BufferedImage imgBuf = barb.getWindImage(false,
-                    DisplayType.ARROW,
-                    0.2);
+                    DisplayType.ARROW, 0.2);
             poWind.image = target
                     .initializeRaster(new IRenderedImageCallback() {
-                @Override
-                public RenderedImage getImage() throws VizException {
-                    return imgBuf;
-                }
-            });
+                        @Override
+                        public RenderedImage getImage() throws VizException {
+                            return imgBuf;
+                        }
+                    });
 
             ReferencedCoordinate rc = referencedGfmCoord(wX, wY);
             try {
@@ -985,28 +986,27 @@ public class RadarGraphicsPage implements IRenderable {
     }
 
     // Handle MBA product
-    private void drawMbaImage(GenericDataComponent currPt)
-            throws VizException {
- 
+    private void drawMbaImage(GenericDataComponent currPt) throws VizException {
+
         double x, y;
         Coordinate point;
 
         // Determine if the feature should be rendered
         RadarDisplayControls currentSettings = RadarDisplayManager
                 .getInstance().getCurrentSettings();
-        
+
         AreaComponent currFeature = (AreaComponent) currPt;
-        String cat = currFeature.getValue(MBAAttributeIDs.CATEGORY
-                .getName());
+        String cat = currFeature.getValue(MBAAttributeIDs.CATEGORY.getName());
         int catValue = cat.equals("") ? 0 : Integer.parseInt(cat);
 
         // By default, do not show MBA Wind Shear
         int minCat = 1;
-        if (currentSettings.isMbaShowWindShear())
+        if (currentSettings.isMbaShowWindShear()) {
             minCat = 0;
-        
+        }
+
         if (catValue >= minCat) {
-        
+
             int numPoints = currFeature.getPoints().size();
             Coordinate[] points = new Coordinate[numPoints];
 
@@ -1027,7 +1027,7 @@ public class RadarGraphicsPage implements IRenderable {
             }
         }
     }
-    
+
     private PlotObject getImage(HdaHailPoint currPt) throws VizException {
         PlotObject image = null;
 
@@ -1184,7 +1184,7 @@ public class RadarGraphicsPage implements IRenderable {
      *            the magnification to set
      */
     public void setMagnification(double magnification) {
-        if (this.magnification != magnification && this.font != null) {
+        if ((this.magnification != magnification) && (this.font != null)) {
             font.setMagnification((float) magnification, false);
         }
 
@@ -1217,7 +1217,7 @@ public class RadarGraphicsPage implements IRenderable {
     public void paint(IGraphicsTarget target, PaintProperties paintProps)
             throws VizException {
         if (font == null) {
-            this.font = target.initializeFont(getClass().getName());
+            this.font = target.initializeFont("Monospace", 10, null);
             this.font.setMagnification((float) magnification, false);
             this.font.setSmoothing(true);
         }
@@ -1253,7 +1253,7 @@ public class RadarGraphicsPage implements IRenderable {
         double yOffset = 24.0;
         double xOffset = 24.0;
         double magnification = this.magnification;
-        if (this.screenGeometries != null && !this.screenGeometries.isEmpty()) {
+        if ((this.screenGeometries != null) && !this.screenGeometries.isEmpty()) {
             double minx = Double.MAX_VALUE;
             double maxx = Double.MIN_VALUE;
             for (Geometry g : this.screenGeometries) {
@@ -1271,9 +1271,8 @@ public class RadarGraphicsPage implements IRenderable {
             double width = (maxx - minx) * magnification;
             // If the table wider than our canvas then shrink it
             if (width > paintProps.getCanvasBounds().width) {
-                magnification = this.magnification
-                        * paintProps.getCanvasBounds().width
-                        / (width + xOffset * 2);
+                magnification = (this.magnification * paintProps
+                        .getCanvasBounds().width) / (width + (xOffset * 2));
                 font.setMagnification((float) magnification, false);
                 magnification = target.getStringsBounds(testString).getHeight() / 14;
                 width = (maxx - minx) * magnification;
@@ -1284,11 +1283,11 @@ public class RadarGraphicsPage implements IRenderable {
                 Coordinate[] coords = g.getCoordinates();
 
                 // offsets to make the table fit the screen
-                double x1 = coords[0].x * magnification + xOffset;
-                double y1 = (coords[0].y + 0.25) * magnification * 1.3
+                double x1 = (coords[0].x * magnification) + xOffset;
+                double y1 = ((coords[0].y + 0.25) * magnification * 1.3)
                         + yOffset;
-                double x2 = coords[1].x * magnification + xOffset;
-                double y2 = (coords[1].y + 0.25) * magnification * 1.3
+                double x2 = (coords[1].x * magnification) + xOffset;
+                double y2 = ((coords[1].y + 0.25) * magnification * 1.3)
                         + yOffset;
                 DrawableLine line = new DrawableLine();
                 line.addPoint(x1, y1);
@@ -1302,15 +1301,16 @@ public class RadarGraphicsPage implements IRenderable {
 
         // Only paint data table text if no configuration is specified or
         // if configuration says to show table.
-        if (tableModifier == null
-                || (tableModifier != null && tableModifier.isShowTable())) {
+        if ((tableModifier == null)
+                || ((tableModifier != null) && tableModifier.isShowTable())) {
             // Paint the table data text.
-            if (this.screenStringMap != null && !this.screenStringMap.isEmpty()) {
+            if ((this.screenStringMap != null)
+                    && !this.screenStringMap.isEmpty()) {
                 for (Coordinate c : this.screenStringMap.keySet()) {
                     String str = this.screenStringMap.get(c);
 
-                    double x = c.x * magnification + xOffset;
-                    double y = c.y * magnification * 1.3 + yOffset;
+                    double x = (c.x * magnification) + xOffset;
+                    double y = (c.y * magnification * 1.3) + yOffset;
                     // if (x < 0.1) {
                     // x = 0;
                     // }
@@ -1386,7 +1386,7 @@ public class RadarGraphicsPage implements IRenderable {
             tableRight += width;
         }
 
-        int tableBottom = rowHeight * numberOfRows + tableTop;
+        int tableBottom = (rowHeight * numberOfRows) + tableTop;
 
         // Rows
         for (int i = tableTop; i <= tableBottom; i += rowHeight) {
@@ -1551,7 +1551,7 @@ public class RadarGraphicsPage implements IRenderable {
         for (int k = 0; k < numPoints; k++) {
             x2 = currFeature.getPoints().get(k).getCoordinate1();
             y2 = currFeature.getPoints().get(k).getCoordinate2();
-            dist = (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1);
+            dist = ((x2 - x1) * (x2 - x1)) + ((y2 - y1) * (y2 - y1));
             if (dist < minDist) {
                 point.x = x2;
                 point.y = y2;
