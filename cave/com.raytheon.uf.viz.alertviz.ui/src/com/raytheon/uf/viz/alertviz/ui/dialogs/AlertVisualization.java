@@ -101,6 +101,7 @@ import com.raytheon.uf.viz.core.VizApp;
  * 28 Oct 2015  5054       randerso    Call AlertVisualization.dispose() on restart so all the
  *                                     other dispose methods are called.
  * 25 Jan 2016  5054       randerso    Removed dummy parent shell
+ * 08 Feb 2016  5312       randerso    Changed to build tray menu on demand
  * 
  * </pre>
  * 
@@ -135,31 +136,6 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
      * Tray item.
      */
     private TrayItem trayItem;
-
-    /**
-     * A pop-up menu for the tray item.
-     */
-    protected Menu trayItemMenu;
-
-    /**
-     * Show alert visualization menu item.
-     */
-    private MenuItem showAlertDialogMI;
-
-    /**
-     * Do not disturb menu item.
-     */
-    private MenuItem doNotDisturbMI;
-
-    /**
-     * Show alert dialog popup menu item
-     */
-    private MenuItem showPopup;
-
-    /**
-     * Acknowledge all alerts menu item
-     */
-    private MenuItem ackAll;
 
     /**
      * Alert message dialog.
@@ -210,6 +186,10 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
      * Show alert Dialog flag
      */
     private boolean showAlertDlg = true;
+
+    private boolean ackAll = false;
+
+    private boolean showPopup = false;
 
     /**
      * Tool tip.
@@ -346,14 +326,13 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
         trayItem = new TrayItem(tray, SWT.NONE);
         updateToolTip();
 
-        trayItemMenu = new Menu(alertMessageDlg.getShell(), SWT.POP_UP);
-
-        createTrayMenuItems();
-
         // Right click action
         trayItem.addMenuDetectListener(new MenuDetectListener() {
             @Override
             public void menuDetected(MenuDetectEvent de) {
+                Menu trayItemMenu = new Menu(alertMessageDlg.getShell(),
+                        SWT.POP_UP);
+                createTrayMenuItems(trayItemMenu);
                 trayItemMenu.setVisible(true);
             }
         });
@@ -374,10 +353,12 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
 
     /**
      * Create the tray menu items.
+     * 
+     * @param menu
      */
-    protected void createTrayMenuItems() {
+    protected void createTrayMenuItems(Menu menu) {
 
-        showAlertDialogMI = new MenuItem(trayItemMenu, SWT.CHECK);
+        MenuItem showAlertDialogMI = new MenuItem(menu, SWT.CHECK);
         showAlertDialogMI.setText("Show Alert Dialog");
         showAlertDialogMI.setSelection(showAlertDlg);
         showAlertDialogMI.addSelectionListener(new SelectionAdapter() {
@@ -396,20 +377,21 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
         });
 
         if (Boolean.getBoolean("SystemTray")) {
-            doNotDisturbMI = new MenuItem(trayItemMenu, SWT.CHECK);
+            MenuItem doNotDisturbMI = new MenuItem(menu, SWT.CHECK);
             doNotDisturbMI.setText("Do Not Disturb");
             doNotDisturbMI.setSelection(doNotDisturb);
             doNotDisturbMI.addSelectionListener(new SelectionAdapter() {
                 @Override
                 public void widgetSelected(SelectionEvent event) {
-                    doNotDisturb = doNotDisturbMI.getSelection();
+                    MenuItem item = (MenuItem) event.widget;
+                    doNotDisturb = item.getSelection();
                 }
             });
         }
 
-        new MenuItem(trayItemMenu, SWT.SEPARATOR);
+        new MenuItem(menu, SWT.SEPARATOR);
 
-        MenuItem configTrayMI = new MenuItem(trayItemMenu, SWT.NONE);
+        MenuItem configTrayMI = new MenuItem(menu, SWT.NONE);
         configTrayMI.setText("Configuration...");
         configTrayMI.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -418,7 +400,7 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
             }
         });
 
-        MenuItem viewLogMI = new MenuItem(trayItemMenu, SWT.NONE);
+        MenuItem viewLogMI = new MenuItem(menu, SWT.NONE);
         viewLogMI.setText("System Log...");
         viewLogMI.addSelectionListener(new SelectionAdapter() {
             SimpleLogViewer slv = null;
@@ -434,22 +416,23 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
             }
         });
 
-        new MenuItem(trayItemMenu, SWT.SEPARATOR);
+        new MenuItem(menu, SWT.SEPARATOR);
 
-        showPopup = new MenuItem(trayItemMenu, SWT.NONE);
-        showPopup.setText("Show Alert Popup Dialog...");
-        showPopup.setEnabled(false);
-        showPopup.addSelectionListener(new SelectionAdapter() {
+        MenuItem showPopupMI = new MenuItem(menu, SWT.NONE);
+        showPopupMI.setText("Show Alert Popup Dialog...");
+        showPopupMI.setEnabled(showPopup && (alertPopupDlg != null)
+                && !alertPopupDlg.isOpen());
+        showPopupMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 openAlertPopupDialog();
             }
         });
 
-        ackAll = new MenuItem(trayItemMenu, SWT.NONE);
-        ackAll.setText("Acknowledge All Messages");
-        ackAll.setEnabled(false);
-        ackAll.addSelectionListener(new SelectionAdapter() {
+        MenuItem ackAllMI = new MenuItem(menu, SWT.NONE);
+        ackAllMI.setText("Acknowledge All Messages");
+        ackAllMI.setEnabled(ackAll);
+        ackAllMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 if (alertPopupDlg != null) {
@@ -464,8 +447,8 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
         });
 
         if (this.runningStandalone) {
-            new MenuItem(trayItemMenu, SWT.SEPARATOR);
-            MenuItem restartMI = new MenuItem(trayItemMenu, SWT.NONE);
+            new MenuItem(menu, SWT.SEPARATOR);
+            MenuItem restartMI = new MenuItem(menu, SWT.NONE);
             restartMI.setText("Restart");
             restartMI.addSelectionListener(new SelectionAdapter() {
                 @Override
@@ -692,8 +675,8 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
             if (alertPopupDlg == null) {
                 alertPopupDlg = new AlertPopupMessageDlg(display, statMsg,
                         gConfig.isExpandedPopup(), this, amd.getBackground());
-                showPopup.setEnabled(true);
-                ackAll.setEnabled(true);
+                showPopup = true;
+                ackAll = true;
                 startBlinkTrayTimer();
             } else {
                 alertPopupDlg.addNewMessage(statMsg, amd);
@@ -813,8 +796,8 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
     public void handleEvent(Event event) {
         switch (event.type) {
         case SWT.Hide:
-            ackAll.setEnabled(true);
-            showPopup.setEnabled(true);
+            ackAll = true;
+            showPopup = true;
             startBlinkTrayTimer();
             updateToolTip();
             break;
@@ -823,8 +806,9 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
             alertPopupDlg = null;
             cancelTimer();
             updateToolTip();
-            ackAll.setEnabled(false);
-            showPopup.setEnabled(false);
+
+            ackAll = false;
+            showPopup = false;
             break;
         default:
             Container.logInternal(Priority.WARN, "Unexpected event type: "
@@ -852,19 +836,16 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
         configData = ConfigurationManager.getInstance()
                 .getCurrentConfiguration();
         configContext = ConfigurationManager.getInstance().getCurrentContext();
-        if ((alertMessageDlg != null) && (showAlertDialogMI != null)) {
+        if (alertMessageDlg != null) {
             alertMessageDlg.setConfigData(configData);
             if (configData.isMonitorLayoutChanged(prevConfigFile)) {
                 if (alertMessageDlg.reLayout()) {
-                    showAlertDialogMI.setEnabled(true);
+                    showAlertDlg = true;
                 }
                 prevConfigFile = configData.clone();
             }
             audioMgr = alertMessageDlg.getAlertAudioManager();
         }
-        // if (configDlg != null && !configDlg.isDisposed()) {
-        // configDlg.restart(requestRestart);
-        // }
     }
 
     /**

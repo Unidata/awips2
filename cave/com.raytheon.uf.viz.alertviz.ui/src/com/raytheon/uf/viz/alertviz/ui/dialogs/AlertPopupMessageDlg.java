@@ -71,6 +71,7 @@ import com.raytheon.uf.viz.alertviz.config.AlertMetadata;
  * 20 Apr 2015  4311       lvenable    Fixed text field to accept really long text strings.
  * 29 Jun 2015  4311       randerso    Reworking AlertViz dialogs to be resizable.
  * 25 Jan 2016  5054       randerso    Converted to stand alone window
+ * 08 Feb 2016  5312       randerso    Deleted isDisposed() added isOpen()
  * 
  * </pre>
  * 
@@ -1062,12 +1063,12 @@ public class AlertPopupMessageDlg implements MouseMoveListener, MouseListener,
     }
 
     /**
-     * Returns if dialog is disposed.
+     * Returns true if dialog is open
      * 
-     * @return True if disposed, false if not.
+     * @return True if open, false if not.
      */
-    public boolean isDisposed() {
-        return shell.isDisposed();
+    public boolean isOpen() {
+        return (shell != null) && !shell.isDisposed() && shell.isVisible();
     }
 
 }
