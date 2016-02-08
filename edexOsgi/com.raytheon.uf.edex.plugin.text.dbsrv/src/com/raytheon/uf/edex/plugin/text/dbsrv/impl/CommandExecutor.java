@@ -42,6 +42,7 @@ import com.raytheon.uf.common.message.Property;
  * Aug 22, 2014 2926       bclement    compatibility changes with new textdb service
  * Jan 18, 2016 4562       tjensen     Moved from edex.plugin.text to 
  *                                     edex.plugin.text.dbsrv
+ * Feb 05, 2016 5269       skorolev    Removed WarnTableAdapter from execMap
  * 
  * </pre>
  * 
@@ -66,7 +67,6 @@ public class CommandExecutor implements ICommandExecutor {
      */
     public CommandExecutor() {
         execMap.put(StateTableAdapter.getViewTag(), new StateTableAdapter());
-        execMap.put(WarnTableAdapter.getViewTag(), new WarnTableAdapter());
         execMap.put(VersionsAdapter.getViewTag(), new VersionsAdapter());
         execMap.put(TextViewAdapter.getViewTag(), new TextViewAdapter());
     }
