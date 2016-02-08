@@ -218,7 +218,7 @@ do
    fi
 done
 popd > /dev/null 2>&1
-chown -R awips:fxalpha /awips2/cave
+#chown -R awips:fxalpha /awips2/cave
 
 %preun
 # Do not use p2 to remove the feature if this is an upgrade.
