@@ -35,7 +35,8 @@ import org.eclipse.jface.preference.IPreferenceStore;
  * Feb 04, 2014 2704       njensen      Consolidate services and pypies proxy addresses
  * Jun 24, 2014 3236       njensen      Added proxy address options
  * May 29, 2015 4532       bsteffen     Add sync localization option.
- * 
+ * Feb 08, 2016 5281       tjensen      Replaced disableJms with dataRefreshMethod, 
+ *                                       combined Data and Menu Refresh Intervals
  * 
  * </pre>
  * 
@@ -49,11 +50,7 @@ public class ThinClientPreferenceConstants {
 
     public static String P_DATA_REFRESH_INTERVAL = "dataRefreshRate";
 
-    public static String P_MENU_TIME_REFRESH_INTERVAL = "menuRefreshInterval";
-
     public static String P_USE_PROXIES = "useHttpProxy";
-
-    public static String P_MENU_TIME_UPDATE_INTERVALS = "menuTimeUpdateInterval";
 
     public static String P_DATA_UPDATE_INTERVALS = "dataUpdateInterval";
 
@@ -80,7 +77,11 @@ public class ThinClientPreferenceConstants {
 
     public static String P_DISABLE_MENU_TIMES = "disableMenuTimes";
 
-    public static String P_DISABLE_JMS = "disableJms";
+    public static String P_DATA_REFRESH_METHOD = "dataRefreshMethod";
+
+    public static String P_DATA_REFRESH_METHOD_PUSH = "push";
+
+    public static String P_DATA_REFRESH_METHOD_POLL = "poll";
 
     public static String P_ENABLE_REQUEST_COMPRESSION = "enableRequestCompression";
 

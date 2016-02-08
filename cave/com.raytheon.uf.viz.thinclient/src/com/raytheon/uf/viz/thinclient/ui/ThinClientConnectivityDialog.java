@@ -26,11 +26,11 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 
 import com.raytheon.uf.common.localization.msgs.GetServersResponse;
@@ -45,7 +45,6 @@ import com.raytheon.uf.viz.core.localization.ConnectivityPreferenceDialog;
 import com.raytheon.uf.viz.core.localization.LocalizationConstants;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.localization.ServerRemembrance;
-import com.raytheon.uf.viz.core.localization.TextOrCombo;
 import com.raytheon.uf.viz.thinclient.Activator;
 import com.raytheon.uf.viz.thinclient.ThinClientUriUtil;
 import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
@@ -69,6 +68,7 @@ import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
  * Jun 03, 2014  3217     bsteffen    Add option to always open startup dialog.
  * Jun 24, 2014  3236     njensen     Add ability to remember multiple servers
  * Oct 08, 2015  4891     njensen     Added tooltip to useProxyCheck
+ * Feb 08, 2016, 5281     tjensen     Reworked interface to simply options
  * 
  * 
  * 
@@ -127,113 +127,96 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
 
     private IConnectivityCallback pypiesCallback = new PypiesCallback();
 
-    private Button useProxyCheck;
-
-    private boolean useProxy = false;
-
-    private Button disableJmsCheck;
+    private boolean useProxy = true;
 
     private Button alwaysPromptCheck;
 
-    private boolean disableJms = false;
+    private String dataRefreshMethod;
 
     private boolean jmsGood = false;
 
     private boolean alwaysPrompt;
 
-    private Label jmsErrorLabel;
-
     private IConnectivityCallback jmsCallback = new JmsCallback();
 
-    private TextOrCombo proxySrv;
-
     private String proxyAddress;
+
+    private Button autoPullBtn;
+
+    private Button timedPollBtn;
+
+    private final String dataRefreshTooltip = "Automatic Push: Data pushed as soon as available\n"
+            + "Timed Poll: Poll for new data at scheduled intervals";
+
+    private final String unableConnectJMS = "\n\nUnable to connect to JMS: Automatic Push disabled";
+
+    private Group dataRefreshGroup;
 
     public ThinClientConnectivityDialog(boolean checkAlertViz) {
         super(checkAlertViz, "Thin Client Connectivity Preferences");
         IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-        useProxy = store
-                .getBoolean(ThinClientPreferenceConstants.P_USE_PROXIES);
-        disableJms = store
-                .getBoolean(ThinClientPreferenceConstants.P_DISABLE_JMS);
+        dataRefreshMethod = store
+                .getString(ThinClientPreferenceConstants.P_DATA_REFRESH_METHOD);
         proxyAddress = store
                 .getString(ThinClientPreferenceConstants.P_PROXY_ADDRESS);
+    }
+
+    @Override
+    protected String[] getServerOptions() {
+        IPreferenceStore thinPrefs = Activator.getDefault()
+                .getPreferenceStore();
+        return ServerRemembrance.getServerOptions(thinPrefs,
+                ThinClientPreferenceConstants.P_PROXY_SERVER_OPTIONS);
     }
 
     @Override
     protected void createTextBoxes(Composite textBoxComp) {
         super.createTextBoxes(textBoxComp);
 
-        Label label = new Label(textBoxComp, SWT.RIGHT);
-        label.setText("Use Proxy Server:");
-        GridData gd = new GridData(SWT.RIGHT, SWT.CENTER, false, true);
-        gd.horizontalIndent = 20;
-        label.setLayoutData(gd);
+        // Reuse the localization stuff for proxy
+        localizationLabel.setText("Proxy Server:");
+        localizationSrv.setText(proxyAddress == null ? "" : proxyAddress);
 
-        Composite proxyComp = new Composite(textBoxComp, SWT.NONE);
+        new Label(textBoxComp, SWT.NONE);
+        Composite drComp = new Composite(textBoxComp, SWT.NONE);
         GridLayout gl = new GridLayout(2, false);
         gl.marginHeight = 0;
         gl.marginWidth = 0;
-        proxyComp.setLayout(gl);
-        gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
-        proxyComp.setLayoutData(gd);
+        drComp.setLayout(gl);
+        GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
+        drComp.setLayoutData(gd);
 
-        useProxyCheck = new Button(proxyComp, SWT.CHECK | SWT.LEFT);
-        useProxyCheck.setSelection(useProxy);
-        useProxyCheck.addSelectionListener(new SelectionAdapter() {
+        dataRefreshGroup = new Group(drComp, SWT.BORDER_SOLID);
+        dataRefreshGroup.setText("Data Refresh:");
+        gl = new GridLayout(2, true);
+        gd = new GridData(GridData.HORIZONTAL_ALIGN_FILL
+                | GridData.GRAB_HORIZONTAL);
+        dataRefreshGroup.setLayout(gl);
+        dataRefreshGroup.setLayoutData(gd);
+        autoPullBtn = new Button(dataRefreshGroup, SWT.RADIO);
+        autoPullBtn.setText("Automatic Push");
+        if (ThinClientPreferenceConstants.P_DATA_REFRESH_METHOD_PUSH
+                .equals(dataRefreshMethod)) {
+            autoPullBtn.setSelection(true);
+        }
+        timedPollBtn = new Button(dataRefreshGroup, SWT.RADIO);
+        timedPollBtn.setText("Timed Poll");
+        if (ThinClientPreferenceConstants.P_DATA_REFRESH_METHOD_POLL
+                .equals(dataRefreshMethod)) {
+            timedPollBtn.setSelection(true);
+        }
+        timedPollBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                updateProxyEnabled();
-            }
-        });
-        useProxyCheck
-                .setToolTipText("Connect to a remote proxy server configured to support thin clients");
-
-        IPreferenceStore thinPrefs = Activator.getDefault()
-                .getPreferenceStore();
-        String[] proxyOptions = ServerRemembrance.getServerOptions(thinPrefs,
-                ThinClientPreferenceConstants.P_PROXY_SERVER_OPTIONS);
-        proxySrv = new TextOrCombo(proxyComp, SWT.BORDER, proxyOptions);
-        gd = new GridData(SWT.FILL, SWT.CENTER, true, true);
-        proxySrv.widget.setLayoutData(gd);
-        proxySrv.setText(proxyAddress == null ? "" : proxyAddress);
-        proxySrv.widget.setBackground(getTextColor(servicesGood && pypiesGood));
-        proxySrv.addSelectionListener(new SelectionListener() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                // user clicked an option
-                validate();
-            }
-
-            @Override
-            public void widgetDefaultSelected(SelectionEvent e) {
-                // user hit Enter
-                performOk();
-            }
-        });
-
-        new Label(textBoxComp, SWT.NONE);
-
-        Composite jmsComp = new Composite(textBoxComp, SWT.NONE);
-        gl = new GridLayout(2, false);
-        gl.marginHeight = 0;
-        gl.marginWidth = 0;
-        jmsComp.setLayout(gl);
-
-        disableJmsCheck = new Button(jmsComp, SWT.CHECK | SWT.LEFT);
-        disableJmsCheck.setSelection(disableJms);
-        disableJmsCheck.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                disableJms = disableJmsCheck.getSelection();
+                if (timedPollBtn.getSelection()) {
+                    dataRefreshMethod = ThinClientPreferenceConstants.P_DATA_REFRESH_METHOD_POLL;
+                } else {
+                    dataRefreshMethod = ThinClientPreferenceConstants.P_DATA_REFRESH_METHOD_PUSH;
+                }
                 validate();
             }
         });
-        disableJmsCheck.setText("Disable JMS");
-        jmsErrorLabel = new Label(jmsComp, SWT.LEFT);
-        jmsErrorLabel.setText("Error connecting to JMS");
-        jmsErrorLabel.setForeground(display.getSystemColor(SWT.COLOR_RED));
-        jmsErrorLabel.setVisible(true);
+        dataRefreshGroup.setToolTipText(dataRefreshTooltip);
         new Label(textBoxComp, SWT.NONE);
 
         alwaysPrompt = LocalizationManager
@@ -252,16 +235,14 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
             }
 
         });
-
-        updateProxyEnabled();
     }
 
     @Override
     protected void applySettings() {
         IPersistentPreferenceStore thinStore = Activator.getDefault()
                 .getPreferenceStore();
-        thinStore.setValue(ThinClientPreferenceConstants.P_DISABLE_JMS,
-                disableJms);
+        thinStore.setValue(ThinClientPreferenceConstants.P_DATA_REFRESH_METHOD,
+                dataRefreshMethod);
         thinStore.setValue(ThinClientPreferenceConstants.P_USE_PROXIES,
                 useProxy);
 
@@ -271,30 +252,26 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
                 LocalizationConstants.P_LOCALIZATION_PROMPT_ON_STARTUP,
                 alwaysPrompt);
 
-        if (useProxy) {
-            thinStore.setValue(ThinClientPreferenceConstants.P_PROXY_ADDRESS,
-                    proxyAddress);
-            String proxyServerOptions = ServerRemembrance.formatServerOptions(
-                    proxyAddress, thinStore,
-                    ThinClientPreferenceConstants.P_PROXY_SERVER_OPTIONS);
-            thinStore.setValue(
-                    ThinClientPreferenceConstants.P_PROXY_SERVER_OPTIONS,
-                    proxyServerOptions);
+        thinStore.setValue(ThinClientPreferenceConstants.P_PROXY_ADDRESS,
+                proxyAddress);
+        String proxyServerOptions = ServerRemembrance.formatServerOptions(
+                proxyAddress, thinStore,
+                ThinClientPreferenceConstants.P_PROXY_SERVER_OPTIONS);
+        thinStore.setValue(
+                ThinClientPreferenceConstants.P_PROXY_SERVER_OPTIONS,
+                proxyServerOptions);
 
-            if (getAlertVizServer() != null) {
-                localStore.setValue(LocalizationConstants.P_ALERT_SERVER,
-                        getAlertVizServer());
-            }
-            LocalizationManager.getInstance().setCurrentSite(getSite());
+        if (getAlertVizServer() != null) {
+            localStore.setValue(LocalizationConstants.P_ALERT_SERVER,
+                    getAlertVizServer());
+        }
+        LocalizationManager.getInstance().setCurrentSite(getSite());
 
-            try {
-                localStore.save();
-            } catch (IOException e) {
-                statusHandler.handle(Priority.SIGNIFICANT,
-                        "Unable to persist localization preference store", e);
-            }
-        } else {
-            super.applySettings();
+        try {
+            localStore.save();
+        } catch (IOException e) {
+            statusHandler.handle(Priority.SIGNIFICANT,
+                    "Unable to persist localization preference store", e);
         }
 
         /*
@@ -314,28 +291,24 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
 
     @Override
     public boolean validate() {
-        if (!useProxy) {
-            boolean superResult = super.validate();
-            validateJms(superResult);
-            return superResult && jmsGood;
-        }
 
         status = null;
         details = null;
 
         // validate proxy
-        if (proxySrv != null && !proxySrv.widget.isDisposed()
-                && proxySrv.widget.isEnabled()) {
-            proxyAddress = proxySrv.getText();
-        }
+        proxyAddress = localizationSrv.getText();
+
         if (proxyAddress != null && proxyAddress.length() > 0) {
             validateServices();
             validatePypies();
         } else {
+            servicesGood = false;
+            pypiesGood = false;
             status = "Please enter a thin client proxy server address";
         }
-        if (proxySrv != null && !proxySrv.widget.isDisposed()) {
-            proxySrv.widget.setBackground(getTextColor(servicesGood
+
+        if (localizationSrv != null && !localizationSrv.widget.isDisposed()) {
+            localizationSrv.widget.setBackground(getTextColor(servicesGood
                     && pypiesGood));
         }
 
@@ -381,22 +354,6 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
                 pypiesCallback);
     }
 
-    private void updateProxyEnabled() {
-        useProxy = useProxyCheck.getSelection();
-        proxySrv.widget.setEnabled(useProxy);
-        super.setLocalizationEnabled(!useProxy);
-        if (useProxy) {
-            if (localizationSrv != null && !localizationSrv.widget.isDisposed()) {
-                localizationSrv.widget.setBackground(getTextColor(true));
-            }
-        } else {
-            if (proxySrv != null && !proxySrv.widget.isDisposed()) {
-                proxySrv.widget.setBackground(getTextColor(true));
-            }
-        }
-        validate();
-    }
-
     /**
      * Validates that a connection to JMS works.
      * 
@@ -404,36 +361,41 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
      *            if we've successfully connected to edex
      */
     private void validateJms(boolean hasEdexConnection) {
-        // only check Jms if it's enabled and we can connect to the services
-        if (!disableJms) {
-            if (hasEdexConnection) {
-                try {
-                    String server = useProxy ? ThinClientUriUtil
-                            .getServicesAddress(proxyAddress)
-                            : getLocalization();
-                    GetServersResponse response = ConnectivityManager
-                            .checkLocalizationServer(server, false);
-                    ConnectivityManager.checkJmsServer(
-                            response.getJmsConnectionString(), jmsCallback);
-                } catch (VizException e) {
-                    if (status == null) {
-                        status = "Error connecting to JMS";
-                    }
-                    appendDetails(buildDetails(new ConnectivityResult(false,
-                            null, e)));
-                    jmsGood = false;
-                }
-            } else {
-                // JMS can't be good if we're not connected to edex cause
-                // then we don't even know where to connect to
+        if (hasEdexConnection) {
+            try {
+                String server = ThinClientUriUtil
+                        .getServicesAddress(proxyAddress);
+                GetServersResponse response = ConnectivityManager
+                        .checkLocalizationServer(server, false);
+                ConnectivityManager.checkJmsServer(
+                        response.getJmsConnectionString(), jmsCallback);
+            } catch (VizException e) {
+                appendDetails(buildDetails(new ConnectivityResult(false, null,
+                        e)));
                 jmsGood = false;
             }
-        }
-        jmsGood = (jmsGood || disableJms);
-        if (jmsErrorLabel != null && !jmsErrorLabel.isDisposed()) {
-            jmsErrorLabel.setVisible(!jmsGood);
+        } else {
+            // JMS can't be good if we're not connected to edex cause
+            // then we don't even know where to connect to
+            jmsGood = false;
         }
 
+        // If display items are not disposed, update them as needed.
+        if (!autoPullBtn.isDisposed() && !timedPollBtn.isDisposed()
+                && !dataRefreshGroup.isDisposed()) {
+            if (jmsGood && !autoPullBtn.isEnabled()) {
+                autoPullBtn.setEnabled(true);
+                autoPullBtn.setSelection(true);
+                timedPollBtn.setSelection(false);
+                dataRefreshGroup.setToolTipText(dataRefreshTooltip);
+            } else if (!jmsGood && autoPullBtn.isEnabled()) {
+                autoPullBtn.setEnabled(false);
+                autoPullBtn.setSelection(false);
+                timedPollBtn.setSelection(true);
+                dataRefreshGroup.setToolTipText(dataRefreshTooltip
+                        + unableConnectJMS);
+            }
+        }
     }
 
 }
