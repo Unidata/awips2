@@ -26,46 +26,54 @@ import dafTestsArgsUtil
 import sys
 import unittest
 
-class ObsTestCase(baseDafTestCase.DafTestCase):
+class BinLightningTestCase(baseDafTestCase.DafTestCase):
     """
-    Tests that obs data can be retrieved through the DAF, simply ensuring
-    that no unexpected exceptions are thrown while retrieving it and that the
-    returned data is not None.
+    Tests that binlightning data can be retrieved through the DAF, simply
+    ensuring that no unexpected exceptions are thrown while retrieving it and
+    that the returned data is not None.
     """
 
-    datatype = "obs"
+    datatype = "binlightning"
+
+    params = "intensity"
 
     @classmethod
     def setUpClass(cls):
-        print("STARTING OBS TESTS\n\n")
+        print("STARTING BINLIGHTNING TESTS\n\n")
 
     def testParameters(self):
         req = DAL.newDataRequest(self.datatype)
 
-        self.runParametersTest(req)
-
-    def testLocations(self):
-        req = DAL.newDataRequest(self.datatype)
-
-        self.runLocationsTest(req)
+        self.runParametersTest(req) 
 
     def testTimes(self):
         req = DAL.newDataRequest(self.datatype)
-        req.setLocationNames("KOMA")
+        req.addIdentifier("source", "NLDN")
 
         self.runTimesTest(req)
 
     def testGeometryData(self):
         req = DAL.newDataRequest(self.datatype)
-        req.setLocationNames("KOMA")
-        req.setParameters("temperature", "seaLevelPress", "dewpoint")
+        req.addIdentifier("source", "NLDN")
+        req.setParameters(*self.params.split(','))
 
-        self.runGeometryDataTest(req)
+        # Limit the times in the geometry data test to limit the amount of data
+        # returned.
+        self.runGeometryDataTest(req, limitTimes=True)
 
     @classmethod
     def tearDownClass(cls):
-        print("OBS TESTS COMPLETE\n\n\n")
+        print("BINLIGHTNING TESTS COMPLETE\n\n\n")
+
+def getArgs():
+    parser = dafTestsArgsUtil.getParser()
+    parser.add_argument("-p", action="store", dest="params", default=BinLightningTestCase.params,
+                         help="Lightning parameters comma separated",
+                         metavar="parameters")
+    return parser.parse_args()
 
 if __name__ == '__main__':
-    dafTestsArgsUtil.parseAndHandleArgs()
+    args = getArgs()
+    dafTestsArgsUtil.handleArgs(args)
+    BinLightningTestCase.params = args.params
     unittest.main(argv=sys.argv[:1])

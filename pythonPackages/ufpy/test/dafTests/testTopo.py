@@ -22,12 +22,13 @@ from __future__ import print_function
 from ufpy.dataaccess import DataAccessLayer as DAL
 from ufpy.ThriftClient import ThriftRequestException
 
-import dafTestsUtil
+import baseDafTestCase
+import dafTestsArgsUtil
 import shapely.geometry
 import sys
 import unittest
 
-class TestTopo(unittest.TestCase):
+class TopoTestCase(baseDafTestCase.DafTestCase):
     """
     Tests that topo data can be retrieved through the DAF, simply ensuring
     that no unexpected exceptions are thrown while retrieving it and that the
@@ -51,7 +52,7 @@ class TestTopo(unittest.TestCase):
         poly = shapely.geometry.LinearRing(((-70, 40), (-71, 40), (-71, 42), (-70, 42)))
         req.setEnvelope(poly)
         gridData = DAL.getGridData(req)
-        assert gridData is not None
+        self.assertIsNotNone(gridData)
         print("Number of grid records: " + str(len(gridData)))
         print("Sample grid data shape:\n" + str(gridData[0].getRawData().shape) + "\n")
         print("Sample grid data:\n" + str(gridData[0].getRawData()) + "\n")
@@ -60,7 +61,7 @@ class TestTopo(unittest.TestCase):
             print("\n" + topoFile)
             req.addIdentifier("topoFile", topoFile)
             gridData = DAL.getGridData(req)
-            assert gridData is not None
+            self.assertIsNotNone(gridData)
             print("Number of grid records: " + str(len(gridData)))
             print("Sample grid data shape:\n" + str(gridData[0].getRawData().shape) + "\n")
             print("Sample grid data:\n" + str(gridData[0].getRawData()) + "\n")
@@ -87,5 +88,5 @@ class TestTopo(unittest.TestCase):
         print("TOPO TESTS COMPLETE\n\n\n")
 
 if __name__ == '__main__':
-    dafTestsUtil.parseAndHandleArgs()
+    dafTestsArgsUtil.parseAndHandleArgs()
     unittest.main(argv=sys.argv[:1])

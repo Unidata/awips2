@@ -21,11 +21,12 @@
 from __future__ import print_function
 from ufpy.dataaccess import DataAccessLayer as DAL
 
-import dafTestsUtil
+import baseDafTestCase
+import dafTestsArgsUtil
 import sys
 import unittest
 
-class TestGfe(unittest.TestCase):
+class GfeTestCase(baseDafTestCase.DafTestCase):
     """
     Tests that gfe data can be retrieved through the DAF, primarily ensuring
     that no unexpected exceptions are thrown while retrieving it and that the
@@ -42,20 +43,20 @@ class TestGfe(unittest.TestCase):
     def testParameters(self):
         req = DAL.newDataRequest(self.datatype)
 
-        dafTestsUtil.testParameters(req)
+        self.runParametersTest(req)
 
     def testLocations(self):
         req = DAL.newDataRequest(self.datatype)
         req.addIdentifier("modelName", "Fcst")
 
-        dafTestsUtil.testLocations(req)
+        self.runLocationsTest(req)
 
     def testTimes(self):
         req = DAL.newDataRequest(self.datatype)
         req.addIdentifier("modelName", "Fcst")
         req.addIdentifier("siteId", "OAX")
 
-        dafTestsUtil.testTimes(req) 
+        self.runTimesTest(req) 
 
     def testGridData(self):
         req = DAL.newDataRequest(self.datatype)
@@ -63,12 +64,12 @@ class TestGfe(unittest.TestCase):
         req.addIdentifier("siteId", "OAX")
         req.setParameters("T")
 
-        dafTestsUtil.testGridData(req)
+        self.runGridDataTest(req)
 
     @classmethod
     def tearDownClass(cls):
         print("GFE TESTS COMPLETE\n\n\n")
 
 if __name__ == '__main__':
-    dafTestsUtil.parseAndHandleArgs()
+    dafTestsArgsUtil.parseAndHandleArgs()
     unittest.main(argv=sys.argv[:1])

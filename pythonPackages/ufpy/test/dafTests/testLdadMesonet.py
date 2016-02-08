@@ -22,11 +22,12 @@ from __future__ import print_function
 from shapely.geometry import Polygon
 from ufpy.dataaccess import DataAccessLayer as DAL
 
-import dafTestsUtil
+import baseDafTestCase
+import dafTestsArgsUtil
 import sys
 import unittest
 
-class TestLdadMesonet(unittest.TestCase):
+class LdadMesonetTestCase(baseDafTestCase.DafTestCase):
     """
     Tests that ldadmesonet data can be retrieved through the DAF, simply
     ensuring that no unexpected exceptions are thrown while retrieving it and
@@ -54,31 +55,31 @@ class TestLdadMesonet(unittest.TestCase):
     def testParameters(self):
         req = DAL.newDataRequest(self.datatype)
 
-        dafTestsUtil.testParameters(req)
+        self.runParametersTest(req)
 
     def testLocations(self):
         req = DAL.newDataRequest(self.datatype)
         req.setEnvelope(self.getReqEnvelope())
 
-        dafTestsUtil.testLocations(req)
+        self.runLocationsTest(req)
 
     def testTimes(self):
         req = DAL.newDataRequest(self.datatype)
         req.setEnvelope(self.getReqEnvelope())
 
-        dafTestsUtil.testTimes(req)
+        self.runTimesTest(req)
 
     def testGeometryData(self):
         req = DAL.newDataRequest(self.datatype)
         req.setParameters("highLevelCloud", "pressure")
         req.setEnvelope(self.getReqEnvelope())
 
-        dafTestsUtil.testGeometryData(req)
+        self.runGeometryDataTest(req)
 
     @classmethod
     def tearDownClass(cls):
         print("LDADMESONET TESTS COMPLETE\n\n\n")
 
 if __name__ == '__main__':
-    dafTestsUtil.parseAndHandleArgs()
+    dafTestsArgsUtil.parseAndHandleArgs()
     unittest.main(argv=sys.argv[:1])

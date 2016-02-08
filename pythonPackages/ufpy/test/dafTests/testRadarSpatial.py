@@ -27,19 +27,21 @@ import dafTestsArgsUtil
 import sys
 import unittest
 
-class CommonObsSpatialTestCase(baseDafTestCase.DafTestCase):
+class RadarSpatialTestCase(baseDafTestCase.DafTestCase):
     """
-    Tests that common_obs_spatial data can be retrieved through the DAF, simply
+    Tests that radar_spatial data can be retrieved through the DAF, simply
     ensuring that no unexpected exceptions are thrown while retrieving it and
     that the returned data is not None.
     """
 
-    datatype = "common_obs_spatial"
+    datatype = "radar_spatial"
 
     bbox = ["-96", "41", "-97", "42"]
         """
         Default request area (box around KOAX)
         """
+
+    locations = ["TORD", "TMDW"]
 
     envelope = None
 
@@ -56,43 +58,47 @@ class CommonObsSpatialTestCase(baseDafTestCase.DafTestCase):
 
     @classmethod
     def setUpClass(cls):
-        print("STARTING COMMON_OBS_SPATIAL TESTS\n\n")
+        print("STARTING RADAR_SPATIAL TESTS\n\n")
+
+    def testLocations(self):
+        req = DAL.newDataRequest(self.datatype)
+        req.setEnvelope(self.getReqEnvelope())
+
+        self.runLocationsTest(req)
 
     def testParameters(self):
         req = DAL.newDataRequest(self.datatype)
 
         self.runParametersTest(req)
 
-    def testLocations(self):
-        req = DAL.newDataRequest(self.datatype)
-        req.addIdentifier("country", ["US", "CN"])
-
-        self.runLocationsTest(req)
-
     def testIdentifiers(self):
         self.runIdentifiersTest(self.datatype)
 
     def testGeometryData(self):
         req = DAL.newDataRequest(self.datatype)
-        req.setEnvelope(self.getReqEnvelope())
-        req.setParameters("name", "stationid")
+        req.setLocationNames(*self.locations)
+        req.setParameters("wfo_id", "name", "elevmeter")
 
         self.runGeometryDataTest(req)
 
     @classmethod
     def tearDownClass(cls):
-        print("COMMON_OBS_SPATIAL TESTS COMPLETE\n\n\n")
+        print("RADAR_SPATIAL TESTS COMPLETE\n\n\n")
 
-def getArgs(): 
+def getArgs():
     parser = dafTestsArgsUtil.getParser()
-    parser.add_argument("-p", action="store", dest="bbox", nargs=4, default=CommonObsSpatialTestCase.bbox,
-                        help="Request area",
+    parser.add_argument("-p", action="store", dest="bbox", nargs=4, default=RadarSpatialTestCase.bbox,
+                        help="Request area for location names query",
                         metavar="point")
+    parser.add_argument("-r", dest="locations", nargs="+", default=RadarSpatialTestCase.locations,
+                        help="IDs of radar stations to retrieve geometry data for.",
+                        metavar="locations")
     return parser.parse_args()
+
 
 if __name__ == '__main__':
     args = getArgs()
     dafTestsArgsUtil.handleArgs(args)
-    CommonObsSpatialTestCase.bbox = args.bbox
+    RadarSpatialTestCase.bbox = args.bbox
+    RadarSpatialTestCase.locations = args.locations
     unittest.main(argv=sys.argv[:1])
-

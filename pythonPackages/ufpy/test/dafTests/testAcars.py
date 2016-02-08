@@ -18,35 +18,54 @@
 # further licensing information.
 ##
 
+from __future__ import print_function
 from ufpy.dataaccess import DataAccessLayer as DAL
 
-import dafTestsUtil
+import baseDafTestCase
+import dafTestsArgsUtil
+import sys
 import unittest
 
-class BaseBufrMosTest(unittest.TestCase):
+class AcarsTestCase(baseDafTestCase.DafTestCase):
     """
-    Base class for testing that bufrmos data can be retrieved through the DAF.
+    Tests that acars data can be retrieved through the DAF, simply ensuring
+    that no unexpected exceptions are thrown while retrieving it and that the
+    returned data is not None.
     """
+
+    datatype = "acars"
+
+    @classmethod
+    def setUpClass(cls):
+        print("STARTING ACARS TESTS\n\n")
 
     def testParameters(self):
         req = DAL.newDataRequest(self.datatype)
 
-        dafTestsUtil.testParameters(req)
+        self.runParametersTest(req)
 
     def testLocations(self):
         req = DAL.newDataRequest(self.datatype)
 
-        dafTestsUtil.testLocations(req)
+        self.runLocationsTest(req)
 
     def testTimes(self):
         req = DAL.newDataRequest(self.datatype)
-        req.setLocationNames("KOMA")
 
-        dafTestsUtil.testTimes(req)
+        self.runTimesTest(req)
 
     def testGeometryData(self):
         req = DAL.newDataRequest(self.datatype)
-        req.setLocationNames("KOMA")
-        req.setParameters("temperature", "dewpoint")
+        req.setParameters("flightLevel", "tailNumber")
 
-        dafTestsUtil.testGeometryData(req)
+        # Limit the times in the geometry data test to limit the amount of data
+        # returned.
+        self.runGeometryDataTest(req, limitTimes=True)
+
+    @classmethod
+    def tearDownClass(cls):
+        print("ACARS TESTS COMPLETE\n\n\n")
+
+if __name__ == '__main__':
+    dafTestsArgsUtil.parseAndHandleArgs()
+    unittest.main(argv=sys.argv[:1])

@@ -18,7 +18,7 @@
 # further licensing information.
 ##
 
-import dafTestsUtil
+import dafTestsArgsUtil
 import os
 import sys
 import unittest
@@ -41,5 +41,5 @@ def load_tests(loader, tests, pattern):
     return loader.discover(start_dir=testDir)
 
 if __name__ == "__main__":
-    dafTestsUtil.parseAndHandleArgs()
+    dafTestsArgsUtil.parseAndHandleArgs()
     unittest.main(argv=sys.argv[:1])
