@@ -46,6 +46,7 @@ import com.raytheon.viz.ghg.monitor.data.GhgConfigData.SelectionEnum;
  * 30 JUL 2010  6721       mpduff      WFO now from officeid column.
  * 28 APR 2015  4027       randerso    Expunged Calendar from ActiveTableRecord
  * 05 JAN 2016  5184       dgilling    Refactor constructor.
+ * 05 FEB 2016  5316       randerso    Removed unnecessary exception handler
  * 
  * </pre>
  * 
@@ -190,7 +191,6 @@ public class GhgData implements Comparable<GhgData> {
      * 
      */
     public GhgData(ActiveTableRecord warning, String hazardDesc) {
-        Date now = SimulatedTime.getSystemTime().getTime();
         if (warning != null) {
             action = warning.getAct();
             vtecString = warning.getVtecstr();
@@ -198,11 +198,7 @@ public class GhgData implements Comparable<GhgData> {
             phen = warning.getPhen();
             sig = warning.getSig();
             hazard = hazardDesc;
-            try {
-                startDate = warning.getStartTime();
-            } catch (Exception e) {
-                startDate = now;
-            }
+            startDate = warning.getStartTime();
             endDate = warning.getEndTime();
             purgeDate = warning.getPurgeTime();
             issueTime = warning.getIssueTime();

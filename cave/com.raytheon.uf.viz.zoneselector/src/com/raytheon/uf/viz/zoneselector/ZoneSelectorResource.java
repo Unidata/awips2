@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.gfe.ui.zoneselector;
+package com.raytheon.uf.viz.zoneselector;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -76,8 +76,6 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ShadeableCapability;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler.JTSGeometryData;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler.PointStyle;
-import com.raytheon.viz.gfe.Activator;
-import com.raytheon.viz.gfe.rsc.GFEFonts;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
@@ -111,6 +109,9 @@ import com.vividsolutions.jts.io.WKBReader;
  * Sep 04, 2014     #3365  ccody       Changes for removing Data_Delivery dependencies
  * Apr 06, 2015     #17340 randerso    Eliminated clipping to GFE domain, code cleanup
  * Jul 13, 2015      4500  rjpeter     Fix SQL Injection concerns.
+ * Feb 05, 2016 #5316      randerso    Moved into separate package.
+ *                                     Additonal changes to support use in GHG Monitor,
+ *                                     MakeHazard, and ZoneCombiner
  * </pre>
  * 
  * @author randerso
@@ -118,23 +119,13 @@ import com.vividsolutions.jts.io.WKBReader;
  */
 
 public class ZoneSelectorResource extends DbMapResource {
-    private static final String EDIT_AREA = "editarea";
-
-    private static final RGB NO_ZONE_COLOR;
-    static {
-        String s = Activator.getDefault().getPreferenceStore()
-                .getString("ZoneCombiner_noZoneColor");
-        if (s.isEmpty()) {
-            s = "black";
-        }
-        NO_ZONE_COLOR = RGBColors.getRGBColor(s);
-    }
+    protected static final String ZONE_SELECTOR_FONT_ID = "com.raytheon.uf.viz.zoneSelectorFont";
 
     private static GeometryFactory gf = new GeometryFactory();
 
     private static PreparedGeometryFactory pgf = new PreparedGeometryFactory();
 
-    public String myWfo;
+    private String myWfo;
 
     class MapQueryJob extends Job {
 
@@ -524,6 +515,11 @@ public class ZoneSelectorResource extends DbMapResource {
             }
             return false;
         }
+
+        @Override
+        public String toString() {
+            return "(" + this.groupLabel + ", " + this.color + ")";
+        }
     }
 
     private class LabelTuple {
@@ -573,24 +569,28 @@ public class ZoneSelectorResource extends DbMapResource {
 
     private final WorldWrapCorrector worldWrapCorrector;
 
+    private final boolean clipToDomain;
+
     /**
-     * @param data
+     * @param resourceData
      * @param loadProperties
      * @param gloc
      * @param limitZones
+     * @param clipToDomain
      */
-    public ZoneSelectorResource(DbMapResourceData data,
+    public ZoneSelectorResource(DbMapResourceData resourceData,
             LoadProperties loadProperties, GridLocation gloc,
-            List<String> limitZones) {
-        super(data, loadProperties);
+            List<String> limitZones, RGB defaultFillColor, boolean clipToDomain) {
+        super(resourceData, loadProperties);
         this.zoneData = new HashMap<String, ZoneInfo>();
         this.geomFactory = new GeometryFactory();
         this.queryJob = new MapQueryJob();
-        this.defaultFillColor = NO_ZONE_COLOR;
+        this.defaultFillColor = defaultFillColor;
         this.outlineColor = RGBColors.getRGBColor("white");
         this.wfoOutlineColor = RGBColors.getRGBColor("yellow");
         this.gloc = gloc;
         this.limitZones = limitZones;
+        this.clipToDomain = clipToDomain;
 
         GeneralEnvelope env = new GeneralEnvelope(MapUtil.LATLON_PROJECTION);
         env.setEnvelope(-180.0, -90.0, 180.0, 90.0);
@@ -649,23 +649,42 @@ public class ZoneSelectorResource extends DbMapResource {
     }
 
     /**
-     * @param zoneName
+     * Set the list of zones to the specified color
+     * 
      * @param color
+     * @param zones
      */
-    public void setZone(String zoneName, RGB color) {
-        ZoneInfo info = zoneData.get(zoneName);
-        if (info != null) {
-            info.setColor(color);
+    public void setZone(RGB color, String... zones) {
+        boolean refresh = false;
 
-            int index = info.getShapeIndex();
-            if ((this.target != null) && (index >= 0)
-                    && (index < shapeList.length)) {
-                shapeList[index].dispose();
-                shapeList[index] = computeShape(this.target, this.descriptor,
-                        info.getGeometry(), color);
+        for (String zoneName : zones) {
+            ZoneInfo info = zoneData.get(zoneName);
+            if (info != null) {
+                refresh = true;
+                info.setColor(color);
+
+                int index = info.getShapeIndex();
+                if ((this.target != null) && (index >= 0)
+                        && (index < shapeList.length)) {
+                    shapeList[index].dispose();
+                    shapeList[index] = computeShape(this.target,
+                            this.descriptor, info.getGeometry(), color);
+                }
             }
+        }
+
+        if (refresh) {
             issueRefresh();
         }
+    }
+
+    /**
+     * Clear all selected zones
+     */
+    public void clearZones() {
+        String[] zones = zoneData.keySet().toArray(new String[zoneData.size()]);
+        setZone(defaultFillColor, zones);
+
     }
 
     /**
@@ -703,7 +722,10 @@ public class ZoneSelectorResource extends DbMapResource {
     @Override
     protected IFont getFont(IGraphicsTarget target) {
         if (font == null) {
-            this.font = GFEFonts.getFont(target, 2);
+            IFont font = target.initializeFont(ZONE_SELECTOR_FONT_ID);
+            font.setSmoothing(false);
+            font.setScaleFont(false);
+            this.font = font;
         }
         return font;
     }
@@ -861,12 +883,7 @@ public class ZoneSelectorResource extends DbMapResource {
         query.append(" FROM ");
         query.append(resourceData.getTable());
 
-        // add any constraints
-        String[] constraints = resourceData.getConstraints();
-        if ((constraints != null) && (constraints.length > 0)) {
-            query.append(" WHERE ").append(
-                    StringUtils.join(constraints, " AND "));
-        }
+        addConstraints(query);
 
         query.append(';');
 
@@ -896,8 +913,7 @@ public class ZoneSelectorResource extends DbMapResource {
             IMapDescriptor descriptor, Geometry g, RGB color) {
 
         IShadedShape newShadedShape = target.createShadedShape(false,
-                new GeneralGridGeometry(descriptor.getGridGeometry()), true);
-        // new GeneralGridGeometry(descriptor.getGridGeometry()));
+                new GeneralGridGeometry(descriptor.getGridGeometry()));
         JTSCompiler shapeCompiler = new JTSCompiler(newShadedShape, null,
                 descriptor);
         JTSGeometryData geomData = shapeCompiler.createGeometryData();
@@ -949,7 +965,7 @@ public class ZoneSelectorResource extends DbMapResource {
     }
 
     /**
-     * 
+     * @return list of zone names
      */
     public List<String> getZoneNames() {
         if (zoneData.isEmpty()) {
@@ -974,12 +990,7 @@ public class ZoneSelectorResource extends DbMapResource {
                 // add the geometry table
                 query.append(resourceData.getTable());
 
-                // add any constraints
-                String[] constraints = resourceData.getConstraints();
-                if ((constraints != null) && (constraints.length > 0)) {
-                    query.append(" WHERE ").append(
-                            StringUtils.join(constraints, " AND "));
-                }
+                addConstraints(query);
 
                 query.append(';');
 
@@ -1051,12 +1062,7 @@ public class ZoneSelectorResource extends DbMapResource {
                 query.append(" FROM ");
                 query.append(resourceData.getTable());
 
-                // add any constraints
-                String[] constraints = resourceData.getConstraints();
-                if ((constraints != null) && (constraints.length > 0)) {
-                    query.append(" WHERE ").append(
-                            StringUtils.join(constraints, " AND "));
-                }
+                addConstraints(query);
 
                 query.append(';');
 
@@ -1105,6 +1111,35 @@ public class ZoneSelectorResource extends DbMapResource {
             }
         }
         return this.boundingEnvelope;
+    }
+
+    private void addConstraints(StringBuilder query) {
+        String[] constraints = resourceData.getConstraints();
+
+        // if any constraints add the WHERE clause
+        if (clipToDomain
+                || ((constraints != null) && (constraints.length != 0))) {
+            query.append(" WHERE ");
+            boolean firstConstraint = true;
+
+            // add the geospatial constraint, if desired
+            if (clipToDomain) {
+                query.append(getGeospatialConstraint(
+                        resourceData.getGeomField(), null));
+                firstConstraint = false;
+            }
+
+            // add any additional constraints
+            if (constraints != null) {
+                for (String constraint : resourceData.getConstraints()) {
+                    if (!firstConstraint) {
+                        query.append(" AND ");
+                    }
+                    query.append(constraint);
+                    firstConstraint = false;
+                }
+            }
+        }
     }
 
     /*

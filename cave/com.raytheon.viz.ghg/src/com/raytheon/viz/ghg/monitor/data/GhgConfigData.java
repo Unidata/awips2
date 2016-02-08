@@ -61,8 +61,9 @@ import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.viz.ghg.constants.StatusConstants;
-import com.raytheon.viz.ghg.monitor.GhgDisplayManager;
 import com.raytheon.viz.ghg.monitor.config.GhgConfigXml;
+import com.raytheon.viz.ghg.monitor.event.AbstractGhgMonitorEvent.GhgEventListener;
+import com.raytheon.viz.ghg.monitor.event.GhgMonitorFilterChangeEvent;
 import com.raytheon.viz.ui.statusline.StatusMessage;
 import com.raytheon.viz.ui.statusline.StatusStore;
 
@@ -86,7 +87,8 @@ import com.raytheon.viz.ui.statusline.StatusStore;
  *                                     Default config changed to hard coding instead of reading
  *                                     from config file.
  * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
- * Dec 16, 2015 #5184      dgilling    Remove viz.gfe dependencies.
+ * Dec 16, 2015 5184       dgilling    Remove viz.gfe dependencies.
+ * Feb 05, 2016 5316       randerso    Moved notification of filter change into this class
  * </pre>
  * 
  * @author lvenable
@@ -205,7 +207,10 @@ public final class GhgConfigData {
 
     private boolean identifyTestEvents;
 
-    private final GhgDisplayManager displayMgr;
+    /**
+     * Filter change listener list
+     */
+    private List<GhgEventListener> filterChangeListenerList = new ArrayList<>();
 
     /**
      * Alerts enumeration. Contains the available alerts. {@code display}
@@ -370,8 +375,7 @@ public final class GhgConfigData {
      * 
      * @param displayMgr
      */
-    private GhgConfigData(GhgDisplayManager displayMgr) {
-        this.displayMgr = displayMgr;
+    private GhgConfigData() {
         init();
     }
 
@@ -382,12 +386,11 @@ public final class GhgConfigData {
      * 
      * @return An instance of the GHG configuration data.
      */
-    public static synchronized GhgConfigData buildInstance(
-            GhgDisplayManager displayMgr) {
+    public static synchronized GhgConfigData buildInstance() {
         // If the GHG configuration data has not been created
         // then create a new instance.
         if (classInstance == null) {
-            classInstance = new GhgConfigData(displayMgr);
+            classInstance = new GhgConfigData();
         }
 
         return classInstance;
@@ -622,7 +625,8 @@ public final class GhgConfigData {
      */
     public void setCurrentFilter(GhgDataFilter filter) {
         currentFilter = filter;
-        displayMgr.setFilterChanged(true);
+        GhgMonitorFilterChangeEvent evt = new GhgMonitorFilterChangeEvent();
+        fireFilterChangeEvent(evt);
     }
 
     /**
@@ -1060,4 +1064,37 @@ public final class GhgConfigData {
             }
         }
     }
+
+    /**
+     * Add a listener to the list.
+     * 
+     * @param listener
+     */
+    public void addFilterChangeListener(GhgEventListener listener) {
+        filterChangeListenerList.add(listener);
+    }
+
+    /**
+     * Remove a listener from the list.
+     * 
+     * @param listener
+     */
+    public void removeFilterChangeListener(GhgEventListener listener) {
+        if (filterChangeListenerList.contains(listener)) {
+            filterChangeListenerList.remove(listener);
+        }
+    }
+
+    /**
+     * Fire event so listeners are aware of change.
+     * 
+     * @param event
+     *            The GhgMonitorFilterChangeEvent
+     */
+    private void fireFilterChangeEvent(GhgMonitorFilterChangeEvent event) {
+        for (GhgEventListener listener : filterChangeListenerList) {
+            listener.notifyUpdate(event);
+        }
+    }
+
 }

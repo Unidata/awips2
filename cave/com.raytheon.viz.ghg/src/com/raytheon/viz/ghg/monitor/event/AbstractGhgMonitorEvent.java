@@ -17,27 +17,35 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.ghg.monitor.listener;
-
-import com.raytheon.viz.ghg.monitor.event.GhgMonitorTableSelectionEvent;
+package com.raytheon.viz.ghg.monitor.event;
 
 /**
- * Table selection interface.
+ * Base class for all GHG Monitor events
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 2, 2010            mpduff     Initial creation
- *
+ * Feb 04, 2016  #5316     randerso     Initial creation
+ * 
  * </pre>
- *
- * @author mpduff
- * @version 1.0	
+ * 
+ * @author randerso
+ * @version 1.0
  */
 
-public interface GhgMonitorTableSelectionListener {
-    public void notifyUpdate(GhgMonitorTableSelectionEvent evt);
+public abstract class AbstractGhgMonitorEvent {
+    /**
+     * Interface for GHG Monitor event listeners
+     */
+    public interface GhgEventListener {
+        /**
+         * Method called when evnet occurs
+         * 
+         * @param event
+         */
+        public void notifyUpdate(AbstractGhgMonitorEvent event);
+    }
 }

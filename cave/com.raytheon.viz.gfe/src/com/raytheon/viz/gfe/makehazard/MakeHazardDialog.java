@@ -82,6 +82,7 @@ import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.zoneselector.AbstractZoneSelector.IZoneSelectionListener;
 import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.PythonPreferenceStore;
@@ -93,7 +94,6 @@ import com.raytheon.viz.gfe.core.griddata.IGridData;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.product.TextDBUtil;
 import com.raytheon.viz.gfe.ui.zoneselector.ZoneSelector;
-import com.raytheon.viz.gfe.ui.zoneselector.ZoneSelector.IZoneSelectionListener;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.statusline.StatusMessage.Importance;
 import com.raytheon.viz.ui.statusline.StatusStore;
@@ -105,15 +105,16 @@ import com.raytheon.viz.ui.statusline.StatusStore;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer     Description
  * ------------ ---------- -----------  --------------------------
- *  Jun 5, 2008             Eric Babin  Initial Creation
- *  Sep 27,2010 5813        gzhou       get etn from param pattern hazXXXnnn
- *  Feb 28,2012 14436       mli         Add RP.S - Rip Current
- *  Apr 03,2012 436         randerso    Reworked dialog to be called by Python MakeHazard procedure
- *  Apr 09,2012 436         randerso    Merged RNK's MakeHazards_Elevation procedure
- *  May 30,2012 2028        randerso    Cleaned up dialog layout
- *  Nov 13,2014 646         lshi        Fixed hard coded endTimeSlider's Max value
- *  Jul 30,2015 17770       lshi        Add handling for AT, EP, CP and WP basins
- *  Jan 14,2016 5239        randerso    Fixed Zones included/not included labels not always visible
+ * Jun 05, 2008            Eric Babin   Initial Creation
+ * Sep 27, 2010 5813       gzhou        get etn from param pattern hazXXXnnn
+ * Feb 28, 2012 14436      mli          Add RP.S - Rip Current
+ * Apr 03, 2012 436        randerso     Reworked dialog to be called by Python MakeHazard procedure
+ * Apr 09, 2012 436        randerso     Merged RNK's MakeHazards_Elevation procedure
+ * May 30, 2012 2028       randerso     Cleaned up dialog layout
+ * Nov 13, 2014 646        lshi         Fixed hard coded endTimeSlider's Max value
+ * Jul 30, 2015 17770      lshi         Add handling for AT, EP, CP and WP basins
+ * Jan 14, 2016 5239       randerso     Fixed Zones included/not included labels not always visible
+ * Feb 05, 2016 5316       randerso     Moved AbstractZoneSelector to separate project
  * 
  * </pre>
  * 

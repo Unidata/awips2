@@ -48,6 +48,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ---------- ----------- --------------------------
  * 25 MAR 2008  N/A        lvenable    Initial creation
  * 15 NOV 2012  1298       rferrel     Changes for non-blocking dialog.
+ * 05 FEB 2016  5316       randerso    Code cleanup
  * 
  * </pre>
  * 
@@ -86,7 +87,7 @@ public class GhgAlertDlg extends CaveSWTDialog {
             GhgConfigData.AlertsFilterEnum.PhenSig,
             GhgConfigData.AlertsFilterEnum.Pil };
 
-    public static Map<GhgConfigData.AlertsFilterEnum, String[]> filterToEnumMap = new HashMap<GhgConfigData.AlertsFilterEnum, String[]>() {
+    private static Map<GhgConfigData.AlertsFilterEnum, String[]> filterToEnumMap = new HashMap<GhgConfigData.AlertsFilterEnum, String[]>() {
 
         private static final long serialVersionUID = 6183513849706287870L;
         {
@@ -323,6 +324,9 @@ public class GhgAlertDlg extends CaveSWTDialog {
         }
     }
 
+    /**
+     * @param alerts
+     */
     public void setAlerts(GhgAlertsConfigData alerts) {
         this.alerts = alerts.clone();
     }
