@@ -23,6 +23,7 @@
       <import feature="com.raytheon.uf.viz.core.feature" version="1.0.0.qualifier"/>
       <import feature="com.raytheon.viz.text.feature" version="1.0.0.qualifier"/>
       <import feature="com.raytheon.uf.viz.kml.export.feature" version="1.0.0.qualifier"/>
+      <import feature="com.raytheon.uf.viz.nwsauth.feature" version="1.0.0.qualifer"/>
    </requires>
 
    <plugin
@@ -37,12 +38,6 @@
          install-size="0"
          version="0.0.0"/>
 
-   <plugin
-         id="com.raytheon.uf.common.dataaccess"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-		 
    <plugin
          id="com.raytheon.viz.ghg"
          download-size="0"
