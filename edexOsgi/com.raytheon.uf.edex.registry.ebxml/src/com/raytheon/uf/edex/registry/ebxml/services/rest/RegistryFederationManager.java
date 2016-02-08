@@ -175,6 +175,7 @@ import com.raytheon.uf.edex.security.SecurityConfiguration;
  * 5/29/2015    4448        bphillip    Added default user to registry on startup
  * 10/20/2015   4992        dhladky     Improve error handling.
  * Nov 12, 2015 4834        njensen     Changed LocalizationOpFailedException to LocalizationException
+ * 8 Feb, 2016  5198        dhladky     Class cast for String expecting Long fixed
  * 
  * </pre>
  * 
@@ -660,8 +661,11 @@ public class RegistryFederationManager implements IRegistryFederationManager,
     public void updateRegistryEvents(
             @PathParam("registryId") String registryId,
             @PathParam("time") String time) {
+        
+        Long lTime= Long.parseLong(time);
+        
         for (ReplicationEvent event : replicationEventDao
-                .getEventsBeforeTime(time)) {
+                .getEventsBeforeTime(lTime)) {
             event.addReplicatedTo(registryId);
             replicationEventDao.update(event);
         }
