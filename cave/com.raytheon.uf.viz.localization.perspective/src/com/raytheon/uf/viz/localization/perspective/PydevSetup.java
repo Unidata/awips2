@@ -245,7 +245,7 @@ public class PydevSetup {
      * popup.
      */
     public static void preventPydevEclipsePopup() {
-        //PydevRootPrefs.setCheckPreferredPydevSettings(false);
+        PydevRootPrefs.setCheckPreferredPydevSettings(false);
         IEclipsePreferences debug = InstanceScope.INSTANCE
                 .getNode("org.eclipse.debug.ui");
         debug.put("org.eclipse.debug.ui.wait_for_build", "never");
