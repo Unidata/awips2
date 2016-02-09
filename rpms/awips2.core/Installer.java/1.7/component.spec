@@ -1,6 +1,6 @@
 %global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-java-repack-jars[[:space:]].*$!!g')
 %define _java_major_version 1.7
-%define _java_revision 65
+%define _java_revision 80
 %define _java_version %{_java_major_version}.0_%{_java_revision}
 %define _build_arch %(uname -i)
 %define _java_build_loc %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -11,7 +11,7 @@
 Name: awips2-java
 Summary: AWIPS II Java Distribution
 Version: %{_java_version}
-Release: %{_component_version}.%{_component_release}
+Release: 1
 Group: AWIPSII
 BuildRoot: %{_build_root}
 BuildArch: %{_build_arch}
@@ -111,10 +111,6 @@ mkdir -p %{_build_root}/awips2/java
 if [ $? -ne 0 ]; then
    exit 1
 fi
-mkdir -p %{_build_root}/etc/profile.d
-if [ $? -ne 0 ]; then
-   exit 1
-fi
 
 chmod a+x %{_java_build_loc}/*.bin
 pushd . > /dev/null
@@ -141,13 +137,6 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 popd > /dev/null
-
-# Our profile.d scripts.
-JAVA_PROFILED_DIR="${JAVA_SCRIPTS_DIR}/profile.d"
-cp -v ${JAVA_PROFILED_DIR}/* %{_build_root}/etc/profile.d
-if [ $? -ne 0 ]; then
-   exit 1
-fi
 
 # The pydev certificate.
 cp -v ${JAVA_COMMON_DIR}/src/${pydev_cert} \
