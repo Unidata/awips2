@@ -202,6 +202,7 @@ import com.vividsolutions.jts.geom.Point;
  * Feb 13, 2015   4121      mpduff      Change label caching.
  * Sep 28, 2015   4756      dhladky     Multiple guidance sources.
  * Oct 26, 2015  5056       dhladky     Simplified Guidance Interpolation.
+ * Feb 02, 2016 DR 16771    arickert    Opening the FFMP dialog in initInternal
  * </pre>
  * 
  * @author dhladky
@@ -472,15 +473,12 @@ public class FFMPResource extends
             LoadProperties loadProperties) {
         super(resourceData, loadProperties);
         getResourceData().addChangeListener(this);
-        monitor = getResourceData().getMonitor();
-        monitor.addResourceListener(this);
-
-        if (getResourceData().tableLoad) {
-            if (!isBasinToggle()) {
-                setBasinToggle(true);
-            }
-            monitor.launchFFMPDialog(this);
-        }
+        
+        // The FFMPMonitor dialog was opened here previously but this led
+        // to an issue where if the user pressed the clear button before the
+        // FFMPResource was properly initialized the dialog would not close.
+        // Opening the dialog is now the responsibility of the FFMPResource
+        
         // So we are not time agnostic
         dataTimes = new ArrayList<DataTime>();
     }
@@ -1294,6 +1292,16 @@ public class FFMPResource extends
             }
         });
 
+        monitor = getResourceData().getMonitor();
+        monitor.addResourceListener(this);
+
+        if (getResourceData().tableLoad) {
+            if (!isBasinToggle()) {
+                setBasinToggle(true);
+            }
+            monitor.launchFFMPDialog(this);
+        }
+        
         // Set flag for HPE data
         isHpe = resourceData.dataKey.equalsIgnoreCase(HPE)
                 || resourceData.dataKey.equalsIgnoreCase(BHPE);
