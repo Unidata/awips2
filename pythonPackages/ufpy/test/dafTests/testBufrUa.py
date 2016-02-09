@@ -36,9 +36,9 @@ class BufrUaTestCase(baseDafTestCase.DafTestCase):
     datatype = "bufrua"
 
     location = "72558"
-        """
-        stationid corresponding to KOAX
-        """
+    """
+    stationid corresponding to KOAX
+    """
 
     @classmethod
     def setUpClass(cls):

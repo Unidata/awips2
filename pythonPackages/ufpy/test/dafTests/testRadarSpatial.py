@@ -37,9 +37,9 @@ class RadarSpatialTestCase(baseDafTestCase.DafTestCase):
     datatype = "radar_spatial"
 
     bbox = ["-96", "41", "-97", "42"]
-        """
-        Default request area (box around KOAX)
-        """
+    """
+    Default request area (box around KOAX)
+    """
 
     locations = ["TORD", "TMDW"]
 

@@ -37,9 +37,9 @@ class CommonObsSpatialTestCase(baseDafTestCase.DafTestCase):
     datatype = "common_obs_spatial"
 
     bbox = ["-96", "41", "-97", "42"]
-        """
-        Default request area (box around KOAX)
-        """
+    """
+    Default request area (box around KOAX)
+    """
 
     envelope = None
 
