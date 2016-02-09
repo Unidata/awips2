@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <purgeRuleSet>
+	<key>sectorID</key>
 	<key>physicalElement</key>
 	<defaultRule>
 		<period>01-00:00:00</period>
 	</defaultRule>
 	<rule regex="true">
+		<keyValue>.*</keyValue>
 		<keyValue>.*Visible.*</keyValue>
 		<period>00-18:00:00</period>
 	</rule>
 	<rule regex="true">
+		<keyValue>.*</keyValue>
 		<keyValue>Sounder.*</keyValue>
 		<period>00-12:00:00</period>
 	</rule>
