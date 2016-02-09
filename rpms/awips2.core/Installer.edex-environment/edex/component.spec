@@ -74,10 +74,6 @@ mkdir -p %{_build_root}%{_installation_directory}/edex-environment/macro/functio
 if [ $? -ne 0 ]; then
    exit 1
 fi
-mkdir -p %{_build_root}/etc/profile.d
-if [ $? -ne 0 ]; then
-   exit 1
-fi
 
 # create the edex environment directory.
 mkdir -p %{_build_root}/usr/local/edex-environment
@@ -154,13 +150,6 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-# The profile.d script.
-cp ${DELIVERABLES}/profile.d/* \
-   %{_build_root}/etc/profile.d
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-
 %pre
 %post
 %preun
@@ -181,8 +170,6 @@ fi
 /awips2/edex-environment/macro/utilities/*
 %dir /awips2/edex-environment/macro/functions
 /awips2/edex-environment/macro/functions/*
-/etc/profile.d/awips2-edex-env.sh
-/etc/profile.d/awips2-edex-env.csh
 
 %defattr(700,root,root,755)
 /awips2/edex-environment/macro/edex-environment

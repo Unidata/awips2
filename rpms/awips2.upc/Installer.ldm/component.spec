@@ -1,4 +1,4 @@
-%define _ldm_version 6.12.6
+%define _ldm_version 6.12.14
 %define _ldm_src_tar ldm-%{_ldm_version}.tar.gz
 # ldm-%{_ldm_version}.tar.gz is tarred up ldm-%{_ldm_version}/src dir after
 # ISG makes retrans changes
@@ -8,8 +8,8 @@
 %define __prelink_undo_cmd %{nil}
 Name: awips2-ldm
 Summary: AWIPS II LDM Distribution
-Version: %{_component_version}
-Release: %{_component_release}
+Version: %{_component_version} 
+Release: %{_ldm_version}
 Group: AWIPSII
 BuildRoot: /tmp
 BuildArch: noarch
@@ -29,7 +29,6 @@ requires: libxml2-devel
 requires: libtool
 requires: libpng-devel
 provides: awips2-ldm
-provides: awips2-base-component
 
 %description
 AWIPS II LDM Distribution - Contains AWIPS II LDM.
@@ -158,10 +157,13 @@ _ldm_dir=/awips2/ldm
 _ldm_root_dir=${_ldm_dir}/ldm-%{_ldm_version}
 _myHost=`hostname`
 _myHost=`echo ${_myHost} | cut -f1 -d'-'`
-cd ${_ldm_dir}/SOURCES
-# unpack the ldm source
-/bin/tar -xf %{_ldm_src_tar} \
-   -C ${_ldm_dir}
+
+# Remove old ldm dir
+rm -rf ${_ldm_root_dir}
+
+cp ${_ldm_dir}/SOURCES/%{_ldm_src_tar} ${_ldm_dir}
+cd ${_ldm_dir}
+gunzip -c %{_ldm_src_tar} | pax -r '-s:/:/src/:'
 if [ $? -ne 0 ]; then
    exit 1
 fi
@@ -184,8 +186,6 @@ fi
 # Fix libtool incompatibility in source tar ball
 rm -f libtool
 ln -s /usr/bin/libtool libtool
-cd ${_ldm_root_dir}/src
-#export LDMHOME=/awips2/ldm
 make LDMHOME=/awips2/ldm > make.log 2>&1
 make install LDMHOME=/awips2/ldm > install.log 2>&1
 if [ $? -ne 0 ]; then

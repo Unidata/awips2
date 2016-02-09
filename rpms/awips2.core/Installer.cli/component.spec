@@ -74,7 +74,8 @@ cp -r %{_baseline_workspace}/${CLI_PROJECT_DIR}/impl/* ${RPM_BUILD_ROOT}/awips2/
 copyLegal "awips2/fxa"
 
 # Copy fxa data files
-cp -r  %{_baseline_workspace}/${CLI_DIRECTORY}/fxa/* ${RPM_BUILD_ROOT}/awips2/fxa/
+echo %{_baseline_workspace}/rpms/awips2.core/Installer.cli/fxa/
+cp -r  %{_baseline_workspace}/rpms/awips2.core/Installer.cli/fxa/* ${RPM_BUILD_ROOT}/awips2/fxa/
 
 %pre
 if [ "${1}" = "2" ]; then
