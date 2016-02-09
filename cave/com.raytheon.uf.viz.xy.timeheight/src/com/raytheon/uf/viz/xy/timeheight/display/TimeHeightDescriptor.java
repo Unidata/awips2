@@ -44,6 +44,7 @@ import com.raytheon.viz.core.slice.request.HeightScale;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 28, 2010            bsteffen     Initial creation
+ * Feb  4, 2016 DR 14655   Qinglu Lin   Added limitNumberOfFrames().
  * 
  * </pre>
  * 
@@ -153,6 +154,11 @@ public class TimeHeightDescriptor extends XyGraphDescriptor {
                     limitedNumberOfFrames);
         }
         return numFrames;
+    }
+
+    @Override
+    public boolean limitNumberOfFrames(int frameCount) {
+        return false;
     }
 
 }

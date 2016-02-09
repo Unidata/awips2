@@ -37,7 +37,8 @@ import com.raytheon.uf.viz.xy.timeseries.graph.TimeSeriesGraph;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 21, 2009            mschenke     Initial creation
- * 
+ * Feb  4, 2016 DR 14655   Qinglu Lin   Added limitNumberOfFrames().
+ *
  * </pre>
  * 
  * @author mschenke
@@ -76,6 +77,11 @@ public class TimeSeriesDescriptor extends XyGraphDescriptor {
                     limitedNumberOfFrames);
         }
         return numFrames;
+    }
+
+    @Override
+    public boolean limitNumberOfFrames(int frameCount) {
+        return false;
     }
 
 }
