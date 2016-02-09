@@ -34,7 +34,6 @@ import com.raytheon.uf.common.dataplugin.text.db.PracticeStdTextProduct;
 import com.raytheon.uf.common.dataplugin.text.db.StateMatch;
 import com.raytheon.uf.common.dataplugin.text.db.StdTextProduct;
 import com.raytheon.uf.common.dataplugin.text.db.TextProductInfo;
-import com.raytheon.uf.common.dataplugin.text.db.WatchWarn;
 import com.raytheon.uf.common.dataplugin.text.util.AFOSParser;
 import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.common.wmo.AFOSProductId;
@@ -43,7 +42,6 @@ import com.raytheon.uf.common.wmo.WMOTimeParser;
 import com.raytheon.uf.edex.plugin.text.dao.StateMatchDao;
 import com.raytheon.uf.edex.plugin.text.dao.StdTextProductDao;
 import com.raytheon.uf.edex.plugin.text.dao.TextProductInfoDao;
-import com.raytheon.uf.edex.plugin.text.dao.WatchWarnDao;
 import com.raytheon.uf.edex.plugin.text.impl.WMOReportData;
 
 /**
@@ -76,6 +74,7 @@ import com.raytheon.uf.edex.plugin.text.impl.WMOReportData;
  * May 20, 2014 2536        bclement    moved from edex.textdb to edex.plugin.text
  * Jul 10, 2014 2914        garmendariz Remove EnvProperties
  * Dec 09, 2015 5166        kbisanz     Update logging to use SLF4J.
+ * Feb 05, 2016 5269        skorolev    Removed WatchWarn methods.
  * </pre>
  * 
  * @author jkorman
@@ -392,120 +391,6 @@ public class TextDB {
         }
 
         return stateList;
-    }
-
-    /**
-     * --- watchwarn
-     * 
-     * @param watchWarn
-     * @return success
-     */
-    public boolean addWatchWarn(WatchWarn watchWarn) {
-        boolean success = false;
-
-        WatchWarnDao dao = new WatchWarnDao();
-        try {
-            success = dao.addEntry(watchWarn);
-        } catch (Exception e) {
-            String msg = "Error adding watch/warning: watchWarn=" + watchWarn;
-            logger.error(msg, e);
-        }
-        return success;
-    }
-
-    /**
-     * --- watchwarn
-     * 
-     * @param productId
-     *            A not null reference to the product identifier to store.
-     * @param script
-     *            A not null reference to the script to store.
-     * @return success
-     */
-    public boolean addWatchWarn(String productId, String script) {
-        return addWatchWarn(new WatchWarn(productId, script));
-    }
-
-    /**
-     * --- watchwarn Get a list of all entries for a specific state.
-     * 
-     * @param stateInfo
-     *            A state to lookup.
-     * @return List of StateMatch entries for the specified state. If none were
-     *         found, an empty list is returned.
-     */
-    public List<WatchWarn> queryWatchWarn(String productId) {
-
-        List<WatchWarn> watchList = new ArrayList<WatchWarn>();
-
-        List<String> results = null;
-
-        WatchWarnDao dao = new WatchWarnDao();
-        try {
-            results = dao.queryWatchWarn(productId);
-        } catch (Exception e) {
-            String msg = "Error querying for watch/warning: productId="
-                    + productId;
-            logger.error(msg, e);
-        }
-        if (results != null) {
-            for (String s : results) {
-                watchList.add(new WatchWarn(productId, s));
-            }
-        }
-
-        return watchList;
-    }
-
-    /**
-     * Get a list of all entries in database table.
-     * 
-     * @return List of WatchWarn entries.
-     */
-    public List<WatchWarn> queryAllWatchWarn() {
-        WatchWarnDao dao = new WatchWarnDao();
-
-        List<WatchWarn> results = null;
-
-        try {
-            results = dao.queryAllWatchWarn();
-        } catch (Exception e) {
-            String msg = "Error querying all watches/warnings";
-            logger.error(msg, e);
-        }
-        return results;
-    }
-
-    /**
-     * --- watchwarn
-     * 
-     * @param watchWarn
-     * @return success
-     */
-    public boolean deleteWatchWarn(WatchWarn watchWarn) {
-        boolean success = false;
-
-        WatchWarnDao dao = new WatchWarnDao();
-        try {
-            success = dao.deleteEntry(watchWarn);
-        } catch (Exception e) {
-            String msg = "Error deleting watch/warning: watchWarn=" + watchWarn;
-            logger.error(msg, e);
-        }
-        return success;
-    }
-
-    /**
-     * --- watchwarn
-     * 
-     * @param productId
-     *            A not null reference to the product identifier to store.
-     * @param script
-     *            A not null reference to the script to store.
-     * @return success
-     */
-    public boolean deleteWatchWarn(String productId, String script) {
-        return deleteWatchWarn(new WatchWarn(productId, script));
     }
 
     /**
