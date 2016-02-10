@@ -2326,6 +2326,7 @@ elif SID in groups['CONUS_EAST_SITES']:
                  'PGBlended-Night',
                  ('NCOM-USEAST', 'NCOMUSEAST'),
                  ('NCOM-AMSEAS', 'NCOMAMSEAS'),
+                 'PWPF',
                ]
 
 else:   #######DCS3501 WEST_CONUS
@@ -2412,6 +2413,7 @@ else:   #######DCS3501 WEST_CONUS
                  ('NCOM-SOCAL', 'NCOMSOCAL'),
                  ('NCOM-AMSEAS', 'NCOMAMSEAS'),
                  ('NCOM-ALASKA', 'NCOMALASKA'),
+                 'PWPF',
                ]
 
 if SID in groups['GreatLake_SITES']:
