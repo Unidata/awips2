@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -44,11 +44,11 @@ import com.raytheon.viz.pointdata.rsc.retrieve.PointDataPlotInfoRetriever;
 
 /**
  * Resource data for plots
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------------------------
  * Feb 17, 2009  1960     njensen   Initial creation
@@ -64,9 +64,10 @@ import com.raytheon.viz.pointdata.rsc.retrieve.PointDataPlotInfoRetriever;
  * Nov 16, 2015  5119     bsteffen  Remove bufquikscat
  * Jan 19, 2016  5253     tgurney   Remove svrwx dependency on dataURI
  * Jan 28, 2016  5286     tgurney   Remove tcg dependency on dataURI
- * 
+ * Feb 09, 2016  5283     nabowle   Remove NGM MOS support.
+ *
  * </pre>
- * 
+ *
  * @author njensen
  * @version 1.0
  */
@@ -172,7 +173,6 @@ public class PlotResourceData extends AbstractRequestableResourceData {
         pluginProps.put("bufrmosHPC", new PluginPlotProperties());
         pluginProps.put("bufrmosLAMP", new PluginPlotProperties());
         pluginProps.put("bufrmosMRF", new PluginPlotProperties());
-        pluginProps.put("bufrmosNGM", new PluginPlotProperties());
         pluginProps.put("ldadmesonet", new PluginPlotProperties());
         pluginProps.put("qc", new PluginPlotProperties());
         pluginProps.put("bufrascat", new PluginPlotProperties());

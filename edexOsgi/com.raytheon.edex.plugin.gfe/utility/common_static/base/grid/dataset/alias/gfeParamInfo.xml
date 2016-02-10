@@ -38,7 +38,6 @@
     <alias base="ukmet228">ukmetNH</alias>
     <alias base="ETA">eta211</alias>
     <alias base="AVN">avn202</alias>
-    <alias base="NGM">ngm211</alias>
     <alias base="MRF">mrf202</alias>
     <alias base="MRF21">mrf202</alias>
     <alias base="MRF22">mrf202</alias>
@@ -49,8 +48,6 @@
     <alias base="GFS201">gfs201</alias>
     <alias base="mrfNH">mrf201</alias>
     <alias base="GFS213">gfs213</alias>
-    <alias base="NGM213">ngm213</alias>
-    <alias base="NGM202">ngm202</alias>
     <alias base="AVN211">avn211</alias>
     <alias base="mesoEta212">mesoEta212</alias>
     <alias base="mesoEta215">mesoEta215</alias>
@@ -59,7 +56,6 @@
     <alias base="MRF203">mrf203</alias>
     <alias base="MRF204">mrf204</alias>
     <alias base="MRF205">mrf205</alias>
-    <alias base="NGM207">ngm207</alias>
     <alias base="ETA207">eta207</alias>
     <alias base="AVN-NorthernHemisphere">avnNH</alias>
     <alias base="AVN37">avnNH</alias>

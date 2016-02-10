@@ -66,16 +66,6 @@
     </model>
 
     <model>
-        <name>NGM</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>211</grid>
-        <process>
-            <id>39</id>
-        </process>
-    </model>
-
-    <model>
         <name>MRF</name>
         <center>7</center>
         <subcenter>0</subcenter>
@@ -156,20 +146,6 @@
             <id>80</id>
             <id>82</id>
             <id>94</id>
-        </process>
-    </model>
-
-    <model>
-        <name>NGM${COVERAGE}</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grids>
-            <id>213</id>
-            <id>202</id>
-            <id>207</id>
-        </grids>
-        <process>
-            <id>39</id>
         </process>
     </model>
 

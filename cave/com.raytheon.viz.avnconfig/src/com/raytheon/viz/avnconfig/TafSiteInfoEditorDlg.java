@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -67,7 +67,7 @@ import com.vividsolutions.jts.geom.Point;
 
 /**
  * TAF site information editor dialog.
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
@@ -84,12 +84,13 @@ import com.vividsolutions.jts.geom.Point;
  * 15 OCT 2012  1229       rferrel     Changes for non-blocking HelpUsageDlg.
  * 11 Sep 2013  2277       mschenke    Got rid of ScriptCreator references
  * Nov 30, 2015 4834       njensen     Remove LocalizationOpFailedException
- * 
+ * Feb 09, 2016 5283       nabowle     Remove NGM MOS support.
+ *
  * </pre>
- * 
+ *
  * @author lvenable
  * @version 1.0
- * 
+ *
  */
 public class TafSiteInfoEditorDlg extends CaveSWTDialog {
     private final transient IUFStatusHandler statusHandler = UFStatus
@@ -246,7 +247,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
 
     /**
      * Constructor.
-     * 
+     *
      * @param parent
      *            Parent shell.
      */
@@ -308,7 +309,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
 
     /**
      * Converts an array into a comma separated string
-     * 
+     *
      * @param array
      * @return string
      */
@@ -984,7 +985,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
 
     /**
      * Query for a icao station's information.
-     * 
+     *
      * @param icao
      *            - station ID
      * @return obStation
@@ -1103,7 +1104,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
 
     /**
      * Validate the data and color the text fields accordingly.
-     * 
+     *
      * @return boolean - True if all the data is valid.
      */
     private boolean validateData() {
@@ -1250,7 +1251,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
 
     /**
      * Validate AFOS
-     * 
+     *
      * @return boolean
      */
     private boolean isAfosValid() {
@@ -1259,7 +1260,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
 
     /**
      * Validate Site ID
-     * 
+     *
      * @return boolean
      */
     private boolean isSiteIdValid() {
@@ -1271,7 +1272,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
 
     /**
      * Validate WMO
-     * 
+     *
      * @return boolean
      */
     private boolean isWmoValid() {
@@ -1280,7 +1281,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
 
     /**
      * Validate runway list
-     * 
+     *
      * @return boolean
      */
     private boolean isRunwayValid() {
@@ -1308,7 +1309,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
 
     /**
      * Validate Height for Radar Cutoff list.
-     * 
+     *
      * @return boolean
      */
     private boolean isRadarHeightValid(String text) {
@@ -1342,7 +1343,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
 
     /**
      * Validate Height for Profiler Cutoff list.
-     * 
+     *
      * @return boolean
      */
     private boolean isProfilerHeightValid(String text) {
@@ -1376,7 +1377,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
 
     /**
      * Validate METAR
-     * 
+     *
      * @return boolean
      */
     private boolean isMetarValid() {
@@ -1399,7 +1400,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
 
     /**
      * Validate Profilers list
-     * 
+     *
      * @return boolean
      */
     private boolean isProfilerValid() {
@@ -1423,7 +1424,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
 
     /**
      * Validate Radars list
-     * 
+     *
      * @return boolean
      */
     private boolean isRadarValid() {
@@ -1447,7 +1448,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
 
     /**
      * Validate Visibility list
-     * 
+     *
      * @return boolean
      */
     private boolean isVsbyValid() {
@@ -1483,7 +1484,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
 
     /**
      * Validate Ceiling list
-     * 
+     *
      * @return boolean
      */
     private boolean isCigValid() {
@@ -1518,8 +1519,8 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
     }
 
     /**
-     * Validate ACARS, ETA, ETAMOS, GFSLAMP, GFSMOS, and NGMMOS
-     * 
+     * Validate ACARS, ETA, ETAMOS, GFSLAMP, and GFSMOS.
+     *
      * @return boolean
      */
     private boolean isOtherValid(String text) {
@@ -1534,7 +1535,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
 
     /**
      * Validate Latitude
-     * 
+     *
      * @return boolean
      */
     private boolean isLatitudeValid() {
@@ -1555,7 +1556,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
 
     /**
      * Validate Longitude
-     * 
+     *
      * @return boolean
      */
     private boolean isLongitudeValid() {
@@ -1576,7 +1577,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
 
     /**
      * Validate Elevation
-     * 
+     *
      * @return boolean
      */
     private boolean isElevationValid() {

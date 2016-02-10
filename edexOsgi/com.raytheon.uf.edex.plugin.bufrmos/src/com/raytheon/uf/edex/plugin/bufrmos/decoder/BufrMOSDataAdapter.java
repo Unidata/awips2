@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -32,7 +32,6 @@ import com.raytheon.uf.common.dataplugin.bufrmos.common.BufrMosGfsData;
 import com.raytheon.uf.common.dataplugin.bufrmos.common.BufrMosHpcData;
 import com.raytheon.uf.common.dataplugin.bufrmos.common.BufrMosLampData;
 import com.raytheon.uf.common.dataplugin.bufrmos.common.BufrMosMrfData;
-import com.raytheon.uf.common.dataplugin.bufrmos.common.BufrMosNgmData;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.time.DataTime;
@@ -50,11 +49,11 @@ import com.raytheon.uf.edex.plugin.bufrmos.MOSPointDataState;
 /**
  * This class creates a completed Model Output Statistics (MOS) entry from a
  * single "row" of data decoded from an input file.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 21, 2008 862        jkorman     Initial Coding.
@@ -68,8 +67,9 @@ import com.raytheon.uf.edex.plugin.bufrmos.MOSPointDataState;
  * Jan 19, 2016 4677       tgurney     Stop manually generating primary key
  *                                     with generateId() (now using sequence
  *                                     instead)
+ * Feb 09, 2016 5283       nabowle     Remove NGM MOS support.
  * </pre>
- * 
+ *
  * @author jkorman
  * @version 1.0
  */
@@ -108,7 +108,7 @@ public class BufrMOSDataAdapter {
 
     /**
      * Create a MOSData entry from the next available data in given iterator.
-     * 
+     *
      * @param iterator
      *            The iterator that was used to separate and decode the MOS
      *            data.
@@ -155,9 +155,6 @@ public class BufrMOSDataAdapter {
                     break;
                 case MRF:
                     fcstData = new BufrMosMrfData();
-                    break;
-                case NGM:
-                    fcstData = new BufrMosNgmData();
                     break;
                 }
 
@@ -243,7 +240,7 @@ public class BufrMOSDataAdapter {
     /**
      * Create a MOSElement entry from a decoded data packet and a definition
      * element.
-     * 
+     *
      * @param packet
      *            A packet containing the decoded data.
      * @param element
