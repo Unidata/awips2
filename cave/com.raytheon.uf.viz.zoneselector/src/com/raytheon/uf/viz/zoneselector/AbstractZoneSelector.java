@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.gfe.ui.zoneselector;
+package com.raytheon.uf.viz.zoneselector;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,7 +58,6 @@ import com.raytheon.uf.viz.core.maps.MapStore;
 import com.raytheon.uf.viz.core.maps.display.MapRenderableDisplay;
 import com.raytheon.uf.viz.core.maps.rsc.DbMapResourceData;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.viz.gfe.ui.zoneselector.ZoneSelector.IZoneSelectionListener;
 import com.raytheon.viz.ui.panes.PaneManager;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
@@ -75,7 +74,10 @@ import com.vividsolutions.jts.geom.Envelope;
  * Aug 23, 2011            randerso    Initial creation
  * May 30, 2013 #2028      randerso    Fixed date line issue with map display
  * Jan 07, 2014 #2662      randerso    Fixed limitZones (subDomainUGCs) support
- * Aug 31, 2015  4749      njensen     Set selectCB to null on dispose
+ * Aug 31, 2015 #4749      njensen     Set selectCB to null on dispose
+ * Feb 05, 2016 #5316      randerso    Moved into separate package.
+ *                                     Additonal changes to support use in GHG Monitor,
+ *                                     MakeHazard, and ZoneCombiner
  * 
  * </pre>
  * 
@@ -84,12 +86,16 @@ import com.vividsolutions.jts.geom.Envelope;
  */
 
 public abstract class AbstractZoneSelector extends PaneManager {
+    public static interface IZoneSelectionListener {
+        public void zoneSelected(String zone);
+    }
+
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(AbstractZoneSelector.class);
 
     protected static final int SCROLL_MAX = 10000;
 
-    private static final double ZOOM_LIMIT = 0.1;
+    private static final double ZOOM_LIMIT = 1.0 / 16.0;
 
     protected Composite parent;
 
@@ -98,6 +104,8 @@ public abstract class AbstractZoneSelector extends PaneManager {
     protected GridLocation gloc;
 
     private LoopProperties loopProperties;
+
+    protected RGB noZoneColor;
 
     protected RGB backColor;
 
@@ -133,6 +141,7 @@ public abstract class AbstractZoneSelector extends PaneManager {
      */
     public AbstractZoneSelector(Composite parent, GridLocation gloc,
             IZoneSelectionListener selectCB) {
+        super();
         this.parent = parent;
         this.gloc = gloc;
         this.selectCB = selectCB;
@@ -175,11 +184,11 @@ public abstract class AbstractZoneSelector extends PaneManager {
     // zone combinations and maps. If set to None, then all items in
     // the maps are allowed.
     public void setLimitZones(List<String> limitZones) {
-        if (this.limitZoneNames == null && limitZones == null) {
+        if ((this.limitZoneNames == null) && (limitZones == null)) {
             return;
         }
 
-        if (this.limitZoneNames != null
+        if ((this.limitZoneNames != null)
                 && this.limitZoneNames.equals(limitZones)) {
             return;
         }
@@ -249,8 +258,8 @@ public abstract class AbstractZoneSelector extends PaneManager {
         int mapWidth = gridRange.getSpan(0);
         int mapHeight = gridRange.getSpan(1);
 
-        int hSel = hBar.getSelection() + hBar.getThumb() / 2;
-        int vSel = vBar.getSelection() + vBar.getThumb() / 2;
+        int hSel = hBar.getSelection() + (hBar.getThumb() / 2);
+        int vSel = vBar.getSelection() + (vBar.getThumb() / 2);
 
         int hThumb = (int) (SCROLL_MAX * zoomLevel);
         int vThumb = (int) (SCROLL_MAX * zoomLevel);
@@ -261,11 +270,11 @@ public abstract class AbstractZoneSelector extends PaneManager {
         hBar.setValues(hSel, 0, SCROLL_MAX, hThumb, hThumb / 10, hThumb);
         vBar.setValues(vSel, 0, SCROLL_MAX, vThumb, vThumb / 10, vThumb);
 
-        hSel = hBar.getSelection() + hBar.getThumb() / 2;
-        vSel = vBar.getSelection() + vBar.getThumb() / 2;
+        hSel = hBar.getSelection() + (hBar.getThumb() / 2);
+        vSel = vBar.getSelection() + (vBar.getThumb() / 2);
 
-        double xShift = ((double) hSel / SCROLL_MAX - 0.5) * mapWidth;
-        double yShift = ((double) vSel / SCROLL_MAX - 0.5) * mapHeight;
+        double xShift = (((double) hSel / SCROLL_MAX) - 0.5) * mapWidth;
+        double yShift = (((double) vSel / SCROLL_MAX) - 0.5) * mapHeight;
 
         extent.shift(xShift - currShiftX, yShift - currShiftY);
         extent.scale(zoomLevel / extent.getScale());
@@ -276,7 +285,7 @@ public abstract class AbstractZoneSelector extends PaneManager {
         this.refresh();
     }
 
-    protected void setMap(List<String> mapNames) {
+    protected void setMap(List<String> mapNames, boolean clipToDomain) {
         this.mapNames = mapNames;
         List<ZoneSelectorResource> mapRscList = new ArrayList<ZoneSelectorResource>();
         for (String mapName : mapNames) {
@@ -291,7 +300,8 @@ public abstract class AbstractZoneSelector extends PaneManager {
                         .retrieveMap(bundlePath).getResourceData();
 
                 ZoneSelectorResource rsc = new ZoneSelectorResource(rscData,
-                        new LoadProperties(), gloc, this.limitZoneNames);
+                        new LoadProperties(), gloc, this.limitZoneNames,
+                        noZoneColor, clipToDomain);
                 mapRscList.add(rsc);
             } catch (VizException e) {
                 statusHandler.handle(Priority.PROBLEM, "Error loading map: "
@@ -383,11 +393,11 @@ public abstract class AbstractZoneSelector extends PaneManager {
         this.zoneNames.clear();
         for (ZoneSelectorResource mapRsc : mapRscList) {
             for (String ean : mapRsc.getZoneNames()) {
-                if (ean != null && !ean.isEmpty()) {
+                if ((ean != null) && !ean.isEmpty()) {
                     // ensure we only add a zone once, and that it should
                     // be included (limitZoneNames is none or is in list)
                     if (!this.zoneNames.contains(ean)
-                            && (this.limitZoneNames == null || this.limitZoneNames
+                            && ((this.limitZoneNames == null) || this.limitZoneNames
                                     .contains(ean))) {
                         this.zoneNames.add(ean);
                     }

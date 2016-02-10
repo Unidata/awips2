@@ -20,6 +20,7 @@
 package com.raytheon.viz.ghg.monitor;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.SortedSet;
@@ -39,8 +40,6 @@ import org.eclipse.swt.widgets.Display;
 
 import com.raytheon.viz.ghg.monitor.data.GhgConfigData.DataEnum;
 import com.raytheon.viz.ghg.monitor.data.GhgData;
-import com.raytheon.viz.ghg.monitor.event.GhgMonitorTableSelectionEvent;
-import com.raytheon.viz.ghg.monitor.listener.GhgMonitorTableSelectionListener;
 
 /**
  * This class displays the GHG text component.
@@ -51,6 +50,7 @@ import com.raytheon.viz.ghg.monitor.listener.GhgMonitorTableSelectionListener;
  * ------------ ---------- ----------- --------------------------
  * 25 MAR 2008  N/A        lvenable    Initial creation
  * Dec 16, 2015 #5184      dgilling    Remove viz.gfe dependencies.
+ * Feb 05, 2016 #5316      randerso    Moved notification registration into GHGMonitorDlg
  * 
  * </pre>
  * 
@@ -58,13 +58,10 @@ import com.raytheon.viz.ghg.monitor.listener.GhgMonitorTableSelectionListener;
  * @version 1.0
  * 
  */
-public class GhgTextComp extends Composite implements
-        GhgMonitorTableSelectionListener {
+public class GhgTextComp extends Composite {
     private static final int PIL_INDEX = DataEnum.PIL.ordinal();
 
     private static final int ISSUE_INDEX = DataEnum.ISSUE_TIME.ordinal();
-
-    private final GhgDisplayManager displayMgr;
 
     /**
      * Parent composite.
@@ -94,21 +91,18 @@ public class GhgTextComp extends Composite implements
     /**
      * List of GhgData objects
      */
-    private List<GhgData> dataList;
+    private Collection<GhgData> dataList;
 
     /**
      * Constructor.
      * 
      * @param parent
      *            Parent composite.
-     * @param displayMgr
      */
-    public GhgTextComp(Composite parent, GhgDisplayManager displayMgr) {
+    public GhgTextComp(Composite parent) {
         super(parent, SWT.NONE);
 
         this.parent = parent;
-        this.displayMgr = displayMgr;
-        this.displayMgr.addGhgMonitorTableSelectionListener(this);
 
         init();
     }
@@ -141,7 +135,6 @@ public class GhgTextComp extends Composite implements
     }
 
     private void disposeItems() {
-        displayMgr.removeGhgMonitorTableSelectionListener(this);
         editorFont.dispose();
         editorColor.dispose();
         headerColor.dispose();
@@ -249,17 +242,8 @@ public class GhgTextComp extends Composite implements
         styledText.append("\n");
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ghg.monitor.listener.GhgMonitorTableSelectionListener
-     * #notifyUpdate
-     * (com.raytheon.viz.ghg.monitor.event.GhgMonitorTableSelectionEvent)
-     */
-    @Override
-    public void notifyUpdate(GhgMonitorTableSelectionEvent evt) {
-        dataList = evt.getGhgData();
+    public void update(Collection<GhgData> data) {
+        dataList = data;
         refresh();
     }
 }

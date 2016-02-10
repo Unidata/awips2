@@ -19,49 +19,30 @@
  **/
 package com.raytheon.viz.ghg.monitor.event;
 
-import java.util.EventObject;
-
 /**
  * GHG Monitor data change event.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 24, 2010            mpduff     Initial creation
- *
+ * May 24, 2010            mpduff      Initial creation
+ * Feb 05, 2016   #5316    randerso    Changed to extend AbstractGhgMonitorEvent
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
- * @version 1.0	
+ * @version 1.0
  */
 
-public class GhgMonitorFilterChangeEvent extends EventObject {
-
-    private static final long serialVersionUID = -4455895822255108354L;
-    
-    private boolean filterChanged = false;
+public class GhgMonitorFilterChangeEvent extends AbstractGhgMonitorEvent {
 
     /**
      * @param source
      */
-    public GhgMonitorFilterChangeEvent(Object source) {
-        super(source);
+    public GhgMonitorFilterChangeEvent() {
+        super();
     }
-
-    /**
-     * @return the filterChanged
-     */
-    public boolean isFilterChanged() {
-        return filterChanged;
-    }
-
-    /**
-     * @param filterChanged the filterChanged to set
-     */
-    public void setFilterChanged(boolean filterChanged) {
-        this.filterChanged = filterChanged;
-    }    
 }

@@ -21,10 +21,8 @@ package com.raytheon.viz.ghg.monitor;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -64,10 +62,11 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 25 MAR 2008  N/A        lvenable    Initial creation
- * 17Jun2008    1157       MW Fegan    Hooked in configuration.
+ * 17 Jun 2008  1157       MW Fegan    Hooked in configuration.
  * 28 Nov 2012  1353       rferrel     Changes for non-blocking dialog.
  * 28 Mar 2014  15769      ryu         Removed "include OrgPil" check button.
- * Dec 16, 2015  #5184     dgilling    Remove viz.gfe dependencies.
+ * 16 Dec 2015  5184       dgilling    Remove viz.gfe dependencies.
+ * 05 Feb 2016  5316       randerso    Code cleanup
  * 
  * </pre>
  * 
@@ -111,18 +110,6 @@ public class GhgFilterDlg extends CaveSWTDialog {
             GhgConfigData.AlertsFilterEnum.GeoId,
             GhgConfigData.AlertsFilterEnum.ETN,
             GhgConfigData.AlertsFilterEnum.Seg };
-
-    public static Map<GhgConfigData.AlertsFilterEnum, String[]> filterToEnumMap = new HashMap<GhgConfigData.AlertsFilterEnum, String[]>() {
-
-        private static final long serialVersionUID = 6183513849706287870L;
-        {
-            put(GhgConfigData.AlertsFilterEnum.Action,
-                    GhgConfigData.vtecActionNames);
-            put(GhgConfigData.AlertsFilterEnum.PhenSig, GhgConfigData
-                    .getInstance().getPhenSigCodes());
-            put(GhgConfigData.AlertsFilterEnum.Pil, GhgConfigData.vtecPILNames);
-        }
-    };
 
     /**
      * Array of filter group containers that contain the list controls.
@@ -193,7 +180,10 @@ public class GhgFilterDlg extends CaveSWTDialog {
      * 
      * @param parent
      *            Parent Shell.
+     * @param filter
      * @param ifpClient
+     * @param ddef
+     * @param siteID4char
      */
     public GhgFilterDlg(Shell parent, GhgDataFilter filter,
             IFPClient ifpClient, DiscreteDefinition ddef, String siteID4char) {
@@ -751,7 +741,7 @@ public class GhgFilterDlg extends CaveSWTDialog {
                 }
             }
 
-            for (int i = 0; i < filterArray.length - 2; i++) {
+            for (int i = 0; i < (filterArray.length - 2); i++) {
                 GhgConfigData.AlertsFilterEnum type = filterArray[i];
                 GhgFilterListGroup group = listGroupArray.get(i);
 
@@ -776,7 +766,7 @@ public class GhgFilterDlg extends CaveSWTDialog {
             }
         } else {
             // reset the list data
-            for (int i = 0; i < filterArray.length - 2; i++) {
+            for (int i = 0; i < (filterArray.length - 2); i++) {
                 GhgConfigData.AlertsFilterEnum type = filterArray[i];
                 GhgFilterListGroup group = listGroupArray.get(i);
                 switch (type) {

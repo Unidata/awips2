@@ -20,6 +20,8 @@
 package com.raytheon.viz.ghg.monitor;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -53,9 +55,8 @@ import com.raytheon.viz.ghg.monitor.data.GhgConfigData.DataEnum;
 import com.raytheon.viz.ghg.monitor.data.GhgConfigData.SelectionEnum;
 import com.raytheon.viz.ghg.monitor.data.GhgData;
 import com.raytheon.viz.ghg.monitor.data.GhgTableRowData;
+import com.raytheon.viz.ghg.monitor.event.AbstractGhgMonitorEvent.GhgEventListener;
 import com.raytheon.viz.ghg.monitor.event.GhgMonitorTableSelectionEvent;
-import com.raytheon.viz.ghg.monitor.event.GhgMonitorZoneSelectionEvent;
-import com.raytheon.viz.ghg.monitor.listener.GhgMonitorZoneSelectionListener;
 
 /**
  * This class contains the GHG table and handle all of the table interactions.
@@ -68,7 +69,8 @@ import com.raytheon.viz.ghg.monitor.listener.GhgMonitorZoneSelectionListener;
  * 19Jun2008    1157       MW Fegan    Added banner popup for alerts.
  * 27Mar2009    1881       wldougher   Enhance performance
  * 27Aug2013    2301       dgilling    Fix Image loading for icons.
- * Dec 16, 2015 #5184      dgilling    Remove viz.gfe dependencies.
+ * Dec 16, 2015 5184       dgilling    Remove viz.gfe dependencies.
+ * Feb 05, 2016 #5316      randerso    Moved notification registration into GHGMonitorDlg
  * 
  * </pre>
  * 
@@ -76,8 +78,8 @@ import com.raytheon.viz.ghg.monitor.listener.GhgMonitorZoneSelectionListener;
  * @version 1.0
  * 
  */
-public class GhgTableComp extends Composite implements IGhgSelectedTableColumn,
-        GhgMonitorZoneSelectionListener {
+public class GhgTableComp extends Composite implements IGhgSelectedTableColumn {
+
     /**
      * Font used for editors.
      */
@@ -134,7 +136,10 @@ public class GhgTableComp extends Composite implements IGhgSelectedTableColumn,
      */
     private TableColumn lastSelectedColumn;
 
-    private final GhgDisplayManager displayMgr;
+    /**
+     * Table selection listener list
+     */
+    private List<GhgEventListener> tableSelectionListenerList = new ArrayList<>();
 
     /**
      * Constructor.
@@ -144,14 +149,11 @@ public class GhgTableComp extends Composite implements IGhgSelectedTableColumn,
      * @param columnsMap
      *            Map of the visible/hidden table columns.
      */
-    public GhgTableComp(Composite parent, GhgDisplayManager displayMgr,
+    public GhgTableComp(Composite parent, /* GhgDisplayManager displayMgr, */
             Map<String, Boolean> columnsMap) {
         super(parent, SWT.NONE);
 
         this.columnsMap = columnsMap;
-
-        this.displayMgr = displayMgr;
-        this.displayMgr.addGhgMonitorZoneSelectionListener(this);
 
         init();
     }
@@ -200,7 +202,6 @@ public class GhgTableComp extends Composite implements IGhgSelectedTableColumn,
         upImage.dispose();
         downImage.dispose();
         ghgTable.dispose();
-        displayMgr.removeGhgMonitorZoneSelectionListener(this);
 
         for (GhgTableRowData row : ghgTableRowArray) {
             if (row != null) {
@@ -577,9 +578,8 @@ public class GhgTableComp extends Composite implements IGhgSelectedTableColumn,
                 String geoIds = row.getGhgData().getGeoId();
                 String[] geoIdArray = geoIds.split(",");
 
-                GhgMonitorTableSelectionEvent evt = new GhgMonitorTableSelectionEvent(
-                        this);
-                evt.setHighlightedZones(geoIdArray);
+                GhgMonitorTableSelectionEvent evt = new GhgMonitorTableSelectionEvent();
+                evt.setHighlightedZones(Arrays.asList(geoIdArray));
                 List<GhgData> dataList = new ArrayList<GhgData>(1);
                 GhgData rowData = row.getGhgData();
                 rowData.setSelection(SelectionEnum.MonitorSelection);
@@ -587,7 +587,7 @@ public class GhgTableComp extends Composite implements IGhgSelectedTableColumn,
                 evt.setGhgData(dataList);
                 evt.setSelectionColor(GhgConfigData.getInstance()
                         .getMonitorSelectionsColors().getBackgroundRgb());
-                displayMgr.fireTableSelectionEvent(evt);
+                fireTableSelectionEvent(evt);
             } else {
                 row.setSelected(false);
             }
@@ -597,7 +597,7 @@ public class GhgTableComp extends Composite implements IGhgSelectedTableColumn,
         packColumns();
     }
 
-    private void setSelection(String[] highlightedZones) {
+    private void setSelection(Collection<String> highlightedZones) {
         ghgTable.deselectAll();
         Set<String> idSet = new HashSet<String>();
         List<GhgData> dataList = new ArrayList<GhgData>();
@@ -639,36 +639,18 @@ public class GhgTableComp extends Composite implements IGhgSelectedTableColumn,
 
             dataList.add(row.getGhgData());
         }
-        Iterator<String> iter = idSet.iterator();
-        String[] zones = new String[idSet.size()];
-        int index = 0;
-        while (iter.hasNext()) {
-            zones[index] = iter.next();
-            index++;
-        }
 
         // build the event object
-        GhgMonitorTableSelectionEvent evt = new GhgMonitorTableSelectionEvent(
-                this);
-        evt.setHighlightedZones(zones);
+        GhgMonitorTableSelectionEvent evt = new GhgMonitorTableSelectionEvent();
+        evt.setHighlightedZones(idSet);
         evt.setGhgData(dataList);
         evt.setSelectionColor(GhgConfigData.getInstance()
-                .getMonitorSelectionsColors().getBackgroundRgb());
-        displayMgr.fireTableSelectionEvent(evt);
+                .getMapSelectionsColors().getBackgroundRgb());
 
+        fireTableSelectionEvent(evt);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ghg.monitor.listener.GhgMonitorZoneSelectionListener
-     * #notifyUpdate
-     * (com.raytheon.viz.ghg.monitor.event.GhgMonitorZoneSelectionEvent)
-     */
-    @Override
-    public void notifyUpdate(GhgMonitorZoneSelectionEvent evt) {
-        String[] highlightedZones = evt.getHighlightedZones();
+    public void update(Collection<String> highlightedZones) {
         setSelection(highlightedZones);
     }
 
@@ -680,8 +662,7 @@ public class GhgTableComp extends Composite implements IGhgSelectedTableColumn,
      */
     public void setHighlight() {
 
-        GhgMonitorTableSelectionEvent evt = new GhgMonitorTableSelectionEvent(
-                this);
+        GhgMonitorTableSelectionEvent evt = new GhgMonitorTableSelectionEvent();
         List<GhgData> dataList = new ArrayList<GhgData>(1);
         StringBuilder geoIdBuffer = new StringBuilder();
         String sep = "";
@@ -711,9 +692,9 @@ public class GhgTableComp extends Composite implements IGhgSelectedTableColumn,
             // update the map to highlight this selection
             String geoIds = geoIdBuffer.toString();
             String[] geoIdArray = geoIds.split(",");
-            evt.setHighlightedZones(geoIdArray);
+            evt.setHighlightedZones(Arrays.asList(geoIdArray));
             evt.setGhgData(dataList);
-            displayMgr.fireTableSelectionEvent(evt);
+            fireTableSelectionEvent(evt);
         }
 
         sortTableData(lastSelectedColumn);
@@ -735,6 +716,38 @@ public class GhgTableComp extends Composite implements IGhgSelectedTableColumn,
             }
         }
         return selectionData;
+    }
+
+    /**
+     * Add a listener to the list.
+     * 
+     * @param listener
+     */
+    public void addSelectionListener(GhgEventListener listener) {
+        if (!tableSelectionListenerList.contains(listener)) {
+            tableSelectionListenerList.add(listener);
+        }
+    }
+
+    /**
+     * Remove a listener from the list.
+     * 
+     * @param listener
+     */
+    public void removeSelectionListener(GhgEventListener listener) {
+        tableSelectionListenerList.remove(listener);
+    }
+
+    /**
+     * Fire the table change event.
+     * 
+     * @param evt
+     *            The GhgMonitorTableSelectionEvent object
+     */
+    private void fireTableSelectionEvent(GhgMonitorTableSelectionEvent evt) {
+        for (GhgEventListener listener : tableSelectionListenerList) {
+            listener.notifyUpdate(evt);
+        }
     }
 
 }

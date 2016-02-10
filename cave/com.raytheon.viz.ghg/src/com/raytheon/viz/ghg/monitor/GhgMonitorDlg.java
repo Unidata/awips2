@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -37,6 +38,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.TreeSet;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.jface.action.ContributionItem;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
@@ -57,6 +59,8 @@ import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Table;
 
+import com.raytheon.uf.common.activetable.ActiveTableMode;
+import com.raytheon.uf.common.activetable.ActiveTableRecord;
 import com.raytheon.uf.common.activetable.VTECChange;
 import com.raytheon.uf.common.activetable.VTECTableChangeNotification;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
@@ -77,9 +81,8 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.notification.jobs.NotificationManagerJob;
 import com.raytheon.viz.core.mode.CAVEMode;
-import com.raytheon.viz.gfe.GFEServerException;
 import com.raytheon.viz.ghg.exception.GhgMissingDataException;
-import com.raytheon.viz.ghg.monitor.constants.GhgMenuConstants;
+import com.raytheon.viz.ghg.monitor.GHGSpatialViewer.ZoomLevel;
 import com.raytheon.viz.ghg.monitor.data.GhgAlertCheckData;
 import com.raytheon.viz.ghg.monitor.data.GhgAlertData;
 import com.raytheon.viz.ghg.monitor.data.GhgAlertsConfigData;
@@ -91,12 +94,12 @@ import com.raytheon.viz.ghg.monitor.data.GhgConfigData.FeatureEnum;
 import com.raytheon.viz.ghg.monitor.data.GhgConfigData.SelectionEnum;
 import com.raytheon.viz.ghg.monitor.data.GhgData;
 import com.raytheon.viz.ghg.monitor.data.GhgDataFilter;
+import com.raytheon.viz.ghg.monitor.event.AbstractGhgMonitorEvent;
+import com.raytheon.viz.ghg.monitor.event.AbstractGhgMonitorEvent.GhgEventListener;
 import com.raytheon.viz.ghg.monitor.event.GhgMonitorFilterChangeEvent;
 import com.raytheon.viz.ghg.monitor.event.GhgMonitorTableSelectionEvent;
 import com.raytheon.viz.ghg.monitor.event.GhgMonitorZoneSelectionEvent;
 import com.raytheon.viz.ghg.monitor.filter.GhgFilterEngine;
-import com.raytheon.viz.ghg.monitor.listener.GhgMonitorFilterChangeListener;
-import com.raytheon.viz.ghg.monitor.listener.GhgMonitorZoneSelectionListener;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.raytheon.viz.ui.statusline.EdgeLayout;
@@ -127,6 +130,8 @@ import com.raytheon.viz.ui.statusline.StatusStore;
  *                                     Bring monitor to front before sending alert.
  *                                     Adjusted delay for timer so it fires at the top of a minute.
  * Dec 16, 2015  #5184     dgilling    Remove viz.gfe dependencies.
+ * Feb 05, 2016 #5316      randerso    Moved notification registration into GHGMonitorDlg
+ *                                     Switched to use GhgSpatialViewer
  * 
  * </pre>
  * 
@@ -135,28 +140,31 @@ import com.raytheon.viz.ui.statusline.StatusStore;
  * 
  */
 public class GhgMonitorDlg extends CaveSWTDialog implements
-        GhgMonitorFilterChangeListener, GhgMonitorZoneSelectionListener,
-        INotificationObserver {
+        INotificationObserver, GhgEventListener {
     private static final String HAZARDS_PARM_NAME = "Hazards_SFC";
+
+    private static final String DEFAULT_MAP = "Public";
+
+    private static final ZoomLevel DEFAULT_ZOOM = GHGSpatialViewer.ZoomLevel.ZOOM_1;
 
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(GhgMonitorDlg.class);
 
     private static final Map<String, GhgConfigData.DataEnum> labelToEnumMap;
 
+    private ActiveTableMode activeTableName;
+
     private final IFPClient ifpClient;
 
-    private final DiscreteDefinition discreteDef;
+    private DiscreteDefinition discreteDef;
 
-    private final String siteID;
+    private String myWFO;
 
-    private final String siteID4char;
+    private String my4WFO;
 
-    private final GridLocation gridLocation;
+    private GridLocation gridLocation;
 
-    private final GhgDisplayManager displayMgr;
-
-    private final GhgFilterEngine filterEngine;
+    private GhgFilterEngine filterEngine;
 
     private GhgAlertDlg alertDlg;
 
@@ -224,7 +232,7 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
     /**
      * Composite class containing the GHG Map Display
      */
-    protected GhgMapComp ghgMapComponent;
+    protected GHGSpatialViewer ghgSpatialViewer;
 
     /**
      * Sash Form used to adjust the area a composite takes up.
@@ -280,11 +288,20 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
      */
     public GhgMonitorDlg(Shell parent) throws GhgMissingDataException {
         super(parent, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.INDEPENDENT_SHELL
-                | CAVE.DO_NOT_BLOCK);
+                | CAVE.PERSPECTIVE_INDEPENDENT | CAVE.DO_NOT_BLOCK);
 
-        this.ifpClient = new IFPClient(VizApp.getWsId(), LocalizationManager
-                .getInstance().getSite());
+        CAVEMode opMode = CAVEMode.getMode();
+        activeTableName = (opMode == CAVEMode.PRACTICE) ? ActiveTableMode.PRACTICE
+                : ActiveTableMode.OPERATIONAL;
 
+        // connection to ifpServer
+        this.ifpClient = connectToIFPServer(LocalizationManager.getInstance()
+                .getSite());
+
+        /*
+         * Using DiscreteDefinition in place of access to VTECTable to get
+         * Hazard Description
+         */
         ServerResponse<DiscreteDefinition> sr = this.ifpClient
                 .getDiscreteDefinition();
         if (sr.isOkay()) {
@@ -294,17 +311,26 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
                     "Unable to retrieve DiscreteDefinition: %s", sr.message()));
         }
 
-        ServerResponse<String> sr2 = this.ifpClient.getSiteID();
+        this.filterEngine = new GhgFilterEngine(my4WFO);
+
+        // setup for receiving notification messages from ifpServer
+        NotificationManagerJob.addObserver("edex.alerts.vtec", this);
+    }
+
+    private IFPClient connectToIFPServer(String site)
+            throws GhgMissingDataException {
+        IFPClient ifpClient = new IFPClient(VizApp.getWsId(), site);
+
+        ServerResponse<String> sr2 = ifpClient.getSiteID();
         if (sr2.isOkay()) {
-            this.siteID = sr2.getPayload();
-            this.siteID4char = SiteMap.getInstance().getSite4LetterId(
-                    this.siteID);
+            this.myWFO = sr2.getPayload();
+            this.my4WFO = SiteMap.getInstance().getSite4LetterId(this.myWFO);
         } else {
             throw new GhgMissingDataException(String.format(
                     "Unable to retrieve site ID: %s", sr2.message()));
         }
 
-        ServerResponse<GridLocation> sr3 = this.ifpClient.getDBGridLocation();
+        ServerResponse<GridLocation> sr3 = ifpClient.getDBGridLocation();
         if (sr3.isOkay()) {
             this.gridLocation = sr3.getPayload();
         } else {
@@ -312,13 +338,7 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
                     "Unable to retrieve GridLocation: %s", sr3.message()));
         }
 
-        this.filterEngine = new GhgFilterEngine(siteID4char);
-
-        // Register as a listener to the display manager and VTECActiveTable
-        this.displayMgr = new GhgDisplayManager(this.ifpClient,
-                this.discreteDef);
-        this.displayMgr.addGhgMonitorFilterChangeListener(this);
-        NotificationManagerJob.addObserver("edex.alerts.vtec", this);
+        return ifpClient;
     }
 
     /**
@@ -327,7 +347,7 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
     private void initializeConfiguration() {
         // Load the default configuration file.
         // If this fails, fall back to the hardcoded defaults.
-        GhgConfigData configuration = GhgConfigData.buildInstance(displayMgr);
+        GhgConfigData configuration = GhgConfigData.buildInstance();
 
         try {
             // Try and read a saved config file
@@ -343,8 +363,11 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
     @Override
     protected void disposed() {
         // Remove the listener from the list
-        displayMgr.removeGhgMonitorChangeListener(this);
-        displayMgr.removeGhgMonitorZoneSelectionListener(this);
+
+        ghgTableComp.removeSelectionListener(this);
+        ghgSpatialViewer.removeSelectionListener(this);
+        GhgConfigData.getInstance().removeFilterChangeListener(this);
+
         NotificationManagerJob.removeObserver("edex.alerts.vtec", this);
 
         if (timer != null) {
@@ -646,143 +669,41 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
         // -----------------------------------------------------
         // Create all the items in the Map dropdown menu
         // -----------------------------------------------------
+        for (String map : GHGSpatialViewer.knownMaps()) {
+            MenuItem item = new MenuItem(mapMenu, SWT.RADIO);
+            item.setData(map);
+            item.setText("Show " + map);
+            item.setSelection(DEFAULT_MAP.equals(map));
+            item.addSelectionListener(new SelectionAdapter() {
 
-        // Show Marine menu item
-        MenuItem showMarineMI = new MenuItem(mapMenu, SWT.RADIO);
-        showMarineMI.setText("Show Marine");
-        showMarineMI.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                displayMgr.setZoneDisplay(GhgMenuConstants.ShowMap.SHOW_MARINE);
-                ghgMapComponent.updateZone();
-                clearSelections();
-            }
-        });
-
-        // Show FIPS menu item
-        MenuItem showFipsMI = new MenuItem(mapMenu, SWT.RADIO);
-        showFipsMI.setText("Show FIPS");
-        showFipsMI.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                displayMgr.setZoneDisplay(GhgMenuConstants.ShowMap.SHOW_FIPS);
-                ghgMapComponent.updateZone();
-                clearSelections();
-            }
-        });
-
-        // Show Public menu item
-        MenuItem showPublicMI = new MenuItem(mapMenu, SWT.RADIO);
-        showPublicMI.setText("Show Public");
-        showPublicMI.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                displayMgr.setZoneDisplay(GhgMenuConstants.ShowMap.SHOW_PUBLIC);
-                ghgMapComponent.updateZone();
-                clearSelections();
-            }
-        });
-        showPublicMI.setSelection(true);
-
-        // Show Fire Wx menu item
-        MenuItem showFireWxMI = new MenuItem(mapMenu, SWT.RADIO);
-        showFireWxMI.setText("Show FireWx");
-        showFireWxMI.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                displayMgr.setZoneDisplay(GhgMenuConstants.ShowMap.SHOW_FIRE);
-                ghgMapComponent.updateZone();
-                clearSelections();
-            }
-        });
+                @Override
+                public void widgetSelected(SelectionEvent e) {
+                    MenuItem item = (MenuItem) e.widget;
+                    if (item.getSelection()) {
+                        showMap((String) item.getData());
+                    }
+                }
+            });
+        }
 
         // Menu Separator
         new MenuItem(mapMenu, SWT.SEPARATOR);
 
-        // No Zoom menu item
-        MenuItem noZoomMI = new MenuItem(mapMenu, SWT.RADIO);
-        noZoomMI.setText("No Zoom");
-        noZoomMI.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                displayMgr.setZoomLevel(GhgMenuConstants.ZoomLevel.ZOOM_NO_ZOOM
-                        .getZoomLevel());
-                ghgMapComponent.updateZoom();
-            }
-        });
-        noZoomMI.setSelection(true);
-
-        // x2 Zoom menu item
-        MenuItem x2ZoomMI = new MenuItem(mapMenu, SWT.RADIO);
-        x2ZoomMI.setText("x2");
-        x2ZoomMI.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                displayMgr.setZoomLevel(GhgMenuConstants.ZoomLevel.ZOOM_2
-                        .getZoomLevel());
-                ghgMapComponent.updateZoom();
-            }
-        });
-
-        // x4 Zoom menu item
-        MenuItem x4ZoomMI = new MenuItem(mapMenu, SWT.RADIO);
-        x4ZoomMI.setText("x4");
-        x4ZoomMI.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                displayMgr.setZoomLevel(GhgMenuConstants.ZoomLevel.ZOOM_4
-                        .getZoomLevel());
-                ghgMapComponent.updateZoom();
-            }
-        });
-
-        // x6 Zoom menu item
-        MenuItem x6ZoomMI = new MenuItem(mapMenu, SWT.RADIO);
-        x6ZoomMI.setText("x6");
-        x6ZoomMI.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                displayMgr.setZoomLevel(GhgMenuConstants.ZoomLevel.ZOOM_6
-                        .getZoomLevel());
-                ghgMapComponent.updateZoom();
-            }
-        });
-
-        // x8 Zoom menu item
-        MenuItem x8ZoomMI = new MenuItem(mapMenu, SWT.RADIO);
-        x8ZoomMI.setText("x8");
-        x8ZoomMI.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                displayMgr.setZoomLevel(GhgMenuConstants.ZoomLevel.ZOOM_8
-                        .getZoomLevel());
-                ghgMapComponent.updateZoom();
-            }
-        });
-
-        // x12 Zoom menu item
-        MenuItem x12ZoomMI = new MenuItem(mapMenu, SWT.RADIO);
-        x12ZoomMI.setText("x12");
-        x12ZoomMI.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                displayMgr.setZoomLevel(GhgMenuConstants.ZoomLevel.ZOOM_12
-                        .getZoomLevel());
-                ghgMapComponent.updateZoom();
-            }
-        });
-
-        // x16 Zoom menu item
-        MenuItem x16ZoomMI = new MenuItem(mapMenu, SWT.RADIO);
-        x16ZoomMI.setText("x16");
-        x16ZoomMI.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                displayMgr.setZoomLevel(GhgMenuConstants.ZoomLevel.ZOOM_16
-                        .getZoomLevel());
-                ghgMapComponent.updateZoom();
-            }
-        });
+        for (ZoomLevel zoom : ZoomLevel.values()) {
+            MenuItem item = new MenuItem(mapMenu, SWT.RADIO);
+            item.setText(zoom.toString());
+            item.setData(zoom);
+            item.setSelection(DEFAULT_ZOOM.equals(zoom));
+            item.addSelectionListener(new SelectionAdapter() {
+                @Override
+                public void widgetSelected(SelectionEvent e) {
+                    MenuItem item = (MenuItem) e.widget;
+                    if (item.getSelection()) {
+                        zoomMap((ZoomLevel) item.getData());
+                    }
+                }
+            });
+        }
 
         // Menu Separator
         new MenuItem(mapMenu, SWT.SEPARATOR);
@@ -792,11 +713,20 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
         showLabelsMI.setText("Show Labels");
         showLabelsMI.addSelectionListener(new SelectionAdapter() {
             @Override
-            public void widgetSelected(SelectionEvent event) {
-                displayMgr.setShowLabels(showLabelsMI.getSelection());
-                ghgMapComponent.updateLabels();
+            public void widgetSelected(SelectionEvent e) {
+                MenuItem item = (MenuItem) e.widget;
+                ghgSpatialViewer.setLabelZones(item.getSelection());
             }
         });
+    }
+
+    private void showMap(String mapName) {
+        ghgSpatialViewer.setMap(mapName);
+        clearSelections();
+    }
+
+    private void zoomMap(ZoomLevel zoom) {
+        ghgSpatialViewer.setZoomLevel(1.0 / zoom.getZoomLevel());
     }
 
     /**
@@ -872,7 +802,7 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
             @Override
             public void widgetSelected(SelectionEvent event) {
                 showFilterDialog();
-                ghgMapComponent.refresh();
+                ghgSpatialViewer.refresh();
             }
         });
 
@@ -1085,6 +1015,10 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
         createTextMapTabs();
         createDataTable();
         createStatusBar(shell);
+
+        ghgTableComp.addSelectionListener(this);
+        ghgSpatialViewer.addSelectionListener(this);
+        GhgConfigData.getInstance().addFilterChangeListener(this);
     }
 
     private void createStatusBar(Shell shell) {
@@ -1130,14 +1064,25 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
 
         TabItem textTab = new TabItem(tabFolder, SWT.NONE);
         textTab.setText("Text");
-        ghgTextComp = new GhgTextComp(tabFolder, displayMgr); // , controller);
+        ghgTextComp = new GhgTextComp(tabFolder);
         textTab.setControl(ghgTextComp);
 
         TabItem mapTab = new TabItem(tabFolder, SWT.NONE);
         mapTab.setText("Map");
-        ghgMapComponent = new GhgMapComp(tabFolder, displayMgr, gridLocation);
-        mapTab.setControl(ghgMapComponent);
-        displayMgr.addGhgMonitorZoneSelectionListener(this);
+
+        Composite mapComp = new Composite(tabFolder, SWT.None);
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        gl = new GridLayout(1, false);
+        gl.marginHeight = 0;
+        gl.marginWidth = 0;
+        mapComp.setLayout(gl);
+        mapComp.setLayoutData(gd);
+
+        ghgSpatialViewer = new GHGSpatialViewer(mapComp, myWFO, gridLocation,
+                null);
+        ghgSpatialViewer.setMap(DEFAULT_MAP);
+        ghgSpatialViewer.setZoomLevel(DEFAULT_ZOOM.getZoomLevel());
+        mapTab.setControl(mapComp);
 
         tabFolder.setSelection(1);
     }
@@ -1152,7 +1097,7 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
         tableComp.setLayout(gl);
         tableComp.setLayoutData(gd);
 
-        ghgTableComp = new GhgTableComp(tableComp, displayMgr, columnsMap);
+        ghgTableComp = new GhgTableComp(tableComp, columnsMap);
     }
 
     /**
@@ -1164,7 +1109,7 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
 
             filterDlg = new GhgFilterDlg(getShell(),
                     configuration.getCurrentFilter(), ifpClient, discreteDef,
-                    siteID4char);
+                    my4WFO);
             filterDlg.setCloseCallback(new ICloseCallback() {
 
                 @Override
@@ -1243,7 +1188,43 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
                         // Update the alert colors in the table
                         if (changeColor == true) {
                             ghgTableComp.updateDataColors();
-                            ghgMapComponent.updateMapColors();
+
+                            Set<String> mapZones = new HashSet<>();
+                            Set<String> monitorZones = new HashSet<>();
+                            for (GhgData data : GhgMonitorDlg.this.dataList) {
+                                switch (data.getSelection()) {
+                                case MapSelection:
+                                    mapZones.add(data.getGeoId());
+                                    break;
+                                case MonitorSelection:
+                                    monitorZones.add(data.getGeoId());
+                                    break;
+                                default:
+                                    break;
+
+                                }
+                            }
+
+                            if (!mapZones.isEmpty()) {
+                                ghgSpatialViewer.setHighlightedZones(
+                                        GhgConfigData.getInstance()
+                                                .getMapSelectionsColors()
+                                                .getBackgroundRgb(), mapZones
+                                                .toArray(new String[mapZones
+                                                        .size()]));
+                            }
+
+                            if (!monitorZones.isEmpty()) {
+                                ghgSpatialViewer
+                                        .setHighlightedZones(
+                                                GhgConfigData
+                                                        .getInstance()
+                                                        .getMonitorSelectionsColors()
+                                                        .getBackgroundRgb(),
+                                                monitorZones
+                                                        .toArray(new String[monitorZones
+                                                                .size()]));
+                            }
                         }
                     }
                     colorDlg = null;
@@ -1253,7 +1234,33 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
         colorDlg.open();
     }
 
-    public void refresh(boolean getData) {
+    /**
+     * Gets the ActiveTable records and returns them as a List<GhgData>. The
+     * list is based on the configuration selections.
+     * 
+     * @return List<GhgData> list of GhgData objects
+     */
+    private List<GhgData> getTableData() {
+        ServerResponse<List<ActiveTableRecord>> sr = ifpClient
+                .getVTECActiveTable(activeTableName);
+        if (!sr.isOkay()) {
+            statusHandler.error(String.format("Error getting ActiveTable: %s",
+                    sr.message()));
+            return Collections.emptyList();
+        }
+
+        List<ActiveTableRecord> activeTableList = sr.getPayload();
+        dataList.clear();
+        for (ActiveTableRecord rec : activeTableList) {
+            GhgData data = new GhgData(rec, discreteDef.getHazardDescription(
+                    HAZARDS_PARM_NAME, rec.getPhensig()));
+            dataList.add(data);
+        }
+
+        return new ArrayList<GhgData>(dataList);
+    }
+
+    private void refresh(boolean getData) {
 
         if (refreshing) {
             return;
@@ -1264,10 +1271,13 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
             List<GhgData> newList = new ArrayList<GhgData>();
 
             if (getData) {
-                newList = displayMgr.getTableData();
-                // dataList.retainAll() replaces "retained" entries from
-                // newList,
-                // which messes up alert level flags, popping up extra banners.
+                newList = getTableData();
+                /*
+                 * dataList.retainAll() replaces "retained" entries from
+                 * newList, which messes up alert level flags, popping up extra
+                 * banners.
+                 */
+
                 // Remove dead entries from dataList.
                 Iterator<GhgData> dlit = dataList.iterator();
                 while (dlit.hasNext()) {
@@ -1337,7 +1347,6 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
      * 
      * @param dataList
      *            List<GhgData> list of data records
-     * @throws GFEServerException
      */
     private void doAlerting(List<GhgData> dataList) {
         GhgAlertsConfigData alertsConfig = GhgConfigData.getInstance()
@@ -1824,26 +1833,6 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
         configuration.setDescending(sortDir == SWT.DOWN);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ghg.monitor.listener.GhgMonitorFilterChangeListener#
-     * notifyUpdate
-     * (com.raytheon.viz.ghg.monitor.event.GhgMonitorFilterChangeEvent)
-     */
-    @Override
-    public void notifyUpdate(GhgMonitorFilterChangeEvent evt) {
-        boolean filterChanged = evt.isFilterChanged();
-        boolean refreshData = false;
-        if (filterChanged == true) {
-            filterDisplay.updateFilter(GhgConfigData.CUSTOM_FILTER_NAME);
-            refreshData = true;
-        }
-
-        refresh(refreshData);
-    }
-
     private void calcStatusImportanceMap() {
         statusImportanceMap = new HashMap<Importance, MessageImportance>();
         GhgConfigData config = GhgConfigData.getInstance();
@@ -1968,7 +1957,7 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
 
             // Within 30 minutes of purge/end time?
             boolean within30 = false;
-            if (later > -30 * 60) {
+            if (later > (-30 * 60)) {
                 within30 = true;
             }
 
@@ -2010,17 +1999,14 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
             needRefresh = true;
         } else {
             for (VTECChange change : msg.getChanges()) {
-                if (filter.wfos == null
-                        || filter.wfos.length == 0
-                        || Arrays.binarySearch(filter.wfos, change.getSite()) >= 0) {
-                    if (filter.phenSigs == null
-                            || filter.phenSigs.length == 0
-                            || Arrays.binarySearch(filter.phenSigs,
-                                    change.getPhensig()) >= 0) {
-                        if (filter.pils == null
-                                || filter.pils.length == 0
-                                || Arrays.binarySearch(filter.pils,
-                                        change.getPil()) >= 0) {
+                if (ArrayUtils.isEmpty(filter.wfos)
+                        || (Arrays.binarySearch(filter.wfos, change.getSite()) >= 0)) {
+                    if (ArrayUtils.isEmpty(filter.phenSigs)
+                            || (Arrays.binarySearch(filter.phenSigs,
+                                    change.getPhensig()) >= 0)) {
+                        if (ArrayUtils.isEmpty(filter.pils)
+                                || (Arrays.binarySearch(filter.pils,
+                                        change.getPil()) >= 0)) {
                             needRefresh = true;
                             break;
                         }
@@ -2033,13 +2019,6 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.common.jms.notification.INotificationObserver#
-     * notificationArrived
-     * (com.raytheon.uf.common.jms.notification.NotificationMessage[])
-     */
     @Override
     public void notificationArrived(NotificationMessage[] messages) {
         statusHandler.handle(Priority.VERBOSE, "Received " + messages.length
@@ -2073,16 +2052,15 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
      */
     private void clearSelections() {
         // Clear map selections
-        GhgMonitorTableSelectionEvent evt = new GhgMonitorTableSelectionEvent(
-                this);
-        evt.setHighlightedZones(new String[0]);
-        displayMgr.fireTableSelectionEvent(evt);
+        List<String> highlightedZones = Collections.emptyList();
+        GhgMonitorTableSelectionEvent tableEvent = new GhgMonitorTableSelectionEvent();
+        tableEvent.setHighlightedZones(highlightedZones);
+        notifyUpdate(tableEvent);
 
         // Clear spreadsheet selections
-        GhgMonitorZoneSelectionEvent evt2 = new GhgMonitorZoneSelectionEvent(
-                this);
-        evt2.setHighlightedZones(new String[0]);
-        displayMgr.fireMapChangeEvent(evt2);
+        GhgMonitorZoneSelectionEvent zoneEvent = new GhgMonitorZoneSelectionEvent();
+        zoneEvent.setHighlightedZones(highlightedZones);
+        notifyUpdate(zoneEvent);
     }
 
     /*
@@ -2154,34 +2132,50 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ghg.monitor.listener.GhgMonitorZoneSelectionListener
-     * #notifyUpdate
-     * (com.raytheon.viz.ghg.monitor.event.GhgMonitorZoneSelectionEvent)
-     */
     @Override
-    public void notifyUpdate(GhgMonitorZoneSelectionEvent evt) {
-        String[] highlightedZones = evt.getHighlightedZones();
-        // Be polite. Other handlers get the event, too. Sort a copy.
-        String[] sortHlZones = Arrays.copyOf(highlightedZones,
-                highlightedZones.length);
-        Arrays.sort(sortHlZones);
-        for (GhgData data : dataList) {
-            if (Arrays.binarySearch(sortHlZones, data.getGeoId()) >= 0) {
-                data.setSelection(SelectionEnum.MapSelection);
-            } else if (SelectionEnum.MapSelection == data.getSelection()
-                    || highlightedZones.length > 0) {
-                // We may(?) get a zero-length map selection in response to
-                // selecting table records. In that case, we need to clear the
-                // map selections without interfering with the table (aka
-                // monitor) selection. However, if map zones are really being
-                // selected, then the table selection should be cleared, too.
-                data.setSelection(SelectionEnum.NoSelection);
+    public void notifyUpdate(AbstractGhgMonitorEvent event) {
+        if (event instanceof GhgMonitorTableSelectionEvent) {
+            GhgMonitorTableSelectionEvent tableEvent = (GhgMonitorTableSelectionEvent) event;
+            ghgTextComp.update(tableEvent.getGhgData());
+
+            Collection<String> highlightedZones = tableEvent
+                    .getHighlightedZones();
+            ghgSpatialViewer.setHighlightedZones(
+                    tableEvent.getSelectionColor(), highlightedZones
+                            .toArray(new String[highlightedZones.size()]));
+
+        } else if (event instanceof GhgMonitorZoneSelectionEvent) {
+            GhgMonitorZoneSelectionEvent zoneEvent = (GhgMonitorZoneSelectionEvent) event;
+            Collection<String> highlightedZones = zoneEvent
+                    .getHighlightedZones();
+            for (GhgData data : dataList) {
+                if (highlightedZones.contains(data.getGeoId())) {
+                    data.setSelection(SelectionEnum.MapSelection);
+                } else if (SelectionEnum.MapSelection.equals(data
+                        .getSelection()) || (highlightedZones.size() > 0)) {
+                    /*
+                     * We may(?) get a zero-length map selection in response to
+                     * selecting table records. In that case, we need to clear
+                     * the map selections without interfering with the table
+                     * (aka monitor) selection. However, if map zones are really
+                     * being selected, then the table selection should be
+                     * cleared, too.
+                     */
+                    data.setSelection(SelectionEnum.NoSelection);
+                }
             }
+            refresh(false);
+
+            ghgTableComp.update(highlightedZones);
+
+        } else if (event instanceof GhgMonitorFilterChangeEvent) {
+            filterDisplay.updateFilter(GhgConfigData.CUSTOM_FILTER_NAME);
+            refresh(true);
+
+        } else {
+            statusHandler.error("Received unexpected notification of type "
+                    + event.getClass().getName());
         }
-        refresh(false);
+
     }
 }
