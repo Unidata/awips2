@@ -22,10 +22,14 @@ package com.raytheon.viz.gfe.product;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,7 +39,9 @@ import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.LocalizationUtil;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.util.FileUtil;
@@ -50,6 +56,7 @@ import com.raytheon.viz.core.mode.CAVEMode;
  * ------------ ---------- ----------- --------------------------
  * 11 Feb 2010  4132       ryu         Initial creation
  * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
+ * Feb 05, 2016 5242       dgilling    Remove calls to deprecated Localization APIs.
  * 
  * </pre>
  * 
@@ -102,7 +109,7 @@ public class ProductFileUtil {
         ArrayList<String> names = new ArrayList<String>();
         String regex = "2\\d{7}_\\d{6}_" + pil;
         for (LocalizationFile f : files) {
-            String fname = f.getFile().getName();
+            String fname = LocalizationUtil.extractName(f.getPath());
             if (fname.matches(regex)) {
                 names.add(fname);
             }
@@ -133,54 +140,56 @@ public class ProductFileUtil {
     }
 
     static public void writeFile(String text, File file) throws IOException {
-        if (!file.exists()) {
-            if (file.getParentFile() != null) {
-                file.getParentFile().mkdirs();
-            }
-        }
+        Path filePath = file.toPath();
+        Files.createDirectories(filePath);
 
-        Writer out = null;
-        try {
-            out = new BufferedWriter(new FileWriter(file));
-            out.write(text);
-        } finally {
-            if (out != null) {
-                out.close();
-            }
+        try (Writer out = Files.newBufferedWriter(filePath,
+                StandardCharsets.UTF_8)) {
+            writeFile(text, out);
         }
     }
 
     static public String readFile(File file) throws IOException {
-        StringBuilder builder = new StringBuilder();
-        BufferedReader in = null;
-        try {
-            in = new BufferedReader(new FileReader(file));
-            String line;
-            while ((line = in.readLine()) != null) {
-                builder.append(line);
-                builder.append(System.getProperty("line.separator"));
-            }
-        } finally {
-            if (in != null) {
-                in.close();
-            }
+        try (BufferedReader in = Files.newBufferedReader(file.toPath(),
+                StandardCharsets.UTF_8)) {
+            return readFile(in);
         }
-
-        return builder.toString();
     }
 
     static public void writeFile(String text, LocalizationFile localizationFile)
             throws IOException, LocalizationException {
-        File file = localizationFile.getFile();
-        writeFile(text, file);
-
-        localizationFile.save();
+        try (SaveableOutputStream outStream = localizationFile
+                .openOutputStream();
+                Writer out = new BufferedWriter(new OutputStreamWriter(
+                        outStream))) {
+            writeFile(text, out);
+            out.close();
+            outStream.save();
+        }
     }
 
     static public String readFile(LocalizationFile localizationFile)
-            throws IOException {
-        File file = localizationFile.getFile();
-        return readFile(file);
+            throws IOException, LocalizationException {
+        try (InputStream inStream = localizationFile.openInputStream();
+                BufferedReader in = new BufferedReader(new InputStreamReader(
+                        inStream))) {
+            return readFile(in);
+        }
     }
 
+    private static String readFile(BufferedReader reader) throws IOException {
+        StringBuilder contents = new StringBuilder();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            contents.append(line);
+            contents.append(System.getProperty("line.separator"));
+        }
+
+        return contents.toString();
+    }
+
+    private static void writeFile(String text, Writer writer)
+            throws IOException {
+        writer.write(text);
+    }
 }

@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.lang.ref.WeakReference;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -60,12 +59,13 @@ import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.LocalizationUtil;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.python.concurrent.IPythonExecutor;
-import com.raytheon.uf.common.python.concurrent.PythonInterpreterFactory;
 import com.raytheon.uf.common.python.concurrent.IPythonJobListener;
+import com.raytheon.uf.common.python.concurrent.PythonInterpreterFactory;
 import com.raytheon.uf.common.python.concurrent.PythonJobCoordinator;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -285,8 +285,8 @@ public class ReferenceSetManager implements IReferenceSetManager,
      * @param lf
      */
     private void loadGroup(LocalizationFile lf) {
-        String groupName = Paths.get(lf.getName()).getFileName().toString()
-                .replace(".txt", "");
+        String groupName = LocalizationUtil.extractName(lf.getPath()).replace(
+                ".txt", "");
         GroupID group = new GroupID(groupName, lf.isProtected(), lf
                 .getContext().getLocalizationLevel());
         if (group.equals("Misc")) {

@@ -22,7 +22,6 @@ package com.raytheon.viz.gfe.smarttool;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -33,6 +32,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.python.PythonFileFilter;
 import com.raytheon.viz.gfe.GFEOperationFailedException;
@@ -48,6 +48,7 @@ import com.raytheon.viz.gfe.GFEOperationFailedException;
  * Apr 28, 2009            njensen     Initial creation
  * Apr 20, 2015   4027     randerso    Changes to support GFE formatter auto tests
  * Nov 12, 2015   4834     njensen     Changed LocalizationOpFailedException to LocalizationException
+ * Feb 05, 2016   5242     dgilling    Remove calls to deprecated Localization APIs.
  * 
  * </pre>
  * 
@@ -93,7 +94,7 @@ public class TextFileUtil {
         LocalizationContext ctx = PATH_MGR.getContext(source.getContext()
                 .getLocalizationType(), LocalizationLevel.USER);
 
-        LocalizationFile destLf = getTextFile(ctx, source.getName());
+        LocalizationFile destLf = getTextFile(ctx, source.getPath());
         return destLf;
     }
 
@@ -138,7 +139,6 @@ public class TextFileUtil {
                     getPathFromType(dest, fileType));
             try {
                 copy(srcLf, destLf);
-                destLf.save();
             } catch (Exception e) {
                 throw new GFEOperationFailedException(
                         "Unable to save localization file", e);
@@ -168,7 +168,7 @@ public class TextFileUtil {
         Files.createDirectories(dir.toPath());
 
         try (InputStream in = srcLf.openInputStream();
-                OutputStream out = destLf.openOutputStream()) {
+                SaveableOutputStream out = destLf.openOutputStream()) {
 
             // Transfer bytes from in to out
             byte[] buf = new byte[1024];
@@ -176,6 +176,7 @@ public class TextFileUtil {
             while ((len = in.read(buf)) > 0) {
                 out.write(buf, 0, len);
             }
+            out.save();
         }
     }
 
