@@ -37,9 +37,9 @@ class RadarTestCase(baseDafTestCase.DafTestCase):
     datatype = "radar"
 
     bbox = ["-96", "41", "-97", "42"]
-        """
-        Request area (box around KOAX)
-        """
+    """
+    Request area (box around KOAX)
+    """
 
     envelope = None
 

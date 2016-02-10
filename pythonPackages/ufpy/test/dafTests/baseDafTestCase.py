@@ -45,16 +45,16 @@ import unittest
 class DafTestCase(unittest.TestCase):
 
     sampleDataLimit = 5
-        """
-        Maximum number of levels, locations, times, and geometry/grid data to
-        display
-        """
+    """
+    Maximum number of levels, locations, times, and geometry/grid data to
+    display
+    """
 
     numTimesToLimit = 3
-        """
-        When limiting geometry/grid data requests with times, only retrieve data
-        for this many times
-        """
+    """
+    When limiting geometry/grid data requests with times, only retrieve data
+    for this many times
+    """
 
     def runParametersTest(self, req):
         print("Testing getAvailableParameters()")
