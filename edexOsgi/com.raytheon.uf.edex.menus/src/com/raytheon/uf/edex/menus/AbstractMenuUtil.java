@@ -20,6 +20,7 @@
 package com.raytheon.uf.edex.menus;
 
 import java.io.File;
+import java.io.IOException;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -32,6 +33,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.menus.MenuSerialization;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -51,6 +53,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * Mar 11, 2014    2858    mpduff      javadoc updates
  * Oct 15, 2015    4897    bkowal      Made PathManager pm protected.
  * Nov 12, 2015    4834    njensen     Changed LocalizationOpFailedException to LocalizationException
+ * Feb 10, 2016    5237    tgurney     Remove calls to deprecated LocalizationFile methods
  * 
  * </pre>
  * 
@@ -193,11 +196,11 @@ public abstract class AbstractMenuUtil {
         long writeTime = olFile.getFile().lastModified();
 
         if (writeTime < useTime) {
-            try {
+            try (SaveableOutputStream olFileStream = olFile.openOutputStream()) {
                 // Update menu creation time file
-                olFile.write(new byte[0]);
-                olFile.save();
-            } catch (LocalizationException e) {
+                olFileStream.write(new byte[0]);
+                olFileStream.save();
+            } catch (LocalizationException | IOException e) {
                 statusHandler.error("Error saving menu creation time file", e);
             }
             return false;
