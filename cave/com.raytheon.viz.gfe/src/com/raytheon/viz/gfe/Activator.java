@@ -19,7 +19,6 @@
  **/
 package com.raytheon.viz.gfe;
 
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -46,6 +45,8 @@ import com.raytheon.viz.gfe.dialogs.GFEConfigDialog;
  *                                     SmartToolJob.
  * Oct 28, 2015 #5054      randerso    Make GfeConfigDlg parented by workbench window if
  *                                     workbench is running.
+ * Jan 26, 2015 #5054      randerso    If no workbench is running use null shell as parent,
+ *                                     Results in display as parent for jface dialogs
  * 
  * </pre>
  * 
@@ -116,14 +117,12 @@ public class Activator extends AbstractUIPlugin implements BundleActivator {
     public PythonPreferenceStore getPreferenceStore() {
         synchronized (this) {
             if (pythonPrefs == null) {
-                if (cfgDlg == null || cfgDlg.getShell() == null
+                if ((cfgDlg == null) || (cfgDlg.getShell() == null)
                         || cfgDlg.isDisposed()) {
                     Shell shell = null;
                     if (PlatformUI.isWorkbenchRunning()) {
                         shell = PlatformUI.getWorkbench()
                                 .getActiveWorkbenchWindow().getShell();
-                    } else {
-                        shell = new Shell(Display.getDefault());
                     }
 
                     cfgDlg = new GFEConfigDialog(shell);

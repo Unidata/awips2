@@ -22,7 +22,6 @@ package com.raytheon.viz.hydro.timeseries;
 import java.io.File;
 
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.viz.ui.personalities.awips.AbstractCAVEDialogComponent;
 
@@ -35,8 +34,9 @@ import com.raytheon.viz.ui.personalities.awips.AbstractCAVEDialogComponent;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 28, 2011            mschenke     Initial creation
+ * Apr 28, 2011            mschenke    Initial creation
  * Feb 05, 2013 1578       rferrel     Changes for non-blocking singleton TimeSeriesDlg.
+ * Jan 26, 2016 5054       randerso    Make dialog parented to display
  * 
  * </pre>
  * 
@@ -59,8 +59,8 @@ public class TimeSeriesconfigComponent extends AbstractCAVEDialogComponent {
      */
     @Override
     protected void startInternal(String componentName) throws Exception {
-        TimeSeriesDlg timeSeriesDialog = new TimeSeriesDlg(new Shell(
-                Display.getCurrent()),
+        TimeSeriesDlg timeSeriesDialog = new TimeSeriesDlg(
+                Display.getCurrent(),
                 TimeSeriesconfigComponent.locateGroupDefinitionFile());
         timeSeriesDialog.open();
         blockUntilClosed(timeSeriesDialog);
