@@ -50,6 +50,7 @@ import com.raytheon.uf.viz.core.localization.LocalizationManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 11, 2008 1433       chammack    Initial creation
+ * Feb 11, 2016 5314       dgilling    Add loadByRowOffset.
  * </pre>
  * 
  * @author chammack
@@ -64,11 +65,13 @@ public class LogMessageDAO {
 
     private static final String SELECT_ALL_QUERY_BY_PK = "SELECT event_time, category, priority, message, details, source, pk, acknowledgedBy, acknowledgedAt FROM log WHERE pk = ?";
 
+    private static final String SELECT_ALL_QUERY_BY_ROW_OFFSET = "SELECT event_time, category, priority, message, details, source, pk, acknowledgedBy, acknowledgedAt FROM log ORDER BY pk OFFSET ? ROWS FETCH NEXT ROW ONLY";
+
     private static final String PURGE_TIME_QUERY = "SELECT purge_time FROM dbMetadata";
 
     private static final String PURGE_TIME_UPDATE = "UPDATE dbMetadata SET purge_time = ?";
 
-    private static final String DATA_RANGE_QUERY = "SELECT MIN(pk), MAX(pk) FROM log";
+    private static final String MESSAGE_COUNT_QUERY = "SELECT COUNT(pk) FROM log";
 
     private static final String SELECT_ALL_BY_DATE_AND_SOURCE_AFTER = "SELECT event_time, category, priority, message, details, source, pk, acknowledgedBy, acknowledgedAt FROM log WHERE event_time > ?";
 
@@ -353,6 +356,45 @@ public class LogMessageDAO {
         }
     }
 
+    /**
+     * Retrieves the specified status message from the message store using the
+     * specified index as a row offset.
+     * 
+     * @param index
+     *            The index of the message to retrieve
+     * @return The status message
+     * @throws AlertvizException
+     *             If an error occurred retrieving the message from the message
+     *             store.
+     */
+    public StatusMessage loadByRowOffset(int index) throws AlertvizException {
+        ResultSet rs = null;
+        PreparedStatement statement = null;
+        boolean errorOccurred = false;
+        try {
+            Connection conn = getConnection();
+            statement = conn.prepareStatement(SELECT_ALL_QUERY_BY_ROW_OFFSET);
+            statement.setInt(1, index);
+
+            rs = statement.executeQuery();
+
+            conn.commit();
+            return reconstituteResults(rs)[0];
+        } catch (SQLException e) {
+            errorOccurred = true;
+            throw new AlertvizException("Error loading " + index, e);
+        } catch (RuntimeException e) {
+            errorOccurred = true;
+            throw new AlertvizException("Error loading " + index, e);
+        } finally {
+            closeResultSet(rs);
+            closeStatement(statement);
+            if (errorOccurred) {
+                closeConnection();
+            }
+        }
+    }
+
     public StatusMessage[] load(int count) throws AlertvizException {
         ResultSet rs = null;
         Statement statement = null;
@@ -383,15 +425,16 @@ public class LogMessageDAO {
         boolean errorOccurred = false;
         try {
             Connection conn = getConnection();
-            if (order == Order.BEFORE)
+            if (order == Order.BEFORE) {
                 statement = conn
                         .prepareStatement(SELECT_ALL_BY_DATE_AND_SOURCE_BEFORE);
-            else if (order == Order.AFTER)
+            } else if (order == Order.AFTER) {
                 statement = conn
                         .prepareStatement(SELECT_ALL_BY_DATE_AND_SOURCE_AFTER);
-            else
+            } else {
                 throw new IllegalArgumentException("Unsupported order : "
                         + order);
+            }
 
             statement.setMaxFieldSize(count);
             statement.setTimestamp(1, filter);
@@ -477,7 +520,12 @@ public class LogMessageDAO {
         }
     }
 
-    public int[] getLogRange() throws AlertvizException {
+    /**
+     * Retrieves the number of status messages in the message store.
+     * 
+     * @return Total number of messages.
+     */
+    public int getMessageCount() throws AlertvizException {
         ResultSet rs = null;
         Statement statement = null;
         boolean errorOccurred = false;
@@ -485,15 +533,12 @@ public class LogMessageDAO {
             Connection conn = getConnection();
             statement = conn.createStatement();
             statement.setMaxFieldSize(1);
-            rs = statement.executeQuery(DATA_RANGE_QUERY);
+            rs = statement.executeQuery(MESSAGE_COUNT_QUERY);
             if (rs.next()) {
-                int min = rs.getInt(1);
-                int max = rs.getInt(2);
-
-                return new int[] { min, max };
+                int count = rs.getInt(1);
+                return count;
             }
             conn.commit();
-            return null;
         } catch (SQLException e) {
             errorOccurred = true;
             throw new AlertvizException("Error getting time range ", e);
@@ -504,6 +549,8 @@ public class LogMessageDAO {
                 closeConnection();
             }
         }
+
+        return 0;
     }
 
     public Timestamp getLastPurgeTime() throws AlertvizException {
@@ -547,8 +594,9 @@ public class LogMessageDAO {
             sm.setAcknowledgedBy(rs.getString(8));
 
             Timestamp ts = rs.getTimestamp(9);
-            if (ts != null)
+            if (ts != null) {
                 sm.setAcknowledgedAt(new Date(ts.getTime()));
+            }
 
             retVal.add(sm);
         }
