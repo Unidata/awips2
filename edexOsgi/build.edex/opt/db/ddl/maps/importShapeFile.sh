@@ -25,6 +25,7 @@
 # 03/25/2014    #2664     randerso    Added support for importing non-WGS84 shape files
 # 10/23/2014    #3685     randerso    Fixed bug where .prj was not recognized when shape file
 #                                     was in the current directory (no directory specified)
+# 02/11/2016    #5348     randerso    Add code to create a county_names view into the county table
 #     
 ##
 
@@ -103,6 +104,16 @@ if [ ! -r ${SHP_PATH} ]; then
 fi
 
 echo "  Importing ${SHP_NAME} into ${SCHEMA}.${TABLE} ..."
+
+#
+# If updating county table drop the county names view
+#
+if [ "county" == ${TABLE} ] ; then
+    ${PSQLBINDIR}psql -d maps -U ${PGUSER} -q -p ${PGPORT} -c "
+        DROP VIEW IF EXISTS ${SCHEMA}.county_names;
+    "
+fi
+
 ${PSQLBINDIR}psql -d maps -U ${PGUSER} -q -p ${PGPORT} -c "
     DELETE FROM public.geometry_columns WHERE f_table_schema = '${SCHEMA}' AND f_table_name = '${TABLE}';
     DELETE FROM ${SCHEMA}.map_version WHERE table_name='${TABLE}';
@@ -115,6 +126,17 @@ ${PSQLBINDIR}psql -d maps -U ${PGUSER} -q -p ${PGPORT} -c "
     UPDATE ${SCHEMA}.${TABLE} SET the_geom_0=ST_Segmentize(the_geom,0.1);
     CREATE INDEX ${TABLE}_the_geom_0_gist ON ${SCHEMA}.${TABLE} USING gist(the_geom_0);
 "
+
+#
+# If updating county table recreate the county names view
+#
+if [ "county" == ${TABLE} ] ; then
+    ${PSQLBINDIR}psql -d maps -U ${PGUSER} -q -p ${PGPORT} -c "
+        CREATE OR REPLACE VIEW ${SCHEMA}.county_names AS
+        SELECT countyname as name, ST_SetSRID(ST_Point(lon,lat), 4326)::geometry(Point, 4326) as the_geom
+	 	FROM ${SCHEMA}.county;
+	"
+fi
 
 if [ -n "$SIMPLEVS" ] ; then
     echo "  Creating simplification levels ${SIMPLEVS}..."
