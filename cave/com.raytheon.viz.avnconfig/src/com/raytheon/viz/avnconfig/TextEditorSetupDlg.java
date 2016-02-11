@@ -21,11 +21,15 @@ package com.raytheon.viz.avnconfig;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -53,11 +57,9 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
-import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
@@ -79,6 +81,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 15 OCT 2012  1229       rferrel     Made dialog non-blocking.
  * 15 OCT 2012  1229       rferrel     Changes for non-blocking HelpUsageDlg.
  * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
+ * Feb 11, 2016 5242       dgilling    Remove calls to deprecated Localization APIs.
  * 
  * </pre>
  * 
@@ -740,87 +743,52 @@ public class TextEditorSetupDlg extends CaveSWTDialog {
         openedFile.getContext().setContextName(
                 LocalizationManager.getInstance().getCurrentSite());
 
-        File fn = openedFile.getFile();
+        if (editorStTxt.getText().isEmpty()) {
+            msgStatusComp.setMessageText("Unable to save empty file + "
+                    + openedFile, new RGB(255, 0, 0));
+            return;
+        }
 
-        if (fn != null) {
-            try {
+        try (SaveableOutputStream outStream = openedFile.openOutputStream();
+                Writer out = new BufferedWriter(new OutputStreamWriter(
+                        outStream))) {
+            out.write(editorStTxt.getText());
+            out.close();
+            outStream.save();
 
-                if (fn.exists() == false) {
-                    File parentFile = fn.getParentFile();
-
-                    if (parentFile.mkdirs() == false) {
-                        System.out.println("Could not create directories...");
-                    }
-
-                    if (fn.createNewFile() == false) {
-                        System.out.println("Cannot create file...");
-                    }
-                }
-
-                if (editorStTxt.getText().isEmpty()) {
-                    msgStatusComp.setMessageText("Unable to save empty file + "
-                            + fn, new RGB(255, 0, 0));
-                    return;
-                }
-
-                BufferedWriter output = new BufferedWriter(new FileWriter(fn));
-                output.write(editorStTxt.getText());
-                output.close();
-
-                openedFile.save();
-
-                filePathLbl.setText(fn.toString());
-
-                msgStatusComp.setMessageText("File " + fn
-                        + " saved successfully.", new RGB(0, 255, 0));
-                TafSiteConfigFactory.clearInstance();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-                msgStatusComp.setMessageText("Unable to open file " + fn
-                        + " for writing.", new RGB(255, 0, 0));
-            } catch (IOException e) {
-                e.printStackTrace();
-                msgStatusComp.setMessageText(
-                        "An error occured while saving file " + fn, new RGB(
-                                255, 0, 0));
-            } catch (LocalizationException e) {
-                msgStatusComp.setMessageText(
-                        "An error occured while saving file " + fn, new RGB(
-                                255, 0, 0));
-                e.printStackTrace();
-            }
+            filePathLbl.setText(openedFile.toString());
+            msgStatusComp.setMessageText("File " + openedFile
+                    + " saved successfully.", new RGB(0, 255, 0));
+            TafSiteConfigFactory.clearInstance();
+        } catch (IOException | LocalizationException e) {
+            e.printStackTrace();
+            msgStatusComp.setMessageText("An error occured while saving file "
+                    + openedFile, new RGB(255, 0, 0));
         }
     }
 
     // mmaron DR 2928
     // saves to the same dir as the opened file - according to njensen
     private void saveFileAs() {
-        FileDialog dlg = new FileDialog(shell, SWT.SAVE);
-        IPathManager pm = PathManagerFactory.getPathManager();
-        String path = pm.getFile(
-                pm.getContext(LocalizationType.CAVE_STATIC,
-                        LocalizationLevel.BASE), "aviation").getAbsolutePath();
         if (openedFile == null) {
             msgStatusComp.setMessageText(
                     "No file opened.  Please open file first.", new RGB(255, 0,
                             0));
             return;
         }
-        path = openedFile.getFile().getAbsolutePath();
-        System.out.println(path);
-        path = path.substring(1, path.lastIndexOf('/'));
 
+        String path = openedFile.getFile().getParentFile().getAbsolutePath();
+        FileDialog dlg = new FileDialog(shell, SWT.SAVE);
         dlg.setFilterPath(path);
         String fn = dlg.open();
+
         if (fn != null) {
-            try {
-                BufferedWriter output = new BufferedWriter(new FileWriter(
-                        new File(fn)));
+            try (Writer output = Files.newBufferedWriter(Paths.get(fn),
+                    StandardCharsets.UTF_8)) {
                 output.write(editorStTxt.getText());
-                output.close();
+
                 msgStatusComp.setMessageText("File " + fn
                         + " saved successfully.", new RGB(0, 255, 0));
-
                 TafSiteConfigFactory.clearInstance();
             } catch (FileNotFoundException e) {
                 msgStatusComp.setMessageText("Unable to open file " + fn
@@ -877,30 +845,31 @@ public class TextEditorSetupDlg extends CaveSWTDialog {
         openedFile = lFile;
 
         if (openedFile != null) {
-            try {
-                StringBuilder contents = new StringBuilder();
-                BufferedReader input = new BufferedReader(new FileReader(
-                        new File(openedFile.getFile().getAbsolutePath())));
-                String line = null;
+            if (openedFile.exists()) {
+                try (InputStream inStream = openedFile.openInputStream();
+                        BufferedReader in = new BufferedReader(
+                                new InputStreamReader(inStream))) {
+                    StringBuilder contents = new StringBuilder();
 
-                while ((line = input.readLine()) != null) {
-                    contents.append(line);
-                    contents.append(System.getProperty("line.separator"));
+                    String line = null;
+                    while ((line = in.readLine()) != null) {
+                        contents.append(line);
+                        contents.append(System.getProperty("line.separator"));
+                    }
+
+                    editorStTxt.setText(contents.toString());
+                    msgStatusComp.setMessageText("File " + openedFile
+                            + " opened successfully.", new RGB(0, 255, 0));
+                    filePathLbl.setText(openedFile.toString());
+                } catch (IOException | LocalizationException e) {
+                    msgStatusComp
+                            .setMessageText(
+                                    "An error occured while opening file "
+                                            + openedFile, new RGB(255, 0, 0));
                 }
-
-                editorStTxt.setText(contents.toString());
-
-                input.close();
-                msgStatusComp.setMessageText("File " + openedFile
-                        + " opened successfully.", new RGB(0, 255, 0));
-                filePathLbl.setText(openedFile.getFile().toString());
-            } catch (FileNotFoundException e) {
+            } else {
                 msgStatusComp.setMessageText("File " + openedFile
                         + " not found.", new RGB(255, 0, 0));
-            } catch (IOException e) {
-                msgStatusComp.setMessageText(
-                        "An error occured while opening file " + openedFile,
-                        new RGB(255, 0, 0));
             }
         }
     }
