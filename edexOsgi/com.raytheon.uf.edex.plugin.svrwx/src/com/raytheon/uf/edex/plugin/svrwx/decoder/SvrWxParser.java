@@ -59,6 +59,7 @@ import com.raytheon.uf.edex.plugin.svrwx.SvrWxRecordDao;
  * Jun 25, 2014 3008       nabowle     Refactor for EventReport type
  * Jul 23, 2014 3410       bclement    location changed to floats
  * Jul 30, 2014 3410       bclement    lat, lon and data uri moved to database point data desc
+ * Feb 11, 2016 5292       skorolev    Corrected findReports to fix a broken stationId
  * 
  * </pre>
  * 
@@ -117,7 +118,7 @@ public class SvrWxParser {
 
     /**
      * SvrWx Parser.
-     *
+     * 
      * @param dao
      * @param pdd
      * @param name
@@ -130,7 +131,7 @@ public class SvrWxParser {
 
     /**
      * Set the message data and decode all message reports.
-     *
+     * 
      * @param message
      *            Raw message data.
      * @param traceId
@@ -154,7 +155,7 @@ public class SvrWxParser {
 
     /**
      * Does this parser contain any more reports.
-     *
+     * 
      * @return Does this parser contain any more reports.
      */
     public boolean hasNext() {
@@ -172,7 +173,7 @@ public class SvrWxParser {
     /**
      * Get the next available report. Returns a null reference if no more
      * reports are available.
-     *
+     * 
      * @return The next available report.
      */
     public SvrWxRecord next() {
@@ -212,7 +213,7 @@ public class SvrWxParser {
 
     /**
      * Gets Container
-     *
+     * 
      * @param obsData
      * @return
      */
@@ -229,7 +230,7 @@ public class SvrWxParser {
 
     /**
      * Collect Reports from svrWx Records.
-     *
+     * 
      * @param message
      * @return reports
      */
@@ -255,6 +256,14 @@ public class SvrWxParser {
                 case EVENT_REPORT:
                     reportCount++;
                     eRpt = (EventReport) rpt;
+                    if (eRpt.getStationId() == null && eRpt.getLatLon() != null) {
+                        // Set LatLon name for broken station name
+                        SurfaceObsLocation location = new SurfaceObsLocation();
+                        location.setLatitude(getLat(eRpt.getLatLon()));
+                        location.setLongitude(getLon(eRpt.getLatLon()));
+                        location.generateCoordinateStationId();
+                        eRpt.setStationId(location.getStationId());
+                    }
                     missingFields = getMissingFields(eRpt);
                     if (missingFields.length == 0 && year != -1 && month != -1) {
                         reports.add(buildRecord(eRpt, month, year));
@@ -288,7 +297,7 @@ public class SvrWxParser {
 
     /**
      * Builds a SvrWxRecord from an EventReport.
-     *
+     * 
      * @param eRpt
      *            The EventReport.
      * @param month
@@ -304,22 +313,18 @@ public class SvrWxParser {
         location.setLatitude(getLat(eRpt.getLatLon()));
 
         SvrWxRecord svrWxRecord = new SvrWxRecord();
-        svrWxRecord.setReportType(getReportType(eRpt
-                .getKey()));
-        svrWxRecord.setGreenTime(getGreenTime(eRpt
-                .getTime()));
+        svrWxRecord.setReportType(getReportType(eRpt.getKey()));
+        svrWxRecord.setGreenTime(getGreenTime(eRpt.getTime()));
         svrWxRecord.setLocation(location);
-        svrWxRecord.setDataTime(getRefTime(eRpt.getTime(),
-                month, year));
-        svrWxRecord
-                .setEventKey(getEventKey(eRpt.getKey()));
+        svrWxRecord.setDataTime(getRefTime(eRpt.getTime(), month, year));
+        svrWxRecord.setEventKey(getEventKey(eRpt.getKey()));
         svrWxRecord.setDetails(getDetails(svrWxRecord, eRpt));
         return svrWxRecord;
     }
 
     /**
      * Logs an EventReport that is invalid.
-     *
+     * 
      * @param eRpt
      *            The EventReport.
      * @param missingFields
@@ -337,7 +342,7 @@ public class SvrWxParser {
 
     /**
      * Parses the month.
-     *
+     * 
      * @param timeRangeLine
      *            The time range line.
      * @return The month, or 0 if the month cannot be found.
@@ -355,7 +360,7 @@ public class SvrWxParser {
 
     /**
      * Parses the year from the time range line.
-     *
+     * 
      * @param timeRangeLine
      *            The time range line.
      * @return The year, or 0 f the year cannot be found.
@@ -373,7 +378,7 @@ public class SvrWxParser {
 
     /**
      * Gets the green time from the time field.
-     *
+     * 
      * @param time
      *            The time field.
      * @return The green time, or null if the time is null.
@@ -388,7 +393,7 @@ public class SvrWxParser {
 
     /**
      * Gets the ref time from the time field, month, and year.
-     *
+     * 
      * @param time
      *            The time field.
      * @param month
@@ -422,7 +427,7 @@ public class SvrWxParser {
 
     /**
      * Gets the report type.
-     *
+     * 
      * @param key
      *            The event key field.
      * @return The report type, or null if the key field is not expected.
@@ -445,7 +450,7 @@ public class SvrWxParser {
 
     /**
      * Gets the event key.
-     *
+     * 
      * @param key
      *            The event key field.
      * @return The event key, or null if the event key is not expected.
@@ -494,7 +499,7 @@ public class SvrWxParser {
 
     /**
      * Parses the latitude from the combined latitude/longitude field.
-     *
+     * 
      * @param latlon
      *            The combined latitude/longitude field.
      * @return The latitude.
@@ -505,7 +510,7 @@ public class SvrWxParser {
 
     /**
      * Parses the longitude from the combined latitude/longitude field.
-     *
+     * 
      * @param latlon
      *            The combined latitude/longitude field.
      * @return The longitude.
@@ -516,7 +521,7 @@ public class SvrWxParser {
 
     /**
      * Get the event details.
-     *
+     * 
      * @param record
      *            The SvrWxRecord.
      * @param eRpt
@@ -535,23 +540,20 @@ public class SvrWxParser {
 
     /**
      * Check for missing fields that are required.
-     *
+     * 
      * @param eRpt
      *            The event report.
      * @return An array of the missing fields' names, or an empty array if no
      *         fields are missing.
      */
     private String[] getMissingFields(EventReport eRpt) {
-
         List<String> missing = new ArrayList<String>();
         if (eRpt.getStationId() == null) {
             missing.add("StationID");
         }
-
         if (eRpt.getLatLon() == null) {
             missing.add("Latitude/Longitude");
         }
-
         return missing.isEmpty() ? EMPTY_ARR : missing.toArray(EMPTY_ARR);
     }
 }
