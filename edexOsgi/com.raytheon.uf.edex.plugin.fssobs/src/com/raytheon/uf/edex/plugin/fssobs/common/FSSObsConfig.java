@@ -73,9 +73,7 @@ public class FSSObsConfig {
     protected transient final Logger logger = LoggerFactory
             .getLogger(getClass());
 
-    public FSSObsConfig(URIGenerateMessage genMessage, FSSObsGenerator generator)
-            throws Exception {
-
+    public FSSObsConfig(URIGenerateMessage genMessage, FSSObsGenerator generator) {
         this.fssgen = generator;
     }
 
@@ -84,13 +82,13 @@ public class FSSObsConfig {
      * 
      * @param uri
      * @return tableRow
+     * @throws Exception
      */
-    public FSSObsRecord getTableRow(String uri) {
+    public FSSObsRecord getTableRow(String uri) throws Exception {
         String dt = uri.substring(1)
                 .substring(0, uri.substring(1).indexOf("/"));
 
         try {
-            
             if (dt.equals("obs")) {
                 tableRow = FSSObsUtils.getRecordFromMetar(uri);
             } else if (dt.equals("sfcobs")) {
@@ -98,10 +96,14 @@ public class FSSObsConfig {
             } else if (dt.equals("ldadmesonet")) {
                 tableRow = FSSObsUtils.getRecordFromMesowest(uri);
             }
-
         } catch (PluginException e) {
             statusHandler.handle(Priority.PROBLEM, "Could not create type: "
                     + dt + " URI: " + uri, e);
+        }
+
+        if (tableRow == null) {
+            throw new Exception("Couldn't make FSSObsRecord from type "
+                    + dt + " and URI: " + uri);
         }
 
         if (tableRow.getRelativeHumidity() == ObConst.MISSING) {

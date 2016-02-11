@@ -185,14 +185,14 @@ public class FSSObsGenerator extends CompositeProductGenerator implements
 
             // We only want what we know how to decode
             if (reportType != null && inRange) {
-
-                FSSObsRecord fssObsRec = new FSSObsRecord();
-                fssObsRec.setReportType(reportType);
-                fssObsRec.setStationary(isStationary);
-                fssObsRec = fss_config.getTableRow(uri);
-                FSSObsDataTransform.buildView(fssObsRec);
-                fssRecs.add(fssObsRec);
-                checkThresholds(fssObsRec);
+                try {
+                    FSSObsRecord fssObsRec = fss_config.getTableRow(uri);
+                    FSSObsDataTransform.buildView(fssObsRec);
+                    fssRecs.add(fssObsRec);
+                    checkThresholds(fssObsRec);
+                } catch (Exception e) {
+                    statusHandler.error("Error building FSSObsRecord", e);
+                }
             }
         }
 
