@@ -34,6 +34,7 @@ Provides: awips2-notification
 
 BuildRequires: awips2-java
 BuildRequires: awips2-qpid-lib
+BuildRequires: libuuid-devel
 
 %description
 AWIPS II Notification Distribution - the AWIPS II Notification application.
