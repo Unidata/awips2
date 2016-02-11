@@ -184,6 +184,8 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  * 01/21/2016  18505       lshi        Resent product should have same WMO, MND, and segment times
  *                                     as original product.
  * 02/05/2016  5242        dgilling    Remove calls to deprecated Localization APIs.
+ * 02/10/2016   5337       dgilling    Prevent CAN products past VTEC end time 
+ *                                     from being transmitted.
  * </pre>
  * 
  * @author lvenable
@@ -1531,10 +1533,11 @@ public class ProductEditorComp extends Composite implements
                 throw new VizException(msg);
             }
 
-            // Give 30 minutes of slack to a couple of action codes
-            // check the ending time and transmission time
-            if ((action.equals("EXP") || action.equals("CAN"))
-                    && (vtecEnd != null)) {
+            /*
+             * Give 30 minutes of slack for EXP action code, check the ending
+             * time and transmission time
+             */
+            if ((action.equals("EXP")) && (vtecEnd != null)) {
                 vtecEnd.setTime(vtecEnd.getTime()
                         + (30 * TimeUtil.MILLIS_PER_MINUTE));
             }
