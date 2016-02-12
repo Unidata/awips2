@@ -20,9 +20,14 @@
 package com.raytheon.uf.viz.alertviz.ui.dialogs;
 
 import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.SWT;
@@ -71,6 +76,7 @@ import com.raytheon.uf.viz.alertviz.config.TrayConfiguration;
  * Jul 01, 2015 4473       njensen     Fix update of table on alert arrival
  * Jun 29, 2015 4311       randerso    Reworking AlertViz dialogs to be resizable.
  * Jan 25, 2016 5054       randerso    Converted to stand alone window
+ * Feb 11, 2016 5314       dgilling    Fix System Log functionality.
  * 
  * </pre>
  * 
@@ -87,8 +93,6 @@ public class SimpleLogViewer implements IAlertArrivedCallback {
     private SimpleDetailsComp detailsComp;
 
     private Button showLog;
-
-    int[] range;
 
     private Table table;
 
@@ -170,15 +174,10 @@ public class SimpleLogViewer implements IAlertArrivedCallback {
         columns[3].setWidth(100);
         columns[4].setText("Message");
         columns[4].setWidth(100);
+
         int sz = 0;
         try {
-            range = SystemStatusHandler.getCurrentRange();
-            if ((range[0] == 0) && (range[1] == 0)) {
-                // database is empty
-                sz = 0;
-            } else {
-                sz = (range[1] - range[0]) + 1;
-            }
+            sz = SystemStatusHandler.getMessageCount();
         } catch (AlertvizException e2) {
             Container
                     .logInternal(
@@ -198,17 +197,27 @@ public class SimpleLogViewer implements IAlertArrivedCallback {
         table.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
+                Integer pk = (Integer) e.item.getData();
                 int idx = table.getSelectionIndex();
+
                 StatusMessage sm = null;
                 try {
-
-                    sm = SystemStatusHandler.retrieveByPk(idx + range[0]);
+                    /*
+                     * This event is triggered during initialization before the
+                     * first TableItem has been assigned a PK in its data field.
+                     * So we fall back to item selection index just in case.
+                     */
+                    if (pk != null) {
+                        sm = SystemStatusHandler.retrieveByPk(pk.intValue());
+                    } else {
+                        sm = SystemStatusHandler.retrieveByRowOffset(idx);
+                    }
                 } catch (Exception e1) {
                     Container
                             .logInternal(
                                     Priority.ERROR,
                                     "SimpleLogViewer: exception retrieving StatusMessage by key from SystemStatusHandler: "
-                                            + (idx + range[0]), e1);
+                                            + (idx + 1), e1);
                 }
                 detailsComp.displayDetails(sm);
             }
@@ -226,12 +235,13 @@ public class SimpleLogViewer implements IAlertArrivedCallback {
                 int index = table.indexOf(item);
                 try {
                     StatusMessage sm = SystemStatusHandler
-                            .retrieveByPk(range[0] + index);
+                            .retrieveByRowOffset(index);
                     item.setText(0, "" + sm.getEventTime().toString());
                     item.setText(1, "" + sm.getPriority().ordinal());
                     item.setText(2, sm.getSourceKey());
                     item.setText(3, sm.getCategory());
                     item.setText(4, sm.getMessage());
+                    item.setData(Integer.valueOf(sm.getPk()));
 
                     if (sm.getPriority() == Priority.CRITICAL) {
                         item.setForeground(red);
@@ -246,14 +256,15 @@ public class SimpleLogViewer implements IAlertArrivedCallback {
                     }
 
                 } catch (AlertvizException e1) {
-                    Status s = new Status(IStatus.ERROR, Activator.PLUGIN_ID,
-                            "Error fetching the data", e1);
-                    ErrorDialog.openError(
-                            Display.getCurrent().getActiveShell(),
-                            "Error fetching data",
-                            "Error fetching the log data", s);
+                    Container
+                            .logInternal(
+                                    Priority.ERROR,
+                                    "SimpleLogViewer: exception retrieving StatusMessage by row offset from SystemStatusHandler: "
+                                            + index, e1);
+                    errorDialogWithStackTrace(Display.getCurrent()
+                            .getActiveShell(), "Error fetching data",
+                            "Error fetching the log data", e1);
                 }
-
             }
         });
 
@@ -280,10 +291,12 @@ public class SimpleLogViewer implements IAlertArrivedCallback {
                         LogUtil.saveLogToFile(new File(fileName),
                                 new Timestamp(0), Order.AFTER);
                     } catch (AlertvizException e1) {
-                        final Status s = new Status(IStatus.ERROR,
-                                Activator.PLUGIN_ID, "Error saving log", e1);
-                        ErrorDialog.openError(shell, "Error saving log",
-                                "Error saving log", s);
+                        Container.logInternal(Priority.ERROR,
+                                "SimpleLogViewer: exception saving log file: "
+                                        + fileName, e1);
+                        errorDialogWithStackTrace(Display.getCurrent()
+                                .getActiveShell(), "Error saving log",
+                                "Error saving log", e1);
                     }
                 }
             }
@@ -355,8 +368,11 @@ public class SimpleLogViewer implements IAlertArrivedCallback {
         AlertvizJob.getInstance().addAlertArrivedCallback(this);
 
         shell.open();
-        table.showItem(table.getItem(table.getItemCount() - 1));
-        table.select(table.getItemCount() - 1);
+
+        if (table.getItemCount() > 0) {
+            table.showItem(table.getItem(table.getItemCount() - 1));
+            table.select(table.getItemCount() - 1);
+        }
 
         // Wait until the shell is disposed.
         Display display = shell.getDisplay();
@@ -402,5 +418,27 @@ public class SimpleLogViewer implements IAlertArrivedCallback {
         Point size = shell.getSize();
         size.y += delta;
         shell.setSize(size);
+    }
+
+    private static void errorDialogWithStackTrace(Shell parentShell,
+            String dialogTitle, String msg, Throwable t) {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        t.printStackTrace(pw);
+        String trace = sw.toString();
+
+        Collection<Status> childStatuses = new ArrayList<>();
+
+        String lineSep = System.getProperty("line.separator");
+        for (String line : trace.split(lineSep)) {
+            childStatuses.add(new Status(IStatus.ERROR, Activator.PLUGIN_ID,
+                    line));
+        }
+
+        MultiStatus ms = new MultiStatus(Activator.PLUGIN_ID, IStatus.ERROR,
+                childStatuses.toArray(new Status[0]), t.getLocalizedMessage(),
+                t);
+
+        ErrorDialog.openError(parentShell, dialogTitle, msg, ms);
     }
 }
