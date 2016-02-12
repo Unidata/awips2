@@ -76,6 +76,7 @@
 #    Sep 16, 2015    4871          randerso       Return modified varDict from called Tool/Procedure
 #
 #    Sep 11, 2015    4858          dgilling       Remove notification processing from publishElements.
+#    Jan 20, 2016    4751          randerso       Fix type of mask returned from getComposite() to work with numpy 1.9.2
 ########################################################################
 import types, string, time, sys
 from math import *
@@ -687,12 +688,12 @@ class SmartScript(BaseTool.BaseTool):
             from com.raytheon.uf.common.dataplugin.gfe.slice import ScalarGridSlice
             slice = ScalarGridSlice()
             bits = self.__dataMgr.getIscDataAccess().getCompositeGrid(gid, exactMatch, slice)
-            args = (bits.getNDArray(), slice.getScalarGrid().getNDArray())
+            args = (bits.getNDArray().astype(bool), slice.getScalarGrid().getNDArray())
         elif GridType.VECTOR.equals(wxType):
             from com.raytheon.uf.common.dataplugin.gfe.slice import VectorGridSlice
             slice = VectorGridSlice()
             bits = self.__dataMgr.getIscDataAccess().getVectorCompositeGrid(gid, exactMatch, slice)
-            args = (bits.getNDArray(), slice.getMagGrid().getNDArray(), slice.getDirGrid().getNDArray())
+            args = (bits.getNDArray().astype(bool), slice.getMagGrid().getNDArray(), slice.getDirGrid().getNDArray())
         elif GridType.WEATHER.equals(wxType):
             from com.raytheon.uf.common.dataplugin.gfe.slice import WeatherGridSlice
             slice = WeatherGridSlice()
@@ -700,7 +701,7 @@ class SmartScript(BaseTool.BaseTool):
             keys = []
             for k in slice.getKeys():
                 keys.append(str(k))
-            args = (bits.getNDArray(), slice.getWeatherGrid().getNDArray(), keys)
+            args = (bits.getNDArray().astype(bool), slice.getWeatherGrid().getNDArray(), keys)
         elif GridType.DISCRETE.equals(wxType):
             from com.raytheon.uf.common.dataplugin.gfe.slice import DiscreteGridSlice
             slice = DiscreteGridSlice()
@@ -708,7 +709,7 @@ class SmartScript(BaseTool.BaseTool):
             keys = []
             for k in slice.getKeys():
                 keys.append(str(k))
-            args = (bits.getNDArray(), slice.getDiscreteGrid().getNDArray(), keys)
+            args = (bits.getNDArray().astype(bool), slice.getDiscreteGrid().getNDArray(), keys)
         return args
 
     ##
@@ -2219,7 +2220,12 @@ class SmartScript(BaseTool.BaseTool):
         gridLoc = self.getGridLoc()
         nx = gridLoc.getNx().intValue()
         ny = gridLoc.getNy().intValue()
-        bytes = NumpyJavaEnforcer.checkdTypes(mask, int8)
+        
+        # force mask to boolean if it's not
+        mask = NumpyJavaEnforcer.checkdTypes(mask, bool)
+        
+        # convert boolean mask to bytes for Grid2DBit        
+        bytes = mask.astype(int8)
         grid = Grid2DBit.createBitGrid(nx, ny, bytes)
         return ReferenceData(gridLoc, ReferenceID("test"), grid)
 
