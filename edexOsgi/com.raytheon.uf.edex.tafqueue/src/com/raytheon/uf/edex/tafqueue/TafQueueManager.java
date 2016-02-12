@@ -54,6 +54,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * Jun 07, 2013  1981      mpduff      Add user to OUPRequest.
  * Jun 18, 2013  2110      rferrel     Modified to handle the new class RequestRouter.route
  *                                      returns (SuccessfulExecution).
+ * Feb 11, 2016 16939      zhao        Modified sendTaf() to ensure bbb is null for routine TAF
  * 
  * </pre>
  * 
@@ -184,7 +185,9 @@ public class TafQueueManager implements Runnable {
         oup.setUserDateTimeStamp(tstamp);
         oup.setSource("AvnFPS");
         if (!bbb.equals("___")) {
-            oup.setWmoType(bbb);
+            if (bbb.trim().length() == 3) {
+                oup.setWmoType(bbb);
+            }
         }
 
         OUPRequest req = new OUPRequest();
