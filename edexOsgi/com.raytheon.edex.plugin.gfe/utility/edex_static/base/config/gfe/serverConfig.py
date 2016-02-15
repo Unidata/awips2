@@ -74,7 +74,6 @@
 #    10/13/2015          #4961     randerso       Updated NewTerrain/BaseTerrain database definitions
 #    10/30/2015          #17940    jendrowski     Responded to Code Review.  Mostly syntactical changes.
 #    11/05/2015          #18182    ryu            Change D2DDBVERSIONS value for HPCERP to 24 
-#
 #    12/22/2015          #14152    jwatson        Added Sky, Wind to GFSLAMPGrid parms
 ####################################################################################################
 
@@ -3239,6 +3238,7 @@ D2DDBVERSIONS = db.D2DDBVERSIONS
 D2DAccumulativeElements = db.D2DAccumulativeElements
 INITMODULES = db.INITMODULES
 INITSKIPS = db.INITSKIPS
+OFFICIALDBS=list(modelDict['Fcst']['Parms'])
 
 # Create Practice and test databases from Fcst
 DATABASES.append((Official, modelDict['Fcst']['Parms'])),

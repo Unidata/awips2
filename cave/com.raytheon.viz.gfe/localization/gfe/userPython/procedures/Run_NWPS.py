@@ -115,7 +115,7 @@ class Procedure (SmartScript.SmartScript):
                     ]
 
                     varDict = {}
-                    processVarList = ProcessVariableList.ProcessVariableList("Run_NWPS_Tom", variableList, varDict, None)
+                    processVarList = ProcessVariableList.ProcessVariableList("Run_NWPS", variableList, varDict, None)
                     status = processVarList.status()
                     if status != "OK":
                         return
@@ -144,7 +144,7 @@ class Procedure (SmartScript.SmartScript):
 #line with variable list passed on using the -V option to runProcedure. This 
 #allows to run procedure from a cron. Example default for runProcedure would be:
 # All variables shown below passed with -V option are required for procedure to run properly.
-# /awips2/GFESuite/bin/runProcedure -n Run_NWPS_Tom -c gfeConfig 
+# /awips2/GFESuite/bin/runProcedure -n Run_NWPS -c gfeConfig 
 # -V '{"fcstlength":"102","wind":"ForecastWindGrids","wheretorun":"NCEP","model":"SWAN","web":"Yes","plot":"Yes","wna":"WNAWave","nest":"Yes","gstream":"Yes","tstep":"600","hotstart":"True","waterlevels":"ESTOFS","excd":"10"}'
 # If running from a cron, you do not need to create a SITE level override of this baseline procedure if your input variables 
 # are different because you pass that on from the command line.
