@@ -29,6 +29,7 @@ package com.raytheon.uf.viz.monitor.ffmp.ui.dialogs;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 10, 2015 4756       dhladky     Initial creation
+ * Feb 15, 2016 5360       tjensen     Update getSkipValue to improve labeling
  * 
  * </pre>
  * 
@@ -76,23 +77,22 @@ public class BasinTrendGraphBounds {
     }
     
     /**
-     * Gets the label skipping for the Y axis of the Basin trend Graph
+     * Gets the label skipping for the Y axis of the Basin trend Graph.
      * @return int
      */
     public int getSkipValue() {
-
-        int skip = 0;
+        int skip = 1;
 
         if (yCoordValues > 0) {
 
-            if (yCoordValues >= 50 && yCoordValues < 100) {
+            if (yCoordValues >= 20 && yCoordValues < 40) {
                 skip = 2;
-            } else if (yCoordValues >= 100 && yCoordValues < 200) {
+            } else if (yCoordValues >= 40 && yCoordValues < 100) {
                 skip = 5;
-            } else if (yCoordValues >= 200 && yCoordValues < 300) {
+            } else if (yCoordValues >= 100 && yCoordValues < 200) {
                 skip = 10;
-            } else if (yCoordValues >= 300 && yCoordValues < 500) {
-                skip = 20;
+            } else if (yCoordValues >= 200 && yCoordValues < 500) {
+                skip = 25;
             } else if (yCoordValues >= 500) {
                 skip = 50;
             }
