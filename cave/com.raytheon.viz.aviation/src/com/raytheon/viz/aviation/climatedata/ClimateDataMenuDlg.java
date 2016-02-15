@@ -1111,6 +1111,9 @@ public class ClimateDataMenuDlg extends CaveSWTDialog {
 
     private void processData() {
         ClimateDataManager dataMgr = ClimateDataManager.getInstance();
+        String[] items = siteInfoList.getItems();
+        java.util.List<String> itemList = new ArrayList<String>(
+                Arrays.asList(items));
         setWait(true);
         dataMgr.processData(appendRdo.getSelection(), itemList, this);
         scriptsBtn(false);
