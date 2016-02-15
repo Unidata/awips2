@@ -88,7 +88,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 20May2015    4510       rferrel     Added {@link #getForecasterId()}.
  * Sep 25, 2015 4918       rferrel     Allow selection of forecaster to send a TAF.
  * Nov 06, 2015 5108       rferrel     Display warning when forecast xmittime will result in a
- *                                      header time the same as any existing pending forecast.
+ *                                     header time the same as any existing pending forecast.
+ * Feb 12, 2016 5335       tgurney     Add alert popup when TAF send fails
  * 
  * </pre>
  * 
@@ -337,6 +338,9 @@ public class SendDialog extends CaveSWTDialog {
         configMgr.setDefaultFontAndColors(repsonsibleLbl);
 
         List<ForecasterConfig> forecasters = getForecasters();
+        if (forecasters == null) {
+            forecasters = new ArrayList<ForecasterConfig>();
+        }
         String forecaster = AviationDialog.getForecaster();
         gd = new GridData(SWT.CENTER, SWT.DEFAULT, false, false);
         gd.minimumWidth = 100;
@@ -454,6 +458,8 @@ public class SendDialog extends CaveSWTDialog {
                     .getSelectionIndex());
             forecasterId = selString.split("\\s+")[1];
         } catch (IllegalArgumentException ex) {
+            String msg = "Cannot send the TAF. No forecaster is selected.";
+            statusHandler.handle(Priority.SIGNIFICANT, msg, ex);
             return;
         }
 
@@ -673,7 +679,7 @@ public class SendDialog extends CaveSWTDialog {
 
         File f = AvnConfigFileUtil.getStaticFile(FORECAST_CONFIG_FILE);
         if (f == null) {
-            statusHandler.handle(Priority.PROBLEM,
+            statusHandler.handle(Priority.SIGNIFICANT,
                     "Cannot send the TAF. Unable to load, "
                             + FORECAST_CONFIG_FILE
                             + ", unable to obtain forecaster's ID. ");
@@ -683,7 +689,7 @@ public class SendDialog extends CaveSWTDialog {
             forecasters = JAXB.unmarshal(f, AviationForecasterConfig.class)
                     .getForecasterConfig();
         } catch (RuntimeException ex) {
-            statusHandler.handle(Priority.PROBLEM,
+            statusHandler.handle(Priority.SIGNIFICANT,
                     "Cannot send the TAF. Unable to parse, "
                             + FORECAST_CONFIG_FILE
                             + ", unable to obtain forecaster's ID. ", ex);
