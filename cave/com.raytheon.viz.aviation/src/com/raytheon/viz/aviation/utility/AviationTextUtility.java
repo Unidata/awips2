@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.texteditor.util;
+package com.raytheon.viz.aviation.utility;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -40,7 +40,6 @@ import com.raytheon.viz.avnconfig.ITafSiteConfig;
 import com.raytheon.viz.avnconfig.TafSiteConfigFactory;
 import com.raytheon.viz.avnconfig.TafSiteData;
 import com.raytheon.viz.core.mode.CAVEMode;
-import com.raytheon.viz.texteditor.msgs.IAviationObserver;
 
 /**
  * This class is a utility for the Aviation Plugin.
@@ -55,6 +54,7 @@ import com.raytheon.viz.texteditor.msgs.IAviationObserver;
  * 05/10/2010   2187        cjeanbap    Added StdTextProductFactory functionality.
  * 09/11/2013   2277        mschenke    Removed unused function
  * Feb 12, 2016 4860        skorolev    Added CAVE mode. Corrected setting of siteWmoId.
+ * Feb 15, 2016 4860        njensen     Move to aviation plugin, made static
  * 
  * </pre>
  * 
@@ -62,11 +62,15 @@ import com.raytheon.viz.texteditor.msgs.IAviationObserver;
  * @version 1.0
  */
 
-public class AviationTextUtility implements IAviationObserver {
+public class AviationTextUtility {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(AviationTextUtility.class);
 
     private static final String LINE_BREAK = "\n";
+
+    private AviationTextUtility() {
+        // don't allow instantiation
+    }
 
     /**
      * Method to save a temporary working version of a TAF bulletin to the text
@@ -75,8 +79,7 @@ public class AviationTextUtility implements IAviationObserver {
      * @param tmpStr
      *            -- the temporary working version of a TAF bulletin
      */
-    @Override
-    public void saveTafBulletin(String tmpStr) {
+    public static void saveTafBulletin(String tmpStr) {
         // Convert the text to upper case
         tmpStr = tmpStr.toUpperCase();
         String currentDate = getCurrentDate();
@@ -134,7 +137,7 @@ public class AviationTextUtility implements IAviationObserver {
      * 
      * @return
      */
-    private String getCurrentDate() {
+    private static String getCurrentDate() {
         Date now = SimulatedTime.getSystemTime().getTime();
         SimpleDateFormat formatter = new SimpleDateFormat("ddHHmm");
         formatter.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -151,7 +154,7 @@ public class AviationTextUtility implements IAviationObserver {
      * @param nnnxxx
      * @return
      */
-    private String getHeaderTextField(String wmoId, String siteId,
+    private static String getHeaderTextField(String wmoId, String siteId,
             String dateId, String separator, String nnnxxx) {
         return wmoId + " " + siteId + " " + dateId + separator + nnnxxx;
 
