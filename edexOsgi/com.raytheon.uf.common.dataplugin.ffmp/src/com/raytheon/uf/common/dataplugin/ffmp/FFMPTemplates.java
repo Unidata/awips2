@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -23,6 +23,7 @@ import java.awt.Rectangle;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,17 +36,20 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.hydro.spatial.HRAPCoordinates;
 import com.raytheon.uf.common.hydro.spatial.HRAPSubGrid;
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.monitor.config.FFMPRunConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager;
@@ -60,7 +64,6 @@ import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.common.util.FileUtil;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
@@ -73,18 +76,18 @@ import com.vividsolutions.jts.io.WKBReader;
 
 /**
  * FFMPHucTemplate maker/factory
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 07/29/09      2152       D. Hladky   Initial release
  * 07/09/10      3914       D. Hladky   Localization work
  * 12/13/10      7484       D. Hladky   Service Backup
  * 02/01/13      1569       D.Hladky    Constants
- * 03/01/13      DR13228    G. Zhang    Add VGB county and related code 
+ * 03/01/13      DR13228    G. Zhang    Add VGB county and related code
  * 02/20/13      1635       D. Hladky   Constants
  * 03/18/13      1817       D. Hladky   Fixed issue with BOX where only 1 HUC was showing up.
  * 04/15/13      1902       M. Duff     Generic List
@@ -94,9 +97,10 @@ import com.vividsolutions.jts.io.WKBReader;
  * Nov 18, 2014  3831       dhladky     StatusHandler logging. Proper list sizing. Geometry chunk sizing.
  * Aug 08, 2015  4722       dhladky     Improved Grid support.
  * Nov 12, 2015  4834       njensen     Changed LocalizationOpFailedException to LocalizationException
- * 
+ * Feb 15, 2016  5244       nabowle     Replace deprecated LocalizationFile methods.
+ *
  * </pre>
- * 
+ *
  * @author dhladky
  * @version 1
  */
@@ -168,7 +172,7 @@ public class FFMPTemplates {
 
     /**
      * Single constructor
-     * 
+     *
      * @return
      */
     public static synchronized FFMPTemplates getInstance(DomainXML domain,
@@ -183,7 +187,7 @@ public class FFMPTemplates {
 
     /**
      * Multiple constructor loads multiple
-     * 
+     *
      * @return
      */
     public static synchronized FFMPTemplates getInstance(DomainXML primaryCWA,
@@ -198,7 +202,7 @@ public class FFMPTemplates {
 
     /**
      * EDEX constructor
-     * 
+     *
      * @param primaryCWA
      * @param mode
      */
@@ -323,7 +327,7 @@ public class FFMPTemplates {
 
     /**
      * Gets the FFMPBasinData template file/object
-     * 
+     *
      * @param hucName
      * @param cwa
      * @return
@@ -355,7 +359,7 @@ public class FFMPTemplates {
 
     /**
      * Gets the FFMPBasinData template file/object
-     * 
+     *
      * @param hucName
      * @param cwa
      * @return
@@ -379,7 +383,7 @@ public class FFMPTemplates {
 
     /**
      * Writes out the byte array from thrift
-     * 
+     *
      * @param map
      * @param cwa
      * @param dataKey
@@ -398,21 +402,28 @@ public class FFMPTemplates {
         }
 
         try {
-
             LocalizationContext lc = pathManager.getContext(
                     LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
-            LocalizationFile lfmap = pathManager.getLocalizationFile(lc,
+            ILocalizationFile lfmap = pathManager.getLocalizationFile(lc,
                     getAbsoluteFileName(dataKey, "VIRTUAL", cwa, "map"));
-            LocalizationFile lflist = pathManager.getLocalizationFile(lc,
+            ILocalizationFile lflist = pathManager.getLocalizationFile(lc,
                     getAbsoluteFileName(dataKey, "VIRTUAL", cwa, "list"));
 
-            FileUtil.bytes2File(SerializationUtil.transformToThrift(list),
-                    lflist.getFile(), true);
-            lflist.save();
+            try (SaveableOutputStream listSos = lflist.openOutputStream();
+                    GZIPOutputStream listGos = new GZIPOutputStream(listSos);
+                    SaveableOutputStream mapSos = lfmap.openOutputStream();
+                    GZIPOutputStream mapGos = new GZIPOutputStream(mapSos)) {
 
-            FileUtil.bytes2File(SerializationUtil.transformToThrift(map),
-                    lfmap.getFile(), true);
-            lfmap.save();
+                listGos.write(SerializationUtil.transformToThrift(list));
+                listGos.finish();
+                listGos.flush();
+                listSos.save();
+
+                mapGos.write(SerializationUtil.transformToThrift(map));
+                mapGos.finish();
+                mapGos.flush();
+                mapSos.save();
+            }
 
             list = null;
 
@@ -433,7 +444,7 @@ public class FFMPTemplates {
 
     /**
      * Writes out the byte array from thrift
-     * 
+     *
      * @param huc
      * @param cwa
      * @param map
@@ -451,44 +462,34 @@ public class FFMPTemplates {
         }
 
         try {
-            if (huc.equals(FFMPRecord.ALL)) {
+            LocalizationContext lc = pathManager.getContext(
+                    LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
 
-                LocalizationContext lc = pathManager.getContext(
-                        LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
+            ILocalizationFile lflist = pathManager.getLocalizationFile(lc,
+                    getAbsoluteFileName(dataKey, huc, cwa, "list"));
+            ILocalizationFile lfmap = pathManager.getLocalizationFile(lc,
+                    getAbsoluteFileName(dataKey, huc, cwa, "map"));
 
-                LocalizationFile lflist = pathManager.getLocalizationFile(lc,
-                        getAbsoluteFileName(dataKey, huc, cwa, "list"));
-                LocalizationFile lfmap = pathManager.getLocalizationFile(lc,
-                        getAbsoluteFileName(dataKey, huc, cwa, "map"));
+            try (SaveableOutputStream listSos = lflist.openOutputStream();
+                    GZIPOutputStream listGos = new GZIPOutputStream(listSos);
+                    SaveableOutputStream mapSos = lfmap.openOutputStream();
+                    GZIPOutputStream mapGos = new GZIPOutputStream(mapSos)) {
 
-                FileUtil.bytes2File(SerializationUtil.transformToThrift(list),
-                        lflist.getFile(), true);
-                FileUtil.bytes2File(SerializationUtil.transformToThrift(map),
-                        lfmap.getFile(), true);
+                listGos.write(SerializationUtil.transformToThrift(list));
+                listGos.finish();
+                listGos.flush();
 
-                lflist.save();
-                lfmap.save();
+                if (huc.equals(FFMPRecord.ALL)) {
+                    mapGos.write(SerializationUtil.transformToThrift(map));
+                } else {
+                    mapGos.write(SerializationUtil
+                            .transformToThrift(toPrimitive((LinkedHashMap<Long, ArrayList<Long>>) map)));
+                }
+                mapGos.finish();
+                mapGos.flush();
 
-            } else {
-
-                LocalizationContext lc = pathManager.getContext(
-                        LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
-
-                LocalizationFile lfmap = pathManager.getLocalizationFile(lc,
-                        getAbsoluteFileName(dataKey, huc, cwa, "map"));
-                LocalizationFile lflist = pathManager.getLocalizationFile(lc,
-                        getAbsoluteFileName(dataKey, huc, cwa, "list"));
-
-                FileUtil.bytes2File(
-                        SerializationUtil
-                                .transformToThrift(toPrimitive((LinkedHashMap<Long, ArrayList<Long>>) map)),
-                        lfmap.getFile(), true);
-                FileUtil.bytes2File(SerializationUtil.transformToThrift(list),
-                        lflist.getFile(), true);
-
-                lfmap.save();
-                lflist.save();
-
+                listSos.save();
+                mapSos.save();
             }
 
             list = null;
@@ -512,7 +513,7 @@ public class FFMPTemplates {
 
     /**
      * Gets the completed filename
-     * 
+     *
      * @return
      */
 
@@ -532,7 +533,7 @@ public class FFMPTemplates {
 
     /**
      * Gets the template file directory
-     * 
+     *
      * @return
      */
     public String getTemplateFileLocation() {
@@ -541,7 +542,7 @@ public class FFMPTemplates {
 
     /**
      * Double for max Extent of the radar
-     * 
+     *
      * @return
      */
     public double getMaxExtent() {
@@ -550,7 +551,7 @@ public class FFMPTemplates {
 
     /**
      * This maxExtent
-     * 
+     *
      * @param maxExtent
      */
     public void setMaxExtent(Double maxExtent) {
@@ -559,7 +560,7 @@ public class FFMPTemplates {
 
     /**
      * Gets a basin
-     * 
+     *
      * @param pfaf
      * @return
      */
@@ -578,7 +579,7 @@ public class FFMPTemplates {
 
     /**
      * Gets a basin in terms of total loaded domains and sites
-     * 
+     *
      * @param pfaf
      * @return
      */
@@ -639,7 +640,7 @@ public class FFMPTemplates {
 
     /**
      * Finds the aggregated pfaf of a given pfaf
-     * 
+     *
      * @param pfaf
      * @return
      */
@@ -658,7 +659,7 @@ public class FFMPTemplates {
 
     /**
      * Finds the aggregated pfaf of a given VGB
-     * 
+     *
      * @param lid
      * @param dataKey
      * @param huc
@@ -698,7 +699,7 @@ public class FFMPTemplates {
 
     /**
      * Gets the aggregate mappings for all domains
-     * 
+     *
      * @param pfaf
      * @return
      */
@@ -725,7 +726,7 @@ public class FFMPTemplates {
     /**
      * Gets the aggregate mappings for all domains, used by the FFFG dialog If
      * you want ALL and I mean ALL of the basins in a given coverage
-     * 
+     *
      * @param pfaf
      * @return
      */
@@ -765,7 +766,7 @@ public class FFMPTemplates {
 
     /**
      * Gets the aggreagate mappings by domain
-     * 
+     *
      * @param pfaf
      * @param domain
      * @param huc
@@ -803,7 +804,7 @@ public class FFMPTemplates {
 
     /**
      * Don't ever call this for anything other than FFTI or FFFG calls
-     * 
+     *
      * @param pfaf
      * @param huc
      * @return
@@ -830,7 +831,7 @@ public class FFMPTemplates {
 
     /**
      * Get the basin by Lat/Lon
-     * 
+     *
      * @param coor
      * @return
      */
@@ -872,7 +873,7 @@ public class FFMPTemplates {
 
     /**
      * Gets the pfaf by basinId
-     * 
+     *
      * @param basinId
      * @return
      */
@@ -894,7 +895,7 @@ public class FFMPTemplates {
 
     /**
      * Finds the center of an aggregation of basins (Roughly)
-     * 
+     *
      * @param pfaf
      * @param dataKey
      * @param huc
@@ -937,7 +938,7 @@ public class FFMPTemplates {
 
     /**
      * Check to see if file is there
-     * 
+     *
      * @param hucName
      * @return
      */
@@ -949,9 +950,9 @@ public class FFMPTemplates {
 
             LocalizationContext lc = pathManager.getContext(
                     LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
-            LocalizationFile listf = pathManager.getLocalizationFile(lc,
+            ILocalizationFile listf = pathManager.getLocalizationFile(lc,
                     getAbsoluteFileName(dataKey, huc, cwa, "list"));
-            LocalizationFile mapf = pathManager.getLocalizationFile(lc,
+            ILocalizationFile mapf = pathManager.getLocalizationFile(lc,
                     getAbsoluteFileName(dataKey, huc, cwa, "map"));
 
             if (listf.exists()) {
@@ -979,7 +980,7 @@ public class FFMPTemplates {
 
     /**
      * Gets the starting index for searching
-     * 
+     *
      * @return
      */
     public int getHucDepthStart() {
@@ -988,7 +989,7 @@ public class FFMPTemplates {
 
     /**
      * Sets the starting index for searching
-     * 
+     *
      * @param hucDepthStart
      */
     public void setHucDepthStart(int hucDepthStart) {
@@ -997,7 +998,7 @@ public class FFMPTemplates {
 
     /**
      * Get a listing of the counties in the FFMP monitored area
-     * 
+     *
      * @return
      */
     public FFMPCounties getCounties(String dataKey) {
@@ -1041,7 +1042,7 @@ public class FFMPTemplates {
 
     /**
      * Finds the parent aggregated pfaf of a given pfaf.
-     * 
+     *
      * @param key
      * @param dataKey
      * @param huc
@@ -1072,7 +1073,7 @@ public class FFMPTemplates {
 
     /**
      * Find the extents of this domain
-     * 
+     *
      * @param cwa
      * @return
      */
@@ -1085,7 +1086,7 @@ public class FFMPTemplates {
 
     /**
      * Find the extents of the collective sites
-     * 
+     *
      * @param cwa
      * @return
      */
@@ -1149,7 +1150,7 @@ public class FFMPTemplates {
 
     /**
      * Sets the extents
-     * 
+     *
      * @param maxExtent
      */
     public void setExtents(double maxExtent) {
@@ -1162,7 +1163,7 @@ public class FFMPTemplates {
 
     /**
      * gets the virtuals or not
-     * 
+     *
      * @return
      */
     public boolean getVirtual() {
@@ -1171,7 +1172,7 @@ public class FFMPTemplates {
 
     /**
      * Get the maps from storage or create them
-     * 
+     *
      * @param huc
      * @param cwa
      * @return
@@ -1329,7 +1330,7 @@ public class FFMPTemplates {
 
     /**
      * load up the maps
-     * 
+     *
      * @param huc
      * @return
      */
@@ -1363,7 +1364,7 @@ public class FFMPTemplates {
 
     /**
      * Find the list of pfafs for this HUC level
-     * 
+     *
      * @param siteKey
      * @param huc
      * @param domains
@@ -1384,7 +1385,7 @@ public class FFMPTemplates {
 
     /**
      * Gets the template config manager
-     * 
+     *
      * @return
      */
     public FFMPTemplateConfigurationManager getTemplateMgr() {
@@ -1393,7 +1394,7 @@ public class FFMPTemplates {
 
     /**
      * Read the file or generate VGB's for primary domain
-     * 
+     *
      * @param cwa
      * @return
      */
@@ -1468,7 +1469,7 @@ public class FFMPTemplates {
 
     /**
      * Generate the Virtual Gage Basins Meta Data for primary domain
-     * 
+     *
      * @return
      */
     public synchronized LinkedHashMap<String, FFMPVirtualGageBasinMetaData> getVirtualGageBasins(
@@ -1551,7 +1552,7 @@ public class FFMPTemplates {
 
     /**
      * Gets the Virtual Gage Basin MetaData
-     * 
+     *
      * @param lid
      * @return
      */
@@ -1572,7 +1573,7 @@ public class FFMPTemplates {
 
     /**
      * Gets the Virtual Gage Basin MetaData
-     * 
+     *
      * @param dataKey
      * @param cwa
      * @param parentPfaf
@@ -1605,7 +1606,7 @@ public class FFMPTemplates {
 
     /**
      * Finds the Lid string used by the aggregated VGB's
-     * 
+     *
      * @param fbmd
      * @param huc
      * @return
@@ -1624,7 +1625,7 @@ public class FFMPTemplates {
     /**
      * Gets you the list of pfafs that have VGB's for a given HUC level DONT
      * EVER CALL THIS WITH "ALL" HUC level use getVirtualGageBasins() for that
-     * 
+     *
      * @param huc
      * @return
      */
@@ -1645,7 +1646,7 @@ public class FFMPTemplates {
 
     /**
      * Check for VGB's in aggregate pfaf
-     * 
+     *
      * @param pfaf
      * @param dataKey
      * @param huc
@@ -1662,7 +1663,7 @@ public class FFMPTemplates {
 
     /**
      * Gets the Virtual Gage Basin MetaData
-     * 
+     *
      * @param pfaf
      * @return
      */
@@ -1689,7 +1690,7 @@ public class FFMPTemplates {
     /**
      * Gets you the list of pfafs that have VGB's for a given HUC level DONT
      * EVER CALL THIS WITH "ALL" HUC level use getVirtualGageBasins() for that
-     * 
+     *
      * @param huc
      * @return
      */
@@ -1700,14 +1701,14 @@ public class FFMPTemplates {
      * getAggregatePfafs(pfaf, dataKey, huc)) { if
      * (getVirtualGageBasinMetaData(dataKey, iPfaf) != null) { if (vgbPfafs ==
      * null) { vgbPfafs = new ArrayList<Long>(); } vgbPfafs.add(iPfaf); } }
-     * 
+     *
      * return vgbPfafs; }
      */
 
     /**
      * Gets list of aggregate pfafs that have VGB's within them * DONT EVER CALL
      * THIS WITH "ALL" HUC level
-     * 
+     *
      * @param huc
      * @param cwa
      * @return
@@ -1719,13 +1720,13 @@ public class FFMPTemplates {
      * getMap(dataKey, domain.getCwa(), huc).keySet()) { if
      * (getVGBsInAggregate(iPfaf, dataKey, huc) != null) { if (vgbPfafs == null)
      * { vgbPfafs = new ArrayList<Long>(); } vgbPfafs.add(iPfaf); } } }
-     * 
+     *
      * return vgbPfafs; }
      */
 
     /**
      * Gets the Virtual Gage Basin MetaData
-     * 
+     *
      * @param pfaf
      * @return
      */
@@ -1759,7 +1760,7 @@ public class FFMPTemplates {
 
     /**
      * Writes out all basins from DB by CWA
-     * 
+     *
      * @param results
      */
     private LinkedHashMap<Long, FFMPBasinMetaData> loadBasins(String siteKey,
@@ -1825,7 +1826,7 @@ public class FFMPTemplates {
 
     /**
      * compress to primitive
-     * 
+     *
      * @param list
      * @return
      */
@@ -1844,7 +1845,7 @@ public class FFMPTemplates {
 
     /**
      * back to LinkedHash
-     * 
+     *
      * @param longs
      * @return
      */
@@ -1864,7 +1865,7 @@ public class FFMPTemplates {
 
     /**
      * Get the basin ID of the county
-     * 
+     *
      * @param dataKey
      * @param nameState
      * @return
@@ -1892,7 +1893,7 @@ public class FFMPTemplates {
 
     /**
      * Sets the domains to load for this template instance
-     * 
+     *
      * @param domains
      */
     public synchronized void setDomains(ArrayList<DomainXML> domains) {
@@ -1901,7 +1902,7 @@ public class FFMPTemplates {
 
     /**
      * Gets the domains in this template
-     * 
+     *
      * @return
      */
     public synchronized ArrayList<DomainXML> getDomains() {
@@ -1910,7 +1911,7 @@ public class FFMPTemplates {
 
     /**
      * Add domains to the templates, This method is used by EDEX to add domains
-     * 
+     *
      * @param domain
      */
     public synchronized void addDomain(DomainXML domain) {
@@ -1949,7 +1950,7 @@ public class FFMPTemplates {
 
     /**
      * Add domains to the templates, This method is used by EDEX to add domains
-     * 
+     *
      * @param domain
      */
     public synchronized void addDomain(String dataKey, DomainXML domain) {
@@ -1964,7 +1965,7 @@ public class FFMPTemplates {
 
     /**
      * dump a domain on the fly, CAVE side
-     * 
+     *
      * @param domainName
      */
     public synchronized void removeDomain(String dataKey, String domainName) {
@@ -1982,7 +1983,7 @@ public class FFMPTemplates {
 
     /**
      * dump a dataKey
-     * 
+     *
      * @param domainName
      */
     public synchronized void removeDataKey(String dataKey) {
@@ -1999,7 +2000,7 @@ public class FFMPTemplates {
 
     /**
      * Gets the primary
-     * 
+     *
      * @return
      */
     public DomainXML getPrimaryDomain() {
@@ -2008,7 +2009,7 @@ public class FFMPTemplates {
 
     /**
      * Gets the list for all of the pfafs
-     * 
+     *
      * @param huc
      * @param cwa
      * @return
@@ -2019,18 +2020,16 @@ public class FFMPTemplates {
 
         LocalizationContext lc = pathManager.getContext(
                 LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
-        LocalizationFile f = pathManager.getLocalizationFile(lc,
+        ILocalizationFile f = pathManager.getLocalizationFile(lc,
                 getAbsoluteFileName(dataKey, huc, cwa, "list"));
 
-        try {
-            list = SerializationUtil.transformFromThrift(long[].class,
-                    FileUtil.file2bytes(f.getFile(), true));
-        } catch (SerializationException se) {
-            statusHandler.error("Serialization Exception: Read Domain: cwa: "
-                    + cwa + " dataKey: " + dataKey + " huc: " + huc, se);
-        } catch (IOException e) {
-            statusHandler.error("IO Exception: Read Domain: cwa: " + cwa
-                    + " dataKey: " + dataKey + " huc: " + huc, e);
+        try (InputStream is = f.openInputStream();
+                GZIPInputStream gis = new GZIPInputStream(is)) {
+            list = SerializationUtil.transformFromThrift(long[].class, gis);
+        } catch (SerializationException | IOException | LocalizationException e) {
+            statusHandler.error(
+                    "Exception reading domain list: Read Domain. cwa: " + cwa
+                            + " dataKey: " + dataKey + " huc: " + huc, e);
         }
 
         return list;
@@ -2038,7 +2037,7 @@ public class FFMPTemplates {
 
     /**
      * Reads the actual domain map
-     * 
+     *
      * @param huc
      * @param cwa
      * @return
@@ -2050,24 +2049,15 @@ public class FFMPTemplates {
 
         LocalizationContext lc = pathManager.getContext(
                 LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
-        LocalizationFile f = pathManager.getLocalizationFile(lc,
+        ILocalizationFile f = pathManager.getLocalizationFile(lc,
                 getAbsoluteFileName(dataKey, huc, cwa, "map"));
 
-        try {
-            if (huc.equals(FFMPRecord.ALL)) {
-
-                map = SerializationUtil.transformFromThrift(HashMap.class,
-                        FileUtil.file2bytes(f.getFile(), true));
-            } else {
-                map = SerializationUtil.transformFromThrift(HashMap.class,
-                        FileUtil.file2bytes(f.getFile(), true));
-            }
-        } catch (SerializationException se) {
-            statusHandler.error("Serialization Exception: Domain Map: "
-                    + dataKey + " cwa:" + cwa + " huc: " + huc, se);
-        } catch (IOException e) {
-            statusHandler.error("IO Exception: Domain Map: " + dataKey
-                    + " cwa:" + cwa + " huc: " + huc, e);
+        try (InputStream is = f.openInputStream();
+                GZIPInputStream gis = new GZIPInputStream(is)) {
+            map = SerializationUtil.transformFromThrift(HashMap.class, gis);
+        } catch (SerializationException | IOException | LocalizationException e) {
+            statusHandler.error("Exception reading domain map. Domain Map: "
+                    + dataKey + " cwa:" + cwa + " huc: " + huc, e);
         }
 
         return map;
@@ -2075,7 +2065,7 @@ public class FFMPTemplates {
 
     /**
      * Reads the actual VGB domain map
-     * 
+     *
      * @param huc
      * @param cwa
      * @return
@@ -2088,26 +2078,24 @@ public class FFMPTemplates {
 
         LocalizationContext lc = pathManager.getContext(
                 LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
-        LocalizationFile f = pathManager.getLocalizationFile(lc,
+        ILocalizationFile f = pathManager.getLocalizationFile(lc,
                 getAbsoluteFileName(dataKey, FFMPRecord.VIRTUAL, cwa, "map"));
 
-        try {
-            map = SerializationUtil.transformFromThrift(HashMap.class,
-                    FileUtil.file2bytes(f.getFile(), true));
-        } catch (SerializationException se) {
-            statusHandler.error("Serialization Exception: Virtual Basins: "
-                    + dataKey + " cwa: " + cwa, se);
-        } catch (IOException e) {
-            statusHandler.error("IO Exception: Virtual Basins: " + dataKey
-                    + " cwa: " + cwa, e);
+        try (InputStream is = f.openInputStream();
+                GZIPInputStream gis = new GZIPInputStream(is)) {
+            map = SerializationUtil.transformFromThrift(HashMap.class, gis);
+        } catch (SerializationException | IOException | LocalizationException e) {
+            statusHandler.error(
+                    "Exception reading VHB Domain map. Virtual Basins: "
+                            + dataKey + " cwa: " + cwa, e);
         }
 
         return map;
     }
 
     /**
-     * Reads the actual VGB domain map
-     * 
+     * Reads the actual VGB domain list
+     *
      * @param huc
      * @param cwa
      * @return
@@ -2118,19 +2106,16 @@ public class FFMPTemplates {
 
         LocalizationContext lc = pathManager.getContext(
                 LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
-        LocalizationFile f = pathManager.getLocalizationFile(lc,
+        ILocalizationFile f = pathManager.getLocalizationFile(lc,
                 getAbsoluteFileName(dataKey, FFMPRecord.VIRTUAL, cwa, "list"));
 
-        try {
-            list = SerializationUtil.transformFromThrift(String[].class,
-                    FileUtil.file2bytes(f.getFile(), true));
-        } catch (SerializationException se) {
+        try (InputStream is = f.openInputStream();
+                GZIPInputStream gis = new GZIPInputStream(is)) {
+            list = SerializationUtil.transformFromThrift(String[].class, gis);
+        } catch (SerializationException | IOException | LocalizationException e) {
             statusHandler.error(
-                    "Serialization Exception: : Read Virtual Domain: cwa: "
-                            + cwa + " dataKey: " + dataKey, se);
-        } catch (IOException e) {
-            statusHandler.error("IO Exception: : Read Virtual Domain: cwa: "
-                    + cwa + " dataKey: " + dataKey, e);
+                    "Exception reading VGB Domain List. Read Virtual Domain: cwa: "
+                            + cwa + " dataKey: " + dataKey, e);
         }
 
         return list;
@@ -2175,7 +2160,7 @@ public class FFMPTemplates {
     }
 
     /**
-     * 
+     *
      * @param cwa
      * @return
      */
@@ -2204,7 +2189,7 @@ public class FFMPTemplates {
 
     /**
      * Look for overlaps
-     * 
+     *
      * @param pfaf
      * @param huc
      * @return
@@ -2225,7 +2210,7 @@ public class FFMPTemplates {
 
     /**
      * Get the areas for a list of pfafs
-     * 
+     *
      * @param pfafs
      * @return
      */
@@ -2239,7 +2224,7 @@ public class FFMPTemplates {
 
     /**
      * gets all up and down stream basins for a given pfaf
-     * 
+     *
      * @param dataKey
      * @param pfaf
      * @return
@@ -2267,7 +2252,7 @@ public class FFMPTemplates {
 
     /**
      * Gets the down stream trace
-     * 
+     *
      * @param dataKey
      * @param pfaf
      * @return
@@ -2300,7 +2285,7 @@ public class FFMPTemplates {
 
     /**
      * Get the FIPS for the pfaf being looked at
-     * 
+     *
      * @param dataKey
      * @param pfaf
      * @return
@@ -2336,7 +2321,7 @@ public class FFMPTemplates {
 
     /**
      * Gets a metadata basin contained within the domain listed.
-     * 
+     *
      * @param dataKey
      * @param domains
      * @param pfafs
@@ -2368,7 +2353,7 @@ public class FFMPTemplates {
 
     /**
      * Check for site load or not
-     * 
+     *
      * @param siteKey
      * @return
      */
@@ -2382,7 +2367,7 @@ public class FFMPTemplates {
 
     /**
      * Work around for bad shape files
-     * 
+     *
      * @param cwa
      * @param dataKey
      * @return
@@ -2420,7 +2405,7 @@ public class FFMPTemplates {
 
     /**
      * Get the county info
-     * 
+     *
      * @param siteKey
      * @param countyPfaf
      * @return
@@ -2457,37 +2442,36 @@ public class FFMPTemplates {
 
         LocalizationContext lc = pathManager.getContext(
                 LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
-        LocalizationFile lfTemplateDir = pathManager.getLocalizationFile(lc,
-                "ffmp/");
+        ILocalizationFile[] lfs = pathManager.listFiles(lc, "ffmp/", null,
+                false, false);
 
-        if (lfTemplateDir != null) {
-            File templateDirFile = lfTemplateDir.getFile();
-            if (templateDirFile != null) {
-                File[] files = templateDirFile.listFiles();
-                if (files.length > 0) {
-                    synchronized (files) {
-                        for (File file : files) {
-                            if (file.isDirectory()
-                                    && file.listFiles().length > 0) {
-                                for (File iFile : file.listFiles()) {
-                                    iFile.delete();
-                                }
-                                statusHandler.handle(
-                                        Priority.INFO,
-                                        "Deleted Template directory..."
-                                                + file.getName());
-                            }
+        if (lfs != null) {
+            for (ILocalizationFile lf : lfs) {
+                if (lf.isDirectory()) {
+                    ILocalizationFile[] files = pathManager.listFiles(lc,
+                            lf.getPath(), null, false, true);
+                    for (ILocalizationFile file : files) {
+                        try {
+                            file.delete();
+                        } catch (LocalizationException e) {
+                            statusHandler
+                                    .handle(Priority.PROBLEM,
+                                    "Error deleting " + file.getPath(), e);
                         }
-
-                        // write out the config XML so templates
-                        // don't keep regening
-                        ftcm.setRegenerate(false);
-                        ftcm.saveConfigXml();
-                        template = null;
                     }
+                    statusHandler.handle(
+                            Priority.INFO,
+                            "Deleted Template directory..."
+                                    + lf.getPath());
                 }
             }
         }
+
+            // write out the config XML so templates
+            // don't keep regening
+            ftcm.setRegenerate(false);
+            ftcm.saveConfigXml();
+            template = null;
     }
 
     /**

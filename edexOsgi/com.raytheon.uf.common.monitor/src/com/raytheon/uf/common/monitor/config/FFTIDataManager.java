@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -21,38 +21,47 @@
 package com.raytheon.uf.common.monitor.config;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 
-import com.raytheon.uf.common.localization.FileUpdatedMessage;
-import com.raytheon.uf.common.localization.ILocalizationFileObserver;
+import com.raytheon.uf.common.localization.ILocalizationFile;
+import com.raytheon.uf.common.localization.ILocalizationPathObserver;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.monitor.xml.FFTIDataXML;
 import com.raytheon.uf.common.monitor.xml.FFTISettingXML;
 import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
  * Singleton data manager for FFTI.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * --/--/----                          Initial creation
  * Oct 02, 2013 2361       njensen     Use JAXBManager for XML
- * 
+ * Feb 15, 2016 5244       nabowle     Replace deprecated LocalizationFile methods.
+ *                                     Replace system.out with UFStatus.
+ *
  * </pre>
- * 
+ *
  * @author lvenable
  * @version 1.0
  */
-public class FFTIDataManager implements ILocalizationFileObserver {
+public class FFTIDataManager implements ILocalizationPathObserver {
+
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(FFTIDataManager.class);
 
     /** Path to FFTI config. */
     private static final String CONFIG_FILE_NAME = "ffmp" + File.separatorChar
@@ -73,17 +82,17 @@ public class FFTIDataManager implements ILocalizationFileObserver {
      */
     protected FFTIDataXML configXml;
 
-    private LocalizationFile lf = null;
-
     /* Private Constructor */
     private FFTIDataManager() {
         configXml = new FFTIDataXML();
+        IPathManager pm = PathManagerFactory.getPathManager();
+        pm.addLocalizationPathObserver(CONFIG_FILE_NAME, this);
         readConfigXml();
     }
 
     /**
      * Get an instance of this singleton.
-     * 
+     *
      * @return Instance of this class
      */
     public static FFTIDataManager getInstance() {
@@ -98,18 +107,16 @@ public class FFTIDataManager implements ILocalizationFileObserver {
             IPathManager pm = PathManagerFactory.getPathManager();
             LocalizationContext lc = pm.getContext(
                     LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
-            lf = pm.getLocalizationFile(lc, CONFIG_FILE_NAME);
-            lf.addFileUpdatedObserver(this);
+            ILocalizationFile lf = pm.getLocalizationFile(lc, CONFIG_FILE_NAME);
 
-            File file = lf.getFile();
-
-            FFTIDataXML configXmltmp = jaxb.unmarshalFromXmlFile(file
-                    .getAbsolutePath());
-
-            configXml = configXmltmp;
+            try (InputStream is = lf.openInputStream()) {
+                FFTIDataXML configXmltmp = jaxb.unmarshalFromInputStream(is);
+                configXml = configXmltmp;
+            }
 
         } catch (Exception e) {
-            System.err.println("No SITE FFTI Source configuration file found.");
+            statusHandler.handle(Priority.WARN,
+                    "No SITE FFTI Source configuration file found.");
         }
     }
 
@@ -121,28 +128,15 @@ public class FFTIDataManager implements ILocalizationFileObserver {
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext lc = pm.getContext(LocalizationType.COMMON_STATIC,
                 LocalizationLevel.SITE);
-        LocalizationFile newXmlFile = pm.getLocalizationFile(lc,
+        ILocalizationFile newXmlFile = pm.getLocalizationFile(lc,
                 CONFIG_FILE_NAME);
 
-        if (newXmlFile.getFile().getParentFile().exists() == false) {
-            // System.out.println("Creating new directory");
-
-            if (newXmlFile.getFile().getParentFile().mkdirs() == false) {
-                // System.out.println("Could not create new directory...");
-            }
-        }
-
-        try {
-            // System.out.println("Saving -- "
-            // + newXmlFile.getFile().getAbsolutePath());
-            jaxb.marshalToXmlFile(configXml, newXmlFile.getFile()
-                    .getAbsolutePath());
-            newXmlFile.save();
-
-            lf = newXmlFile;
+        try (SaveableOutputStream sos = newXmlFile.openOutputStream()) {
+            jaxb.marshalToStream(configXml, sos);
+            sos.save();
         } catch (Exception e) {
-            System.err
-                    .println("Failed to save SITE FFTI Source configuration file.");
+            statusHandler.handle(Priority.WARN,
+                    "Failed to save SITE FFTI Source configuration file.");
         }
     }
 
@@ -171,14 +165,15 @@ public class FFTIDataManager implements ILocalizationFileObserver {
     }
 
     @Override
-    public void fileUpdated(FileUpdatedMessage message) {
+    public void fileChanged(ILocalizationFile file) {
 
         try {
-            if (message.getFileName().equals(CONFIG_FILE_NAME)) {
+            if (file.getPath().equals(CONFIG_FILE_NAME)) {
                 readConfigXml();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.WARN, "Error handling file changed.",
+                    e);
         }
     }
 
