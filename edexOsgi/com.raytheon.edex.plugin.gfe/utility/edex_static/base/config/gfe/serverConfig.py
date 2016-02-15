@@ -3229,6 +3229,7 @@ D2DDBVERSIONS = db.D2DDBVERSIONS
 D2DAccumulativeElements = db.D2DAccumulativeElements
 INITMODULES = db.INITMODULES
 INITSKIPS = db.INITSKIPS
+OFFICIALDBS=list(modelDict['Fcst']['Parms'])
 
 # Create Practice and test databases from Fcst
 DATABASES.append((Official, modelDict['Fcst']['Parms'])),

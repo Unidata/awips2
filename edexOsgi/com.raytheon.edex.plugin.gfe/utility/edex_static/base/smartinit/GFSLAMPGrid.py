@@ -29,7 +29,7 @@ class GFSLAMPGridForecaster(Forecaster):
     def calcSky(self, tcc_SFC):
         return clip(tcc_SFC, 0, 100)
 
-    del calcWind(self, wd_FHAG10, ws_FHAG10):
+    def calcWind(self, wd_FHAG10, ws_FHAG10):
         spd = self.convertMsecToKts(ws_FHAG10)
         dir = wd_FHAG10
         return (spd, dir)   

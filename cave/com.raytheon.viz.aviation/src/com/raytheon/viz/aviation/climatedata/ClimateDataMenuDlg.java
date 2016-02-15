@@ -105,6 +105,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Jul 07, 2015 16907      zhao         Changed 'ish-' to 'isd-' 
  * Nov 30, 2015  4834      njensen      Remove LocalizationOpFailedException
  * Jan 15, 2016 18482      zhao         Add a "Usage" to "Help..." 
+ * Jan 21, 2016 18395      zhao         Modified processData()
  * 
  * </pre>
  * 
@@ -1111,7 +1112,7 @@ public class ClimateDataMenuDlg extends CaveSWTDialog {
     private void processData() {
         ClimateDataManager dataMgr = ClimateDataManager.getInstance();
         setWait(true);
-        dataMgr.processData(appendRdo.getSelection(), this);
+        dataMgr.processData(appendRdo.getSelection(), itemList, this);
         scriptsBtn(false);
         processBtn(false);
     }
