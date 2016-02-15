@@ -27,6 +27,21 @@
     <!-- verify text product info for site, spawns in separate thread to not delay start up -->
     <bean id="textVersionPurge" class="com.raytheon.uf.edex.plugin.text.TextVersionPurge" depends-on="textRegistered"/>
 
+    <bean id="fxaBloatMonitor" class="com.raytheon.uf.edex.database.health.DatabaseBloatMonitor">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.database.health.PostgresBloatDao">
+                <constructor-arg value="fxa"/>
+            </bean>
+        </constructor-arg>
+        <constructor-arg ref="warningThresholds"/>
+        <constructor-arg ref="criticalThresholds"/>
+    </bean>
+
+    <bean factory-bean="dbMonitorRegistry" factory-method="registerMonitor">
+        <constructor-arg value="fxaBloatMonitor" />
+        <constructor-arg ref="fxaBloatMonitor" />
+    </bean>
+
     <camelContext id="text-camel"
         xmlns="http://camel.apache.org/schema/spring"
         errorHandlerRef="errorHandler">
