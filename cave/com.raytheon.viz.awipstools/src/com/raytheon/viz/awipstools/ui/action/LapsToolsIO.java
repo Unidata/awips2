@@ -5,7 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collection;
@@ -14,23 +14,19 @@ import java.util.List;
 import java.util.Map;
 
 import javax.xml.bind.JAXB;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
 
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.geospatial.SpatialException;
 import com.raytheon.uf.common.geospatial.SpatialQueryFactory;
 import com.raytheon.uf.common.geospatial.SpatialQueryResult;
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
@@ -49,6 +45,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * ------------ ---------- -----------   --------------------------
  * May 2009     #          bsteffen      Initial creation
  * Nov 2013     #          mccaslin      New design approach, changed from OS calls to file io, read xml code, etc
+ * Feb 12, 2016 5242       dgilling      Remove calls to deprecated Localization APIs.
  * 
  * </pre>
  * 
@@ -56,9 +53,6 @@ import com.vividsolutions.jts.geom.Envelope;
  * @version 1.0
  */
 public class LapsToolsIO {
-
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(LapsToolsIO.class);
 
     private static final String WHATGOTIN_FILE_FRMT = "%s/%s.wgi";
 
@@ -139,20 +133,16 @@ public class LapsToolsIO {
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext lc = pm.getContext(LocalizationType.COMMON_STATIC,
                 LocalizationLevel.SITE);
-        LocalizationFile xmlLocalizationFile = pm.getLocalizationFile(lc,
+        ILocalizationFile xmlLocalizationFile = pm.getLocalizationFile(lc,
                 "LAPS/domain" + ".xml");
-        if (!xmlLocalizationFile.exists())
+        if (!xmlLocalizationFile.exists()) {
             return false;
+        }
 
         LapsDomain domain = new LapsDomain();
-        try {
-            JAXBContext jaxbContext = JAXBContext.newInstance(LapsDomain.class);
-            // unmarshal XML file to java object
-            Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-            domain = (LapsDomain) jaxbUnmarshaller
-                    .unmarshal(xmlLocalizationFile.getFile());
-
-        } catch (JAXBException e) {
+        try (InputStream inStream = xmlLocalizationFile.openInputStream()) {
+            domain = JAXB.unmarshal(inStream, LapsDomain.class);
+        } catch (LocalizationException e) {
             throw new VizException("xml is unreadable: "
                     + e.getLocalizedMessage());
         }
@@ -231,7 +221,7 @@ public class LapsToolsIO {
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext lc = pm.getContext(LocalizationType.COMMON_STATIC,
                 LocalizationLevel.USER);
-        LocalizationFile xmlLocalizationFile = pm.getLocalizationFile(lc,
+        ILocalizationFile xmlLocalizationFile = pm.getLocalizationFile(lc,
                 "LAPS" + IPathManager.SEPARATOR + "domain.xml");
         LapsDomain lapsdomain = new LapsDomain();
         lapsdomain.setNx(data.getNx());
@@ -241,12 +231,10 @@ public class LapsToolsIO {
         lapsdomain.setGridCenLat(data.getGridCenter().y);
         lapsdomain.setGridCenLon(data.getGridCenter().x);
         // marshal java object to XML file
-        OutputStream stream;
-        try {
-            stream = xmlLocalizationFile.openOutputStream();
-            JAXB.marshal(lapsdomain, stream);
-            stream.close();
-            xmlLocalizationFile.save();
+        try (SaveableOutputStream outStream = xmlLocalizationFile
+                .openOutputStream()) {
+            JAXB.marshal(lapsdomain, outStream);
+            outStream.save();
         } catch (LocalizationException e) {
             throw new VizException("Unable to save LapsDomain to xml.");
         }

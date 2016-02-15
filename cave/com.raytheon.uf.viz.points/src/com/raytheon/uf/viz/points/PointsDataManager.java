@@ -22,7 +22,6 @@ package com.raytheon.uf.viz.points;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -59,6 +58,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -92,6 +92,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Nov 12, 2015  4834      njensen     Changed LocalizationOpFailedException to LocalizationException
  * Dec 09, 2015  4834      njensen     updates for API changes to LocalizationFile
  * Jan 11, 2016 5242       kbisanz     Replaced calls to deprecated LocalizationFile methods
+ * Feb 12, 2016 #5242      dgilling    Remove calls to deprecated Localization APIs.
  * 
  * </pre>
  * 
@@ -1043,15 +1044,12 @@ public class PointsDataManager implements ILocalizationFileObserver {
             }
         }
 
-        try {
-            // Must create a file in the directory to force its creation.
-            String p = lFile.getPath().trim() + IPathManager.SEPARATOR
-                    + GROUP_INFO;
-            LocalizationFile lf = pathMgr.getLocalizationFile(userCtx, p);
-            OutputStream outStream = lf.openOutputStream();
+        // Must create a file in the directory to force its creation.
+        String p = lFile.getPath().trim() + IPathManager.SEPARATOR + GROUP_INFO;
+        ILocalizationFile lf = pathMgr.getLocalizationFile(userCtx, p);
+        try (SaveableOutputStream outStream = lf.openOutputStream()) {
             outStream.write(gPoint.getGroup().getBytes());
-            outStream.close();
-            lf.save();
+            outStream.save();
         } catch (LocalizationException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Unable to create the group: " + gPoint.getGroup(), e);
@@ -1729,10 +1727,10 @@ public class PointsDataManager implements ILocalizationFileObserver {
      */
     private void marshalPointToXmlFile(Point point, LocalizationFile lFile)
             throws LocalizationException, IOException {
-        OutputStream stream = lFile.openOutputStream();
-        JAXB.marshal(point, stream);
-        stream.close();
-        lFile.save();
+        try (SaveableOutputStream outStream = lFile.openOutputStream()) {
+            JAXB.marshal(point, outStream);
+            outStream.save();
+        }
     }
 
     /**
@@ -1745,14 +1743,8 @@ public class PointsDataManager implements ILocalizationFileObserver {
      */
     private Point unmarshalPointFromXmlFile(LocalizationFile lFile)
             throws LocalizationException, IOException {
-        InputStream stream = null;
-        try {
-            stream = lFile.openInputStream();
-            return JAXB.unmarshal(stream, Point.class);
-        } finally {
-            if (stream != null) {
-                stream.close();
-            }
+        try (InputStream inStream = lFile.openInputStream()) {
+            return JAXB.unmarshal(inStream, Point.class);
         }
     }
 
