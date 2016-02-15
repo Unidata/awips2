@@ -903,16 +903,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     private MenuItem productsMenuItem;
 
     /**
-     * Help on a window item menu item.
-     */
-    private MenuItem onTextWindowItem;
-
-    /**
-     * About menu item.
-     */
-    private MenuItem aboutItem;
-
-    /**
      * Composite for the script runner controls
      */
     private Composite scriptRunnerComp;
@@ -1645,7 +1635,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         createToolsMenus(menuBar);
         createScriptsMenus(menuBar);
         createProductsMenus(menuBar);
-        createHelpMenus(menuBar);
 
         shell.setMenuBar(menuBar);
     }
@@ -2372,47 +2361,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         Menu productsMenu = productsMenuMgr.getMenu();
         productsMenu.setData("Dialog", this);
         productsMenuItem = productsMenu.getParentItem();
-    }
-
-    /**
-     * Create the Help menu (top menu bar) and all of the menu items under the
-     * Help menu.
-     * 
-     * @param menuBar
-     *            The main menu bar.
-     */
-    private void createHelpMenus(Menu menuBar) {
-        // -----------------------------------------
-        // Create all the items in the Help menu
-        // -----------------------------------------
-        MenuItem helpMenuItem = new MenuItem(menuBar, SWT.CASCADE);
-        helpMenuItem.setText("Help");
-
-        // Create the Products menu item with a Products "dropdown" menu
-        Menu helpMenu = new Menu(menuBar);
-        helpMenuItem.setMenu(helpMenu);
-
-        onTextWindowItem = new MenuItem(helpMenu, SWT.NONE);
-        onTextWindowItem.setText("On Text Window...\tF1");
-        onTextWindowItem.setAccelerator(SWT.F1);
-        onTextWindowItem.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                notImplementedYet("On text window");
-            }
-        });
-
-        // Add a menu separator.
-        new MenuItem(helpMenu, SWT.SEPARATOR);
-
-        aboutItem = new MenuItem(helpMenu, SWT.NONE);
-        aboutItem.setText("About...");
-        aboutItem.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                notImplementedYet("About");
-            }
-        });
     }
 
     /**
