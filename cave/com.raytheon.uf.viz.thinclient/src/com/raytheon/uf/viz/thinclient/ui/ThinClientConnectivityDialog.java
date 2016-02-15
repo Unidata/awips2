@@ -68,9 +68,8 @@ import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
  * Jun 03, 2014  3217     bsteffen    Add option to always open startup dialog.
  * Jun 24, 2014  3236     njensen     Add ability to remember multiple servers
  * Oct 08, 2015  4891     njensen     Added tooltip to useProxyCheck
- * Feb 08, 2016, 5281     tjensen     Reworked interface to simply options
- * 
- * 
+ * Feb 08, 2016  5281     tjensen     Reworked interface to simply options
+ * Feb 15, 2016  5281     tjensen     Added check for null in validate method
  * 
  * </pre>
  * 
@@ -295,43 +294,46 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
         status = null;
         details = null;
 
-        // validate proxy
-        proxyAddress = localizationSrv.getText();
+        // If we don't have a localizationSrv yet, fail validation gracefully.
+        if (localizationSrv != null) {
+            // validate proxy
+            proxyAddress = localizationSrv.getText();
 
-        if (proxyAddress != null && proxyAddress.length() > 0) {
-            validateServices();
-            validatePypies();
-        } else {
-            servicesGood = false;
-            pypiesGood = false;
-            status = "Please enter a thin client proxy server address";
-        }
-
-        if (localizationSrv != null && !localizationSrv.widget.isDisposed()) {
-            localizationSrv.widget.setBackground(getTextColor(servicesGood
-                    && pypiesGood));
-        }
-
-        validateJms(servicesGood);
-
-        // validate site
-        if (siteText != null && !siteText.isDisposed()) {
-            super.setSite(siteText.getText());
-        }
-        super.validateSite();
-        if (siteText != null && !siteText.isDisposed()) {
-            siteText.setBackground(getTextColor(isSiteGood()));
-        }
-
-        // validate alertviz
-        // apparently alertvizserver == null means it's alertviz itself
-        if (alertVizServer != null) {
-            if (alertVizText != null && !alertVizText.isDisposed()) {
-                setAlertVizServer(alertVizText.getText());
+            if (proxyAddress != null && proxyAddress.length() > 0) {
+                validateServices();
+                validatePypies();
+            } else {
+                servicesGood = false;
+                pypiesGood = false;
+                status = "Please enter a thin client proxy server address";
             }
-            super.validateAlertviz();
-            if (alertVizText != null && !alertVizText.isDisposed()) {
-                alertVizText.setBackground(getTextColor(isAlertVizGood()));
+
+            if (localizationSrv != null && !localizationSrv.widget.isDisposed()) {
+                localizationSrv.widget.setBackground(getTextColor(servicesGood
+                        && pypiesGood));
+            }
+
+            validateJms(servicesGood);
+
+            // validate site
+            if (siteText != null && !siteText.isDisposed()) {
+                super.setSite(siteText.getText());
+            }
+            super.validateSite();
+            if (siteText != null && !siteText.isDisposed()) {
+                siteText.setBackground(getTextColor(isSiteGood()));
+            }
+
+            // validate alertviz
+            // apparently alertvizserver == null means it's alertviz itself
+            if (alertVizServer != null) {
+                if (alertVizText != null && !alertVizText.isDisposed()) {
+                    setAlertVizServer(alertVizText.getText());
+                }
+                super.validateAlertviz();
+                if (alertVizText != null && !alertVizText.isDisposed()) {
+                    alertVizText.setBackground(getTextColor(isAlertVizGood()));
+                }
             }
         }
 
