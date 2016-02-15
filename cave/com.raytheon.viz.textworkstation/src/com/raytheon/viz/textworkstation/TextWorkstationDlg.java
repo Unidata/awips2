@@ -59,7 +59,6 @@ import com.raytheon.viz.texteditor.dialogs.TextEditorDialog;
 import com.raytheon.viz.texteditor.msgs.ITextEditorCallback;
 import com.raytheon.viz.texteditor.msgs.ITextWorkstationCallback;
 import com.raytheon.viz.texteditor.notify.NotifyExpiration;
-import com.raytheon.viz.texteditor.util.AviationTextUtility;
 import com.raytheon.viz.texteditor.util.RadarTextUtility;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
@@ -100,6 +99,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 28Oct2015    5054        randerso    Make TextWorkstationDlg appear in upper left corner of 
  *                                      monitor where parent shell is located
  * Jan 26, 2016 5054       randerso    Changed to use display as parent
+ * Feb 15, 2016 4860        njensen     Removed references to IAviationObserver
+ * 
  * 
  * </pre>
  * 
@@ -166,12 +167,7 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
                 | CAVE.INDEPENDENT_SHELL | CAVE.DO_NOT_BLOCK);
 
         setText("Text Workstation");
-
-        TextDisplayModel.getInstance().setTextAviation(
-                new AviationTextUtility());
         TextDisplayModel.getInstance().setTextRadar(new RadarTextUtility());
-        // TextDisplayModel.getInstance().setTextScriptRunner(
-        // new ScriptRunnerTextUtility());
         NotificationManagerJob.addQueueObserver(
                 TextWorkstationConstants.getTextWorkstationQueueName(), this);
         initStartTime = System.currentTimeMillis();
