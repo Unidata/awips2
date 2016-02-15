@@ -22,7 +22,6 @@ Require-Bundle: com.raytheon.uf.common.activetable,
  org.eclipse.ui,
  org.eclipse.ui.workbench.texteditor,
  org.jep;bundle-version="1.0.0",
- com.raytheon.viz.avnconfig,
  org.apache.commons.lang;bundle-version="2.3.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.texteditor,
