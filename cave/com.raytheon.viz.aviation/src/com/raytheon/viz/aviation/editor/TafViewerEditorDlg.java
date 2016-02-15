@@ -123,6 +123,7 @@ import com.raytheon.viz.aviation.observer.SendDialog;
 import com.raytheon.viz.aviation.observer.TafMonitorDlg;
 import com.raytheon.viz.aviation.resource.ResourceConfigMgr;
 import com.raytheon.viz.aviation.resource.ResourceConfigMgr.ResourceTag;
+import com.raytheon.viz.aviation.utility.AviationTextUtility;
 import com.raytheon.viz.aviation.xml.TafViewerEditorConfig;
 import com.raytheon.viz.aviation.xml.ViewerTabConfig;
 import com.raytheon.viz.avncommon.AvnMessageMgr.StatusMessageType;
@@ -135,9 +136,6 @@ import com.raytheon.viz.avnconfig.MessageStatusComp;
 import com.raytheon.viz.avnconfig.TafSiteConfigFactory;
 import com.raytheon.viz.avnconfig.TafSiteData;
 import com.raytheon.viz.core.mode.CAVEMode;
-import com.raytheon.viz.texteditor.TextDisplayModel;
-import com.raytheon.viz.texteditor.msgs.IAviationObserver;
-import com.raytheon.viz.texteditor.util.AviationTextUtility;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
@@ -258,6 +256,7 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  * Dec 09, 2015 4645        skorolev    Initiated wrapChk using ResourceTag. Removed popup menu persistance.
  * Jan 07, 2016 4860        skorolev    Initiated TextDisplayModel at start of dialog.
  * Feb 11, 2016 5242        dgilling    Remove calls to deprecated Localization APIs.
+ * Feb 15, 2016 4860        njensen     Use AviationTextUtility directly
  * 
  * </pre>
  * 
@@ -576,9 +575,6 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         this.stationList = stationList;
 
         setText("AvnFPS TAF Editor");
-        // Initiate TextDisplayModel
-        TextDisplayModel.getInstance().setTextAviation(
-                new AviationTextUtility());
         SimulatedTime.getSystemTime().addSimulatedTimeChangeListener(this);
     }
 
@@ -2705,10 +2701,8 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
     private void storeInDb() {
         if (tabFolder.getSelectionIndex() != VIEWER_TAB_SELECTED) {
             try {
-                IAviationObserver avo = TextDisplayModel.getInstance()
-                        .getTextAviation();
-                avo.saveTafBulletin(editorTafTabComp.getTextEditorControl()
-                        .getText());
+                AviationTextUtility.saveTafBulletin(editorTafTabComp
+                        .getTextEditorControl().getText());
                 setMessageStatusOK("Temporary WRKTAF Stored in DB");
             } catch (Exception e) {
                 statusHandler

@@ -32,7 +32,6 @@ import com.raytheon.uf.common.wmo.AFOSProductId;
 import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.viz.core.mode.CAVEMode;
-import com.raytheon.viz.texteditor.msgs.IAviationObserver;
 import com.raytheon.viz.texteditor.msgs.IRadarObserver;
 import com.raytheon.viz.texteditor.msgs.IScriptRunnerObserver;
 import com.raytheon.viz.texteditor.msgs.ITextWorkstationCallback;
@@ -60,11 +59,13 @@ import com.raytheon.viz.texteditor.msgs.ITextWorkstationCallback;
  * 5/8/2009     2104        grichard    Added support for IRadarObserver.
  * 5/8/2009     2104        grichard    Added support for IScriptRunnerObserver.
  * 7/30/2009    2718        rjpeter     Added logic for creation of StdTextProduct.
- * Apr 14, 2010 4734       mhuang      Corrected StdTextProduct import 
+ * Apr 14, 2010 4734        mhuang      Corrected StdTextProduct import 
  *                                      dependency
  * 05/28/2010   2187        cjeanbap    Added StdTextProductFactory functionality.
  * 03/18/2014   DR 17174    D. Friedman Return correct 3-letter site IDs in getNnnXxx.
- * 12/02/2014   DR 643   mgamazaychikov Change nnnxxxPattern to allow for numbers in nnnxxx.
+ * 12/02/2014   DR 643      mgamazay    Change nnnxxxPattern to allow for numbers in nnnxxx.
+ * Feb 16, 2015 4860        njensen     Removed references to IAviationObserver
+ * 
  * </pre>
  * 
  * @author grichard
@@ -106,11 +107,6 @@ public final class TextDisplayModel {
      * Dialog.
      */
     private Map<String, ITextWorkstationCallback> controlAfosBrowser = new HashMap<String, ITextWorkstationCallback>();
-
-    /**
-     * Text Aviation Utility for use by Aviation for saving/sending TAFs.
-     */
-    private IAviationObserver textAviationUtility;
 
     /**
      * Text Radar Utility for use by Radar for saving/sending radar text
@@ -334,26 +330,6 @@ public final class TextDisplayModel {
     public void setITextWorkstationCallback(String token,
             ITextWorkstationCallback cb) {
         controlAfosBrowser.put(token, cb);
-    }
-
-    /**
-     * Getter/Accessor of Text Aviation Utility for use by Aviation.
-     */
-    public IAviationObserver getTextAviation()
-            throws TextWorkstationNotStartedException {
-        if (textAviationUtility != null) {
-            return textAviationUtility;
-        } else {
-            throw new TextWorkstationNotStartedException(
-                    "Text Workstation has not been started!");
-        }
-    }
-
-    /**
-     * Setter/Mutator of Text Aviation Utility for use by Aviation.
-     */
-    public void setTextAviation(IAviationObserver cb) {
-        textAviationUtility = cb;
     }
 
     /**
