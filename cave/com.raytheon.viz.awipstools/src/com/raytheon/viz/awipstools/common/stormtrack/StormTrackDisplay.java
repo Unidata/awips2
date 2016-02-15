@@ -112,6 +112,8 @@ import com.vividsolutions.jts.geom.LineString;
  *  09-09-2014  RM #657    Qinglu Lin  handle StormTrackState.trackType is null.
  *  09-25-2014  ASM #16773 D. Friedman Fix NPE.
  *  10-10-2014  ASM #16844 D. Friedman Prevent some errors when moving track.
+ *  02-09-2016  ASM #18421 D. Friedman Don't call ToolsDataManager.setStormTrackData
+ *                                     if there is no storm motion.
  * </pre>
  * 
  * @author mschenke
@@ -1454,6 +1456,9 @@ public class StormTrackDisplay implements IRenderable {
     }
 
     private void postData(StormTrackState state) {
+        if (!(state.speed > 0)) {
+            return;
+        }
         StormTrackData data = new StormTrackData();
         Coordinate[] coords = new Coordinate[state.timePoints.length];
         for (int i = 0; i < coords.length; ++i) {
