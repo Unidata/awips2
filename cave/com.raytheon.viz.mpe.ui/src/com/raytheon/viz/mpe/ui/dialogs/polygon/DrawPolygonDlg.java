@@ -66,6 +66,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Apr 28, 2014 16707      snaples     Added code to save and set location of dialog box when moved.
  * Jan 12, 2015 16993      snaples     Restored code for Substitute Field Combo box.
  * Feb 26, 2015 17209      cgobs       Ensured that there is an initial selection of Substitution field, prevents empty selection.
+ * Feb 15, 2016 5338       bkowal      Remove commented code. Cleanup.
  * 
  * </pre>
  * 
@@ -80,9 +81,10 @@ public class DrawPolygonDlg extends CaveSWTDialog {
 
     private static final String MAKE_PERSISTENT = "Make Persistent";
 
-	private DisplayFieldData[] displayFieldDataArray;
+    private DisplayFieldData[] displayFieldDataArray;
+
     private String[] displayTypeNameArray;
-	
+
     /**
      * Bold Font.
      */
@@ -96,8 +98,8 @@ public class DrawPolygonDlg extends CaveSWTDialog {
     /**
      * The field type selection Combo control.
      */
-	private Combo fieldTypeCombo = null;
-    
+    private Combo fieldTypeCombo = null;
+
     /**
      * The precip value spinner control.
      */
@@ -126,12 +128,12 @@ public class DrawPolygonDlg extends CaveSWTDialog {
 
     /** The polygon resource */
     private final MPEPolygonResource resource;
-    
+
     /** Point to hold location of dialog */
-    private static org.eclipse.swt.graphics.Point dlgLoc = null; 
+    private static org.eclipse.swt.graphics.Point dlgLoc = null;
 
     /** Status of dialog opened or not */
-    private boolean dialogOpened = false; 
+    private boolean dialogOpened = false;
 
     /**
      * Constructor.
@@ -170,21 +172,21 @@ public class DrawPolygonDlg extends CaveSWTDialog {
         font = new Font(shell.getDisplay(), "Monospace", 10, SWT.NORMAL);
         // Initialize all of the controls and layoutsendCal
         initializeComponents();
-        shell.addControlListener(new ControlAdapter() { 
-            @Override 
-            public void controlMoved(ControlEvent e) { 
-                if (!dialogOpened) { 
-                   return; 
-                } 
+        shell.addControlListener(new ControlAdapter() {
+            @Override
+            public void controlMoved(ControlEvent e) {
+                if (!dialogOpened) {
+                    return;
+                }
 
-                if (dlgLoc == null) { 
-                    return; 
-                } 
+                if (dlgLoc == null) {
+                    return;
+                }
 
-                dlgLoc.x = shell.getBounds().x; 
-                dlgLoc.y = shell.getBounds().y; 
-            } 
-        }); 
+                dlgLoc.x = shell.getBounds().x;
+                dlgLoc.y = shell.getBounds().y;
+            }
+        });
     }
 
     /**
@@ -196,17 +198,16 @@ public class DrawPolygonDlg extends CaveSWTDialog {
         createCloseBtn();
     }
 
-    @Override 
-    protected void opened() { 
-        if (dlgLoc == null) { 
-            dlgLoc = new org.eclipse.swt.graphics.Point(shell.getBounds().x, shell.getBounds().y); 
-        } 
-        else { 
-            shell.setLocation(dlgLoc); 
-        } 
-        dialogOpened = true; 
-    } 
-
+    @Override
+    protected void opened() {
+        if (dlgLoc == null) {
+            dlgLoc = new org.eclipse.swt.graphics.Point(shell.getBounds().x,
+                    shell.getBounds().y);
+        } else {
+            shell.setLocation(dlgLoc);
+        }
+        dialogOpened = true;
+    }
 
     /**
      * Create the persistent group.
@@ -361,7 +362,7 @@ public class DrawPolygonDlg extends CaveSWTDialog {
      */
     private void createFieldCombo(Group groupComp) {
         // Spacer
-    	
+
         // Create a container to hold the label and the combo box.
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Composite prodListComp = new Composite(shell, SWT.NONE);
@@ -377,83 +378,58 @@ public class DrawPolygonDlg extends CaveSWTDialog {
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         fieldTypeCombo = new Combo(groupComp, SWT.LEFT | SWT.DROP_DOWN
                 | SWT.READ_ONLY);
-        
-        if (displayFieldDataArray == null)
-        {
-        	  displayFieldDataArray = MPEDisplayManager.mpe_qpe_fields;
+
+        if (displayFieldDataArray == null) {
+            displayFieldDataArray = MPEDisplayManager.mpe_qpe_fields;
         }
-         	
-  //      Label spaceLabel = new Label(groupComp, SWT.NONE);
-  //      spaceLabel.setText("*****  ");
-        
+
         int selectedFieldIndex = 0;
         boolean found = false;
-        //find the index of the selected field
-        for (selectedFieldIndex = 0; selectedFieldIndex < displayFieldDataArray.length; selectedFieldIndex++)
-        {
-            if (displayFieldDataArray[selectedFieldIndex] == subType)
-            {
+        // find the index of the selected field
+        for (selectedFieldIndex = 0; selectedFieldIndex < displayFieldDataArray.length; selectedFieldIndex++) {
+            if (displayFieldDataArray[selectedFieldIndex] == subType) {
                 found = true;
                 break;
             }
         }
-        
-        if (!found)
-        {
+
+        if (!found) {
             selectedFieldIndex = 0;
         }
-        
-        //create and initialize the display field type name array
+
+        // create and initialize the display field type name array
         displayTypeNameArray = new String[displayFieldDataArray.length];
-        
+
         for (int i = 0; i < displayFieldDataArray.length; i++) {
-        	
-        	String fieldName = displayFieldDataArray[i].toString();
-       // 	System.out.println("DrawPolygon.createFieldCombo():  FieldName = :" + fieldName + ":");       	
+
+            String fieldName = displayFieldDataArray[i].toString();
             displayTypeNameArray[i] = fieldName;
         }
-        
-        //select the field
+
+        // select the field
         fieldTypeCombo.setTextLimit(35);
         fieldTypeCombo.setLayoutData(gd);
         fieldTypeCombo.setItems(displayTypeNameArray);
-       // fieldTypeCombo.select(selectedFieldIndex);
-        
+
         fieldTypeCombo.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                
                 setSubstitutionField();
-                
-//            	String selectedFieldString = fieldTypeCombo.getText();
- 
- //           	System.out.println("DrawPolygon.createFieldCombo(): selectedFieldString =  " +
- //           						selectedFieldString);
-            	
- //           	subType = DisplayFieldData.fromDisplayNameString(selectedFieldString);
-            	
- //           	if (subType != null)
- //          	{
- //          		System.out.println("DrawPolygon.createFieldCombo(): subType =  " +
- //          			subType.toString());
- //          	}
-          }
+            }
         });
-        
-        //select the substitution field
-        
+
+        // select the substitution field
+
         fieldTypeCombo.select(selectedFieldIndex);
         setSubstitutionField();
-       
+
     }
-    
-    private void setSubstitutionField()
-    {
+
+    private void setSubstitutionField() {
         String selectedFieldString = fieldTypeCombo.getText();
         subType = DisplayFieldData.fromDisplayNameString(selectedFieldString);
-        
+
     }
-    
 
     /**
      * Process the selection.
@@ -490,7 +466,7 @@ public class DrawPolygonDlg extends CaveSWTDialog {
                     .getPolygonEdits(displayedField, editDate);
             polygonEdits.add(newEdit);
             PolygonEditManager.writePolygonEdits(displayedField, editDate,
-                    polygonEdits);
+                    polygonEdits, false);
             resource.clearPolygons();
             dispMgr.setSavedData(false);
         } finally {

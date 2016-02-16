@@ -69,6 +69,8 @@ import com.raytheon.viz.mpe.ui.dialogs.polygon.RubberPolyData.PolygonEditAction;
  *                                     files are written.
  * Jul 15, 2013  15963     snaples     Removed polygon edit flag, and 
  *                                     removed unneeded Constant for Backward compatibility.
+ * Feb 15, 2016  5338      bkowal      Keep track of the remaining persistent polygons just
+ *                                     in case a refresh is required.
  * 
  * 
  * </pre>
@@ -209,11 +211,12 @@ public class PolygonEditManager {
     }
 
     public static void writePolygonEdits(DisplayFieldData fieldData, Date date,
-            List<RubberPolyData> polygonEdits) {
+            List<RubberPolyData> polygonEdits, boolean persistentRemoved) {
         orderPolygonEdits(polygonEdits);
         File hourlyFile = getHourlyEditFile(fieldData, date);
         StringBuilder hourlyBuffer = new StringBuilder();
 
+        List<RubberPolyData> persistentRemaining = new ArrayList<>();
         File persistentFile = getPersistentEditFile(fieldData, date);
         StringBuilder persistentBuffer = new StringBuilder();
 
@@ -225,6 +228,7 @@ public class PolygonEditManager {
                 StringBuilder toUse = null;
                 int idx = 0;
                 if (polyEdit.isPersistent()) {
+                    persistentRemaining.add(polyEdit);
                     persistOrder++;
                     toUse = persistentBuffer;
                     idx = persistOrder;
@@ -290,9 +294,13 @@ public class PolygonEditManager {
             toNotify = new LinkedHashSet<IPolygonEditsChangedListener>(
                     listeners);
         }
+        if (!persistentRemoved) {
+            persistentRemaining = null;
+        }
         for (IPolygonEditsChangedListener listener : toNotify) {
             listener.polygonEditsChanged(fieldData, date,
-                    new ArrayList<RubberPolyData>(polygonEdits));
+                    new ArrayList<RubberPolyData>(polygonEdits),
+                    persistentRemaining);
         }
     }
 
@@ -354,8 +362,8 @@ public class PolygonEditManager {
                         DisplayFieldData subData = null;
                         for (DisplayFieldData fieldData : DisplayFieldData
                                 .values()) {
-                            if (fieldData.getFieldName()
-                                    .equalsIgnoreCase(subCvUse)) {
+                            if (fieldData.getFieldName().equalsIgnoreCase(
+                                    subCvUse)) {
                                 subData = fieldData;
                                 break;
                             }
