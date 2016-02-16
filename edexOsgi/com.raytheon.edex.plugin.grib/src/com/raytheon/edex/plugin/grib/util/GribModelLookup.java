@@ -19,6 +19,7 @@
  **/
 package com.raytheon.edex.plugin.grib.util;
 
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -38,9 +39,9 @@ import com.raytheon.edex.plugin.grib.spatial.GribSpatialCache;
 import com.raytheon.uf.common.dataplugin.grid.mapping.DatasetIdMapper;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.gridcoverage.exception.GridCoverageException;
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -69,6 +70,7 @@ import com.raytheon.uf.common.util.mapping.MultipleMappingException;
  * Dec 16, 2015  5182     tjensen     Added functionality for file name regex 
  *                                    matching and support for meta characters in 
  *                                    model names.
+ * Feb 16, 2016  5237     bsteffen    Replace deprecated localization API.
  * 
  * </pre>
  * 
@@ -288,7 +290,7 @@ public class GribModelLookup {
                         LocalizationContext.LocalizationType.EDEX_STATIC,
                         LocalizationContext.LocalizationLevel.SITE);
 
-        LocalizationFile[] modelFiles = PathManagerFactory.getPathManager()
+        ILocalizationFile[] modelFiles = PathManagerFactory.getPathManager()
                 .listFiles(
                         new LocalizationContext[] { edexStaticBase,
                                 edexStaticSite },
@@ -297,10 +299,9 @@ public class GribModelLookup {
 
         GridModelSet modelSet = new GridModelSet();
 
-        for (LocalizationFile modelFile : modelFiles) {
-            try {
-                GridModelSet fileSet = JAXB.unmarshal(modelFile.getFile(),
-                        GridModelSet.class);
+        for (ILocalizationFile modelFile : modelFiles) {
+            try (InputStream is = modelFile.openInputStream()) {
+                GridModelSet fileSet = JAXB.unmarshal(is, GridModelSet.class);
                 modelSet.addModels(fileSet.getModels());
             } catch (Exception e) {
                 logger.error("Unable to unmarshal grib models file:"
