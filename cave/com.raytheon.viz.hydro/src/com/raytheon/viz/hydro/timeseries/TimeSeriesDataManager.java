@@ -30,6 +30,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
+import org.apache.commons.lang.time.DateUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.dataplugin.shef.tables.Fcstheight;
 import com.raytheon.uf.common.dataplugin.shef.tables.FcstheightId;
@@ -77,6 +81,8 @@ import com.raytheon.viz.hydrocommon.util.DbUtils;
  * Aug 18, 2015 4793       rjpeter     Use Number in blind cast.
  * Nov 06, 2015 17846      lbousaidi   modify edit and insertRejectedData so that quality_code.
  *                                     is reset from Bad to Good after data QC.
+ * Feb 16, 2016 5342       bkowal      Ensure two rejected records with the same key values are
+ *                                     not inserted at the same second.
  * </pre>
  * 
  * @author dhladky
@@ -84,6 +90,8 @@ import com.raytheon.viz.hydrocommon.util.DbUtils;
  */
 
 public class TimeSeriesDataManager extends HydroDataManager {
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private static final String TIME_SERIES_DATA_QUERY = "select lid,obstime,lid,product_id from latestobsvalue";
 
@@ -103,9 +111,6 @@ public class TimeSeriesDataManager extends HydroDataManager {
 
     /** Quality control value for manual "Good" */
     private final int QC_MANUAL_PASSED = 121;
-
-    /** Quality control value for manual "Bad". */
-    private final int QC_MANUAL_FAILED = 123;
 
     /**
      * Map holding the location id and display class.
@@ -553,16 +558,21 @@ public class TimeSeriesDataManager extends HydroDataManager {
         boolean debug = ad.getBoolean(HydroConstants.DEBUG_HYDRO_DB_TOKEN,
                 false);
         if (debug) {
-            System.out.println(ad.getToken(HydroConstants.PGHOST) + ":"
+            /*
+             * Since debug is set by Apps Defaults and not via logger
+             * configuration, these message will be logged as info messages to
+             * ensure that they are output even if debug messages have been
+             * disabled at the logger level.
+             */
+            logger.info(ad.getToken(HydroConstants.PGHOST) + ":"
                     + ad.getToken(HydroConstants.PGPORT) + ":"
                     + ad.getToken(HydroConstants.DB_NAME));
-            System.out.println("Query: " + sql.toString());
+            logger.info("Query: " + sql.toString());
         }
 
         ArrayList<TabularData> tabularData = new ArrayList<TabularData>();
-        ArrayList<Object[]> results = (ArrayList<Object[]>) DirectDbQuery
-                .executeQuery(sql.toString(), HydroConstants.IHFS,
-                        QueryLanguage.SQL);
+        List<Object[]> results = DirectDbQuery.executeQuery(sql.toString(),
+                HydroConstants.IHFS, QueryLanguage.SQL);
 
         for (int i = 0; i < results.size(); i++) {
             Object[] oa = results.get(i);
@@ -608,10 +618,10 @@ public class TimeSeriesDataManager extends HydroDataManager {
                 false);
 
         if (debug) {
-            System.out.println(ad.getToken(HydroConstants.PGHOST) + ":"
+            logger.info(ad.getToken(HydroConstants.PGHOST) + ":"
                     + ad.getToken(HydroConstants.PGPORT) + ":"
                     + ad.getToken(HydroConstants.DB_NAME));
-            System.out.println("Query: " + sql);
+            logger.info("Query: " + sql);
         }
 
         List<Object[]> results = DirectDbQuery.executeQuery(sql.toString(),
@@ -642,10 +652,10 @@ public class TimeSeriesDataManager extends HydroDataManager {
                 false);
 
         if (debug) {
-            System.out.println(ad.getToken(HydroConstants.PGHOST) + ":"
+            logger.info(ad.getToken(HydroConstants.PGHOST) + ":"
                     + ad.getToken(HydroConstants.PGPORT) + ":"
                     + ad.getToken(HydroConstants.DB_NAME));
-            System.out.println("Query: " + sql);
+            logger.info("Query: " + sql);
         }
         DirectDbQuery.executeStatement(sql, HydroConstants.IHFS,
                 QueryLanguage.SQL);
@@ -725,10 +735,10 @@ public class TimeSeriesDataManager extends HydroDataManager {
                 false);
 
         if (debug) {
-            System.out.println(ad.getToken(HydroConstants.PGHOST) + ":"
+            logger.info(ad.getToken(HydroConstants.PGHOST) + ":"
                     + ad.getToken(HydroConstants.PGPORT) + ":"
                     + ad.getToken(HydroConstants.DB_NAME));
-            System.out.println("Query: " + sb.toString());
+            logger.info("Query: " + sb.toString());
         }
 
         return DirectDbQuery.executeStatement(sb.toString(),
@@ -749,10 +759,10 @@ public class TimeSeriesDataManager extends HydroDataManager {
                 false);
 
         if (debug) {
-            System.out.println(ad.getToken(HydroConstants.PGHOST) + ":"
+            logger.info(ad.getToken(HydroConstants.PGHOST) + ":"
                     + ad.getToken(HydroConstants.PGPORT) + ":"
                     + ad.getToken(HydroConstants.DB_NAME));
-            System.out.println("Query: " + sql);
+            logger.info("Query: " + sql);
         }
 
         return DirectDbQuery.executeStatement(sql, HydroConstants.IHFS,
@@ -889,10 +899,10 @@ public class TimeSeriesDataManager extends HydroDataManager {
                 false);
 
         if (debug) {
-            System.out.println(ad.getToken(HydroConstants.PGHOST) + ":"
+            logger.info(ad.getToken(HydroConstants.PGHOST) + ":"
                     + ad.getToken(HydroConstants.PGPORT) + ":"
                     + ad.getToken(HydroConstants.DB_NAME));
-            System.out.println("Query: " + sb.toString());
+            logger.info("Query: " + sb.toString());
         }
 
         return DirectDbQuery.executeStatement(sb.toString(),
@@ -924,20 +934,58 @@ public class TimeSeriesDataManager extends HydroDataManager {
                 return sqlResult.get(0)[0];
             }
         } catch (VizException e) {
-            e.printStackTrace();
-            return null;
+            logger.error("Failed to retrieve data from table: " + tablename
+                    + ".", e);
         }
 
         return null;
     }
 
-    public int insertRejectedData(List<ForecastData> deleteList)
-            throws VizException {
+    public int insertRejectedData(List<ForecastData> deleteList,
+            Map<RejecteddataId, Integer> rejectedSecondsMap,
+            Date insertStartTime) throws VizException {
         StringBuilder sb = new StringBuilder();
 
-        Date currentTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"))
-                .getTime();
+        /*
+         * part of the primary key. So, should be unique with each record
+         * insert.
+         */
         for (ForecastData dr : deleteList) {
+            /*
+             * This will ensure that records that would normally have the same
+             * id will at least be offset by a second. This is needed because
+             * the dynamic time field that is part of the primary key only has a
+             * resolution out to the seconds field. The insert of a record does
+             * not take an entire second. This implementation is limited by the
+             * fact that only sixty of a particular record can be inserted
+             * without conflicting with a potential future insert less than a
+             * minute later. The inserts are mapped by id to reduce the amount
+             * of data manipulation that would occur when there is a lack of
+             * duplicate records. The ideal scenario would be to alter the data
+             * record so that it would not be necessary to offset the posting
+             * time by a second to ensure uniqueness; however, a changeset that
+             * large is far outside the scope of DR #5342.
+             */
+            RejecteddataId id = new RejecteddataId();
+            id.setLid(dr.getLid());
+            id.setPe(dr.getPe());
+            id.setDur((short) dr.getDur());
+            id.setTs(dr.getTs());
+            id.setExtremum(dr.getExtremum());
+            id.setProbability((float) dr.getProbability());
+            id.setValidtime(dr.getValidTime());
+            id.setBasistime(dr.getBasisTime());
+            id.setPostingtime(insertStartTime);
+            Integer offsetSeconds = rejectedSecondsMap.get(id);
+            if (offsetSeconds == null) {
+                offsetSeconds = 0;
+            } else {
+                offsetSeconds += 1;
+            }
+            rejectedSecondsMap.put(id, offsetSeconds);
+
+            final Date postingTime = DateUtils.addSeconds(insertStartTime,
+                    offsetSeconds);
 
             int probability = -1;
             int revision = 1;
@@ -957,7 +1005,8 @@ public class TimeSeriesDataManager extends HydroDataManager {
                 productID = dr.getProductID();
             }
 
-            Integer qualityCode = ((Number) getDataFromDB(dr, "quality_code")).intValue();
+            Integer qualityCode = ((Number) getDataFromDB(dr, "quality_code"))
+                    .intValue();
             if (qualityCode == null) {
                 qualityCode = new Integer(dr.getQualityCode());
             }
@@ -996,7 +1045,7 @@ public class TimeSeriesDataManager extends HydroDataManager {
                         + "', ");
             }
 
-            sb.append("'" + HydroConstants.DATE_FORMAT.format(currentTime)
+            sb.append("'" + HydroConstants.DATE_FORMAT.format(postingTime)
                     + "', ");
             sb.append(dr.getValue() + ", ");
             sb.append(revision + ", ");
@@ -1015,10 +1064,10 @@ public class TimeSeriesDataManager extends HydroDataManager {
                 false);
 
         if (debug) {
-            System.out.println(ad.getToken(HydroConstants.PGHOST) + ":"
+            logger.info(ad.getToken(HydroConstants.PGHOST) + ":"
                     + ad.getToken(HydroConstants.PGPORT) + ":"
                     + ad.getToken(HydroConstants.DB_NAME));
-            System.out.println("Query: " + sb.toString());
+            logger.info("Query: " + sb.toString());
         }
 
         return DirectDbQuery.executeStatement(sb.toString(),
@@ -1063,10 +1112,10 @@ public class TimeSeriesDataManager extends HydroDataManager {
                     false);
 
             if (debug) {
-                System.out.println(ad.getToken(HydroConstants.PGHOST) + ":"
+                logger.info(ad.getToken(HydroConstants.PGHOST) + ":"
                         + ad.getToken(HydroConstants.PGPORT) + ":"
                         + ad.getToken(HydroConstants.DB_NAME));
-                System.out.println("Query: " + sql);
+                logger.info("Query: " + sql);
             }
 
             status = DirectDbQuery.executeStatement(sql.toString(),
@@ -1133,10 +1182,10 @@ public class TimeSeriesDataManager extends HydroDataManager {
                     false);
 
             if (debug) {
-                System.out.println(ad.getToken(HydroConstants.PGHOST) + ":"
+                logger.info(ad.getToken(HydroConstants.PGHOST) + ":"
                         + ad.getToken(HydroConstants.PGPORT) + ":"
                         + ad.getToken(HydroConstants.DB_NAME));
-                System.out.println("Query: " + sql.toString());
+                logger.info("Query: " + sql.toString());
             }
 
             status = DirectDbQuery.executeStatement(sql.toString(),
@@ -1161,7 +1210,7 @@ public class TimeSeriesDataManager extends HydroDataManager {
         for (int i = 0; i < editList.size(); i++) {
             ForecastData data = editList.get(i);
             String tablename = DbUtils.getTableName(data.getPe(), data.getTs());
-            //set the QC to GOOD when you set data to missing.
+            // set the QC to GOOD when you set data to missing.
             data.setQualityCode(TimeSeriesUtil.setQcCode(QC_MANUAL_PASSED,
                     data.getQualityCode()));
             SqlBuilder sql = new SqlBuilder(tablename);
@@ -1201,10 +1250,10 @@ public class TimeSeriesDataManager extends HydroDataManager {
                     false);
 
             if (debug) {
-                System.out.println(ad.getToken(HydroConstants.PGHOST) + ":"
+                logger.info(ad.getToken(HydroConstants.PGHOST) + ":"
                         + ad.getToken(HydroConstants.PGPORT) + ":"
                         + ad.getToken(HydroConstants.DB_NAME));
-                System.out.println("Query: " + sql);
+                logger.info("Query: " + sql);
             }
 
             DirectDbQuery.executeStatement(sql.toString(), HydroConstants.IHFS,
@@ -1236,10 +1285,10 @@ public class TimeSeriesDataManager extends HydroDataManager {
                 false);
 
         if (debug) {
-            System.out.println(ad.getToken(HydroConstants.PGHOST) + ":"
+            logger.info(ad.getToken(HydroConstants.PGHOST) + ":"
                     + ad.getToken(HydroConstants.PGPORT) + ":"
                     + ad.getToken(HydroConstants.DB_NAME));
-            System.out.println("Query: " + sql);
+            logger.info("Query: " + sql);
         }
 
         List<Object[]> rs = DirectDbQuery.executeQuery(sql.toString(),
@@ -1281,10 +1330,10 @@ public class TimeSeriesDataManager extends HydroDataManager {
                 false);
 
         if (debug) {
-            System.out.println(ad.getToken(HydroConstants.PGHOST) + ":"
+            logger.info(ad.getToken(HydroConstants.PGHOST) + ":"
                     + ad.getToken(HydroConstants.PGPORT) + ":"
                     + ad.getToken(HydroConstants.DB_NAME));
-            System.out.println("Query: " + query.toString());
+            logger.info("Query: " + query.toString());
         }
 
         List<Object[]> results = DirectDbQuery.executeQuery(query.toString(),
@@ -1332,7 +1381,8 @@ public class TimeSeriesDataManager extends HydroDataManager {
      * @return The number of objects inserted/updated
      * @throws VizException
      */
-    public int putForecast(PersistableDataObject dataObj) throws VizException {
+    public int putForecast(PersistableDataObject<?> dataObj)
+            throws VizException {
         int rv = 0;
 
         rv = DirectDbQuery.saveOrUpdate(dataObj, HydroConstants.IHFS);
