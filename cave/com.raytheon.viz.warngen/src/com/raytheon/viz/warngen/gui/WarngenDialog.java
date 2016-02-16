@@ -25,8 +25,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -182,6 +184,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *  Dec  9, 2015 DR 18209    D. Friedman Support cwaStretch dam break polygons.
  *  Dec 10, 2015 DR 17908    Qinglu Lin  Updated changeStartEndTimes(), recreateDurations(), changeSelected(), and extSelected().
  *  Dec 21, 2015 DCS 17942   D. Friedman Add advanced options tab
+ *  Feb 04, 2016 DR 14307 Daniel Huffman Added sorting to drop down items in recreateUpdates().
  * </pre>
  * 
  * @author chammack
@@ -1050,6 +1053,20 @@ public class WarngenDialog extends CaveSWTDialog implements
                     dropDownItems.add(data.getDisplayString());
                 }
             }
+        }
+
+        ArrayList<String> dropDownItemsSort = new ArrayList<String>();
+        Iterator<String> ddii = dropDownItems.iterator();
+        for (; ddii.hasNext();) {
+            String working = ddii.next();
+            dropDownItemsSort.add(working.split("\\.")[3] + " @" + working);
+        }
+        Collections.sort(dropDownItemsSort);
+        Collections.reverse(dropDownItemsSort);
+        dropDownItems.clear();
+        Iterator<String> ddisi = dropDownItemsSort.iterator();
+        for (; ddisi.hasNext();) {
+            dropDownItems.add(ddisi.next().split(" @")[1]);
         }
 
         String stateUpdate = "";
