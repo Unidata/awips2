@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Monitor Plug-in
 Bundle-SymbolicName: com.raytheon.uf.common.monitor
-Bundle-Version: 1.14.0.qualifier
+Bundle-Version: 1.16.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy

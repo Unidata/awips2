@@ -1,25 +1,26 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
 package com.raytheon.uf.common.monitor.cpg;
 
 import java.io.File;
+import java.io.InputStream;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -28,6 +29,9 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
  * Monitor State Configuration XML File Manager.
@@ -39,6 +43,9 @@ import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
  * ------------ ---------- ----------- --------------------------
  * Jan 05, 2009            dhladky     Initial creation
  * Oct 01, 2013 2361       njensen     Use JAXBManager for XML
+ * Feb 15, 2016 5244       nabowle     Replace deprecated LocalizationFile methods.
+ *                                     Replace system.out with UFStatus.
+ * 
  * 
  * </pre>
  * 
@@ -47,6 +54,9 @@ import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
  */
 
 public class MonitorStateConfigurationManager {
+
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(MonitorStateConfigurationManager.class);
 
     /** Path to Monitoring Area Configuration XML. */
     private static final String CONFIG_FILE_NAME = "monitoring"
@@ -71,7 +81,7 @@ public class MonitorStateConfigurationManager {
 
     /**
      * Get an instance of this singleton.
-     * 
+     *
      * @return Instance of this class
      */
     public static synchronized MonitorStateConfigurationManager getInstance() {
@@ -83,38 +93,6 @@ public class MonitorStateConfigurationManager {
     }
 
     /**
-     * Save the XML configuration data to the current XML file name.
-     */
-    public void saveConfigXml() {
-        // Save the xml object to disk
-        IPathManager pm = PathManagerFactory.getPathManager();
-        LocalizationContext lc = pm.getContext(LocalizationType.COMMON_STATIC,
-                LocalizationLevel.BASE);
-        LocalizationFile newXmlFile = pm.getLocalizationFile(lc,
-                CONFIG_FILE_NAME);
-
-        if (newXmlFile.getFile().getParentFile().exists() == false) {
-            System.out.println("Creating new directory");
-
-            if (newXmlFile.getFile().getParentFile().mkdirs() == false) {
-                System.out.println("Could not create new directory...");
-            }
-        }
-
-        try {
-            System.out.println("Saving -- "
-                    + newXmlFile.getFile().getAbsolutePath());
-            jaxb.marshalToXmlFile(configXml, newXmlFile.getFile()
-                    .getAbsolutePath());
-            newXmlFile.save();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        readConfigXml();
-    }
-
-    /**
      * Read the XML configuration data for the current XML file name.
      */
     public void readConfigXml() {
@@ -122,21 +100,24 @@ public class MonitorStateConfigurationManager {
             IPathManager pm = PathManagerFactory.getPathManager();
             LocalizationContext lc = pm.getContext(
                     LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
-            File file = pm.getFile(lc, CONFIG_FILE_NAME);
-            System.out.println("Reading -- " + file.getAbsolutePath());
-            MonitorStateXML configXmltmp = jaxb.unmarshalFromXmlFile(file
-                    .getAbsolutePath());
-            configXml = configXmltmp;
+            LocalizationFile lf = pm.getLocalizationFile(lc, CONFIG_FILE_NAME);
+
+            statusHandler.handle(Priority.INFO, "Reading -- " + lf.getPath());
+            try (InputStream is = lf.openInputStream()) {
+                MonitorStateXML configXmltmp = jaxb
+                        .unmarshalFromInputStream(is);
+                configXml = configXmltmp;
+            }
 
         } catch (Exception e) {
-            e.printStackTrace();
-            System.err.println("No configuration file found");
+            statusHandler.handle(Priority.INFO, "No configuration file found",
+                    e);
         }
     }
 
     /**
      * FFMP state
-     * 
+     *
      * @return
      */
     public boolean getFFMPState() {
@@ -145,7 +126,7 @@ public class MonitorStateConfigurationManager {
 
     /**
      * CWAT state
-     * 
+     *
      * @return
      */
     public boolean getCWATState() {
@@ -154,7 +135,7 @@ public class MonitorStateConfigurationManager {
 
     /**
      * VIL state
-     * 
+     *
      * @return
      */
     public boolean getVILState() {
@@ -163,7 +144,7 @@ public class MonitorStateConfigurationManager {
 
     /**
      * QPF state
-     * 
+     *
      * @return
      */
     public boolean getQPFState() {
@@ -172,7 +153,7 @@ public class MonitorStateConfigurationManager {
 
     /**
      * Fog state
-     * 
+     *
      * @return
      */
     public boolean getFogState() {
@@ -181,7 +162,7 @@ public class MonitorStateConfigurationManager {
 
     /**
      * Fog state
-     * 
+     *
      * @return
      */
     public boolean getPrecipRateState() {
@@ -195,10 +176,10 @@ public class MonitorStateConfigurationManager {
     public boolean getHydroDualPolState() {
         return configXml.isHydroDualPol();
     }
-    
+
     /**
      * Fog state
-     * 
+     *
      * @return
      */
     public boolean getScanState() {
@@ -207,7 +188,7 @@ public class MonitorStateConfigurationManager {
 
     /**
      * Fog state
-     * 
+     *
      * @return
      */
     public boolean getFSSState() {

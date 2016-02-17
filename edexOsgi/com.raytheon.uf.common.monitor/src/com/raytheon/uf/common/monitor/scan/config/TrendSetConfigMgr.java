@@ -1,59 +1,69 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
 package com.raytheon.uf.common.monitor.scan.config;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Set;
 
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.monitor.scan.xml.SCANTrendSetXML;
 import com.raytheon.uf.common.monitor.scan.xml.SCANTrendSetsXML;
 import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
- * 
+ *
  * Manages the Trend Sets configuration. This will handle either CELL or DMD
  * trend sets.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 3, 2009  #3039      lvenable    Initial creation
  * Oct 2, 2013   2361      njensen     Use JAXBManager for XML
- * 
+ * Feb 15, 2016 5244       nabowle     Replace deprecated LocalizationFile methods.
+ *                                     Add statusHandler.
+ *
  * </pre>
- * 
+ *
  * @author lvenable
  * @version 1.0
  */
 public class TrendSetConfigMgr {
+
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(TrendSetConfigMgr.class);
 
     private static final SingleTypeJAXBManager<SCANTrendSetsXML> jaxb = SingleTypeJAXBManager
             .createWithoutException(SCANTrendSetsXML.class);
@@ -63,10 +73,6 @@ public class TrendSetConfigMgr {
      */
     private String configXml = null;
 
-    /**
-     * Full XML file path.
-     */
-    private String fullXMLFilePath = null;
 
     /**
      * Trend sets XML.
@@ -80,7 +86,7 @@ public class TrendSetConfigMgr {
 
     /**
      * Constructor.
-     * 
+     *
      * @param defCfgXML
      *            Default configuration XML name.
      */
@@ -106,11 +112,14 @@ public class TrendSetConfigMgr {
     private void readDefaultConfig() {
         try {
             IPathManager pm = PathManagerFactory.getPathManager();
-            fullXMLFilePath = pm.getStaticFile(getFullConfigFileNameStr())
-                    .getAbsolutePath();
-            trendSets = jaxb.unmarshalFromXmlFile(fullXMLFilePath);
+            ILocalizationFile file = pm
+                    .getStaticLocalizationFile(getFullConfigFileNameStr());
+            try (InputStream is = file.openInputStream()) {
+                trendSets = jaxb.unmarshalFromInputStream(is);
+            }
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.WARN,
+                    "Error reading default config.", e);
         }
     }
 
@@ -130,7 +139,7 @@ public class TrendSetConfigMgr {
 
     /**
      * Get the full path/file name of the configuration XML.
-     * 
+     *
      * @return Full file name and path.
      */
     private String getFullConfigFileNameStr() {
@@ -143,7 +152,7 @@ public class TrendSetConfigMgr {
 
     /**
      * Get the trend sets map.
-     * 
+     *
      * @return The trend sets map.
      */
     public final LinkedHashMap<String, String> getTrendSetMap() {
@@ -152,7 +161,7 @@ public class TrendSetConfigMgr {
 
     /**
      * Get the trend sets configuration XML.
-     * 
+     *
      * @return The trend sets configuration XML.
      */
     public SCANTrendSetsXML getTrendSets() {
@@ -186,29 +195,20 @@ public class TrendSetConfigMgr {
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext context = pm.getContext(
                 LocalizationType.CAVE_STATIC, LocalizationLevel.SITE);
-        LocalizationFile locFile = pm.getLocalizationFile(context,
+        ILocalizationFile locFile = pm.getLocalizationFile(context,
                 getFullConfigFileNameStr());
 
-        if (locFile.getFile().exists() == false) {
-            if (locFile.getFile().getParentFile().mkdirs() == false) {
-                System.out.println("Did not not create directory(ies): "
-                        + locFile.getFile().getAbsolutePath());
-            }
-        }
-
-        try {
-            jaxb.marshalToXmlFile(trendSets, locFile.getFile()
-                    .getAbsolutePath());
-
-            locFile.save();
+        try (SaveableOutputStream sos = locFile.openOutputStream()) {
+            jaxb.marshalToStream(trendSets, sos);
+            sos.save();
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.WARN, "Error saving trend sets.", e);
         }
     }
 
     /**
      * Remove a trend set.
-     * 
+     *
      * @param name
      *            Trend set name to remove.
      */
@@ -218,7 +218,7 @@ public class TrendSetConfigMgr {
 
     /**
      * Add/Update a trend set.
-     * 
+     *
      * @param name
      * @param attibute
      */
@@ -228,7 +228,7 @@ public class TrendSetConfigMgr {
 
     /**
      * Get a list of trend sets that do not have at least 2 attributes.
-     * 
+     *
      * @return Array on trend set names.
      */
     public String[] getInvalidAttributeNumber() {
@@ -248,7 +248,7 @@ public class TrendSetConfigMgr {
 
     /**
      * Get a string array of attributes for the specified trend set name.
-     * 
+     *
      * @param trendName
      *            Trend set name.
      * @return String array of attributes.
@@ -264,7 +264,7 @@ public class TrendSetConfigMgr {
 
     /**
      * Get an array on trend set names.
-     * 
+     *
      * @return Array of trend set names.
      */
     public String[] getTrendSetNames() {
