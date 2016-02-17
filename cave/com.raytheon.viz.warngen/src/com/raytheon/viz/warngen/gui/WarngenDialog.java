@@ -185,6 +185,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *  Dec 10, 2015 DR 17908    Qinglu Lin  Updated changeStartEndTimes(), recreateDurations(), changeSelected(), and extSelected().
  *  Dec 21, 2015 DCS 17942   D. Friedman Add advanced options tab
  *  Feb 04, 2016 DR 14307 Daniel Huffman Added sorting to drop down items in recreateUpdates().
+ *  Feb 16, 2016 DR 17531    Qinglu Lin  Added overloaded setTrackLocked(boolean, boolean), updated expSelected().
  * </pre>
  * 
  * @author chammack
@@ -1814,6 +1815,12 @@ public class WarngenDialog extends CaveSWTDialog implements
         warngenLayer.getStormTrackState().editable = !b;
     }
 
+    private void setTrackLocked(boolean trackButtonEnabled, boolean b) {
+        fromTrack.setEnabled(trackButtonEnabled);
+        trackLocked = b;
+        warngenLayer.getStormTrackState().editable = !b;
+    }
+
     /**
      * Locks or Unlocks the polygon
      * 
@@ -2319,7 +2326,7 @@ public class WarngenDialog extends CaveSWTDialog implements
                 .getEndTime().getTime());
         try {
             warngenLayer.createPolygonFromRecord(newWarn);
-            setTrackLocked(true);
+            setTrackLocked(false, false);
             refreshDisplay();
         } catch (VizException e) {
             statusHandler.handle(Priority.PROBLEM,
