@@ -177,6 +177,8 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  * 12/14/2015  18367       ryu         Disable finalization of ETN when product is stored to text database.
  * 12/16/2015  18410       lshi        For corrected products, both WMO time and MND time should
  *                                     match the current time
+ * 01/21/2016  18505       lshi        Resent product should have same WMO, MND, and segment times
+ *                                     as original product.
  * </pre>
  *
  * @author lvenable
@@ -1150,8 +1152,8 @@ public class ProductEditorComp extends Composite implements
             // prevent the launching of another dialog until the modal dialog is
             // closed.
             StoreTransmitDlg storeDlg = new StoreTransmitDlg(parent.getShell(),
-                    showStore, this, transmissionCB, pid, 
-                    !textComp.isCorMode() && (action == Action.TRANSMIT));
+                    showStore, this, transmissionCB, pid, !textComp.isCorMode()
+                            && (action == Action.TRANSMIT));
             storeDlg.open();
         }
     }
@@ -1203,6 +1205,9 @@ public class ProductEditorComp extends Composite implements
     }
 
     private boolean changeTimes() {
+        if (selectedType == productTypeEnum.res) {
+            return false;
+        }
         Calendar GMT = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         GMT.setTime(SimulatedTime.getSystemTime().getTime());
         GMT.set(Calendar.SECOND, 0);
@@ -1698,24 +1703,31 @@ public class ProductEditorComp extends Composite implements
         selectedType = productTypeEnum.valueOf(val);
 
         String txt;
+        boolean updateTimes = true;
         if (val.charAt(0) == 'A') {
             txt = "UPDATED";
+
         } else if (val.charAt(0) == 'R') {
             txt = "DELAYED";
         } else if (val.charAt(0) == 'C') {
             txt = "CORRECTED";
         } else if (val.equals("res")) {
             txt = "RESENT";
+            updateTimes = false;
         } else if (val.equals("rou")) {
             txt = EMPTY;
+            updateTimes = false;
         } else {
             return;
+        }
+
+        if (updateTimes) {
+            updateExpireTimeFromTimer();
         }
 
         textComp.startUpdate();
         textComp.patchMND(txt, true);
         textComp.updatePType(val);
-
         textComp.endUpdate();
     }
 
@@ -1790,6 +1802,9 @@ public class ProductEditorComp extends Composite implements
     }
 
     private void setPurgeTime() {
+        if (selectedType == productTypeEnum.res) {
+            return;
+        }
         Float offset = null;
         if (!editorCorrectionMode) {
             Object obj = productDefinition.get("purgeTime");
@@ -1982,13 +1997,14 @@ public class ProductEditorComp extends Composite implements
                 ProductDataStruct pds = textComp.getProductDataStruct();
                 if (pds != null) {
                     // update WMO time
-                    //if (!textComp.isCorMode()) {  ## uncomment this if want to keep WMO time original
+                    // if (!textComp.isCorMode()) { ## uncomment this if want to
+                    // keep WMO time original
                     TextIndexPoints pit = pds.getPIT();
                     if (pit != null) {
                         String time = purgeTimeFmt.format(now);
                         textComp.replaceText(pit, time);
                     }
-                   // }
+                    // }
 
                     // Update MND time
                     TextIndexPoints tip = pds.getMndMap().get("nwstime");
@@ -2181,7 +2197,6 @@ public class ProductEditorComp extends Composite implements
      */
     private void loadPrevious() {
         String initialValue;
-        textComp.setCorMode(true);
 
         if (!testVTEC) {
             initialValue = "cccnnnxxx";
@@ -2220,7 +2235,7 @@ public class ProductEditorComp extends Composite implements
             String product = TextDBUtil.retrieveProduct(pid, operationalMode);
             if ((product != null) && !product.isEmpty()) {
                 // add back the new line stripped off by text decoder
-                setProductText(product + "\n");
+                setProductText(product + "\n", false);
             }
         } else {
             devLoad(pid);
@@ -2230,7 +2245,9 @@ public class ProductEditorComp extends Composite implements
 
         // Enter res mode
         setPTypeCategory(PTypeCategory.PE);
+        textComp.setCorMode(true);
 
+        setPurgeTime();
     }
 
     /**
@@ -2413,7 +2430,7 @@ public class ProductEditorComp extends Composite implements
         }
 
         if (product != null) {
-            setProductText(product);
+            setProductText(product, false);
         }
     }
 
