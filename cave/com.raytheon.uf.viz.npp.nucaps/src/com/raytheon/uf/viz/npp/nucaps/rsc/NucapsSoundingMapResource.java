@@ -6,8 +6,10 @@ import java.util.List;
 
 import org.eclipse.swt.graphics.RGB;
 
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.npp.nucaps.NucapsRecord;
 import com.raytheon.uf.common.dataplugin.npp.sounding.NPPSoundingRecord;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.DrawableCircle;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -27,6 +29,7 @@ import com.raytheon.uf.viz.npp.sounding.rsc.NPPSoundingMapResourceData;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 16, 2015      18191 pwang       Initial version.
+ * Feb 03, 2016      18588 wkwock      Fix update nucaps data issue.
  * 
  * </pre>
  * 
@@ -35,6 +38,13 @@ import com.raytheon.uf.viz.npp.sounding.rsc.NPPSoundingMapResourceData;
  */
 
 public class NucapsSoundingMapResource extends NPPSoundingMapResource {
+    private RGB green = new RGB(0, 255, 0);
+
+    private RGB yellow = new RGB(255, 255, 0);
+
+    private RGB red = new RGB(255, 0, 0);
+
+    private RGB gray = new RGB(190, 190, 190);
 
     protected NucapsSoundingMapResource(
             NPPSoundingMapResourceData resourceData,
@@ -47,14 +57,19 @@ public class NucapsSoundingMapResource extends NPPSoundingMapResource {
             LoadProperties loadProperties) {
         super(resourceData, loadProperties);
     }
-
-    private RGB green = new RGB(0, 255, 0);
-
-    private RGB yellow = new RGB(255, 255, 0);
-
-    private RGB red = new RGB(255, 0, 0);
-
-    private RGB gray = new RGB(190, 190, 190);
+    
+    @Override
+    public synchronized void addRecords (PluginDataObject... records){
+        try {
+           PluginDataObject[] allRecords=((NucapsSoundingMapResourceData)this.resourceData).updatePluginDataObjects(records);
+           super.addRecords(allRecords);
+        } catch (VizException e) {
+            statusHandler.handle(
+                Priority.PROBLEM,
+                "Error adding record from update: "
+                    + e.getLocalizedMessage(), e);
+       }
+    }
 
     /**
      * Color code dots base on QC value

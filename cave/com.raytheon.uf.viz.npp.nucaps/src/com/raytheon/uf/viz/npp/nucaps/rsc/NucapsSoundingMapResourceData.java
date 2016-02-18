@@ -34,6 +34,7 @@ import com.raytheon.viz.pointdata.PointDataRequest;
  * Date         Ticket# Engineer   Description
  * ------------ ------- ---------- --------------------------
  * Dec 16, 2015 18191   pwang      Initial creation. Color code dots base on QC value
+ * Feb 03, 2016 18588   wkwock     Fix update nucaps data issue.
  * 
  * </pre>
  * 
@@ -63,6 +64,21 @@ public class NucapsSoundingMapResourceData extends NPPSoundingMapResourceData {
         return resource;
     }
 
+    /**
+     * Get the Quality_flag data from HDF5 for each record.
+     * 
+     * @param records
+     * @return
+     * @throws VizException
+     */
+    public PluginDataObject[] updatePluginDataObjects(PluginDataObject[] records) throws VizException {
+        List<DataTime> timesToLoad = new ArrayList<DataTime>();
+        for (PluginDataObject record : records){
+            timesToLoad.add(record.getDataTime());
+        }
+        return requestPluginDataObjects(timesToLoad);
+    }
+    
     /**
      * Get nucaps data
      * @param Collection<DataTime> loadSet
