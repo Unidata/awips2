@@ -56,7 +56,7 @@ import com.raytheon.uf.edex.decodertools.core.DecoderTools;
  * Jan 30, 2010       15779  lbousaidi   added 4 letter to station id for ACR
  * Aug 08, 2013      16408 wkwock      Use different metar.cfg file and options
  * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
- * Feb 12, 2016  18422     snaples/bkowal Update MetarToShef transformer to use options from token or config file.
+ * Feb 12, 2016  18665     snaples/bkowal Update MetarToShef transformer to use options from token or config file.
  * 
  * </pre>
  * 
