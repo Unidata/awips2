@@ -77,6 +77,8 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeProhibitedOpException;
  * 15 SEP 2015  4858       dgilling    Handle exception from runFormatterScript. 
  * 03 NOV 2015 14813       ryu         Fix missing VTEC code in generated product. VTEC mode is set 
  *                                     based on the pil of the product rather than the disply name.
+ * 18 FEB 2016 13033       yteng       Improve error message for bad characters in text formatter
+ *                                     definitions.
  *
  * </pre>
  * 
@@ -394,8 +396,15 @@ public class ProductAreaComp extends Composite implements
                             if (formattingCbo.isVisible()) {
                                 vtecMode = formattingCbo.getText();
                             } else {
-                                String pil = (String) textProductMgr
-                                        .getDefinitionValue(productName, "pil");
+                                String pil = "";
+                                try {
+                                    pil = (String) textProductMgr
+                                            .getDefinitionValue(productName, "pil");
+                                } catch (ClassCastException e) {
+                                    statusHandler.error("Invalid pil value: "
+                                            + textProductMgr
+                                            .getDefinitionValue(productName, "pil"), e);
+                                }
                                 if (pil != null) {
                                     pil = pil.substring(0, 3);
                                     vtecMode = textProductMgr.getVtecMessageType(pil);
