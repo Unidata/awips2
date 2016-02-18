@@ -447,8 +447,6 @@ public class ClimateDataManager implements PyProcessListener {
                         .get("results");
                 win.populateSiteInfoList(ident, list);
                 win.assessBtn(true);
-                win.scriptsBtn(false);
-                win.processBtn(false);
                 win.validateBtn(false);
             } else if (method.equals("updateMonitor")) {
                 String msg = (String) returnMap.get("msg");
