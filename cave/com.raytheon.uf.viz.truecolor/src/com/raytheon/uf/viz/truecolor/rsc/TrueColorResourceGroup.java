@@ -72,7 +72,6 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Aug 06, 2012           mschenke    Initial creation
  * Apr 18, 2014  2947     bsteffen    Support unitless data.
  * Sep 10, 2014  DR 17313 jgerth      Add inspect method
- * Jan 27, 2016  DR 17997 jgerth      Support for gamma control
  * 
  * </pre>
  * 
@@ -434,7 +433,6 @@ public class TrueColorResourceGroup extends
                                 .getColorMapMin()));
                         ci.setRangeMax(toDisplay.convert(params
                                 .getColorMapMax()));
-                        ci.setGamma(params.getGamma());
                         ci.setUnit(params.getDisplayUnit());
                     }
                 }
@@ -487,7 +485,6 @@ public class TrueColorResourceGroup extends
     private static void initializeParameters(ChannelInfo ci,
             ColorMapParameters params) {
         if (params != null) {
-            params.setGamma(ci.getGamma());
             ci.setParameters(params);
             if (ci.getUnit() != null && params.getColorMapUnit() != null
                     && ci.getUnit().isCompatible(params.getColorMapUnit())) {
@@ -505,7 +502,6 @@ public class TrueColorResourceGroup extends
                         .getColorMapToDisplayConverter();
                 ci.setRangeMin(cmapToDisplay.convert(params.getColorMapMin()));
                 ci.setRangeMax(cmapToDisplay.convert(params.getColorMapMax()));
-                ci.setGamma(params.getGamma());
                 ci.setUnit(params.getDisplayUnit());
             }
         }

@@ -32,9 +32,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Spinner;
 
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
@@ -58,7 +56,6 @@ import com.raytheon.viz.ui.dialogs.ColorMapSliderComp;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 16, 2012            mschenke     Initial creation
- * Jan 27, 2016 DR 17997   jgerth       Support for gamma control
  * 
  * </pre>
  * 
@@ -168,21 +165,6 @@ public class TrueColorDialog extends CaveSWTDialog implements IDisposeListener {
                 params);
         cmapSlider.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
         ((GridData) cmapSlider.getLayoutData()).widthHint = 450;
-
-        Composite gammaComp = new Composite(group, SWT.NONE);
-        gammaComp.setLayout(new GridLayout(2, false));
-        final Label gammaLabel = new Label(gammaComp, SWT.LEFT);
-        gammaLabel.setText("Gamma:");
-        final Spinner gammaSpinner = new Spinner(gammaComp, SWT.BORDER);
-        gammaSpinner.setValues(100, 0, 500, 2, 10, 10);
-        gammaSpinner.setSelection((int) (params.getGamma() * 100));
-        gammaSpinner.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                cmapSlider.setGamma(gammaSpinner.getSelection() / 100.);
-            }
-        });
-
         sliderComps.add(cmapSlider);
 
         if (displayedResource == null) {
