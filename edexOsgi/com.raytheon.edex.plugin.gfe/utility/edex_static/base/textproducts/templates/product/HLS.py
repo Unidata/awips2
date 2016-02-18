@@ -1,4 +1,4 @@
-#  Version 2016.01.26-0
+#  Version 2016.02.09-0
 
 import GenericHazards
 import string, time, os, re, types, copy, LogStream, collections
@@ -2096,7 +2096,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
         for label, latLon in refList:
             lat, lon = latLon
             localRef = self._calcReference(lat0, lon0, lat, lon)
-            localRef = localRef + " OF " + label
+            localRef = localRef + " of " + label
             localRef = localRef.replace(",","")
             localRefs.append(localRef)
         return localRefs
