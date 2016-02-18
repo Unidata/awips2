@@ -70,6 +70,7 @@ import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
  * Oct 08, 2015  4891     njensen     Added tooltip to useProxyCheck
  * Feb 08, 2016  5281     tjensen     Reworked interface to simply options
  * Feb 15, 2016  5281     tjensen     Added check for null in validate method
+ * Feb 18, 2016  5281     tjensen     Fix issue when no JMS available.
  * 
  * </pre>
  * 
@@ -396,6 +397,8 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
                 timedPollBtn.setSelection(true);
                 dataRefreshGroup.setToolTipText(dataRefreshTooltip
                         + unableConnectJMS);
+                // Since JMS is now disabled, we're in a good state.
+                jmsGood = true;
             }
         }
     }
