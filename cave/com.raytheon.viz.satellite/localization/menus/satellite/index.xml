@@ -36,6 +36,8 @@
     </include>
     <include subMenu="Derived Products Plots" installTo="menu:satellite?after=GROUP4" 
              fileName="menus/satellite/baseDerivedProductPlots.xml"/>
+    <include subMenu="OCONUS Imagery" installTo="menu:satellite?before=GROUP5" 
+             fileName="menus/satellite/oconus/baseOCONUSImagery.xml"/>
     <include installTo="menu:satellite?after=GROUP5" 
              fileName="menus/satellite/baseNHemisphere.xml">
     	<substitute key="sector0" value="West CONUS"/>
