@@ -58,6 +58,7 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.rsc.FFMPResourceData;
  * Jun 04, 2013 2075       njensen     Initial creation
  * Jun 07, 2013 2075       njensen     Added progress monitoring
  * Oct 26, 2015 5056       dhladky     Removed println.
+ * Feb 16, 2016 5372       dhladky     Make missing mosaic messages debug.
  * 
  * </pre>
  * 
@@ -183,8 +184,8 @@ public class InitialLoadJob extends AbstractLoadJob {
             record = SerializationUtil.transformFromThrift(
                     FFMPAggregateRecord.class, bytes);
         } catch (Exception e) {
-            statusHandler.handle(Priority.WARN,
-                    "Couldn't read Aggregate Record" + sourceSiteDataKey);
+            statusHandler.handle(Priority.DEBUG,
+                    "Couldn't read Aggregate Record: " + sourceSiteDataKey, e);
         }
 
         return record;
