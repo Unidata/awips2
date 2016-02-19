@@ -102,6 +102,7 @@ import com.vividsolutions.jts.io.ParseException;
  * Sep 25, 2015 3873      skorolev     Added center definition for moving platforms.
  * Nov 09, 2015 3841      dhladky      Update all tables when zones/stations are updated.
  * Dec 02, 2015 3873      dhladky      Pulled 3841 to 16.1.1.
+ * Dec 17, 2015 3873      dhladky      Set link to Frame to true by default.
  * 
  * </pre>
  * 
@@ -176,7 +177,7 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
     protected Button linkToFrameChk;
 
     /** Link-to-frame flag. **/
-    public boolean linkedToFrame = false;
+    public boolean linkedToFrame = true;
 
     /** Vertical check box. **/
     private Button vertChk;
@@ -384,6 +385,7 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
         GridData gd = new GridData(SWT.DEFAULT, SWT.CENTER, false, true);
         linkToFrameChk = new Button(controlComp, SWT.CHECK);
         linkToFrameChk.setText("Link to Frame");
+        linkToFrameChk.setSelection(linkedToFrame);
         linkToFrameChk.setLayoutData(gd);
         linkToFrameChk.addSelectionListener(new SelectionAdapter() {
             @Override

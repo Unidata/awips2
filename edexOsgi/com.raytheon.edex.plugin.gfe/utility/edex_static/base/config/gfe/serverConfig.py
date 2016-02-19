@@ -74,7 +74,7 @@
 #    10/13/2015          #4961     randerso       Updated NewTerrain/BaseTerrain database definitions
 #    10/30/2015          #17940    jendrowski     Responded to Code Review.  Mostly syntactical changes.
 #    11/05/2015          #18182    ryu            Change D2DDBVERSIONS value for HPCERP to 24 
-#
+#    12/22/2015          #14152    jwatson        Added Sky, Wind to GFSLAMPGrid parms
 ####################################################################################################
 
 #----------------------------------------------------------------------------
@@ -127,15 +127,7 @@ class dbConfig(object):
         if "D2DMODELS" in dbConfigDict:
             self.D2DMODELS.append((dbConfigDict["D2DMODELS"],modelname))
         if "INITMODULES" in dbConfigDict:
-            # Find if the model is used in any currently defined INITMODULES
-            entry=next((x for x in self.INITMODULES.iteritems() if len(x[1])==1 and modelname in x[1]),None)
-            if entry is not None:
-                del self.INITMODULES[entry[0]]
             if type(dbConfigDict["INITMODULES"]) is tuple:
-                for mname in dbConfigDict["INITMODULES"][1]:
-                    entry=next((x for x in self.INITMODULES.iteritems() if len(x[1])==1 and mname in x[1]),None)
-                    if entry is not None:
-                        del self.INITMODULES[entry[0]]
                 self.INITMODULES[dbConfigDict["INITMODULES"][0]] = dbConfigDict["INITMODULES"][1]
             else:
                 self.INITMODULES[dbConfigDict["INITMODULES"]]=[modelname]
@@ -444,6 +436,7 @@ def printServerConfig(moduleObj,localsDict, logFile="/awips2/edex/logs/localConf
                     "ExtraWEPrecision", "INITSKIPS",
                     "HazardKeys",
                     "MAX_USER_BACKGROUND_PROCESSES",
+                    "AdditionalISCRouting",
                    ]
 
             for item in scvars:
@@ -527,7 +520,10 @@ def printModelDict(localsDict):
                 m=si[6:]
             entry=(si,ml)
         if m in modelDict:
-            modelDict[m]['INITMODULES']=entry
+            # If a model has multiple SmartInit modules, try to best match which
+            # Smartinit module to assign to the model.
+            if 'INITMODULES' not in modelDict[m] or m in si:
+                modelDict[m]['INITMODULES']=entry
         else:
             modelDict[m]={'INITMODULES':entry}
 
@@ -657,7 +653,7 @@ for r in siteRegion:
         myRegion=r
         break
 
-groups['powt']=siteRegion['CR']
+groups['powt']=list(siteRegion['CR'])
 groups['marineSites']=["CAR","GYX","BOX","OKX","PHI","LWX","AKQ","MHX","ILM","CHS",
                        "BRO","CRP","HGX","LCH","LIX","MOB","TAE","TBW","KEY","MFL",
                        "MLB","JAX","SJU",
@@ -3016,7 +3012,7 @@ ENPwave_parms = [([WindWaveHeight, WaveHeight, SurfHeight, Wind], TC6),
             ([Swell, Swell2, Period, Period2], TC6)]
 
 # GFSLAMPGrid
-GFSLAMPGridPARMS=[([Temp, Td, Vis, CigHgt],TC1)]
+GFSLAMPGridPARMS=[([Temp, Td, Vis, CigHgt, Sky, Wind],TC1)]
 
 #---------------------------------------------------------------------------
 # Databases for a site.
@@ -3107,13 +3103,6 @@ DATABASES.append((BaseTerrainDB, BaseTerrainParms))
 if type(REQUESTED_ISC_PARMS) is list and not "NewTopo" in REQUESTED_ISC_PARMS:
     REQUESTED_ISC_PARMS.append("NewTopo")
 ISCPARMS.append(([NewTopo], Persistent))
-
-for entry in AdditionalISCRouting:
-    (parmList, dbName, editAreaPrefix) = entry
-    parmList = list(parmList)
-    addedIscDbDefinition = (dbName, ) + ISC[1:]
-    addedIscParms = [(parmList, TC1)]
-    DATABASES.append((addedIscDbDefinition, addedIscParms))
 
 
 #---------------------------------------------------------------------------
@@ -3249,12 +3238,20 @@ D2DDBVERSIONS = db.D2DDBVERSIONS
 D2DAccumulativeElements = db.D2DAccumulativeElements
 INITMODULES = db.INITMODULES
 INITSKIPS = db.INITSKIPS
+OFFICIALDBS=list(modelDict['Fcst']['Parms'])
 
 # Create Practice and test databases from Fcst
 DATABASES.append((Official, modelDict['Fcst']['Parms'])),
 DATABASES.append((Practice, modelDict['Fcst']['Parms'])),
 DATABASES.append((TestFcst, modelDict['Fcst']['Parms'])),
 DATABASES.append((Test, modelDict['Fcst']['Parms'])),
+
+for entry in AdditionalISCRouting:
+    (parmList, dbName, editAreaPrefix) = entry
+    parmList = list(parmList)
+    addedIscDbDefinition = (dbName, ) + ISC[1:]
+    addedIscParms = [(parmList, TC1)]
+    DATABASES.append((addedIscDbDefinition, addedIscParms))
 
 # Intersite coordination database parameter groupings, based on
 # OFFICIALDBS, but time constraint is always TC1

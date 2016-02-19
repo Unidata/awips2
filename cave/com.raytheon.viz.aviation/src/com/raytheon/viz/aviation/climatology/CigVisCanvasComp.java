@@ -43,6 +43,7 @@ import org.eclipse.swt.widgets.Composite;
  * ------------ ---------- ----------- --------------------------
  * 28 FEB 2008  938        lvenable    Initial creation
  * 12 Aug 2013  #2256      lvenable    Disposed of image when composite is disposed.
+ * 29 JAN 2016  18439      zhao        Modified 'months' (changed "null" to "Dec")
  * 
  * </pre>
  * 
@@ -51,7 +52,7 @@ import org.eclipse.swt.widgets.Composite;
  * 
  */
 abstract public class CigVisCanvasComp extends Composite {
-    protected final String[] months = { "null", "Jan", "Feb", "Mar", "Apr",
+    protected final String[] months = { "Dec", "Jan", "Feb", "Mar", "Apr",
             "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
     protected final String[] elements = { "Visibility", "Ceiling",
