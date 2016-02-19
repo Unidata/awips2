@@ -79,6 +79,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 29 June 2015 14630      xwei        Fixed : Not able to import basins.dat with apostrophe and incorrect data posted
  * 30 June 2015 17360      xwei        Fixed : basins.dat import failed if the first line does not have Lat Lon
  * Dec 18, 2015 5217       mduff       Changes to fix importing geo files.
+ * Feb 15, 2016 5217       mduff       convert longitude back to hydro's "View value" of being positive
  * 
  * </pre>
  * 
@@ -835,7 +836,8 @@ public class ArealDefinitionsDlg extends CaveSWTDialog {
                 geoData.setBoundaryType(HydroConstants.GEOAREA_DATANAMES[listCbo
                         .getSelectionIndex()]);
                 geoData.setInteriorLat(intLat);
-                geoData.setInteriorLon(intLon);
+                // Convert back to hydro format of positive longitude values
+                geoData.setInteriorLon(intLon * -1);
                 geoData.setLon(lonPoints);
                 geoData.setLat(latPoints);
                 geoData.setNumberPoints(nPts);
