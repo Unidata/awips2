@@ -71,7 +71,7 @@ import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
  * Feb 08, 2016  5281     tjensen     Reworked interface to simply options
  * Feb 15, 2016  5281     tjensen     Added check for null in validate method
  * Feb 18, 2016  5281     tjensen     Fix issue when no JMS available.
- * 
+ * Feb 19, 2016  5281     tjensen     Fix validation when JMS not available.
  * </pre>
  * 
  * @author bsteffen
@@ -397,6 +397,9 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
                 timedPollBtn.setSelection(true);
                 dataRefreshGroup.setToolTipText(dataRefreshTooltip
                         + unableConnectJMS);
+            }
+
+            if (!jmsGood && !autoPullBtn.isEnabled()) {
                 // Since JMS is now disabled, we're in a good state.
                 jmsGood = true;
             }
