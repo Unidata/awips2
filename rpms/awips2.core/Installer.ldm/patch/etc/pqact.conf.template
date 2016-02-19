@@ -861,3 +861,11 @@ NGRID	^(L[ABCDEFGHRTW]AZ9[0-9]) (KWEA) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/
 
 NGRID	^(L[ABCDEFGHRTW]AZ9[0-9]) (KWEA) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/grib2/(\3:yyyy)(\3:mm)\3/\4/NationalBlend/\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
+
+# DR 18637: PQPF data
+NGRID	^(HEN[A-KXY][0-9][0-9]) (KWNH) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/\7/GRID\8/\(10)Z_\(11)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
+
+# This separate pattern necessary because some pqpf data cause ldm grib2 errors and it doesn't parse entire grib record
+NGRID	^(HEN[A-KXY][0-9][0-9]) (KWNH) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/FHRS/([^/]*)
+	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/\7/GRID\8/\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
