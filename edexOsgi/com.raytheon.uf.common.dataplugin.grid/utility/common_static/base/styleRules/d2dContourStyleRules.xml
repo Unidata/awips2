@@ -4253,13 +4253,20 @@ in | .03937 | 0 |  4 |    |   |..|8000F0FF| | 16 | \
 
 <styleRule>
     <paramLevelMatches>
-      <parameter>SPC</parameter>
       <parameter>OGRD</parameter>
       <parameter>BARO</parameter>
       <parameter>SPBARO</parameter>
     </paramLevelMatches>
     <contourStyle>
       <displayUnits>cm/sec</displayUnits>
+    </contourStyle>
+</styleRule>
+<styleRule>
+    <paramLevelMatches>
+      <parameter>SPC</parameter>
+    </paramLevelMatches>
+    <contourStyle>
+      <displayUnits>m/s</displayUnits>
     </contourStyle>
 </styleRule>
 
