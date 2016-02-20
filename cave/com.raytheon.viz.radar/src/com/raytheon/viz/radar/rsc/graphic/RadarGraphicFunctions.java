@@ -60,6 +60,7 @@ import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.geospatial.ReferencedObject.Type;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
+import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IImage;
@@ -86,6 +87,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                      correct display features.
  * Aug 11, 2014  3504      mapeters     Replaced deprecated IODataPreparer
  *                                      instances with IRenderedImageCallback.
+ * Feb 16, 2016  12021     wkwock       Fix mesocyclone zooming issue
  * 
  * </pre>
  * 
@@ -186,6 +188,14 @@ public class RadarGraphicFunctions {
 
         public String label;
 
+        public MesocycloneType type;
+        
+        public double mesoRadius = -999;
+        public double lat;
+        public double lon;
+        public LineStyle lineStyle;
+        public RGB color;
+        
     }
 
     /**
@@ -373,17 +383,17 @@ public class RadarGraphicFunctions {
         return po;
     }
 
-    public static PlotObject createMesocycloneImage(double i, double j,
-            int mesoRadius, IGraphicsTarget target,
+    public static PlotObject setMesocycloneInfo(double i, double j,
+            double mesoRadius, IGraphicsTarget target,
             GeneralGridGeometry gridGeometry, IDescriptor descriptor,
-            MesocycloneType type, RGB color) throws VizException,
+            MesocycloneType type, RGB color, LineStyle lineStyle) throws VizException,
             TransformException, FactoryException {
         ReferencedCoordinate rc = new ReferencedCoordinate(
                 RadarGraphicsPage.rectifyCoordinate(new Coordinate(i, j)),
                 gridGeometry, Type.GRID_CENTER);
 
-        return createMesocycloneImage(rc, mesoRadius, target, descriptor, type,
-                color);
+        return setMesocycloneInfo(rc, mesoRadius, descriptor, type,
+                color, lineStyle);
     }
 
     /**
@@ -422,85 +432,11 @@ public class RadarGraphicFunctions {
         return radius;
     }
 
-    public static PlotObject createMesocycloneImage(ReferencedCoordinate rc,
-            double mesoRadius, IGraphicsTarget target, IDescriptor descriptor,
-            MesocycloneType type, RGB color) throws VizException,
+    public static PlotObject setMesocycloneInfo(ReferencedCoordinate rc,
+            double mesoRadius, IDescriptor descriptor,
+            MesocycloneType type, RGB color, LineStyle lineStyle) throws VizException,
             TransformException, FactoryException {
-        int spikeSize = 8;
-
-        String svgToGet;
-        if (type.equals(MesocycloneType.MESOCYCLONE_WITH_SPIKES)) {
-            svgToGet = "MesocycloneWithSpikes.svg";
-        } else {
-            svgToGet = "Mesocyclone.svg";
-        }
-
-        // Get the SVG
-        Document document = loadSVG(svgToGet);
-
-        // Load the values into the SVG
-        // Set radius
-        Element radius = document.getElementById("mesocyclone");
-        double mesoRadiusInPixels = getRadiusInPixels(mesoRadius,
-                rc.asLatLon().x, rc.asLatLon().y, descriptor, target);
-        radius.setAttribute("r", String.valueOf(mesoRadiusInPixels));
-
-        // Draw spikes if needed
-        if (type.equals(MesocycloneType.MESOCYCLONE_WITH_SPIKES)) {
-            // Set spikes
-            Element topSpike = document.getElementById("topSpike");
-            topSpike.setAttribute("x1", "0");
-            topSpike.setAttribute("y1", String.valueOf(mesoRadiusInPixels));
-            topSpike.setAttribute("x2", "0");
-            topSpike.setAttribute("y2",
-                    String.valueOf(mesoRadiusInPixels + spikeSize));
-
-            // <line id="rightSpike" x1="8" y1="0" x2="16" y2="0"/>
-            Element rightSpike = document.getElementById("rightSpike");
-            rightSpike.setAttribute("y1", "0");
-            rightSpike.setAttribute("x1", String.valueOf(mesoRadiusInPixels));
-            rightSpike.setAttribute("y2", "0");
-            rightSpike.setAttribute("x2",
-                    String.valueOf(mesoRadiusInPixels + spikeSize));
-
-            // <line id="bottomSpike" x1="0" y1="-8" x2="0" y2="-16"/>
-            Element bottomSpike = document.getElementById("bottomSpike");
-            bottomSpike.setAttribute("x1", "0");
-            bottomSpike.setAttribute("y1",
-                    String.valueOf(-1 * mesoRadiusInPixels));
-            bottomSpike.setAttribute("x2", "0");
-            bottomSpike.setAttribute("y2",
-                    String.valueOf(-1 * (mesoRadiusInPixels + spikeSize)));
-
-            // <line id="leftSpike" x1="-8" y1="0" x2="-16" y2="0"/>
-            Element leftSpike = document.getElementById("leftSpike");
-            leftSpike.setAttribute("y1", "0");
-            leftSpike.setAttribute("x1",
-                    String.valueOf(-1 * mesoRadiusInPixels));
-            leftSpike.setAttribute("y2", "0");
-            leftSpike.setAttribute("x2",
-                    String.valueOf(-1 * (mesoRadiusInPixels + spikeSize)));
-        }
-
-        if (type.equals(MesocycloneType.CORRELATED_SHEAR)) {
-            radius.setAttribute("style", "");
-            radius.setAttribute("stroke-width", "1px");
-        } else if (type.equals(MesocycloneType.CORRELATED_SHEAR_EXTRAPOLATED)) {
-            radius.setAttribute("style", "stroke-dasharray: 5, 3");
-            radius.setAttribute("stroke-width", "1px");
-        } else {
-            radius.setAttribute("style", "");
-            radius.setAttribute("stroke-width", "4px");
-        }
-
-        // Get the buffered image from SVG
-        BufferedImage img = getBufferedImage(document, color);
-
-        // Plot
-        IImage image = convertBufferedImage(target, img, UUID.randomUUID()
-                .toString());
         PlotObject po = new PlotObject();
-        po.image = image;
 
         try {
             po.coord = rc.asPixel(descriptor.getGridGeometry());
@@ -510,8 +446,13 @@ public class RadarGraphicFunctions {
             throw new VizException("Unable to transform coordinates", e);
         }
 
-        // Meso images are supposed to reflect the actual area covered
-        // po.constantSize = false;
+        po.image=null;
+        po.type=type;
+        po.mesoRadius=mesoRadius;
+        po.lat=rc.asLatLon().x;
+        po.lon=rc.asLatLon().y;
+        po.lineStyle=lineStyle;
+        po.color=color;
 
         return po;
     }
@@ -523,9 +464,9 @@ public class RadarGraphicFunctions {
             TransformException, FactoryException {
         List<PlotObject> images = new ArrayList<PlotObject>();
         if (point != null) {
-            PlotObject po = createMesocycloneImage(point.getI(), point.getJ(),
-                    point.getPointFeatureAttr(), target, gridGeometry,
-                    descriptor, type, color);
+            PlotObject po = setMesocycloneInfo(point.getI(), point.getJ(),
+                    point.getPointFeatureAttr()/4.0, target, gridGeometry, //MD radius /4
+                    descriptor, type, color,LineStyle.SOLID);
             images.add(po);
         }
 
@@ -545,9 +486,9 @@ public class RadarGraphicFunctions {
             return images;
 
         for (MesocyclonePoint point : points) {
-            PlotObject po = createMesocycloneImage(point.getI(), point.getJ(),
+            PlotObject po = setMesocycloneInfo(point.getI(), point.getJ(),
                     point.getMesoCycloneRadius(), target, gridGeometry,
-                    descriptor, type, color);
+                    descriptor, type, color, LineStyle.SOLID);
 
             images.add(po);
         }
