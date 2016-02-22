@@ -99,6 +99,7 @@ import com.vividsolutions.jts.io.WKTWriter;
  * Jul 13, 2015  4500       rjpeter     Fix SQL Injection concerns.
  * Aug 08, 2015  4722       dhladky     Added Grid coverage and parsing methods.
  * Sep 17, 2015  4756       dhladky     Multiple guidance source bugs.
+ * Feb 12, 2016  5370       dhladky     Camel case for insertTime.
  * </pre>
  * 
  * @author dhladky
@@ -1460,7 +1461,7 @@ public class FFMPUtils {
         query.setLimit(1); // only need one response
         query.addConstraint(GridConstants.DATASET_ID, new RequestConstraint(
                 datasetID));
-        query.setOrderByField("inserttime", OrderMode.DESC);
+        query.setOrderByField("insertTime", OrderMode.DESC);
 
         DbQueryResponse resp = (DbQueryResponse) RequestRouter.route(query);
 
