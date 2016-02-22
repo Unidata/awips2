@@ -28,10 +28,10 @@ fi
 if [[ $(rpm -qa | grep awips2-cave) ]]; then
   echo "found CAVE RPMs installed"
 else
-  echo "  CAVE RPMs not installled"
+  echo "  CAVE RPMs not installed"
   echo ""
-  echo "  cleaning up /awips2/cave/, /awips2/alertviz/"
-  rm -rf /awips2/cave/ /awips2/alertviz/
+  echo "  cleaning up /awips2/cave/"
+  rm -rf /awips2/cave/ 
 fi
 
 echo ''
