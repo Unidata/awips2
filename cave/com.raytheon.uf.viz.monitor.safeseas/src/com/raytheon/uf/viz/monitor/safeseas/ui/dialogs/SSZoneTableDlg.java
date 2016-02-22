@@ -59,6 +59,7 @@ import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants;
  * Apr 28, 2014 3086       skorolev     Updated getConfigMgr method.
  * Sep 04, 2014 3220       skorolev     Removed "site". Added check on dispose.
  * Sep 18, 2015 3873       skorolev     Adjusted to AppName and MonName.
+ * Dec 17, 2015 3873       dhladky      Abstracted handling of dialogTime and Zone dialog events.
  * 
  * </pre>
  * 
@@ -155,9 +156,6 @@ public class SSZoneTableDlg extends ZoneTableDlg {
             if (date != null) {
                 Date nominalTime = date;
                 ObMultiHrsReports obData = monitor.getObData();
-                if (!isLinkedToFrame()) {
-                    nominalTime = obData.getLatestNominalTime();
-                }
                 Map<String, FOG_THREAT> fogAlgThreats = monitor
                         .getAlgorithmData(nominalTime);
                 obData.setFogAlgCellType(monitor.getAlgCellTypes(fogAlgThreats));
