@@ -301,12 +301,13 @@ rfc.groupName = 'ISC'
 
 #  NHA ISC area
 domain = ShapeTable('nhadomain')
-#segment.name = "AllCWA"
+domain.name = "TropicalISC"
 domain.groupName = "ISC"
 domain.editAreaName = "ISC_NHA"
 
 #    Storm Surge Watch/Warning Area
 stormsurgeww = ShapeTable('stormsurgeww')
+stormsurgeww.name = "StormSurgeWW"
 stormsurgeww.groupName = "SurgeCollab"
 stormsurgeww.editAreaName = "StormSurgeWW_EditArea"
 
