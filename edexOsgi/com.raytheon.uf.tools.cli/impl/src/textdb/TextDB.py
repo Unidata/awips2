@@ -16,6 +16,17 @@
 # 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
+##############################################################################
+# Contains configuration information specific to the Subscription Manager tool
+#
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#                                                 Initial Creation.
+#    Feb 23, 2016    4716          rferrel        Added help for AWIPS commands.
+##############################################################################
+
 ##
 import os
 import sys
@@ -103,6 +114,10 @@ class TextDB:
     # prints the AFOS Commands summary
     def __afosCmds(self):
         util.printMessage(sys.stderr,body=config.AFOS_CMDS)
+
+    # prints the AWIPS Commands summary
+    def __awipsCmds(self):
+        util.printMessage(sys.stderr,body=config.AWIPS_CMDS)
 
     # determines if the command line specifies an operation that requires
     # reading the product from standard input
@@ -504,6 +519,10 @@ class TextDB:
             
             if 'afos_cmds' in self.commands:
                 self.__afosCmds()
+                return 1
+            
+            if 'awips_cmds' in self.commands:
+                self.__awipsCmds()
                 return 1
             
             if self.__isScriptRequest():

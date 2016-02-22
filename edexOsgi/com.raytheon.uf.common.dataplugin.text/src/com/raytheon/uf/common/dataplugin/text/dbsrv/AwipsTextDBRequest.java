@@ -19,23 +19,53 @@
  **/
 package com.raytheon.uf.common.dataplugin.text.dbsrv;
 
+import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.common.serialization.comm.IServerRequest;
+
 /**
- * Enumeration for textdbsrv view options
+ * Object used by thrift clients to make awips textdb requests
  * 
  * <pre>
+ * 
  * SOFTWARE HISTORY
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 14, 2008       1538 jkorman     Initial creation
- * 21May2010    2187       cjeanbap    Add OPERATIONAL code
- * May 15, 2014 2536       bclement    moved from uf.edex.textdbsrv
- * Feb 12, 2016 4716       rferrel     Add AWIPSCMD code.
+ * Feb 12, 2016 4716       rferrel     Initial creation
+ * 
  * </pre>
  * 
- * @author jkorman
+ * @author rferrel
  * @version 1.0
  */
+@DynamicSerialize
+public class AwipsTextDBRequest implements IServerRequest {
 
-public enum TextViewTags {
-    OP, SUBOP, PRODID, FORMAT, CLIENTFMT, PRODUCT, AFOSCMD, AWIPSCMD, WMOID, SITE, HOUR, HDRTIME, BBB, NNNXXX, FULLREAD, OPERATIONAL, TEST, PRACTICE;
+    @DynamicSerializeElement
+    private String nnnxxx;
+
+    public AwipsTextDBRequest() {
+    }
+
+    /**
+     * @param message
+     */
+    public AwipsTextDBRequest(String nnnxxx) {
+        setNnnxxx(nnnxxx);
+    }
+
+    public String getNnnxxx() {
+        return nnnxxx;
+    }
+
+    public void setNnnxxx(String nnnxxx) {
+        if (nnnxxx.length() == 4) {
+            this.nnnxxx = nnnxxx + "  ";
+        } else if (nnnxxx.length() == 5) {
+            this.nnnxxx = nnnxxx + " ";
+        } else {
+            this.nnnxxx = nnnxxx;
+        }
+    }
 }

@@ -17,25 +17,30 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.dataplugin.text.dbsrv;
+
+package com.raytheon.viz.texteditor.msgs;
+
+import com.raytheon.viz.texteditor.command.ICommand;
 
 /**
- * Enumeration for textdbsrv view options
+ * The IAwipsBrowserCallback interface specifies methods that query for a text
+ * product and set an Awips command field string.
  * 
  * <pre>
+ * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Oct 14, 2008       1538 jkorman     Initial creation
- * 21May2010    2187       cjeanbap    Add OPERATIONAL code
- * May 15, 2014 2536       bclement    moved from uf.edex.textdbsrv
- * Feb 12, 2016 4716       rferrel     Add AWIPSCMD code.
+ * 
+ * Date         Ticket      Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * Aug 11, 2015 4716        rferrel     Initial creation.
  * </pre>
  * 
- * @author jkorman
- * @version 1.0
+ * @author rferrel
+ * 
  */
 
-public enum TextViewTags {
-    OP, SUBOP, PRODID, FORMAT, CLIENTFMT, PRODUCT, AFOSCMD, AWIPSCMD, WMOID, SITE, HOUR, HDRTIME, BBB, NNNXXX, FULLREAD, OPERATIONAL, TEST, PRACTICE;
+public interface IAwipsBrowserCallback {
+    public void executeCommand(ICommand command);
+
+    public void setAwipsCmdField(String cmd);
 }

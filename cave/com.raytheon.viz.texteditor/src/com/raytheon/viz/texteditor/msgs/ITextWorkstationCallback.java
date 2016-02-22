@@ -30,6 +30,7 @@ package com.raytheon.viz.texteditor.msgs;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 11/28/2007   520         grichard    Initial creation.
+ * 02/24/2016   4716        rferrel     Change method name to be more generic.
  * 
  * </pre>
  * 
@@ -41,5 +42,5 @@ public interface ITextWorkstationCallback {
 
     org.eclipse.swt.widgets.Shell getShell();
 
-    boolean isAfosBrowserActive();
+    boolean isBrowserActive();
 }

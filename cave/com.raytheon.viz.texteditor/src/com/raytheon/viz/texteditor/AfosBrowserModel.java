@@ -21,10 +21,9 @@
 package com.raytheon.viz.texteditor;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,14 +36,10 @@ import java.util.TreeSet;
 
 import com.raytheon.uf.common.dataplugin.radar.util.RadarTextProductUtil;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarsInUseUtil;
-import com.raytheon.uf.common.localization.IPathManager;
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.LocalizationContext;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.site.SiteMap;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.viz.texteditor.util.AFOS_CLASS;
@@ -67,14 +62,12 @@ import com.raytheon.viz.texteditor.util.AFOS_ORIGIN;
  * 07/24/2012   939         jkorman     Modified parseAfosMasterPil() handle blank lines as well
  *                                      as lines with trailing whitespace.
  * 02/17/2016   5391        randerso    Added displayHelp
+ * 02/12/2016   4716        rferrel     Refactor to extend {@link AbstractBrowserModel}.
  * </pre>
  * 
  * @author grichard
  */
-public final class AfosBrowserModel {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(AfosBrowserModel.class);
-
+public final class AfosBrowserModel extends AbstractBrowserModel {
     // Need at least this many characters in an afosMasterPIL entry
     // Need the CCCNNN and at least a 1 character XXX
     private static final int MIN_MASTPIL_LEN = 7;
@@ -90,20 +83,8 @@ public final class AfosBrowserModel {
 
     private static final String SITE_WILDCARD = "@@@";
 
-    private static final String COMMENT_DELIM = "#";
-
-    /**
-     * The VTEC Afos Product enumeration
-     */
-    public static enum vtecAfosProductEnum {
-        WOU, WCN, SVR, TOR, SMW, SVS, MWS, FFA, FLW, FFS, FLS, WSW, NPW, FWW, RFW, CFW, TCV, CWF, NSH, OFF, GLF, TSU;
-    }
 
     private static final String CCC_HELP = "textdb/textCCChelp.txt";
-
-    private static final String NNN_HELP = "textdb/textNNNhelp.txt";
-
-    private static final String CATEGORY_CLASS = "textdb/textCategoryClass.txt";
 
     private static final String ORIGIN_TABLE = "textdb/textOriginTable.txt";
 
@@ -123,55 +104,53 @@ public final class AfosBrowserModel {
     /**
      * Used for looking up ccc Help text, no need to be sorted.
      */
-    private Map<String, String> cccHelp = new HashMap<String, String>();
-
-    /**
-     * Used for looking up nnn Help text, no need to be sorted.
-     */
-    private Map<String, String> nnnHelp = new HashMap<String, String>();
+    private Map<String, String> cccHelp;
 
     /**
      * Associated a set of ccc with a given origin. Used a display use, should
      * be sorted.
      */
-    private Map<AFOS_ORIGIN, SortedSet<String>> originMap = new HashMap<AFOS_ORIGIN, SortedSet<String>>();
+    private Map<AFOS_ORIGIN, SortedSet<String>> originMap;
 
     /**
      * Associates a category class to the list of nnn that are associated with
      * it. Only used for internal indexing, no need to be sorted.
      */
-    private Map<Integer, Set<String>> categoryClass = new HashMap<Integer, Set<String>>();
+    private Map<Integer, Set<String>> categoryClass;
 
-    private Map<String, Map<String, SortedSet<String>>> masterPil = new HashMap<String, Map<String, SortedSet<String>>>();
+    private Map<String, Map<String, SortedSet<String>>> masterPil;
 
-    private String localSite = null;
+    private String localSite;
 
     /**
      * Private constructor: Use getInstance().
      */
     private AfosBrowserModel() {
-        localSite = LocalizationManager.getInstance().getCurrentSite();
-        IPathManager pathManager = PathManagerFactory.getPathManager();
-        LocalizationContext lcb = pathManager.getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
-        LocalizationContext lcs = pathManager.getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
-        LocalizationContext lcu = pathManager.getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.USER);
+        super();
+        this.cccHelp = new HashMap<>();
+        this.originMap = new HashMap<>();
+        this.categoryClass = new HashMap<>();
+        this.masterPil = new HashMap<>();
+        this.localSite = null;
+        setup();
+        cleanup();
+    }
 
-        parseHelp(pathManager.getFile(lcb, CCC_HELP), cccHelp);
-        parseHelp(pathManager.getFile(lcs, CCC_HELP), cccHelp);
-        parseHelp(pathManager.getFile(lcu, CCC_HELP), cccHelp);
+    @Override
+    protected void setup() {
+        super.setup();
 
-        parseHelp(pathManager.getFile(lcb, NNN_HELP), nnnHelp);
-        parseHelp(pathManager.getFile(lcs, NNN_HELP), nnnHelp);
-        parseHelp(pathManager.getFile(lcu, NNN_HELP), nnnHelp);
+        for (LocalizationContext lc : lcArray) {
+            parseHelp(pathManager.getLocalizationFile(lc, CCC_HELP), cccHelp);
+            parseHelp(pathManager.getLocalizationFile(lc, NNN_HELP), nnnHelp);
+        }
 
         // read in origin into map of ccc to allow for overriding
         Map<String, List<AFOS_ORIGIN>> tmpOrigin = new HashMap<String, List<AFOS_ORIGIN>>();
-        tmpOrigin.putAll(parseOrigin(pathManager.getFile(lcb, ORIGIN_TABLE)));
-        tmpOrigin.putAll(parseOrigin(pathManager.getFile(lcs, ORIGIN_TABLE)));
-        tmpOrigin.putAll(parseOrigin(pathManager.getFile(lcu, ORIGIN_TABLE)));
+        for (LocalizationContext lc : lcArray) {
+            tmpOrigin.putAll(parseOrigin(pathManager.getLocalizationFile(lc,
+                    ORIGIN_TABLE)));
+        }
 
         // generate into map by origin
         for (Entry<String, List<AFOS_ORIGIN>> entry : tmpOrigin.entrySet()) {
@@ -187,12 +166,11 @@ public final class AfosBrowserModel {
 
         // read in categories into map of nnn to allow for overriding
         Map<String, String> tmpCategory = new HashMap<String, String>();
-        parseCategoryClass(pathManager.getFile(lcb, CATEGORY_CLASS),
-                tmpCategory);
-        parseCategoryClass(pathManager.getFile(lcs, CATEGORY_CLASS),
-                tmpCategory);
-        parseCategoryClass(pathManager.getFile(lcu, CATEGORY_CLASS),
-                tmpCategory);
+        for (LocalizationContext lc : lcArray) {
+            parseStringValues(
+                    pathManager.getLocalizationFile(lc, CATEGORY_CLASS),
+                    tmpCategory);
+        }
 
         // generate into map by category
         for (Entry<String, String> entry : tmpCategory.entrySet()) {
@@ -214,9 +192,10 @@ public final class AfosBrowserModel {
             }
         }
 
-        parseAfosMasterPil(pathManager.getFile(lcb, AFOS_MASTER_PIL));
-        parseAfosMasterPil(pathManager.getFile(lcs, AFOS_MASTER_PIL));
-        parseAfosMasterPil(pathManager.getFile(lcu, AFOS_MASTER_PIL));
+        for (LocalizationContext lc : lcArray) {
+            parseAfosMasterPil(pathManager.getLocalizationFile(lc,
+                    AFOS_MASTER_PIL));
+        }
         addRadarToMasterPil();
     }
 
@@ -273,80 +252,15 @@ public final class AfosBrowserModel {
 
     }
 
-    /**
-     * 
-     * @return
-     */
-    public String getLocalSite() {
-        return localSite;
-    }
-
-    private void parseHelp(File fileToParse, Map<String, String> helpMap) {
-        BufferedReader br = null;
-        String line = null;
-
-        try {
-            if (fileToParse.exists()) {
-                br = new BufferedReader(new FileReader(fileToParse));
-                while ((line = br.readLine()) != null) {
-                    // skip comments.
-                    if (line.startsWith(COMMENT_DELIM)) {
-                        continue;
-                    }
-
-                    if (line.length() > 3) {
-                        // Get the id
-                        String s = line.substring(0, 3);
-                        helpMap.put(s, line.substring(4));
-                    }
-                }
-            }
-        } catch (IOException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error occurred parsing file [" + fileToParse.getName()
-                            + "]", e);
-        } finally {
-            closeReader(br);
-        }
-    }
-
-    private void parseCategoryClass(File fileToParse,
-            Map<String, String> categoryMap) {
-        if (fileToParse != null && fileToParse.exists()) {
-            BufferedReader br = null;
-            String line = null;
-            try {
-                br = new BufferedReader(new FileReader(fileToParse));
-                while ((line = br.readLine()) != null) {
-                    // skip comments.
-                    if (line.startsWith(COMMENT_DELIM)) {
-                        continue;
-                    }
-
-                    String[] tokens = line.split(" ", 2);
-
-                    // ensure there is a category
-                    if (tokens.length > 1) {
-                        categoryMap.put(tokens[0], tokens[1]);
-                    }
-                }
-            } catch (IOException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error occurred parsing file [" + fileToParse.getName()
-                                + "]", e);
-            } finally {
-                closeReader(br);
-            }
-        }
-    }
-
-    private Map<String, List<AFOS_ORIGIN>> parseOrigin(File fileToParse) {
+    private Map<String, List<AFOS_ORIGIN>> parseOrigin(
+            ILocalizationFile fileToParse) {
         Map<String, List<AFOS_ORIGIN>> cccOriginMap = new HashMap<String, List<AFOS_ORIGIN>>();
-        if (fileToParse != null && fileToParse.exists()) {
-            BufferedReader br = null;
-            String line = null;
-            try {
-                br = new BufferedReader(new FileReader(fileToParse));
+        if ((fileToParse != null) && fileToParse.exists()) {
+            try (InputStream in = fileToParse.openInputStream();
+                    BufferedReader br = new BufferedReader(
+                            new InputStreamReader(in));) {
+                String line = null;
+
                 while ((line = br.readLine()) != null) {
                     // skip comments.
                     if (line.startsWith(COMMENT_DELIM)) {
@@ -364,12 +278,10 @@ public final class AfosBrowserModel {
                     }
                     origins.add(origin);
                 } // while
-            } catch (IOException e) {
+            } catch (IOException | LocalizationException e) {
                 statusHandler.handle(Priority.PROBLEM,
-                        "Error occurred parsing file [" + fileToParse.getName()
+                        "Error occurred parsing file [" + fileToParse.getPath()
                                 + "]", e);
-            } finally {
-                closeReader(br);
             }
         }
 
@@ -383,15 +295,15 @@ public final class AfosBrowserModel {
      * @param fileToParse
      *            File reference containing the PIL list.
      */
-    private void parseAfosMasterPil(File fileToParse) {
+    private void parseAfosMasterPil(ILocalizationFile fileToParse) {
         if (fileToParse != null && fileToParse.exists()) {
-            BufferedReader br = null;
-            String line = null;
 
             String localCCC = SiteMap.getInstance()
                     .getCCCFromXXXCode(localSite);
-            try {
-                br = new BufferedReader(new FileReader(fileToParse));
+            try (InputStream in = fileToParse.openInputStream();
+                    BufferedReader br = new BufferedReader(
+                            new InputStreamReader(in));) {
+                String line = null;
 
                 while ((line = br.readLine()) != null) {
                     // Remove any trailing spaces.
@@ -441,12 +353,10 @@ public final class AfosBrowserModel {
                     }
 
                 } // while
-            } catch (IOException e) {
+            } catch (IOException | LocalizationException e) {
                 statusHandler.handle(Priority.PROBLEM,
-                        "Error occurred parsing file [" + fileToParse.getName()
+                        "Error occurred parsing file [" + fileToParse.getPath()
                                 + "]", e);
-            } finally {
-                closeReader(br);
             }
         }
     }
@@ -584,16 +494,6 @@ public final class AfosBrowserModel {
     /**
      * Get the help text for a single category.
      * 
-     * @param category
-     * @return
-     */
-    public String getCategoryHelp(String category) {
-        return nnnHelp.get(category);
-    }
-
-    /**
-     * Get the help text for a single category.
-     * 
      * @param designator
      * @return
      */
@@ -630,13 +530,4 @@ public final class AfosBrowserModel {
         return categoryClass.get(key + 1);
     }
 
-    private void closeReader(Reader reader) {
-        if (reader != null) {
-            try {
-                reader.close();
-            } catch (IOException e) {
-                // ignore
-            }
-        }
-    }
 }

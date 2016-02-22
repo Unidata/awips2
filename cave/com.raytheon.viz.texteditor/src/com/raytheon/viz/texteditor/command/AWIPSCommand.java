@@ -45,7 +45,7 @@ import com.raytheon.viz.core.mode.CAVEMode;
  * 05Jun2011    9740       cjeanbap    Fixed invalid character, Form Feed.
  * 09Sep2014    3580       mapeters    Removed IQueryTransport usage 
  *                                     (no longer exists).
- * </pre>
+ * 12Feb2016    4716       rferrel     {@link #getCommandTextFields()} added site information.
  * 
  * @author rjpeter
  * @version 1.0
@@ -116,9 +116,10 @@ public class AWIPSCommand implements ICommand {
      */
     @Override
     public String[] getCommandTextFields() {
-        String[] rval = new String[2];
+        String[] rval = new String[3];
         rval[0] = "AWIPS:";
-        rval[1] = (awipsid != null ? awipsid : "");
+        rval[1] = (site != null ? site : "");
+        rval[2] = (awipsid != null ? awipsid : "");
         return rval;
     }
 
@@ -131,8 +132,7 @@ public class AWIPSCommand implements ICommand {
      */
     @SuppressWarnings("unchecked")
     @Override
-    public List<StdTextProduct> executeCommand()
-            throws CommandFailedException {
+    public List<StdTextProduct> executeCommand() throws CommandFailedException {
         // TODO verify both fields blank not allowed
         if (awipsid == null) {
             throw new CommandFailedException("Awips Id not set");

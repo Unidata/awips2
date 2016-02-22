@@ -33,6 +33,8 @@ import com.raytheon.viz.texteditor.util.TextEditorUtil;
  * ------------ ---------- ----------- --------------------------
  * Jul 30, 2009 2191       rjpeter     Initial creation
  * May 23, 2010 14952      rferrel     Allow using refTime in AFOS commands.
+ * Feb 12, 2016 4716       rferrel     {@link #getAwipsCommand(String, String)} changed to
+ *                                     take site argument.
  * 
  * </pre>
  * 
@@ -108,8 +110,8 @@ public class CommandFactory {
         return new WMOCommand(wmoId, cccc, awipsid, hdrtime, bbbid);
     }
 
-    public static ICommand getAwipsCommand(String awipsId) {
-        return getAwipsCommand(awipsId, null, null, null, null);
+    public static ICommand getAwipsCommand(String awipsId, String site) {
+        return getAwipsCommand(awipsId, null, site, null, null);
     }
 
     public static ICommand getAwipsCommand(String awipsId, String wmoId,
