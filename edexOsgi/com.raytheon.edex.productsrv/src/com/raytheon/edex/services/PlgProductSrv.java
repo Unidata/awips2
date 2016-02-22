@@ -22,8 +22,8 @@ package com.raytheon.edex.services;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.uengine.ResponseUtil;
 import com.raytheon.edex.uengine.runners.IMicroEngine;
@@ -37,9 +37,10 @@ import com.raytheon.uf.edex.core.EdexException;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
+ * Date         Ticket#     Engineer    Description
+ * ----------   ----------  ----------- --------------------------
  * 12Nov2008    1709        MW Fegan    Initial creation
+ * 10Dec2015    5166        kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -48,24 +49,21 @@ import com.raytheon.uf.edex.core.EdexException;
 
 public class PlgProductSrv {
     /**
-     * This is the &mu;Engine instance used to run the scripts.
-     * It will normally be set by the container via dependency
-     * injection.
+     * This is the &mu;Engine instance used to run the scripts. It will normally
+     * be set by the container via dependency injection.
      */
     private IMicroEngine runner = null;
 
-    private Log logger = LogFactory.getLog(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
-    
- 
     public Object process(String scriptText) throws EdexException {
         String dataURI = ResponseUtil.EMPTY_DATA_URI;
 
-       
         if (this.runner == null) {
             String msg = "Endoint misconfigured - no script runner specified. Contact System Administrator.";
             logger.error(msg);
-            ResponseMessageError error = ResponseMessageError.generateErrorResponse(msg, null);
+            ResponseMessageError error = ResponseMessageError
+                    .generateErrorResponse(msg, null);
             return ResponseUtil.createErrorMessage(error);
         }
         List<AbstractResponseMessage> responseList = null;
@@ -76,28 +74,28 @@ public class PlgProductSrv {
         } catch (Exception e) {
             responseList = new ArrayList<AbstractResponseMessage>();
             ResponseMessageError error = ResponseMessageError
-                    .generateErrorResponse("Error executing script.",e);
+                    .generateErrorResponse("Error executing script.", e);
             responseList.add(error);
         } finally {
             runner.release();
         }
 
-        Message msg = ResponseUtil.createMessageObject(dataURI, "", responseList);
+        Message msg = ResponseUtil.createMessageObject(dataURI, "",
+                responseList);
         return msg;
     }
 
-
     /**
-     * Returns the runner <code>IMicroEngine</code> script runner
-     * configured for this end point.
+     * Returns the runner <code>IMicroEngine</code> script runner configured for
+     * this end point.
      */
     public IMicroEngine getRunner() {
         return runner;
     }
 
     /**
-     * Sets the runner <code>IMicroEngine</code> script runner
-     * configured for this end point.
+     * Sets the runner <code>IMicroEngine</code> script runner configured for
+     * this end point.
      */
     public void setRunner(IMicroEngine runner) {
         this.runner = runner;

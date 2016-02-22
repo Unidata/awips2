@@ -24,7 +24,7 @@ import javax.measure.converter.ConversionException;
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.SI;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * TODO class description
@@ -41,75 +41,75 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
  */
 public class PrecipLengthToPixelConverter extends UnitConverter {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private static UnitConverter meterToMillimeter = SI.METRE.getConverterTo(SI
-			.MILLI(SI.METRE));
+    private static UnitConverter meterToMillimeter = SI.METRE.getConverterTo(SI
+            .MILLI(SI.METRE));
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.measure.converter.UnitConverter#convert(double)
-	 */
-	@Override
-	public double convert(double aPrecip) throws ConversionException {
-		double result = 0.0;
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.measure.converter.UnitConverter#convert(double)
+     */
+    @Override
+    public double convert(double aPrecip) throws ConversionException {
+        double result = 0.0;
 
-		// value is in meters, but below calculates pixel based on value being
-		// millimeters
-		aPrecip = meterToMillimeter.convert(aPrecip);
+        // value is in meters, but below calculates pixel based on value being
+        // millimeters
+        aPrecip = meterToMillimeter.convert(aPrecip);
 
-		if (aPrecip > 0 && aPrecip <= 75) {
-			result = aPrecip + 176.0;
-		}
+        if (aPrecip > 0 && aPrecip <= 75) {
+            result = aPrecip + 176.0;
+        }
 
-		if (result < 0) {
-			result = 0.0;
-		} else if (result > 255) {
-			result = 255;
-		}
+        if (result < 0) {
+            result = 0.0;
+        } else if (result > 255) {
+            result = 255;
+        }
 
-		return result;
-	}
+        return result;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.measure.converter.UnitConverter#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object aConverter) {
-		return (aConverter instanceof PrecipLengthToPixelConverter);
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.measure.converter.UnitConverter#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object aConverter) {
+        return (aConverter instanceof PrecipLengthToPixelConverter);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.measure.converter.UnitConverter#hashCode()
-	 */
-	@Override
-	public int hashCode() {
-		return HashCodeBuilder.reflectionHashCode(this);
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.measure.converter.UnitConverter#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.measure.converter.UnitConverter#inverse()
-	 */
-	@Override
-	public UnitConverter inverse() {
-		return new PrecipPixelToLengthConverter();
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.measure.converter.UnitConverter#inverse()
+     */
+    @Override
+    public UnitConverter inverse() {
+        return new PrecipPixelToLengthConverter();
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.measure.converter.UnitConverter#isLinear()
-	 */
-	@Override
-	public boolean isLinear() {
-		return false;
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.measure.converter.UnitConverter#isLinear()
+     */
+    @Override
+    public boolean isLinear() {
+        return false;
+    }
 
 }

@@ -2,9 +2,9 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Bufrmthdw Plug-in
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.bufrmthdw
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.15.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: com.raytheon.uf.common.dataplugin.bufrmthdw,
  com.raytheon.edex.common,
  com.raytheon.uf.edex.decodertools,
@@ -18,4 +18,4 @@ Import-Package: com.raytheon.uf.common.status,
  com.raytheon.uf.edex.bufrtools,
  com.raytheon.uf.edex.bufrtools.descriptors,
  com.raytheon.uf.edex.bufrtools.packets,
- org.apache.commons.logging
+ org.slf4j

@@ -180,7 +180,7 @@ public class KmlExportDialog extends CaveSWTDialog {
 
     protected void initializeFramesGroup(Group group) {
         group.setLayout(new GridLayout(5, false));
-        group.setText("Export Location");
+        group.setText("Export Frames");
 
         allFramesButton = new Button(group, SWT.RADIO);
         allFramesButton.setText("All Frames");

@@ -19,6 +19,7 @@
  **/
 package com.raytheon.edex.plugin.grib.decoderpostprocessors;
 
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,10 +35,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.edex.plugin.grib.exception.GribException;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
-import com.raytheon.uf.common.localization.FileUpdatedMessage;
-import com.raytheon.uf.common.localization.ILocalizationFileObserver;
+import com.raytheon.uf.common.localization.ILocalizationFile;
+import com.raytheon.uf.common.localization.ILocalizationPathObserver;
 import com.raytheon.uf.common.localization.IPathManager;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.parameter.Parameter;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -45,32 +45,33 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
- *
+ * 
  * Adjusts temperature values that are mislabled as Celsius or Kelvin when they
  * actually represent the other one. Loads a list of parameters and thresholds
  * from a localization file. Assumes that all values above the threshold for a
  * parameter are in Kelvin and will convert if the declared unit is Celsius.
  * Values below the threshold are assumed to be in Celsius and will be converted
  * if the declared unit is Kelvin
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Mar 28, 2010  2874     bsteffen    Initial creation
  * Apr 25, 2014  2060     njensen     Use JAXB instead of JAXBManager
  * Oct 07, 2015  3756     nabowle     Extends DecoderPostProcessor.
- *
- *
+ * Feb 16, 2016  5237     bsteffen    Replace deprecated localization API.
+ * 
+ * 
  * </pre>
- *
+ * 
  * @author bsteffen
  * @version 1.0
  */
 public class TemperatureCorrectionPostProcessor extends DecoderPostProcessor
-        implements ILocalizationFileObserver {
+        implements ILocalizationPathObserver {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(TemperatureCorrectionPostProcessor.class);
@@ -86,21 +87,21 @@ public class TemperatureCorrectionPostProcessor extends DecoderPostProcessor
 
     private Map<String, Double> paramThresholdMap;
 
-    public TemperatureCorrectionPostProcessor() throws GribException {
-        LocalizationFile file = readConfiguration();
-        if (file != null) {
-            file.addFileUpdatedObserver(this);
-        }
+    public TemperatureCorrectionPostProcessor() {
+        readConfiguration();
+        PathManagerFactory.getPathManager().addLocalizationPathObserver(
+                LOCALIZATON_LOCATION, this);
+
     }
 
-    protected LocalizationFile readConfiguration() {
-        LocalizationFile file = PathManagerFactory.getPathManager()
+    protected void readConfiguration() {
+        ILocalizationFile file = PathManagerFactory.getPathManager()
                 .getStaticLocalizationFile(LOCALIZATON_LOCATION);
         Map<String, Double> paramThresholdMap = new HashMap<String, Double>(8);
         if (file != null && file.exists()) {
             TemperatureCorrectionParameters params = null;
-            try {
-                params = JAXB.unmarshal(file.getFile(),
+            try (InputStream is = file.openInputStream()) {
+                params = JAXB.unmarshal(is,
                         TemperatureCorrectionParameters.class);
             } catch (Exception e) {
                 /* Some hope of recovering with a better file. */
@@ -119,11 +120,10 @@ public class TemperatureCorrectionPostProcessor extends DecoderPostProcessor
             }
         }
         this.paramThresholdMap = paramThresholdMap;
-        return file;
     }
 
     @Override
-    public void fileUpdated(FileUpdatedMessage message) {
+    public void fileChanged(ILocalizationFile file) {
         try {
             readConfiguration();
         } catch (Exception e) {
@@ -209,4 +209,5 @@ public class TemperatureCorrectionPostProcessor extends DecoderPostProcessor
         }
 
     }
+
 }

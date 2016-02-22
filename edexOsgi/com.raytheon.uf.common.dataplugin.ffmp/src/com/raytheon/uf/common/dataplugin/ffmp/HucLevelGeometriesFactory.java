@@ -1,27 +1,25 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
 package com.raytheon.uf.common.dataplugin.ffmp;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
@@ -33,6 +31,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -40,12 +39,12 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.common.util.FileUtil;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -58,11 +57,11 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  * The first time FFMP is loaded the geometries will be simplified and stored to
  * localization for faster retrieval. All geometries and envelopes are held in
  * memory by a soft reference or until they are explicitly cleared.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 9, 2010             rjpeter     Initial creation
@@ -70,9 +69,11 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  *                                     loading them.
  * Apr 25, 2013 1954       bsteffen    Undo last commit to avoid invalid geoms.
  * Jul 03, 2013 2152       rjpeter     Use streams for serialization
- * 
+ * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
+ * Feb 15, 2016 5244       nabowle     Replace deprecated LocalizationFile methods.
+ *
  * </pre>
- * 
+ *
  * @author rjpeter
  * @version 1.0
  */
@@ -132,23 +133,19 @@ public class HucLevelGeometriesFactory {
                     getGeomPath(dataKey, cwa, huc));
 
             if (f.exists()) {
-                InputStream is = null;
                 boolean deleteFile = false;
+                long length = f.getFile().length();
 
-                try {
-                    File file = f.getFile();
-                    long length = file.length();
+                // read from disk in 8k chunks
+                int bufferSize = 8 * 1024;
+                if (bufferSize > length) {
+                    bufferSize = (int) length;
+                }
 
-                    // read from disk in 8k chunks
-                    int bufferSize = 8 * 1024;
-                    if (bufferSize > length) {
-                        bufferSize = (int) length;
-                    }
+                try (InputStream is = f.openInputStream();
+                        GZIPInputStream gis = new GZIPInputStream(is, bufferSize)) {
 
-                    is = new GZIPInputStream(new FileInputStream(file),
-                            bufferSize);
-
-                    map = SerializationUtil.transformFromThrift(Map.class, is);
+                    map = SerializationUtil.transformFromThrift(Map.class, gis);
                     int sizeGuess = Math.max(
                             Math.abs(pfafs.size() - map.size()), 10);
                     pfafsToGenerate = new ArrayList<Long>(sizeGuess);
@@ -165,18 +162,10 @@ public class HucLevelGeometriesFactory {
                     deleteFile = true;
                     pfafsToGenerate = pfafs;
                 } finally {
-                    if (is != null) {
-                        try {
-                            is.close();
-                        } catch (IOException e1) {
-                            // ignore
-                        }
-                    }
-
                     if (deleteFile) {
                         try {
                             f.delete();
-                        } catch (LocalizationOpFailedException lope) {
+                        } catch (LocalizationException lope) {
                             statusHandler.handle(Priority.WARN,
                                     "Can't delete file.");
                         }
@@ -213,7 +202,7 @@ public class HucLevelGeometriesFactory {
 
     protected synchronized Map<Long, Geometry> generateSimplifiedGeometry(
             FFMPTemplates template, String dataKey, String cwa,
-            Collection<Long> pfafs) throws Exception {
+            Collection<Long> pfafs) {
         Map<Long, Geometry> rawGeometries = template.getRawGeometries(dataKey,
                 cwa);
         Map<Long, Geometry> simplifiedGeometries = new HashMap<Long, Geometry>(
@@ -291,7 +280,7 @@ public class HucLevelGeometriesFactory {
     /**
      * Attempts to remove interior holes on a polygon. Will take up to 3 passes
      * over the polygon expanding any interior rings and merging rings back in.
-     * 
+     *
      * @param gf
      * @param p
      * @return
@@ -316,7 +305,7 @@ public class HucLevelGeometriesFactory {
 
     /**
      * Gets the huc that is one aggregation smaller.
-     * 
+     *
      * @param tempate
      * @param huc
      * @return
@@ -336,7 +325,7 @@ public class HucLevelGeometriesFactory {
 
     /**
      * Returns a map of pfafs to a collection of child pfafs for the child huc.
-     * 
+     *
      * @param template
      * @param cwa
      * @param huc
@@ -386,9 +375,14 @@ public class HucLevelGeometriesFactory {
                 LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
         LocalizationFile lf = pathManager.getLocalizationFile(lc,
                 getGeomPath(dataKey, cwa, huc));
-        FileUtil.bytes2File(SerializationUtil.transformToThrift(map),
-                lf.getFile(), true);
-        lf.save();
+
+        try (SaveableOutputStream mapSos = lf.openOutputStream();
+                GZIPOutputStream mapGos = new GZIPOutputStream(mapSos)) {
+            mapGos.write(SerializationUtil.transformToThrift(map));
+            mapGos.finish();
+            mapGos.flush();
+            mapSos.save();
+        }
     }
 
     protected synchronized String getGeomPath(String dataKey, String cwa,
@@ -422,8 +416,7 @@ public class HucLevelGeometriesFactory {
     }
 
     public synchronized Envelope getEnvelope(FFMPTemplates template,
-            String dataKey, String cwa, String huc, Long pfafId)
-            throws Exception {
+            String dataKey, String cwa, String huc, Long pfafId) {
         return getEnvelopes(template, dataKey, cwa, huc).get(pfafId);
     }
 
@@ -448,23 +441,18 @@ public class HucLevelGeometriesFactory {
                     getEnvelopePath(dataKey, cwa, huc));
 
             if (f.exists()) {
-                InputStream is = null;
                 boolean deleteFile = false;
+                long length = f.getFile().length();
 
-                try {
-                    File file = f.getFile();
-                    long length = file.length();
+                // read from disk in 8k chunks
+                int bufferSize = 8 * 1024;
+                if (bufferSize > length) {
+                    bufferSize = (int) length;
+                }
+                try (InputStream is = f.openInputStream();
+                        GZIPInputStream gis = new GZIPInputStream(is, bufferSize)) {
 
-                    // read from disk in 8k chunks
-                    int bufferSize = 8 * 1024;
-                    if (bufferSize > length) {
-                        bufferSize = (int) length;
-                    }
-
-                    is = new GZIPInputStream(new FileInputStream(file),
-                            bufferSize);
-
-                    map = SerializationUtil.transformFromThrift(Map.class, is);
+                    map = SerializationUtil.transformFromThrift(Map.class, gis);
                     int sizeGuess = Math.max(
                             Math.abs(pfafs.size() - map.size()), 10);
                     pfafsToGenerate = new ArrayList<Long>(sizeGuess);
@@ -481,18 +469,10 @@ public class HucLevelGeometriesFactory {
                     deleteFile = true;
                     pfafsToGenerate = pfafs;
                 } finally {
-                    if (is != null) {
-                        try {
-                            is.close();
-                        } catch (IOException e1) {
-                            // ignore
-                        }
-                    }
-
                     if (deleteFile) {
                         try {
                             f.delete();
-                        } catch (LocalizationOpFailedException lope) {
+                        } catch (LocalizationException lope) {
                             statusHandler.handle(Priority.WARN,
                                     "Can't delete file.");
                         }
@@ -534,8 +514,14 @@ public class HucLevelGeometriesFactory {
                 LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
         LocalizationFile lf = pathManager.getLocalizationFile(lc,
                 getEnvelopePath(dataKey, cwa, huc));
-        FileUtil.bytes2File(SerializationUtil.transformToThrift(map),
-                lf.getFile(), true);
+
+        try (SaveableOutputStream sos = lf.openOutputStream();
+                GZIPOutputStream gos = new GZIPOutputStream(sos)) {
+            SerializationUtil.transformToThriftUsingStream(map, gos);
+            gos.finish();
+            gos.flush();
+            sos.save();
+        }
     }
 
     public synchronized void clear() {

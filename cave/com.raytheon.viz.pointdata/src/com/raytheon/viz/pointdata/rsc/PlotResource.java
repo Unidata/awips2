@@ -30,7 +30,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 import org.eclipse.swt.graphics.RGB;
 import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;

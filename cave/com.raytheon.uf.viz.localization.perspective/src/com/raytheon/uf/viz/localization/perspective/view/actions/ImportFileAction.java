@@ -57,6 +57,7 @@ import com.raytheon.viz.ui.VizWorkbenchManager;
  * Jun 11, 2015 4541       skorolev    Added NULL test for lf.
  * Oct 13, 2015 4410       bsteffen    Allow localization perspective to mix
  *                                     files for multiple Localization Types.
+ * Dec 03, 2015 4834       njensen     Updated for ILocalizationFile changes                                    
  * 
  * </pre>
  * 
@@ -88,8 +89,7 @@ public class ImportFileAction extends Action {
     }
 
     public ImportFileAction(List<LocalizationType> contextTypes,
-            String directoryPath,
-            String[] filter) {
+            String directoryPath, String[] filter) {
         this(contextTypes, directoryPath);
         if (filter != null) {
             this.fileExtensionFilterArr = new String[filter.length];
@@ -182,7 +182,7 @@ public class ImportFileAction extends Action {
                 ILocalizationFile file = existing.get(0);
                 if (MessageDialog.openConfirm(VizWorkbenchManager.getInstance()
                         .getCurrentWindow().getShell(), "Confirm Overwrite",
-                        String.format(FORMAT_STRING, file.getName(), file
+                        String.format(FORMAT_STRING, file.getPath(), file
                                 .getContext().getLocalizationLevel()))) {
                     existing.clear();
                 }
@@ -288,7 +288,7 @@ public class ImportFileAction extends Action {
 
         private void updateText() {
             ILocalizationFile file = existingFiles.get(curIdx);
-            messageLabel.setText(String.format(FORMAT_STRING, file.getName(),
+            messageLabel.setText(String.format(FORMAT_STRING, file.getPath(),
                     file.getContext().getLocalizationLevel()));
         }
 

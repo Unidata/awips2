@@ -19,6 +19,8 @@
  **/
 package com.raytheon.viz.gfe.core;
 
+import java.util.TimeZone;
+
 import com.raytheon.uf.common.dataplugin.gfe.time.SelectTimeRange;
 import com.raytheon.uf.common.dataplugin.gfe.time.SelectTimeRange.Mode;
 
@@ -33,6 +35,7 @@ import com.raytheon.uf.common.dataplugin.gfe.time.SelectTimeRange.Mode;
  * Dec 3, 2009             randerso    Initial creation
  * Aug 1, 2012   #965      dgilling    Change location of SelectTimeRange.
  * Aug 13, 2015  4749      njensen     Extends DisposableManager
+ * Dec 02, 2015  5129      dgilling    Add getTimeZone.
  * 
  * </pre>
  * 
@@ -78,4 +81,10 @@ public interface ISelectTimeRangeManager extends DisposableManager {
      */
     public void remove(String name);
 
+    /**
+     * Returns the local site's time zone.
+     * 
+     * @return
+     */
+    public TimeZone getTimeZone();
 }

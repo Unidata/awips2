@@ -19,8 +19,8 @@
  **/
 package com.raytheon.edex.plugin.sfcobs.decoder.synoptic;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder;
@@ -44,13 +44,14 @@ import com.raytheon.uf.edex.pointdata.spatial.ObStationDao;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20070928            391 jkorman     Initial Coding.
- * 20080106            391 jkorman     Corrected ship longitude decode.
- * 20080108            721 jkorman     Added buoy id query.
- * 20120619      DR 14015  mporricelli Added elevation for fixed buoys
+ * 20070928     391        jkorman     Initial Coding.
+ * 20080106     391        jkorman     Corrected ship longitude decode.
+ * 20080108     721        jkorman     Added buoy id query.
+ * 20120619     DR 14015   mporricelli Added elevation for fixed buoys
  * Feb 27, 2013 1638       mschenke    Moved ObStationDao to edex pointdata plugin
  * Jul 23, 2014 3410       bclement    location changed to floats
  * Sep 30, 2014 3629       mapeters    Replaced {@link AbstractSfcObsDecoder#matchElement()} calls.
+ * Dec 17, 2015 5166       kbisanz     Update logging to use SLF4J
  * </pre>
  * 
  * @author jkorman
@@ -59,14 +60,14 @@ import com.raytheon.uf.edex.pointdata.spatial.ObStationDao;
 public class SHIPSynopticDecoder extends AbstractSynopticDecoder {
 
     // The logger
-    private Log logger = LogFactory.getLog(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     protected Float shipLatitude = null;
 
     protected Float shipLongitude = null;
 
     protected Integer shipElev = null;
-    
+
     protected Integer shipQuadrant = null;
 
     protected boolean isFixedBuoy = false;
@@ -95,7 +96,7 @@ public class SHIPSynopticDecoder extends AbstractSynopticDecoder {
         isValid = reportPrefix.equals(element);
         Double buoyLat = null;
         Double buoyLon = null;
-        Integer buoyElev = null;        
+        Integer buoyElev = null;
         isFixedBuoy = false;
         if (isValid) {
             reportParser.next();
@@ -117,10 +118,12 @@ public class SHIPSynopticDecoder extends AbstractSynopticDecoder {
                     throw new DecoderException(
                             "Unable to retrieve station info", e);
                 }
-                if(staInfo != null) {
+                if (staInfo != null) {
                     isFixedBuoy = true;
-                    buoyLat = DecoderTools.getCoordinateLatitude(staInfo.getStationGeom().getCoordinate());
-                    buoyLon = DecoderTools.getCoordinateLongitude(staInfo.getStationGeom().getCoordinate());
+                    buoyLat = DecoderTools.getCoordinateLatitude(staInfo
+                            .getStationGeom().getCoordinate());
+                    buoyLon = DecoderTools.getCoordinateLongitude(staInfo
+                            .getStationGeom().getCoordinate());
                     buoyElev = staInfo.getElevation();
                 }
             }
@@ -159,12 +162,11 @@ public class SHIPSynopticDecoder extends AbstractSynopticDecoder {
                     + "---------------->");
             decodeLatitude();
             decodeLongitude();
-            if(isFixedBuoy) {
+            if (isFixedBuoy) {
                 // This change selects the common_obs_spatial location over the
                 // encoded location. This is so that moored buoy locations agree
-                // with the spi files 
-                
-                
+                // with the spi files
+
                 shipLatitude = buoyLat != null ? buoyLat.floatValue() : null;
                 shipLongitude = buoyLon != null ? buoyLon.floatValue() : null;
                 shipElev = buoyElev;
@@ -176,7 +178,8 @@ public class SHIPSynopticDecoder extends AbstractSynopticDecoder {
             } else {
                 if ((shipLatitude == null) || (shipLongitude == null)) {
                     clearSectionDecoders();
-                    logger.error("BAD:YYGGI_SUB_W : " + reportParser.getReport());
+                    logger.error("BAD:YYGGI_SUB_W : "
+                            + reportParser.getReport());
                     return;
                 }
                 adjustLatLon();

@@ -23,9 +23,9 @@ import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
@@ -103,15 +103,18 @@ public class AfosToAwips extends PersistableDataObject implements
         id.setAfosid(afosid);
     }
 
+    @Override
     public String toString() {
         return new ToStringBuilder(this).append("afosid", getAfosid())
                 .append("wmottaaii", getWmottaaii())
                 .append("wmocccc", getWmocccc()).toString();
     }
 
+    @Override
     public boolean equals(Object other) {
-        if (!(other instanceof AfosToAwips))
+        if (!(other instanceof AfosToAwips)) {
             return false;
+        }
         AfosToAwips castOther = (AfosToAwips) other;
         return new EqualsBuilder()
                 .append(this.getAfosid(), castOther.getAfosid())
@@ -119,6 +122,7 @@ public class AfosToAwips extends PersistableDataObject implements
                 .append(this.getWmocccc(), castOther.getWmocccc()).isEquals();
     }
 
+    @Override
     public int hashCode() {
         return new HashCodeBuilder().append(getAfosid()).append(getWmottaaii())
                 .append(getWmocccc()).toHashCode();

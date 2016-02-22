@@ -1,211 +1,154 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-    <!--
-        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
-        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
-        
-        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
-        This_software_product_contains_export-restricted_data_whose
-        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
-        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
-        an_export_license_or_other_authorization.
-        
-        Contractor_Name:________Raytheon_Company
-        Contractor_Address:_____6825_Pine_Street,_Suite_340
-        ________________________Mail_Stop_B8
-        ________________________Omaha,_NE_68106
-        ________________________402.291.0100
-        
-        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
-        further_licensing_information.
-    -->
-<bundle>
-	<displayList>
-		<displays xsi:type="d2DMapRenderableDisplay"
-			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-			<descriptor xsi:type="mapDescriptor">
-				<resource>
-                    <loadProperties>
-						<capabilities>
-						</capabilities>
-					</loadProperties>
-					<properties isSystemResource="false" isBlinking="false"
-						isMapLayer="false" isHoverOn="false"
-						isVisible="true" />
-					<resourceData xsi:type="plotResourceData" plotSource="${source} 1050mb-626mb Water Vapor 7.4u Winds Plot"
-						plotModelFile="hdwTypePlotDesign.svg"
-						retrieveData="false" isUpdatingOnMetadataOnly="false"
-						isRequeryNecessaryOnTimeMatch="true">
-						<binOffset posOffset="1800" negOffset="1800" virtualOffset="0"/>
-						<metadataMap>
-							<mapping key="pluginName">
-								<constraint constraintValue="${pluginName}" constraintType="EQUALS" />
-							</mapping>
-							<mapping key="satType">
-								<constraint constraintValue="WV7.4u" constraintType="EQUALS" />
-							</mapping>
-							<mapping key="pressure">
-								<constraint constraintValue="62600--105000" constraintType="BETWEEN" />
-							</mapping>
-						</metadataMap>
-					</resourceData>
-				</resource>
-				<resource>
-                    <loadProperties>
-						<capabilities>
-						</capabilities>
-					</loadProperties>
-					<properties isSystemResource="false" isBlinking="false"
-						isMapLayer="false" isHoverOn="false"
-						isVisible="true" />
-					<resourceData xsi:type="plotResourceData" plotSource="${source} 625mb-576mb Water Vapor 7.4u Winds Plot"
-						plotModelFile="hdwTypePlotDesign.svg" 
-						retrieveData="false" isUpdatingOnMetadataOnly="false"
-						isRequeryNecessaryOnTimeMatch="true">
-						<binOffset posOffset="1800" negOffset="1800" virtualOffset="0"/>
-						<metadataMap>
-							<mapping key="pluginName">
-								<constraint constraintValue="${pluginName}" constraintType="EQUALS" />
-							</mapping>
-							<mapping key="satType">
-								<constraint constraintValue="WV7.4u" constraintType="EQUALS" />
-							</mapping>
-							<mapping key="pressure">
-								<constraint constraintValue="57600--62500" constraintType="BETWEEN" />
-							</mapping>
-						</metadataMap>
-					</resourceData>
-				</resource>
-				<resource>
-                    <loadProperties>
-						<capabilities>
-						</capabilities>
-					</loadProperties>
-					<properties isSystemResource="false" isBlinking="false"
-						isMapLayer="false" isHoverOn="false"
-						isVisible="true" />
-					<resourceData xsi:type="plotResourceData" plotSource="${source} 575mb-526mb Water Vapor 7.4u Winds Plot"
-						plotModelFile="hdwTypePlotDesign.svg" 
-						retrieveData="false" isUpdatingOnMetadataOnly="false"
-						isRequeryNecessaryOnTimeMatch="true">
-						<binOffset posOffset="1800" negOffset="1800" virtualOffset="0"/>
-						<metadataMap>
-							<mapping key="pluginName">
-								<constraint constraintValue="${pluginName}" constraintType="EQUALS" />
-							</mapping>
-							<mapping key="satType">
-								<constraint constraintValue="WV7.4u" constraintType="EQUALS" />
-							</mapping>
-							<mapping key="pressure">
-								<constraint constraintValue="52600--57500" constraintType="BETWEEN" />
-							</mapping>
-						</metadataMap>
-					</resourceData>
-				</resource>
-				<resource>
-                    <loadProperties>
-						<capabilities>
-						</capabilities>
-					</loadProperties>
-					<properties isSystemResource="false" isBlinking="false"
-						isMapLayer="false" isHoverOn="false"
-						isVisible="true" />
-					<resourceData xsi:type="plotResourceData" plotSource="${source} 525mb-476mb Water Vapor 7.4u Winds Plot"
-						plotModelFile="hdwTypePlotDesign.svg"
-						retrieveData="false" isUpdatingOnMetadataOnly="false"
-						isRequeryNecessaryOnTimeMatch="true">
-						<binOffset posOffset="1800" negOffset="1800" virtualOffset="0"/>
-						<metadataMap>
-							<mapping key="pluginName">
-								<constraint constraintValue="${pluginName}" constraintType="EQUALS" />
-							</mapping>
-							<mapping key="satType">
-								<constraint constraintValue="WV7.4u" constraintType="EQUALS" />
-							</mapping>
-							<mapping key="pressure">
-								<constraint constraintValue="47600--52500" constraintType="BETWEEN" />
-							</mapping>
-						</metadataMap>
-					</resourceData>
-				</resource>
-				<resource>
-                    <loadProperties>
-						<capabilities>
-						</capabilities>
-					</loadProperties>
-					<properties isSystemResource="false" isBlinking="false"
-						isMapLayer="false" isHoverOn="false"
-						isVisible="true" />
-					<resourceData xsi:type="plotResourceData" plotSource="${source} 475mb-426mb Water Vapor 7.4u Winds Plot"
-						plotModelFile="hdwTypePlotDesign.svg"
-						retrieveData="false" isUpdatingOnMetadataOnly="false"
-						isRequeryNecessaryOnTimeMatch="true">
-						<binOffset posOffset="1800" negOffset="1800" virtualOffset="0"/>
-						<metadataMap>
-							<mapping key="pluginName">
-								<constraint constraintValue="${pluginName}" constraintType="EQUALS" />
-							</mapping>
-							<mapping key="satType">
-								<constraint constraintValue="WV7.4u" constraintType="EQUALS" />
-							</mapping>
-							<mapping key="pressure">
-								<constraint constraintValue="42600--47500" constraintType="BETWEEN" />
-							</mapping>
-						</metadataMap>
-					</resourceData>
-				</resource>
-				<resource>
-                    <loadProperties>
-						<capabilities>
-						</capabilities>
-					</loadProperties>
-					<properties isSystemResource="false" isBlinking="false"
-						isMapLayer="false" isHoverOn="false"
-						isVisible="true" />
-					<resourceData xsi:type="plotResourceData" plotSource="${source} 425mb-377mb Water Vapor 7.4u Winds Plot"
-						plotModelFile="hdwTypePlotDesign.svg" 
-						retrieveData="false" isUpdatingOnMetadataOnly="false"
-						isRequeryNecessaryOnTimeMatch="true">
-						<binOffset posOffset="1800" negOffset="1800" virtualOffset="0"/>
-						<metadataMap>
-							<mapping key="pluginName">
-								<constraint constraintValue="${pluginName}" constraintType="EQUALS" />
-							</mapping>
-							<mapping key="satType">
-								<constraint constraintValue="WV7.4u" constraintType="EQUALS" />
-							</mapping>
-							<mapping key="pressure">
-								<constraint constraintValue="37700--42500" constraintType="BETWEEN" />
-							</mapping>
-						</metadataMap>
-					</resourceData>
-				</resource>
-				<resource>
-                    <loadProperties>
-						<capabilities>
-						</capabilities>
-					</loadProperties>
-					<properties isSystemResource="false" isBlinking="false"
-						isMapLayer="false" isHoverOn="false"
-						isVisible="true" />
-					<resourceData xsi:type="plotResourceData" plotSource="${source} 376mb-100mb Water Vapor 7.4u Winds Plot"
-						plotModelFile="hdwTypePlotDesign.svg" 
-						retrieveData="false" isUpdatingOnMetadataOnly="false"
-						isRequeryNecessaryOnTimeMatch="true">
-						<binOffset posOffset="1800" negOffset="1800" virtualOffset="0"/>
-						<metadataMap>
-							<mapping key="pluginName">
-								<constraint constraintValue="${pluginName}" constraintType="EQUALS" />
-							</mapping>
-							<mapping key="satType">
-								<constraint constraintValue="WV7.4u" constraintType="EQUALS" />
-							</mapping>
-							<mapping key="pressure">
-								<constraint constraintValue="10000--37600" constraintType="BETWEEN" />
-							</mapping>
-						</metadataMap>
-					</resourceData>
-				</resource>
-			</descriptor>
-		</displays>
-	</displayList>
+<!--
+    This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+    pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+    
+    U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+    This_software_product_contains_export-restricted_data_whose
+    export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+    to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+    an_export_license_or_other_authorization.
+    
+    Contractor_Name:________Raytheon_Company
+    Contractor_Address:_____6825_Pine_Street,_Suite_340
+    ________________________Mail_Stop_B8
+    ________________________Omaha,_NE_68106
+    ________________________402.291.0100
+    
+    See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+    further_licensing_information.
+-->
+<bundle xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <displayList>
+    <displays xsi:type="mapRenderableDisplay">
+      <descriptor xsi:type="mapDescriptor">
+        <resource>
+          <loadProperties />
+          <resourceData xsi:type="windPlotResourceData" legend="${source} 1050mb-626mb Water Vapor 7.4u Winds Plot"
+            windFile="hdw_wind.xml" baseDensity="0.7">
+            <binOffset posOffset="1800" negOffset="1800" />
+            <metadataMap>
+              <mapping key="pluginName">
+                <constraint constraintValue="${pluginName}" constraintType="EQUALS" />
+              </mapping>
+              <mapping key="satType">
+                <constraint constraintValue="WV7.4u" constraintType="EQUALS" />
+              </mapping>
+              <mapping key="pressure">
+                <constraint constraintValue="62600--105000" constraintType="BETWEEN" />
+              </mapping>
+            </metadataMap>
+          </resourceData>
+        </resource>
+        <resource>
+          <loadProperties />
+          <resourceData xsi:type="windPlotResourceData" legend="${source} 625mb-576mb Water Vapor 7.4u Winds Plot"
+            windFile="hdw_wind.xml" baseDensity="0.7">
+            <binOffset posOffset="1800" negOffset="1800" />
+            <metadataMap>
+              <mapping key="pluginName">
+                <constraint constraintValue="${pluginName}" constraintType="EQUALS" />
+              </mapping>
+              <mapping key="satType">
+                <constraint constraintValue="WV7.4u" constraintType="EQUALS" />
+              </mapping>
+              <mapping key="pressure">
+                <constraint constraintValue="57600--62500" constraintType="BETWEEN" />
+              </mapping>
+            </metadataMap>
+          </resourceData>
+        </resource>
+        <resource>
+          <loadProperties />
+          <resourceData xsi:type="windPlotResourceData" legend="${source} 575mb-526mb Water Vapor 7.4u Winds Plot"
+            windFile="hdw_wind.xml" baseDensity="0.7">
+            <binOffset posOffset="1800" negOffset="1800" />
+            <metadataMap>
+              <mapping key="pluginName">
+                <constraint constraintValue="${pluginName}" constraintType="EQUALS" />
+              </mapping>
+              <mapping key="satType">
+                <constraint constraintValue="WV7.4u" constraintType="EQUALS" />
+              </mapping>
+              <mapping key="pressure">
+                <constraint constraintValue="52600--57500" constraintType="BETWEEN" />
+              </mapping>
+            </metadataMap>
+          </resourceData>
+        </resource>
+        <resource>
+          <loadProperties />
+          <resourceData xsi:type="windPlotResourceData" legend="${source} 525mb-476mb Water Vapor 7.4u Winds Plot"
+            windFile="hdw_wind.xml" baseDensity="0.7">
+            <binOffset posOffset="1800" negOffset="1800" />
+            <metadataMap>
+              <mapping key="pluginName">
+                <constraint constraintValue="${pluginName}" constraintType="EQUALS" />
+              </mapping>
+              <mapping key="satType">
+                <constraint constraintValue="WV7.4u" constraintType="EQUALS" />
+              </mapping>
+              <mapping key="pressure">
+                <constraint constraintValue="47600--52500" constraintType="BETWEEN" />
+              </mapping>
+            </metadataMap>
+          </resourceData>
+        </resource>
+        <resource>
+          <loadProperties />
+          <resourceData xsi:type="windPlotResourceData" legend="${source} 475mb-426mb Water Vapor 7.4u Winds Plot"
+            windFile="hdw_wind.xml" baseDensity="0.7">
+            <binOffset posOffset="1800" negOffset="1800" />
+            <metadataMap>
+              <mapping key="pluginName">
+                <constraint constraintValue="${pluginName}" constraintType="EQUALS" />
+              </mapping>
+              <mapping key="satType">
+                <constraint constraintValue="WV7.4u" constraintType="EQUALS" />
+              </mapping>
+              <mapping key="pressure">
+                <constraint constraintValue="42600--47500" constraintType="BETWEEN" />
+              </mapping>
+            </metadataMap>
+          </resourceData>
+        </resource>
+        <resource>
+          <loadProperties />
+          <resourceData xsi:type="windPlotResourceData" legend="${source} 425mb-377mb Water Vapor 7.4u Winds Plot"
+            windFile="hdw_wind.xml" baseDensity="0.7">
+            <binOffset posOffset="1800" negOffset="1800" />
+            <metadataMap>
+              <mapping key="pluginName">
+                <constraint constraintValue="${pluginName}" constraintType="EQUALS" />
+              </mapping>
+              <mapping key="satType">
+                <constraint constraintValue="WV7.4u" constraintType="EQUALS" />
+              </mapping>
+              <mapping key="pressure">
+                <constraint constraintValue="37700--42500" constraintType="BETWEEN" />
+              </mapping>
+            </metadataMap>
+          </resourceData>
+        </resource>
+        <resource>
+          <loadProperties />
+          <resourceData xsi:type="windPlotResourceData" legend="${source} 376mb-100mb Water Vapor 7.4u Winds Plot"
+            windFile="hdw_wind.xml" baseDensity="0.7">
+            <binOffset posOffset="1800" negOffset="1800" />
+            <metadataMap>
+              <mapping key="pluginName">
+                <constraint constraintValue="${pluginName}" constraintType="EQUALS" />
+              </mapping>
+              <mapping key="satType">
+                <constraint constraintValue="WV7.4u" constraintType="EQUALS" />
+              </mapping>
+              <mapping key="pressure">
+                <constraint constraintValue="10000--37600" constraintType="BETWEEN" />
+              </mapping>
+            </metadataMap>
+          </resourceData>
+        </resource>
+      </descriptor>
+    </displays>
+  </displayList>
 </bundle>

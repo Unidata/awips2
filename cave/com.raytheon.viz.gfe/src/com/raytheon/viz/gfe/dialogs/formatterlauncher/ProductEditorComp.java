@@ -100,6 +100,7 @@ import com.raytheon.uf.common.jms.notification.INotificationObserver;
 import com.raytheon.uf.common.jms.notification.NotificationException;
 import com.raytheon.uf.common.jms.notification.NotificationMessage;
 import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -182,6 +183,9 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  *                                     match the current time
  * 01/21/2016  18505       lshi        Resent product should have same WMO, MND, and segment times
  *                                     as original product.
+ * 02/05/2016  5242        dgilling    Remove calls to deprecated Localization APIs.
+ * 02/10/2016   5337       dgilling    Prevent CAN products past VTEC end time 
+ *                                     from being transmitted.
  * </pre>
  * 
  * @author lvenable
@@ -1529,10 +1533,11 @@ public class ProductEditorComp extends Composite implements
                 throw new VizException(msg);
             }
 
-            // Give 30 minutes of slack to a couple of action codes
-            // check the ending time and transmission time
-            if ((action.equals("EXP") || action.equals("CAN"))
-                    && (vtecEnd != null)) {
+            /*
+             * Give 30 minutes of slack for EXP action code, check the ending
+             * time and transmission time
+             */
+            if ((action.equals("EXP")) && (vtecEnd != null)) {
                 vtecEnd.setTime(vtecEnd.getTime()
                         + (30 * TimeUtil.MILLIS_PER_MINUTE));
             }
@@ -2425,7 +2430,7 @@ public class ProductEditorComp extends Composite implements
         String product = null;
         try {
             product = readFile(file);
-        } catch (IOException ex) {
+        } catch (IOException | LocalizationException ex) {
             statusHandler.handle(Priority.PROBLEM, "Failed to load product "
                     + pil, ex);
             return;

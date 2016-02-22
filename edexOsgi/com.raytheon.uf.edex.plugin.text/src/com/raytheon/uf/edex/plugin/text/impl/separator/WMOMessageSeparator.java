@@ -27,8 +27,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.plugin.AbstractRecordSeparator;
@@ -51,6 +51,7 @@ import com.raytheon.uf.edex.plugin.text.impl.WMOReportData;
  * Mar 04, 2014 2652        skorolev    Corrected NNNXXX pattern.
  * Mar 14, 2014 2652        skorolev    Changed logging for skipped headers.
  * Dec 03, 2014 ASM #16859  D. Friedman Use CharBuffer instead of StringBuilder.
+ * Dec 09, 2015 5166        kbisanz     Update logging to use SLF4J.
  * </pre>
  * 
  * @author
@@ -92,7 +93,7 @@ public abstract class WMOMessageSeparator extends AbstractRecordSeparator {
     protected static final Pattern NNNXXX = Pattern
             .compile("\\w{3,6}(?:\\s{1,2})?[\\r\\n]+(?:" + (char) 0x1e + ")?");
 
-    private final Log logger = LogFactory.getLog(getClass());
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     protected final WMOHeader wmoHeader;
 
@@ -404,8 +405,8 @@ public abstract class WMOMessageSeparator extends AbstractRecordSeparator {
 
     public static final void main(String[] args) {
 
-        CharBuffer cb = CharBuffer.wrap(
-                "\r\r\nKOFF 1912/20/15\n\n\r     BECMG");
+        CharBuffer cb = CharBuffer
+                .wrap("\r\r\nKOFF 1912/20/15\n\n\r     BECMG");
 
         safeStrpbrk(cb, nl);
 

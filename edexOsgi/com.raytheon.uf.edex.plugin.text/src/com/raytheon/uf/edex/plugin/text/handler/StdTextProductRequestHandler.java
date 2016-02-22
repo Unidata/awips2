@@ -27,13 +27,9 @@ import com.raytheon.uf.common.dataplugin.text.db.PracticeStdTextProduct;
 import com.raytheon.uf.common.dataplugin.text.db.StdTextProduct;
 import com.raytheon.uf.common.dataplugin.text.request.StdTextProductServerRequest;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.edex.core.EDEXUtil;
-import com.raytheon.uf.edex.core.EdexException;
+import com.raytheon.uf.edex.plugin.text.AlarmAlertUtil;
+import com.raytheon.uf.edex.plugin.text.TextDecoder;
 import com.raytheon.uf.edex.plugin.text.db.TextDB;
-import com.raytheon.uf.edex.plugin.text.dbsrv.impl.AlarmAlertUtil;
 
 /**
  * Handles StdTextProductServerRequest by placing them onto the LDAD queue and
@@ -60,10 +56,6 @@ import com.raytheon.uf.edex.plugin.text.dbsrv.impl.AlarmAlertUtil;
 
 public class StdTextProductRequestHandler implements
         IRequestHandler<StdTextProductServerRequest> {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(StdTextProductRequestHandler.class);
-
-    private static final String WATCH_WARN_QUEUE = "ldadWatchWarnDirect";
 
     private final TextDB dao;
 
@@ -105,31 +97,12 @@ public class StdTextProductRequestHandler implements
         if (success) {
             String afosId = text.getCccid() + text.getNnnid() + text.getXxxid();
             if (operationalFlag) {
-                sendTextToQueue(afosId, WATCH_WARN_QUEUE);
+                TextDecoder.sendTextToQueue(afosId);
             }
 
             AlarmAlertUtil.sendProductAlarmAlert(afosId, new Date(createtime),
                     operationalFlag);
         }
         return d;
-    }
-
-    /**
-     * 
-     * Sends an asynchronous message to the specified queue. This is basically a
-     * wrapper of the utility method that handles/logs any errors.
-     * 
-     * @param message
-     *            the message to send
-     * @param queue
-     *            the queue to receive the message
-     */
-    private void sendTextToQueue(String message, String queue) {
-        try {
-            EDEXUtil.getMessageProducer().sendAsync(queue, message);
-        } catch (EdexException e) {
-            statusHandler.handle(Priority.PROBLEM, "Unable to send product '"
-                    + message + "' to queue '" + queue + "'", e);
-        }
     }
 }

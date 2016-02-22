@@ -1355,9 +1355,6 @@
 				<command commandId="com.raytheon.viz.gfe.actions.ShowProcessMonitorDialog"
 					label="Process Monitor...">
 				</command>
-				<command commandId="com.raytheon.viz.ghg.openGhgMonitor"
-					label="GHG Monitor...">
-				</command>
 			</menu>
 			<menu id="GFEMaps" label="Maps" mnemonic="M">
 				<visibleWhen>

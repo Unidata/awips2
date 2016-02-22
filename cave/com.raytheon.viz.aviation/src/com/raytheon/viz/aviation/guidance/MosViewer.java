@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -43,9 +43,9 @@ import com.raytheon.viz.aviation.resource.ResourceConfigMgr.ResourceTag;
 
 /**
  * MosViewer class contains a basic setup for the Guidance tab on the TAF viewer
- * editor dialog. This setup is currently used by the GFS-MOS, GFSLAMP, ETA-MOS,
- * and NGM-MOS tabs.
- * 
+ * editor dialog. This setup is currently used by the GFS-MOS, GFSLAMP, and
+ * ETA-MOS tabs.
+ *
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
@@ -55,12 +55,13 @@ import com.raytheon.viz.aviation.resource.ResourceConfigMgr.ResourceTag;
  * 01 Dec 2010  3263       rferrel     Created generateToolTip to get table tool tips.
  * 28 APR 2011  8065       rferrel     Add flag to indicate display is current
  *                                     and implement data caching
- * 
+ * Feb 09, 2016 5283       nabowle     Remove NGM MOS support.
+ *
  * </pre>
- * 
+ *
  * @author lvenable
  * @version 1.0
- * 
+ *
  */
 public class MosViewer extends ViewerTab implements
         IRequestCompleteListener<String[]> {
@@ -174,7 +175,7 @@ public class MosViewer extends ViewerTab implements
 
     /**
      * Constructor.
-     * 
+     *
      * @param parent
      *            Parent composite.
      */
@@ -534,7 +535,7 @@ public class MosViewer extends ViewerTab implements
 
     /**
      * Check if the text starts with any probability text.
-     * 
+     *
      * @param textLine
      *            List of text to test against.
      * @return True if probability, false otherwise.
@@ -553,7 +554,7 @@ public class MosViewer extends ViewerTab implements
 
     /**
      * Getter/Accessor of stationList (based on configuration)
-     * 
+     *
      * @return stationList
      */
     @Override
@@ -563,7 +564,7 @@ public class MosViewer extends ViewerTab implements
 
     /**
      * Setter/Mutator of stationList (based on configuration)
-     * 
+     *
      * @param stationList
      */
     @Override
@@ -593,12 +594,6 @@ public class MosViewer extends ViewerTab implements
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.aviation.guidance.ViewerTab#getSite(java.lang.String)
-     */
     @Override
     public String getSite(String site) {
         return chooseModel(site, model);
@@ -606,7 +601,7 @@ public class MosViewer extends ViewerTab implements
 
     /**
      * Obtain the model.
-     * 
+     *
      * @return model
      */
     public String getModel() {

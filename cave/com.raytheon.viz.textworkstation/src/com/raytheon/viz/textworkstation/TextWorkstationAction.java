@@ -23,8 +23,7 @@ package com.raytheon.viz.textworkstation;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
+import org.eclipse.swt.widgets.Display;
 
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
@@ -42,6 +41,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 10/11/2007   482         grichard    Reformatted file.
  * 08/03/2011   9572        rferrel     Allow single instance of the dialog.
  * 26Sep2012    1196        lvenable    Update for the dialog refactor.
+ * Jan 26, 2016 5054        randerso    Changed to use display as parent
  * 
  * </pre>
  * 
@@ -54,10 +54,8 @@ public class TextWorkstationAction extends AbstractHandler {
 
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
-        if (textWorkstationDlg == null || textWorkstationDlg.isDisposed()) {
-            textWorkstationDlg = new TextWorkstationDlg(shell);
+        if ((textWorkstationDlg == null) || textWorkstationDlg.isDisposed()) {
+            textWorkstationDlg = new TextWorkstationDlg(Display.getCurrent());
             textWorkstationDlg.setCloseCallback(new ICloseCallback() {
 
                 @Override

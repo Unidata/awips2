@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -38,18 +38,19 @@ import com.raytheon.uf.edex.plugin.bufrmos.BufrMosSeparator;
 /**
  * BUFRMOS decoder static data loader class. Reads the mapping files for WMO
  * header to model name and BUFR descriptor to parameter name.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 21, 2002  861       jkorman      Initial creation
  * Jul 14, 2015  4543      dgilling     Refactor code.
- * 
+ * Feb 09, 2016  5283      nabowle      Remove NGM MOS support.
+ *
  * </pre>
- * 
+ *
  * @author jkorman
  * @version 1.0
  */
@@ -74,8 +75,6 @@ public class BUFRMOSStaticData {
 
     public static final Integer BUFRMOS_MRF = 1005;
 
-    public static final Integer BUFRMOS_NGM = 1006;
-
     public static final String MODEL_AVN = "AVN";
 
     public static final String MODEL_ETA = "ETA";
@@ -87,8 +86,6 @@ public class BUFRMOSStaticData {
     public static final String MODEL_LAMP = "LAMP";
 
     public static final String MODEL_MRF = "MRF";
-
-    public static final String MODEL_NGM = "NGM";
 
     private final Map<String, Map<String, BufrMOSElement>> elementMap;
 
@@ -103,8 +100,7 @@ public class BUFRMOSStaticData {
         this.fileNameTypes = getWMOHeaderMappings();
 
         List<String> modelNames = Arrays.asList(MODEL_AVN, MODEL_ETA,
-                MODEL_GFS, MODEL_GFS, MODEL_HPC, MODEL_LAMP, MODEL_MRF,
-                MODEL_NGM);
+                MODEL_GFS, MODEL_GFS, MODEL_HPC, MODEL_LAMP, MODEL_MRF);
 
         this.parameterMap = new HashMap<>();
         for (String modelName : modelNames) {
@@ -123,7 +119,7 @@ public class BUFRMOSStaticData {
 
     /**
      * Return the single instance of this class.
-     * 
+     *
      * @return The BUFRMOSStaticData instance.
      */
     public static synchronized BUFRMOSStaticData getInstance() {
@@ -135,7 +131,7 @@ public class BUFRMOSStaticData {
 
     /**
      * Map the WMO header for some data to a model name.
-     * 
+     *
      * @return The model name associated with the WMO header within the
      *         specified separator.
      */
@@ -150,7 +146,7 @@ public class BUFRMOSStaticData {
 
     /**
      * Get the BufrMOSElement definition for a specified parameter.
-     * 
+     *
      * @param model
      *            The model being used i.e. AVN.
      * @param parameter
@@ -226,7 +222,7 @@ public class BUFRMOSStaticData {
 
     /**
      * Convert a model name into its ordinal value.
-     * 
+     *
      * @param model
      *            A model name as a String.
      * @return The associated ordinal value for the model. Returns a null if no
@@ -246,15 +242,13 @@ public class BUFRMOSStaticData {
             modelType = BUFRMOS_LAMP;
         } else if (MODEL_MRF.equals(model)) {
             modelType = BUFRMOS_MRF;
-        } else if (MODEL_NGM.equals(model)) {
-            modelType = BUFRMOS_NGM;
         }
         return modelType;
     }
 
     /**
      * Convert a model ordinal value to its String name .
-     * 
+     *
      * @param modelType
      *            A model ordinal value.
      * @return The model name associated with a given ordinal value. Returns a
@@ -274,8 +268,6 @@ public class BUFRMOSStaticData {
             modelName = MODEL_LAMP;
         } else if (BUFRMOS_MRF.equals(modelType)) {
             modelName = MODEL_MRF;
-        } else if (BUFRMOS_NGM.equals(modelType)) {
-            modelName = MODEL_NGM;
         }
         return modelName;
     }

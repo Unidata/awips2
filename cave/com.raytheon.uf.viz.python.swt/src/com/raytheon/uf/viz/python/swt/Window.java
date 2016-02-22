@@ -30,14 +30,15 @@ import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.python.swt.widgets.Widget;
 
 /**
- * TODO Add Description
+ * Allows opening a jface Window from Python
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 14, 2009            chammack     Initial creation
+ * Jul 14, 2009            chammack    Initial creation
+ * Jan 14, 2016 5054       randerso    Eliminate dummy shell
  * 
  * </pre>
  * 
@@ -52,7 +53,7 @@ public class Window extends org.eclipse.jface.window.Window {
     protected List<Widget> widgetList;
 
     public Window(String title, List<Widget> widgetList) {
-        super(new Shell());
+        super((Shell) null);
         this.title = title;
         this.widgetList = widgetList;
     }

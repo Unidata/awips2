@@ -12,12 +12,12 @@ URL: N/A
 License: N/A
 Distribution: N/A
 Vendor: Raytheon
-Packager: Bryan Kowal
+Packager: %{_build_site}
 
 AutoReq: no
-requires: awips2-postgresql
-provides: awips2-database-standalone-configuration
-provides: awips2-database-configuration
+Requires: awips2-postgresql
+Provides: awips2-database-standalone-configuration
+Provides: awips2-database-configuration
 
 %description
 AWIPS II Database Server Configuration - contains the AWIPS II server

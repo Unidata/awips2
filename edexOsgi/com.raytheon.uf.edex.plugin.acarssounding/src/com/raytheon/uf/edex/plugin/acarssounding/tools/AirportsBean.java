@@ -19,8 +19,8 @@
  **/
 package com.raytheon.uf.edex.plugin.acarssounding.tools;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.uf.common.dataplugin.acars.ACARSRecord;
 import com.raytheon.uf.common.localization.IPathManager;
@@ -41,6 +41,7 @@ import com.raytheon.uf.edex.decodertools.core.LatLonPoint;
  * ------------ ---------- ----------- --------------------------
  * Sep 23, 2010            jkorman     Initial creation
  * Aug 18, 2014 3530       bclement    moved from common to edex
+ * Dec 10, 2015 5166       kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -50,7 +51,7 @@ import com.raytheon.uf.edex.decodertools.core.LatLonPoint;
 
 public class AirportsBean {
 
-    private final Log logger = LogFactory.getLog(getClass());
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private static final String PATH_EXT = "stations";
 

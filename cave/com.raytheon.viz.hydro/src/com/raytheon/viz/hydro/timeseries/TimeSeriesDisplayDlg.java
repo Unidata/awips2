@@ -21,8 +21,12 @@ package com.raytheon.viz.hydro.timeseries;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
@@ -50,6 +54,7 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
+import com.raytheon.uf.common.dataplugin.shef.tables.RejecteddataId;
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -94,7 +99,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 30 Jan 2012 15459     mpduff        Redmine 1560 - Make graph canvases redraw on page up/down.
  * 06 Feb 2013 1578      rferrel       Code cleanup for non-blocking dialogs.
  * 24 Apr 2013  1921     mpduff        Fix zoom reset to only reset the "active" graph
- * 14 May 2014 16388     xwei          updated the insertion of rejecteddata table. 
+ * 14 May 2014 16388     xwei          updated the insertion of rejecteddata table.
+ * 16 Feb 2016 5342      bkowal        Ensure rejected data keys are unique.
  * 
  * </pre>
  * 
@@ -328,10 +334,10 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
     /**
      * Display Canvas List.
      */
-    private final ArrayList<TimeSeriesDisplayCanvas> canvasList = new ArrayList<TimeSeriesDisplayCanvas>();
+    private final List<TimeSeriesDisplayCanvas> canvasList = new ArrayList<TimeSeriesDisplayCanvas>();
 
     /** List of page composites */
-    private final ArrayList<Composite> pageCompList = new ArrayList<Composite>();
+    private final List<Composite> pageCompList = new ArrayList<Composite>();
 
     /**
      * The page currently displayed.
@@ -413,11 +419,6 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
         this.parentDialog = parentDialog;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
-     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -428,24 +429,11 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayoutData()
-     */
     @Override
     protected Object constructShellLayoutData() {
         return new GridData(SWT.FILL, SWT.FILL, true, true);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
-     * .eclipse.swt.widgets.Shell)
-     */
     @Override
     protected void initializeComponents(final Shell shell) {
         // Get default values from Apps Defaults
@@ -476,11 +464,6 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
         shell.setMinimumSize(new Point(900, 900));
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialog#preOpened()
-     */
     @Override
     protected void preOpened() {
         super.preOpened();
@@ -857,9 +840,20 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
                     setSelectTrace(false);
                     TimeSeriesDataManager dataManager = TimeSeriesDataManager
                             .getInstance();
+                    Map<RejecteddataId, Integer> rejectedSecondsMap = new HashMap<>(
+                            deleteList.size(), 1.0f);
+                    /*
+                     * The insertion start time is remembered prior to any
+                     * inserts into the rejected data table. This will ensure
+                     * that insertion times will remain unique across both
+                     * potential inserts into the rejected data table below.
+                     */
+                    Date insertStartTime = Calendar.getInstance(
+                            TimeZone.getTimeZone("GMT")).getTime();
                     if (deleteList.size() > 0) {
                         try {
-                            dataManager.insertRejectedData(deleteList);
+                            dataManager.insertRejectedData(deleteList,
+                                    rejectedSecondsMap, insertStartTime);
                             dataManager.delete(deleteList);
                             updateMaxFcst(deleteList);
                         } catch (VizException e) {
@@ -889,7 +883,8 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
 
                     if (editList.size() > 0) {
                         try {
-                        	dataManager.insertRejectedData(editList);
+                            dataManager.insertRejectedData(editList,
+                                    rejectedSecondsMap, insertStartTime);
                             dataManager.edit(editList);
                             updateMaxFcst(editList);
                         } catch (VizException e) {

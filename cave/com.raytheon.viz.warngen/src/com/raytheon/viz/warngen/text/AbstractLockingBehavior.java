@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
 import com.raytheon.uf.common.dataplugin.warning.util.WarnFileUtil;
@@ -217,7 +217,8 @@ abstract public class AbstractLockingBehavior {
         // should not be locked. For some reason, this differs from followups as
         // stated in DR 15110. Need verification from NWS. This is a variance?
         if (!isMarineProduct()) {
-            StringBuilder newText = new StringBuilder(firstBulletText.length() + 1024);
+            StringBuilder newText = new StringBuilder(
+                    firstBulletText.length() + 1024);
             Matcher m = null;
             boolean first = true;
             for (String line : firstBulletText.split("\\n", -1)) {
@@ -240,10 +241,11 @@ abstract public class AbstractLockingBehavior {
 
                 int endIndex = line.toUpperCase().indexOf(" IN ");
                 String textForSearch = null;
-                if (endIndex == -1)
+                if (endIndex == -1) {
                     textForSearch = line;
-                else
+                } else {
                     textForSearch = line.substring(0, endIndex);
+                }
                 for (AffectedAreas affectedArea : affectedAreas) {
                     String name = affectedArea.getName();
                     String areaNotation = affectedArea.getAreaNotation();
@@ -290,7 +292,8 @@ abstract public class AbstractLockingBehavior {
         Matcher m = WarnGenPatterns.firstBulletPtrn.matcher(firstBulletText);
         firstBulletText = m.replaceAll(WarnGenPatterns.REPLACEMENT);
 
-        this.text = new StringBuffer(text).replace(start, end, firstBulletText).toString();
+        this.text = new StringBuffer(text).replace(start, end, firstBulletText)
+                .toString();
     }
 
     /**

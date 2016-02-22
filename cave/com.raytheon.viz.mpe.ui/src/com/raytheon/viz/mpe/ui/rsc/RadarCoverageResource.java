@@ -77,7 +77,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 10, 2009 2675       mpduff     Initial creation
+ * Aug 10, 2009 2675       mpduff      Initial creation
+ * Nov 05, 2015 5070       randerso    Adjust font sizes for dpi scaling
  * 
  * </pre>
  * 
@@ -282,8 +283,8 @@ public class RadarCoverageResource extends
             for (int i = 0; i < 131; i++) {
                 for (int j = 0; j < 131; j++) {
                     float f = -9999;
-                    if (data[130-i][j] != -9999) {
-                        f = (float) Math.floor(cvt.convert(data[130-i][j]));
+                    if (data[130 - i][j] != -9999) {
+                        f = (float) Math.floor(cvt.convert(data[130 - i][j]));
                     }
 
                     int dx = i - 66;
@@ -390,7 +391,7 @@ public class RadarCoverageResource extends
 
         // Draw label
         if (iFont == null) {
-            iFont = target.initializeFont("Dialog", 12, null);
+            iFont = target.initializeFont("Dialog", 10, null);
         }
         String text = RADAR_COVERAGE;
 
@@ -403,8 +404,7 @@ public class RadarCoverageResource extends
         string.verticallAlignment = VerticalAlignment.TOP;
         target.drawStrings(string);
 
-        if (missingData)
-        {
+        if (missingData) {
             string.setText(MISSING_DATA, textColor);
             string.setCoordinates(screenExtent.getMinX() + 350,
                     screenExtent.getMinY() + 550);

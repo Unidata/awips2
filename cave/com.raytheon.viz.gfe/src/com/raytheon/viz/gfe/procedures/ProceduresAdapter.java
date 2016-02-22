@@ -23,7 +23,7 @@ import org.eclipse.jface.action.IMenuManager;
 
 import com.raytheon.uf.viz.localization.adapter.LocalizationPerspectiveAdapter;
 import com.raytheon.uf.viz.localization.filetreeview.FileTreeEntryData;
-import com.raytheon.viz.gfe.core.script.IScriptUtil;
+import com.raytheon.viz.gfe.core.script.PythonFileTemplate;
 import com.raytheon.viz.gfe.core.script.action.NewAction;
 import com.raytheon.viz.gfe.procedures.util.ProcedureUtil;
 
@@ -55,7 +55,7 @@ public class ProceduresAdapter extends LocalizationPerspectiveAdapter {
     @Override
     public boolean addContextMenuItems(IMenuManager menuMgr,
             FileTreeEntryData[] selectedData) {
-        IScriptUtil util = new ProcedureUtil();
+        PythonFileTemplate util = new ProcedureUtil();
         NewAction newAction = new NewAction(util);
         menuMgr.add(newAction);
 

@@ -24,7 +24,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.lang.mutable.MutableByte;
+import org.apache.commons.lang3.mutable.MutableByte;
 import org.geotools.geometry.jts.JTS;
 import org.opengis.metadata.spatial.PixelOrientation;
 import org.opengis.referencing.FactoryException;

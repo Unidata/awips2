@@ -20,7 +20,7 @@
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 		<contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml" 
-	                menuText="Bloomfield MO (BLMM7)" id="profBloomfield MO"
+	                menuText="Bloomfield MO (BLMM7)" id="profBloomfield_MO"
 	                editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
 	        <substitute key="wmoid" value="74662"/>
         	<substitute key="productURI" value="/profiler/%/3000/74662/%"/>
@@ -80,7 +80,7 @@
         	<substitute key="productURI" value="/profiler/%/3000/74542/%"/>
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml" 
-	                menuText="Okolona MS (OKOM6)" id="profOkolona MS"
+	                menuText="Okolona MS (OKOM6)" id="profOkolona_MS"
 	                editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
 	        <substitute key="wmoid" value="74769"/>
         	<substitute key="productURI" value="/profiler/%/3000/74769/%"/>

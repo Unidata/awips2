@@ -31,20 +31,20 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
+import com.raytheon.uf.common.monitor.config.ThresholdMgr;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
+import com.raytheon.uf.common.monitor.data.MonitorConfigConstants;
 import com.raytheon.uf.common.monitor.data.ObConst;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
+import com.raytheon.uf.common.monitor.xml.AreaThresholdXML;
+import com.raytheon.uf.common.monitor.xml.AreaXML;
+import com.raytheon.uf.common.monitor.xml.ThresholdsXML;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.monitor.config.CommonTableConfig.CellType;
 import com.raytheon.uf.viz.monitor.filename.DefaultFilenameMgr;
-import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants;
-import com.raytheon.uf.viz.monitor.xml.AreaThresholdXML;
-import com.raytheon.uf.viz.monitor.xml.AreaXML;
-import com.raytheon.uf.viz.monitor.xml.ThresholdsXML;
 
 /**
  * Abstract threshold manager class used for FOG, SNOW, and SAFESEAS.
@@ -59,6 +59,7 @@ import com.raytheon.uf.viz.monitor.xml.ThresholdsXML;
  * Feb 16, 2011 #7346      zhao         added getDirectionalThresholdValueCellType(...)
  * Apr 28, 2014  3086      skorolev     Updated getAreaConfigMgr method.
  * Sep 18, 2015  3873      skorolev     Added getCfgMgr().
+ * Dec 26, 2015  5114      skorolev     Corrected imports and file path for default thresholds.
  * 
  * </pre>
  * 
@@ -159,7 +160,7 @@ public abstract class AbstractThresholdMgr {
          */
         if (defaultFileNameMgr.getDefaultThresholdFilename() != null
                 && defaultFileNameMgr.getDefaultThresholdFilename().length() > 0) {
-            boolean fileNameValid = validateFileName(getDisplayThresholdPath()
+            boolean fileNameValid = validateFileName(getThresholdPath(DataUsageKey.DISPLAY)
                     + defaultFileNameMgr.getDefaultThresholdFilename());
 
             if (defaultFileNameMgr.getDefaultThresholdFilename().compareTo(
@@ -169,13 +170,13 @@ public abstract class AbstractThresholdMgr {
                 displayThreshMgr = new ThresholdMgr(currFullDisplayXmlFileName);
                 loadDefaultDisplayThreshold();
             } else {
-                currFullDisplayXmlFileName = getDisplayThresholdPath()
+                currFullDisplayXmlFileName = getThresholdPath(DataUsageKey.DISPLAY)
                         + defaultFileNameMgr.getDefaultThresholdFilename();
                 displayThreshMgr = new ThresholdMgr(currFullDisplayXmlFileName);
                 displayThreshMgr.readThresholdXml();
             }
         } else {
-            currFullDisplayXmlFileName = getDisplayThresholdPath()
+            currFullDisplayXmlFileName = getThresholdPath(DataUsageKey.DISPLAY)
                     + defDisplayThreshName;
             displayThreshMgr = new ThresholdMgr(currFullDisplayXmlFileName);
             loadDefaultDisplayThreshold();
@@ -184,7 +185,7 @@ public abstract class AbstractThresholdMgr {
         /*
          * Setup the monitor threshold manager
          */
-        currFullMonitorXmlFileName = getMonitorThresholdPath()
+        currFullMonitorXmlFileName = getThresholdPath(DataUsageKey.MONITOR)
                 + defMonitorThreshName;
 
         monitorThreshMgr = new ThresholdMgr(currFullMonitorXmlFileName);
@@ -204,7 +205,7 @@ public abstract class AbstractThresholdMgr {
     private boolean validateFileName(String pathAndFileName) {
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext context = pm.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.SITE);
+                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
         LocalizationFile locFile = pm.getLocalizationFile(context,
                 pathAndFileName);
 
@@ -456,7 +457,7 @@ public abstract class AbstractThresholdMgr {
     public void setDefaultDisplayFileName(String fileName) {
         if (fileName == null) {
             defaultFileNameMgr.setDefaultThresholdFilename("");
-            currFullDisplayXmlFileName = getDisplayThresholdPath()
+            currFullDisplayXmlFileName = getThresholdPath(DataUsageKey.DISPLAY)
                     + defDisplayThreshName;
             return;
         }
@@ -481,7 +482,8 @@ public abstract class AbstractThresholdMgr {
             loadDefaultDisplayThreshold();
             return;
         }
-        currFullDisplayXmlFileName = getDisplayThresholdPath() + fileName;
+        currFullDisplayXmlFileName = getThresholdPath(DataUsageKey.DISPLAY)
+                + fileName;
         displayThreshMgr.setFullPathFileName(currFullDisplayXmlFileName);
         displayThreshMgr.readThresholdXml();
     }
@@ -493,7 +495,7 @@ public abstract class AbstractThresholdMgr {
         String filename = defaultFileNameMgr.getDefaultThresholdFilename();
 
         if (filename == null || filename.trim().length() == 0) {
-            currFullDisplayXmlFileName = getDisplayThresholdPath()
+            currFullDisplayXmlFileName = getThresholdPath(DataUsageKey.DISPLAY)
                     + defDisplayThreshName;
             List<String> areaIDs = null;
             try {
@@ -507,10 +509,11 @@ public abstract class AbstractThresholdMgr {
             ArrayList<String> threshKeys = getThresholdKeys(DataUsageKey.DISPLAY);
             statusHandler.handle(Priority.DEBUG, "---- "
                     + currFullDisplayXmlFileName);
-            displayThreshMgr.createConfigFromDefaults(
+            displayThreshMgr.createDisplayConfigFromDefaults(
                     currFullDisplayXmlFileName, areaIDs, threshKeys);
         } else {
-            currFullDisplayXmlFileName = getDisplayThresholdPath() + filename;
+            currFullDisplayXmlFileName = getThresholdPath(DataUsageKey.DISPLAY)
+                    + filename;
             displayThreshMgr.setFullPathFileName(currFullDisplayXmlFileName);
             displayThreshMgr.readThresholdXml();
         }
@@ -532,8 +535,8 @@ public abstract class AbstractThresholdMgr {
         // Sort the area IDs
         Collections.sort(areaIDs);
         ArrayList<String> threshKeys = getThresholdKeys(DataUsageKey.MONITOR);
-        monitorThreshMgr.createConfigFromDefaults(currFullMonitorXmlFileName,
-                areaIDs, threshKeys);
+        monitorThreshMgr.createMonitorConfigFromDefaults(
+                currFullMonitorXmlFileName, areaIDs, threshKeys);
     }
 
     /**
@@ -546,7 +549,8 @@ public abstract class AbstractThresholdMgr {
         if (newFileName.trim().compareTo(defDisplayThreshName) == 0) {
             return;
         }
-        currFullDisplayXmlFileName = getDisplayThresholdPath() + newFileName;
+        currFullDisplayXmlFileName = getThresholdPath(DataUsageKey.DISPLAY)
+                + newFileName;
         displayThreshMgr.setFullPathFileName(currFullDisplayXmlFileName);
         displayThreshMgr.saveThresholdXml();
     }
@@ -605,12 +609,12 @@ public abstract class AbstractThresholdMgr {
      * 
      * @return File path.
      */
-    public String getDisplayThresholdPath() {
+    public String getThresholdPath(DataUsageKey usage) {
         String fs = String.valueOf(File.separatorChar);
         StringBuilder sb = new StringBuilder();
         sb.append(appName.name().toLowerCase()).append(fs);
         sb.append("threshold").append(fs);
-        sb.append("display").append(fs);
+        sb.append(usage.name().toLowerCase()).append(fs);
         return sb.toString();
     }
 
@@ -621,10 +625,9 @@ public abstract class AbstractThresholdMgr {
      */
     public String getMonitorThresholdPath() {
         String fs = String.valueOf(File.separatorChar);
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder("monitoring");
+        sb.append(fs);
         sb.append(appName.name().toLowerCase()).append(fs);
-        sb.append("threshold").append(fs);
-        sb.append("monitor").append(fs);
         return sb.toString();
     }
 
@@ -753,13 +756,14 @@ public abstract class AbstractThresholdMgr {
         FSSObsMonitorConfigurationManager mgr = null;
         switch (this.appName) {
         case FOG:
-            mgr = FSSObsMonitorConfigurationManager.getInstance(MonName.fog);
+            mgr = FSSObsMonitorConfigurationManager.getInstance(AppName.FOG);
             break;
         case SAFESEAS:
-            mgr = FSSObsMonitorConfigurationManager.getInstance(MonName.ss);
+            mgr = FSSObsMonitorConfigurationManager
+                    .getInstance(AppName.SAFESEAS);
             break;
         case SNOW:
-            mgr = FSSObsMonitorConfigurationManager.getInstance(MonName.snow);
+            mgr = FSSObsMonitorConfigurationManager.getInstance(AppName.SNOW);
             break;
         default:
             statusHandler.error("Unable to handle unknown appName: "

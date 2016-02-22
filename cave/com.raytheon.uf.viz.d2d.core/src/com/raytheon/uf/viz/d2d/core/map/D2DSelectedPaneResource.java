@@ -52,6 +52,7 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  * ------------ ---------- ----------- --------------------------
  * Dec 20, 2010            mschenke     Initial creation
  * Aug 04, 2014 3489       mapeters     Updated deprecated getStringBounds() calls.
+ * Nov 05, 2015 5070       randerso     Adjust font sizes for dpi scaling
  * 
  * </pre>
  * 
@@ -131,12 +132,10 @@ public class D2DSelectedPaneResource extends
                         / paintProps.getCanvasBounds().height;
 
                 stringL.basics.x = stringI.basics.x = plus.basics.x = paintProps
-                        .getView()
-                        .getExtent().getMinX()
+                        .getView().getExtent().getMinX()
                         + (LEFT_OFFSET * ratioX);
                 stringL.basics.y = stringI.basics.y = plus.basics.y = paintProps
-                        .getView()
-                        .getExtent().getMaxY()
+                        .getView().getExtent().getMaxY()
                         - (BOTTOM_OFFSET * ratioY);
 
                 if (editor.getNumberofPanes() > 1
@@ -178,7 +177,7 @@ public class D2DSelectedPaneResource extends
      */
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
-        font = target.initializeFont(Font.MONOSPACED, 24,
+        font = target.initializeFont(Font.MONOSPACED, 20,
                 new Style[] { Style.BOLD });
 
         stringL = new DrawableString("L", L_COLOR);

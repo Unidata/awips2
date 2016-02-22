@@ -26,7 +26,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.python.PyUtil;
 import com.raytheon.uf.common.python.PythonIncludePathUtil;
-import com.raytheon.uf.common.python.concurrent.AbstractPythonScriptFactory;
+import com.raytheon.uf.common.python.concurrent.PythonInterpreterFactory;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.viz.gfe.core.DataManager;
 
@@ -41,6 +41,7 @@ import com.raytheon.viz.gfe.core.DataManager;
  * Jul 9, 2009    2454      ryu         Put user and site's python scripts on path for import
  * May 20, 2015   4509      njensen     Added time and dataaccess to include path
  * Jul 23, 2015   4263      dgilling    Refactored to support changes to SmartToolController.
+ * Dec 14, 2015   4816      dgilling    Support refactored PythonJobCoordinator API.
  * 
  * </pre>
  * 
@@ -48,14 +49,12 @@ import com.raytheon.viz.gfe.core.DataManager;
  * @version 1.0
  */
 
-public abstract class SmartToolFactory<C extends SmartToolController> extends
-        AbstractPythonScriptFactory<C> {
+public abstract class SmartToolFactory<C extends SmartToolController>
+        implements PythonInterpreterFactory<C> {
 
     protected final DataManager dataMgr;
 
-    public SmartToolFactory(String name, int numThreads,
-            final DataManager dataMgr) {
-        super(name, numThreads);
+    public SmartToolFactory(final DataManager dataMgr) {
         this.dataMgr = dataMgr;
     }
 

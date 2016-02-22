@@ -20,13 +20,12 @@
 package com.raytheon.viz.xdat;
 
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.viz.ui.personalities.awips.AbstractCAVEDialogComponent;
 
 /**
- * This class starts XdatDialog as a stand alone component with runtime mode
- * of ALERT_VIZ.
+ * This class starts XdatDialog as a stand alone component with runtime mode of
+ * ALERT_VIZ.
  * 
  * <pre>
  * 
@@ -34,10 +33,10 @@ import com.raytheon.viz.ui.personalities.awips.AbstractCAVEDialogComponent;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 28, 2011            mschenke     Initial creation
+ * Apr 28, 2011            mschenke    Initial creation
  * Oct 08, 2012 1229       rferrel     Make a blocking dialog.
- * Oct 17, 2012 1229       rferrel     Changes for non-blocking
- *                                      XdatDialog.
+ * Oct 17, 2012 1229       rferrel     Changes for non-blocking XdatDlg.
+ * 01/26/2016   5054       randerso    Made XdatDlg parented to display
  * 
  * </pre>
  * 
@@ -56,8 +55,8 @@ public class XdatComponent extends AbstractCAVEDialogComponent {
      */
     @Override
     protected void startInternal(String componentName) throws Exception {
-        
-    	XdatDlg xdatDialg = new XdatDlg( new Shell( Display.getCurrent() ) );
+
+        XdatDlg xdatDialg = new XdatDlg(Display.getCurrent());
         xdatDialg.open();
         blockUntilClosed(xdatDialg);
     }

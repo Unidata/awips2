@@ -43,6 +43,7 @@ import org.eclipse.ui.texteditor.IDocumentProvider;
 
 import com.raytheon.uf.common.localization.FileUpdatedMessage;
 import com.raytheon.uf.common.localization.FileUpdatedMessage.FileChangeType;
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.ILocalizationFileObserver;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -69,9 +70,10 @@ import com.raytheon.viz.ui.EditorUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 24, 2011            mschenke     Initial creation
- * Aug 29, 2014 #3527      mapeters     Check for active editor to not 
- *                                      be null before calling isDirty().
+ * Mar 24, 2011            mschenke    Initial creation
+ * Aug 29, 2014 #3527      mapeters    Check for active editor to not 
+ *                                     be null before calling isDirty().
+ * Jan 11, 2016 5242       kbisanz     Replaced calls to deprecated LocalizationFile methods
  * 
  * </pre>
  * 
@@ -166,7 +168,7 @@ public class LocalizationSaveAsPopulator extends CompoundContributionItem {
             LocalizationLevel newLevel) {
         LocalizationEditorInput input = (LocalizationEditorInput) editor
                 .getEditorInput();
-        LocalizationFile fileToSave = input.getLocalizationFile();
+        ILocalizationFile fileToSave = input.getLocalizationFile();
 
         if (newLevel == fileToSave.getContext().getLocalizationLevel()) {
             String myContext = LocalizationManager.getContextName(newLevel);
@@ -183,7 +185,7 @@ public class LocalizationSaveAsPopulator extends CompoundContributionItem {
         // get new level file
         IPathManager pm = PathManagerFactory.getPathManager();
 
-        String name = fileToSave.getName();
+        String name = fileToSave.getPath();
         LocalizationContext newCtx = pm.getContext(fileToSave.getContext()
                 .getLocalizationType(), newLevel);
         final LocalizationFile newFile = pm.getLocalizationFile(newCtx, name);
@@ -249,9 +251,9 @@ public class LocalizationSaveAsPopulator extends CompoundContributionItem {
     private static void saveEditorAs(IEditorPart editor) {
         LocalizationEditorInput input = (LocalizationEditorInput) editor
                 .getEditorInput();
-        LocalizationFile fileToSave = input.getLocalizationFile();
+        ILocalizationFile fileToSave = input.getLocalizationFile();
         FileDialog fd = new FileDialog(editor.getSite().getShell(), SWT.SAVE);
-        fd.setFileName(LocalizationUtil.extractName(fileToSave.getName()));
+        fd.setFileName(LocalizationUtil.extractName(fileToSave.getPath()));
         fd.setOverwrite(true);
         fd.setFilterPath(System.getProperty("user.home"));
 

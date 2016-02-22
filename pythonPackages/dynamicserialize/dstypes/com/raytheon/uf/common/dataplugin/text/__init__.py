@@ -22,7 +22,7 @@
 
 __all__ = [
             'dbsrv',
-            'request'
+            'subscription'
           ]
 
 

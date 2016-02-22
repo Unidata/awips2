@@ -20,22 +20,28 @@
 package com.raytheon.viz.gfe.core;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ui.IWorkbenchWindow;
 
+import com.raytheon.uf.common.activetable.ActiveTableMode;
 import com.raytheon.uf.common.activetable.ActiveTableRecord;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.request.GetIscSendStatusRequest.IscSendStatus;
+import com.raytheon.uf.common.dataplugin.gfe.request.IscRequestQueryRequest.IscQueryResponse;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
+import com.raytheon.uf.common.gfe.ifpclient.IFPClient;
 import com.raytheon.uf.common.message.WsId;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -44,14 +50,13 @@ import com.raytheon.uf.common.time.ISimulatedTimeChangeListener;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.notification.jobs.NotificationManagerJob;
 import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.gfe.GFEServerException;
 import com.raytheon.viz.gfe.core.internal.DataMgrInitStatus;
 import com.raytheon.viz.gfe.core.internal.GFEParmCacheInitJob;
 import com.raytheon.viz.gfe.core.internal.GFETopoManager;
-import com.raytheon.viz.gfe.core.internal.IFPClient;
 import com.raytheon.viz.gfe.core.internal.NotificationRouter;
 import com.raytheon.viz.gfe.core.internal.ParmManager;
 import com.raytheon.viz.gfe.core.internal.ReferenceSetManager;
@@ -104,6 +109,7 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeProhibitedOpException;
  * 08/14/2015    4750      dgilling    Remove use of PythonScript in doIscRequestQuery.
  * 08/20/2015    4749      dgilling    Ensure TextProductManager is disposed on dispose.
  * 09/15/2015    4858      dgilling    Disable ISC when DRT mode is enabled.
+ * 11/18/2015    5129      dgilling    Support new IFPClient.
  * </pre>
  * 
  * @author chammack
@@ -195,7 +201,7 @@ public class DataManager implements ISimulatedTimeChangeListener {
 
     private Map<String, String> officeTypeDict;
 
-    private HashSet<String> knownOfficeTypes;
+    private Set<String> knownOfficeTypes;
 
     private List<String> allSites;
 
@@ -204,7 +210,7 @@ public class DataManager implements ISimulatedTimeChangeListener {
     private final SmartToolJobPool toolJobPool;
 
     private boolean previousIscSendState;
-    
+
     private final AtomicBoolean smartToolsInitialized;
 
     private final AtomicBoolean proceduresInitialized;
@@ -231,7 +237,8 @@ public class DataManager implements ISimulatedTimeChangeListener {
             throws GFEServerException {
         this.spatialDisplayManager = factory.createSpatialDisplayManager(this,
                 discriminator);
-        this.client = new IFPClient(VizApp.getWsId(), this);
+        this.client = new IFPClient(VizApp.getWsId(), LocalizationManager
+                .getInstance().getSite());
         this.router = new NotificationRouter(this.getSiteID());
         NotificationManagerJob.addObserver("edex.alerts.gfe", this.router);
 
@@ -260,23 +267,25 @@ public class DataManager implements ISimulatedTimeChangeListener {
         this.editActionProcessor = new EditActionProcessor(this);
 
         // get office type information, convert to Dictionary
-        this.allSites = client.getKnownSites();
-        List<String> allOT = client.getKnownOfficeTypes();
-        this.officeTypeDict = new HashMap<String, String>();
-        for (int i = 0; i < allSites.size(); i++) {
-            officeTypeDict.put(allSites.get(i), allOT.get(i));
-        }
+        ServerResponse<Map<String, String>> sr = client
+                .getKnownSitesWithOfficeType();
+        this.officeTypeDict = Collections.unmodifiableMap(sr.getPayload());
+        this.allSites = Collections.unmodifiableList(new ArrayList<>(
+                this.officeTypeDict.keySet()));
         this.officeType = officeTypeDict.get(this.siteId);
 
         // determine all known office types
-        this.knownOfficeTypes = new HashSet<String>(allOT);
+        this.knownOfficeTypes = Collections
+                .unmodifiableSet(new HashSet<String>(this.officeTypeDict
+                        .values()));
 
         ISCInitJob iscInitJob = new ISCInitJob(this);
         iscInitJob.setSystem(true);
         iscInitJob.schedule();
 
         // get the ISC states
-        IscSendStatus iscSendStatus = client.getIscSendStatus();
+        ServerResponse<IscSendStatus> sr2 = client.iscSendStatus();
+        IscSendStatus iscSendStatus = sr2.getPayload();
         this.sendISConSave = iscSendStatus.isSendISConSave();
         this.sendISConPublish = iscSendStatus.isSendISConPublish();
         this.requestISC = iscSendStatus.isRequestISC();
@@ -431,12 +440,8 @@ public class DataManager implements ISimulatedTimeChangeListener {
      */
     public synchronized String getSiteID() {
         if (siteId == null) {
-            try {
-                siteId = getClient().getSiteID().get(0);
-            } catch (GFEServerException e) {
-                statusHandler.handle(Priority.PROBLEM, "Unable to get site ID",
-                        e);
-            }
+            ServerResponse<String> sr = getClient().getSiteID();
+            siteId = sr.getPayload();
         }
         return siteId;
     }
@@ -489,16 +494,24 @@ public class DataManager implements ISimulatedTimeChangeListener {
     }
 
     /**
-     * Return the inventory for a parm
+     * Obtains and returns the current server inventory for the specified
+     * weather element identifier.
      * 
      * @param parmID
-     * @return inventory for the parm
-     * 
-     * @throws GFEServerException
+     *            Weather element to retrieve inventory for.
+     * @return inventory for the parm. In the case of failure, an empty list
+     *         will be returned.
      */
-    public List<TimeRange> serverParmInventory(final ParmID parmID)
-            throws GFEServerException {
-        return this.client.getGridInventory(parmID);
+    public List<TimeRange> serverParmInventory(final ParmID parmID) {
+        ServerResponse<List<TimeRange>> sr = client.getGridInventory(parmID);
+        if (!sr.isOkay()) {
+            statusHandler.error(String.format(
+                    "Unable to obtain serverParmInventory for %s: %s", parmID,
+                    sr.message()));
+            return Collections.emptyList();
+        }
+
+        return sr.getPayload();
     }
 
     /**
@@ -610,53 +623,49 @@ public class DataManager implements ISimulatedTimeChangeListener {
     }
 
     /**
-     * @return A List of Objects, the active table.
-     * @throws VizException
+     * Returns the current vtecActiveTable, based upon the current
+     * {@code CAVEMode}.
+     * 
+     * @return The current active table.
      */
-    public List<ActiveTableRecord> getActiveTable() throws VizException {
-        List<ActiveTableRecord> result = getClient().getVTECActiveTable(siteId);
-        return result;
+    public List<ActiveTableRecord> getActiveTable() {
+        ActiveTableMode tableName = (CAVEMode.getMode() == CAVEMode.PRACTICE) ? ActiveTableMode.PRACTICE
+                : ActiveTableMode.OPERATIONAL;
+        ServerResponse<List<ActiveTableRecord>> sr = getClient()
+                .getVTECActiveTable(tableName);
+        if (!sr.isOkay()) {
+            statusHandler.error("Unable to obtain vtecActiveTable: "
+                    + sr.message());
+        }
+        return sr.getPayload();
     }
 
-    @SuppressWarnings("unchecked")
-    public Object[] doIscRequestQuery() {
-        String xml = null;
-        List<String> parmsWanted = new ArrayList<String>();
-        Map<String, Map<String, List<Map<String, String>>>> domainDict = null;
-        Map<String, String> serverDictS2T = null;
-        Map<String, Map<String, String>> serverDictT2S = null;
-
-        try {
-            ServerResponse<List<Object>> sResponse = client.iscRequestQuery();
-            if (!sResponse.isOkay()) {
-                return null;
-            }
-            List<Object> response = sResponse.getPayload();
-            xml = (String) response.get(0);
-            List<String> parmList = (List<String>) response.get(2);
-            for (String p : parmList) {
-                parmsWanted.add(p.replace("_SFC", ""));
-            }
-
-            Map<String, Object> obj = (Map<String, Object>) response.get(1);
-            domainDict = (Map<String, Map<String, List<Map<String, String>>>>) obj
-                    .get("domains");
-            serverDictS2T = (Map<String, String>) obj.get("serverDictS2T");
-            serverDictT2S = (Map<String, Map<String, String>>) obj
-                    .get("serverDictT2S");
-        } catch (GFEServerException e) {
-            statusHandler
-                    .handle(Priority.PROBLEM,
-                            "Server Problem: Unable to get server info from iscRequestQuery",
-                            e);
+    public IscQueryResponse doIscRequestQuery() {
+        ServerResponse<IscQueryResponse> sr = client.iscRequestQuery();
+        if (!sr.isOkay()) {
+            statusHandler.error(String.format(
+                    "Unable to get server info from iscRequestQuery: %s",
+                    sr.message()));
+            return new IscQueryResponse();
         }
 
-        return new Object[] { xml, parmsWanted, domainDict, serverDictS2T,
-                serverDictT2S };
+        Collection<String> parmsWanted = Collections.emptyList();
+        Collection<String> parms = sr.getPayload().getRequestedParms();
+        parmsWanted = new ArrayList<>(parms.size());
+        for (String parm : parms) {
+            parmsWanted.add(parm.replace("_SFC", StringUtils.EMPTY));
+        }
+
+        return new IscQueryResponse(sr.getPayload().getDomainDict(), sr
+                .getPayload().getServerDictT2S(), parmsWanted);
     }
 
-    public void makeISCRequest(String xmlreq) throws GFEServerException {
-        client.iscMakeISCRequest(xmlreq);
+    public void makeISCRequest(String xmlRequest) {
+        ServerResponse<?> sr = client.iscRequestMake(xmlRequest);
+        if (!sr.isOkay()) {
+            statusHandler.error(String.format(
+                    "Unable to process iscRequestMake: %s", sr.message()));
+        }
     }
 
     public String officeType(String site) {

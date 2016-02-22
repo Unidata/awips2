@@ -42,8 +42,10 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.raytheon.edex.exception.DecoderException;
-import com.raytheon.edex.plugin.AbstractDecoder;
 import com.raytheon.edex.plugin.IBinaryDecoder;
 import com.raytheon.edex.plugin.ldad.common.DecodedData;
 import com.raytheon.edex.plugin.ldad.common.LdadField;
@@ -65,14 +67,20 @@ import com.raytheon.uf.common.time.DataTime;
  * ------------ ----------  ----------- --------------------------
  * Sep 30, 2009             vkorolev    Initial creation
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
- * Jul 23, 2014 3410       bclement    location changed to floats
+ * Jul 23, 2014 3410        bclement    location changed to floats
+ * Dec 17, 2015 5166        kbisanz     Update logging to use SLF4J
+ *                                      by adding private logger and stop
+ *                                      extending AbstractDecoder
  * </pre>
  * 
  * @author vkorolev
  * @version 1
  */
 
-public class ManualDecoder<E> extends AbstractDecoder implements IBinaryDecoder {
+public class ManualDecoder<E> implements IBinaryDecoder {
+
+    private Logger logger = LoggerFactory.getLogger(getClass());
+
     private String traceId = null;
 
     public SimpleDateFormat sdf = new SimpleDateFormat("yy/MM/dd HH:mm:ss");

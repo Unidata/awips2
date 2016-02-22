@@ -29,8 +29,9 @@ import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.dataplugin.fog.FogRecord.FOG_THREAT;
 import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
+import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
+import com.raytheon.uf.common.monitor.data.MonitorConfigConstants;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
 import com.raytheon.uf.common.monitor.data.ObConst.DisplayVarName;
 import com.raytheon.uf.viz.monitor.IMonitor;
@@ -41,7 +42,6 @@ import com.raytheon.uf.viz.monitor.events.IMonitorThresholdEvent;
 import com.raytheon.uf.viz.monitor.listeners.IMonitorListener;
 import com.raytheon.uf.viz.monitor.safeseas.SafeSeasMonitor;
 import com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg;
-import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants;
 
 /**
  * SAFESEAS Zone Table Dialog
@@ -328,7 +328,7 @@ public class SSZoneTableDlg extends ZoneTableDlg {
     protected FSSObsMonitorConfigurationManager getMonitorAreaConfigInstance() {
         if (configMgr == null || configMgr.isPopulated()) {
             configMgr = FSSObsMonitorConfigurationManager
-                    .getInstance(MonName.ss);
+                    .getInstance(AppName.SAFESEAS);
         }
         return configMgr;
     }

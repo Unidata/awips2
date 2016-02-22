@@ -30,8 +30,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.acars.ACARSRecord;
@@ -60,6 +60,7 @@ import com.raytheon.uf.edex.plugin.acarssounding.tools.SoundingBuilder;
  * ------------ ---------- ----------- --------------------------
  * Jan 21, 2009       1939 jkorman     Initial creation
  * Aug 18, 2014 3530       bclement    removed TimeTools usage
+ * Dec 10, 2015 5166       kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -69,7 +70,7 @@ import com.raytheon.uf.edex.plugin.acarssounding.tools.SoundingBuilder;
 
 public class ACARSSounding {
 
-    private Log logger = LogFactory.getLog(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     private String pluginName = ACARSSoundingTools.ACARS_SNDG_PLUGIN_NAME;
 
@@ -125,7 +126,7 @@ public class ACARSSounding {
      * @return
      */
     public PluginDataObject[] processSounding(ACARSAircraftInfo acftInfo) {
-        ACARSSoundingRecord [] soundings = null;
+        ACARSSoundingRecord[] soundings = null;
         try {
             if (!failSafe) {
                 if (logger.isDebugEnabled()) {
@@ -138,9 +139,11 @@ public class ACARSSounding {
                 // Did we get any potential soundings back?
                 int numSoundings = (tSoundings != null) ? tSoundings.size() : 0;
                 // TODO : Change this to a debug later!
-                logger.info(acftInfo.getTailNumber() + " Read [" + numSoundings + "] soundings");
+                logger.info(acftInfo.getTailNumber() + " Read [" + numSoundings
+                        + "] soundings");
                 // Go create soundings
-                soundings = builder.createSoundings(loadObs(acftInfo),tSoundings);
+                soundings = builder.createSoundings(loadObs(acftInfo),
+                        tSoundings);
             } else {
                 soundings = EMPTY_SOUNDING;
             }
@@ -148,7 +151,7 @@ public class ACARSSounding {
             logger.error("Error processing acars sounding ", e);
             soundings = EMPTY_SOUNDING;
         }
-        if(soundings == null) {
+        if (soundings == null) {
             soundings = EMPTY_SOUNDING;
         }
         return soundings;
@@ -200,12 +203,12 @@ public class ACARSSounding {
                 // Do we have enough data to consider this data?
                 if ((uris.size() >= ACARSSoundingTools.MIN_OBS_FOR_SOUNDING)) {
                     String s = uris.get(0);
-                    Long startTime = Long.parseLong(s.substring(0,20).trim());
+                    Long startTime = Long.parseLong(s.substring(0, 20).trim());
                     Calendar start = TimeUtil
                             .newGmtCalendar(new Date(startTime));
-                    
+
                     s = uris.get(uris.size() - 1);
-                    Long stopTime = Long.parseLong(s.substring(0,20).trim());
+                    Long stopTime = Long.parseLong(s.substring(0, 20).trim());
                     Calendar end = TimeUtil.newGmtCalendar(new Date(stopTime));
 
                     List<ACARSRecord> obs = acarsDAO.getReports(
@@ -231,19 +234,19 @@ public class ACARSSounding {
      * @return
      */
     private List<ACARSSoundingRecord> checkSoundings(ACARSAircraftInfo acftInfo) {
-        
+
         String msg = "attempting " + acftInfo.getTailNumber() + " ";
         String tailNumber = acftInfo.getTailNumber();
 
         Calendar c = TimeUtil.newGmtCalendar(new Date(acftInfo.getStartTime()));
-        msg += String.format(ACARSSoundingTools.STD_TM_FMT,c);
+        msg += String.format(ACARSSoundingTools.STD_TM_FMT, c);
 
         c.setTimeInMillis(acftInfo.getStopTime());
         msg += "->";
-        msg += String.format(ACARSSoundingTools.STD_TM_FMT,c);
-        
+        msg += String.format(ACARSSoundingTools.STD_TM_FMT, c);
+
         logger.info(msg);
-        
+
         List<ACARSSoundingRecord> sndgs = soundingDAO.queryByTimeLimits(
                 tailNumber, acftInfo.getStartTime(), acftInfo.getStopTime());
 

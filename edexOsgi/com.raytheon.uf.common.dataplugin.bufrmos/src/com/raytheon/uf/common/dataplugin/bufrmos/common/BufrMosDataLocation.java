@@ -21,12 +21,15 @@ package com.raytheon.uf.common.dataplugin.bufrmos.common;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Index;
 
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.annotations.NullFloat;
 import com.raytheon.uf.common.dataplugin.annotations.NullString;
@@ -50,6 +53,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Nov 04, 2013 2361       njensen     Remove XML annotations
  * Jul 22, 2015 4360       rferrel     Named unique constraint;
  *                                      stationid, latitude and longitude no longer nullable.
+ * Jan 12, 2016 4677       tgurney     Make id a sequence-generated field.
+ * Jan 19, 2016 4677       tgurney     Remove generateId method
  * 
  * </pre>
  * 
@@ -57,6 +62,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1.0
  */
 @Entity
+@SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "bufrmos_locationseq", allocationSize = 1)
 @Table(name = "bufrmos_location", uniqueConstraints = { @UniqueConstraint(name = "uk_bufrmos_location_datauri_fields", columnNames = {
         "stationId", "latitude", "longitude" }) })
 @DynamicSerialize
@@ -64,8 +70,9 @@ public class BufrMosDataLocation extends PersistableDataObject {
     private static final long serialVersionUID = 1L;
 
     /** The id */
-    @Id
     @DynamicSerializeElement
+    @GeneratedValue(generator = PluginDataObject.ID_GEN)
+    @Id
     private Integer id;
 
     // Id of the station making this observation.
@@ -117,10 +124,6 @@ public class BufrMosDataLocation extends PersistableDataObject {
      */
     public void setStationId(String stationId) {
         this.stationId = stationId;
-    }
-
-    public void generateId() {
-        this.id = hashCode();
     }
 
     public Integer getId() {

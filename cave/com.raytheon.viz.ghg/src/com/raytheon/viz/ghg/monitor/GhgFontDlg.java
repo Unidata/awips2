@@ -44,8 +44,9 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 25 MAR 2008  N/A        lvenable    Initial creation 
- * 17Jun2008    1157       MW Fegan    Added interaction with GHG Configuration.
+ * 17 JUN 2008  1157       MW Fegan    Added interaction with GHG Configuration.
  * 28 NOV 2012  1353       rferrel     Changes for non-blocking dialog.
+ * 05 Feb 2016 #5316       randerso    Code cleanup
  * 
  * </pre>
  * 
@@ -125,6 +126,7 @@ public class GhgFontDlg extends CaveSWTDialog {
      * 
      * @param parent
      *            Parent Shell.
+     * @param config
      */
     public GhgFontDlg(Shell parent, GhgConfigData config) {
         super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);

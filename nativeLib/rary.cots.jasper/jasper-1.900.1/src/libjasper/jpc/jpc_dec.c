@@ -496,7 +496,7 @@ static int jpc_dec_process_sot(jpc_dec_t *dec, jpc_ms_t *ms)
 		dec->curtileendoff = 0;
 	}
 
-	if (JAS_CAST(int, sot->tileno) > dec->numtiles) {
+	if (JAS_CAST(int, sot->tileno) >= dec->numtiles) {
 		jas_eprintf("invalid tile number in SOT marker segment\n");
 		return -1;
 	}
@@ -1076,12 +1076,12 @@ static int jpc_dec_tiledecode(jpc_dec_t *dec, jpc_dec_tile_t *tile)
 	/* Apply an inverse intercomponent transform if necessary. */
 	switch (tile->cp->mctid) {
 	case JPC_MCT_RCT:
-		assert(dec->numcomps == 3);
+		assert(dec->numcomps >= 3);
 		jpc_irct(tile->tcomps[0].data, tile->tcomps[1].data,
 		  tile->tcomps[2].data);
 		break;
 	case JPC_MCT_ICT:
-		assert(dec->numcomps == 3);
+		assert(dec->numcomps >= 3);
 		jpc_iict(tile->tcomps[0].data, tile->tcomps[1].data,
 		  tile->tcomps[2].data);
 		break;
@@ -1211,7 +1211,7 @@ static int jpc_dec_process_siz(jpc_dec_t *dec, jpc_ms_t *ms)
 	dec->numhtiles = JPC_CEILDIV(dec->xend - dec->tilexoff, dec->tilewidth);
 	dec->numvtiles = JPC_CEILDIV(dec->yend - dec->tileyoff, dec->tileheight);
 	dec->numtiles = dec->numhtiles * dec->numvtiles;
-	if (!(dec->tiles = jas_alloc2(dec->numtiles, sizeof(jpc_dec_tile_t)))) {
+	if (!(dec->tiles = jas_calloc(dec->numtiles, sizeof(jpc_dec_tile_t)))) {
 		return -1;
 	}
 
@@ -1235,7 +1235,7 @@ static int jpc_dec_process_siz(jpc_dec_t *dec, jpc_ms_t *ms)
 		tile->pkthdrstreampos = 0;
 		tile->pptstab = 0;
 		tile->cp = 0;
-		if (!(tile->tcomps = jas_alloc2(dec->numcomps,
+		if (!(tile->tcomps = jas_calloc(dec->numcomps,
 		  sizeof(jpc_dec_tcomp_t)))) {
 			return -1;
 		}
@@ -1287,7 +1287,7 @@ static int jpc_dec_process_coc(jpc_dec_t *dec, jpc_ms_t *ms)
 	jpc_coc_t *coc = &ms->parms.coc;
 	jpc_dec_tile_t *tile;
 
-	if (JAS_CAST(int, coc->compno) > dec->numcomps) {
+	if (JAS_CAST(int, coc->compno) >= dec->numcomps) {
 		jas_eprintf("invalid component number in COC marker segment\n");
 		return -1;
 	}
@@ -1313,7 +1313,7 @@ static int jpc_dec_process_rgn(jpc_dec_t *dec, jpc_ms_t *ms)
 	jpc_rgn_t *rgn = &ms->parms.rgn;
 	jpc_dec_tile_t *tile;
 
-	if (JAS_CAST(int, rgn->compno) > dec->numcomps) {
+	if (JAS_CAST(int, rgn->compno) >= dec->numcomps) {
 		jas_eprintf("invalid component number in RGN marker segment\n");
 		return -1;
 	}
@@ -1362,7 +1362,7 @@ static int jpc_dec_process_qcc(jpc_dec_t *dec, jpc_ms_t *ms)
 	jpc_qcc_t *qcc = &ms->parms.qcc;
 	jpc_dec_tile_t *tile;
 
-	if (JAS_CAST(int, qcc->compno) > dec->numcomps) {
+	if (JAS_CAST(int, qcc->compno) >= dec->numcomps) {
 		jas_eprintf("invalid component number in QCC marker segment\n");
 		return -1;
 	}

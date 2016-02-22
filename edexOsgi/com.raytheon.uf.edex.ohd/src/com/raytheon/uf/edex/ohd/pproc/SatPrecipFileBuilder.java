@@ -39,6 +39,7 @@ import com.raytheon.uf.common.hydro.spatial.HRAPCoordinates;
 import com.raytheon.uf.common.mpe.util.XmrgFile;
 import com.raytheon.uf.common.mpe.util.XmrgFile.XmrgHeader;
 import com.raytheon.uf.common.ohd.AppsDefaults;
+import com.raytheon.uf.common.ohd.AppsDefaultsDirKeys;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.util.TimeUtil;
@@ -58,6 +59,7 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  * Feb 15, 2013 1638       mschenke    Moved DataURINotificationMessage to uf.common.dataplugin
  * Mar 19, 2014 17109      snaples     Removed code that adds 1 hour to grid reftime, was not needed.
  * May 05, 2014 2060       njensen     Major cleanup and remove dependency on grid dataURI
+ * Jan 26, 2016 5264       bkowal      Use the apps defaults dir constant.
  * 
  * 
  * </pre>
@@ -111,7 +113,7 @@ public class SatPrecipFileBuilder {
         sdf.setTimeZone(TimeUtil.GMT_TIME_ZONE);
 
         AppsDefaults appsDefaults = AppsDefaults.getInstance();
-        outputPath = appsDefaults.getToken("mpe_satpre_dir");
+        outputPath = appsDefaults.getToken(AppsDefaultsDirKeys.MPE_SATPRE_DIR);
         File outputDir = new File(outputPath);
         if (!outputDir.exists()) {
             outputDir.mkdirs();

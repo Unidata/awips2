@@ -43,6 +43,7 @@ import com.raytheon.uf.viz.alertviz.internal.LogMessageDAO;
  * Aug 26, 2013 2142       njensen     Changed to use SLF4J
  * Jul 02, 2014 3337       njensen     Disabled logback packaging data
  * May 22, 2015 4473       njensen     Refactored
+ * Feb 11, 2016 5314       dgilling    Add retrieveByRowOffset.
  * </pre>
  * 
  * @author chammack
@@ -122,16 +123,30 @@ public class SystemStatusHandler extends AbstractStatusHandler {
     }
 
     /**
-     * Get the current range of persisted StatusMessages
+     * Retrieve a status message by row offset
      * 
+     * @param index
+     *            The row offset, 0-based index.
+     * @return the status message
+     * @throws AlertvizException
+     *             If an error occurred querying the database for the status
+     *             message
+     */
+    public static StatusMessage retrieveByRowOffset(int index)
+            throws AlertvizException {
+        return LogMessageDAO.getInstance().loadByRowOffset(index);
+    }
+
+    /**
+     * Get the current number of persisted StatusMessages.
+     * <p>
      * NOTE: This only works when called from inside the alertviz container
      * 
-     * 
-     * @return the range [min, max] of values
+     * @return
      * @throws AlertvizException
      */
-    public static int[] getCurrentRange() throws AlertvizException {
-        return LogMessageDAO.getInstance().getLogRange();
+    public static int getMessageCount() throws AlertvizException {
+        return LogMessageDAO.getInstance().getMessageCount();
     }
 
     /**
@@ -148,5 +163,4 @@ public class SystemStatusHandler extends AbstractStatusHandler {
             int count) throws AlertvizException {
         return LogMessageDAO.getInstance().load(count, category);
     }
-
 }

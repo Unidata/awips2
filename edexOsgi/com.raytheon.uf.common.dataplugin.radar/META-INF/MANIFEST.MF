@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Radar
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.radar
-Bundle-Version: 1.14.1.qualifier
+Bundle-Version: 1.16.0.qualifier
 Eclipse-RegisterBuddy: org.geotools
 Bundle-Vendor: RAYTHEON
 Require-Bundle: com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",

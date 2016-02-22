@@ -26,14 +26,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
-import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.edex.decodertools.core.filterimpl.AbstractFilterElement;
 import com.raytheon.uf.edex.decodertools.core.filterimpl.AbstractObsFilter;
@@ -53,6 +53,7 @@ import com.raytheon.uf.edex.decodertools.core.filterimpl.WMOHeaderFilterElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 28, 2015 4783       bkowal      Initial creation
+ * Dec 16, 2015 5166       kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -72,7 +73,7 @@ public abstract class AbstractShefFilter {
 
     public static final String FILTERS_DIR = "plugin-filters";
 
-    protected final Log logger = LogFactory.getLog(getClass());
+    protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     private String filterConfigFile = null;
 

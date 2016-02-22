@@ -19,5 +19,5 @@
         further_licensing_information.
     -->
 <requestPatterns xmlns:ns2="group">
-    <regex>^NWUS20.*</regex>
+    <regex>^NWUS2[02].*</regex>
 </requestPatterns>

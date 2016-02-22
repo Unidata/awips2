@@ -46,7 +46,6 @@ class  EditAreaUtils(TextUtils.TextUtils):
         # Must set this up in order to do intersections and unions
         self.__ifpClient = argDict["ifpClient"]
         self.__gridLoc = self.__ifpClient.getDBGridLocation()
-        self.__dataMgr = argDict["dataMgr"]
 
     def getIFPClient(self):
         return self.__ifpClient
@@ -121,7 +120,7 @@ class  EditAreaUtils(TextUtils.TextUtils):
         refList = ArrayList()
         refList.add(refID)
         tmp = argDict["ifpClient"].getReferenceData(refList).get(0)
-        if (tmp is not None):
+        if tmp is not None:
             tmp.getGrid()
         return tmp
 
@@ -305,9 +304,8 @@ class  EditAreaUtils(TextUtils.TextUtils):
 
     def saveEditAreas(self, editAreas):
         # Save a list of ReferenceData objects
-        refMgr = self.__dataMgr.getRefManager()
-        for ea in editAreas:        
-            refMgr.saveRefSet(ea)
+        ifpClient = self.getIFPClient()
+        ifpClient.saveReferenceData(editAreas)
         
     def getComboNumber(self):
         # Put initial comboNumber from constructor into EditAreaUtils as well.
@@ -347,6 +345,7 @@ class  EditAreaUtils(TextUtils.TextUtils):
 
     def deleteEditAreas(self, editAreas):
         # Delete a list of ReferenceData, ReferenceID, or string objects        
+        ifpClient = self.getIFPClient()
         ids = []
         for area in editAreas:
             if type(area) is str:
@@ -358,6 +357,4 @@ class  EditAreaUtils(TextUtils.TextUtils):
                 except:
                     # reference id
                     ids.append(area)            
-        refMgr = self.__dataMgr.getRefManager()        
-        for ea in ids:            
-            refMgr.deleteRefSet(ea, False)
+        ifpClient.deleteReferenceData(ids)

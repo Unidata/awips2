@@ -49,6 +49,7 @@ import com.raytheon.viz.ui.EditorUtil;
  * Jul 19, 2007            randerso    Initial Creation.
  * Sep 4, 2012  15335      kshresth    Will now display lightning/wind 
  *                                     fields when magnification set to 0
+ * Nov 05, 2015 5070      randerso     Removed override of 0.0 magnification
  * 
  * </pre>
  * 
@@ -73,8 +74,6 @@ public class MagHandler extends AbstractHandler implements IElementUpdater {
             double magnification = Double.parseDouble((arg0
                     .getParameter("magnification")));
             if (editor != null) {
-                if (magnification == 0.0f)
-                    magnification = 0.1;
                 IDisplayPane[] panes = editor.getDisplayPanes();
                 for (IDisplayPane pane : panes) {
                     IRenderableDisplay disp = pane.getRenderableDisplay();

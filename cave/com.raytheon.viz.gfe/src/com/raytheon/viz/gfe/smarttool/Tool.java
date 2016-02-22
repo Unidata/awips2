@@ -34,7 +34,6 @@ import org.eclipse.swt.widgets.Display;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData;
-import com.raytheon.uf.common.python.concurrent.AbstractPythonScriptFactory;
 import com.raytheon.uf.common.python.concurrent.IPythonExecutor;
 import com.raytheon.uf.common.python.concurrent.PythonJobCoordinator;
 import com.raytheon.uf.common.status.IPerformanceStatusHandler;
@@ -56,7 +55,6 @@ import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.core.parm.ParmState;
 import com.raytheon.viz.gfe.query.QueryScript;
 import com.raytheon.viz.gfe.query.QueryScriptExecutor;
-import com.raytheon.viz.gfe.query.QueryScriptFactory;
 import com.raytheon.viz.gfe.smarttool.SmartToolException.ErrorType;
 import com.raytheon.viz.gfe.smarttool.script.SmartToolRunnerController;
 
@@ -77,6 +75,7 @@ import com.raytheon.viz.gfe.smarttool.script.SmartToolRunnerController;
  * Aug 27, 2015  4749      njensen     Call shutdown() on PythonJobCoordinator
  * Sep 16, 2015  4871      randerso    Return modified varDict from Tool
  * 10/08/2015    18125     bhunder     Modified CANCEL_MSG_START to work with Jep updates
+ * Dec 14, 2015  4816      dgilling    Support refactored PythonJobCoordinator API.
  * 
  * </pre>
  * 
@@ -127,22 +126,21 @@ public class Tool {
      * @throws SmartToolException
      */
     public Tool(IParmManager aParmMgr, Parm anInputParm, String aToolName,
+            PythonJobCoordinator<QueryScript> coordinator,
             SmartToolRunnerController aTool) throws SmartToolException {
-        parmMgr = aParmMgr;
-        inputParm = anInputParm;
-        toolName = aToolName;
-        tool = aTool;
+        this.parmMgr = aParmMgr;
+        this.inputParm = anInputParm;
+        this.toolName = aToolName;
+        this.tool = aTool;
+        this.coordinator = coordinator;
 
-        AbstractPythonScriptFactory<QueryScript> factory = new QueryScriptFactory(
-                DataManagerUIFactory.getCurrentInstance());
-        coordinator = PythonJobCoordinator.newInstance(factory);
         try {
-            if (!tool.isInstantiated(toolName)) {
-                tool.instantiatePythonScript(toolName);
+            if (!this.tool.isInstantiated(toolName)) {
+                this.tool.instantiatePythonScript(toolName);
             }
         } catch (JepException e) {
             throw new SmartToolException("Error instantiating python tool "
-                    + toolName + ": " + e.getMessage());
+                    + this.toolName + ": " + e.getMessage());
         }
     }
 
@@ -511,8 +509,8 @@ public class Tool {
                         IPythonExecutor<QueryScript, ReferenceData> executor = new QueryScriptExecutor(
                                 "evaluate", argMap);
                         try {
-                            Tool.this.trueEditArea = coordinator
-                                    .submitSyncJob(executor);
+                            Tool.this.trueEditArea = coordinator.submitJob(
+                                    executor).get();
                         } catch (Exception e) {
                             statusHandler.handle(Priority.PROBLEM,
                                     "Error re-evaluating edit area "
@@ -689,7 +687,6 @@ public class Tool {
             }
         }
         parmMgr.deleteTemporaryParms();
-        coordinator.shutdown();
 
         // Report Skipped or Created Grids
         String msg = "Tool: " + toolname + " -- ";

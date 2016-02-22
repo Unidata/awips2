@@ -31,6 +31,7 @@ import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.localization.FileUpdatedMessage;
 import com.raytheon.uf.common.localization.FileUpdatedMessage.FileChangeType;
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.ILocalizationFileObserver;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -57,6 +58,7 @@ import com.raytheon.viz.ui.VizWorkbenchManager;
  * Apr 27, 2011            mschenke    Initial creation
  * Oct 13, 2015 4410       bsteffen    Allow localization perspective to mix
  *                                     files for multiple Localization Types.
+ * Jan 11, 2016 5242       kbisanz     Replaced calls to deprecated LocalizationFile methods
  * 
  * 
  * </pre>
@@ -107,13 +109,13 @@ public class RenameAction extends Action {
         }
     }
 
-    private LocalizationFile file;
+    private ILocalizationFile file;
 
     private ILocalizationService service;
 
     private boolean deleteOld;
 
-    public RenameAction(LocalizationFile file, ILocalizationService service,
+    public RenameAction(ILocalizationFile file, ILocalizationService service,
             boolean deleteOld) {
         super("Rename...", IAction.AS_PUSH_BUTTON);
         // Only set not enabled if we are deleting the old file and level is a
@@ -125,13 +127,13 @@ public class RenameAction extends Action {
         this.deleteOld = deleteOld;
     }
 
-    public RenameAction(LocalizationFile file, ILocalizationService service) {
+    public RenameAction(ILocalizationFile file, ILocalizationService service) {
         this(file, service, true);
     }
 
     @Override
     public void run() {
-        String path = file.getName();
+        String path = file.getPath();
         String[] pathParts = LocalizationUtil.splitUnique(path);
         final String name = pathParts[pathParts.length - 1];
         Shell parent = VizWorkbenchManager.getInstance().getCurrentWindow()

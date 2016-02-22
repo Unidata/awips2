@@ -66,6 +66,7 @@ import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
  * Jul, 7 2009             snaples     Initial creation
  * Sep 11, 2013 #2353      lvenable    Fixed cursor memory leak.
  * Mar 10, 2015  14575     snaples     Added addtional status flag.
+ * Jan 15, 2016 5054       randerso    Use proper parent shell
  * 
  * </pre>
  * 
@@ -113,7 +114,7 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
     private int dqc_good = 0;
 
     public static DrawDQCStations ddq;
-    
+
     private DailyQcUtils dqc;
 
     public static ArrayList<String> dataType = new ArrayList<String>();
@@ -124,9 +125,9 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
 
     OtherFreezeOptions ozo = new OtherFreezeOptions();
 
-//    Zdata[] zdata = new Zdata[0];
+    // Zdata[] zdata = new Zdata[0];
 
-//    Ts[] ts;
+    // Ts[] ts;
 
     private int time_pos;
 
@@ -156,33 +157,29 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
 
     private int getOpts() {
         int ik = 0;
-        if (dqc.points_flag == 1
-                && dqc.pcp_in_use[time_pos] == -1) {
+        if (dqc.points_flag == 1 && dqc.pcp_in_use[time_pos] == -1) {
             ik = 0;
-        } else if (dqc.points_flag == 1
-                && dqc.grids_flag == -1 && dqc.map_flag == -1
-                && dqc.contour_flag == -1) {
+        } else if (dqc.points_flag == 1 && dqc.grids_flag == -1
+                && dqc.map_flag == -1 && dqc.contour_flag == -1) {
             ik = 0;
-        } else if (dqc.points_flag == -1
-                && dqc.grids_flag == 1 && dqc.map_flag == -1) {
+        } else if (dqc.points_flag == -1 && dqc.grids_flag == 1
+                && dqc.map_flag == -1) {
             ik = 1;
-        } else if (dqc.points_flag == -1
-                && dqc.grids_flag == -1 && dqc.map_flag == 1) {
+        } else if (dqc.points_flag == -1 && dqc.grids_flag == -1
+                && dqc.map_flag == 1) {
             ik = 2;
-        } else if (dqc.points_flag == 1
-                && dqc.grids_flag == 1 && dqc.map_flag == -1) {
+        } else if (dqc.points_flag == 1 && dqc.grids_flag == 1
+                && dqc.map_flag == -1) {
             ik = 3;
-        } else if (dqc.points_flag == 1
-                && dqc.grids_flag == -1 && dqc.map_flag == 1) {
+        } else if (dqc.points_flag == 1 && dqc.grids_flag == -1
+                && dqc.map_flag == 1) {
             ik = 4;
-        } else if (dqc.points_flag == -1
-                && dqc.contour_flag == 1) {
+        } else if (dqc.points_flag == -1 && dqc.contour_flag == 1) {
             ik = 5;
-        } else if (dqc.points_flag == 1
-                && dqc.contour_flag == 1) {
+        } else if (dqc.points_flag == 1 && dqc.contour_flag == 1) {
             ik = 6;
-        } else if (dqc.points_flag == -1
-                && dqc.grids_flag == -1 && dqc.map_flag == -1) {
+        } else if (dqc.points_flag == -1 && dqc.grids_flag == -1
+                && dqc.map_flag == -1) {
             ik = 7;
         }
         return ik;
@@ -216,7 +213,7 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
         dqc_good = dqc.qcDataHasChanged(prevDate, currDate, QcArea, qcDays,
                 false);
         if (dqc_good == 1) {
-            SaveLevel2Data s2 = new SaveLevel2Data();
+            SaveLevel2Data s2 = new SaveLevel2Data(getShell());
             dqc_good = s2.check_new_area(currDate, QcArea, qcDays);
             if (dqc_good == 0) {
                 dqc_good = dqc.qcDataReload(currDate, QcArea, qcDays, false);
@@ -308,13 +305,14 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
         isfinished = true;
         isOpen = false;
         font.dispose();
-        SaveLevel2Data s2 = new SaveLevel2Data();
+        SaveLevel2Data s2 = new SaveLevel2Data(getShell());
         s2.send_dbase_new_area();
         dqc.clearData();
         displayMgr.displayFieldData(df);
         removePerspectiveListener();
         if (MPEDisplayManager.getCurrent() != null) {
             display.asyncExec(new Runnable() {
+                @Override
                 public void run() {
                     ChooseDataPeriodDialog dialog = new ChooseDataPeriodDialog(
                             getParent().getShell());
@@ -330,7 +328,7 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
      * Initialize the dialog components.
      */
     private void initializeComponents() {
-//        zdata = DailyQcUtils.zdata;
+        // zdata = DailyQcUtils.zdata;
         dqc.points_flag = 1;
         dqc.grids_flag = -1;
         dqc.map_flag = -1;
@@ -342,7 +340,7 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
             // checks to see if area or date has changed since last data load
             DailyQcUtils dqcu = new DailyQcUtils();
             dqc_good = dqcu.qcDataReload(currDate, QcArea, qcDays, false);
-//            dqc.zdata = DailyQcUtils.zdata;
+            // dqc.zdata = DailyQcUtils.zdata;
             if (MPEDisplayManager.pcpn_time_step != 0) {
                 MPEDisplayManager.pcpn_time_step = 0;
                 dqc.pcpn_time = 0;
@@ -366,7 +364,7 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
             }
         }
 
-//        ts = DailyQcUtils.ts;
+        // ts = DailyQcUtils.ts;
         this.createDataOptionsGroup();
         this.createPointSetComp();
         this.createPointControlComp();

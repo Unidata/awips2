@@ -329,11 +329,11 @@ SIGWINDPROB0.254% SIGWINDPROB
 PRSVR0.254% PRSVR
 PRSIGSV0.254% PRSIGSV
 
-#TPCSurgeProb
-# For the pct parameters the parameters coming out of the grib files are coded
-# as the height where there is XX probability that the surge is less than a
-# height but the desired interpretation is XX probability that the surge is
-# greater than a height
+//TPCSurgeProb
+// For the pct parameters the parameters coming out of the grib files are coded
+// as the height where there is XX probability that the surge is less than a
+// height but the desired interpretation is XX probability that the surge is
+// greater than a height
 Surge10pct_21600-0 Surge90pct6hr
 Surge20pct_21600-0 Surge80pct6hr
 Surge30pct_21600-0 Surge70pct6hr
@@ -343,9 +343,9 @@ Surge60pct_21600-0 Surge40pct6hr
 Surge70pct_21600-0 Surge30pct6hr
 Surge80pct_21600-0 Surge20pct6hr
 Surge90pct_21600-0 Surge10pct6hr
-# For the m parameters convert the abbreviation from the grib decoder contains
-# a height in meters but it was intended and can be dispalyed nicely as a
-# height in feet.
+// For the m parameters convert the abbreviation from the grib decoder contains
+// a height in meters but it was intended and can be dispalyed nicely as a
+// height in feet.
 Surge0.0m_21600-0 PSurge0ft6hr
 Surge0.3m_21600-0 PSurge1ft6hr
 Surge0.61m_21600-0 PSurge2ft6hr
@@ -372,9 +372,9 @@ Surge6.71m_21600-0 PSurge22ft6hr
 Surge7.01m_21600-0 PSurge23ft6hr
 Surge7.32m_21600-0 PSurge24ft6hr
 Surge7.62m_21600-0 PSurge25ft6hr
-# For the Cumulative this mapping not only inverses the percentages and
-# converts the heights, it also prevents the decoder from appending a duration
-# which is necessary because the duration increases for each forecast time.
+// For the Cumulative this mapping not only inverses the percentages and
+// converts the heights, it also prevents the decoder from appending a duration
+// which is necessary because the duration increases for each forecast time.
 Surge10pctCumul Surge90pctCumul
 Surge20pctCumul Surge80pctCumul
 Surge30pctCumul Surge70pctCumul
@@ -410,3 +410,62 @@ Surge6.71mCumul PSurge22ftCumul
 Surge7.01mCumul PSurge23ftCumul
 Surge7.32mCumul PSurge24ftCumul
 Surge7.62mCumul PSurge25ftCumul
+
+//WPC Probabilistic Winter Precipitation Forecast (PWPF)
+// Total Snow
+// metric to imperial
+TOTSN0.0254m_43200-0 TOTSN1in12hr
+TOTSN0.0508m_43200-0 TOTSN2in12hr
+TOTSN0.1016m_43200-0 TOTSN4in12hr
+TOTSN0.1524m_43200-0 TOTSN6in12hr
+TOTSN0.2032m_43200-0 TOTSN8in12hr
+TOTSN0.3048m_43200-0 TOTSN12in12hr
+TOTSN0.4572m_43200-0 TOTSN18in12hr
+
+TOTSN0.0254m_86400-0 TOTSN1in24hr
+TOTSN0.0508m_86400-0 TOTSN2in24hr
+TOTSN0.1016m_86400-0 TOTSN4in24hr
+TOTSN0.1524m_86400-0 TOTSN6in24hr
+TOTSN0.2032m_86400-0 TOTSN8in24hr
+TOTSN0.3048m_86400-0 TOTSN12in24hr
+TOTSN0.4572m_86400-0 TOTSN18in24hr
+
+TOTSN0.0508m_172800-0 TOTSN2in48hr
+TOTSN0.1016m_172800-0 TOTSN4in48hr
+TOTSN0.2032m_172800-0 TOTSN8in48hr
+TOTSN0.3048m_172800-0 TOTSN12in48hr
+TOTSN0.4572m_172800-0 TOTSN18in48hr
+TOTSN0.6096m_172800-0 TOTSN24in48hr
+TOTSN0.762m_172800-0 TOTSN30in48hr
+
+TOTSN0.0508m_259200-0 TOTSN2in72hr
+TOTSN0.1016m_259200-0 TOTSN4in72hr
+TOTSN0.2032m_259200-0 TOTSN8in72hr
+TOTSN0.3048m_259200-0 TOTSN12in72hr
+TOTSN0.4572m_259200-0 TOTSN18in72hr
+TOTSN0.6096m_259200-0 TOTSN24in72hr
+TOTSN0.762m_259200-0 TOTSN30in72hr
+
+// Freezing Rain
+// metric to imperial
+FRZR0.254mm_43200-0 FRZR0.01in12hr
+FRZR2.54mm_43200-0 FRZR0.1in12hr
+FRZR6.35mm_43200-0 FRZR0.25in12hr
+FRZR12.7mm_43200-0 FRZR0.5in12hr
+FRZR25.4mm_43200-0 FRZR1in12hr
+
+FRZR0.254mm_86400-0 FRZR0.01in24hr
+FRZR2.54mm_86400-0 FRZR0.1in24hr
+FRZR6.35mm_86400-0 FRZR0.25in24hr
+FRZR12.7mm_86400-0 FRZR0.5in24hr
+FRZR25.4mm_86400-0 FRZR1in24hr
+
+FRZR2.54mm_172800-0 FRZR0.1in48hr
+FRZR6.35mm_172800-0 FRZR0.25in48hr
+FRZR12.7mm_172800-0 FRZR0.5in48hr
+FRZR25.4mm_172800-0 FRZR1in48hr
+
+FRZR2.54mm_259200-0 FRZR0.1in72hr
+FRZR6.35mm_259200-0 FRZR0.25in72hr
+FRZR12.7mm_259200-0 FRZR0.5in72hr
+FRZR25.4mm_259200-0 FRZR1in72hr

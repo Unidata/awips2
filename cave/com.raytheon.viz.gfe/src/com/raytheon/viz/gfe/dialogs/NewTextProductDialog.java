@@ -38,8 +38,8 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.viz.gfe.GFEException;
 import com.raytheon.viz.gfe.PythonUtil;
-import com.raytheon.viz.gfe.core.script.IScriptUtil;
-import com.raytheon.viz.gfe.core.script.IScriptUtil.Overwrite;
+import com.raytheon.viz.gfe.core.script.PythonFileTemplate;
+import com.raytheon.viz.gfe.core.script.PythonFileTemplate.Overwrite;
 import com.raytheon.viz.gfe.textproduct.TextProductTableUtil;
 import com.raytheon.viz.gfe.textproduct.TextProductUtil;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
@@ -126,7 +126,7 @@ public class NewTextProductDialog extends CaveJFACEDialog {
                 return;
             }
 
-            IScriptUtil util = null;
+            PythonFileTemplate util = null;
             if (isSmart) {
                 util = new TextProductUtil();
             } else {

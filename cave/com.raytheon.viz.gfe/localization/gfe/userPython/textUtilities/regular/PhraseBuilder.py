@@ -33,6 +33,7 @@
 #                                           for two lists based on Virgil's 
 #                                           suggestion
 # 04/20/2015    4027            randerso    Changes for mixed case product generation.
+# 01/08/2016    5129            dgilling    Fix signatures to calls in WeatherSubKey.
 # ----------------------------------------------------------------------------
 
 import types
@@ -1830,7 +1831,7 @@ class PhraseBuilder(ConfigVariables.ConfigVariables,
         if intensity is not None:
             newkeyList = []
             for subkey in subkeyList:
-               newSubkey = WeatherSubKey.weatherSubKey(self._argDict['dataMgr'], subkey.coverage(), subkey.wxType(), intensity,
+               newSubkey = WeatherSubKey.weatherSubKey(self._argDict['site'], subkey.coverage(), subkey.wxType(), intensity,
                                               subkey.visibility(), subkey.attributes())
                newkeyList.append(newSubkey)
             subkeyList = newkeyList
@@ -4063,7 +4064,7 @@ class PhraseBuilder(ConfigVariables.ConfigVariables,
                     newStats.append((subkey, rank))
             stats = newStats
             if stats == []:
-                emptyKey = WeatherSubKey.weatherSubKey(self._argDict['dataMgr'],
+                emptyKey = WeatherSubKey.weatherSubKey(self._argDict['site'],
                     "<NoCov>", "<NoWx>", "<NoInten>", "<NoVis>", [])
                 stats = [(emptyKey, 100)]
         return stats

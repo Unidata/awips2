@@ -24,9 +24,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -41,6 +41,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 11, 2014 2742       rferrel     Initial creation
+ * Jan 12, 2016 5244       njensen     Replaced calls to deprecated LocalizationFile methods
  * 
  * </pre>
  * 
@@ -50,11 +51,12 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 @DynamicSerialize
 public class RemoteScriptListResponse {
+
     /**
      * Map of contexts with sorted list of scripts as keys.
      */
     @DynamicSerializeElement
-    private Map<String, List<LocalizationContext>> scripts = new TreeMap<String, List<LocalizationContext>>(
+    private Map<String, List<LocalizationContext>> scripts = new TreeMap<>(
             String.CASE_INSENSITIVE_ORDER);
 
     /**
@@ -101,7 +103,7 @@ public class RemoteScriptListResponse {
      * @param lFile
      * @return true if not already in the set
      */
-    public boolean add(LocalizationFile lFile) {
+    public boolean add(ILocalizationFile lFile) {
         String script = getName(lFile);
         LocalizationContext context = lFile.getContext();
 
@@ -119,11 +121,12 @@ public class RemoteScriptListResponse {
     }
 
     /**
-     * Convince method to remove the file's context from scripts.
+     * Convenience method to remove the file's context from scripts.
      * 
-     * @param true - if file's script and context was in scripts.
+     * @param lFile
+     * @return true if file's script and context was in scripts
      */
-    public boolean remove(LocalizationFile lFile) {
+    public boolean remove(ILocalizationFile lFile) {
         String name = getName(lFile);
         List<LocalizationContext> contexts = scripts.get(name);
         if (contexts == null) {
@@ -146,16 +149,12 @@ public class RemoteScriptListResponse {
      * @param lFile
      * @return name
      */
-    private String getName(LocalizationFile lFile) {
-        String name = lFile.getName().trim();
+    private String getName(ILocalizationFile lFile) {
+        String name = lFile.getPath().trim();
         return name.substring(name.lastIndexOf(IPathManager.SEPARATOR) + 1);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#toString()
-     */
+    @Override
     public String toString() {
         return String.format("RemoteScriptListResponse: {scripts: %s}",
                 getScripts());

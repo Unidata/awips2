@@ -47,8 +47,9 @@ import com.raytheon.viz.ui.dialogs.colordialog.IColorWheelChange;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 25 MAR 2008  N/A        lvenable    Initial creation
- * 28 NOV 2012  1353       rferrel     Changes for non-blocking dialog.
+ * 25 Mar 2008  N/A        lvenable    Initial creation
+ * 28 Nov 2012  1353       rferrel     Changes for non-blocking dialog.
+ * 08 Feb 2016  5316       randerso    Fix monitor selection background color
  * 
  * </pre>
  * 
@@ -365,6 +366,7 @@ public class GhgColorDlg extends CaveSWTDialog implements IColorWheelChange {
      * Change the color of the label foreground or background color based on the
      * selection in the color wheels.
      */
+    @Override
     public void colorChange(RGB rgb, String colorWheelTitle) {
         if (colorWheelTitle.compareTo(TEXT_COLOR) == 0) {
             labelForeGroundColor.dispose();
@@ -412,7 +414,7 @@ public class GhgColorDlg extends CaveSWTDialog implements IColorWheelChange {
 
         rgb = (RGB) monitorSelectionsRdo.getData(FOREGROUND_KEY);
         ghgConfigData.getMonitorSelectionsColors().setForegroundRgb(rgb);
-        rgb = (RGB) monitorSelectionsRdo.getData(FOREGROUND_KEY);
+        rgb = (RGB) monitorSelectionsRdo.getData(BACKGROUND_KEY);
         ghgConfigData.getMonitorSelectionsColors().setBackgroundRgb(rgb);
 
         rgb = (RGB) testProductRdo.getData(FOREGROUND_KEY);

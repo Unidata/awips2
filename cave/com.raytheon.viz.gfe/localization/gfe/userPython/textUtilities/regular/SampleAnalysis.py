@@ -974,7 +974,7 @@ class SampleAnalysis(CommonUtils.CommonUtils):
         if dataType == "WEATHER":
             rankList.sort(self.rankedSortOrder)
             rankList = [
-                (WeatherSubKey.weatherSubKey(self._argDict["dataMgr"], subkey.coverage(), subkey.wxType(), subkey.intensity(),
+                (WeatherSubKey.weatherSubKey(self._argDict["site"], subkey.coverage(), subkey.wxType(), subkey.intensity(),
                                     subkey.visibility(),
                                     self.removeSimilarAttrs(subkey.attributes())),
                  rank) for subkey, rank in rankList
@@ -1061,7 +1061,7 @@ class SampleAnalysis(CommonUtils.CommonUtils):
             aggVis = aggregateKey.visibility()
             aggAttrs = aggregateKey.attributes()
         attrList = self.removeDups(attrList)
-        aggregateKey = WeatherSubKey.weatherSubKey(self._argDict["dataMgr"], aggCov, subkeyType, aggInten, aggVis, aggAttrs)
+        aggregateKey = WeatherSubKey.weatherSubKey(self._argDict["site"], aggCov, subkeyType, aggInten, aggVis, aggAttrs)
         #print "aggregateKey", aggregateKey
         return aggregateKey
 
@@ -1304,7 +1304,7 @@ class SampleAnalysis(CommonUtils.CommonUtils):
                 if covAreal == areal:
                     # Make sure this cov can be used with
                     # the wxType
-                    availableCoverages = WeatherSubKey.availableCoverages(self._argDict["dataMgr"], wxType)
+                    availableCoverages = WeatherSubKey.availableCoverages(self._argDict["site"], wxType)
                     if cov in availableCoverages:
                         aggCov = cov
                         break
@@ -1375,7 +1375,7 @@ class SampleAnalysis(CommonUtils.CommonUtils):
             percentCov = int(round(percentCov))
             # Check to see if it meets threshold
             # Make a temporary wxKey to check wxkey_coverage_percentage
-            wxKey = WeatherSubKey.weatherSubKey(self._argDict["dataMgr"], cov, wxType, "<NoInten>", "<NoVis>", [])
+            wxKey = WeatherSubKey.weatherSubKey(self._argDict["site"], cov, wxType, "<NoInten>", "<NoVis>", [])
             #print "wxKey", wxKey, sum, percentCov
             if percentCov >= self.wxkey_coverage_percentage(
                 parmHisto, timeRange, componentName, wxKey):
@@ -1418,11 +1418,11 @@ class SampleAnalysis(CommonUtils.CommonUtils):
             sum = dict[key]
             subkeyRank = float(sum)/(totalHours * totalPoints) * 100.0
             if wxPart == "coverage":
-                subkey = WeatherSubKey.weatherSubKey(self._argDict["dataMgr"], key, wxType, "<NoInten>", "<NoVis>", [])
+                subkey = WeatherSubKey.weatherSubKey(self._argDict["site"], key, wxType, "<NoInten>", "<NoVis>", [])
             elif wxPart == "intensity":
-                subkey = WeatherSubKey.weatherSubKey(self._argDict["dataMgr"], "<NoCov>", wxType, key, "<NoVis>", [])
+                subkey = WeatherSubKey.weatherSubKey(self._argDict["site"], "<NoCov>", wxType, key, "<NoVis>", [])
             elif wxPart == "visibility":
-                subkey = WeatherSubKey.weatherSubKey(self._argDict["dataMgr"], "<NoCov>", wxType,"<NoInten>" , key, [])
+                subkey = WeatherSubKey.weatherSubKey(self._argDict["site"], "<NoCov>", wxType,"<NoInten>" , key, [])
             if firstTime:
                 aggRank = subkeyRank
                 curKey = subkey

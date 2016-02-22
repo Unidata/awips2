@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -28,8 +28,6 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import org.apache.batik.util.ParsedURL;
-
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
@@ -41,29 +39,35 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.viz.pointdata.LocalizationParsedURLHandler;
 import com.raytheon.viz.pointdata.rsc.retrieve.AbstractPlotInfoRetriever;
 import com.raytheon.viz.pointdata.rsc.retrieve.PointDataPlotInfoRetriever;
 
 /**
  * Resource data for plots
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * Date          Ticket#  Engineer    Description
- * ------------- -------- ----------- --------------------------
- * Feb 17, 2009           njensen     Initial creation
- * Jun 29, 2009  2538     jsanchez    Implemented Metars.
- * May 14, 2013  1869     bsteffen    Get plots working without dataURI
- * Aug 09, 2013  2033     mschenke    Switched File.separator to 
- *                                    IPathManager.SEPARATOR
- * Sep 05, 2013  2316     bsteffen    Unify pirep and ncpirep.
- * Jun 06, 2014  2061     bsteffen    Remove old PlotResource
- * Sep 16, 2014  2707     bclement    lsr no longer uses dataURI
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Feb 17, 2009  1960     njensen   Initial creation
+ * Jun 29, 2009  2538     jsanchez  Implemented Metars.
+ * May 14, 2013  1869     bsteffen  Get plots working without dataURI
+ * Aug 09, 2013  2033     mschenke  Switched File.separator to
+ *                                  IPathManager.SEPARATOR
+ * Sep 05, 2013  2316     bsteffen  Unify pirep and ncpirep.
+ * Jun 06, 2014  2061     bsteffen  Remove old PlotResource
+ * Sep 16, 2014  2707     bclement  lsr no longer uses dataURI
+ * Oct 27, 2015  4798     bsteffen  Move SVG localization url handler
+ *                                  registration.
+ * Nov 16, 2015  5119     bsteffen  Remove bufquikscat
+ * Jan 19, 2016  5253     tgurney   Remove svrwx dependency on dataURI
+ * Jan 28, 2016  5286     tgurney   Remove tcg dependency on dataURI
+ * Feb 09, 2016  5283     nabowle   Remove NGM MOS support.
+ *
  * </pre>
- * 
+ *
  * @author njensen
  * @version 1.0
  */
@@ -143,10 +147,7 @@ public class PlotResourceData extends AbstractRequestableResourceData {
          * In the future if stationId can be set to anything that is even a
          * little unique we can get rid of this
          */
-        pluginProps.put("bufrquikscat", new PluginPlotProperties(false));
         pluginProps.put("radar", new PluginPlotProperties(false));
-        pluginProps.put("tcg", new PluginPlotProperties(false));
-        pluginProps.put("svrwx", new PluginPlotProperties(false));
         pluginProps.put("ldadhydro", new PluginPlotProperties(false));
         pluginProps.put("textPoints", new PluginPlotProperties(false));
 
@@ -155,6 +156,9 @@ public class PlotResourceData extends AbstractRequestableResourceData {
          * default behavior, but for now they are included so we have a
          * comprehensive list of which plugins use certain behaviors.
          */
+
+        pluginProps.put("tcg", new PluginPlotProperties());
+        pluginProps.put("svrwx", new PluginPlotProperties());
         pluginProps.put("obs", new PluginPlotProperties());
         pluginProps.put("goessounding", new PluginPlotProperties());
         pluginProps.put("poessounding", new PluginPlotProperties());
@@ -169,7 +173,6 @@ public class PlotResourceData extends AbstractRequestableResourceData {
         pluginProps.put("bufrmosHPC", new PluginPlotProperties());
         pluginProps.put("bufrmosLAMP", new PluginPlotProperties());
         pluginProps.put("bufrmosMRF", new PluginPlotProperties());
-        pluginProps.put("bufrmosNGM", new PluginPlotProperties());
         pluginProps.put("ldadmesonet", new PluginPlotProperties());
         pluginProps.put("qc", new PluginPlotProperties());
         pluginProps.put("bufrascat", new PluginPlotProperties());
@@ -181,8 +184,6 @@ public class PlotResourceData extends AbstractRequestableResourceData {
         pluginProps.put("airep", new PluginPlotProperties());
         pluginProps.put("acars", new PluginPlotProperties());
         pluginProps.put("lsr", new PluginPlotProperties());
-
-        ParsedURL.registerHandler(new LocalizationParsedURLHandler());
     }
 
     public PlotResourceData() {
@@ -192,13 +193,6 @@ public class PlotResourceData extends AbstractRequestableResourceData {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData#
-     * constructResource(com.raytheon.uf.viz.core.comm.LoadProperties,
-     * com.raytheon.edex.db.objects.PluginDataObject[])
-     */
     @Override
     protected AbstractVizResource<?, ?> constructResource(
             LoadProperties loadProperties, PluginDataObject[] objects) {
@@ -342,12 +336,6 @@ public class PlotResourceData extends AbstractRequestableResourceData {
         this.defaultPeriod = defaultPeriod;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData#
-     * getAvailableTimes()
-     */
     @Override
     public DataTime[] getAvailableTimes() throws VizException {
         Map<String, RequestConstraint> map = null;

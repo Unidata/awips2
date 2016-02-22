@@ -34,7 +34,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.plugin.nwsauth.xml.NwsRoleData;
 import com.raytheon.uf.common.plugin.nwsauth.xml.PermissionXML;
 import com.raytheon.uf.common.plugin.nwsauth.xml.RoleXML;
@@ -59,6 +59,8 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Jan 17, 2013 1412       djohnson     Check files for having been modified each time data is requested, 
  *                                      in case they were written by another member of the cluster.
  * Mar 12, 2013 1646       mpduff       Format the output.
+ * Nov 12, 2015 4834       njensen      Changed LocalizationOpFailedException to LocalizationException
+ * Jan 27, 2016 5237       tgurney      Replace deprecated LocalizationFile method call
  * 
  * </pre>
  * 
@@ -104,9 +106,6 @@ class FileManager {
         return instance;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public void save(String application) {
         NwsRoleData roleData = roleDataMap.get(application);
         LocalizationFile lf = roleFileMap.get(application);
@@ -115,7 +114,7 @@ class FileManager {
         LocalizationContext context = pm.getContext(
                 LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
         LocalizationFile locFile = pm
-                .getLocalizationFile(context, lf.getName());
+                .getLocalizationFile(context, lf.getPath());
         try {
             JAXBManager jaxbManager = getJaxbManager();
             Marshaller marshaller = jaxbManager.getJaxbContext()
@@ -123,10 +122,7 @@ class FileManager {
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             marshaller.marshal(roleData, locFile.getFile());
             locFile.save();
-
-        } catch (JAXBException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-        } catch (LocalizationOpFailedException e) {
+        } catch (JAXBException | LocalizationException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
 

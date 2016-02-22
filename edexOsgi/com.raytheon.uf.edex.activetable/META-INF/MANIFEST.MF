@@ -13,7 +13,7 @@ Import-Package: com.raytheon.uf.common.activetable,
  com.raytheon.uf.common.status,
  com.vividsolutions.jts.geom,
  javax.persistence,
- org.apache.log4j
+ org.slf4j
 Require-Bundle: com.raytheon.uf.common.localization;bundle-version="1.11.1",
  org.jep;bundle-version="1.0.0",
  com.raytheon.uf.common.serialization;bundle-version="1.11.1",

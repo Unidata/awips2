@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -55,7 +55,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * May 14, 2013 1869       bsteffen    Remove DataURI column from bufrmos.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Nov 04, 2013 2361       njensen     Remove XML annotations
- * Jul 22, 1015 4360       rferrel     Make location not nullable.
+ * Jul 22, 2015 4360       rferrel     Make location not nullable.
+ * Feb 09, 2016 5283       nabowle     Remove NGM MOS support.
  * 
  * </pre>
  * 
@@ -70,7 +71,7 @@ public abstract class BufrMosData extends PersistablePluginDataObject implements
         IPersistable, IPointData {
 
     public static enum MOSType {
-        ETA, GFS, AVN, LAMP, HPC, MRF, NGM
+        ETA, GFS, AVN, LAMP, HPC, MRF
     };
 
     private static final long serialVersionUID = 1L;
@@ -101,7 +102,7 @@ public abstract class BufrMosData extends PersistablePluginDataObject implements
     /**
      * Constructor for DataURI construction through base class. This is used by
      * the notification service.
-     * 
+     *
      * @param uri
      *            A data uri applicable to this class.
      * @param tableDef
@@ -113,7 +114,7 @@ public abstract class BufrMosData extends PersistablePluginDataObject implements
 
     /**
      * Get the geometry latitude.
-     * 
+     *
      * @return The geometry latitude.
      */
     public double getLatitude() {
@@ -122,7 +123,7 @@ public abstract class BufrMosData extends PersistablePluginDataObject implements
 
     /**
      * Get the geometry longitude.
-     * 
+     *
      * @return The geometry longitude.
      */
     public double getLongitude() {
@@ -131,7 +132,7 @@ public abstract class BufrMosData extends PersistablePluginDataObject implements
 
     /**
      * Get the station identifier for this observation.
-     * 
+     *
      * @return the stationId
      */
     public String getStationId() {
@@ -159,7 +160,7 @@ public abstract class BufrMosData extends PersistablePluginDataObject implements
     }
 
     /**
-     * 
+     *
      * @param dataURI
      */
     @Override

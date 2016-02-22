@@ -22,8 +22,6 @@ package com.raytheon.viz.volumebrowser.vbui;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ControlAdapter;
-import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -44,7 +42,8 @@ import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 9, 2009            jelkins     Initial creation
+ * Nov  9, 2009            jelkins     Initial creation
+ * Jan 12, 2016  5055      randerso    Fix dialog to open on same monitor as CAVE session
  * 
  * </pre>
  * 
@@ -66,14 +65,10 @@ public class CloneDialog extends CaveSWTDialog {
      */
     protected CloneDialog(Shell parentShell,
             List<ProductTableData> selectedProducts) {
-        super(parentShell, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK); // Win32
+        super(parentShell, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.INDEPENDENT_SHELL
+                | CAVE.DO_NOT_BLOCK); // Win32
         setText(DIALOG_TITLE);
         this.selectedProducts = selectedProducts;
-    }
-
-    @Override
-    protected void opened() {
-        productTableComponent.resizeTableColumns();
     }
 
     @Override
@@ -93,7 +88,6 @@ public class CloneDialog extends CaveSWTDialog {
     @Override
     protected void initializeComponents(Shell shell) {
         initializeComponents();
-        setupListeners();
     }
 
     @Override
@@ -120,25 +114,6 @@ public class CloneDialog extends CaveSWTDialog {
 
     }
 
-    /**
-     * setup the listeners
-     */
-    private void setupListeners() {
-        shell.addControlListener(new ControlAdapter() {
-            /*
-             * (non-Javadoc)
-             * 
-             * @see
-             * org.eclipse.swt.events.ControlAdapter#controlResized(org.eclipse
-             * .swt.events.ControlEvent)
-             */
-            @Override
-            public void controlResized(ControlEvent e) {
-                productTableComponent.resizeTableColumns();
-            }
-        });
-    }
-
     private void createDialogSettingsComponent() {
         Composite composite = new Composite(shell, SWT.NONE);
         GridLayout gl = new GridLayout(4, false);
@@ -155,8 +130,7 @@ public class CloneDialog extends CaveSWTDialog {
         ViewMenu viewSelection = dialogSettings.getViewSelection();
         LeftRightMenu timeDirectionSelection = dialogSettings
                 .getTimeDirectionSelection();
-        HeightScale heightScale = dialogSettings
-                .getHeightScaleSelection();
+        HeightScale heightScale = dialogSettings.getHeightScaleSelection();
 
         // there will always be a view selection
         (new Label(composite, SWT.NONE)).setText(viewSelection

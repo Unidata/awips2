@@ -57,6 +57,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                     displayed for polygons with
  *                                     the "sub" action.
  * Jan 7, 2015  16954      cgobs       Fix for cv_use issue - using getFieldName() in certain parts.
+ * Feb 15, 2016 5338       bkowal      Keep track of any persistent polygons that are deleted.
  * </pre>
  * 
  * @author mpduff
@@ -287,7 +288,7 @@ public class DeletePolygonDlg extends CaveSWTDialog {
         polygonListBox.removeAll();
 
         String type = displayManager.getDisplayFieldType().getFieldName();
-        
+
         productTF.setText(type);
         polygonList = PolygonEditManager.getPolygonEdits(fieldData, editDate);
         recreatePolygonListBox();
@@ -348,8 +349,9 @@ public class DeletePolygonDlg extends CaveSWTDialog {
             return;
         }
         // Remove selected from list and apply
-        polygonList.remove(polygonListBox.getSelectionIndex());
-        applyPolygonList();
+        RubberPolyData polygon = polygonList.remove(polygonListBox
+                .getSelectionIndex());
+        applyPolygonList(polygon.isPersistent());
     }
 
     /**
@@ -357,8 +359,15 @@ public class DeletePolygonDlg extends CaveSWTDialog {
      */
     private void deleteAll() {
         // Clear the list and apply
+        boolean persistentRemoved = false;
+        for (RubberPolyData polygon : polygonList) {
+            if (polygon.isPersistent()) {
+                persistentRemoved = true;
+                break;
+            }
+        }
         polygonList.clear();
-        applyPolygonList();
+        applyPolygonList(persistentRemoved);
     }
 
     /**
@@ -374,15 +383,16 @@ public class DeletePolygonDlg extends CaveSWTDialog {
         if (polygon >= 0 && polygon < polygonList.size()) {
             RubberPolyData data = polygonList.get(polygon);
             data.setVisible(display);
-            applyPolygonList();
+            applyPolygonList(false);
         }
     }
 
-    private void applyPolygonList() {
+    private void applyPolygonList(boolean persistentRemoved) {
         MPEDisplayManager displayManager = MPEDisplayManager.getCurrent();
         DisplayFieldData fieldData = displayManager.getDisplayFieldType();
         Date editDate = displayManager.getCurrentEditDate();
-        PolygonEditManager.writePolygonEdits(fieldData, editDate, polygonList);
+        PolygonEditManager.writePolygonEdits(fieldData, editDate, polygonList,
+                persistentRemoved);
         recreatePolygonListBox();
     }
 

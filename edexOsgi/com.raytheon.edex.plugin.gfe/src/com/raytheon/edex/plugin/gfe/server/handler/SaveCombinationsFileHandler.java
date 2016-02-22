@@ -31,11 +31,12 @@ import com.raytheon.edex.plugin.gfe.util.SendNotifications;
 import com.raytheon.uf.common.dataplugin.gfe.request.SaveCombinationsFileRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.CombinationsFileChangedNotification;
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.common.util.StringUtil;
@@ -56,6 +57,8 @@ import com.raytheon.uf.common.util.StringUtil;
  *                                      flushed/closed.
  * Feb 05, 2014  #2591                  Added CombinationFileChangedNotification
  * Jul 21, 2014  2768      bclement     removed FileUpdateMessage
+ * Jan 08, 2016  5237      tgurney      Replace calls to deprecated
+ *                                      LocalizationFile methods
  * 
  * </pre>
  * 
@@ -69,13 +72,6 @@ public class SaveCombinationsFileHandler implements
     private static final String COMBO_FILE_DIR = FileUtil.join("gfe",
             "combinations");
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.serialization.comm.IRequestHandler#handleRequest
-     * (com.raytheon.uf.common.serialization.comm.IServerRequest)
-     */
     @Override
     public ServerResponse<Object> handleRequest(
             SaveCombinationsFileRequest request) throws Exception {
@@ -86,12 +82,12 @@ public class SaveCombinationsFileHandler implements
 
         String comboName = request.getFileName();
         String fileName = FileUtil.join(COMBO_FILE_DIR, comboName) + ".py";
-        LocalizationFile lf = pm.getLocalizationFile(localization, fileName);
+        ILocalizationFile lf = pm.getLocalizationFile(localization, fileName);
 
-        Writer outWriter = null;
-        try {
-            outWriter = new BufferedWriter(new OutputStreamWriter(
-                    lf.openOutputStream()));
+        try (SaveableOutputStream lfStream = lf.openOutputStream();
+                Writer outWriter = new BufferedWriter(new OutputStreamWriter(
+                        lfStream))) {
+
             String zoneComments = "\n# Automatically generated combinations file\n# "
                     + comboName + "\n\nCombinations = [\n";
             outWriter.write(zoneComments);
@@ -113,12 +109,9 @@ public class SaveCombinationsFileHandler implements
                 outWriter.write(nextLineToWrite.toString());
             }
             outWriter.write("]");
-        } finally {
-            if (outWriter != null) {
-                outWriter.close();
-            }
+            outWriter.close();
+            lfStream.save();
         }
-        lf.save();
 
         /*
          * placing the notification code here ensures we only send the

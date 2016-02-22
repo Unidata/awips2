@@ -59,7 +59,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
 
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -103,6 +103,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Oct 15, 2012 #1229      rferrel      Changes for non-blocking HelpUsageDlg.
  * Mar 04, 2015 #15639     zhao         Added 'heightHint' to 'Idents' list so GUI won't become too large 
  * Jul 07, 2015 16907      zhao         Changed 'ish-' to 'isd-' 
+ * Nov 30, 2015  4834      njensen      Remove LocalizationOpFailedException
  * Jan 15, 2016 18482      zhao         Add a "Usage" to "Help..." 
  * Jan 21, 2016 18395      zhao         Modified processData()
  * 
@@ -653,7 +654,7 @@ public class ClimateDataMenuDlg extends CaveSWTDialog {
 
         gd = new GridData(SWT.DEFAULT, SWT.FILL, false, true);
         gd.widthHint = 60;
-        gd.heightHint = 250; 
+        gd.heightHint = 250;
         identList = new List(identComp, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL);
         identList.setLayoutData(gd);
         identList.setFont(textFont);
@@ -964,35 +965,19 @@ public class ClimateDataMenuDlg extends CaveSWTDialog {
             for (int i = 0; i < siteList.size(); i++) {
                 identList.add(siteList.get(i));
             }
-        } catch (IOException e) {
+        } catch (IOException | LocalizationException e) {
             statusHandler.handle(Priority.PROBLEM, e.getMessage());
         } catch (ConfigurationException e) {
             statusHandler.handle(Priority.PROBLEM, e.toString());
-        } catch (LocalizationOpFailedException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getMessage());
         }
     }
 
     private void setIdsSite(String site, String pil) {
         try {
             TafSiteConfigFactory.getInstance().setIdsSite(site, pil);
-        } catch (ConfigurationException e) {
+        } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-
-        } catch (LocalizationOpFailedException e) {
-            // TODO Auto-generated catch block. Please revise as appropriate.
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-
-        } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block. Please revise as appropriate.
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-
-        } catch (IOException e) {
-            // TODO Auto-generated catch block. Please revise as appropriate.
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-
         }
-
     }
 
     private void getSiteInfoList(String ident, int timeout) {
@@ -1068,9 +1053,7 @@ public class ClimateDataMenuDlg extends CaveSWTDialog {
                     siteInfoList.add(sb.toString());
                     assessDataBtn.setEnabled(false);
                 }
-
             }
-
         });
     }
 
@@ -1126,7 +1109,6 @@ public class ClimateDataMenuDlg extends CaveSWTDialog {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private void processData() {
         ClimateDataManager dataMgr = ClimateDataManager.getInstance();
         String[] items = siteInfoList.getItems();
@@ -1172,6 +1154,7 @@ public class ClimateDataMenuDlg extends CaveSWTDialog {
         try {
             dlg.setFilterPath(ClimateDataPython.getIshFilePath() + "/tmp/");
         } catch (VizException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
 
         dlg.setFileName("climatedata_" + t + ".log");
@@ -1181,19 +1164,13 @@ public class ClimateDataMenuDlg extends CaveSWTDialog {
         }
 
         File file = new File(filename);
-        FileWriter writer;
-        try {
-            setWait(true);
-            writer = new FileWriter(file);
-            BufferedWriter buf = new BufferedWriter(writer);
-
-            buf.write(fileAssessST.getText());
-
-            buf.close();
-            writer.close();
+        setWait(true);
+        try (FileWriter writer = new FileWriter(file)) {
+            try (BufferedWriter buf = new BufferedWriter(writer)) {
+                buf.write(fileAssessST.getText());
+            }
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler.error("Error writing to file " + file, e);
         } finally {
             setWait(false);
         }
@@ -1213,28 +1190,15 @@ public class ClimateDataMenuDlg extends CaveSWTDialog {
     private String getSitePil(String site) {
         try {
             return TafSiteConfigFactory.getInstance().getIdsPil(site);
-        } catch (ConfigurationException e) {
-            // TODO Auto-generated catch block. Please revise as appropriate.
+        } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-
-        } catch (LocalizationOpFailedException e) {
-            // TODO Auto-generated catch block. Please revise as appropriate.
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-
-        } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block. Please revise as appropriate.
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-
-        } catch (IOException e) {
-            // TODO Auto-generated catch block. Please revise as appropriate.
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-
         }
         return "";
     }
 
     public void updateMonitor(final String msg) {
         getDisplay().asyncExec(new Runnable() {
+            @Override
             public void run() {
                 fileAssessST
                         .setText(fileAssessST.getText().trim() + "\n" + msg);
@@ -1253,6 +1217,7 @@ public class ClimateDataMenuDlg extends CaveSWTDialog {
 
     public void overwriteMonitor(final String msg) {
         getDisplay().asyncExec(new Runnable() {
+            @Override
             public void run() {
                 statusTF.setText(msg);
             }
@@ -1262,6 +1227,7 @@ public class ClimateDataMenuDlg extends CaveSWTDialog {
     public void assessBtn(final boolean enabled) {
         if (!isDisposed()) {
             getDisplay().asyncExec(new Runnable() {
+                @Override
                 public void run() {
                     assessDataBtn.setEnabled(enabled);
                 }
@@ -1271,6 +1237,7 @@ public class ClimateDataMenuDlg extends CaveSWTDialog {
 
     public void scriptsBtn(final boolean enabled) {
         getDisplay().asyncExec(new Runnable() {
+            @Override
             public void run() {
                 genScriptsBtn.setEnabled(enabled);
             }
@@ -1279,6 +1246,7 @@ public class ClimateDataMenuDlg extends CaveSWTDialog {
 
     public void processBtn(final boolean enabled) {
         getDisplay().asyncExec(new Runnable() {
+            @Override
             public void run() {
                 processDataBtn.setEnabled(enabled);
             }
@@ -1288,6 +1256,7 @@ public class ClimateDataMenuDlg extends CaveSWTDialog {
     public void validateBtn(final boolean enabled) {
         if (!isDisposed()) {
             getDisplay().asyncExec(new Runnable() {
+                @Override
                 public void run() {
                     validateBtn.setEnabled(enabled);
                 }
@@ -1298,6 +1267,7 @@ public class ClimateDataMenuDlg extends CaveSWTDialog {
     public void commitBtn(final boolean enabled) {
         if (!isDisposed()) {
             getDisplay().asyncExec(new Runnable() {
+                @Override
                 public void run() {
                     commitBtn.setEnabled(enabled);
                 }
@@ -1308,6 +1278,7 @@ public class ClimateDataMenuDlg extends CaveSWTDialog {
     public void rejectBtn(final boolean enabled) {
         if (!isDisposed()) {
             getDisplay().asyncExec(new Runnable() {
+                @Override
                 public void run() {
                     rejectBtn.setEnabled(enabled);
                 }
@@ -1318,6 +1289,7 @@ public class ClimateDataMenuDlg extends CaveSWTDialog {
     public void saveLogBtn(final boolean enabled) {
         if (!isDisposed()) {
             getDisplay().asyncExec(new Runnable() {
+                @Override
                 public void run() {
                     saveLogBtn.setEnabled(enabled);
                 }
@@ -1441,15 +1413,8 @@ public class ClimateDataMenuDlg extends CaveSWTDialog {
     private void removeIdsSite(String site) {
         try {
             TafSiteConfigFactory.getInstance().removeIdsSite(site);
-        } catch (ConfigurationException e) {
+        } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-
-        } catch (LocalizationOpFailedException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-
-        } catch (FileNotFoundException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-
         }
     }
 

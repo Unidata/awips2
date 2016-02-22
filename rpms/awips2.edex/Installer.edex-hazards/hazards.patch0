@@ -1,5 +1,5 @@
-*** Installer.edex-component/component.spec	2015-08-25 15:19:06.962255321 -0500
---- Installer.edex-hazards/component.spec	2015-09-17 14:08:29.271876049 -0500
+*** Installer.edex-component/component.spec	2015-12-01 15:13:59.047022621 -0600
+--- Installer.edex-hazards/component.spec	2015-12-01 15:13:59.054022541 -0600
 ***************
 *** 1,5 ****
   #
@@ -14,18 +14,8 @@
   %define __prelink_undo_cmd %{nil}
   # Turn off the brp-python-bytecompile script
 ***************
-*** 16,22 ****
-  License: N/A
-  Distribution: N/A
-  Vendor: Raytheon
-- Packager: Bryan Kowal
-  
-  provides: awips2-%{_component_name}
-  requires: awips2
---- 16,21 ----
-***************
 *** 55,60 ****
---- 54,107 ----
+--- 55,108 ----
      exit 1
   fi
   
@@ -82,7 +72,7 @@
   if [ -d %{_build_root}/$UTILITY ]; then
 ***************
 *** 87,90 ****
---- 134,140 ----
+--- 135,141 ----
   %defattr(644,awips,fxalpha,755)
   %dir /awips2
   %dir /awips2/edex

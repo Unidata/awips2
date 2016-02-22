@@ -30,11 +30,11 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.TreeSet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.DirectPosition2D;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
@@ -62,7 +62,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 19Nov 2011              dhladky     Initial creation
  * 29 Jan 2013  15729      wkwock      fix the algorithm
  * Jan 07, 2013            njensen     Change some logs to debug
- * Apr 24, 2014  2060      njensen     Updates for removal of grid dataURI column
+ * Apr 24, 2014 2060       njensen     Updates for removal of grid dataURI column
+ * Dec 11, 2015 5166       kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -94,7 +95,7 @@ public class FreezingLevel {
     // reference time
     Calendar refTime = null;
 
-    private transient final Log logger = LogFactory.getLog(getClass());
+    private transient final Logger logger = LoggerFactory.getLogger(getClass());
 
     public FreezingLevel(String modelName) {
         this.modelName = modelName;
@@ -107,7 +108,8 @@ public class FreezingLevel {
         // only for get data for hour 00z,06z,12z, or 18z
         int adjustedHour = (refTime.get(Calendar.HOUR_OF_DAY) / 6) * 6;
         refTime.set(Calendar.HOUR_OF_DAY, adjustedHour);
-        TimeUtil.minCalendarFields(refTime, Calendar.MINUTE, Calendar.SECOND, Calendar.MILLISECOND);
+        TimeUtil.minCalendarFields(refTime, Calendar.MINUTE, Calendar.SECOND,
+                Calendar.MILLISECOND);
 
         // populates what ever is missing, sets prevalent forecast hour
         for (Entry<String, Integer> entry : getGHLevelMap().entrySet()) {

@@ -38,10 +38,10 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
-import com.raytheon.uf.common.dataplugin.text.AutoFaxContainer;
-import com.raytheon.uf.common.dataplugin.text.db.AutoFaxRecord;
-import com.raytheon.uf.common.dataplugin.text.request.AutoFaxRequest;
-import com.raytheon.uf.common.dataplugin.text.request.GetAutoFaxRecordsRequest;
+import com.raytheon.uf.common.dataplugin.text.subscription.AutoFaxContainer;
+import com.raytheon.uf.common.dataplugin.text.subscription.db.AutoFaxRecord;
+import com.raytheon.uf.common.dataplugin.text.subscription.request.AutoFaxRequest;
+import com.raytheon.uf.common.dataplugin.text.subscription.request.GetAutoFaxRecordsRequest;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;

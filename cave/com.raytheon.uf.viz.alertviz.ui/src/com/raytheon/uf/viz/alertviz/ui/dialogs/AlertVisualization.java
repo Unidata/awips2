@@ -22,12 +22,15 @@ package com.raytheon.uf.viz.alertviz.ui.dialogs;
 import java.io.File;
 
 import org.eclipse.equinox.app.IApplication;
+import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MenuDetectEvent;
 import org.eclipse.swt.events.MenuDetectListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Display;
@@ -35,7 +38,6 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolTip;
 import org.eclipse.swt.widgets.Tray;
@@ -96,6 +98,10 @@ import com.raytheon.uf.viz.core.VizApp;
  * 18 Mar 2015  4234       njensen     Remove reference to non-working python
  * 03 Jun 2015  4473       njensen     Updated for new AlertvizJob API
  * 29 Jun 2015  4311       randerso    Reworking AlertViz dialogs to be resizable.
+ * 28 Oct 2015  5054       randerso    Call AlertVisualization.dispose() on restart so all the
+ *                                     other dispose methods are called.
+ * 25 Jan 2016  5054       randerso    Removed dummy parent shell
+ * 08 Feb 2016  5312       randerso    Changed to build tray menu on demand
  * 
  * </pre>
  * 
@@ -106,11 +112,6 @@ import com.raytheon.uf.viz.core.VizApp;
 public class AlertVisualization implements ITimerAction, IAudioAction,
         IAlertArrivedCallback, Listener, IConfigurationChangedListener,
         IRestartListener {
-    /**
-     * Dialog shell.
-     */
-    protected Shell shell;
-
     /**
      * The display control.
      */
@@ -137,34 +138,9 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
     private TrayItem trayItem;
 
     /**
-     * A pop-up menu for the tray item.
-     */
-    protected Menu trayItemMenu;
-
-    /**
-     * Show alert visualization menu item.
-     */
-    private MenuItem showAlertDialogMI;
-
-    /**
-     * Do not disturb menu item.
-     */
-    private MenuItem doNotDisturbMI;
-
-    /**
-     * Show alert dialog popup menu item
-     */
-    private MenuItem showPopup;
-
-    /**
-     * Acknowledge all alerts menu item
-     */
-    private MenuItem ackAll;
-
-    /**
      * Alert message dialog.
      */
-    private AlertMessageDlg alertMessageDlg;
+    protected AlertMessageDlg alertMessageDlg;
 
     /**
      * Text blink count variable.
@@ -211,6 +187,10 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
      */
     private boolean showAlertDlg = true;
 
+    private boolean ackAll = false;
+
+    private boolean showPopup = false;
+
     /**
      * Tool tip.
      */
@@ -220,8 +200,6 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
      * Is this running as a standalone application
      */
     protected final boolean runningStandalone;
-
-    private Rectangle prevLocation = null;
 
     private ConfigContext configContext;
 
@@ -245,15 +223,6 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
             showAlertDlg = Boolean.getBoolean("ShowAlertVizBar");
             doNotDisturb = true;
         }
-        initShell();
-    }
-
-    /**
-     * Initialize a main shell.
-     */
-    private void initShell() {
-        shell = new Shell(display);
-
         initializeComponents();
 
         AlertvizJob.getInstance().addAlertArrivedCallback(this);
@@ -295,10 +264,6 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
             alertMessageDlg.dispose();
         }
 
-        if (shell != null) {
-            shell.dispose();
-        }
-
         if (display != null) {
             display.dispose();
         }
@@ -322,9 +287,9 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
      * Initialize the alert message dialog.
      */
     private void initAlertMessageDialog() {
-        alertMessageDlg = new AlertMessageDlg(shell, this, showAlertDlg,
+        alertMessageDlg = new AlertMessageDlg(display, this, showAlertDlg,
                 configData, audioMgr);
-        display.asyncExec(new Runnable() {
+        display.syncExec(new Runnable() {
             @Override
             public void run() {
                 alertMessageDlg.open();
@@ -361,14 +326,13 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
         trayItem = new TrayItem(tray, SWT.NONE);
         updateToolTip();
 
-        trayItemMenu = new Menu(shell, SWT.POP_UP);
-
-        createTrayMenuItems();
-
         // Right click action
         trayItem.addMenuDetectListener(new MenuDetectListener() {
             @Override
             public void menuDetected(MenuDetectEvent de) {
+                Menu trayItemMenu = new Menu(alertMessageDlg.getShell(),
+                        SWT.POP_UP);
+                createTrayMenuItems(trayItemMenu);
                 trayItemMenu.setVisible(true);
             }
         });
@@ -389,10 +353,12 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
 
     /**
      * Create the tray menu items.
+     * 
+     * @param menu
      */
-    protected void createTrayMenuItems() {
+    protected void createTrayMenuItems(Menu menu) {
 
-        showAlertDialogMI = new MenuItem(trayItemMenu, SWT.CHECK);
+        MenuItem showAlertDialogMI = new MenuItem(menu, SWT.CHECK);
         showAlertDialogMI.setText("Show Alert Dialog");
         showAlertDialogMI.setSelection(showAlertDlg);
         showAlertDialogMI.addSelectionListener(new SelectionAdapter() {
@@ -411,20 +377,21 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
         });
 
         if (Boolean.getBoolean("SystemTray")) {
-            doNotDisturbMI = new MenuItem(trayItemMenu, SWT.CHECK);
+            MenuItem doNotDisturbMI = new MenuItem(menu, SWT.CHECK);
             doNotDisturbMI.setText("Do Not Disturb");
             doNotDisturbMI.setSelection(doNotDisturb);
             doNotDisturbMI.addSelectionListener(new SelectionAdapter() {
                 @Override
                 public void widgetSelected(SelectionEvent event) {
-                    doNotDisturb = doNotDisturbMI.getSelection();
+                    MenuItem item = (MenuItem) event.widget;
+                    doNotDisturb = item.getSelection();
                 }
             });
         }
 
-        new MenuItem(trayItemMenu, SWT.SEPARATOR);
+        new MenuItem(menu, SWT.SEPARATOR);
 
-        MenuItem configTrayMI = new MenuItem(trayItemMenu, SWT.NONE);
+        MenuItem configTrayMI = new MenuItem(menu, SWT.NONE);
         configTrayMI.setText("Configuration...");
         configTrayMI.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -433,7 +400,7 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
             }
         });
 
-        MenuItem viewLogMI = new MenuItem(trayItemMenu, SWT.NONE);
+        MenuItem viewLogMI = new MenuItem(menu, SWT.NONE);
         viewLogMI.setText("System Log...");
         viewLogMI.addSelectionListener(new SelectionAdapter() {
             SimpleLogViewer slv = null;
@@ -441,7 +408,7 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
             @Override
             public void widgetSelected(SelectionEvent event) {
                 if ((slv == null) || slv.isDisposed()) {
-                    slv = new SimpleLogViewer(shell);
+                    slv = new SimpleLogViewer(display);
                     slv.open();
                 } else {
                     slv.bringToTop();
@@ -449,22 +416,23 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
             }
         });
 
-        new MenuItem(trayItemMenu, SWT.SEPARATOR);
+        new MenuItem(menu, SWT.SEPARATOR);
 
-        showPopup = new MenuItem(trayItemMenu, SWT.NONE);
-        showPopup.setText("Show Alert Popup Dialog...");
-        showPopup.setEnabled(false);
-        showPopup.addSelectionListener(new SelectionAdapter() {
+        MenuItem showPopupMI = new MenuItem(menu, SWT.NONE);
+        showPopupMI.setText("Show Alert Popup Dialog...");
+        showPopupMI.setEnabled(showPopup && (alertPopupDlg != null)
+                && !alertPopupDlg.isOpen());
+        showPopupMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 openAlertPopupDialog();
             }
         });
 
-        ackAll = new MenuItem(trayItemMenu, SWT.NONE);
-        ackAll.setText("Acknowledge All Messages");
-        ackAll.setEnabled(false);
-        ackAll.addSelectionListener(new SelectionAdapter() {
+        MenuItem ackAllMI = new MenuItem(menu, SWT.NONE);
+        ackAllMI.setText("Acknowledge All Messages");
+        ackAllMI.setEnabled(ackAll);
+        ackAllMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 if (alertPopupDlg != null) {
@@ -479,16 +447,31 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
         });
 
         if (this.runningStandalone) {
-            new MenuItem(trayItemMenu, SWT.SEPARATOR);
-            MenuItem restartMI = new MenuItem(trayItemMenu, SWT.NONE);
+            new MenuItem(menu, SWT.SEPARATOR);
+            MenuItem restartMI = new MenuItem(menu, SWT.NONE);
             restartMI.setText("Restart");
             restartMI.addSelectionListener(new SelectionAdapter() {
                 @Override
                 public void widgetSelected(SelectionEvent event) {
-                    MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION
-                            | SWT.YES | SWT.NO);
-                    mb.setMessage("Any unsaved changes will be lost. Restart anyway?");
-                    if (mb.open() == SWT.YES) {
+                    MessageDialog dialog = new MessageDialog(
+                            alertMessageDlg.getShell(),
+                            "Confirm Restart!",
+                            null,
+                            "Any unsaved changes will be lost. Restart anyway?",
+                            MessageDialog.QUESTION, new String[] {
+                                    IDialogConstants.YES_LABEL,
+                                    IDialogConstants.NO_LABEL }, 0);
+
+                    dialog.create();
+
+                    // center dialog on display
+                    Shell shell = dialog.getShell();
+                    Point size = shell.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+                    Rectangle bounds = alertMessageDlg.getShell().getMonitor()
+                            .getBounds();
+                    shell.setLocation(bounds.x + ((bounds.width - size.x) / 2),
+                            bounds.y + ((bounds.height - size.y) / 2));
+                    if (dialog.open() == 0) {
                         restart();
                     }
                 }
@@ -586,7 +569,7 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
         if ((configDlg != null) && !configDlg.isDisposed()) {
             configDlg.close();
         }
-        configDlg = new AlertVisConfigDlg(shell, alertMessageDlg, configData,
+        configDlg = new AlertVisConfigDlg(display, alertMessageDlg, configData,
                 configContext, this, this);
         configDlg.open();
     }
@@ -608,7 +591,7 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
             final AlertMetadata amd, final Category cat,
             final TrayConfiguration gConfig) {
 
-        if (shell.isDisposed()) {
+        if ((alertMessageDlg == null) || alertMessageDlg.isDisposed()) {
             Container.logInternal(Priority.ERROR, statMsg.getMessage() + "\n"
                     + statMsg.getDetails());
             return;
@@ -690,10 +673,10 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
         // Pop-up message
         if (amd.isPopup() == true) {
             if (alertPopupDlg == null) {
-                alertPopupDlg = new AlertPopupMessageDlg(shell, statMsg,
+                alertPopupDlg = new AlertPopupMessageDlg(display, statMsg,
                         gConfig.isExpandedPopup(), this, amd.getBackground());
-                showPopup.setEnabled(true);
-                ackAll.setEnabled(true);
+                showPopup = true;
+                ackAll = true;
                 startBlinkTrayTimer();
             } else {
                 alertPopupDlg.addNewMessage(statMsg, amd);
@@ -761,7 +744,8 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
             toolTip.dispose();
         }
 
-        toolTip = new ToolTip(shell, SWT.BALLOON | SWT.ICON_WARNING);
+        toolTip = new ToolTip(alertMessageDlg.getShell(), SWT.BALLOON
+                | SWT.ICON_WARNING);
         toolTip.setText(cat.getCategoryName());
         toolTip.setMessage(statMsg.getMessage());
 
@@ -797,6 +781,9 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
         }
     }
 
+    /**
+     * @return the exit status
+     */
     public Integer getExitStatus() {
         return exitStatus;
     }
@@ -809,8 +796,8 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
     public void handleEvent(Event event) {
         switch (event.type) {
         case SWT.Hide:
-            ackAll.setEnabled(true);
-            showPopup.setEnabled(true);
+            ackAll = true;
+            showPopup = true;
             startBlinkTrayTimer();
             updateToolTip();
             break;
@@ -819,8 +806,9 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
             alertPopupDlg = null;
             cancelTimer();
             updateToolTip();
-            ackAll.setEnabled(false);
-            showPopup.setEnabled(false);
+
+            ackAll = false;
+            showPopup = false;
             break;
         default:
             Container.logInternal(Priority.WARN, "Unexpected event type: "
@@ -838,7 +826,7 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
             // such as Integer(1) the executable attempts to bring
             // up an error screen before exiting with the error code.
             exitStatus = IApplication.EXIT_RELAUNCH;
-            display.dispose();
+            this.dispose();
         }
     }
 
@@ -848,19 +836,16 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
         configData = ConfigurationManager.getInstance()
                 .getCurrentConfiguration();
         configContext = ConfigurationManager.getInstance().getCurrentContext();
-        if ((alertMessageDlg != null) && (showAlertDialogMI != null)) {
+        if (alertMessageDlg != null) {
             alertMessageDlg.setConfigData(configData);
             if (configData.isMonitorLayoutChanged(prevConfigFile)) {
                 if (alertMessageDlg.reLayout()) {
-                    showAlertDialogMI.setEnabled(true);
+                    showAlertDlg = true;
                 }
                 prevConfigFile = configData.clone();
             }
             audioMgr = alertMessageDlg.getAlertAudioManager();
         }
-        // if (configDlg != null && !configDlg.isDisposed()) {
-        // configDlg.restart(requestRestart);
-        // }
     }
 
     /**

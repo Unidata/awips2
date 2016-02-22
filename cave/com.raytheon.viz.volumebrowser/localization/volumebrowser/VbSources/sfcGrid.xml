@@ -165,4 +165,5 @@
     <vbSource key="WPHwave10" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="PGBlended" category="SfcGrid/NOS" views="PLANVIEW TIMESERIES" />
     <vbSource key="PGBlended-Night" category="SfcGrid/NOS" views="PLANVIEW TIMESERIES" />
+    <vbSource key="PWPF" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 </vbSourceList>

@@ -39,7 +39,6 @@ import org.opengis.coverage.grid.GridEnvelope;
 
 import com.raytheon.uf.common.geospatial.LocalTimeZone;
 import com.raytheon.uf.common.geospatial.SpatialException;
-import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.DrawableCircle;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IDisplayPane;
@@ -75,39 +74,45 @@ import com.raytheon.viz.ui.input.EditableManager;
 import com.raytheon.viz.ui.input.InputAdapter;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineSegment;
+import com.vividsolutions.jts.geom.LineString;
 
 /**
- * TODO Add Description
+ * Layer which contains a configurable storm track as well as a Time Of
+ * Arrival/Lead Time point. The primary purpose is to display the distance and
+ * time it would take to reach the lead point following the storm track.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * June 28 2010 #6513      bkowal      Switching the mode of the Time of Arrival /
- *                                     Lead time tool to Polyline before creating a
- *                                     a track will no longer cause the tool to
- *                                     crash.
- * July 28 2010 #4518      bkowal      CDT time will now be displayed in the Time of
- *                                     Arrival point label when the scale is
- *                                     WFO or State(s).
- *  Aug 19 2010 #4518      bkowal      Instead of CDT time, the users local time
- *                                     will be displayed. Progressive Disclosure  
- *                                     Properties are now used to determine whether
- *                                     local time should be displayed or not.
- *  Oct 19 2010 #6753      bkowal      Added logic to change the text alignment from
- *                                     left-to-right if there is not enough room
- *                                     for the text to the left of the point.
- * 15Mar2013	15693	mgamazaychikov Added magnification capability.
- *  Apr 12 2013 DR 16032   D. Friedman Make it work in multiple panes.
- *  Aug 14 2014 3523       mapeters    Updated deprecated {@link DrawableString#textStyle} 
- *                                     assignments.
+ * 
+ * Date          Ticket#  Engineer   Description
+ * ------------- -------- ---------- -------------------------------------------
+ * Jun 28, 2010  6513     bkowal     Switching the mode of the Time of Arrival /
+ *                                   Lead time tool to Polyline before creating
+ *                                   a a track will no longer cause the tool to
+ *                                   crash.
+ * Jul 28, 2010  4518     bkowal     CDT time will now be displayed in the Time
+ *                                   of Arrival point label when the scale is
+ *                                   WFO or State(s).
+ * Aug 19, 2010  4518     bkowal     Instead of CDT time, the users local time
+ *                                   will be displayed. Progressive Disclosure
+ *                                   Properties are now used to determine
+ *                                   whether local time should be displayed or
+ *                                   not.
+ * Oct 19, 2010  6753     bkowal     Added logic to change the text alignment
+ *                                   from left-to-right if there is not enough
+ *                                   room for the text to the left of the point.
+ * Mar 15, 2013  15693    mgamazay   Added magnification capability.
+ * Apr 12, 2013  16032    dfriedman  Make it work in multiple panes.
+ * Aug 14, 2014  3523     mapeters   Updated deprecated DrawableString.textStyle
+ *                                   assignments.
+ * Dec 02, 2015  5150     bsteffen   Calculate correct lead time for Polylines.
+ * 
  * </pre>
  * 
  * @author mschenke
- * @version 1.0
  */
-
 public class TimeOfArrivalLayer extends AbstractStormTrackResource {
 
     public static class LeadTimeState {
@@ -122,9 +127,15 @@ public class TimeOfArrivalLayer extends AbstractStormTrackResource {
         public boolean changed;
     }
 
+    /* Thread Dangerous: Must only be used on the "paint" thread. */
     private final DateFormat timeFormat = new SimpleDateFormat("HH:mm");
 
-    // private DateFormat localTimeFormat = new SimpleDateFormat("HH:mmz");
+    /*
+     * Thread Dangerous: Must only be used on the "paint" thread.
+     * 
+     * The time zone should be set based off the end time before each use.
+     */
+    private final DateFormat localTimeFormat = new SimpleDateFormat("HH:mmz");
 
     private static final String formatString = "%sZ (%s) %s miles";
 
@@ -306,6 +317,8 @@ public class TimeOfArrivalLayer extends AbstractStormTrackResource {
             if (displayState.mode == Mode.TRACK) {
                 if (displayState.displayType == DisplayType.CIRCULAR) {
                     constructCircularStuff(target);
+                } else if (displayState.displayType == DisplayType.POLY) {
+                    constructPolyStuff(target);
                 }
             }
         }
@@ -451,6 +464,44 @@ public class TimeOfArrivalLayer extends AbstractStormTrackResource {
         }
     }
 
+    /**
+     * Create lines in jazzyExtras that mirror the dragMeLine projected out to
+     * intersect the lead point. Should only be used when the display type is
+     * {@link DisplayType#POLY}.
+     */
+    private void constructPolyStuff(IGraphicsTarget target) {
+        if (jazzyExtras != null) {
+            jazzyExtras.dispose();
+        }
+
+        jazzyExtras = target.createWireframeShape(false, descriptor);
+        Coordinate startLonLat = getLeadDragMePoint();
+        if(startLonLat == null){
+            return;
+        }
+        Coordinate endLonLat = leadState.loc;
+        
+        double[] startPixel = descriptor.worldToPixel(new double[] {
+                startLonLat.x, startLonLat.y });
+        double[] endPixel = descriptor.worldToPixel(new double[] {
+                endLonLat.x, endLonLat.y });
+        
+        double dx = endPixel[0] - startPixel[0];
+        double dy = endPixel[1] - startPixel[1];
+        
+        LineString fullLine = displayState.dragMeLine;
+        double[][] pixels = new double[fullLine.getNumPoints()][];
+        for (int i = 0; i < fullLine.getNumPoints(); i += 1) {
+            Coordinate c = fullLine.getCoordinateN(i);
+            pixels[i] = descriptor.worldToPixel(new double[] {
+                    c.x, c.y });
+            pixels[i][0] += dx;
+            pixels[i][1] += dy; 
+        }
+        jazzyExtras.addLineSegment(pixels);
+        
+    }
+
     private void constructCircularStuff(IGraphicsTarget target)
             throws VizException {
 
@@ -550,6 +601,7 @@ public class TimeOfArrivalLayer extends AbstractStormTrackResource {
         // Default angle for POINT
         displayState.displayType = StormTrackState.DisplayType.POINT;
         displayState.labelMode = LabelMode.TIME;
+        displayState.liveOffsetEndTime = false;
         state.angle = 48;
         state.dragMePoint = null;
         state.dragMeLine = null;
@@ -584,7 +636,135 @@ public class TimeOfArrivalLayer extends AbstractStormTrackResource {
         });
     }
 
+    /**
+     * Determine a point along the dragMeLine that can be combined with the lead
+     * point to create a line that is perpendicular to the storm track. This is
+     * the point that is used when determining the distance of the lead point.
+     * This method will return null if the lead point is too far from the storm
+     * track so no point exists. Should only be used when the display type is
+     * {@link DisplayType#POLY}.
+     */
+    private Coordinate getLeadDragMePoint() {
+        /*
+         * The input and output points are all in Lon/Lat but all math is
+         * performed in the descriptor pixel space to minimize the potential for
+         * projection related problems.
+         */
+        Coordinate startLonLat = displayState.timePoints[0].coord;
+        Coordinate endLonLat = displayState.timePoints[displayState.timePoints.length - 1].coord;
+
+        double[] startPixel = descriptor.worldToPixel(new double[] {
+                startLonLat.x, startLonLat.y });
+        double[] endPixel = descriptor.worldToPixel(new double[] { endLonLat.x,
+                endLonLat.y });
+        double[] leadPixel = descriptor.worldToPixel(new double[] {
+                leadState.loc.x, leadState.loc.y });
+
+        double dx = leadPixel[0] - endPixel[0];
+        double dy = leadPixel[1] - endPixel[1];
+
+        double[] leadStartPixel = { startPixel[0] + dx, startPixel[1] + dy };
+
+        /*
+         * This is a line that is parallel to the storm track and the same
+         * distance as the timePoints in the storm track.
+         */
+        LineSegment leadLine = new LineSegment(leadStartPixel[0],
+                leadStartPixel[1], leadPixel[0], leadPixel[1]);
+
+        LineString fullLine = displayState.dragMeLine;
+        Coordinate c = fullLine.getCoordinateN(0);
+        double[] prevPixel = descriptor.worldToPixel(new double[] { c.x, c.y });
+        Coordinate bestIntersection = null;
+        for (int i = 1; i < fullLine.getNumPoints(); i += 1) {
+            c = fullLine.getCoordinateN(i);
+            double[] currPixel = descriptor.worldToPixel(new double[] { c.x,
+                    c.y });
+            LineSegment segment = new LineSegment(prevPixel[0], prevPixel[1],
+                    currPixel[0], currPixel[1]);
+            /*
+             * The leadLine may not be long enough to reach from the lead point
+             * to the dragMeLine so must use lineIntersection to extend both
+             * segments infinitely
+             */
+            Coordinate intersection = segment.lineIntersection(leadLine);
+            /*
+             * lineIntersection may extends both lines but only an intersection
+             * that is actually on the segment is valid so ensure that the
+             * intersection point is reasonably close to the segment.
+             */
+            if (segment.distance(intersection) < 0.0000001) {
+                /*
+                 * If the dragMeLine is complex thre can be multiple
+                 * intersections, only keep the closest one.
+                 */
+                if (bestIntersection == null) {
+                    bestIntersection = intersection;
+                } else if (bestIntersection.distance(new Coordinate(
+                        leadPixel[0], leadPixel[1])) > intersection
+                        .distance(new Coordinate(leadPixel[0], leadPixel[1]))) {
+                    bestIntersection = intersection;
+
+                }
+            }
+            prevPixel = currPixel;
+        }
+        if (bestIntersection != null) {
+            double[] intersectionLonLat = descriptor.pixelToWorld(new double[] {
+                    bestIntersection.x, bestIntersection.y });
+            return new Coordinate(intersectionLonLat[0], intersectionLonLat[1]);
+        }
+        return bestIntersection;
+    }
+
+    /**
+     * Determine the distance(in meters) from the lead point to the current
+     * point, line, or front. This is the distance displayed in the lead time
+     * text. This method will return Double.NaN if the lead point is
+     * unrealistic.
+     */
+    private double getLeadDistance() {
+        GeodeticCalculator gc = new GeodeticCalculator();
+        if (displayState.displayType == DisplayType.POLY) {
+            Coordinate dragMe = getLeadDragMePoint();
+            if (dragMe == null) {
+                return Double.NaN;
+            }
+            gc.setStartingGeographicPoint(dragMe.x, dragMe.y);
+            gc.setDestinationGeographicPoint(leadState.loc.x, leadState.loc.y);
+            double distance = gc.getOrthodromicDistance();
+            double angle = unadjustAngle(gc.getAzimuth());
+            double stateAngle = unadjustAngle(displayState.angle);
+            if(Math.abs(angle - stateAngle) > 180){
+                distance = -1*distance;
+            }
+            return distance;
+        }else{
+            StormCoord start = displayState.timePoints[0];
+            Coordinate end = displayState.timePoints[displayState.timePoints.length - 1].coord;
+
+            gc.setStartingGeographicPoint(start.coord.x, start.coord.y);
+            gc.setDestinationGeographicPoint(end.x, end.y);
+            double distFromStartEnd = gc.getOrthodromicDistance();
+            
+            end = leadState.loc;
+            gc.setDestinationGeographicPoint(end.x, end.y);
+            double angle = unadjustAngle(gc.getAzimuth());
+            double stateAngle = unadjustAngle(displayState.angle);
+            double distance = gc.getOrthodromicDistance();
+
+            if (Math.abs(angle - stateAngle) >= 22.5) {
+                return Double.NaN;
+            }else{
+                return distance
+                        - distFromStartEnd;
+            }
+        }
+    }
+
     private void updateLeadTimeState() {
+        leadState.changed = false;
+
         // based on display state and lead time location, figure out distance,
         // duration, and time
 
@@ -592,94 +772,69 @@ public class TimeOfArrivalLayer extends AbstractStormTrackResource {
             return;
         }
 
-        // First get Time from start point
-        StormCoord start = displayState.timePoints[0];
-        Coordinate end = displayState.timePoints[displayState.timePoints.length - 1].coord;
-
-        GeodeticCalculator gc = new GeodeticCalculator();
-        gc.setStartingGeographicPoint(start.coord.x, start.coord.y);
-        gc.setDestinationGeographicPoint(end.x, end.y);
-        double distFromStartEnd = gc.getOrthodromicDistance();
-
-        end = leadState.loc;
-        gc.setDestinationGeographicPoint(end.x, end.y);
-        double angle = unadjustAngle(gc.getAzimuth());
-        double stateAngle = unadjustAngle(displayState.angle);
-        double distance = gc.getOrthodromicDistance();
-        leadState.distance = distance;
-
-        // TODO: Figure out point on line and distance to line if in POLY mode
-        // and set distance accordingly, then uncomment TODO in constructLines
-
-        if (Math.abs(angle - stateAngle) >= 22.5) {
+        double distance = getLeadDistance();
+        if (Double.isNaN(distance)) {
             leadState.text = "Unrealistic Point of Arrival";
-        } else {
-
-            long timeInSec = (long) (distance / displayState.speed);
-            DataTime toa = new DataTime(new Date(start.time.getMatchValid()
-                    + (timeInSec * 1000)));
-
-            Date date = new Date(toa.getMatchValid());
-            Date refDate = new Date(
-                    displayState.timePoints[displayState.timePoints.length - 1].time
-                            .getMatchValid());
-
-            boolean negative = date.getTime() < refDate.getTime();
-
-            String miles = "";
-            String hoursMinutesFormat = "";
-            if (negative) {
-                hoursMinutesFormat += "-";
-                miles += "-";
-            }
-
-            long timeDiffInMinutes = Math.abs(date.getTime()
-                    - refDate.getTime())
-                    / (60 * 1000);
-
-            long hours = timeDiffInMinutes / 60;
-            long minutes = timeDiffInMinutes % 60;
-            Object[] args = new Object[2];
-            if (hours > 0) {
-                hoursMinutesFormat += "%02d hours ";
-                args[0] = hours;
-                args[1] = minutes;
-            } else {
-                args[0] = minutes;
-            }
-
-            hoursMinutesFormat += "%02d minutes";
-
-            miles += (int) metersToMiles.convert(Math.abs(distance
-                    - distFromStartEnd));
-
-            String time = this.timeFormat.format(date);
-            int currentDisplayWidth = ((IMapDescriptor) this.descriptor)
-                    .getMapWidth();
-
-            if (!this.pdProps.isDisclosed(currentDisplayWidth)) {
-                // Do not include Local time
-                leadState.text = String.format(formatString, time,
-                        String.format(hoursMinutesFormat, args), miles);
-            } else {
-                // Include Local time
-                String localTime = ""; // this.localTimeFormat.format(date);
-                try {
-                    DateFormat df = new SimpleDateFormat("HH:mmz");
-                    // System.err.println(end.x + " " + end.y);
-                    df.setTimeZone(LocalTimeZone.getLocalTimeZone(end));
-                    localTime = df.format(date);
-                } catch (SpatialException e) {
-                    e.printStackTrace();
-                }
-
-                leadState.text = String.format(
-                        TimeOfArrivalLayer.formatStringIncludeLocal, time,
-                        localTime, String.format(hoursMinutesFormat, args),
-                        miles);
-            }
+            return;
         }
-        leadState.changed = false;
+        StormCoord endStormCoord = displayState.timePoints[displayState.timePoints.length - 1];
+
+        Date refDate = endStormCoord.time.getValidTimeAsDate();
+        long timeInSec = (long) (distance / displayState.speed);
+
+        Date date = new Date(refDate.getTime() + (timeInSec * 1000));
+
+        boolean negative = date.getTime() < refDate.getTime();
+
+        String miles = "";
+        String hoursMinutesFormat = "";
+        if (negative) {
+            hoursMinutesFormat += "-";
+            miles += "-";
+        }
+
+        long timeDiffInMinutes = Math.abs(date.getTime() - refDate.getTime())
+                / (60 * 1000);
+
+        long hours = timeDiffInMinutes / 60;
+        long minutes = timeDiffInMinutes % 60;
+        Object[] args = new Object[2];
+        if (hours > 0) {
+            hoursMinutesFormat += "%02d hours ";
+            args[0] = hours;
+            args[1] = minutes;
+        } else {
+            args[0] = minutes;
+        }
+
+        hoursMinutesFormat += "%02d minutes";
+
+        miles += (int) metersToMiles.convert(Math.abs(distance));
+
+        String time = this.timeFormat.format(date);
+        int currentDisplayWidth = ((IMapDescriptor) this.descriptor)
+                .getMapWidth();
+
+        if (!this.pdProps.isDisclosed(currentDisplayWidth)) {
+            // Do not include Local time
+            leadState.text = String.format(formatString, time,
+                    String.format(hoursMinutesFormat, args), miles);
+        } else {
+            // Include Local time
+            String localTime = "";
+            try {
+                Coordinate end = endStormCoord.coord;
+                localTimeFormat
+                        .setTimeZone(LocalTimeZone.getLocalTimeZone(end));
+                localTime = localTimeFormat.format(date);
+            } catch (SpatialException e) {
+                e.printStackTrace();
+            }
+
+            leadState.text = String.format(
+                    TimeOfArrivalLayer.formatStringIncludeLocal, time,
+                    localTime, String.format(hoursMinutesFormat, args), miles);
+        }
     }
 
     public void makeEditableAndReopenDialog() {

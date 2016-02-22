@@ -49,6 +49,7 @@ import java.util.regex.Pattern;
 import javax.xml.bind.JAXB;
 import javax.xml.bind.JAXBException;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -106,6 +107,7 @@ import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
@@ -356,14 +358,20 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  *                                       simulated time.
  * Sep 30, 2015   4860      skorolev    Corrected misspelling.
  * 07Oct2015   RM 18132     D. Friedman Exclude certain phensigs from automatic ETN incrementing.
+ * Oct 28, 2015 5054        randerso    Make Text Editor windows appear on same monitor as the parent.
+ *                                      Removed hard coded offset for window placement.
  * Nov 05, 2015 5039        rferrel     Prevent wrapping text to a component name line and clean up of streams.
  * 19Nov2015   5141         randerso    Replace commas with ellipses if product not enabled for 
  *                                      mixed case transmission
  * 10Dec2015   5206         randerso    Replace commas with ellipses only in WarnGen products
  * 11Dec2015   RM14752   mgamazaychikov Fix problems with wrapping in the impact section.
- * 6Jan2016    RM18452   mgamazaychikov Fix NPE for null product in enterEditor
+ * 06Jan2016    RM18452  mgamazaychikov Fix NPE for null product in enterEditor
  * 06Jan2016   5225         randerso    Fix problem with mixed case not getting converted to upper case 
  *                                      when multiple text editors are open on the same product.
+ * 27Jan2016   5054         randerso    Removed ignored second ICON from Cancel confirmation
+ * 04Feb2016   5076         dgilling    Prevent text editor from adding multiple
+ *                                      copies of header to edited product after
+ *                                      save/cancel cycling.
  * 
  * </pre>
  * 
@@ -893,16 +901,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * Products menu.
      */
     private MenuItem productsMenuItem;
-
-    /**
-     * Help on a window item menu item.
-     */
-    private MenuItem onTextWindowItem;
-
-    /**
-     * About menu item.
-     */
-    private MenuItem aboutItem;
 
     /**
      * Composite for the script runner controls
@@ -1600,7 +1598,17 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         createMenus();
 
         // Initialize all of the controls and layouts
-        initializeComponents();
+        createTopButtonRow();
+
+        Label sepLbl = new Label(shell, SWT.SEPARATOR | SWT.HORIZONTAL);
+        sepLbl.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+        createTextRow();
+        createHeaderTextField();
+        createEditorControlButtons();
+        createTextAreaEditor();
+        createScriptRunnerControlBar();
+        createStatusBar();
 
         // initialize scripting controls
         setScriptControls(false);
@@ -1627,7 +1635,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         createToolsMenus(menuBar);
         createScriptsMenus(menuBar);
         createProductsMenus(menuBar);
-        createHelpMenus(menuBar);
 
         shell.setMenuBar(menuBar);
     }
@@ -2357,47 +2364,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     }
 
     /**
-     * Create the Help menu (top menu bar) and all of the menu items under the
-     * Help menu.
-     * 
-     * @param menuBar
-     *            The main menu bar.
-     */
-    private void createHelpMenus(Menu menuBar) {
-        // -----------------------------------------
-        // Create all the items in the Help menu
-        // -----------------------------------------
-        MenuItem helpMenuItem = new MenuItem(menuBar, SWT.CASCADE);
-        helpMenuItem.setText("Help");
-
-        // Create the Products menu item with a Products "dropdown" menu
-        Menu helpMenu = new Menu(menuBar);
-        helpMenuItem.setMenu(helpMenu);
-
-        onTextWindowItem = new MenuItem(helpMenu, SWT.NONE);
-        onTextWindowItem.setText("On Text Window...\tF1");
-        onTextWindowItem.setAccelerator(SWT.F1);
-        onTextWindowItem.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                notImplementedYet("On text window");
-            }
-        });
-
-        // Add a menu separator.
-        new MenuItem(helpMenu, SWT.SEPARATOR);
-
-        aboutItem = new MenuItem(helpMenu, SWT.NONE);
-        aboutItem.setText("About...");
-        aboutItem.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                notImplementedYet("About");
-            }
-        });
-    }
-
-    /**
      * Method to determine the target position for page up or page down.
      * 
      * @param st
@@ -3051,23 +3017,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
     public void setDefaultFont(int fontSize, String fontName) {
         dftFont = new Font(getDisplay(), fontName, fontSize, SWT.NORMAL);
-    }
-
-    /**
-     * Initialize the components and put them on the display.
-     */
-    private void initializeComponents() {
-        createTopButtonRow();
-
-        Label sepLbl = new Label(shell, SWT.SEPARATOR | SWT.HORIZONTAL);
-        sepLbl.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-        createTextRow();
-        createHeaderTextField();
-        createEditorControlButtons();
-        createTextAreaEditor();
-        createScriptRunnerControlBar();
-        createStatusBar();
     }
 
     /**
@@ -4310,7 +4259,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             // Notify the user that any unsaved changes will be lost.
             SWTMessageBox mb = new SWTMessageBox(shell, "Cancel Editor",
                     "Any unsaved changes will be lost. Cancel anyway?",
-                    SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.ICON_WARNING);
+                    SWT.ICON_QUESTION | SWT.YES | SWT.NO);
             mb.setCloseCallback(new ICloseCallback() {
 
                 @Override
@@ -4386,15 +4335,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         // Set the search and replace dialog to reflect the edit state.
         if (searchReplaceDlg != null) {
             searchReplaceDlg.setEditMode(inEditMode);
-        }
-
-        // Restore the contents of the text editor if needed
-        // Note: this block conpensates for the unusual behavior of the AWIPS-I
-        // cancel editor functionality. Basically, once a product has been saved
-        // cancelling DOES NOT roll back changes in AWIPS-I!
-        if (saved) {
-            replaceWorkProductId();
-            originalText = combineOriginalMessage();
         }
 
         if (originalText != null) {
@@ -5107,7 +5047,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             try {
                 updateTextEditor(body);
                 if ((inEditMode || resend)
-                        && saveEditedProduct(prod, false, resend, true)) {
+                        && !saveEditedProduct(prod, false, resend, true)
+                                .isEmpty()) {
                     inEditMode = false;
                 }
                 if (!resend) {
@@ -5189,7 +5130,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 }
                 updateTextEditor(body);
                 if ((inEditMode || resend)
-                        && saveEditedProduct(prod, false, resend, false)) {
+                        && !saveEditedProduct(prod, false, resend, false)
+                                .isEmpty()) {
                     inEditMode = false;
                 }
                 SendPracticeProductRequest req = new SendPracticeProductRequest();
@@ -5353,12 +5295,12 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             userInformation("This product MUST be edited in GFE! \n Please exit and return to GFE. \n Action Aborted!");
             return;
         }
-        boolean successful = saveEditedProduct(product, false, false, false);
-        if (successful) {
+        String savedProduct = saveEditedProduct(product, false, false, false);
+        if (!savedProduct.isEmpty()) {
             // reset the editor status flags
             saved = true;
             replaceWorkProductId();
-            originalText = combineOriginalMessage();
+            originalText = savedProduct;
             if (warnGenFlag == true) {
                 originalText = removeSoftReturns(originalText);
             }
@@ -5377,16 +5319,16 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * @param isOperationalSend
      *            true if operational send
      * 
-     * @return true is the save was successful
+     * @return The text of the saved product if successful. Empty string if not.
      */
-    synchronized private boolean saveEditedProduct(StdTextProduct product,
+    synchronized private String saveEditedProduct(StdTextProduct product,
             boolean isAutoSave, boolean resend, boolean isOperationalSend) {
         if ((product != null)
                 && gfeForbidden(product.getCccid(), product.getNnnid())) {
             // Pop up forbidden window.
             inEditMode = false;
             userInformation("This product MUST be edited in GFE! \n Please exit and return to GFE. \n Action Aborted!");
-            return false;
+            return StringUtils.EMPTY;
         }
         boolean successful = false;
 
@@ -5401,7 +5343,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         // Convert the text in the text editor to uppercase
         if (!isAutoSave) {
             if (!verifyRequiredFields()) {
-                return false;
+                return StringUtils.EMPTY;
             }
             replaceWorkProductId();
 
@@ -5486,7 +5428,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             successful = true;
         } else {
             if (!saveStoredTextProduct(storedProduct)) {
-                return false;
+                return StringUtils.EMPTY;
             }
 
             // Update the TextProductInfo table within the Text Database when a
@@ -5498,7 +5440,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             successful = saveTextProductInfo();
         }
 
-        return successful;
+        return (successful) ? productText.trim() : StringUtils.EMPTY;
     }
 
     /**
@@ -7752,20 +7694,35 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     protected void preOpened() {
         // Shell shell = ted.getShell();
         if (textWorkstationFlag) {
-            Rectangle rect = getShell().getDisplay().getClientArea();
-            int x = rect.width / 4;
 
-            // account for dual monitor
-            if (rect.width > (rect.height * 2)) {
-                x /= 2;
+            // get bounds of monitor containing parent shell
+            Point parentLoc = getParent().getShell().getLocation();
+            Rectangle rect = null;
+            for (Monitor monitor : getShell().getDisplay().getMonitors()) {
+                rect = monitor.getBounds();
+                if (rect.contains(parentLoc)) {
+                    break;
+                }
             }
+            int x = rect.x + (rect.width / 4);
+            int y = rect.y;
 
             int index = getText().indexOf(" ");
             int editorIndex = new Integer(getText().substring(index + 1))
                     .intValue();
 
-            int offset = (editorIndex - 1) * 25;
-            getShell().setLocation(x + offset, (rect.height / 4) + offset);
+            Rectangle bounds = getShell().getBounds();
+            Rectangle clientArea = getShell().getClientArea();
+
+            /*
+             * NOTE: this offset includes the height of the title bar and the
+             * menu. There appears to be no way to get just the title bar in
+             * Eclipse 3.8 We may be able to do this in Eclipse 4
+             */
+            int xOffset = (editorIndex - 1) * (bounds.width - clientArea.width);
+            int yOffset = (editorIndex - 1)
+                    * (bounds.height - clientArea.height);
+            getShell().setLocation(x + xOffset, y + yOffset);
         }
 
         inEditMode = false;
@@ -8048,9 +8005,9 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         }
 
         // is this the impact paragraph?
-        if (paragraphStart.startsWith("  IMPACT...") ||
-            paragraphStart.startsWith("  HAZARD...") ||
-            paragraphStart.startsWith("  SOURCE...") ) {
+        if (paragraphStart.startsWith("  IMPACT...")
+                || paragraphStart.startsWith("  HAZARD...")
+                || paragraphStart.startsWith("  SOURCE...")) {
             padding = "           ";
         }
 
@@ -8134,8 +8091,9 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             // if the next line does not start a new paragraph
             if (!isParagraphStart(lineNumber + 1)) {
                 // if the next line is not empty
-                if (!textEditor.getLine(lineNumber + 1).trim().isEmpty() ||
-                    (textEditor.getLine(lineNumber + 1).length() == padding.length()+1)   ) {
+                if (!textEditor.getLine(lineNumber + 1).trim().isEmpty()
+                        || (textEditor.getLine(lineNumber + 1).length() == (padding
+                                .length() + 1))) {
                     // Determine what kind of end of line marker line has.
                     int deleteLen = 0;
 

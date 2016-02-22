@@ -19,15 +19,13 @@
  **/
 package com.raytheon.uf.viz.monitor.ffmp;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 
+import com.raytheon.uf.common.monitor.data.MonitorConfigConstants.ffmpTable;
+import com.raytheon.uf.common.monitor.data.MonitorConfigConstants.tableFields;
 import com.raytheon.uf.viz.core.localization.HierarchicalPreferenceStore;
-import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants;
-import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants.ffmpTable;
-import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants.tableFields;
 
 /**
  * FFMPMonitorConfiguration object stores configuration data specific to FFMP.
@@ -38,6 +36,7 @@ import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants.tableFields;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 29 June, 2009  2521      dhladky     Initial creation
+ * Jan 04,  2016  5115      skorolev    Corrected imports.
  * 
  * </pre>
  * 
@@ -56,63 +55,16 @@ public class FFMPMonitorConfiguration {
      * Constructor
      */
     public FFMPMonitorConfiguration() {
-//        reload(getStore());
-    }
 
-    /**
-     * Save the configuration object to a file.
-     * 
-     * @throws IOException
-     */
-//    public void save() throws IOException {
-//        HierarchicalPreferenceStore store = getStore();
-//
-//        // Save SCAN Stuff here
-//        store.setValue(MonitorConfigConstants.SCAN_PLUGIN_NAME, pluginName);
-//
-//        // cell table
-//        String[] tempTableAttributes = new String[ffmpTableAttributes.length];
-//
-//        for (int i = 0; i < tempTableAttributes.length; i++) {
-//            tempTableAttributes[i] = Boolean.toString(ffmpTableAttributes[i]);
-//        }
-//
-//        store.setValue(MonitorConfigConstants.SCAN_TVS_TABLE_ATTRIB,
-//                tempTableAttributes);
-//
-//        store.save();
-//    }
+    }
 
     /**
      * @return HierarchicalPreferenceStore
      */
     private HierarchicalPreferenceStore getStore() {
-        return (HierarchicalPreferenceStore) Activator.getDefault().getPreferenceStore();
+        return (HierarchicalPreferenceStore) Activator.getDefault()
+                .getPreferenceStore();
     }
-
-    /**
-     * Load the internal data structures from the HierarchicalPreferenceStore.
-     * 
-     * @param store
-     *            HierarchicalPreferenceStore
-     */
-//    private void reload(HierarchicalPreferenceStore store) {
-//        // Load SCAN Stuff here
-//        // pluginName
-//        this.pluginName = store
-//                .getStringArray(MonitorConfigConstants.SCAN_PLUGIN_NAME);
-//
-//        // cell table
-//        String[] tempTableAttributes = store
-//                .getStringArray(MonitorConfigConstants.SCAN_CELL_TABLE_ATTRIB);
-//        
-//        ffmpTableAttributes = new boolean[tempTableAttributes.length];
-//        for (int i = 0; i < tempTableAttributes.length; i++) {
-//            this.ffmpTableAttributes[i] = Boolean
-//                    .valueOf(tempTableAttributes[i]);
-//        }
-//
-//    }
 
     /**
      * Retrieve one set of values for all attributes on a given table.
@@ -133,7 +85,6 @@ public class FFMPMonitorConfiguration {
             String value = store.getString(table.toString(field));
             map.put(table.toString(), value);
         }
-        
 
         return map;
     }
@@ -151,14 +102,12 @@ public class FFMPMonitorConfiguration {
         HashMap<String, String> map = new HashMap<String, String>();
 
         for (tableFields field : tableFields.values()) {
-            map.put(field.toString(), store
-                    .getString(attribute.toString(field)));
+            map.put(field.toString(),
+                    store.getString(attribute.toString(field)));
         }
 
         return map;
     }
-
-  
 
     /**
      * Retrieve the threshold data for one of the SCAN tables. Only returns
@@ -203,7 +152,6 @@ public class FFMPMonitorConfiguration {
         getStore().setValue(attribute.toString(field), value);
     }
 
-   
     /**
      * @return String[] pluginName
      */
@@ -242,6 +190,6 @@ public class FFMPMonitorConfiguration {
      *            boolean[]
      */
     public void setTableAttributes(ffmpTable table, boolean[] tableAttributes) {
-         this.ffmpTableAttributes = tableAttributes.clone();
+        this.ffmpTableAttributes = tableAttributes.clone();
     }
 }

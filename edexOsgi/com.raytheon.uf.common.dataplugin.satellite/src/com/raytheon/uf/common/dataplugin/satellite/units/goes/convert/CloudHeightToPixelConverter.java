@@ -25,7 +25,7 @@ import javax.measure.converter.UnitConverter;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * Converts a cloud height in meters to a pixel value (calculation is done in
@@ -44,90 +44,91 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
  */
 public class CloudHeightToPixelConverter extends UnitConverter {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private static UnitConverter meterToFoot = SI.METRE.getConverterTo(NonSI.FOOT);
+    private static UnitConverter meterToFoot = SI.METRE
+            .getConverterTo(NonSI.FOOT);
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.measure.converter.UnitConverter#convert( double)
-	 */
-	@Override
-	public double convert(double aHeight) throws ConversionException {
-		double result = 0.0;
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.measure.converter.UnitConverter#convert( double)
+     */
+    @Override
+    public double convert(double aHeight) throws ConversionException {
+        double result = 0.0;
 
-		// value is in meters, but below calculates pixel based on value being
-		// ft/100 MSL
-		aHeight = meterToFoot.convert(aHeight);
-		
-		if (aHeight < 1) {
-		    result = 0;
-		} else if (aHeight <= 17.7) {
-			result = (aHeight / 17.7) + 75.0;
-		} else if (aHeight <= 50) {
-			result = (24.0 / 32.3 * (aHeight - 17.7)) + 76.0;
-		} else if (aHeight <= 87.5) {
-			result = (25.0 / 37.5 * (aHeight - 50.0)) + 100.0;
-		} else if (aHeight <= 129.9) {
-			result = (25.0 / 42.4 * (aHeight - 87.5)) + 125.0;
-		} else if (aHeight <= 179.1) {
-			result = (25.0 / 49.2 * (aHeight - 129.9)) + 150.0;
-		} else if (aHeight <= 238) {
-			result = (25.0 / 58.9 * (aHeight - 179.1)) + 175.0;
-		} else if (aHeight <= 312.3) {
-			result = (25.0 / 74.3 * (aHeight - 238.0)) + 200.0;
-		} else {
-			result = (30.0 / 134.4 * (aHeight - 312.3)) + 225.0;
-		}
+        // value is in meters, but below calculates pixel based on value being
+        // ft/100 MSL
+        aHeight = meterToFoot.convert(aHeight);
 
-		if (result < 0) {
-			result = 0;
-		} else if (result > 255) {
-			result = 255;
-		}
+        if (aHeight < 1) {
+            result = 0;
+        } else if (aHeight <= 17.7) {
+            result = (aHeight / 17.7) + 75.0;
+        } else if (aHeight <= 50) {
+            result = (24.0 / 32.3 * (aHeight - 17.7)) + 76.0;
+        } else if (aHeight <= 87.5) {
+            result = (25.0 / 37.5 * (aHeight - 50.0)) + 100.0;
+        } else if (aHeight <= 129.9) {
+            result = (25.0 / 42.4 * (aHeight - 87.5)) + 125.0;
+        } else if (aHeight <= 179.1) {
+            result = (25.0 / 49.2 * (aHeight - 129.9)) + 150.0;
+        } else if (aHeight <= 238) {
+            result = (25.0 / 58.9 * (aHeight - 179.1)) + 175.0;
+        } else if (aHeight <= 312.3) {
+            result = (25.0 / 74.3 * (aHeight - 238.0)) + 200.0;
+        } else {
+            result = (30.0 / 134.4 * (aHeight - 312.3)) + 225.0;
+        }
 
-		return result;
-	}
+        if (result < 0) {
+            result = 0;
+        } else if (result > 255) {
+            result = 255;
+        }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.measure.converter.UnitConverter#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object aConverter) {
-		return (aConverter instanceof CloudHeightToPixelConverter);
-	}
+        return result;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.measure.converter.UnitConverter#hashCode()
-	 */
-	@Override
-	public int hashCode() {
-		return HashCodeBuilder.reflectionHashCode(this);
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.measure.converter.UnitConverter#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object aConverter) {
+        return (aConverter instanceof CloudHeightToPixelConverter);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.measure.converter.UnitConverter#inverse()
-	 */
-	@Override
-	public UnitConverter inverse() {
-		return new CloudPixelToHeightConverter();
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.measure.converter.UnitConverter#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.measure.converter.UnitConverter#isLinear()
-	 */
-	@Override
-	public boolean isLinear() {
-		return false;
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.measure.converter.UnitConverter#inverse()
+     */
+    @Override
+    public UnitConverter inverse() {
+        return new CloudPixelToHeightConverter();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.measure.converter.UnitConverter#isLinear()
+     */
+    @Override
+    public boolean isLinear() {
+        return false;
+    }
 
 }

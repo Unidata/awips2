@@ -29,6 +29,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
@@ -65,6 +66,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 15 Oct 2012  1229       rferrel     Changes for non-blocking TextEditorSetupDlg.
  * 15 Oct 2012  1229       rferrel     Changed for non-blocking HelpUsageDlg.
  * 13 Feb 2013  1549       rferrel     Minor code cleanup.
+ * 26 Jan 2016  5054       randerso    Change top level dialog to be parented to the display
  * 
  * </pre>
  * 
@@ -112,11 +114,10 @@ public class AvnconfigDlg extends CaveSWTDialog {
     /**
      * Constructor.
      * 
-     * @param parent
-     *            Parent shell.
+     * @param display
      */
-    public AvnconfigDlg(Shell parent) {
-        super(parent, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT
+    public AvnconfigDlg(Display display) {
+        super(display, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT
                 | CAVE.INDEPENDENT_SHELL | CAVE.DO_NOT_BLOCK);
         setText("AvnFPS Setup");
     }

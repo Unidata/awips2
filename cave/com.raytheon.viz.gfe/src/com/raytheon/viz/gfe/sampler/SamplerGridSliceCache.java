@@ -26,10 +26,11 @@ import java.util.List;
 import java.util.Map;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
+import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
+import com.raytheon.uf.common.dataplugin.gfe.server.request.GetGridRequest;
 import com.raytheon.uf.common.dataplugin.gfe.slice.IGridSlice;
+import com.raytheon.uf.common.gfe.ifpclient.IFPClient;
 import com.raytheon.uf.common.time.TimeRange;
-import com.raytheon.viz.gfe.GFEServerException;
-import com.raytheon.viz.gfe.core.internal.IFPClient;
 
 /**
  * Caches the results of a call to IFPClient.getGridData(ParmID,
@@ -62,8 +63,8 @@ public class SamplerGridSliceCache {
 
     private static Map<Long, Map<ParmID, List<IGridSlice>>> cache = new HashMap<Long, Map<ParmID, List<IGridSlice>>>();
 
-    public static List<IGridSlice> getData(IFPClient client, ParmID parmId,
-            List<TimeRange> gridTimes) throws GFEServerException {
+    public static ServerResponse<List<IGridSlice>> getData(IFPClient client,
+            ParmID parmId, List<TimeRange> gridTimes) {
         List<IGridSlice> result = new ArrayList<IGridSlice>();
         List<TimeRange> needToRequest = new ArrayList<TimeRange>();
         long thread = Thread.currentThread().getId();
@@ -92,9 +93,12 @@ public class SamplerGridSliceCache {
             }
         }
 
-        if (needToRequest.size() > 0) {
-            List<IGridSlice> retrieved = client.getGridData(parmId,
-                    needToRequest);
+        ServerResponse<List<IGridSlice>> ssr = new ServerResponse<>();
+        if (!needToRequest.isEmpty()) {
+            ServerResponse<List<IGridSlice>> sr = client
+                    .getGridData(new GetGridRequest(parmId, needToRequest));
+            ssr.addMessages(sr);
+            List<IGridSlice> retrieved = sr.getPayload();
             // for (IGridSlice slice : retrieved) {
             // slice.setUseCache(true);
             // }
@@ -103,8 +107,8 @@ public class SamplerGridSliceCache {
         }
 
         Collections.sort(result);
-
-        return result;
+        ssr.setPayload(result);
+        return ssr;
     }
 
     public static void remove(long thread) {

@@ -23,7 +23,7 @@ package com.raytheon.uf.common.dataplugin.satellite.units.goes.convert;
 import javax.measure.converter.ConversionException;
 import javax.measure.converter.UnitConverter;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * Converts a pixel value of cloud amount to a cloud amount in percent
@@ -41,74 +41,74 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
  */
 public class CloudPixelToPercentConverter extends UnitConverter {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.measure.converter.UnitConverter#convert(double)
-	 */
-	@Override
-	public double convert(double aPixel) throws ConversionException {
-		double result = 0.0;
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.measure.converter.UnitConverter#convert(double)
+     */
+    @Override
+    public double convert(double aPixel) throws ConversionException {
+        double result = 0.0;
 
-		if (aPixel <= 75) {
-			result = 0.0;
-		} else if (aPixel <= 76) {
-			result = aPixel - 75.0;
-		} else if (aPixel <= 166) {
-			result = (49.0 / 90.0 * (aPixel - 76.0)) + 1.0;
-		} else if (aPixel <= 167) {
-			result = aPixel - 116.0;
-		} else if (aPixel <= 253) {
-			result = (24.0 / 43.0 * (aPixel - 167.0)) + 51.0;
-		} else if (aPixel <= 254) {
-			result = aPixel - 154.0;
-		} else {
-			result = 100.0;
-		}
+        if (aPixel <= 75) {
+            result = 0.0;
+        } else if (aPixel <= 76) {
+            result = aPixel - 75.0;
+        } else if (aPixel <= 166) {
+            result = (49.0 / 90.0 * (aPixel - 76.0)) + 1.0;
+        } else if (aPixel <= 167) {
+            result = aPixel - 116.0;
+        } else if (aPixel <= 253) {
+            result = (24.0 / 43.0 * (aPixel - 167.0)) + 51.0;
+        } else if (aPixel <= 254) {
+            result = aPixel - 154.0;
+        } else {
+            result = 100.0;
+        }
 
-		return result / 100;
-	}
+        return result / 100;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.measure.converter.UnitConverter#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object aConverter) {
-		return (aConverter instanceof CloudPixelToPercentConverter);
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.measure.converter.UnitConverter#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object aConverter) {
+        return (aConverter instanceof CloudPixelToPercentConverter);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.measure.converter.UnitConverter#hashCode()
-	 */
-	@Override
-	public int hashCode() {
-		return HashCodeBuilder.reflectionHashCode(this);
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.measure.converter.UnitConverter#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.measure.converter.UnitConverter#inverse()
-	 */
-	@Override
-	public UnitConverter inverse() {
-		return new CloudPercentToPixelConverter();
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.measure.converter.UnitConverter#inverse()
+     */
+    @Override
+    public UnitConverter inverse() {
+        return new CloudPercentToPixelConverter();
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.measure.converter.UnitConverter#isLinear()
-	 */
-	@Override
-	public boolean isLinear() {
-		return false;
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.measure.converter.UnitConverter#isLinear()
+     */
+    @Override
+    public boolean isLinear() {
+        return false;
+    }
 
 }

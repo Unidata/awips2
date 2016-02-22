@@ -46,13 +46,13 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 
 import com.raytheon.uf.common.monitor.data.CommonConfig;
+import com.raytheon.uf.common.monitor.data.MonitorConfigConstants;
 import com.raytheon.uf.viz.monitor.config.CommonTableConfig;
 import com.raytheon.uf.viz.monitor.config.CommonTableConfig.SortDirection;
 import com.raytheon.uf.viz.monitor.data.ColumnAttribData;
 import com.raytheon.uf.viz.monitor.data.TableCellData;
 import com.raytheon.uf.viz.monitor.data.TableData;
 import com.raytheon.uf.viz.monitor.data.TableRowData;
-import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants;
 
 /**
  * Abstract table composite that is the main foundation for a table displaying
@@ -66,6 +66,7 @@ import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants;
  * Apr 7, 2009             lvenable    Initial creation
  * Oct 7, 2013  #2436      lvenable    Disposed of the sort color.
  * Nov 7, 2013  DR 16703   gzhang      Check in code for Lee for FFMP and Safeseas
+ * Dec 26, 2015  5114      skorolev    Corrected imports.
  * 
  * </pre>
  * 
@@ -187,6 +188,7 @@ public abstract class TableComp extends Composite {
         packColumns();
 
         this.addDisposeListener(new DisposeListener() {
+            @Override
             public void widgetDisposed(DisposeEvent arg0) {
                 tiFont.dispose();
                 lineColor.dispose();
@@ -257,6 +259,7 @@ public abstract class TableComp extends Composite {
          * cell and also draw a blue line to show the selected row.
          */
         table.addListener(SWT.PaintItem, new Listener() {
+            @Override
             public void handleEvent(Event event) {
                 table.deselectAll();
                 event.gc.setForeground(lineColor);
@@ -281,10 +284,10 @@ public abstract class TableComp extends Composite {
                 TableItem ti = (TableItem) event.item;
                 int idx = table.indexOf(ti);
                 if (idx == table.getItemCount() - 1) {
-                      event.gc.drawLine(rect.x, rect.y + rect.height - 2, rect.x
-                             + rect.width, rect.y + rect.height - 2);
+                    event.gc.drawLine(rect.x, rect.y + rect.height - 2, rect.x
+                            + rect.width, rect.y + rect.height - 2);
                 }
-                
+
                 if (tableIndex >= 0) {
                     event.gc.setForeground(parent.getDisplay().getSystemColor(
                             SWT.COLOR_BLUE));

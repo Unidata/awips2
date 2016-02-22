@@ -42,7 +42,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
@@ -71,6 +70,8 @@ import com.raytheon.uf.viz.alertviz.config.AlertMetadata;
  *                                     acknowledgeLastMessage().
  * 20 Apr 2015  4311       lvenable    Fixed text field to accept really long text strings.
  * 29 Jun 2015  4311       randerso    Reworking AlertViz dialogs to be resizable.
+ * 25 Jan 2016  5054       randerso    Converted to stand alone window
+ * 08 Feb 2016  5312       randerso    Deleted isDisposed() added isOpen()
  * 
  * </pre>
  * 
@@ -78,8 +79,8 @@ import com.raytheon.uf.viz.alertviz.config.AlertMetadata;
  * @version 1.0
  * 
  */
-public class AlertPopupMessageDlg extends Dialog implements MouseMoveListener,
-        MouseListener, DisposeListener {
+public class AlertPopupMessageDlg implements MouseMoveListener, MouseListener,
+        DisposeListener {
     private static final int MAX_INITIAL_LINES = 5;
 
     private static final int WIDTH_IN_CHARS = 135;
@@ -282,8 +283,7 @@ public class AlertPopupMessageDlg extends Dialog implements MouseMoveListener,
     /**
      * Constructor.
      * 
-     * @param parent
-     *            Parent shell.
+     * @param display
      * @param statMsg
      *            Status message.
      * @param expanded
@@ -293,9 +293,9 @@ public class AlertPopupMessageDlg extends Dialog implements MouseMoveListener,
      * @param startUpRGB
      *            Color to be displayed at startup.
      */
-    public AlertPopupMessageDlg(Shell parent, StatusMessage statMsg,
+    public AlertPopupMessageDlg(Display display, StatusMessage statMsg,
             boolean expanded, Listener listener, RGB startUpRGB) {
-        super(parent, 0);
+        this.display = display;
         eventListener = listener;
         statMsgArray.add(statMsg);
         this.expanded = expanded;
@@ -308,10 +308,7 @@ public class AlertPopupMessageDlg extends Dialog implements MouseMoveListener,
      * Initialize the shell
      */
     private void initShell(RGB startUp) {
-        Shell parent = getParent();
-        display = parent.getDisplay();
-
-        shell = new Shell(parent, SWT.ON_TOP | SWT.RESIZE);
+        shell = new Shell(display, SWT.ON_TOP | SWT.RESIZE);
         shell.setText("Alert Visualization Popup Message Dialog");
 
         shell.addDisposeListener(this);
@@ -1066,12 +1063,12 @@ public class AlertPopupMessageDlg extends Dialog implements MouseMoveListener,
     }
 
     /**
-     * Returns if dialog is disposed.
+     * Returns true if dialog is open
      * 
-     * @return True if disposed, false if not.
+     * @return True if open, false if not.
      */
-    public boolean isDisposed() {
-        return shell.isDisposed();
+    public boolean isOpen() {
+        return (shell != null) && !shell.isDisposed() && shell.isVisible();
     }
 
 }

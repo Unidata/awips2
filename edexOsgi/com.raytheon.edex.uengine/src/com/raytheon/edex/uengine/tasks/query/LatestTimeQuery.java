@@ -31,9 +31,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.StatelessSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.uengine.tasks.ScriptTask;
 import com.raytheon.uf.common.message.CatalogAttribute;
@@ -51,6 +51,7 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * ------------ ---------- ----------- --------------------------
  * 01/08/2008              randerso    Initial creation
  * 08/20/2009   2586       rjpeter     Optimized query and ensured single bad uri will not break entire list.
+ * 12/10/2015   5166       kbisanz     Update logging to use SLF4J
  * </pre>
  * 
  * @author randerso
@@ -66,7 +67,7 @@ public class LatestTimeQuery extends ScriptTask {
 
     private static final Pattern tableDelimiter = Pattern.compile("/");
 
-    private Log logger = LogFactory.getLog(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     private String uriList;
 

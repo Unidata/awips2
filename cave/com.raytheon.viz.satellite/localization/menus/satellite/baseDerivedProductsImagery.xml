@@ -40,7 +40,7 @@
 	        <substitute key="colormap" value="Sat/Precip Water/Precip Water Default"/>
 	    </contribute>
         <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-                menuText="Cloud Amount" id="cloud Amount">
+                menuText="Cloud Amount" id="cloudAmount">
 	        <substitute key="element" value="Gridded Cloud Amount"/>
 	        <substitute key="entity" value="Composite"/>
 	        <substitute key="colormap" value="Sat/Cloud Amount Default"/>

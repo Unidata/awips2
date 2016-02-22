@@ -20,15 +20,7 @@
 
 package com.raytheon.edex.plugin.gfe.server.handler;
 
-import java.util.Arrays;
-import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
-import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
 import com.raytheon.uf.common.dataplugin.gfe.request.GridLocRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
@@ -42,30 +34,21 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * ------------ ---------- ----------- --------------------------
  * 05/20/08     #875       bphillip    Initial Creation
  * 09/22/09     3058       rjpeter     Converted to IRequestHandler
+ * 11/18/15     5129       dgilling    Use better return type.
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
-public class GridLocHandler implements IRequestHandler<GridLocRequest> {
-    protected final transient Log logger = LogFactory.getLog(getClass());
+public class GridLocHandler extends BaseGfeRequestHandler implements
+        IRequestHandler<GridLocRequest> {
 
     @Override
-    public ServerResponse<List<GridLocation>> handleRequest(
-            GridLocRequest request) throws Exception {
-        ServerResponse<List<GridLocation>> sr = new ServerResponse<List<GridLocation>>();
-        try {
-            sr
-                    .setPayload(Arrays
-                            .asList(new GridLocation[] { IFPServerConfigManager
-                                    .getServerConfig(request.getSiteID())
-                                    .dbDomain() }));
-        } catch (GfeException e) {
-            logger.error("Error getting grid location", e);
-            sr.addMessage("Error getting grid location: "
-                    + e.getLocalizedMessage());
-        }
+    public ServerResponse<GridLocation> handleRequest(GridLocRequest request)
+            throws Exception {
+        GridLocation gloc = getIfpServer(request).getConfig().dbDomain();
+        ServerResponse<GridLocation> sr = new ServerResponse<>();
+        sr.setPayload(gloc);
         return sr;
     }
-
 }

@@ -358,7 +358,8 @@ public class SmartToolJobPool {
                     dataMgr.getParmOp().clearUndoParmList();
                 }
                 Tool tool = new Tool(dataMgr.getParmManager(), request
-                        .getPreview().getParm(), ea.getItemName(), controller);
+                        .getPreview().getParm(), ea.getItemName(), dataMgr
+                        .getRefManager().getPythonThreadPool(), controller);
                 tool.execute(ea.getItemName(), request.getPreview().getParm(),
                         ea.getRefSet(), ea.getTimeRange(),
                         request.getVarDict(), ea.getMissingDataMode(), monitor);

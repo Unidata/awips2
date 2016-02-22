@@ -54,6 +54,9 @@ import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
 import com.raytheon.uf.common.ohd.AppsDefaults;
+import com.raytheon.uf.common.ohd.AppsDefaultsDirKeys;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
@@ -77,6 +80,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 07 Feb 2013  1578       rferrel     Changes for non-blocking dialog.
  * Jul 21, 2015 4500       rjpeter     Use Number in blind cast.
  * Aug 05, 2015 4486       rjpeter     Changed Timestamp to Date.
+ * Jan 26, 2016 5264       bkowal      Eliminate use of System println.
  * </pre>
  * 
  * @author lvenable
@@ -84,6 +88,9 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 
  */
 public class FlashFloodGuidanceDlg extends CaveSWTDialog {
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(getClass());
+
     /** Date format for the dates */
     private static SimpleDateFormat sdf = null;
 
@@ -877,20 +884,17 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
                 dataList.add(sortedMap.get(s));
             }
         } else {
-            // WFO Grided data, read xmrg directory
-            String ffgDirToken = "gaff_mosaic_dir";
-
             /*
              * Retrieve the path of the WFO ffg_product file from the
              * "apps defaults" file.
              */
-            String ffgDirPath = AppsDefaults.getInstance()
-                    .getToken(ffgDirToken);
+            String ffgDirPath = AppsDefaults.getInstance().getToken(
+                    AppsDefaultsDirKeys.GAFF_MOSAIC_DIR);
             if (ffgDirPath == null) {
-                // TODO error handling
-                System.err
-                        .println("Error getting WFO FFG directory from token "
-                                + ffgDirToken);
+                statusHandler
+                        .error("Error getting WFO FFG directory from token: "
+                                + AppsDefaultsDirKeys.GAFF_MOSAIC_DIR + ".");
+                return;
             }
 
             File ffgDir = new File(ffgDirPath);

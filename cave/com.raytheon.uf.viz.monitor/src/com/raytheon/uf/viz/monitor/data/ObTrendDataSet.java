@@ -25,13 +25,16 @@ import java.util.TreeMap;
 
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
+import com.raytheon.uf.common.monitor.data.MonitorConfigConstants;
 import com.raytheon.uf.common.monitor.data.ObConst;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
 import com.raytheon.uf.common.monitor.data.ObConst.ProductName;
 import com.raytheon.uf.common.monitor.data.ObConst.VarName;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr;
 import com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr.ThresholdKey;
-import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants;
+
 /**
  * This class models data for a SNOW/FOG/SAFESEAS trending plot.
  * 
@@ -40,7 +43,8 @@ import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec. 23, 2009  3424       zhao       Initial creation.
+ * Dec.23, 2009  3424      zhao        Initial creation.
+ * Dec 26, 2015  5114      skorolev    Replaced MonitorConfigConstants import.
  * 
  * </pre>
  * 
@@ -49,6 +53,8 @@ import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants;
  */
 
 public class ObTrendDataSet {
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ObTrendDataSet.class);
 
     /**
      * application name (snow, fog, safeseas, etc)
@@ -64,11 +70,12 @@ public class ObTrendDataSet {
      * the enumerated type representation of the trending variable
      */
     private final ObConst.VarName varName;
-    
+
     /**
-     * the enumerated type representation of product name for a trending variable
+     * the enumerated type representation of product name for a trending
+     * variable
      */
-    private final ObConst.ProductName productName; 
+    private final ObConst.ProductName productName;
 
     /**
      * the red threshold
@@ -125,8 +132,9 @@ public class ObTrendDataSet {
      * @param appName
      *            application name (snow, fog, safeseas) of enumerated-type
      */
-    public ObTrendDataSet(String zone, ObConst.VarName varName, ObConst.ProductName productName, 
-            CommonConfig.AppName appName, AbstractThresholdMgr thresholdMgr) {
+    public ObTrendDataSet(String zone, ObConst.VarName varName,
+            ObConst.ProductName productName, CommonConfig.AppName appName,
+            AbstractThresholdMgr thresholdMgr) {
 
         this.zone = zone;
         this.varName = varName;
@@ -146,138 +154,138 @@ public class ObTrendDataSet {
                 redThreshold = (float) thresholdMgr.getThresholdValue(
                         DataUsageKey.DISPLAY, ThresholdKey.RED, zone,
                         MonitorConfigConstants.FogDisplay.FOG_DISP_METEO_VIS
-                        .getXmlKey()) / 16;
+                                .getXmlKey()) / 16;
                 yellowThreshold = (float) thresholdMgr.getThresholdValue(
                         DataUsageKey.DISPLAY, ThresholdKey.YELLOW, zone,
                         MonitorConfigConstants.FogDisplay.FOG_DISP_METEO_VIS
-                        .getXmlKey()) / 16;
+                                .getXmlKey()) / 16;
             } else if (varName == VarName.CEILING) {
                 redThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.RED,
-                        zone,
-                        MonitorConfigConstants.FogDisplay.FOG_DISP_METEO_CEILING
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.RED,
+                                zone,
+                                MonitorConfigConstants.FogDisplay.FOG_DISP_METEO_CEILING
+                                        .getXmlKey());
                 yellowThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.YELLOW,
-                        zone,
-                        MonitorConfigConstants.FogDisplay.FOG_DISP_METEO_CEILING
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.YELLOW,
+                                zone,
+                                MonitorConfigConstants.FogDisplay.FOG_DISP_METEO_CEILING
+                                        .getXmlKey());
             } else if (varName == VarName.WIND_DIR) {
                 redThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.RED,
-                        zone,
-                        MonitorConfigConstants.FogDisplay.FOG_DISP_WIND_DIR_FROM
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.RED,
+                                zone,
+                                MonitorConfigConstants.FogDisplay.FOG_DISP_WIND_DIR_FROM
+                                        .getXmlKey());
                 redThreshold_2 = (float) thresholdMgr.getThresholdValue(
                         DataUsageKey.DISPLAY, ThresholdKey.RED, zone,
                         MonitorConfigConstants.FogDisplay.FOG_DISP_WIND_DIR_TO
-                        .getXmlKey());
+                                .getXmlKey());
                 yellowThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.YELLOW,
-                        zone,
-                        MonitorConfigConstants.FogDisplay.FOG_DISP_WIND_DIR_FROM
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.YELLOW,
+                                zone,
+                                MonitorConfigConstants.FogDisplay.FOG_DISP_WIND_DIR_FROM
+                                        .getXmlKey());
                 yellowThreshold_2 = (float) thresholdMgr.getThresholdValue(
                         DataUsageKey.DISPLAY, ThresholdKey.YELLOW, zone,
                         MonitorConfigConstants.FogDisplay.FOG_DISP_WIND_DIR_TO
-                        .getXmlKey());
+                                .getXmlKey());
             } else if (varName == VarName.WIND_SPEED) {
                 redThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.RED,
-                        zone,
-                        MonitorConfigConstants.FogDisplay.FOG_DISP_WIND_WIND_SPEED
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.RED,
+                                zone,
+                                MonitorConfigConstants.FogDisplay.FOG_DISP_WIND_WIND_SPEED
+                                        .getXmlKey());
                 yellowThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.YELLOW,
-                        zone,
-                        MonitorConfigConstants.FogDisplay.FOG_DISP_WIND_WIND_SPEED
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.YELLOW,
+                                zone,
+                                MonitorConfigConstants.FogDisplay.FOG_DISP_WIND_WIND_SPEED
+                                        .getXmlKey());
             } else if (varName == VarName.MAX_WIND_SPEED) {
                 redThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.RED,
-                        zone,
-                        MonitorConfigConstants.FogDisplay.FOG_DISP_WIND_PEAK_WIND
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.RED,
+                                zone,
+                                MonitorConfigConstants.FogDisplay.FOG_DISP_WIND_PEAK_WIND
+                                        .getXmlKey());
                 yellowThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.YELLOW,
-                        zone,
-                        MonitorConfigConstants.FogDisplay.FOG_DISP_WIND_PEAK_WIND
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.YELLOW,
+                                zone,
+                                MonitorConfigConstants.FogDisplay.FOG_DISP_WIND_PEAK_WIND
+                                        .getXmlKey());
             } else if (varName == VarName.GUST_SPEED) {
                 redThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.RED,
-                        zone,
-                        MonitorConfigConstants.FogDisplay.FOG_DISP_WIND_GUST_SPEED
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.RED,
+                                zone,
+                                MonitorConfigConstants.FogDisplay.FOG_DISP_WIND_GUST_SPEED
+                                        .getXmlKey());
                 yellowThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.YELLOW,
-                        zone,
-                        MonitorConfigConstants.FogDisplay.FOG_DISP_WIND_GUST_SPEED
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.YELLOW,
+                                zone,
+                                MonitorConfigConstants.FogDisplay.FOG_DISP_WIND_GUST_SPEED
+                                        .getXmlKey());
             } else if (varName == VarName.TEMPERATURE) {
                 redThreshold = (float) thresholdMgr.getThresholdValue(
                         DataUsageKey.DISPLAY, ThresholdKey.RED, zone,
                         MonitorConfigConstants.FogDisplay.FOG_DISP_METEO_TEMP
-                        .getXmlKey());
+                                .getXmlKey());
                 yellowThreshold = (float) thresholdMgr.getThresholdValue(
                         DataUsageKey.DISPLAY, ThresholdKey.YELLOW, zone,
                         MonitorConfigConstants.FogDisplay.FOG_DISP_METEO_TEMP
-                        .getXmlKey());
+                                .getXmlKey());
             } else if (varName == VarName.DEWPOINT) {
                 redThreshold = (float) thresholdMgr.getThresholdValue(
                         DataUsageKey.DISPLAY, ThresholdKey.RED, zone,
                         MonitorConfigConstants.FogDisplay.FOG_DISP_METEO_DEWPT
-                        .getXmlKey());
+                                .getXmlKey());
                 yellowThreshold = (float) thresholdMgr.getThresholdValue(
                         DataUsageKey.DISPLAY, ThresholdKey.YELLOW, zone,
                         MonitorConfigConstants.FogDisplay.FOG_DISP_METEO_DEWPT
-                        .getXmlKey());
+                                .getXmlKey());
             } else if (varName == VarName.DEWPOINT_DEPR) {
                 redThreshold = (float) thresholdMgr.getThresholdValue(
                         DataUsageKey.DISPLAY, ThresholdKey.RED, zone,
                         MonitorConfigConstants.FogDisplay.FOG_DISP_METEO_T_TD
-                        .getXmlKey());
+                                .getXmlKey());
                 yellowThreshold = (float) thresholdMgr.getThresholdValue(
                         DataUsageKey.DISPLAY, ThresholdKey.YELLOW, zone,
                         MonitorConfigConstants.FogDisplay.FOG_DISP_METEO_T_TD
-                        .getXmlKey());
+                                .getXmlKey());
             } else if (varName == VarName.RELATIVE_HUMIDITY) {
                 redThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.RED,
-                        zone,
-                        MonitorConfigConstants.FogDisplay.FOG_DISP_METEO_REL_HUMIDITY
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.RED,
+                                zone,
+                                MonitorConfigConstants.FogDisplay.FOG_DISP_METEO_REL_HUMIDITY
+                                        .getXmlKey());
                 yellowThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.YELLOW,
-                        zone,
-                        MonitorConfigConstants.FogDisplay.FOG_DISP_METEO_REL_HUMIDITY
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.YELLOW,
+                                zone,
+                                MonitorConfigConstants.FogDisplay.FOG_DISP_METEO_REL_HUMIDITY
+                                        .getXmlKey());
             } else {
-                System.err.println("Unknow variable name = " + varName
+                statusHandler.warn("Unknow variable name = " + varName
                         + " for FOG trend plot");
             }
 
@@ -285,212 +293,212 @@ public class ObTrendDataSet {
 
             if (varName == VarName.WIND_DIR) {
                 redThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.RED,
-                        zone,
-                        MonitorConfigConstants.SnowDisplay.SNOW_DISP_WIND_DIR_FROM
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.RED,
+                                zone,
+                                MonitorConfigConstants.SnowDisplay.SNOW_DISP_WIND_DIR_FROM
+                                        .getXmlKey());
                 redThreshold_2 = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.RED,
-                        zone,
-                        MonitorConfigConstants.SnowDisplay.SNOW_DISP_WIND_DIR_TO
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.RED,
+                                zone,
+                                MonitorConfigConstants.SnowDisplay.SNOW_DISP_WIND_DIR_TO
+                                        .getXmlKey());
                 yellowThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.YELLOW,
-                        zone,
-                        MonitorConfigConstants.SnowDisplay.SNOW_DISP_WIND_DIR_FROM
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.YELLOW,
+                                zone,
+                                MonitorConfigConstants.SnowDisplay.SNOW_DISP_WIND_DIR_FROM
+                                        .getXmlKey());
                 yellowThreshold_2 = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.YELLOW,
-                        zone,
-                        MonitorConfigConstants.SnowDisplay.SNOW_DISP_WIND_DIR_TO
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.YELLOW,
+                                zone,
+                                MonitorConfigConstants.SnowDisplay.SNOW_DISP_WIND_DIR_TO
+                                        .getXmlKey());
             } else if (varName == VarName.WIND_SPEED) {
                 redThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.RED,
-                        zone,
-                        MonitorConfigConstants.SnowDisplay.SNOW_DISP_WIND_WIND_SPEED
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.RED,
+                                zone,
+                                MonitorConfigConstants.SnowDisplay.SNOW_DISP_WIND_WIND_SPEED
+                                        .getXmlKey());
                 yellowThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.YELLOW,
-                        zone,
-                        MonitorConfigConstants.SnowDisplay.SNOW_DISP_WIND_WIND_SPEED
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.YELLOW,
+                                zone,
+                                MonitorConfigConstants.SnowDisplay.SNOW_DISP_WIND_WIND_SPEED
+                                        .getXmlKey());
             } else if (varName == VarName.MAX_WIND_SPEED) {
                 redThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.RED,
-                        zone,
-                        MonitorConfigConstants.SnowDisplay.SNOW_DISP_WIND_PEAK_WIND
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.RED,
+                                zone,
+                                MonitorConfigConstants.SnowDisplay.SNOW_DISP_WIND_PEAK_WIND
+                                        .getXmlKey());
                 yellowThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.YELLOW,
-                        zone,
-                        MonitorConfigConstants.SnowDisplay.SNOW_DISP_WIND_PEAK_WIND
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.YELLOW,
+                                zone,
+                                MonitorConfigConstants.SnowDisplay.SNOW_DISP_WIND_PEAK_WIND
+                                        .getXmlKey());
             } else if (varName == VarName.GUST_SPEED) {
                 redThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.RED,
-                        zone,
-                        MonitorConfigConstants.SnowDisplay.SNOW_DISP_WIND_GUST_SPEED
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.RED,
+                                zone,
+                                MonitorConfigConstants.SnowDisplay.SNOW_DISP_WIND_GUST_SPEED
+                                        .getXmlKey());
                 yellowThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.YELLOW,
-                        zone,
-                        MonitorConfigConstants.SnowDisplay.SNOW_DISP_WIND_GUST_SPEED
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.YELLOW,
+                                zone,
+                                MonitorConfigConstants.SnowDisplay.SNOW_DISP_WIND_GUST_SPEED
+                                        .getXmlKey());
             } else if (varName == VarName.TEMPERATURE) {
                 redThreshold = (float) thresholdMgr.getThresholdValue(
                         DataUsageKey.DISPLAY, ThresholdKey.RED, zone,
                         MonitorConfigConstants.SnowDisplay.SNOW_DISP_METEO_TEMP
-                        .getXmlKey());
+                                .getXmlKey());
                 yellowThreshold = (float) thresholdMgr.getThresholdValue(
                         DataUsageKey.DISPLAY, ThresholdKey.YELLOW, zone,
                         MonitorConfigConstants.SnowDisplay.SNOW_DISP_METEO_TEMP
-                        .getXmlKey());
+                                .getXmlKey());
             } else if (varName == VarName.DEWPOINT) {
                 redThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.RED,
-                        zone,
-                        MonitorConfigConstants.SnowDisplay.SNOW_DISP_METEO_DEWPT
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.RED,
+                                zone,
+                                MonitorConfigConstants.SnowDisplay.SNOW_DISP_METEO_DEWPT
+                                        .getXmlKey());
                 yellowThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.YELLOW,
-                        zone,
-                        MonitorConfigConstants.SnowDisplay.SNOW_DISP_METEO_DEWPT
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.YELLOW,
+                                zone,
+                                MonitorConfigConstants.SnowDisplay.SNOW_DISP_METEO_DEWPT
+                                        .getXmlKey());
             } else if (varName == VarName.VISIBILITY) {
                 redThreshold = (float) thresholdMgr.getThresholdValue(
                         DataUsageKey.DISPLAY, ThresholdKey.RED, zone,
                         MonitorConfigConstants.SnowDisplay.SNOW_DISP_METEO_VIS
-                        .getXmlKey()) / 16;
+                                .getXmlKey()) / 16;
                 yellowThreshold = (float) thresholdMgr.getThresholdValue(
                         DataUsageKey.DISPLAY, ThresholdKey.YELLOW, zone,
                         MonitorConfigConstants.SnowDisplay.SNOW_DISP_METEO_VIS
-                        .getXmlKey()) / 16;
+                                .getXmlKey()) / 16;
             } else if (varName == VarName.SEA_LEVEL_PRESS) {
                 redThreshold = (float) thresholdMgr.getThresholdValue(
                         DataUsageKey.DISPLAY, ThresholdKey.RED, zone,
                         MonitorConfigConstants.SnowDisplay.SNOW_DISP_METEO_SLP
-                        .getXmlKey());
+                                .getXmlKey());
                 yellowThreshold = (float) thresholdMgr.getThresholdValue(
                         DataUsageKey.DISPLAY, ThresholdKey.YELLOW, zone,
                         MonitorConfigConstants.SnowDisplay.SNOW_DISP_METEO_SLP
-                        .getXmlKey());
+                                .getXmlKey());
             } else if (varName == VarName.WIND_CHILL) {
                 redThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.RED,
-                        zone,
-                        MonitorConfigConstants.SnowDisplay.SNOW_DISP_METEO_WIND_CHILL
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.RED,
+                                zone,
+                                MonitorConfigConstants.SnowDisplay.SNOW_DISP_METEO_WIND_CHILL
+                                        .getXmlKey());
                 yellowThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.YELLOW,
-                        zone,
-                        MonitorConfigConstants.SnowDisplay.SNOW_DISP_METEO_WIND_CHILL
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.YELLOW,
+                                zone,
+                                MonitorConfigConstants.SnowDisplay.SNOW_DISP_METEO_WIND_CHILL
+                                        .getXmlKey());
             } else if (varName == VarName.FROSTBITE_TIME) {
                 redThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.RED,
-                        zone,
-                        MonitorConfigConstants.SnowDisplay.SNOW_DISP_METEO_FROSTBITE
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.RED,
+                                zone,
+                                MonitorConfigConstants.SnowDisplay.SNOW_DISP_METEO_FROSTBITE
+                                        .getXmlKey());
                 yellowThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.YELLOW,
-                        zone,
-                        MonitorConfigConstants.SnowDisplay.SNOW_DISP_METEO_FROSTBITE
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.YELLOW,
+                                zone,
+                                MonitorConfigConstants.SnowDisplay.SNOW_DISP_METEO_FROSTBITE
+                                        .getXmlKey());
             } else if (varName == VarName.HOURLY_PRECIP) {
                 redThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.RED,
-                        zone,
-                        MonitorConfigConstants.SnowDisplay.SNOW_DISP_METEO_HOURLY_PRECIP
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.RED,
+                                zone,
+                                MonitorConfigConstants.SnowDisplay.SNOW_DISP_METEO_HOURLY_PRECIP
+                                        .getXmlKey());
                 yellowThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.YELLOW,
-                        zone,
-                        MonitorConfigConstants.SnowDisplay.SNOW_DISP_METEO_HOURLY_PRECIP
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.YELLOW,
+                                zone,
+                                MonitorConfigConstants.SnowDisplay.SNOW_DISP_METEO_HOURLY_PRECIP
+                                        .getXmlKey());
             } else if (varName == VarName.SNOW_DEPTH) {
                 redThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.RED,
-                        zone,
-                        MonitorConfigConstants.SnowDisplay.SNOW_DISP_METEO_SNOW_DEPTH
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.RED,
+                                zone,
+                                MonitorConfigConstants.SnowDisplay.SNOW_DISP_METEO_SNOW_DEPTH
+                                        .getXmlKey());
                 yellowThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.YELLOW,
-                        zone,
-                        MonitorConfigConstants.SnowDisplay.SNOW_DISP_METEO_SNOW_DEPTH
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.YELLOW,
+                                zone,
+                                MonitorConfigConstants.SnowDisplay.SNOW_DISP_METEO_SNOW_DEPTH
+                                        .getXmlKey());
             } else if (varName == VarName.SNINCR_HOURLY) {
                 redThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.RED,
-                        zone,
-                        MonitorConfigConstants.SnowDisplay.SNOW_DISP_METEO_SNINCR_HOURLY
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.RED,
+                                zone,
+                                MonitorConfigConstants.SnowDisplay.SNOW_DISP_METEO_SNINCR_HOURLY
+                                        .getXmlKey());
                 yellowThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.YELLOW,
-                        zone,
-                        MonitorConfigConstants.SnowDisplay.SNOW_DISP_METEO_SNINCR_HOURLY
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.YELLOW,
+                                zone,
+                                MonitorConfigConstants.SnowDisplay.SNOW_DISP_METEO_SNINCR_HOURLY
+                                        .getXmlKey());
             } else if (varName == VarName.SNINCR_TOTAL) {
                 redThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.RED,
-                        zone,
-                        MonitorConfigConstants.SnowDisplay.SNOW_DISP_METEO_SNINCR_TOTAL
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.RED,
+                                zone,
+                                MonitorConfigConstants.SnowDisplay.SNOW_DISP_METEO_SNINCR_TOTAL
+                                        .getXmlKey());
                 yellowThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.YELLOW,
-                        zone,
-                        MonitorConfigConstants.SnowDisplay.SNOW_DISP_METEO_SNINCR_TOTAL
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.YELLOW,
+                                zone,
+                                MonitorConfigConstants.SnowDisplay.SNOW_DISP_METEO_SNINCR_TOTAL
+                                        .getXmlKey());
             } else {
-                System.err.println("Unknow variable name = " + varName
+                statusHandler.warn("Unknow variable name = " + varName
                         + " for SNOW trend plot");
             }
 
@@ -498,302 +506,506 @@ public class ObTrendDataSet {
 
             if (varName == VarName.WIND_DIR) {
                 redThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.RED,
-                        zone,
-                        MonitorConfigConstants.SafeSeasDisplay.SS_DISP_WIND_DIR_FROM
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.RED,
+                                zone,
+                                MonitorConfigConstants.SafeSeasDisplay.SS_DISP_WIND_DIR_FROM
+                                        .getXmlKey());
                 redThreshold_2 = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.RED,
-                        zone,
-                        MonitorConfigConstants.SafeSeasDisplay.SS_DISP_WIND_DIR_TO
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.RED,
+                                zone,
+                                MonitorConfigConstants.SafeSeasDisplay.SS_DISP_WIND_DIR_TO
+                                        .getXmlKey());
                 yellowThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.YELLOW,
-                        zone,
-                        MonitorConfigConstants.SafeSeasDisplay.SS_DISP_WIND_DIR_FROM
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.YELLOW,
+                                zone,
+                                MonitorConfigConstants.SafeSeasDisplay.SS_DISP_WIND_DIR_FROM
+                                        .getXmlKey());
                 yellowThreshold_2 = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.YELLOW,
-                        zone,
-                        MonitorConfigConstants.SafeSeasDisplay.SS_DISP_WIND_DIR_TO
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.YELLOW,
+                                zone,
+                                MonitorConfigConstants.SafeSeasDisplay.SS_DISP_WIND_DIR_TO
+                                        .getXmlKey());
             } else if (varName == VarName.WIND_SPEED) {
-            	if ( productName == ProductName.SCA ) {
-            		redThreshold = (float) thresholdMgr.getThresholdValue(DataUsageKey.DISPLAY,ThresholdKey.RED,zone,MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_SCA_WIND_SPEED.getXmlKey());
-                    yellowThreshold = (float) thresholdMgr.getThresholdValue(DataUsageKey.DISPLAY,ThresholdKey.YELLOW,zone,MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_SCA_WIND_SPEED.getXmlKey());
-            	} else if ( productName == ProductName.GALE_WARNING ) {
-            		redThreshold = (float) thresholdMgr.getThresholdValue(DataUsageKey.DISPLAY,ThresholdKey.RED,zone,MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_GALE_WIND_SPEED.getXmlKey());
-                    yellowThreshold = (float) thresholdMgr.getThresholdValue(DataUsageKey.DISPLAY,ThresholdKey.YELLOW,zone,MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_GALE_WIND_SPEED.getXmlKey());
-            	} else if ( productName == ProductName.STORM_WARNING ) {
-            		redThreshold = (float) thresholdMgr.getThresholdValue(DataUsageKey.DISPLAY,ThresholdKey.RED,zone,MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_STORM_WIND_SPEED.getXmlKey());
-                    yellowThreshold = (float) thresholdMgr.getThresholdValue(DataUsageKey.DISPLAY,ThresholdKey.YELLOW,zone,MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_STORM_WIND_SPEED.getXmlKey());
-            	} else if ( productName == ProductName.HFWW ) {
-            		redThreshold = (float) thresholdMgr.getThresholdValue(DataUsageKey.DISPLAY,ThresholdKey.RED,zone,MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_HFWW_WIND_SPEED.getXmlKey());
-                    yellowThreshold = (float) thresholdMgr.getThresholdValue(DataUsageKey.DISPLAY,ThresholdKey.YELLOW,zone,MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_HFWW_WIND_SPEED.getXmlKey());
-            	} else {
-            		redThreshold = (float) thresholdMgr.getThresholdValue(DataUsageKey.DISPLAY,ThresholdKey.RED,zone,MonitorConfigConstants.SafeSeasDisplay.SS_DISP_WIND_WIND_SPEED.getXmlKey());
-            		yellowThreshold = (float) thresholdMgr.getThresholdValue(DataUsageKey.DISPLAY,ThresholdKey.YELLOW,zone,MonitorConfigConstants.SafeSeasDisplay.SS_DISP_WIND_WIND_SPEED.getXmlKey());
-            	}
+                if (productName == ProductName.SCA) {
+                    redThreshold = (float) thresholdMgr
+                            .getThresholdValue(
+                                    DataUsageKey.DISPLAY,
+                                    ThresholdKey.RED,
+                                    zone,
+                                    MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_SCA_WIND_SPEED
+                                            .getXmlKey());
+                    yellowThreshold = (float) thresholdMgr
+                            .getThresholdValue(
+                                    DataUsageKey.DISPLAY,
+                                    ThresholdKey.YELLOW,
+                                    zone,
+                                    MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_SCA_WIND_SPEED
+                                            .getXmlKey());
+                } else if (productName == ProductName.GALE_WARNING) {
+                    redThreshold = (float) thresholdMgr
+                            .getThresholdValue(
+                                    DataUsageKey.DISPLAY,
+                                    ThresholdKey.RED,
+                                    zone,
+                                    MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_GALE_WIND_SPEED
+                                            .getXmlKey());
+                    yellowThreshold = (float) thresholdMgr
+                            .getThresholdValue(
+                                    DataUsageKey.DISPLAY,
+                                    ThresholdKey.YELLOW,
+                                    zone,
+                                    MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_GALE_WIND_SPEED
+                                            .getXmlKey());
+                } else if (productName == ProductName.STORM_WARNING) {
+                    redThreshold = (float) thresholdMgr
+                            .getThresholdValue(
+                                    DataUsageKey.DISPLAY,
+                                    ThresholdKey.RED,
+                                    zone,
+                                    MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_STORM_WIND_SPEED
+                                            .getXmlKey());
+                    yellowThreshold = (float) thresholdMgr
+                            .getThresholdValue(
+                                    DataUsageKey.DISPLAY,
+                                    ThresholdKey.YELLOW,
+                                    zone,
+                                    MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_STORM_WIND_SPEED
+                                            .getXmlKey());
+                } else if (productName == ProductName.HFWW) {
+                    redThreshold = (float) thresholdMgr
+                            .getThresholdValue(
+                                    DataUsageKey.DISPLAY,
+                                    ThresholdKey.RED,
+                                    zone,
+                                    MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_HFWW_WIND_SPEED
+                                            .getXmlKey());
+                    yellowThreshold = (float) thresholdMgr
+                            .getThresholdValue(
+                                    DataUsageKey.DISPLAY,
+                                    ThresholdKey.YELLOW,
+                                    zone,
+                                    MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_HFWW_WIND_SPEED
+                                            .getXmlKey());
+                } else {
+                    redThreshold = (float) thresholdMgr
+                            .getThresholdValue(
+                                    DataUsageKey.DISPLAY,
+                                    ThresholdKey.RED,
+                                    zone,
+                                    MonitorConfigConstants.SafeSeasDisplay.SS_DISP_WIND_WIND_SPEED
+                                            .getXmlKey());
+                    yellowThreshold = (float) thresholdMgr
+                            .getThresholdValue(
+                                    DataUsageKey.DISPLAY,
+                                    ThresholdKey.YELLOW,
+                                    zone,
+                                    MonitorConfigConstants.SafeSeasDisplay.SS_DISP_WIND_WIND_SPEED
+                                            .getXmlKey());
+                }
             } else if (varName == VarName.MAX_WIND_SPEED) {
-            	if ( productName == ProductName.SCA ) {
-            		redThreshold = (float) thresholdMgr.getThresholdValue(DataUsageKey.DISPLAY,ThresholdKey.RED,zone,MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_SCA_PEAK_WIND.getXmlKey());
-                    yellowThreshold = (float) thresholdMgr.getThresholdValue(DataUsageKey.DISPLAY,ThresholdKey.YELLOW,zone,MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_SCA_PEAK_WIND.getXmlKey());
-            	} else if ( productName == ProductName.GALE_WARNING ) {
-            		redThreshold = (float) thresholdMgr.getThresholdValue(DataUsageKey.DISPLAY,ThresholdKey.RED,zone,MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_GALE_PEAK_WIND.getXmlKey());
-                    yellowThreshold = (float) thresholdMgr.getThresholdValue(DataUsageKey.DISPLAY,ThresholdKey.YELLOW,zone,MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_GALE_PEAK_WIND.getXmlKey());
-            	} else if ( productName == ProductName.STORM_WARNING ) {
-            		redThreshold = (float) thresholdMgr.getThresholdValue(DataUsageKey.DISPLAY,ThresholdKey.RED,zone,MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_STORM_PEAK_WIND.getXmlKey());
-                    yellowThreshold = (float) thresholdMgr.getThresholdValue(DataUsageKey.DISPLAY,ThresholdKey.YELLOW,zone,MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_STORM_PEAK_WIND.getXmlKey());
-            	} else if ( productName == ProductName.HFWW ) {
-            		redThreshold = (float) thresholdMgr.getThresholdValue(DataUsageKey.DISPLAY,ThresholdKey.RED,zone,MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_HFWW_PEAK_WIND.getXmlKey());
-                    yellowThreshold = (float) thresholdMgr.getThresholdValue(DataUsageKey.DISPLAY,ThresholdKey.YELLOW,zone,MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_HFWW_PEAK_WIND.getXmlKey());
-            	} else {
-            		redThreshold = (float) thresholdMgr.getThresholdValue(DataUsageKey.DISPLAY,ThresholdKey.RED,zone,MonitorConfigConstants.SafeSeasDisplay.SS_DISP_WIND_PEAK_WIND.getXmlKey());
-            		yellowThreshold = (float) thresholdMgr.getThresholdValue(DataUsageKey.DISPLAY,ThresholdKey.YELLOW,zone,MonitorConfigConstants.SafeSeasDisplay.SS_DISP_WIND_PEAK_WIND.getXmlKey());
-            	}
+                if (productName == ProductName.SCA) {
+                    redThreshold = (float) thresholdMgr
+                            .getThresholdValue(
+                                    DataUsageKey.DISPLAY,
+                                    ThresholdKey.RED,
+                                    zone,
+                                    MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_SCA_PEAK_WIND
+                                            .getXmlKey());
+                    yellowThreshold = (float) thresholdMgr
+                            .getThresholdValue(
+                                    DataUsageKey.DISPLAY,
+                                    ThresholdKey.YELLOW,
+                                    zone,
+                                    MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_SCA_PEAK_WIND
+                                            .getXmlKey());
+                } else if (productName == ProductName.GALE_WARNING) {
+                    redThreshold = (float) thresholdMgr
+                            .getThresholdValue(
+                                    DataUsageKey.DISPLAY,
+                                    ThresholdKey.RED,
+                                    zone,
+                                    MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_GALE_PEAK_WIND
+                                            .getXmlKey());
+                    yellowThreshold = (float) thresholdMgr
+                            .getThresholdValue(
+                                    DataUsageKey.DISPLAY,
+                                    ThresholdKey.YELLOW,
+                                    zone,
+                                    MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_GALE_PEAK_WIND
+                                            .getXmlKey());
+                } else if (productName == ProductName.STORM_WARNING) {
+                    redThreshold = (float) thresholdMgr
+                            .getThresholdValue(
+                                    DataUsageKey.DISPLAY,
+                                    ThresholdKey.RED,
+                                    zone,
+                                    MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_STORM_PEAK_WIND
+                                            .getXmlKey());
+                    yellowThreshold = (float) thresholdMgr
+                            .getThresholdValue(
+                                    DataUsageKey.DISPLAY,
+                                    ThresholdKey.YELLOW,
+                                    zone,
+                                    MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_STORM_PEAK_WIND
+                                            .getXmlKey());
+                } else if (productName == ProductName.HFWW) {
+                    redThreshold = (float) thresholdMgr
+                            .getThresholdValue(
+                                    DataUsageKey.DISPLAY,
+                                    ThresholdKey.RED,
+                                    zone,
+                                    MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_HFWW_PEAK_WIND
+                                            .getXmlKey());
+                    yellowThreshold = (float) thresholdMgr
+                            .getThresholdValue(
+                                    DataUsageKey.DISPLAY,
+                                    ThresholdKey.YELLOW,
+                                    zone,
+                                    MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_HFWW_PEAK_WIND
+                                            .getXmlKey());
+                } else {
+                    redThreshold = (float) thresholdMgr
+                            .getThresholdValue(
+                                    DataUsageKey.DISPLAY,
+                                    ThresholdKey.RED,
+                                    zone,
+                                    MonitorConfigConstants.SafeSeasDisplay.SS_DISP_WIND_PEAK_WIND
+                                            .getXmlKey());
+                    yellowThreshold = (float) thresholdMgr
+                            .getThresholdValue(
+                                    DataUsageKey.DISPLAY,
+                                    ThresholdKey.YELLOW,
+                                    zone,
+                                    MonitorConfigConstants.SafeSeasDisplay.SS_DISP_WIND_PEAK_WIND
+                                            .getXmlKey());
+                }
             } else if (varName == VarName.GUST_SPEED) {
-            	if ( productName == ProductName.SCA ) {
-            		redThreshold = (float) thresholdMgr.getThresholdValue(DataUsageKey.DISPLAY,ThresholdKey.RED,zone,MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_SCA_GUST_SPEED.getXmlKey());
-                    yellowThreshold = (float) thresholdMgr.getThresholdValue(DataUsageKey.DISPLAY,ThresholdKey.YELLOW,zone,MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_SCA_GUST_SPEED.getXmlKey());
-            	} else if ( productName == ProductName.GALE_WARNING ) {
-            		redThreshold = (float) thresholdMgr.getThresholdValue(DataUsageKey.DISPLAY,ThresholdKey.RED,zone,MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_GALE_GUST_SPEED.getXmlKey());
-                    yellowThreshold = (float) thresholdMgr.getThresholdValue(DataUsageKey.DISPLAY,ThresholdKey.YELLOW,zone,MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_GALE_GUST_SPEED.getXmlKey());
-            	} else if ( productName == ProductName.STORM_WARNING ) {
-            		redThreshold = (float) thresholdMgr.getThresholdValue(DataUsageKey.DISPLAY,ThresholdKey.RED,zone,MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_STORM_GUST_SPEED.getXmlKey());
-                    yellowThreshold = (float) thresholdMgr.getThresholdValue(DataUsageKey.DISPLAY,ThresholdKey.YELLOW,zone,MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_STORM_GUST_SPEED.getXmlKey());
-            	} else if ( productName == ProductName.HFWW ) {
-            		redThreshold = (float) thresholdMgr.getThresholdValue(DataUsageKey.DISPLAY,ThresholdKey.RED,zone,MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_HFWW_GUST_SPEED.getXmlKey());
-                    yellowThreshold = (float) thresholdMgr.getThresholdValue(DataUsageKey.DISPLAY,ThresholdKey.YELLOW,zone,MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_HFWW_GUST_SPEED.getXmlKey());
-            	} else {
-            		redThreshold = (float) thresholdMgr.getThresholdValue(DataUsageKey.DISPLAY,ThresholdKey.RED,zone,MonitorConfigConstants.SafeSeasDisplay.SS_DISP_WIND_GUST_SPEED.getXmlKey());
-            		yellowThreshold = (float) thresholdMgr.getThresholdValue(DataUsageKey.DISPLAY,ThresholdKey.YELLOW,zone,MonitorConfigConstants.SafeSeasDisplay.SS_DISP_WIND_GUST_SPEED.getXmlKey());
-            	}
+                if (productName == ProductName.SCA) {
+                    redThreshold = (float) thresholdMgr
+                            .getThresholdValue(
+                                    DataUsageKey.DISPLAY,
+                                    ThresholdKey.RED,
+                                    zone,
+                                    MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_SCA_GUST_SPEED
+                                            .getXmlKey());
+                    yellowThreshold = (float) thresholdMgr
+                            .getThresholdValue(
+                                    DataUsageKey.DISPLAY,
+                                    ThresholdKey.YELLOW,
+                                    zone,
+                                    MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_SCA_GUST_SPEED
+                                            .getXmlKey());
+                } else if (productName == ProductName.GALE_WARNING) {
+                    redThreshold = (float) thresholdMgr
+                            .getThresholdValue(
+                                    DataUsageKey.DISPLAY,
+                                    ThresholdKey.RED,
+                                    zone,
+                                    MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_GALE_GUST_SPEED
+                                            .getXmlKey());
+                    yellowThreshold = (float) thresholdMgr
+                            .getThresholdValue(
+                                    DataUsageKey.DISPLAY,
+                                    ThresholdKey.YELLOW,
+                                    zone,
+                                    MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_GALE_GUST_SPEED
+                                            .getXmlKey());
+                } else if (productName == ProductName.STORM_WARNING) {
+                    redThreshold = (float) thresholdMgr
+                            .getThresholdValue(
+                                    DataUsageKey.DISPLAY,
+                                    ThresholdKey.RED,
+                                    zone,
+                                    MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_STORM_GUST_SPEED
+                                            .getXmlKey());
+                    yellowThreshold = (float) thresholdMgr
+                            .getThresholdValue(
+                                    DataUsageKey.DISPLAY,
+                                    ThresholdKey.YELLOW,
+                                    zone,
+                                    MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_STORM_GUST_SPEED
+                                            .getXmlKey());
+                } else if (productName == ProductName.HFWW) {
+                    redThreshold = (float) thresholdMgr
+                            .getThresholdValue(
+                                    DataUsageKey.DISPLAY,
+                                    ThresholdKey.RED,
+                                    zone,
+                                    MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_HFWW_GUST_SPEED
+                                            .getXmlKey());
+                    yellowThreshold = (float) thresholdMgr
+                            .getThresholdValue(
+                                    DataUsageKey.DISPLAY,
+                                    ThresholdKey.YELLOW,
+                                    zone,
+                                    MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_HFWW_GUST_SPEED
+                                            .getXmlKey());
+                } else {
+                    redThreshold = (float) thresholdMgr
+                            .getThresholdValue(
+                                    DataUsageKey.DISPLAY,
+                                    ThresholdKey.RED,
+                                    zone,
+                                    MonitorConfigConstants.SafeSeasDisplay.SS_DISP_WIND_GUST_SPEED
+                                            .getXmlKey());
+                    yellowThreshold = (float) thresholdMgr
+                            .getThresholdValue(
+                                    DataUsageKey.DISPLAY,
+                                    ThresholdKey.YELLOW,
+                                    zone,
+                                    MonitorConfigConstants.SafeSeasDisplay.SS_DISP_WIND_GUST_SPEED
+                                            .getXmlKey());
+                }
             } else if (varName == VarName.VISIBILITY) {
                 redThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.RED,
-                        zone,
-                        MonitorConfigConstants.SafeSeasDisplay.SS_DISP_METEO_VIS
-                        .getXmlKey()) / 16;
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.RED,
+                                zone,
+                                MonitorConfigConstants.SafeSeasDisplay.SS_DISP_METEO_VIS
+                                        .getXmlKey()) / 16;
                 yellowThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.YELLOW,
-                        zone,
-                        MonitorConfigConstants.SafeSeasDisplay.SS_DISP_METEO_VIS
-                        .getXmlKey()) / 16;
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.YELLOW,
+                                zone,
+                                MonitorConfigConstants.SafeSeasDisplay.SS_DISP_METEO_VIS
+                                        .getXmlKey()) / 16;
             } else if (varName == VarName.TEMPERATURE) {
                 redThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.RED,
-                        zone,
-                        MonitorConfigConstants.SafeSeasDisplay.SS_DISP_METEO_TEMP
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.RED,
+                                zone,
+                                MonitorConfigConstants.SafeSeasDisplay.SS_DISP_METEO_TEMP
+                                        .getXmlKey());
                 yellowThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.YELLOW,
-                        zone,
-                        MonitorConfigConstants.SafeSeasDisplay.SS_DISP_METEO_TEMP
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.YELLOW,
+                                zone,
+                                MonitorConfigConstants.SafeSeasDisplay.SS_DISP_METEO_TEMP
+                                        .getXmlKey());
             } else if (varName == VarName.DEWPOINT) {
                 redThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.RED,
-                        zone,
-                        MonitorConfigConstants.SafeSeasDisplay.SS_DISP_METEO_DEWPT
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.RED,
+                                zone,
+                                MonitorConfigConstants.SafeSeasDisplay.SS_DISP_METEO_DEWPT
+                                        .getXmlKey());
                 yellowThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.YELLOW,
-                        zone,
-                        MonitorConfigConstants.SafeSeasDisplay.SS_DISP_METEO_DEWPT
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.YELLOW,
+                                zone,
+                                MonitorConfigConstants.SafeSeasDisplay.SS_DISP_METEO_DEWPT
+                                        .getXmlKey());
             } else if (varName == VarName.SEA_LEVEL_PRESS) {
                 redThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.RED,
-                        zone,
-                        MonitorConfigConstants.SafeSeasDisplay.SS_DISP_METEO_SLP
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.RED,
+                                zone,
+                                MonitorConfigConstants.SafeSeasDisplay.SS_DISP_METEO_SLP
+                                        .getXmlKey());
                 yellowThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.YELLOW,
-                        zone,
-                        MonitorConfigConstants.SafeSeasDisplay.SS_DISP_METEO_SLP
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.YELLOW,
+                                zone,
+                                MonitorConfigConstants.SafeSeasDisplay.SS_DISP_METEO_SLP
+                                        .getXmlKey());
             } else if (varName == VarName.SEA_SURFACE_TEMPERATURE) {
                 redThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.RED,
-                        zone,
-                        MonitorConfigConstants.SafeSeasDisplay.SS_DISP_METEO_SST
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.RED,
+                                zone,
+                                MonitorConfigConstants.SafeSeasDisplay.SS_DISP_METEO_SST
+                                        .getXmlKey());
                 yellowThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.YELLOW,
-                        zone,
-                        MonitorConfigConstants.SafeSeasDisplay.SS_DISP_METEO_SST
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.YELLOW,
+                                zone,
+                                MonitorConfigConstants.SafeSeasDisplay.SS_DISP_METEO_SST
+                                        .getXmlKey());
             } else if (varName == VarName.WAVE_HEIGHT) {
-            	if ( productName == ProductName.SCA ) {
-            		redThreshold = (float) thresholdMgr.getThresholdValue(DataUsageKey.DISPLAY,ThresholdKey.RED,zone,MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_SCA_WAVE_HT.getXmlKey());
-                    yellowThreshold = (float) thresholdMgr.getThresholdValue(DataUsageKey.DISPLAY,ThresholdKey.YELLOW,zone,MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_SCA_WAVE_HT.getXmlKey());
-            	} else {
-            		redThreshold = (float) thresholdMgr.getThresholdValue(DataUsageKey.DISPLAY,ThresholdKey.RED,zone,MonitorConfigConstants.SafeSeasDisplay.SS_DISP_METEO_WAVE_HT.getXmlKey());
-            		yellowThreshold = (float) thresholdMgr.getThresholdValue(DataUsageKey.DISPLAY,ThresholdKey.YELLOW,zone,MonitorConfigConstants.SafeSeasDisplay.SS_DISP_METEO_WAVE_HT.getXmlKey());
-            	}
+                if (productName == ProductName.SCA) {
+                    redThreshold = (float) thresholdMgr
+                            .getThresholdValue(
+                                    DataUsageKey.DISPLAY,
+                                    ThresholdKey.RED,
+                                    zone,
+                                    MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_SCA_WAVE_HT
+                                            .getXmlKey());
+                    yellowThreshold = (float) thresholdMgr
+                            .getThresholdValue(
+                                    DataUsageKey.DISPLAY,
+                                    ThresholdKey.YELLOW,
+                                    zone,
+                                    MonitorConfigConstants.SafeSeasDisplay.SS_DISP_PROD_SCA_WAVE_HT
+                                            .getXmlKey());
+                } else {
+                    redThreshold = (float) thresholdMgr
+                            .getThresholdValue(
+                                    DataUsageKey.DISPLAY,
+                                    ThresholdKey.RED,
+                                    zone,
+                                    MonitorConfigConstants.SafeSeasDisplay.SS_DISP_METEO_WAVE_HT
+                                            .getXmlKey());
+                    yellowThreshold = (float) thresholdMgr
+                            .getThresholdValue(
+                                    DataUsageKey.DISPLAY,
+                                    ThresholdKey.YELLOW,
+                                    zone,
+                                    MonitorConfigConstants.SafeSeasDisplay.SS_DISP_METEO_WAVE_HT
+                                            .getXmlKey());
+                }
             } else if (varName == VarName.WAVE_STEEPNESS) {
                 redThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.RED,
-                        zone,
-                        MonitorConfigConstants.SafeSeasDisplay.SS_DISP_METEO_WAVE_STEEP
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.RED,
+                                zone,
+                                MonitorConfigConstants.SafeSeasDisplay.SS_DISP_METEO_WAVE_STEEP
+                                        .getXmlKey());
                 yellowThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.YELLOW,
-                        zone,
-                        MonitorConfigConstants.SafeSeasDisplay.SS_DISP_METEO_WAVE_STEEP
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.YELLOW,
+                                zone,
+                                MonitorConfigConstants.SafeSeasDisplay.SS_DISP_METEO_WAVE_STEEP
+                                        .getXmlKey());
             } else if (varName == VarName.PRIM_SWELL_HT) {
                 redThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.RED,
-                        zone,
-                        MonitorConfigConstants.SafeSeasDisplay.SS_DISP_SWELL_PRIM_HT
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.RED,
+                                zone,
+                                MonitorConfigConstants.SafeSeasDisplay.SS_DISP_SWELL_PRIM_HT
+                                        .getXmlKey());
                 yellowThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.YELLOW,
-                        zone,
-                        MonitorConfigConstants.SafeSeasDisplay.SS_DISP_SWELL_PRIM_HT
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.YELLOW,
+                                zone,
+                                MonitorConfigConstants.SafeSeasDisplay.SS_DISP_SWELL_PRIM_HT
+                                        .getXmlKey());
             } else if (varName == VarName.PRIM_SWELL_PD) {
                 redThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.RED,
-                        zone,
-                        MonitorConfigConstants.SafeSeasDisplay.SS_DISP_SWELL_PRIM_PD
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.RED,
+                                zone,
+                                MonitorConfigConstants.SafeSeasDisplay.SS_DISP_SWELL_PRIM_PD
+                                        .getXmlKey());
                 yellowThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.YELLOW,
-                        zone,
-                        MonitorConfigConstants.SafeSeasDisplay.SS_DISP_SWELL_PRIM_PD
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.YELLOW,
+                                zone,
+                                MonitorConfigConstants.SafeSeasDisplay.SS_DISP_SWELL_PRIM_PD
+                                        .getXmlKey());
             } else if (varName == VarName.PRIM_SWELL_DIR) {
                 redThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.RED,
-                        zone,
-                        MonitorConfigConstants.SafeSeasDisplay.SS_DISP_SWELL_PRIM_DIR_FROM
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.RED,
+                                zone,
+                                MonitorConfigConstants.SafeSeasDisplay.SS_DISP_SWELL_PRIM_DIR_FROM
+                                        .getXmlKey());
                 redThreshold_2 = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.RED,
-                        zone,
-                        MonitorConfigConstants.SafeSeasDisplay.SS_DISP_SWELL_PRIM_DIR_TO
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.RED,
+                                zone,
+                                MonitorConfigConstants.SafeSeasDisplay.SS_DISP_SWELL_PRIM_DIR_TO
+                                        .getXmlKey());
                 yellowThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.YELLOW,
-                        zone,
-                        MonitorConfigConstants.SafeSeasDisplay.SS_DISP_SWELL_PRIM_DIR_FROM
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.YELLOW,
+                                zone,
+                                MonitorConfigConstants.SafeSeasDisplay.SS_DISP_SWELL_PRIM_DIR_FROM
+                                        .getXmlKey());
                 yellowThreshold_2 = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.YELLOW,
-                        zone,
-                        MonitorConfigConstants.SafeSeasDisplay.SS_DISP_SWELL_PRIM_DIR_TO
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.YELLOW,
+                                zone,
+                                MonitorConfigConstants.SafeSeasDisplay.SS_DISP_SWELL_PRIM_DIR_TO
+                                        .getXmlKey());
             } else if (varName == VarName.SEC_SWELL_HT) {
                 redThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.RED,
-                        zone,
-                        MonitorConfigConstants.SafeSeasDisplay.SS_DISP_SWELL_PRIM_HT
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.RED,
+                                zone,
+                                MonitorConfigConstants.SafeSeasDisplay.SS_DISP_SWELL_PRIM_HT
+                                        .getXmlKey());
                 yellowThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.YELLOW,
-                        zone,
-                        MonitorConfigConstants.SafeSeasDisplay.SS_DISP_SWELL_SEC_HT
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.YELLOW,
+                                zone,
+                                MonitorConfigConstants.SafeSeasDisplay.SS_DISP_SWELL_SEC_HT
+                                        .getXmlKey());
             } else if (varName == VarName.SEC_SWELL_PD) {
                 redThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.RED,
-                        zone,
-                        MonitorConfigConstants.SafeSeasDisplay.SS_DISP_SWELL_SEC_PD
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.RED,
+                                zone,
+                                MonitorConfigConstants.SafeSeasDisplay.SS_DISP_SWELL_SEC_PD
+                                        .getXmlKey());
                 yellowThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.YELLOW,
-                        zone,
-                        MonitorConfigConstants.SafeSeasDisplay.SS_DISP_SWELL_SEC_PD
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.YELLOW,
+                                zone,
+                                MonitorConfigConstants.SafeSeasDisplay.SS_DISP_SWELL_SEC_PD
+                                        .getXmlKey());
             } else if (varName == VarName.SEC_SWELL_DIR) {
                 redThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.RED,
-                        zone,
-                        MonitorConfigConstants.SafeSeasDisplay.SS_DISP_SWELL_SEC_DIR_FROM
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.RED,
+                                zone,
+                                MonitorConfigConstants.SafeSeasDisplay.SS_DISP_SWELL_SEC_DIR_FROM
+                                        .getXmlKey());
                 redThreshold_2 = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.RED,
-                        zone,
-                        MonitorConfigConstants.SafeSeasDisplay.SS_DISP_SWELL_SEC_DIR_TO
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.RED,
+                                zone,
+                                MonitorConfigConstants.SafeSeasDisplay.SS_DISP_SWELL_SEC_DIR_TO
+                                        .getXmlKey());
                 yellowThreshold = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.YELLOW,
-                        zone,
-                        MonitorConfigConstants.SafeSeasDisplay.SS_DISP_SWELL_SEC_DIR_FROM
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.YELLOW,
+                                zone,
+                                MonitorConfigConstants.SafeSeasDisplay.SS_DISP_SWELL_SEC_DIR_FROM
+                                        .getXmlKey());
                 yellowThreshold_2 = (float) thresholdMgr
-                .getThresholdValue(
-                        DataUsageKey.DISPLAY,
-                        ThresholdKey.YELLOW,
-                        zone,
-                        MonitorConfigConstants.SafeSeasDisplay.SS_DISP_SWELL_SEC_DIR_TO
-                        .getXmlKey());
+                        .getThresholdValue(
+                                DataUsageKey.DISPLAY,
+                                ThresholdKey.YELLOW,
+                                zone,
+                                MonitorConfigConstants.SafeSeasDisplay.SS_DISP_SWELL_SEC_DIR_TO
+                                        .getXmlKey());
             } else {
-                System.err.println("Unknow variable name = " + varName
+                statusHandler.warn("Unknow variable name = " + varName
                         + " for SAFESEAS trend plot");
             }
 
@@ -811,11 +1023,11 @@ public class ObTrendDataSet {
      */
     public void addDataPoint(Date obsTime, Float varValue) {
         if (varName == VarName.VISIBILITY && appName == AppName.SAFESEAS) {
-			if (varValue != ObConst.MISSING) {
-				varValue = varValue / TableUtil.milesPerNauticalMile;
-			} else {
-				varValue = ObConst.MISSING;
-			}
+            if (varValue != ObConst.MISSING) {
+                varValue = varValue / TableUtil.milesPerNauticalMile;
+            } else {
+                varValue = ObConst.MISSING;
+            }
         }
         // miss CLR and SKC in the Trend plot.
         if (varName == VarName.CEILING) {
@@ -958,27 +1170,28 @@ public class ObTrendDataSet {
         float min = minValue;
         float max = maxValue;
 
-        //Adjust the min/max value, so it will at least cover two colors (red/yellow/green)
-        //there are six different cases: 1 above + 5 below
-        if (maxValue <= lowerThreshold) //values are below the lower threshold
-        	max = lowerThreshold * 1.1f;
-        else if (minValue >= upperThreshold) //values are above upper threshold
-        	min = upperThreshold * .9f;
+        // Adjust the min/max value, so it will at least cover two colors
+        // (red/yellow/green)
+        // there are six different cases: 1 above + 5 below
+        if (maxValue <= lowerThreshold) // values are below the lower threshold
+            max = lowerThreshold * 1.1f;
+        else if (minValue >= upperThreshold) // values are above upper threshold
+            min = upperThreshold * .9f;
         else if (maxValue < upperThreshold) {
-        	max = upperThreshold ; //values covers across the lower threshold
-        	if (minValue >= lowerThreshold)
-        		min = lowerThreshold * .9f; //values are within the thresholds
+            max = upperThreshold; // values covers across the lower threshold
+            if (minValue >= lowerThreshold)
+                min = lowerThreshold * .9f; // values are within the thresholds
         } else if (minValue > lowerThreshold)
-        	min = lowerThreshold;  //values cover across the upper threshold
+            min = lowerThreshold; // values cover across the upper threshold
 
         float range = max - min;
         if (range > 5) {
             if (range > 1000) {
                 increment = 200;
             } else if (range > 500) {
-            	increment = 100;
+                increment = 100;
             } else if (range > 200) {
-            	increment = 50;
+                increment = 50;
             } else if (range > 100) {
                 increment = 20;
             } else if (range > 50) {
@@ -989,8 +1202,8 @@ public class ObTrendDataSet {
                 increment = 2;
             }
 
-            lowerLimit = (int)min;
-            upperLimit = (int)max;
+            lowerLimit = (int) min;
+            upperLimit = (int) max;
             if (lowerLimit > min) {
                 lowerLimit -= increment;
             }
@@ -1012,9 +1225,9 @@ public class ObTrendDataSet {
                 }
                 increment = 1000 * increment;
                 lowerLimit = Float.valueOf(min * 1000) / increment * increment
-                * 0.001f;
+                        * 0.001f;
                 upperLimit = Float.valueOf(max * 1000) / increment * increment
-                * 0.001f;
+                        * 0.001f;
                 increment = increment / 1000;
                 if (lowerLimit > min) {
                     lowerLimit -= increment;
@@ -1030,9 +1243,9 @@ public class ObTrendDataSet {
                 }
                 increment = 10 * increment;
                 lowerLimit = Float.valueOf(min * 10) / increment * increment
-                * 0.1f;
+                        * 0.1f;
                 upperLimit = Float.valueOf(max * 10) / increment * increment
-                * 0.1f;
+                        * 0.1f;
                 increment = increment / 10;
                 if (lowerLimit > min) {
                     lowerLimit -= increment;

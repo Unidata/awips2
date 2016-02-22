@@ -77,13 +77,13 @@
 	        <substitute key="stationId" value="78970"/>
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
-	                menuText="Howard AFB, PM (MPHO)" id="raobHowardAFB_PM "
+	                menuText="Howard AFB, PM (MPHO)" id="raobHowardAFB_PM"
 	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
 	        <substitute key="stationId" value="78806"/>
 	    </contribute>
 
 	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
-	                menuText="Guantanamo Bay, CU (MUGM)" id="raobPortland_ME"
+	                menuText="Guantanamo Bay, CU (MUGM)" id="raobGuantanamoBay_CU"
 	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
 	        <substitute key="stationId" value="78367"/>
 	    </contribute>
@@ -108,12 +108,12 @@
 	        <substitute key="stationId" value="81405"/>
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
-	                menuText="Le Ralset, Guadeloupe (TFFR)" id="LeRalset_Guadeloupe"
+	                menuText="Le Ralset, Guadeloupe (TFFR)" id="raobLeRalset_Guadeloupe"
 	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
 	        <substitute key="stationId" value="78897"/>
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
-	                menuText="San Juan, PR (TJSJ)" id="raobWashington_DC"
+	                menuText="San Juan, PR (TJSJ)" id="raobSanJuan_PR"
 	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
 	        <substitute key="stationId" value="78526"/>
 	    </contribute>

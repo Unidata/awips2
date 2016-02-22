@@ -146,7 +146,6 @@ public abstract class TCSDataAdapter implements TCSConstants {
                     headReport = report;
                     view = getContainer(report).append();
                     view.setString(WMO_HEADER, report.getWmoHeader());
-                    view.setString(TYPE, report.getProductType());
                     view.setString(NAME, report.getName());
                     view.setInt(PRESSURE, report.getPressure());
                 }

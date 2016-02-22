@@ -22,7 +22,7 @@ package com.raytheon.viz.gfe.dialogs.formatterlauncher;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.WordUtils;
+import org.apache.commons.lang3.text.WordUtils;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;

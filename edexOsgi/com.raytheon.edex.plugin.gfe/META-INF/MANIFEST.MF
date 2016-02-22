@@ -24,7 +24,7 @@ Require-Bundle: com.raytheon.uf.common.dataplugin.gfe;bundle-version="1.12.1174"
  com.raytheon.uf.common.dataplugin.grid;bundle-version="1.0.0",
  com.raytheon.uf.common.util;bundle-version="1.12.1174",
  com.google.guava;bundle-version="1.0.0",
- org.apache.commons.lang;bundle-version="2.3.0",
+ org.apache.commons.lang3;bundle-version="3.4.0",
  com.raytheon.uf.common.python.concurrent;bundle-version="1.0.0",
  com.raytheon.uf.common.dataplugin.level;bundle-version="1.12.1174",
  com.raytheon.uf.edex.esb.camel;bundle-version="1.12.1174"
@@ -66,6 +66,6 @@ Import-Package: com.raytheon.edex.db.dao,
  com.raytheon.uf.common.time.util,
  com.raytheon.uf.edex.activetable,
  com.raytheon.uf.edex.site,
- org.apache.commons.logging,
+ org.slf4j,
  org.hibernate
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7

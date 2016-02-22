@@ -17,6 +17,12 @@
 # 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
+#
+#
+# SOFTWARE HISTORY
+# Date         Ticket#    Engineer    Description
+# ------------ ---------- ----------- --------------------------
+# 02/11/2016    #5348     randerso    Do a full vacuum after creating the maps database
 ##
 
 if [ $# -lt 1 ] ; then
@@ -95,6 +101,6 @@ else
         echo Importing `basename $file` into $base...
         ${DATABASEDIR}/importPointsInfo.sh $file mapdata $base $PGUSER $PGPORT $1
     done
-    ${PGBINDIR}/vacuumdb -d maps -U ${PGUSER} -p ${PGPORT} -vz
+    ${PGBINDIR}/vacuumdb -d maps -U ${PGUSER} -p ${PGPORT} -vfz
     ${DATABASEDIR}/createMapsDbSnapshot.sh ${1} $PGUSER $PGPORT ${DATABASEDIR}/maps.db
 fi

@@ -30,7 +30,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
-import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -46,6 +46,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 27, 2013            mschenke    Methods extracted from LocalizationPerspectiveUtils
+ * Jan 11, 2016 5242       kbisanz     Replaced calls to deprecated LocalizationFile methods
  * 
  * </pre>
  * 
@@ -72,7 +73,7 @@ public class LocalizationEditorUtils {
         if (reg == null) {
             return new IEditorDescriptor[0];
         }
-        return reg.getEditors(input.getLocalizationFile().getName());
+        return reg.getEditors(input.getLocalizationFile().getPath());
     }
 
     /**
@@ -87,7 +88,7 @@ public class LocalizationEditorUtils {
         if (reg == null) {
             return null;
         }
-        return reg.getDefaultEditor(input.getLocalizationFile().getName());
+        return reg.getDefaultEditor(input.getLocalizationFile().getPath());
     }
 
     /**
@@ -118,7 +119,7 @@ public class LocalizationEditorUtils {
         IEditorRegistry reg = getEditorRegistry();
         if (reg != null) {
             IEditorDescriptor desc = reg.getDefaultEditor(input
-                    .getLocalizationFile().getName());
+                    .getLocalizationFile().getPath());
             String id = DEFAULT_TEXT_EDITOR;
             if (desc != null) {
                 id = desc.getId();
@@ -177,16 +178,16 @@ public class LocalizationEditorUtils {
      * @return the open editor part or null if not being edited
      */
     public static IEditorPart getEditorForFile(IWorkbenchPage page,
-            LocalizationFile file) {
+            ILocalizationFile file) {
         for (IEditorReference ref : page.getEditorReferences()) {
             IEditorPart part = ref.getEditor(false);
             if (part != null) {
                 IEditorInput input = part.getEditorInput();
                 if (input instanceof LocalizationEditorInput) {
-                    LocalizationFile editedFile = ((LocalizationEditorInput) input)
+                    ILocalizationFile editedFile = ((LocalizationEditorInput) input)
                             .getLocalizationFile();
                     if (editedFile.getContext().equals(file.getContext())
-                            && editedFile.getName().equals(file.getName())) {
+                            && editedFile.getPath().equals(file.getPath())) {
                         return part;
                     }
                 }

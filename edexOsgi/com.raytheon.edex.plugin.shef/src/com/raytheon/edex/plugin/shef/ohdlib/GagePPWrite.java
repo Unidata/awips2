@@ -25,8 +25,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.plugin.shef.ohdlib.GagePPOptions.upd_action;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
@@ -56,6 +56,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * May 7, 2013   15880    lbousaidi   changed minute_offset to offset in
  *                                    in write_1_HourValue routine.
  * Sep 18, 2014  3627     mapeters    Updated deprecated {@link TimeTools} usage.
+ * Dec 16, 2015  5166     kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -64,8 +65,8 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  */
 
 public final class GagePPWrite {
-    private static Log logger = LogFactory.getLog(GagePPWrite.class);
-    
+    private static Logger logger = LoggerFactory.getLogger(GagePPWrite.class);
+
     private char hourly_qc[] = new char[PrecipUtils.NUM_HOURLY_SLOTS];
 
     private char minute_offset[] = new char[PrecipUtils.NUM_HOURLY_SLOTS];
@@ -101,7 +102,6 @@ public final class GagePPWrite {
     public int gage_pp_init(Date dtime, String id, String ts,
             double new_hourly_value, String obsdate, char zero_offset_code,
             char manual_qc_code) {
-
 
         Calendar dt = TimeUtil.newGmtCalendar();
         dt.setTimeInMillis(dtime.getTime());
@@ -142,20 +142,19 @@ public final class GagePPWrite {
 
         int status = 0;
 
-        if(precip1Hour != null) {
-            status = write_1_HourValue(pHourlyPP, pe, obsDate,
-                    options, revision, precip1Hour,
-                    quality_code, qual);
-        } else if(precip6Hour != null) {
-            status = write_6_HourValue(pHourlyPP, pe, obsDate,
-                    options, revision_6hour, precip6Hour,
-                    quality_code, qual);
+        if (precip1Hour != null) {
+            status = write_1_HourValue(pHourlyPP, pe, obsDate, options,
+                    revision, precip1Hour, quality_code, qual);
+        } else if (precip6Hour != null) {
+            status = write_6_HourValue(pHourlyPP, pe, obsDate, options,
+                    revision_6hour, precip6Hour, quality_code, qual);
         }
         return status;
     }
 
     /**
      * TODO : Write_1
+     * 
      * @return
      */
     private int write_1_HourValue(Hourlypp pHourlyPP, String pe, Date obsDate,
@@ -169,14 +168,14 @@ public final class GagePPWrite {
         Calendar c = getCalendar(obsDate);
         int min = c.get(Calendar.MINUTE);
         int hr = c.get(Calendar.HOUR_OF_DAY);
-        
+
         String where = String.format(
                 "WHERE lid='%s' AND ts='%s' AND obsdate ='%s'", id, ts,
                 sdf.format(obsDate));
 
         char minOff = PrecipUtils.get_offset_code(min);
         char qcc = 'Z'; // ShefQC.buildQcSymbol(qualityCode).charAt(0);
-        if((qual != null)&&(qual.length() > 0)) {
+        if ((qual != null) && (qual.length() > 0)) {
             qcc = qual.charAt(0);
         }
 
@@ -186,11 +185,11 @@ public final class GagePPWrite {
         boolean isPC = ("PC".equalsIgnoreCase(pe));
 
         IHourlyTS hourlyRec = getHourlyRecord(isPC, where);
-        if(hourlyRec == null) {
+        if (hourlyRec == null) {
             PersistableDataObject rec = null;
             String offset = new String(minute_offset);
             String qc = new String(hourly_qc);
-            
+
             if (isPC) {
                 Hourlypc pHourpc = new Hourlypc();
                 HourlypcId pHid = new HourlypcId();
@@ -212,39 +211,39 @@ public final class GagePPWrite {
                 pHourpp.setMinuteOffset(offset);
                 pHourpp.setHourlyQc(qc);
                 PrecipUtils.set_hour_slot_value(pHourpp, hr, newHourlyValue);
-                
+
                 pHourpp.setSixhroffset(new String(sixhr_offset));
                 pHourpp.setSixhrqc(new String(sixhr_qc));
-                
+
                 rec = pHourpp;
             }
             status = update_gage_rec(rec);
         } else {
             boolean useValue = true;
-            
+
             Short oldDataValue = PrecipUtils.get_hour_slot_value(hourlyRec, hr);
             Short newDataValue = null;
-            
-            char [] oldOffset = hourlyRec.getMinuteOffset().toCharArray();
-            char [] offset = new char [oldOffset.length];
+
+            char[] oldOffset = hourlyRec.getMinuteOffset().toCharArray();
+            char[] offset = new char[oldOffset.length];
             System.arraycopy(oldOffset, 0, offset, 0, offset.length);
-            
-            char [] oldQC = hourlyRec.getHourlyQc().toCharArray();
-            char [] qc = new char [oldQC.length];
+
+            char[] oldQC = hourlyRec.getHourlyQc().toCharArray();
+            char[] qc = new char[oldQC.length];
             System.arraycopy(oldQC, 0, qc, 0, qc.length);
-            
-            if(newHourlyValue != null) {
+
+            if (newHourlyValue != null) {
                 if (PrecipUtils.get_hour_slot_value(hourlyRec, hr) != null) {
 
-                    int use_value = PrecipUtils.use_precip_value(newHourlyValue,
-                            oldDataValue, qcc, oldQC[hr], minOff,
-                            oldOffset[hr], options.getShef_duplicate().name(),
-                            revision);
+                    int use_value = PrecipUtils.use_precip_value(
+                            newHourlyValue, oldDataValue, qcc, oldQC[hr],
+                            minOff, oldOffset[hr], options.getShef_duplicate()
+                                    .name(), revision);
                     useValue = (use_value == 1);
                 }
             }
-            
-            if(useValue) {
+
+            if (useValue) {
                 newDataValue = newHourlyValue;
 
                 PrecipUtils.setMinOffset(offset, hr, minOff);
@@ -273,7 +272,7 @@ public final class GagePPWrite {
                     PrecipUtils.set_hour_slot_value(pHourpp, hr, newDataValue);
                     pHourpp.setMinuteOffset(new String(offset));
                     pHourpp.setHourlyQc(new String(qc));
-                    
+
                     rec = pHourpp;
                 }
                 status = update_gage_rec(rec);
@@ -284,6 +283,7 @@ public final class GagePPWrite {
 
     /**
      * TODO : Write_6
+     * 
      * @return
      */
     private int write_6_HourValue(Hourlypp pHourlyPP, String pe, Date obsDate,
@@ -293,32 +293,30 @@ public final class GagePPWrite {
 
         String id = pHourlyPP.getId().getLid();
         String ts = pHourlyPP.getId().getTs();
-        
 
         Calendar c = getCalendar(obsDate);
         int min = c.get(Calendar.MINUTE);
         int hr = c.get(Calendar.HOUR_OF_DAY);
-        
+
         String where = String.format(
                 "WHERE lid='%s' AND ts='%s' AND obsdate ='%s'", id, ts,
                 sdf.format(obsDate));
-        
+
         char minOff = PrecipUtils.get_offset_code(min);
         char qcc = 'Z'; // ShefQC.buildQcSymbol(qualityCode).charAt(0);
-        if((qual != null)&&(qual.length() > 0)) {
+        if ((qual != null) && (qual.length() > 0)) {
             qcc = qual.charAt(0);
         }
-        
 
         // hr = PrecipUtils.getSixHourSelector(hr);
         // find out which slot actually holds the data.
-        for(int i = 0;i < 4;i++) {
-            if(PrecipUtils.get_6hour_slot_value(pHourlyPP,i) != null) {
+        for (int i = 0; i < 4; i++) {
+            if (PrecipUtils.get_6hour_slot_value(pHourlyPP, i) != null) {
                 hr = i;
                 break;
             }
         }
-        
+
         sixhr_offset[hr] = minOff;
         sixhr_qc[hr] = qcc;
 
@@ -337,65 +335,67 @@ public final class GagePPWrite {
                 pHid.setTs(ts);
                 pHid.setObsdate(obsDate);
                 pHourpp.setId(pHid);
-                
+
                 pHourpp.setMinuteOffset(new String(minute_offset));
                 pHourpp.setHourlyQc(new String(hourly_qc));
-                
+
                 pHourpp.setSixhroffset(new String(sixhr_offset));
                 pHourpp.setSixhrqc(new String(sixhr_qc));
-                PrecipUtils.set_6hour_slot_value(pHourpp, hr,
-                        value);
+                PrecipUtils.set_6hour_slot_value(pHourpp, hr, value);
                 rec = pHourpp;
             }
             status = update_gage_rec(rec);
         } else {
             Hourlypp pHourpp = (Hourlypp) hourlyRec;
-            
+
             Short oldDataValue = PrecipUtils.get_6hour_slot_value(pHourpp, hr);
             Short newDataValue = null;
-            
-            char [] oldOffset = pHourpp.getSixhroffset().toCharArray();
-            char [] offset = new char [oldOffset.length];
+
+            char[] oldOffset = pHourpp.getSixhroffset().toCharArray();
+            char[] offset = new char[oldOffset.length];
             System.arraycopy(oldOffset, 0, offset, 0, offset.length);
-            
-            char [] oldQC = pHourpp.getSixhrqc().toCharArray();
-            char [] qc = new char [oldQC.length];
+
+            char[] oldQC = pHourpp.getSixhrqc().toCharArray();
+            char[] qc = new char[oldQC.length];
             System.arraycopy(oldQC, 0, qc, 0, qc.length);
-            
+
             boolean useValue = true;
             // If the old value has been manually edited do not overwrite!
-            if(PrecipUtils.isManualEdit(oldQC[hr]) && !PrecipUtils.isManualEdit(qcc)) {
+            if (PrecipUtils.isManualEdit(oldQC[hr])
+                    && !PrecipUtils.isManualEdit(qcc)) {
                 useValue = false;
             } else {
-                // if the existing offset on record is '-' we haven't written anything yet
-                if(oldOffset[hr] == '-') {
+                // if the existing offset on record is '-' we haven't written
+                // anything yet
+                if (oldOffset[hr] == '-') {
                     useValue = true;
                 } else {
-                    status = PrecipUtils.compare_offset_codes(oldOffset[hr], minOff);
-                    if(status > 0) {
+                    status = PrecipUtils.compare_offset_codes(oldOffset[hr],
+                            minOff);
+                    if (status > 0) {
                         useValue = false;
                     } else if (status == 0) {
-                        if(minOff == oldOffset[hr]) {
+                        if (minOff == oldOffset[hr]) {
                             boolean rev = true;
-                            if(revision[hr] == 1) {
+                            if (revision[hr] == 1) {
                                 rev = false;
                             }
                             String updateAction = PrecipUtils
-                            .determine_update_action(
-                                    options.getShef_duplicate()
-                                            .name(), rev);
+                                    .determine_update_action(options
+                                            .getShef_duplicate().name(), rev);
 
                             if ((upd_action.DONT_UPDATE_ACTION
                                     .isAction(updateAction))
                                     || ((upd_action.IF_DIFFERENT_UPDATE_ACTION
-                                            .isAction(updateAction)) && (value.equals(oldDataValue)))) {
+                                            .isAction(updateAction)) && (value
+                                            .equals(oldDataValue)))) {
                                 useValue = false;
                             }
                         }
                     }
                 }
 
-                if(useValue) {
+                if (useValue) {
                     newDataValue = value;
                     offset[hr] = minOff;
                     qc[hr] = qcc;
@@ -411,37 +411,36 @@ public final class GagePPWrite {
                         pHid.setObsdate(obsDate);
                         pHourpp.setId(pHid);
 
-                        PrecipUtils.set_6hour_slot_value(pHourpp, hr, newDataValue);
+                        PrecipUtils.set_6hour_slot_value(pHourpp, hr,
+                                newDataValue);
                         pHourpp.setSixhroffset(new String(offset));
                         pHourpp.setSixhrqc(new String(qc));
-                        
+
                         rec = pHourpp;
                     }
                     status = update_gage_rec(rec);
                 }
             }
-        }        
+        }
         return status;
     }
-    
+
     private Calendar getCalendar(Date obsDate) {
         Calendar dt = TimeUtil.newGmtCalendar();
         dt.setTime(obsDate);
 
-
-//        int hr = dt.get(Calendar.HOUR_OF_DAY);
-//        if (hr == 0) {
-//            hr = 24;
-//            dt.add(Calendar.HOUR_OF_DAY, -1);
-//            obsDate = dt.getTime();
-//        }
+        // int hr = dt.get(Calendar.HOUR_OF_DAY);
+        // if (hr == 0) {
+        // hr = 24;
+        // dt.add(Calendar.HOUR_OF_DAY, -1);
+        // obsDate = dt.getTime();
+        // }
         return dt;
     }
 
-    
     private IHourlyTS getHourlyRecord(boolean isPC, String where) {
         IHourlyTS rec = null;
-        
+
         if (isPC) {
             List<Hourlypc> hour_PC_old = PrecipUtils.getHourlyPC(where);
             if (hour_PC_old.size() >= 1) {
@@ -453,7 +452,7 @@ public final class GagePPWrite {
                 rec = hour_PP_old.get(0);
             }
         }
-        
+
         return rec;
     }
 
@@ -493,8 +492,8 @@ public final class GagePPWrite {
         Date endtime = dt.getTime();
 
         String qcsym = "Z"; // ShefQC.buildQcSymbol(quality_code);
-        if((qual != null)&&(qual.length() > 0)) {
-            qcsym = qual.substring(0,1);
+        if ((qual != null) && (qual.length() > 0)) {
+            qcsym = qual.substring(0, 1);
         }
         String id = pDailyPP.getId().getLid();
         String ts = pDailyPP.getId().getTs();
@@ -557,7 +556,7 @@ public final class GagePPWrite {
      */
     public static int update_gage_rec(PersistableDataObject rec) {
         int status = -1;
-        if(rec != null) {
+        if (rec != null) {
             try {
                 CoreDao dao = new CoreDao(DaoConfig.forDatabase("ihfs"));
                 try {
@@ -574,281 +573,276 @@ public final class GagePPWrite {
     }
 
     // ------------------ exit here
-    
-    
 
+    // int is_pc = 0;
+    //
+    // String id = pHourlyPP.getId().getLid();
+    // String ts = pHourlyPP.getId().getTs();
+    //
+    //
+    //
+    // // Date dto = obsdate;
+    // Calendar dt = TimeTools.getSystemCalendar();
+    // dt.setTime(obsDate);
+    // String obstime = sdf.format(obsDate);
+    //
+    // int hr = dt.get(Calendar.HOUR_OF_DAY);
+    // if (hr == 0) {
+    // hr = 24;
+    // dt.add(Calendar.HOUR_OF_DAY, -1);
+    // obstime = sdf.format(dt.getTime());
+    // obsDate = dt.getTime();
+    // }
+    // int min = dt.get(Calendar.MINUTE);
+    //
+    // GagePPOptions opts = options;
+    //
+    // char sixhroffset = PrecipUtils.get_offset_code(min);
+    // char sixhrqc = ShefQC.buildQcSymbol(quality_code).charAt(0);
+    // char minoff = sixhroffset;
+    // char qcc = sixhrqc;
+    //
+    // hourly_rec = null;
+    //
+    // String where = String
+    // .format("WHERE lid='%s' AND ts='%s' AND obsdate ='%s'", id, ts,
+    // obstime);
+    //
+    // int six = PrecipUtils.getSixHourSelector(hr);
+    //
+    // if ("PC".equalsIgnoreCase(pe)) {
+    // is_pc = 1;
+    // }
+    // if (is_pc == 1) {
+    // List<Hourlypc> hour_PC_old = PrecipUtils.getHourlyPC(where);
+    // if (hour_PC_old.size() >= 1) {
+    // hourly_rec = hour_PC_old.get(0);
+    // }
+    // } else {
+    // List<Hourlypp> hour_PP_old = PrecipUtils.getHourlyPP(where);
+    // if (hour_PP_old.size() >= 1) {
+    // hourly_rec = hour_PP_old.get(0);
+    // }
+    // }
 
-//  int is_pc = 0;
-//
-//  String id = pHourlyPP.getId().getLid();
-//  String ts = pHourlyPP.getId().getTs();
-//
-//  
-//  
-//  // Date dto = obsdate;
-//  Calendar dt = TimeTools.getSystemCalendar();
-//  dt.setTime(obsDate);
-//  String obstime = sdf.format(obsDate);
-//
-//  int hr = dt.get(Calendar.HOUR_OF_DAY);
-//  if (hr == 0) {
-//      hr = 24;
-//      dt.add(Calendar.HOUR_OF_DAY, -1);
-//      obstime = sdf.format(dt.getTime());
-//      obsDate = dt.getTime();
-//  }
-//  int min = dt.get(Calendar.MINUTE);
-//
-//  GagePPOptions opts = options;
-//
-//  char sixhroffset = PrecipUtils.get_offset_code(min);
-//  char sixhrqc = ShefQC.buildQcSymbol(quality_code).charAt(0);
-//  char minoff = sixhroffset;
-//  char qcc = sixhrqc;
-//  
-//  hourly_rec = null;
-//
-//  String where = String
-//          .format("WHERE lid='%s' AND ts='%s' AND obsdate ='%s'", id, ts,
-//                  obstime);
-//
-//  int six = PrecipUtils.getSixHourSelector(hr);
-//
-//  if ("PC".equalsIgnoreCase(pe)) {
-//      is_pc = 1;
-//  }
-//  if (is_pc == 1) {
-//      List<Hourlypc> hour_PC_old = PrecipUtils.getHourlyPC(where);
-//      if (hour_PC_old.size() >= 1) {
-//          hourly_rec = hour_PC_old.get(0);
-//      }
-//  } else {
-//      List<Hourlypp> hour_PP_old = PrecipUtils.getHourlyPP(where);
-//      if (hour_PP_old.size() >= 1) {
-//          hourly_rec = hour_PP_old.get(0);
-//      }
-//  }
+    // if (hourly_rec == null) {
+    // minute_offset[hr - 1] = minoff;
+    // hourly_qc[hr - 1] = qcc;
+    // sixhr_offset[six] = sixhroffset;
+    // sixhr_qc[six] = sixhrqc;
+    //
+    // if (is_pc == 1) {
+    // Hourlypc pHourpc = new Hourlypc();
+    // HourlypcId pHid = new HourlypcId();
+    // pHid.setLid(id);
+    // pHid.setTs(ts);
+    // pHid.setObsdate(obsDate);
+    // pHourpc.setId(pHid);
+    // if(new_hourly_value != null) {
+    // pHourpc.setMinuteOffset(new String(minute_offset));
+    // pHourpc.setHourlyQc(new String(hourly_qc));
+    // PrecipUtils.set_hour_slot_value(pHourpc, hr, new_hourly_value);
+    // status = update_gage_rec(pHourpc);
+    // }
+    //
+    // } else {
+    // Hourlypp pHourpp = new Hourlypp();
+    // HourlyppId pHid = new HourlyppId();
+    // pHid.setLid(id);
+    // pHid.setTs(ts);
+    // pHid.setObsdate(obsDate);
+    // pHourpp.setId(pHid);
+    // boolean performWrite = false;
+    // if(new_hourly_value != null) {
+    // pHourpp.setMinuteOffset(String.valueOf(minute_offset));
+    // pHourpp.setHourlyQc(String.valueOf(hourly_qc));
+    // PrecipUtils.set_hour_slot_value(pHourpp, hr, new_hourly_value);
+    // performWrite = true;
+    // }
+    // if(pp_value != null) {
+    // pHourpp.setSixhroffset(String.valueOf(sixhr_offset));
+    // pHourpp.setSixhrqc(String.valueOf(sixhr_qc));
+    // PrecipUtils.set_6hour_slot_value(pHourpp, six + 1, pp_value);
+    // performWrite = true;
+    // }
+    // if(performWrite) {
+    // status = update_gage_rec(pHourpp);
+    // }
+    // }
+    //
+    // } else {
+    //
+    // Short old_hr_value = -7700;
+    // Short hr_value = -7700;
+    //
+    // char offset[] = new char[PrecipUtils.NUM_HOURLY_SLOTS];
+    // System.arraycopy(minute_offset, 0, offset, 0, PrecipUtils.NUM_HOURLY_SLOTS);
+    //
+    // char old_offset[] = new char[PrecipUtils.NUM_HOURLY_SLOTS];
+    // String mOff = hourly_rec.getMinuteOffset();
+    // if(mOff != null) {
+    // old_offset = mOff.toCharArray();
+    // } else {
+    // Arrays.fill(old_offset, '-');
+    // }
+    // char prev_offset = old_offset[hr - 1];
+    //
+    // char qc[] = new char[PrecipUtils.NUM_HOURLY_SLOTS];
+    // qc = hourly_qc;
+    //
+    // char old_qc[] = hourly_rec.getHourlyQc().toCharArray();
+    // char prev_qc = old_qc[hr - 1];
+    //
+    // Short six_hr_slot_val = -7700;
+    // Short old_six_hr_val = -7700;
+    //
+    // char old_sixhroffset[] = new char[PrecipUtils.NUM_6HOURLY_SLOTS];
+    // Arrays.fill(old_sixhroffset, '-');
+    //
+    // char old_six_qc[] = new char[PrecipUtils.NUM_6HOURLY_SLOTS];
+    // Arrays.fill(old_six_qc, '-');
+    //
+    // char six_hr_qc[] = new char[PrecipUtils.NUM_6HOURLY_SLOTS];
+    // System.arraycopy(sixhr_qc, 0, six_hr_qc, 0, PrecipUtils.NUM_6HOURLY_SLOTS);
+    //
+    //
+    // char prev_sixhroff = ' ';
+    // char prev_sixqc = ' ';
+    //
+    // int use_value = 1;
+    // if(new_hourly_value != null) {
+    // if (PrecipUtils.get_hour_slot_value(hourly_rec, hr) != null) {
+    // old_hr_value = PrecipUtils.get_hour_slot_value(hourly_rec, hr);
+    //
+    // use_value = PrecipUtils.use_precip_value(new_hourly_value,
+    // old_hr_value, qcc, prev_qc, minute_offset[hr - 1],
+    // prev_offset, opts.getShef_duplicate().name(),
+    // revision[hr - 1]);
+    // }
+    // }
+    //
+    // if (use_value == 1) {
+    // hr_value = new_hourly_value;
+    // offset = old_offset;
+    // offset[hr - 1] = minoff;
+    // qc = old_qc;
+    // qc[hr - 1] = qcc;
+    // } else {
+    // hr_value = old_hr_value;
+    // offset = old_offset;
+    // qc = old_qc;
+    // }
+    //
+    // Hourlypp hpp = null;
+    //
+    // if (use_value == 1) {
+    // if (is_pc == 0) {
+    // if (hourly_rec instanceof Hourlypp) {
+    // hpp = (Hourlypp) hourly_rec;
+    // }
+    // if (hpp != null) {
+    // if (hpp.getSixhroffset() != null) {
+    // old_sixhroffset = hpp.getSixhroffset()
+    // .toCharArray();
+    // }
+    // if (hpp.getSixhrqc() != null) {
+    // old_six_qc = hpp.getSixhrqc().toCharArray();
+    // }
+    // Short sixval = PrecipUtils.get_6hour_slot_value(hpp,
+    // six + 1);
+    // prev_sixhroff = old_sixhroffset[six];
+    // prev_sixqc = old_six_qc[six];
+    //
+    // if (sixval != null) {
+    // if (PrecipUtils.isManualEdit(prev_sixqc)
+    // && PrecipUtils.isManualEdit(sixhrqc)) {
+    // use_value = 0;
+    // } else {
+    // status = PrecipUtils.compare_offset_codes(
+    // sixhr_offset[six], prev_sixhroff);
+    //
+    // if (status > 0) {
+    // use_value = 0;
+    // } else if ((status == 0)
+    // && (sixhroffset == prev_sixhroff)) {
+    // boolean rev = true;
+    // if (revision_6hour[six] == 0) {
+    // rev = false;
+    // }
+    // String update_action = PrecipUtils
+    // .determine_update_action(
+    // options.getShef_duplicate()
+    // .name(), rev);
+    //
+    // if ((upd_action.DONT_UPDATE_ACTION
+    // .isAction(update_action))
+    // || ((upd_action.IF_DIFFERENT_UPDATE_ACTION
+    // .isAction(update_action)) && (pp_value == old_six_hr_val))) {
+    // use_value = 0;
+    // }
+    // }
+    // }
+    // }
+    // if (use_value == 1) {
+    // six_hr_slot_val = pp_value;
+    // sixhr_offset = old_sixhroffset;
+    // sixhr_offset[six] = sixhroffset;
+    // six_hr_qc = old_six_qc;
+    // six_hr_qc[six] = sixhrqc;
+    //
+    // } else {
+    // if (old_six_hr_val == -7700) {
+    // old_six_hr_val = null;
+    // }
+    // six_hr_slot_val = old_six_hr_val;
+    // sixhr_offset = old_sixhroffset;
+    // six_hr_qc = old_six_qc;
+    // }
+    // }
+    // }
+    //
+    // if (is_pc == 1) {
+    // Hourlypc pHourpc = (Hourlypc) hourly_rec;
+    // HourlypcId pHid = new HourlypcId();
+    // pHid.setLid(pHourpc.getLid());
+    // pHid.setTs(pHourpc.getTs());
+    // pHid.setObsdate(obsDate);
+    // pHourpc.setId(pHid);
+    // // Only write out the data if there is a value!
+    // if(hr_value != null) {
+    // PrecipUtils.set_hour_slot_value(pHourpc, hr, hr_value);
+    // pHourpc.setMinuteOffset(String.valueOf(offset));
+    // pHourpc.setHourlyQc(String.valueOf(qc));
+    //
+    // status = update_gage_rec(pHourpc);
+    // }
+    //
+    // } else {
+    //
+    // Hourlypp pHourpp = hpp;
+    // HourlyppId pHid = new HourlyppId();
+    // pHid.setLid(pHourpp.getLid());
+    // pHid.setTs(pHourpp.getTs());
+    // pHid.setObsdate(obsDate);
+    // pHourpp.setId(pHid);
+    // boolean performWrite = false;
+    // if(hr_value != null) {
+    // PrecipUtils.set_hour_slot_value(pHourpp, hr, hr_value);
+    // pHourpp.setMinuteOffset(String.valueOf(offset));
+    // pHourpp.setHourlyQc(String.valueOf(qc));
+    // performWrite = true;
+    // }
+    // if(six_hr_slot_val != null) {
+    // PrecipUtils.set_hour_slot_value(pHourpp, six + 1, six_hr_slot_val);
+    // pHourpp.setSixhroffset(String.valueOf(sixhr_offset));
+    // pHourpp.setSixhrqc(String.valueOf(six_hr_qc));
+    // performWrite = true;
+    // }
+    // if(performWrite) {
+    // status = update_gage_rec(pHourpp);
+    // }
+    // }
+    // }
+    // }
 
-//  if (hourly_rec == null) {
-//      minute_offset[hr - 1] = minoff;
-//      hourly_qc[hr - 1] = qcc;
-//      sixhr_offset[six] = sixhroffset;
-//      sixhr_qc[six] = sixhrqc;
-//
-//      if (is_pc == 1) {
-//          Hourlypc pHourpc = new Hourlypc();
-//          HourlypcId pHid = new HourlypcId();
-//          pHid.setLid(id);
-//          pHid.setTs(ts);
-//          pHid.setObsdate(obsDate);
-//          pHourpc.setId(pHid);
-//          if(new_hourly_value != null) {
-//              pHourpc.setMinuteOffset(new String(minute_offset));
-//              pHourpc.setHourlyQc(new String(hourly_qc));
-//              PrecipUtils.set_hour_slot_value(pHourpc, hr, new_hourly_value);
-//              status = update_gage_rec(pHourpc);
-//          }
-//
-//      } else {
-//          Hourlypp pHourpp = new Hourlypp();
-//          HourlyppId pHid = new HourlyppId();
-//          pHid.setLid(id);
-//          pHid.setTs(ts);
-//          pHid.setObsdate(obsDate);
-//          pHourpp.setId(pHid);
-//          boolean performWrite = false;
-//          if(new_hourly_value != null) {
-//              pHourpp.setMinuteOffset(String.valueOf(minute_offset));
-//              pHourpp.setHourlyQc(String.valueOf(hourly_qc));
-//              PrecipUtils.set_hour_slot_value(pHourpp, hr, new_hourly_value);
-//              performWrite = true;
-//          }
-//          if(pp_value != null) {
-//              pHourpp.setSixhroffset(String.valueOf(sixhr_offset));
-//              pHourpp.setSixhrqc(String.valueOf(sixhr_qc));
-//              PrecipUtils.set_6hour_slot_value(pHourpp, six + 1, pp_value);
-//              performWrite = true;
-//          }
-//          if(performWrite) {
-//              status = update_gage_rec(pHourpp);
-//          }
-//      }
-//
-//  } else {
-//
-//      Short old_hr_value = -7700;
-//      Short hr_value = -7700;
-//      
-//      char offset[] = new char[PrecipUtils.NUM_HOURLY_SLOTS];
-//      System.arraycopy(minute_offset, 0, offset, 0, PrecipUtils.NUM_HOURLY_SLOTS);
-//      
-//      char old_offset[] = new char[PrecipUtils.NUM_HOURLY_SLOTS];
-//      String mOff = hourly_rec.getMinuteOffset();
-//      if(mOff != null) {
-//          old_offset = mOff.toCharArray();
-//      } else {
-//          Arrays.fill(old_offset, '-');
-//      }
-//      char prev_offset = old_offset[hr - 1];
-//      
-//      char qc[] = new char[PrecipUtils.NUM_HOURLY_SLOTS];
-//      qc = hourly_qc;
-//      
-//      char old_qc[] = hourly_rec.getHourlyQc().toCharArray();
-//      char prev_qc = old_qc[hr - 1];
-//      
-//      Short six_hr_slot_val = -7700;
-//      Short old_six_hr_val = -7700;
-//      
-//      char old_sixhroffset[] = new char[PrecipUtils.NUM_6HOURLY_SLOTS];
-//      Arrays.fill(old_sixhroffset, '-');
-//
-//      char old_six_qc[] = new char[PrecipUtils.NUM_6HOURLY_SLOTS];
-//      Arrays.fill(old_six_qc, '-');
-//
-//      char six_hr_qc[] = new char[PrecipUtils.NUM_6HOURLY_SLOTS];
-//      System.arraycopy(sixhr_qc, 0, six_hr_qc, 0, PrecipUtils.NUM_6HOURLY_SLOTS);
-//
-//      
-//      char prev_sixhroff = ' ';
-//      char prev_sixqc = ' ';
-//
-//      int use_value = 1;
-//      if(new_hourly_value != null) {
-//          if (PrecipUtils.get_hour_slot_value(hourly_rec, hr) != null) {
-//              old_hr_value = PrecipUtils.get_hour_slot_value(hourly_rec, hr);
-//
-//              use_value = PrecipUtils.use_precip_value(new_hourly_value,
-//                      old_hr_value, qcc, prev_qc, minute_offset[hr - 1],
-//                      prev_offset, opts.getShef_duplicate().name(),
-//                      revision[hr - 1]);
-//          }
-//      }
-//
-//      if (use_value == 1) {
-//          hr_value = new_hourly_value;
-//          offset = old_offset;
-//          offset[hr - 1] = minoff;
-//          qc = old_qc;
-//          qc[hr - 1] = qcc;
-//      } else {
-//          hr_value = old_hr_value;
-//          offset = old_offset;
-//          qc = old_qc;
-//      }
-//
-//      Hourlypp hpp = null;
-//      
-//      if (use_value == 1) {
-//          if (is_pc == 0) {
-//              if (hourly_rec instanceof Hourlypp) {
-//                  hpp = (Hourlypp) hourly_rec;
-//              }
-//              if (hpp != null) {
-//                  if (hpp.getSixhroffset() != null) {
-//                      old_sixhroffset = hpp.getSixhroffset()
-//                              .toCharArray();
-//                  }
-//                  if (hpp.getSixhrqc() != null) {
-//                      old_six_qc = hpp.getSixhrqc().toCharArray();
-//                  }
-//                  Short sixval = PrecipUtils.get_6hour_slot_value(hpp,
-//                          six + 1);
-//                  prev_sixhroff = old_sixhroffset[six];
-//                  prev_sixqc = old_six_qc[six];
-//
-//                  if (sixval != null) {
-//                      if (PrecipUtils.isManualEdit(prev_sixqc)
-//                              && PrecipUtils.isManualEdit(sixhrqc)) {
-//                          use_value = 0;
-//                      } else {
-//                          status = PrecipUtils.compare_offset_codes(
-//                                  sixhr_offset[six], prev_sixhroff);
-//
-//                          if (status > 0) {
-//                              use_value = 0;
-//                          } else if ((status == 0)
-//                                  && (sixhroffset == prev_sixhroff)) {
-//                              boolean rev = true;
-//                              if (revision_6hour[six] == 0) {
-//                                  rev = false;
-//                              }
-//                              String update_action = PrecipUtils
-//                                      .determine_update_action(
-//                                              options.getShef_duplicate()
-//                                                      .name(), rev);
-//
-//                              if ((upd_action.DONT_UPDATE_ACTION
-//                                      .isAction(update_action))
-//                                      || ((upd_action.IF_DIFFERENT_UPDATE_ACTION
-//                                              .isAction(update_action)) && (pp_value == old_six_hr_val))) {
-//                                  use_value = 0;
-//                              }
-//                          }
-//                      }
-//                  }
-//                  if (use_value == 1) {
-//                      six_hr_slot_val = pp_value;
-//                      sixhr_offset = old_sixhroffset;
-//                      sixhr_offset[six] = sixhroffset;
-//                      six_hr_qc = old_six_qc;
-//                      six_hr_qc[six] = sixhrqc;
-//
-//                  } else {
-//                      if (old_six_hr_val == -7700) {
-//                          old_six_hr_val = null;
-//                      }
-//                      six_hr_slot_val = old_six_hr_val;
-//                      sixhr_offset = old_sixhroffset;
-//                      six_hr_qc = old_six_qc;
-//                  }
-//              }
-//          }
-//
-//          if (is_pc == 1) {
-//              Hourlypc pHourpc = (Hourlypc) hourly_rec;
-//              HourlypcId pHid = new HourlypcId();
-//              pHid.setLid(pHourpc.getLid());
-//              pHid.setTs(pHourpc.getTs());
-//              pHid.setObsdate(obsDate);
-//              pHourpc.setId(pHid);
-//              // Only write out the data if there is a value!
-//              if(hr_value != null) {
-//                  PrecipUtils.set_hour_slot_value(pHourpc, hr, hr_value);
-//                  pHourpc.setMinuteOffset(String.valueOf(offset));
-//                  pHourpc.setHourlyQc(String.valueOf(qc));
-//
-//                  status = update_gage_rec(pHourpc);
-//              }
-//
-//          } else {
-//
-//              Hourlypp pHourpp = hpp;
-//              HourlyppId pHid = new HourlyppId();
-//              pHid.setLid(pHourpp.getLid());
-//              pHid.setTs(pHourpp.getTs());
-//              pHid.setObsdate(obsDate);
-//              pHourpp.setId(pHid);
-//              boolean performWrite = false;
-//              if(hr_value != null) {
-//                  PrecipUtils.set_hour_slot_value(pHourpp, hr, hr_value);
-//                  pHourpp.setMinuteOffset(String.valueOf(offset));
-//                  pHourpp.setHourlyQc(String.valueOf(qc));
-//                  performWrite = true;
-//              }
-//              if(six_hr_slot_val != null) {
-//                  PrecipUtils.set_hour_slot_value(pHourpp, six + 1, six_hr_slot_val);
-//                  pHourpp.setSixhroffset(String.valueOf(sixhr_offset));
-//                  pHourpp.setSixhrqc(String.valueOf(six_hr_qc));
-//                  performWrite = true;
-//              }
-//              if(performWrite) {
-//                  status = update_gage_rec(pHourpp);
-//              }
-//          }
-//      }
-//  }
-
-    
-    
 }

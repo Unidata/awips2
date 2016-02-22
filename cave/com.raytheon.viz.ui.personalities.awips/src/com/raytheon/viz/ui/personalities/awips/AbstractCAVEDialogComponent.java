@@ -21,7 +21,7 @@ package com.raytheon.viz.ui.personalities.awips;
 
 import org.eclipse.swt.widgets.Display;
 
-import com.raytheon.viz.ui.dialogs.CaveSWTDialogBase;
+import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
  * This abstract class provides a way to wait for a non-blocking dialog to
@@ -37,6 +37,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialogBase;
  * ------------ ---------- ----------- --------------------------
  * Oct 18, 2012 1229       rferrel     Initial creation
  * Mar 23, 2015 4278       njensen     Added try/catch throwable
+ * Jan 18, 2016 5045       randerso    Merged CaveSWTDialog and CaveSWTDialogBase
  * 
  * </pre>
  * 
@@ -46,7 +47,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialogBase;
 
 public abstract class AbstractCAVEDialogComponent extends
         AbstractAWIPSComponent {
-    protected void blockUntilClosed(CaveSWTDialogBase dlg) {
+    protected void blockUntilClosed(CaveSWTDialog dlg) {
         while (!dlg.isDisposed()) {
             try {
                 if (!Display.getCurrent().readAndDispatch()) {

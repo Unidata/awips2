@@ -22,7 +22,6 @@ package com.raytheon.viz.aviation;
 import java.util.List;
 
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.viz.aviation.climatology.MetarDisplayDialog;
 import com.raytheon.viz.avncommon.AvnMessageMgr.StatusMessageType;
@@ -38,9 +37,10 @@ import com.raytheon.viz.ui.personalities.awips.AbstractCAVEDialogComponent;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 28, 2011            mschenke     Initial creation
+ * Apr 28, 2011            mschenke    Initial creation
  * Oct 17, 2012 1229       rferrel     Changes for non-blocking
  *                                      MetarDisplayDialog.
+ * Jan 26, 2016 5054       randerso    Allow dialog to be parented by display
  * 
  * </pre>
  * 
@@ -61,8 +61,8 @@ public class MetarComponent extends AbstractCAVEDialogComponent {
     protected void startInternal(String componentName) throws Exception {
         List<String> siteList = TafSiteConfigFactory.getInstance()
                 .getSiteList();
-        MetarDisplayDialog metarDialog = new MetarDisplayDialog(new Shell(
-                Display.getCurrent()), siteList, StatusMessageType.Metar, null);
+        MetarDisplayDialog metarDialog = new MetarDisplayDialog(
+                Display.getCurrent(), siteList, StatusMessageType.Metar, null);
         metarDialog.open();
         blockUntilClosed(metarDialog);
     }

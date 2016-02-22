@@ -75,6 +75,8 @@ import com.vividsolutions.jts.geom.Envelope;
  * Feb 17, 2009           njensen     Refactored to new rsc architecture
  * Feb 09, 2011  8244     bkowal      Enabled the magnification capability.
  * Feb 17, 2014  2661     bsteffen    Use only u,v for vectors.
+ * Nov 10, 2015  4689     kbisanz     Ensure corners are within grid when
+ *                                    zooming.
  * 
  * </pre>
  * 
@@ -236,14 +238,15 @@ public class CrossSectionContourResource extends AbstractCrossSectionResource
 
                 // This does several things at once.
                 // 1. Expand the grid area by 25% to avoid constant recontouring
-                // 2. Make sure the new area is not outside the data area
-                // 3. Round everything to ints
-                minCorner.x = Math.max((int) (minCorner.x - width / 4), 0);
-                minCorner.y = Math.min((int) (minCorner.y - height / 4) + 1,
-                        GRID_SIZE);
-                maxCorner.x = Math.min((int) (maxCorner.x + width / 4) + 1,
-                        GRID_SIZE);
-                maxCorner.y = Math.max((int) (maxCorner.y + height / 4), 0);
+                // 2. Round everything to ints
+                minCorner.x = (int) (minCorner.x - width / 4);
+                minCorner.y = (int) (minCorner.y - height / 4) + 1;
+                maxCorner.x = (int) (maxCorner.x + width / 4) + 1;
+                maxCorner.y = (int) (maxCorner.y + height / 4);
+
+                // Ensure corners are within the bounds of the grid.
+                constrainPoint(minCorner);
+                constrainPoint(maxCorner);
 
                 // Copy the data to a smaller array for the subgrid area.
                 List<float[]> newDataList = new ArrayList<float[]>();
@@ -316,6 +319,24 @@ public class CrossSectionContourResource extends AbstractCrossSectionResource
                 getCapability(ColorableCapability.class).getColor(),
                 getCapability(OutlineCapability.class).getOutlineWidth(),
                 posLineStyle, negLineStyle, this.crossSectionFont, null);
+    }
+
+    /**
+     * Ensure point is between 0 and grid size, updating values if necessary.
+     * 
+     * @param point
+     *            Point to check and update.
+     */
+    private void constrainPoint(DirectPosition2D point) {
+        // Ensure values are at least 0. Zooming near the edge of the
+        // screen may cause values less than 0.
+        point.x = Math.max(point.x, 0.0);
+        point.y = Math.max(point.y, 0.0);
+
+        // Ensure values are at most GRID_SIZE. Zooming near the edge
+        // of the screen may cause values greater than GRID_SIZE.
+        point.x = Math.min(point.x, GRID_SIZE);
+        point.y = Math.min(point.y, GRID_SIZE);
     }
 
     @Override

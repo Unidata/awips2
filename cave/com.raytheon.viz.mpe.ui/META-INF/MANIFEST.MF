@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: MPE Ui Plug-in
 Bundle-SymbolicName: com.raytheon.viz.mpe.ui;singleton:=true
-Bundle-Version: 1.15.0.qualifier
+Bundle-Version: 1.15.1.qualifier
 Bundle-Activator: com.raytheon.viz.mpe.ui.Activator
 Bundle-Vendor: Raytheon
 Require-Bundle: org.eclipse.core.runtime,
@@ -11,7 +11,7 @@ Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.viz.mpe,
  com.raytheon.viz.core.contours,
  javax.measure,
- org.apache.commons.lang,
+ org.apache.commons.lang3;bundle-version="3.4.0",
  com.raytheon.uf.viz.app.launcher,
  com.raytheon.uf.common.mpe,
  com.raytheon.uf.common.hydro,
