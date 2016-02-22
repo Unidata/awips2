@@ -69,6 +69,7 @@ import com.raytheon.uf.common.dataplugin.gfe.request.IscRequestQueryRequest;
 import com.raytheon.uf.common.dataplugin.gfe.request.LockChangeRequest;
 import com.raytheon.uf.common.dataplugin.gfe.request.SaveGfeGridRequest;
 import com.raytheon.uf.common.dataplugin.gfe.request.SendIscGridRequest;
+import com.raytheon.uf.common.dataplugin.gfe.request.SendWFOMessageRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.lock.LockTable;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerMsg;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
@@ -124,6 +125,7 @@ import com.raytheon.viz.gfe.core.parm.Parm;
  *                                     and re-request if not all data returned
  * 09/23/14     #3648      randerso    Changed getParmList to return results even if some DbIds
  *                                     have errors
+ * 02/22/2016   #5374      randerso    Added support for sendWFOMessage
  * 
  * </pre>
  * 
@@ -200,7 +202,7 @@ public class IFPClient {
         List<ParmID> parmIds = (List<ParmID>) sr.getPayload();
         if (!sr.isOkay()) {
             String msg = formatSRMessage(sr);
-            if (parmIds != null && !parmIds.isEmpty()) {
+            if ((parmIds != null) && !parmIds.isEmpty()) {
                 // got something so display an error message and continue
                 statusHandler.error(msg);
             } else {
@@ -817,5 +819,11 @@ public class IFPClient {
             throws GFEServerException {
         GetTopoDataRequest request = new GetTopoDataRequest(gloc);
         return (ServerResponse<ScalarGridSlice>) makeRequest(request, false);
+    }
+
+    public ServerResponse<?> sendWFOMessage(List<String> wfos, String message)
+            throws GFEServerException {
+        SendWFOMessageRequest request = new SendWFOMessageRequest(wfos, message);
+        return makeRequest(request);
     }
 }
