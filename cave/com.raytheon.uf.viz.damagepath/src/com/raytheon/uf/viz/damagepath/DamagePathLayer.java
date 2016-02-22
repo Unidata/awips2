@@ -91,6 +91,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *                                     is now at SITE level.
  * Aug 18, 2015  3806      njensen     Use SaveableOutputStream to save
  * Jan 11, 2016  5242      kbisanz     Replaced calls to deprecated LocalizationFile methods
+ * Feb 18, 2016  5287      dgilling    Updated for new metadata fields.
  * 
  * </pre>
  * 
@@ -299,8 +300,9 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
 
     private SimpleFeature buildFeature(final DamagePathPolygon damagePath) {
         Map<String, String> jsonProps = damagePath.getProperties();
+        jsonProps = DamagePathGeoJsonUtils.fillRequiredProperties(jsonProps);
 
-        String id = jsonProps.get(GeoJsonMapUtil.ID_KEY);
+        String id = jsonProps.get(DamagePathGeoJsonUtils.EVENTID_PROP_NAME);
         SimpleFeatureTypeBuilder typeBuilder = new SimpleFeatureTypeBuilder();
         typeBuilder.setName("feature");
 
