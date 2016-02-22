@@ -109,10 +109,10 @@ export rpm_end_dir="${AWIPSII_VERSION}-${AWIPSII_RELEASE}"
 #mkdir -p /awips2/jenkins/build/rpms/${rpm_end_dir}
 
 if [ "$(ls -A ${AWIPSII_TOP_DIR}/RPMS/x86_64/)" ]; then
-    mv ${AWIPSII_TOP_DIR}/RPMS/x86_64/* /awips2/jenkins/build/rpms/awips2_15.1.1/x86_64/
+    mv ${AWIPSII_TOP_DIR}/RPMS/x86_64/* /awips2/jenkins/build/rpms/awips2_${AWIPSII_VERSION}/x86_64/
 fi
 if [ "$(ls -A ${AWIPSII_TOP_DIR}/RPMS/noarch/)" ]; then
-   mv ${AWIPSII_TOP_DIR}/RPMS/noarch/* /awips2/jenkins/build/rpms/awips2_15.1.1/noarch/
+   mv ${AWIPSII_TOP_DIR}/RPMS/noarch/* /awips2/jenkins/build/rpms/awips2_${AWIPSII_VERSION}/noarch/
 fi
 
 END_TIME=`date "+%s"`
