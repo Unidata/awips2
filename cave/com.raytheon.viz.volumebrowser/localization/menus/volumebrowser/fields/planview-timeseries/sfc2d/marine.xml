@@ -29,6 +29,8 @@
         key="WVPER" indentText="true" />
     <contribute xsi:type="menuItem" menuText="Wind Wave Len"
         key="WVLEN" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Wave Steepness"
+        key="WSTP" indentText="true" />
     <contribute xsi:type="menuItem" menuText="Swell Hgt" key="SWELL"
         indentText="true" />
     <contribute xsi:type="menuItem" menuText="Swell Dir" key="SWdir"
