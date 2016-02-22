@@ -218,7 +218,14 @@ do
    fi
 done
 popd > /dev/null 2>&1
-#chown -R awips:fxalpha /awips2/cave
+if getent passwd awips &>/dev/null; then
+  /bin/chown -R awips:fxalpha /awips2/cave
+else
+  echo "--- Warning: user/group awips:fxalpha does not exist"
+  echo "--- you will need to check owner/group/permissions for /awips2/cave"
+  echo "tried to run 'chown -R awips:fxalpha /awips2/cave'"
+  echo ""
+fi
 
 %preun
 # Do not use p2 to remove the feature if this is an upgrade.
