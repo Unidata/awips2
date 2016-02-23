@@ -142,6 +142,8 @@ import com.raytheon.viz.hydrocommon.util.DbUtils;
  * 05 Sep   2013 #2332   lvenable     Fixed memory leaks.       
  * 24 Jan   2013  15959  lbousaidi    Swap the corner points of the bounding box when zooming.    
  * 22 Oct   2015  13736  xwei         Fixed missing data after zoom, edit, & reset problem
+ * 26 Oct,  2015 14217   jwu          Removed MAX_TRACES limitation
+ * 
  * @author lvenable
  * @version 1.0
  * 
@@ -150,9 +152,6 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
         IJobChangeListener {
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(TimeSeriesDisplayCanvas.class);
-
-    /** The maximum number of forecast traces. */
-    private static final int MAX_FCST_TRACES = 30;
 
     private final String FEET = "ft";
 
@@ -2592,38 +2591,32 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                         }
 
                         if (basisTime.getTime() != prevBasisTime.getTime()) {
-                            if (ntraces < MAX_FCST_TRACES) {
-                                traceData.setXmin(beginDate);
-                                traceData.setXmax(endDate);
-                                n = 0; /* Reset npts in new forecast trace */
-                                traceData.setBasistime(prevBasisTime);
-                                ntraces++;
-                                traceData.setTsData(points
-                                        .toArray(new TimeSeriesPoint[points
-                                                .size()]));
-                                points = new ArrayList<TimeSeriesPoint>();
+                            traceData.setXmin(beginDate);
+                            traceData.setXmax(endDate);
+                            n = 0; /* Reset npts in new forecast trace */
+                            traceData.setBasistime(prevBasisTime);
+                            ntraces++;
+                            traceData
+                                    .setTsData(points
+                                            .toArray(new TimeSeriesPoint[points
+                                                    .size()]));
+                            points = new ArrayList<TimeSeriesPoint>();
 
-                                if (ntraces >= 1) {
-                                    traceDataList.add(traceData);
-                                }
-
-                                traceData = new TraceData();
-                                traceData.setForecast(true);
-                                traceData.setDur(dur);
-                                traceData.setExtremum(extremum);
-                                traceData.setLid(lid);
-                                traceData.setPe(pe);
-                                traceData.setTs(ts);
-                                traceData.setName(name);
-                                traceData.setBasistime(basisTime);
-                                traceData.setProductTime(productTime);
-                                traceData.setTraceOn(!this.latestFcstFlag);
-                            } else {
-                                /*
-                                 * reached max fcst traces, break out of loop
-                                 */
-                                break;
+                            if (ntraces >= 1) {
+                                traceDataList.add(traceData);
                             }
+
+                            traceData = new TraceData();
+                            traceData.setForecast(true);
+                            traceData.setDur(dur);
+                            traceData.setExtremum(extremum);
+                            traceData.setLid(lid);
+                            traceData.setPe(pe);
+                            traceData.setTs(ts);
+                            traceData.setName(name);
+                            traceData.setBasistime(basisTime);
+                            traceData.setProductTime(productTime);
+                            traceData.setTraceOn(!this.latestFcstFlag);
                         }
 
                         p.setY(row.getValue());
@@ -2671,11 +2664,9 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                 /*
                  * Copy last trace into forecast trace
                  */
-                if (ntraces < MAX_FCST_TRACES) {
-                    traceData.setBasistime(prevBasisTime);
-                    traceDataList.add(traceData);
-                    ntraces++;
-                }
+                traceData.setBasistime(prevBasisTime);
+                traceDataList.add(traceData);
+                ntraces++;
             } else {
                 traceDataList.add(traceData);// although nothing from DB
             }
