@@ -39,7 +39,6 @@ import com.raytheon.uf.viz.alertviz.config.Configuration;
 import com.raytheon.uf.viz.alertviz.config.ForcedConfiguration;
 import com.raytheon.uf.viz.alertviz.config.Source;
 import com.raytheon.uf.viz.alertviz.internal.LogMessageDAO;
-import com.raytheon.uf.viz.alertviz.internal.PurgeLogJob;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 
@@ -58,6 +57,7 @@ import com.raytheon.uf.viz.core.localization.LocalizationManager;
  * Jul 27, 2015 4654       skorolev    Added a localization level filtration
  * Sep 21, 2015 4654       njensen     Made filter logic strict instead of eager
  * Jan 14, 2016 5054       randerso    Remove dummy shell
+ * Feb 23, 2016 5314       dgilling    Support changes to PurgeLogJob.
  * 
  * </pre>
  * 
@@ -104,7 +104,7 @@ public class Container implements IConfigurationChangedListener {
                 .getForcedConfiguration();
         ConfigurationManager.getInstance().addListener(this);
         this.callbacks = callbacks;
-        PurgeLogJob archive = new PurgeLogJob();
+        PurgeLogJob archive = PurgeLogJob.getInstance();
         archive.schedule();
     }
 
