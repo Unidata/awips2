@@ -25,7 +25,9 @@ import java.io.StringWriter;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.Status;
@@ -57,12 +59,15 @@ import com.raytheon.uf.viz.alertviz.AlertvizException;
 import com.raytheon.uf.viz.alertviz.AlertvizJob;
 import com.raytheon.uf.viz.alertviz.Container;
 import com.raytheon.uf.viz.alertviz.IAlertArrivedCallback;
+import com.raytheon.uf.viz.alertviz.IAlertVizLogPurgedNotifier;
 import com.raytheon.uf.viz.alertviz.LogUtil;
 import com.raytheon.uf.viz.alertviz.LogUtil.Order;
+import com.raytheon.uf.viz.alertviz.PurgeLogJob;
 import com.raytheon.uf.viz.alertviz.SystemStatusHandler;
 import com.raytheon.uf.viz.alertviz.config.AlertMetadata;
 import com.raytheon.uf.viz.alertviz.config.Category;
 import com.raytheon.uf.viz.alertviz.config.TrayConfiguration;
+import com.raytheon.uf.viz.core.VizApp;
 
 /**
  * Implements a basic log viewer capability
@@ -84,7 +89,8 @@ import com.raytheon.uf.viz.alertviz.config.TrayConfiguration;
  * @version 1.0
  */
 
-public class SimpleLogViewer implements IAlertArrivedCallback {
+public class SimpleLogViewer implements IAlertArrivedCallback,
+        IAlertVizLogPurgedNotifier {
 
     private Display display;
 
@@ -366,6 +372,7 @@ public class SimpleLogViewer implements IAlertArrivedCallback {
         showHideLog();
 
         AlertvizJob.getInstance().addAlertArrivedCallback(this);
+        PurgeLogJob.getInstance().addLogPurgeListener(this);
 
         shell.open();
 
@@ -382,6 +389,7 @@ public class SimpleLogViewer implements IAlertArrivedCallback {
             }
         }
 
+        PurgeLogJob.getInstance().removeLogPurgeListener(this);
         AlertvizJob.getInstance().removeAlertArrivedCallback(this);
         table.dispose();
         red.dispose();
@@ -440,5 +448,24 @@ public class SimpleLogViewer implements IAlertArrivedCallback {
                 t);
 
         ErrorDialog.openError(parentShell, dialogTitle, msg, ms);
+    }
+
+    @Override
+    public void recordsPurged(final Collection<Integer> recordsDeleted) {
+        VizApp.runSync(new Runnable() {
+
+            @Override
+            public void run() {
+                Collection<Integer> tableItemsToDelete = new HashSet<>();
+                for (int i = 0; i < table.getItemCount(); i++) {
+                    TableItem tableItem = table.getItem(i);
+                    if (recordsDeleted.contains(tableItem.getData())) {
+                        tableItemsToDelete.add(Integer.valueOf(i));
+                    }
+                }
+                table.remove(ArrayUtils.toPrimitive(tableItemsToDelete
+                        .toArray(new Integer[0])));
+            }
+        });
     }
 }

@@ -10,7 +10,8 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  com.raytheon.uf.common.localization,
  com.raytheon.uf.common.message;bundle-version="1.11.11",
- com.raytheon.uf.viz.alertviz;bundle-version="1.11.11"
+ com.raytheon.uf.viz.alertviz;bundle-version="1.11.11",
+ org.apache.commons.lang3;bundle-version="3.4.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.alertviz.ui,
  com.raytheon.uf.viz.alertviz.ui.audio,
