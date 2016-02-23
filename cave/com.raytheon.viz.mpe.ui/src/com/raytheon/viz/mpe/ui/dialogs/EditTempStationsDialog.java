@@ -70,6 +70,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Apr 13, 2009            snaples     Initial creation
  * Dec 08, 2015 5179       bkowal      Ensure the grid remains displayed when this dialog
  *                                     is closed. Eliminate warnings and e print stack trace.
+ * Feb 22, 2016 18599      snaples     Removed send_expose call in changeCustomFile.
  * 
  * </pre>
  * 
@@ -948,8 +949,6 @@ public class EditTempStationsDialog extends AbstractMPEDialog {
         bv.restore_bad_tvalues(pcpn_day, DailyQcUtils.temperature_stations,
                 max_stations);
 
-        OtherPrecipOptions op = new OtherPrecipOptions();
-        op.send_expose();
         return;
 
     }
