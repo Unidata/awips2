@@ -74,6 +74,7 @@
 #    10/13/2015          #4961     randerso       Updated NewTerrain/BaseTerrain database definitions
 #    10/30/2015          #17940    jendrowski     Responded to Code Review.  Mostly syntactical changes.
 #    1/28/2016           #13910    amoore         Wave model data should be available in 3-hrly timesteps 
+#    02/22/2016          #18161    wkwock         Add NationalBlend model for AK, PR, HW
 ####################################################################################################
 
 #----------------------------------------------------------------------------
@@ -2162,6 +2163,7 @@ if SID in groups['ALASKA_SITES']:
                  'PGBlended',
                  'PGBlended-Night',
                  ('NCOM-ALASKA', 'NCOM'),
+                 ('NationalBlend-AK','NationalBlend'),
                ]
 
 # Hawaii OCONUS
@@ -2192,6 +2194,7 @@ elif SID == "HFO":
                  'PGBlended',
                  'PGBlended-Night',
                  ('NCOM-HAWAII', 'NCOM'),
+                 ('NationalBlend-HI','NationalBlend'),
                ]
 
 # San Juan OCONUS
@@ -2226,6 +2229,7 @@ elif SID == "SJU":
                  'PGBlended',
                  'PGBlended-Night',
                  ('NCOM-AMSEAS', 'NCOMAMSEAS'),
+                 ('NationalBlend-PR','NationalBlend'),
                ]
 
 # Guam OCONUS
@@ -3087,11 +3091,11 @@ DATABASES = [
 # Intersite coordination database parameter groupings, based on
 # OFFICIALDBS, but time constraint is always TC1
 ISCPARMS = []
-    if type(officeType) != str:
-        raise TypeError, "Office type not a str: " + `officeType`
-    else:
-        if officeType not in VALID_OFFICE_TYPES:
-            raise ValueError, "Office type: " + str(officeType) + " does not match any of the following: [" + (', '.join(VALID_OFFICE_TYPES)) + "]"
+if type(officeType) != str:
+    raise TypeError, "Office type not a str: " + `officeType`
+else:
+    if officeType not in VALID_OFFICE_TYPES:
+        raise ValueError, "Office type: " + str(officeType) + " does not match any of the following: [" + (', '.join(VALID_OFFICE_TYPES)) + "]"
     
         
 #
