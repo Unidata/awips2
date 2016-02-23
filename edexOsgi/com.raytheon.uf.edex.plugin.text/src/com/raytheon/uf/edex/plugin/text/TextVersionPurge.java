@@ -37,6 +37,7 @@ import com.raytheon.uf.edex.plugin.text.dao.StdTextProductDao;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 17, 2011            rjpeter     Initial creation
+ * Feb 16, 2016 DR 16950   arickert    Prevent extra purging, removed call to getAfosIdsToPurge
  * 
  * </pre>
  * 
@@ -94,7 +95,7 @@ public class TextVersionPurge {
 
     public void purgeAfosIds() {
         StdTextProductDao dao = new StdTextProductDao();
-        List<String> curIdsToPurge = getAfosIdsToPurge();
+        List<String> curIdsToPurge = null;
         int rowsPurged = 0;
         long t0 = System.currentTimeMillis();
         synchronized (afosIdsToPurge) {
