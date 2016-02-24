@@ -119,6 +119,7 @@ import com.raytheon.uf.common.time.TimeRange;
  * ------------ ---------- ----------- --------------------------
  * Nov 13, 2015  #5129     dgilling     Initial creation
  * Feb 05, 2016  #5242     dgilling     Replace calls to deprecated Localization APIs.
+ * Feb 24, 2016  #5129     dgilling     Change how PyFPClient is constructed.
  * 
  * </pre>
  * 
@@ -142,6 +143,8 @@ public class IFPClient {
     private final String siteId;
 
     private final GridLocation gridLocation;
+
+    private final PyFPClient pythonClient;
 
     /**
      * Constructor.
@@ -177,6 +180,8 @@ public class IFPClient {
             statusHandler.error(sr3.message());
         }
         this.gridLocation = gLoc;
+
+        this.pythonClient = new PyFPClient(this);
     }
 
     /**
@@ -1107,7 +1112,7 @@ public class IFPClient {
      * @return a {@code PyFPClient} instance.
      */
     public PyFPClient getPythonClient() {
-        return new PyFPClient(myWsId, siteId);
+        return pythonClient;
     }
 
     public ServerResponse<?> makeRequest(AbstractGfeRequest request) {

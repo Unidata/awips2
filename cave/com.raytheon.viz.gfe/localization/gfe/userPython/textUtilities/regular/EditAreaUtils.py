@@ -303,9 +303,12 @@ class  EditAreaUtils(TextUtils.TextUtils):
         return areaNames
 
     def saveEditAreas(self, editAreas):
+        javaEditAreas = ArrayList()
+        for editArea in editAreas:
+            javaEditAreas.add(editArea)        
         # Save a list of ReferenceData objects
         ifpClient = self.getIFPClient()
-        ifpClient.saveReferenceData(editAreas)
+        ifpClient.saveReferenceData(javaEditAreas)
         
     def getComboNumber(self):
         # Put initial comboNumber from constructor into EditAreaUtils as well.
@@ -346,15 +349,15 @@ class  EditAreaUtils(TextUtils.TextUtils):
     def deleteEditAreas(self, editAreas):
         # Delete a list of ReferenceData, ReferenceID, or string objects        
         ifpClient = self.getIFPClient()
-        ids = []
+        ids = ArrayList()
         for area in editAreas:
             if type(area) is str:
-                ids.append(ReferenceID(area))
+                ids.add(ReferenceID(area))
             else:
                 try:
                     # reference data
-                    ids.append(area.getId())
+                    ids.add(area.getId())
                 except:
                     # reference id
-                    ids.append(area)            
+                    ids.add(area)            
         ifpClient.deleteReferenceData(ids)
