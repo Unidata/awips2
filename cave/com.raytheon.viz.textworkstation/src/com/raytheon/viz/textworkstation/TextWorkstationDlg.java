@@ -55,7 +55,6 @@ import com.raytheon.viz.texteditor.dialogs.TextEditorDialog;
 import com.raytheon.viz.texteditor.msgs.ITextEditorCallback;
 import com.raytheon.viz.texteditor.msgs.ITextWorkstationCallback;
 import com.raytheon.viz.texteditor.notify.NotifyExpiration;
-import com.raytheon.viz.texteditor.util.AviationTextUtility;
 import com.raytheon.viz.texteditor.util.RadarTextUtility;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
@@ -93,6 +92,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 30Jan2013    DR 14736    D. Friedman Display local time.
  * 24Jun2013	DR 15733	XHuang		Display MAX_BUTTON_CNT (8 button).
  * 25July2013   DR 15733    Greg Hull   Make dflt and max number of Text Buttons configurable.
+ * Feb 15, 2016 4860        njensen     Removed references to IAviationObserver
+ * 
  * 
  * </pre>
  * 
@@ -153,7 +154,6 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
      * non-blocking dialog.
      * 
      * @param parent
-     * @param block
      *            - CAVE.DO_NOT_BLOCK or CAVE.NONE
      */
     public TextWorkstationDlg(Shell parent) {
@@ -162,12 +162,7 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
                         | CAVE.DO_NOT_BLOCK);
 
         setText("Text Workstation");
-
-        TextDisplayModel.getInstance().setTextAviation(
-                new AviationTextUtility());
         TextDisplayModel.getInstance().setTextRadar(new RadarTextUtility());
-        // TextDisplayModel.getInstance().setTextScriptRunner(
-        // new ScriptRunnerTextUtility());
         NotificationManagerJob.addQueueObserver(
                 TextWorkstationConstants.getTextWorkstationQueueName(), this);
         initStartTime = System.currentTimeMillis();
