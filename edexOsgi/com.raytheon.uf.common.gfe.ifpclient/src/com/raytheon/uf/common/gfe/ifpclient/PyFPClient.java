@@ -36,6 +36,7 @@ import com.raytheon.uf.common.dataplugin.gfe.server.request.LockRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.request.LockTableRequest;
 import com.raytheon.uf.common.gfe.ifpclient.exception.GfeServerRequestException;
 import com.raytheon.uf.common.message.WsId;
+import com.raytheon.uf.common.time.TimeRange;
 
 /**
  * An IFPClient that matches the "legacy" A2 IFPClient implementation where the
@@ -49,6 +50,8 @@ import com.raytheon.uf.common.message.WsId;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 04, 2015  #5129     dgilling     Initial creation
+ * Feb 24, 2016  #5129     dgilling     Add getGridInventory, alternative 
+ *                                      constructor.
  * 
  * </pre>
  * 
@@ -65,7 +68,11 @@ public class PyFPClient {
      * @param siteId
      */
     public PyFPClient(WsId wsId, String siteId) {
-        this.client = new IFPClient(wsId, siteId);
+        this(new IFPClient(wsId, siteId));
+    }
+
+    public PyFPClient(IFPClient client) {
+        this.client = client;
     }
 
     private static void checkSR(final String operation,
@@ -198,5 +205,12 @@ public class PyFPClient {
 
     public IFPClient getJavaClient() {
         return client;
+    }
+
+    public List<TimeRange> getGridInventory(final ParmID parmID)
+            throws GfeServerRequestException {
+        ServerResponse<List<TimeRange>> sr = client.getGridInventory(parmID);
+        checkSR("IFPClient::getGridInventory()", sr);
+        return sr.getPayload();
     }
 }
