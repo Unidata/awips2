@@ -50,7 +50,8 @@ import com.raytheon.viz.core.gl.images.GLImage;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 6, 2012            mschenke     Initial creation
+ * Aug 6, 2012             mschenke    Initial creation
+ * Jan 27, 2016 DR 17997   jgerth      Support for gamma control
  * 
  * </pre>
  * 
@@ -82,6 +83,8 @@ public class GLTrueColorImage extends GLDelegateImage<GLImage> implements
     private IExtent imageExtent;
 
     private Map<Channel, DrawableImage[]> channelMap = new HashMap<Channel, DrawableImage[]>();
+
+    private Map<Channel, Double> channelGammaMap = new HashMap<Channel, Double>();
 
     /* Identity set used to track color map parameters currently listening on */
     private Map<ColorMapParameters, Object> listening = new IdentityHashMap<ColorMapParameters, Object>();
@@ -129,7 +132,8 @@ public class GLTrueColorImage extends GLDelegateImage<GLImage> implements
      * .Channel, com.raytheon.uf.viz.core.DrawableImage[])
      */
     @Override
-    public void setImages(Channel channel, DrawableImage... images) {
+    public void setImages(Channel channel, double gamma, DrawableImage... images) {
+        Double prevGamma = channelGammaMap.put(channel, gamma);
         DrawableImage[] prev = channelMap.put(channel, images);
         if (prev != images) {
             // Try to find equal array
@@ -143,6 +147,8 @@ public class GLTrueColorImage extends GLDelegateImage<GLImage> implements
             } else {
                 repaint = true;
             }
+        } else if (prevGamma != gamma) {
+            repaint = true;
         }
     }
 
@@ -157,6 +163,13 @@ public class GLTrueColorImage extends GLDelegateImage<GLImage> implements
     @Override
     public DrawableImage[] getImages(Channel channel) {
         return channelMap.get(channel);
+    }
+
+    /**
+     * @return gamma for the channel
+     */
+    public double getGamma(Channel channel) {
+        return channelGammaMap.get(channel);
     }
 
     /**
