@@ -183,9 +183,10 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  *                                     match the current time
  * 01/21/2016  18505       lshi        Resent product should have same WMO, MND, and segment times
  *                                     as original product.
- * 02/05/2016  5242        dgilling    Remove calls to deprecated Localization APIs.
+ * 02/05/2016   5242       dgilling    Remove calls to deprecated Localization APIs.
  * 02/10/2016   5337       dgilling    Prevent CAN products past VTEC end time 
  *                                     from being transmitted.
+ * 02/24/2016   5411       randerso    Leave issue times in mixed case.
  * </pre>
  * 
  * @author lvenable
@@ -2019,7 +2020,7 @@ public class ProductEditorComp extends Composite implements
                         SimpleDateFormat fmt = new SimpleDateFormat(
                                 longLocalFmtStr);
                         fmt.setTimeZone(localTimeZone);
-                        String issueTime = fmt.format(now).toUpperCase();
+                        String issueTime = fmt.format(now);
                         textComp.replaceText(tip, issueTime);
                     }
                 }
@@ -2044,7 +2045,7 @@ public class ProductEditorComp extends Composite implements
                     int numSegments = pds.getSegmentsArray().size();
                     SimpleDateFormat fmt = new SimpleDateFormat(longLocalFmtStr);
                     fmt.setTimeZone(localTimeZone);
-                    String officeIssueTime = fmt.format(now).toUpperCase();
+                    String officeIssueTime = fmt.format(now);
 
                     for (int i = 0; i < numSegments; i++) {
                         textComp.startUpdate();
@@ -2081,7 +2082,7 @@ public class ProductEditorComp extends Composite implements
                                 issueTime = officeIssueTime;
                             } else {
                                 fmt.setTimeZone(TimeZone.getTimeZone(tz));
-                                issueTime = fmt.format(now).toUpperCase();
+                                issueTime = fmt.format(now);
                             }
                             if (sb.length() > 0) {
                                 sb.append(" /");

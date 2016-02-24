@@ -525,16 +525,16 @@ class TextProduct(GenericHazards.TextProduct):
                 cta = ''
 
             if len(cta) > 1:
-              ctaBodyPhrase ="\n\nPrecautionary/preparedness actions...\n\n" + \
+              ctaBodyPhrase ="\n\nPRECAUTIONARY/PREPAREDNESS ACTIONS...\n\n" + \
                 cta + \
                 "\n\n&&\n\n"
             else:
               ctaBodyPhrase = cta
 
-            if ctaBodyPhrase.find('Precautionary/preparedness actions...') != -1 and  \
+            if ctaBodyPhrase.find('PRECAUTIONARY/PREPAREDNESS ACTIONS...') != -1 and  \
                attribution.find('&&') != -1:
                  attribution = attribution.replace('&&','')
-                 ctaBodyPhrase = ctaBodyPhrase.replace('Precautionary/preparedness actions...','')
+                 ctaBodyPhrase = ctaBodyPhrase.replace('PRECAUTIONARY/PREPAREDNESS ACTIONS...','')
 
             attrPhrase = attribution + '\n\n' + headPhrase + '\n' + \
               endTimePhrase + '\n' + basisPhrase + '\n' + impactsPhrase + \

@@ -180,7 +180,7 @@ producing swaths of tornado-like damage.
 
 #end
 #if(${list.contains(${bullets}, "takeCoverCTA")})
-Take cover now! Treat these imminent extreme winds as if a tornado was approaching and move immediately to the safe room in your shelter. Take action now to protect your life!
+TAKE COVER NOW! Treat these imminent extreme winds as if a tornado was approaching and move immediately to the safe room in your shelter. Take action now to protect your life!
 
 #end
 #if(${list.contains(${bullets}, "safePlacesCTA")})

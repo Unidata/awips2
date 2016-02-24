@@ -511,8 +511,8 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 #if($spoutTag.length() > 0)
 <L>${spoutTag}</L>
 #end
-<L>HAIL...${hailTag}IN</L>
-<L>WIND...${windTag}KTS</L>
+<L>HAIL...${hailTag}in</L>
+<L>WIND...${windTag}kts</L>
 
 $$
 

@@ -6,6 +6,8 @@
 #   TCV_Dictionary file
 # Author: GFE Installation Script
 # Last Modified: Feb 13, 2015
+#
+# 02/24/2016 #5411 randerso Changed all instances of MPH to mph per mixed case guidelines 
 # ----------------------------------------------------------------------------
 #  Needed to prevent an error from the SmartTool module
 WeatherElementEdited = None
@@ -14,17 +16,17 @@ ThreatStatements = {
     "Wind": {
         "Extreme": {
             "check plans": {
-                "planning": "Emergency planning should include a reasonable threat for major hurricane force wind greater than 110 MPH of equivalent Category 3 intensity or higher.",
+                "planning": "Emergency planning should include a reasonable threat for major hurricane force wind greater than 110 mph of equivalent Category 3 intensity or higher.",
                 "preparation": "To be safe, aggressively prepare for the potential of devastating to catastrophic wind impacts. Efforts should now be underway to secure all properties.",
                 "action": "Extremely Dangerous and life threatening wind is possible. Failure to adequately shelter may result in serious injury, loss of life, or immense human suffering.",
             },
             "complete preparations": {
-                "planning": "Emergency plans should include a reasonable threat for major hurricane force wind greater than 110 MPH of equivalent Category 3 intensity or higher.",
+                "planning": "Emergency plans should include a reasonable threat for major hurricane force wind greater than 110 mph of equivalent Category 3 intensity or higher.",
                 "preparation": "To be safe, aggressively prepare for the potential of devastating to catastrophic wind impacts. Remaining efforts to secure properties should now be brought to completion.",
                 "action": "Extremely dangerous and life threatening wind is possible. Failure to adequately shelter may result in serious injury, loss of life, or immense human suffering. Move to safe shelter before the wind becomes hazardous.",
             },
             "hunker down": {
-                "planning": "Remain braced against the reasonable threat for major hurricane force wind greater than 110 MPH of equivalent Category 3 intensity or higher.",
+                "planning": "Remain braced against the reasonable threat for major hurricane force wind greater than 110 mph of equivalent Category 3 intensity or higher.",
                 "preparation": "To be safe, efforts should fully focus on protecting life. Properties remain subject to devastating to catastrophic wind impacts.",
                 "action": "Now is the time to urgently hide from the wind. Failure to adequately shelter may result in serious injury, loss of life, or immense human suffering. Remain sheltered until the hazardous wind subsides. Be ready to quickly move to the safest place within your shelter if extreme wind warnings are issued.",
             },
@@ -34,24 +36,24 @@ ThreatStatements = {
                 "action": "Failure to exercise due safety may result in additional injury or loss of life. If you have a life-threatening emergency dial 9 1 1.", 
             },
             "default": {
-                "planning": "Emergency considerations should include a reasonable threat for major hurricane force wind greater than 110 MPH of equivalent Category 3 or higher.",
+                "planning": "Emergency considerations should include a reasonable threat for major hurricane force wind greater than 110 mph of equivalent Category 3 or higher.",
                 "preparation": "Be safe and aggressively protect against the potential of devastating to catastrophic wind impacts.",
                 "action": "Extremely dangerous and life threatening wind is possible. Failure to adequately shelter may result in serious injury, loss of life, or immense human suffering.",
             },
         },
         "High": {
             "check plans": {
-                "planning": "Emergency planning should include a reasonable threat for hurricane force wind of 74 to 110 MPH of equivalent Category 1 to 2 intensity.",
+                "planning": "Emergency planning should include a reasonable threat for hurricane force wind of 74 to 110 mph of equivalent Category 1 to 2 intensity.",
                 "preparation": "To be safe, aggressively prepare for the potential of extensive wind impacts. Efforts should now be underway to secure all properties.",
                 "action": "Dangerous and life threatening wind is possible. Failure to adequately shelter may result in serious injury or loss of life.",
             },
             "complete preparations": {
-                "planning": "Emergency plans should include a reasonable threat for hurricane force wind of 74 to 110 MPH of equivalent Category 1 to 2 intensity.",
+                "planning": "Emergency plans should include a reasonable threat for hurricane force wind of 74 to 110 mph of equivalent Category 1 to 2 intensity.",
                 "preparation": "To be safe, aggressively prepare for the potential of extensive wind impacts. Remaining efforts to secure properties should now be brought to completion.",
                 "action": "Dangerous and life threatening wind is possible. Failure to adequately shelter may result in serious injury or loss of life. Move to safe shelter before the wind becomes hazardous.",
             },
             "hunker down": {
-                "planning": "Remain braced against the reasonable threat for hurricane force wind of 74 to 110 MPH of equivalent Category 1 to 2 intensity.",
+                "planning": "Remain braced against the reasonable threat for hurricane force wind of 74 to 110 mph of equivalent Category 1 to 2 intensity.",
                 "preparation": "To be safe, efforts should fully focus on protecting life. Properties remain subject to extensive wind impacts.",
                 "action": "Now is the time to urgently hide from the wind. Failure to adequately shelter may result in serious injury or loss of life. Remain sheltered until the hazardous wind subsides.",
             },
@@ -61,24 +63,24 @@ ThreatStatements = {
                 "action": "Failure to exercise due safety may result in additional injury or loss of life. If you have a life-threatening emergency dial 9 1 1." ,  
             },
             "default": {
-                "planning": "Emergency considerations should include a reasonable threat for hurricane force wind of 74 to 110 MPH of equivalent Category 1 to 2 intensity.",
+                "planning": "Emergency considerations should include a reasonable threat for hurricane force wind of 74 to 110 mph of equivalent Category 1 to 2 intensity.",
                 "preparation": "Be safe and aggressively protect against for the potential of extensive wind impacts.",
                 "action": "Dangerous and life threatening wind is possible. Failure to adequately shelter may result in serious injury or loss of life.",
             },
         },
         "Mod": {
             "check plans": {
-                "planning": "Emergency planning should include a reasonable threat for strong tropical storm force wind of 58 to 73 MPH.",
+                "planning": "Emergency planning should include a reasonable threat for strong tropical storm force wind of 58 to 73 mph.",
                 "preparation": "To be safe, earnestly prepare for the potential of significant wind impacts. Efforts should now be underway to secure all properties.",
                 "action": "Dangerous wind is possible. Failure to adequately shelter may result in serious injury, or in some cases loss of life.",
             },
             "complete preparations": {
-                "planning": "Emergency plans should include a reasonable threat for strong tropical storm force wind of 58 to 73 MPH.",
+                "planning": "Emergency plans should include a reasonable threat for strong tropical storm force wind of 58 to 73 mph.",
                 "preparation": "To be safe, earnestly prepare for the potential of significant wind impacts. Remaining efforts to secure properties should now be brought to completion.",
                 "action": "Dangerous wind is possible. Failure to adequately shelter may result in serious injury, or in some cases loss of life. Move to safe shelter before the wind becomes hazardous.",
             },
             "hunker down": {
-                "planning": "Remain braced against the reasonable threat for strong tropical storm force wind of 58 to 73 MPH.",
+                "planning": "Remain braced against the reasonable threat for strong tropical storm force wind of 58 to 73 mph.",
                 "preparation": "To be safe, efforts should fully focus on protecting life. Properties remain subject to significant wind impacts.",
                 "action": "Now is the time to hide from the wind. Failure to adequately shelter may result in serious injury, or in some cases loss of life. Remain sheltered until the hazardous wind subsides.",
             },
@@ -88,24 +90,24 @@ ThreatStatements = {
                 "action": "Failure to exercise due safety may result in additional injury, or in some cases loss of life.  If you have a life-threatening emergency dial 9 1 1.",  
             },
             "default": {
-                "planning": "Emergency considerations should include a reasonable threat for strong tropical storm force wind of 58 to 73 MPH.",
+                "planning": "Emergency considerations should include a reasonable threat for strong tropical storm force wind of 58 to 73 mph.",
                 "preparation": "Be safe and earnestly protect against the potential of significant wind impacts.",
                 "action": "Dangerous wind is possible. Failure to adequately shelter may result in serious injury, or in some cases loss of life.",
             },
         },
         "Elevated": {
             "check plans": {
-                "planning": "Emergency planning should include a reasonable threat for tropical storm force wind of 39 to 57 MPH.",
+                "planning": "Emergency planning should include a reasonable threat for tropical storm force wind of 39 to 57 mph.",
                 "preparation": "To be safe, prepare for the potential of limited wind impacts. Efforts should now be underway to secure all properties.",
                 "action": "Hazardous wind is possible. Failure to adequately shelter may result in serious injury.",
             },
             "complete preparations": {
-                "planning": "Emergency plans should include a reasonable threat for tropical storm force wind of 39 to 57 MPH.",
+                "planning": "Emergency plans should include a reasonable threat for tropical storm force wind of 39 to 57 mph.",
                 "preparation": "To be safe, prepare for the potential of limited wind impacts. Remaining efforts to secure properties should now be brought to completion.",
                 "action": "Hazardous wind is possible. Failure to adequately shelter may result in serious injury. Move to safe shelter before the wind becomes hazardous.",
             },
             "hunker down": {
-                "planning": "Remain braced against the reasonable threat for tropical storm force wind of 39 to 57 MPH.",
+                "planning": "Remain braced against the reasonable threat for tropical storm force wind of 39 to 57 mph.",
                 "preparation": "To be safe, efforts should fully focus on avoiding injury. Properties remain subject to limited wind impacts.",
                 "action": "Now is the time to hide from the wind. Failure to adequately shelter may result in serious injury. Remain sheltered until the hazardous wind subsides.", 
             },
@@ -115,24 +117,24 @@ ThreatStatements = {
                 "action": "Failure to exercise due safety may result in additional injury. If you have a life-threatening emergency dial 9 1 1.", 
             },
             "default": {
-                "planning": "Emergency considerations should include a reasonable threat for tropical storm force wind of 39 to 57 MPH.",
+                "planning": "Emergency considerations should include a reasonable threat for tropical storm force wind of 39 to 57 mph.",
                 "preparation": "Be safe and protect against the potential of limited wind impacts.",
                 "action": "Hazardous wind is possible. Failure to adequately shelter may result in serious injury.",
             },
         },
         "None": {
             "check plans": {
-                "planning": "Emergency planning for this event need not include a threat for tropical storm force wind. The wind will remain less than 39 MPH, but conditions may still be breezy to windy.",
+                "planning": "Emergency planning for this event need not include a threat for tropical storm force wind. The wind will remain less than 39 mph, but conditions may still be breezy to windy.",
                 "preparation": "Little to no preparations needed to guard against tropical winds at this time.",
                 "action": "Ensure readiness for the next tropical wind event.",
             },
             "complete preparations": {
-                "planning": "Emergency plans for this event need not include a threat for tropical storm force wind. The wind will remain less than 39 MPH, but conditions may still be breezy to windy.",
+                "planning": "Emergency plans for this event need not include a threat for tropical storm force wind. The wind will remain less than 39 mph, but conditions may still be breezy to windy.",
                 "preparation": "Little to no preparations needed to guard against tropical winds at this time.",
                 "action": "Ensure readiness for the next tropical wind event.",
             },
             "hunker down": {
-                "planning": "Emergency considerations need not include a threat for tropical storm force wind. The wind will remain less than 39 MPH, but conditions may still be breezy to windy.",
+                "planning": "Emergency considerations need not include a threat for tropical storm force wind. The wind will remain less than 39 mph, but conditions may still be breezy to windy.",
                 "preparation": "Little to no preparations needed to guard against tropical winds at this time.",
                 "action": "Ensure readiness for the next tropical wind event.",
             },
