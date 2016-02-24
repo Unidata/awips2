@@ -1,4 +1,4 @@
-# Version 2016.02.09-0
+# Version 2016.02.24-0
 
 import GenericHazards
 import JsonSupport
@@ -1516,23 +1516,27 @@ class SectionCommon():
             elif (onsetHour <= 6) and (endHour is not None) and (endHour > 0):
                 tr = "hunker down"
         
-        self._textProduct.debug_print("tr is currently -> '%s'" % (tr), 1)
+        self._textProduct.debug_print("Before default section. %s tr is currently -> %s for %s" % (section, tr, self._segment), 1)
 
+        # Will need to redo this logic when SS hazards are used
+        if section == "Wind":
+            threatGrid = "WindThreat"
+        elif section == "Surge":
+            threatGrid = "StormSurgeThreat"
+            
         if tr == "default":
             records = self._textProduct._getVtecRecords(self._segment)
             for record in records:
-                if self._textProduct._currentAdvisory['ZoneData'][self._segment]["WindThreat"] != "None":
+                if self._textProduct._currentAdvisory['ZoneData'][self._segment][threatGrid] in \
+                ["Elevated", "Mod", "High", "Extreme"]:
                     tr = "hunker down"
                     break
-                if record["phen"] in ["HU", "TR"] and record["sig"] == "W":
-                    if record["act"] == "CAN":
+                if self._textProduct._currentAdvisory['ZoneData'][self._segment][threatGrid] not in \
+                ["Elevated", "Mod", "High", "Extreme"]:
+                    if section == "Wind":
                         tr = "recovery"
                         break
-                    # This is just for 2015
-                    elif record["act"] == "CON" and \
-                         section == "Surge" and \
-                         self._textProduct._currentAdvisory['ZoneData'][self._segment]["StormSurgeThreat"] == "None" and \
-                         self._pastSurgeThreatsNotNone():
+                    elif section == "Surge" and self._pastSurgeThreatsNotNone():
                         tr = "recovery"
                         break
                     
@@ -1541,6 +1545,8 @@ class SectionCommon():
                self._pastWindHazardWasCAN():
                 tr = "recovery"
         
+        self._textProduct.debug_print("After default section. %s tr is -> %s for %s" % (section, tr, self._segment), 1)
+                           
         # ---------------------------------------------------------------------
         # Don't allow the event to regress to an earlier phase for this section
         
@@ -1551,20 +1557,32 @@ class SectionCommon():
             highestPhaseReachedField = "StormSurgeHighestPhaseReached"
         else: # Flooding Rain and Tornado are tied to Wind so that's why they use Wind's phase
             highestPhaseReachedField = "WindHighestPhaseReached"
+
+        previousHighestPhaseReached = self._textProduct._previousAdvisory['ZoneData'][self._segment][highestPhaseReachedField]
+        currentHighestPhaseReached = self._textProduct._currentAdvisory['ZoneData'][self._segment][highestPhaseReachedField]
+        if phaseOrder.index(currentHighestPhaseReached) >= phaseOrder.index(previousHighestPhaseReached):
+            highestPhaseReached = currentHighestPhaseReached
+        else:
+            highestPhaseReached = previousHighestPhaseReached
         
         if tr == "default":
-            if self._textProduct._currentAdvisory['ZoneData'][self._segment][highestPhaseReachedField] == "recovery":
+            if highestPhaseReached == "recovery":
                 tr = "recovery"
         else:
-            highestPhaseIndex = \
-                phaseOrder.index(self._textProduct._currentAdvisory['ZoneData'][self._segment][highestPhaseReachedField])
-            currentPhaseIndex = phaseOrder.index(tr)
+            highestPhaseIndex = phaseOrder.index(highestPhaseReached)
             
+            self._textProduct.debug_print("highestPhaseReached so far for %s is -> '%s' for '%s" \
+                                          % (self._sectionHeaderName, highestPhaseReached, self._segment), 1)
+            
+            currentPhaseIndex = phaseOrder.index(tr)
             if currentPhaseIndex < highestPhaseIndex:
-                tr = self._textProduct._currentAdvisory['ZoneData'][self._segment][highestPhaseReachedField]
+                tr = highestPhaseReached
             elif currentPhaseIndex > highestPhaseIndex:
                 self._textProduct._currentAdvisory['ZoneData'][self._segment][highestPhaseReachedField] = tr
-
+                
+        
+        self._textProduct.debug_print("End of method. %s tr is -> %s for %s" % (section, tr, self._segment), 1)
+        
         return tr
     
     def _pastWindHazardWasCAN(self):
@@ -1587,6 +1605,8 @@ class SectionCommon():
         return False
     
     def _pastSurgeThreatsNotNone(self):
+        
+        # Will need to modify this to be both Wind and Surge once SS codes are added
         previousAdvisories = self._textProduct._getPreviousAdvisories()
         
         #  If there are NOT any advisories to process - no need to continue
