@@ -1735,43 +1735,24 @@
 		* SLI
 		C | 1 | 0 | -15 | 15 | | | 29 | 0 | 4
 	-->
-	<styleRule>
-		<paramLevelMatches>
-			<parameter>SLI</parameter>
-			<parameter>PLI</parameter>
-		</paramLevelMatches>
-		<imageStyle>
-			<displayUnits>C</displayUnits>
-			<range scale="LINEAR">
-				<minValue>-15</minValue>
-				<maxValue>15</maxValue>
-			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
-			<colorbarLabeling>
-				<increment>4</increment>
-			</colorbarLabeling>
-		</imageStyle>
-	</styleRule>
-	<!--
-		* BLI
-		C | 1 | 0 | -15 | 15 | | | 29 | 0 | 4
-	-->
-	<styleRule>
-		<paramLevelMatches>
-			<parameter>BLI</parameter>
-		</paramLevelMatches>
-		<imageStyle>
-			<displayUnits>C</displayUnits>
-			<range scale="LINEAR">
-				<minValue>-15</minValue>
-				<maxValue>15</maxValue>
-			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
-			<colorbarLabeling>
-				<increment>4</increment>
-			</colorbarLabeling>
-		</imageStyle>
-	</styleRule>
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>SLI</parameter>
+            <parameter>PLI</parameter>
+            <parameter>BLI</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits label="C">K</displayUnits>
+            <range scale="LINEAR">
+                <minValue>-15</minValue>
+                <maxValue>15</maxValue>
+            </range>
+            <defaultColormap>Grid/gridded data</defaultColormap>
+            <colorbarLabeling>
+                <increment>4</increment>
+            </colorbarLabeling>
+        </imageStyle>
+    </styleRule>
 	<!--
 		* L-I, LIsfc2x
 		C | 1 | 0 | -15 | 15 | | | 29 | 0 | 4

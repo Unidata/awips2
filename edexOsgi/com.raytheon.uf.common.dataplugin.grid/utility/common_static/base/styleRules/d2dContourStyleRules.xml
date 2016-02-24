@@ -1204,33 +1204,20 @@ mb  | 1 | 0.0 | 4 |2:i4|1:i4|LH|8000F0FF| | 0 | 2
      </contourLabeling>
   </contourStyle>
 </styleRule>
-<!--  * SLI
-C  | 1 | 0 | 4 |  |  |..|8000F0FF| | 0 | 2
--->  
 <styleRule>
-  <paramLevelMatches>    
-    <parameter>PLI</parameter>
-  </paramLevelMatches>
-  	<contourStyle>
-     <displayUnits>C</displayUnits>  
-     <contourLabeling labelSpacing="4">
-        <increment>2</increment>
-     </contourLabeling>
-  </contourStyle>
-</styleRule>
-<styleRule>
-  <paramLevelMatches>    
+  <paramLevelMatches>
     <parameter>SLI</parameter>
+    <parameter>PLI</parameter>
+    <parameter>BLI</parameter>
   </paramLevelMatches>
-  	<contourStyle>
-     <displayUnits>C</displayUnits>  
+    <contourStyle>
+     <displayUnits label="C">K</displayUnits>
      <displayFlags>NoPlane</displayFlags>
      <contourLabeling labelSpacing="4">
         <increment>2</increment>
      </contourLabeling>
   </contourStyle>
 </styleRule>
-
 <!--  * SLI, Laps
 C  | 1 | 0 | 4 |  |  |..|8000F0FF|,900| 0 | 2
 -->  
@@ -1242,20 +1229,6 @@ C  | 1 | 0 | 4 |  |  |..|8000F0FF|,900| 0 | 2
   <contourStyle>
      <displayUnits>C</displayUnits>  
      <displayFlags>NoPlane</displayFlags>
-     <contourLabeling labelSpacing="4">
-        <increment>2</increment>
-     </contourLabeling>
-  </contourStyle>
-</styleRule>
-<!--  * BLI
-C  | 1 | 0 | 4 |  |  |..|8000F0FF| | 0 | 2
--->  
-<styleRule>
-  <paramLevelMatches>    
-     <parameter>BLI</parameter>
-     </paramLevelMatches>
-  <contourStyle>
-     <displayUnits>C</displayUnits>  
      <contourLabeling labelSpacing="4">
         <increment>2</increment>
      </contourLabeling>
@@ -2796,7 +2769,7 @@ C  | 1 | 0 | 4 |  |  |..|8000F0FF|,,,80 | 0 | 2
   </paramLevelMatches>
   <contourStyle>
      <smoothingDistance>80</smoothingDistance>
-     <displayUnits>C</displayUnits>    
+     <displayUnits label="C">K</displayUnits>
      <displayFlags>NoPlane</displayFlags>
      <contourLabeling labelSpacing="4">
         <increment>2</increment>
