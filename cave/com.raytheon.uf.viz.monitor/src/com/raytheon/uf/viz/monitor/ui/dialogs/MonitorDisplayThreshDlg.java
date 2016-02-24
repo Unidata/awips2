@@ -49,9 +49,10 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 6, 2009             lvenable     Initial creation
- * Jun 17, 2010 5551,5548  skorolev     Add "Open" and "Help" menu itemsec
- * Dec 6, 2012 #1351       skorolev     Changes for non-blocking dialogs.
+ * Apr  6, 2009            lvenable    Initial creation
+ * Jun 17, 2010 5551,5548  skorolev    Add "Open" and "Help" menu itemsec
+ * Dec  6, 2012 #1351      skorolev    Changes for non-blocking dialogs.
+ * Feb 23, 2016 #5393      randerso    Remove hard coded button width
  * 
  * </pre>
  * 
@@ -206,6 +207,7 @@ public abstract class MonitorDisplayThreshDlg extends CaveSWTDialog {
         MenuItem exitMI = new MenuItem(fileMenu, SWT.NONE);
         exitMI.setText("Exit");
         exitMI.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 close();
             }
@@ -237,6 +239,7 @@ public abstract class MonitorDisplayThreshDlg extends CaveSWTDialog {
         MenuItem open = new MenuItem(fileMenu, SWT.NONE);
         open.setText("Open");
         open.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 menuOpenAction();
             }
@@ -245,6 +248,7 @@ public abstract class MonitorDisplayThreshDlg extends CaveSWTDialog {
         MenuItem saveAsMI = new MenuItem(fileMenu, SWT.NONE);
         saveAsMI.setText("Save As...");
         saveAsMI.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 menuSaveAsAction();
             }
@@ -253,6 +257,7 @@ public abstract class MonitorDisplayThreshDlg extends CaveSWTDialog {
         MenuItem selectAsDefaultMI = new MenuItem(fileMenu, SWT.NONE);
         selectAsDefaultMI.setText("Select As Default...");
         selectAsDefaultMI.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 menuSelectAsDefaultAction();
             }
@@ -261,6 +266,7 @@ public abstract class MonitorDisplayThreshDlg extends CaveSWTDialog {
         MenuItem loadDefaultMI = new MenuItem(fileMenu, SWT.NONE);
         loadDefaultMI.setText("Load Default");
         loadDefaultMI.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 menuLoadDefaultAction();
             }
@@ -269,6 +275,7 @@ public abstract class MonitorDisplayThreshDlg extends CaveSWTDialog {
         MenuItem deleteMI = new MenuItem(fileMenu, SWT.NONE);
         deleteMI.setText("Delete");
         deleteMI.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 menuDeleteAction();
             }
@@ -285,6 +292,7 @@ public abstract class MonitorDisplayThreshDlg extends CaveSWTDialog {
         MenuItem saveMI = new MenuItem(fileMenu, SWT.NONE);
         saveMI.setText("Save");
         saveMI.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 menuSaveAction();
             }
@@ -309,11 +317,12 @@ public abstract class MonitorDisplayThreshDlg extends CaveSWTDialog {
         buttonComp.setLayout(new GridLayout(1, false));
         buttonComp.setLayoutData(gd);
 
-        gd = new GridData(130, SWT.DEFAULT);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT);
         Button commitBtn = new Button(buttonComp, SWT.PUSH);
         commitBtn.setText("Commit Changes");
         commitBtn.setLayoutData(gd);
         commitBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 commitChangeAction();
                 close();
@@ -353,7 +362,7 @@ public abstract class MonitorDisplayThreshDlg extends CaveSWTDialog {
     protected void doDelete(LocalizationFile fileName) {
         AbstractThresholdMgr atm = getThresholdMgr();
         boolean deletedUserSelected = atm.deleteFile(fileName);
-        if (deletedUserSelected == true) {
+        if (deletedUserSelected) {
             reloadThresholds();
         }
     }

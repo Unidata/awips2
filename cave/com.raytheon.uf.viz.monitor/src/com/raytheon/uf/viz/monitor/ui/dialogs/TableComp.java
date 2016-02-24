@@ -22,8 +22,6 @@ package com.raytheon.uf.viz.monitor.ui.dialogs;
 import java.util.HashMap;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ControlAdapter;
-import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.MouseAdapter;
@@ -35,6 +33,7 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -63,9 +62,10 @@ import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 7, 2009             lvenable    Initial creation
- * Oct 7, 2013  #2436      lvenable    Disposed of the sort color.
- * Nov 7, 2013  DR 16703   gzhang      Check in code for Lee for FFMP and Safeseas
+ * Apr  7, 2009            lvenable    Initial creation
+ * Oct  7, 2013  #2436     lvenable    Disposed of the sort color.
+ * Nov  7, 2013  DR 16703  gzhang      Check in code for Lee for FFMP and Safeseas
+ * Feb 23, 2016  #5393     randerso    Fix column width issues, code cleanup
  * 
  * </pre>
  * 
@@ -108,25 +108,9 @@ public abstract class TableComp extends Composite {
      */
     private Color lineColor;
 
-    /**
-     * Image indicating the column being sorted.
-     */
-    private Image sortImage;
+    private int imageWidth;
 
-    /**
-     * Default width for each column.
-     */
-    protected int defaultColWidth;
-
-    protected boolean columnMinimumSize = false;
-
-    private int imageWidth = 0;
-
-    private int imageHeight = 0;
-
-    private int textWidth = 0;
-
-    private int textHeight = 0;
+    private int imageHeight;
 
     private Color sortColor;
 
@@ -134,6 +118,8 @@ public abstract class TableComp extends Composite {
      * A map that contains a table column and the sort direction.
      */
     protected HashMap<TableColumn, Integer> columnSortMap;
+
+    private TableColumn sortColumn;
 
     /**
      * Constructor.
@@ -159,7 +145,7 @@ public abstract class TableComp extends Composite {
      * Initialize method.
      */
     protected void init() {
-        tiFont = new Font(parent.getDisplay(), "Arial", 10, SWT.NORMAL);
+        tiFont = new Font(parent.getDisplay(), "Sans", 10, SWT.NORMAL);
 
         sortColor = new Color(parent.getDisplay(), 133, 104, 190);
 
@@ -174,7 +160,6 @@ public abstract class TableComp extends Composite {
         makeImageCalculations();
 
         initData();
-        createSortImage();
 
         addTopTableControls(this);
 
@@ -187,11 +172,17 @@ public abstract class TableComp extends Composite {
         packColumns();
 
         this.addDisposeListener(new DisposeListener() {
+            @Override
             public void widgetDisposed(DisposeEvent arg0) {
                 tiFont.dispose();
                 lineColor.dispose();
-                sortImage.dispose();
                 sortColor.dispose();
+                if (sortColumn != null) {
+                    Image image = sortColumn.getImage();
+                    if (image != null) {
+                        image.dispose();
+                    }
+                }
             }
         });
     }
@@ -207,25 +198,21 @@ public abstract class TableComp extends Composite {
         GC gc = new GC(image);
         gc.setFont(tiFont);
 
-        int maxTextLength = -1;
-
-        textWidth = gc.getFontMetrics().getAverageCharWidth();
-        textHeight = gc.getFontMetrics().getHeight();
+        int maxTextWidth = 0;
+        int maxTextHeight = 0;
 
         String[] columnKeys = getColumnKeys(appName);
 
         for (String key : columnKeys) {
-            String columnName = getColumnAttribteData(key).getColumnName();
+            String columnName = getColumnAttributeData(key).getColumnName();
 
-            String[] nameArray = columnName.split("\n");
-
-            for (String tmpStr : nameArray) {
-                maxTextLength = Math.max(maxTextLength, tmpStr.length());
-            }
+            Point textExtent = gc.textExtent(columnName);
+            maxTextWidth = Math.max(maxTextWidth, textExtent.x);
+            maxTextHeight = Math.max(maxTextHeight, textExtent.y);
         }
 
-        imageWidth = maxTextLength * textWidth + 16;
-        imageHeight = textHeight * 2 + 3;
+        imageWidth = maxTextWidth + 2;
+        imageHeight = maxTextHeight + 2;
 
         gc.dispose();
         image.dispose();
@@ -236,7 +223,6 @@ public abstract class TableComp extends Composite {
      */
     private void initData() {
         lineColor = new Color(parent.getDisplay(), 80, 80, 80);
-        defaultColWidth = getDefaultColWidth(appName);
         columnSortMap = new HashMap<TableColumn, Integer>();
     }
 
@@ -257,6 +243,7 @@ public abstract class TableComp extends Composite {
          * cell and also draw a blue line to show the selected row.
          */
         table.addListener(SWT.PaintItem, new Listener() {
+            @Override
             public void handleEvent(Event event) {
                 table.deselectAll();
                 event.gc.setForeground(lineColor);
@@ -281,10 +268,10 @@ public abstract class TableComp extends Composite {
                 TableItem ti = (TableItem) event.item;
                 int idx = table.indexOf(ti);
                 if (idx == table.getItemCount() - 1) {
-                      event.gc.drawLine(rect.x, rect.y + rect.height - 2, rect.x
-                             + rect.width, rect.y + rect.height - 2);
+                    event.gc.drawLine(rect.x, rect.y + rect.height - 2, rect.x
+                            + rect.width, rect.y + rect.height - 2);
                 }
-                
+
                 if (tableIndex >= 0) {
                     event.gc.setForeground(parent.getDisplay().getSystemColor(
                             SWT.COLOR_BLUE));
@@ -330,8 +317,11 @@ public abstract class TableComp extends Composite {
 
         for (int i = 0; i < columns.length; i++) {
             tc = new TableColumn(table, SWT.CENTER);
-            tc.setText(getColumnAttribteData(columns[i]).getColumnName());
+            String columnName = getColumnAttributeData(columns[i])
+                    .getColumnName();
+            tc.setText(columnName);
             tc.setData(columns[i]);
+
             tc.addSelectionListener(new SelectionAdapter() {
                 @Override
                 public void widgetSelected(SelectionEvent event) {
@@ -340,75 +330,14 @@ public abstract class TableComp extends Composite {
                         return;
                     }
 
-                    /*
-                     * Check of the column is sortable.
-                     */
                     TableColumn tc = (TableColumn) event.getSource();
-                    String sortCol = (String) tc.getData();
-                    int sortDir = getColumnAttribteData(sortCol).getSortDir();
-
-                    if (sortDir == SortDirection.None.getSortDir()) {
-                        return;
-                    }
-
-                    TableColumn[] cols = table.getColumns();
-                    String[] colnkeys = getColumnKeys(appName);
-                    for (int j = 0; j < cols.length; j++) {
-                        cols[j].setImage(null);
-                        cols[j].setWidth(defaultColWidth);
-                        cols[j].setText(getColumnAttribteData(colnkeys[j])
-                                .getColumnName());
-                    }
-
-                    /*
-                     * Set the sort image, pack the column and sort the data.
-                     */
-                    tc.setImage(getSortHeaderImage(getColumnAttribteData(
-                            sortCol).getColumnName()));
-                    tc.setText("");
-                    tc.pack();
-
-                    if (tc.getWidth() < defaultColWidth) {
-                        tc.setWidth(defaultColWidth);
-                    }
 
                     // Sort the table data.
                     sortTableData(tc);
                 }
             });
 
-            /**
-             * DR#10701: The first column is selected for sorting by default
-             * when a Zone table or Station table is first displayed (not for
-             * History table)
-             */
-            if (i == 0) {
-                if (getColumnAttribteData(columns[i]).getSortDir() != SortDirection.None
-                        .getSortDir()) {
-                    tc.setText("");
-                    tc.setImage(getSortHeaderImage(getColumnAttribteData(
-                            columns[0]).getColumnName()));
-                }
-            }
-
-            if (columnMinimumSize == true) {
-                tc.addControlListener(new ControlAdapter() {
-                    @Override
-                    public void controlResized(ControlEvent e) {
-                        /*
-                         * Prevent the user from resizing the column to be
-                         * smaller than the default column size.
-                         */
-                        TableColumn tc = (TableColumn) e.getSource();
-                        if (tc.getWidth() < defaultColWidth
-                                && tc.getWidth() != 0) {
-                            tc.setWidth(defaultColWidth);
-                        }
-                    }
-                });
-            }
-
-            if (getColumnAttribteData(columns[i]).getSortDir() == CommonTableConfig.SortDirection.Both
+            if (getColumnAttributeData(columns[i]).getSortDir() == CommonTableConfig.SortDirection.Both
                     .getSortDir()) {
                 columnSortMap.put(tc, SWT.UP);
             }
@@ -454,6 +383,13 @@ public abstract class TableComp extends Composite {
 
         createTableItems();
 
+        TableColumn column = sortColumn;
+        if (column == null) {
+            column = table.getColumn(0);
+        }
+
+        sortTableData(column);
+
         packColumns();
     }
 
@@ -464,14 +400,32 @@ public abstract class TableComp extends Composite {
      *            Table column to sort.
      */
     private void sortTableData(TableColumn tc) {
+        /*
+         * Check if the column is sortable.
+         */
         String sortCol = (String) tc.getData();
-
-        int sortDir = getColumnAttribteData(sortCol).getSortDir();
+        int sortDir = getColumnAttributeData(sortCol).getSortDir();
 
         if (sortDir == SWT.NONE) {
             return;
         }
 
+        if (sortColumn != null) {
+            Image image = sortColumn.getImage();
+            sortColumn.setImage(null);
+            image.dispose();
+            sortColumn.setText(getColumnAttributeData(
+                    (String) sortColumn.getData()).getColumnName());
+        }
+
+        sortColumn = tc;
+
+        /*
+         * Set the sort image, pack the column and sort the data.
+         */
+        tc.setImage(getSortHeaderImage(getColumnAttributeData(sortCol)
+                .getColumnName()));
+        tc.setText("");
         if (sortDir == SortDirection.Both.getSortDir()) {
             if (columnSortMap.get(tc) == SWT.UP) {
                 sortDir = SWT.DOWN;
@@ -497,22 +451,6 @@ public abstract class TableComp extends Composite {
 
         createTableItems();
 
-        packColumns();
-    }
-
-    /**
-     * Create the sort image to be displayed in the solumn that is being sorted.
-     */
-    private void createSortImage() {
-        int imgWidth = 14;
-        int imgHeight = 14;
-
-        sortImage = new Image(parent.getDisplay(), imgWidth, imgHeight);
-
-        GC gc = new GC(sortImage);
-        drawSortImage(gc, imgWidth, imgHeight);
-
-        gc.dispose();
     }
 
     private Image getSortHeaderImage(String header) {
@@ -522,55 +460,13 @@ public abstract class TableComp extends Composite {
         gc.setForeground(parent.getDisplay().getSystemColor(SWT.COLOR_WHITE));
         gc.setBackground(sortColor);
         gc.fillRectangle(0, 0, imageWidth, imageHeight);
-        int xCoord = 0;
-        int yCoord = 0;
-        if (header.indexOf("\n") > 0) {
-            String[] tmpArray = header.split("\n");
-            int maxTextLen = tmpArray[0].length();
-            for (int j = 1; j < tmpArray.length; j++) {
-                if (tmpArray[j].length() > maxTextLen) {
-                    maxTextLen = tmpArray[j].length();
-                }
-            }
-            xCoord = Math
-                    .round((imageWidth / 2) - (maxTextLen * textWidth / 2)) - 2;
-            yCoord = 0;
-        } else {
-            xCoord = Math.round((imageWidth / 2)
-                    - (header.length() * textWidth / 2)) - 2;
-            yCoord = imageHeight / 2 - textHeight / 2 - 1;
-        }
+
+        Point textExtent = gc.textExtent(header);
+        int xCoord = (imageWidth - textExtent.x) / 2;
+        int yCoord = (imageHeight - textExtent.y) / 2;
+
         gc.drawText(header, xCoord, yCoord, true);
         return image;
-    }
-
-    /**
-     * Create the sort image.
-     * 
-     * @param gc
-     *            Graphic context.
-     * @param imgWidth
-     *            Image width.
-     * @param imgHeight
-     *            Image height.
-     */
-    private void drawSortImage(GC gc, int imgWidth, int imgHeight) {
-        gc.setAntialias(SWT.ON);
-
-        // "Erase" the canvas by filling it in with a white rectangle.
-        gc.setBackground(parent.getDisplay().getSystemColor(
-                SWT.COLOR_WIDGET_BACKGROUND));
-
-        gc.fillRectangle(0, 0, imgWidth, imgHeight);
-
-        gc.setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_MAGENTA));
-
-        gc.fillRectangle(0, 0, imgWidth, imgHeight);
-
-        gc.setLineWidth(2);
-        gc.setForeground(parent.getDisplay().getSystemColor(SWT.COLOR_BLACK));
-
-        gc.drawRectangle(1, 1, imgWidth - 2, imgHeight - 2);
     }
 
     /**
@@ -603,19 +499,14 @@ public abstract class TableComp extends Composite {
         TableColumn[] tCols = table.getColumns();
 
         for (int i = 0; i < visCols.length; i++) {
-            if (visCols[i] == false) {
+            if (!visCols[i]) {
                 tCols[i].setWidth(0);
             } else {
                 table.getColumn(i).pack();
-                table.getColumn(i).setWidth(table.getColumn(i).getWidth() + 5);
+                table.getColumn(i).setWidth(table.getColumn(i).getWidth() + 2);
             }
         }
     }
-
-    /**
-     * Pack the table columns.
-     */
-    protected abstract void packColumns();
 
     protected abstract void tableColRightMouseAction(MouseEvent event);
 
@@ -644,15 +535,6 @@ public abstract class TableComp extends Composite {
     protected abstract void addTopTableControls(Composite parentComp);
 
     /**
-     * Get the default column width.
-     * 
-     * @param appName
-     *            Application name.
-     * @return The column width.
-     */
-    protected abstract int getDefaultColWidth(CommonConfig.AppName appName);
-
-    /**
      * Get the column keys.
      * 
      * @param appName
@@ -668,7 +550,7 @@ public abstract class TableComp extends Composite {
      *            Column name.
      * @return Column attribute data.
      */
-    protected abstract ColumnAttribData getColumnAttribteData(String colName);
+    protected abstract ColumnAttribData getColumnAttributeData(String colName);
 
     /**
      * Get the column index.
@@ -681,4 +563,18 @@ public abstract class TableComp extends Composite {
      */
     protected abstract int getColumnIndex(CommonConfig.AppName appName,
             String sortCol);
+
+    /**
+     * Pack the table columns.
+     */
+    private void packColumns() {
+        for (int i = 0; i < table.getColumnCount(); i++) {
+            TableColumn column = table.getColumn(i);
+            column.pack();
+            column.setWidth(column.getWidth() + 2);
+        }
+
+        getShell().pack();
+    }
+
 }
