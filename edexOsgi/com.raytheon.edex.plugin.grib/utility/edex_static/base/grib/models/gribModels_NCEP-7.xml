@@ -690,7 +690,7 @@
     </model>
 
     <model>
-        <name>NamDNG25</name>
+        <name>namdng25</name>
         <center>7</center>
         <subcenter>0</subcenter>
         <grid>184</grid>
@@ -820,6 +820,16 @@
         <process>
             <id>89</id>
         </process>
+    </model>
+
+    <model>
+        <name>${REGION}-NamDNG3</name>
+        <center>7</center>
+        <subcenter>0</subcenter>
+        <grid>1023</grid>
+        <process>
+            <id>89</id>
+         </process>
     </model>
 
     <model>

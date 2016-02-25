@@ -99,7 +99,7 @@
     <alias base="RUC130">ruc130</alias>
     <alias base="RTMA25">rtmaNDFD</alias>
     <alias base="URMA25">urmaNDFD</alias>
-    <alias base="NamDNG5">NamDNG5</alias>
+    <alias base="namdng25">NamDNG</alias>
     <alias base="GlobalWave">GlobalWave</alias>
     <alias base="AKwave10">AKwave10</alias>
     <alias base="AKwave4">AKwave4</alias>
@@ -108,9 +108,9 @@
     <alias base="WCwave4">WCwave4</alias>
     <alias base="WNAwave10">WNAwave10</alias>
     <alias base="WNAwave4">WNAwave4</alias>
-    <alias base="AK-NamDNG5">AkNamDNG5</alias>
-    <alias base="HI-NamDNG5">HiNamDNG5</alias>
-    <alias base="PR-NamDNG5">PrNamDNG5</alias>
+    <alias base="AK-NamDNG3">NamDNG</alias>
+    <alias base="HI-NamDNG5">NamDNG</alias>
+    <alias base="PR-NamDNG5">NamDNG</alias>
     <alias base="HiResW-ARW-East">HiResW-arwEast</alias>
     <alias base="HiResW-ARW-West">HiResW-arwWest</alias>
     <alias base="HiResW-ARW-AK">HiResW-arwAK</alias>

@@ -39,7 +39,7 @@
     <uiname>totalCldCvr</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -54,7 +54,7 @@
     <uiname>HGT</uiname>
     <valid_range>-5000.0</valid_range>
     <valid_range>20000.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>WBZ 0</levelsDesc>
     <levels>
@@ -65,7 +65,7 @@
     <short_name>staticCoriolis</short_name>
     <long_name>Coriolis parameter</long_name>
     <units>/s</units>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>tp12hr</short_name>
@@ -75,7 +75,7 @@
     <uiname>APCP09</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>1000.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -90,7 +90,7 @@
     <uiname>12hrPcpProb</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -105,7 +105,7 @@
     <uiname>maxRH12hr</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -120,7 +120,7 @@
     <uiname>DIST</uiname>
     <valid_range>-2000.0</valid_range>
     <valid_range>20000.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>BLD 0</levelsDesc>
     <levels>
@@ -135,7 +135,7 @@
     <uiname>Td</uiname>
     <valid_range>180.0</valid_range>
     <valid_range>330.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>1</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -150,7 +150,7 @@
     <uiname>6hrPcpProb</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -165,7 +165,7 @@
     <uiname>TMP</uiname>
     <valid_range>180.0</valid_range>
     <valid_range>330.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>1</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -180,7 +180,7 @@
     <uiname>snowDepth</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>10.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -195,7 +195,7 @@
     <uiname>APCP03</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>1000.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -206,7 +206,7 @@
     <short_name>staticSpacing</short_name>
     <long_name>Grid spacing</long_name>
     <units>meters</units>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>minRH3hr</short_name>
@@ -216,7 +216,7 @@
     <uiname>minRH3hr</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -231,7 +231,7 @@
     <uiname>windGustSpeed</uiname>
     <valid_range>-150.0</valid_range>
     <valid_range>150.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -246,7 +246,7 @@
     <uiname>windDir</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>360.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>1</n3D>
     <levelsDesc>BLD 0</levelsDesc>
     <levels>
@@ -261,7 +261,7 @@
     <uiname>windSpeed</uiname>
     <valid_range>-150.0</valid_range>
     <valid_range>150.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>1</n3D>
     <levelsDesc>BLD 0</levelsDesc>
     <levels>
@@ -272,7 +272,7 @@
     <short_name>staticTopo</short_name>
     <long_name>Topography</long_name>
     <units>meters</units>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>tp6hr</short_name>
@@ -282,7 +282,7 @@
     <uiname>APCP06</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>1000.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -297,7 +297,7 @@
     <uiname>Vis</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>100000.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -312,7 +312,7 @@
     <uiname>TMAX</uiname>
     <valid_range>-330.0</valid_range>
     <valid_range>330.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -327,7 +327,7 @@
     <uiname>TMAX</uiname>
     <valid_range>-330.0</valid_range>
     <valid_range>330.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -342,7 +342,7 @@
     <uiname>uWind</uiname>
     <valid_range>-150.0</valid_range>
     <valid_range>150.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>1</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -357,7 +357,7 @@
     <uiname>3hrPcpProb</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -372,7 +372,7 @@
     <uiname>vWind</uiname>
     <valid_range>-150.0</valid_range>
     <valid_range>150.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>1</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -387,7 +387,7 @@
     <uiname>snowDepth</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>10.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -402,7 +402,7 @@
     <uiname>TMIN</uiname>
     <valid_range>-330.0</valid_range>
     <valid_range>330.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -417,7 +417,7 @@
     <uiname>minRH12hr</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -432,7 +432,7 @@
     <uiname>TMIN</uiname>
     <valid_range>-330.0</valid_range>
     <valid_range>330.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -447,11 +447,24 @@
     <uiname>maxRH3hr</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
       <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>refc</short_name>
+    <long_name>Composite Reflectivity</long_name>
+    <units>dBZ</units>
+    <valid_range>-30.0</valid_range>
+    <valid_range>80.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>EA</levelsDesc>
+    <levels>
+      <level>EA</level>
     </levels>
   </gridParameterInfo>
 </gridParamInfo>
