@@ -54,7 +54,7 @@ def start(queue, append, sites, climateDir):
     #mythread.start()
 
 # Process Data button
-def process(queue, stnPickle):
+def process(queue, stnPickle, append, sites, climateDir):
     import ClimateDataUpdate
     import cPickle as pickle
     o = pickle.loads(stnPickle)
