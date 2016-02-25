@@ -122,7 +122,7 @@ public class ValuesDialog extends CaveJFACEDialog {
     @Override
     protected void createButtonsForButtonBar(Composite parent) {
 
-        if (callback != null || closeAfterRun) {
+        if ((callback != null) || closeAfterRun) {
             createButton(parent, ButtonConstant.RUN.id,
                     ButtonConstant.RUN.label, false);
             createButton(parent, ButtonConstant.RUN_DISMISS.id,
@@ -301,10 +301,15 @@ public class ValuesDialog extends CaveJFACEDialog {
 
             @Override
             public void run() {
-                Shell shell = PlatformUI.getWorkbench()
-                        .getActiveWorkbenchWindow().getShell();
+                Shell shell = null;
+                if (PlatformUI.isWorkbenchRunning()) {
+                    shell = PlatformUI.getWorkbench()
+                            .getActiveWorkbenchWindow().getShell();
+                }
+
                 syncedDialog = new ValuesDialog(shell, title, fieldDefs,
                         dataMgr);
+
                 syncedDialog.setShellStyle(SWT.MODELESS | SWT.TITLE
                         | SWT.RESIZE);
                 syncedDialog.open();
