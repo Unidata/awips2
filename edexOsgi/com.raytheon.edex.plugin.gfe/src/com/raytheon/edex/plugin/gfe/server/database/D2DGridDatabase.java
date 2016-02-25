@@ -122,6 +122,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * 06/29/2015   #4537       rferrel     Allow for durations less then 1 hour.
  * 07/13/2015   #4537       randerso    Additional changes to allow D2DParms with sub-hourly durations/intervals
  * 12/03/2015   #5168       randerso    Added flag to use database time range if valid
+ * 01/27/2016   #5290       randerso    Do not put null time ranges in the grid inventory.
  * 
  * </pre>
  * 
@@ -653,7 +654,9 @@ public class D2DGridDatabase extends VGridDatabase {
                                 + dataTime.getFcstTime());
                     }
                 }
-                invSet.add(tr);
+                if (tr != null) {
+                    invSet.add(tr);
+                }
             }
             inventory = new ArrayList<TimeRange>(invSet);
         } else {

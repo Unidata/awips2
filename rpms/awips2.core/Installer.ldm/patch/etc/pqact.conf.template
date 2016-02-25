@@ -73,6 +73,9 @@ HDS	^(YEI.[89]8) KWNH (..)(..)(..)[^!]*!(grib|grib2)/ncep/([^/]*)/#([^/]*)/([0-9
 # ZETA98 KWNE 311200 /mRFC_QPE !grib/ncep/RFC_QPE/#240/201101311200/F006/APCP/sfc/
 HDS	^(ZETA98) (K[NW][EN][ES]) (..)(..)(..)([^!]*)!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})/([^/]*)/([^/]*)
 	FILE	-overwrite -log -close -edex	/data_store/\7/(\3:yyyy)(\3:mm)\3/\4/\8/GRID\9/\(11)Z_\(12)_\(13)-\1_\2_\3\4\5_(seq).\7.%Y%m%d%H
+# DR 18644 - Pattern to account for change to grib2
+ANY	^(ZETA98) (K[NW][EN][ES]) (..)(..)(..)([^!]*)!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+	FILE	-overwrite -log -close -edex	/data_store/\7/(\3:yyyy)(\3:mm)\3/\4/\8/GRID\9/\(11)Z_\(12)_\(13)-\1_\2_\3\4\5_(seq).\7.%Y%m%d%H
 
 # AWIPS 1 GRID    ^ZEGA98.*KNES                   /img/SBN/Raw
 #
@@ -887,7 +890,10 @@ ANY	^(FEAK[45][7-9]|FOAK5[7-9]|FECN[35]0|FOCN30|FEPA[45]0|FOPA50|FEUS5[1-6]|F[EO
 EXP	(.*ecmwf_mos_decrypted.*)
 	FILE	-overwrite -log -close -edex	\1
 
+# DR 18637: PQPF data
+NGRID	^(HEN[A-KXY][0-9][0-9]) (KWNH) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/\7/GRID\8/\(10)Z_\(11)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
 
-
-
-
+# This separate pattern necessary because some pqpf data cause ldm grib2 errors and it doesn't parse entire grib record
+NGRID	^(HEN[A-KXY][0-9][0-9]) (KWNH) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/FHRS/([^/]*)
+	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/\7/GRID\8/\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
