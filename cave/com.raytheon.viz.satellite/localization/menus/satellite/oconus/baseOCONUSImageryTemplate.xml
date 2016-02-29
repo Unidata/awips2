@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This is a sample for OCONUS satellite sub-menu in D2D. 
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <contribute xsi:type="subMenu" menuText="Group 1">
+        <contribute xsi:type="titleItem"
+            titleText="------ Sub Group 1  ------" id="SubGroup1" />
+        <contribute xsi:type="bundleItem" file="bundles/DefaultCompositeSatellite.xml" 
+               menuText="Imagery 1" id="imagery1">
+            <substitute key="sector0" value="West CONUS"/>
+            <substitute key="sector1" value="East CONUS"/>
+            <substitute key="sector2" value="Supernational"/>
+            <substitute key="sector3" value="Northern Hemisphere Composite"/>
+            <substitute key="entity" value="GOES%"/>
+            <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
+            <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" file="bundles/DefaultCompositeSatellite.xml" 
+               menuText="Imagery 2" id="imagery2">
+            <substitute key="sector0" value="West CONUS"/>
+            <substitute key="sector1" value="East CONUS"/>
+            <substitute key="sector2" value="Supernational"/>
+            <substitute key="sector3" value="Northern Hemisphere Composite"/>
+            <substitute key="entity" value="GOES%"/>
+            <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
+            <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
+        </contribute>
+        <contribute xsi:type="titleItem"
+            titleText="------ Sub Group 2  ------" id="SubGroup2" />
+    </contribute>
+    <contribute xsi:type="subMenu" menuText="Group 2">
+        <contribute xsi:type="titleItem"
+            titleText="------ Sub Group 1  ------" id="SubGroup1" />
+        <contribute xsi:type="bundleItem" file="bundles/DefaultCompositeSatellite.xml" 
+               menuText="Imagery 1" id="imagery1">
+            <substitute key="sector0" value="West CONUS"/>
+            <substitute key="sector1" value="East CONUS"/>
+            <substitute key="sector2" value="Supernational"/>
+            <substitute key="sector3" value="Northern Hemisphere Composite"/>
+            <substitute key="entity" value="GOES%"/>
+            <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
+            <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" file="bundles/DefaultCompositeSatellite.xml" 
+               menuText="Imagery 2" id="imagery2">
+            <substitute key="sector0" value="West CONUS"/>
+            <substitute key="sector1" value="East CONUS"/>
+            <substitute key="sector2" value="Supernational"/>
+            <substitute key="sector3" value="Northern Hemisphere Composite"/>
+            <substitute key="entity" value="GOES%"/>
+            <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
+            <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
+        </contribute>
+        <contribute xsi:type="titleItem"
+            titleText="------ Sub Group 2  ------" id="SubGroup2" />
+    </contribute>
+    <contribute xsi:type="subMenu" menuText="Group 3">
+        <contribute xsi:type="titleItem"
+            titleText="------ Sub Group 1  ------" id="SubGroup1" />
+        <contribute xsi:type="bundleItem" file="bundles/DefaultCompositeSatellite.xml" 
+               menuText="Imagery 1" id="imagery1">
+            <substitute key="sector0" value="West CONUS"/>
+            <substitute key="sector1" value="East CONUS"/>
+            <substitute key="sector2" value="Supernational"/>
+            <substitute key="sector3" value="Northern Hemisphere Composite"/>
+            <substitute key="entity" value="GOES%"/>
+            <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
+            <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" file="bundles/DefaultCompositeSatellite.xml" 
+               menuText="Imagery 2" id="imagery2">
+            <substitute key="sector0" value="West CONUS"/>
+            <substitute key="sector1" value="East CONUS"/>
+            <substitute key="sector2" value="Supernational"/>
+            <substitute key="sector3" value="Northern Hemisphere Composite"/>
+            <substitute key="entity" value="GOES%"/>
+            <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
+            <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
+        </contribute>
+        <contribute xsi:type="titleItem"
+            titleText="------ Sub Group 2  ------" id="SubGroup2" />
+    </contribute>
+    <contribute xsi:type="subMenu" menuText="Group 4">
+        <contribute xsi:type="titleItem"
+            titleText="------ Sub Group 1  ------" id="SubGroup1" />
+        <contribute xsi:type="bundleItem" file="bundles/DefaultCompositeSatellite.xml" 
+               menuText="Imagery 1" id="imagery1">
+            <substitute key="sector0" value="West CONUS"/>
+            <substitute key="sector1" value="East CONUS"/>
+            <substitute key="sector2" value="Supernational"/>
+            <substitute key="sector3" value="Northern Hemisphere Composite"/>
+            <substitute key="entity" value="GOES%"/>
+            <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
+            <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" file="bundles/DefaultCompositeSatellite.xml" 
+               menuText="Imagery 2" id="imagery2">
+            <substitute key="sector0" value="West CONUS"/>
+            <substitute key="sector1" value="East CONUS"/>
+            <substitute key="sector2" value="Supernational"/>
+            <substitute key="sector3" value="Northern Hemisphere Composite"/>
+            <substitute key="entity" value="GOES%"/>
+            <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
+            <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
+        </contribute>
+        <contribute xsi:type="titleItem"
+            titleText="------ Sub Group 2  ------" id="SubGroup2" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultCompositeSatellite.xml" 
+               menuText="Imagery 1" id="imagery1">
+        <substitute key="sector0" value="West CONUS"/>
+        <substitute key="sector1" value="East CONUS"/>
+        <substitute key="sector2" value="Supernational"/>
+        <substitute key="sector3" value="Northern Hemisphere Composite"/>
+        <substitute key="entity" value="GOES%"/>
+        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
+        <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultCompositeSatellite.xml" 
+               menuText="Imagery 2" id="imagery2">
+        <substitute key="sector0" value="West CONUS"/>
+        <substitute key="sector1" value="East CONUS"/>
+        <substitute key="sector2" value="Supernational"/>
+        <substitute key="sector3" value="Northern Hemisphere Composite"/>
+        <substitute key="entity" value="GOES%"/>
+        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
+        <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
+    </contribute>
+</menuTemplate>
