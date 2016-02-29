@@ -186,6 +186,11 @@
         <constructor-arg value="com.raytheon.uf.common.dataplugin.gfe.request.SendIscGridRequest"/>
         <constructor-arg ref="sendIscGridHandler"/>
     </bean>
+    <bean id="sendWFOMessageHandler" class="com.raytheon.edex.plugin.gfe.server.handler.SendWFOMessageHandler"/>
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.common.dataplugin.gfe.request.SendWFOMessageRequest"/>
+        <constructor-arg ref="sendWFOMessageHandler"/>
+    </bean>
     <bean id="singletonDbIdsHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetSingletonDbIdsRequestHandler"/>
     <bean factory-bean="handlerRegistry" factory-method="register">
         <constructor-arg value="com.raytheon.uf.common.dataplugin.gfe.request.GetSingletonDbIdsRequest"/>

@@ -49,10 +49,11 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 6, 2009             lvenable     Initial creation
- * Jun 17, 2010 5551,5548  skorolev     Add "Open" and "Help" menu itemsec
+ * Apr  6, 2009            lvenable    Initial creation
+ * Jun 17, 2010 5551,5548  skorolev    Add "Open" and "Help" menu itemsec
  * Dec  6, 2012 #1351      skorolev     Changes for non-blocking dialogs.
  * Dec 26, 2015  5114      skorolev     Corrected menu actions according to getThresholdPath.
+ * Feb 23, 2016 #5393      randerso    Remove hard coded button width
  * 
  * </pre>
  * 
@@ -317,7 +318,7 @@ public abstract class MonitorDisplayThreshDlg extends CaveSWTDialog {
         buttonComp.setLayout(new GridLayout(1, false));
         buttonComp.setLayoutData(gd);
 
-        gd = new GridData(130, SWT.DEFAULT);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT);
         Button commitBtn = new Button(buttonComp, SWT.PUSH);
         commitBtn.setText("Commit Changes");
         commitBtn.setLayoutData(gd);
@@ -362,7 +363,7 @@ public abstract class MonitorDisplayThreshDlg extends CaveSWTDialog {
     protected void doDelete(LocalizationFile fileName) {
         AbstractThresholdMgr atm = getThresholdMgr();
         boolean deletedUserSelected = atm.deleteFile(fileName);
-        if (deletedUserSelected == true) {
+        if (deletedUserSelected) {
             reloadThresholds();
         }
     }

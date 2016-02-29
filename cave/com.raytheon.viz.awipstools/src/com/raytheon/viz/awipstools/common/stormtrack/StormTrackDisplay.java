@@ -115,6 +115,8 @@ import com.vividsolutions.jts.geom.LineString;
  *                                   null in paintTrack().
  * Sep 09, 2014  657      qlin       handle StormTrackState.trackType is null.
  * Sep 25, 2014  16773    dfriedman  Fix NPE.
+ *  02-09-2016  ASM #18421 D. Friedman Don't call ToolsDataManager.setStormTrackData
+ *                                     if there is no storm motion.
  * Oct 10, 2014  16844    dfriedman  Prevent some errors when moving track.
  * Dec 02, 2015  5150     bsteffen   Add option to use constant end time.
  * 
@@ -1461,6 +1463,9 @@ public class StormTrackDisplay implements IRenderable {
     }
 
     private void postData(StormTrackState state) {
+        if (!(state.speed > 0)) {
+            return;
+        }
         StormTrackData data = new StormTrackData();
         Coordinate[] coords = new Coordinate[state.timePoints.length];
         for (int i = 0; i < coords.length; ++i) {

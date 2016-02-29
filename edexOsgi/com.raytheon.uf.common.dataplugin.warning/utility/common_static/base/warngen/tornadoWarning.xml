@@ -13,6 +13,7 @@
      Richard Barnhill        10-28-2013 Changed/added torEMER bulletGroup to keep it locked on followups 
      Mike Dangelo            1-23-2014 Changed parseStrings for default safety rules CTAs and law enf CTA
      Evan Bookbinder         9-5-2014 Fixed law enf CTA parse strings to match   
+     Evan Bookbinder         6-15-15 Fixed incorrect softball and grapefruit hail sizes
      Evan Bookbinder         12-7-2015 Added TOR EMER CTA back into cta1 bullet group (undid 1/23/2014 change)
 -->
 
@@ -109,8 +110,8 @@ turned on unless the corresponding .vm file is turned on in a given template's .
 <bullet bulletName="tennisBallHail" bulletText="Tennis ball hail (2 1/2&quot;)" bulletGroup="hailThreat" parseString="TENNIS BALL SIZE"/>
 <bullet bulletName="baseballHail" bulletText="Baseball size hail (2 3/4&quot;)" bulletGroup="hailThreat" parseString="BASEBALL SIZE"/>
 <bullet bulletName="threeinchHail" bulletText="Three inch hail (3&quot;)" bulletGroup="hailThreat" parseString="THREE INCHES IN DIAMETER"/>
-<bullet bulletName="grapefruitHail" bulletText="Grapefruit size hail (4&quot;)" bulletGroup="hailThreat" parseString="GRAPEFRUIT SIZE"/>
-<bullet bulletName="softballHail" bulletText="Softball size hail (4 1/4&quot;)" bulletGroup="hailThreat" parseString="SOFTBALL SIZE"/>
+<bullet bulletName="softballHail" bulletText="Softball size hail (4&quot;)" bulletGroup="hailThreat" parseString="SOFTBALL SIZE"/>
+<bullet bulletName="grapefruitHail" bulletText="Grapefruit size hail (4 1/2&quot;)" bulletGroup="hailThreat" parseString="GRAPEFRUIT SIZE"/>
  -->
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="****** ADDITIONAL REPORTS *******" bulletType="title"/>
@@ -173,8 +174,8 @@ turned on unless the corresponding .vm file is turned on in a given template's .
 <bullet bulletName="tennisBallHail" bulletText="Tennis ball hail (2 1/2&quot;)" bulletGroup="hailThreat" parseString="TENNIS BALL SIZE"/>
 <bullet bulletName="baseballHail" bulletText="Baseball size hail (2 3/4&quot;)" bulletGroup="hailThreat" parseString="BASEBALL SIZE"/>
 <bullet bulletName="threeinchHail" bulletText="Three inch hail (3&quot;)" bulletGroup="hailThreat" parseString="THREE INCHES IN DIAMETER"/>
-<bullet bulletName="grapefruitHail" bulletText="Grapefruit size hail (4&quot;)" bulletGroup="hailThreat" parseString="GRAPEFRUIT SIZE"/>
-<bullet bulletName="softballHail" bulletText="Softball size hail (4 1/4&quot;)" bulletGroup="hailThreat" parseString="SOFTBALL SIZE"/>
+<bullet bulletName="softballHail" bulletText="Softball size hail (4&quot;)" bulletGroup="hailThreat" parseString="SOFTBALL SIZE"/>
+<bullet bulletName="grapefruitHail" bulletText="Grapefruit size hail (4 1/2&quot;)" bulletGroup="hailThreat" parseString="GRAPEFRUIT SIZE"/>
   -->
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="****** ADDITIONAL REPORTS *******" bulletType="title"/>

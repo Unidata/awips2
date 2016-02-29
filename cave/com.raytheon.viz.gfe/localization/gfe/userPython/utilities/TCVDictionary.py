@@ -5,7 +5,7 @@
 # TCV_Dictionary
 #   TCV_Dictionary file
 # Author: GFE Installation Script
-# Last Modified: Feb 13, 2015
+# Last Modified: Jan 26, 2016
 #
 # 02/24/2016 #5411 randerso Changed all instances of MPH to mph per mixed case guidelines 
 # ----------------------------------------------------------------------------
@@ -18,7 +18,7 @@ ThreatStatements = {
             "check plans": {
                 "planning": "Emergency planning should include a reasonable threat for major hurricane force wind greater than 110 mph of equivalent Category 3 intensity or higher.",
                 "preparation": "To be safe, aggressively prepare for the potential of devastating to catastrophic wind impacts. Efforts should now be underway to secure all properties.",
-                "action": "Extremely Dangerous and life threatening wind is possible. Failure to adequately shelter may result in serious injury, loss of life, or immense human suffering.",
+                "action": "Extremely dangerous and life threatening wind is possible. Failure to adequately shelter may result in serious injury, loss of life, or immense human suffering.",
             },
             "complete preparations": {
                 "planning": "Emergency plans should include a reasonable threat for major hurricane force wind greater than 110 mph of equivalent Category 3 intensity or higher.",

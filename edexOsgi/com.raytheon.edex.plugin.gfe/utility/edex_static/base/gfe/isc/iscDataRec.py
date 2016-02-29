@@ -20,15 +20,6 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
-
-import iscMosaic,iscUtil
-import os, stat, sys, re, string, types
-import time, xml, LogStream, IrtAccess
-import IrtServer
-from xml.etree import ElementTree
-from xml.etree.ElementTree import Element, SubElement
-from java.util import ArrayList
-
 #
 # Port of iscDataRec.py
 #
@@ -47,8 +38,17 @@ from java.util import ArrayList
 #                                                 Additional code cleanup
 #    04/08/2015      4383          dgilling       Support FireWx ISC.
 #    04/23/2015      4383          randerso       Fixed exception logging
+#    02/22/2016      5374          randerso       Added support for sendWFOMessage
 #
 ##
+
+import iscMosaic,iscUtil
+import os, stat, sys, re, string, types
+import time, xml, LogStream, IrtAccess
+import IrtServer
+from xml.etree import ElementTree
+from xml.etree.ElementTree import Element, SubElement
+from java.util import ArrayList
 
 iscDataRecLogger=None
 
@@ -210,7 +210,8 @@ def execIscDataRec(MSGID,SUBJECT,FILES):
                     IrtServer.serviceISCRequest(dataFile)
                 elif SUBJECT == 'PUT_TCV_FILES':
                     IrtServer.putTCVFiles(srcServer.get('site'), dataFile)
-                    pass
+                elif SUBJECT == 'SEND_WFO_MESSAGE':
+                    IrtServer.sendWfoMessage(srcServer.get('site'), dataFile)
                 else:
                     nosend = True
                     logProblem("unknown subject: ", SUBJECT)

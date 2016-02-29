@@ -43,7 +43,8 @@ import com.raytheon.uf.viz.monitor.data.TableData;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 7, 2009            lvenable     Initial creation
+ * Apr  7, 2009            lvenable    Initial creation
+ * Feb 23, 2016  #5393     randerso    Fix column width issues, code cleanup
  * 
  * </pre>
  * 
@@ -192,19 +193,6 @@ public class ZoneTableComp extends TableComp {
     }
 
     /**
-     * Get the default column width.
-     * 
-     * @param appName
-     *            Application name.
-     * @return The default column width.
-     */
-    @Override
-    protected int getDefaultColWidth(AppName appName) {
-        int colWidth = tableConfig.getTableDefaultColWidth(appName);
-        return colWidth;
-    }
-
-    /**
      * Get the column attribute data.
      * 
      * @param colName
@@ -212,7 +200,7 @@ public class ZoneTableComp extends TableComp {
      * @return The column attribute data.
      */
     @Override
-    protected ColumnAttribData getColumnAttribteData(String colName) {
+    protected ColumnAttribData getColumnAttributeData(String colName) {
         return tableConfig.getTableColumnAttr(colName);
     }
 
@@ -220,13 +208,5 @@ public class ZoneTableComp extends TableComp {
     protected void tableColRightMouseAction(MouseEvent event) {
         // TODO Auto-generated method stub
 
-    }
-
-    @Override
-    protected void packColumns() {
-        for (int i = 0; i < table.getColumnCount(); i++) {
-            table.getColumn(i).pack();
-            table.getColumn(i).setWidth(defaultColWidth);
-        }
     }
 }

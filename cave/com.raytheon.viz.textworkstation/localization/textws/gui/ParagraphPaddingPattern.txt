@@ -1,0 +1,37 @@
+#
+# This file contains the regex for paragraphs in text product
+# that requires special padding.  The padding for impact paragraphs
+# is set in WarnGen templates.  Whenever it is changed there, the
+# change needs to be reflected in this file as well.  The regex must match the
+# entire line and must include parentheses to capture the desired prefix that
+# will define the indentation level of the paragraph.
+#
+# Software History.
+#
+# Date         Ticket      Engineer    Description
+# ------------ ----------  ----------  --------------------------
+# 31Jan2016   RM18503   mgamazaychikov Created.
+#
+# Paragraph that starts with spaces followed by one of
+#
+#  "IMPACT..."
+#  "HAZARD..."
+#  "SOURCE..."
+#
+(\s*IMPACT\.\.\.).*
+(\s*HAZARD\.\.\.).*
+(\s*SOURCE\.\.\.).*
+#
+# Paragraph that starts with one of:
+#
+#  "METAR"
+#  "SPECI"
+#
+(METAR).*
+(SPECI).*
+#
+# Paragraph that start with
+#
+# "* "
+#
+(\*\s+).*
