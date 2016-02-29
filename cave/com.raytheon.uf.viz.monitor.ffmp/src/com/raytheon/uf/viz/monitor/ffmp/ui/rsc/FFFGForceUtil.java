@@ -47,6 +47,7 @@ import com.raytheon.uf.common.monitor.xml.SourceXML;
  * 05/22/13     1902       mpduff     Added methods to get forced values.
  * 06/17/13     2085       njensen    Made forceIt() more thread safe
  * 12 Oct, 2015 4948       dhladky    Simplified Forcings, forcings now work for interpolated "fake" guidance.
+ * 16 Feb, 2016 5372       dhladky    Defensive code for empty pfaf lists.
  * 
  * </pre>
  * 
@@ -158,68 +159,74 @@ public class FFFGForceUtil {
 
         FFFGDataMgr fdm = FFFGDataMgr.getInstance();
 
-        if ((sliderTime >= src1Hr) && (sliderTime <= src2Hr)) {
-            // Slider falls between the source times
-            if (sliderTime == src1Hr) {
-                forced = fdm.isForced(sourceXML1.getSourceName(),
-                        cBasin.getPfaf());
-                forcedPfafList = this.getForcedBasins(
-                        sourceXML1.getSourceName(), pfafList, ft);
-            } else if (sliderTime == src2Hr) {
-                forced = fdm.isForced(sourceXML2.getSourceName(),
-                        cBasin.getPfaf());
-                forcedPfafList = this.getForcedBasins(
-                        sourceXML2.getSourceName(), pfafList, ft);
-            } else {
-                if (cBasin.getAggregated()) {
+        // If pfafList is null, you can't process forcings.
+        if (pfafList != null && !pfafList.isEmpty()) {
+            if ((sliderTime >= src1Hr) && (sliderTime <= src2Hr)) {
+                // Slider falls between the source times
+                if (sliderTime == src1Hr) {
                     forced = fdm.isForced(sourceXML1.getSourceName(),
                             cBasin.getPfaf());
+                    forcedPfafList = this.getForcedBasins(
+                            sourceXML1.getSourceName(), pfafList, ft);
+                } else if (sliderTime == src2Hr) {
+                    forced = fdm.isForced(sourceXML2.getSourceName(),
+                            cBasin.getPfaf());
+                    forcedPfafList = this.getForcedBasins(
+                            sourceXML2.getSourceName(), pfafList, ft);
                 } else {
-                    forced = fdm.isForced(sourceXML1.getSourceName(),
-                            pfafList.get(0));
-                }
-                forcedPfafList = this.getForcedBasins(
-                        sourceXML1.getSourceName(), pfafList, ft);
-                if ((sourceXML2 != null)
-                        && (forced == false)
-                        && ((forcedPfafList == null) || (forcedPfafList.size() == 0))) {
                     if (cBasin.getAggregated()) {
-                        forced = fdm.isForced(sourceXML2.getSourceName(),
+                        forced = fdm.isForced(sourceXML1.getSourceName(),
                                 cBasin.getPfaf());
                     } else {
-                        forced = fdm.isForced(sourceXML2.getSourceName(),
+                        forced = fdm.isForced(sourceXML1.getSourceName(),
                                 pfafList.get(0));
                     }
-                    forcedPfafList.addAll(this.getForcedBasins(
-                            sourceXML2.getSourceName(), pfafList, ft));
-                }
-            }
-
-            // Check if the aggregate is forced if the individual basin isn't
-            if ((forced == false) && (forcedPfafList.size() == 0)) {
-                if (!cBasin.getAggregated()) {
-                    Long aggregate = ft.getAggregatedPfaf(cBasin.getPfaf(),
-                            resource.getSiteKey(), resource.getHuc());
-                    if (sourceXML1 != null) {
-                        forced = fdm.isForced(sourceXML1.getSourceName(),
-                                aggregate);
-                        if (!forced && (sourceXML2 != null)) {
-                            forced = fdm.isForced(sourceXML2.getSourceName(),
-                                    aggregate);
-                        }
-                    }
-                } else {
-                    if (sourceXML1 != null) {
-                        forced = fdm.isForced(sourceXML1.getSourceName(),
-                                cBasin.getPfaf());
-                        if (!forced && (sourceXML2 != null)) {
+                    forcedPfafList = this.getForcedBasins(
+                            sourceXML1.getSourceName(), pfafList, ft);
+                    if ((sourceXML2 != null)
+                            && (forced == false)
+                            && ((forcedPfafList == null) || (forcedPfafList
+                                    .size() == 0))) {
+                        if (cBasin.getAggregated()) {
                             forced = fdm.isForced(sourceXML2.getSourceName(),
                                     cBasin.getPfaf());
+                        } else {
+                            forced = fdm.isForced(sourceXML2.getSourceName(),
+                                    pfafList.get(0));
                         }
+                        forcedPfafList.addAll(this.getForcedBasins(
+                                sourceXML2.getSourceName(), pfafList, ft));
                     }
                 }
-            } else if (!forcedPfafList.isEmpty()) {
-                forced = true;
+
+                // Check if the aggregate is forced if the individual basin
+                // isn't
+                if ((forced == false) && (forcedPfafList.size() == 0)) {
+                    if (!cBasin.getAggregated()) {
+                        Long aggregate = ft.getAggregatedPfaf(cBasin.getPfaf(),
+                                resource.getSiteKey(), resource.getHuc());
+                        if (sourceXML1 != null) {
+                            forced = fdm.isForced(sourceXML1.getSourceName(),
+                                    aggregate);
+                            if (!forced && (sourceXML2 != null)) {
+                                forced = fdm.isForced(
+                                        sourceXML2.getSourceName(), aggregate);
+                            }
+                        }
+                    } else {
+                        if (sourceXML1 != null) {
+                            forced = fdm.isForced(sourceXML1.getSourceName(),
+                                    cBasin.getPfaf());
+                            if (!forced && (sourceXML2 != null)) {
+                                forced = fdm.isForced(
+                                        sourceXML2.getSourceName(),
+                                        cBasin.getPfaf());
+                            }
+                        }
+                    }
+                } else if (!forcedPfafList.isEmpty()) {
+                    forced = true;
+                }
             }
         }
 
@@ -227,6 +234,7 @@ public class FFFGForceUtil {
         retVal.pfafList = pfafList;
         retVal.forcedPfafList = forcedPfafList;
         return retVal;
+        
     }
 
     /**
