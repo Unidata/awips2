@@ -139,7 +139,7 @@ Must be paired with proper vm code (also commented out in flashFloodWarning.vm)!
   <bullet bulletName="rain3" bulletText="Three inches so far" bulletGroup="rainAmt" parseString="THREE INCHES OF RAIN HAVE ALREADY FALLEN"/>
   <bullet bulletName="rainEdit" bulletText="User defined amount" bulletGroup="rainAmt" parseString="INCHES OF RAIN HAVE FALLEN"/>
   <bullet bulletText="*********** ADDITIONAL INFO ***********" bulletType="title"/>
-  <bullet bulletName="listofcities" bulletDefault="true" bulletText="Select for a list of cities" bulletGroup="pcast" parseSting="&quot;LOCATIONS&quot;,&quot;INCLUDE...&quot;"/>
+  <bullet bulletName="listofcities" bulletDefault="true" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="&quot;LOCATIONS&quot;,&quot;INCLUDE...&quot;"/>
 <!--  <bullet bulletName="pathcast" bulletText="Generate Pathcast " bulletGroup="pcast" parseString="THE FOLLOWING LOCATIONS..."/>
 -->
   <bullet bulletName="addRainfall" bulletText="Additional rainfall of XX inches expected" parseString="ADDITIONAL RAINFALL"/>
