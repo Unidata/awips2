@@ -35,6 +35,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,6 +46,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import javax.xml.bind.JAXB;
 import javax.xml.bind.JAXBException;
@@ -135,6 +137,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.serialization.comm.IServerRequest;
 import com.raytheon.uf.common.site.SiteMap;
@@ -361,7 +364,8 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  * 19Nov2015   5141         randerso    Replace commas with ellipses if product not enabled for 
  *                                      mixed case transmission
  * 10Dec2015   5206         randerso    Replace commas with ellipses only in WarnGen products
- * 11Dec2015   RM14752   mgamazaychikov Fix problems with wrapping in the impact section.
+ * 11Dec2015   RM14752   mgamazaychikov Fix problems with wrapping in the impact section, generalized
+ *                                      the approach to padding paragraphs.
  * 06Jan2016    RM18452  mgamazaychikov Fix NPE for null product in enterEditor
  * 06Jan2016   5225         randerso    Fix problem with mixed case not getting converted to upper case 
  *                                      when multiple text editors are open on the same product.
@@ -502,16 +506,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * Last line was wrapped backwards
      */
     private static final String PARAGRAPH_DELIMITERS = "*$.-/^#";
-
-    /**
-     * String to delimit padded paragraphs.
-     */
-    private static final String PADDED_PARAGRAPH_DELIMITERS = "*";
-
-    /**
-     * Expression for start of an obs.
-     */
-    private static final String METAR_PARAGRAPH = "(METAR|SPECI)\\b.*";
 
     // Pattern no long used but keeping it here for just in case not using
     // it breaks being compatialbe with A1.
@@ -1418,6 +1412,10 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
     /** Highlight background color. */
     private Color highlightBackgroundClr;
+
+    private static List<Pattern> paddingPatternList = new ArrayList<Pattern>();
+
+    private static final String PARAGRAPH_PADDING_PATTERN_FILENAME = "textws/gui/ParagraphPaddingPattern.txt";
 
     /**
      * Constructor with additional cave style rules
@@ -8004,7 +8002,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     private void rewrapInternal(int lineNumber) {
         boolean inLocations = false;
         boolean inPathcast = false;
-        String padding = "";
         // get contents of line
         String line = textEditor.getLine(lineNumber);
         // check for special paragraph cases
@@ -8028,21 +8025,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             inPathcast = true;
         }
 
-        // is this the impact paragraph?
-        if (paragraphStart.startsWith("  IMPACT...")
-                || paragraphStart.startsWith("  HAZARD...")
-                || paragraphStart.startsWith("  SOURCE...")) {
-            padding = "           ";
-        }
-
-        if (paragraphStart.matches(METAR_PARAGRAPH)) {
-            padding = "     ";
-        } else if (checkParagraphPadding(paragraphStart)) {
-            // do we need to add or remove padding when we manipulate lines (
-            // two
-            // spaces )
-            padding = "  ";
-        }
+        // get the padding for the paragraph
+        String padding = getParagraphPadding(paragraphStart);
 
         if ((inLocations || inPathcast)
                 && paragraphStartLineNumber == lineNumber) {
@@ -8386,23 +8370,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             }
         }
 
-    }
-
-    /**
-     * checks if the paragraph starting at the line passed in uses two space
-     * padding for subsequent lines
-     * 
-     * @param firstLine
-     * @return
-     */
-    private boolean checkParagraphPadding(String firstLine) {
-        boolean rval = false;
-        if (firstLine.length() > 0
-                && PADDED_PARAGRAPH_DELIMITERS.contains(firstLine.substring(0,
-                        1))) {
-            rval = true;
-        }
-        return rval;
     }
 
     /**
@@ -8829,5 +8796,76 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     @Override
     public void timechanged() {
         validateTime();
+    }
+
+    /**
+     * Reads the contents of PARAGRAPH_PADDING_PATTERN_FILENAME into
+     * paddingPatternList.
+     */
+    private void loadPaddingPattern() {
+        IPathManager pathMgr = PathManagerFactory.getPathManager();
+        LocalizationFile lf = pathMgr.getStaticLocalizationFile(
+                LocalizationType.CAVE_STATIC,
+                PARAGRAPH_PADDING_PATTERN_FILENAME);
+        if ((lf != null) && lf.exists()) {
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(
+                    lf.openInputStream()))) {
+                String line = null;
+                List<Pattern> patternList = new ArrayList<Pattern>();
+                while ((line = br.readLine()) != null) {
+                    if (!line.startsWith("#")) {
+                        try {
+                            Pattern ptrn = Pattern.compile(line);
+                            patternList.add(ptrn);
+                        } catch (PatternSyntaxException e) {
+                            statusHandler.handle(Priority.PROBLEM,
+                                    "Could not compile regex for line " + line
+                                            + " from Padding Pattern file "
+                                            + lf.toString(), e);
+                        }
+                    }
+                }
+                paddingPatternList = patternList;
+            } catch (IOException e) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Could not read Padding Pattern file "
+                                + PARAGRAPH_PADDING_PATTERN_FILENAME, e);
+            } catch (LocalizationException e) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Could not find Padding Pattern file "
+                                + PARAGRAPH_PADDING_PATTERN_FILENAME, e);
+            }
+        }
+    }
+
+   /**
+     * Sets the padding:
+     *  - according to padding pattern
+     *  - to empty string
+     *
+     * @param paragraphStart
+     */
+    private String getParagraphPadding(String paragraphStart) {
+        String defaultParagraphPadding = "";
+        for (Pattern paddingPtrn : getPaddingPatternList()) {
+            Matcher m = paddingPtrn.matcher(paragraphStart);
+            if (m.matches()) {
+                int paragraphOffset = m.group(1).toString().length();
+                StringBuilder sb = new StringBuilder(paragraphOffset);
+                for (int i = 0; i < paragraphOffset; i++) {
+                    sb.append(" ");
+                }
+                return sb.toString();
+            }
+        }
+        return defaultParagraphPadding;
+    }
+
+    private List<Pattern> getPaddingPatternList() {
+        // load padding pattern file
+        if (paddingPatternList.isEmpty()){
+            loadPaddingPattern();
+        }
+        return paddingPatternList;
     }
 }

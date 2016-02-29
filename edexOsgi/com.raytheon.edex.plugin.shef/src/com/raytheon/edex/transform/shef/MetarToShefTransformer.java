@@ -56,6 +56,8 @@ import com.raytheon.uf.edex.decodertools.core.DecoderTools;
  * Jan 30, 2010       15779  lbousaidi   added 4 letter to station id for ACR
  * Aug 08, 2013      16408 wkwock      Use different metar.cfg file and options
  * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
+ * Feb 12, 2016  18665     snaples/bkowal Update MetarToShef transformer to use options from token or config file.
+ * 
  * </pre>
  * 
  * @author jkorman
@@ -457,28 +459,34 @@ public class MetarToShefTransformer extends
             throws TransformerException {
         ObsToSHEFOptions tmpOptions = null;
         MetarToShefRun mtsr = mtsrList.get(report.getId());
+        String optionsToUse = null;
         if (mtsr == null) {
             tmpOptions = defaultOptions;
+            optionsToUse = this.metar2ShefOptions;
         } else {
+            optionsToUse = (mtsr.getMetarToShefOptions() == null) ? this.metar2ShefOptions
+                           : mtsr.getMetarToShefOptions();
             tmpOptions = optionsList.get(mtsr.getConfigFileName()
-                    + mtsr.getMetarToShefOptions());
+                         + optionsToUse);
             if (tmpOptions == null) {
                 // just to prevent t memory leak
                 if (optionsList.size() > MAX_LIST) {
                     optionsList.clear();
                 }
+                
                 tmpOptions = new ObsToSHEFOptions(mtsr.getConfigFileName(),
-                        mtsr.getMetarToShefOptions(), true);
+                             optionsToUse, true);
+                
                 optionsList
                         .put(mtsr.getConfigFileName()
-                                + mtsr.getMetarToShefOptions(), tmpOptions);
+                                + optionsToUse, tmpOptions);
             }
             mtsrList.remove(report.getId());
         }
         options = tmpOptions;
         logger.info("Metar to SHEF for " + report.getStationId()
                 + " use config file: " + options.getCfgFileName()
-                + " with options:" + mtsr.getMetarToShefOptions());
+                + " with options:" + optionsToUse);
         configureArchiveDir();
 
         return transformReport(report, headers);
