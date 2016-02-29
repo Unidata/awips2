@@ -35,12 +35,10 @@ import javax.measure.converter.UnitConverter;
 import javax.measure.unit.Unit;
 
 import org.eclipse.core.commands.Command;
-import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.State;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
@@ -48,7 +46,6 @@ import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.handlers.RadioState;
 import org.eclipse.ui.handlers.RegistryToggleState;
-import org.eclipse.ui.operations.RedoActionHandler;
 
 import com.raytheon.uf.common.colormap.ColorMap;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
@@ -63,6 +60,7 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
+import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.datastructure.LoopProperties;
@@ -84,7 +82,6 @@ import com.raytheon.viz.mpe.MPECommandConstants;
 import com.raytheon.viz.mpe.MPEDateFormatter;
 import com.raytheon.viz.mpe.core.MPEDataManager;
 import com.raytheon.viz.mpe.core.MPEDataManager.MPERadarLoc;
-import com.raytheon.viz.mpe.ui.actions.ClearMPEData;
 import com.raytheon.viz.mpe.ui.dialogs.hourlyradar.RadarDataManager;
 import com.raytheon.viz.mpe.ui.displays.MPEMapRenderableDisplay;
 import com.raytheon.viz.mpe.ui.rsc.MPEFieldResource;
@@ -116,6 +113,7 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  * Jul 8, 2015   16790     snaples      Updated setCurrentEditDate to refresh resources when dateMap is stale.
  * Jul 29, 2015  17471     snaples      Updated editTime to ensure that it always references "GMT" timezone.
  * Sep 29, 2015  16790     snaples      Fixed issue with date not following the CAVE time when changed, and fixed time matching issue.
+ * Dec 02, 2015  18104     snaples      Fixed issue of not unzooming when using Pan/Zoom tools.
  * 
  * </pre>
  * 
@@ -314,6 +312,8 @@ public class MPEDisplayManager {
     private static GageColor gageColor;
 
     private static GageMissingOptions gageMissing;
+    
+    private static IExtent defaultExtent;
 
     static {
         gageMissing = getCommandStateEnum(
@@ -480,6 +480,15 @@ public class MPEDisplayManager {
             @Override
             public void run() {
                 MPEDisplayManager.this.toggleDisplayMode(DisplayMode.Image);
+                if (defaultExtent == null) {
+                    IDisplayPaneContainer container = EditorUtil.getActiveVizContainer();
+                    if (container != null) {
+                        IDisplayPane pane = container.getActiveDisplayPane();
+                        if (pane != null) {
+                            setDefaultExtent(pane.getRenderableDisplay().getExtent());
+                        }
+                    }
+                }
             }
         });
 
@@ -1294,5 +1303,13 @@ public class MPEDisplayManager {
     public int getDisplayedAccumHrs() {
        
         return displayedAccumHrs;
+    }
+    
+    public static IExtent getDefaultExtent() {
+        return defaultExtent;
+    }
+    
+    public static void setDefaultExtent(IExtent defaultExtent) {
+        MPEDisplayManager.defaultExtent = defaultExtent;
     }
 }

@@ -69,6 +69,7 @@
 #
 #    05/29/2015          #17144    bhunder        Added weather Params for URMA25 and OCONUS RTMA
 #    10/07/2015          #4958     dgilling       Added support for NationalBlend D2D data.  
+#    11/05/2015          #18182    ryu            Change D2DDBVERSIONS value for HPCERP to 24 
 ####################################################################################################
 
 #----------------------------------------------------------------------------
@@ -962,12 +963,12 @@ SITES = {
     'PBP' : ([321,225], (7.00, 11.00), (10.0, 7.0), 'Pacific/Honolulu', Grid208, "ro"),
     'ARE' : ([369,337], (44.00, 23.00), (23.0, 21.0), 'America/Anchorage', Grid214AK, "ro"),
     'ARW' : ([433,225], (1.00, 19.00), (54.0, 21.0), 'America/Anchorage', Grid214AK, "ro"),
-    
+
 #National Centers
     'HAK' : ( [825,553], ( 1.0, 1.0), (103.0, 69.0), 'EST5EDT', Grid214AK, "nc"),
     'HUS' : ([1073,689], (19.0, 8.0), ( 67.0, 43.0), 'EST5EDT', Grid211,   "nc"),
-    #'NHA' : ([1729,1601], (1.0,1.0), (1728.0, 1600.0), 'EST5EDT', GridForNHA, "nc"),
-    'NHA' : ([1833,1241], (41.5,5.0), (54.0,40.5), 'EST5EDT', Grid211, "nc"),
+    'NHA' : ([1873,1361], (35.5, 3.5), (58.5, 42.5), 'EST5EDT', Grid211, "nc"),
+
 }
 
 
@@ -1147,7 +1148,7 @@ D2DDBVERSIONS = {
       "MSAS": 6,
       "LAPS": 6,
       "Satellite": 6,
-      "HPCERP": 5,
+      "HPCERP": 24,
       "TPCProb": 30,
       "TPCStormSurge": 1,
       "CRMTopo": 1,

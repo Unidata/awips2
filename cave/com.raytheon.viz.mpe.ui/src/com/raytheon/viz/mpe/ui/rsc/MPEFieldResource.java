@@ -85,6 +85,7 @@ import com.raytheon.viz.mpe.ui.rsc.MPEFieldResourceData.MPEFieldFrame;
  * Mar 19, 2014 17109      snaples      Removed code that added an hour to SATPRE, the base file reference time has been adjusted.
  * Nov 05, 2015 18095      lbousaidi    Fixed hour substitued for satellite field precip when drawing polygon.
  * Dec 04, 2015 5165/14513 mduff        Set this resource on the display manager if not set in the display manager.
+ * Dec 08, 2015 5180       bkowal       Made the hour substitution special case precise.
  * 
  * </pre>
  * 
@@ -193,12 +194,14 @@ public class MPEFieldResource extends
                 if (subData == null) {
                     try {
                         Date date = frame.getDate();
-                        // SATPRE MPE file time stamp is the start time of the
-                        // hour
-                        // i.e. a 12z -13z product has a time stamp of 12z.
+                        /*
+                         * SATPRE MPE file time stamp is the start time of the
+                         * hour. i.e. a 12z -13z product has a time stamp of
+                         * 12z.
+                         */
                         Calendar cal = Calendar.getInstance();
                         cal.setTime(date);
-                        if (edit.getSubDrawSource().name().contains("satPre")) {
+                        if (edit.getSubDrawSource() == DisplayFieldData.satPre) {
                             cal.add(Calendar.HOUR, -1);
                         }
 

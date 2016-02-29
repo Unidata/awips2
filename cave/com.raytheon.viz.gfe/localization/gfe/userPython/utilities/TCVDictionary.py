@@ -5,7 +5,7 @@
 # TCV_Dictionary
 #   TCV_Dictionary file
 # Author: GFE Installation Script
-# Last Modified: Feb 13, 2015
+# Last Modified: Jan 26, 2016
 # ----------------------------------------------------------------------------
 #  Needed to prevent an error from the SmartTool module
 WeatherElementEdited = None
@@ -16,7 +16,7 @@ ThreatStatements = {
             "check plans": {
                 "planning": "Emergency planning should include a reasonable threat for major hurricane force wind greater than 110 MPH of equivalent Category 3 intensity or higher.",
                 "preparation": "To be safe, aggressively prepare for the potential of devastating to catastrophic wind impacts. Efforts should now be underway to secure all properties.",
-                "action": "Extremely Dangerous and life threatening wind is possible. Failure to adequately shelter may result in serious injury, loss of life, or immense human suffering.",
+                "action": "Extremely dangerous and life threatening wind is possible. Failure to adequately shelter may result in serious injury, loss of life, or immense human suffering.",
             },
             "complete preparations": {
                 "planning": "Emergency plans should include a reasonable threat for major hurricane force wind greater than 110 MPH of equivalent Category 3 intensity or higher.",
@@ -178,17 +178,17 @@ ThreatStatements = {
         },
         "High": {
             "check plans": {
-                "planning": "Emergency planning should include a reasonable threat for major storm surge flooding of 6 to 9 feet above ground.",
+                "planning": "Emergency planning should include a reasonable threat for major storm surge flooding of greater than 6 feet above ground.",
                 "preparation": "To be safe, aggressively prepare for the potential of extensive storm surge flooding impacts. Evacuation efforts should now be underway.",
                 "action": "Life threatening inundation is possible.  Failure to heed evacuation orders may result in serious injury, significant loss of life, or human suffering. Leave if evacuation orders are given for your area. Consider voluntary evacuation if recommended. Poor decisions may result in being cut off or needlessly risk lives.",
             },
             "complete preparations": {
-                "planning": "Emergency plans should include a reasonable threat for major storm surge flooding of 6 to 9 feet above ground.",
+                "planning": "Emergency plans should include a reasonable threat for major storm surge flooding of greater than 6 feet above ground.",
                 "preparation": "To be safe, aggressively prepare for the potential of extensive storm surge flooding impacts. Evacuation efforts should now be brought to completion. Evacuations must be complete before driving conditions become unsafe.",
                 "action": "Life threatening inundation is possible. Failure to heed evacuation orders may result in serious injury, significant loss of life, or human suffering. Leave if evacuation orders are given for your area. Consider voluntary evacuation if recommended. Poor decisions may result in being cut off or needlessly risk lives.",
             },
             "hunker down": {
-                "planning": "Emergency considerations should posture for a reasonable threat for major storm surge flooding of 6 to 9 feet above ground.",
+                "planning": "Emergency considerations should posture for a reasonable threat for major storm surge flooding of greater than 6 feet above ground.",
                 "preparation": "To be safe, evacuees should be located within prescribed shelters and well away from deadly storm surge flooding capable of extensive impacts.",
                 "action": "Life threatening inundation is possible. Those who failed to heed evacuation orders risk serious injury, significant loss of life, or human suffering.",
             },
@@ -198,24 +198,24 @@ ThreatStatements = {
                 "action": "Failure to exercise due safety may result in additional injury or loss of life. If you have a life-threatening emergency dial 9 1 1.",  
             },
             "default": {
-                "planning": "Emergency considerations should include a reasonable threat for major storm surge flooding of 6 to 9 feet above ground.",
+                "planning": "Emergency considerations should include a reasonable threat for major storm surge flooding of greater than 6 feet above ground.",
                 "preparation": "Be safe and aggressively guard against the potential of extensive storm surge flooding impacts.",
                 "action": "Life threatening inundation is possible. Failure to heed official instructions may result in serious injury, significant loss of life, or human suffering. Poor decisions may result in being cut off or needlessly risk lives.",
             },
         },
         "Mod": {
             "check plans": {
-                "planning": "Emergency planning should include a reasonable threat for dangerous storm surge flooding of 3 to 6 feet above ground.",
+                "planning": "Emergency planning should include a reasonable threat for dangerous storm surge flooding of greater than 3 feet above ground.",
                 "preparation": "To be safe, earnestly prepare for the potential of significant storm surge flooding impacts. Evacuation efforts should now be underway.",
                 "action": "Life threatening inundation is possible. Failure to heed evacuation orders may result in serious injury or loss of life. Leave if evacuation orders are given for your area. Consider voluntary evacuation if recommended. Poor decisions may needlessly risk lives.",
             },
             "complete preparations": {
-                "planning": "Emergency plans should include a reasonable threat for dangerous storm surge flooding of 3 to 6 feet above ground.",
+                "planning": "Emergency plans should include a reasonable threat for dangerous storm surge flooding of greater than 3 feet above ground.",
                 "preparation": "To be safe, earnestly prepare for the potential of significant storm surge flooding impacts. Evacuation efforts should now be brought to completion. Evacuations must be complete before driving conditions become unsafe.",
                 "action": "Life threatening inundation is possible. Failure to heed evacuation orders may result in serious injury or loss of life. Leave if evacuation orders are given for your area. Consider voluntary evacuation if recommended. Poor decisions may needlessly risk lives.",
             },
             "hunker down": {
-                "planning": "Emergency considerations should posture for a reasonable threat for dangerous storm surge flooding of 3 to 6 feet above ground.",
+                "planning": "Emergency considerations should posture for a reasonable threat for dangerous storm surge flooding of greater than 3 feet above ground.",
                 "preparation": "To be safe, evacuees should be located within prescribed shelters and well away from storm surge flooding capable of significant impacts.",
                 "action": "Life threatening inundation is possible. Those who failed to heed evacuation orders risk serious injury or loss of life.",
             },
@@ -225,24 +225,24 @@ ThreatStatements = {
                "action": "Failure to exercise due safety may result in additional injury or loss of life. If you have a life-threatening emergency dial 9 1 1.", 
             },
             "default": {
-                 "planning": "Emergency considerations should include a reasonable threat for dangerous storm surge flooding of 3 to 6 feet above ground.",
+                 "planning": "Emergency considerations should include a reasonable threat for dangerous storm surge flooding of greater than 3 feet above ground.",
                  "preparation": "Be safe and earnestly guard against the potential of significant storm surge flooding impacts.",
                  "action": "Life threatening inundation is possible. Failure to heed official instructions may result in serious injury or loss of life. Poor decisions may needlessly risk lives.",
             },
         },
         "Elevated": {
             "check plans": {
-                 "planning": "Emergency planning should include a reasonable threat for peak storm surge flooding of 1 to 3 feet above ground.",
+                 "planning": "Emergency planning should include a reasonable threat for peak storm surge flooding of greater than 1 foot above ground.",
                  "preparation": "To be safe, prepare for the potential of limited storm surge flooding impacts. Efforts should now be underway.",
                  "action": "Localized inundation is possible. Follow the instructions of local officials. Consider voluntary evacuation if recommended. Leave if evacuation orders are issued.",
             },
             "complete preparations": {
-                "planning": "Emergency plans should include a reasonable threat for peak storm surge flooding of 1 to 3 feet above ground.",
+                "planning": "Emergency plans should include a reasonable threat for peak storm surge flooding of greater than 1 foot above ground.",
                 "preparation": "To be safe, prepare for the potential of limited storm surge flooding impacts. Efforts should now be brought to completion before conditions deteriorate.",
                 "action": "Localized inundation is possible. Follow the instructions of local officials. Consider voluntary evacuation if recommended. Leave immediately if evacuation orders are issued.",
             },
             "hunker down": {
-                "planning": "Emergency considerations should posture for a reasonable threat for peak storm surge flooding of 1 to 3 feet above ground.",
+                "planning": "Emergency considerations should posture for a reasonable threat for peak storm surge flooding of greater than 1 foot above ground.",
                 "preparation": "To be safe, stay away from storm surge flooding capable of limited impacts.",
                 "action": "Localized inundation is possible. Continue to follow the instructions of local officials.",
             },
@@ -252,7 +252,7 @@ ThreatStatements = {
                 "action": "Exercise due safety.",   
             },
             "default": {
-                "planning": "Emergency considerations should include a reasonable threat for peak storm surge flooding of 1 to 3 feet above ground.",
+                "planning": "Emergency considerations should include a reasonable threat for peak storm surge flooding of greater than 1 foot above ground.",
                 "preparation": "Be safe and guard against the potential of limited storm surge flooding impacts.",
                 "action": "Localized inundation is possible. Follow the instructions of local officials.",
             },

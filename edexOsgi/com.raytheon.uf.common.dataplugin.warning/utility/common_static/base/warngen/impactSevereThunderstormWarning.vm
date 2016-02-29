@@ -1,12 +1,15 @@
-##################################################################
-## SEVERE THUNDERSTORM WARNING TEMPLATE                         ##
-## FOR CR IMPACT BASED SVR INITIATIVE                           ## 
-## CREATED BY PHIL KURIMSKI - WFO DTX                           ##
-##        UPDATED BOOKBINDER    9-18-2013 Implement global config.vm ##
-##        UPDATED BOOKBINDER    2-18-2014 Wind/hail order matrix     ##
-##        UPDATED BOOKBINDER    9-16-2014 2015 IBW Tags        ##
-##        UPDATED BOOKBINDER    3-23-2045 Mixed Case Migration ##
-##################################################################
+#####################################################################################
+## SEVERE THUNDERSTORM WARNING TEMPLATE                                            ##
+## FOR CR IMPACT BASED SVR INITIATIVE                                              ## 
+## CREATED BY PHIL KURIMSKI - WFO DTX                                              ##
+##        BOOKBINDER    9-18-2013 Implement global config.vm                       ##
+##        BOOKBINDER    2-18-2014 Wind/hail order matrix                           ##
+##        BOOKBINDER    9-16-2014 2015 IBW Tags                                    ##
+##        UPDATED BOOKBINDER    3-23-2015 Mixed Case Migration                     ##
+##        BOOKBINDER    6-15-2015 Corrected bad softball/grapefruit hail sized.    ##
+##                                Removed redundant tornado watch phrase from CTA  ##
+##        Bookbinder    10-20-2015 Fixed extraSource var for tornado info          ##
+#####################################################################################
 ## Impact Statements for IBW templates are contained in impactStatements.vm
 ################################################################
 ##
@@ -185,7 +188,7 @@
 #if(${list.contains(${bullets}, "baseballHail")})
   #set($hailThreat = "baseball size") 
   #set($hailLead = "large destructive hail up to ") 
-  #set($hailHazard = "Baseball size hail")
+  #set($hailHazard = "baseball size hail")
   #set($hailTrail = "")
   #set($hailSize = 2.75)  
   #set($hailTag = "2.75IN")
@@ -208,10 +211,10 @@
   #set($pdssvr = "This is a very dangerous storm.")
   #end
 #end
-#if(${list.contains(${bullets}, "grapefruitHail")})
-  #set($hailThreat = "grapefruit size") 
+#if(${list.contains(${bullets}, "softballHail")})
+  #set($hailThreat = "softball size") 
   #set($hailLead = "large destructive hail up to ") 
-  #set($hailHazard = "grapefruit size hail")
+  #set($hailHazard = "softball size hail")
   #set($hailTrail = "")
   #set($hailSize = 4.00)  
   #set($hailTag = "4.00IN")
@@ -221,13 +224,13 @@
   #set($pdssvr = "This is a very dangerous storm.")
   #end
 #end
-#if(${list.contains(${bullets}, "softballHail")})
-  #set($hailThreat = "softball size") 
+#if(${list.contains(${bullets}, "grapefruitHail")})
+  #set($hailThreat = "grapefruit size") 
   #set($hailLead = "large destructive hail up to ") 
-  #set($hailHazard = "softball size hail")
+  #set($hailHazard = "grapefruit size hail")
   #set($hailTrail = "")
-  #set($hailSize = 4.25)  
-  #set($hailTag = "4.25IN")
+  #set($hailSize = 4.50)  
+  #set($hailTag = "4.50IN")
   #if(${stormType} == "line")
   #set($pdssvr = "These are very dangerous storms.")
   #else
@@ -350,7 +353,7 @@ THIS IS A TEST MESSAGE. ##
 ######## GENERATE ADDITIONAL REPORTS  #######
 #############################################
 #if(${list.contains(${bullets}, "addlHailWindRpt")})
- #set($extraSource = " At !**ENTER TIME, ENTER HAIL/WIND**! was reported !**ENTER LOCATION**!. ")
+ #set($source = "${source} At !**ENTER TIME, ENTER HAIL/WIND**! was reported !**ENTER LOCATION**!. ")
 #end
 
 * ##
@@ -387,7 +390,7 @@ THIS IS A TEST MESSAGE. ##
 
 #wrapText("HAZARD...#capitalize(${hazard} 'FIRST')" 2 11)
 
-#wrapText("SOURCE...#capitalize(${source}${extraSource} 'FIRST')" 2 11)
+#wrapText("SOURCE...#capitalize(${source} 'FIRST')" 2 11)
 
 #wrapText("IMPACT...${svrimpact}" 2 11)
 
@@ -441,11 +444,11 @@ Those attending !**EVENT/VENUE NAME OR LOCATION*! are in the path of this storm 
 ## Comment out #parse command below to pull in Dynamic DSS Event Info
 ## If this feature is utilized, the "specialEvent" bullet (output above) can
 ## likely be commented out from the impactSevereThunderstormWarning.xml file
-#parse("dssEvents.vm")
+##parse("dssEvents.vm")
 ## parse file command here is to pull in mile marker info
 #parse("mileMarkers.vm")
 ## parse file command here is to pull in extra points (venues) info
-#parse("pointMarkers.vm")
+##parse("pointMarkers.vm")
 
 ##################################
 ######### CALLS TO ACTION ########
@@ -535,7 +538,7 @@ This is an extremely dangerous situation with tornado like wind speeds expected.
 ##
 #if(${list.contains(${bullets}, "deadlyStormCTA")})
 #if(${stormType} == "line")
-These are potentially deadly storms. Seek shelter in an interior room on the lowest floor of a well-built structure. Abandon vehicles in search of a more substantial permanent structure. Stay away from windowS.
+These are potentially deadly storms. Seek shelter in an interior room on the lowest floor of a well-built structure. Abandon vehicles in search of a more substantial permanent structure. Stay away from windows.
 
 #else
 This is a potentially deadly storm. Seek shelter in an interior room on the lowest floor of a well-built structure. Abandon vehicles in search of a more substantial permanent structure. Stay away from windows.
@@ -665,12 +668,10 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 ${torTag}
 <L>HAIL...${hailTag}</L>
 <L>WIND...${windTag}</L>
-### 2015 IBW ENHANCEMENT
+### POTENTIAL 2016 IBW ENHANCEMENT
 #* REMOVE THIS COMMENT LINE WHEN DIRECTION BY YOUR REGION
-#if((${hailSize} >= $svrHailExtremeThreshold) || (${windSpeed} >= $svrWindExtremeThreshold))
-<L>$svrDamageExtremePhrase</L>
-#elseif ((${hailSize} >= $svrHailConsiderableThreshold) || (${windSpeed} >= $svrWindConsiderableThreshold))
-<L>$svrDamageConsiderablePhrase</L>
+#if ((${hailSize} >= $svrHailConsiderableThreshold) || (${windSpeed} >= $svrWindConsiderableThreshold))
+<L>$svrDamageThreat</L>
 #end
 *# ##REMOVE THIS COMMENT BLOCK WHEN DIRECTION BY YOUR REGION
 

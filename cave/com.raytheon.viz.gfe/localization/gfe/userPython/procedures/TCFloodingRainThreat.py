@@ -13,7 +13,10 @@
 # in getQPFGrid method. Also in AWIPS 2 FFG is gridded and called just FFG. 
 # This is fixed in getRFCFFGModels method.
 #
-# LeFevbre/Santos: This is the version being turned in for baseline as of 10/20/2014
+# LeFevbre/Santos: This is the version being turned in for baseline in 16.1.2 as of 12/7/2015. It includes fixes
+#for new ERP data changes that took place in Summer of 2015 and better handling of grid points where there
+#is no FFG guidance available.
+
 # 
 #Search for COMMENTS to see any local config step you might need to take.
 # ----------------------------------------------------------------------------
@@ -88,10 +91,12 @@ class Procedure (SmartScript.SmartScript):
     # get the current time, truncates to the last six hour value.
     # returns a timeRange with this startTime until 72 hrs from this time
     
-    def make72hrTimeRange(self):
-        cTime = int(self._gmtime().unixTime()/ (3600 * 6)) * (3600 * 6)
-        startTime = AbsTime.AbsTime(cTime)
-        end = cTime + (3600 * 24 * 3)
+    def make72hrTimeRange(self, startTime):
+        
+        # Make the end time 3 days from the startTime
+        end = startTime + (72 * 3600)
+        # Convert them to AbsTimes
+        startTime = AbsTime.AbsTime(startTime)
         endTime = AbsTime.AbsTime(end)
         
         timeRange = TimeRange.TimeRange(startTime, endTime)
@@ -110,7 +115,7 @@ class Procedure (SmartScript.SmartScript):
 
         return trList
         
-    # Returns a list of model names matching the specified model name,
+    # Returns a list of database IDs matching the specified model name,
     # weather element name and level
     def getModelList(self, modelName, weName, weLevel):
         modelList = []
@@ -118,11 +123,11 @@ class Procedure (SmartScript.SmartScript):
         availParms = self.availableParms()
 
         for pName, level, dbID in availParms:
-            if dbID.modelName().find(modelName) > -1:
-                if pName.find(weName) > -1:
-                    if level.find(weLevel) > -1:
-                        if dbID.modelIdentifier() not in modelList:   
-                            modelList.append(dbID.modelIdentifier())
+            if modelName in dbID.modelName():
+                if weName in pName:
+                    if weLevel in level:
+                        if dbID not in modelList:   
+                            modelList.append(dbID)
         return modelList
 
     # A small algorithm to determine the day number
@@ -137,23 +142,33 @@ class Procedure (SmartScript.SmartScript):
             return 3
 
         return 0
-
-    def getModelTime(self, modelName):
-
-        timeStr = modelName[-13:]
-
-        year = int(timeStr[0:4])
-        month = int(timeStr[4:6])
-        day = int(timeStr[6:8])
-        hour = int(timeStr[9:11])
-
-        absTime = AbsTime.absTimeYMD(year, month, day, hour, 0, 0)
-
-        return absTime.unixTime()
+    
+    def baseModelTime(self, modelTime):
+        
+        oneDay = 3600 * 24
+        halfDay = 3600 * 12
+        baseTime = (int((modelTime + halfDay) / oneDay) * oneDay) - halfDay
+        
+        return baseTime
+    
+    def getLatestERPAnchorTime(self):
+        ERPModelName = "HPCERP"
+        ERPVarName = "ppffg"      # This variable commented out 
+        ERPLevel = "SFC"
+        # get the list of all available models. They come sorted latest to oldest. 
+        modelList = self.getModelList(ERPModelName, ERPVarName, ERPLevel)
+        
+        if len(modelList) > 0:
+            anchorTime = self.baseModelTime(modelList[0].modelTime().unixTime())
+            return anchorTime
+        
+        self.statusBarMsg("No ERP Guidance found.", "S")
+        return None
 
     def getERPGrids(self):
         ERPModelName = "HPCERP"
-        ERPVarName = "ppffg"
+        
+        ERPVarName = "ppffg" 
         ERPLevel = "SFC"
 
         # make a dict and fill with grids with the default value.
@@ -162,28 +177,57 @@ class Procedure (SmartScript.SmartScript):
         for i in range(1, 4):
             gridDict[i] = None
 
-        # get the list of all available models
+        # get the list of all available models. They come sorted latest to oldest. 
         modelList = self.getModelList(ERPModelName, ERPVarName, ERPLevel)
-        modelList.sort()   # sort oldest to latest
-
-        # for each available model, fetch all the grids
+       
+        # Debug output. Remove after testing
+#         print "ERP models available:"
+#         for m in modelList:
+#             print m, "baseTime:", time.asctime(time.gmtime(self.baseModelTime(m.modelTime().unixTime())))
+            
+        # Calculate the nominal time we're searching for based on the latest model
+        anchorTime = self.baseModelTime(modelList[0].modelTime().unixTime())
+        
+        # Debug output. Remove after testing
+        #print "anchorTime:", time.asctime(time.gmtime(anchorTime))
+        
         # keep only the most recent grids
         for model in modelList:
+            
+            # Only process models with a base time matching the latest base time. Ignore all others.
+            # This will cause the tool to abort if all the current grids are not yet in.
+            if self.baseModelTime(model.modelTime().unixTime()) != anchorTime:
+                # Debug output. remove after testing
+                print "Ignoring model at:", time.asctime(time.gmtime(model.modelTime().unixTime()))
+                continue
+            
             trList = self.getWEInventory(model, ERPVarName)
-            modelTime = self.getModelTime(model)
+            modelTime = model.modelTime()
 
             for tr in trList:
-                dayNum = self.determineDay(modelTime,
-                                           tr.startTime().unixTime())
-                grid = self.getGrids(model, ERPVarName, ERPLevel, tr,
-                                     mode="First")
-                gridDict[dayNum] = grid
+                dayNum = self.determineDay(anchorTime, tr.startTime().unixTime())
+                grid = self.getGrids(model, ERPVarName, ERPLevel, tr, mode="First")
+                if gridDict[dayNum] is None:
+                    gridDict[dayNum] = grid
+                    print "modelTime and dayNum are: ", modelTime, dayNum
+           
+            # Check to see if we found all the grids we need
+            allGridsFound = True
+            for dayNum in range(1, 4):
+                if gridDict[dayNum] is None:
+                    allGridsFound = False
+            
+            # We found all the grids, return them
+            if allGridsFound:
+                return gridDict
 
+        # After processing all the models, make sure we found all the grids we need.
         for i in range(1, 4):
             if gridDict[i] == None:
                 errorStr = "Day" + str(i) + " grid not found in AWIPS database."
                 self.statusBarMsg(errorStr, "S")
-
+                return None
+            
         return gridDict
     
     # Use this method for testing if you have no luck getting products
@@ -242,7 +286,7 @@ class Procedure (SmartScript.SmartScript):
 
         for model in modelList:
             # WARNING!!! This check should be more specific to the DBID string.
-            if model.find(rfcName) > -1:
+            if model.modelIdentifier().find(rfcName) > -1:
                 return model
         
         return None
@@ -456,10 +500,12 @@ class Procedure (SmartScript.SmartScript):
             ] #  low ------ QPF/FFG ratio -------->high
                         
         # COMMENTS: The list of FFG products that contain FFG data for your WFO
-        # The following is set up for testing only.  Please change these
-        # entries for your particular office.
-        # productList = ["FFGSHV", "FFGALR"]
-        productList = ["ATLFFGMFL", "ATLFFGTBW", "ATLFFGMLB"]
+        # The following is an example for Miami. Default list is emply. You must
+        # populate it with your CWA FFG guidance.
+        #productList = ["ATLFFGMFL", "ATLFFGTBW", "ATLFFGMLB","ATLFFGKEY"]
+        productList = []
+        if len(productList) == 0:
+            self.statusBarMsg("You have not configured Text FFG in Procedure. Create a site level copy, and configure your text FFG Guidance. Search for COMMENTS in the procedure.", "S")
 
         ###   END CONFIGURATION SECTION  #################################
 
@@ -479,8 +525,13 @@ class Procedure (SmartScript.SmartScript):
                         threatMatrix[i][j] = "Elevated"
 
 
-        # make a 72 hour timeRange and a list of 6 hour timeRanges
-        timeRange = self.make72hrTimeRange()
+        # Find the nominal start time when we will be making grids
+        anchorTime = self.getLatestERPAnchorTime()
+        
+        # make a 72 hour timeRange and a list of 6 hour timeRanges based on the anchorTime
+        timeRange = self.make72hrTimeRange(anchorTime)
+        
+        print "Anchor TimeRange:", timeRange
 
         trList = self.makeTimeRangeList(timeRange, 6)
 
@@ -491,11 +542,17 @@ class Procedure (SmartScript.SmartScript):
         #print "Getting FFG Grid Now: "
         ffgGrid = self.getRFCFlashFloodGrid(productList,varDict)
         #print "GOT FFG Grid"
-        ffgGrid = where(less(ffgGrid, 0.0), 0.0, ffgGrid)
+
+        # calculate the areas where the FFG is missing. We will fill these values with None eventually        
+        missingFFGMask = less_equal(ffgGrid, 0.0)
         
         # get the ERP grids and stuff them in six hour time blocks to match
         # the cummulative QPF grids will create later
         erpGridDict = self.getERPGrids()
+        
+        if erpGridDict is None:  # We're in that window where we should wait.
+            self.statusBarMsg("The current ERP guidance is not yet completely available. Please re-run this tool at a later time.", "S")
+            return
 
         for i in range(len(trList)):
             
@@ -518,6 +575,10 @@ class Procedure (SmartScript.SmartScript):
             tempffgGrid = where(equal(ffgGrid, 0.0), 1000.0, ffgGrid)
             ratioGrid = qpfGrid / tempffgGrid
             ratioGrid = where(equal(ffgGrid, 0.0), 0.0, ratioGrid)
+            
+            # Clip the ratioGrid to 8.0 to prevent problems when displaying
+            ratioGrid.clip(0.0, 8.0, ratioGrid)
+                        
             self.createGrid("Fcst", "ERP", "SCALAR", erpGrid, tr,
                             minAllowedValue = -1, maxAllowedValue=100,
                             precision=2)
@@ -543,7 +604,12 @@ class Procedure (SmartScript.SmartScript):
                     mask = logical_and(ratioMask, erpMask)
                     keyIndex = self.getIndex(threatMatrix[r][e], threatKeys)
                     floodThreat = where(mask, keyIndex, floodThreat)
+                    
+            # Now set the values we found missing to the None key
+            noneIndex = self.getIndex("None", threatKeys)
+            floodThreat[missingFFGMask] = noneIndex
 
+            # Create the grid
             self.createGrid("Fcst", "FloodThreat", "DISCRETE",
                         (floodThreat, threatKeys), tr,
                         discreteKeys=threatKeys,
