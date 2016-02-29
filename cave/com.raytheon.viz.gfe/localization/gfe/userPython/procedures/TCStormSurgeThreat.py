@@ -3,7 +3,7 @@
 # support, and with no warranty, express or implied, as to its usefulness for
 # any purpose.
 #
-# CoastalThreat
+# StormSurgeThreat
 #
 # Author: Tom LeFebvre/Pablo Santos
 # April 20, 2012 - To use gridded MSL TO NAVD and MSL to MLLW
@@ -19,13 +19,13 @@
 # Sept 18, 2014: Added code to pull grids from NHC via ISC if PHISH not
 # Available on time. Left inactive (commented out) for the moment until that can be fully tested later
 # in 2014 or in 2015.
-# May 22, 2015 (LEFebvre/Santos): Added option to create null grids and manual grids when
-# PSURGE not available. Added checks for current guidance for PHISH and ISC options.
 #
 # Last Modified: LeFebvre/Santos, July 27, 2015: Expanded Manual options to include Replace and Add options. 
 # This allows sites to specify manually different threat levels across different edit areas and time ranges. 
 # See 2015HTIUserGuide for details.
 # 
+# Feb 11, 2016 LeFebvre (16.1.2): Added code to create zero grids and manual grids when
+# PSURGE not available. Added checks for current guidance for PHISH and ISC options.
 # ----------------------------------------------------------------------------
 # The MenuItems list defines the GFE menu item(s) under which the
 # Procedure is to appear.
@@ -179,12 +179,16 @@ class Procedure (SmartScript.SmartScript):
 
         weName = "Surge" + pctStr + "Pctincr"
         #print "Attempting to retrieve: ", weName, level
-        trList = self.getWEInventory(dbName, weName, level)
+        # get the StormSurgeProb inventory
+        surgeTRList = self.getWEInventory(dbName, weName, level)
+        if len(surgeTRList) == 0:
+            self.statusBarMsg("No PHISH grid found.", "U")
+            return
 
-        if len(trList) == 0:
-            self.statusBarMsg("No grids available for model:" + dbName, "S")
-            return None
-
+        # Make timeRanges for all 13 grids. Start with the beginning of the first Phish grid
+        baseTime = int(surgeTRList[0].startTime().unixTime() / (6 * 3600)) * (6 * 3600) #snap to 6 hour period
+        trList = self.makeTimingTRs(baseTime)
+        
         n = 1
         for tr in trList:
             start = tr.startTime().unixTime() - 6*3600
@@ -197,7 +201,13 @@ class Procedure (SmartScript.SmartScript):
             end = tr.startTime().unixTime()
             tr6 = TimeRange.TimeRange(AbsTime.AbsTime(start),
                                       AbsTime.AbsTime(end))
-            phishGrid = self.getGrids(dbName, weName, level, tr)
+            
+            surgeTR = TimeRange.TimeRange(tr.startTime(), AbsTime.AbsTime(tr.startTime().unixTime() + 3600))
+            if surgeTR in surgeTRList:
+                phishGrid = self.getGrids(dbName, weName, level, surgeTR)
+            else:
+                phishGrid = np.zeros(self.getGridShape(), 'f')
+                
 #
 # For consistency we need to add smoothing here too as we do in execute.
 #
@@ -208,7 +218,7 @@ class Procedure (SmartScript.SmartScript):
             if smoothThreatGrid is "Yes":
                 phishGrid = np.where(np.greater(phishGrid, 0.0), self.smoothGrid(phishGrid,3), phishGrid)
 
-            grid = np.where(phishGrid>-100,phishGrid*3.28, np.float32(-80.0))
+            grid = np.where(phishGrid>-100, phishGrid*3.28, np.float32(-80.0)) # Convert units from meters to feet
             self.createGrid(mutableID, "InundationTiming", "SCALAR", grid, tr6, precision=1)
 
         return
@@ -600,7 +610,7 @@ class Procedure (SmartScript.SmartScript):
                         print "Timing grid not found at:", trList[i]
                 
                 if (start - baseTime) / 3600 >= inunStartHour and (end - baseTime) / 3600 <= inunEndHour:                
-                    timingGrids[i][modifyMask] = inundationHeight # populate where needed
+                    timingGrids[i][modifyMask] = inundationHeight # populate only where needed
                 
                 self.createGrid(mutableID, "InundationTiming", "SCALAR", timingGrids[i], trList[i])
             

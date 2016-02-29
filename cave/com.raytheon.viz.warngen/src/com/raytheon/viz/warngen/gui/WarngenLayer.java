@@ -255,6 +255,7 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  * 12/21/2015  DCS 17942   D. Friedman Support "extension area": polygon can extend past normal features into WFO's marine/land areas.
  *                                     Show preview of redrawn polygon when developer mode property is set.
  * 01/06/2016  ASM #18453  D. Friedman Cache extension areas so they are not regenerated on Restart or (limited) template changes.
+ * 02/23/2016  ASM #18669  D. Friedman Improve speed and reduce memory usage of extension area generation.
  * </pre>
  * 
  * @author mschenke
@@ -1016,30 +1017,83 @@ public class WarngenLayer extends AbstractStormTrackResource {
         }
 
         private Geometry createExtensionArea() throws Exception {
+            long t0 = System.currentTimeMillis();
             GeospatialData[] features = primaryGDA.geoData.getFeatures(false); // Never uses cwaStretch feactures.
             Geometry[] g = new Geometry[features.length];
             for (int i = 0; i < g.length; ++i) {
-                /*
-                 * Pre-simplify as an optmization. Makes it possible to
-                 * change the static extension distance in real time.
-                 */
-                g[i] = extensionSimplify(
-                        convertGeom(features[i].geometry, primaryGDA.geoData.latLonToLocal),
-                        options.getSimplificationTolerance()).
-                                buffer(options.getDistance());
+                // Pre-simplify and extend each feature.
+                g[i] = simplifyAndExtendFeature(
+                        convertGeom(features[i].geometry,
+                                primaryGDA.geoData.latLonToLocal),
+                        options.getSimplificationTolerance(),
+                        options.getDistance());
             }
             Geometry r = GeometryUtil.union(g);
             r = createExtensionAreaFromLocal(r);
             Geometry vis = extensionGDA.buildArea(r, false);
+            perfLog.logDuration("Extension area", System.currentTimeMillis() - t0);
             extensionAreaManager.cacheArea(primaryGDA, extensionGDA, options, r, vis);
             extensionAreaVis = vis;
             issueRefresh();
             return r;
         }
 
+        private Geometry simplifyAndExtendFeature(Geometry geom, double tolerance, double dist) {
+            ArrayList<Geometry> parts = new ArrayList<Geometry>();
+            GeometryUtil.buildGeometryList(parts, geom);
+            ArrayList<Geometry> outParts = new ArrayList<Geometry>(parts.size());
+            for (Geometry g : parts) {
+                g = extensionSimplify(g, tolerance);
+                if (dist > 0) {
+                    g = g.buffer(dist);
+                }
+                outParts.add(g);
+            }
+            GeometryFactory gf = new GeometryFactory();
+            /*
+             * All parts should be Polygons and this should return a
+             * MultiPolygon or single Polygon.
+             */
+            return gf.buildGeometry(outParts);
+        }
+
+        private static final int BUFFER_GEOMETRY_BATCH_SIZE = 100;
+
+        /*
+         * Geometry.buffer() can run the VM out of memory if the geometry is too
+         * complicated (e.g., a MultiPolygon with thousands of component
+         * Polygons.) The following code limits the number of components that
+         * are buffered at one time.
+         */
         private Geometry createExtensionAreaFromLocal(Geometry geom) {
-            // geom should be simlified so that the following ops are not painful.
             Geometry r = geom;
+            if (r.getNumGeometries() > BUFFER_GEOMETRY_BATCH_SIZE) {
+                GeometryFactory gf = new GeometryFactory();
+                Geometry[] ga = new Geometry[BUFFER_GEOMETRY_BATCH_SIZE];
+                while (r.getNumGeometries() > BUFFER_GEOMETRY_BATCH_SIZE) {
+                    Geometry[] batches = new Geometry[
+                            (r.getNumGeometries() + (BUFFER_GEOMETRY_BATCH_SIZE - 1))
+                            / BUFFER_GEOMETRY_BATCH_SIZE];
+                    int si = 0;
+                    int bi = 0;
+                    while (si < r.getNumGeometries()) {
+                        int gai = 0;
+                        while (si < r.getNumGeometries() && gai < ga.length) {
+                            ga[gai++] = r.getGeometryN(si++);
+                        }
+                        /* Note that ga is being reused every pass so the
+                         * GeometryCollection created here must not continue
+                         * to be referenced.
+                         */
+                        Geometry batch = gf.createGeometryCollection(
+                                gai == BUFFER_GEOMETRY_BATCH_SIZE ?
+                                ga : Arrays.copyOf(ga, gai));
+                        batch = batch.buffer(0);
+                        batches[bi++] = batch;
+                    }
+                    r = gf.createGeometryCollection(batches);
+                }
+            }
             r = r.buffer(0);
             r = extensionSimplify(r, options.getSimplificationTolerance());
             r = convertGeom(r, primaryGDA.geoData.localToLatLon);

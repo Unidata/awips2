@@ -5,6 +5,7 @@
      Mike Dangelo 1/23/2014 added blankStatement bullet
      Mike Rega 5/23/14 DR 17380 svr wx watch logic OB14.3.1
      Mike Dangelo 6/24/2014 removed unnecessary example bullets
+     Evan Bookbinder 6/21/2015 fixed bad parse strings (thunderstorms) on two winter weather CTAs.
      Phil Kurimski 10-20-2015 added campers CTA
 -->
 <warngenConfig>
@@ -117,8 +118,8 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="includeTorWatches" bulletText="Include Tornado Watches" parseString=""/>
   <bullet bulletName="includeSvrWatches" bulletText="Include Severe Thunderstorm Watches" parseString=""/> 
   <bullet bulletText="******** WINTER WX CALLS TO ACTION (CHOOSE 1 OR MORE) *********" bulletType="title"/>
-  <bullet bulletName="advisoryCTA" bulletText="Advisory may be required" bulletGroup="toggle3" parseString="STORMS MAY INTENSIFY...MONITOR TV"/>
-  <bullet bulletName="advisoryEffectCTA" bulletText="Advisory in effect" bulletGroup="toggle3" parseString="FREQUENT CLOUD TO GROUND LIGHTNING IS OCCURRING"/>
+  <bullet bulletName="advisoryCTA" bulletText="Advisory may be required" bulletGroup="toggle3" parseString="WINTER WEATHER ADVISORY MAY BECOME NECESSARY"/>
+  <bullet bulletName="advisoryEffectCTA" bulletText="Advisory in effect" bulletGroup="toggle3" parseString="WINTER WEATHER ADVISORY IS IN EFFECT"/>
   <bullet bulletName="snowSquallCTA" bulletText="Snow Squall" parseString="TORRENTIAL RAINFALL IS ALSO OCCURRING"/>
   <bullet bulletName="freezingDrizzleCTA" bulletText="Freezing Drizzle/Rain" parseString="CONTACT YOUR NEAREST LAW ENFORCEMENT"/>
   <bullet bulletName="flashFreezeCTA" bulletText="Flash Freeze" parseString="RAPID DROP IN TEMPERATURES"/>
@@ -169,8 +170,8 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="includeTorWatches" bulletText="Include Tornado Watches" parseString=""/>
   <bullet bulletName="includeSvrWatches" bulletText="Include Severe Thunderstorm Watches" parseString=""/>
   <bullet bulletText="******** WINTER WX CALLS TO ACTION (CHOOSE 1 OR MORE) *********" bulletType="title"/>
-  <bullet bulletName="advisoryCTA" bulletText="Advisory may be required" bulletGroup="toggle3" parseString="STORMS MAY INTENSIFY...MONITOR TV"/>
-  <bullet bulletName="advisoryEffectCTA" bulletText="Advisory in effect" bulletGroup="toggle3" parseString="FREQUENT CLOUD TO GROUND LIGHTNING IS OCCURRING"/>
+  <bullet bulletName="advisoryCTA" bulletText="Advisory may be required" bulletGroup="toggle3" parseString="WINTER WEATHER ADVISORY MAY BECOME NECESSARY"/>
+  <bullet bulletName="advisoryEffectCTA" bulletText="Advisory in effect" bulletGroup="toggle3" parseString="WINTER WEATHER ADVISORY IS IN EFFECT"/>
   <bullet bulletName="snowSquallCTA" bulletText="Snow Squall" parseString="TORRENTIAL RAINFALL IS ALSO OCCURRING"/>
   <bullet bulletName="freezingDrizzleCTA" bulletText="Freezing Drizzle/Rain" parseString="CONTACT YOUR NEAREST LAW ENFORCEMENT"/>
   <bullet bulletName="flashFreezeCTA" bulletText="Flash Freeze" parseString="RAPID DROP IN TEMPERATURES"/>
