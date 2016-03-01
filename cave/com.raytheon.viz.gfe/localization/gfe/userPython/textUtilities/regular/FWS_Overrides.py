@@ -2284,8 +2284,8 @@ class FWS_Overrides:
                     self._insertOutlookFlag = 0
                 self._insertOutlookFlag = 1
 
-        self._outlookDay8Label = time.strftime("%A %B %d",time.gmtime(day8))
-        self._outlookDay14Label = time.strftime("%A %B %d",time.gmtime(day14))
+        self._outlookDay8Label = time.strftime("%A %B %d",time.gmtime(day8)).upper()
+        self._outlookDay14Label = time.strftime("%A %B %d",time.gmtime(day14)).upper()
       
         return None
       
@@ -2296,7 +2296,7 @@ class FWS_Overrides:
         if "Include Day 8-14 Outlook?" not in self._extendedQuestions:
             return fcst
       
-        outlookHeader = ".Outlook for " + self._outlookDay8Label + " through " \
+        outlookHeader = ".OUTLOOK FOR " + self._outlookDay8Label + " THROUGH " \
                         + self._outlookDay14Label + "...\n"
         outlookHeader = string.upper(outlookHeader)
 

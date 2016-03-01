@@ -119,7 +119,7 @@ class TextProduct(GenericReport.TextProduct):
         s =  productName + "\n" + \
                "National Weather Service " + self._wfoCityState + \
                "\n" + issuedByString + self._timeLabel + "\n\n"
-        fcst = fcst + s.upper() 
+        fcst = fcst + s 
         return fcst
 
     def _makeProduct(self, fcst, editArea, areaLabel, argDict):
