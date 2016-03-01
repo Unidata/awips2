@@ -369,6 +369,8 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  * 6Jan2016    RM18452   mgamazaychikov Fix NPE for null product in enterEditor
  * 06Jan2016   5225         randerso    Fix problem with mixed case not getting converted to upper case 
  *                                      when multiple text editors are open on the same product.
+ * 01Mar2016   DR 17614     arickert    Updated MND, WMO, and VTEC should be reflected in text editor
+ *                                      after warngen is submitted
  * 01Mar2016   RM13214   mgamazaychikov Added verifyLineWidth method.
  * 01Mar2016   RM14803   mgamazaychikov Added code to handle products without WMO header.
  * 
@@ -5173,15 +5175,13 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                                 "Will NOT increment ETN for this product.");
                     }
                     /*
-                     * This silly bit of code updates the ETN of a VTEC in the
-                     * text pane to reflect the ETN that was actually used, but
-                     * not update any other parts of the text even though they
-                     * may have also been changed just before the product was
-                     * sent.
                      * 
-                     * A1 works similarly.
+                     * The text product may have had it's VTEC, WMO, and MND time
+                     * modified in saveEditedProduct as well as having it's ETN
+                     * updated. Make sure these changes are reflected in the
+                     * text editor. DR17614
                      */
-                    updateTextEditor(copyEtn(prod.getProduct(), body));
+                    updateTextEditor(copyUpdatedProduct(prod.getProduct(), body));
                 }
 
                 String product = prod.getProduct();
@@ -5316,17 +5316,28 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         return req;
     }
 
-    private static String copyEtn(String from, String to) {
-        VtecObject fromVtec = VtecUtil.parseMessage(from);
+    private static String copyUpdatedProduct(String productString, String bodyString) {
 
-        if ((fromVtec != null) && "NEW".equals(fromVtec.getAction())) {
-            VtecObject toVtec = VtecUtil.parseMessage(to);
-            if (toVtec != null) {
-                toVtec.setSequence(fromVtec.getSequence());
-                return VtecUtil.replaceFirstVtecString(to, fromVtec);
-            }
+        /* The productString has already been updated before this function was
+         * called, the purpose here is to remove an extraneous header that is
+         * added. In the future, this function may need to perform updates on the
+         * text added to the text editor but currently it only needs to remove
+         * the header.
+         */
+        String[] bodyStrings = bodyString.split("\n");
+        String[] productStrings = productString.split("\n");
+
+        /* The difference between the bodyStrings and the productStrings
+         * is a header. We begin by coping from the end of the header so
+         * that it is effectively removed from the final String
+         */
+        int textLinesDifference = productStrings.length - bodyStrings.length;
+        StringBuilder updatedBody = new StringBuilder();
+        for (int i = textLinesDifference; i < productStrings.length; ++i) {
+            updatedBody.append(productStrings[i]).append("\n");
         }
-        return to;
+        
+        return updatedBody.toString();
     }
 
     /**
