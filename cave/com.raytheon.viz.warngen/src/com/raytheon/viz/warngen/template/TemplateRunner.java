@@ -152,6 +152,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * May 29, 2015   4440     randerso    Fix resource leak (file not closed)
  * Jul 15, 2015 DR17716 mgamazaychikov Change to Geometry class in total intersection calculations.
  * Oct 21, 2105   5021     randerso    Fix issue with CORs for mixed case
+ * Feb  9, 2016 DR18421    D. Friedman Don't call ToolsDataManager.setStormTrackData if there is no storm motion.
  * </pre>
  * 
  * @author njensen
@@ -555,10 +556,12 @@ public class TemplateRunner {
                             stormLocs[i].y);
                 }
                 context.put("eventLocation", coords);
-                t0 = System.currentTimeMillis();
-                ToolsDataManager.getInstance().setStormTrackData(std);
-                perfLog.logDuration("Save storm track data",
-                        System.currentTimeMillis() - t0);
+                if (std.getMotionSpeed() > 0) {
+                    t0 = System.currentTimeMillis();
+                    ToolsDataManager.getInstance().setStormTrackData(std);
+                    perfLog.logDuration("Save storm track data",
+                            System.currentTimeMillis() - t0);
+                }
             } else {
                 // Retrieve the old Warning
                 // Example: s[0-5] = T.CON-KLWX.SV.W.0123
@@ -612,10 +615,12 @@ public class TemplateRunner {
                     std.setDate(simulatedTime);
                     std.setMotionDirection(motionDirection);
                     std.setMotionSpeed(oldWarn.getMotspd());
-                    t0 = System.currentTimeMillis();
-                    ToolsDataManager.getInstance().setStormTrackData(std);
-                    perfLog.logDuration("Save storm track data",
-                            System.currentTimeMillis() - t0);
+                    if (std.getMotionSpeed() > 0) {
+                        t0 = System.currentTimeMillis();
+                        ToolsDataManager.getInstance().setStormTrackData(std);
+                        perfLog.logDuration("Save storm track data",
+                                System.currentTimeMillis() - t0);
+                    }
                 }
             }
 

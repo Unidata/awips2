@@ -17,16 +17,6 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
-
-import cPickle
-
-import LogStream, tempfile, os, sys, JUtil, subprocess, traceback, errno
-import time, copy, string, iscUtil
-
-from com.raytheon.edex.plugin.gfe.isc import IRTManager
-from subprocess import CalledProcessError
-
-
 #
 # Port of IRT functionality from legacy ifpServer
 #
@@ -50,8 +40,18 @@ from subprocess import CalledProcessError
 #                                                 Additional code clean up
 #    03/05/2015      4129          randerso       Fix exception handling on subprocess calls
 #                                                 Fixed error when no TCV files were found
+#    02/22/2016      5374          randerso       Added support for sendWFOMessage
 #
 ##
+
+import cPickle
+
+import LogStream, tempfile, os, sys, JUtil, subprocess, traceback, errno
+import time, copy, string, iscUtil
+
+from com.raytheon.edex.plugin.gfe.isc import IRTManager
+from subprocess import CalledProcessError
+
 PURGE_AGE = 30 * 24 * 60 * 60  # 30 days in seconds
 
 def getLogger():
@@ -201,6 +201,19 @@ def putVTECActiveTable(dataFile, xmlPacket):
         logProblem("ingestAT returned error code: ", e.returncode, e.output)
     except:
         logProblem("Error executing ingestAT: ", traceback.format_exc())
+
+def sendWfoMessage(siteID, msgFile):
+    with open(msgFile, 'r') as fp:
+        message = fp.read()
+
+    logEvent("Message received from site: %s\n%s" % (siteID, message))
+
+    # send to AlertViz
+    from ufpy import NotificationMessage
+    msg = NotificationMessage.NotificationMessage(port='9581', message=message,
+           category='GFE', priority='SIGNIFICANT', source='GFE')
+    msg.send()
+    
 
 def putTCVFiles(siteID, tarFile):
     import LocalizationSupport

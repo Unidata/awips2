@@ -50,4 +50,14 @@
         <contribute xsi:type="menuItem" menuText="24hr 95th Percentile Total Precipitation" key="TP95pct24hr" indentText="false" />
     </contribute>
     
+    <contribute xsi:type="toolbarSubMenu" menuText="72hr">
+        <contribute xsi:type="menuItem" menuText="72hr 5th Percentile Total Precipitation" key="TP5pct72hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="72hr 10th Percentile Total Precipitation" key="TP10pct72hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="72hr 25th Percentile Total Precipitation" key="TP25pct72hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="72hr 50th Percentile Total Precipitation" key="TP50pct72hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="72hr 75th Percentile Total Precipitation" key="TP75pct72hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="72hr 90th Percentile Total Precipitation" key="TP90pct72hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="72hr 95th Percentile Total Precipitation" key="TP95pct72hr" indentText="false" />
+    </contribute>
+    
 </menuTemplate>
