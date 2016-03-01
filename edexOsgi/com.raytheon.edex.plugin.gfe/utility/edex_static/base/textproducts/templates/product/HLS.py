@@ -1,4 +1,4 @@
-#  Version 2016.02.09-0
+#  Version 2016.02.24-0
 
 import GenericHazards
 import string, time, os, re, types, copy, LogStream, collections
@@ -552,13 +552,13 @@ class TextProduct(HLSTCV_Common.TextProduct):
         # Use generic text for the situation overview
         productDict['situationOverview'] = self._frame("Succinctly describe the expected evolution of the event for the cwa; which hazards are of greater (or lesser) concern, forecast focus, etc.")
 
-        # Get the WRKHLS product that has the situation overview we want
-        wrkhlsProduct = self.getPreviousProduct("WRKHLS").strip()
+        # Get the WRKHLS product minus header that has the situation overview we want
+        wrkhlsProduct = self.getPreviousProduct("WRKHLS")[40:]
         
         # If we found the overview
         if len(wrkhlsProduct) > 0:
-            # Frame the imported overview and use it instead of the generic text
-            productDict['situationOverview'] = self._frame(wrkhlsProduct)
+            # Clean and frame the imported overview and use it instead of the generic text
+            productDict['situationOverview'] = self._frame(self._cleanText(wrkhlsProduct.strip()))
     
     def _windSection(self, productDict, productSegmentGroup, productSegment):
         sectionDict = dict()
@@ -2587,7 +2587,7 @@ class LegacyFormatter():
         else:
             text = ""
             for headline in headlinesList:
-                text += self._textProduct.indentText("**" + headline + "**\n",
+                text += self._textProduct.indentText("**" + headline + "**  ",
                                                      maxWidth=self._textProduct._lineLength)
             
             text = self._textProduct._frame(text) + "\n\n"
@@ -2673,7 +2673,7 @@ class LegacyFormatter():
         title = "Situation Overview"
         text = title + "\n" + "-"*len(title) + "\n\n"
         
-        text += self._textProduct.indentText(overviewText, maxWidth=self._textProduct._lineLength)
+        text += self._textProduct.endline(overviewText, linelength=self._textProduct._lineLength)
         text += "\n"
         
         return text
