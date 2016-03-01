@@ -168,6 +168,7 @@ import com.raytheon.viz.texteditor.command.CommandType;
 import com.raytheon.viz.texteditor.command.ICommand;
 import com.raytheon.viz.texteditor.command.IProductQueryCallback;
 import com.raytheon.viz.texteditor.command.ProductQueryJob;
+import com.raytheon.viz.texteditor.dialogs.LineWrapCheckConfirmationMsg.AnswerChoices;
 import com.raytheon.viz.texteditor.fax.dialogs.FaxMessageDlg;
 import com.raytheon.viz.texteditor.fax.dialogs.LdadFaxSitesDlg;
 import com.raytheon.viz.texteditor.msgs.IAfosBrowserCallback;
@@ -368,6 +369,7 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  * 6Jan2016    RM18452   mgamazaychikov Fix NPE for null product in enterEditor
  * 06Jan2016   5225         randerso    Fix problem with mixed case not getting converted to upper case 
  *                                      when multiple text editors are open on the same product.
+ * 01Mar2016   RM13214   mgamazaychikov Added verifyLineWidth method.
  * 
  * </pre>
  * 
@@ -5027,6 +5029,15 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             return;
         }
 
+        // verify wrapping
+        if (!verifyLineWidth(resend)) {
+            return;
+        }
+
+        concludeSendProduct(resend);
+    }
+
+    private void concludeSendProduct(final boolean resend) {
         if (isWarnGenDlg == true) {
             StdTextProduct prod = getStdTextProduct();
             String afosId = prod.getCccid() + prod.getNnnid() + prod.getXxxid();
@@ -8887,4 +8898,48 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         }
         return paddingPatternList;
     }
+
+    private boolean verifyLineWidth(final boolean resend) {
+        int lineToWrap = findLineToWrap();
+        if (lineToWrap == -1) {
+            return true;
+        }
+        LineWrapCheckConfirmationMsg lineWrapCheckConfirmationMsg = new LineWrapCheckConfirmationMsg(
+                shell);
+        lineWrapCheckConfirmationMsg.setCloseCallback(new ICloseCallback() {
+
+            @Override
+            public void dialogClosed(Object returnValue) {
+                if (AnswerChoices.EDIT.equals(returnValue)) {
+                    // do nothing
+                } else if (AnswerChoices.FIX.equals(returnValue)) {
+                    while (findLineToWrap() > -1) {
+                        int lineToWrap = findLineToWrap();
+                        // recompileRegex might not have been called
+                        if (standardWrapRegex == null) {
+                            recompileRegex();
+                        }
+                        rewrapInternal(lineToWrap);
+                    }
+                    concludeSendProduct(resend);
+                } else if (AnswerChoices.SEND.equals(returnValue)) {
+                    concludeSendProduct(resend);
+                }
+            }
+        });
+        lineWrapCheckConfirmationMsg.open();
+        return false;
+    }
+
+    private int findLineToWrap() {
+        int rval = -1;
+        for (int i = 0; i < textEditor.getLineCount(); ++i) {
+            String line = textEditor.getLine(i).trim();
+            if (line.length() > charWrapCol) {
+                return i;
+            }
+        }
+        return rval;
+    }
+
 }
