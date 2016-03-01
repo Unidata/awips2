@@ -72,6 +72,8 @@ import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
  * Feb 15, 2016  5281     tjensen     Added check for null in validate method
  * Feb 18, 2016  5281     tjensen     Fix issue when no JMS available.
  * Feb 19, 2016  5281     tjensen     Fix validation when JMS not available.
+ * Mar 01, 2016  5281     tjensen     Update dataRefreshMethod when automatically 
+ *                                     enabling/disabling push
  * </pre>
  * 
  * @author bsteffen
@@ -390,11 +392,13 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
                 autoPullBtn.setEnabled(true);
                 autoPullBtn.setSelection(true);
                 timedPollBtn.setSelection(false);
+                dataRefreshMethod = ThinClientPreferenceConstants.P_DATA_REFRESH_METHOD_PUSH;
                 dataRefreshGroup.setToolTipText(dataRefreshTooltip);
             } else if (!jmsGood && autoPullBtn.isEnabled()) {
                 autoPullBtn.setEnabled(false);
                 autoPullBtn.setSelection(false);
                 timedPollBtn.setSelection(true);
+                dataRefreshMethod = ThinClientPreferenceConstants.P_DATA_REFRESH_METHOD_POLL;
                 dataRefreshGroup.setToolTipText(dataRefreshTooltip
                         + unableConnectJMS);
             }
