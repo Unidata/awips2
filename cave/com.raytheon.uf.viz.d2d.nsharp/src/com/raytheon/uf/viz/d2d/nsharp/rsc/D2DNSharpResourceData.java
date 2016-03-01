@@ -66,6 +66,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * May 08, 2014 2060       njensen     Constructor sets alert parser
  * Jul 23, 2014 3410       bclement    added unpackResultLocation()
  * Aug 05, 2015 4486       rjpeter     Changed Timestamp to Date.
+ * Mar 01, 2016 RM14647 mgamazayhikov  Added soundingTitle.
  * </pre>
  * 
  * @author bsteffen
@@ -77,6 +78,9 @@ public abstract class D2DNSharpResourceData extends
 
     @XmlAttribute
     protected String soundingType = "UNKNOWN";
+
+    @XmlAttribute
+    protected String soundingTitle = "UNKNOWN";
 
     @XmlElement
     protected Coordinate coordinate;
@@ -92,6 +96,12 @@ public abstract class D2DNSharpResourceData extends
     public D2DNSharpResourceData(String soundingType) {
         this();
         this.soundingType = soundingType;
+    }
+
+    public D2DNSharpResourceData(String soundingType, String soundingTitle) {
+        this();
+        this.soundingType = soundingType;
+        this.soundingTitle = soundingTitle;
     }
 
     @Override
@@ -194,6 +204,9 @@ public abstract class D2DNSharpResourceData extends
     protected NsharpStationInfo createStationInfo(DataTime time) {
         NsharpStationInfo stnInfo = new NsharpStationInfo();
         stnInfo.setSndType(soundingType);
+        if (!soundingTitle.equalsIgnoreCase("UNKNOWN")){
+            stnInfo.setSndType(soundingTitle);
+        }
         Date refTime = new Date(time.getRefTime().getTime());
         stnInfo.setReftime(refTime);
         Date fcstTime = refTime;

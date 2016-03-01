@@ -49,6 +49,8 @@ import com.raytheon.viz.volumebrowser.vbui.VolumeBrowserDialogSettings;
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------
  * Aug 03, 2015  3861     bsteffen  Initial Creation
+ * Mar 01, 2016 RM14647 mgamazayhikov  Added argument to GribNSharpResourceData
+ *                                     constructor.
  * 
  * </pre>
  * 
@@ -73,7 +75,8 @@ public class NSharpProductCreator extends AbstractProductCreator {
             return new GoesSndNSharpResourceData();
         } else {
             D2DNSharpResourceData tmpData = new GribNSharpResourceData(
-                    catalogEntry.getSelectedData().getSourcesKey());
+                    catalogEntry.getSelectedData().getSourcesKey(),
+                    catalogEntry.getSelectedData().getSourcesText());
             tmpData.setCoordinate(PointLineUtil
                     .getPointCoordinate(catalogEntry));
             String pointName = catalogEntry.getSelectedData().getPlanesKey();
