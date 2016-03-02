@@ -27,6 +27,7 @@ import jep.JepException;
 
 import com.raytheon.uf.common.auth.exception.AuthorizationException;
 import com.raytheon.uf.common.auth.user.IUser;
+import com.raytheon.uf.common.dataplugin.text.db.MixedCaseProductSupport;
 import com.raytheon.uf.common.dissemination.OUPRequest;
 import com.raytheon.uf.common.dissemination.OUPResponse;
 import com.raytheon.uf.common.dissemination.OfficialUserProduct;
@@ -57,9 +58,10 @@ import com.raytheon.uf.edex.dissemination.transmitted.TransProdHeader;
  * ------------ ---------- ----------- --------------------------
  * Oct 22, 2009            njensen     Initial creation
  * Oct 12, 2012  DR 15418  D. Friedman Use clustered TransmittedProductList
- * Jun 07, 2013   1981     mpduff      This is now a priviledged request handler.
+ * Jun 07, 2013   1981     mpduff      This is now a privileged request handler.
  * Nov 20, 2013  DR 16777  D. Friedman Add a test mode.
  * May 28, 2014 3211       njensen     Use IAuthorizer instead of IRoleStorage
+ * Feb 24, 2016 5411       randerso    Force product to upper case if necessary
  * 
  * </pre>
  * 
@@ -101,6 +103,15 @@ public class OUPHandler extends AbstractPrivilegedRequestHandler<OUPRequest> {
 
                 String convertedProductText = ModifyProduct
                         .convertNewline2rrn(oup.getProductText());
+
+                /*
+                 * Force to upper case if product is not enabled for mixed case
+                 * transmission
+                 */
+                String nnn = oup.getAwipsWanPil().substring(4, 7);
+                convertedProductText = MixedCaseProductSupport
+                        .conditionalToUpper(nnn, convertedProductText);
+
                 oup.setProductText(convertedProductText);
 
                 PythonScript py = null;
@@ -138,7 +149,7 @@ public class OUPHandler extends AbstractPrivilegedRequestHandler<OUPRequest> {
                     + "product text, and product filename.");
         }
 
-        if (resp != null && resp.getMessage() == null) {
+        if ((resp != null) && (resp.getMessage() == null)) {
             resp.setMessage("");
         }
         return resp;
@@ -147,8 +158,8 @@ public class OUPHandler extends AbstractPrivilegedRequestHandler<OUPRequest> {
     private static boolean oupOk(OfficialUserProduct oup) {
         boolean ok = false;
         if (oup != null) {
-            if (oup.getAwipsWanPil() != null && oup.getFilename() != null
-                    && oup.getProductText() != null) {
+            if ((oup.getAwipsWanPil() != null) && (oup.getFilename() != null)
+                    && (oup.getProductText() != null)) {
                 ok = true;
             }
         }

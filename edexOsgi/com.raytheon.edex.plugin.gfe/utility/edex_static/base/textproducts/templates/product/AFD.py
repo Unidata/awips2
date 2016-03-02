@@ -496,7 +496,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 ####################################################################
     def _getPreviousAFD(self, fcst, argDict, divider=0):
         # Initialize strings and lists:
-        WWABlockString = "." + self._wfoSiteID + " Watches/W"
+        WWABlockString = "." + self._wfoSiteID + " WATCHES/W"
         newAFD = []
 
         # Retrieve the previous AFD and store the list in AFD_old:
@@ -706,7 +706,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
     def _makeHazardBlock(self, fcst, argDict):
 
         fcst = fcst + "." + self._wfoSiteID + \
-               " Watches/Warnings/Advisories...\n"
+               " WATCHES/WARNINGS/ADVISORIES...\n"
 
         accessor = ModuleAccessor.ModuleAccessor()
         areaDict = accessor.variable(self._areaDictionary, "AreaDictionary")

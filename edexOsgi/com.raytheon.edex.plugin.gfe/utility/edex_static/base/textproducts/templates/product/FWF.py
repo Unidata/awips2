@@ -917,7 +917,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
                 argDict, area=self._summaryArea,
                 timeRange=self._extendedRange)
             fcst = fcst + extended
-        fcst = fcst + "\n.Outlook\n\n\n$$\n"
+        fcst = fcst + "\n.OUTLOOK\n\n\n$$\n"
 
         # Make summary headline string and substitute for "<HEADLINE>" placeholder
         headlineStr = ""
