@@ -725,12 +725,12 @@ Found description: """ + areaLabel
 
             # descriptor lines, lat/lon lines, elevation
             if len(areaStrings) == 4:
-                s += areaStrings[1] + "\n" + areaStrings[2] + " ELEV. " + \
-                  areaStrings[3] + " FT" + "\n"
+                s += areaStrings[1] + "\n" + areaStrings[2] + " Elev. " + \
+                  areaStrings[3] + " ft" + "\n"
             #old OB8.2 format
             else:
-                s += areaStrings[1] + "\n" + areaStrings[2] + " ELEV. " + \
-                  "???? FT" + "\n"
+                s += areaStrings[1] + "\n" + areaStrings[2] + " Elev. " + \
+                  "???? ft" + "\n"
                 #log "old" format
                 LogStream.logProblem("WARNING: Old defaultEditArea format " + """
 PFM requires defaultEditArea format of (editAreaName, 

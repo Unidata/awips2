@@ -48,9 +48,9 @@ windAreas = """
         # List of edit area names for which we want
         # ridge/valley winds reported:
         #
-        # 20-FOOT WINDS...
-        #     VALLEYS/LWR SLOPES...
-        #     RIDGES/UPR SLOPES....       
+        # 20-foot winds...
+        #     Valleys/lwr slopes...
+        #     Ridges/upr slopes....       
         #
         # e.g.
         # return ["Area1"]
@@ -222,14 +222,14 @@ scripts = [
     "cmdLineVars": "{('Product Issuance', 'productIssuance'): 'Morning', ('Issued By', 'issuedBy'): None }",
     "checkStrings": [
           ".TODAY...",
-          "MAX TEMPERATURE.....Around 70...except around 30 above timberline.",
-          "MIN HUMIDITY........50 percent...except 20 percent above timberline.",
-          "20-FOOT WINDS......."
-          "VALLEYS/LWR SLOPES...Southwest around 10 mph.",
-          "RIDGES/UPR SLOPES....Very windy. North around 45 mph",
+          "Max temperature.....Around 70...except around 30 above timberline.",
+          "Min humidity........50 percent...except 20 percent above timberline.",
+          "20-foot winds......."
+          "Valleys/lwr slopes...Southwest around 10 mph.",
+          "Ridges/upr slopes....Very windy. North around 45 mph",
           ".TONIGHT...",
-          "MIN TEMPERATURE.....Around 50...except around 20 above timberline.",
-          "MAX HUMIDITY........70 percent...except 30 percent above timberline.",
+          "Min temperature.....Around 50...except around 20 above timberline.",
+          "Max humidity........70 percent...except 30 percent above timberline.",
         ],
 
     "notCheckStrings": [
@@ -265,9 +265,9 @@ scripts = [
     "cmdLineVars": "{('Product Issuance', 'productIssuance'): 'Morning', ('Issued By', 'issuedBy'): None }",
     "checkStrings": [
           ".TODAY...",
-          "MIN HUMIDITY........70 percent...except 30 percent above timberline.",
+          "Min humidity........70 percent...except 30 percent above timberline.",
           ".TONIGHT...",
-          "MAX HUMIDITY........50 percent...except 20 percent above timberline.",
+          "Max humidity........50 percent...except 20 percent above timberline.",
           ],
     "createGrids": [
         ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 30, ["AboveElev"]),
@@ -298,7 +298,7 @@ scripts = [
     "productType":"FWF",
     "cmdLineVars": "{('Product Issuance', 'productIssuance'): 'Morning', ('Issued By', 'issuedBy'): None }",
     "checkStrings": [
-            "SKY/WEATHER.........Mostly sunny (40-50 percent). Widespread showers windward...isolated showers leeward.",
+            "Sky/weather.........Mostly sunny (40-50 percent). Widespread showers windward...isolated showers leeward.",
                     ],
     "createGrids": [
        ("Fcst", "PoP", "SCALAR", 0, 12, 20, ["BelowElev"]),
@@ -337,7 +337,7 @@ scripts = [
     "productType":"FWF",
     "cmdLineVars": "{('Product Issuance', 'productIssuance'): 'Morning', ('Issued By', 'issuedBy'): None }",
     "checkStrings": [
-            "SKY/WEATHER.........Windward...mostly cloudy (65-75 percent)...Widespread showers...Chance of showers 80 percent. Leeward...sunny (15-25 percent)...Sunny with isolated showers...Chance of 20 percent."
+            "Sky/weather.........Windward...mostly cloudy (65-75 percent)...Widespread showers...Chance of showers 80 percent. Leeward...sunny (15-25 percent)...Sunny with isolated showers...Chance of 20 percent."
             ],    
     "createGrids": [
        ("Fcst", "PoP", "SCALAR", 0, 12, 20, ["BelowElev"]),
@@ -363,14 +363,14 @@ scripts = [
     "checkStrings": [
             "200 PM EST Fri Jan 1 2010",
             ".REST OF TODAY...",
-            "MAX TEMPERATURE.....Around 78.",
+            "Max temperature.....Around 78.",
             "24 HR TREND......18 degrees warmer.",
-            "MIN HUMIDITY........65 percent.",
+            "Min humidity........65 percent.",
             "24 HR TREND......25 percent wetter.",
             ".TONIGHT...",
-            "MIN TEMPERATURE.....Around 60.",
+            "Min temperature.....Around 60.",
             "24 HR TREND......20 degrees warmer.",
-            "MAX HUMIDITY........78 percent.",
+            "Max humidity........78 percent.",
             "24 HR TREND......18 percent wetter.",
             ],
     "createGrids": CreateGrids.Public_createGrids + CreateGrids.Fire_createGrids,
@@ -389,9 +389,9 @@ scripts = [
     "checkStrings": [
             "1000 PM EST Fri Jan 1 2010",
             ".REST OF TONIGHT...",
-            "MIN TEMPERATURE.....Around 60.",
+            "Min temperature.....Around 60.",
             "24 HR TREND......20 degrees warmer.",
-            "MAX HUMIDITY........78 percent.",
+            "Max humidity........78 percent.",
             "24 HR TREND......18 percent wetter.",
             ],
     "createGrids": CreateGrids.Public_createGrids + CreateGrids.Fire_createGrids,
@@ -410,14 +410,14 @@ scripts = [
     "checkStrings": [
           "200 PM EST Fri Jan 1 2010",
           ".REST OF TODAY...",
-          "MAX TEMPERATURE.....Around 70...except around 30 above timberline.",
+          "Max temperature.....Around 70...except around 30 above timberline.",
           "24 HR TREND......10 degrees warmer...except 30 degrees cooler above timberline.",
-          "MIN HUMIDITY........50 percent...except 20 percent above timberline.",
+          "Min humidity........50 percent...except 20 percent above timberline.",
           "24 HR TREND......10 percent wetter...except 20 percent drier above timberline.",
           ".TONIGHT...",
-          "MIN TEMPERATURE.....Around 50...except around 20 above timberline.",
+          "Min temperature.....Around 50...except around 20 above timberline.",
           "24 HR TREND......10 degrees warmer...except 20 degrees cooler above timberline.",
-          "MAX HUMIDITY........70 percent...except 30 percent above timberline.",
+          "Max humidity........70 percent...except 30 percent above timberline.",
           "24 HR TREND......10 percent wetter...except 30 percent drier above timberline.",
         ],
     "createGrids": [
@@ -448,9 +448,9 @@ scripts = [
     "checkStrings": [
           "1000 PM EST Fri Jan 1 2010",
           ".REST OF TONIGHT...",
-          "MIN TEMPERATURE.....Around 50...except around 20 above timberline.",
+          "Min temperature.....Around 50...except around 20 above timberline.",
           "24 HR TREND......10 degrees warmer...except 20 degrees cooler above timberline.",
-          "MAX HUMIDITY........70 percent...except 30 percent above timberline.",
+          "Max humidity........70 percent...except 30 percent above timberline.",
           "24 HR TREND......10 percent wetter...except 30 percent drier above timberline.",
         ],
     "createGrids": [
