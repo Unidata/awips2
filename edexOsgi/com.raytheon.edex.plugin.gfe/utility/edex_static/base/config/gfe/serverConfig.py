@@ -76,6 +76,10 @@
 #    11/05/2015          #18182    ryu            Change D2DDBVERSIONS value for HPCERP to 24 
 #    12/22/2015          #14152    jwatson        Added Sky, Wind to GFSLAMPGrid parms
 #    02/09/2016          #5283     nabowle        Remove NGM support.
+#    02/23/2016          #14845    jwatson        Changed NamDNG5 to NamDNG for all sources and params. 
+#                                                 Changed D2DModels for CONUS and Alaska to 
+#                                                 namdng25 and AK-NamDNG3
+#
 ####################################################################################################
 
 #----------------------------------------------------------------------------
@@ -852,7 +856,7 @@ PressUnc = ("PressUnc", SCALAR, "Pa", "Press Anl Uncertainty", 110000.0, 0.0, 2,
 Pressure = ("Pressure", SCALAR, "Pa", "Pressure", 110000.0, 0.0, 2, NO)
 WGustUnc =  ("WGustUnc", SCALAR, "kts", "WGust Anl Uncertainty", 12.0, 0.0, 0, NO)
 
-# NamDNG5 parms
+# NamDNG parms
 QPF3 =     ("QPF3", SCALAR, "in", "3HR QPF", 5.0, 0.0, 2, YES)
 QPF6 =     ("QPF6", SCALAR, "in", "6HR QPF", 5.0, 0.0, 2, YES)
 QPF12 =    ("QPF12", SCALAR, "in", "12HR QPF", 10.0, 0.0, 2, YES)
@@ -2084,7 +2088,7 @@ OPCTAFBSW   = ('OPCTAFBSW',    GRID,   '', NO,   NO,  2, 0)
 MOSGuide    = ('MOSGuide',     GRID,   '', NO,   NO,  2, 0)
 RTMA        = ('RTMA',         GRID,   '', YES,  NO,  1, 36)
 URMA25      = ('URMA25',       GRID,   '', YES,  NO,  1, 36) ####DR17144
-NamDNG5     = ('NamDNG5',      GRID,   '', NO,   NO,  2, 0)
+NamDNG      = ('NamDNG',       GRID,   '', NO,   NO,  2, 0)   
 TPCProb     = ('TPCProb',      GRID,   '', NO,   NO, 30, 0)
 SREF        = ('SREF',         GRID,   '', NO,   NO,  3, 0)
 ENPwave     = ('ENPwave',      GRID,   '', NO,   NO,  2, 0)
@@ -2137,7 +2141,7 @@ if SID in groups['ALASKA_SITES']:
                  ('nwpsTrkngCG0', 'nwpsTrkngCG0'),
 #                 ('AK-RTMA','RTMA'),
                  ('AK-RTMA3','RTMA'),  # Only have one RTMA
-                 ('AK-NamDNG5','NamDNG5'),
+                 ('AK-NamDNG3','NamDNG'),
                  ('MOSGuide-AK', 'MOSGuide'),
                  ('HiResW-ARW-AK', 'HIRESWarw'),
                  ('HiResW-NMM-AK', 'HIRESWnmm'),
@@ -2169,7 +2173,7 @@ elif SID == "HFO":
                  'EPwave10',
                  'EPwave4',
                  ('HI-RTMA','RTMA'),
-                 ('HI-NamDNG5','NamDNG5'),
+                 ('HI-NamDNG5','NamDNG'),
                  ('HiResW-ARW-HI', 'HIRESWarw'),
                  ('HiResW-NMM-HI', 'HIRESWnmm'),
                  ('SPCGuide', 'SPC'),
@@ -2203,7 +2207,7 @@ elif SID == "SJU":
                  'WNAwave10',
                  'WNAwave4',
                  ('PR-RTMA','RTMA'),
-                 ('PR-NamDNG5','NamDNG5'),
+                 ('PR-NamDNG5','NamDNG'),
                  ('HiResW-ARW-SJU', 'HIRESWarw'),
                  ('HiResW-NMM-SJU', 'HIRESWnmm'),
                  ('SPCGuide', 'SPC'),
@@ -2281,7 +2285,7 @@ elif SID in groups['CONUS_EAST_SITES']:
                  'MOSGuide',
             ##############DR17144
                  ('RTMA25', 'RTMA'),
-                 'NamDNG5',
+                 ('namdng25','NamDNG'),
                  ('TPCWindProb','TPCProb'),
                  ('SREF212', 'SREF'),
                #############DCS3501
@@ -2366,7 +2370,7 @@ else:   #######DCS3501 WEST_CONUS
                  'MOSGuide',
               #######DR17144
                  ('RTMA25', 'RTMA'),
-                 'NamDNG5',
+                 ('namdng25','NamDNG'),
                  ('TPCWindProb','TPCProb'),
                  ('SREF212', 'SREF'),
                #############DCS3501
@@ -2560,7 +2564,7 @@ elif SID in groups['ALASKA_SITES']:
         "nwpsCG1" : ['nwpsCG1'],
         "nwpsTrkngCG0" : ['nwpsTrkngCG0'],
         "RTMA" : ['RTMA'],
-        "NamDNG5" : ["NamDNG5"],
+        "NamDNG" : ["NamDNG"],
         "AKMOSGuide" : ['MOSGuide'],
         "ESTOFS" : ["ESTOFS"],
         "ETSS" : ["ETSS"],
@@ -2579,7 +2583,7 @@ elif SID == "HFO":
 #        "GWW" : ["GWW"],
 #        "gfsLR" : ["gfsLR"],
         "RTMA" : ['RTMA'],
-        "NamDNG5" : ["NamDNG5"],
+        "NamDNG" : ["NamDNG"],
         "MOSGuide" : ['MOSGuide'],
         "ESTOFS" : ["ESTOFS"],
         "nwpsCG1" : ['nwpsCG1'],
@@ -2613,7 +2617,7 @@ elif SID == "SJU":
 #        "GlobalWave" : ["GlobalWave"],
 #        "EPwave10" : ["EPwEave10"],
         "RTMA" : ['RTMA'],
-        "NamDNG5" : ["NamDNG5"],
+        "NamDNG" : ["NamDNG"],
         "ESTOFS" : ["ESTOFS"],
         "nwpsCG1" : ['nwpsCG1'],
         "nwpsTrkngCG0" : ['nwpsTrkngCG0'],
@@ -2651,7 +2655,7 @@ else:
         "RTMA" : ['RTMA'],
    #######DR17144
         "URMA25" : ['URMA25'],
-        "NamDNG5" : ["NamDNG5"],
+        "NamDNG" : ["NamDNG"],
         "SREF" : ["SREF"],
         "HRRR" : ['HRRR'],
         "HRWF" : ['HRWF'],
@@ -2981,8 +2985,8 @@ URMA25PARMS = [([Temp,Td,RH,Wind,QPE,Sky,Vis,Pressure,WindGust],TC1),
              ([MinRH],MinRHTC), ([MaxRH],MaxRHTC),
              ([TUnc,TdUnc,WSpdUnc,WDirUnc,VisUnc,PressUnc,WGustUnc,SkyUnc],TC1)]
 
-# NamDNG5 database parameter groupings
-NamDNG5PARMS = [([Temp, Td, RH, Wind, Sky, WindGust, Vis], TC3),
+# NamDNG database parameter groupings
+NamDNGPARMS = [([Temp, Td, RH, Wind, Sky, WindGust, Vis], TC3),
                 ([MixHgt, TransWind, SnowLevel], TC3),
                 ([MinT], MinTTC), ([MaxT], MaxTTC),
                 ([MinRH], MinRHTC), ([MaxRH], MaxRHTC),
@@ -3063,7 +3067,7 @@ DATABASES = [
              (GLERL, GLERLPARMS),
              (RTMA, RTMAPARMS),
              (URMA25, URMA25PARMS),
-             (NamDNG5, NamDNG5PARMS),
+             (NamDNG, NamDNGPARMS),
              (TPCProb, TPCProbPARMS),
              (ENPwave, ENPwave_parms),
              (GFSLAMPGrid, GFSLAMPGridPARMS),
