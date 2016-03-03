@@ -117,12 +117,12 @@ Definition["outputFile"] =  "{prddir}/TEXT/FWS_<MultiPil>.txt"
 # You may add weather elements corresponding to the entries you see in your STQ product.
 
 #Definition["wildfireElementList"] = [
-#    "SKY/WEATHER",
-#    "TEMPERATURE",
-#    "HUMIDITY",
-#    "20 FOOT WINDS",
-#    "EYE LEVEL WINDS",       
-#    "TRANSPORT WINDS",
+#    "Sky/weather",
+#    "Temperature",
+#    "Humidity",
+#    "20-foot winds",
+#    "Eye level winds",       
+#    "Transport winds",
 #    ]
 
 # Set shortTermOnly to 1 if you don't want to give your forecasters an option
@@ -324,7 +324,7 @@ Definition["ignitionForecastTypeList"] = []
 #       Sky Cover or use numeric values. Examples are as follows...
 # alpha 1hr  :  SKY.............MC  MC  MC  MC  MC  MC  MC  MC  MC  MC  MC  MC  PC
 # alpha 2hr  :  SKY.............MCLDY  MCLDY  MCLDY  MCLDY  MCLDY  MCLDY  PCLDY
-# numeric 2hr:  SKY (%).........90     90     90     83     83     83     69
+# numeric 2hr:  Sky (%).........90     90     90     83     83     83     69
 
 # Tabular Wind Format Definitions
 # "alpha" will cause the direction to be formatted in the alphabetic characters
@@ -349,8 +349,8 @@ Definition["elementFormatDict"] = {
 #                            three character space, so mixing height will always be
 #                            expressed in kft when the 1 hour resolution is selected
 #                            regardless to what this definition is set to. Examples...
-# KFT 2hr:  MIX HGT (KFT)...0.3    0.3    0.3    0.3    0.3    7.9    11
-# FT 2hr :  MIX HGT (FT)....300    300    300    300    300    7900   11100
+# KFT 2hr:  Mix hgt (kft)...0.3    0.3    0.3    0.3    0.3    7.9    11
+# FT 2hr :  Mix hgt (ft)....300    300    300    300    300    7900   11100
 
 #Definition["tabularMixingHeightUnits"] = "kft"      # So we can fit a number in a 3 character space.
 Definition["tabularMixingHeightUnits"] = "ft"       # Will only be used for 2,3, or 4 time resolutions.
@@ -380,14 +380,14 @@ Definition["20ftWindParm"] = "Wind"
 # wind20ftHeader:  This definition set to "1" allows offices to
 # format winds in this format...
 #
-# WIND (20 FT)........
-#  SLOPE/VALLEY.......WEST 10-20 MPH
-#  RIDGETOP...........NORTHWEST 20 MPH
+# Wind (20 ft)........
+#  Slope/valley.......WEST 10-20 MPH
+#  Ridgetop...........NORTHWEST 20 MPH
 #
 # By setting this definition to "0", you will get...
 #
-# WIND (20 FT)........WEST 10-20 MPH
-# RIDGETOP WIND.......NORTHWEST 20 MPH
+# Wind (20 ft)........WEST 10-20 MPH
+# Ridgetop wind.......NORTHWEST 20 MPH
 Definition["wind20ftHeader"] = 0  # Use 1 for yes, 0 for no
 #Definition["wind20ftHeader"] = 1  # Use 1 for yes, 0 for no
 
@@ -403,18 +403,18 @@ Definition["wind20ftHeader"] = 0  # Use 1 for yes, 0 for no
 #                         resolution, direction, speed, and gusts will be
 #                         combined. Examples follow...
 
-# yes 2hr:  20 FT WIND DIR..SW     W      W      W      W      W      W
-#        :  20 FT WIND SPD..26     26     18     18     18     14     14
-#        :  20 FT WIND GUST.40     40
+# yes 2hr:  20 ft wind dir..SW     W      W      W      W      W      W
+#        :  20 ft wind spd..26     26     18     18     18     14     14
+#        :  20 ft wind gust.40     40
 
-# no 2 hr:  20 FT WIND......W 26   W 26   W 18   W 18   W 18   W 14   W 14
-#        :  20 FT WIND GUST.40     40
+# no 2 hr:  20 ft wind......W 26   W 26   W 18   W 18   W 18   W 14   W 14
+#        :  20 ft wind gust.40     40
 
-# yes 3hr:  20 FT WIND DIR..W         W         W         W         W
-#        :  20 FT WIND SPD..26        25        13        14        13
-#        :  20 FT WIND GUST.40        40
+# yes 3hr:  20 ft wind dir..W         W         W         W         W
+#        :  20 ft wind spd..26        25        13        14        13
+#        :  20 ft wind gust.40        40
 
-# no 3 hr:  20 FT WIND......W 26G40   W 25G40   W 13      W 14      W 13
+# no 3 hr:  20 ft wind......W 26G40   W 25G40   W 13      W 14      W 13
 
 #Definition["tableWindElementSplit"] = "yes"
 Definition["tableWindElementSplit"] = "no"
@@ -431,18 +431,18 @@ Definition["tableWindElementSplit"] = "no"
 #                            resolution, direction, speed, and gusts will be
 #                            combined. Examples follow...
 
-# yes 2hr:  EYE LVL WND DIR.SW     W      W      W      W      W      W
-#        :  EYE LVL WND SPD.26     26     18     18     18     14     14
-#        :  EYE LVL WND GST.40     40
+# yes 2hr:  Eye lvl wnd dir.SW     W      W      W      W      W      W
+#        :  Eye lvl wnd spd.26     26     18     18     18     14     14
+#        :  Eye lvl wnd gst.40     40
 
-# no 2 hr:  EYE LEVEL WIND..W 26   W 26   W 18   W 18   W 18   W 14   W 14
-#        :  EYE LVL WND GST.40     40
+# no 2 hr:  Eye level wind..W 26   W 26   W 18   W 18   W 18   W 14   W 14
+#        :  Eye lvl wnd gst.40     40
 
-# yes 3hr:  EYE LVL WND DIR.W         W         W         W         W
-#        :  EYE LVL WND SPD.26        25        13        14        13
-#        :  EYE LVL WND GST.40        40
+# yes 3hr:  Eye lvl wnd dir.W         W         W         W         W
+#        :  Eye lvl wnd spd.26        25        13        14        13
+#        :  Eye lvl wnd gst.40        40
 
-# no 3 hr:  EYE LEVEL WIND..W 26G40   W 25G40   W 13      W 14      W 13
+# no 3 hr:  Eye level wind..W 26G40   W 25G40   W 13      W 14      W 13
 
 #Definition["tableEyeWindElementSplit"] = "yes"
 Definition["tableEyeWindElementSplit"] = "no"
@@ -457,10 +457,10 @@ Definition["tableEyeWindElementSplit"] = "no"
 #                          direction and speed will be combined into one line.
 #                          Examples follow...
 
-# yes 2hr:  RIDGE WIND DIR..W      W      W      W      W      W      W
-#        :  RIDGE WIND SPD..36     36     36     36     36     36     16
+# yes 2hr:  Ridge wnd dir..W      W      W      W      W      W      W
+#        :  Ridge wnd spd..36     36     36     36     36     36     16
 
-# no 2 hr:  RIDGETOP WIND...W 36   W 36   W 36   W 36   W 36   W 36   W 16
+# no 2 hr:  Ridgetop wind...W 36   W 36   W 36   W 36   W 36   W 36   W 16
 
 #Definition["tableRidgeElementSplit"] = "yes"
 Definition["tableRidgeElementSplit"] = "no"
@@ -475,10 +475,10 @@ Definition["tableRidgeElementSplit"] = "no"
 #                          direction and speed will be combined into one line.
 #                          Examples follow...
 
-# yes 2hr:  TRANSP WIND DIR.W      W      W      W      W      W      W
-#        :  TRANSP WIND SPD.8      8      8      8      8      8      20
+# yes 2hr:  Transp wind dir.W      W      W      W      W      W      W
+#        :  Transp wind spd.8      8      8      8      8      8      20
 
-# no 2 hr:  TRANSPORT WIND..W 8    W 8    W 8    W 8    W 8    W 8    W 20
+# no 2 hr:  Transport wind..W 8    W 8    W 8    W 8    W 8    W 8    W 20
 
 #Definition["tableTransElementSplit"] = "yes"
 Definition["tableTransElementSplit"] = "no"

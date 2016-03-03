@@ -35,6 +35,7 @@
 #    02/12/2014          #2591     randerso       Added retry when loading combinations fails
 #    10/20/2014          #3685     randerso       Changed default of lowerCase to True if not specified
 #    11/30/2015          #5129     dgilling       Support new IFPClient.
+#    03/02/2016          #5411     randerso       Fixed exception in exception handler
 
 import string, getopt, sys, time, os, types, math
 import ModuleAccessor
@@ -170,8 +171,7 @@ class TextFormatter:
             try:
                 text = product.generateForecast(argDict)
             except RuntimeError as e:
-                msg = e.message
-                if msg.find('java.lang.ThreadDeath') > -1:
+                if 'java.lang.ThreadDeath' in str(e):
                     self.log.info("Formatter Canceled")
                 else:
                     self.log.error("Caught Exception: ", exc_info=True)

@@ -67,18 +67,18 @@
 #                    For example, If you have:
 #
 #           surfAreas: [           
-#               ("WestCoast",  "SURF ALONG WEST FACING REEFS.............."),
-#               ("NorthCoast", "SURF ALONG NORTH FACING REEFS............."),
-#               ("EastCoast",  "SURF ALONG EAST FACING REEFS.............."),
-#               ("SouthCoast", "SURF ALONG SOUTH FACING REEFS............."),
+#               ("WestCoast",  "Surf along west facing reefs.............."),
+#               ("NorthCoast", "Surf along north facing reefs............."),
+#               ("EastCoast",  "Surf along east facing reefs.............."),
+#               ("SouthCoast", "Surf along south facing reefs............."),
 #               ]
 #
 #            You would get a surfHeight report for each surfArea listed:
 #                
-#               SURF ALONG WEST FACING REEFS................10 TO 12 feet.
-#               SURF ALONG NORTH FACING REEFS...............4 TO 6 feet.
-#               SURF ALONG EAST FACING REEFS................2 TO 3 feet.
-#               SURF ALONG SOUTH FACING REEFS...............4 TO 6 feet.
+#               Surf along west facing reefs................10 to 12 feet.
+#               Surf along north facing reefs...............4 to 6 feet.
+#               Surf along east facing reefs................2 to 3 feet.
+#               Surf along south facing reefs...............4 to 6 feet.
 #
 #             If the list is empty, you will simply get surfHeight reported
 #             for the current value of the WaveHeight Grid sampled from the
@@ -355,24 +355,24 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         # If a method, it will be called with arguments:
         #   tree, node, key, element
         return {
-            "WaveHeight" : "SURF................",
+            "WaveHeight" : "Surf................",
             "Swell":  "swell",
             "Swell2": "swell",
-            "LabelSwell":  "SWELL...............",
-            "LabelSwell2": "SECONDARY SWELL.....",
-            "Period": "PERIOD..............",
-            "Period2":"SECONDARY PERIOD....",
-            "chop" : "WATER CONDITION.....",
-            "rip" :  "RIP CURRENT RISK....",
-            "HeatIndex": "HEAT INDEX..........",
-            "20-FOOT WINDS......." : "BEACH WINDS.........",
-            "MaxT_FireWx":"MAX TEMPERATURE.....",
-            "SKY/WEATHER.........":  "SKY/WEATHER.........",
-            "sst" : "WATER TEMPERATURE...",
-            "uvi" : "UVI INDEX...........",
-            "LAL" : "LIGHTNING THREAT....",
-            "WaterSpout" : "WATERSPOUT THREAT...",
-            "PoP" : "CHANCE OF...........",           
+            "LabelSwell":  "Swell...............",
+            "LabelSwell2": "Secondary swell.....",
+            "Period": "Period..............",
+            "Period2":"Secondary period....",
+            "chop" : "Water condition.....",
+            "rip" :  "Rip current risk....",
+            "HeatIndex": "Heat index..........",
+            "20-foot winds......." : "Beach winds.........",
+            "MaxT_FireWx":"Max temperature.....",
+            "Sky/weather.........":  "Sky/weather.........",
+            "sst" : "Water temperature...",
+            "uvi" : "UVI index...........",
+            "LAL" : "Lightning threat....",
+            "WaterSpout" : "Waterspout threat...",
+            "PoP" : "Chance of...........",           
             "MinT":"lows",
             "MaxT":"highs",
             "Wind": "winds",           
@@ -381,8 +381,8 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             "IN EFFECT" : "in effect",
             # Used for single values
             "around": "around ",
-            "    VALLEYS/LWR SLOPES...": "    INLAND...............",
-            "    RIDGES/UPR SLOPES....": "    COASTAL..............",
+            "    Valleys/lwr slopes...": "    Inland...............",
+            "    Ridges/upr slopes....": "    Coastal..............",
             }
 
 ############################################################################
@@ -940,8 +940,8 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         #           "landSeaArea": "Extra0",
         #           "marineArea": "Extra1",
         #           "surfAreas": [
-        #                ('NorthCoast', 'SURF ALONG NORTH FACING REEFS.............'),
-        #                ('SouthCoast', 'SURF ALONG SOUTH FACING REEFS.............')
+        #                ('NorthCoast', 'Surf along north facing reefs.............'),
+        #                ('SouthCoast', 'Surf along south facing reefs.............')
         #                ],
         #           "tideTables": ["Cedar Key", "Venice Inlet"],
         #           },
@@ -1231,7 +1231,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             return self.setWords(node, "")
         self.setWords(node, "")
         node.set("descriptor", "")
-        node.set("indentLabel", "20-FOOT WINDS.......")
+        node.set("indentLabel", "20-foot winds.......")
         return self.DONE()      
     
     def fireRidgeValleyWind_setUp(self, tree, node):
