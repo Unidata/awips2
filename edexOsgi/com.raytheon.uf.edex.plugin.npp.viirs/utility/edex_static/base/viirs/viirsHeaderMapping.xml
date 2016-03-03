@@ -42,6 +42,11 @@
   <regionInfo id="TIPQ">
     <region>Puerto Rico</region>
   </regionInfo>
+  
+  <!-- Global region -->
+  <regionInfo id="TIPG">
+    <region>Global</region>
+  </regionInfo>
 
 	<!-- I1 -->
 	<channelInfo id="01">

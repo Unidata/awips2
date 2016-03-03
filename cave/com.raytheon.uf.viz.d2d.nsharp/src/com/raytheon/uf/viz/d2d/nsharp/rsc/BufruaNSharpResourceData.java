@@ -23,7 +23,7 @@ import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingCube;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingProfile.ObsSndType;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpStationInfo;
-import gov.noaa.nws.ncep.viz.common.soundingQuery.NcSoundingQuery;
+import gov.noaa.nws.ncep.viz.soundingrequest.NcSoundingQuery;
 
 import java.util.Map;
 
