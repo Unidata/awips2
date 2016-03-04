@@ -76,7 +76,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * Jan 07, 2014 #2662      randerso    Fixed limitZones (subDomainUGCs) support
  * Aug 31, 2015 #4749      njensen     Set selectCB to null on dispose
  * Feb 05, 2016 #5316      randerso    Moved into separate package.
- *                                     Additonal changes to support use in GHG Monitor,
+ *                                     Additional changes to support use in GHG Monitor,
  *                                     MakeHazard, and ZoneCombiner
  * 
  * </pre>
@@ -390,20 +390,21 @@ public abstract class AbstractZoneSelector extends PaneManager {
 
     // creates list of zone names from shapefile
     private void initZoneNames() {
-        this.zoneNames.clear();
+        List<String> zoneNames = new ArrayList<>();
         for (ZoneSelectorResource mapRsc : mapRscList) {
             for (String ean : mapRsc.getZoneNames()) {
                 if ((ean != null) && !ean.isEmpty()) {
                     // ensure we only add a zone once, and that it should
                     // be included (limitZoneNames is none or is in list)
-                    if (!this.zoneNames.contains(ean)
+                    if (!zoneNames.contains(ean)
                             && ((this.limitZoneNames == null) || this.limitZoneNames
                                     .contains(ean))) {
-                        this.zoneNames.add(ean);
+                        zoneNames.add(ean);
                     }
                 }
             }
         }
+        this.zoneNames = zoneNames;
     }
 
     /**
