@@ -117,7 +117,25 @@ if [ "${1}" = "-WA" ]; then
 	exit 0
 fi
 
+if [ "${1}" = "-pydev" ]; then
+   buildRPM "awips2-python-six"
+   #buildRPM "awips2-python-cython"
+   #buildRPM "awips2-python-dateutil"
+   #buildRPM "awips2-python-metpy"
+
+   #buildRPM "awips2-python-numpy"
+   #buildRPM "awips2-python-scipy"
+   #buildRPM "awips2-python-matplotlib"
+
+   # DONE
+   #buildRPM "awips2-python-pint"
+   exit 0
+
+fi
+
 if [ "${1}" = "-python" ]; then
+   buildRPM "awips2-python-pint"
+   
    buildRPM "awips2-python"
    buildRPM "awips2-python-h5py"
    buildRPM "awips2-python-qpid"
@@ -127,9 +145,6 @@ if [ "${1}" = "-python" ]; then
    buildRPM "awips2-python-jimporter"
    buildRPM "awips2-python-matplotlib"
    buildRPM "awips2-python-nose"
-   #buildRPM "awips2-python-cython"
-   #buildRPM "awips2-python-six"
-   #buildRPM "awips2-python-dateutil"
    buildRPM "awips2-python-numpy"
    buildRPM "awips2-python-pil"
    buildRPM "awips2-python-pmw"
@@ -138,8 +153,6 @@ if [ "${1}" = "-python" ]; then
    buildRPM "awips2-python-scientific"
    buildRPM "awips2-python-scipy"
    buildRPM "awips2-python-pyparsing"
-   buildRPM "awips2-python-pint"
-   #buildRPM "awips2-python-metpy"
    buildRPM "awips2-python-tables"
    buildRPM "awips2-python-thrift"
    buildRPM "awips2-python-tpg"
