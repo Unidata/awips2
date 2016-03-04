@@ -55,6 +55,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                     Initial creation
  * Dec 6, 2012            rferrel      Change to non-blocking dialog.
  * Oct, 21 2015  4821     dhladky      Fixed bad ffgType subString and width.
+ * Mar 04, 2016  5429     dhladky      Default to RFCFFG
  * 
  * </pre>
  * 
@@ -247,9 +248,8 @@ public class AttributesDlg extends CaveSWTDialog {
         gd.horizontalIndent = 15;
         gd.widthHint = 180;
 
-        String fcolumnName = ffmpTableCfgData.getTableColumnAttr(
-                ffmpTableCfgData.getTableColumnKeys()[6]).getName();
-        String ffgType = fcolumnName.substring(0, fcolumnName.indexOf("::"));
+        // default to RFCFFG
+        String defaultGuidtype = "RFCFFG";
         ArrayList<String> guidTypes = productRun.getGuidanceTypes(prodXml);
 
         for (String name : guidTypes) {
@@ -269,8 +269,11 @@ public class AttributesDlg extends CaveSWTDialog {
                 }
             });
 
-            if (name.equals(ffgType)) {
+            // default choice
+            if (name.equals(defaultGuidtype)) {
                 ffgBtn.setSelection(true);
+            } else {
+                ffgBtn.setSelection(false);
             }
             ffgChkBtns.add(ffgBtn);
         }
