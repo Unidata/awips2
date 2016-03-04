@@ -82,7 +82,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jul 21, 2014  3373     bclement     JAXB managers only live during initializeGrids()
  * Mar 04, 2015  3959     rjpeter      Update for grid based subgridding.
  * Sep 28, 2015  4868     rjpeter      Allow subgrids to be defined per coverage.
- * Feb 26, 2016  5414     rjpeter      Fix subgrids along boundary.
+ * Feb 26, 2016  5414     rjpeter      Fix subgrids along boundary and add check for disabled subgrid.
  * </pre>
  * 
  * @author bphillip
@@ -300,7 +300,8 @@ public class GribSpatialCache {
                 .getSubGridDef(modelName, coverage);
 
         try {
-            if (subGridDef != null) {
+            if ((subGridDef != null)
+                    && (subGridDef.isSubGridDisabled() == false)) {
                 String referenceGrid = subGridDef.getReferenceGrid();
                 GridCoverage referenceCoverage = getGridByName(referenceGrid);
                 if (referenceCoverage == null) {
