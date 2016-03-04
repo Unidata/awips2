@@ -20,10 +20,10 @@
     -->
 <latLonGridCoverage>
     <name>255113</name>
-    <description>ECMWF</description>
-    <la1>89.999</la1>
+    <description>ECMWF EPac</description>
+    <la1>90</la1>
     <lo1>120</lo1>
-    <firstGridPointCorner>LowerLeft</firstGridPointCorner>
+    <firstGridPointCorner>UpperLeft</firstGridPointCorner>
     <nx>81</nx>
     <ny>60</ny>
     <dx>1.5</dx>
