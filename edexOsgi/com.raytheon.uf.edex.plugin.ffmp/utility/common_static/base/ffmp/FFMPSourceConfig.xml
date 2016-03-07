@@ -180,7 +180,7 @@
         <expirationMinutes>2080</expirationMinutes>
         <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
         <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
-         <conversion>0.001</conversion>
+        <conversion>0.001</conversion>
         <mosaic>true</mosaic>
         <guidanceType>ARCHIVE</guidanceType>
         <sourceFamily>ARIFFG</sourceFamily>
@@ -253,7 +253,7 @@
         <guidanceType>ARCHIVE</guidanceType>
         <sourceFamily>ARIFFG</sourceFamily>
     </source>
-   <source>
+    <source>
         <SourceName>ARI1H2YR</SourceName>
         <DisplayName>ARIFFG2</DisplayName>
         <DurationHour>1.0</DurationHour>
