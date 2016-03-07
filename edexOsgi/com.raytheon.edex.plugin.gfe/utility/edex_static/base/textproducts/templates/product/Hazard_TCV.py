@@ -1,4 +1,4 @@
-# Version 2016.01.26-0
+# Version 2016.02.24-0
 
 import GenericHazards
 import JsonSupport
@@ -513,14 +513,14 @@ class TextProduct(HLSTCV_Common.TextProduct):
             gridChecks += [(self._isCorrectNumGrids, "WindThreat", 1, argDict),
                            (self._isContinuousDuration, "Wind", 120, argDict),
                            (self._isContinuousDuration, "WindGust", 120, argDict),
-                           (self._isContinuousDuration, "pws34int", 120, argDict),
-                           (self._isContinuousDuration, "pws64int", 120, argDict),
-                           (self._isCombinedContinuousDuration, "pwsD34", "pwsN34", 96, argDict),
-                           (self._isCombinedContinuousDuration, "pwsD64", "pwsN64", 96, argDict),]
+                           (self._isContinuousDuration, "pws34int", 114, argDict),
+                           (self._isContinuousDuration, "pws64int", 114, argDict),
+                           (self._isCombinedContinuousDuration, "pwsD34", "pwsN34", 102, argDict),
+                           (self._isCombinedContinuousDuration, "pwsD64", "pwsN64", 102, argDict),]
         
         if self._PopulateSurge and len(self._coastalAreas()) != 0:
             gridChecks += [(self._isCorrectNumGrids, "InundationMax", 1, argDict),
-                           (self._isCorrectNumGrids, "InundationTiming", 13, argDict),]
+                           (self._isCorrectNumGrids, "InundationTiming", 12, argDict),]
         
         missingGridErrors = []
         for gridCheck in gridChecks:
@@ -530,9 +530,9 @@ class TextProduct(HLSTCV_Common.TextProduct):
                 error = ""
                 if gridCheck[0] == self._isCorrectNumGrids:
                     if gridCheck[2] == 1:
-                        error = "%s needs exactly 1 grid" % (gridCheck[1])
+                        error = "%s needs at least 1 grid" % (gridCheck[1])
                     else:
-                        error = "%s needs exactly %s grids" % (gridCheck[1], gridCheck[2])
+                        error = "%s needs at least %s grids" % (gridCheck[1], gridCheck[2])
                 elif gridCheck[0] == self._isContinuousDuration:
                     error = "%s needs at least %s continuous hours worth of data" % (gridCheck[1], gridCheck[2])
                 else:
@@ -575,9 +575,9 @@ class TextProduct(HLSTCV_Common.TextProduct):
             else:
                 gridTimes.append(gridTime)
         
-        self.debug_print("Length of grid times: %s" % (self._pp.pformat(len(gridTimes))), 1)
+        self.debug_print("Actual number of grids: %s" % (self._pp.pformat(len(gridTimes))), 1)
         
-        return len(gridTimes) == expectedNumGrids
+        return len(gridTimes) >= expectedNumGrids
     
     def _isContinuousDuration(self, weatherElement, minimumNumHours, argDict):
         return self._checkContinuousDuration([weatherElement], minimumNumHours, argDict)
@@ -1094,13 +1094,15 @@ class TextProduct(HLSTCV_Common.TextProduct):
     def _initializeSegmentZoneData(self, segment):
         # The current advisory will be populated when getting a section's stats
         self._currentAdvisory['ZoneData'][segment] = {
-            "WindThreat":            None,
-            "WindForecast":          None,
-            "StormSurgeThreat":      None,
-            "StormSurgeForecast":    None,
-            "FloodingRainThreat":    None,
-            "FloodingRainForecast":  None,
-            "TornadoThreat":         None,
+            "WindThreat":                    None,
+            "WindForecast":                  None,
+            "WindHighestPhaseReached":       None,
+            "StormSurgeThreat":              None,
+            "StormSurgeForecast":            None,
+            "StormSurgeHighestPhaseReached": None,
+            "FloodingRainThreat":            None,
+            "FloodingRainForecast":          None,
+            "TornadoThreat":                 None,
         }
     
     def _getPreviousAdvisories(self):
@@ -1327,6 +1329,11 @@ class SectionCommon():
         
     def _isThreatNoneForEntireStorm(self, threatName):
         previousAdvisories = self._textProduct._getPreviousAdvisories()
+
+        # For the first advisory, this needs to be false otherwise
+        # potential impacts could be wrong
+        if len(previousAdvisories) == 0:
+            return False
         
         for advisory in previousAdvisories:
             if advisory["ZoneData"][self._segment][threatName] != "None":
@@ -1509,20 +1516,27 @@ class SectionCommon():
             elif (onsetHour <= 6) and (endHour is not None) and (endHour > 0):
                 tr = "hunker down"
         
-        self._textProduct.debug_print("tr is currently -> '%s'" % (tr), 1)
+        self._textProduct.debug_print("Before default section. %s tr is currently -> %s for %s" % (section, tr, self._segment), 1)
 
+        # Will need to redo this logic when SS hazards are used
+        if section == "Wind":
+            threatGrid = "WindThreat"
+        elif section == "Surge":
+            threatGrid = "StormSurgeThreat"
+            
         if tr == "default":
             records = self._textProduct._getVtecRecords(self._segment)
             for record in records:
-                if record["phen"] in ["HU", "TR"] and record["sig"] == "W":
-                    if record["act"] == "CAN":
+                if self._textProduct._currentAdvisory['ZoneData'][self._segment][threatGrid] in \
+                ["Elevated", "Mod", "High", "Extreme"]:
+                    tr = "hunker down"
+                    break
+                if self._textProduct._currentAdvisory['ZoneData'][self._segment][threatGrid] not in \
+                ["Elevated", "Mod", "High", "Extreme"]:
+                    if section == "Wind":
                         tr = "recovery"
                         break
-                    # This is just for 2015
-                    elif record["act"] == "CON" and \
-                         section == "Surge" and \
-                         self._textProduct._currentAdvisory['ZoneData'][self._segment]["StormSurgeThreat"] == "None" and \
-                         self._pastSurgeThreatsNotNone():
+                    elif section == "Surge" and self._pastSurgeThreatsNotNone():
                         tr = "recovery"
                         break
                     
@@ -1530,7 +1544,49 @@ class SectionCommon():
                section == "Wind" and \
                self._pastWindHazardWasCAN():
                 tr = "recovery"
+        
+        self._textProduct.debug_print("After default section. %s tr is -> %s for %s" % (section, tr, self._segment), 1)
+                           
+        # ---------------------------------------------------------------------
+        # Don't allow the event to regress to an earlier phase for this section
+        
+        # "default" isn't ordered because it can occur at multiple points before the recovery phase
+        phaseOrder = [None, "check plans", "complete preparations", "hunker down", "recovery"]
+        
+        if self._sectionHeaderName == "Storm Surge":
+            highestPhaseReachedField = "StormSurgeHighestPhaseReached"
+        else: # Flooding Rain and Tornado are tied to Wind so that's why they use Wind's phase
+            highestPhaseReachedField = "WindHighestPhaseReached"
 
+        if self._stats._previousAdvisory is not None:
+            previousHighestPhaseReached = self._textProduct._previousAdvisory['ZoneData'][self._segment][highestPhaseReachedField]
+        else:
+            previousHighestPhaseReached = None
+
+        currentHighestPhaseReached = self._textProduct._currentAdvisory['ZoneData'][self._segment][highestPhaseReachedField]
+        if phaseOrder.index(currentHighestPhaseReached) >= phaseOrder.index(previousHighestPhaseReached):
+            highestPhaseReached = currentHighestPhaseReached
+        else:
+            highestPhaseReached = previousHighestPhaseReached
+        
+        if tr == "default":
+            if highestPhaseReached == "recovery":
+                tr = "recovery"
+        else:
+            highestPhaseIndex = phaseOrder.index(highestPhaseReached)
+            
+            self._textProduct.debug_print("highestPhaseReached so far for %s is -> '%s' for '%s" \
+                                          % (self._sectionHeaderName, highestPhaseReached, self._segment), 1)
+            
+            currentPhaseIndex = phaseOrder.index(tr)
+            if currentPhaseIndex < highestPhaseIndex:
+                tr = highestPhaseReached
+            elif currentPhaseIndex > highestPhaseIndex:
+                self._textProduct._currentAdvisory['ZoneData'][self._segment][highestPhaseReachedField] = tr
+                
+        
+        self._textProduct.debug_print("End of method. %s tr is -> %s for %s" % (section, tr, self._segment), 1)
+        
         return tr
     
     def _pastWindHazardWasCAN(self):
@@ -1553,6 +1609,8 @@ class SectionCommon():
         return False
     
     def _pastSurgeThreatsNotNone(self):
+        
+        # Will need to modify this to be both Wind and Surge once SS codes are added
         previousAdvisories = self._textProduct._getPreviousAdvisories()
         
         #  If there are NOT any advisories to process - no need to continue
@@ -1592,7 +1650,7 @@ class SectionCommon():
         with open("/awips2/cave/etc/gfe/userPython/utilities/TCVDictionary.py", 'r') as pythonFile:
             fileContents = pythonFile.read()
             exec(fileContents)
-                     
+        
         # ThreatStatements comes from TCVDictionary.py when it is exec'ed
         threatStatements = ThreatStatements
         
@@ -2840,6 +2898,7 @@ class StormSurgeSectionStats(SectionCommonStats):
             self._setStats(intersectStatList, timeRangeList)
     
     def _setStats(self, statList, timeRangeList):
+        windows = []
         phishStartTime = None
         phishEndTime = None
         
@@ -2867,7 +2926,7 @@ class StormSurgeSectionStats(SectionCommonStats):
             
             curPhish = self._textProduct._getStatValue(statDict, "InundationTiming", "Max")
             self._textProduct.debug_print("curPhish = '%s'" % (str(curPhish)), 1)
-            self._textProduct.debug_print("phishStartTime = %s   phishEndTime  = %s" % 
+            self._textProduct.debug_print("phishStartTime = %s   phishEndTime = %s" % 
                                           (str(phishStartTime), str(phishEndTime)), 1)
             
             if (curPhish is None) or (curPhish == 'None'):
@@ -2924,13 +2983,39 @@ class StormSurgeSectionStats(SectionCommonStats):
                 phishStartTime = tr.startTime()
             elif endCondition and (phishStartTime is not None) and (phishEndTime is None):
                 phishEndTime = tr.startTime()
-                self._textProduct.debug_print("final phishStartTime = %s   final phishEndTime  = %s" % 
+                
+                # We found a new window, save it, reset and look for any additional windows
+                self._textProduct.debug_print("Found a new window:", 1)
+                self._textProduct.debug_print("window phishStartTime = %s   window phishEndTime = %s" % 
                                               (str(phishStartTime), str(phishEndTime)), 1)
-                break
+                
+                windows.append((phishStartTime, phishEndTime))
+                phishStartTime = None
+                phishEndTime = None
+                
+                self._textProduct.debug_print("Looking for additional windows", 1)
             
-            self._textProduct.debug_print("new phishStartTime = %s   new phishEndTime  = %s" % 
+            self._textProduct.debug_print("new phishStartTime = %s   new phishEndTime = %s" % 
                                           (str(phishStartTime), str(phishEndTime)), 1)
         
+        # Check for the case where a window doesn't end
+        if (phishStartTime is not None) and (phishEndTime is None):
+            self._textProduct.debug_print("Found a never-ending window:", 1)
+            self._textProduct.debug_print("window phishStartTime = %s   window phishEndTime = %s" % 
+                                          (str(phishStartTime), str(phishEndTime)), 1)
+            windows.append((phishStartTime, None))
+        
+        # Create the final window
+        if len(windows) == 0:
+            phishStartTime = None
+            phishEndTime = None
+        else:
+            phishStartTime = windows[0][0] # Start time of first window
+            phishEndTime = windows[-1][1] # End time of last window
+        
+        self._textProduct.debug_print("Constructed the final window:", 1)
+        self._textProduct.debug_print("final phishStartTime = %s   final phishEndTime = %s" % 
+                                      (str(phishStartTime), str(phishEndTime)), 1)
         
         self._windowSurge = "Window of concern: "
         
