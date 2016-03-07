@@ -192,8 +192,8 @@ usage: textdb -r AFOSCmd                 Does a standard afos read
        textdb -s -a SS XXX CCC           Adds XXX to state [SS] listing
        textdb -s -d SS XXX CCC           Deletes XXX from state [SS]
        textdb -s -r SS                   Displays XXX list for state [SS]
-       textdb -pil -a productID script  Adds a PIL watch warning product with script pathname
-       textdb -pil -d productID script  Deletes a PIL watch warning product with script pathname
+       textdb -pil -a productID script   Adds a AWIPS or AFOS PIL watch warning product with script pathname
+       textdb -pil -d productID script   Deletes a AWIPS or AFOS PIL watch warning product with script pathname
        textdb -c                         Reviews AFOS commands  
        textdb -k                         Reviews AWIPS commands
        textdb -n [site]                  Gets current node (CCC) site for running edex

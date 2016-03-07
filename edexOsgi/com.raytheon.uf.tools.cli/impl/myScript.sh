@@ -25,7 +25,7 @@
 LOG_FILE=$EDEX_HOME/logs/afos-trigger.log
 TIME_NOW=`date`
 if [ -z $1 ]; then
-   echo "$TIME_NOW: invalid process call, no AFOS PIL provided" >> $LOG_FILE
+   echo "$TIME_NOW: invalid process call, no AWIPS or AFOS PIL provided" >> $LOG_FILE
    exit 1
 fi
 AFOS_PIL=$1
@@ -35,7 +35,7 @@ if [ -z $FXA_DATA ]; then
 fi
 FILE_PATH=$FXA_DATA/trigger/$AFOS_PIL
 if [ ! -f $FILE_PATH ]; then
-   echo "$TIME_NOW: unable to find file matching AFOS PIL: $AFOS_PIL" >> $LOG_FILE
+   echo "$TIME_NOW: unable to find file matching AWIPS or AFOS PIL: $AFOS_PIL" >> $LOG_FILE
    exit 1
 fi
 echo "$TIME_NOW: processing $AFOS_PIL" >> $LOG_FILE

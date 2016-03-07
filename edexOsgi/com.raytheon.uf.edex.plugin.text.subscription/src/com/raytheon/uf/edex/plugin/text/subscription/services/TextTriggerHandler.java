@@ -49,6 +49,7 @@ import com.raytheon.uf.edex.plugin.text.dbsrv.TextDBSrv;
  * Jan 4, 2016  5203       tjensen     Initial creation
  * Jan 18, 2016 4562       tjensen     Moved from edex.plugin.text to 
  *                                     edex.plugin.text.subscription
+ * Mar 4, 2015  4716       rferrel     {@link #createProductRequestMessage(String)} determines if AWIPS or AFOS command.
  * 
  * </pre>
  * 
@@ -63,6 +64,11 @@ public class TextTriggerHandler {
      * Logger instance for system logging.
      */
     protected transient Logger logger = LoggerFactory.getLogger(getClass());
+
+    /**
+     * Triggering AWIPS commands have length of 10 while the AFOS is 9.
+     */
+    private final int AWIPS_CMD_LEN = 10;
 
     /**
      * Constructor.
@@ -117,9 +123,9 @@ public class TextTriggerHandler {
      * via the Text Database Service.
      * 
      * @param prodID
-     *            AFOS PIL of the product to retrieve
+     *            AWIPS or AFOS PIL of the product to retrieve
      * 
-     * @return the latest product for the AFOS PIL
+     * @return the latest product for the AWIPS or AFOS PIL
      */
     private String retrieveTextProduct(String prodID) {
         Message message = createProductRequestMessage(prodID);
@@ -144,7 +150,7 @@ public class TextTriggerHandler {
      * </PRE>
      * 
      * @param prodID
-     *            AFOS PIL of the product to retrieve
+     *            AWIPS or AFOS PIL of the product to retrieve
      * 
      * @return the product request message
      * 
@@ -156,7 +162,9 @@ public class TextTriggerHandler {
         properties.add(new Property("VIEW", "text"));
         properties.add(new Property("OP", "GET"));
         properties.add(new Property("SUBOP", "PROD"));
-        properties.add(new Property("AFOSCMD", prodID));
+        properties.add(new Property(
+                (prodID.length() == AWIPS_CMD_LEN ? "AWIPSCMD" : "AFOSCMD"),
+                prodID));
         header.setProperties(properties.toArray(new Property[] {}));
         message.setHeader(header);
         return message;
@@ -196,10 +204,10 @@ public class TextTriggerHandler {
     /**
      * Writes the product to the file system. The product is written to
      * $FXA_DATA/trigger/{prodID} -- $FXA_DATA is obtained from the environment
-     * and {prodID} is the AFOS PIL of the product.
+     * and {prodID} is the AWIPS or AFOS PIL of the product.
      * 
      * @param prodID
-     *            AFOS PIL of the product
+     *            AWIPS or AFOS PIL of the product
      * @param product
      *            the product to export
      */

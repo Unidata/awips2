@@ -42,7 +42,6 @@ import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.exception.DecoderException;
-import com.raytheon.edex.plugin.AbstractDecoder;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.text.AfosWmoIdDataContainer;
 import com.raytheon.uf.common.dataplugin.text.db.AfosToAwips;
@@ -83,13 +82,14 @@ import com.raytheon.uf.edex.plugin.text.impl.separator.WMOMessageSeparator;
  * May 12, 2014 2536        bclement    added createTextRecord(), removed deprecated code
  * Jul 10, 2014 2914        garmendariz Remove EnvProperties
  * Dec 09, 2015 5166        kbisanz     Update logging to use SLF4J.
+ * Mar 4, 2015  4716        rferrel     Add AWIPS products to the TextRecords.
  * </pre>
  * 
  * @author
  * @version 1
  */
 
-public class TextDecoder extends AbstractDecoder {
+public class TextDecoder {
 
     private static final String textToStageNotificationRoute = "jms-durable:queue:textToStageNotification";
 
@@ -148,9 +148,7 @@ public class TextDecoder extends AbstractDecoder {
                 boolean success = textdb.writeProduct(textProduct);
 
                 if (success) {
-                    String productId = textProduct.getCccid()
-                            + textProduct.getNnnid() + textProduct.getXxxid();
-                    pdo = createTextRecord(productId, textProduct.getRefTime());
+                    pdo = createTextRecord(textProduct);
                 } else {
                     // throw new Exception("product already exists");
                 }
@@ -174,17 +172,38 @@ public class TextDecoder extends AbstractDecoder {
     }
 
     /**
-     * Construct a new text record with the given product ID and refTime
+     * Construct a new text record from the Standard Text Product.
      * 
-     * @param productId
-     * @param refTime
-     * @return
+     * @param textProduct
+     * @return pdo
      */
-    private static TextRecord createTextRecord(String productId, long refTime) {
+    private static TextRecord createTextRecord(StdTextProduct textProduct) {
+
+        /*
+         * This assumes textProduct's site is 4 characters; cccid, nnnid and
+         * xxxid are 3 and the refTime is not null.
+         */
         TextRecord pdo = new TextRecord();
-        pdo.setProductId(productId);
-        DataTime dt = new DataTime(new Date(refTime));
+        StringBuilder sb = new StringBuilder(10);
+        sb.append(textProduct.getCccid());
+        sb.append(textProduct.getNnnid());
+        sb.append(textProduct.getXxxid());
+        pdo.setProductId(sb.toString());
+        sb.replace(0, 3, textProduct.getSite());
+        pdo.setAwipsProductId(sb.toString());
+        DataTime dt = new DataTime(new Date(textProduct.getRefTime()));
         pdo.setDataTime(dt);
+        return pdo;
+    }
+
+    /**
+     * This generates a text record with Awips and Afos product id set to the
+     * values in the WMO Report Data.
+     */
+    private static TextRecord createTextRecord(WMOReportData rpdData) {
+        TextRecord pdo = new TextRecord();
+        pdo.setProductId(rpdData.getAfosProdId().toString());
+        pdo.setAwipsProductId(rpdData.getAwipsProdId());
         return pdo;
     }
 
@@ -271,7 +290,7 @@ public class TextDecoder extends AbstractDecoder {
                                     }
                                 }
                             } catch (DataAccessLayerException e) {
-
+                                logger.warn("Unable to look up the AFOS Id.", e);
                             }
 
                             if (notMapped) {
@@ -311,9 +330,7 @@ public class TextDecoder extends AbstractDecoder {
                                     operationalMode, headers);
 
                             if (writeTime != Long.MIN_VALUE) {
-                                String productId = rptData.getAfosProdId()
-                                        .toString();
-                                pdo = createTextRecord(productId, writeTime);
+                                pdo = createTextRecord(rptData);
                                 stored++;
                             } else {
                                 // throw new
@@ -490,13 +507,16 @@ public class TextDecoder extends AbstractDecoder {
     }
 
     public String[] transformToProductIds(PluginDataObject[] pdos) {
-        String[] rval = new String[pdos.length];
+        String[] rval = new String[0];
+        List<String> rvalList = new ArrayList<>(pdos.length * 2);
 
         try {
             for (int i = 0; i < pdos.length; i++) {
                 TextRecord tr = (TextRecord) pdos[i];
-                rval[i] = tr.getProductId();
+                rvalList.add(tr.getProductId());
+                rvalList.add(tr.getAwipsProductId());
             }
+            rval = rvalList.toArray(rval);
         } catch (Exception e) {
             logger.error("Error transforming PDOs to Product IDs: ", e);
         }
