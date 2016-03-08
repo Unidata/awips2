@@ -60,6 +60,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * Apr 24, 2014  2060      njensen     Removed unnecessary catch
  * Aug 08, 2015  4722      dhladky     Simplified source map additions, config.
  * Sep.09, 2015  4756      dhladky     Further simplified configuration.
+ * Mar 04, 2016  5429      dhladky     Special case for RFCFFG multi-RFC mosaics.
  * 
  * </pre>
  * 
@@ -471,8 +472,11 @@ public class FFMPConfig {
                 HashMap<String, Object> virtSourceHash = new HashMap<String, Object>();
                 virtSourceHash.put(sourceKey, dataObject);
                 sources.put(product.getVirtual(), virtSourceHash);
+            } else if (source.isRfc()){
+                // The special case of RFCFFG, must have separate URI's for each RFC mosaic piece
+                // Use existing sourceKey that designates that mosaic piece.
             } else {
-                // NON Primary sources, find the primary.
+               // NON Primary sources, find the primary.
                 String primarySource = ffmpgen
                         .getSourceConfig()
                         .getPrimarySource(source);
