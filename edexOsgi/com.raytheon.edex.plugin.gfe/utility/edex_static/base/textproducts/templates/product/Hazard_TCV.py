@@ -1558,7 +1558,11 @@ class SectionCommon():
         else: # Flooding Rain and Tornado are tied to Wind so that's why they use Wind's phase
             highestPhaseReachedField = "WindHighestPhaseReached"
 
-        previousHighestPhaseReached = self._textProduct._previousAdvisory['ZoneData'][self._segment][highestPhaseReachedField]
+        if self._stats._previousAdvisory is not None:
+            previousHighestPhaseReached = self._textProduct._previousAdvisory['ZoneData'][self._segment][highestPhaseReachedField]
+        else:
+            previousHighestPhaseReached = None
+
         currentHighestPhaseReached = self._textProduct._currentAdvisory['ZoneData'][self._segment][highestPhaseReachedField]
         if phaseOrder.index(currentHighestPhaseReached) >= phaseOrder.index(previousHighestPhaseReached):
             highestPhaseReached = currentHighestPhaseReached
