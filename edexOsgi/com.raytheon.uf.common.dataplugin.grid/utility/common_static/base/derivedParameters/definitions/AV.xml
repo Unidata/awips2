@@ -19,7 +19,7 @@
         further_licensing_information.
     -->
 <DerivedParameter abbreviation="AV" name="Vorticity" unit="/s">
-    <Method name="Vorticity.executeWrapX" models="UKMET-NorthernHemisphere AVN-NorthernHemisphere ECMF-Global ECMWF-HiRes">
+    <Method name="Vorticity.executeWrapX" models="UKMET-Global AVN-NorthernHemisphere ECMF-Global ECMWF-HiRes">
     	<Field abbreviation="uW"/>
     	<Field abbreviation="vW"/>
     	<Field abbreviation="coriolis"/>

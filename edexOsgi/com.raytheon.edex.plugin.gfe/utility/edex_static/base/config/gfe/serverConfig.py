@@ -1168,7 +1168,7 @@ if SID in ALASKA_SITES:
                  'WaveWatch',
                  ('AK-NAM-11km', 'NAM12'),
                  'ECMWF-LowRes','ECMWF',
-                 'UKMET-NorthernHemisphere', 'UKMET',
+                 'UKMET-Global', 'UKMET',
                  'ENSEMBLE',
                  ('AK-DGEX-12km', 'DGEX'),
                  ('OPCWave181', 'OPCTAFBNW'),

@@ -211,9 +211,9 @@
 		<keyValue>SREF40</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
-	<!-- Purge rule for the UKMET (UKMET-NorthernHemisphere) model -->
+	<!-- Purge rule for the UKMET (UKMET-Global) model -->
 	<rule>
-		<keyValue>UKMET-NorthernHemisphere</keyValue>
+		<keyValue>UKMET-Global</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
