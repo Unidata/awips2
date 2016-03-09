@@ -2670,6 +2670,69 @@
 
 	<grib1Parameter>
 		<center>7</center>
+		<grib1TableVersion>3</grib1TableVersion>
+		<grib1Value>100</grib1Value>
+		<grib2discipline>10</grib2discipline>
+		<grib2category>0</grib2category>
+		<grib2Value>3</grib2Value>
+	</grib1Parameter>
+
+	<grib1Parameter>
+		<center>7</center>
+		<grib1TableVersion>3</grib1TableVersion>
+		<grib1Value>101</grib1Value>
+		<grib2discipline>10</grib2discipline>
+		<grib2category>0</grib2category>
+		<grib2Value>4</grib2Value>
+	</grib1Parameter>
+
+	<grib1Parameter>
+		<center>7</center>
+		<grib1TableVersion>3</grib1TableVersion>
+		<grib1Value>102</grib1Value>
+		<grib2discipline>10</grib2discipline>
+		<grib2category>0</grib2category>
+		<grib2Value>5</grib2Value>
+	</grib1Parameter>
+
+	<grib1Parameter>
+		<center>7</center>
+		<grib1TableVersion>3</grib1TableVersion>
+		<grib1Value>103</grib1Value>
+		<grib2discipline>10</grib2discipline>
+		<grib2category>0</grib2category>
+		<grib2Value>6</grib2Value>
+	</grib1Parameter>
+
+	<grib1Parameter>
+		<center>7</center>
+		<grib1TableVersion>3</grib1TableVersion>
+		<grib1Value>104</grib1Value>
+		<grib2discipline>10</grib2discipline>
+		<grib2category>0</grib2category>
+		<grib2Value>7</grib2Value>
+	</grib1Parameter>
+
+	<grib1Parameter>
+		<center>7</center>
+		<grib1TableVersion>3</grib1TableVersion>
+		<grib1Value>105</grib1Value>
+		<grib2discipline>10</grib2discipline>
+		<grib2category>0</grib2category>
+		<grib2Value>8</grib2Value>
+	</grib1Parameter>
+
+	<grib1Parameter>
+		<center>7</center>
+		<grib1TableVersion>3</grib1TableVersion>
+		<grib1Value>106</grib1Value>
+		<grib2discipline>10</grib2discipline>
+		<grib2category>0</grib2category>
+		<grib2Value>9</grib2Value>
+	</grib1Parameter>
+
+	<grib1Parameter>
+		<center>7</center>
 		<grib1TableVersion>2</grib1TableVersion>
 		<grib1Value>107</grib1Value>
 		<grib2discipline>10</grib2discipline>
@@ -8868,6 +8931,105 @@
 	<grib1Parameter>
 		<center>58</center>
 		<grib1TableVersion>2</grib1TableVersion>
+		<grib1Value>110</grib1Value>
+		<grib2discipline>10</grib2discipline>
+		<grib2category>0</grib2category>
+		<grib2Value>13</grib2Value>
+        </grib1Parameter>
+
+	<grib1Parameter>
+		<center>58</center>
+		<grib1TableVersion>3</grib1TableVersion>
+		<grib1Value>100</grib1Value>
+		<grib2discipline>10</grib2discipline>
+		<grib2category>0</grib2category>
+		<grib2Value>3</grib2Value>
+	</grib1Parameter>
+
+	<grib1Parameter>
+		<center>58</center>
+		<grib1TableVersion>3</grib1TableVersion>
+		<grib1Value>101</grib1Value>
+		<grib2discipline>10</grib2discipline>
+		<grib2category>0</grib2category>
+		<grib2Value>4</grib2Value>
+	</grib1Parameter>
+
+	<grib1Parameter>
+		<center>58</center>
+		<grib1TableVersion>3</grib1TableVersion>
+		<grib1Value>102</grib1Value>
+		<grib2discipline>10</grib2discipline>
+		<grib2category>0</grib2category>
+		<grib2Value>5</grib2Value>
+	</grib1Parameter>
+
+	<grib1Parameter>
+		<center>58</center>
+		<grib1TableVersion>3</grib1TableVersion>
+		<grib1Value>103</grib1Value>
+		<grib2discipline>10</grib2discipline>
+		<grib2category>0</grib2category>
+		<grib2Value>6</grib2Value>
+	</grib1Parameter>
+
+	<grib1Parameter>
+		<center>58</center>
+		<grib1TableVersion>3</grib1TableVersion>
+		<grib1Value>104</grib1Value>
+		<grib2discipline>10</grib2discipline>
+		<grib2category>0</grib2category>
+		<grib2Value>7</grib2Value>
+	</grib1Parameter>
+
+	<grib1Parameter>
+		<center>58</center>
+		<grib1TableVersion>3</grib1TableVersion>
+		<grib1Value>105</grib1Value>
+		<grib2discipline>10</grib2discipline>
+		<grib2category>0</grib2category>
+		<grib2Value>8</grib2Value>
+	</grib1Parameter>
+
+	<grib1Parameter>
+		<center>58</center>
+		<grib1TableVersion>3</grib1TableVersion>
+		<grib1Value>106</grib1Value>
+		<grib2discipline>10</grib2discipline>
+		<grib2category>0</grib2category>
+		<grib2Value>9</grib2Value>
+	</grib1Parameter>
+
+	<grib1Parameter>
+		<center>58</center>
+		<grib1TableVersion>3</grib1TableVersion>
+		<grib1Value>107</grib1Value>
+		<grib2discipline>10</grib2discipline>
+		<grib2category>0</grib2category>
+		<grib2Value>10</grib2Value>
+	</grib1Parameter>
+
+	<grib1Parameter>
+		<center>58</center>
+		<grib1TableVersion>3</grib1TableVersion>
+		<grib1Value>108</grib1Value>
+		<grib2discipline>10</grib2discipline>
+		<grib2category>0</grib2category>
+		<grib2Value>11</grib2Value>
+	</grib1Parameter>
+
+	<grib1Parameter>
+		<center>58</center>
+		<grib1TableVersion>3</grib1TableVersion>
+		<grib1Value>109</grib1Value>
+		<grib2discipline>10</grib2discipline>
+		<grib2category>0</grib2category>
+		<grib2Value>12</grib2Value>
+	</grib1Parameter>
+
+	<grib1Parameter>
+		<center>58</center>
+		<grib1TableVersion>3</grib1TableVersion>
 		<grib1Value>110</grib1Value>
 		<grib2discipline>10</grib2discipline>
 		<grib2category>0</grib2category>
