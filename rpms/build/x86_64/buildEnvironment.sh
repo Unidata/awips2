@@ -6,6 +6,6 @@ export AWIPSII_RELEASE="20120223"
 
 export AWIPSII_TOP_DIR="/tmp/${USER}/rpmbuild"
 export WORKSPACE="/tmp/${USER}/baseline"
-export UFRAME_ECLIPSE="/opt/uframe-eclipse"
+export UFRAME_ECLIPSE="/awips2/eclipse"
 export AWIPSII_BUILD_ROOT="/tmp/${USER}/awips-component"
 export REPO_DEST="/tmp/${USER}/repo"
