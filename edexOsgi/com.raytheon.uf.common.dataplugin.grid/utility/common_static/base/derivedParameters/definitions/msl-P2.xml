@@ -22,10 +22,10 @@
     <Method levels="Surface" name="Alias" models="MSAS" displayName="MSAS MSLP">
         <Field abbreviation="MMSP" level="MSL"/>
     </Method>
-    <Method name="Alias" models="ETA ETA207 mesoEta212" levels="Surface">
+    <Method name="Alias" models="NAM-80km AK-NAM-95km NAM40" levels="Surface">
         <Field abbreviation="PMSL" level="MSL"/>
     </Method>
-    <Method name="Alias" models="ETA ETA207" levels="Surface">
+    <Method name="Alias" models="NAM-80km AK-NAM-95km" levels="Surface">
         <Field abbreviation="PMSL" level="Surface"/>
     </Method>
     <Method name="Alias" models="HiResW-ARW-East HiResW-ARW-West HiResW-ARW-AK HiResW-ARW-PR HiResW-ARW-SJU" levels="Surface">
@@ -34,13 +34,13 @@
     <Method name="Alias" models="HiResW-NMM-East HiResW-NMM-West HiResW-NMM-AK HiResW-NMM-PR HiResW-NMM-SJU" levels="Surface">
         <Field abbreviation="PMSL" level="MSL"/>
     </Method>
-    <Method name="Alias" models="mesoEta212" levels="Surface">
+    <Method name="Alias" models="NAM40" levels="Surface">
         <Field abbreviation="PMSL" level="Surface"/>
     </Method>
-    <Method name="Alias" models="mesoEta215" levels="Surface">
+    <Method name="Alias" models="NAM20" levels="Surface">
         <Field abbreviation="PMSL" level="MSL"/>
     </Method>
-    <Method name="Alias" models="mesoEta215" levels="Surface">
+    <Method name="Alias" models="NAM20" levels="Surface">
         <Field abbreviation="PMSL" level="Surface"/>
     </Method>
 </DerivedParameter>

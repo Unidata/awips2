@@ -52,7 +52,7 @@
 #    01/19/2015          #4014     dgilling       Added ETSS.
 #    02/11/2015          #4053     rferrel        Added GLWN and moved GLERL to display only for Great Lakes sites..
 #    01/19/2015          #4014     dgilling       Added ETSS. 
-#    02/24/2015          #16692    byin           Added RTMA. Removed gfsLR and GWW233
+#    02/24/2015          #16692    byin           Added RTMA. Removed gfsLR and WaveWatch
 #    03/19/2015          #4300     randerso       Remove GUMa as it is obsolete (per Shannon White)
 #    03/30/2015          #17288    bhunder        Added Guam-RTMA to D2D models
 #    03/30/2015          #17206    yteng          Changed some parameters that are not rate parameters
@@ -1159,20 +1159,20 @@ D2DDBVERSIONS = {
 #---------------------------------------------------------------------------
 # Alaska OCONUS
 if SID in ALASKA_SITES:
-    D2DMODELS = [('mesoEta216', 'NAM40'),
-                 ('mesoEta217', 'NAM20'),
+    D2DMODELS = [('AK-NAM-45km', 'NAM40'),
+                 ('AK-NAM-22km', 'NAM20'),
                  ('AVN203', 'GFS190'),
                  ('MRF203', 'gfsLR'),
                  ('NGM207', 'NGM95'),
-                 ('ETA207', 'NAM95'),
-                 'GWW233',
-                 ('ETA242', 'NAM12'),
+                 ('AK-NAM-95km', 'NAM95'),
+                 'WaveWatch',
+                 ('AK-NAM-11km', 'NAM12'),
                  'ECMWF-LowRes','ECMWF',
                  'UKMET-NorthernHemisphere', 'UKMET',
                  'ENSEMBLE',
-                 ('DGEX186', 'DGEX'),
+                 ('AK-DGEX-12km', 'DGEX'),
                  ('OPCWave181', 'OPCTAFBNW'),
-                 ('AKWAVE239', 'AKWAVE'),
+                 ('WaveWatch-AK', 'AKWAVE'),
                  'AKwave10',
                  'AKwave4',
                  'GlobalWave',
@@ -1195,22 +1195,22 @@ if SID in ALASKA_SITES:
                  'AKHwave10',
                  'AKHwave4',
                  'GLOBHwave',
-                 ('GFS217', 'GFS20'),
+                 ('AK-GFS-22km', 'GFS20'),
                  ('ETSS-AK', 'ETSS'),
                ]
 
 # Hawaii OCONUS
 elif SID == "HFO":
     D2DMODELS = [('MRF204', 'gfsLR'),
-                 ('AVN225', 'GFS75'),
-                 'GWW233',
+                 ('Hawaii-GFS-80km', 'GFS75'),
+                 'WaveWatch',
                  'GlobalWave',
                  'EPwave10',
                  'EPwave4',
                  ('HI-RTMA','RTMA'),
                  ('HI-NamDNG5','NamDNG5'),
-                 ('HiResW-ARW-HI', 'HIRESWarw'),
-                 ('HiResW-NMM-HI', 'HIRESWnmm'),
+                 ('HiResW-ARW-Hawaii', 'HIRESWarw'),
+                 ('HiResW-NMM-Hawaii', 'HIRESWnmm'),
                  ('SPCGuide', 'SPC'),
                  ('TPCWindProb', 'TPCProb'),
                  ('ECMWF-HiRes','ECMWFHiRes'),
@@ -1219,22 +1219,22 @@ elif SID == "HFO":
                  'WPHwave10',
                  'NPHwave4',
                  'GLOBHwave',
-                 ('MOSGuide-HI', 'MOSGuide'),
+                 ('MOSGuide-Hawaii', 'MOSGuide'),
                  ('nwpsCG1', 'nwpsCG1'),
                  ('nwpsTrkngCG0', 'nwpsTrkngCG0'),
-                 ('GFS20-PAC', 'GFS20'),
+                 ('GFS-EPac-20km', 'GFS20'),
                ]
 
 # San Juan OCONUS
 elif SID == "SJU":
-    D2DMODELS = [('AVN211', 'GFS80'),
+    D2DMODELS = [('GFS-80km', 'GFS80'),
                  ('GFS212', 'GFS40'),
                  ('ETA', 'NAM80'),
                  ('NGM', 'NGM80'),
                  ('MRF205', 'gfsLR'),
                  ('OPCWave180', 'OPCTAFBE'),
                  'HurWind226',
-                 'GWW233',
+                 'WaveWatch',
                  'GlobalWave',
                  'WNAwave10',
                  'WNAwave4',
@@ -1246,7 +1246,7 @@ elif SID == "SJU":
                  ('TPCWindProb', 'TPCProb'),
                  ('ECMWF-HiRes','ECMWFHiRes'),
                  'RTOFS-Atlantic',
-                 ('estofsPR', 'ESTOFS'),
+                 ('PR-ESTOFS', 'ESTOFS'),
                  'NAHwave15',
                  'NAHwave10',
                  'NAHwave4',
@@ -1258,7 +1258,7 @@ elif SID == "SJU":
 
 # Guam OCONUS
 elif SID == "GUM":
-    D2DMODELS = [('AVN225', 'GFS75'),
+    D2DMODELS = [('Hawaii-GFS-80km', 'GFS75'),
                  'GlobalWave',
                  ('TPCWindProb', 'TPCProb'),
                  'RTOFS-Guam',
@@ -1266,7 +1266,7 @@ elif SID == "GUM":
                  'GLOBHwave',
                  ('nwpsCG1', 'nwpsCG1'),
                  ('nwpsTrkngCG0', 'nwpsTrkngCG0'),
-                 ('GFS20-PAC', 'GFS20'),
+                 ('GFS-EPac-20km', 'GFS20'),
                  # DCS #17288
                  ('Guam-RTMA', 'RTMA'),
                ]
@@ -1274,23 +1274,23 @@ elif SID == "GUM":
 #CONUS sites
 elif SID in CONUS_EAST_SITES:
     D2DMODELS = [('GFS212', 'GFS40'),
-                 ('AVN211', 'GFS80'),
+                 ('GFS-80km', 'GFS80'),
                  ('ETA', 'NAM80'),
                  ('HRRR', 'HRRR'),
                  ('NGM', 'NGM80'),
                  ('MRF', 'gfsLR'),
                  ('RUC130', 'RUC13'),
                  ('RUC', 'RUC80'),
-                 ('mesoEta212', 'NAM40'),
-                 ('mesoEta215', 'NAM20'),
+                 ('NAM40', 'NAM40'),
+                 ('NAM20', 'NAM20'),
                  'MSAS',
                  ('LAPS', 'LAPS'),
-                 'GWW233',
+                 'WaveWatch',
                  ('HPCqpf', 'HPCQPF'),
                  ('HPCqpfNDFD', 'HPCERP'),
                  ('RFCqpf', 'RFCQPF'),
 #DR3511                 'HPCdelta',
-                 'WNAWAVE238',
+                 'WaveWatch-WNA',
                  'TPCSurgeProb',
                  'GlobalWave',
                  'EPwave10',
@@ -1320,8 +1320,8 @@ elif SID in CONUS_EAST_SITES:
                  ('HiResW-NMM-East', 'HIRESWnmm'),
                  ('SPCGuide', 'SPC'),
                  ('ECMWF-HiRes','ECMWFHiRes'),
-                 ('ENPWAVE253', 'ENPwave'),
-                 ('estofsUS', 'ESTOFS'),
+                 ('WaveWatch-ENP', 'ENPwave'),
+                 ('ESTOFS', 'ESTOFS'),
                  'NAHwave15',
                  'NAHwave10',
                  'NAHwave4',
@@ -1332,7 +1332,7 @@ elif SID in CONUS_EAST_SITES:
                  'GLOBHwave',
            #########DR17144
                  'URMA25',
-                 ('GFS215', 'GFS20'),
+                 ('GFS-20km', 'GFS20'),
                  'ETSS',
                  'GFSLAMPGrid',
                  ('FFG-ALR', 'FFGALR'),
@@ -1352,23 +1352,23 @@ elif SID in CONUS_EAST_SITES:
 else:   #######DCS3501 WEST_CONUS
 
     D2DMODELS = [('GFS212', 'GFS40'),
-                 ('AVN211', 'GFS80'),
+                 ('GFS-80km', 'GFS80'),
                  ('ETA', 'NAM80'),
                  ('NGM', 'NGM80'),
                  ('MRF', 'gfsLR'),
                  ('RUC130', 'RUC13'),
                  ('RUC', 'RUC80'),
-                 ('mesoEta212', 'NAM40'),
-                 ('mesoEta215', 'NAM20'),
+                 ('NAM40', 'NAM40'),
+                 ('NAM20', 'NAM20'),
                  'MSAS',
                  ('LAPS', 'LAPS'),
-                 'GWW233',
+                 'WaveWatch',
                  ('HPCqpf', 'HPCQPF'),
                  ('HPCqpfNDFD', 'HPCERP'),
                  ('RFCqpf', 'RFCQPF'),
                  ('HRRR', 'HRRR'),
 #DR3511                 'HPCdelta',
-                 'WNAWAVE238',
+                 'WaveWatch-WNA',
                  'TPCSurgeProb',
                  'GlobalWave',
                  'EPwave10',
@@ -1399,7 +1399,7 @@ else:   #######DCS3501 WEST_CONUS
                  ('HiResW-NMM-West', 'HIRESWnmm'),
                  ('SPCGuide', 'SPC'),
                  ('ECMWF-HiRes','ECMWFHiRes'),
-                 ('ENPWAVE253', 'ENPwave'),
+                 ('WaveWatch-ENP', 'ENPwave'),
                  'NAHwave15',
                  'NAHwave10',
                  'NAHwave4',
@@ -1410,7 +1410,7 @@ else:   #######DCS3501 WEST_CONUS
                  'GLOBHwave',
               ############DR17144
                  'URMA25',
-                 ('GFS215', 'GFS20'),
+                 ('GFS-20km', 'GFS20'),
                  'ETSS',
                  'GFSLAMPGrid',
                  ('FFG-ALR', 'FFGALR'),

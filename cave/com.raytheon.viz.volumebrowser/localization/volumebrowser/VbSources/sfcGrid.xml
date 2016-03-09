@@ -21,23 +21,23 @@
 <vbSourceList>
     <vbSource key="CPCoutlook211" category="SfcGrid"
         views="PLANVIEW TIMESERIES" />
-    <vbSource key="estofsUS" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+    <vbSource key="ESTOFS" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="GFE" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="GFSGuide" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="GFSLAMP" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="LAMP2p5" category="SfcGrid" views="PLANVIEW TIMESERIES" />
-    <vbSource key="GWW233" category="SfcGrid" views="PLANVIEW TIMESERIES" />
-    <vbSource key="HurWave238" category="SfcGrid" views="PLANVIEW TIMESERIES" />
-    <vbSource key="HurWave253" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+    <vbSource key="WaveWatch" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+    <vbSource key="WaveWatch-WNA-Hurr" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+    <vbSource key="WaveWatch-ENP-Hurr" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="HurWind250" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="HurWind226" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="MOSGuide" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="MOSGuideExtended" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="HPCqpfNDFD" category="SfcGrid" views="PLANVIEW TIMESERIES" />
-    <vbSource key="GWW233" category="SfcGrid" views="PLANVIEW TIMESERIES" />
-    <vbSource key="WNAWAVE238" category="SfcGrid" views="PLANVIEW TIMESERIES" />
-    <vbSource key="AKWAVE239" category="SfcGrid" views="PLANVIEW TIMESERIES" />
-    <vbSource key="ENPWAVE253" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+    <vbSource key="WaveWatch" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+    <vbSource key="WaveWatch-WNA" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+    <vbSource key="WaveWatch-AK" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+    <vbSource key="WaveWatch-ENP" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="HPCGuide" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="HPE" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="MPE-Local" category="SfcGrid" views="PLANVIEW TIMESERIES" />

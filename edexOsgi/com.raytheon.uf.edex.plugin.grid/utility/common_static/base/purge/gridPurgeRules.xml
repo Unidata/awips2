@@ -7,7 +7,7 @@
         <period>07-00:00:00</period>
     </defaultRule>
 	<rule>
-		<keyValue>AKNAM11</keyValue>
+		<keyValue>AK-NAM-11km</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
@@ -19,7 +19,7 @@
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<keyValue>ENPWAVE253</keyValue>
+		<keyValue>WaveWatch-ENP</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
@@ -27,7 +27,7 @@
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<keyValue>AKWAVE239</keyValue>
+		<keyValue>WaveWatch-AK</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
@@ -83,7 +83,7 @@
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<keyValue>GFS201</keyValue>
+		<keyValue>GFS-NH</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
@@ -95,15 +95,15 @@
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<keyValue>GFS213</keyValue>
+		<keyValue>GFS-95km</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<keyValue>GFS215</keyValue>
+		<keyValue>GFS-20km</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<keyValue>GFS217</keyValue>
+		<keyValue>AK-GFS-22km</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
@@ -253,7 +253,7 @@
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<keyValue>GWW233</keyValue>
+		<keyValue>WaveWatch</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 		<modTimeToWait>00-00:15:00</modTimeToWait>
 	</rule>
@@ -262,7 +262,7 @@
 		<versionsToKeep>5</versionsToKeep>
 	</rule>
 	<rule>
-		<keyValue>WNAWAVE238</keyValue>
+		<keyValue>WaveWatch-WNA</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
@@ -270,7 +270,7 @@
 		<versionsToKeep>5</versionsToKeep>
 	</rule>
 	<rule>
-		<keyValue>ENPWAVE253</keyValue>
+		<keyValue>WaveWatch-ENP</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
@@ -282,11 +282,11 @@
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<keyValue>HurWave238</keyValue>
+		<keyValue>WaveWatch-WNA-Hurr</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<keyValue>HurWave253</keyValue>
+		<keyValue>WaveWatch-ENP-Hurr</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
@@ -519,7 +519,7 @@
 		<versionsToKeep>1</versionsToKeep>
 		<modTimeToWait>00-00:15:00</modTimeToWait>
 	</rule>
-	<!-- Purge rule for the HiResW-ARW-HI (HiResW-ARW-HI) model -->
+	<!-- Purge rule for the HiResW-ARW-Hawaii (HiResW-ARW-Hawaii) model -->
 	<rule>
 		<keyValue>HiRes-ARW-HI</keyValue>
 		<versionsToKeep>2</versionsToKeep>
@@ -549,7 +549,7 @@
 		<versionsToKeep>1</versionsToKeep>
 		<modTimeToWait>00-00:15:00</modTimeToWait>
 	</rule>
-	<!-- Purge rule for the HiResW-NMM-HI (HiResW-NMM-HI) model -->
+	<!-- Purge rule for the HiResW-NMM-Hawaii (HiResW-NMM-Hawaii) model -->
 	<rule>
 		<keyValue>HiRes-NMM-HI</keyValue>
 		<versionsToKeep>2</versionsToKeep>
@@ -599,11 +599,11 @@
 	</rule>
 	<!-- Purge rule for the ESTOFS model -->
 	<rule>
-		<keyValue>estofsUS</keyValue>
+		<keyValue>ESTOFS</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<keyValue>estofsPR</keyValue>
+		<keyValue>PR-ESTOFS</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<!-- Purge rule for the GFS199 (Guam-GFSDNG) model -->
