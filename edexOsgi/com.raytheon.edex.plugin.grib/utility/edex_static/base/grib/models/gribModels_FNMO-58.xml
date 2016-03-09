@@ -23,42 +23,52 @@
 	</model>
 
 	<model>
-		<name>COAMPS-EU</name>
+		<name>COAMPS-Europe</name>
 		<center>58</center>
 		<subcenter>0</subcenter>
-		<grid>301186</grid>
+		<grid>301188</grid>
 		<process>
-			<id>22</id>
+			<id>13</id>
 		</process>
 	</model>
 
 	<model> 
-		<name>COAMPS-CA</name>
+		<name>COAMPS-WesternAtlantic</name>
 		<center>58</center>
 		<subcenter>0</subcenter>
-		<grid>301161</grid>
+		<grid>301254</grid>
 		<process>
-			<id>27</id>
+			<id>13</id>
 		</process>
 	</model>
 
 	<model> 
-		<name>COAMPS-EP</name>
+		<name>COAMPS-NortheastPacific</name>
 		<center>58</center>
 		<subcenter>0</subcenter>
-		<grid>231156</grid>
+		<grid>271151</grid>
 		<process>
-			<id>60</id>
+			<id>13</id>
 		</process>
 	</model>
 
 	<model> 
-		<name>COAMPS-WA</name>
+		<name>COAMPS-CentralAmerica</name>
 		<center>58</center>
 		<subcenter>0</subcenter>
-		<grid>191176</grid>
+		<grid>461298</grid>
 		<process>
-			<id>63</id>
+			<id>13</id>
+		</process>
+	</model>
+
+	<model> 
+		<name>COAMPS-SouthernCalifornia</name>
+		<center>58</center>
+		<subcenter>0</subcenter>
+		<grid>128141</grid>
+		<process>
+			<id>13</id>
 		</process>
 	</model>
 
@@ -73,12 +83,12 @@
 	</model>
 
 	<model> 
-		<name>FNMOC-WW3-EU</name>
+		<name>FNMOC-WW3-Europe</name>
 		<center>58</center>
 		<subcenter>0</subcenter>
-		<grid>301186</grid>
+		<grid>301188</grid>
 		<process>
-			<id>111</id>
+			<id>11</id>
 		</process>
 	</model>
 
