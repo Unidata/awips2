@@ -200,10 +200,12 @@ public class TextDecoder {
      * This generates a text record with Awips and Afos product id set to the
      * values in the WMO Report Data.
      */
-    private static TextRecord createTextRecord(WMOReportData rpdData) {
+    private static TextRecord createTextRecord(WMOReportData rpdData,
+            long refTime) {
         TextRecord pdo = new TextRecord();
         pdo.setProductId(rpdData.getAfosProdId().toString());
         pdo.setAwipsProductId(rpdData.getAwipsProdId());
+        pdo.setDataTime(new DataTime(new Date(refTime)));
         return pdo;
     }
 
@@ -330,7 +332,7 @@ public class TextDecoder {
                                     operationalMode, headers);
 
                             if (writeTime != Long.MIN_VALUE) {
-                                pdo = createTextRecord(rptData);
+                                pdo = createTextRecord(rptData, writeTime);
                                 stored++;
                             } else {
                                 // throw new
