@@ -128,6 +128,6 @@
 	<alias base="UKMET42">UKMET</alias>
 	<alias base="UKMET43">UKMET</alias>
 	<alias base="UKMET44">UKMET</alias>
-	<alias base="UKMET-NorthernHemisphere">UKMET</alias>
+	<alias base="UKMET-Global">UKMET</alias>
 	<alias base="WaveWatch-WNA">WNAwave</alias>
 </aliasList>

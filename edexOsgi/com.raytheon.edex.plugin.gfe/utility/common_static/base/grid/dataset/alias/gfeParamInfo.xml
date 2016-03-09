@@ -20,7 +20,7 @@
     <alias base="AK-NOGAPS">nogaps</alias>
     <alias base="CanadianModel">localMPE</alias>
     <alias base="UKMET-MODEL1">ukmetNH</alias>
-    <alias base="UKMET-NorthernHemisphere">ukmetNH</alias>
+    <alias base="UKMET-Global">ukmetNH</alias>
     <alias base="UKMET37">ukmetNH</alias>
     <alias base="UKMET38">ukmetNH</alias>
     <alias base="UKMET39">ukmetNH</alias>

@@ -19,7 +19,7 @@
                                 <constraint constraintValue="GH" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="info.datasetId">
-                                <constraint constraintValue="UKMET-NorthernHemisphere" constraintType="EQUALS"/>
+                                <constraint constraintValue="UKMET-Global" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="info.level.leveltwovalue">
                                 <constraint constraintValue="-999999" constraintType="EQUALS"/>
@@ -53,7 +53,7 @@
                                 <constraint constraintValue="AV" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="info.datasetId">
-                                <constraint constraintValue="UKMET-NorthernHemisphere" constraintType="EQUALS"/>
+                                <constraint constraintValue="UKMET-Global" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="info.level.leveltwovalue">
                                 <constraint constraintValue="-999999" constraintType="EQUALS"/>
@@ -87,7 +87,7 @@
                                 <constraint constraintValue="msl-P" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="info.datasetId">
-                                <constraint constraintValue="UKMET-NorthernHemisphere" constraintType="EQUALS"/>
+                                <constraint constraintValue="UKMET-Global" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="pluginName">
                                 <constraint constraintValue="grid" constraintType="EQUALS"/>
@@ -118,7 +118,7 @@
                                 <constraint constraintValue="dZ" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="info.datasetId">
-                                <constraint constraintValue="UKMET-NorthernHemisphere" constraintType="EQUALS"/>
+                                <constraint constraintValue="UKMET-Global" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="info.level.leveltwovalue">
                                 <constraint constraintValue="500.0" constraintType="EQUALS"/>
@@ -152,7 +152,7 @@
                                 <constraint constraintValue="GH" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="info.datasetId">
-                                <constraint constraintValue="UKMET-NorthernHemisphere" constraintType="EQUALS"/>
+                                <constraint constraintValue="UKMET-Global" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="info.level.leveltwovalue">
                                 <constraint constraintValue="-999999" constraintType="EQUALS"/>
@@ -186,7 +186,7 @@
                                 <constraint constraintValue="RH" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="info.datasetId">
-                                <constraint constraintValue="UKMET-NorthernHemisphere" constraintType="EQUALS"/>
+                                <constraint constraintValue="UKMET-Global" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="info.level.leveltwovalue">
                                 <constraint constraintValue="500.0" constraintType="EQUALS"/>
@@ -220,7 +220,7 @@
                                 <constraint constraintValue="${TP}" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="info.datasetId">
-                                <constraint constraintValue="UKMET-NorthernHemisphere" constraintType="EQUALS"/>
+                                <constraint constraintValue="UKMET-Global" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="pluginName">
                                 <constraint constraintValue="grid" constraintType="EQUALS"/>
