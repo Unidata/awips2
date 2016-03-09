@@ -2266,20 +2266,20 @@
 		</imageStyle>
 	</styleRule>
 	<!--
-		* NBE, ETA, mesoEta212, ETA207, mesoEta216, mesoEta217, ETA218, ETA242, GFS213, GFS212
+		* NBE, ETA, NAM40, AK-NAM-95km, AK-NAM-45km, AK-NAM-22km, ETA218, AK-NAM-11km, GFS-95km, GFS212
 		J/kg | -1| 0 | -1000 | -1 | |,x| 29 | 0 | 100
 	-->
 	<styleRule>
 		<paramLevelMatches>
 			<parameter>NBE</parameter>
 			<creatingEntity>ETA</creatingEntity>
-			<creatingEntity>mesoEta212</creatingEntity>
-			<creatingEntity>ETA207</creatingEntity>
-			<creatingEntity>mesoEta216</creatingEntity>
-			<creatingEntity>mesoEta217</creatingEntity>
+			<creatingEntity>NAM40</creatingEntity>
+			<creatingEntity>AK-NAM-95km</creatingEntity>
+			<creatingEntity>AK-NAM-45km</creatingEntity>
+			<creatingEntity>AK-NAM-22km</creatingEntity>
 			<creatingEntity>ETA218</creatingEntity>
-			<creatingEntity>ETA242</creatingEntity>
-			<creatingEntity>GFS213</creatingEntity>
+			<creatingEntity>AK-NAM-11km</creatingEntity>
+			<creatingEntity>GFS-95km</creatingEntity>
 			<creatingEntity>GFS212</creatingEntity>
 		</paramLevelMatches>
 		<imageStyle>

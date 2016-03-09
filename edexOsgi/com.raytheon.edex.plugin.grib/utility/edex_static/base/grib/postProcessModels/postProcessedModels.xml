@@ -49,13 +49,13 @@
 		post processor. These models may have some parameters which are incorrectly 
 		labeled Celsius vs. Kelvin. The list of parameters to correct is in temperatureCorrectionParameters.xml -->
 	<postProcessedModel>
-		<modelName>NAM12|GFS40|GFS213|ETA242|RTOFS-.*</modelName>
+		<modelName>NAM12|GFS40|GFS-95km|AK-NAM-11km|RTOFS-.*</modelName>
 		<processorName>TemperatureCorrectionPostProcessor</processorName>
 	</postProcessedModel>
 
 	<!-- Post processor definition for the RTMA model -->
 	<postProcessedModel>
-		<modelName>RTMA</modelName>
+		<modelName>RTMA|RTMA5</modelName>
 		<processorName>RTMAGribPostProcessor</processorName>
 	</postProcessedModel>
 
@@ -73,7 +73,7 @@
 
 	<!-- Post processor definition for the ETA (NAM80) model -->
 	<postProcessedModel>
-		<modelName>ETA</modelName>
+		<modelName>NAM-80km</modelName>
 		<processorName>Nam80PostProcessor</processorName>
 	</postProcessedModel>
 

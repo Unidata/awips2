@@ -159,13 +159,13 @@
 
 <!--
 	Ocean models
-		estofsUS
+		ESTOFS
 		ETSS
 		FNMOC-WW3
 -->	
 	<include installTo="menu:models" 
              fileName="menus/volume/oceanFamilies.xml">
-             <substitute key="modelName" value="estofsUS" />
+             <substitute key="modelName" value="ESTOFS" />
              <substitute key="menuName" value="ESTOFS" />
              <substitute key="frameCount" value="12" />
              <substitute key="TP" value="TP"/>

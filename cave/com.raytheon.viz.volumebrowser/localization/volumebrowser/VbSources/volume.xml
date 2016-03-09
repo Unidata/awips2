@@ -22,7 +22,7 @@
     <vbSource key="CMC" category="Volume" />
     <vbSource key="DGEX" category="Volume" />
     <vbSource key="GFS" category="Volume" />
-    <vbSource key="GFS201" category="Volume" />
+    <vbSource key="GFS-NH" category="Volume" />
     <vbSource key="GFS40" category="Volume" />
     <vbSource key="GFSGuide" category="Volume" />
     <vbSource key="ECMF-Global" category="Volume" />
@@ -49,11 +49,11 @@
     <vbSource key="HiResW-NMM-East" category="Volume" />
     <vbSource key="HiResW-NMM-West" category="Volume" />
     <vbSource key="SeaIce" category="Volume" />
-    <vbSource key="GWW233" category="Volume" />
+    <vbSource key="WaveWatch" category="Volume" />
     <vbSource key="GLERL" category="Volume" />
-    <vbSource key="HurWave238" category="Volume" />
-    <vbSource key="HurWave253" category="Volume" />
-    <vbSource key="WNAWAVE238" category="Volume" />
-    <vbSource key="ENPWAVE253" category="Volume" />
-    <vbSource key="AKWAVE239" category="Volume" />
+    <vbSource key="WaveWatch-WNA-Hurr" category="Volume" />
+    <vbSource key="WaveWatch-ENP-Hurr" category="Volume" />
+    <vbSource key="WaveWatch-WNA" category="Volume" />
+    <vbSource key="WaveWatch-ENP" category="Volume" />
+    <vbSource key="WaveWatch-AK" category="Volume" />
 </vbSourceList>

@@ -20,7 +20,7 @@
 		</process>
 	</model>
 	<model>
-		<name>estofsPR</name>
+		<name>PR-ESTOFS</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
 		<grid>339227001</grid>
@@ -51,7 +51,7 @@
 	</model>
 
 	<model>
-		<name>ETA</name>
+		<name>NAM-80km</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>211</grid>
@@ -174,7 +174,7 @@
 	</model>
 
 	<model>
-		<name>GFS201</name>
+		<name>GFS-NH</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>201</grid>
@@ -198,7 +198,7 @@
 	</model>
 
 	<model>
-		<name>GFS213</name>
+		<name>GFS-95km</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>213</grid>
@@ -231,7 +231,7 @@
 
 
 	<model>
-		<name>AVN211</name>
+		<name>GFS-80km</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>211</grid>
@@ -239,16 +239,6 @@
 			<id>77</id>
 			<id>81</id>
 			<id>96</id>
-		</process>
-	</model>
-
-	<model>
-		<name>NAM40</name>
-		<center>7</center>
-		<subcenter>0</subcenter>
-		<grid>212</grid>
-		<process>
-			<id>84</id>
 		</process>
 	</model>
 
@@ -264,7 +254,7 @@
 
      <!-- conus 20KM-->
     <model>
-        <name>GFS215</name>
+        <name>GFS-20km</name>
         <center>7</center>
         <subcenter>0</subcenter>
         <grid>215</grid>
@@ -276,7 +266,7 @@
     
     <!-- ak 20KM -->
     <model>
-        <name>GFS217</name>
+        <name>AK-GFS-22km</name>
         <center>7</center>
         <subcenter>0</subcenter>
         <grid>217</grid>
@@ -288,7 +278,7 @@
 
     <!-- pac 20KM -->
     <model>
-        <name>GFS20-PAC</name>
+        <name>GFS-EPac-20km</name>
         <center>7</center>
         <subcenter>0</subcenter>
         <grid>GFS-PAC-20KM</grid>
@@ -300,7 +290,7 @@
     
     <!-- prico 20KM -->
     <model>
-        <name>GFS20-PRICO</name>
+        <name>PR-GFS-20km</name>
         <center>7</center>
         <subcenter>0</subcenter>
         <grid>GFS-PRICO-20KM</grid>
@@ -339,11 +329,12 @@
 	</model>
 
 	<model>
-		<name>ETA212</name>
+		<name>NAM40</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>212</grid>
 		<process>
+			<id>84</id>
 			<id>89</id>
 		</process>
 	</model>
@@ -410,7 +401,7 @@
 	</model>
 
 	<model>
-		<name>ETA207</name>
+		<name>AK-NAM-95km</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>207</grid>
@@ -573,16 +564,6 @@
 		<grid>408</grid>
 		<process>
 			<id>11</id>
-		</process>
-	</model>
-
-	<model>
-		<name>GWW233</name>
-		<center>7</center>
-		<subcenter>0</subcenter>
-		<grid>233</grid>
-		<process>
-			<id>10</id>
 		</process>
 	</model>
 
@@ -778,7 +759,7 @@
 	</model>
 
 	<model>
-		<name>AVN225</name>
+		<name>Hawaii-GFS-80km</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>225</grid>
@@ -790,7 +771,17 @@
 	</model>
 
 	<model>
-		<name>AKWAVE239</name>
+		<name>WaveWatch</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>233</grid>
+		<process>
+			<id>10</id>
+		</process>
+	</model>
+
+	<model>
+		<name>WaveWatch-AK</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>239</grid>
@@ -800,27 +791,49 @@
 	</model>
 
 	<model>
-		<name>WNAWAVE238</name>
+		<name>WaveWatch-WNA</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>238</grid>
 		<process>
 			<id>121</id>
-		</process>
-	</model>
-
-	<model>
-		<name>WNAWAVE238-2</name>
-		<center>7</center>
-		<subcenter>0</subcenter>
-		<grid>238</grid>
-		<process>
 			<id>255</id>
 		</process>
 	</model>
 
 	<model>
-		<name>AK-NAM</name>
+		<name>WaveWatch-ENP</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>253</grid>
+		<process>
+			<id>124</id>
+			<id>255</id>
+		</process>
+	</model>
+
+	<model>
+		<name>WaveWatch-WNA-Hurr</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>238</grid>
+		<process>
+			<id>123</id>
+		</process>
+	</model>
+
+	<model>
+		<name>WaveWatch-ENP-Hurr</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>253</grid>
+		<process>
+			<id>125</id>
+		</process>
+	</model>
+
+	<model>
+		<name>AK-NAM-45km</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>216</grid>
@@ -830,7 +843,7 @@
 	</model>
 
 	<model>
-		<name>mesoEta217</name>
+		<name>AK-NAM-22km</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>217</grid>
@@ -850,7 +863,7 @@
 	</model>
 
 	<model>
-		<name>AKNAM11</name>
+		<name>AK-NAM-11km</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>242</grid>
@@ -907,46 +920,6 @@
 		<grid>407</grid>
 		<process>
 			<id>84</id>
-		</process>
-	</model>
-
-	<model>
-		<name>ENPWAVE253</name>
-		<center>7</center>
-		<subcenter>0</subcenter>
-		<grid>253</grid>
-		<process>
-			<id>124</id>
-		</process>
-	</model>
-
-	<model>
-		<name>ENPWAVE253-2</name>
-		<center>7</center>
-		<subcenter>0</subcenter>
-		<grid>253</grid>
-		<process>
-			<id>255</id>
-		</process>
-	</model>
-
-	<model>
-		<name>HurWave238</name>
-		<center>7</center>
-		<subcenter>0</subcenter>
-		<grid>238</grid>
-		<process>
-			<id>123</id>
-		</process>
-	</model>
-
-	<model>
-		<name>HurWave253</name>
-		<center>7</center>
-		<subcenter>0</subcenter>
-		<grid>253</grid>
-		<process>
-			<id>125</id>
 		</process>
 	</model>
 
@@ -1021,7 +994,7 @@
 	</model>
 
 	<model>
-		<name>DGEX186</name>
+		<name>AK-DGEX</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>186</grid>
@@ -1043,7 +1016,7 @@
 	</model>
 
 	<model>
-		<name>GFS160</name>
+		<name>AK-GFS</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>160</grid>
@@ -1055,7 +1028,7 @@
 	</model>
 
 	<model>
-		<name>GFS254</name>
+		<name>GFS-EPac-40km</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>254</grid>
@@ -1423,7 +1396,7 @@
 	</model>
 
 	<model>
-		<name>HiResW-ARW-HI</name>
+		<name>HiResW-ARW-Hawaii</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>255005</grid>
@@ -1495,7 +1468,7 @@
 	</model>
 
 	<model>
-		<name>HiResW-NMM-HI</name>
+		<name>HiResW-NMM-Hawaii</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>255005</grid>
@@ -1666,7 +1639,7 @@
 	</model>
 
 	<model>
-		<name>mesoEta237</name>
+		<name>PR-NAM</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>237</grid>
@@ -1916,7 +1889,7 @@
 	</model>
 
 	<model>
-		<name>NAM243</name>
+		<name>NAM-EPac</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>243</grid>
@@ -2407,7 +2380,7 @@
 	</model>
 
 	<model>
-		<name>SREF40-2</name>
+		<name>SREF-40km</name>
 		<center>7</center>
 		<subcenter>2</subcenter>
 		<grid>212</grid>
@@ -2420,7 +2393,7 @@
 	</model>
 
 	<model>
-		<name>SREF40-0</name>
+		<name>SREF-40km</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>212</grid>
@@ -2433,7 +2406,7 @@
 	</model>
 
 	<model>
-		<name>SREF216</name>
+		<name>AK-SREF-45km</name>
 		<center>7</center>
 		<subcenter>2</subcenter>
 		<grid>216</grid>
@@ -2443,7 +2416,7 @@
 	</model>
 
 	<model>
-		<name>SREF243</name>
+		<name>SREF-EPac</name>
 		<center>7</center>
 		<subcenter>2</subcenter>
 		<grid>243</grid>
@@ -2888,7 +2861,7 @@
 	</model>
 
 	<model>
-		<name>estofsUS</name>
+		<name>ESTOFS</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
 		<grid>184</grid>
@@ -2898,7 +2871,7 @@
 	</model>
 
 	<model>
-		<name>estofsUS</name>
+		<name>ESTOFS</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
 		<grid>1971</grid>
@@ -2908,7 +2881,7 @@
 	</model>
 
 	<model>
-		<name>estofsPR</name>
+		<name>PR-ESTOFS</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
 		<grid>339227-95</grid>
@@ -3210,7 +3183,7 @@
 	</model>
 
 	<model>
-		<name>AK-RTMA-HR</name>
+		<name>AK-RTMA-HiRes</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
 		<grid>1023</grid>
@@ -3220,7 +3193,7 @@
 	</model>
 
 	<model>
-		<name>MOSGuide-HI</name>
+		<name>MOSGuide-Hawaii</name>
 		<center>7</center>
 		<subcenter>14</subcenter>
 		<grid>625561001</grid>

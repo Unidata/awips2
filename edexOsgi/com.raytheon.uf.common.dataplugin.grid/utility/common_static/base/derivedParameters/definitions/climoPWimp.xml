@@ -4,11 +4,11 @@
 	
 	AWIPS I format
 	climoPWimp |0| |Import NARR PW     |mm         |CONTOUR,IMAGE,OTHER|Layer |       *Import,Layer,GFS212|PW,Layer,NARR|       
-																					  *Import,Layer,GFS213|PW,Layer,NARR|       
+																					  *Import,Layer,GFS-95km|PW,Layer,NARR|       
 																					  *Import,Layer,RUC|PW,Layer,NARR|       
 																					  *Import,Layer,RUC130|PW,Layer,NARR|       
 																					  *Import,Layer,RUC236|PW,Layer,NARR|       
-																					  *Import,Layer,ETA212|PW,Layer,NARR|       
+																					  *Import,Layer,NAM40|PW,Layer,NARR|       
 																					  *Import,Layer,ETA218|PW,Layer,NARR|       
 																					  *Import,Layer,ETA|PW,Layer,NARR
 
@@ -25,7 +25,7 @@
 	functionName, planeList, source: |Import,Layer,GFS212|		
 	varId, plane, source: |PW,Layer,NARR|
 	 
-	functionName, planeList, source: |Import,Layer,GFS213| 
+	functionName, planeList, source: |Import,Layer,GFS-95km| 
 	varId, plane, source: |PW,Layer,NARR| 
 	
 	functionName, planeList, source: |Import,Layer,RUC|
@@ -37,7 +37,7 @@
 	functionName, planeList, source: |Import,Layer,RUC236|
 	varId, plane, source: |PW,Layer,NARR| 
 	
-	functionName, planeList, source: |Import,Layer,ETA212|
+	functionName, planeList, source: |Import,Layer,NAM40|
 	varId, plane, source: |PW,Layer,NARR| 
 	
 	functionName, planeList, source: |Import,Layer,ETA218|
@@ -53,7 +53,7 @@
     <Method models="GFS212" levels="Layer" name="Import">
         <Field model="NARR" level="Layer" abbreviation="PW"/>
     </Method>
-    <Method models="GFS213" levels="Layer" name="Import">
+    <Method models="GFS-95km" levels="Layer" name="Import">
         <Field model="NARR" level="Layer" abbreviation="PW"/>
     </Method>
     <Method models="RUC" levels="Layer" name="Import">
@@ -65,7 +65,7 @@
     <Method models="RUC236" levels="Layer" name="Import">
         <Field model="NARR" level="Layer" abbreviation="PW"/>
     </Method>
-    <Method models="ETA212" levels="Layer" name="Import">
+    <Method models="NAM40" levels="Layer" name="Import">
         <Field model="NARR" level="Layer" abbreviation="PW"/>
     </Method>
     <Method models="ETA218" levels="Layer" name="Import">
