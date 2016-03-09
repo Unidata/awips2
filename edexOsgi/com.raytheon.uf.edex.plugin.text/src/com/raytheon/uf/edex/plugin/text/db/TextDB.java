@@ -41,6 +41,7 @@ import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.common.wmo.AFOSProductId;
 import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.common.wmo.WMOTimeParser;
+import com.raytheon.uf.edex.plugin.text.IcaoMap;
 import com.raytheon.uf.edex.plugin.text.dao.StateMatchDao;
 import com.raytheon.uf.edex.plugin.text.dao.StdTextProductDao;
 import com.raytheon.uf.edex.plugin.text.dao.TextProductInfoDao;
@@ -882,17 +883,17 @@ public class TextDB {
         String hdrTime = null;
         String bbbIndicator = null;
         StringBuilder product = new StringBuilder();
+        String cccc = null;
 
-        if (header != null && header.isValid()) {
+        if ((header != null) && header.isValid()) {
             product.append(header.getWmoHeader());
             product.append("\n");
             wmoid = header.getTtaaii();
-            siteid = header.getCccc();
             hdrTime = header.getYYGGgg();
             bbbIndicator = header.getBBBIndicator();
+            cccc = header.getCccc();
         } else {
             wmoid = "";
-            siteid = "";
             hdrTime = "";
         }
 
@@ -904,18 +905,22 @@ public class TextDB {
             writeTime = new Long(c.getTimeInMillis());
         }
 
+        boolean success = false;
+
         StdTextProduct textProduct = (operationalMode ? new OperationalStdTextProduct()
                 : new PracticeStdTextProduct());
         textProduct.setWmoid(wmoid);
-        textProduct.setSite(siteid);
         textProduct.setCccid(prodId.getCcc());
         textProduct.setXxxid(prodId.getXxx());
+        siteid = IcaoMap.siteToIcaoId(prodId.getXxx(), cccc);
+        textProduct.setSite(siteid);
         textProduct.setNnnid(prodId.getNnn());
         textProduct.setHdrtime(hdrTime);
         textProduct.setBbbid(bbbIndicator);
         textProduct.setRefTime(writeTime);
         textProduct.setProduct(product.toString());
-        boolean success = writeProduct(textProduct);
+        success = writeProduct(textProduct);
+
         if (success) {
             return writeTime;
         } else {

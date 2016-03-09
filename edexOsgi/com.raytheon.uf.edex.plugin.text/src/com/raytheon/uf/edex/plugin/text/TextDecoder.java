@@ -20,11 +20,12 @@
 package com.raytheon.uf.edex.plugin.text;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -82,7 +83,8 @@ import com.raytheon.uf.edex.plugin.text.impl.separator.WMOMessageSeparator;
  * May 12, 2014 2536        bclement    added createTextRecord(), removed deprecated code
  * Jul 10, 2014 2914        garmendariz Remove EnvProperties
  * Dec 09, 2015 5166        kbisanz     Update logging to use SLF4J.
- * Mar 4, 2015  4716        rferrel     Add AWIPS products to the TextRecords.
+ * Mar 4,  2016 4716        rferrel     Add AWIPS products to the TextRecords.
+ *                                      {@link #decodeFile(File, Headers)} now uses try with resources.
  * </pre>
  * 
  * @author
@@ -199,6 +201,10 @@ public class TextDecoder {
     /**
      * This generates a text record with Awips and Afos product id set to the
      * values in the WMO Report Data.
+     * 
+     * @param rpdData
+     * @param refTime
+     * @return pdo
      */
     private static TextRecord createTextRecord(WMOReportData rpdData,
             long refTime) {
@@ -444,34 +450,14 @@ public class TextDecoder {
      */
     public PluginDataObject[] decodeFile(File inputFile, Headers headers)
             throws DecoderException {
+        Path inPath = Paths.get(inputFile.getAbsolutePath());
         byte[] fileData = null;
-        InputStream is = null;
-        try {
-            try {
-                is = new FileInputStream(inputFile);
 
-                fileData = new byte[(int) inputFile.length()];
-                int bytesRead = is.read(fileData);
-                // If we didn't or couldn't read all the data, signal the
-                // fact by setting the data to null;
-                if (bytesRead != fileData.length) {
-                    fileData = null;
-                }
-                fileName = inputFile.getName();
-            } catch (IOException ioe) {
-                logger.error("Error reading input file " + inputFile.getName(),
-                        ioe);
-                fileData = null;
-            }
-        } finally {
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (IOException ioe) {
-                    logger.error("Could not close input file "
-                            + inputFile.getName());
-                }
-            }
+        try {
+            fileData = Files.readAllBytes(inPath);
+        } catch (IOException ioe) {
+            logger.error("Error reading input file " + inputFile.getName(), ioe);
+            fileData = null;
         }
         return decode(fileData, headers);
     }

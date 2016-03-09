@@ -73,6 +73,7 @@ import com.raytheon.uf.edex.database.cluster.ClusterTask;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
 import com.raytheon.uf.edex.database.purge.PurgeLogger;
+import com.raytheon.uf.edex.plugin.text.IcaoMap;
 
 /**
  * The dao implementation associated with the TextDao classes used for all
@@ -93,8 +94,8 @@ import com.raytheon.uf.edex.database.purge.PurgeLogger;
  * 28Jul2010    2187        cjeanbap    Fixed class exception in cccnnnxxxReadVersion.
  * 05Oct2010                cjeanbap    Fixed a bug introduced on #2187; return distinct rows.
  * 23May2012    14952       rferrel     Added cccnnnxxxByRefTime.
- * 03Oct2012	15244		mgamazaychikov	Added the fix to query the appropriate table
- * 											(operational or practice)
+ * 03Oct2012    15244       mgamazaychikov  Added the fix to query the appropriate table
+ *                                           (operational or practice)
  * May 20, 2014 2536       bclement    moved from edex.textdb to edex.plugin.text
  * Sep 18, 2014 3627       mapeters    Updated deprecated TimeTools usage.
  * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
@@ -104,6 +105,7 @@ import com.raytheon.uf.edex.database.purge.PurgeLogger;
  * Jul 06, 2015 4612        rferrel     Get all sites matching the preferredafosFirstLetter.
  * Dec 09, 2015 5166        kbisanz     Update logging to use SLF4J.
  * Feb 15, 2015 4716        rferrel     Added {@link #queryProductList(int, List)} with common transaction code.
+ *                                      Use {@link IcaoMap} to determine site.
  * </pre>
  * 
  * @author garmendariz
@@ -227,14 +229,9 @@ public class StdTextProductDao extends CoreDao {
         prodId.setXxxid(xxx);
         Session session = this.getSession();
         String site = textProduct.getProdId().getSite();
-        if ((site == null) || site.trim().isEmpty()) {
+        if (StringUtils.isBlank(site)) {
             // Determine product site.
-            if (xxx.trim().length() == MAX_FIELD_LENGTH) {
-                site = SiteMap.getInstance().getSite4LetterId(xxx);
-            } else {
-                site = SiteMap.getInstance().getSite4LetterId(
-                        SiteUtil.getSite());
-            }
+            site = IcaoMap.siteToIcaoId(xxx, prodId.getSite());
             if (logger.isInfoEnabled()) {
                 logger.info("Write \"" + ccc + nnn + xxx
                         + "\" setting site to " + site);
