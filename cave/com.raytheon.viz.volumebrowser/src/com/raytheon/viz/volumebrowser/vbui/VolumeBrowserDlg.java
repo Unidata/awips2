@@ -71,14 +71,16 @@ import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 12, 2009 #2161      lvenable     Initial creation
+ * May 12, 2009 #2161      lvenable    Initial creation
  * Jul 21, 2012 #875       rferrel     Now uses points.
  * Sep 26, 2012 #1216      rferrel     Point Change listener added to update
  *                                      the Time Series Point menu.
  * Oct  2, 2012 #1234      rferrel     Time series Point menu accounts for 
  *                                      having no points.
  * Jun 23, 2014 #3162      lvenable    Added code to have the Volume Browser display the min/max
- *                                     buttons in the title bar on thin client.
+ *                                      buttons in the title bar on thin client.
+ * Jan 12, 2016 #5055      randerso    Changed toolbar menus to split when dialog is resized.
+ *                                      Other general GUI cleanup
  * 
  * </pre>
  * 
@@ -157,7 +159,7 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
         GridLayout mainLayout = new GridLayout(1, false);
         mainLayout.marginHeight = 2;
         mainLayout.marginWidth = 2;
-        mainLayout.verticalSpacing = 2;
+        mainLayout.verticalSpacing = 0;
         return mainLayout;
     }
 
@@ -186,7 +188,9 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
         shell.addControlListener(new ControlAdapter() {
             @Override
             public void controlResized(ControlEvent e) {
-                getProductTable().resizeTableColumns();
+
+                listTableComp.resizeToolbars();
+
             }
 
         });
@@ -203,21 +207,12 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
 
             @Override
             public void shellClosed(ShellEvent e) {
-                VolumeBrowserDlg.this.shell.setVisible(false);
+                hide();
                 e.doit = false;
             }
         });
 
         initialized = true;
-    }
-
-    @Override
-    protected void preOpened() {
-        // Resize the product table columns.
-        getProductTable().resizeTableColumns();
-
-        // Set the shell's minimum size so the controls cannot be hidden.
-        shell.setMinimumSize(shell.getSize());
     }
 
     /**
@@ -228,7 +223,7 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
 
         createDataSelectionListProductTableManager();
 
-        updateToolbarMenus(false);
+        updateToolbarMenus();
     }
 
     /**
@@ -275,8 +270,7 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
 
                 List<ProductTableData> selectedProducts = getProductTable()
                         .getSelectedData();
-                new CloneDialog(new Shell(SWT.MODELESS), selectedProducts)
-                        .open();
+                new CloneDialog(getParent(), selectedProducts).open();
             }
         });
 
@@ -727,7 +721,7 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
 
         dialogSettings.setViewSelection(currentSetting);
 
-        updateToolbarMenus(true);
+        updateToolbarMenus();
     }
 
     /**
@@ -765,7 +759,7 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
                     MenuItem mi = (MenuItem) event.getSource();
                     dialogSettings.setSpaceTimeSelection(mi);
                     updateMenu(mi);
-                    updateToolbarMenus(true);
+                    updateToolbarMenus();
                 }
             });
         }
@@ -933,13 +927,9 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
 
     /**
      * Update the toolbar menus as they may have changed.
-     * 
-     * @param packShellFlag
-     *            Flag indicating the shell must be packed.
      */
-    private void updateToolbarMenus(boolean packShellFlag) {
-        shell.setMinimumSize(new org.eclipse.swt.graphics.Point(10, 10));
-        shell.setSize(new org.eclipse.swt.graphics.Point(10, 10));
+    private void updateToolbarMenus() {
+        shell.setMinimumSize(10, 10);
 
         ViewMenu setting = (ViewMenu) settingsMI.getData();
         SpaceTimeMenu spaceTime = null;
@@ -950,26 +940,13 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
 
         listTableComp.updateToolbarMenus(setting, spaceTime);
 
-        if (packShellFlag == true) {
+        shell.pack();
 
-            getProductTable().packTable();
-
-            shell.layout();
-            shell.pack();
-
-            getProductTable().resizeTableColumns();
-
-            shell.setMinimumSize(shell.getSize());
-        }
+        shell.setMinimumSize(shell.getSize());
     }
 
     public VolumeBrowserDialogSettings getDialogSettings() {
         return dialogSettings;
-    }
-
-    public void showVBDialog() {
-        shell.setVisible(true);
-        shell.setFocus();
     }
 
     public DataListsProdTableComp getListTableComp() {
@@ -997,7 +974,8 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
                     break;
                 }
             }
-            updateToolbarMenus(true);
+            updateToolbarMenus();
         }
     }
+
 }

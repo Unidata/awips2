@@ -23,8 +23,7 @@ Import-Package: com.raytheon.edex.esb,
  com.vividsolutions.jts.geom,
  com.vividsolutions.jts.geom.prep,
  com.vividsolutions.jts.io,
- gov.noaa.nws.ost.edex.plugin.binlightning,
- org.apache.commons.logging
+ gov.noaa.nws.ost.edex.plugin.binlightning
 Require-Bundle: com.raytheon.uf.common.dataplugin.binlightning;bundle-version="1.12.1174",
  com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
  com.raytheon.uf.common.datastorage;bundle-version="1.12.1174",

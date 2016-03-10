@@ -32,22 +32,23 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.edex.netcdf.description.exception.InvalidDescriptionException;
 
 /**
- *
+ * 
  * Contains the information necessary to extract a {@link DataTime} from the
  * global attributes of a {@link NetcdfFile}.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date          Ticket#  Engineer  Description
- * ------------- -------- --------- --------------------------
+ * ------------- -------- --------- --------------------------------------------
  * Aug 11, 2015  4709     bsteffen  Initial creation
  * Aug 25, 2015  4699     nabowle   Extracted from Pointset netcdf plugin and
  *                                  refactored.
- *
+ * Jan 25, 2016  5208     bsteffen  Add validation.
+ * 
  * </pre>
- *
+ * 
  * @author bsteffen
  */
 @XmlAccessorType(XmlAccessType.NONE)
@@ -88,6 +89,19 @@ public class DataTimeDescription {
             } else {
                 return new DataTime(refTime);
             }
+        }
+    }
+
+    public void validate() throws InvalidDescriptionException {
+        if (refTime == null) {
+            throw new InvalidDescriptionException(
+                    "A ref time element is not present.");
+        }
+        try {
+            refTime.validate();
+        } catch (InvalidDescriptionException e) {
+            throw new InvalidDescriptionException("Invalid ref time: "
+                    + e.getMessage(), e);
         }
     }
 

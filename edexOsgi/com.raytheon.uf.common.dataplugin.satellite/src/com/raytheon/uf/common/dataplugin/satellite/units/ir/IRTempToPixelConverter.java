@@ -23,7 +23,7 @@ package com.raytheon.uf.common.dataplugin.satellite.units.ir;
 import javax.measure.converter.ConversionException;
 import javax.measure.converter.UnitConverter;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * Converts a temperature value in Kelvin to a pixel value.

@@ -28,26 +28,27 @@ import ucar.nc2.NetcdfFile;
 import com.raytheon.uf.edex.netcdf.description.exception.InvalidDescriptionException;
 
 /**
- *
+ * 
  * An attribute value is loaded from XML and then combined with a
  * {@link NetcdfFile} to extract a desired value. Normally the XML specifies an
  * attribute to read from the netCDF file but in some cases the netcdf file does
  * not have enough information so values can be directly in the xml.
- *
- *
+ * 
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------
  * Aug 11, 2015  4709     bsteffen  Initial creation
  * Aug 25, 2015  4699     nabowle   Extracted from Pointset netcdf plugin,
  *                                  renamed, and refactored.
  * Sep 09, 2015  4696     nabowle   Override new methods.
- *
+ * Dec 08, 2015  5059     nabowle   Add isNumeric() and isPresent().
+ * 
  * </pre>
- *
+ * 
  * @author bsteffen
  */
 @XmlAccessorType(XmlAccessType.NONE)
@@ -122,5 +123,28 @@ public class AttributeDescription extends AbstractFieldDescription {
             }
         }
         return 0;
+    }
+
+    @Override
+    public boolean isNumeric(NetcdfFile file)
+            throws InvalidDescriptionException {
+        if (this.name == null) {
+            throw new InvalidDescriptionException("name is null");
+        }
+        Attribute attr = file.findGlobalAttribute(this.name);
+        if (attr == null) {
+            throw new InvalidDescriptionException(
+                    "Coudld not find a global attribute for " + this.name);
+        }
+        return attr.getDataType().isNumeric();
+    }
+
+    @Override
+    public boolean isPresent(NetcdfFile file)
+            throws InvalidDescriptionException {
+        if (name == null) {
+            throw new InvalidDescriptionException("name is null");
+        }
+        return file.findGlobalAttribute(this.name) != null;
     }
 }

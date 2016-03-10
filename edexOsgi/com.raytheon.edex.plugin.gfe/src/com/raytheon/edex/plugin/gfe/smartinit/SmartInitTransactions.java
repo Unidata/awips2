@@ -24,8 +24,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.LockOptions;
@@ -34,6 +32,8 @@ import org.hibernate.Transaction;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.plugin.gfe.smartinit.SmartInitRecordPK.State;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
@@ -53,6 +53,7 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * Apr 12, 2010            njensen     Initial creation
  * May 20, 2014 #3069      randerso    Added validTime to sort order when 
  *                                     choosing next smartInit to run
+ * Dec 15, 2015 #5166      kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -64,8 +65,8 @@ public class SmartInitTransactions {
 
     protected static final String TASK_NAME = "GfeSmartInit";
 
-    protected static transient Log logger = LogFactory
-            .getLog(SmartInitTransactions.class);
+    protected static transient Logger logger = LoggerFactory
+            .getLogger(SmartInitTransactions.class);
 
     @SuppressWarnings("unchecked")
     public static SmartInitRecord getSmartInitToRun(

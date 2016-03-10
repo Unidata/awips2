@@ -22,8 +22,8 @@ package com.raytheon.uf.edex.cpgsrv;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.uf.common.dataplugin.message.DataURINotificationMessage;
 
@@ -38,8 +38,9 @@ import com.raytheon.uf.common.dataplugin.message.DataURINotificationMessage;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 5, 2010            chammack     Initial creation
+ * Jan 5, 2010             chammack    Initial creation
  * Feb 15, 2013 1638       mschenke    Moved DataURINotificationMessage to uf.common.dataplugin
+ * Dec 14, 2015 5166       kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -49,7 +50,7 @@ import com.raytheon.uf.common.dataplugin.message.DataURINotificationMessage;
 
 public class CPGDispatcher {
 
-    private Log log = LogFactory.getLog(CPGDispatcher.class);
+    private Logger log = LoggerFactory.getLogger(CPGDispatcher.class);
 
     private List<CompositeProductGenerator> generatorSet;
 

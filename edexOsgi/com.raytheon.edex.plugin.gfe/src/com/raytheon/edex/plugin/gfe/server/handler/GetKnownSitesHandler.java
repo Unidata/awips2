@@ -22,11 +22,6 @@ package com.raytheon.edex.plugin.gfe.server.handler;
 
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
-import com.raytheon.edex.plugin.gfe.exception.GfeConfigurationException;
 import com.raytheon.uf.common.dataplugin.gfe.request.GetKnownSitesRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
@@ -47,25 +42,15 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * @author bphillip
  * @version 1
  */
-public class GetKnownSitesHandler implements
+public class GetKnownSitesHandler extends BaseGfeRequestHandler implements
         IRequestHandler<GetKnownSitesRequest> {
-    protected final transient Log logger = LogFactory.getLog(getClass());
 
     @Override
     public ServerResponse<List<String>> handleRequest(
             GetKnownSitesRequest request) throws Exception {
-        ServerResponse<List<String>> sr = null;
-        try {
-            sr = new ServerResponse<List<String>>();
-            List<String> sites = IFPServerConfigManager.getServerConfig(
-                    request.getSiteID()).allSites();
-            sr.setPayload(sites);
-        } catch (GfeConfigurationException e) {
-            logger.error("Error getting known sites", e);
-            sr = new ServerResponse<List<String>>();
-            sr.addMessage("Error getting known sites");
-        }
+        List<String> ids = getIfpServer(request).getConfig().allSites();
+        ServerResponse<List<String>> sr = new ServerResponse<>();
+        sr.setPayload(ids);
         return sr;
     }
-
 }

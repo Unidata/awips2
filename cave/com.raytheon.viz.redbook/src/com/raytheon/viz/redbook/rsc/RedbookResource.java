@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.dataplugin.HDF5Util;
@@ -69,6 +69,8 @@ import com.raytheon.viz.redbook.rsc.RedbookFrame.RedbookStatus;
  * Mar 13, 2014 2907        njensen     split edex.redbook plugin into common
  *                                      and edex redbook plugins
  * Jun 26, 2015 4512        mapeters    Updated for RedbookWMOMap API changes
+ * Oct 27, 2015 4798        bsteffen    Throw VizException for missing svg.
+ * Nov 05, 2015 5070        randerso    Adjust font sizes for dpi scaling
  * 
  * </pre>
  * 
@@ -87,7 +89,7 @@ public class RedbookResource extends
 
     private IFont font;
 
-    private WxSymbols wxSymbols = new WxSymbols();
+    private WxSymbols wxSymbols;
 
     private String humanReadableName;
 
@@ -96,11 +98,12 @@ public class RedbookResource extends
     private boolean magnificationChanged = false;
 
     protected RedbookResource(RedbookResourceData resourceData,
-            LoadProperties loadProperties) {
+            LoadProperties loadProperties) throws VizException {
         super(resourceData, loadProperties);
         this.dataTimes = new ArrayList<DataTime>();
         resourceData.addChangeListener(this);
         this.redbookFrames = new HashMap<DataTime, RedbookFrame>();
+        wxSymbols = new WxSymbols();
     }
 
     /*
@@ -114,8 +117,9 @@ public class RedbookResource extends
             font.dispose();
             font = null;
         }
-        for (RedbookFrame frame : this.redbookFrames.values())
+        for (RedbookFrame frame : this.redbookFrames.values()) {
             frame.dispose();
+        }
     }
 
     /*
@@ -205,8 +209,9 @@ public class RedbookResource extends
     @Override
     public void remove(DataTime dataTime) {
         RedbookFrame frame = this.redbookFrames.remove(dataTime);
-        if (frame != null)
+        if (frame != null) {
             frame.dispose();
+        }
     }
 
     /*
@@ -219,8 +224,9 @@ public class RedbookResource extends
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         for (RedbookFrame frame : this.redbookFrames.values()) {
-            if (!frame.hasInited())
+            if (!frame.hasInited()) {
                 frame.init(target);
+            }
         }
     }
 
@@ -249,7 +255,7 @@ public class RedbookResource extends
                     font = null;
                 }
                 font = target.initializeFont(target.getDefaultFont()
-                        .getFontName(), (float) (10 * magnification), null);
+                        .getFontName(), (float) (8 * magnification), null);
                 magnificationChanged = false;
             }
 

@@ -1022,7 +1022,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
     
     def _preparednessSection(self, productDict, productSegmentGroup, productSegment):
         sectionDict = dict()
-        sectionDict['title'] = "Precautionary/Preparedness Actions"
+        sectionDict['title'] = "PRECAUTIONARY/PREPAREDNESS ACTIONS"
         
         sectionDict['genericAction'] = None
         if not self._ImpactsAnticipated:

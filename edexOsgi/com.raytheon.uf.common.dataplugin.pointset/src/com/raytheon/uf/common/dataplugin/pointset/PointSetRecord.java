@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.common.dataplugin.pointset;
 
-import java.nio.Buffer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -53,6 +52,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------
  * Aug 11, 2015  4709     bsteffen  Initial creation
+ * Jan 21, 2016  5208     bsteffen  Store data in new object.
  * 
  * </pre>
  * 
@@ -89,7 +89,8 @@ public class PointSetRecord extends PersistablePluginDataObject {
     @DynamicSerializeElement
     private String locationId;
 
-    private transient Buffer data;
+    private transient PointSetData data;
+
 
     public String getDatasetId() {
         return datasetId;
@@ -123,11 +124,11 @@ public class PointSetRecord extends PersistablePluginDataObject {
         this.locationId = locationId;
     }
 
-    public Buffer getData() {
+    public PointSetData getData() {
         return data;
     }
 
-    public void setData(Buffer data) {
+    public void setData(PointSetData data) {
         this.data = data;
     }
 

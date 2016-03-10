@@ -279,6 +279,7 @@ from com.raytheon.viz.gfe.textformatter import TextProductFinishWaiter, Formatte
 from com.raytheon.viz.gfe.smarttool import TextFileUtil
 from com.raytheon.viz.gfe.dialogs.formatterlauncher import ConfigData
 ProductStateEnum = ConfigData.ProductStateEnum
+from com.raytheon.uf.common.activetable import ActiveTableMode
 
 class ProcessInfo:
     def __init__(self, entry, name, pid, script):
@@ -499,7 +500,7 @@ class ITool (ISmartScript.ISmartScript):
         if clearHazards:
             if self._reportingMode not in ["Pretty"]:
                 self.output("WARNING::Clearing Hazards Table", self._outFile)
-            self._dataMgr.getClient().clearPracticeTable("TBW")
+            self._dataMgr.getClient().clearVTECTable(ActiveTableMode.PRACTICE)
 
     def _createCombinationsFile(self, entry):
         fn = entry.get("combinationsFileName", None)

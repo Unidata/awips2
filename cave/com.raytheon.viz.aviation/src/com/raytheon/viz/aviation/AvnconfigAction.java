@@ -25,8 +25,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
+import org.eclipse.swt.widgets.Display;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -38,14 +37,15 @@ import com.raytheon.viz.avnconfig.TafSiteConfigFactory;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * May 15, 2008	1119		grichard	Initial creation.
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * May 15, 2008 1119       grichard     Initial creation.
  * Jul  9, 2010 5078        rferrel     Check for existence of
  *                                      config files in execute.
  * Oct 19, 2010 7347        rferrel     Replace reference to TAF_SITE_CONFIG
  * Oct 08, 2012 1229        rferrel     Changes to work with non-blocking AvnConfigDlg.
  * Feb 13, 2013 1549        rferrel     Minor code clean up.
+ * Jan 26, 2016 5054        randerso    Change top level dialog to be parented to the display
  * 
  * </pre>
  * 
@@ -81,9 +81,7 @@ public class AvnconfigAction extends AbstractHandler {
         }
 
         if (avnfpsSetupDlg == null) {
-            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                    .getShell();
-            avnfpsSetupDlg = new AvnconfigDlg(shell);
+            avnfpsSetupDlg = new AvnconfigDlg(Display.getCurrent());
         }
         avnfpsSetupDlg.open();
 

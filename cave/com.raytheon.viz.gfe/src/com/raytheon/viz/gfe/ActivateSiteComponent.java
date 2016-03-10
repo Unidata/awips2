@@ -19,9 +19,6 @@
  **/
 package com.raytheon.viz.gfe;
 
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
-
 import com.raytheon.viz.gfe.dialogs.sbu.SiteActivationDlg;
 import com.raytheon.viz.ui.personalities.awips.AbstractAWIPSComponent;
 
@@ -34,8 +31,10 @@ import com.raytheon.viz.ui.personalities.awips.AbstractAWIPSComponent;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 15, 2011            bphillip     Initial creation
+ * Aug 15, 2011            bphillip    Initial creation
  * Oct 26, 2012 1287       rferrel     Force blocking of SiteActivationDlg.
+ * Jan 26, 2015 5054       randerso    Use null shell as parent,
+ *                                     Results in display as parent for jface dialogs
  * 
  * </pre>
  * 
@@ -54,8 +53,7 @@ public class ActivateSiteComponent extends AbstractAWIPSComponent {
      */
     @Override
     protected void startInternal(String componentName) throws Exception {
-        SiteActivationDlg dlg = new SiteActivationDlg(new Shell(
-                Display.getCurrent()));
+        SiteActivationDlg dlg = new SiteActivationDlg(null);
         dlg.setBlockOnOpen(true);
         dlg.open();
     }

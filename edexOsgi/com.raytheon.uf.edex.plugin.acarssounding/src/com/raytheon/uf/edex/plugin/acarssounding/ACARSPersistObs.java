@@ -23,8 +23,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
@@ -51,6 +51,7 @@ import com.raytheon.uf.edex.plugin.acarssounding.tools.SoundingBuilder;
  * Nov 17, 2009            jkorman     Initial creation
  * Jan 07, 2014 2658       rferrel     Ignore cut off time when allowing archive data.
  * May 14, 2014 2536       bclement    removed TimeTools usage
+ * Dec 10, 2015 5166       kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -68,7 +69,7 @@ public class ACARSPersistObs {
 
     public static final int NO_DATA_DIR = 4;
 
-    private Log logger = LogFactory.getLog(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     private SoundingBuilder builder;
 

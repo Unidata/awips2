@@ -22,8 +22,8 @@ package com.raytheon.edex.plugin.gfe.server.handler;
 
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
 import com.raytheon.edex.plugin.gfe.exception.GfeConfigurationException;
@@ -40,8 +40,9 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * 
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 07/15/09      1995       bphillip    Initial release
- * 09/22/09      3058       rjpeter     Converted to IRequestHandler
+ * 07/15/09     1995        bphillip    Initial release
+ * 09/22/09     3058        rjpeter     Converted to IRequestHandler
+ * 12/15/15     5166        kbisanz     Update logging to use SLF4J
  * </pre>
  * 
  * @author bphillip
@@ -49,7 +50,8 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  */
 public class GetOfficeTypeHandler implements
         IRequestHandler<GetOfficeTypeRequest> {
-    protected final transient Log logger = LogFactory.getLog(getClass());
+    protected final transient Logger logger = LoggerFactory
+            .getLogger(getClass());
 
     @Override
     public ServerResponse<String> handleRequest(GetOfficeTypeRequest request)

@@ -29,6 +29,7 @@ import com.raytheon.uf.common.geospatial.SpatialQueryFactory;
 import com.raytheon.uf.common.monitor.MonitorAreaUtils;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
+import com.raytheon.uf.common.monitor.data.MonitorConfigConstants;
 import com.raytheon.uf.common.monitor.data.ObConst;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
 import com.raytheon.uf.common.monitor.xml.AreaIdXML;
@@ -38,7 +39,6 @@ import com.raytheon.uf.viz.monitor.config.CommonTableConfig;
 import com.raytheon.uf.viz.monitor.config.CommonTableConfig.CellType;
 import com.raytheon.uf.viz.monitor.config.CommonTableConfig.ObsHistType;
 import com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr;
-import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants;
 
 /**
  * Moved some common utility methods related to
@@ -57,6 +57,7 @@ import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants;
  * May 23, 2014  3086       skorolev   Corrected ObsHistType. Cleaned code.
  * Sep 18, 2015  3873       skorolev   Added coordinates in the hover text for a newly added zones.Corrected code for Fog and SNOW table data.
  * Oct 22, 2015  3873       dhladky    Cached off the zone/station hover texts.
+ * Dec 26, 2015  5114       skorolev   Replaced MonitorConfigConstants import.
  * 
  * </pre>
  * 
@@ -68,17 +69,18 @@ public final class TableUtil {
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(TableUtil.class);
-    
+
     /** Conversion coefficient of nautical miles to statute miles. */
     public static final float milesPerNauticalMile = 1.15078f;
 
     /** Singleton instance of this class */
     private static TableUtil tableUtil = new TableUtil();
+
     /** Hover text lookup map **/
     public Map<String, String> zoneHoverTextMap = null;
+
     /** station text lookup map **/
     public Map<String, String> stationHoverTextMap = null;
-
 
     /**
      * Actual initialization if necessary
@@ -92,12 +94,12 @@ public final class TableUtil {
 
         return tableUtil;
     }
-    
+
     private TableUtil() {
         zoneHoverTextMap = new ConcurrentHashMap<String, String>();
         stationHoverTextMap = new ConcurrentHashMap<String, String>();
     }
-    
+
     /**
      * Returns the nominal time for a caller-specified time (to be consistent
      * with D2D, here "Nominal time" is defined as the hour of an one-hour
@@ -1005,9 +1007,9 @@ public final class TableUtil {
 
         String zone = zoneXML.getAreaId();
         String hoverText = tableUtil.zoneHoverTextMap.get(zone);
-        
+
         if (hoverText == null) {
-        
+
             ISpatialQuery sq = null;
             String sql = null;
             hoverText = zone.substring(0, 2) + ", ";
@@ -1035,7 +1037,7 @@ public final class TableUtil {
                         Object[] res = (Object[]) results[0];
                         hoverText += (String) res[0];
                     } else {
-                        hoverText += (String) results[0].toString();
+                        hoverText += results[0].toString();
                     }
                 } else {
                     if (zoneXML.getCLat() != null) {
@@ -1044,9 +1046,10 @@ public final class TableUtil {
                     }
                 }
             } catch (Exception e) {
-                statusHandler.error("Unable to query Zone Hover Text: sql: "+sql, e);
+                statusHandler.error("Unable to query Zone Hover Text: sql: "
+                        + sql, e);
             }
-            
+
             tableUtil.zoneHoverTextMap.put(zone, hoverText);
         }
 
@@ -1061,14 +1064,13 @@ public final class TableUtil {
      */
     private static String getStationHoverText(String stnId) {
 
-        
         String hoverText = tableUtil.stationHoverTextMap.get(stnId);
-        
+
         if (hoverText == null) {
-  
+
             String sql = "select catalogtype, name from common_obs_spatial where ( catalogtype=1 or catalogtype=33 or catalogtype = 32 or catalogtype=1000) and stationid = '"
                     + stnId + "'";
-            
+
             ISpatialQuery sq = null;
             Integer stnType = null;
             String stnName = null;
@@ -1097,12 +1099,13 @@ public final class TableUtil {
                 }
 
             } catch (Exception e) {
-                statusHandler.error("Unable to query Station Hover Text: sql: "+sql, e);
+                statusHandler.error("Unable to query Station Hover Text: sql: "
+                        + sql, e);
             }
 
             tableUtil.stationHoverTextMap.put(stnId, hoverText);
         }
-        
+
         return hoverText;
 
     }

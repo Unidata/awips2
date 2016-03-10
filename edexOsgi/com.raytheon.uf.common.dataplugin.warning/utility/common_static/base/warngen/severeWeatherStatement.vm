@@ -856,20 +856,20 @@ This storm has a history of producing large hail. Seek shelter now inside a stur
 ##
 #if(${list.contains(${bullets}, "historyWindCTA")})
 #if(${stormType} == "line")
-These storms have a history of producing wind damage. This is a very dangerous situation. Seek shelter now inside a sturdy structure and stay away from windows!
+These storms have a history of producing wind damage. This is a VERY DANGEROUS SITUATION. Seek shelter now inside a sturdy structure and stay away from windows!
  
 #else
-This storm has a history of producing wind damage. This is a very dangerous situation. Seek shelter now inside a sturdy structure and stay away from windows!
+This storm has a history of producing wind damage. This is a VERY DANGEROUS SITUATION. Seek shelter now inside a sturdy structure and stay away from windows!
 
 #end
 #end
 ##
 #if(${list.contains(${bullets}, "historyWindHailCTA")})
 #if(${stormType} == "line")
-These storms have a history of producing destructive winds and large hail. This is a very dangerous situation. Seek shelter now inside a sturdy structure and stay away from windows!
+These storms have a history of producing destructive winds and large hail. This is a VERY DANGEROUS SITUATION. Seek shelter now inside a sturdy structure and stay away from windows!
  
 #else
-This storm has a history of producing destructive winds and large hail. This is a very dangerous situation. Seek shelter now inside a sturdy structure and stay away from windows!
+This storm has a history of producing destructive winds and large hail. This is a VERY DANGEROUS SITUATION. Seek shelter now inside a sturdy structure and stay away from windows!
 
 #end
 #end
@@ -901,10 +901,10 @@ Wind damage with this storm will occur well ahead of any rain or lightning. Do n
 ##
 #if(${list.contains(${bullets}, "extremeWindsCTA")})
 #if(${stormType} == "line")
-This is an extremely dangerous situation with tornado like wind speeds expected. Mobile homes and high profile vehicles are especially susceptible to winds of this magnitude and may be overturned. For your protection move immediately to a safe shelter or to an interior room on the lowest floor of your home or business. These storms have the potential to cause serious injury and significant property damage.
+This is an EXTREMELY DANGEROUS SITUATION with tornado like wind speeds expected. Mobile homes and high profile vehicles are especially susceptible to winds of this magnitude and may be overturned. For your protection move immediately to a safe shelter or to an interior room on the lowest floor of your home or business. These storms have the potential to cause serious injury and significant property damage.
 
 #else
-This is an extremely dangerous situation with tornado like wind speeds expected. Mobile homes and high profile vehicles are especially susceptible to winds of this magnitude and may be overturned. For your protection move immediately to a safe shelter or to an interior room on the lowest floor of your home or business. This storm has the potential to cause serious injury and significant property damage.
+This is an EXTREMELY DANGEROUS SITUATION with tornado like wind speeds expected. Mobile homes and high profile vehicles are especially susceptible to winds of this magnitude and may be overturned. For your protection move immediately to a safe shelter or to an interior room on the lowest floor of your home or business. This storm has the potential to cause serious injury and significant property damage.
 
 #end
 #end

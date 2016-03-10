@@ -22,7 +22,6 @@
 	<Source-Grid>NAM40</Source-Grid>
 	<Source-Grid>NAM80</Source-Grid>
 	<Source-Grid>NAMWX</Source-Grid>
-	<Source-Grid>NGM80</Source-Grid>
 	<Source-Grid>NICIE</Source-Grid>
 	<Source-Grid>TPC-HurWind</Source-Grid>
 	<Source-Grid>TPCWindProb</Source-Grid>

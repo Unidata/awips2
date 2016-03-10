@@ -19,7 +19,7 @@
  **/
 package com.raytheon.edex.plugin.gfe.server.handler.svcbu;
 
-import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang3.BooleanUtils;
 
 import com.raytheon.edex.plugin.gfe.svcbackup.SvcBackupUtil;
 import com.raytheon.uf.common.dataplugin.gfe.request.ImportConfRequest;

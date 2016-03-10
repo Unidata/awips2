@@ -62,9 +62,9 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * Handles profiler data
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
@@ -85,8 +85,10 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 08/14/2014         3523 mapeters    Updated deprecated {@link DrawableString#textStyle}
  *                                     assignments.
  * 07/22/2015          688 nabowle     Synchronize plotObjects access.
+ * 05/11/2015         5070 randerso    Adjust font sizes for dpi scaling
+ * 
  * </pre>
- *
+ * 
  * @author dhladky
  * @version 1.0
  */
@@ -126,7 +128,7 @@ public class ProfilerResource extends
 
     /**
      * Required method for getting data
-     *
+     * 
      * @param resourceData
      * @param loadProperties
      */
@@ -176,7 +178,7 @@ public class ProfilerResource extends
         incX = (ProfilerUtils.profilerRectangle.width / NUM_PROFILE_STAFFS);
         incYheight = ProfilerUtils.profilerRectangle.height / MAX_Y;
 
-        this.font = target.initializeFont("Dialog", 11, null);
+        this.font = target.initializeFont("Dialog", 9, null);
 
         ColorMapParameters params = getCapability(ColorMapCapability.class)
                 .getColorMapParameters();
@@ -261,7 +263,8 @@ public class ProfilerResource extends
                 earliestTime = Math.min(earliestTime, validTime);
                 latestTime = Math.max(latestTime, validTime);
             }
-            long earliestRequestTime = earliestTime - NUM_PROFILE_STAFFS * 3600000;
+            long earliestRequestTime = earliestTime - NUM_PROFILE_STAFFS
+                    * 3600000;
             List<DataTime> requestTimes = new ArrayList<DataTime>();
             for (DataTime time : resourceData.getAvailableTimes()) {
                 long validTime = time.getValidTime().getTimeInMillis();
@@ -312,7 +315,7 @@ public class ProfilerResource extends
 
     /**
      * Set the width scalar
-     *
+     * 
      * @param props
      * @return
      */
@@ -325,7 +328,7 @@ public class ProfilerResource extends
 
     /**
      * get the scale width value
-     *
+     * 
      * @return
      */
     private double getScaleWidth() {
@@ -334,7 +337,7 @@ public class ProfilerResource extends
 
     /**
      * Set the height scalar
-     *
+     * 
      * @param props
      * @return
      */
@@ -347,7 +350,7 @@ public class ProfilerResource extends
 
     /**
      * Get the scalar height
-     *
+     * 
      * @return
      */
     private double getScaleHeight() {
@@ -356,7 +359,7 @@ public class ProfilerResource extends
 
     /**
      * gets the pixel coverage for this image
-     *
+     * 
      * @return
      */
     private PixelCoverage getPixelCoverage(Coordinate c) {
@@ -375,7 +378,7 @@ public class ProfilerResource extends
 
     /**
      * iterate through our list of profile plots and draw images
-     *
+     * 
      * @throws VizException
      */
     private void drawProfiles(PaintProperties paintProps) throws VizException {
@@ -413,7 +416,7 @@ public class ProfilerResource extends
 
     /**
      * Create profile windBards
-     *
+     * 
      * @param profile
      * @throws VizException
      */
@@ -453,7 +456,7 @@ public class ProfilerResource extends
     }
 
     /**
-     *
+     * 
      * @param index
      * @param level
      * @return
@@ -481,14 +484,15 @@ public class ProfilerResource extends
 
     /**
      * @throws VizException
-     *
+     * 
      */
     public void drawXAxis(PaintProperties paintProps, Double magnification)
             throws VizException {
         // left edge of graph
         DrawableLine[] lines = new DrawableLine[2];
         lines[0] = new DrawableLine();
-        lines[0].setCoordinates(ProfilerUtils.profilerRectangle.x,
+        lines[0].setCoordinates(
+                ProfilerUtils.profilerRectangle.x,
                 (ProfilerUtils.profilerRectangle.y + ProfilerUtils.profilerRectangle.height));
         lines[0].addPoint(ProfilerUtils.profilerRectangle.x,
                 ProfilerUtils.profilerRectangle.y);
@@ -537,9 +541,11 @@ public class ProfilerResource extends
 
         // draw right edge
         lines[1] = new DrawableLine();
-        lines[1].setCoordinates((ProfilerUtils.profilerRectangle.x + ProfilerUtils.profilerRectangle.width),
+        lines[1].setCoordinates(
+                (ProfilerUtils.profilerRectangle.x + ProfilerUtils.profilerRectangle.width),
                 (ProfilerUtils.profilerRectangle.y + ProfilerUtils.profilerRectangle.height));
-        lines[1].addPoint((ProfilerUtils.profilerRectangle.x + ProfilerUtils.profilerRectangle.width),
+        lines[1].addPoint(
+                (ProfilerUtils.profilerRectangle.x + ProfilerUtils.profilerRectangle.width),
                 ProfilerUtils.profilerRectangle.y);
         lines[1].basics.color = ProfilerUtils.GRAPH_COLOR;
         lines[1].width = ProfilerUtils.GRAPH_LINE_WIDTH;
@@ -551,7 +557,7 @@ public class ProfilerResource extends
 
     /**
      * @throws VizException
-     *
+     * 
      */
     public void drawYAxis(PaintProperties paintProps, Double magnification)
             throws VizException {
@@ -713,7 +719,7 @@ public class ProfilerResource extends
     }
 
     /**
-     *
+     * 
      * @param height
      * @return
      */
@@ -723,7 +729,7 @@ public class ProfilerResource extends
     }
 
     /**
-     *
+     * 
      * @param w
      * @return
      */

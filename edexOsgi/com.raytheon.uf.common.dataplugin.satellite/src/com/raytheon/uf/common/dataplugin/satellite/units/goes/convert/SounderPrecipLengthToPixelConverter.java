@@ -24,7 +24,7 @@ import javax.measure.converter.ConversionException;
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.SI;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * Converts meters of total precipitation of water to a pixel value
@@ -41,72 +41,72 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
  */
 public class SounderPrecipLengthToPixelConverter extends UnitConverter {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private static UnitConverter meterToMillimeter = SI.METRE.getConverterTo(SI
-			.MILLI(SI.METRE));
+    private static UnitConverter meterToMillimeter = SI.METRE.getConverterTo(SI
+            .MILLI(SI.METRE));
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.measure.converter.UnitConverter#convert(double)
-	 */
-	@Override
-	public double convert(double aLength) throws ConversionException {
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.measure.converter.UnitConverter#convert(double)
+     */
+    @Override
+    public double convert(double aLength) throws ConversionException {
 
-		// value is in meters, but below calculates pixel based on value being
-		// millimeters
-		aLength = meterToMillimeter.convert(aLength);
+        // value is in meters, but below calculates pixel based on value being
+        // millimeters
+        aLength = meterToMillimeter.convert(aLength);
 
-		double result = aLength * 200.0 / 67.0;
+        double result = aLength * 200.0 / 67.0;
 
-		if (result < 0) {
-			result = 0;
-		} else if (result > 255) {
-			result = 255;
-		}
+        if (result < 0) {
+            result = 0;
+        } else if (result > 255) {
+            result = 255;
+        }
 
-		return result;
-	}
+        return result;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.measure.converter.UnitConverter#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object aConverter) {
-		return (aConverter instanceof SounderPrecipLengthToPixelConverter);
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.measure.converter.UnitConverter#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object aConverter) {
+        return (aConverter instanceof SounderPrecipLengthToPixelConverter);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.measure.converter.UnitConverter#hashCode()
-	 */
-	@Override
-	public int hashCode() {
-		return HashCodeBuilder.reflectionHashCode(this);
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.measure.converter.UnitConverter#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.measure.converter.UnitConverter#inverse()
-	 */
-	@Override
-	public UnitConverter inverse() {
-		return new SounderPrecipPixelToLengthConverter();
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.measure.converter.UnitConverter#inverse()
+     */
+    @Override
+    public UnitConverter inverse() {
+        return new SounderPrecipPixelToLengthConverter();
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.measure.converter.UnitConverter#isLinear()
-	 */
-	@Override
-	public boolean isLinear() {
-		return true;
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.measure.converter.UnitConverter#isLinear()
+     */
+    @Override
+    public boolean isLinear() {
+        return true;
+    }
 
 }

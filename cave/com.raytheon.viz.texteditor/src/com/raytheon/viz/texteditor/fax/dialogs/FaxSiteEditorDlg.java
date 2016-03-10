@@ -34,7 +34,7 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import com.raytheon.uf.common.dataplugin.text.db.AutoFaxRecord;
+import com.raytheon.uf.common.dataplugin.text.subscription.db.AutoFaxRecord;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**

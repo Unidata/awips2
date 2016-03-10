@@ -21,10 +21,11 @@ package com.raytheon.viz.gfe.dialogs;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -46,6 +47,7 @@ import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -53,21 +55,24 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.viz.gfe.Activator;
@@ -80,10 +85,14 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket//    Engineer    Description
+ * Date         Ticket     Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 30, 2009            randerso     Initial creation
+ * Apr 30, 2009            randerso    Initial creation
  * Oct 30, 2012 1298       rferrel     Code cleanup for non-blocking dialog.
+ * Oct 28, 2015 5054       randerso    Place GfeConfigDialog on current monitor if 
+ *                                     parent shell is not visible.
+ * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
+ * Feb 05, 2016 5242       dgilling    Remove calls to deprecated Localization APIs.
  * 
  * </pre>
  * 
@@ -172,6 +181,29 @@ public class GFEConfigDialog extends CaveJFACEDialog {
     protected void configureShell(Shell newShell) {
         super.configureShell(newShell);
         newShell.setText("GFE Startup");
+    }
+
+    @Override
+    protected Point getInitialLocation(Point initialSize) {
+        Point loc = super.getInitialLocation(initialSize);
+
+        if (!getParentShell().isVisible()) {
+            // center on current monitor
+            Display display = getShell().getDisplay();
+            Monitor[] monitors = display.getMonitors();
+
+            Point cursor = display.getCursorLocation();
+            for (Monitor m : monitors) {
+                Rectangle b = m.getBounds();
+                if (b.contains(cursor)) {
+                    loc.x = b.x + (b.width - initialSize.x) / 2;
+                    loc.y = b.y + (b.height - initialSize.y) / 2;
+                    break;
+                }
+            }
+        }
+
+        return loc;
     }
 
     /*
@@ -302,7 +334,7 @@ public class GFEConfigDialog extends CaveJFACEDialog {
     private Image nextImage() {
         int imageNumber = randomSplash();
         String imageName = "SSa" + imageNumber + ".gif";
-        ImageDescriptor id = Activator.imageDescriptorFromPlugin(
+        ImageDescriptor id = AbstractUIPlugin.imageDescriptorFromPlugin(
                 Activator.PLUGIN_ID, FileUtil.join("images", imageName));
         return id.createImage();
     }
@@ -381,60 +413,38 @@ public class GFEConfigDialog extends CaveJFACEDialog {
         IPathManager pathMgr = PathManagerFactory.getPathManager();
         LocalizationContext context = pathMgr.getContext(
                 LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
-        LocalizationFile lf = pathMgr.getLocalizationFile(context, LAST_CONFIG);
-        File file = lf.getFile();
+        ILocalizationFile lf = pathMgr
+                .getLocalizationFile(context, LAST_CONFIG);
 
-        BufferedWriter out = null;
-        try {
-            out = new BufferedWriter(new FileWriter(file));
+        try (SaveableOutputStream outStream = lf.openOutputStream();
+                Writer out = new BufferedWriter(new OutputStreamWriter(
+                        outStream))) {
             out.write(config);
+            out.close();
+            outStream.save();
         } catch (IOException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error saving config file selection", e);
-        } finally {
-            if (out != null) {
-                try {
-                    out.close();
-                } catch (IOException e) {
-                    // nothing to do
-                }
-            }
-        }
-
-        try {
-            lf.save();
-        } catch (LocalizationOpFailedException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error saving config file selection", e);
+            statusHandler.error("Error writing config file selection", e);
+        } catch (LocalizationException e) {
+            statusHandler.error("Error saving config file selection", e);
         }
     }
 
     private void loadLastConfig() {
-        config = null;
-
         IPathManager pathMgr = PathManagerFactory.getPathManager();
         LocalizationContext context = pathMgr.getContext(
                 LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
-        LocalizationFile lf = pathMgr.getLocalizationFile(context, LAST_CONFIG);
-        File file = lf.getFile();
+        ILocalizationFile lf = pathMgr
+                .getLocalizationFile(context, LAST_CONFIG);
 
-        if (file.exists()) {
-            BufferedReader in = null;
-            try {
-                in = new BufferedReader(new FileReader(file));
+        config = null;
+        if (lf.exists()) {
+            try (InputStream inStream = lf.openInputStream();
+                    BufferedReader in = new BufferedReader(
+                            new InputStreamReader(inStream))) {
                 config = in.readLine();
-            } catch (IOException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error loading config file selection", e);
+            } catch (IOException | LocalizationException e) {
+                statusHandler.error("Error loading config file selection", e);
                 config = null;
-            } finally {
-                if (in != null) {
-                    try {
-                        in.close();
-                    } catch (IOException e) {
-                        // nothing to do
-                    }
-                }
             }
         }
 

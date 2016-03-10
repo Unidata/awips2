@@ -48,6 +48,7 @@ import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
@@ -88,6 +89,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 08OCT2012    1229       rferrel     Made non-blocking.
  * 10/15/2012   1229       rferrel     Changes for non-blocking HelpUsageDlg.
  * 03Dec2013    16754      zhao        Modified printImage()
+ * 26Jan2016    5054       randerso    Allow dialog to be parented by display
  * 
  * </pre>
  * 
@@ -217,6 +219,29 @@ public class WindRosePlotDlg extends CaveSWTDialog {
         this.statusCompRGB = statusCompRGB;
     }
 
+    /**
+     * Constructor.
+     * 
+     * @param display
+     * 
+     * @param icaos
+     *            Array of ICAOs
+     * @param msgType
+     *            Status message type.
+     * @param statusCompRGB
+     *            Message status comp background color.
+     */
+    public WindRosePlotDlg(Display display, java.util.List<String> icaos,
+            StatusMessageType msgType, RGB statusCompRGB) {
+        super(display, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT
+                | CAVE.DO_NOT_BLOCK);
+        setText("Wind Rose Plot");
+
+        this.icaos = icaos;
+        this.msgType = msgType;
+        this.statusCompRGB = statusCompRGB;
+    }
+
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -333,7 +358,7 @@ public class WindRosePlotDlg extends CaveSWTDialog {
         configureMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (configDlg == null || configDlg.getShell() == null
+                if ((configDlg == null) || (configDlg.getShell() == null)
                         || configDlg.isDisposed()) {
                     configDlg = new WindRoseConfigDlg(shell, windRoseConfigData);
                     configDlg.open();
@@ -594,7 +619,7 @@ public class WindRosePlotDlg extends CaveSWTDialog {
      * Redraw the Wind Rose diagram.
      */
     private void redrawWindRose() {
-        if (siteList != null && siteList.getItemCount() != 0) {
+        if ((siteList != null) && (siteList.getItemCount() != 0)) {
             if (waitCursor == null) {
                 waitCursor = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
                 defaultCursor = shell.getCursor();
@@ -672,8 +697,8 @@ public class WindRosePlotDlg extends CaveSWTDialog {
 
             if ((numMonthsCbo.getSelectionIndex() + monthCbo
                     .getSelectionIndex()) > 11) {
-                endMonth = numMonthsCbo.getSelectionIndex()
-                        + monthCbo.getSelectionIndex() - 12;
+                endMonth = (numMonthsCbo.getSelectionIndex() + monthCbo
+                        .getSelectionIndex()) - 12;
                 header.append(MONTHS[endMonth]);
             } else {
                 endMonth = numMonthsCbo.getSelectionIndex()
@@ -693,8 +718,8 @@ public class WindRosePlotDlg extends CaveSWTDialog {
             int endHour = 0;
 
             if (((numHoursSpnr.getSelection() - 1) + hourSpnr.getSelection()) > 23) {
-                endHour = (numHoursSpnr.getSelection() - 1)
-                        + hourSpnr.getSelection() - 24;
+                endHour = ((numHoursSpnr.getSelection() - 1) + hourSpnr
+                        .getSelection()) - 24;
                 header.append(String.format(hourFmt, endHour));
             } else {
                 endHour = (numHoursSpnr.getSelection() - 1)
@@ -747,11 +772,12 @@ public class WindRosePlotDlg extends CaveSWTDialog {
             Point screenDPI = shell.getDisplay().getDPI();
             Point printerDPI = printer.getDPI();
             Rectangle bounds = printer.getBounds();
-            int destX = (screenDPI.x*bounds.width - printerDPI.x*imageData.width)/screenDPI.x/2;
+            int destX = ((screenDPI.x * bounds.width) - (printerDPI.x * imageData.width))
+                    / screenDPI.x / 2;
             if (destX < 0) {
                 destX = 0;
             }
-            int destY = (screenDPI.x*bounds.height - printerDPI.x*imageData.height)/screenDPI.x*80/100/2;
+            int destY = ((((screenDPI.x * bounds.height) - (printerDPI.x * imageData.height)) / screenDPI.x) * 80) / 100 / 2;
             if (destY < 0) {
                 destY = 0;
             }
@@ -760,9 +786,10 @@ public class WindRosePlotDlg extends CaveSWTDialog {
             Image printerImage = new Image(printer, imageData);
 
             if (printer.startPage()) {
-                gc.drawImage(printerImage, 0, 0, imageData.width, imageData.height, destX, destY, 
-                                printerDPI.x*imageData.width/screenDPI.x, 
-                                printerDPI.x*imageData.height/screenDPI.x);
+                gc.drawImage(printerImage, 0, 0, imageData.width,
+                        imageData.height, destX, destY,
+                        (printerDPI.x * imageData.width) / screenDPI.x,
+                        (printerDPI.x * imageData.height) / screenDPI.x);
                 printer.endPage();
             }
 
@@ -816,11 +843,11 @@ public class WindRosePlotDlg extends CaveSWTDialog {
             String station = siteList.getItem(siteList.getSelectionIndex());
             TafSiteData site = config.getSite(station);
             double center_lat = Double.parseDouble(site.latitude)
-                    - Math.toDegrees(kmlOffset * kmlSize / 6378.0);
+                    - Math.toDegrees((kmlOffset * kmlSize) / 6378.0);
             double center_lon = Double.parseDouble(site.longitude);
             double aspect = 1.0;
             double lat_offset = Math.toDegrees(kmlSize / (2.0 * 6378.0));
-            double lon_offset = aspect * lat_offset
+            double lon_offset = (aspect * lat_offset)
                     / Math.cos(Math.toRadians(center_lat));
             double north_lat = center_lat + lat_offset;
             double south_lat = center_lat - lat_offset;

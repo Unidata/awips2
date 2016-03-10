@@ -63,6 +63,7 @@ import com.raytheon.viz.mpe.util.DailyQcUtils;
  * Nov 12, 2008            snaples     Initial creation
  * Sep 11, 2013 #2353      lvenable    Fixed cursor memory leak.
  * Mar 10, 2015 14575      snaples     Added status flag.
+ * Jan 15, 2016 5054       randerso    Use proper parent shell
  * 
  * </pre>
  * 
@@ -118,7 +119,7 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
     private int dqc_good = 0;
 
     public static DrawDQCStations ddq;
-    
+
     private DailyQcUtils dqc;
 
     public static ArrayList<String> dataType = new ArrayList<String>();
@@ -129,9 +130,9 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
 
     OtherTempOptions oto = new OtherTempOptions();
 
-//    Tdata[] tdata = new Tdata[0];
+    // Tdata[] tdata = new Tdata[0];
 
-//    Ts[] ts;
+    // Ts[] ts;
 
     private int time_pos;
 
@@ -157,33 +158,29 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
 
     private int getOpts() {
         int ik = 0;
-        if (dqc.points_flag == 1
-                && dqc.pcp_in_use[time_pos] == -1) {
+        if (dqc.points_flag == 1 && dqc.pcp_in_use[time_pos] == -1) {
             ik = 0;
-        } else if (dqc.points_flag == 1
-                && dqc.grids_flag == -1 && dqc.map_flag == -1
-                && dqc.contour_flag == -1) {
+        } else if (dqc.points_flag == 1 && dqc.grids_flag == -1
+                && dqc.map_flag == -1 && dqc.contour_flag == -1) {
             ik = 0;
-        } else if (dqc.points_flag == -1
-                && dqc.grids_flag == 1 && dqc.map_flag == -1) {
+        } else if (dqc.points_flag == -1 && dqc.grids_flag == 1
+                && dqc.map_flag == -1) {
             ik = 1;
-        } else if (dqc.points_flag == -1
-                && dqc.grids_flag == -1 && dqc.map_flag == 1) {
+        } else if (dqc.points_flag == -1 && dqc.grids_flag == -1
+                && dqc.map_flag == 1) {
             ik = 2;
-        } else if (dqc.points_flag == 1
-                && dqc.grids_flag == 1 && dqc.map_flag == -1) {
+        } else if (dqc.points_flag == 1 && dqc.grids_flag == 1
+                && dqc.map_flag == -1) {
             ik = 3;
-        } else if (dqc.points_flag == 1
-                && dqc.grids_flag == -1 && dqc.map_flag == 1) {
+        } else if (dqc.points_flag == 1 && dqc.grids_flag == -1
+                && dqc.map_flag == 1) {
             ik = 4;
-        } else if (dqc.points_flag == -1
-                && dqc.contour_flag == 1) {
+        } else if (dqc.points_flag == -1 && dqc.contour_flag == 1) {
             ik = 5;
-        } else if (dqc.points_flag == 1
-                && dqc.contour_flag == 1) {
+        } else if (dqc.points_flag == 1 && dqc.contour_flag == 1) {
             ik = 6;
-        } else if (dqc.points_flag == -1
-                && dqc.grids_flag == -1 && dqc.map_flag == -1) {
+        } else if (dqc.points_flag == -1 && dqc.grids_flag == -1
+                && dqc.map_flag == -1) {
             ik = 7;
         }
         return ik;
@@ -217,7 +214,7 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
         dqc_good = dqc.qcDataHasChanged(prevDate, currDate, QcArea, qcDays,
                 false);
         if (dqc_good == 1) {
-            SaveLevel2Data s2 = new SaveLevel2Data();
+            SaveLevel2Data s2 = new SaveLevel2Data(getShell());
             dqc_good = s2.check_new_area(currDate, QcArea, qcDays);
             if (dqc_good == 0) {
                 dqc_good = dqc.qcDataReload(currDate, QcArea, qcDays, false);
@@ -295,7 +292,7 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
         isfinished = true;
         isOpen = false;
         font.dispose();
-        SaveLevel2Data s2 = new SaveLevel2Data();
+        SaveLevel2Data s2 = new SaveLevel2Data(getShell());
         s2.send_dbase_new_area();
         DailyQcUtils dc = new DailyQcUtils();
         dc.clearData();
@@ -303,6 +300,7 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
         removePerspectiveListener();
         if (MPEDisplayManager.getCurrent() != null) {
             display.asyncExec(new Runnable() {
+                @Override
                 public void run() {
                     ChooseDataPeriodDialog dialog = new ChooseDataPeriodDialog(
                             getParent().getShell());
@@ -318,7 +316,7 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
      * Initialize the dialog components.
      */
     private void initializeComponents() {
-//        tdata = DailyQcUtils.tdata;
+        // tdata = DailyQcUtils.tdata;
         dqc.points_flag = 1;
         dqc.grids_flag = -1;
         dqc.map_flag = -1;
@@ -332,7 +330,7 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
             int qcDays = MPEDisplayManager.getCurrent().getDqcDays();
             // checks to see if area or date has changed since last data load
             dqc_good = dqc.qcDataReload(currDate, QcArea, qcDays, false);
-//            tdata = DailyQcUtils.tdata;
+            // tdata = DailyQcUtils.tdata;
 
         }
         dataSet.clear();
@@ -357,7 +355,7 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
             }
         }
 
-//        ts = DailyQcUtils.ts;
+        // ts = DailyQcUtils.ts;
         this.createDataOptionsGroup();
         this.createPointTypeGroup();
         this.createPointQualityGroup();
@@ -407,8 +405,7 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
             }
         });
         if (dqc.qcDays == 1
-                && (dqc.curHr18_00 == 1
-                        || dqc.curHr00_06 == 1 || dqc.curHr06_12 == 1)) {
+                && (dqc.curHr18_00 == 1 || dqc.curHr00_06 == 1 || dqc.curHr06_12 == 1)) {
             maxminTimeCbo.setEnabled(false);
         } else {
             maxminTimeCbo.setEnabled(true);
@@ -471,8 +468,7 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
         renderGridsBtn = new Button(renderComp, SWT.PUSH);
         renderGridsBtn.setText("Render Grids+MATs");
         renderGridsBtn.setLayoutData(gd);
-        if (dqc.pcp_in_use[time_pos] == -1
-                && dqc.tdata[i].used[4] != 0) {
+        if (dqc.pcp_in_use[time_pos] == -1 && dqc.tdata[i].used[4] != 0) {
             renderGridsBtn.setEnabled(true);
         } else {
             renderGridsBtn.setEnabled(false);
@@ -607,10 +603,10 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
         pointQualGroup.setLayoutData(gd);
 
         int i;
-//        int qflag[] = dqc.qflag;
+        // int qflag[] = dqc.qflag;
 
         for (i = 0; i < 10; i++) {
-           dqc.qflag[i] = 1;
+            dqc.qflag[i] = 1;
         }
 
         // qflag[5] = -1;
@@ -618,8 +614,7 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
         boolean mpe_show_missing_gage_set = false;
         if (dqc.mpe_show_missing_gage.length() > 0) {
             if ((dqc.mpe_show_missing_gage.equalsIgnoreCase("All"))
-                    || (dqc.mpe_show_missing_gage
-                            .equalsIgnoreCase("Reported"))) {
+                    || (dqc.mpe_show_missing_gage.equalsIgnoreCase("Reported"))) {
                 mpe_show_missing_gage_set = true;
             } else {
                 mpe_show_missing_gage_set = false;

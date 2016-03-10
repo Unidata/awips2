@@ -36,7 +36,7 @@ import oasis.names.tc.ebxml.regrep.xsd.spi.v4.CatalogingExceptionType;
 import oasis.names.tc.ebxml.regrep.xsd.spi.v4.FilteringExceptionType;
 import oasis.names.tc.ebxml.regrep.xsd.spi.v4.ValidationExceptionType;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import com.raytheon.uf.common.registry.constants.ErrorSeverity;
 import com.raytheon.uf.common.status.IUFStatusHandler;

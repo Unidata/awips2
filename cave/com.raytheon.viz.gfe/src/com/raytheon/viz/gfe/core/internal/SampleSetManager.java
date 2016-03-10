@@ -19,7 +19,8 @@
  **/
 package com.raytheon.viz.gfe.core.internal;
 
-import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -36,28 +37,27 @@ import org.geotools.referencing.GeodeticCalculator;
 
 import com.raytheon.uf.common.dataplugin.gfe.sample.SampleData;
 import com.raytheon.uf.common.dataplugin.gfe.sample.SampleId;
+import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
+import com.raytheon.uf.common.gfe.ifpclient.IFPClient;
 import com.raytheon.uf.common.localization.FileUpdatedMessage;
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.ILocalizationFileObserver;
 import com.raytheon.uf.common.localization.IPathManager;
-import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.LocalizationUtil;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.GFEException;
 import com.raytheon.viz.gfe.core.ISampleSetManager;
 import com.raytheon.viz.gfe.core.msgs.ISampleSetChangedListener;
 import com.raytheon.viz.gfe.edittool.GridID;
-import com.raytheon.viz.gfe.ui.AccessMgr;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -65,9 +65,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Apr 14, 2008	879			rbell	    Initial creation
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * Apr 14, 2008 879         rbell       Initial creation
  * 11Jun2008    #1193       ebabin      Updates for toggling lat/lon for sample set.
  * Apr 9, 2009  1288        rjpeter     Added ISampleSetChangedListener handling.
  * Aug 6, 2013  1561        njensen     Use pm.listFiles() instead of pm.listStaticFiles()
@@ -75,6 +75,10 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Sep 08, 2104 #3592       randerso    Changed to use new pm listStaticFiles().
  *                                      Reworked inventory to use a map to better handle
  *                                      files at multiple localization levels
+ * Nov 12, 2015 4834        njensen     Changed LocalizationOpFailedException to LocalizationException
+ * Nov 19, 2015 5129        dgilling    Support new IFPClient.
+ * Feb 10, 2016 5242        dgilling    Remove calls to deprecated Localization APIs.
+ * 
  * </pre>
  * 
  * @author rbell
@@ -86,10 +90,12 @@ public class SampleSetManager implements ISampleSetManager,
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(SampleSetManager.class);
 
-    private static final String SAMPLE_SETS_DIR = FileUtil.join("gfe",
-            "sampleSets");
+    public static final String SAMPLE_SETS_DIR = "gfe" + IPathManager.SEPARATOR
+            + "sampleSets";
 
     private static final String MARKER_NAME = "ISC_Marker_Set";
+
+    private final IFPClient ifpClient;
 
     private SampleId loadedSet;
 
@@ -112,10 +118,8 @@ public class SampleSetManager implements ISampleSetManager,
      * 
      * Gets the initial sample inventory.
      */
-    public SampleSetManager() {
+    public SampleSetManager(IFPClient ifpClient) {
         this.loadedSet = new SampleId();
-
-        this.inventory = new TreeMap<String, SampleId>();
 
         this.locations = new ArrayList<Coordinate>();
 
@@ -123,23 +127,24 @@ public class SampleSetManager implements ISampleSetManager,
 
         this.sampleSetChangedListeners = new HashSet<ISampleSetChangedListener>();
 
-        this.pathManager = PathManagerFactory.getPathManager();
+        this.ifpClient = ifpClient;
 
-        this.sampleSetDir = pathManager.getLocalizationFile(pathManager
-                .getContext(LocalizationType.COMMON_STATIC,
-                        LocalizationLevel.BASE), SAMPLE_SETS_DIR);
-
-        // initialize the inventory
-        LocalizationFile[] files = pathManager.listStaticFiles(
-                LocalizationType.COMMON_STATIC, SAMPLE_SETS_DIR,
-                new String[] { ".xml" }, true, true);
-
-        for (LocalizationFile lf : files) {
-            String name = LocalizationUtil.extractName(lf.getName()).replace(
-                    ".xml", "");
-            this.inventory.put(name, new SampleId(name, false, lf.getContext()
-                    .getLocalizationLevel()));
+        this.inventory = new TreeMap<String, SampleId>();
+        ServerResponse<List<SampleId>> sr = this.ifpClient.getSampleInventory();
+        if (sr.isOkay()) {
+            for (SampleId id : sr.getPayload()) {
+                this.inventory.put(id.getName(), id);
+            }
+        } else {
+            statusHandler.error(String.format(
+                    "Unable to get sample inventory from IFPServer: %s",
+                    sr.message()));
         }
+
+        this.pathManager = PathManagerFactory.getPathManager();
+        this.sampleSetDir = this.pathManager.getLocalizationFile(
+                this.pathManager.getContext(LocalizationType.COMMON_STATIC,
+                        LocalizationLevel.BASE), SAMPLE_SETS_DIR);
         this.sampleSetDir.addFileUpdatedObserver(this);
 
         // load default sample points
@@ -157,23 +162,11 @@ public class SampleSetManager implements ISampleSetManager,
         getMarkerPoints();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.ISampleSetManager#dispose()
-     */
     @Override
     public void dispose() {
         this.sampleSetDir.removeFileUpdatedObserver(this);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.ISampleSetManager#sampleSetLocations(java.lang
-     * .String)
-     */
     @Override
     public List<Coordinate> sampleSetLocations(final String setName) {
         // verify set in inventory
@@ -189,55 +182,34 @@ public class SampleSetManager implements ISampleSetManager,
         String fileName = FileUtil.join(SAMPLE_SETS_DIR, sampleId.getName()
                 + ".xml");
 
-        LocalizationFile lf = this.pathManager.getLocalizationFile(
-                this.pathManager.getContext(LocalizationType.COMMON_STATIC,
+        ILocalizationFile lf = pathManager.getLocalizationFile(
+                pathManager.getContext(LocalizationType.COMMON_STATIC,
                         sampleId.getAccess()), fileName);
 
-        File file = null;
-        try {
-            file = lf.getFile(true);
-        } catch (LocalizationException e) {
-            if (file == null) {
-                statusHandler.error("An error occurred retrieving SampleSet: "
-                        + fileName, e);
-                return Collections.emptyList();
-            }
+        List<Coordinate> points = Collections.emptyList();
+        try (InputStream inStream = lf.openInputStream()) {
+            SampleData sampleData = SampleData.getJAXBManager()
+                    .unmarshalFromInputStream(inStream);
+            points = sampleData.getPoints();
+        } catch (IOException | LocalizationException | SerializationException e) {
+            statusHandler.error("Unable to load sampledata: " + lf, e);
         }
 
-        SampleData sampleData = null;
-        try {
-            sampleData = SampleData.getJAXBManager().unmarshalFromXmlFile(
-                    file.getAbsolutePath());
-        } catch (Exception e) {
-            statusHandler.error("Unable to load sampledata: " + file, e);
-            return Collections.emptyList();
-        }
-
-        return sampleData.getPoints();
+        return points;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.ISampleSetManager#loadSampleSet(com.raytheon
-     * .edex.plugin.gfe.sample.SampleId,
-     * com.raytheon.viz.gfe.core.internal.SampleSetManager.SampleSetLoadMode)
-     */
     @Override
     public void loadSampleSet(final SampleId sampleId,
             SampleSetLoadMode loadMode) {
-        File f = this.pathManager.getStaticFile(FileUtil.join(SAMPLE_SETS_DIR,
-                sampleId.getName() + ".xml"));
-
-        SampleData sampleData = null;
-        try {
-            sampleData = SampleData.getJAXBManager().unmarshalFromXmlFile(
-                    f.getPath());
-            sampleData.setSampleId(sampleId);
-        } catch (Exception e) {
-            statusHandler.error("Unable to load sampledata: " + f);
+        ServerResponse<SampleData> sr = ifpClient.getSampleData(sampleId);
+        if (!sr.isOkay()) {
+            statusHandler
+                    .error(String
+                            .format("Failure to get sample data from from IFPServer for [%s]: %s",
+                                    sampleId.getName(), sr.message()));
+            return;
         }
+        SampleData sampleData = sr.getPayload();
 
         // set the loadedSet flag appropriately
         if ((loadMode == SampleSetLoadMode.REPLACE)
@@ -256,11 +228,6 @@ public class SampleSetManager implements ISampleSetManager,
         return;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.ISampleSetManager#clearSamples()
-     */
     @Override
     public void clearSamples() {
         mergeSamples(new ArrayList<Coordinate>(), SampleSetLoadMode.REPLACE);
@@ -269,12 +236,6 @@ public class SampleSetManager implements ISampleSetManager,
         return;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.viz.gfe.core.ISampleSetManager#addAnchoredSample(com.
-     * vividsolutions.jts.geom.Coordinate)
-     */
     @Override
     public void addAnchoredSample(final Coordinate sampleLocation) {
         mergeSamples(Arrays.asList(sampleLocation), SampleSetLoadMode.ADD);
@@ -283,26 +244,12 @@ public class SampleSetManager implements ISampleSetManager,
         return;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.ISampleSetManager#removeAnchoredSample(com.
-     * vividsolutions.jts.geom.Coordinate)
-     */
     @Override
     public void removeAnchoredSample(final Coordinate sampleLocation) {
         removeAnchoredSample(sampleLocation,
                 ISampleSetManager.DEFAULT_THRESHOLD);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.ISampleSetManager#removeAnchoredSample(com.
-     * vividsolutions.jts.geom.Coordinate, float)
-     */
     @Override
     public void removeAnchoredSample(final Coordinate sampleLocation,
             float threshold) {
@@ -313,12 +260,6 @@ public class SampleSetManager implements ISampleSetManager,
         return;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.viz.gfe.core.ISampleSetManager#addAnchoredMarker(com.
-     * vividsolutions.jts.geom.Coordinate)
-     */
     @Override
     public void addAnchoredMarker(final Coordinate location, final GridID gid) {
         String set = activeMarkerSet(gid);
@@ -331,25 +272,11 @@ public class SampleSetManager implements ISampleSetManager,
         saveSampleSet(locations, new SampleId(set));
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.ISampleSetManager#removeAnchoredMarker(com.
-     * vividsolutions.jts.geom.Coordinate)
-     */
     @Override
     public void removeAnchoredMarker(final Coordinate location, final GridID gid) {
         removeAnchoredMarker(location, gid, ISampleSetManager.DEFAULT_THRESHOLD);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.ISampleSetManager#removeAnchoredMarker(com.
-     * vividsolutions.jts.geom.Coordinate, float)
-     */
     @Override
     public void removeAnchoredMarker(final Coordinate location,
             final GridID gid, float threshold) {
@@ -375,13 +302,6 @@ public class SampleSetManager implements ISampleSetManager,
         fireSampleSetChangedListeners();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.ISampleSetManager#anchoredMarkerAtLocation(
-     * com.vividsolutions.jts.geom.Coordinate, float)
-     */
     @Override
     public boolean anchoredMarkerAtLocation(final Coordinate location,
             final GridID gid, float threshold) {
@@ -403,90 +323,42 @@ public class SampleSetManager implements ISampleSetManager,
         return false;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.ISampleSetManager#saveSampleSet(com.vividsolutions
-     * .jts.geom.Coordinate[], com.raytheon.edex.plugin.gfe.sample.SampleId)
-     */
     @Override
     public boolean saveSampleSet(final List<Coordinate> sampleLocations,
             final SampleId sampleId) {
-
         SampleData sd = new SampleData(sampleId, sampleLocations);
 
-        LocalizationContext lc = this.pathManager.getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.USER);
-
-        LocalizationFile file = this.pathManager.getLocalizationFile(lc,
-                FileUtil.join(SAMPLE_SETS_DIR, sampleId.getName() + ".xml"));
-
-        try {
-            SampleData.getJAXBManager().marshalToXmlFile(sd,
-                    file.getFile().getPath());
-            file.save();
-        } catch (LocalizationOpFailedException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error saving to localization server", e);
-        } catch (SerializationException e) {
-            statusHandler.handle(Priority.PROBLEM, "Error serializing to file",
-                    e);
+        ServerResponse<?> sr = ifpClient.saveSampleData(Arrays.asList(sd));
+        if (!sr.isOkay()) {
+            statusHandler.error(String.format(
+                    "Failure to save sample data to IFPServer for [%s]: %s",
+                    sampleId.getName(), sr.message()));
         }
 
         return true;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.ISampleSetManager#saveActiveSampleSet(com.raytheon
-     * .edex.plugin.gfe.sample.SampleId)
-     */
     @Override
     public boolean saveActiveSampleSet(final SampleId sampleId) {
         this.loadedSet = sampleId;
         return saveSampleSet(this.locations, sampleId);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.ISampleSetManager#deleteSampleSet(com.raytheon
-     * .edex.plugin.gfe.sample.SampleId)
-     */
     @Override
     public boolean deleteSampleSet(final SampleId sampleId) {
-
-        LocalizationContext ctx = this.pathManager.getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.USER);
-        LocalizationFile lf = this.pathManager.getLocalizationFile(ctx,
-                FileUtil.join(SAMPLE_SETS_DIR, sampleId.getName() + ".xml"));
-
-        if ((lf != null)
-                && (AccessMgr.verifyDelete(lf.getName(),
-                        LocalizationType.COMMON_STATIC, false))) {
-            try {
-                lf.delete();
-                return true;
-            } catch (LocalizationException e) {
-                statusHandler.handle(Priority.PROBLEM, "Unable to sample set "
-                        + sampleId.getName() + " from server.", e);
-            }
+        ServerResponse<?> sr = ifpClient.deleteSampleData(Arrays
+                .asList(sampleId));
+        if (!sr.isOkay()) {
+            statusHandler.error(String.format(
+                    "Failure to delete sample set [%s]: %s",
+                    sampleId.getName(), sr.message()));
+        } else if (sampleId.getName().equals(loadedSet.getName())) {
+            loadedSet = new SampleId();
         }
 
-        return false;
+        return true;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.localization.ILocalizationFileObserver#fileUpdated
-     * (com.raytheon.uf.common.localization.FileUpdatedMessage)
-     */
     @Override
     public void fileUpdated(FileUpdatedMessage message) {
 
@@ -543,12 +415,6 @@ public class SampleSetManager implements ISampleSetManager,
         fireSampleSetChangedListeners();
     }
 
-    /**
-     * mergeSamples(...) with default threshold
-     * 
-     * @param mergeSet
-     * @param mergeMode
-     */
     private void mergeSamples(final List<Coordinate> mergeSet,
             SampleSetLoadMode mergeMode) {
         mergeSamples(mergeSet, mergeMode, ISampleSetManager.DEFAULT_THRESHOLD);
@@ -620,32 +486,17 @@ public class SampleSetManager implements ISampleSetManager,
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.ISampleSetManager#getLoadedSet()
-     */
     @Override
     public SampleId getLoadedSet() {
         return this.loadedSet;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.ISampleSetManager#getInventory()
-     */
     @Override
     public SampleId[] getInventory() {
         return this.inventory.values().toArray(
                 new SampleId[this.inventory.size()]);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.ISampleSetManager#getInventoryAsStrings()
-     */
     @Override
     public String[] getInventoryAsStrings() {
         String[] retVal = new String[this.inventory.size()];
@@ -668,41 +519,21 @@ public class SampleSetManager implements ISampleSetManager,
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.ISampleSetManager#getLocations()
-     */
     @Override
     public List<Coordinate> getLocations() {
         return new ArrayList<Coordinate>(this.locations);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.ISampleSetManager#getMarkerLocations()
-     */
     @Override
     public Map<String, List<Coordinate>> getMarkerLocations() {
         return this.markerLocations;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.ISampleSetManager#isShowLatLon()
-     */
     @Override
     public boolean isShowLatLon() {
         return showLatLon;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.ISampleSetManager#setShowLatLon(boolean)
-     */
     @Override
     public void setShowLatLon(boolean showLatLon) {
         this.showLatLon = showLatLon;

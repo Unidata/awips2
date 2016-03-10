@@ -12,12 +12,16 @@ URL: N/A
 License: N/A
 Distribution: N/A
 Vendor: Raytheon
-Packager: Bryan Kowal
+Packager: %{_build_site}
 
 AutoReq: no
-provides: awips2-gfesuite-client
-requires: awips2-python
-requires: awips2-cave
+Provides: awips2-gfesuite-client
+Requires: awips2-python
+Requires: awips2-cave
+Requires: awips2-java
+
+BuildRequires: awips2-ant
+BuildRequires: awips2-java
 
 %description
 AWIPS II gfesuite-client Installation - Contains The AWIPS II gfesuite-client Component.
@@ -35,11 +39,6 @@ then
 fi
 
 %build
-# Verify that awips2-ant is installed.
-if [ ! -f /awips2/ant/bin/ant ]; then
-   echo "ERROR: Unable to find the awips2-ant executable."
-   exit 1
-fi
 
 %install
 mkdir -p ${RPM_BUILD_ROOT}/awips2/GFESuite

@@ -1,36 +1,37 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
 package com.raytheon.uf.common.monitor.config;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import com.raytheon.uf.common.localization.FileUpdatedMessage;
-import com.raytheon.uf.common.localization.ILocalizationFileObserver;
+import com.raytheon.uf.common.localization.ILocalizationFile;
+import com.raytheon.uf.common.localization.ILocalizationPathObserver;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.monitor.events.MonitorConfigEvent;
 import com.raytheon.uf.common.monitor.events.MonitorConfigListener;
 import com.raytheon.uf.common.monitor.xml.FFMPTemplateXML;
@@ -42,9 +43,9 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
  * Template area configuration xml.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
@@ -52,14 +53,15 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Oct 25, 2012 DR 15514   gzhang       Adding getHucLevelsInArray()
  * Aug 18, 2013  1742      dhladky      Concurrent mod exception on update fixed
  * Oct 02, 2013  2361      njensen      Use JAXBManager for XML
+ * Feb 15, 2016 5244       nabowle      Replace deprecated LocalizationFile methods.
  * </pre>
- * 
+ *
  * @author dhladky
  * @version 1.0
  */
 
 public class FFMPTemplateConfigurationManager implements
-        ILocalizationFileObserver {
+        ILocalizationPathObserver {
 
     /** Path to FFMP Template config. */
     private static final String CONFIG_FILE_NAME = "ffmp" + File.separatorChar
@@ -78,8 +80,6 @@ public class FFMPTemplateConfigurationManager implements
 
     private ArrayList<String> hucLevels = null;
 
-    private LocalizationFile lf = null;
-
     private CopyOnWriteArrayList<MonitorConfigListener> listeners = new CopyOnWriteArrayList<MonitorConfigListener>();
 
     private static final IUFStatusHandler statusHandler = UFStatus
@@ -91,13 +91,12 @@ public class FFMPTemplateConfigurationManager implements
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext lc = pm.getContext(LocalizationType.COMMON_STATIC,
                 LocalizationLevel.SITE);
-        lf = pm.getLocalizationFile(lc, CONFIG_FILE_NAME);
-        lf.addFileUpdatedObserver(this);
+        pm.addLocalizationPathObserver(CONFIG_FILE_NAME, this);
     }
 
     /**
      * Get an instance of this singleton.
-     * 
+     *
      * @return Instance of this class
      */
     public static synchronized FFMPTemplateConfigurationManager getInstance() {
@@ -121,18 +120,15 @@ public class FFMPTemplateConfigurationManager implements
      */
     public void readConfigXml() throws Exception {
 
-        if (lf == null) {
-            IPathManager pm = PathManagerFactory.getPathManager();
-            LocalizationContext lc = pm.getContext(
-                    LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
-            lf = pm.getLocalizationFile(lc, CONFIG_FILE_NAME);
-            lf.addFileUpdatedObserver(this);
-        }
+        IPathManager pm = PathManagerFactory.getPathManager();
+        LocalizationContext lc = pm.getContext(LocalizationType.COMMON_STATIC,
+                LocalizationLevel.SITE);
+        ILocalizationFile lf = pm.getLocalizationFile(lc, CONFIG_FILE_NAME);
 
-        File file = lf.getFile();
-        FFMPTemplateXML configXmltmp = jaxb.unmarshalFromXmlFile(file
-                .getAbsolutePath());
-        configXml = configXmltmp;
+        try (InputStream is = lf.openInputStream()) {
+            FFMPTemplateXML configXmltmp = jaxb.unmarshalFromInputStream(is);
+            configXml = configXmltmp;
+        }
     }
 
     /**
@@ -143,25 +139,12 @@ public class FFMPTemplateConfigurationManager implements
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext lc = pm.getContext(LocalizationType.COMMON_STATIC,
                 LocalizationLevel.SITE);
-        LocalizationFile newXmlFile = pm.getLocalizationFile(lc,
+        ILocalizationFile newXmlFile = pm.getLocalizationFile(lc,
                 CONFIG_FILE_NAME);
 
-        if (newXmlFile.getFile().getParentFile().exists() == false) {
-            // System.out.println("Creating new directory");
-
-            if (newXmlFile.getFile().getParentFile().mkdirs() == false) {
-                // System.out.println("Could not create new directory...");
-            }
-        }
-
-        try {
-            // System.out.println("Saving -- "
-            // + newXmlFile.getFile().getAbsolutePath());
-            jaxb.marshalToXmlFile(configXml, newXmlFile.getFile()
-                    .getAbsolutePath());
-            newXmlFile.save();
-
-            lf = newXmlFile;
+        try (SaveableOutputStream sos = newXmlFile.openOutputStream()) {
+            jaxb.marshalToStream(configXml, sos);
+            sos.save();
         } catch (Exception e) {
             statusHandler.handle(Priority.ERROR, "Couldn't save config file.",
                     e);
@@ -170,7 +153,7 @@ public class FFMPTemplateConfigurationManager implements
 
     /**
      * Gets the Huc Depth
-     * 
+     *
      * @return
      */
     public int getHucDepth() {
@@ -183,7 +166,7 @@ public class FFMPTemplateConfigurationManager implements
 
     /**
      * Do we have virtual basins?
-     * 
+     *
      * @return
      */
     public boolean getVirtual() {
@@ -196,7 +179,7 @@ public class FFMPTemplateConfigurationManager implements
 
     /**
      * Gets you the number of HUC levels
-     * 
+     *
      * @return
      */
     public int getNumberOfHuc() {
@@ -209,7 +192,7 @@ public class FFMPTemplateConfigurationManager implements
 
     /**
      * Get HUC Levels. Ordered for template and geometry unification order.
-     * 
+     *
      * @return
      */
     public ArrayList<String> getHucLevels() {
@@ -256,9 +239,9 @@ public class FFMPTemplateConfigurationManager implements
     }
 
     @Override
-    public void fileUpdated(FileUpdatedMessage message) {
+    public void fileChanged(ILocalizationFile localizationFile) {
 
-        if (message.getFileName().equals(CONFIG_FILE_NAME)) {
+        if (localizationFile.getPath().equals(CONFIG_FILE_NAME)) {
             try {
                 readConfigXml();
                 // inform listeners
@@ -271,7 +254,7 @@ public class FFMPTemplateConfigurationManager implements
                 statusHandler.handle(
                         Priority.WARN,
                         "FFMPTemplateConfigurationManager: "
-                                + message.getFileName()
+                                + localizationFile.getPath()
                                 + " couldn't be updated.", e);
             }
         }

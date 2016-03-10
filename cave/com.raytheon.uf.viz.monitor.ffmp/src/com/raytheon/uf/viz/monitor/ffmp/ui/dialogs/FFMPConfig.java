@@ -20,6 +20,7 @@
 package com.raytheon.uf.viz.monitor.ffmp.ui.dialogs;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -32,9 +33,11 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
 
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord.FIELDS;
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.monitor.config.FFMPRunConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager;
 import com.raytheon.uf.common.monitor.xml.FFMPRunXML;
@@ -61,6 +64,9 @@ import com.raytheon.uf.viz.monitor.ffmp.xml.FFMPTableColumnXML;
  * Apr 12, 2013  1902      mpduff       Speed up cell coloring.
  * Apr 15, 2013   1904     mpduff       Don't allow this class to be nulled out
  * Apr 26, 2013 1954       bsteffen    Minor code cleanup throughout FFMP.
+ * Jan 11, 2016 5242       kbisanz     Replaced calls to deprecated LocalizationFile methods
+ *                                     and replace printStackTrace with
+ *                                     statusHandler.error()
  * 
  * </pre>
  * 
@@ -192,16 +198,16 @@ public class FFMPConfig {
         readDefaultFFMPConfigBasin();
     }
 
-    private void readNewFFMPConfigBasin(LocalizationFile xmlFileName) {
+    private void readNewFFMPConfigBasin(ILocalizationFile xmlFileName) {
         ffmpCfgBasin = null;
 
-        try {
-            ffmpCfgBasin = JAXB.unmarshal(xmlFileName.getFile(),
-                    FFMPConfigBasinXML.class);
+        try (InputStream strm = xmlFileName.openInputStream()) {
+            ffmpCfgBasin = JAXB.unmarshal(strm, FFMPConfigBasinXML.class);
 
             createThresholdManager();
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.error("Error reading FFMP Basin config "
+                    + xmlFileName.getPath(), e);
         }
     }
 
@@ -220,26 +226,26 @@ public class FFMPConfig {
                 return;
             }
 
-            System.out.println("Path Config FFMP: " + file.getAbsolutePath());
-
-            ffmpCfgBasin = JAXB.unmarshal(file,
-                    FFMPConfigBasinXML.class);
+            ffmpCfgBasin = JAXB.unmarshal(file, FFMPConfigBasinXML.class);
 
             createThresholdManager();
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.error("Error reading default FFMP Basin config "
+                    + DEFAULT_CONFIG_XML, e);
         }
     }
 
-    public void saveFFMPBasinConfig(LocalizationFile xmlFileName) {
-        try {
-            JAXB.marshal(ffmpCfgBasin, xmlFileName.getFile());
+    public void saveFFMPBasinConfig(ILocalizationFile xmlFileName) {
+        try (SaveableOutputStream strm = xmlFileName.openOutputStream()) {
+            JAXB.marshal(ffmpCfgBasin, strm);
 
-            xmlFileName.save();
+            strm.save();
 
             createThresholdManager();
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.error(
+                    "Error saving FFMP Basin config " + xmlFileName.getPath(),
+                    e);
         }
     }
 

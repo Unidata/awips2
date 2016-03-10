@@ -33,20 +33,21 @@ import com.raytheon.uf.edex.netcdf.description.exception.InvalidDescriptionExcep
 /**
  * Contains the name of a variable in a {@link NetcdfFile} that holds needed
  * values, and provides means to extract scalar values from the variable.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------
  * Aug 11, 2015  4709     bsteffen  Initial creation
  * Aug 25, 2015  4699     nabowle   Extracted from Pointset netcdf plugin and
  *                                  refactored.
  * Sep 09, 2015  4696     nabowle   Add indexed retrieval and getLength().
- *
+ * Dec 08, 2015  5059     nabowle   Add isNumeric() and isPresent().
+ * 
  * </pre>
- *
+ * 
  * @author bsteffen
  */
 @XmlAccessorType(XmlAccessType.NONE)
@@ -182,6 +183,29 @@ public class VariableDescription extends AbstractFieldDescription {
             return var.getSize();
         }
         return 0;
+    }
+
+    @Override
+    public boolean isNumeric(NetcdfFile file)
+            throws InvalidDescriptionException {
+        if (this.name == null) {
+            throw new InvalidDescriptionException("name is null");
+        }
+        Variable var = file.findVariable(this.name);
+        if (var == null) {
+            throw new InvalidDescriptionException(
+                    "Coudld not find a variable for " + this.name);
+        }
+        return var.getDataType().isNumeric();
+    }
+
+    @Override
+    public boolean isPresent(NetcdfFile file)
+            throws InvalidDescriptionException {
+        if (name == null) {
+            throw new InvalidDescriptionException("name is null");
+        }
+        return file.findVariable(this.name) != null;
     }
 
 }

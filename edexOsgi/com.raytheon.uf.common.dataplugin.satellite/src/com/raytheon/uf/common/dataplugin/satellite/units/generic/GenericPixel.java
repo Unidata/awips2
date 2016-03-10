@@ -23,23 +23,23 @@ import javax.measure.converter.UnitConverter;
 import javax.measure.quantity.Dimensionless;
 import javax.measure.unit.Unit;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 16, 2010            jsanchez     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jsanchez
- * @version 1.0	
+ * @version 1.0
  */
 
 public class GenericPixel extends Unit<Dimensionless> {

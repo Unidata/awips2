@@ -39,16 +39,19 @@ import jep.JepException;
 import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
 import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
 import com.raytheon.uf.common.dataplugin.gfe.request.SaveCombinationsFileRequest;
+import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
+import com.raytheon.uf.common.gfe.ifpclient.IFPClient;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.LocalizationUtil;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.python.PyUtil;
+import com.raytheon.uf.common.python.PythonIncludePathUtil;
 import com.raytheon.uf.common.python.PythonScript;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
@@ -56,8 +59,8 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
+import com.raytheon.viz.gfe.GFEException;
 import com.raytheon.viz.gfe.core.DataManagerUIFactory;
-import com.raytheon.viz.gfe.core.internal.IFPClient;
 import com.raytheon.viz.gfe.textformatter.CombinationsFileUtil.ComboData.Entry;
 
 /**
@@ -78,6 +81,9 @@ import com.raytheon.viz.gfe.textformatter.CombinationsFileUtil.ComboData.Entry;
  * Sep 08, 2014     #3592  randerso    Changed to use only list site level files as all 
  *                                     combo files are saved to the site level
  * Oct 07, 2015     #4695  dgilling    Code cleanup to remove compile warnings.
+ * Nov 12, 2015      4834  njensen     Changed LocalizationOpFailedException to LocalizationException
+ * Nov 18, 2015     #5129  dgilling    Support new IFPClient.
+ * Feb 05, 2016      5242  dgilling    Remove calls to deprecated Localization APIs.
  * 
  * </pre>
  * 
@@ -152,8 +158,8 @@ public class CombinationsFileUtil {
     }
 
     public static String fileToId(LocalizationFile file) {
-        File f = new File(file.getName());
-        String id = f.getName().replace(".xml", "");
+        String id = LocalizationUtil.extractName(file.getPath()).replace(
+                ".xml", "");
         id = FileUtil.unmangle(id);
 
         return id;
@@ -178,8 +184,7 @@ public class CombinationsFileUtil {
         }
     }
 
-    public static void deleteComboData(String id)
-            throws LocalizationOpFailedException {
+    public static void deleteComboData(String id) throws LocalizationException {
         LocalizationFile lf = idToFile(id);
         lf.delete();
     }
@@ -212,7 +217,7 @@ public class CombinationsFileUtil {
             throws SerializationException, IOException, LocalizationException {
         LocalizationFile lf = idToFile(id);
         try (InputStream in = lf.openInputStream()) {
-            ComboData comboData = (ComboData) jaxb.unmarshalFromInputStream(in);
+            ComboData comboData = jaxb.unmarshalFromInputStream(in);
 
             Map<String, Integer> comboDict = new HashMap<String, Integer>(
                     comboData.combos.size());
@@ -268,10 +273,11 @@ public class CombinationsFileUtil {
         HashMap<String, Object> map = new HashMap<String, Object>();
         map.put("comboName", comboName);
         for (int retryCount = 0; retryCount < MAX_TRIES; retryCount++) {
-            try (PythonScript python = new PythonScript(scriptPath,
+            try (PythonScript python = new PythonScript(
+                    scriptPath,
                     PyUtil.buildJepIncludePath(
                             GfePyIncludeUtil.getCombinationsIncludePath(),
-                            GfePyIncludeUtil.getCommonPythonIncludePath()),
+                            PythonIncludePathUtil.getCommonPythonIncludePath()),
                     CombinationsFileUtil.class.getClassLoader())) {
                 Object com = python.execute("getCombinations", map);
                 combos = (List<List<String>>) com;
@@ -304,24 +310,26 @@ public class CombinationsFileUtil {
      * 
      * @param zoneGroupList
      * @param filename
-     * @throws Exception
-     * @throws IOException
+     * @throws GFEException
      */
     public static void generateAutoCombinationsFile(
-            List<List<String>> zoneGroupList, String filename) throws Exception {
+            List<List<String>> zoneGroupList, String filename)
+            throws GFEException {
         IFPClient ifpc = DataManagerUIFactory.getCurrentInstance().getClient();
         SaveCombinationsFileRequest req = new SaveCombinationsFileRequest();
         req.setFileName(filename);
         req.setCombos(zoneGroupList);
-        try {
-            statusHandler.info("Saving combinations file: " + filename);
-            ifpc.makeRequest(req);
+
+        statusHandler.info("Saving combinations file: " + filename);
+        ServerResponse<?> sr = ifpc.makeRequest(req);
+        if (sr.isOkay()) {
             statusHandler.info("Successfully saved combinations file: "
                     + filename);
-        } catch (Exception e) {
-            statusHandler.error("Error saving combinations file: " + filename,
-                    e);
-            throw e;
+        } else {
+            String message = String.format(
+                    "Error saving combinations file %s: %s", filename,
+                    sr.message());
+            throw new GFEException(message);
         }
     }
 }

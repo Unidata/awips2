@@ -51,9 +51,10 @@ import com.raytheon.viz.ui.EditorUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 6, 2009            lvenable     Initial creation
- * Dec 18, 2009 3424      zhao         Implemented tableColRightMouseAction
- * Sep 04, 2014 3220      skorolev     Cleaned code.
+ * Apr  6, 2009            lvenable    Initial creation
+ * Dec 18, 2009 3424       zhao        Implemented tableColRightMouseAction
+ * Sep 04, 2014 3220       skorolev    Cleaned code.
+ * Feb 23, 2016 5393       randerso    Fix column width issues, code cleanup
  * 
  * </pre>
  * 
@@ -129,17 +130,15 @@ public class StationTableComp extends TableComp {
      * @param event
      *            Mouse event.
      */
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.viz.monitor.ui.dialogs.TableComp#tableMouseDownAction(org.eclipse.swt.events.MouseEvent)
-     */
     @Override
     protected void tableMouseDownAction(MouseEvent event) {
         tableIndex = table.getSelectionIndex();
         mousePt.x = event.x;
         mousePt.y = event.y;
         TableItem item = table.getItem(mousePt);
-        if (item == null)
+        if (item == null) {
             return;
+        }
         /*
          * Check for right mouse clicks.
          */
@@ -177,9 +176,6 @@ public class StationTableComp extends TableComp {
      * 
      * @param event
      *            Mouse event.
-     */
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.viz.monitor.ui.dialogs.TableComp#tableMouseHoverAction(org.eclipse.swt.events.MouseEvent)
      */
     @Override
     protected void tableMouseHoverAction(MouseEvent event) {
@@ -224,9 +220,6 @@ public class StationTableComp extends TableComp {
      * @param parentComp
      *            Parent composite.
      */
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.viz.monitor.ui.dialogs.TableComp#addTopTableControls(org.eclipse.swt.widgets.Composite)
-     */
     @Override
     protected void addTopTableControls(Composite parentComp) {
         controlComp = new Composite(parentComp, SWT.NONE);
@@ -246,6 +239,7 @@ public class StationTableComp extends TableComp {
         returnToZoneBtn.setText("Return to Zone/County Table");
         returnToZoneBtn.setLayoutData(gd);
         returnToZoneBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 restoreMap();
                 table.removeAll();
@@ -263,9 +257,6 @@ public class StationTableComp extends TableComp {
      *            Sort column.
      * @return Column index.
      */
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.viz.monitor.ui.dialogs.TableComp#getColumnIndex(com.raytheon.uf.common.monitor.data.CommonConfig.AppName, java.lang.String)
-     */
     @Override
     public int getColumnIndex(AppName appName, String sortCol) {
         return tableConfig.getTableColumnIndex(appName, sortCol);
@@ -278,28 +269,9 @@ public class StationTableComp extends TableComp {
      *            Application name.
      * @return String array of column keys.
      */
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.viz.monitor.ui.dialogs.TableComp#getColumnKeys(com.raytheon.uf.common.monitor.data.CommonConfig.AppName)
-     */
     @Override
     protected String[] getColumnKeys(AppName appName) {
         return tableConfig.getTableColumnKeys(appName);
-    }
-
-    /**
-     * Gets the default column width.
-     * 
-     * @param appName
-     *            Application name.
-     * @return The default column width.
-     */
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.viz.monitor.ui.dialogs.TableComp#getDefaultColWidth(com.raytheon.uf.common.monitor.data.CommonConfig.AppName)
-     */
-    @Override
-    protected int getDefaultColWidth(AppName appName) {
-        int colWidth = tableConfig.getTableDefaultColWidth(appName);
-        return colWidth;
     }
 
     /**
@@ -309,11 +281,8 @@ public class StationTableComp extends TableComp {
      *            Column name.
      * @return Column attribute data.
      */
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.viz.monitor.ui.dialogs.TableComp#getColumnAttribteData(java.lang.String)
-     */
     @Override
-    protected ColumnAttribData getColumnAttribteData(String colName) {
+    protected ColumnAttribData getColumnAttributeData(String colName) {
         return tableConfig.getTableColumnAttr(colName);
     }
 
@@ -329,9 +298,6 @@ public class StationTableComp extends TableComp {
 
     /**
      * Mouse down action in the station table -- button-3 [Dec 17, 2009 zhao]
-     */
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.viz.monitor.ui.dialogs.TableComp#tableColRightMouseAction(org.eclipse.swt.events.MouseEvent)
      */
     @Override
     protected void tableColRightMouseAction(MouseEvent event) {
@@ -376,17 +342,6 @@ public class StationTableComp extends TableComp {
                 pane.refresh();
             }
             container.refresh();
-        }
-    }
-
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.viz.monitor.ui.dialogs.TableComp#packColumns()
-     */
-    @Override
-    protected void packColumns() {
-        for (int i = 0; i < table.getColumnCount(); i++) {
-            table.getColumn(i).pack();
-            table.getColumn(i).setWidth(defaultColWidth);
         }
     }
 }

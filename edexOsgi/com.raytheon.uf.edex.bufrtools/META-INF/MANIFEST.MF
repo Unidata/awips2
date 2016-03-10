@@ -17,4 +17,4 @@ Export-Package: com.raytheon.uf.edex.bufrtools,
  com.raytheon.uf.edex.bufrtools.packets
 Import-Package: com.raytheon.edex.esb,
  com.raytheon.uf.common.wmo,
- org.apache.commons.logging
+ org.slf4j

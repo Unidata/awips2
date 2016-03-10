@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.edex.plugin.bufrsigwx;
 
-import java.util.List;
 import java.util.Map;
 
 import com.raytheon.uf.common.dataplugin.PluginException;
@@ -28,11 +27,10 @@ import com.raytheon.uf.common.dataplugin.bufrsigwx.common.SigWxLayer;
 import com.raytheon.uf.common.dataplugin.bufrsigwx.common.SigWxType;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
 
 /**
- * TODO Add Description
+ * DAO for bufrsigwx
  * 
  * <pre>
  * 
@@ -41,6 +39,7 @@ import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 18, 2009            jkorman     Initial creation
+ * Feb 04, 2016 5309       tgurney     Remove dead code
  * 
  * </pre>
  * 
@@ -50,52 +49,12 @@ import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
 public class SigWxDataDao extends PointDataPluginDao<SigWxData> {
 
     /**
-     * Creates a new BufrMOSDao object.
+     * Creates a new SigWxDataDao object.
      * 
      * @throws PluginException
      */
     public SigWxDataDao(String pluginName) throws PluginException {
         super(pluginName);
-    }
-
-    /**
-     * Retrieves an MOS report using the datauri .
-     * 
-     * @param dataURI
-     *            The dataURI to match against.
-     * @return The report record if it exists.
-     */
-    public SigWxData queryByDataURI(String dataURI) {
-        SigWxData report = null;
-        List<?> obs = null;
-        try {
-            obs = queryBySingleCriteria("dataURI", dataURI);
-        } catch (DataAccessLayerException e) {
-            e.printStackTrace();
-        }
-        if ((obs != null) && (obs.size() > 0)) {
-            report = (SigWxData) obs.get(0);
-        }
-        return report;
-    }
-
-    /**
-     * Queries for to determine if a given data uri exists on the profiler
-     * table.
-     * 
-     * @param dataUri
-     *            The DataURI to find.
-     * @return An array of objects. If not null, there should only be a single
-     *         element.
-     */
-    public Object[] queryDataUriColumn(final String dataUri) {
-
-        String sql = "select datauri from awips.bufrsigwx where datauri='"
-                + dataUri + "';";
-
-        Object[] results = executeSQLQuery(sql);
-
-        return results;
     }
 
     @Override
@@ -126,13 +85,6 @@ public class SigWxDataDao extends PointDataPluginDao<SigWxData> {
         return new SigWxData();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.edex.pointdata.PointDataPluginDao#getPointDataDescription
-     * (java.util.Map)
-     */
     @Override
     public PointDataDescription getPointDataDescription(Map<String, Object> obj) {
         SigWxLayer layer = (SigWxLayer) obj.get("wxLayer");

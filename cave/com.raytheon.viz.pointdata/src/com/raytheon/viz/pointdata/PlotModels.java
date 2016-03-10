@@ -34,9 +34,9 @@ import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMapping;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
@@ -57,6 +57,7 @@ import com.raytheon.viz.pointdata.util.PointDataInventory;
  * Jun 06, 2014  2061     bsteffen    Remove old PlotResource
  * Sep 09, 2014  3356     njensen     Remove CommunicationException
  * Aug 17, 2015  4717     mapeters    Added null check in getLevels()
+ * Feb 12, 2016  5242     dgilling    Remove calls to deprecated Localization APIs.
  * 
  * </pre>
  * 
@@ -117,7 +118,7 @@ public class PlotModels {
         if (models == null) {
             models = new HashMap<String, List<String>>();
             IPathManager pm = PathManagerFactory.getPathManager();
-            LocalizationFile[] files = pm.listFiles(
+            ILocalizationFile[] files = pm.listFiles(
                     pm.getLocalSearchHierarchy(LocalizationType.CAVE_STATIC),
                     PLOTLOCATION, new String[] { ".svg" }, true, true);
 
@@ -128,8 +129,8 @@ public class PlotModels {
                 throw new RuntimeException(e);
             }
 
-            for (LocalizationFile file : files) {
-                String fileName = file.getName();
+            for (ILocalizationFile file : files) {
+                String fileName = file.getPath();
                 fileName = fileName.substring(PLOTLOCATION.length() + 1);
                 try {
                     if (!models.containsKey(fileName)) {

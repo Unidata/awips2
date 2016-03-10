@@ -390,7 +390,7 @@
                   style="radio">
                <parameter
                      name="size"
-                     value="7">
+                     value="6">
                </parameter>
                <parameter
                      name="org.eclipse.ui.commands.radioStateParameter"
@@ -404,7 +404,7 @@
                   style="radio">
                <parameter
                      name="size"
-                     value="8">
+                     value="7">
                </parameter>
                <parameter
                      name="org.eclipse.ui.commands.radioStateParameter"
@@ -418,7 +418,7 @@
                   style="radio">
                <parameter
                      name="size"
-                     value="9">
+                     value="8">
                </parameter>
                <parameter
                      name="org.eclipse.ui.commands.radioStateParameter"
@@ -432,7 +432,7 @@
                   style="radio">
                <parameter
                      name="size"
-                     value="10">
+                     value="9">
                </parameter>
                <parameter
                      name="org.eclipse.ui.commands.radioStateParameter"
@@ -446,7 +446,7 @@
                   style="radio">
                <parameter
                      name="size"
-                     value="12">
+                     value="10">
                </parameter>
                <parameter
                      name="org.eclipse.ui.commands.radioStateParameter"
@@ -460,7 +460,7 @@
                   style="radio">
                <parameter
                      name="size"
-                     value="16">
+                     value="14">
                </parameter>
                <parameter
                      name="org.eclipse.ui.commands.radioStateParameter"

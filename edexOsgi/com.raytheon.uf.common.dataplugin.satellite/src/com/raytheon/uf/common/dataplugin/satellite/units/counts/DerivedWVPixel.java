@@ -25,7 +25,7 @@ import javax.measure.unit.DerivedUnit;
 import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 public class DerivedWVPixel extends DerivedUnit<Temperature> {
 

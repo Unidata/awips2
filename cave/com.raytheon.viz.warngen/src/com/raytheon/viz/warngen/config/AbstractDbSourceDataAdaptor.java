@@ -15,7 +15,7 @@ import java.util.Set;
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.SI;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.GeodeticCalculator;
 import org.opengis.referencing.operation.MathTransform;
@@ -185,8 +185,8 @@ abstract public class AbstractDbSourceDataAdaptor {
                         ptFields.toArray(new String[ptFields.size()]),
                         searchArea, filter, SearchMode.INTERSECTS);
             }
-            perfLog.logDuration("Retrieve location data for '" + pointSource + "'",
-                    System.currentTimeMillis() - t0);
+            perfLog.logDuration("Retrieve location data for '" + pointSource
+                    + "'", System.currentTimeMillis() - t0);
         } catch (SpatialException e) {
             throw new VizException("Error querying " + pointSource + " table: "
                     + e.getLocalizedMessage(), e);
@@ -309,7 +309,8 @@ abstract public class AbstractDbSourceDataAdaptor {
                 iter.remove();
             }
         }
-        SpatialQueryResult[] ptFeaturesFiltered = ptFeaturesList.toArray(new SpatialQueryResult[ptFeaturesList.size()]);
+        SpatialQueryResult[] ptFeaturesFiltered = ptFeaturesList
+                .toArray(new SpatialQueryResult[ptFeaturesList.size()]);
 
         Geometry localPCGeom = null;
         if (pcGeom != null) {

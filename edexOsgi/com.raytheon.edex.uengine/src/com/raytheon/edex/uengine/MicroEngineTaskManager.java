@@ -29,8 +29,8 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.util.FileUtil;
@@ -47,6 +47,7 @@ import com.raytheon.uf.edex.core.EDEXUtil;
  * -----------      ----------      ------------        --------------------------
  * Apr 2, 2007                      njensen             Initial Creation
  * Jul 10, 2014     2914            garmendariz         Remove EnvProperties
+ * Dec 10, 2015     5166            kbisanz             Update logging to use SLF4J
  * </PRE>
  * 
  */
@@ -54,8 +55,8 @@ public class MicroEngineTaskManager {
     /**
      * the logger.
      */
-    private static final Log theLogger = LogFactory
-            .getLog(MicroEngineTaskManager.class);
+    private static final Logger theLogger = LoggerFactory
+            .getLogger(MicroEngineTaskManager.class);
 
     /**
      * name of the base class for uEngine tasks.

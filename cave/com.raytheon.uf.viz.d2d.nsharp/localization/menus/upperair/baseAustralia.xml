@@ -20,7 +20,7 @@
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
-	                menuText="Willis Island (94299)" id="raobWillis Island"
+	                menuText="Willis Island (94299)" id="raobWillisIsland"
 	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
 	        <substitute key="stationId" value="94299"/>
 	    </contribute>
@@ -155,7 +155,7 @@
 	        <substitute key="stationId" value="94750"/>
 	    </contribute>
 		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
-	                menuText="Sydney Arpt (YSSY)" id="raobSydney Arpt"
+	                menuText="Sydney Arpt (YSSY)" id="raobSydneyArpt"
 	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
 	        <substitute key="stationId" value="94767"/>
 	    </contribute>

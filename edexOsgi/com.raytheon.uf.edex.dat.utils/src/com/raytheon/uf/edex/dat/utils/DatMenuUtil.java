@@ -44,8 +44,8 @@ import com.raytheon.uf.common.monitor.config.FFMPRunConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager.DATA_TYPE;
 import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
 import com.raytheon.uf.common.monitor.config.SCANRunSiteConfigurationManager;
+import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.monitor.xml.FFMPRunXML;
 import com.raytheon.uf.common.monitor.xml.ProductRunXML;
 import com.raytheon.uf.common.monitor.xml.ProductXML;
@@ -70,6 +70,7 @@ import com.raytheon.uf.edex.menus.AbstractMenuUtil;
  * Sep 04, 2014 3220       skorolev  Updated menu creation for Fog, Safeseas and Snow monitors.
  * Sep 18, 2015 3873       skorolev  Corrected Fog, Safeseas and Snow monitor's names.
  * Oct 15, 2015 4897       bkowal    Update the base fog, snow, and safeseas menu xml.
+ * Jan 04, 2016 5115       skorolev  Replaced Mon.Name with App.Name for Fog, Safeseas and Snow monitors
  * 
  * </pre>
  * 
@@ -503,7 +504,7 @@ public class DatMenuUtil extends AbstractMenuUtil {
      */
     private void createSafeseasMenu() {
         FSSObsMonitorConfigurationManager ssConfig = FSSObsMonitorConfigurationManager
-                .getInstance(MonName.ss);
+                .getInstance(AppName.SAFESEAS);
         Set<String> ssStns = ssConfig.getStationIDs();
         StringBuilder stations = new StringBuilder();
         for (String s : ssStns) {
@@ -546,7 +547,7 @@ public class DatMenuUtil extends AbstractMenuUtil {
      */
     private void createFogMenu() {
         FSSObsMonitorConfigurationManager fogConfig = FSSObsMonitorConfigurationManager
-                .getInstance(MonName.fog);
+                .getInstance(AppName.FOG);
         Set<String> fogStns = fogConfig.getStationIDs();
         StringBuilder stations = new StringBuilder();
         for (String s : fogStns) {
@@ -569,7 +570,7 @@ public class DatMenuUtil extends AbstractMenuUtil {
      */
     private void createSnowMenu() {
         FSSObsMonitorConfigurationManager snowConfig = FSSObsMonitorConfigurationManager
-                .getInstance(MonName.snow);
+                .getInstance(AppName.SNOW);
         Set<String> snowStns = snowConfig.getStationIDs();
         StringBuilder stations = new StringBuilder();
         for (String s : snowStns) {

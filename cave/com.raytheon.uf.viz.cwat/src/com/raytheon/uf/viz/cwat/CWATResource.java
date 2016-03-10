@@ -66,13 +66,13 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * <pre>
  * 
- *    SOFTWARE HISTORY
- *   
- *    Date         Ticket#     Engineer    Description
- *    ------------ ----------  ----------- --------------------------
- *    16JUN2009    2037        dhladky    Initial Creation.
- *    Apr 17, 2013   1916      njensen    Overrode getDataTimes()
+ * SOFTWARE HISTORY
  * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 16JUN2009    2037        dhladky     Initial Creation.
+ * Apr 17, 2013 1916        njensen     Overrode getDataTimes()
+ * Nov 05, 2015 5070       randerso     Adjust font sizes for dpi scaling
  * 
  * </pre>
  * 
@@ -180,7 +180,7 @@ public class CWATResource extends
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         if (this.font == null) {
-            this.font = target.initializeFont("Dialog", 11, null);
+            this.font = target.initializeFont("Dialog", 9, null);
         }
         init = true;
     }

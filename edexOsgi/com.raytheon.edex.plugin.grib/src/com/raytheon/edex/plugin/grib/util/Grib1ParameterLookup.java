@@ -24,8 +24,8 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.plugin.grib.exception.GribException;
 import com.raytheon.uf.common.localization.IPathManager;
@@ -47,6 +47,7 @@ import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
  * Mar 09, 2010  4758     bphillip    Initial Creation
  * Oct 15, 2013  2473     bsteffen    Remove deprecated method calls.
  * Jul 21, 2014  3373     bclement    JAXB manager API changes
+ * Dec 15, 2015  5166     kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -58,7 +59,7 @@ public class Grib1ParameterLookup {
             + "grib1ParameterConvTable.xml";
 
     /** The logger */
-    protected transient Log logger = LogFactory.getLog(getClass());
+    protected transient Logger logger = LoggerFactory.getLogger(getClass());
 
     /** The singleton instance */
     private static Grib1ParameterLookup instance;

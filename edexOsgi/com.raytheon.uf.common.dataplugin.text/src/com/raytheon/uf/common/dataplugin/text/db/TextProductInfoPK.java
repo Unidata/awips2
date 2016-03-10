@@ -26,8 +26,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -91,21 +91,25 @@ public class TextProductInfoPK extends PersistableDataObject {
         this.xxxid = xxxid;
     }
 
+    @Override
     public String toString() {
         return new StringBuilder(cccid).append(":").append(nnnid).append(":")
                 .append(xxxid).toString();
     }
 
+    @Override
     public boolean equals(Object other) {
-        if (!(other instanceof TextProductInfoPK))
+        if (!(other instanceof TextProductInfoPK)) {
             return false;
+        }
         TextProductInfoPK castOther = (TextProductInfoPK) other;
         return new EqualsBuilder()
-                .append(this.getCccid(), castOther.getCccid()).append(
-                        this.getNnnid(), castOther.getNnnid()).append(
-                        this.getXxxid(), castOther.getXxxid()).isEquals();
+                .append(this.getCccid(), castOther.getCccid())
+                .append(this.getNnnid(), castOther.getNnnid())
+                .append(this.getXxxid(), castOther.getXxxid()).isEquals();
     }
 
+    @Override
     public int hashCode() {
         return new HashCodeBuilder().append(getCccid()).append(getNnnid())
                 .append(getXxxid()).toHashCode();

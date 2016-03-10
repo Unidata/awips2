@@ -25,7 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
+import org.slf4j.Logger;
 
 import com.raytheon.uf.common.dataplugin.acars.ACARSRecord;
 
@@ -40,6 +40,7 @@ import com.raytheon.uf.common.dataplugin.acars.ACARSRecord;
  * ------------ ---------- ----------- --------------------------
  * Nov 29, 2010            jkorman     Initial creation
  * Aug 18, 2014 3530       bclement    removed dead code
+ * Dec 10, 2015 5166       kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -121,53 +122,54 @@ public class IntermediateData {
     /**
      * Take a list of ACARSRecords and select only those records that have a
      * corresponding entry in the dataURI list.
+     * 
      * @param recordList
      * @param acarsDataURIs
      */
-    public void setAcarsData(List<ACARSRecord> recList,List<String> dataURIs) {
-        
+    public void setAcarsData(List<ACARSRecord> recList, List<String> dataURIs) {
+
         Set<String> uris = new HashSet<String>();
-        for(String s : dataURIs) {
-            if(s.length() > 21) {
+        for (String s : dataURIs) {
+            if (s.length() > 21) {
                 uris.add(s.substring(21));
             }
         }
         this.recordList = new ArrayList<ACARSRecord>();
-        for(ACARSRecord rec : recList) {
-            if(uris.contains(rec.getDataURI())) {
+        for (ACARSRecord rec : recList) {
+            if (uris.contains(rec.getDataURI())) {
                 recordList.add(rec);
             }
         }
         acarsDataURIs = dataURIs;
     }
-    
+
     /**
      * Remove any ACARSRecords and corresponding datauri that were used to
      * create a sounding.
      */
-    public final void reconcile(Log logger) {
-        
+    public final void reconcile(Logger logger) {
+
         if ((recordList != null) && (acarsDataURIs != null)) {
             List<Integer> deletions = new ArrayList<Integer>();
-            for(int i = 0;i < recordList.size();i++) {
+            for (int i = 0; i < recordList.size(); i++) {
                 ACARSRecord r = recordList.get(i);
-                if(r.isUsedInSounding()) {
-                    int pos = findDataUri(r.getDataURI(),acarsDataURIs);
-                    if(pos >= 0) {
+                if (r.isUsedInSounding()) {
+                    int pos = findDataUri(r.getDataURI(), acarsDataURIs);
+                    if (pos >= 0) {
                         deletions.add(pos);
-                        if(logger.isDebugEnabled()) {
+                        if (logger.isDebugEnabled()) {
                             logger.debug("removing dataURI " + r.getDataURI());
                         }
                     }
                 }
             }
-            
+
             for (ACARSRecord r : recordList) {
                 if (r.isUsedInSounding()) {
 
                 }
             } // for
-            // Now run the list of deletions
+              // Now run the list of deletions
             for (Integer n : deletions) {
                 acarsDataURIs.set(n, null);
             }
@@ -179,33 +181,32 @@ public class IntermediateData {
      * 
      * @param uri
      * @param dataURIs
-     * @return Returns the index where the uri was found. Returns -1
-     * if the uri is not found.
+     * @return Returns the index where the uri was found. Returns -1 if the uri
+     *         is not found.
      */
     private static int findDataUri(String uri, List<String> dataURIs) {
         int pos = -1;
-        
-        if(uri != null) {
-            pos = search(uri,dataURIs);
+
+        if (uri != null) {
+            pos = search(uri, dataURIs);
             if (pos < 0) {
                 // We may have modified the dataURI so need additional
                 // checks to make sure. Zero out the seconds and try
                 // again.
-                uri = uri.substring(0, 24) + "00"
-                        + uri.substring(26);
+                uri = uri.substring(0, 24) + "00" + uri.substring(26);
                 // and try again
-                pos = search(uri,dataURIs);
+                pos = search(uri, dataURIs);
             }
         }
-        
+
         return pos;
     }
-    
+
     private static int search(String uri, List<String> uris) {
         int pos = -1;
-        if((uris != null) && (uri != null)) {
-            for(int i = 0;i < uris.size();i++) {
-                if(uri.equals(uris.get(i).substring(21))) {
+        if ((uris != null) && (uri != null)) {
+            for (int i = 0; i < uris.size(); i++) {
+                if (uri.equals(uris.get(i).substring(21))) {
                     pos = i;
                     break;
                 }
@@ -213,24 +214,25 @@ public class IntermediateData {
         }
         return pos;
     }
-    
+
     /**
      * 
      */
-    private final void writeACARSDataUris(Log logger) {
+    private final void writeACARSDataUris(Logger logger) {
         if ((acftInfo != null) && (acftInfo.getFilePath() != null)) {
             if (acarsDataURIs != null) {
                 File out = new File(acftInfo.getFilePath());
 
                 boolean writeURIs = false;
-                for(String s : acarsDataURIs) {
-                    if(s != null) {
+                for (String s : acarsDataURIs) {
+                    if (s != null) {
                         writeURIs = true;
                         break;
                     }
                 }
-                if(writeURIs) {
-                    ACARSSoundingTools.writeAircraftData(out, acarsDataURIs, logger);
+                if (writeURIs) {
+                    ACARSSoundingTools.writeAircraftData(out, acarsDataURIs,
+                            logger);
                 } else {
                     if (out.exists()) {
                         if (!out.delete()) {

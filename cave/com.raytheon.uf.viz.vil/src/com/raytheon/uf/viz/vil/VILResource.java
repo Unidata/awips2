@@ -64,12 +64,14 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * <pre>
  * 
- *    SOFTWARE HISTORY
- *   
- *    Date         Ticket#     Engineer    Description
- *    ------------ ----------  ----------- --------------------------
- *    11Nov2009    2037        dhladky     Initial Creation.
- *    Mar  3, 2014 2804        mschenke    Set back up clipping pane
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 11Nov2009    2037        dhladky     Initial Creation.
+ * Mar  3, 2014 2804        mschenke    Set back up clipping pane
+ * Nov 05, 2015 5070        randerso    Adjust font sizes for dpi scaling
+ * 
  * </pre>
  * 
  * @author dhladky
@@ -200,7 +202,7 @@ public class VILResource extends
             this.displayedDataTime = paintProps.getDataTime();
 
             if (this.font == null) {
-                this.font = target.initializeFont("Dialog", 11, null);
+                this.font = target.initializeFont("Dialog", 9, null);
             }
 
             // Pull the record out

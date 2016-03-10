@@ -36,9 +36,10 @@ import com.raytheon.uf.viz.monitor.data.ColumnAttribData;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 8, 2009            lvenable     Initial creation
- * Dec 17, 2009 3424      zhao         added snowZoneStnTableColVarNames
- * May 23, 2014 3086      skorolev     Corrected ObsHistType. Cleaned code.
+ * Apr 8, 2009             lvenable    Initial creation
+ * Dec 17, 2009 3424       zhao        added snowZoneStnTableColVarNames
+ * May 23, 2014 3086       skorolev    Corrected ObsHistType. Cleaned code.
+ * Feb 23, 2016 5393       randerso    Remove hard coded column widths
  * 
  * </pre>
  * 
@@ -721,7 +722,7 @@ public class CommonTableConfig {
      */
     private int getColumnIndex(String columnName, String[] columnNames) {
         for (int i = 0; i < columnNames.length; i++) {
-            if (columnName.equals(columnNames[i]) == true) {
+            if (columnName.equals(columnNames[i])) {
                 return i;
             }
         }
@@ -760,34 +761,6 @@ public class CommonTableConfig {
      */
     public RGB getCellColor(CellType type) {
         return colorMap.get(type);
-    }
-
-    /**
-     * Get the Zone/Station default column width.
-     * 
-     * @param app
-     *            Application name.
-     * @return Default column width.
-     */
-    public int getTableDefaultColWidth(CommonConfig.AppName app) {
-        if (app == CommonConfig.AppName.SAFESEAS) {
-            return 60;
-        } else if (app == CommonConfig.AppName.SNOW) {
-            return 68;
-        } else if (app == CommonConfig.AppName.FOG) {
-            return 70;
-        }
-
-        return 75;
-    }
-
-    /**
-     * Get the Observation History default column width.
-     * 
-     * @return The default column width.
-     */
-    public int getObsHistDefaultColWidth() {
-        return 70;
     }
 
     /**

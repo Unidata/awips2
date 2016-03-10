@@ -2,13 +2,12 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Awipstools Plug-in
 Bundle-SymbolicName: com.raytheon.viz.awipstools;singleton:=true
-Bundle-Version: 1.14.0.qualifier
+Bundle-Version: 1.15.0.qualifier
 Bundle-Activator: com.raytheon.viz.awipstools.Activator
 Bundle-Vendor: Raytheon
 Eclipse-RegisterBuddy: org.apache.velocity, com.raytheon.uf.viz.core.rsc
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui,
- org.apache.commons.lang,
  com.raytheon.viz.ui,
  javax.measure,
  com.raytheon.uf.common.pointdata,

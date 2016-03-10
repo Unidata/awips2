@@ -28,8 +28,8 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.python.PyUtil;
-import com.raytheon.uf.common.python.concurrent.AbstractPythonScriptFactory;
 import com.raytheon.uf.common.python.PythonIncludePathUtil;
+import com.raytheon.uf.common.python.concurrent.PythonInterpreterFactory;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.viz.gfe.python.GfeCavePyIncludeUtil;
 
@@ -45,6 +45,7 @@ import com.raytheon.viz.gfe.python.GfeCavePyIncludeUtil;
  *                                     Tests path for GFE formatter auto tests
  * Jul 28, 2015  4263      dgilling    Refactor based on AbstractPythonScriptFactory.
  * Aug 21, 2015  4509      dgilling    Added time and dataaccess to include path.
+ * Dec 14, 2015  4816      dgilling    Support refactored PythonJobCoordinator API.
  * 
  * </pre>
  * 
@@ -52,16 +53,8 @@ import com.raytheon.viz.gfe.python.GfeCavePyIncludeUtil;
  * @version 1.0
  */
 
-public class FormatterScriptFactory extends
-        AbstractPythonScriptFactory<FormatterScript> {
-
-    private static final String SCRIPT_EXECUTOR_NAME = "text-product-metadata";
-
-    private static final int EXECUTOR_NUM_THREADS = 1;
-
-    public FormatterScriptFactory() {
-        super(SCRIPT_EXECUTOR_NAME, EXECUTOR_NUM_THREADS);
-    }
+public class FormatterScriptFactory implements
+        PythonInterpreterFactory<FormatterScript> {
 
     private static String buildScriptPath() {
         IPathManager pathMgr = PathManagerFactory.getPathManager();
@@ -88,13 +81,6 @@ public class FormatterScriptFactory extends
         return include;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.python.concurrent.AbstractPythonScriptFactory#
-     * createPythonScript()
-     */
     @Override
     public FormatterScript createPythonScript() throws JepException {
         return new FormatterScript(buildScriptPath(), buildIncludePath(),

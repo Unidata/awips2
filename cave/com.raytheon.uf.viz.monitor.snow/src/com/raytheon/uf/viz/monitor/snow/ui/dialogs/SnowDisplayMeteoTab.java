@@ -29,14 +29,14 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TabFolder;
 
+import com.raytheon.uf.common.monitor.data.MonitorConfigConstants.SnowDisplay;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
+import com.raytheon.uf.common.monitor.xml.AreaXML;
+import com.raytheon.uf.common.monitor.xml.ThresholdsXML;
 import com.raytheon.uf.viz.monitor.data.RangesUtil;
 import com.raytheon.uf.viz.monitor.snow.threshold.SnowDisplayMeteoData;
 import com.raytheon.uf.viz.monitor.snow.threshold.SnowThresholdMgr;
 import com.raytheon.uf.viz.monitor.ui.dialogs.TabItemComp;
-import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants.SnowDisplay;
-import com.raytheon.uf.viz.monitor.xml.AreaXML;
-import com.raytheon.uf.viz.monitor.xml.ThresholdsXML;
 
 /**
  * Snow Display Meteo Table.
@@ -48,6 +48,7 @@ import com.raytheon.uf.viz.monitor.xml.ThresholdsXML;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 21, 2014 3086       skorolev    Cleaned code.
+ * Dec 26, 2015 5114       skorolev    Corrected imports.
  * 
  * </pre>
  * 

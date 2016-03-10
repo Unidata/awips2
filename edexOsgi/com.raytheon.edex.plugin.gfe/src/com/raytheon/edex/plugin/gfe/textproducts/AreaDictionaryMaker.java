@@ -34,13 +34,13 @@ import com.raytheon.edex.plugin.gfe.reference.MapManager;
 import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
 import com.raytheon.uf.common.dataquery.db.QueryResult;
 import com.raytheon.uf.common.dataquery.db.QueryResultRow;
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.localization.exception.LocalizationException;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.python.PyUtil;
 import com.raytheon.uf.common.python.PythonScript;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -66,6 +66,8 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  *                                     LocalizationSupport
  * Jul 13, 2015   4500     rjpeter     Fix SQL Injection concerns.
  * Dec 15, 2015 RM17933 mgamazaychikov Add four new corners to PART_OF_STATE.
+ * Jan 08, 2016   5237     tgurney     Replace calls to deprecated LocalizationFile
+ *                                     methods
  * </pre>
  * 
  * @author wldougher
@@ -235,8 +237,19 @@ public class AreaDictionaryMaker {
         // To generate national fips2cities and zones2cities files
         // uncomment the previous lines
 
-        genFips2Cities(context, countyAttrs);
-        genZones2Cities(context, zoneAttrs);
+        if (countyAttrs != null) {
+            genFips2Cities(context, countyAttrs);
+        } else {
+            statusHandler
+                    .warn("No county edit area attributes found. Not generating fips2cites.");
+        }
+
+        if (zoneAttrs != null) {
+            genZones2Cities(context, zoneAttrs);
+        } else {
+            statusHandler
+                    .warn("No zone edit area attributes found. Not generating zones2cites.");
+        }
 
         LocalizationContext baseCtx = pathMgr.getContext(
                 LocalizationType.EDEX_STATIC, LocalizationLevel.BASE);
@@ -278,9 +291,9 @@ public class AreaDictionaryMaker {
             pyScript.execute("createCityLocation", argMap);
 
             // check to see if Hazard_TCV was configured for this site
-            LocalizationFile lf = pathMgr.getLocalizationFile(caveStaticConfig,
-                    FileUtil.join("gfe", "userPython", "textProducts",
-                            "Hazard_TCV.py"));
+            ILocalizationFile lf = pathMgr.getLocalizationFile(
+                    caveStaticConfig, FileUtil.join("gfe", "userPython",
+                            "textProducts", "Hazard_TCV.py"));
             if (lf.exists()) {
                 argMap.put("siteID", siteID);
                 pyScript.execute("createTCVAreaDictionary", argMap);
@@ -315,10 +328,11 @@ public class AreaDictionaryMaker {
             List<Map<String, Object>> attributes, String fileName,
             String dictName, String group, char separator, String cityQuery) {
 
-        LocalizationFile lf = pathMgr.getLocalizationFile(context,
+        ILocalizationFile lf = pathMgr.getLocalizationFile(context,
                 FileUtil.join("gfe", fileName));
 
-        try (PrintWriter out = new PrintWriter(lf.openOutputStream())) {
+        try (SaveableOutputStream lfStream = lf.openOutputStream();
+                PrintWriter out = new PrintWriter(lfStream)) {
             out.println(dictName + " = {");
 
             try {
@@ -402,12 +416,8 @@ public class AreaDictionaryMaker {
             }
 
             out.println("}");
-        } catch (LocalizationException e) {
-            statusHandler.error(e.getLocalizedMessage(), e);
-        }
-
-        try {
-            lf.save();
+            out.close();
+            lfStream.save();
         } catch (Exception e) {
             statusHandler.error(e.getLocalizedMessage(), e);
         }

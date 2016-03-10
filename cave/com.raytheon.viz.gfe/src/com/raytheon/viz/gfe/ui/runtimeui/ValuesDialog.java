@@ -27,6 +27,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.python.swt.ButtonConstant;
@@ -42,12 +43,13 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Jun 3, 2008	1164		jelkins     Initial creation
- * Oct 15, 2008             njensen     Static methods to keep UI
- *                                      thread working
- * Mar 28, 2013 1790        rferrel     Make dialog modal except when the static openDialog is used.
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Jun 03, 2008 1164       jelkins     Initial creation
+ * Oct 15, 2008            njensen     Static methods to keep UI
+ *                                     thread working
+ * Mar 28, 2013 1790       rferrel     Make dialog modal except when the static openDialog is used.
+ * Jan 15, 2015 5054       randerso    Remove unnecessary new Shell
  * 
  * </pre>
  * 
@@ -120,7 +122,7 @@ public class ValuesDialog extends CaveJFACEDialog {
     @Override
     protected void createButtonsForButtonBar(Composite parent) {
 
-        if (callback != null || closeAfterRun) {
+        if ((callback != null) || closeAfterRun) {
             createButton(parent, ButtonConstant.RUN.id,
                     ButtonConstant.RUN.label, false);
             createButton(parent, ButtonConstant.RUN_DISMISS.id,
@@ -299,8 +301,15 @@ public class ValuesDialog extends CaveJFACEDialog {
 
             @Override
             public void run() {
-                syncedDialog = new ValuesDialog(new Shell(), title, fieldDefs,
+                Shell shell = null;
+                if (PlatformUI.isWorkbenchRunning()) {
+                    shell = PlatformUI.getWorkbench()
+                            .getActiveWorkbenchWindow().getShell();
+                }
+
+                syncedDialog = new ValuesDialog(shell, title, fieldDefs,
                         dataMgr);
+
                 syncedDialog.setShellStyle(SWT.MODELESS | SWT.TITLE
                         | SWT.RESIZE);
                 syncedDialog.open();

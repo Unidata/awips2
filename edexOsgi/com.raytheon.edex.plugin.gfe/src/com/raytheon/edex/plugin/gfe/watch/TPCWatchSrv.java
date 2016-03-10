@@ -43,14 +43,16 @@ import com.raytheon.uf.common.activetable.VTECPartners;
 import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
 import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
 import com.raytheon.uf.common.dataplugin.warning.PracticeWarningRecord;
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.python.PyUtil;
+import com.raytheon.uf.common.python.PythonIncludePathUtil;
 import com.raytheon.uf.common.python.PythonScript;
 import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -80,6 +82,9 @@ import com.raytheon.uf.edex.activetable.ActiveTablePyIncludeUtil;
  *                                     Added call to nwrwavestcv.csh
  *                                     Added support for sending TCVAdvisory files to 
  *                                     VTEC partners
+ * Nov 12, 2015   4834     njensen     Changed LocalizationOpFailedException to LocalizationException
+ * Jan 27, 2016   5237     tgurney     Replace LocalizationFile with ILocalizationFile
+ * 
  * </pre>
  * 
  * @author njensen
@@ -126,11 +131,6 @@ public final class TPCWatchSrv extends AbstractWatchNotifierSrv {
 
     private static final ThreadLocal<PythonScript> pythonScript = new ThreadLocal<PythonScript>() {
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see java.lang.ThreadLocal#initialValue()
-         */
         @Override
         protected PythonScript initialValue() {
             IPathManager pathMgr = PathManagerFactory.getPathManager();
@@ -169,13 +169,6 @@ public final class TPCWatchSrv extends AbstractWatchNotifierSrv {
         super(TPC_WATCH_TYPE);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.edex.plugin.gfe.watch.AbstractWatchNotifierSrv#handleWatch
-     * (java.util.List)
-     */
     @Override
     public void handleWatch(List<AbstractWarningRecord> warningRecs) {
         /*
@@ -282,7 +275,7 @@ public final class TPCWatchSrv extends AbstractWatchNotifierSrv {
         try {
             transmittedFile.save();
             transmittedFileSaved = true;
-        } catch (LocalizationOpFailedException e) {
+        } catch (LocalizationException e) {
             statusHandler.error("Failed to save advisory "
                     + transmittedFilename);
         }
@@ -290,7 +283,7 @@ public final class TPCWatchSrv extends AbstractWatchNotifierSrv {
         if (transmittedFileSaved) {
             try {
                 pendingFile.delete();
-            } catch (LocalizationOpFailedException e) {
+            } catch (LocalizationException e) {
                 statusHandler.error("Unable to delete " + pendingFile, e);
             }
 
@@ -351,7 +344,7 @@ public final class TPCWatchSrv extends AbstractWatchNotifierSrv {
                                         practiceMode);
                         try {
                             advisoryFile.delete();
-                        } catch (LocalizationOpFailedException e) {
+                        } catch (LocalizationException e) {
                             statusHandler.error("Unable to delete "
                                     + advisoryFile, e);
                         }
@@ -378,7 +371,7 @@ public final class TPCWatchSrv extends AbstractWatchNotifierSrv {
                 .getPath();
 
         String pythonIncludePath = PyUtil.buildJepIncludePath(
-                ActiveTablePyIncludeUtil.getCommonPythonIncludePath(),
+                PythonIncludePathUtil.getCommonPythonIncludePath(),
                 ActiveTablePyIncludeUtil.getCommonGfeIncludePath(),
                 ActiveTablePyIncludeUtil.getVtecIncludePath(siteId),
                 ActiveTablePyIncludeUtil.getGfeConfigIncludePath(siteId),
@@ -436,7 +429,7 @@ public final class TPCWatchSrv extends AbstractWatchNotifierSrv {
         return practiceMode ? PRACTICE_PATH : TCV_ADVISORY_PATH;
     }
 
-    private Map<String, Object> loadJSONDictionary(LocalizationFile lf) {
+    private Map<String, Object> loadJSONDictionary(ILocalizationFile lf) {
         if (lf != null) {
             PythonScript script = this.pythonScript.get();
             if (script != null) {
@@ -444,7 +437,7 @@ public final class TPCWatchSrv extends AbstractWatchNotifierSrv {
                 args.put("localizationType", lf.getContext()
                         .getLocalizationType());
                 args.put("siteID", lf.getContext().getContextName());
-                args.put("fileName", lf.getName());
+                args.put("fileName", lf.getPath());
                 try {
                     @SuppressWarnings("unchecked")
                     Map<String, Object> retVal = (Map<String, Object>) script
@@ -460,7 +453,7 @@ public final class TPCWatchSrv extends AbstractWatchNotifierSrv {
         return null;
     }
 
-    private void saveJSONDictionary(LocalizationFile lf,
+    private void saveJSONDictionary(ILocalizationFile lf,
             Map<String, Object> dict) {
         if (lf != null) {
             PythonScript script = this.pythonScript.get();
@@ -469,7 +462,7 @@ public final class TPCWatchSrv extends AbstractWatchNotifierSrv {
                 args.put("localizationType", lf.getContext()
                         .getLocalizationType());
                 args.put("siteID", lf.getContext().getContextName());
-                args.put("fileName", lf.getName());
+                args.put("fileName", lf.getPath());
                 args.put("javaObject", dict);
                 try {
                     script.execute("saveJsonFromJava", args);
@@ -481,13 +474,6 @@ public final class TPCWatchSrv extends AbstractWatchNotifierSrv {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.edex.plugin.gfe.warning.AbstractWarningNotifierSrv#
-     * buildNotification(java.util.List,
-     * com.raytheon.uf.common.activetable.VTECPartners)
-     */
     @Override
     protected String buildNotification(List<AbstractWarningRecord> decodedVTEC,
             VTECPartners partnersConfig) {

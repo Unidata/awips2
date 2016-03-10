@@ -23,6 +23,7 @@ package com.raytheon.uf.viz.thinclient.cave.preferences;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.ComboFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
+import org.eclipse.jface.preference.RadioGroupFieldEditor;
 import org.eclipse.jface.util.PropertyChangeEvent;
 
 import com.raytheon.uf.viz.core.localization.HierarchicalPreferenceStore;
@@ -39,6 +40,8 @@ import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 8, 2011            mschenke     Initial creation
+ * Feb 08, 2016, 5281     tjensen      Replaced disableJms checkbox with radio buttons 
+ *                                      and combined Data and Menu Refresh Intervals
  * 
  * </pre>
  * 
@@ -47,11 +50,9 @@ import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
  */
 public class ThinClientConnectionPreferences extends FieldEditorPreferencePage {
 
-    private BooleanFieldEditor disableJMS;
+    private RadioGroupFieldEditor dataRefreshMethod;
 
     private BooleanFieldEditor disableMenuTimes;
-
-    private ComboFieldEditor menuTimeInterval;
 
     private ComboFieldEditor dataUpdateInterval;
 
@@ -65,49 +66,35 @@ public class ThinClientConnectionPreferences extends FieldEditorPreferencePage {
         setDescription("Thin Client Connections");
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.preference.FieldEditorPreferencePage#createFieldEditors
-     * ()
-     */
     @Override
     protected void createFieldEditors() {
-        disableJMS = new BooleanFieldEditor(
-                ThinClientPreferenceConstants.P_DISABLE_JMS, "Disable &JMS",
+        dataRefreshMethod = new RadioGroupFieldEditor(
+                ThinClientPreferenceConstants.P_DATA_REFRESH_METHOD,
+                "Data Refresh: ",
+                2,
+                new String[][] {
+                        {
+                                "&Automatic Push",
+                                ThinClientPreferenceConstants.P_DATA_REFRESH_METHOD_PUSH },
+                        {
+                                "&Timed Poll",
+                                ThinClientPreferenceConstants.P_DATA_REFRESH_METHOD_POLL } },
                 getFieldEditorParent());
-        addField(disableJMS);
+        addField(dataRefreshMethod);
 
         disableMenuTimes = new BooleanFieldEditor(
                 ThinClientPreferenceConstants.P_DISABLE_MENU_TIMES,
-                "Disable Menu &Times", getFieldEditorParent());
+                "Disable &Menu Times", getFieldEditorParent());
 
         addField(disableMenuTimes);
 
         HierarchicalPreferenceStore uiStore = Activator.getDefault()
                 .getUiPreferenceStore();
-        float[] intervals = uiStore
-                .getFloatArray(ThinClientPreferenceConstants.P_MENU_TIME_UPDATE_INTERVALS);
-        String[][] values = new String[intervals.length + 1][2];
-        values[0] = new String[] { "Off", "0" };
-        for (int i = 0; i < intervals.length; ++i) {
-            String val = Integer.toString((int) intervals[i]);
-            values[i + 1] = new String[] { val, val };
-        }
-
-        menuTimeInterval = new ComboFieldEditor(
-                ThinClientPreferenceConstants.P_MENU_TIME_REFRESH_INTERVAL,
-                "&Menu Time Update Interval (min)", values,
-                getFieldEditorParent());
-
-        // TODO: Hook in periodic menu time updating (URICatalog?)
-        addField(menuTimeInterval);
 
         // Add data update options
-        intervals = uiStore
+        float[] intervals = uiStore
                 .getFloatArray(ThinClientPreferenceConstants.P_DATA_UPDATE_INTERVALS);
-        values = new String[intervals.length + 1][2];
+        String[][] values = new String[intervals.length + 1][2];
         values[0] = new String[] { "Off", "0" };
         for (int i = 0; i < intervals.length; ++i) {
             String val = Integer.toString((int) intervals[i]);
@@ -119,30 +106,25 @@ public class ThinClientConnectionPreferences extends FieldEditorPreferencePage {
                 "&Data Update Interval (min)", values, getFieldEditorParent());
 
         addField(dataUpdateInterval);
-        boolean disableJMS = getPreferenceStore().getBoolean(
-                ThinClientPreferenceConstants.P_DISABLE_JMS);
-        menuTimeInterval.setEnabled(disableJMS, getFieldEditorParent());
+        boolean disableJMS = ThinClientPreferenceConstants.P_DATA_REFRESH_METHOD_POLL
+                .equals(getPreferenceStore().getString(
+                        ThinClientPreferenceConstants.P_DATA_REFRESH_METHOD));
         dataUpdateInterval.setEnabled(disableJMS, getFieldEditorParent());
     }
 
     @Override
     public void propertyChange(PropertyChangeEvent event) {
         super.propertyChange(event);
-        this.updateEnabledFields();
+        if (event.getSource() == dataRefreshMethod) {
+            this.updateEnabledFields((String) event.getNewValue());
+        }
+        ;
     }
 
-    @Override
-    protected void checkState() {
-        super.checkState();
-        this.updateEnabledFields();
-    }
-
-    private void updateEnabledFields() {
-        boolean disableMenuTimes = this.disableMenuTimes.getBooleanValue();
-        boolean disableJMS = this.disableJMS.getBooleanValue();
+    private void updateEnabledFields(String refreshMethod) {
+        boolean disableJMS = ThinClientPreferenceConstants.P_DATA_REFRESH_METHOD_POLL
+                .equals(refreshMethod);
         dataUpdateInterval.setEnabled(disableJMS, getFieldEditorParent());
-        menuTimeInterval.setEnabled(!disableMenuTimes && disableJMS,
-                getFieldEditorParent());
     }
 
 }

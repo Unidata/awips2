@@ -17,10 +17,14 @@ URL: N/A
 License: N/A
 Distribution: N/A
 Vendor: Raytheon
-Packager: Bryan Kowal
+Packager: %{_build_site}
 
 AutoReq: no
-provides: awips2-eclipse
+Provides: awips2-eclipse
+Requires: awips2-ant
+Requires: awips2-java
+Requires: awips2-python
+
 
 %description
 AWIPS II Eclipse Distribution - Contains the AWIPS II Eclipse Distribution.
@@ -68,36 +72,8 @@ rm -f %{_build_root}/awips2/eclipse/basemaps
 rm -f %{_build_root}/awips2/eclipse/etc
 
 %pre
-JAVA_INSTALL="<Not Installed>"
-PYTHON_INSTALL="<Not Installed>"
-ANT_INSTALL="<Not Installed>"
-
-INSTALL_PATH="/awips2/java"
-if [ -d ${INSTALL_PATH} ]; then
-   JAVA_INSTALL=${INSTALL_PATH}
-fi
-
-INSTALL_PATH="/awips2/python"
-if [ -d ${INSTALL_PATH} ]; then
-   PYTHON_INSTALL=${INSTALL_PATH}
-fi
-
-INSTALL_PATH="/awips2/ant"
-if [ -d ${INSTALL_PATH} ]; then
-   ANT_INSTALL=${INSTALL_PATH}
-fi
-
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m\| Installing the AWIPS II Eclipse Distribution...\e[m"
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m   Java   Detected At: ${JAVA_INSTALL}\e[m"
-echo -e "\e[1;34m   Python Detected At: ${PYTHON_INSTALL}\e[m"
-echo -e "\e[1;34m   Ant    Detected At: ${ANT_INSTALL}\e[m"
 
 %post
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m\| Creating ADE Eclipse Desktop Shortcut...\e[m"
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
 ADE_ECLIPSE_SHORTCUT="ade-eclipse"
 SHORTCUT_OWNER="${USER}"
 CREATE_SHORTCUT="true"
@@ -149,10 +125,6 @@ if [ "${CREATE_SHORTCUT}" = "true" ]; then
    sudo -u ${SHORTCUT_OWNER} mv ${SHORTCUT_TMP} ${SHORTCUT}
    sudo -u ${SHORTCUT_OWNER} chmod 644 ${SHORTCUT}
 fi
-
-echo -e "\e[1;32m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;32m\| AWIPS II Eclipse Distribution Installation - COMPLETE\e[m"
-echo -e "\e[1;32m--------------------------------------------------------------------------------\e[m"
 
 %preun
 

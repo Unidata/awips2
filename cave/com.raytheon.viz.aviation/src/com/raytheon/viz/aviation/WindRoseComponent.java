@@ -22,7 +22,6 @@ package com.raytheon.viz.aviation;
 import java.util.List;
 
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.viz.aviation.climatology.WindRosePlotDlg;
 import com.raytheon.viz.avncommon.AvnMessageMgr.StatusMessageType;
@@ -38,9 +37,9 @@ import com.raytheon.viz.ui.personalities.awips.AbstractCAVEDialogComponent;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 28, 2011            mschenke     Initial creation
- * Oct 17, 2012 1229       rferrel     Changes for non-blocking
- *                                      WindRosePlotDlg.
+ * Apr 28, 2011            mschenke    Initial creation
+ * Oct 17, 2012 1229       rferrel     Changes for non-blocking WindRosePlotDlg.
+ * Jan 26, 2016 5054       randerso    Allow dialog to be parented by display
  * 
  * </pre>
  * 
@@ -61,8 +60,8 @@ public class WindRoseComponent extends AbstractCAVEDialogComponent {
     protected void startInternal(String componentName) throws Exception {
         List<String> siteList = TafSiteConfigFactory.getInstance()
                 .getSiteList();
-        WindRosePlotDlg windRoseDialog = new WindRosePlotDlg(new Shell(
-                Display.getCurrent()), siteList, StatusMessageType.WindRose,
+        WindRosePlotDlg windRoseDialog = new WindRosePlotDlg(
+                Display.getCurrent(), siteList, StatusMessageType.WindRose,
                 null);
         windRoseDialog.open();
         blockUntilClosed(windRoseDialog);

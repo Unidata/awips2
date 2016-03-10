@@ -127,7 +127,6 @@ FSH National Marine Fisheries Message
 FTJ FOUS Trajectory Forecast
 FTM Radar Free Text Message
 FTP Perf Prog Max-Min Temperature Guidance
-FWC NGM MOS
 FWD Fire Weather Outlook Discussion
 FWE Extended Fire Weather Outlook
 FWF Routine Fire Wx Fcst (w/wo 6-10 Day Otlk)

@@ -22,7 +22,7 @@ package com.raytheon.uf.edex.bufrtools;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
+import org.slf4j.Logger;
 
 import com.raytheon.uf.edex.bufrtools.descriptors.BUFRDescriptor;
 import com.raytheon.uf.edex.bufrtools.descriptors.BUFRTableB;
@@ -37,13 +37,14 @@ import com.raytheon.uf.edex.bufrtools.packets.IBUFRDataPacket;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
+ * Date         Ticket#     Engineer    Description
  * --------     ----------  ----------- ---------------
  * 20071127     382         jkorman     Initial coding
  * 07/2009      55          T. Lee      Added number of bits to skip
  *                                      for Table C
  * 04/21/2010   208         F. J. Yen   Added compressedBit for Associated Field handling
- * 9/16/2014    #3628      mapeters    Moved from uf.edex.decodertools plugin.
+ * 9/16/2014    #3628       mapeters    Moved from uf.edex.decodertools plugin.
+ * 12/14/2015   5166        kbisanz     Update logging to use SLF4J
  * </pre>
  * 
  * @author jkorman
@@ -64,17 +65,17 @@ public abstract class ExecuteEngine {
     protected int readOverChar = -1;
 
     protected int readOverBits = -1;
-    
+
     private int dataBitOverride = 0;
-    
+
     private int dataScaleOverride = 0;
-    
+
     // changes made by NCEP/NCO/SIB for Tamdar
     private int skipBits = 0;
-    
+
     // changes made by NCEP for compressed data (bufrsgwh)
     private int compressedBit = 0;
-    
+
     protected BUFRSection3 section3;
 
     // Index the current descriptor to execute.
@@ -111,9 +112,11 @@ public abstract class ExecuteEngine {
         ExecuteEngine engineImpl = null;
 
         if (section.isCompressed()) {
-            engineImpl = new CompressedExecuteEngine(section.getDescriptorList(), section.getNumSubSets());
+            engineImpl = new CompressedExecuteEngine(
+                    section.getDescriptorList(), section.getNumSubSets());
         } else {
-            engineImpl = new NonCompressedExecuteEngine(section.getDescriptorList(), section.getNumSubSets());
+            engineImpl = new NonCompressedExecuteEngine(
+                    section.getDescriptorList(), section.getNumSubSets());
         }
         engineImpl.documentRoot = true;
         engineImpl.descriptors = section.getDescriptorList();
@@ -147,35 +150,35 @@ public abstract class ExecuteEngine {
     /**
      * @return the number of skipped bits
      */
-    public int getSkipBits () {
+    public int getSkipBits() {
         return skipBits;
     }
 
     // NCEP changes
     /**
      * @param skipBits
-     *                  number of skipped bits to set
+     *            number of skipped bits to set
      */
-    public void setSkipBits ( int skipBits ) {
+    public void setSkipBits(int skipBits) {
         this.skipBits = skipBits;
-    }  
-    
+    }
+
     // Changes made by NCEP/NCO/SIB for Compressed data
     /**
      * @return value of compressed bit
      */
-    public int getCompressedBit () {
+    public int getCompressedBit() {
         return compressedBit;
     }
-   
+
     // NCEP/NCO/SIB changes added for compressed data
     /**
-    * @param compressedBit
-    *                  value of compressed bit
-    */
-    public void setCompressedBit ( int compressedBit ) {
+     * @param compressedBit
+     *            value of compressed bit
+     */
+    public void setCompressedBit(int compressedBit) {
         this.compressedBit = compressedBit;
-    }  
+    }
 
     /**
      * @return the descriptors
@@ -234,7 +237,8 @@ public abstract class ExecuteEngine {
     }
 
     /**
-     * @param dataBitOverride the dataBitOverride to set
+     * @param dataBitOverride
+     *            the dataBitOverride to set
      */
     public void setDataBitOverride(int dataBitOverride) {
         this.dataBitOverride = dataBitOverride;
@@ -248,46 +252,48 @@ public abstract class ExecuteEngine {
     }
 
     /**
-     * @param dataScaleOverride the dataScaleOverride to set
+     * @param dataScaleOverride
+     *            the dataScaleOverride to set
      */
     public void setDataScaleOverride(int dataScaleOverride) {
         this.dataScaleOverride = dataScaleOverride;
     }
-    
+
     /**
      * 
      * @param descriptor
      * @param indent
      */
     @SuppressWarnings("unchecked")
-    private static void displayDescriptor(IBUFRDataPacket packet, String indent, Log logger) {
-        
-        if(packet instanceof BUFRSublistPacket) {
+    private static void displayDescriptor(IBUFRDataPacket packet,
+            String indent, Logger logger) {
+
+        if (packet instanceof BUFRSublistPacket) {
             BUFRSublistPacket p = (BUFRSublistPacket) packet;
             List<IBUFRDataPacket> dList = (List<IBUFRDataPacket>) p.getValue();
             StringBuilder sb = new StringBuilder();
-            for(int i = 0;i < dList.size();i++) {
-                sb.append(String.format("%30s",dList.get(i)));
+            for (int i = 0; i < dList.size(); i++) {
+                sb.append(String.format("%30s", dList.get(i)));
                 sb.append("   ");
                 BUFRDescriptor d = dList.get(i).getReferencingDescriptor();
-                if(d instanceof BUFRTableB) {
+                if (d instanceof BUFRTableB) {
                     BUFRTableB b = (BUFRTableB) d;
                     sb.append(b.getComments());
                 }
-                logger.debug(sb);
+                logger.debug(sb.toString());
             }
         }
 
-    
     }
 
     /**
      * 
      */
-    public static void display(List<IBUFRDataPacket> list, String indent, Log logger) {
+    public static void display(List<IBUFRDataPacket> list, String indent,
+            Logger logger) {
         for (IBUFRDataPacket p : list) {
             displayDescriptor(p, indent, logger);
         }
     }
-    
+
 }

@@ -1,8 +1,8 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
-  
+
     <bean id="fxaCommonDbPluginProperties" class="com.raytheon.uf.edex.database.DatabasePluginProperties">
         <property name="pluginFQN" value="com.raytheon.uf.edex.database" />
         <property name="database" value="fxa" />
@@ -13,103 +13,43 @@
         <constructor-arg value="com.raytheon.uf.edex.database.fxa" />
         <constructor-arg ref="fxaCommonDbPluginProperties" />
     </bean>
-  
-  	<bean id="textProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
-		<property name="pluginName" value="text" />
-		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.text" />
-		<property name="dao" value="com.raytheon.uf.edex.plugin.text.dao.TextDao" />
-		<property name="database" value="fxa"/>
-		<property name="record" value="com.raytheon.uf.edex.plugin.text.TextRecord"/>
-	</bean>
-	
-	<bean id="textRegistered" factory-bean="pluginRegistry" factory-method="register"
-			depends-on="fxaTxManager,fxaCommonDbRegistered">
-		<constructor-arg value="text"/>
-		<constructor-arg ref="textProperties"/>
-	</bean>
- 
-   	<bean id="fxaDbSessionConfig" class="com.raytheon.uf.edex.database.DatabaseSessionConfiguration">
-   	    <property name="classFinder" ref="dbClassFinder" />
+
+    <bean id="textProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
+        <property name="pluginName" value="text" />
+        <property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.text" />
+        <property name="dao" value="com.raytheon.uf.edex.plugin.text.dao.TextDao" />
+        <property name="database" value="fxa"/>
+        <property name="record" value="com.raytheon.uf.edex.plugin.text.TextRecord"/>
+    </bean>
+
+    <bean id="textRegistered" factory-bean="pluginRegistry" factory-method="register"
+            depends-on="fxaTxManager,fxaCommonDbRegistered">
+        <constructor-arg value="text"/>
+        <constructor-arg ref="textProperties"/>
+    </bean>
+
+    <bean id="fxaDbSessionConfig" class="com.raytheon.uf.edex.database.DatabaseSessionConfiguration">
+        <property name="classFinder" ref="dbClassFinder" />
         <property name="includes">
            <list>
                 <value>com.raytheon.uf.common.dataplugin.text</value>
+                <value>com.raytheon.uf.common.dataplugin.text.subscription</value>
                 <value>com.raytheon.uf.edex.database</value>
            </list>
         </property>
     </bean>
- 	<bean id="fxaSessionFactory"
-		class="com.raytheon.uf.edex.database.DatabaseSessionFactoryBean">
-		<property name="configLocation">
-			<value>file:///${edex.home}/conf/db/hibernateConfig/fxa/hibernate.cfg.xml</value>
-		</property>
-		<property name="databaseSessionConfiguration" ref="fxaDbSessionConfig"/>
-	</bean>
-
-	<bean id="fxaTxManager"
-		class="org.springframework.orm.hibernate4.HibernateTransactionManager">
-		<property name="sessionFactory" ref="fxaSessionFactory" />
-	</bean>
- 	
-     <bean id="autoFaxDao" class="com.raytheon.uf.edex.plugin.text.fax.AutoFaxDao">
-       <property name="autoFaxNotifyURI" value="jms-generic:topic:autofax.notify"/>
+    <bean id="fxaSessionFactory"
+        class="com.raytheon.uf.edex.database.DatabaseSessionFactoryBean">
+        <property name="configLocation">
+            <value>file:///${edex.home}/conf/db/hibernateConfig/fxa/hibernate.cfg.xml</value>
+        </property>
+        <property name="databaseSessionConfiguration" ref="fxaDbSessionConfig"/>
     </bean>
 
-    <bean id="textdbsrv" class="com.raytheon.uf.edex.plugin.text.dbsrv.TextDBSrv" />
-    
-    <!-- subscription -->
-  
-    <bean id="subscriptionDao" class="com.raytheon.uf.edex.plugin.text.dao.SubscriptionDAO">
-       <property name="subscriptionNotifyURI" value="jms-generic:topic:subscription.notify"/>
+    <bean id="fxaTxManager"
+        class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+        <property name="sessionFactory" ref="fxaSessionFactory" />
     </bean>
-
-    <!-- define the bean that handles ldad watch/warn script handling -->
-    <bean id="ldadScriptRunner" class="com.raytheon.uf.edex.plugin.text.subscription.services.ScriptRunner">
-        <property name="type" value="ldad" />
-    </bean>
-    
- 	<camelContext id="autofax-common-camel" 
-	              xmlns="http://camel.apache.org/schema/spring"
-                  errorHandlerRef="errorHandler">
-		<route id="autoFaxNotify">
-           <from uri="jms-generic:topic:autofax.notify"/>
-		   <doTry>
-		   	   <bean ref="autoFaxDao" method="updateCache" />
-		   	   <doCatch>
-					<exception>java.lang.Throwable</exception>
-					<to uri="log:autoFax?level=ERROR"/>
-		   	   </doCatch>
-		   </doTry>
-		</route>
-
-        <route id="textdbsrvinternal">
-            <from uri="direct-vm:int.textdb.request" />
-            <bean ref="textdbsrv" method="processMessage" />
-        </route>
-        
-        <route id="subscriptionNotify">
-           <from uri="jms-generic:topic:subscription.notify"/>
-           <doTry>
-               <bean ref="subscriptionDao" method="updateCache" />
-               <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:subscription?level=ERROR"/>
-               </doCatch>
-           </doTry>
-        </route>
-
-        <!-- LDAD (watch/warn) triggered script runner, internal use only -->
-        <route id="ldadWatchWarnDirect">
-            <from uri="direct-vm:ldadWatchWarnDirect"/>
-           <doTry>
-               <bean ref="ldadScriptRunner" method="runScripts" />
-               <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:subscription?level=ERROR"/>
-               </doCatch>
-           </doTry>
-        </route>        
-
-	</camelContext>
 
     <bean factory-bean="manualProc"
         factory-method="registerSecondaryPlugin">

@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -49,20 +49,24 @@ import com.raytheon.viz.pointdata.PointDataRequest;
  * sets. It is important to note that derived parameters for point data is much
  * different than grid. The primary difference is that while grid is combining
  * multiple records that represent different parameters, point data is combining
- * multiple paramters within a single record. As a result point data does not
+ * multiple parameters within a single record. As a result point data does not
  * use the time and space matching functions of derived parameters since they
  * are guaranteed to match for all parameters within a record.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jun 1, 2009             brockwoo    Initial creation
- * Nov 21, 2009 #3576      rjpeter     Refactored use of DerivParamDesc.
- * Sep 09, 2014  3356      njensen     Remove CommunicationException
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- ----------------------------------
+ * Jun 01, 2009  2149     brockwoo  Initial creation
+ * Nov 21, 2009  3576     rjpeter   Refactored use of DerivParamDesc.
+ * Sep 09, 2014  3356     njensen   Remove CommunicationException
+ * Nov 16, 2015  5119     bsteffen  Remove bufquikscat
+ * Feb 09, 2016  5283     nabowle   Remove NGM MOS support.
+ *
  * </pre>
- * 
+ *
  * @author brockwoo
  * @version 1.0
  */
@@ -74,11 +78,11 @@ public class PointDataCubeAdapter extends DefaultDataCubeAdapter {
     public static String PLUGIN_NAME = PointDataInventory.PLUGIN_NAME;
 
     private static String[] supportedPlugins = { "obs", "madis",
-            "modelsounding", "bufrssmi", "bufrquikscat", "lsr", "sfcobs",
-            "goessounding", "bufrascat", "poessounding", "profiler", "bufrua",
-            "ldadmesonet", "ldadhydro", "qc", "fssobs", "bufrmosAVN",
-            "bufrmosETA", "bufrmosGFS", "bufrmosHPC", "bufrmosLAMP",
-            "bufrmosMRF", "bufrmosNGM", "airep", "pirep", "nctaf" };
+            "modelsounding", "bufrssmi", "lsr", "sfcobs", "goessounding",
+            "bufrascat", "poessounding", "profiler", "bufrua", "ldadmesonet",
+            "ldadhydro", "qc", "fssobs", "bufrmosAVN", "bufrmosETA",
+            "bufrmosGFS", "bufrmosHPC", "bufrmosLAMP", "bufrmosMRF", "airep",
+            "pirep", "nctaf" };
 
     protected AbstractPointDataInventory inventory;
 
@@ -86,12 +90,6 @@ public class PointDataCubeAdapter extends DefaultDataCubeAdapter {
         super(PLUGIN_NAME);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.datastructure.IDataCubeAdapter#getInventory()
-     */
     @Override
     public Object getInventory() {
         if (inventory == null) {
@@ -100,13 +98,6 @@ public class PointDataCubeAdapter extends DefaultDataCubeAdapter {
         return this.inventory;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.datastructure.IDataCubeAdapter#getPoints(java
-     * .lang.String[], java.util.Map)
-     */
     @Override
     public PointDataContainer getPoints(String plugin, String[] parameters,
             Map<String, RequestConstraint> queryParams)
@@ -231,25 +222,11 @@ public class PointDataCubeAdapter extends DefaultDataCubeAdapter {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.datastructure.IDataCubeAdapter#getSupportedPlugin
-     * ()
-     */
     @Override
     public String[] getSupportedPlugins() {
         return supportedPlugins;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.datastructure.IDataCubeAdapter#initInventory
-     * (java.util.Map)
-     */
     @Override
     public void initInventory() {
         if (inventory == null) {

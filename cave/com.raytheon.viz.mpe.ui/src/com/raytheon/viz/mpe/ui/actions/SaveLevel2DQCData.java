@@ -22,6 +22,9 @@ package com.raytheon.viz.mpe.ui.actions;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.handlers.HandlerUtil;
 
 /**
  * TODO Add Description
@@ -31,6 +34,7 @@ import org.eclipse.core.commands.ExecutionException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 27, 2009            snaples     Initial creation
+ * Jan 15, 2016 5054       randerso    Use proper parent shell
  * </pre>
  * 
  * @author randerso
@@ -47,8 +51,9 @@ public class SaveLevel2DQCData extends AbstractHandler {
      * .ExecutionEvent)
      */
     @Override
-    public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        SaveLevel2Data s2 = new SaveLevel2Data();
+    public Object execute(ExecutionEvent event) throws ExecutionException {
+        Shell shell = HandlerUtil.getActiveShell(event);
+        SaveLevel2Data s2 = new SaveLevel2Data(shell);
         s2.send_dbase_new_area();
         return null;
     }

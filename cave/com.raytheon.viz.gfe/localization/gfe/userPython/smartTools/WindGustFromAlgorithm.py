@@ -28,6 +28,13 @@
 #          Matthew H. Belk      NWS Taunton, MA       Last Modified: 06/16/03
 #          Mathewson            FSL                   Modified: 3/30/04
 #             -change in model names to OB3 names
+#----------------------------------------------------------------------------
+#
+#     SOFTWARE HISTORY
+#
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    02/10/2016      5283          nabowle        Remove NGM support.
 # ----------------------------------------------------------------------------
 
 ToolType = "numeric"
@@ -47,7 +54,7 @@ VariableList = [
          ("Momentum algorithm:", "RUC", "radio", ["RUC", "Power"]),
          ("Use BL Winds:", "No", "radio", ["Yes", "No"]),
          ("Model:", "NAM12", "radio",
-                    ["GFS80", "NAM12", "gfsLR", "NGM80", "RUC80"])
+                    ["GFS80", "NAM12", "gfsLR", "RUC80"])
 ]
 
 
@@ -364,11 +371,6 @@ class Tool (SmartScript.SmartScript):
         elif self._model.find( 'gfsLR') != -1:
             self._modelCube = ["MB1000", "MB850", "MB700", "MB500", "MB300"]
             self._blCube = []
-
-        elif self._model.find( 'NGM80') != -1:
-            self._modelCube = ["MB1000", "MB950", "MB850", "MB700", "MB500",
-                               "MB400", "MB300"]
-            self._blCube = ["FH1829", "FH2743", "FH3658"]
 
         elif self._model.find( 'RUC80') != -1:
             self._modelCube = ["MB1000", "MB950", "MB900", "MB850", "MB800",

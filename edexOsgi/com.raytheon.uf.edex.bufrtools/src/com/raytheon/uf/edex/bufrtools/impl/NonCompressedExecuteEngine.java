@@ -22,8 +22,8 @@ package com.raytheon.uf.edex.bufrtools.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.uf.edex.bufrtools.EngineData;
 import com.raytheon.uf.edex.bufrtools.ExecuteEngine;
@@ -54,6 +54,7 @@ import com.raytheon.uf.edex.bufrtools.packets.IBUFRDataPacket;
  * 07/2009      55          T. Lee      Added number of bits to skip for Table C
  * 04/21/2010   208         F. J. Yen   Updated arguments for execute in processTableB
  * 9/16/2014    #3628      mapeters    Moved from uf.edex.decodertools plugin, replaced static imports.
+ * 12/14/2015   5166       kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -62,7 +63,7 @@ import com.raytheon.uf.edex.bufrtools.packets.IBUFRDataPacket;
  */
 public class NonCompressedExecuteEngine extends ExecuteEngine {
 
-    private Log logger = LogFactory.getLog(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     private int readOverChar = -1;
 
@@ -127,9 +128,9 @@ public class NonCompressedExecuteEngine extends ExecuteEngine {
                         }
                     }
                 } catch (BUFRDecoderException bde) {
-                    if(logger.isDebugEnabled()) {
+                    if (logger.isDebugEnabled()) {
                         logger.debug("Error processing " + descriptor);
-                        display(packetData,"", logger);
+                        display(packetData, "", logger);
                     }
                     throw bde;
                 }
@@ -158,7 +159,7 @@ public class NonCompressedExecuteEngine extends ExecuteEngine {
     private List<IBUFRDataPacket> processTableB(BUFRTableB descriptor,
             List<IBUFRDataPacket> packets) {
         packets.add(descriptor.execute(bitStream, getDataScaleOverride(),
-                getDataBitOverride(),getSkipBits(),false,0));
+                getDataBitOverride(), getSkipBits(), false, 0));
         return packets;
     }
 
@@ -193,7 +194,7 @@ public class NonCompressedExecuteEngine extends ExecuteEngine {
         case 4: {
             // Associated field
             // changes made by NCEP/NCO/SIB: set associated fields, e.g.,
-            // quality control information.  Currently it is set to be the 
+            // quality control information. Currently it is set to be the
             // bits to skip for Tamdar
             setSkipBits(descriptor.getY());
             break;
@@ -218,8 +219,10 @@ public class NonCompressedExecuteEngine extends ExecuteEngine {
 
     /**
      * 
-     * @param descriptor The replication descriptor to execute.
-     * @param packets Data packet list to receive data.
+     * @param descriptor
+     *            The replication descriptor to execute.
+     * @param packets
+     *            Data packet list to receive data.
      * @return
      */
     private List<IBUFRDataPacket> executeReplication(
@@ -262,7 +265,7 @@ public class NonCompressedExecuteEngine extends ExecuteEngine {
 
                     break;
                 }
-                    // Repetition sequences
+                // Repetition sequences
                 case 11:
                 case 12: {
                     // Get the delayed count.

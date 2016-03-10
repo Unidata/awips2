@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Ohd Plug-in
 Bundle-SymbolicName: com.raytheon.uf.edex.ohd
-Bundle-Version: 1.15.0.qualifier
+Bundle-Version: 1.16.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.raytheon.edex.util,
@@ -17,8 +17,6 @@ Import-Package: com.raytheon.edex.util,
  com.raytheon.uf.edex.database,
  com.raytheon.uf.edex.database.dao,
  com.raytheon.uf.edex.database.plugin,
- com.raytheon.uf.edex.plugin.text.db,
- com.raytheon.uf.edex.plugin.text.dbsrv.impl,
  org.quartz
 Export-Package: com.raytheon.uf.edex.ohd,
  com.raytheon.uf.edex.ohd.reportalarm,
@@ -33,4 +31,5 @@ Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.common.units;bundle-version="1.0.0",
  com.raytheon.uf.common.dataplugin.shef,
  com.raytheon.uf.common.dataplugin.text,
- com.raytheon.uf.edex.decodertools
+ com.raytheon.uf.edex.decodertools,
+ com.raytheon.uf.edex.plugin.text

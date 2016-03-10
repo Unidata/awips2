@@ -19,12 +19,6 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-
-   <contribute xsi:type="command" menuText="Create TAF template" commandId="com.raytheon.viz.ui.actions.notImplemented"/>
-   <contribute xsi:type="command" menuText="Transmit TAF" commandId="com.raytheon.viz.ui.actions.notImplemented"/>
-
-   <contribute xsi:type="separator" id="belowTransmitTaf"/>
-   
    <contribute xsi:type="subinclude" fileName="menus/textws/toolsMenus.xml"/>
 </menuTemplate>
         

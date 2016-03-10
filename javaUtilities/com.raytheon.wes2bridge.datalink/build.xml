@@ -5,7 +5,23 @@
 
 	<import file="${basedir}/../build.wes2bridge.utility/ant/setup.xml" />
 	
-    <target name="create_run_jar">
+	<property name="project.name" value="com.raytheon.wes2bridge.datalink" />
+	
+	<target name="compile">
+		<mkdir dir="${baseline.dir}/${project.name}/bin" />
+		<javac destdir="${baseline.dir}/${project.name}/bin" 
+			srcdir="${baseline.dir}/${project.name}/src" 
+			executable="/awips2/java/bin/javac" fork="true" 
+			includeantruntime="false">
+			
+			<include name="**/*.java" />
+			
+		</javac>
+	</target>
+	
+    <target name="create_run_jar" depends="compile">
+    	<antcall target="extract_eclipse_jar_in_jar" />
+    	
         <jar destfile="${destination.directory}/DataLinkUtility.jar">
             <manifest>
                 <attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
@@ -13,8 +29,8 @@
                 <attribute name="Class-Path" value="."/>
                 <attribute name="Rsrc-Class-Path" value="./"/>
             </manifest>
-            <zipfileset src="${basedir}/../build.wes2bridge.utility/lib/jar-in-jar-loader.zip"/>
-            <fileset dir="${baseline.directory}/com.raytheon.wes2bridge.datalink/${bin.dir}"/>
+        	<zipfileset src="${baseline.dir}/${project.name}/lib/jar-in-jar-loader.zip"/>
+            <fileset dir="${baseline.dir}/${project.name}/bin"/>
         </jar>
     </target>
 </project>

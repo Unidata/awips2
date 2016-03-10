@@ -24,11 +24,9 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.lang.ref.WeakReference;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -52,6 +50,7 @@ import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData.CoordinateType;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData.RefType;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceID;
+import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.localization.FileUpdatedMessage;
 import com.raytheon.uf.common.localization.FileUpdatedMessage.FileChangeType;
 import com.raytheon.uf.common.localization.ILocalizationFileObserver;
@@ -64,9 +63,9 @@ import com.raytheon.uf.common.localization.LocalizationUtil;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
-import com.raytheon.uf.common.python.concurrent.AbstractPythonScriptFactory;
 import com.raytheon.uf.common.python.concurrent.IPythonExecutor;
 import com.raytheon.uf.common.python.concurrent.IPythonJobListener;
+import com.raytheon.uf.common.python.concurrent.PythonInterpreterFactory;
 import com.raytheon.uf.common.python.concurrent.PythonJobCoordinator;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -87,7 +86,6 @@ import com.raytheon.viz.gfe.query.QueryScript;
 import com.raytheon.viz.gfe.query.QueryScriptExecutor;
 import com.raytheon.viz.gfe.query.QueryScriptFactory;
 import com.raytheon.viz.gfe.query.QueryScriptRecurseExecutor;
-import com.raytheon.viz.gfe.ui.AccessMgr;
 import com.vividsolutions.jts.geom.Envelope;
 
 /**
@@ -114,7 +112,10 @@ import com.vividsolutions.jts.geom.Envelope;
  * Aug 13, 2015       4749  njensen     Shut down coordinator on dispose()
  * Aug 26, 2015       4807  randerso    Change refDataCache so it will release unused edit areas
  *                                      Clean up deprecations and old style logging.
- * Aug 27, 2015       4947  njensen     Fixed removeReferenceSetIDChangedListener()                                     
+ * Aug 27, 2015       4947  njensen     Fixed removeReferenceSetIDChangedListener()
+ * Nov 18, 2015       5129  dgilling    Use new IFPClient for get/save/delete 
+ *                                      of reference data.
+ * Dec 14, 2015       4816  dgilling    Support refactored PythonJobCoordinator API.
  * 
  * </pre>
  * 
@@ -123,13 +124,18 @@ import com.vividsolutions.jts.geom.Envelope;
  */
 public class ReferenceSetManager implements IReferenceSetManager,
         IMessageClient, ISpatialEditorTimeChangedListener {
+
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ReferenceSetManager.class);
 
-    private static final String EDIT_AREAS_DIR = FileUtil.join("gfe",
+    private static final String QUERY_THREAD_POOL_NAME = "gfequeryscript";
+
+    private static final int NUM_QUERY_THREADS = 1;
+
+    public static final String EDIT_AREAS_DIR = FileUtil.join("gfe",
             "editAreas");
 
-    private static final String EDIT_AREA_GROUPS_DIR = FileUtil.join("gfe",
+    public static final String EDIT_AREA_GROUPS_DIR = FileUtil.join("gfe",
             "editAreaGroups");
 
     /**
@@ -235,21 +241,20 @@ public class ReferenceSetManager implements IReferenceSetManager,
      */
     private void getInventory() {
         // load the complete list of edit areas
-        List<ReferenceID> refIDs = new ArrayList<ReferenceID>();
-        IPathManager pm = PathManagerFactory.getPathManager();
-        LocalizationFile[] contents = pm.listStaticFiles(
-                LocalizationType.COMMON_STATIC, EDIT_AREAS_DIR,
-                new String[] { ".xml" }, false, true);
-        if (contents != null) {
-            for (LocalizationFile lf : contents) {
-                String s = LocalizationUtil.extractName(lf.getName());
-                String area = s.replace(".xml", "");
-                refIDs.add(new ReferenceID(area, false, lf.getContext()
-                        .getLocalizationLevel()));
-            }
+        List<ReferenceID> refIDs;
+        ServerResponse<List<ReferenceID>> sr = dataManager.getClient()
+                .getReferenceInventory();
+        if (sr.isOkay()) {
+            refIDs = sr.getPayload();
+        } else {
+            refIDs = Collections.emptyList();
+            statusHandler.error(String.format(
+                    "Unable to update inventory from IFPServer: %s",
+                    sr.message()));
         }
 
         // load the edit area group lists
+        IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationFile[] groupFiles = pm.listStaticFiles(
                 LocalizationType.COMMON_STATIC, EDIT_AREA_GROUPS_DIR,
                 new String[] { ".txt" }, false, true);
@@ -280,8 +285,8 @@ public class ReferenceSetManager implements IReferenceSetManager,
      * @param lf
      */
     private void loadGroup(LocalizationFile lf) {
-        String groupName = Paths.get(lf.getName()).getFileName().toString()
-                .replace(".txt", "");
+        String groupName = LocalizationUtil.extractName(lf.getPath()).replace(
+                ".txt", "");
         GroupID group = new GroupID(groupName, lf.isProtected(), lf
                 .getContext().getLocalizationLevel());
         if (group.equals("Misc")) {
@@ -542,9 +547,10 @@ public class ReferenceSetManager implements IReferenceSetManager,
     @SuppressWarnings("unchecked")
     public ReferenceSetManager(DataManager dataManager) {
         // ready the PythonJobCoordinator
-        AbstractPythonScriptFactory<QueryScript> factory = new QueryScriptFactory(
+        PythonInterpreterFactory<QueryScript> factory = new QueryScriptFactory(
                 dataManager);
-        coordinator = PythonJobCoordinator.newInstance(factory);
+        coordinator = new PythonJobCoordinator<>(NUM_QUERY_THREADS,
+                QUERY_THREAD_POOL_NAME, factory);
 
         // MessageClient("ReferenceSetMgr", msgHandler);
         this.dataManager = dataManager;
@@ -747,31 +753,18 @@ public class ReferenceSetManager implements IReferenceSetManager,
             }
         }
 
-        String filePath = FileUtil.join(EDIT_AREAS_DIR, refSetID.getName()
-                + ".xml");
-        LocalizationFile lf = PathManagerFactory.getPathManager()
-                .getStaticLocalizationFile(LocalizationType.COMMON_STATIC,
-                        filePath);
-
-        if (lf != null) {
-            try (InputStream in = lf.openInputStream()) {
-                refData = (ReferenceData) ReferenceData.getJAXBManager()
-                        .unmarshalFromInputStream(in);
-            } catch (Exception e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error reading xml file " + lf.toString(), e);
-            }
+        // get it from ifpServer
+        ServerResponse<ReferenceData> sr = dataManager.getClient()
+                .getReferenceData(refSetID);
+        if (sr.isOkay()) {
+            refData = sr.getPayload();
         } else {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Unable to find reference data " + refSetID);
+            statusHandler.error(String.format(
+                    "Failure to get reference data [%s] from IFPServer: %s",
+                    refSetID.getName(), sr.message()));
         }
 
         if (refData != null) {
-            refData.setId(new ReferenceID(refSetID.getName(), false, lf
-                    .getContext().getLocalizationLevel()));
-            refData.setGloc(dataManager.getParmManager()
-                    .compositeGridLocation());
-
             // Convert to AWIPS, and then produce a grid
             if (!refData.isQuery()) {
                 refData.getGrid();
@@ -849,22 +842,12 @@ public class ReferenceSetManager implements IReferenceSetManager,
             refData.setPolygons(null, CoordinateType.LATLON);
         }
 
-        IPathManager pm = PathManagerFactory.getPathManager();
-
-        LocalizationContext ctx = pm.getContext(LocalizationType.COMMON_STATIC,
-                LocalizationLevel.USER);
-        LocalizationFile lf = pm.getLocalizationFile(
-                ctx,
-                FileUtil.join(EDIT_AREAS_DIR, refData.getId().getName()
-                        + ".xml"));
-
-        // save locally and then to server
-        try (SaveableOutputStream out = lf.openOutputStream()) {
-            ReferenceData.getJAXBManager().marshalToStream(refData, out);
-            out.save();
-        } catch (Exception e) {
-            statusHandler.error("Error saving reference set "
-                    + refData.getId().getName() + " to " + lf.toString(), e);
+        ServerResponse<?> sr = dataManager.getClient().saveReferenceData(
+                Arrays.asList(refData));
+        if (!sr.isOkay()) {
+            statusHandler.error(String.format(
+                    "UNable to save ReferenceData: %s with IFPServer: %s",
+                    refData.getId().getName(), sr.message()));
             return false;
         }
 
@@ -883,29 +866,17 @@ public class ReferenceSetManager implements IReferenceSetManager,
      * com.raytheon.edex.plugin.gfe.reference.ReferenceID)
      */
     @Override
-    public boolean deleteRefSet(final ReferenceID refID,
-            boolean withVerification) {
-        IPathManager pm = PathManagerFactory.getPathManager();
-
-        LocalizationContext ctx = pm.getContext(LocalizationType.COMMON_STATIC,
-                LocalizationLevel.USER);
-        LocalizationFile lf = pm.getLocalizationFile(ctx,
-                FileUtil.join(EDIT_AREAS_DIR, refID.getName() + ".xml"));
-
-        if ((lf != null)
-                && (!withVerification || AccessMgr.verifyDelete(lf.getName(),
-                        LocalizationType.COMMON_STATIC, false))) {
-            try {
-                lf.delete();
-                return true;
-            } catch (LocalizationException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Unable to delete edit area " + refID.getName()
-                                + " from server.", e);
-            }
+    public boolean deleteRefSet(final ReferenceID refID) {
+        ServerResponse<?> sr = dataManager.getClient().deleteReferenceData(
+                Arrays.asList(refID));
+        if (!sr.isOkay()) {
+            statusHandler.error(String.format(
+                    "Unable to delete ReferenceData: %s with IFPServer: %s",
+                    refID.getName(), sr.message()));
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     /*
@@ -1682,7 +1653,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
         IPythonExecutor<QueryScript, ReferenceData> executor = new QueryScriptExecutor(
                 "evaluate", argMap);
         try {
-            coordinator.submitAsyncJob(executor, listener);
+            coordinator.submitJobWithCallback(executor, listener);
         } catch (Exception e) {
             statusHandler.handle(Priority.ERROR,
                     "Unable to submit job to ExecutorService", e);
@@ -1705,7 +1676,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
         IPythonExecutor<QueryScript, ReferenceData> executor = new QueryScriptExecutor(
                 "evaluate", argMap);
         try {
-            ea = coordinator.submitSyncJob(executor);
+            ea = coordinator.submitJob(executor).get();
         } catch (Exception e) {
             statusHandler.handle(Priority.ERROR, "Failed to evaluate query: "
                     + query, e);
@@ -1723,7 +1694,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
                 argMap);
         int result = 0;
         try {
-            result = coordinator.submitSyncJob(executor);
+            result = coordinator.submitJob(executor).get();
         } catch (Exception e) {
             statusHandler.handle(Priority.ERROR,
                     "Unable to submit job to ExecutorService", e);
@@ -1822,5 +1793,10 @@ public class ReferenceSetManager implements IReferenceSetManager,
             }
         };
         evaluateActiveRefSet(listener);
+    }
+
+    @Override
+    public PythonJobCoordinator<QueryScript> getPythonThreadPool() {
+        return coordinator;
     }
 }

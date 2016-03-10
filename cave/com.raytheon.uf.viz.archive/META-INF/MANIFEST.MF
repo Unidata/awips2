@@ -2,11 +2,11 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Archive
 Bundle-SymbolicName: com.raytheon.uf.viz.archive;singleton:=true
-Bundle-Version: 1.14.0.qualifier
+Bundle-Version: 1.15.0.qualifier
 Bundle-Vendor: RAYTHEON
 Require-Bundle: org.eclipse.ui;bundle-version="3.8.2",
  org.eclipse.core.runtime,
- org.apache.commons.lang;bundle-version="2.3.0",
+ org.apache.commons.lang3;bundle-version="3.4.0",
  org.apache.commons.io;bundle-version="2.4.0",
  com.raytheon.viz.ui;bundle-version="1.12.1174",
  com.raytheon.uf.common.serialization;bundle-version="1.12.1174",

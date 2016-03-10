@@ -25,8 +25,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.plugin.shef.data.precip.PrecipRecord;
 import com.raytheon.uf.common.dataplugin.shef.tables.Dailypp;
@@ -48,15 +48,16 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * ------------   ---------- ----------- --------------------------
  * 9/22           #1553      mnash       Initial implementation of GagePP
  * 6/1/09         #2432      jsanchez    Updated value magnitude for hourlypp/pc.
- * 26 Nov 2012    #15554     lbousaidi	 used obstime instead of system time in isNear12Z
- * 										 routine.
+ * 26 Nov 2012    #15554     lbousaidi   used obstime instead of system time in isNear12Z
+ *                                       routine.
  * 4 Dec  2012    #15569     lbousaidi   fixed daily pp value when token is set to USE_REVCODE
  * 02 Feb 2012    #15845     lbousaidi   added check for data that comes in as -999
  * 07 May 2013    #15880     lbousaidi   changed pPE parameter because it was inserting to the
  *                                       wrong hour field.
- * 15 Sep 2014    #17129     lbousaidi   add a fix for the top of hour issue for hourlypp.                                     
+ * 15 Sep 2014    #17129     lbousaidi   add a fix for the top of hour issue for hourlypp.
  * 18 Sep 2014    #3627      mapeters    Updated deprecated {@link TimeTools} usage.
  * 15 Jun 2015    #15039     lbousaidi   add a fix to be able to post data to hour24.
+ * 16 Dec 2015    #5166      kbisanz     Update logging to use SLF4J
  * </pre>
  * 
  * @author mnash
@@ -72,7 +73,7 @@ public class GagePP {
     private static final int GPP_SKIP_RECORD = 4;
 
     private static final int GPP_BADRECORD = 3;
-    
+
     private static final int DEFAULT_WINDOW_HOURS = 3;
 
     public static final int MINIMUM_GPP_SLEEP_DURATION = 10;
@@ -97,7 +98,7 @@ public class GagePP {
 
     private static final float MISSING_PRECIP = -9999;
 
-    private static Log logger = LogFactory.getLog(GagePP.class);
+    private static Logger logger = LoggerFactory.getLogger(GagePP.class);
 
     private GagePPWrite gagePPWrite = null;
 
@@ -106,7 +107,7 @@ public class GagePP {
     private short pHourSlot;
 
     private short p6HourSlot;
-    
+
     public GagePP() {
     }
 
@@ -132,7 +133,6 @@ public class GagePP {
         String msgstr = "";
         String cur_key = "";
 
-
         Dailypp dailyPP = new Dailypp();
 
         Hourlypp hourlyPP = new Hourlypp();
@@ -152,9 +152,9 @@ public class GagePP {
         Date btime = new Date();
 
         int status = GPP_OK;
-        
+
         logger.info("Processing records at " + btime);
-        
+
         Calendar dt = TimeUtil.newGmtCalendar();
         dt.setTimeInMillis(rec.getObsTime().getTime());
 
@@ -219,16 +219,16 @@ public class GagePP {
             /*
              * Determine which 6 hour slot to place the data value in.
              */
-            
-            short [] sHour = new short [] { p6HourSlot, };
+
+            short[] sHour = new short[] { p6HourSlot };
             status = gage_pp_6hour_slot(pOptions, dt, obstime_ytd, sHour,
                     offset_code);
-            
-            if(!dt.getTime().equals(rec.getObsTime())) {
+
+            if (!dt.getTime().equals(rec.getObsTime())) {
                 rec.setObsTime(dt.getTime());
                 dp = TimeUtil.newCalendar(dt);
             }
-            
+
             p6HourSlot = sHour[0];
             break;
 
@@ -317,12 +317,13 @@ public class GagePP {
                             + MISSING_PRECIP);
                     value = MISSING_PRECIP;
                 }
-                /* This was added for KRF site that was getting missing values -999
-                 * 
+                /*
+                 * This was added for KRF site that was getting missing values
+                 * -999
                  */
-                
-                if (value ==-99900.0) {
-                     value = MISSING_PRECIP;
+
+                if (value == -99900.0) {
+                    value = MISSING_PRECIP;
                 }
 
                 /*
@@ -331,7 +332,7 @@ public class GagePP {
                  */
                 rec.setValue(Math.round((value)));
             }
-            
+
             if ((Float) (rec.getValue()) != null && rec.getLocationId() != null) {
                 prev_dur = rec.getShefDuration().getValue();
                 status = GPP_OK;
@@ -354,8 +355,8 @@ public class GagePP {
                                 .getLocationId(),
                                 rec.getTypeSource().getCode(), rec.getValue(),
                                 obstime_ytd, '0', 'M');
-                        initialize_hourlypp(hourlyPP, rev_6hour_code,
-                                msgstr, rec, rec.getObsTime());
+                        initialize_hourlypp(hourlyPP, rev_6hour_code, msgstr,
+                                rec, rec.getObsTime());
                         obstime_prev = obstime_ytd;
                         break;
 
@@ -402,18 +403,20 @@ public class GagePP {
                                     .getQualCode()));
                             hourlyPP.setMinuteOffset(String
                                     .valueOf(offset_code[0]));
-                            
+
                             rev_code = (short) ((rec.revision) ? 1 : 0);
                             break;
                         case 6:
                             precip_val = (short) rec.getValue();
-                            PrecipUtils.set_6hour_slot_value(hourlyPP, p6HourSlot,
-                                    precip_val);
+                            PrecipUtils.set_6hour_slot_value(hourlyPP,
+                                    p6HourSlot, precip_val);
                             hourlyPP.setSixhrqc(String.valueOf(rec
                                     .getQualCode()));
-                            hourlyPP.setSixhroffset(String.valueOf(offset_code[0]));
-                            
-                            rev_6hour_code[p6HourSlot] = (short)((rec.revision) ? 1 : 0);
+                            hourlyPP.setSixhroffset(String
+                                    .valueOf(offset_code[0]));
+
+                            rev_6hour_code[p6HourSlot] = (short) ((rec.revision) ? 1
+                                    : 0);
                             break;
                         case 24:
                             dailyPP.setValue(Double.valueOf(rec.getValue()));
@@ -424,13 +427,13 @@ public class GagePP {
                         default:
                             break;
                         }
-                                                
+
                     } else {
-                    	if (rec.getDataDuration() == 24) {
-                    	  dailyPP.setValue(Double.valueOf(rec.getValue()));
-                          dailyPP.setQc(String.valueOf(rec.getQualCode()));
-                          rev_24hour_code = rec.revision;
-                    	}
+                        if (rec.getDataDuration() == 24) {
+                            dailyPP.setValue(Double.valueOf(rec.getValue()));
+                            dailyPP.setQc(String.valueOf(rec.getQualCode()));
+                            rev_24hour_code = rec.revision;
+                        }
                     }
                     /*
                      * Increment the count of total values. This should always
@@ -455,7 +458,6 @@ public class GagePP {
                     + " " + rec.getTypeSource().getCode() + " "
                     + rec.getObsTime() + ": Record skipped");
         }
-
 
         return status;
     }
@@ -494,17 +496,18 @@ public class GagePP {
         case 1001:
         case 1006:
             status = GPP_OK;
-//            PrecipUtils.set_6hour_slot_value(pHourlyPP, pHourSlot,
-//                    rec.getValue());
+            // PrecipUtils.set_6hour_slot_value(pHourlyPP, pHourSlot,
+            // rec.getValue());
             try {
-                Short oneHourlyVal = PrecipUtils.get_hour_slot_value(pHourlyPP, pHourSlot);
-                Short sixHourlyVal = PrecipUtils.get_6hour_slot_value(pHourlyPP, p6HourSlot);
-                
-                gagePPWrite
-                        .gage_pp_write_rec(pHourlyPP, rec.getPhysicalElement()
-                                .getCode(), rec.getObsTime(), pOptions,
-                                rev_code, rev_6hour_code, oneHourlyVal,
-                                sixHourlyVal, rec.getQualCode(), rec.getQualifier());
+                Short oneHourlyVal = PrecipUtils.get_hour_slot_value(pHourlyPP,
+                        pHourSlot);
+                Short sixHourlyVal = PrecipUtils.get_6hour_slot_value(
+                        pHourlyPP, p6HourSlot);
+
+                gagePPWrite.gage_pp_write_rec(pHourlyPP, rec
+                        .getPhysicalElement().getCode(), rec.getObsTime(),
+                        pOptions, rev_code, rev_6hour_code, oneHourlyVal,
+                        sixHourlyVal, rec.getQualCode(), rec.getQualifier());
             } catch (Exception e) {
                 logger.error("Unable to write to the database : " + e);
                 status = GPP_ERROR;
@@ -528,7 +531,8 @@ public class GagePP {
         case 5004:
 
             status = GagePPWrite.gage_pp_write_daily_rec(pDailyPP, pOptions,
-                    rec.getObsTime(), rev_24hour_code, rec.getQualCode(), rec.getQualifier());
+                    rec.getObsTime(), rev_24hour_code, rec.getQualCode(),
+                    rec.getQualifier());
             if (status == GPP_OK) {
                 msgstr = String.format("   %s %s %d %s %s: %s; ",
                         rec.getLocationId(), "PP", duration,
@@ -565,22 +569,22 @@ public class GagePP {
         int hour = dt.get(Calendar.HOUR_OF_DAY);
 
         int minute = dt.get(Calendar.MINUTE);
-        
+
         if (rec.getPhysicalElement().getCode().charAt(1) == 'C'
-                          && minute >= MINUTES_PER_HOUR - pOptions.getIntpc()
-                    || (rec.getPhysicalElement().getCode().charAt(1) == 'P'         
-                          &&  minute >= MINUTES_PER_HOUR - pOptions.getIntlppp())) {
+                && minute >= MINUTES_PER_HOUR - pOptions.getIntpc()
+                || (rec.getPhysicalElement().getCode().charAt(1) == 'P' && minute >= MINUTES_PER_HOUR
+                        - pOptions.getIntlppp())) {
             hour++;
             dt.add(Calendar.HOUR_OF_DAY, 1);
             rec.setObsTime(dt.getTime());
         }
-        
+
         if (hour == 24 || hour == 0) {
             // hour = 24;
             dt.add(Calendar.DAY_OF_YEAR, -1);
             rec.setObsTime(dt.getTime());
         }
-        
+
         pOffsetCode = PrecipUtils.get_offset_code(minute);
         pHourSlot = (short) hour;
     }
@@ -600,19 +604,18 @@ public class GagePP {
             short rev = (short) ((pPrecipRecord.revision) ? 1 : 0);
 
             offset_code[0] = pOffsetCode;
-            
+
             char qc = 'M';
             if (pHourlyPP.getHourlyQc() == null) {
                 pHourlyPP.setHourlyQc("------------------------");
             }
             useValue = PrecipUtils.use_precip_value(pPrecipRecord.getValue(),
                     precip_val, qc, pHourlyPP.getHourlyQc().charAt(hour - 1),
-                    '-', pOffsetCode, pOptions.getShef_duplicate()
-                            .name(), rev);
+                    '-', pOffsetCode, pOptions.getShef_duplicate().name(), rev);
         }
         return useValue;
     }
-    
+
     private void initialize_hourlypp(Hourlypp pHourlyPP,
             short rev_6hour_code[], String msgstr,
             final PrecipRecord pPrecipRecord, Date obstime_ytd) {
@@ -639,7 +642,8 @@ public class GagePP {
      * @return
      */
     private static boolean isNear12Z(final Date yearsec_ansi) {
-        int ppp_ppd_window = appsDefaults.getInt("ppp_ppd_local_7am_window", DEFAULT_WINDOW_HOURS);
+        int ppp_ppd_window = appsDefaults.getInt("ppp_ppd_local_7am_window",
+                DEFAULT_WINDOW_HOURS);
         ppp_ppd_window *= SECONDS_PER_HOUR * 1000L;
 
         // Observation time as a calendar
@@ -662,8 +666,8 @@ public class GagePP {
         lower_bound.setTimeInMillis(pStructTm.getTimeInMillis()
                 - ppp_ppd_window);
 
-        return ((timeTObs.getTimeInMillis() >= lower_bound.getTimeInMillis())
-                && timeTObs.getTimeInMillis() <= upper_bound.getTimeInMillis());
+        return ((timeTObs.getTimeInMillis() >= lower_bound.getTimeInMillis()) && timeTObs
+                .getTimeInMillis() <= upper_bound.getTimeInMillis());
     }
 
     /**
@@ -671,11 +675,11 @@ public class GagePP {
      */
     private static int gage_pp_6hour_slot(final GagePPOptions pOptions,
             final Calendar ansi_obstime_year_sec, String ansi_date_year_day,
-            short [] p6HourSlot, char[] p6HourOffsetCode) {
+            short[] p6HourSlot, char[] p6HourOffsetCode) {
 
         float ppq_window = pOptions.getIntppq();
         ppq_window *= SECONDS_PER_HOUR;
-        
+
         int bottom_6_hour_period;
         int diff1;
         int diff2;
@@ -684,8 +688,8 @@ public class GagePP {
         int num_periods;
         int remainder;
         int top_6_hour_period;
-//        Calendar num_seconds_since_00z = Calendar
-//                .getInstance(SHEFTimezone.GMT_TIMEZONE);
+        // Calendar num_seconds_since_00z = Calendar
+        // .getInstance(SHEFTimezone.GMT_TIMEZONE);
 
         int num_seconds_since_00z = (hour * SECONDS_PER_HOUR)
                 + (minute * SECONDS_PER_MINUTE);
@@ -753,9 +757,9 @@ public class GagePP {
          * Using the number of NUM_MINUTES_PER_6HOUR_OFFSET periods, get the
          * offset code.
          */
-        
+
         p6HourSlot[0]--;
-        
+
         p6HourOffsetCode[0] = PrecipUtils.get_offset_code(num_periods);
         return GPP_OK;
     }
@@ -783,16 +787,14 @@ public class GagePP {
         return temp;
     }
 
-    
-    
-    public static final void main(String [] args) {
-        
+    public static final void main(String[] args) {
+
         GagePPOptions pOptions = new GagePPOptions();
         pOptions.setIntlppp(2);
         pOptions.setIntpc(10);
         pOptions.setIntppq(2);
         pOptions.setIntuppp(2);
-        
+
         Calendar obstime = Calendar.getInstance(TimeZone.getTimeZone("Zulu"));
         obstime.set(Calendar.YEAR, 2011);
         obstime.set(Calendar.MONTH, 4);
@@ -801,18 +803,18 @@ public class GagePP {
         obstime.set(Calendar.MINUTE, 0);
         obstime.set(Calendar.SECOND, 0);
         obstime.set(Calendar.MILLISECOND, 0);
-        
-        
+
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         sdf.setTimeZone(SHEFTimezone.GMT_TIMEZONE);
 
         String time = sdf.format(obstime.getTime());
-        
-        short [] p6HourSlot = { 0 };
+
+        short[] p6HourSlot = { 0 };
         char[] p6HourOffsetCode = { ' ' };
 
-        gage_pp_6hour_slot(pOptions, obstime, time, p6HourSlot, p6HourOffsetCode);
-        
+        gage_pp_6hour_slot(pOptions, obstime, time, p6HourSlot,
+                p6HourOffsetCode);
+
         System.out.println(p6HourSlot[0]);
         System.out.println(p6HourOffsetCode[0]);
     }

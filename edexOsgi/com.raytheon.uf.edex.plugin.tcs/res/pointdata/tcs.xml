@@ -23,7 +23,6 @@
 -->
 <pointDataDescription>
   <parameter name="wmoHeader" numDims="1" type="STRING" />
-  <parameter name="productType" numDims="1" type="STRING" />
   <parameter name="name" numDims="1" type="STRING" />
   <parameter name="pressure" numDims="1" type="INT" unit="mbar"/>
   <parameter name="size" numDims="1" type="INT" />
@@ -35,7 +34,7 @@
   <parameter name="isTropical" numDims="2" type="INT"/>
 
   <!-- 
-  	each radius will be stored as such: xxNE xxSE xxSW xxNW
+      each radius will be stored as such: xxNE xxSE xxSW xxNW
   -->
   <parameter name="radius64KT" numDims="2" type="INT" unit="mi" />
   <parameter name="radius50KT" numDims="2" type="INT" unit="mi" />

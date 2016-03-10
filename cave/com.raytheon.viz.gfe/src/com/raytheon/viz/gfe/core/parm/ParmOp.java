@@ -21,6 +21,7 @@ package com.raytheon.viz.gfe.core.parm;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -46,7 +47,9 @@ import com.raytheon.uf.common.dataplugin.gfe.server.lock.LockTable.LockMode;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.dataplugin.gfe.server.request.CommitGridRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.request.LockRequest;
+import com.raytheon.uf.common.dataplugin.gfe.server.request.LockTableRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.request.SendISCRequest;
+import com.raytheon.uf.common.gfe.ifpclient.IFPClient;
 import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.PerformanceStatus;
@@ -65,7 +68,6 @@ import com.raytheon.viz.gfe.PythonPreferenceStore;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.IParmManager;
 import com.raytheon.viz.gfe.core.griddata.IGridData;
-import com.raytheon.viz.gfe.core.internal.IFPClient;
 import com.raytheon.viz.gfe.core.parm.Parm.InterpState;
 import com.raytheon.viz.gfe.core.parm.ParmState.InterpMode;
 import com.raytheon.viz.gfe.core.wxvalue.WxValue;
@@ -93,6 +95,7 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeProhibitedOpException;
  * 08/20/2014   #1664      randerso    Fixed invalid thread access
  * 09/15/2015   #4858      dgilling    Disable publish and ISC send when DRT
  *                                     mode is enabled.
+ * 11/18/2015   #5129      dgilling    Support new IFPClient.
  * 
  * </pre>
  * 
@@ -440,9 +443,9 @@ public class ParmOp {
      */
     public boolean breakLock(final ParmID parmId, final TimeRange... times) {
         // parm exists?
-        Parm p = this.dataManager.getParmManager().getParm(parmId);
+        Parm p = dataManager.getParmManager().getParm(parmId);
         if (p != null) {
-            p.breakLock(times);
+            return p.breakLock(times);
         }
 
         // parm not in existence
@@ -451,15 +454,16 @@ public class ParmOp {
             for (TimeRange tr : times) {
                 lreq.add(new LockRequest(parmId, tr, LockMode.BREAK_LOCK));
             }
-            try {
-                this.dataManager.getClient().requestLockChange(lreq);
-            } catch (GFEServerException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error attempting to break locks", e);
-                return false;
+
+            ServerResponse<List<LockTable>> sr = dataManager.getClient()
+                    .requestLockChange(lreq);
+            if (!sr.isOkay()) {
+                statusHandler.error(String.format(
+                        "Couldn't break locks for ParmID %s: %s", parmId,
+                        sr.message()));
             }
+            return sr.isOkay();
         }
-        return true;
     }
 
     /**
@@ -468,14 +472,24 @@ public class ParmOp {
      * @return the lock table
      * @throws GFEServerException
      */
-    public List<LockTable> mutableDbLockTable() throws GFEServerException {
-        if (!this.dataManager.getParmManager().getMutableDatabase().isValid()) {
-            return null;
+    public List<LockTable> mutableDbLockTable() {
+        DatabaseID mutableDb = dataManager.getParmManager()
+                .getMutableDatabase();
+        if (!mutableDb.isValid()) {
+            return Collections.emptyList();
         }
 
-        return this.dataManager.getClient().getLockTable(
-                this.dataManager.getParmManager().getMutableDatabase());
+        LockTableRequest ltr = new LockTableRequest(mutableDb);
+        ServerResponse<List<LockTable>> sr = dataManager.getClient()
+                .getLockTable(ltr);
+        if (!sr.isOkay()) {
+            statusHandler.error(String.format(
+                    "Couldn't get lockTable for database %s: %s", mutableDb,
+                    sr.message()));
+            return Collections.emptyList();
+        }
 
+        return sr.getPayload();
     }
 
     /**
@@ -486,19 +500,18 @@ public class ParmOp {
      */
     public void publish(List<CommitGridRequest> req)
             throws SimulatedTimeProhibitedOpException {
-        CAVEMode mode = CAVEMode.getMode();
-
         if (!SimulatedTimeOperations.isTransmitAllowed()) {
             throw SimulatedTimeOperations
                     .constructProhibitedOpException("Publish GFE grids");
         }
 
+        CAVEMode mode = CAVEMode.getMode();
         if (mode.equals(CAVEMode.PRACTICE) || mode.equals(CAVEMode.TEST)) {
             statusHandler.handle(Priority.EVENTA, "PUBLISH Simulated. ");
             return;
         }
 
-        if (req.size() == 0) {
+        if (req.isEmpty()) {
             statusHandler
                     .handle(Priority.EVENTA, "PUBLISH: Nothing to publish");
             return;
@@ -513,7 +526,7 @@ public class ParmOp {
 
         final ConcurrentLinkedQueue<ServerResponse<?>> okSrs = new ConcurrentLinkedQueue<ServerResponse<?>>();
         final AtomicBoolean allOk = new AtomicBoolean(true);
-        final IFPClient client = this.dataManager.getClient();
+        final IFPClient client = dataManager.getClient();
 
         // spawn separate jobs
         final CountDownLatch latch = new CountDownLatch(MAX_CONCURRENT_JOBS);
@@ -524,23 +537,15 @@ public class ParmOp {
                     try {
                         CommitGridRequest req = null;
                         while ((req = requests.poll()) != null) {
-                            try {
-                                ServerResponse<?> sr = client
-                                        .commitGrid(Arrays
-                                                .asList(new CommitGridRequest[] { req }));
-                                if (sr.isOkay()) {
-                                    okSrs.add(sr);
-                                } else {
-                                    allOk.set(false);
-                                    statusHandler.handle(Priority.PROBLEM,
-                                            "PUBLISH problem: Unable to publish grid "
-                                                    + sr.toString());
-                                }
-                            } catch (GFEServerException e) {
+                            ServerResponse<?> sr = client.commitGrid(req);
+                            if (sr.isOkay()) {
+                                okSrs.add(sr);
+                            } else {
                                 allOk.set(false);
-                                statusHandler.handle(Priority.PROBLEM,
-                                        "PUBLISH problem: Unable to publish grids. "
-                                                + e.getLocalizedMessage(), e);
+                                statusHandler
+                                        .error(String
+                                                .format("PUBLISH problem: Unable to publish grid: %s",
+                                                        sr.message()));
                             }
                         }
                     } finally {
@@ -1073,13 +1078,12 @@ public class ParmOp {
      */
     public void sendISC(List<SendISCRequest> req)
             throws SimulatedTimeProhibitedOpException {
-        CAVEMode mode = CAVEMode.getMode();
-
         if (!SimulatedTimeOperations.isTransmitAllowed()) {
             throw SimulatedTimeOperations
                     .constructProhibitedOpException("Send ISC grids");
         }
 
+        CAVEMode mode = CAVEMode.getMode();
         if (mode.equals(CAVEMode.PRACTICE) || mode.equals(CAVEMode.TEST)) {
             statusHandler.handle(Priority.EVENTA, "SEND ISC Simulated. ");
             return;
@@ -1119,53 +1123,41 @@ public class ParmOp {
                     .getStringArray("ISC_neverSendParms"));
 
             // filter out some of the requests that are not desired
-            for (int i = 0; i < req.size(); i++) {
+            for (SendISCRequest r : req) {
                 // check parm name
-                if (skipParms.contains(req.get(i).getParmId().getParmName())) {
+                if (skipParms.contains(r.getParmId().getParmName())) {
                     continue;
                 }
 
                 // adjust time limits
-                TimeRange tr = req.get(i).getTimeRange()
-                        .intersection(limitTime);
-                if (tr.equals(new TimeRange())) {
+                TimeRange tr = r.getTimeRange().intersection(limitTime);
+                if (!tr.isValid()) {
                     continue;
                 }
 
-                // now adjust for server's grid inventory and expand tr to
-                // include the entire grid
-                List<TimeRange> inv = new ArrayList<TimeRange>();
-                try {
-                    inv = dataManager.serverParmInventory(req.get(i)
-                            .getParmId());
-                } catch (GFEServerException e) {
-                    statusHandler.handle(
-                            Priority.PROBLEM,
-                            "Unable to get server parm inventory: "
-                                    + e.getLocalizedMessage(), e);
-                }
-                for (int j = 0; j < inv.size(); j++) {
-                    if (inv.get(j).overlaps(tr)) {
-                        tr = tr.combineWith(inv.get(j));
-                    } else if (inv.get(j).getStart().after(tr.getEnd())) { // efficienty
+                /*
+                 * now adjust for server's grid inventory and expand tr to
+                 * include the entire grid
+                 */
+                List<TimeRange> inv = dataManager.serverParmInventory(r
+                        .getParmId());
+                for (TimeRange invTR : inv) {
+                    if (invTR.overlaps(tr)) {
+                        tr = tr.combineWith(invTR);
+                    } else if (invTR.getStart().after(tr.getEnd())) {
                         continue;
                     }
                 }
 
-                requests.add(new SendISCRequest(req.get(i).getParmId(), tr));
+                requests.add(new SendISCRequest(r.getParmId(), tr));
             }
-
         }
-        ServerResponse<?> sr = null;
-        try {
-            sr = dataManager.getClient().sendISC(requests);
-            if (!sr.isOkay()) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "SEND ISC problem: Unable to send ISC grids. " + sr);
-            }
-        } catch (GFEServerException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "SEND ISC problem: Unable to send ISC grids. " + sr);
+
+        ServerResponse<?> sr = dataManager.getClient().sendISC(requests);
+        if (!sr.isOkay()) {
+            statusHandler.error(String.format(
+                    "SEND ISC problem: Unable to send ISC grids: %s",
+                    sr.message()));
         }
     }
 

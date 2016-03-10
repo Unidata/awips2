@@ -24,8 +24,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
@@ -57,10 +57,11 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 04/08/08     #875       bphillip    Initial Creation
- * 06/16/09                 njensen    Send notifications
+ * 06/16/09                njensen     Send notifications
  * 09/22/09     3058       rjpeter     Converted to IRequestHandler
- * 03/17/13     1773       njensen   Log performance
+ * 03/17/13     1773       njensen     Log performance
  * 06/13/13     2044       randerso    Refactored to use IFPServer
+ * 12/15/15     5166       kbisanz     Update logging to use SLF4J
  * </pre>
  * 
  * @author bphillip
@@ -68,7 +69,8 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  */
 public class CommitGridsHandler extends BaseGfeRequestHandler implements
         IRequestHandler<CommitGridsRequest> {
-    protected final transient Log logger = LogFactory.getLog(getClass());
+    protected final transient Logger logger = LoggerFactory
+            .getLogger(getClass());
 
     private final IPerformanceStatusHandler perfLog = PerformanceStatus
             .getHandler("GFE:");

@@ -38,6 +38,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.edex.core.EDEXUtil;
+import com.raytheon.uf.edex.core.EdexAsyncStartupBean;
 import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
@@ -76,6 +77,7 @@ import com.raytheon.uf.edex.site.notify.SendSiteActivationNotifications;
  * Dec 10, 2014  #4953    randerso     Added requestTCVFiles call at site activation
  * Feb 25, 2015  #4128    dgilling     Simplify activation of active table sharing.
  * Mar 11, 2015  #4128    dgilling     Refactor activation and management of ISC services.
+ * Dec 22, 2015  #4262    dgilling     Implement EdexAsyncStartupBean.
  * 
  * </pre>
  * 
@@ -83,7 +85,8 @@ import com.raytheon.uf.edex.site.notify.SendSiteActivationNotifications;
  * @version 1.0
  */
 
-public class GFESiteActivation implements ISiteActivationListener {
+public class GFESiteActivation implements ISiteActivationListener,
+        EdexAsyncStartupBean {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GFESiteActivation.class);
 
@@ -93,7 +96,7 @@ public class GFESiteActivation implements ISiteActivationListener {
 
     private static final int LOCK_TASK_TIMEOUT = 180000;
 
-    private boolean intialized;
+    private volatile boolean intialized;
 
     private final IscServiceProvider iscServices;
 
@@ -413,5 +416,10 @@ public class GFESiteActivation implements ISiteActivationListener {
             }
         }
         return retVal;
+    }
+
+    @Override
+    public boolean isDone() {
+        return intialized;
     }
 }

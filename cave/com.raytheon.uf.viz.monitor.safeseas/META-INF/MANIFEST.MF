@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Safeseas Plug-in
 Bundle-SymbolicName: com.raytheon.uf.viz.monitor.safeseas;singleton:=true
-Bundle-Version: 1.14.0.qualifier
+Bundle-Version: 1.15.0.qualifier
 Bundle-Vendor: RAYTHEON
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
@@ -20,7 +20,6 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.viz.monitor.fog;bundle-version="1.12.1174"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
-Import-Package: com.raytheon.viz.pointdata,
- org.apache.commons.lang
+Import-Package: com.raytheon.viz.pointdata
 Export-Package: com.raytheon.uf.viz.monitor.safeseas.resources
 Bundle-ClassPath: com.raytheon.uf.viz.monitor.safeseas.jar

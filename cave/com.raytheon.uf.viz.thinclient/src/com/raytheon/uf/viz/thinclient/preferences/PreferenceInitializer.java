@@ -38,6 +38,8 @@ import com.raytheon.uf.viz.thinclient.Activator;
  * ------------ ---------- ----------- --------------------------
  * Oct 21, 2011            mschenke    Initial creation
  * Oct 08, 2015  4891      njensen     Default data update interval to 5
+ * Feb 08, 2016  5281      tjensen     Replaced disableJms with dataRefreshMethod, 
+ *                                      combined Data and Menu Refresh Intervals
  * 
  * </pre>
  * 
@@ -61,8 +63,12 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
                 false);
         store.setDefault(ThinClientPreferenceConstants.P_CACHE_MAPS, true);
 
-        // By default keep jms enabled
-        store.setDefault(ThinClientPreferenceConstants.P_DISABLE_JMS, false);
+        /*
+         * By default, use automatic data push. If unavailable, timed poll
+         * method will be used.
+         */
+        store.setDefault(ThinClientPreferenceConstants.P_DATA_REFRESH_METHOD,
+                ThinClientPreferenceConstants.P_DATA_REFRESH_METHOD_PUSH);
 
         store.setDefault(
                 ThinClientPreferenceConstants.P_ENABLE_REQUEST_COMPRESSION,
@@ -71,9 +77,6 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
         // Menu times will be enabled by default
         store.setDefault(ThinClientPreferenceConstants.P_DISABLE_MENU_TIMES,
                 false);
-        // Default menu refresh interval
-        store.setDefault(
-                ThinClientPreferenceConstants.P_MENU_TIME_REFRESH_INTERVAL, 5);
 
         // Default data refresh rate
         store.setDefault(ThinClientPreferenceConstants.P_DATA_REFRESH_INTERVAL,

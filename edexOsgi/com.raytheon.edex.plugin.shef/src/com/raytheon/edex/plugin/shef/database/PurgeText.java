@@ -24,8 +24,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.plugin.shef.ShefSeparator;
 import com.raytheon.uf.common.dataplugin.shef.tables.Purgeproduct;
@@ -48,10 +48,11 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 8, 2010             jkorman     Initial creation
+ * Mar 08, 2010            jkorman     Initial creation
  * Dec 03, 2013 2051       rjpeter     Fixed storeTextProduct issue.
  * May 14, 2014 2536       bclement    moved WMO Header to common, removed unused int
  * Aug 05, 2015 4486       rjpeter     Changed Timestamp to Date.
+ * Dec 16, 2015 5166       kbisanz     Update logging to use SLF4J
  * </pre>
  * 
  * @author jkorman
@@ -60,7 +61,7 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
 
 public class PurgeText {
     /** The logger */
-    private final Log log = LogFactory.getLog(getClass());
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private boolean storeText = false;
 
@@ -130,9 +131,11 @@ public class PurgeText {
                 }
 
             } catch (Exception e) {
-                log.error(traceId + " - Error processing text data.  ");
+                String errorMsg = traceId + " - Error processing text data.  ";
                 if (log.isDebugEnabled()) {
-                    log.error(e);
+                    log.error(errorMsg, e);
+                } else {
+                    log.error(errorMsg);
                 }
             }
         }
@@ -185,9 +188,11 @@ public class PurgeText {
                 }
             }
         } catch (Exception e) {
-            log.error(traceId + " - Error processing text data.  ");
+            String errorMsg = traceId + " - Error processing text data.  ";
             if (log.isDebugEnabled()) {
-                log.error(e);
+                log.error(errorMsg, e);
+            } else {
+                log.error(errorMsg);
             }
         }
     }
@@ -266,9 +271,11 @@ public class PurgeText {
             dao.saveOrUpdate(t);
             success = true;
         } catch (Exception e) {
-            log.error("Error saving text ");
+            String errorMsg = "Error saving text ";
             if (log.isDebugEnabled()) {
-                log.error(e);
+                log.error(errorMsg, e);
+            } else {
+                log.error(errorMsg);
             }
         }
         return success;

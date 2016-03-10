@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Ldadmanual Plug-in
 Bundle-SymbolicName: com.raytheon.edex.plugin.ldadmanual
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.15.0.qualifier
 Bundle-Vendor: RAYTHEON
 Require-Bundle: com.raytheon.edex.common;bundle-version="1.11.13",
  com.raytheon.uf.common.pointdata,
@@ -11,6 +11,6 @@ Require-Bundle: com.raytheon.edex.common;bundle-version="1.11.13",
  org.geotools;bundle-version="2.5.2",
  com.raytheon.uf.common.localization;bundle-version="1.11.13",
  com.raytheon.edex.plugin.ldad;bundle-version="1.0.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: com.raytheon.edex.plugin.ldadmanual.dao
-Import-Package: org.apache.commons.logging
+Import-Package: org.slf4j

@@ -19,8 +19,8 @@
  **/
 package com.raytheon.uf.edex.plugin.fssobs.common;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.urifilter.URIGenerateMessage;
 import com.raytheon.uf.common.dataplugin.PluginException;
@@ -47,6 +47,7 @@ import com.raytheon.uf.edex.plugin.fssobs.FSSObsUtils;
  * Sep 04, 2014 3220       skorolev    Removed cwa and monitorUse from data set.
  * Sep 18, 2015 3873       skorolev    Removed identical constant definitions.
  * Dec 02, 2015 3873       dhladky     Logging change.
+ * Dec 14, 2015 5166       kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -69,11 +70,10 @@ public class FSSObsConfig {
     private FSSObsRecord tableRow;
 
     /** The logger */
-    protected transient final Log logger = LogFactory.getLog(getClass());
+    protected transient final Logger logger = LoggerFactory
+            .getLogger(getClass());
 
-    public FSSObsConfig(URIGenerateMessage genMessage, FSSObsGenerator generator)
-            throws Exception {
-
+    public FSSObsConfig(URIGenerateMessage genMessage, FSSObsGenerator generator) {
         this.fssgen = generator;
     }
 
@@ -82,13 +82,13 @@ public class FSSObsConfig {
      * 
      * @param uri
      * @return tableRow
+     * @throws Exception
      */
-    public FSSObsRecord getTableRow(String uri) {
+    public FSSObsRecord getTableRow(String uri) throws Exception {
         String dt = uri.substring(1)
                 .substring(0, uri.substring(1).indexOf("/"));
 
         try {
-            
             if (dt.equals("obs")) {
                 tableRow = FSSObsUtils.getRecordFromMetar(uri);
             } else if (dt.equals("sfcobs")) {
@@ -96,10 +96,14 @@ public class FSSObsConfig {
             } else if (dt.equals("ldadmesonet")) {
                 tableRow = FSSObsUtils.getRecordFromMesowest(uri);
             }
-
         } catch (PluginException e) {
             statusHandler.handle(Priority.PROBLEM, "Could not create type: "
                     + dt + " URI: " + uri, e);
+        }
+
+        if (tableRow == null) {
+            throw new Exception("Couldn't make FSSObsRecord from type "
+                    + dt + " and URI: " + uri);
         }
 
         if (tableRow.getRelativeHumidity() == ObConst.MISSING) {

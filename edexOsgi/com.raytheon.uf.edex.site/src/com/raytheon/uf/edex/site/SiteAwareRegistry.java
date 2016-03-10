@@ -28,6 +28,9 @@ import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -44,8 +47,8 @@ import com.raytheon.uf.common.util.registry.RegistryException;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
-import com.raytheon.uf.edex.database.cluster.ClusterTask;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils.LockState;
+import com.raytheon.uf.edex.database.cluster.ClusterTask;
 import com.raytheon.uf.edex.site.SiteActivationMessage.Action;
 
 /**
@@ -68,6 +71,7 @@ import com.raytheon.uf.edex.site.SiteActivationMessage.Action;
  * Jul 10, 2014  2914      garmendariz Remove EnvProperties
  * Nov 9, 2015   14734     yteng       Remove activeSites and add lock to synchronize access
  *                                     to activeSites.txt to eliminate race conditions
+ * Dec 21, 2015  4262      dgilling    Execute startup ISiteActivationListeners asynchronously.
  * 
  * </pre>
  * 
@@ -82,7 +86,10 @@ public class SiteAwareRegistry {
 
     private static SiteAwareRegistry instance = new SiteAwareRegistry();
 
-    private Set<ISiteActivationListener> activationListeners = new CopyOnWriteArraySet<ISiteActivationListener>();
+    private final ExecutorService activationThreadPool = Executors
+            .newCachedThreadPool();
+
+    private final Set<ISiteActivationListener> activationListeners = new CopyOnWriteArraySet<ISiteActivationListener>();
 
     private String routeId;
 
@@ -105,23 +112,53 @@ public class SiteAwareRegistry {
      * @param sa
      *            the listener to register / add to the list
      */
-    public Object register(ISiteActivationListener sa) throws RegistryException {
+    public Object register(final ISiteActivationListener sa)
+            throws RegistryException {
         if (!activationListeners.add(sa)) {
             throw new RegistryException(
                     "SiteAwareRegistry Exception - duplicate site "
                             + sa.toString());
         }
+
+        Set<String> activeSites = getActiveSitesFromFile(true);
+        final CountDownLatch activationComplete = new CountDownLatch(
+                activeSites.size());
+
         // inform of the current active sites
-        for (String siteID : getActiveSitesFromFile(true)) {
-            try {
-                sa.activateSite(siteID);
-            } catch (Exception e) {
-                // Stack trace is not printed per requirement for DR14360
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage());
-            }
+        for (final String siteID : activeSites) {
+            Runnable activateSiteTask = new Runnable() {
+
+                @Override
+                public void run() {
+                    try {
+                        sa.activateSite(siteID);
+                    } catch (Exception e) {
+                        // Stack trace is not printed per requirement for
+                        // DR14360
+                        statusHandler.error(e.getLocalizedMessage());
+                    } finally {
+                        activationComplete.countDown();
+                    }
+                }
+            };
+            activationThreadPool.submit(activateSiteTask);
         }
 
-        sa.registered();
+        Runnable siteActivationCompleteTask = new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    activationComplete.await();
+                } catch (InterruptedException e) {
+                    statusHandler.error(e.getLocalizedMessage());
+                } finally {
+                    sa.registered();
+                }
+            }
+        };
+        activationThreadPool.submit(siteActivationCompleteTask);
+
         return this;
     }
 
@@ -280,7 +317,6 @@ public class SiteAwareRegistry {
      * load the active site list
      */
     private Set<String> getActiveSitesFromFile(boolean useFileLock) {
-        // add cluster locking
         ClusterTask ct = null;
         if (useFileLock) {
             do {
@@ -321,8 +357,8 @@ public class SiteAwareRegistry {
             }
 
             if (useFileLock) {
-                ClusterLockUtils.deleteLock(ct.getId().getName(), ct
-                        .getId().getDetails());
+                ClusterLockUtils.deleteLock(ct.getId().getName(), ct.getId()
+                        .getDetails());
             }
         }
 
@@ -368,31 +404,34 @@ public class SiteAwareRegistry {
     }
 
     /**
-     *  update the active site list
-     *
+     * update the active site list
+     * 
      * @param action
      * @param siteID
      */
     private synchronized void updateActiveSites(Action action, String siteID) {
         ClusterTask ct = null;
         do {
-            ct = ClusterLockUtils.lock("siteActivation", "readwrite",
-                    120000, true);
+            ct = ClusterLockUtils.lock("siteActivation", "readwrite", 120000,
+                    true);
         } while (!LockState.SUCCESSFUL.equals(ct.getLockState()));
 
         Set<String> activeSites = getActiveSitesFromFile(false);
         if (Action.ACTIVATE.equals(action)) {
-            if (activeSites.add(siteID))
+            if (activeSites.add(siteID)) {
                 saveActiveSites(activeSites);
+            }
         } else if (Action.DEACTIVATE.equals(action)) {
-            if (activeSites.remove(siteID))
+            if (activeSites.remove(siteID)) {
                 saveActiveSites(activeSites);
+            }
         } else {
-            statusHandler.handle(Priority.PROBLEM, "Error updating active sites");
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error updating active sites");
         }
 
-        ClusterLockUtils.deleteLock(ct.getId().getName(), ct
-                .getId().getDetails());
+        ClusterLockUtils.deleteLock(ct.getId().getName(), ct.getId()
+                .getDetails());
     }
 }
 

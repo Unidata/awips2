@@ -105,6 +105,8 @@
    
    <permission id="com.raytheon.localization.site/common_static/HazardServices"/>
 
+   <permission id="com.raytheon.localization.site/common_static/warngen"/>
+
    <!-- TODO Localization permissions should be able to be plugin contributed.
         Improve code in the generically [poorly] named FileManager to support
         that concept and then split them. -->

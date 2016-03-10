@@ -17,6 +17,14 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
+#----------------------------------------------------------------------------
+#
+#     SOFTWARE HISTORY
+#
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    ??              ??            ??             Initial creation
+#    02/10/2016      5283          nabowle        Remove NGM support.
 #---------------------------------------------------------------------
 #
 #  B O I V E R I F Y   C O N F I G U R A T I O N
@@ -95,7 +103,7 @@ SAVE_MODELS=["GFS40","GFS40BC","ADJMAV","ADJMAVBC","ADJMEX","ADJMEXBC",
             "MOSGuide","MOSGuideBC",
             "NAM12","NAM12BC","ADJMET","ADJMETBC",
             "DGEX","DGEXBC","ADJDGX","ADJDGXBC",
-            "NGM80","NGM80BC","ADJFWC","ADJFWCBC",
+            "ADJFWC","ADJFWCBC",
             "ADJKAF","ADJKAFBC",
             "SREF","SREFBC",
             "Official","ISC",

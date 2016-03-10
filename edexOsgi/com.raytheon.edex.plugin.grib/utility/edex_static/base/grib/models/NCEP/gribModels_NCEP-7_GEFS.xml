@@ -13,47 +13,13 @@
 		<name>GEFS</name>
 		<center>7</center>
 		<subcenter>2</subcenter>
-		<grid>2</grid>
-		<process>
-			<id>107</id>
-		</process>
-	</model>
-
-	<model>
-		<name>GEFS</name>
-		<center>7</center>
-		<subcenter>2</subcenter>
-		<grid>3</grid>
-		<process>
-			<id>107</id>
-		</process>
-	</model>
-
-	<model>
-		<name>GEFS</name>
-		<center>7</center>
-		<subcenter>2</subcenter>
-		<grid>361181001</grid>
-		<process>
-			<id>107</id>
-		</process>
-	</model>
-
-	<model>
-		<name>GEFS</name>
-		<center>7</center>
-		<subcenter>2</subcenter>
-		<grid>372</grid>
-		<process>
-			<id>107</id>
-		</process>
-	</model>
-
-	<model>
-		<name>GEFS</name>
-		<center>7</center>
-		<subcenter>2</subcenter>
-		<grid>375</grid>
+		<grids>
+            <id>2</id>
+            <id>3</id>
+            <id>361181001</id>
+            <id>372</id>
+            <id>375</id>
+        </grids>
 		<process>
 			<id>107</id>
 		</process>

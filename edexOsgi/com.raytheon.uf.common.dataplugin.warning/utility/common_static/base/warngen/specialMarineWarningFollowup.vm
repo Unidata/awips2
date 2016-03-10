@@ -429,7 +429,7 @@ ${area.name}...
 #######################################################################
 ## Logic to create the Wind/Hail Tags used by CR.
 #######################################################################
-#set($windhailTag = "WIND...HAIL ${windTag}KTS ${hailTag}IN")
+#set($windhailTag = "WIND...HAIL ${windTag}kts ${hailTag}in")
 #######################################################################
 ## Logic to put together the threats based on Wind...Hail and Waterspout sections.
 #######################################################################

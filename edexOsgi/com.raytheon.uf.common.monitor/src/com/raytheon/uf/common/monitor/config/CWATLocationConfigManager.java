@@ -26,13 +26,12 @@ import java.util.ArrayList;
 
 import org.opengis.referencing.crs.ProjectedCRS;
 
-import com.raytheon.uf.common.localization.FileUpdatedMessage;
-import com.raytheon.uf.common.localization.ILocalizationFileObserver;
+import com.raytheon.uf.common.localization.ILocalizationFile;
+import com.raytheon.uf.common.localization.ILocalizationPathObserver;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
@@ -59,6 +58,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Oct 02, 2013 2361       njensen     Use JAXBManager for XML
  * Oct 08, 2015 4912       rferrel     Update configXml when configuration file changes
  *                                      and removed deprecated code.
+ * Jan 12, 2016 5244       njensen     Replaced calls to deprecated LocalizationFile methods                                     
  * 
  * </pre>
  * 
@@ -66,6 +66,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @version 1.0
  */
 public class CWATLocationConfigManager {
+
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(CWATLocationConfigManager.class);
 
@@ -108,10 +109,9 @@ public class CWATLocationConfigManager {
     /**
      * Observer to force updating the configXml.
      */
-    private ILocalizationFileObserver configXmlObserver = new ILocalizationFileObserver() {
-
+    private ILocalizationPathObserver configXmlObserver = new ILocalizationPathObserver() {
         @Override
-        public void fileUpdated(FileUpdatedMessage message) {
+        public void fileChanged(ILocalizationFile file) {
             readConfigXml();
         }
     };
@@ -122,14 +122,11 @@ public class CWATLocationConfigManager {
     private CWATLocationConfigManager() {
         configXml = new CWATLocationsXML();
         IPathManager pm = PathManagerFactory.getPathManager();
-        LocalizationContext lc = pm.getContext(LocalizationType.COMMON_STATIC,
-                LocalizationLevel.SITE);
         /*
          * No need to remove the observer since the instance of this class
          * remains until the JRE is shutdown.
          */
-        pm.getLocalizationFile(lc, CWAT_DIR).addFileUpdatedObserver(
-                configXmlObserver);
+        pm.addLocalizationPathObserver(CWAT_DIR, configXmlObserver);
     }
 
     /**
@@ -145,7 +142,7 @@ public class CWATLocationConfigManager {
         return instance;
     }
 
-    private LocalizationFile getConfigFile() {
+    private ILocalizationFile getConfigFile() {
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext lc = pm.getContext(LocalizationType.COMMON_STATIC,
                 LocalizationLevel.SITE);
@@ -169,21 +166,21 @@ public class CWATLocationConfigManager {
      * Read the XML configuration data for the current XML file name.
      */
     public void readConfigXml() {
-        LocalizationFile lFile = getConfigFile();
+        ILocalizationFile lFile = getConfigFile();
         try {
             if (lFile.exists()) {
                 statusHandler.info("Reading CWAT configuration file: "
-                        + lFile.getName());
+                        + lFile.getPath());
                 try (InputStream stream = lFile.openInputStream()) {
                     // This closes the stream
-                    CWATLocationsXML configXmltmp = (CWATLocationsXML) jaxb
+                    CWATLocationsXML configXmltmp = jaxb
                             .unmarshalFromInputStream(stream);
                     configXml = configXmltmp;
                 }
             } else {
                 statusHandler.handle(Priority.WARN,
                         "No CWAT locations file found. Generating the file: "
-                                + lFile.getName());
+                                + lFile.getPath());
                 // create a new one
                 ArrayList<ThreatLocation> locations = ScanUtils.getCWASites(
                         getSiteCoor(), getCRS());
@@ -195,7 +192,7 @@ public class CWATLocationConfigManager {
 
         } catch (Exception e) {
             statusHandler.handle(Priority.WARN,
-                    "Unable to load location file: " + lFile.getName(), e);
+                    "Unable to load location file: " + lFile.getPath(), e);
         }
     }
 
@@ -204,15 +201,15 @@ public class CWATLocationConfigManager {
      */
     public void saveConfigXml() {
         // Save the xml object to disk
-        LocalizationFile lFile = getConfigFile();
+        ILocalizationFile lFile = getConfigFile();
         statusHandler
-                .info("Saving CWAT configuration file: " + lFile.getName());
+                .info("Saving CWAT configuration file: " + lFile.getPath());
         try (SaveableOutputStream stream = lFile.openOutputStream()) {
             jaxb.marshalToStream(configXml, stream);
             stream.save();
-        } catch (LocalizationException | SerializationException | IOException e1) {
+        } catch (LocalizationException | SerializationException | IOException e) {
             statusHandler.handle(Priority.PROBLEM,
-                    "Unable to save localized file: " + lFile.getName(), e1);
+                    "Unable to save localized file: " + lFile.getPath(), e);
         }
     }
 

@@ -29,8 +29,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 import com.raytheon.uf.edex.decodertools.core.LatLonPoint;
@@ -46,6 +46,7 @@ import com.raytheon.uf.edex.decodertools.core.LatLonPoint;
  * Apr 16, 2009            jkorman     Initial creation
  * Oct 22, 2013 2361       njensen     Use JAXBManager for XML
  * Aug 18, 2014 3530       bclement    moved from common to edex
+ * Dec 10, 2015 5166       kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -57,7 +58,7 @@ import com.raytheon.uf.edex.decodertools.core.LatLonPoint;
 @XmlAccessorType(XmlAccessType.NONE)
 public class Airports {
 
-    private final Log logger = LogFactory.getLog(getClass());
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     // Average earth radius, fine for what we are doing.
     private static final double E_RADIUS = 6371.2213;
@@ -170,7 +171,7 @@ public class Airports {
      * @return
      */
     public static Airports loadFromFile(String filePath, String fileName,
-            Log logger) {
+            Logger logger) {
 
         Airports airports = null;
 

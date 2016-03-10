@@ -34,9 +34,9 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
@@ -59,9 +59,10 @@ import com.raytheon.viz.ui.dialogs.colordialog.IColorBarAction;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 13, 2010            mschenke     Initial creation
+ * Sep 13, 2010            mschenke    Initial creation
  * Oct 16, 2012 1229       rferrel     Updated to use bringToTop to
  *                                      activate existing dialog.
+ * Jan 15, 2015 5054       randerso    Remove unnecessary new Shell
  * 
  * </pre>
  * 
@@ -110,8 +111,10 @@ public class ImageBlinkDialog extends CaveSWTDialog implements
             D2DMapRenderableDisplay[] displays) {
         ImageBlinkDialog dlg = dialogMap.get(resource);
         if (dlg == null || dlg.getShell() == null || dlg.isDisposed()) {
-            dlg = new ImageBlinkDialog(new Shell(Display.getCurrent()), rates,
-                    currRate, resource, rscProps, displays);
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
+            dlg = new ImageBlinkDialog(shell, rates, currRate, resource,
+                    rscProps, displays);
             dialogMap.put(resource, dlg);
             dlg.open();
         } else {

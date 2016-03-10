@@ -75,6 +75,7 @@
 #    10/30/2015          #17940    jendrowski     Responded to Code Review.  Mostly syntactical changes.
 #    11/05/2015          #18182    ryu            Change D2DDBVERSIONS value for HPCERP to 24 
 #    12/22/2015          #14152    jwatson        Added Sky, Wind to GFSLAMPGrid parms
+#    02/09/2016          #5283     nabowle        Remove NGM support.
 ####################################################################################################
 
 #----------------------------------------------------------------------------
@@ -2046,8 +2047,6 @@ NAM12       = ('NAM12',        GRID,   '', NO,  NO,  2, 0)
 NAM40       = ('NAM40',        GRID,   '', NO,  NO,  2, 0)
 NAM80       = ('NAM80',        GRID,   '', NO,  NO,  2, 0)
 NAM95       = ('NAM95',        GRID,   '', NO,  NO,  2, 0)
-NGM80       = ('NGM80',        GRID,   '', NO,  NO,  2, 0)
-NGM95       = ('NGM95',        GRID,   '', NO,  NO,  2, 0)
 GFS40       = ('GFS40',        GRID,   '', NO,  NO,  2, 0)
 GFS80       = ('GFS80',        GRID,   '', NO,  NO,  2, 0)
 GFS190      = ('GFS190',       GRID,   '', NO,  NO,  2, 0)
@@ -2122,7 +2121,6 @@ if SID in groups['ALASKA_SITES']:
                  ('mesoEta217', 'NAM20'),
                  ('AVN203', 'GFS190'),
                  ('MRF203', 'gfsLR'),
-                 ('NGM207', 'NGM95'),
                  ('ETA207', 'NAM95'),
                  'GWW233',
                  ('ETA242', 'NAM12'),
@@ -2197,7 +2195,6 @@ elif SID == "SJU":
     D2DMODELS = [('AVN211', 'GFS80'),
                  ('GFS212', 'GFS40'),
                  ('ETA', 'NAM80'),
-                 ('NGM', 'NGM80'),
                  ('MRF205', 'gfsLR'),
                  ('OPCWave180', 'OPCTAFBE'),
                  'HurWind226',
@@ -2250,7 +2247,6 @@ elif SID in groups['CONUS_EAST_SITES']:
                  ('ETA', 'NAM80'),
                  'HRRR',
                  'HWRF',
-                 ('NGM', 'NGM80'),
                  ('MRF', 'gfsLR'),
                  ('RUC130', 'RUC13'),
                  ('RUC', 'RUC80'),
@@ -2325,6 +2321,7 @@ elif SID in groups['CONUS_EAST_SITES']:
                  'PGBlended-Night',
                  ('NCOM-USEAST', 'NCOMUSEAST'),
                  ('NCOM-AMSEAS', 'NCOMAMSEAS'),
+                 'PWPF',
                ]
 
 else:   #######DCS3501 WEST_CONUS
@@ -2332,7 +2329,6 @@ else:   #######DCS3501 WEST_CONUS
     D2DMODELS = [('GFS212', 'GFS40'),
                  ('AVN211', 'GFS80'),
                  ('ETA', 'NAM80'),
-                 ('NGM', 'NGM80'),
                  ('MRF', 'gfsLR'),
                  ('RUC130', 'RUC13'),
                  ('RUC', 'RUC80'),
@@ -2411,6 +2407,7 @@ else:   #######DCS3501 WEST_CONUS
                  ('NCOM-SOCAL', 'NCOMSOCAL'),
                  ('NCOM-AMSEAS', 'NCOMAMSEAS'),
                  ('NCOM-ALASKA', 'NCOMALASKA'),
+                 'PWPF',
                ]
 
 if SID in groups['GreatLake_SITES']:
@@ -2543,7 +2540,6 @@ elif SID in groups['ALASKA_SITES']:
 #        "AKwave10" : ['AKwave10'],
 #        "GlobalWave" : ["GlobalWave"],
 #        "NAM95" : ["NAM95"],
-#        "NGM95" : ["NGM95"],
 #        "gfsLR" : ["gfsLR"],
         "NAM12" : ["NAM12"],
         "GFS80" : ["GFS80"],
@@ -2599,7 +2595,6 @@ elif SID == "SJU":
         "RUC13" : ["RUC13"],
         "RUC80" : ["RUC80"],
 #        "gfsLR" : ["gfsLR"],
-#        "NGM80" : ["NGM80"],
         "NAM12" : ["NAM12"],
         "GFS80" : ["GFS80"],
         "GFS40" : ["GFS40"],
@@ -2707,8 +2702,6 @@ D2DAccumulativeElements= {
     "NAM40": ["tp", "cp"],
     "NAM20": ["tp", "cp"],
     "NAM12": ["tp", "cp", "crain", "csnow", "cfrzr", "cicep"],
-    "NGM80": ["tp", "cp"],
-    "NGM95": ["tp", "cp"],
     "gfsLR": ["tp", "cp"],
     "RUC13": ["tp", "cp"],
     "RUC80": ["tp", "cp"],
@@ -3025,8 +3018,6 @@ DATABASES = [
              (NAM95, STD6_MODEL),
              (RUC13, STD1_MODEL),
              (RUC80, STD1_MODEL),
-             (NGM80, STD6_MODEL),
-             (NGM95, STD6_MODEL),
              (GFS40, STD6_MODEL),
              (GFS80, STD6_MODEL),
              (GFS75, STD6_MODEL),

@@ -3,33 +3,27 @@
 
 # Build Variables:
 # -----------------------------------------------------------------------------
-VAR_AWIPSII_TOP_DIR="/home/bkowal/rpmbuild"
-VAR_WORKSPACE="/common/bkowal/git/thunder/baseline"
 VAR_AWIPSII_BUILD_ROOT="/tmp/awips-component"
 VAR_AWIPSII_VERSION=""
 VAR_AWIPSII_RELEASE=""
 VAR_UFRAME_ECLIPSE="/opt/uframe-eclipse"
-VAR_AWIPSCM_SHARE="/awipscm"
 VAR_REPO_DEST="/tmp/repo"
 # -----------------------------------------------------------------------------
 
-if [ "${AWIPSII_TOP_DIR}" = "" ] &&
-   [ "${VAR_AWIPSII_TOP_DIR}" = "" ]; then
+if [ "${AWIPSII_TOP_DIR}" = "" ]; then
    echo "ERROR: You Must Set the AWIPSII_TOP_DIR Environment Variable."
+   echo "Unable to Continue ... Terminating."
+   exit 1
+fi
+
+if [ "${WORKSPACE}" = "" ]; then
+   echo "ERROR: You Must Set the WORKSPACE Environment Variable."
    echo "Unable to Continue ... Terminating."
    exit 1
 fi
 
 function prepareBuildEnvironment()
 {
-   if [ "${AWIPSII_TOP_DIR}" = "" ]; then
-      export AWIPSII_TOP_DIR="${VAR_AWIPSII_TOP_DIR}"
-   fi
-
-   if [ "${WORKSPACE}" = "" ]; then
-      export WORKSPACE="${VAR_WORKSPACE}"
-   fi
-
    if [ "${AWIPSII_BUILD_ROOT}" = "" ]; then
       export AWIPSII_BUILD_ROOT="${VAR_AWIPSII_BUILD_ROOT}"
    fi
@@ -54,70 +48,27 @@ function prepareBuildEnvironment()
       export UFRAME_ECLIPSE="${VAR_UFRAME_ECLIPSE}"
    fi
 
-   if [ "${AWIPSCM_SHARE}" = "" ]; then
-      export AWIPSCM_SHARE="${VAR_AWIPSCM_SHARE}"
-   fi
-
    if [ "${REPO_DEST}" = "" ]; then
       export REPO_DEST="${VAR_REPO_DEST}"
    fi
 }
 
-function setTargetArchitecture()
-{
-   # Set the target build architecture for the rpms based on the CAVE build
-   # architecture.
-   export TARGET_BUILD_ARCH="${CAVE_BUILD_ARCH}"
-   export CAVE_BUILD_BITS="64"
-   if [ "${CAVE_BUILD_ARCH}" = "x86" ]; then
-      export TARGET_BUILD_ARCH="i386"
-      export CAVE_BUILD_BITS=""
-   fi
-}
+# Build CAVE as 64 bit only.
+architecture=`uname -i`
+if [ ! "${architecture}" = "x86_64" ]; then
+   echo "ERROR: This build can only be performed on a 64-bit Operating System."
+   echo "Unable to Continue ... Terminating."
+   exit 1
+fi
 
-# Arguments
-#   ${1} == The Directory With The Specs File And Possibly Other Custom
-#               Scripts That May Need To Be Merged Into A Component.
-#   ${2} == The name of the CAVE RPM that will be built.
-function buildCAVERPM()
-{
-   local COMPONENT_DIR=${1}
-   local COMPONENT_SPECS=${COMPONENT_DIR}/component.spec
-   export RPM_NAME=${2}
-
-   if [ -d ${BUILDROOT_DIR} ]; then
-      rm -rf ${BUILDROOT_DIR}
-   fi
-
-   # Build The RPM.
-   rpmbuild -ba --target=${TARGET_BUILD_ARCH} \
-      --define '_topdir %(echo ${AWIPSII_TOP_DIR})' \
-      --define '_component_version %(echo ${AWIPSII_VERSION})' \
-      --define '_component_release %(echo ${AWIPSII_RELEASE})' \
-      --define '_baseline_workspace %(echo ${WORKSPACE})' \
-      --define '_build_arch %(echo ${CAVE_BUILD_ARCH})' \
-      --define '_build_bits %(echo ${CAVE_BUILD_BITS})' \
-      --define '_component_name %(echo ${RPM_NAME})' \
-      --define '_uframe_eclipse %(echo ${UFRAME_ECLIPSE})' \
-      --buildroot ${AWIPSII_BUILD_ROOT} ${COMPONENT_SPECS}
-   # If We Are Unable To Build An RPM, Fail The Build:
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-}
-
-export TARGET_BUILD_ARCH=
-# If the architecture has not been specified, default to 32-bit.
-if [ "${CAVE_BUILD_ARCH}" = "" ]; then
-   export CAVE_BUILD_ARCH="x86"
-   echo "The Build Architecture was not specified ... defaulting to x86."
-else
-   echo "Building for architecture ... ${CAVE_BUILD_ARCH}."
+source ${WORKSPACE}/rpms/build/x86_64/rpms.sh
+if [ $? -ne 0 ]; then
+   echo "ERROR: Unable to source the RPM functions."
+   exit 1
 fi
 
 # Prepare
 prepareBuildEnvironment
-setTargetArchitecture
 
 if [ ! -d ${WORKSPACE}/rpms/awips2.cave/setup/dist ]; then
    mkdir -p ${WORKSPACE}/rpms/awips2.cave/setup/dist
@@ -278,8 +229,8 @@ popd > /dev/null
 cp ${pde_build_dir}/I.CAVE/CAVE-linux.gtk.x86_64.zip ${WORKSPACE}/rpms/awips2.cave/setup/dist/
 
 cd ${WORKSPACE}/rpms/awips2.cave
-buildCAVERPM "Installer.cave" "awips2-cave"
-buildCAVERPM "Installer.cave-wrapper" ""
+buildRPMExec "Installer.cave" "awips2-cave"
+buildRPMExec "Installer.cave-wrapper" ""
 
 rm -rf ${pde_build_dir}
 mkdir -p ${pde_build_dir}
@@ -343,4 +294,4 @@ popd > /dev/null
 cp ${pde_build_dir}/I.CAVE/CAVE-linux.gtk.x86_64.zip ${WORKSPACE}/rpms/awips2.cave/setup/dist/
 
 cd ${WORKSPACE}/rpms/awips2.cave
-buildCAVERPM "Installer.cave" "awips2-cave-ncep"
+buildRPMExec "Installer.cave" "awips2-cave-ncep"

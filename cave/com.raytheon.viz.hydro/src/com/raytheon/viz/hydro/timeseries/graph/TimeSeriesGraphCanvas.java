@@ -70,6 +70,7 @@ import com.raytheon.viz.hydrocommon.HydroConstants;
  * 06 Nov  2012 15399      wkwock      Fix refine the plot algorithm and sampling algorithm
  * May 06, 2013 1976       mpduff      Code cleanup
  * 05Sep2013    #2332      lvenable    Fixed memory leaks.
+ * Nov 18, 2015 5073       skorolev    Fixed y2pixel.
  * </pre>
  * 
  * @author mpduff
@@ -624,8 +625,11 @@ public class TimeSeriesGraphCanvas extends Canvas {
         }
         double yDiff = gd.getYmax() - gd.getYmin();
         double yValue = (graphAreaHeight / yDiff) * (y - gd.getYmin());
-
-        return (int) (graphAreaHeight - Math.round(yValue));
+        if (yValue < 0) {
+            return graphAreaHeight;
+        } else {
+            return (int) (graphAreaHeight - Math.round(yValue));
+        }
     }
 
     /**

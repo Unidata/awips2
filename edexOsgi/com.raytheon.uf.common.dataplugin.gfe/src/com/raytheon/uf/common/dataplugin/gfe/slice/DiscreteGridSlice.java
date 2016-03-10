@@ -62,6 +62,7 @@ import com.raytheon.uf.common.time.TimeRange;
  * 10/29/2013   2476       njensen     Updated getNumpy() and added getKeyList()
  * 10/31/2013   2508       randerso    Added getKeys(), deprecated getKey()
  * Apr 23, 2015 4259       njensen     Updated for new JEP API
+ * Feb 24, 2106 5411       randerso    Fixed null pointer in equals()
  * 
  * </pre>
  * 
@@ -232,6 +233,8 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
             if (rhsGrid == null) {
                 return true;
             }
+            return false;
+        } else if (rhsGrid == null) {
             return false;
         }
 

@@ -12,7 +12,7 @@ URL: N/A
 License: N/A
 Distribution: N/A
 Vendor: Raytheon
-Packager: Bryan Kowal
+Packager: %{_build_site}
 
 AutoReq: no
 provides: awips2-data.hdf5-topo
@@ -38,47 +38,15 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-# Copies the standard Raytheon licenses into a license directory for the
-# current component.
-function copyLegal()
-{
-   # $1 == Component Build Root
-   
-   COMPONENT_BUILD_DIR=${1}
-   
-   mkdir -p ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
-   
-   # Create a Tar file with our FOSS licenses.
-   tar -cjf %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar \
-      %{_baseline_workspace}/rpms/legal/FOSS_licenses/
-   
-   cp "%{_baseline_workspace}/rpms/legal/Master_Rights_File.pdf" \
-      ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
-   cp %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar \
-      ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
-      
-   rm -f %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar    
-}
-
-# Determine which version of the topo we should use.
-RPM_COMMON_DIR="%{_baseline_workspace}/rpms/common/static.versions"
-
-if [ ! -f ${RPM_COMMON_DIR}/LATEST.topo ]; then
-   file ${RPM_COMMON_DIR}/LATEST.topo
-   exit 1
-fi
-VERSION_DIR=`cat ${RPM_COMMON_DIR}/LATEST.topo`
-TOPO_SRC_DIR="awips2-static/topo/${VERSION_DIR}"
-if [ ! -d %{_awipscm_share}/${TOPO_SRC_DIR} ]; then
-   file %{_awipscm_share}/${TOPO_SRC_DIR}
+TOPO_DIR="%{_static_files}/topo/"
+if [ ! -d ${TOPO_DIR} ]; then
+   echo "Directory ${TOPO_DIR} not found!"
    exit 1
 fi
 
 TOPO_TO_COPY=\
 (\
    'gtopo30.h5'\
-   'srtm30.h5'\
-   'srtm30_plus.h5'\
    'defaultTopo.h5' \
    'akTopo.dat.gz' \
    'caribTopo.dat.gz' \
@@ -93,14 +61,12 @@ TOPO_TO_COPY=\
 
 for topoFile in ${TOPO_TO_COPY[*]};
 do
-   cp -Pp %{_awipscm_share}/${TOPO_SRC_DIR}/${topoFile} \
+   cp -Pp ${TOPO_DIR}/${topoFile} \
       ${RPM_BUILD_ROOT}/awips2/edex/data/hdf5/topo
    if [ $? -ne 0 ]; then
       exit 1
    fi
 done
-
-copyLegal "awips2/edex/data/hdf5/topo"
 
 %pre
 %post

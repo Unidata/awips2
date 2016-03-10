@@ -23,8 +23,8 @@ import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.uf.common.dataplugin.bufrsigwx.SigWxData;
 import com.raytheon.uf.common.dataplugin.bufrsigwx.common.SigWxLayer;
@@ -54,6 +54,7 @@ import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
  * Sep 16, 2014 3628       mapeters    Replaced static imports.
+ * Dec 14, 2015 5166       kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -62,7 +63,8 @@ import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
  */
 public abstract class SigWxDataAdapter extends BUFRPointDataAdapter<SigWxData> {
 
-    private static Log logger = LogFactory.getLog(SigWxDataAdapter.class);
+    private static Logger logger = LoggerFactory
+            .getLogger(SigWxDataAdapter.class);
 
     private static final int YEAR_POS = 0;
 

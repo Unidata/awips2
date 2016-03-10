@@ -67,9 +67,11 @@ import com.vividsolutions.jts.index.strtree.STRtree;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 20, 2009            mpduff     Initial creation
+ * Apr 20, 2009            mpduff      Initial creation
  * Sep 23, 2009 3069       mpduff      Changed the parent class to HydroPointResource.
  * Jan 22, 2013 15553      wkwock      Correct DamCrest selection algorithm
+ * Nov 05, 2015 5070       randerso    Adjust font sizes for dpi scaling
+ * 
  * </pre>
  * 
  * @author mpduff
@@ -122,7 +124,7 @@ public class DamLocationResource extends
                 return HydroImageMaker.getDamIcon();
             }
         });
-        fontSize = 10;
+        fontSize = 8;
         font = target.initializeFont("Dialog", fontSize, null);
         font.setSmoothing(false);
 
@@ -310,24 +312,26 @@ public class DamLocationResource extends
                 Coordinate coord = container.translateClick(x, y);
                 Envelope env = new Envelope(coord);
                 List<?> elements = damStrTree.query(env);
-                double curDist=Double.MAX_VALUE;
+                double curDist = Double.MAX_VALUE;
                 DamMaster foundDam = null;
                 if (elements.size() > 0) {
-                	//find the closest one
-                	for (Object obj : elements) {
+                    // find the closest one
+                    for (Object obj : elements) {
                         DamMaster dam = (DamMaster) obj;
-                        double distance=Math.pow((dam.getLatitudeDam()-coord.y),2) + Math.pow((dam.getLongitudeDam()-coord.x), 2);
-                        if (distance<curDist) {
-                        	curDist=distance;
-                        	foundDam=dam;
+                        double distance = Math.pow(
+                                (dam.getLatitudeDam() - coord.y), 2)
+                                + Math.pow((dam.getLongitudeDam() - coord.x), 2);
+                        if (distance < curDist) {
+                            curDist = distance;
+                            foundDam = dam;
                         }
-                	}
-                    
-                	try {
+                    }
+
+                    try {
                         AppLauncherHandler alh = new AppLauncherHandler();
                         alh.execute(DC_BUNDLE_LOC, foundDam.getNidid());
                     } catch (ExecutionException e) {
-                         e.printStackTrace();
+                        e.printStackTrace();
                     }
                 } else {
                     Shell shell = PlatformUI.getWorkbench()

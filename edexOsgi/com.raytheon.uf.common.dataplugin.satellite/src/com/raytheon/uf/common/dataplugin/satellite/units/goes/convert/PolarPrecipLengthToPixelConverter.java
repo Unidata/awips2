@@ -24,7 +24,7 @@ import javax.measure.converter.ConversionException;
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.SI;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * Converts meters of total precipitation of water to a pixel value
@@ -59,19 +59,17 @@ public class PolarPrecipLengthToPixelConverter extends UnitConverter {
         aLength = meterToMillimeter.convert(aLength);
 
         double result = 0.0;
-        
-        if (aLength < 1 ) {
+
+        if (aLength < 1) {
             result = 0.0;
         } else if (aLength <= 70) {
             result = aLength + 176;
-        }
-        else if (aLength <= 75) {
+        } else if (aLength <= 75) {
             result = (18900 - aLength) / 75;
-        }
-        else {
+        } else {
             result = 255;
         }
-        
+
         if (result < 0) {
             result = 0;
         } else if (result > 255) {

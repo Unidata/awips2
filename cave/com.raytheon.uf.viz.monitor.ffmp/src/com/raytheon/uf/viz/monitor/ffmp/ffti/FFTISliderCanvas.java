@@ -39,6 +39,22 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
+/**
+ * FFTI Slider Canvas
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Nov 05, 2015 #5070      randerso    Changed to use system font name (not AWT)
+ * 
+ * </pre>
+ * 
+ * @author randerso
+ * @version 1.0
+ */
 public class FFTISliderCanvas {
     private Composite parentComp;
 
@@ -160,7 +176,8 @@ public class FFTISliderCanvas {
         display = this.parentComp.getDisplay();
 
         this.attribVal = accumAttrib;
-        setValuesNoRedraw(attribVal.getMin(), attribVal.getMax(), attribVal.getInc(), attribVal.getRedThreshold(),
+        setValuesNoRedraw(attribVal.getMin(), attribVal.getMax(),
+                attribVal.getInc(), attribVal.getRedThreshold(),
                 attribVal.getYellowThreshold());
 
         init();
@@ -182,7 +199,7 @@ public class FFTISliderCanvas {
         upperLblRect = new Rectangle(0, 0, 0, 0);
         lowerLblRect = new Rectangle(0, 0, 0, 0);
 
-        labelFont = new Font(display, "Monospaced", 10, SWT.BOLD);
+        labelFont = new Font(display, "Monospace", 10, SWT.BOLD);
         mousePt = new Point(0, 0);
         upperRegion = new Region(display);
         lowerRegion = new Region(display);
@@ -201,6 +218,7 @@ public class FFTISliderCanvas {
 
         canvas.setLayoutData(gd);
         canvas.addPaintListener(new PaintListener() {
+            @Override
             public void paintControl(PaintEvent e) {
                 drawCanvas(e.gc);
             }
@@ -209,12 +227,14 @@ public class FFTISliderCanvas {
         canvas.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseDown(MouseEvent e) {
-                if (upperRegion.contains(e.x, e.y) == true || upperLblRect.contains(e.x, e.y) == true) {
+                if (upperRegion.contains(e.x, e.y) == true
+                        || upperLblRect.contains(e.x, e.y) == true) {
                     mousePt.x = e.x;
                     mousePt.y = e.y;
                     mouseDown = true;
                     moveUpper = true;
-                } else if (lowerRegion.contains(e.x, e.y) == true || lowerLblRect.contains(e.x, e.y) == true) {
+                } else if (lowerRegion.contains(e.x, e.y) == true
+                        || lowerLblRect.contains(e.x, e.y) == true) {
                     mousePt.x = e.x;
                     mousePt.y = e.y;
                     mouseDown = true;
@@ -259,10 +279,12 @@ public class FFTISliderCanvas {
         gc.fillRectangle(barXCoord, barYCoord, barWidth, barHeight);
 
         gc.setBackground(yellowColor);
-        gc.fillRectangle(lowerArrowXCoord, barYCoord, barWidth + 25 - lowerArrowXCoord, barHeight);
+        gc.fillRectangle(lowerArrowXCoord, barYCoord, barWidth + 25
+                - lowerArrowXCoord, barHeight);
 
         gc.setBackground(redColor);
-        gc.fillRectangle(upperArrowXCoord, barYCoord, barWidth + 25 - upperArrowXCoord, barHeight);
+        gc.fillRectangle(upperArrowXCoord, barYCoord, barWidth + 25
+                - upperArrowXCoord, barHeight);
 
         gc.setForeground(blackColor);
         gc.drawRectangle(barXCoord, barYCoord, barWidth, barHeight);
@@ -276,7 +298,8 @@ public class FFTISliderCanvas {
 
     private void updateUpperArrow(GC gc) {
         upperRegion.subtract(upperPtArray);
-        upperPtArray = new int[] { upperArrowXCoord, barBottomYCoord - barHeight - 3, upperArrowXCoord + 4,
+        upperPtArray = new int[] { upperArrowXCoord,
+                barBottomYCoord - barHeight - 3, upperArrowXCoord + 4,
                 barBottomYCoord, upperArrowXCoord - 4, barBottomYCoord };
         upperRegion.add(upperPtArray);
 
@@ -301,7 +324,8 @@ public class FFTISliderCanvas {
 
     private void updateLowerArrow(GC gc) {
         lowerRegion.subtract(lowerPtArray);
-        lowerPtArray = new int[] { lowerArrowXCoord, barBottomYCoord - barHeight - 3, lowerArrowXCoord + 4,
+        lowerPtArray = new int[] { lowerArrowXCoord,
+                barBottomYCoord - barHeight - 3, lowerArrowXCoord + 4,
                 barBottomYCoord, lowerArrowXCoord - 4, barBottomYCoord };
         lowerRegion.add(lowerPtArray);
 
@@ -314,7 +338,8 @@ public class FFTISliderCanvas {
     private void updateLowerLabel(GC gc) {
         gc.setForeground(yellowColor);
         lowerStr = calcDisplayString(lowerDisplayVal);
-        int lblXCoord = (int) (lowerArrowXCoord - ((double) textWidth * (double) lowerStr.length() / 2));
+        int lblXCoord = (int) (lowerArrowXCoord - ((double) textWidth
+                * (double) lowerStr.length() / 2));
         gc.drawString(lowerStr, lblXCoord, lowerLblYCoord, true);
         lowerLblRect.x = lblXCoord;
         lowerLblRect.y = lowerLblYCoord;
@@ -379,17 +404,18 @@ public class FFTISliderCanvas {
 
         double xCoordAsValue = (xCoord - barXCoord) * incPerPixel + minValue;
 
-        if (xCoordAsValue >= this.maxValue) //no rounding for max value
+        if (xCoordAsValue >= this.maxValue) {
             return this.maxValue;
+        }
 
         if (incValue == .25) {
             return (Math.round(xCoordAsValue * 4.00)) / 4.00;
         } else if (incValue == .05) {
-            return (double) (Math.round(xCoordAsValue * 20.0) / 20.0);
+            return Math.round(xCoordAsValue * 20.0) / 20.0;
         } else if (incValue == .10) {
             return (Math.round(xCoordAsValue * 10.00)) / 10.00;
         } else {
-            return (double) Math.round(xCoordAsValue);
+            return Math.round(xCoordAsValue);
         }
     }
 
@@ -402,12 +428,14 @@ public class FFTISliderCanvas {
     }
 
     private int calcValueToBarXCoord(double val) {
-        int result = (int) Math.round((val - minValue) / incPerPixel + barXCoord);
+        int result = (int) Math.round((val - minValue) / incPerPixel
+                + barXCoord);
 
         return result;
     }
 
-    private void setValuesNoRedraw(double min, double max, double inc, double startingUpperVal, double startingLowerVal) {
+    private void setValuesNoRedraw(double min, double max, double inc,
+            double startingUpperVal, double startingLowerVal) {
         if (max < min) {
             return;
         }
@@ -417,7 +445,7 @@ public class FFTISliderCanvas {
         this.rangeValue = max - min;
         this.incValue = inc;
 
-        incPerPixel = this.rangeValue / (double) barWidth;
+        incPerPixel = this.rangeValue / barWidth;
 
         if (inc < 1.00) {
             displayAtInt = false;
@@ -436,11 +464,12 @@ public class FFTISliderCanvas {
 
     public void setValues(FFTIAttribute attribVal) {
         this.attribVal = attribVal;
-        setValues(attribVal.getMin(), attribVal.getMax(), attribVal.getInc(), attribVal.getRedThreshold(),
-                attribVal.getYellowThreshold());
+        setValues(attribVal.getMin(), attribVal.getMax(), attribVal.getInc(),
+                attribVal.getRedThreshold(), attribVal.getYellowThreshold());
     }
 
-    public void setValues(double min, double max, double inc, double startingUpperVal, double startingLowerVal) {
+    public void setValues(double min, double max, double inc,
+            double startingUpperVal, double startingLowerVal) {
         setValuesNoRedraw(min, max, inc, startingUpperVal, startingLowerVal);
         canvas.redraw();
     }
@@ -456,12 +485,15 @@ public class FFTISliderCanvas {
             startingUpperVal = maxValue;
             startingLowerVal = maxValue;
 
-            setValues(this.minValue, this.maxValue, this.incValue, startingUpperVal, startingLowerVal);
+            setValues(this.minValue, this.maxValue, this.incValue,
+                    startingUpperVal, startingLowerVal);
         } else if (upperDisplayVal > maxValue) {
             startingUpperVal = maxValue;
-            setValues(this.minValue, this.maxValue, this.incValue, startingUpperVal, getLowerValue());
+            setValues(this.minValue, this.maxValue, this.incValue,
+                    startingUpperVal, getLowerValue());
         } else {
-            setValues(this.minValue, this.maxValue, this.incValue, getUpperValue(), getLowerValue());
+            setValues(this.minValue, this.maxValue, this.incValue,
+                    getUpperValue(), getLowerValue());
         }
     }
 

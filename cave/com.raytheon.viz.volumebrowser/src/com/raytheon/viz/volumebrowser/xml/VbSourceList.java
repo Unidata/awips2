@@ -61,6 +61,7 @@ import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
  * Jul 07, 2015  4641     mapeters    Fix/improve comparators for VbSource sorting.
  * Jul 10, 2015  4641     mapeters    Added check for sources with null key/category fields.
  * Oct 05, 2015  3861     bsteffen    Remove deprecated method call on LocalizationFile
+ * Feb 12, 2016  5242     dgilling    Remove calls to deprecated Localization APIs.
  * 
  * </pre>
  * 
@@ -217,8 +218,9 @@ public class VbSourceList {
                     return 1;
                 } else if (n2 > n1 && Character.isDigit(s2.charAt(n1))) {
                     return -1;
-                } else
+                } else {
                     return Integer.valueOf(number1) - Integer.valueOf(number2);
+                }
             }
             return n1 - n2;
         }
@@ -345,7 +347,7 @@ public class VbSourceList {
             LocalizationFile[] files = pm.listStaticFiles(
                     "volumebrowser/VbSources", null, false, true);
             for (LocalizationFile file : files) {
-                fileNames.add(file.getName());
+                fileNames.add(file.getPath());
             }
         } else {
             fileNames.add(VB_SOURCE_FILE);
@@ -369,7 +371,7 @@ public class VbSourceList {
                     } catch (IOException | LocalizationException e) {
                         statusHandler
                                 .handle(Priority.ERROR,
-                                        locFile.getName()
+                                        locFile.getPath()
                                                 + " was excluded from sources menu due to error reading file.");
                     }
                     if (sources != null) {

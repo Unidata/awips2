@@ -2,14 +2,13 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: regionalsat
 Bundle-SymbolicName: gov.noaa.nws.ost.edex.plugin.regionalsat
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.15.0.qualifier
 Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
 Bundle-Vendor: NWS
 Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
  org.geotools,
  javax.measure,
- org.apache.commons.lang,
  javax.persistence,
  com.raytheon.edex.plugin.satellite,
  ucar.nc2;bundle-version="1.0.0"

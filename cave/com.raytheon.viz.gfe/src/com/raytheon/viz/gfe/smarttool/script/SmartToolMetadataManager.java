@@ -58,6 +58,7 @@ import com.raytheon.viz.gfe.smartscript.FieldDefinition;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 20, 2015  #4263     dgilling     Initial creation
+ * Dec 14, 2015  #4816     dgilling     Support refactored PythonJobCoordinator API.
  * 
  * </pre>
  * 
@@ -69,6 +70,10 @@ public class SmartToolMetadataManager implements ILocalizationFileObserver {
 
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(getClass());
+
+    private static final String THREAD_POOL_NAME = "smart-tool-metadata";
+
+    private static final int NUM_POOL_THREADS = 1;
 
     private final PythonJobCoordinator<SmartToolMetadataController> jobCoordinator;
 
@@ -85,7 +90,8 @@ public class SmartToolMetadataManager implements ILocalizationFileObserver {
     public SmartToolMetadataManager(final DataManager dataMgr) {
         SmartToolMetadataScriptFactory scriptFactory = new SmartToolMetadataScriptFactory(
                 dataMgr);
-        this.jobCoordinator = PythonJobCoordinator.newInstance(scriptFactory);
+        this.jobCoordinator = new PythonJobCoordinator<>(NUM_POOL_THREADS,
+                THREAD_POOL_NAME, scriptFactory);
 
         this.toolMetadata = new HashMap<>();
         this.accessLock = new Object();
@@ -117,7 +123,7 @@ public class SmartToolMetadataManager implements ILocalizationFileObserver {
             }
         };
         try {
-            jobCoordinator.submitAsyncJob(executor, listener);
+            jobCoordinator.submitJobWithCallback(executor, listener);
         } catch (Exception e1) {
             statusHandler.error("Error initializing smart tool metadata.", e1);
         }
@@ -247,13 +253,6 @@ public class SmartToolMetadataManager implements ILocalizationFileObserver {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.localization.ILocalizationFileObserver#fileUpdated
-     * (com.raytheon.uf.common.localization.FileUpdatedMessage)
-     */
     @Override
     public void fileUpdated(FileUpdatedMessage message) {
         SmartToolMetadataExecutor executor = new SmartToolMetadataExecutor(
@@ -272,7 +271,7 @@ public class SmartToolMetadataManager implements ILocalizationFileObserver {
             }
         };
         try {
-            jobCoordinator.submitAsyncJob(executor, listener);
+            jobCoordinator.submitJobWithCallback(executor, listener);
         } catch (Exception e1) {
             statusHandler.error("Error updating smart tool metadata.", e1);
         }

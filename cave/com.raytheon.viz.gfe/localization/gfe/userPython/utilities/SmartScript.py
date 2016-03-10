@@ -77,6 +77,7 @@
 #
 #    Sep 11, 2015    4858          dgilling       Remove notification processing from publishElements.
 #    Jan 20, 2016    4751          randerso       Fix type of mask returned from getComposite() to work with numpy 1.9.2
+#    Jan 28, 2016    5129          dgilling       Support changes to IFPClient.
 #    02/22/2016      5374          randerso       Added support for sendWFOMessage
 #
 ########################################################################
@@ -347,8 +348,11 @@ class SmartScript(BaseTool.BaseTool):
     def vtecActiveTable(self):
         #returns the VTEC active table (or specified table)
         import ActiveTableVtec
-        entries = self.__dataMgr.getClient().getVTECActiveTable(self.__dataMgr.getSiteID())
-        return ActiveTableVtec.transformActiveTableToPython(entries)
+        entries = self.__dataMgr.getActiveTable()
+        try:
+            return ActiveTableVtec.transformActiveTableToPython(entries)
+        except:
+            raise TypeError("SmartScript vtecActiveTable: could not convert to python objects.")
 
 
     def gfeOperatingMode(self):
@@ -685,7 +689,7 @@ class SmartScript(BaseTool.BaseTool):
         from com.raytheon.viz.gfe.edittool import GridID
         gid = GridID(parm, gridTime.javaDate())
 
-        wxType = self.__dataMgr.getClient().getGridParmInfo(parm.getParmID()).getGridType()
+        wxType = self.__dataMgr.getClient().getPythonClient().getGridParmInfo(parm.getParmID()).getGridType()
         if GridType.SCALAR.equals(wxType):
             from com.raytheon.uf.common.dataplugin.gfe.slice import ScalarGridSlice
             slice = ScalarGridSlice()
@@ -1947,7 +1951,7 @@ class SmartScript(BaseTool.BaseTool):
         for element in elementList:
             # get the inventory for this element from the server
             parm = self.getParm("Fcst", element, "SFC")
-            recList = self.__dataMgr.getClient().getGridInventory(parm.getParmID())
+            recList = self.__dataMgr.getClient().getPythonClient().getGridInventory(parm.getParmID())
             publishTimeRange = timeRange
             if recList is not None:
                 recSize = recList.size()

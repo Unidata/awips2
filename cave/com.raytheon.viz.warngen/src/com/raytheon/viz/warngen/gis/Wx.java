@@ -42,7 +42,7 @@ import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 import javax.measure.unit.UnitFormat;
 
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.GeodeticCalculator;
 import org.opengis.referencing.FactoryException;
@@ -271,8 +271,10 @@ public class Wx {
             String trxFileStr = pathcastConfiguration
                     .getAreaNotationTranslationFile();
             if (trxFileStr != null) {
-                File trxFile = WarnFileUtil.findFileInLocalizationIncludingBackupSite(
-                        areaNotationAbbrevField, localizedSite, null).getFile();
+                File trxFile = WarnFileUtil
+                        .findFileInLocalizationIncludingBackupSite(
+                                areaNotationAbbrevField, localizedSite, null)
+                        .getFile();
                 if (!trxFile.exists()) {
                     throw new WarngenException(
                             "Translation file does not exist: " + trxFileStr);
@@ -537,8 +539,7 @@ public class Wx {
                 pathcasts.remove(pathcasts.size() - 1);
             }
 
-            perfLog.logDuration("Get pathcast",
-                    System.currentTimeMillis() - t0);
+            perfLog.logDuration("Get pathcast", System.currentTimeMillis() - t0);
             return pathcasts.toArray(new PathCast[pathcasts.size()]);
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM,
@@ -614,8 +615,8 @@ public class Wx {
                                 + variable + "'", t);
             }
         }
-        perfLog.logDuration("Get closestPoints",
-                System.currentTimeMillis() - t0);
+        perfLog.logDuration("Get closestPoints", System.currentTimeMillis()
+                - t0);
         return pointsMap;
     }
 
@@ -976,8 +977,9 @@ public class Wx {
             List<ClosestPoint> points, double stormtrackAngle) {
         // convert storm track angle to geometry angle in range of (0,360)
         double convertedAngle = 90.0 - stormtrackAngle;
-        if (convertedAngle < 0.0)
+        if (convertedAngle < 0.0) {
             convertedAngle += 360.0;
+        }
 
         Iterator<ClosestPoint> iter = points.iterator();
         List<ClosestPoint> removedPoints = new ArrayList<ClosestPoint>();
@@ -985,10 +987,12 @@ public class Wx {
             ClosestPoint cp = iter.next();
             double d = Math.abs(convertedAngle
                     - computeAngle(centroid, cp.point));
-            if (d > 180.0)
+            if (d > 180.0) {
                 d = 360.0 - d;
-            if (d > 90.0)
+            }
+            if (d > 90.0) {
                 removedPoints.add(cp);
+            }
         }
         return removedPoints;
     }
@@ -996,8 +1000,9 @@ public class Wx {
     private double computeAngle(Point p, Coordinate c) {
         double angle = Math.atan2(c.y - p.getY(), c.x - p.getX()) * 180
                 / Math.PI;
-        if (angle < 0)
+        if (angle < 0) {
             angle += 360;
+        }
         return angle;
     }
 }

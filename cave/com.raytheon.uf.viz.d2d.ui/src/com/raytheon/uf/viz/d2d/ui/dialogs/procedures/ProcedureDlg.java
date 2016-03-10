@@ -20,7 +20,6 @@
 
 package com.raytheon.uf.viz.d2d.ui.dialogs.procedures;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -56,17 +55,17 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.PlatformUI;
 
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.viz.core.DescriptorMap;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.AbstractDescriptor;
@@ -118,6 +117,7 @@ import com.raytheon.viz.ui.views.PartAdapter2;
  * Mar 12, 2015 4204       njensen     Ensure renamed bundle goes into tab name on next load
  * Apr 08, 2015 4185       mapeters    Disable Copy In when not applicable for active editor
  * Jun 02, 2015 4401       bkowal      Updated to use {@link VizLocalizationFileListDlg}.
+ * Feb 12, 2016 5242       dgilling    Remove calls to deprecated Localization APIs.
  * 
  * </pre>
  * 
@@ -358,14 +358,6 @@ public class ProcedureDlg extends CaveSWTDialog {
         ProcedureComm.getInstance().addCopyOutStateListener(changeListener);
         final ProcedureComm.ICopyOutListener copyOutListener = new ProcedureComm.ICopyOutListener() {
 
-            /*
-             * (non-Javadoc)
-             * 
-             * @see
-             * com.raytheon.viz.ui.dialogs.procedure.ProcedureComm.ICopyOutListener
-             * #copyOut(com.raytheon.viz.ui.dialogs.procedure.ProcedureComm.
-             * BundlePair, java.lang.Object)
-             */
             @Override
             public void copyOut(BundlePair b, Object src) {
                 if (src != thisDlg) {
@@ -438,14 +430,6 @@ public class ProcedureDlg extends CaveSWTDialog {
 
     private void saveProcedure(boolean closeAfterSave) {
         try {
-            IPathManager pm = PathManagerFactory.getPathManager();
-
-            LocalizationContext context = pm.getContext(
-                    LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
-
-            LocalizationFile localizationFile = pm.getLocalizationFile(context,
-                    PROCEDURES_DIR + File.separator + fileName);
-
             Procedure procedure = new Procedure();
             BundlePair[] bp = bundles.toArray(new BundlePair[bundles.size()]);
             Bundle[] bundlesToSave = new Bundle[bp.length];
@@ -472,17 +456,26 @@ public class ProcedureDlg extends CaveSWTDialog {
             }
             procedure.setBundles(bundlesToSave);
 
+            IPathManager pm = PathManagerFactory.getPathManager();
+            LocalizationContext context = pm.getContext(
+                    LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
+            ILocalizationFile localizationFile = pm
+                    .getLocalizationFile(context, PROCEDURES_DIR
+                            + IPathManager.SEPARATOR + fileName);
             String procedureXML = procedure.toXML();
-            FileUtil.bytes2File(procedureXML.getBytes(),
-                    localizationFile.getFile());
-            localizationFile.save();
+            try (SaveableOutputStream outStream = localizationFile
+                    .openOutputStream()) {
+                outStream.write(procedureXML.getBytes());
+                outStream.save();
+            }
 
             shell.setText("Procedure - " + fileName);
             saved = true;
             saveBtn.setEnabled(false);
 
-            if (closeAfterSave)
+            if (closeAfterSave) {
                 close();
+            }
         } catch (Exception e) {
             final String errMsg = "Error occurred during procedure save.";
             statusHandler.handle(Priority.PROBLEM, errMsg, e);

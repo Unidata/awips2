@@ -21,6 +21,7 @@ package com.raytheon.uf.viz.localization.perspective.view.actions;
 
 import java.util.List;
 
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -43,6 +44,8 @@ import com.raytheon.uf.viz.localization.service.ILocalizationService;
  * Dec 3, 2010  6305       mpduff      Initial creation
  * Oct 13, 2015 4410       bsteffen    Allow localization perspective to mix
  *                                     files for multiple Localization Types.
+ * Jan 15, 2016 5242       kbisanz     Replaced LocalizationFile with
+ *                                     ILocalizationFile where possible
  * 
  * 
  * </pre>
@@ -81,12 +84,12 @@ public class PasteFileAction extends CopyToAction {
 
         List<LocalizationType> types = dataToCopyTo.getPathData().getTypes();
         LocalizationType type = file.getContext().getLocalizationType();
-        if(!types.contains(type)){
+        if (!types.contains(type)) {
             type = types.get(0);
         }
         LocalizationContext ctx = pm.getContext(type, level);
 
-        LocalizationFile newFile = pm.getLocalizationFile(ctx,
+        ILocalizationFile newFile = pm.getLocalizationFile(ctx,
                 dataToCopyTo.getPath());
         removeAlternateTypeFiles(level);
         copyFile(newFile);

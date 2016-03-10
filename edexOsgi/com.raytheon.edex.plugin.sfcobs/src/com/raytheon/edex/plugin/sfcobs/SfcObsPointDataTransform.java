@@ -27,8 +27,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.sfcobs.AncPrecip;
@@ -49,10 +49,11 @@ import com.raytheon.uf.common.serialization.SerializationException;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 1, 2009             jkorman     Initial creation
- * Feb 15,2011  5705       cjeanbap    Added wmoHeader to HDR_PARAMS_LIST.
- * Apr 04,2014  2906       bclement    made getDescription() and static constants public
- * Apr 22,2014  2906       bclement    removed WMO header, timeObs and timeNominal from HDF5 (times still in DB)
+ * Oct 01, 2009            jkorman     Initial creation
+ * Feb 15, 2011 5705       cjeanbap    Added wmoHeader to HDR_PARAMS_LIST.
+ * Apr 04, 2014 2906       bclement    made getDescription() and static constants public
+ * Apr 22, 2014 2906       bclement    removed WMO header, timeObs and timeNominal from HDF5 (times still in DB)
+ * Dec 17, 2015 5166       kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -63,8 +64,8 @@ import com.raytheon.uf.common.serialization.SerializationException;
 public class SfcObsPointDataTransform {
 
     /** The logger */
-    private static Log logger = LogFactory
-            .getLog(SfcObsPointDataTransform.class);
+    private static Logger logger = LoggerFactory
+            .getLogger(SfcObsPointDataTransform.class);
 
     public static final int INT_DEFAULT = -9999;
 

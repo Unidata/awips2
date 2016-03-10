@@ -11,12 +11,12 @@ URL: N/A
 License: N/A
 Distribution: N/A
 Vendor: Raytheon
-Packager: Nate Jensen
+Packager: %{_build_site}
 
 AutoReq: no
-provides: awips2-pypies
-requires: awips2-python >= 2.7-1
-requires: awips2-tools
+Provides: awips2-pypies
+Requires: awips2-python >= 2.7-1
+Requires: awips2-tools
 
 %description
 AWIPS II PyPIES Installation - Sets Up AWIPS II PyPIES.

@@ -35,6 +35,7 @@ import java.util.TimeZone;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.GC;
@@ -70,6 +71,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Mar 7, 2008			   Eric Babin  Initial Creation
  * 02/12/2013       #1597  randerso    Modified TaskOutputDialog to support GFE Performance metrics
  * 05/28/2014       #2841  randerso    Fixed some NPEs and layout issues
+ * 11/12/2015       #5106  dgilling    Improve load times for large log files.
  * 
  * </pre>
  * 
@@ -373,7 +375,7 @@ public class ProcessMonitorDialog extends CaveJFACEDialog implements
 
         private AbstractGfeTask task;
 
-        private Text logText;
+        private StyledText logText;
 
         /**
          * @param parentShell
@@ -414,8 +416,8 @@ public class ProcessMonitorDialog extends CaveJFACEDialog implements
             cmdText.setLayoutData(layoutData);
             cmdText.setText(task.getCommand());
 
-            logText = new Text(comp, SWT.MULTI | SWT.BORDER | SWT.READ_ONLY
-                    | SWT.H_SCROLL | SWT.V_SCROLL);
+            logText = new StyledText(comp, SWT.BORDER | SWT.H_SCROLL
+                    | SWT.V_SCROLL);
             layoutData = new GridData(SWT.FILL, SWT.FILL, true, true);
             layoutData.widthHint = this.convertWidthInCharsToPixels(120);
             layoutData.heightHint = this.convertHeightInCharsToPixels(24);
@@ -424,7 +426,7 @@ public class ProcessMonitorDialog extends CaveJFACEDialog implements
                     SWT.COLOR_BLACK));
             logText.setForeground(logText.getDisplay().getSystemColor(
                     SWT.COLOR_WHITE));
-
+            logText.setEditable(false);
             logText.setText(getLogFileContents());
 
             Composite timeComp = new Composite(comp, SWT.NONE);
@@ -581,6 +583,7 @@ public class ProcessMonitorDialog extends CaveJFACEDialog implements
                     // do nothing
                 }
             }
+
             return s;
         }
     }

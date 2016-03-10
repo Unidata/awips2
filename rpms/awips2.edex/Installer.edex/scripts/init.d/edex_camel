@@ -100,6 +100,7 @@ startEDEX() {
    local LOG=${EDEX_INSTALL}/logs/start-edex-${1}-$TODAY.log
    local TIME=`/bin/date "+%F %T"`
    echo "$TIME: Service edex_camel Starting EDEX ${1}" >> $LOG
+   chmod a+r $LOG
 
    su - $EDEXUSER -c "$DAEMON &" >> $LOG 2>&1
    sleep 10
@@ -129,6 +130,7 @@ stopEDEX() {
    local LOG=${EDEX_INSTALL}/logs/start-edex-${1}-$TODAY.log
    local TIME=`/bin/date "+%F %T"`
    echo "$TIME: Service edex_camel Stopping EDEX ${1}" >> $LOG
+   chmod a+r $LOG
 
    if [ "$_wrapper_pid" != "" -a "$_wrapper_pid" != "1" ]; then
       kill $_wrapper_pid

@@ -49,6 +49,7 @@ import org.eclipse.swt.printing.Printer;
 import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
@@ -80,6 +81,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 16 Mar 2011  6251	   lbousaidi   activate [Enter] for idTF box
  * 02 Jun 2011  9150       mduff       xdat_flood_hours needs to be negative on the calendar.add
  * 22 May 2015  4501       skorolev    Removed old DB connection commands. Got rid of Vector.
+ * 26 Jan 2016  5054       randerso    Made XdatDlg parented to display
  * 
  * </pre>
  * 
@@ -189,11 +191,11 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
     /**
      * Constructor.
      * 
-     * @param parentShell
-     *            Parent shell.
+     * @param display
+     * 
      */
-    public XdatDlg(Shell parentShell) {
-        super(parentShell, SWT.DIALOG_TRIM | SWT.RESIZE | CAVE.DO_NOT_BLOCK);
+    public XdatDlg(Display display) {
+        super(display, SWT.DIALOG_TRIM | SWT.RESIZE | CAVE.DO_NOT_BLOCK);
         databaseMgr = new XdatDB();
         appsDefaults = AppsDefaults.getInstance();
 
@@ -664,7 +666,7 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
          * Check if there is text to be saved.
          */
         if (textArea.getText().trim().length() == 0) {
-            MessageBox mb = new MessageBox(getParent(), SWT.ICON_WARNING
+            MessageBox mb = new MessageBox(getShell(), SWT.ICON_WARNING
                     | SWT.OK);
             mb.setText("Save Warning");
             mb.setMessage("There is no text to be saved.");
@@ -703,7 +705,7 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
          */
         if (saveFile.exists() == true) {
 
-            MessageBox mb = new MessageBox(getParent(), SWT.ICON_WARNING
+            MessageBox mb = new MessageBox(getShell(), SWT.ICON_WARNING
                     | SWT.YES | SWT.NO);
             mb.setText("Save Warning");
             mb.setMessage("The file to save already exists.\n\n"
@@ -900,7 +902,7 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
                 sDate = startDate.parse(setToday);
             }
         } catch (ParseException e) {
-            MessageBox mb = new MessageBox(getParent(), SWT.ICON_WARNING
+            MessageBox mb = new MessageBox(getShell(), SWT.ICON_WARNING
                     | SWT.OK);
             mb.setText("Error with xdat_settoday token");
             mb.setMessage("Invalid value entered as token value.");
@@ -1154,7 +1156,7 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
         String selectedId = idTF.getText().trim().toUpperCase();
 
         if (selectedId.trim().compareTo("") == 0) {
-            MessageBox mb = new MessageBox(getParent(), SWT.ICON_WARNING
+            MessageBox mb = new MessageBox(getShell(), SWT.ICON_WARNING
                     | SWT.OK);
             mb.setText("Search Warning");
             mb.setMessage("You need to enter an ID into the ID text field.");
@@ -1233,7 +1235,7 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
             return true;
         }
 
-        MessageBox mb = new MessageBox(getParent(), SWT.ICON_WARNING | SWT.OK);
+        MessageBox mb = new MessageBox(getShell(), SWT.ICON_WARNING | SWT.OK);
         mb.setText("Date Warning");
         mb.setMessage("The selected end time is before the selected start time.");
         mb.open();
@@ -1336,7 +1338,7 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
         final String text = textArea.getText();
 
         if (text.trim().length() == 0) {
-            MessageBox mb = new MessageBox(getParent(), SWT.ICON_WARNING
+            MessageBox mb = new MessageBox(getShell(), SWT.ICON_WARNING
                     | SWT.OK);
             mb.setText("Print Warning");
             mb.setMessage("There is no text to be printed.");
