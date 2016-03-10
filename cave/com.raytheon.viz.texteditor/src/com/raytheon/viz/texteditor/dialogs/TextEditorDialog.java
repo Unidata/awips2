@@ -212,7 +212,7 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  * 12/17/2007   639         grichard    Added &quot;fxa&quot; parm to scripts.
  * 1/3/2008     637         grichard    Implemented build 13 features.
  * 1/7/2008     722         grichard    Implemented build 14 features.
- * 1/8/2007     681         grichard    Resize text window for large font.
+ * 1/8/2007     681         grichard    Resize text window for large font. 
  * 1/10/2008    722         grichard    Implemented localization.
  * 1/10/2008    722         grichard    Saved text product info.
  * 1/11/2008    749         grichard    Guarded auto-save / window close interaction.
@@ -378,6 +378,10 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  * 16Feb2106   5391         randerso    Fixed button layouts so text is not cut off with larger fonts/higher DPI
  * 12Feb2016   4716         rferrel     Changes to use new Awips Browser Dialog.
  *                                       Localization File depreication clean up.
+ * 10Mar2016   5411         randerso    Added flags to disable comma replacement 
+ *                                      and enable character set validation.
+ *                                      Moved upper case conversion for QC checks into the 
+ *                                      specific checks that need it.
  * 
  * </pre>
  * 
@@ -4220,7 +4224,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
         // if product is a WarnGen product and is not enabled for mixed case
         // transmission, replace all commas with ellipses
-        if (product != null && warngenPils.contains(product.getNnnid())
+        if (TextEditorCfg.getTextEditorCfg().getReplaceCommasWithEllipses()
+                && product != null && warngenPils.contains(product.getNnnid())
                 && !MixedCaseProductSupport.isMixedCase(product.getNnnid())) {
             textEditor.setText(textEditor.getText()
                     .replaceAll(", {0,1}", "..."));
@@ -4361,7 +4366,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         // transmission, replace all commas with ellipses
         StdTextProduct product = TextDisplayModel.getInstance()
                 .getStdTextProduct(token);
-        if (product != null && warngenPils.contains(product.getNnnid())
+        if (TextEditorCfg.getTextEditorCfg().getReplaceCommasWithEllipses()
+                && product != null && warngenPils.contains(product.getNnnid())
                 && !MixedCaseProductSupport.isMixedCase(product.getNnnid())) {
             textEditor.setText(textEditor.getText()
                     .replaceAll(", {0,1}", "..."));
@@ -4940,8 +4946,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         StdTextProduct prod = getStdTextProduct();
         if (warnGenFlag) {
             QCConfirmationMsg qcMsg = new QCConfirmationMsg();
-            if (!qcMsg.checkWarningInfo(headerTF.getText().toUpperCase(),
-                    textEditor.getText().toUpperCase(), prod.getNnnid())) {
+            if (!qcMsg.checkWarningInfo(headerTF.getText(),
+                    textEditor.getText(), prod.getNnnid())) {
                 WarnGenConfirmationDlg wgcd = new WarnGenConfirmationDlg(shell,
                         qcMsg.getTitle(), qcMsg.getProductMessage(),
                         qcMsg.getModeMessage());
@@ -4994,8 +5000,13 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             return;
         }
 
+        StdTextProduct prod = getStdTextProduct();
+        if (TextEditorCfg.getTextEditorCfg().getValidateCharacterSet()
+                && !validateCharacterSet(prod.getNnnid())) {
+            return;
+        }
+
         if (isWarnGenDlg == true) {
-            StdTextProduct prod = getStdTextProduct();
             String afosId = prod.getCccid() + prod.getNnnid() + prod.getXxxid();
             SendConfirmationMsg sendMsg = new SendConfirmationMsg(resend,
                     afosId, prod.getNnnid());
@@ -7085,7 +7096,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
         // if product is a WarnGen product and is not enabled for mixed case
         // transmission, replace all commas with ellipses
-        if (warngenPils.contains(product.getNnnid())
+        if (TextEditorCfg.getTextEditorCfg().getReplaceCommasWithEllipses()
+                && warngenPils.contains(product.getNnnid())
                 && !MixedCaseProductSupport.isMixedCase(product.getNnnid())) {
             textEditor.setText(textEditor.getText()
                     .replaceAll(", {0,1}", "..."));
@@ -7231,40 +7243,62 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         TextDisplayModel.getInstance().setStdTextProduct(token, product);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.texteditor.msgs.IWmoBrowserCallback#setCCCCField(java
-     * .lang.String)
-     */
     @Override
     public void setCCCCField(String cccc) {
         ccccTF.setText(cccc);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.texteditor.msgs.IWmoBrowserCallback#setTTAAiiField(java
-     * .lang.String)
-     */
     @Override
     public void setTTAAiiField(String ttaaii) {
         wmoTtaaiiTF.setText(ttaaii);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.texteditor.msgs.IWmoBrowserCallback#setCommandText(java
-     * .lang.String)
-     */
     @Override
     public void setCommandText(String commandText) {
         updateButtonology(commandText);
+    }
+
+    private boolean validateCharacterSet(String nnn) {
+        boolean rval = true;
+
+        Pattern UPPER_PATTERN = Pattern.compile("[^"
+                + Pattern.quote(TextEditorCfg.getTextEditorCfg()
+                        .getUpperCaseValidCharcters()) + "]");
+
+        Pattern MIXED_PATTERN = Pattern.compile("[^"
+                + Pattern.quote(TextEditorCfg.getTextEditorCfg()
+                        .getMixedCaseValidCharacters()) + "]");
+
+        String body = textEditor.getText();
+        Pattern pattern;
+        if (MixedCaseProductSupport.isMixedCase(nnn)) {
+            pattern = MIXED_PATTERN;
+        } else {
+            body = body.toUpperCase();
+            pattern = UPPER_PATTERN;
+        }
+
+        String[] separatedLines = body.split("\n");
+        int lineNum = 0;
+        for (String line : separatedLines) {
+            lineNum++;
+            Matcher matcher = pattern.matcher(line);
+            if (matcher.find()) {
+                rval = false;
+
+                String errorMsg = "Illegal character '" + matcher.group()
+                        + "' on line " + lineNum + ", column "
+                        + (matcher.start() + 1);
+                userInformation(errorMsg);
+                if (!textEditor.isDisposed()) {
+                    int offset = body.indexOf(matcher.group());
+                    textEditor.setSelection(offset, offset + 1);
+                    textEditor.redraw();
+                    textEditor.setFocus();
+                }
+            }
+        }
+        return rval;
     }
 
     /**
@@ -7282,9 +7316,9 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
             if (endIndex >= startIndex) {
                 rval = false;
-                textEditor.setSelection(startIndex, endIndex + 3);
                 userInformation("You must modify the selected region before sending or saving the product.");
                 if (!textEditor.isDisposed()) {
+                    textEditor.setSelection(startIndex, endIndex + 3);
                     textEditor.setFocus();
                 }
             }

@@ -36,6 +36,8 @@
 #    10/20/2014          #3685     randerso       Changed default of lowerCase to True if not specified
 #    11/30/2015          #5129     dgilling       Support new IFPClient.
 #    03/02/2016          #5411     randerso       Fixed exception in exception handler
+#    03/10/2016          #5411     randerso       Set argDict["mixedCaseEnabled"] flag to indicated if
+#                                                 mixed case transmission is enabled for the product
 
 import string, getopt, sys, time, os, types, math
 import ModuleAccessor
@@ -109,6 +111,14 @@ class TextFormatter:
         error = self.__getRunTimeVariables(fcstName, forecastDef, fcstType, module, argDict)
         if error is not None:
             return error
+
+        # Add mixedCaseEnabled flag to argDict
+        try:
+            pid = forecastDef['awipsWANPil'][4:7]
+            from com.raytheon.uf.common.dataplugin.text.db import MixedCaseProductSupport
+            argDict["mixedCaseEnabled"] = MixedCaseProductSupport.isMixedCase(pid)
+        except:
+            argDict["mixedCaseEnabled"] = False
 
         # Sanity checks
         # Unless a "smart" product,

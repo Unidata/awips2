@@ -49,6 +49,7 @@ import org.apache.velocity.app.Velocity;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.tools.generic.ListTool;
 
+import com.raytheon.uf.common.dataplugin.text.db.MixedCaseProductSupport;
 import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
 import com.raytheon.uf.common.dataplugin.warning.WarningConstants;
 import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
@@ -153,6 +154,8 @@ import com.vividsolutions.jts.io.WKTReader;
  * Jul 15, 2015 DR17716 mgamazaychikov Change to Geometry class in total intersection calculations.
  * Oct 21, 2105   5021     randerso    Fix issue with CORs for mixed case
  * Feb  9, 2016 DR18421    D. Friedman Don't call ToolsDataManager.setStormTrackData if there is no storm motion.
+ * Mar 10, 2016 5411       randerso    Added productId and mixedCaseEnabled to Velocity context
+ * 
  * </pre>
  * 
  * @author njensen
@@ -282,6 +285,9 @@ public class TemplateRunner {
         context.put("stormType", stormType);
         context.put("mathUtil", new WarnGenMathTool());
         context.put("dateUtil", new DateUtil());
+        context.put("productId", config.getProductId());
+        context.put("mixedCaseEnabled",
+                MixedCaseProductSupport.isMixedCase(config.getProductId()));
         context.put("pointComparator", new ClosestPointComparator());
 
         String action = followupData != null ? followupData.getAct()
@@ -750,9 +756,10 @@ public class TemplateRunner {
                                 hhmmEnd = message.indexOf("...", hhmmStart);
                             } else {
                                 if (hhmmEnd > 0) {
-                                    context.put("corToNewMarker", "cortonewmarker");
-                                    context.put("corEventtime",
-                                            message.substring(hhmmStart, hhmmEnd));
+                                    context.put("corToNewMarker",
+                                            "cortonewmarker");
+                                    context.put("corEventtime", message
+                                            .substring(hhmmStart, hhmmEnd));
                                 }
                             }
                         }

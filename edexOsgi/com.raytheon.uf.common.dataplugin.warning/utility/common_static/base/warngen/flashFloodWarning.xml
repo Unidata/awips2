@@ -50,6 +50,9 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <followup>EXT</followup>
  </followups>
  
+ <!-- Product ID: nnn id of the product -->
+ <productId>FFW</productId>
+
  <!-- Phensigs: The list of phenomena and significance combinations that this template applies to -->
  <phensigs>
    <phensig>FF.W</phensig>

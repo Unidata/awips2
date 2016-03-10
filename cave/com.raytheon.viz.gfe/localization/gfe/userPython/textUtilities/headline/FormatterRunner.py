@@ -38,17 +38,19 @@ from com.raytheon.uf.common.gfe.ifpclient import PyFPClient
 #    
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
-#    05/29/08                      njensen       Initial Creation.
-#    12/10/14        #14946        ryu           Add getTimeZones() function.
-#    04/16/15        #14946        ryu           Fix getTimeZones to return the office TZ if timezone
-#                                                is not set for any zone in a segment.
-#    04/20/2015      #4027         randerso      Fixes for formatter autotests
+#    05/29/08                      njensen        Initial Creation.
+#    12/10/14        #14946        ryu            Add getTimeZones() function.
+#    04/16/15        #14946        ryu            Fix getTimeZones to return the office TZ if timezone
+#                                                 is not set for any zone in a segment.
+#    04/20/2015      #4027         randerso       Fixes for formatter autotests
 #    Apr 25, 2015     4952         njensen        Updated for new JEP API
-#    05/06/2015      #4467         randerso      Convert to upper case before writing to files if
-#                                                mixed case is not enabled for the product.
-#                                                Cleaned up file writing code
-#    07/29/2015      #4263         dgilling      Support updated TextProductManager.
-#    11/30/2015      #5129         dgilling      Support new IFPClient.
+#    05/06/2015      #4467         randerso       Convert to upper case before writing to files if
+#                                                 mixed case is not enabled for the product.
+#                                                 Cleaned up file writing code
+#    07/29/2015      #4263         dgilling       Support updated TextProductManager.
+#    11/30/2015      #5129         dgilling       Support new IFPClient.
+#    03/10/2016      #5411         randerso       Set argDict["mixedCaseEnabled"] flag to indicated if
+#                                                 mixed case transmission is enabled for the product
 # 
 #
 
@@ -118,34 +120,6 @@ def executeFromJava(databaseID, site, username, dataMgr, forecastList, logFile, 
     RedirectLogging.restore()
     return forecasts
     
-def getPid(forecast):
-    # taken from ProductParser.py
-    import re
-    
-    sl = r'^'                            # start of line
-    el = r'\s*?\n'                       # end of line
-    id3 = r'[A-Za-z]{3}'                 # 3 charater word
-    empty = r'^\s*' + el                 # empty line
-    
-    wmoid = r'(?P<wmoid>[A-Z]{4}\d{2})' # wmoid
-    fsid  = r'(?P<fsid>[A-Z]{4})'       # full station id
-    pit   = r'(?P<pit>\d{6})'           # product issuance time UTC
-    ff    = r'(?P<funnyfield> ' + id3 + ')?'          # "funny" field
-    
-    # CI block
-    ci_start = sl + wmoid + ' ' + fsid + ' ' + pit + ff + el
-    awipsid = r'(?P<pil>(?P<cat>[A-Z0-9]{3})(?P<lid>[A-Z0-9]{1,3}))' + el
-    ci_block = r'(?P<ciblock>' + ci_start + awipsid + '\n?)' 
-    
-    ci_re = re.compile(ci_block)
-
-    pid = None
-    m = ci_re.search(forecast)
-    if m is not None:
-        pid = m.group('cat')
-
-    return pid
-
 def runFormatter(databaseID, site, forecastList, cmdLineVarDict, vtecMode,
                     username, dataMgr, serverFile=None,
                     editAreas=[], timeRanges=[], timePeriod=None, drtTime=None,
@@ -278,21 +252,13 @@ def runFormatter(databaseID, site, forecastList, cmdLineVarDict, vtecMode,
     outForecasts = ""   # written to output files
     for forecastType in forecastList:           
         forecast = formatter.getForecast(forecastType, argDict)        
-        forecasts = forecasts + forecast
+        forecasts += forecast
         
         # Convert data written to files to upper case if required
-        mixedCase = False
-        pid = getPid(forecast)
-        if pid is None:
-            logger.warning("Unable to determine PID: defaulting to upper case")
+        if argDict["mixedCaseEnabled"]:
+            outForecasts += forecast
         else:
-            from com.raytheon.uf.common.dataplugin.text.db import MixedCaseProductSupport
-            mixedCase = MixedCaseProductSupport.isMixedCase(str(pid))
-        
-        if mixedCase:
-            outForecasts = outForecasts + forecast
-        else:
-            outForecasts = outForecasts + forecast.upper()
+            outForecasts += forecast.upper()
 
     logger.info("Text:\n" + str(forecasts))
     
