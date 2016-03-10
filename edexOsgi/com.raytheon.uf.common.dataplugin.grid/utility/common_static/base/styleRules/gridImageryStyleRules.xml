@@ -5587,4 +5587,52 @@
             <displayUnits>kts</displayUnits>
         </imageStyle>
     </styleRule>
+    <styleRule>
+      <paramLevelMatches>
+        <parameter>Tdend</parameter>
+      </paramLevelMatches>
+      <imageStyle>
+        <displayUnits>C</displayUnits>
+        <range scale="LINEAR">
+          <minValue>-21</minValue>
+          <maxValue>-12</maxValue>
+        </range>
+        <defaultColormap>NPP/VIIRS/ZA (Vis Default)</defaultColormap>
+        <colorbarLabeling>
+          <increment>1</increment>
+        </colorbarLabeling>
+      </imageStyle>
+    </styleRule>
+    <styleRule>
+      <paramLevelMatches>
+        <parameter>SnowT</parameter>
+      </paramLevelMatches>
+      <imageStyle>
+        <displayUnits>C</displayUnits>
+        <range scale="LINEAR">
+          <minValue>-18</minValue>
+          <maxValue>0</maxValue>
+        </range>
+        <defaultColormap>Grid/gridded data</defaultColormap>
+        <colorbarLabeling>
+          <values>-18 -15 -12 -5 0</values>
+        </colorbarLabeling>
+      </imageStyle>
+    </styleRule>
+    <styleRule>
+      <paramLevelMatches>
+        <parameter>CritT1</parameter>
+      </paramLevelMatches>
+      <imageStyle>
+        <displayUnits>C</displayUnits>
+        <range scale="LINEAR">
+          <minValue>-15</minValue>
+          <maxValue>-4</maxValue>
+        </range>
+        <defaultColormap>NPP/VIIRS/IR BrightTemps</defaultColormap>
+        <colorbarLabeling>
+          <increment>1</increment>
+        </colorbarLabeling>
+      </imageStyle>
+    </styleRule>
 </styleRuleset>
