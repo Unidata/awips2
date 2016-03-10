@@ -130,7 +130,7 @@ tail_log() {
 	if [ -e $LOG_FILE ]; then
 		echo ' :: Viewing '${LOG_FILE}'. Press CTRL+C to exit'
 		echo ''
-		su -c "tail --follow=name ${LOG_FILE}"
+		tail --follow=name ${LOG_FILE}
 	else 
 		echo ' :: '$LOG_FILE' not found'
 		echo ' :: Check '$LOG_PATH
