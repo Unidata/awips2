@@ -321,6 +321,7 @@
 #    May 12, 2014    16928         zhao           Modified check_prev_time()
 #    Sep 17, 2014    16928         zhao           Added a line break "\n" to message 25 (since it appears together with message 49) 
 #    Jul 07, 2015    16973         zhao           Added 'DRSN' as valid value of sig weather
+#    Mar 03, 2016    18664         zhao           Fixed an indentation error in check_vsby_wx()
 #
 #
 import exceptions, re, time, types
@@ -1117,11 +1118,11 @@ class Decoder(tpg.VerboseParser):
                             raise Error(_Errors[15])
                         if wx in ('DS', 'SS'):
                             if tok[0] in '+-':
-                               i = tok[0]
-                        else:
-                            i = ''
-                        if invalid_ds_vsby(i, vsby):
-                            raise Error(_Errors[55])
+                                i = tok[0]
+                            else:
+                                i = ''
+                            if invalid_ds_vsby(i, vsby):
+                                raise Error(_Errors[55])
                     if snow == -1:
                         raise Error(_Errors[54])
                  else:
