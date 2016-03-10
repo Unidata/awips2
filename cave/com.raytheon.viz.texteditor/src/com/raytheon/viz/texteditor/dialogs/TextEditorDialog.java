@@ -370,6 +370,7 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  * 06Jan2016   5225         randerso    Fix problem with mixed case not getting converted to upper case 
  *                                      when multiple text editors are open on the same product.
  * 01Mar2016   RM13214   mgamazaychikov Added verifyLineWidth method.
+ * 01Mar2016   RM14803   mgamazaychikov Added code to handle products without WMO header.
  * 
  * </pre>
  * 
@@ -4502,6 +4503,21 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 setHeaderTextField(tdm.getWmoId(token), tdm.getSiteId(token),
                         bbbid.length() > 0 ? currentDateId + " " + bbbid
                                 : currentDateId, "\n", nnnxxx);
+            }
+
+            // Special case to handle the products with no WMO header -
+            // remove NNNXXX from product body
+            if (textEditor.getLine(0).trim().equals(nnnxxx)) {
+                int nnnxxxOffset = nnnxxx.length();
+                if (textEditor.getLineCount() > 1) {
+                    nnnxxxOffset = nnnxxxOffset + 1;
+                    // skip the empty line if it follows NNNXXX
+                    if (textEditor.getLine(1).trim().isEmpty()) {
+                        nnnxxxOffset = nnnxxxOffset + 1;
+                    }
+                }
+                String replaceText = textEditor.getText().substring(nnnxxxOffset);
+                textEditor.setText(replaceText);
             }
 
             // Update the "now editing" title of the text editor window.
