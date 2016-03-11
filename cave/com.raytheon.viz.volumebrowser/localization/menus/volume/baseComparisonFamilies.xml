@@ -40,4 +40,9 @@
 	<contribute xsi:type="bundleItem" file="bundles/volume/MSLPComparison.xml"
 		menuText="MSLP" id="mslPress" useReferenceTime="true">
 	</contribute>
+	<contribute xsi:type="titleItem" titleText="------ Ocean Products ------"
+		id="OceanModelsLine" />
+	<contribute xsi:type="bundleItem" file="bundles/volume/HFR.xml"
+		menuText="High Frequency Radar (HFR) Ocean Surface Winds" id="hfr" useReferenceTime="true">
+	</contribute>
 </menuTemplate>

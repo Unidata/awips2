@@ -20,16 +20,24 @@
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<contribute xsi:type="subMenu" menuText="${menuName}">
-		<contribute xsi:type="bundleItem" file="bundles/volume/ETSRG.xml"
-			    menuText="Extra Tropical Storm Surge" id="" useReferenceTime="true">
+		<contribute xsi:type="bundleItem" file="bundles/volume/WW3-TSWH.xml"
+			    menuText="Significant Wave Height" id="" useReferenceTime="true">
 			<substitute key="frameCount" value="${frameCount}"/>
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/ETCWL.xml"
-			    menuText="Extra Tropical Comb. Storm Surge and Tide" id="" useReferenceTime="true">
+		<contribute xsi:type="bundleItem" file="bundles/volume/WaveWatch-SfcWind.xml"
+			    menuText="Sfc Wave Wind" id="" useReferenceTime="true">
 			<substitute key="frameCount" value="${frameCount}"/>
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/ELEV.xml"
-			    menuText="Ocean Surface Elevation" id="" useReferenceTime="true">
+		<contribute xsi:type="bundleItem" file="bundles/volume/WaveWatch-PrimaryPeriod.xml"
+			    menuText="Primary Wave Period" id="" useReferenceTime="true">
+			<substitute key="frameCount" value="${frameCount}"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/WaveWatch-SecondaryPeriod.xml"
+			    menuText="Secondary Wave Period" id="" useReferenceTime="true">
+			<substitute key="frameCount" value="${frameCount}"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/WaveWatch-VorticityWind.xml"
+			    menuText="Sfc Vorticity and Wind" id="" useReferenceTime="true">
 			<substitute key="frameCount" value="${frameCount}"/>
 		</contribute>
 	</contribute>
