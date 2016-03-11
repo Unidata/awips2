@@ -36,5 +36,10 @@
 			    menuText="Peak Wave Period" id="" useReferenceTime="true">
 			<substitute key="frameCount" value="${frameCount}"/>
 		</contribute>
+		<contribute xsi:type="titleItem" titleText="------------------------"/>
+		<contribute xsi:type="bundleItem" file="bundles/volume/WW3-FourPanel.xml"
+			    menuText="Four Panel Display" id="" useReferenceTime="true">
+			<substitute key="frameCount" value="${frameCount}"/>
+		</contribute>
 	</contribute>
 </menuTemplate>
