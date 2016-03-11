@@ -17,7 +17,8 @@
         
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
-    -->
+
+-->
 <menuContributionFile>
 	<include installTo="menu:models" 
              fileName="menus/volume/allFamilies.xml">
@@ -36,21 +37,21 @@
 	<include installTo="menu:models" 
              fileName="menus/volume/allFamilies.xml">
              <substitute key="modelName" value="ECMF-Global" />
-             <substitute key="menuName" value="ECMWF Global" />
+             <substitute key="menuName" value="ECMF Global" />
              <substitute key="frameCount" value="41" />
              <substitute key="TP" value="TP6hr"/>
     </include>
 	<include installTo="menu:models" 
              fileName="menus/volume/allFamilies.xml">
              <substitute key="modelName" value="GFS" />
-             <substitute key="menuName" value="GFS global" />
-             <substitute key="frameCount" value="41" />
+             <substitute key="menuName" value="GFS Global" />
+             <substitute key="frameCount" value="180" />
              <substitute key="TP" value="TP"/>
     </include>
 	<include installTo="menu:models" 
              fileName="menus/volume/allFamilies.xml">
              <substitute key="modelName" value="GFS40" />
-             <substitute key="menuName" value="GFS-40km" />
+             <substitute key="menuName" value="GFS 40km" />
              <substitute key="frameCount" value="41" />
              <substitute key="TP" value="TP"/>
     </include>
@@ -58,71 +59,56 @@
              fileName="menus/volume/allFamilies.xml">
              <substitute key="modelName" value="HRRR" />
              <substitute key="menuName" value="HRRR" />
-             <substitute key="frameCount" value="17" />
+             <substitute key="frameCount" value="19" />
              <substitute key="TP" value="TP"/>
     </include>
 	<include installTo="menu:models" 
              fileName="menus/volume/allFamilies.xml">
-             <substitute key="modelName" value="NAM4" />
-             <substitute key="menuName" value="NAM-4km" />
-             <substitute key="frameCount" value="29" />
-             <substitute key="TP" value="TP3hr"/>
-    </include>
-	<include installTo="menu:models" 
-             fileName="menus/volume/allFamilies.xml">
              <substitute key="modelName" value="NAM12" />
-             <substitute key="menuName" value="NAM-12km" />
-             <substitute key="frameCount" value="29" />
-             <substitute key="TP" value="TP3hr"/>
-    </include>
-	<include installTo="menu:models" 
-             fileName="menus/volume/allFamilies.xml">
-             <substitute key="modelName" value="NAM20" />
-             <substitute key="menuName" value="NAM-20km" />
+             <substitute key="menuName" value="NAM 12km" />
              <substitute key="frameCount" value="29" />
              <substitute key="TP" value="TP3hr"/>
     </include>
 	<include installTo="menu:models" 
              fileName="menus/volume/allFamilies.xml">
              <substitute key="modelName" value="NAM40" />
-             <substitute key="menuName" value="NAM-40km" />
+             <substitute key="menuName" value="NAM 40km" />
              <substitute key="frameCount" value="29" />
              <substitute key="TP" value="TP3hr"/>
     </include>
 	<include installTo="menu:models" 
              fileName="menus/volume/allFamilies.xml">
              <substitute key="modelName" value="NamDNG" />
-             <substitute key="menuName" value="NamDNG" />
+             <substitute key="menuName" value="NamDNG 2.5km" />
              <substitute key="frameCount" value="29" />
              <substitute key="TP" value="TP3hr"/>
     </include>
-	<!--
-	<include installTo="menu:models" 
+    <include installTo="menu:models" 
              fileName="menus/volume/allFamilies.xml">
              <substitute key="modelName" value="NAVGEM" />
-             <substitute key="frameCount" value="41" />
-             <substitute key="TP" value="TP"/>
+             <substitute key="menuName" value="NAVGEM" />
+             <substitute key="frameCount" value="63" />
+             <substitute key="TP" value="TP3hr"/>
     </include>
-	-->
 	<include installTo="menu:models" 
              fileName="menus/volume/allFamilies.xml">
              <substitute key="modelName" value="RAP13" />
-             <substitute key="menuName" value="RAP-13km" />
-             <substitute key="frameCount" value="17" />
+             <substitute key="menuName" value="RAP 13km" />
+             <substitute key="frameCount" value="19" />
              <substitute key="TP" value="TP"/>
     </include>
 	<include installTo="menu:models" 
              fileName="menus/volume/allFamilies.xml">
              <substitute key="modelName" value="RAP40" />
-             <substitute key="menuName" value="RAP-40km" />
-             <substitute key="frameCount" value="17" />
+             <substitute key="menuName" value="RAP 40km" />
+             <substitute key="frameCount" value="19" />
              <substitute key="TP" value="TP"/>
     </include>
 	<include installTo="menu:models" 
              fileName="menus/volume/allFamilies.xml">
              <substitute key="modelName" value="UKMET-Global" />
-             <substitute key="menuName" value="UKMET Northern Hemisphere" />
-             <substitute key="frameCount" value="15" />
+             <substitute key="menuName" value="UKMET Global" />
+             <substitute key="frameCount" value="29" />
              <substitute key="TP" value="TP6hr"/>
     </include>
 	
@@ -141,14 +127,6 @@
              <substitute key="frameCount" value="2" />
              <substitute key="TP" value="TP"/>
     </include>
-	<!--
-	<include installTo="menu:models" 
-             fileName="menus/volume/mesoFamilies.xml">
-             <substitute key="modelName" value="RTMA-5km" />
-             <substitute key="frameCount" value="2" />
-             <substitute key="TP" value="TP"/>
-    </include>
-	-->
 	<include installTo="menu:models" 
              fileName="menus/volume/mesoFamilies.xml">
              <substitute key="modelName" value="URMA25" />
@@ -156,50 +134,35 @@
              <substitute key="frameCount" value="2" />
              <substitute key="TP" value="TP"/>
     </include>
-
-<!--
-	Ocean models
-		ESTOFS
-		ETSS
-		FNMOC-WW3
--->	
 	<include installTo="menu:models" 
+             fileName="menus/volume/baseComparisonFamilies.xml">
+    </include>
+    <include installTo="menu:models" 
+             fileName="menus/volume/ww3.xml">
+             <substitute key="modelName" value="FNMOC-WW3" />
+             <substitute key="menuName" value="FNMOC WW3" />
+             <substitute key="frameCount" value="39" />
+             <substitute key="TP" value="TP"/>
+    </include>
+     <include installTo="menu:models" 
+             fileName="menus/volume/WaveWatch.xml">
+             <substitute key="modelName" value="WaveWatch" />
+             <substitute key="menuName" value="NOAA WW3" />
+             <substitute key="frameCount" value="32" />
+             <substitute key="TP" value="TP"/>
+    </include>
+   	<include installTo="menu:models" 
              fileName="menus/volume/oceanFamilies.xml">
              <substitute key="modelName" value="ESTOFS" />
              <substitute key="menuName" value="ESTOFS" />
-             <substitute key="frameCount" value="12" />
+             <substitute key="frameCount" value="41" />
              <substitute key="TP" value="TP"/>
     </include>
 	<include installTo="menu:models" 
              fileName="menus/volume/oceanFamilies.xml">
              <substitute key="modelName" value="ETSS" />
              <substitute key="menuName" value="ETSS Storm Surge" />
-             <substitute key="frameCount" value="12" />
+             <substitute key="frameCount" value="41" />
              <substitute key="TP" value="TP"/>
     </include>
-	<include installTo="menu:models" 
-             fileName="menus/volume/baseComparisonFamilies.xml">
-    </include>
-	<!--
-	<include installTo="menu:models" 
-             fileName="menus/volume/allFamilies.xml">
-             <substitute key="modelName" value="FNMOC-WW3" />
-             <substitute key="frameCount" value="12" />
-             <substitute key="TP" value="TP"/>
-    </include>
-	-->
-    <!-- 
-    <include installTo="menu:models" 
-             fileName="menus/volume/ModelFamilies.xml">
-    </include>
-    
-    
-    <include subMenu="4-Panel 500MB Height / Vorticity / Omega" installTo="menu:models" 
-             fileName="menus/volume/baseFourPanelFamilies.xml">
-    </include>
-    
-    <include installTo="menu:models" 
-             fileName="menus/volume/baseStdEnvPackage.xml">
-    </include>
-    -->
 </menuContributionFile>
