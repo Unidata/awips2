@@ -20,7 +20,7 @@
 		</process>
 	</model>
 	<model>
-		<name>PR-ESTOFS</name>
+		<name>estofsPR</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
 		<grid>339227001</grid>
@@ -1396,7 +1396,7 @@
 	</model>
 
 	<model>
-		<name>HiResW-ARW-Hawaii</name>
+		<name>Hawaii-HiResW-ARW</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>255005</grid>
@@ -1468,7 +1468,7 @@
 	</model>
 
 	<model>
-		<name>HiResW-NMM-Hawaii</name>
+		<name>Hawaii-HiResW-NMM</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>255005</grid>
@@ -3193,7 +3193,7 @@
 	</model>
 
 	<model>
-		<name>MOSGuide-Hawaii</name>
+		<name>Hawaii-MOSGuide</name>
 		<center>7</center>
 		<subcenter>14</subcenter>
 		<grid>625561001</grid>
