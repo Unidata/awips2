@@ -40,5 +40,10 @@
 			    menuText="Sfc Vorticity and Wind" id="" useReferenceTime="true">
 			<substitute key="frameCount" value="${frameCount}"/>
 		</contribute>
+		<contribute xsi:type="titleItem" titleText="------------------------"/>
+		<contribute xsi:type="bundleItem" file="bundles/volume/WaveWatch-FourPanel.xml"
+			    menuText="Four Panel Display" id="" useReferenceTime="true">
+			<substitute key="frameCount" value="${frameCount}"/>
+		</contribute>
 	</contribute>
 </menuTemplate>
