@@ -69,6 +69,8 @@ import com.raytheon.uf.viz.d2d.ui.actions.TimeOptionsAction;
  * May 5, 2009            bgonzale     Initial creation
  * Oct 5, 2015  4934      bsteffen     Do not re-use datatimes for overlays in
  *                                     VALID_TIME_SEQ
+ * Mar 3, 2016  5436      bsteffen     Do not throw illegal state exception
+ *                                     when in an unexpected state.
  * 
  * </pre>
  * 
@@ -195,8 +197,7 @@ public class D2DTimeMatchingConfigurationFactory extends
             break;
         case FORCED:
         case FCST_TIME_MATCH:
-            throw new IllegalStateException(config.getLoadMode().getLabel()
-                    + " should only be used for overlay resources.");
+            // You chould not be here
         default:
             // No Dialogs
             break;
