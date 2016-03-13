@@ -19,7 +19,7 @@
         further_licensing_information.
     -->
 <menuContributionFile>
-	<include installTo="menu:obs?after=HAZARDS" 
+	<include installTo="menu:obs?after=WATCHWARN" 
              fileName="menus/warnings/baseWarnings.xml">
         <!-- Defaults to OAX, if there is a warnings index.xml file for the site
         you are localized to, that file will be used instead of the one here -->
