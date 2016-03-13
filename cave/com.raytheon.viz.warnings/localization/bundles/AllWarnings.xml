@@ -7,7 +7,7 @@
                		<loadProperties loadWithoutData="true">
                         <capabilities>
                             <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true"
-                                outlineWidth="1" />
+                                outlineWidth="2" />
                             <capability xsi:type="colorableCapability" colorAsString="#545454" />
                         </capabilities>
                     </loadProperties>
@@ -19,7 +19,7 @@
 						isRequeryNecessaryOnTimeMatch="true"
 						retrieveData="false"
 						name="All Warnings"
-						hideSampling="true">
+						hideSampling="false">
 						<metadataMap>							
 							<mapping key="pluginName">
 								<constraint constraintValue="warning" constraintType="EQUALS" />
@@ -40,7 +40,7 @@
                     <loadProperties loadWithoutData="true">
                         <capabilities>
                             <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true"
-                                outlineWidth="1" />
+                                outlineWidth="2" />
                             <capability xsi:type="colorableCapability" colorAsString="#ffff00" />
                         </capabilities>
                     </loadProperties>
@@ -71,7 +71,7 @@
                     <loadProperties loadWithoutData="true">
                         <capabilities>
                             <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true"
-                                outlineWidth="1" />
+                                outlineWidth="2" />
                             <capability xsi:type="colorableCapability" colorAsString="#ff0000" />
                         </capabilities>
                     </loadProperties>
@@ -102,7 +102,7 @@
                     <loadProperties loadWithoutData="true">
                         <capabilities>
                             <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true"
-                                outlineWidth="1" />
+                                outlineWidth="2" />
                             <capability xsi:type="colorableCapability" colorAsString="#ee82ee" />
                         </capabilities>
                     </loadProperties>
@@ -133,7 +133,7 @@
                		<loadProperties loadWithoutData="true">
                         <capabilities>
                             <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true"
-                                outlineWidth="1" />
+                                outlineWidth="2" />
                             <capability xsi:type="colorableCapability" colorAsString="#00FFFF" />
                         </capabilities>
                     </loadProperties>
@@ -165,7 +165,7 @@
                     <loadProperties loadWithoutData="true">
                         <capabilities>
                             <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true"
-                                outlineWidth="1" />
+                                outlineWidth="2" />
                             <capability xsi:type="colorableCapability" colorAsString="#00ff7f" />
                         </capabilities>
                     </loadProperties>
@@ -196,7 +196,7 @@
                     <loadProperties loadWithoutData="true">
                         <capabilities>
                             <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true"
-                                outlineWidth="1" />
+                                outlineWidth="2" />
                             <capability xsi:type="colorableCapability" colorAsString="#3cb371" />
                         </capabilities>
                     </loadProperties>
@@ -227,7 +227,7 @@
                     <loadProperties loadWithoutData="true">
                         <capabilities>
                             <capability xsi:type="outlineCapability" lineStyle="DASHED" outlineOn="true"
-                                outlineWidth="1" />
+                                outlineWidth="2" />
                             <capability xsi:type="colorableCapability" colorAsString="#8fbc8f" />
                         </capabilities>
                     </loadProperties>
@@ -258,7 +258,7 @@
                     <loadProperties loadWithoutData="true">
                         <capabilities>
                             <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true"
-                                outlineWidth="1" />
+                                outlineWidth="2" />
                             <capability xsi:type="colorableCapability" colorAsString="#bbbbbb" />
                         </capabilities>
                     </loadProperties>
