@@ -1,0 +1,132 @@
+# After changing this file, check it on:
+#   http://lint.travis-ci.org/
+language: python
+sudo: false
+
+addons:
+  artifacts:
+    target_paths: /
+    paths:
+      - $(find $WHEELDIR -newer $WHEELDIR/download_marker -name *.whl | tr [:space:] :)
+  apt:
+    packages: &base_build
+    - libblas-dev
+    - liblapack-dev
+    - gfortran
+    - libproj-dev
+
+python:
+  - 3.5
+  - 2.7
+
+env:
+  global:
+    - secure: "MOw+6pAQ8s7XX1U9Pbgw8SIuz5MHODj6PXe6xCSIyGR14/0KFNiR9s6NEIa9i7qnp7HOq/V2M9ZFPPioQCrL8k5V4XzZfNz6kXGUT8DoSAAnAAnDWy4yMRxYMlEcjSY8l0KZ9B3szxypkLh0Qd9+pHZYvRSLt8A8UcZSVSNGDjg="
+    - WHEELHOUSE="https://unidata-python.s3.amazonaws.com/wheelhouse/index.html"
+    - WHEELDIR="wheelhouse/"
+    - EXTRA_INSTALLS="test,cdm"
+  matrix:
+    - TASK="coverage"
+    - TASK="examples"
+    - TASK="lint"
+
+matrix:
+  include:
+    - python: 2.7
+      env: VERSIONS="numpy==1.8.0 matplotlib==1.4.0 scipy==0.13.3 pint==0.6"
+    # Docs built on 2.7 because that's what readthedocs uses
+    - python: 2.7
+      env: TASK="docs"
+      addons:
+        apt:
+          packages:
+            - *base_build
+            - pandoc
+    - python: 3.3
+      env:
+    - python: 3.4
+      env:
+    - python: "3.5-dev"
+      env: PRE="--pre"
+    - python: nightly
+      env: PRE="--pre"
+  allow_failures:
+    - python: "3.5-dev"
+    - python: nightly
+
+before_install:
+  - pip install --upgrade pip;
+  - if [[ $TASK == "lint" ]]; then
+      pip install flake8 pep8-naming;
+    elif [[ $TASK == "docs" ]]; then
+        pip install -r docs/requirements.txt -f $WHEELHOUSE;
+    else
+      if [[ $TASK == "examples" ]]; then
+        export EXTRA_INSTALLS="$EXTRA_INSTALLS,examples";
+        export EXTRA_PACKAGES="Cython nbconvert ipykernel";
+      else
+        export TEST_OPTS="--mpl";
+        pip install pytest-mpl;
+        if [[ $TASK == "coverage" ]]; then
+          export TEST_OPTS="$TEST_OPTS --cov=metpy";
+          pip install pytest-cov;
+        fi;
+      fi;
+      mkdir $WHEELDIR;
+      pip download -d $WHEELDIR ".[$EXTRA_INSTALLS]" $EXTRA_PACKAGES -f $WHEELHOUSE $PRE $VERSIONS;
+      touch $WHEELDIR/download_marker && ls -lrt $WHEELDIR;
+      travis_wait pip wheel -w $WHEELDIR $EXTRA_PACKAGES -f $WHEELHOUSE $PRE $VERSIONS;
+      pip install $EXTRA_PACKAGES --upgrade --no-index -f file://$PWD/$WHEELDIR $VERSIONS;
+      travis_wait pip wheel -w $WHEELDIR ".[$EXTRA_INSTALLS]" $EXTRA_PACKAGES -f $WHEELHOUSE $PRE $VERSIONS;
+      rm -f $WHEELDIR/MetPy*.whl;
+    fi
+
+install:
+  - if [[ $TASK != "lint" && $TASK != "docs" ]]; then
+      pip install ".[$EXTRA_INSTALLS]" --upgrade --no-index -f file://$PWD/$WHEELDIR $VERSIONS;
+      if [[ $TASK == "examples" ]]; then
+        python setup.py examples;
+      fi;
+    fi
+
+script:
+  - if [[ $TASK == "lint" ]]; then
+      flake8 metpy;
+    elif [[ $TASK == "docs" ]]; then
+      cd docs;
+      make html 2>docs.log;
+      if [ -s docs.log ]; then
+        echo Doc build produced warnings or errors:;
+        cat docs.log;
+        false;
+      fi;
+    elif [[ $TASK == "examples" ]]; then
+      export TEST_DATA_DIR=${TRAVIS_BUILD_DIR}/testdata;
+      if [[ $TRAVIS_PYTHON_VERSION == 2* ]]; then
+        sed -i -e "s/python3/python2/" examples/notebooks/*.ipynb;
+      fi;
+      find examples/notebooks/ -name \*.ipynb -print0 | xargs -0 -n1 jupyter nbconvert --execute --ExecutePreprocessor.timeout=60 --to=notebook --stdout >| /dev/null;
+    else
+      python setup.py test --addopts "$TEST_OPTS";
+    fi
+
+after_success:
+  - if [[ $TASK == "coverage" ]]; then
+      pip install codecov codacy-coverage;
+      codecov;
+      coverage xml;
+      python-codacy-coverage -r coverage.xml;
+    fi
+
+deploy:
+  provider: pypi
+  user: dopplershift
+  password:
+    secure: VYbxLZZnQ1hR2WZwe6+NXLNVbxceDQzlaVM/G3PW8mYlnyWgIVJBgCcgpH22wT4IsNQqo1r9ow9HiybzwcU1VTZ9KXjYsjre/kCZob0jmuPKlDtujOLaMJFf0XzOw7Y/AFXaMakFA8ZOYJLaMXc0WMLwGT7Hw/oP/e2ztpVLxRA=
+  distributions: sdist bdist_wheel
+  upload_docs: no
+  on:
+    repo: metpy/MetPy
+    python: 3.5
+    condition: '$TASK == "coverage"'
+    tags: true

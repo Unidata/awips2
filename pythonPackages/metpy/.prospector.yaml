@@ -1,0 +1,17 @@
+ignore-paths:
+  - doc
+  - build
+  - versioneer.py
+  - metpy/_version.py
+# Until the SyntaxError this causes with PyLint is fixed
+  - metpy/io/tools.py
+  - metpy/io/nexrad.py
+  - examples
+
+pylint:
+  disable:
+    - unbalanced-tuple-unpacking
+
+pep8:
+  options:
+    max-line-length: 95
