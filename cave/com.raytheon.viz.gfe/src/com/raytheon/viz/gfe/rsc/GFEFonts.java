@@ -48,6 +48,7 @@ import com.raytheon.viz.gfe.GFEPreference;
  *                                     a FontData object.
  * Nov 20, 2013 #2488      randerso    Changed to use DejaVu fonts
  * Nov 05, 2015 #5070      randerso    Remove scale factor for GLFonts (was adjusting for DPI)
+ * Mar 10, 2016 #5479      randerso    Cleaned up for more general use throughout GFE
  * 
  * </pre>
  * 
@@ -77,11 +78,11 @@ public class GFEFonts {
      *            GFE font size 0-4
      * @return FontData for the requested font
      */
-    public static FontData getFontData(int size) {
+    private static FontData getFontData(int size) {
         int i = size;
         if (i < 0) {
             i = 0;
-        } else if (i > NUM_FONTS - 1) {
+        } else if (i > (NUM_FONTS - 1)) {
             i = NUM_FONTS - 1;
         }
         return getFontData()[i];
@@ -124,6 +125,23 @@ public class GFEFonts {
     }
 
     /**
+     * Returns the desired GFE font for the specified device. The caller is
+     * responsible for disposing the font.
+     * 
+     * @param device
+     *            SWT graphics device
+     * @param size
+     *            GFE font size 0-4
+     * @param style
+     *            The SWT style of the font
+     * @return desired GFE font
+     */
+    private static Font getFont(Device device, int size, int style) {
+        FontData fd = getFontData(size);
+        return new Font(device, new FontData(fd.name, (int) fd.height, style));
+    }
+
+    /**
      * Returns the desired GFE font for the specified target. The caller is
      * responsible for disposing the font.
      * 
@@ -159,6 +177,45 @@ public class GFEFonts {
     }
 
     /**
+     * @param setting
+     *            The configuration setting name to check for a font number
+     *            override.
+     * @param fontNum
+     *            The default GFE font number.
+     * @return the GFE font number
+     */
+    public static int getFontNum(String setting, int fontNum) {
+        if (GFEPreference.contains(setting)) {
+            fontNum = GFEPreference.getIntPreference(setting);
+        }
+        return fontNum;
+    }
+
+    /**
+     * Derive a font from the system font of gc, using configName to retrieve
+     * the font number from the current configuration file. This should be a
+     * value in the range 0-4. If the current config file does not contain the
+     * setting, font number 2 is used.
+     * 
+     * @param device
+     * 
+     * @param gc
+     *            The current graphics context.
+     * @param setting
+     *            The configuration setting name to check for a font number
+     *            override.
+     * @param style
+     *            The SWT style of the font
+     * @param fontNum
+     *            The default GFE font number.
+     * @return SWT font
+     */
+    public static Font makeGFEFont(Device device, String setting, int style,
+            int fontNum) {
+        return getFont(device, getFontNum(setting, fontNum), style);
+    }
+
+    /**
      * The map uses font settings like other GFE components, but can't use the
      * fonts returned by GFEFonts directly because they're SWT fonts and it
      * needs IFonts. This method does the conversion, taking a target to build
@@ -179,19 +236,6 @@ public class GFEFonts {
      */
     public static IFont makeGFEIFont(IGraphicsTarget target, String setting,
             int fontNum) {
-        if (GFEPreference.contains(setting)) {
-            fontNum = GFEPreference.getIntPreference(setting);
-        }
-
-        return getFont(target, fontNum);
-    }
-
-    /**
-     * Get the number of predefined GFE fonts.
-     * 
-     * @return The number of GFE fonts
-     */
-    public static int getNumFonts() {
-        return NUM_FONTS;
+        return getFont(target, getFontNum(setting, fontNum));
     }
 }

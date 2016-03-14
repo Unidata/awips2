@@ -55,9 +55,9 @@ import org.eclipse.ui.progress.UIJob;
 
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.viz.gfe.Activator;
-import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.GFEServerException;
 import com.raytheon.viz.gfe.core.msgs.IGlobalSelectionTRChangedListener;
 import com.raytheon.viz.gfe.core.msgs.Message;
@@ -76,6 +76,8 @@ import com.raytheon.viz.gfe.ui.SelectTRMenu;
  * ------------ ---------- ----------- --------------------------
  * 02/19/2008              dfitch      Initial creation.
  * Apr 7, 2009       #2212 randerso    Reimplemented
+ * Mar 10, 2016 #5479      randerso    Use improved GFEFonts API
+ *                                     Code cleanup
  * </pre>
  * 
  * @author dfitch
@@ -144,10 +146,6 @@ public class TimeScale extends Canvas implements IMessageClient {
 
     private IGlobalSelectionTRChangedListener globalTRListener;
 
-    private int periodFontNum;
-
-    private int hourFontNum;
-
     private Font periodFont;
 
     private Font hourFont;
@@ -191,13 +189,10 @@ public class TimeScale extends Canvas implements IMessageClient {
         Activator.getDefault().getPreferenceStore()
                 .addPropertyChangeListener(periodListener);
 
-        hourFontNum = 2;
-        if (GFEPreference.contains("TimeScale_font")) {
-            hourFontNum = GFEPreference.getIntPreference("TimeScale_font");
-        }
-        periodFontNum = Math.max(hourFontNum - 1, 0);
+        int hourFontNum = GFEFonts.getFontNum("TimeScale_font", 2);
         hourFont = GFEFonts.getFont(getDisplay(), hourFontNum);
-        periodFont = GFEFonts.getFont(getDisplay(), periodFontNum);
+        periodFont = GFEFonts.getFont(getDisplay(),
+                Math.max(hourFontNum - 1, 0));
 
         globalTRListener = new IGlobalSelectionTRChangedListener() {
 
@@ -406,15 +401,15 @@ public class TimeScale extends Canvas implements IMessageClient {
         // if room, then paint label, and then leader lines
         gc.setLineStyle(SWT.LINE_DOT);
         if (availableWidth >= labelSize.x) {
-            gc.drawString(label, labelXLoc - labelSize.x / 2, y1, true);
+            gc.drawString(label, labelXLoc - (labelSize.x / 2), y1, true);
 
             // left line and arrow
-            gc.drawLine(x1, y1 + d, labelXLoc - labelSize.x / 2, y1 + d);
+            gc.drawLine(x1, y1 + d, labelXLoc - (labelSize.x / 2), y1 + d);
             gc.drawLine(x1, y1 + d, x1 + d, y1);
             gc.drawLine(x1, y1 + d, x1 + d, y2);
 
             // right line and arrow
-            gc.drawLine(x2, y1 + d, labelXLoc + labelSize.x / 2, y1 + d);
+            gc.drawLine(x2, y1 + d, labelXLoc + (labelSize.x / 2), y1 + d);
             gc.drawLine(x2, y1 + d, x2 - d, y1);
             gc.drawLine(x2, y1 + d, x2 - d, y2);
         }
@@ -449,7 +444,7 @@ public class TimeScale extends Canvas implements IMessageClient {
         gc.setFont(hourFont);
 
         int pixelsPerDay = gridManager.getUtil().durationToPixels(
-                GridManagerUtil.MILLIS_PER_HOUR * 24);
+                TimeUtil.MILLIS_PER_HOUR * 24);
         int xMax = getClientArea().width;
 
         gc.setLineWidth(0);
@@ -459,7 +454,7 @@ public class TimeScale extends Canvas implements IMessageClient {
         int hour = currentTickCal.get(Calendar.HOUR_OF_DAY);
         if (hour > 0) {
             int width = gridManager.getUtil().durationToPixels(
-                    (24 - hour) * GridManagerUtil.MILLIS_PER_HOUR);
+                    (24 - hour) * TimeUtil.MILLIS_PER_HOUR);
             paintDate(gc, getClientArea().x, top + PERIOD_FONT_HEIGHT, width,
                     currentTickDate);
         }
@@ -475,13 +470,13 @@ public class TimeScale extends Canvas implements IMessageClient {
                 int width = Math.min(xMax - x, pixelsPerDay);
                 paintDate(gc, x, top + PERIOD_FONT_HEIGHT, width,
                         currentTickDate);
-            } else if (hour % gridManager.getUtil().getHourIncrement() == 0) {
+            } else if ((hour % gridManager.getUtil().getHourIncrement()) == 0) {
                 // draw major tick
                 gc.drawLine(x, bottom - MAJOR_TICK, x, bottom);
 
                 String s = String.format("%02d", hour);
                 Point p = gc.stringExtent(s);
-                gc.drawString(s, x - p.x / 2, top + PERIOD_FONT_HEIGHT
+                gc.drawString(s, x - (p.x / 2), top + PERIOD_FONT_HEIGHT
                         + HOUR_FONT_HEIGHT, true);
             } else {
                 // draw minor tick
@@ -521,10 +516,10 @@ public class TimeScale extends Canvas implements IMessageClient {
         do {
             s = dateFormat[i++].format(date);
             p = gc.stringExtent(s);
-        } while (i < dateFormat.length && p.x > width);
+        } while ((i < dateFormat.length) && (p.x > width));
 
         if (p.x <= width) {
-            gc.drawString(s, x + (width - p.x) / 2, y, true);
+            gc.drawString(s, x + ((width - p.x) / 2), y, true);
         }
     }
 
@@ -537,8 +532,8 @@ public class TimeScale extends Canvas implements IMessageClient {
         gc.setLineStyle(SWT.LINE_SOLID);
         gc.setLineWidth(0);
         gc.setForeground(CurrentSystemTime_color);
-        gc.drawPolyline(new int[] { x, 0, x, y, x - y / 2, 0, x + y / 2, 0, x,
-                y });
+        gc.drawPolyline(new int[] { x, 0, x, y, x - (y / 2), 0, x + (y / 2), 0,
+                x, y });
     }
 
     /**

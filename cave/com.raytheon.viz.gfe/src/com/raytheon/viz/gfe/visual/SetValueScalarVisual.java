@@ -49,7 +49,8 @@ import com.raytheon.viz.gfe.rsc.GFEFonts;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 22, 2009 #1318      randerso     Initial creation
+ * Jun 22, 2009 #1318      randerso    Initial creation
+ * Mar 10, 2016 #5479      randerso    Use improved GFEFonts API
  * 
  * </pre>
  * 
@@ -81,25 +82,12 @@ public class SetValueScalarVisual {
         scaleVisual.setCanvas(canvas);
 
         // Get the font for the scale
-        int scaleFontNum = 2;
-        if (GFEPreference.contains("SetValueContLabel_font")) {
-            scaleFontNum = GFEPreference
-                    .getIntPreference("SetValueContLabel_font");
-        }
-        if (contLabelFont == null) {
-            contLabelFont = GFEFonts.getFont(canvas.getDisplay(), scaleFontNum);
-        }
+        contLabelFont = GFEFonts.makeGFEFont(canvas.getDisplay(),
+                "SetValueContLabel_font", SWT.BOLD, 2);
 
         // Get the font for the pick up value
-        int pickupFontNum = 3;
-        if (GFEPreference.contains("SetValuePickUp_font")) {
-            pickupFontNum = GFEPreference
-                    .getIntPreference("SetValuePickUp_font");
-        }
-
-        if (pickupFont == null) {
-            pickupFont = GFEFonts.getFont(canvas.getDisplay(), pickupFontNum);
-        }
+        pickupFont = GFEFonts.makeGFEFont(canvas.getDisplay(),
+                "SetValuePickUp_font", SWT.BOLD, 3);
 
         zoomedIn = false;
         if (GFEPreference.contains(parm.getParmID().compositeNameUI()
@@ -218,8 +206,8 @@ public class SetValueScalarVisual {
         int y1 = minParm.y;
         int y2;
         for (Color colorEntry : colorMapParameters.getColorMap().getColors()) {
-            if (i < colorMapParameters.getColorMap().getSize() - 1) {
-                y2 = (int) (y0 + (i + 1) * height);
+            if (i < (colorMapParameters.getColorMap().getSize() - 1)) {
+                y2 = (int) (y0 + ((i + 1) * height));
             } else {
                 y2 = maxParm.y;
             }
@@ -287,11 +275,11 @@ public class SetValueScalarVisual {
      * @see java.lang.Object#finalize()
      */
     public void dispose() {
-        if (pickupFont != null && !pickupFont.isDisposed()) {
+        if ((pickupFont != null) && !pickupFont.isDisposed()) {
             pickupFont.dispose();
             pickupFont = null;
         }
-        if (this.contLabelFont != null && !contLabelFont.isDisposed()) {
+        if ((this.contLabelFont != null) && !contLabelFont.isDisposed()) {
             contLabelFont.dispose();
             contLabelFont = null;
         }

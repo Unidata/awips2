@@ -71,7 +71,6 @@ import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
-import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.rsc.GFEFonts;
 import com.raytheon.viz.gfe.rsc.ZoneDbResourceData;
@@ -94,11 +93,12 @@ import com.vividsolutions.jts.io.WKBReader;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- *                         wldougher     Initial creation
- * Jul 11, 2011 9928       rferrel       moveGroup now takes list of groups.
- * Jun 24, 2013 2134       randerso      Fixed NullPointerException in fitToCWA.
- * Aug 14, 2014 3523       mapeters      Updated deprecated {@link DrawableString#textStyle} 
- *                                       assignments.
+ *                         wldougher   Initial creation
+ * Jul 11, 2011 9928       rferrel     moveGroup now takes list of groups.
+ * Jun 24, 2013 2134       randerso    Fixed NullPointerException in fitToCWA.
+ * Aug 14, 2014 3523       mapeters    Updated deprecated {@link DrawableString#textStyle} 
+ *                                     assignments.
+ * Mar 10, 2016 5479       randerso    Use improved GFEFonts API
  * 
  * </pre>
  * 
@@ -441,7 +441,8 @@ public class ZoneDbResource extends
         if (paintProps.isZooming()) {
             target.setNeedsRefresh(true);
         } else {
-            if (oldScreenExtent == null || oldSimpLevels == null || isFilthy()
+            if ((oldScreenExtent == null) || (oldSimpLevels == null)
+                    || isFilthy()
                     || !oldScreenExtent.getEnvelope().covers(screenEnv)
                     || !oldSimpLevels.equals(simpLevels)
                     || !resourceData.getTables().equals(oldQTables)) {
@@ -460,9 +461,9 @@ public class ZoneDbResource extends
                     List<?> rdgt = resourceData.getTables();
                     dbReadReason = "!resourceData.getTables().equals(oldQTables))"
                             + "\nresourceData.getTables().size():"
-                            + ((rdgt == null) ? null : rdgt.size())
+                            + (rdgt == null ? null : rdgt.size())
                             + "\noldQTables.size():"
-                            + ((oldQTables == null) ? null : oldQTables.size());
+                            + (oldQTables == null ? null : oldQTables.size());
                 }
                 PixelExtent expandedExtent = getExpandedExtent(screenExtent);
                 oldScreenExtent = expandedExtent;
@@ -687,7 +688,7 @@ public class ZoneDbResource extends
             String[] queryColumns = resourceData.getQueryColumns(table);
             for (int i = 0; i < queryColumns.length; i++) {
                 sb.append(queryColumns[i]);
-                if (i < queryColumns.length - 1) {
+                if (i < (queryColumns.length - 1)) {
                     sb.append(", ");
                 }
             }
@@ -699,7 +700,7 @@ public class ZoneDbResource extends
             if (constraints != null) {
                 for (int i = 0; i < constraints.length; i++) {
                     sb.append(constraints[i]);
-                    if (i < constraints.length - 1) {
+                    if (i < (constraints.length - 1)) {
                         sb.append(" AND ");
                     }
                 }
@@ -816,8 +817,8 @@ public class ZoneDbResource extends
                     // Need to build shape for the new group
                     reasonReason.append(" gn>").append(oldGroups.size());
                     kill = true;
-                } else if (!(request.groups.get(groupNum).equals(oldGroups
-                        .get(groupNum)))) {
+                } else if (!request.groups.get(groupNum).equals(
+                        oldGroups.get(groupNum))) {
                     // Need to build for changed zone membership
                     reasonReason.append(String.format(" g[%d]!=old %s!=%s",
                             groupNum, request.groups.get(groupNum).toString(),
@@ -910,7 +911,7 @@ public class ZoneDbResource extends
                 if (rsp.groupShapes != null) {
                     if (groupShapes != null) {
                         int dispCount = 0;
-                        int rspSize = (rsp.groupShapes == null) ? 0
+                        int rspSize = rsp.groupShapes == null ? 0
                                 : rsp.groupShapes.size();
                         // Dispose of any group shapes that have been
                         // replaced
@@ -1190,7 +1191,7 @@ public class ZoneDbResource extends
                 }
             } else {
                 // When only an empty group remove so zone numbers start at one.
-                if (groups.size() == 1 && groups.get(0).size() == 0) {
+                if ((groups.size() == 1) && (groups.get(0).size() == 0)) {
                     groups.clear();
                 }
 
@@ -1430,7 +1431,7 @@ public class ZoneDbResource extends
                 zoneGroup.remove(zoneId);
             }
             if (zoneIndex >= 0) {
-                while (zoneIndex > groups.size() - 1) {
+                while (zoneIndex > (groups.size() - 1)) {
                     groups.add(new ArrayList<String>());
                 }
                 Map<Object, RGB> rscCmap = resourceData.getColorMap();
@@ -1832,8 +1833,7 @@ public class ZoneDbResource extends
                 try {
                     db_geom = wkbReader.read(data.wkb);
                     Geometry intersectGeom = db_geom.intersection(geom);
-                    if (intersectGeom.getArea() >= db_geom.getArea()
-                            * areaThreshold) {
+                    if (intersectGeom.getArea() >= (db_geom.getArea() * areaThreshold)) {
                         zoneIDs.add(data.zone);
                     }
                 } catch (ParseException e) {
@@ -2002,12 +2002,7 @@ public class ZoneDbResource extends
     protected void paintLabels() throws VizException {
         // Draw the labels on top of everything else
         if (labelFont == null) {
-            int fontNum = 2;
-            if (GFEPreference.contains("ZoneMapLabel_font")) {
-                fontNum = GFEPreference.getIntPreference("ZoneMapLabel_font");
-            }
-
-            labelFont = GFEFonts.getFont(target, fontNum);
+            labelFont = GFEFonts.makeGFEIFont(target, "ZoneMapLabel_font", 2);
         }
 
         if (labelZones) {
@@ -2144,8 +2139,8 @@ public class ZoneDbResource extends
                 coord = refCoord.asPixel(mapGeometry);
                 for (LabelTuple old : alreadyDrawn) {
                     if (old.zone.equals(zone) && old.text.equals(text)) {
-                        double distance = scaleX * Math.abs(old.x - coord.x)
-                                + scaleY * Math.abs(old.y - coord.y);
+                        double distance = (scaleX * Math.abs(old.x - coord.x))
+                                + (scaleY * Math.abs(old.y - coord.y));
                         if (distance < MIN_LABEL_DISTANCE) {
                             continue refcLoop;
                         }
