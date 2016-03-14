@@ -1552,7 +1552,7 @@ TO.A, SV.A""",
     "checkStrings": [
        "WWUS62 KTBW 160500",
        "WCNTBW",
-       "Watch County Notification for watches 1234/5643",
+       "Watch County Notification for Watches 1234/5643",
        "National Weather Service Tampa Bay Ruskin FL",
        "1200 AM EST Sat Jan 16 2010",
        "FLC075-162000-",

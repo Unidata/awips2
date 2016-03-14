@@ -92,7 +92,7 @@ scripts = [
           "...FLASH FLOOD WATCH IN EFFECT FROM 11 PM THIS EVENING TO 2 AM EDT THURSDAY...",
           "The National Weather Service in Tampa Bay Ruskin has issued a",
           "* Flash Flood Watch for portions of central Florida...northern Florida...south central Florida...southwest Florida and west central Florida...including the following areas...in central Florida...Hardee...Polk and Sumter. In northern Florida...Coastal Levy and Inland Levy. In south central Florida...DeSoto and Highlands. In southwest Florida...Coastal Charlotte...Coastal Lee...Inland Charlotte and Inland Lee. In west central Florida...Coastal Citrus...Coastal Hernando...Coastal Hillsborough...Coastal Manatee...Coastal Pasco...Coastal Sarasota...Inland Citrus...Inland Hernando...Inland Hillsborough...Inland Manatee...Inland Pasco...Inland Sarasota and Pinellas.",
-          "* from 11 PM this evening to 2 AM EDT Thursday",
+          "* From 11 PM this evening to 2 AM EDT Thursday",
           "PRECAUTIONARY/PREPAREDNESS ACTIONS...", 
           "&&",
         ],
@@ -425,7 +425,7 @@ scripts = [
      "checkStrings" : [
         "WWUS62 KTBW 262300",
         "WCNTBW",
-        "Watch County Notification for watch 123",
+        "Watch County Notification for Watch 123",
         "National Weather Service Tampa Bay Ruskin FL",
         "700 PM EDT Wed May 26 2010",
         "FLC015-017-027-049-053-055-057-071-",

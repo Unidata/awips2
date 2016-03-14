@@ -98,9 +98,9 @@ class TextProduct(GenericHazards.TextProduct):
                 allWatchList.append(hazard['etn'])
 
         if len(allWatchList) == 1:                        
-            watchPhrase = " for watch " +  str(allWatchList[0])
+            watchPhrase = " for Watch " +  str(allWatchList[0])
         else:
-            watchPhrase = " for watches "
+            watchPhrase = " for Watches "
             allWatchList.sort()
             for x in xrange(len(allWatchList)):
                 watchPhrase = watchPhrase + str(allWatchList[x])

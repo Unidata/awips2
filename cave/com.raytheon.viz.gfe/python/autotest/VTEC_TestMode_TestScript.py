@@ -157,7 +157,7 @@ scripts = [
       "...TEST FLASH FLOOD WATCH IN EFFECT UNTIL 6 AM EST EARLY THIS MORNING TEST...",
       "The National Weather Service in Tampa Bay Ruskin has issued a",
       "* Test Flash Flood Watch for a portion of west central Florida...including the following areas...Coastal Pasco and Pinellas.",
-      "* until 6 AM EST early this morning",
+      "* Until 6 AM EST early this morning",
       "* |* Basis for the watch *|",
       "* |* (optional) potential impacts of flooding *|",
       "PRECAUTIONARY/PREPAREDNESS ACTIONS...",
@@ -685,7 +685,7 @@ scripts = [
     "checkStrings": [
        "WWUS62 KTBW 010900",
        "WCNTBW",
-       "TEST...Watch County Notification for watch 46...TEST",
+       "TEST...Watch County Notification for Watch 46...TEST",
        "National Weather Service Tampa Bay Ruskin FL",
        "400 AM EST Fri Jan 1 2010",
        "FLC017-020000-",

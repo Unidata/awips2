@@ -181,6 +181,9 @@ class TimeDescriptor(TimeRangeUtils.TimeRangeUtils, Interfaces.Interfaces):
                 label = Holidays.getHolidayLabel(timeRange.startTime())
 
             if label != "":
+                if labelType == "CapitalWithPeriod":
+                    label = label.upper()
+                    
                 return pre + label + post
 
         # Check for today or tonight

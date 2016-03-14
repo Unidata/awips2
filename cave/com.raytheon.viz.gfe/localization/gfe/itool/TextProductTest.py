@@ -844,7 +844,7 @@ class ITool (ISmartScript.ISmartScript):
 #                count = 0
                 t1 = time.time();
 #                time.sleep(0.1);
-                time.sleep(2)
+                time.sleep(1)
 #                while count < 50:
 #                    modTime1 = self._dataMgr.ifpClient().vtecTableModTime(
 #                      "PRACTICE")

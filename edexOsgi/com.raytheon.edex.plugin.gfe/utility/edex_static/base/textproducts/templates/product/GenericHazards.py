@@ -1078,7 +1078,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
         #text (default or cap) is wrapped in framing codes, or 
         #DefaultOnly" in which just the default text is wrapped.
         if capText is not None and len(capText):
-            textToUse = capText
+            textToUse = capText[0].upper()+capText[1:]
             if frameit == "Always":
                 textToUse = "|* " + textToUse + " *|"
         else:
