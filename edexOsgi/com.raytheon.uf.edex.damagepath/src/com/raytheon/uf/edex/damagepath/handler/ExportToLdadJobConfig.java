@@ -31,6 +31,7 @@ package com.raytheon.uf.edex.damagepath.handler;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 09, 2015  #3755     dgilling    Initial creation
+ * Mar 10, 2016  #5288     dgilling    Add postProcessCommand field.
  * 
  * </pre>
  * 
@@ -46,11 +47,14 @@ public final class ExportToLdadJobConfig {
 
     private final String destinationPath;
 
+    private final String postProcessCommand;
+
     public ExportToLdadJobConfig(String user, String host,
-            String destinationPath) {
-        this.user = user;
-        this.host = host;
-        this.destinationPath = destinationPath;
+            String destinationPath, String postProcessCommand) {
+        this.user = user.trim();
+        this.host = host.trim();
+        this.destinationPath = destinationPath.trim();
+        this.postProcessCommand = postProcessCommand.trim();
     }
 
     public String getUser() {
@@ -63,5 +67,9 @@ public final class ExportToLdadJobConfig {
 
     public String getDestinationPath() {
         return destinationPath;
+    }
+
+    public String getPostProcessCommand() {
+        return postProcessCommand;
     }
 }
