@@ -110,7 +110,7 @@ import com.raytheon.viz.mpe.ui.dialogs.gagetable.xml.GageTableSortType;
  * Dec 02, 2015 18094      lbousaidi  added the sorting method for multi column sorting.
  * Dec 07, 2015 18137      lbousaidi  fixed sorting after editing gages.
  * Jan 13, 2016 18092      snaples    Updated to have column adjustment by drag and drop.
- *
+ * Mar 10, 2016 18707       lbousaidi  revised the sorting so it doesn't always resort using LID
  * </pre>
  *
  * @author mpduff
@@ -1070,12 +1070,6 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
                         }
                     }
                 }
-            }
-            // if equal use the id to make the final determination
-            if (response == 0 && colIndex != 0) {
-                ColumnSorter columnSorter = new ColumnSorter(0, true);
-                response = columnSorter.compare(v1, v2);
-
             }
             return response;
         }
