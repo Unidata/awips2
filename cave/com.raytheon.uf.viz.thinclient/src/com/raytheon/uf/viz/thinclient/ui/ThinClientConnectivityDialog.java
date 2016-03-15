@@ -74,6 +74,7 @@ import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
  * Feb 19, 2016  5281     tjensen     Fix validation when JMS not available.
  * Mar 01, 2016  5281     tjensen     Update dataRefreshMethod when automatically 
  *                                     enabling/disabling push
+ * Mar 15, 2016  5281     tjensen     Fix validation prior to prompt
  * </pre>
  * 
  * @author bsteffen
@@ -297,46 +298,47 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
         status = null;
         details = null;
 
-        // If we don't have a localizationSrv yet, fail validation gracefully.
+        // If we don't have a localizationSrv yet, try to use the stored
+        // preference value.
         if (localizationSrv != null) {
             // validate proxy
             proxyAddress = localizationSrv.getText();
+        }
 
-            if (proxyAddress != null && proxyAddress.length() > 0) {
-                validateServices();
-                validatePypies();
-            } else {
-                servicesGood = false;
-                pypiesGood = false;
-                status = "Please enter a thin client proxy server address";
+        if (proxyAddress != null && proxyAddress.length() > 0) {
+            validateServices();
+            validatePypies();
+        } else {
+            servicesGood = false;
+            pypiesGood = false;
+            status = "Please enter a thin client proxy server address";
+        }
+
+        if (localizationSrv != null && !localizationSrv.widget.isDisposed()) {
+            localizationSrv.widget.setBackground(getTextColor(servicesGood
+                    && pypiesGood));
+        }
+
+        validateJms(servicesGood);
+
+        // validate site
+        if (siteText != null && !siteText.isDisposed()) {
+            super.setSite(siteText.getText());
+        }
+        super.validateSite();
+        if (siteText != null && !siteText.isDisposed()) {
+            siteText.setBackground(getTextColor(isSiteGood()));
+        }
+
+        // validate alertviz
+        // apparently alertvizserver == null means it's alertviz itself
+        if (alertVizServer != null) {
+            if (alertVizText != null && !alertVizText.isDisposed()) {
+                setAlertVizServer(alertVizText.getText());
             }
-
-            if (localizationSrv != null && !localizationSrv.widget.isDisposed()) {
-                localizationSrv.widget.setBackground(getTextColor(servicesGood
-                        && pypiesGood));
-            }
-
-            validateJms(servicesGood);
-
-            // validate site
-            if (siteText != null && !siteText.isDisposed()) {
-                super.setSite(siteText.getText());
-            }
-            super.validateSite();
-            if (siteText != null && !siteText.isDisposed()) {
-                siteText.setBackground(getTextColor(isSiteGood()));
-            }
-
-            // validate alertviz
-            // apparently alertvizserver == null means it's alertviz itself
-            if (alertVizServer != null) {
-                if (alertVizText != null && !alertVizText.isDisposed()) {
-                    setAlertVizServer(alertVizText.getText());
-                }
-                super.validateAlertviz();
-                if (alertVizText != null && !alertVizText.isDisposed()) {
-                    alertVizText.setBackground(getTextColor(isAlertVizGood()));
-                }
+            super.validateAlertviz();
+            if (alertVizText != null && !alertVizText.isDisposed()) {
+                alertVizText.setBackground(getTextColor(isAlertVizGood()));
             }
         }
 
@@ -386,8 +388,9 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
         }
 
         // If display items are not disposed, update them as needed.
-        if (!autoPullBtn.isDisposed() && !timedPollBtn.isDisposed()
-                && !dataRefreshGroup.isDisposed()) {
+        if (autoPullBtn != null && timedPollBtn != null
+                && dataRefreshGroup != null && !autoPullBtn.isDisposed()
+                && !timedPollBtn.isDisposed() && !dataRefreshGroup.isDisposed()) {
             if (jmsGood && !autoPullBtn.isEnabled()) {
                 autoPullBtn.setEnabled(true);
                 autoPullBtn.setSelection(true);
