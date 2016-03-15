@@ -29,6 +29,7 @@ import com.raytheon.viz.warngen.gui.WarngenLayer.ExtensionAreaOptions;
  * Date         Ticket#    Engineer     Description
  * ------------ ---------- ------------ --------------------------
  * 12/21/2015   DCS 17942  D. Friedman  Initial revision
+ * 03/10/2016   DCS 18509  D. Friedman  Make extension area display a separate map background.
  * </pre>
  *
  */
@@ -104,7 +105,9 @@ public class PolygonOptionsComposite extends Composite {
         warngenLayer.getObservableExtensionAreaVisible().addChangeListener(new IChangeListener() {
             @Override
             public void handleChange(ChangeEvent event) {
-                visualizeExtensionButton.setSelection(warngenLayer.isExtensionAreaVisible());
+                if (!visualizeExtensionButton.isDisposed()) {
+                    visualizeExtensionButton.setSelection(warngenLayer.isExtensionAreaVisible());
+                }
             }
         });
 
