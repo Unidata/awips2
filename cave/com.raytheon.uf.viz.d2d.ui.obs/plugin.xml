@@ -40,15 +40,15 @@
                 </separator>
                 <separator name="EndOfSynoptic" visible="true">
                 </separator>
-               	<separator name="MOS" visible="false">
-                </separator>
-				<separator name="EndOfMos" visible="true">
-                </separator>
-                
+
                 <separator
                       name="WATCHWARN"
                       visible="false">
                 </separator>
+				
+				<separator name="EndOfMos" visible="true">
+                </separator>
+                
                 <command
                       commandId="com.raytheon.viz.ui.actions.titleAction"
                       label="------ Lightning ------">
@@ -56,6 +56,8 @@
                 <separator
                       name="USPLNPLACEHOLDER"
                       visible="false">
+                </separator>
+				<separator name="MOS" visible="false">
                 </separator>
                 <command commandId="com.raytheon.viz.ui.actions.titleAction"
                     label="------ Maritime ------" id="MARITIME">
