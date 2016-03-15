@@ -55,7 +55,7 @@ function lookupRPM()
       return 0
    fi
    if [ "${1}" = "awips2-python-matplotlib" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/matplotlib-1.2.0/"
+      export RPM_SPECIFICATION="${installer_dir}/matplotlib"
       return 0
    fi
    if [ "${1}" = "awips2-python-nose" ]; then
@@ -94,8 +94,16 @@ function lookupRPM()
       export RPM_SPECIFICATION="${python_site__dir}/Installer.pyparsing"
       return 0
    fi
+   if [ "${1}" = "awips2-python-basemap" ]; then
+      export RPM_SPECIFICATION="${python_site__dir}/Installer.basemap"
+      return 0
+   fi
    if [ "${1}" = "awips2-python-metpy" ]; then
       export RPM_SPECIFICATION="${python_site__dir}/Installer.metpy"
+      return 0
+   fi
+   if [ "${1}" = "awips2-python-cartopy" ]; then
+      export RPM_SPECIFICATION="${python_site__dir}/Installer.cartopy"
       return 0
    fi
    if [ "${1}" = "awips2-python-pint" ]; then
@@ -128,8 +136,8 @@ function lookupRPM()
       export RPM_SPECIFICATION="${python_site__dir}/Installer.tpg"
       return 0
    fi
-   if [ "${1}" = "awips2-python-ufpy" ]; then
-      export RPM_SPECIFICATION="${python_site__dir}/Installer.ufpy"
+   if [ "${1}" = "awips2-python-awips" ]; then
+      export RPM_SPECIFICATION="${python_site__dir}/Installer.python-awips"
       return 0
    fi
    if [ "${1}" = "awips2-python-werkzeug" ]; then
@@ -145,7 +153,7 @@ function lookupRPM()
       return 0
    fi
    if [ "${1}" = "awips2-python-shapely" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/shapely-1.4.4/"
+      export RPM_SPECIFICATION="${installer_dir}/shapely"
       return 0
    fi
 
