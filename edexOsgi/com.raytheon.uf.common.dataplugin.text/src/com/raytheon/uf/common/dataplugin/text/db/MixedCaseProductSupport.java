@@ -48,7 +48,8 @@ import com.raytheon.uf.common.util.FileUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 1, 2014   #3685     randerso     Initial creation
+ * Oct 01, 2014  #3685     randerso    Initial creation
+ * Mar 16, 2016  #5411     randerso    Added null checks, code cleanup
  * 
  * </pre>
  * 
@@ -73,6 +74,9 @@ public class MixedCaseProductSupport {
 
     private static LocalizationFile baseDir;
 
+    /**
+     * @return list of Product IDs enabled for mixed case transmission
+     */
     public static Set<String> getMixedCasePids() {
         // setup up the file updated observer
         synchronized (MixedCaseProductSupport.class) {
@@ -101,7 +105,7 @@ public class MixedCaseProductSupport {
 
                 Set<String> newPids = new HashSet<String>();
                 for (LocalizationFile lf : fileHierarchy.values()) {
-                    String filePath = lf.getFile().getAbsolutePath();
+                    String filePath = lf.getPath();
                     try (BufferedReader in = new BufferedReader(
                             new InputStreamReader(lf.openInputStream()))) {
 
@@ -141,12 +145,17 @@ public class MixedCaseProductSupport {
     }
 
     public static boolean isMixedCase(String pid) {
+        if (pid == null) {
+            return false;
+        }
         return getMixedCasePids().contains(pid.toUpperCase());
     }
 
     public static String conditionalToUpper(String pid, String text) {
         if (!isMixedCase(pid)) {
-            text = text.toUpperCase();
+            if (text != null) {
+                text = text.toUpperCase();
+            }
         }
 
         return text;

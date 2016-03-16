@@ -190,6 +190,8 @@ public class TemplateRunner {
     /**
      * Read cwa and timezone info from officeCityTimezone.txt, and put them into
      * map officeCityTimezone.
+     * 
+     * @return officeCityTimezone map
      */
     public static Map<String, String> createOfficeTimezoneMap() {
         Map<String, String> officeCityTimezone = new HashMap<String, String>();
@@ -225,6 +227,8 @@ public class TemplateRunner {
      * @param startTime
      * @param endTime
      * @param selectedBullets
+     * @param followupData
+     * @param backupData
      * @param selectedUpdate
      * @param backupSite
      * @return the generated product
@@ -280,14 +284,21 @@ public class TemplateRunner {
                     .getWarngenOfficeShort());
         }
 
+        String productId = config.getProductId();
+        if (productId == null) {
+            statusHandler.warn("Warngen configuration file: "
+                    + warngenLayer.getTemplateName() + ".xml"
+                    + " does not contain a <productId> tag.");
+        }
+
         String stormType = stormTrackState.displayType == DisplayType.POLY ? "line"
                 : "single";
         context.put("stormType", stormType);
         context.put("mathUtil", new WarnGenMathTool());
         context.put("dateUtil", new DateUtil());
-        context.put("productId", config.getProductId());
+        context.put("productId", productId);
         context.put("mixedCaseEnabled",
-                MixedCaseProductSupport.isMixedCase(config.getProductId()));
+                MixedCaseProductSupport.isMixedCase(productId));
         context.put("pointComparator", new ClosestPointComparator());
 
         String action = followupData != null ? followupData.getAct()
