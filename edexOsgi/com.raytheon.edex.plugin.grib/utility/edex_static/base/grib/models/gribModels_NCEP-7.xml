@@ -749,7 +749,7 @@
 	</model>
 
 	<model>
-		<name>rapIcing</name>
+		<name>RAPIcing</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>236</grid>
@@ -1086,7 +1086,7 @@
 	</model>
 
 	<model>
-		<name>rap32</name>
+		<name>RAP32</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>221</grid>
@@ -1919,7 +1919,7 @@
 	</model>
 
 	<model>
-		<name>rap40</name>
+		<name>RAP40</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>212</grid>
@@ -1929,7 +1929,7 @@
 	</model>
 
 	<model>
-		<name>rap15</name>
+		<name>RAP15</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>88</grid>
@@ -1949,7 +1949,7 @@
 	</model>
 
 	<model>
-		<name>rap</name>
+		<name>RAP</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>888</grid>
@@ -1959,7 +1959,7 @@
 	</model>
 
 	<model>
-		<name>rap80</name>
+		<name>RAP80</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>211</grid>
