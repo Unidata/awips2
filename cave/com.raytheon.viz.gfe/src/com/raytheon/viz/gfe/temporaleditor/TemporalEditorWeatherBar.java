@@ -47,6 +47,7 @@ import com.raytheon.viz.gfe.core.wxvalue.WeatherWxValue;
 import com.raytheon.viz.gfe.core.wxvalue.WxValue;
 import com.raytheon.viz.gfe.gridmanager.MouseHandler;
 import com.raytheon.viz.gfe.rsc.DiscreteDisplayUtil;
+import com.raytheon.viz.gfe.rsc.GFEFonts;
 import com.raytheon.viz.gfe.sampler.HistPair;
 import com.raytheon.viz.gfe.sampler.HistSample;
 import com.raytheon.viz.gfe.temporaleditor.TemporalEditorUtil.TextJustify;
@@ -61,7 +62,8 @@ import com.raytheon.viz.gfe.temporaleditor.mousehandler.EditorWeatherMouseHandle
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 16, 2011            randerso     Initial creation
+ * Mar 16, 2011            randerso    Initial creation
+ * Mar 10, 2016 #5479      randerso    Use improved GFEFonts API
  * 
  * </pre>
  * 
@@ -102,7 +104,7 @@ public class TemporalEditorWeatherBar extends AbstractTemporalEditorBar {
     protected void setupScaleCanvas() {
         int width = SCALE_WIDTH;
 
-        if (scaleCanvas != null && !scaleCanvas.isDisposed()) {
+        if ((scaleCanvas != null) && !scaleCanvas.isDisposed()) {
             width = ((GridData) scaleCanvas.getLayoutData()).widthHint;
             scaleCanvas.dispose();
         }
@@ -125,7 +127,7 @@ public class TemporalEditorWeatherBar extends AbstractTemporalEditorBar {
      */
     @Override
     protected void setupEditorCanvas() {
-        if (editorCanvas != null && !editorCanvas.isDisposed()) {
+        if ((editorCanvas != null) && !editorCanvas.isDisposed()) {
             editorCanvas.removeMouseListener(editorMouseHandler);
             editorCanvas.dispose();
         }
@@ -178,7 +180,8 @@ public class TemporalEditorWeatherBar extends AbstractTemporalEditorBar {
 
         Font oldFont = gc.getFont();
         Font labelFont = null;
-        sampleFont = makeLabelFont(gc, "TESample_font", 1);
+        sampleFont = GFEFonts.makeGFEFont(gc.getDevice(), "TESample_font",
+                SWT.NORMAL, 1);
         if (sampleFont == null) {
             labelFont = oldFont;
         } else {
@@ -222,7 +225,8 @@ public class TemporalEditorWeatherBar extends AbstractTemporalEditorBar {
                         for (HistPair histPair : sample.histogram()) {
                             WxValue wxv = WxValue.getValue(histPair.value(),
                                     parm);
-                            float barMax = barMin + histPair.count() / vScaling;
+                            float barMax = barMin
+                                    + (histPair.count() / vScaling);
                             Rectangle rect = new Rectangle(xStart,
                                     Math.round(barMin), xDur, Math.round(barMax
                                             - barMin));
@@ -315,7 +319,7 @@ public class TemporalEditorWeatherBar extends AbstractTemporalEditorBar {
 
     @Override
     public void dispose() {
-        if (sampleFont != null && !sampleFont.isDisposed()) {
+        if ((sampleFont != null) && !sampleFont.isDisposed()) {
             sampleFont.dispose();
             sampleFont = null;
         }

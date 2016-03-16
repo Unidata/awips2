@@ -19,6 +19,7 @@
  **/
 package com.raytheon.viz.radar.rsc.graphic;
 
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.util.ArrayList;
@@ -109,8 +110,8 @@ import com.vividsolutions.jts.geom.LineString;
  *                                    instances with IRenderedImageCallback.
  * Sep 03, 2014  3574     njensen     Properly dispose objects
  * Nov 06, 2014  16776    zwang       Handle AMDA product MBA
- * Feb 08, 2016  5318     randerso    Font should not be preference based because the
- *                                    size must match the table outline
+ * Feb 08, 2016  5318     randerso    Font must be monospaced
+ * Mar 08, 2016  5318     randerso    Fix hard coded scaling factors
  * 
  * </pre>
  * 
@@ -119,6 +120,10 @@ import com.vividsolutions.jts.geom.LineString;
  */
 
 public class RadarGraphicsPage implements IRenderable {
+    private static final int ORIGINAL_FONT_HEIGHT = 10;
+
+    private static final int ORIGINAL_FONT_WIDTH = 7;
+
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(RadarGraphicsPage.class);
 
@@ -166,15 +171,13 @@ public class RadarGraphicsPage implements IRenderable {
     private int tableX = 0;
 
     // The default y position of the table for Generic Data
-    private int tableY = 20;
+    private int tableY = 2 * ORIGINAL_FONT_HEIGHT;
 
     // The x position of the table for Generic Data
     private int startTableX = 0;
 
     // The y position of the table for Generic Data
-    private int startTableY = 20;
-
-    private int tableRowSpacing = 10;
+    private int startTableY = 2 * ORIGINAL_FONT_HEIGHT;
 
     // User preferences for table positioning.
     private DmdModifier tableModifier;
@@ -1252,10 +1255,11 @@ public class RadarGraphicsPage implements IRenderable {
 
         double yOffset = 24.0;
         double xOffset = 24.0;
-        double magnification = this.magnification;
+        double xScale = 1.0;
+        double yScale = 1.0;
+        double minx = Double.MAX_VALUE;
+        double maxx = Double.MIN_VALUE;
         if ((this.screenGeometries != null) && !this.screenGeometries.isEmpty()) {
-            double minx = Double.MAX_VALUE;
-            double maxx = Double.MIN_VALUE;
             for (Geometry g : this.screenGeometries) {
                 for (Coordinate co : g.getCoordinates()) {
                     minx = Math.min(minx, co.x);
@@ -1265,17 +1269,20 @@ public class RadarGraphicsPage implements IRenderable {
 
             // the target may have messes with our magnification value,
             // especially in smaller panes.
-            DrawableString testString = new DrawableString("hy", this.color);
+            DrawableString testString = new DrawableString("X", this.color);
             testString.font = this.font;
-            magnification = target.getStringsBounds(testString).getHeight() / 14;
-            double width = (maxx - minx) * magnification;
-            // If the table wider than our canvas then shrink it
-            if (width > paintProps.getCanvasBounds().width) {
-                magnification = (this.magnification * paintProps
-                        .getCanvasBounds().width) / (width + (xOffset * 2));
-                font.setMagnification((float) magnification, false);
-                magnification = target.getStringsBounds(testString).getHeight() / 14;
-                width = (maxx - minx) * magnification;
+            Rectangle2D bounds = target.getStringsBounds(testString);
+            xScale = bounds.getWidth() / ORIGINAL_FONT_WIDTH;
+            yScale = bounds.getHeight() / ORIGINAL_FONT_HEIGHT;
+            double width = (maxx - minx) * xScale;
+            // If the table wider than our 90 % of canvas width then shrink it
+            double maxWidth = paintProps.getCanvasBounds().width * 0.9;
+            if (width > maxWidth) {
+                double shrink = maxWidth / width;
+                width *= shrink;
+                yScale *= shrink;
+                xScale *= shrink;
+                font.setMagnification((float) (magnification * shrink), false);
             }
             xOffset = (paintProps.getCanvasBounds().width - width) / 2;
             List<DrawableLine> lines = new ArrayList<DrawableLine>();
@@ -1283,12 +1290,10 @@ public class RadarGraphicsPage implements IRenderable {
                 Coordinate[] coords = g.getCoordinates();
 
                 // offsets to make the table fit the screen
-                double x1 = (coords[0].x * magnification) + xOffset;
-                double y1 = ((coords[0].y + 0.25) * magnification * 1.3)
-                        + yOffset;
-                double x2 = (coords[1].x * magnification) + xOffset;
-                double y2 = ((coords[1].y + 0.25) * magnification * 1.3)
-                        + yOffset;
+                double x1 = ((coords[0].x - minx) * xScale) + xOffset;
+                double y1 = ((coords[0].y + 0.25) * yScale) + yOffset;
+                double x2 = ((coords[1].x - minx) * xScale) + xOffset;
+                double y2 = ((coords[1].y + 0.25) * yScale) + yOffset;
                 DrawableLine line = new DrawableLine();
                 line.addPoint(x1, y1);
                 line.addPoint(x2, y2);
@@ -1309,11 +1314,8 @@ public class RadarGraphicsPage implements IRenderable {
                 for (Coordinate c : this.screenStringMap.keySet()) {
                     String str = this.screenStringMap.get(c);
 
-                    double x = (c.x * magnification) + xOffset;
-                    double y = (c.y * magnification * 1.3) + yOffset;
-                    // if (x < 0.1) {
-                    // x = 0;
-                    // }
+                    double x = ((c.x - minx) * xScale) + xOffset;
+                    double y = (c.y * yScale) + yOffset;
                     DrawableString string = new DrawableString(str, this.color);
                     string.font = this.font;
                     string.setCoordinates(x, y);
@@ -1323,15 +1325,16 @@ public class RadarGraphicsPage implements IRenderable {
                 }
 
             }
-            target.setupClippingPlane(paintProps.getClippingPane());
-            if (magnification != this.magnification) {
+            if (xScale != this.magnification) {
                 font.setMagnification((float) this.magnification, false);
             }
         }
 
+        target.setupClippingPlane(paintProps.getClippingPane());
+
         // paint symbols on screen
-        double ratio = (paintProps.getView().getExtent().getWidth() / paintProps
-                .getCanvasBounds().width);
+        double ratio = paintProps.getView().getExtent().getWidth()
+                / paintProps.getCanvasBounds().width;
         double pixels = 90 * magnification;
 
         for (PlotObject po : this.plotObjects) {
@@ -1367,9 +1370,8 @@ public class RadarGraphicsPage implements IRenderable {
     private void drawTableBorder() {
         this.drawBorder = false;
 
-        int rowHeight = 10;
-        int[] columnWidths = new int[] { 41, 42, 81, 70, 56, 45, 49, 63, 63,
-                63, 57 };
+        int[] columns = new int[] { 0, 42, 84, 165, 231, 291, 336, 388, 448,
+                511, 574, 636 };
 
         int numberOfRows = this.screenStringMap.size();
 
@@ -1380,16 +1382,12 @@ public class RadarGraphicsPage implements IRenderable {
         List<Coordinate> coords = new ArrayList<Coordinate>();
         LineString ls = null;
 
-        int tableRight = tableLeft;
+        int tableRight = tableLeft + columns[columns.length - 1];
 
-        for (Integer width : columnWidths) {
-            tableRight += width;
-        }
-
-        int tableBottom = (rowHeight * numberOfRows) + tableTop;
+        int tableBottom = (ORIGINAL_FONT_HEIGHT * numberOfRows) + tableTop;
 
         // Rows
-        for (int i = tableTop; i <= tableBottom; i += rowHeight) {
+        for (int i = tableTop; i <= tableBottom; i += ORIGINAL_FONT_HEIGHT) {
             coords.clear();
             coords.add(new Coordinate(tableLeft, i));
             coords.add(new Coordinate(tableRight, i));
@@ -1399,19 +1397,13 @@ public class RadarGraphicsPage implements IRenderable {
         }
 
         // Columns
-        int k = 0;
-        for (int i = tableLeft; i <= tableRight;) {
+        for (int x : columns) {
             coords.clear();
-            coords.add(new Coordinate(i, tableTop));
-            coords.add(new Coordinate(i, tableBottom));
+            coords.add(new Coordinate(tableLeft + x, tableTop));
+            coords.add(new Coordinate(tableLeft + x, tableBottom));
             ls = this.geomFactory.createLineString(coords
                     .toArray(new Coordinate[coords.size()]));
             this.screenGeometries.add(ls);
-
-            i += columnWidths[k];
-            if (k < 10) {
-                k++;
-            }
         }
     }
 
@@ -1496,7 +1488,7 @@ public class RadarGraphicsPage implements IRenderable {
 
     public void addTableRow(String headings) {
         this.screenStringMap.put(new Coordinate(tableX, tableY), headings);
-        tableY += tableRowSpacing;
+        tableY += ORIGINAL_FONT_HEIGHT;
     }
 
     public void drawTableBorder(boolean draw) {

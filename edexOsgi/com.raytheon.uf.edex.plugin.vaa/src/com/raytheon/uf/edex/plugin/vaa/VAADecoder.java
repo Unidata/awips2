@@ -42,6 +42,7 @@ import com.raytheon.uf.edex.plugin.vaa.decoder.VAAParser;
  * Nov 04, 2009       3267 jkorman     Initial creation
  * Nov 26, 2013       2582 njensen     Cleanup
  * Mar 10, 2014       2807 skorolev    Added MalformedDataException for VAA decoding.
+ * Mar 10, 2016       5454 tgurney     Discard "USER MESSAGE" products
  * 
  * </pre>
  * 
@@ -87,11 +88,18 @@ public class VAADecoder {
                     // overwrite will only happen if a correction is issued
                     // within the same minute as the original
                     record.setOverwriteAllowed(true);
-                    obsList.add(record);
+                    if (record.getStationId() == null) {
+                        logger.warn("Discarding record with null station ID.");
+                    } else if (record.getStationId().toUpperCase()
+                            .contains("USER MESSAGE")) {
+                        logger.warn("Discarding \"USER MESSAGE\" record.");
+                    } else {
+                        obsList.add(record);
+                    }
                 }
             }
 
-            if ((obsList != null) && (obsList.size() > 0)) {
+            if (obsList != null && obsList.size() > 0) {
                 decodedData = obsList.toArray(new PluginDataObject[obsList
                         .size()]);
             } else {
@@ -104,5 +112,4 @@ public class VAADecoder {
 
         return decodedData;
     }
-
 }
