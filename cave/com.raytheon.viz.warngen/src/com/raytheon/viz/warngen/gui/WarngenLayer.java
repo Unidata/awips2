@@ -82,8 +82,14 @@ import com.raytheon.uf.common.dataplugin.warning.gis.GeospatialMetadata;
 import com.raytheon.uf.common.dataplugin.warning.portions.GisUtil;
 import com.raytheon.uf.common.dataplugin.warning.util.CountyUserData;
 import com.raytheon.uf.common.dataplugin.warning.util.GeometryUtil;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.geospatial.DestinationGeodeticCalculator;
+import com.raytheon.uf.common.geospatial.ISpatialQuery.SearchMode;
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.geospatial.SpatialException;
+import com.raytheon.uf.common.geospatial.SpatialQueryFactory;
+import com.raytheon.uf.common.geospatial.SpatialQueryResult;
 import com.raytheon.uf.common.jms.notification.INotificationObserver;
 import com.raytheon.uf.common.jms.notification.NotificationException;
 import com.raytheon.uf.common.jms.notification.NotificationMessage;
@@ -256,6 +262,7 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  *                                     Show preview of redrawn polygon when developer mode property is set.
  * 01/06/2016  ASM #18453  D. Friedman Cache extension areas so they are not regenerated on Restart or (limited) template changes.
  * 02/23/2016  ASM #18669  D. Friedman Improve speed and reduce memory usage of extension area generation.
+ * 03/11/2016  ASM #18720  D. Friedman Improve warning message when extension area is not available.
  * </pre>
  * 
  * @author mschenke
@@ -874,7 +881,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     issueRefresh();
                 }
                 gda = null;
-                if (isExtensionAreaDefined()) {
+                if (isExtensionAreaDefined() && checkExtensionAreaViable()) {
                     Exception error = null;
                     primaryGDA = geoAccessor;
                     try {
@@ -952,6 +959,53 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
         public boolean isExtensionAreaDefined() {
             return options.getDistance() > 0;
+        }
+
+        public boolean checkExtensionAreaViable() {
+            // Determine the area type we need.
+            GeoFeatureType geoFeatureType = getDefaultExtensionAreaGeoType();
+            if (geoFeatureType == null) {
+                statusHandler.handle(Priority.WARN,
+                        "Polygon extension area not available because there is no alternate area for the current area type.");
+                return false;
+            }
+            // Check if it is already loaded.
+            if (searchGeospatialDataAccessor(geoFeatureType) != null) {
+                return true;
+            }
+            // Test if there are areas of the given type for the CWA in the maps database.
+            HashMap<String, RequestConstraint> cwaMap = new HashMap<String, RequestConstraint>(2);
+            cwaMap.put(geoFeatureType.cwaField, new RequestConstraint(
+                    getLocalizedSite(), ConstraintType.LIKE));
+
+            SpatialQueryResult[] r = null;
+            try {
+                r = SpatialQueryFactory.create().query(geoFeatureType.tableName,
+                        "the_geom_0_064",
+                        new String[] { }, null, cwaMap,
+                        SearchMode.CLOSEST, 1);
+            } catch (SpatialException e) {
+                /*
+                 * If something goes wrong, err on the side of allowing the
+                 * extension area to be used. It is better to have a confusing
+                 * message than to prevent the feature from working.
+                 */
+                statusHandler.handle(Priority.WARN,
+                        "Could not check for existence of "
+                                + geoFeatureType.tableName
+                                + " areas.  Polygon extension area may not be available.",
+                        e);
+                return true;
+            }
+            if (r != null && r.length > 0) {
+                return true;
+            } else {
+                statusHandler.handle(Priority.WARN,
+                        String.format(
+                        "Polygon extension area is not available for this template because there are no %s areas for the %s CWA.",
+                        geoFeatureType.name().toLowerCase(), getLocalizedSite()));
+                return false;
+            }
         }
 
         protected GeospatialDataAccessor getPolygonExtensionGDA() throws Exception {
@@ -2283,14 +2337,17 @@ public class WarngenLayer extends AbstractStormTrackResource {
     }
 
     public enum GeoFeatureType {
-        COUNTY("county", "FIPS"), MARINE("marinezones", "ID");
+        COUNTY("county", "FIPS", "cwa"), MARINE("marinezones", "ID", "wfo");
         final private String tableName;
 
         final private String fipsField;
 
-        private GeoFeatureType(String tableName, String fipsField) {
+        final private String cwaField;
+
+        private GeoFeatureType(String tableName, String fipsField, String cwaField) {
             this.tableName = tableName;
             this.fipsField = fipsField;
+            this.cwaField = cwaField;
         }
     }
 
