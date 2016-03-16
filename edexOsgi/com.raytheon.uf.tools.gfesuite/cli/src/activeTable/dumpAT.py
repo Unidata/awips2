@@ -22,7 +22,7 @@
 import getopt, sys
 import logging, time, traceback, string, gzip
 from dynamicserialize.dstypes.com.raytheon.uf.common.activetable import DumpActiveTableRequest
-from ufpy import ThriftClient
+from awips import ThriftClient
 from getVtecAttribute import getVtecAttribute
 
 ## sorting function

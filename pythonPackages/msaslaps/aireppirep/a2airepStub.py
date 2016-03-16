@@ -41,7 +41,7 @@ import argparse
 import sys
 
 from datetime import datetime
-from ufpy.dataaccess import DataAccessLayer
+from awips.dataaccess import DataAccessLayer
 from dynamicserialize.dstypes.com.raytheon.uf.common.time import TimeRange
 
 

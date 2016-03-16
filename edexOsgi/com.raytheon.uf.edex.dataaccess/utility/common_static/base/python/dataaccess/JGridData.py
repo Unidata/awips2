@@ -35,7 +35,7 @@
 # 
 #
 
-from ufpy.dataaccess import IGridData
+from awips.dataaccess import IGridData
 import JData
 
 class JGridData(IGridData, JData.JData):

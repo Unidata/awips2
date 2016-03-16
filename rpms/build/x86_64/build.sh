@@ -146,8 +146,8 @@ if [ "${1}" = "-python" ]; then
    buildRPM "awips2-python-h5py"
    buildRPM "awips2-python-qpid"
 
+   buildRPM "awips2-python-awips"
    buildRPM "awips2-python-cherrypy"
-   buildRPM "awips2-python-dynamicserialize"
    buildRPM "awips2-python-jimporter"
    buildRPM "awips2-python-matplotlib"
    buildRPM "awips2-python-nose"
@@ -161,7 +161,6 @@ if [ "${1}" = "-python" ]; then
    buildRPM "awips2-python-tables"
    buildRPM "awips2-python-thrift"
    buildRPM "awips2-python-tpg"
-   buildRPM "awips2-python-python-awips"
    buildRPM "awips2-python-werkzeug"
    buildRPM "awips2-python-pygtk"
    buildRPM "awips2-python-pycairo"
@@ -183,7 +182,7 @@ if [ "${1}" = "-64bit" ]; then
    fi
    buildRPM "awips2-python"
    buildRPM "awips2-python-cherrypy"
-   buildRPM "awips2-python-dynamicserialize"
+   buildRPM "awips2-python-awips"
    buildRPM "awips2-python-h5py"
    buildRPM "awips2-python-jimporter"
    buildRPM "awips2-python-matplotlib"
@@ -198,7 +197,6 @@ if [ "${1}" = "-64bit" ]; then
    buildRPM "awips2-python-tables"
    buildRPM "awips2-python-thrift"
    buildRPM "awips2-python-tpg"
-   buildRPM "awips2-python-python-awips"
    buildRPM "awips2-python-werkzeug"
    buildRPM "awips2-python-pygtk"
    buildRPM "awips2-python-pycairo"
@@ -236,8 +234,7 @@ if [ "${1}" = "-rh6" ]; then
    buildRPM "awips2-python-tables"
    buildRPM "awips2-python-pmw"
    buildRPM "awips2-python-tpg"
-   buildRPM "awips2-python-python-awips"
-   buildRPM "awips2-python-dynamicserialize"
+   buildRPM "awips2-python-awips"
    buildRPM "awips2-python-pycairo"
    buildRPM "awips2-python-pygtk"
    buildRPM "awips2-python-shapely"
@@ -323,8 +320,7 @@ if [ "${1}" = "-delta" ]; then
    buildRPM "awips2-ncep-database"
    buildRPM "awips2-gfesuite-client"
    buildRPM "awips2-gfesuite-server"
-   buildRPM "awips2-python-dynamicserialize"
-   buildRPM "awips2-python-python-awips"
+   buildRPM "awips2-python-awips"
 
    buildRPM "awips2-aviation-shared"
    buildRPM "awips2-cli"
@@ -387,9 +383,8 @@ if [ "${1}" = "-full" ]; then
 #   fi
 #   buildQPID
 #   buildRPM "awips2-python-jimporter"
-#   buildRPM "awips2-python-python-awips"
 #   buildRPM "awips2-python-cherrypy"
-#   buildRPM "awips2-python-dynamicserialize"
+#   buildRPM "awips2-python-awips"
 #   buildRPM "awips2-python-h5py"
 #   buildRPM "awips2-python-matplotlib"
 #   buildRPM "awips2-python-nose"
@@ -458,7 +453,7 @@ if [ "${1}" = "-ade" ]; then
    buildRPM "awips2-ant"
    buildRPM "awips2-python"
    buildRPM "awips2-python-cherrypy"
-   buildRPM "awips2-python-dynamicserialize"
+   buildRPM "awips2-python-awips"
    buildRPM "awips2-python-h5py"
    buildRPM "awips2-python-jimporter"
    buildRPM "awips2-python-matplotlib"
@@ -473,7 +468,6 @@ if [ "${1}" = "-ade" ]; then
    buildRPM "awips2-python-tables"
    buildRPM "awips2-python-thrift"
    buildRPM "awips2-python-tpg"
-   buildRPM "awips2-python-python-awips"
    buildRPM "awips2-python-werkzeug"
    buildRPM "awips2-python-pygtk"
    buildRPM "awips2-python-pycairo"
@@ -576,7 +570,7 @@ if [ "${1}" = "-edex" ]; then
    #if [ $? -ne 0 ]; then
    #   exit 1
    #fi
-   #buildRPM "awips2-python-dynamicserialize"
+   #buildRPM "awips2-python-awips"
 
    exit 0
 fi
@@ -591,7 +585,7 @@ if [ "${1}" = "-custom" ]; then
    #buildRPM "awips2-common-base"
    #buildRPM "awips2-gfesuite-client"
    #buildRPM "awips2-gfesuite-server"
-   #buildRPM "awips2-python-dynamicserialize"
+   #buildRPM "awips2-python-awips"
    #buildRPM "awips2-alertviz"
    #buildRPM "awips2-python"
    #buildRPM "awips2-alertviz"

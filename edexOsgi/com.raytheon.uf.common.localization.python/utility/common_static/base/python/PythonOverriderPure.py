@@ -38,7 +38,7 @@
 import os, tempfile, shutil
 import numpy
 import PythonOverriderCore
-from ufpy import ThriftClient
+from awips import ThriftClient
 from dynamicserialize.dstypes.com.raytheon.uf.common.auth.resp import SuccessfulExecution
 from dynamicserialize.dstypes.com.raytheon.uf.common.localization import LocalizationContext
 from dynamicserialize.dstypes.com.raytheon.uf.common.localization.msgs import ListUtilityCommand

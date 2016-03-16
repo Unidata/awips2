@@ -8,8 +8,8 @@ import logging
 import traceback
 
 from dynamicserialize.dstypes.com.raytheon.uf.common.activetable import SendPracticeProductRequest
-from ufpy import ThriftClient
-from ufpy import TimeUtil
+from awips import ThriftClient
+from awips import TimeUtil
 
 class VTECDecoder(object):
     """

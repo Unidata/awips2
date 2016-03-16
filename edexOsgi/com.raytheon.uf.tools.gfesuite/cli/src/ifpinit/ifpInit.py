@@ -24,8 +24,8 @@ import os
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.request import SmartInitRequest
 from dynamicserialize.dstypes.com.raytheon.uf.common.message import WsId
 
-from ufpy import ThriftClient
-from ufpy import UsageArgumentParser
+from awips import ThriftClient
+from awips import UsageArgumentParser
 
 
 ##

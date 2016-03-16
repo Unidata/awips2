@@ -37,14 +37,14 @@ import sys
 
 from datetime import datetime
 from datetime import timedelta
-from ufpy import ThriftClient
+from awips import ThriftClient
 
 from dynamicserialize.dstypes.com.raytheon.uf.common.time import TimeRange
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.level import Level
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.radar.request import GetRadarDataRecordRequest
 
 def get_default_host():
-    from ufpy.dataaccess import DataAccessLayer
+    from awips.dataaccess import DataAccessLayer
     return DataAccessLayer.THRIFT_HOST
 
 

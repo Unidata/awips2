@@ -42,10 +42,6 @@ function lookupRPM()
       export RPM_SPECIFICATION="${python_site__dir}/Installer.cherrypy"
       return 0
    fi
-   if [ "${1}" = "awips2-python-dynamicserialize" ]; then
-      export RPM_SPECIFICATION="${python_site__dir}/Installer.dynamicserialize"
-      return 0
-   fi
    if [ "${1}" = "awips2-python-h5py" ]; then
       export RPM_SPECIFICATION="${python_site__dir}/Installer.h5py/"
       return 0
@@ -126,10 +122,6 @@ function lookupRPM()
 
    if [ "${1}" = "awips2-python-tables" ]; then
       export RPM_SPECIFICATION="${python_site__dir}/Installer.tables"
-      return 0
-   fi
-   if [ "${1}" = "awips2-python-thrift" ]; then
-      export RPM_SPECIFICATION="${python_site__dir}/Installer.thrift"
       return 0
    fi
    if [ "${1}" = "awips2-python-tpg" ]; then

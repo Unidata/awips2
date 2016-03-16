@@ -33,7 +33,7 @@ import argparse
 import numpy
 import sys
 
-from ufpy.dataaccess import DataAccessLayer
+from awips.dataaccess import DataAccessLayer
 
 def get_args():
     parser = argparse.ArgumentParser(conflict_handler="resolve")

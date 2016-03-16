@@ -25,7 +25,7 @@ import logging
 import xml.etree.ElementTree as ET
 from Tkinter import *
 
-from ufpy import UsageArgumentParser
+from awips import UsageArgumentParser
 import lib.CommHandler as CH
 import ProductRetriever
 import ActivityUtil

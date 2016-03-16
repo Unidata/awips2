@@ -41,7 +41,7 @@ from os.path import dirname
 from os.path import abspath
 from os.path import join
 
-from ufpy import ThriftClient
+from awips import ThriftClient
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.request import ConfigureTextProductsRequest
 
 SCRIPT_DIR = abspath(dirname(argv[0]))

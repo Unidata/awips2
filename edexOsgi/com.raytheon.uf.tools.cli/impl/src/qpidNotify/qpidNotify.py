@@ -37,7 +37,7 @@
 #                                                 for grib messages
 ##############################################################################
 
-from ufpy import qpidingest
+from awips import qpidingest
 from lib.Util import doWithinTime
 
 import logging

@@ -44,9 +44,9 @@ import sys
 
 from dynamicserialize.dstypes.com.raytheon.uf.common.activetable.request import MergeActiveTableRequest
 
-from ufpy import ThriftClient
-from ufpy import TimeUtil
-from ufpy import UsageArgumentParser
+from awips import ThriftClient
+from awips import TimeUtil
+from awips import UsageArgumentParser
 
 
 logging.basicConfig(format="%(asctime)s %(name)s %(levelname)s:  %(message)s", 

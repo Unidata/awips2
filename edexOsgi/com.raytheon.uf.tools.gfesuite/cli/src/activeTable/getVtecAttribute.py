@@ -21,7 +21,7 @@
 import os
 import logging
 from dynamicserialize.dstypes.com.raytheon.uf.common.activetable import GetVtecAttributeRequest
-from ufpy import ThriftClient
+from awips import ThriftClient
 
 ##
 # Ask the server for an attribute from the VTECPartners script for a site.
