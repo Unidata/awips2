@@ -29,7 +29,7 @@ import subscription.SubscriptionManager as SM
 import conf.TDBConfig as config
 import collections
 
-from ufpy import ThriftClient
+from awips import ThriftClient
 from dynamicserialize.dstypes.com.raytheon.uf.common.message import Message, Header, Property
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.text.dbsrv import TextDBRequest
 

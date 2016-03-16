@@ -9,7 +9,7 @@ import io
 import logging
 import xml.etree.ElementTree as ET
 
-from ufpy import UsageArgumentParser
+from awips import UsageArgumentParser
 from dynamicserialize.dstypes.gov.noaa.nws.ncep.common.dataplugin.pgen import ActivityInfo
 import ProductStorer
 

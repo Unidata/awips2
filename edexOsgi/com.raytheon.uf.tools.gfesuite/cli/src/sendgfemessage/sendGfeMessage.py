@@ -19,7 +19,7 @@
 ##
 
 from optparse import OptionParser
-from ufpy import NotificationMessage
+from awips import NotificationMessage
 from argparse import ArgumentParser
 import os, sys
 
