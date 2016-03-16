@@ -181,9 +181,7 @@
 		
 		<echo message="Deploying the Raytheon python site-packages." />
 		<deploy.python.site-package
-			site.package="ufpy" />
-		<deploy.python.site-package
-			site.package="dynamicserialize" />
+			site.package="awips" />
 		<deploy.python.site-package
 			site.package="pypies" />
 	</target>
