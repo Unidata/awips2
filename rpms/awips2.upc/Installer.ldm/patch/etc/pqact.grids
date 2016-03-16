@@ -413,22 +413,22 @@ NGRID	Y.C.[0-9][0-9] KWBY ...... !grib2/[^/]*/[^/]*/#[^/]*/([0-9]{12})F(...)/(.*
 #
 # SREF CONUS 40 km Ensemble Derived Products
 #
-#NGRID	^[LM].R... KWBL ...... !grib2/[^/]*/[^/]*/#[^/]*/([0-9]{12})F(...)/(.*)/.*
-#	FILE	-edex -log
-#	/awips2/data_store/grid/SREF-40km/noaaport/SREF_CONUS_40km_ensprod_(\1:yyyy)(\1:mm)\1_\2.grib2
+NGRID	^[LM].R... KWBL ...... !grib2/[^/]*/[^/]*/#[^/]*/([0-9]{12})F(...)/(.*)/.*
+	FILE	-edex -log
+	/awips2/data_store/grid/SREF-40km/noaaport/SREF_CONUS_40km_ensprod_(\1:yyyy)(\1:mm)\1_\2.grib2
 #
 # SREF CONUS 40 km Bias Corrected Ensemble Derived Products
 #
 # data/nccf/com/sref/prod/sref.20160309/21/ensprod_biasc/sref.t21z.pgrb212.p10_3hrly.grib2 !grib2/ncep/SREF_113/#000/201603092100F006/UREL/1000 hPa PRES! 000038
-CONDUIT	^data/nccf/com/sref/prod/sref\........./../(ensprod_biasc)/.*pgrb212.*!grib2/ncep/.*/#000/(............)(F...)/(.*)/.*! (......)
-	FILE	-edex -log
-	/awips2/data_store/grid/SREF-40km/conduit/SREF_CONUS_40km_\1_\2_\3_\4_\5-(seq).grib2
+#CONDUIT	^data/nccf/com/sref/prod/sref\........./../(ensprod_biasc)/.*pgrb212.*!grib2/ncep/.*/#000/(............)(F...)/(.*)/.*! (......)
+#	FILE	-edex -log
+#	/awips2/data_store/grid/SREF-40km/conduit/SREF_CONUS_40km_\1_\2_\3_\4_\5-(seq).grib2
 #
 # SREF CONUS 40 km Bias Corrected Ensemble Members
 #
-CONDUIT	^data/nccf/com/sref/prod/sref\.(........)/(..)/(pgrb_biasc)/.*pgrb212.*!grib2/ncep/.*/#000/............(F...)/(.*)/.*! (......)
-	FILE	-edex -log
-	/awips2/data_store/grid/SREF-40km/conduit/SREF_CONUS_40km_\3_\1_\200_\4_\5_\6.grib2
+#CONDUIT	^data/nccf/com/sref/prod/sref\.(........)/(..)/(pgrb_biasc)/.*pgrb212.*!grib2/ncep/.*/#000/............(F...)/(.*)/.*! (......)
+#	FILE	-edex -log
+#	/awips2/data_store/grid/SREF-40km/conduit/SREF_CONUS_40km_\3_\1_\200_\4_\5_\6.grib2
 #
 # SREF Alaska 45 km Ensemble Derived Products
 #

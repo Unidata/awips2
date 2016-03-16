@@ -81,7 +81,6 @@ cp -v ${dir}/buildEnvironment.sh .
 #
 # check rpms/build/x86_64/build.sh for these groups
 #
-# PRIMARY GROUPS confirmed to work for Unidata 14.2.1
 /bin/bash build.sh ${1} > ${dir}/build${1}-${timestamp}.log
 #/bin/bash build.sh -edex > ${dir}/build-EDEX-${timestamp}.log
 #/bin/bash build.sh -local > ${dir}/build-LOCAL-${timestamp}.log
@@ -108,8 +107,9 @@ export rpm_end_dir="${AWIPSII_VERSION}-${AWIPSII_RELEASE}"
 
 #mkdir -p /awips2/jenkins/build/rpms/${rpm_end_dir}
 
+
 if [ "$(ls -A ${AWIPSII_TOP_DIR}/RPMS/x86_64/)" ]; then
-    mv ${AWIPSII_TOP_DIR}/RPMS/x86_64/* /awips2/jenkins/build/rpms/awips2_${AWIPSII_VERSION}/x86_64/
+   mv ${AWIPSII_TOP_DIR}/RPMS/x86_64/* /awips2/jenkins/build/rpms/awips2_${AWIPSII_VERSION}/x86_64/
 fi
 if [ "$(ls -A ${AWIPSII_TOP_DIR}/RPMS/noarch/)" ]; then
    mv ${AWIPSII_TOP_DIR}/RPMS/noarch/* /awips2/jenkins/build/rpms/awips2_${AWIPSII_VERSION}/noarch/
