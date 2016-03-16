@@ -24,31 +24,32 @@
     <vbSource key="GFS" category="Volume" />
     <vbSource key="GFS-NH" category="Volume" />
     <vbSource key="GFS40" category="Volume" />
+    <vbSource key="GFS-95km" category="Volume" />
     <vbSource key="GFSGuide" category="Volume" />
     <vbSource key="ECMF-Global" category="Volume" />
     <vbSource key="ENSEMBLE" category="Volume" views="PLANVIEW TIMESERIES" />
     <vbSource key="HRRR" category="Volume" />
     <vbSource key="NAM4" category="Volume" />
     <vbSource key="NAM12" category="Volume" />
+    <vbSource key="NAM20" category="Volume" />
     <vbSource key="NAM40" category="Volume" />
+    <vbSource key="NAM90" category="Volume" />
+    <vbSource key="NAM90" category="Volume" />
     <vbSource key="NamDNG" category="Volume" />
+    <vbSource key="NamDNG5" category="Volume" />
     <vbSource key="NAVGEM" category="Volume" />
     <vbSource key="NDFD" category="Volume" />
-    <vbSource key="URMA25" category="Volume" />    
     <vbSource key="RTMA" category="Volume" />
+    <vbSource key="RTMA5" category="Volume" />
+    <vbSource key="URMA25" category="Volume" />    
     <vbSource key="RAP13" category="Volume" />
+    <vbSource key="RAP20" category="Volume" />
+    <vbSource key="RAP32" category="Volume" />
     <vbSource key="RAP40" category="Volume" />
     <vbSource key="NOHRSC-SNOW" category="Volume" />
     <vbSource key="FNMOC-FAROP" category="Volume" />
     <vbSource key="FNMOC-NCODA" category="Volume" />
     <vbSource key="FNMOC-WW3" category="Volume" />
-    <vbSource key="COAMPS-EU" category="Volume" />
-    <vbSource key="COAMPS-WA" category="Volume" />
-    <vbSource key="HiResW-ARW-East" category="Volume" />
-    <vbSource key="HiResW-ARW-West" category="Volume" />
-    <vbSource key="HiResW-NMM-East" category="Volume" />
-    <vbSource key="HiResW-NMM-West" category="Volume" />
-    <vbSource key="SeaIce" category="Volume" />
     <vbSource key="WaveWatch" category="Volume" />
     <vbSource key="GLERL" category="Volume" />
     <vbSource key="WaveWatch-WNA-Hurr" category="Volume" />
