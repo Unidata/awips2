@@ -63,17 +63,17 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 16, 2009 #3438      lvenable     Initial creation
- * Jan 19, 2011 #4864      rferrel      FTP site information is
- *                                      now configurable.
- * May 10, 2011 #9059      rferrel      Fixed script instructions
+ * Nov 16, 2009 #3438      lvenable    Initial creation
+ * Jan 19, 2011 #4864      rferrel     FTP site information is
+ *                                     now configurable.
+ * May 10, 2011 #9059      rferrel     Fixed script instructions
  *                                      to the correct directory.
- * May 10, 2011 #8844      rferrel      Display error message when unable
+ * May 10, 2011 #8844      rferrel     Display error message when unable
  *                                      to save a script.
- * Oct 08, 2012 #1229      rferrel      Made non-blocking.
- * Aug 09, 2013 #2033      mschenke     Switched File.separator to IPathManager.SEPARATOR
- * Jul 10, 2015 16907      zhao         Changed 'ish-' to 'isd-' 
- *  
+ * Oct 08, 2012 #1229      rferrel     Made non-blocking.
+ * Aug 09, 2013 #2033      mschenke    Switched File.separator to IPathManager.SEPARATOR
+ * Jul 10, 2015 16907      zhao        Changed 'ish-' to 'isd-'
+ * Mar 15, 2016 #5481      randerso    Fix GUI sizing problems
  * 
  * </pre>
  * 
@@ -148,6 +148,7 @@ public class GenScriptsDlg extends CaveSWTDialog {
         initFtpArgs();
     }
 
+    @Override
     public void preOpened() {
         setReturnValue(Boolean.TRUE);
         super.preOpened();
@@ -194,12 +195,22 @@ public class GenScriptsDlg extends CaveSWTDialog {
      */
     private void createBottomButtons() {
         Composite buttonComp = new Composite(shell, SWT.NONE);
-        buttonComp.setLayout(new GridLayout(5, false));
+        GridLayout layout = new GridLayout(2, false);
+        layout.marginHeight = 0;
+        layout.marginWidth = 0;
+        buttonComp.setLayout(layout);
         buttonComp.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true,
                 false));
 
-        GridData gd = new GridData(150, SWT.DEFAULT);
-        linuxFtpBtn = new Button(buttonComp, SWT.NONE);
+        Composite leftComp = new Composite(buttonComp, SWT.NONE);
+        layout = new GridLayout(2, true);
+        layout.marginHeight = 0;
+        layout.marginWidth = 0;
+        leftComp.setLayout(layout);
+        leftComp.setLayoutData(new GridData(SWT.LEFT, SWT.DEFAULT, true, false));
+
+        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        linuxFtpBtn = new Button(leftComp, SWT.NONE);
         linuxFtpBtn.setText("Linux FTP Script");
         linuxFtpBtn.setLayoutData(gd);
         linuxFtpBtn.addSelectionListener(new SelectionAdapter() {
@@ -210,8 +221,8 @@ public class GenScriptsDlg extends CaveSWTDialog {
             }
         });
 
-        gd = new GridData(150, SWT.DEFAULT);
-        windowsFtpBtn = new Button(buttonComp, SWT.NONE);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        windowsFtpBtn = new Button(leftComp, SWT.NONE);
         windowsFtpBtn.setText("Windows FTP Script");
         windowsFtpBtn.setLayoutData(gd);
         windowsFtpBtn.addSelectionListener(new SelectionAdapter() {
@@ -222,9 +233,16 @@ public class GenScriptsDlg extends CaveSWTDialog {
             }
         });
 
-        gd = new GridData(SWT.RIGHT, SWT.DEFAULT, true, false);
-        gd.widthHint = 80;
-        saveBtn = new Button(buttonComp, SWT.NONE);
+        Composite rightComp = new Composite(buttonComp, SWT.NONE);
+        layout = new GridLayout(3, true);
+        layout.marginHeight = 0;
+        layout.marginWidth = 0;
+        rightComp.setLayout(layout);
+        rightComp.setLayoutData(new GridData(SWT.RIGHT, SWT.DEFAULT, true,
+                false));
+
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        saveBtn = new Button(rightComp, SWT.NONE);
         saveBtn.setText("Save");
         saveBtn.setLayoutData(gd);
         saveBtn.addSelectionListener(new SelectionAdapter() {
@@ -235,8 +253,8 @@ public class GenScriptsDlg extends CaveSWTDialog {
         });
         saveBtn.setEnabled(false);
 
-        gd = new GridData(80, SWT.DEFAULT);
-        bypassBtn = new Button(buttonComp, SWT.NONE);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        bypassBtn = new Button(rightComp, SWT.NONE);
         bypassBtn.setText("Bypass");
         bypassBtn.setLayoutData(gd);
         bypassBtn.addSelectionListener(new SelectionAdapter() {
@@ -247,8 +265,8 @@ public class GenScriptsDlg extends CaveSWTDialog {
             }
         });
 
-        gd = new GridData(80, SWT.DEFAULT);
-        Button cancelBtn = new Button(buttonComp, SWT.NONE);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        Button cancelBtn = new Button(rightComp, SWT.NONE);
         cancelBtn.setText("Cancel");
         cancelBtn.setLayoutData(gd);
         cancelBtn.addSelectionListener(new SelectionAdapter() {
@@ -481,7 +499,7 @@ public class GenScriptsDlg extends CaveSWTDialog {
      * @return nPath
      */
     private String normalizeDir(String path) {
-        if (path == null || path.length() == 0) {
+        if ((path == null) || (path.length() == 0)) {
             return "";
         }
 
