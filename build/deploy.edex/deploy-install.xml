@@ -6,7 +6,7 @@
 		deploy.python is true 
 	-->
 	<property name="python.packages" 
-		value="pypies:ufpy:dynamicserialize" />
+		value="pypies:awips" />
 	<!-- EDEX root directory - defaults to /awips2/edex -->
 	<property name="edex.root" value="/awips2/edex" />
 	<!-- Python root directory - defaults to /awips2/python -->
@@ -42,7 +42,7 @@
 		<echo message="		-Dedex.root                the root of the EDEX installation; defaults to /awips2/edex" />
 		<echo message="		-Ddeploy.python            a boolean value {true, false} indicating if python should be deployed" />
 		<echo message="		-Dpython.root              the root of the python installation; defaults to /awips2/python" />
-		<echo message="		-Dpython.packages          a colon delimited list of python packages to deploy; defaults to pypies:ufpy:dynamicserialize" />
+		<echo message="		-Dpython.packages          a colon delimited list of python packages to deploy; defaults to pypies:awips" />
 		<echo message="		-Darchitecture             used to override the deployment architecture; use one of: {x86_64, x86}." />
 		
 		<fail message="All required parameters have not been specified. Refer to the usage message above." />
