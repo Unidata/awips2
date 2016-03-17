@@ -1,7 +1,7 @@
 #
 # AWIPS II Database Server Configuration Spec File
 #
-Name: awips2-database-server-configuration
+Name: awips2-database-standalone-configuration
 Summary: AWIPS II Database Server Configuration
 Version: %{_component_version}
 Release: %{_component_release}
@@ -16,7 +16,7 @@ Packager: Bryan Kowal
 
 AutoReq: no
 requires: awips2-postgresql
-provides: awips2-database-server-configuration
+provides: awips2-database-standalone-configuration
 provides: awips2-database-configuration
 
 %description
@@ -40,7 +40,7 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-PROJECT_DIR="Installer.database-server-configuration"
+PROJECT_DIR="Installer.database-standalone-configuration"
 CONFIGURATION_DIR="rpms/awips2.core/${PROJECT_DIR}/configuration"
 CONF_FILE="postgresql.conf"
 

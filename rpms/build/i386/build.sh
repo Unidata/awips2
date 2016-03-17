@@ -137,7 +137,7 @@ fi
 
 if [ "${1}" = "-postgres" ]; then
    buildRPM "awips2-postgres"
-   buildRPM "awips2-database-server-configuration"
+   buildRPM "awips2-database-standalone-configuration"
    buildRPM "awips2-database"
    buildRPM "awips2-maps-database"
    buildRPM "awips2-pgadmin3"
@@ -171,7 +171,7 @@ if [ "${1}" = "-delta" ]; then
    buildRPM "awips2-aviation-shared"
    buildRPM "awips2-cli"
    buildRPM "awips2-database"
-   buildRPM "awips2-database-server-configuration"
+   buildRPM "awips2-database-standalone-configuration"
    buildRPM "awips2-hydroapps-shared"
    buildRPM "awips2-localapps-environment"
    buildRPM "awips2-maps-database"
@@ -225,7 +225,7 @@ if [ "${1}" = "-full" ]; then
    buildRPM "awips2-aviation-shared"
    buildRPM "awips2-cli"
    buildRPM "awips2-database"
-   buildRPM "awips2-database-server-configuration"
+   buildRPM "awips2-database-standalone-configuration"
    buildRPM "awips2-data.gfe"
    buildRPM "awips2-gfesuite-client"
    buildRPM "awips2-gfesuite-server"
