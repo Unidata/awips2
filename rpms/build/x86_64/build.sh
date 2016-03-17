@@ -259,7 +259,6 @@ if [ "${1}" = "-rh6" ]; then
    fi
    buildRPM "awips2-alertviz"
    buildRPM "awips2-database-server-configuration"
-   buildRPM "awips2-database-standalone-configuration"
    buildRPM "awips2-database"
    buildRPM "awips2-maps-database"
    buildRPM "awips2-ncep-database"
@@ -296,7 +295,6 @@ fi
 if [ "${1}" = "-postgres" ]; then
    buildRPM "awips2-postgres"
    buildRPM "awips2-database-server-configuration"
-   buildRPM "awips2-database-standalone-configuration"
    buildRPM "awips2-database"
    buildRPM "awips2-maps-database"
    buildRPM "awips2-ncep-database"
@@ -326,7 +324,6 @@ if [ "${1}" = "-delta" ]; then
    buildRPM "awips2-cli"
    buildRPM "awips2-database"
    buildRPM "awips2-database-server-configuration"
-   buildRPM "awips2-database-standalone-configuration"
    buildRPM "awips2-gfesuite-client"
    buildRPM "awips2-gfesuite-server"
    buildRPM "awips2-localapps-environment"
@@ -369,7 +366,6 @@ if [ "${1}" = "-full" ]; then
    buildRPM "awips2-pypies"
    buildRPM "awips2-hydroapps-shared"
    buildRPM "awips2-adapt-native"
-   buildRPM "awips2-database-standalone-configuration"
    buildRPM "awips2-tools"
    buildRPM "awips2-common-base"
 #   buildCAVE
