@@ -173,7 +173,6 @@ cd ../
 buildRPM "Installer.version"
 buildRPM "Installer.gfesuite-client"
 buildRPM "Installer.gfesuite-server"
-buildRPM "Installer.database-standalone-configuration"
 buildRPM "Installer.database-server-configuration"
 buildRPM "Installer.adapt-native"
 buildRPM "Installer.alertviz"
