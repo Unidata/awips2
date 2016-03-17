@@ -82,6 +82,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jul 21, 2014  3373     bclement     JAXB managers only live during initializeGrids()
  * Mar 04, 2015  3959     rjpeter      Update for grid based subgridding.
  * Sep 28, 2015  4868     rjpeter      Allow subgrids to be defined per coverage.
+ * Feb 26, 2016  5414     rjpeter      Fix subgrids along boundary and add check for disabled subgrid.
  * </pre>
  * 
  * @author bphillip
@@ -299,7 +300,8 @@ public class GribSpatialCache {
                 .getSubGridDef(modelName, coverage);
 
         try {
-            if (subGridDef != null) {
+            if ((subGridDef != null)
+                    && (subGridDef.isSubGridDisabled() == false)) {
                 String referenceGrid = subGridDef.getReferenceGrid();
                 GridCoverage referenceCoverage = getGridByName(referenceGrid);
                 if (referenceCoverage == null) {
@@ -348,7 +350,14 @@ public class GribSpatialCache {
                  */
                 SubGrid subGrid = new SubGrid(leftX, upperY, nx, ny);
                 GridCoverage subGridCoverage = referenceCoverage.trim(subGrid);
-                if (((subGrid.getNX() * subGrid.getNY()) / (nx * ny)) < MIN_SUBGRID_COVERAGE) {
+                double coveragePercent = ((double) subGrid.getNX() * subGrid
+                        .getNY()) / (nx * ny);
+                if (coveragePercent < MIN_SUBGRID_COVERAGE) {
+                    statusHandler
+                            .warn(String
+                                    .format("Rejecting data from model [%s]. SubGrid only covers %.2f%%, minimum coverage is %.2f%%",
+                                            modelName, coveragePercent * 100,
+                                            MIN_SUBGRID_COVERAGE * 100));
                     /* minimum subGrid coverage not available, set nx/ny to 0 */
                     subGrid.setNX(0);
                     subGrid.setNY(0);
@@ -499,7 +508,7 @@ public class GribSpatialCache {
 
     /**
      * scan the grib grid definition for changes, when force is false this will
-     * only scan if we have not scanne din the last 60 seconds.
+     * only scan if we have not scanned in the last 60 seconds.
      * 
      * @param force
      * @return

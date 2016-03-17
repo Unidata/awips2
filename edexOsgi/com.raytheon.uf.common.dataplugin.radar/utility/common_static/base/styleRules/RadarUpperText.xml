@@ -84,6 +84,12 @@
 		<productDependent format='MX: %dkt' index='3' />
 		<sails />
 	</upperText>
+
+    <upperText productCodes='184'>
+        <vcp />
+        <resolution />
+        <productDependent format='MX: %dkt' index='3' />
+    </upperText>
 	
 	<!-- Storm Rel Vel Region -->
    <upperText productCodes='55'>

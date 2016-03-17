@@ -39,6 +39,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 18, 2015    5217    mpduff      Initial creation
+ * Mar 08, 2016    5217    mpduff      Fixed column values to be full hrap columns rather
+ *                                        than relative to the subgrid.
  * 
  * </pre>
  * 
@@ -132,6 +134,9 @@ public class HydroGeoProcessor {
             }
 
             if (startCol != -1) {
+                // Make the columns be full HRAP columns, not subgrid columns
+                startCol += minCol;
+                endCol += minCol;
                 binList.addData(rowNum, startCol, endCol);
                 binList.setNumBins(binCtr);
                 binList.setNumRows(rowCtr);
