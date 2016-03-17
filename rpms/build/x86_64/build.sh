@@ -258,7 +258,7 @@ if [ "${1}" = "-rh6" ]; then
       exit 1
    fi
    buildRPM "awips2-alertviz"
-   buildRPM "awips2-database-server-configuration"
+   buildRPM "awips2-database-standalone-configuration"
    buildRPM "awips2-database"
    buildRPM "awips2-maps-database"
    buildRPM "awips2-ncep-database"
@@ -293,11 +293,12 @@ if [ "${1}" = "-httpd" ]; then
    exit 0
 fi
 if [ "${1}" = "-postgres" ]; then
-   buildRPM "awips2-postgres"
-   buildRPM "awips2-database-server-configuration"
-   buildRPM "awips2-database"
-   buildRPM "awips2-maps-database"
-   buildRPM "awips2-ncep-database"
+   #buildRPM "awips2-postgres"
+   buildRPM "awips2-database-standalone-configuration"
+   buildRPM "awips2-edex-upc"
+   #buildRPM "awips2-database"
+   #buildRPM "awips2-maps-database"
+   #buildRPM "awips2-ncep-database"
 
    exit 0
 fi
@@ -323,7 +324,7 @@ if [ "${1}" = "-delta" ]; then
    buildRPM "awips2-aviation-shared"
    buildRPM "awips2-cli"
    buildRPM "awips2-database"
-   buildRPM "awips2-database-server-configuration"
+   buildRPM "awips2-database-standalone-configuration"
    buildRPM "awips2-gfesuite-client"
    buildRPM "awips2-gfesuite-server"
    buildRPM "awips2-localapps-environment"
