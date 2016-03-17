@@ -23,6 +23,7 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    05/22/2015       4522         randerso       Initial creation
+#    03/17/2016       5426         randerso       Add issueYear to primary key
 #
 ##    
 class ActiveTableKey(object):
@@ -33,6 +34,7 @@ class ActiveTableKey(object):
         self.sig = None
         self.etn = None
         self.ugcZone = None
+        self.issueYear = None
 
     def getOfficeid(self):
         return self.officeid
@@ -63,3 +65,9 @@ class ActiveTableKey(object):
     
     def setUgcZone(self, ugcZone):
         self.ugcZone = ugcZone
+
+    def getIssueYear(self):
+        return self.issueYear
+
+    def setIssueYear(self, issueYear):
+        self.issueYear = issueYear
