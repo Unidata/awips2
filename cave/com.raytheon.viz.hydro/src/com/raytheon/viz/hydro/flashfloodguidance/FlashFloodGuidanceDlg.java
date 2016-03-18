@@ -32,8 +32,6 @@ import java.util.TreeMap;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Cursor;
@@ -77,6 +75,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 07 Feb 2013  1578       rferrel     Changes for non-blocking dialog.
  * Jul 21, 2015 4500       rjpeter     Use Number in blind cast.
  * Aug 05, 2015 4486       rjpeter     Changed Timestamp to Date.
+ * Mar 15, 2016 5483       randerso    Fix GUI sizing issues
+ * 
  * </pre>
  * 
  * @author lvenable
@@ -105,12 +105,12 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
     /**
      * FFG option string.
      */
-    private final String ffgOptionsStr = " Gridded FFG Options: ";
+    private final String ffgOptionsStr = "Gridded FFG Options";
 
     /**
      * Areal option string.
      */
-    private final String arealOptionsStr = " Areal FFG Options: ";
+    private final String arealOptionsStr = "Areal FFG Options";
 
     /**
      * Gridded radio button.
@@ -267,17 +267,12 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
      *            Parent shell.
      */
     public FlashFloodGuidanceDlg(Shell parent) {
-        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
+        super(parent, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK);
         setText("Flash Flood Guidance");
         waitCursor = parent.getDisplay().getSystemCursor(SWT.CURSOR_WAIT);
         arrowCursor = parent.getDisplay().getSystemCursor(SWT.CURSOR_ARROW);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
-     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -287,23 +282,11 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
-     */
     @Override
     protected void disposed() {
         font.dispose();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
-     * .eclipse.swt.widgets.Shell)
-     */
     @Override
     protected void initializeComponents(Shell shell) {
         font = new Font(shell.getDisplay(), "Monospace", 11, SWT.NORMAL);
@@ -319,15 +302,22 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
         populateDataList();
     }
 
+    @Override
+    protected void preOpened() {
+        shell.setMinimumSize(shell.getSize());
+    }
+
     /**
      * Create the Grid/Areal radio buttons.
      */
     private void createGridArealControls() {
         Group gridArealGroup = new Group(shell, SWT.NONE);
-        gridArealGroup.setText(" FFG Mode: ");
+        gridArealGroup.setText("FFG Mode");
         RowLayout gridArealLayout = new RowLayout();
         gridArealLayout.spacing = 5;
         gridArealGroup.setLayout(gridArealLayout);
+        gridArealGroup.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true,
+                false));
 
         griddedRdo = new Button(gridArealGroup, SWT.RADIO);
         griddedRdo.setText("Gridded");
@@ -343,7 +333,6 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
                 stackComposite.layout();
 
                 // Clear the data list and reload
-                dataList.removeAll();
                 populateDataList();
             }
         });
@@ -361,7 +350,6 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
                 stackComposite.layout();
 
                 // Clear the data list and reload
-                dataList.removeAll();
                 populateDataList();
             }
         });
@@ -395,16 +383,17 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
      * Create the data list control.
      */
     private void createDataListControl() {
-        GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, false, false);
+        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         gd.widthHint = 255;
         gd.heightHint = 250;
         dataList = new List(shell, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
         dataList.setLayoutData(gd);
 
         dataList.setFont(font);
-        dataList.addMouseListener(new MouseListener() {
+        dataList.addSelectionListener(new SelectionAdapter() {
+
             @Override
-            public void mouseDoubleClick(MouseEvent e) {
+            public void widgetDefaultSelected(SelectionEvent e) {
                 // Display data on double click
                 // Clear the previous data
                 clearData();
@@ -412,13 +401,6 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
                 displayData();
             }
 
-            @Override
-            public void mouseDown(MouseEvent e) {
-            }
-
-            @Override
-            public void mouseUp(MouseEvent e) {
-            }
         });
     }
 
@@ -508,7 +490,7 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
         ffgOptionsComp.setLayout(gl);
 
         Label ffgAreaLbl = new Label(ffgOptionsComp, SWT.RIGHT);
-        ffgAreaLbl.setText("FFG Area: ");
+        ffgAreaLbl.setText("FFG Area:");
 
         GridData gd = new GridData(100, SWT.DEFAULT);
         ffgAreaCbo = new Combo(ffgOptionsComp, SWT.DROP_DOWN | SWT.READ_ONLY);
@@ -530,7 +512,7 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
         });
 
         Label ffgIdLbl = new Label(ffgOptionsComp, SWT.RIGHT);
-        ffgIdLbl.setText("Id: ");
+        ffgIdLbl.setText("ID:");
 
         // ------------------------------------------------
         // NOTE: The FFG ID combo box data may be dynamic
@@ -547,13 +529,6 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
         ffgIdCbo.setLayoutData(gd);
         ffgIdCbo.addSelectionListener(new SelectionAdapter() {
 
-            /*
-             * (non-Javadoc)
-             * 
-             * @see
-             * org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.eclipse
-             * .swt.events.SelectionEvent)
-             */
             @Override
             public void widgetSelected(SelectionEvent e) {
                 selectedRFC = ffgIdCbo.getItem(ffgIdCbo.getSelectionIndex());
@@ -563,7 +538,7 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
         });
 
         Label ffgDurLbl = new Label(ffgOptionsComp, SWT.RIGHT);
-        ffgDurLbl.setText("Dur: ");
+        ffgDurLbl.setText("Duration:");
 
         gd = new GridData(100, SWT.DEFAULT);
         ffgDurCbo = new Combo(ffgOptionsComp, SWT.DROP_DOWN | SWT.READ_ONLY);
@@ -574,13 +549,6 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
         ffgDurCbo.setLayoutData(gd);
         ffgDurCbo.addSelectionListener(new SelectionAdapter() {
 
-            /*
-             * (non-Javadoc)
-             * 
-             * @see
-             * org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.eclipse
-             * .swt.events.SelectionEvent)
-             */
             @Override
             public void widgetSelected(SelectionEvent e) {
                 int index = ffgDurCbo.getSelectionIndex();
@@ -590,7 +558,7 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
         });
 
         Label ffgDisplayLbl = new Label(ffgOptionsComp, SWT.RIGHT);
-        ffgDisplayLbl.setText("Display As: ");
+        ffgDisplayLbl.setText("Display As:");
 
         gd = new GridData(100, SWT.DEFAULT);
         ffgDisplayAsCbo = new Combo(ffgOptionsComp, SWT.DROP_DOWN
@@ -606,13 +574,12 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
      */
     private void createArealOptionComposite() {
         arealOptionsComp = new Composite(stackComposite, SWT.NONE);
-        GridLayout gl = new GridLayout(2, false);
+        GridLayout gl = new GridLayout(3, false);
         arealOptionsComp.setLayout(gl);
 
         Label arealTypeLbl = new Label(arealOptionsComp, SWT.RIGHT);
-        arealTypeLbl.setText("Areal Type: ");
+        arealTypeLbl.setText("Areal Type:");
 
-        GridData gd = new GridData(100, SWT.DEFAULT);
         arealTypeCbo = new Combo(arealOptionsComp, SWT.DROP_DOWN
                 | SWT.READ_ONLY);
         arealTypeCbo.add(ResolutionLevel.ALL.getResolution());
@@ -620,15 +587,11 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
         arealTypeCbo.add(ResolutionLevel.COUNTY.getResolution());
         arealTypeCbo.add(ResolutionLevel.ZONE.getResolution());
         arealTypeCbo.select(0);
+        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gd.horizontalSpan = 2;
         arealTypeCbo.setLayoutData(gd);
         arealTypeCbo.addSelectionListener(new SelectionAdapter() {
-            /*
-             * (non-Javadoc)
-             * 
-             * @see
-             * org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.eclipse
-             * .swt.events.SelectionEvent)
-             */
+
             @Override
             public void widgetSelected(SelectionEvent e) {
                 populateDataList();
@@ -636,9 +599,8 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
         });
 
         Label arealDurLbl = new Label(arealOptionsComp, SWT.RIGHT);
-        arealDurLbl.setText("Dur: ");
+        arealDurLbl.setText("Duration:");
 
-        gd = new GridData(100, SWT.DEFAULT);
         arealDurCbo = new Combo(arealOptionsComp, SWT.DROP_DOWN | SWT.READ_ONLY);
         arealDurCbo.add("All");
         arealDurCbo.add("1hr");
@@ -647,15 +609,11 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
         arealDurCbo.add("12hr");
         arealDurCbo.add("24hr");
         arealDurCbo.select(0);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gd.horizontalSpan = 2;
         arealDurCbo.setLayoutData(gd);
         arealDurCbo.addSelectionListener(new SelectionAdapter() {
-            /*
-             * (non-Javadoc)
-             * 
-             * @see
-             * org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.eclipse
-             * .swt.events.SelectionEvent)
-             */
+
             @Override
             public void widgetSelected(SelectionEvent e) {
                 int index = arealDurCbo.getSelectionIndex();
@@ -664,24 +622,10 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
             }
         });
 
-        // Label filler1Lbl = new Label(arealOptionsComp, SWT.NONE);
-        new Label(arealOptionsComp, SWT.NONE);
+        Label displayLbl = new Label(arealOptionsComp, SWT.NONE);
+        displayLbl.setText("Display:");
 
-        // Label filler2Lbl = new Label(arealOptionsComp, SWT.NONE);
-        new Label(arealOptionsComp, SWT.NONE);
-
-        gd = new GridData();
-        gd.horizontalSpan = 2;
-        Composite displayComp = new Composite(arealOptionsComp, SWT.NONE);
-        RowLayout rl = new RowLayout();
-        rl.spacing = 10;
-        displayComp.setLayout(rl);
-        displayComp.setLayoutData(gd);
-
-        Label displayLbl = new Label(displayComp, SWT.NONE);
-        displayLbl.setText("Display: ");
-
-        valuesChk = new Button(displayComp, SWT.CHECK);
+        valuesChk = new Button(arealOptionsComp, SWT.CHECK);
         valuesChk.setSelection(true);
         valuesChk.setText("Values");
         valuesChk.addSelectionListener(new SelectionAdapter() {
@@ -692,7 +636,7 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
             }
         });
 
-        idsChk = new Button(displayComp, SWT.CHECK);
+        idsChk = new Button(arealOptionsComp, SWT.CHECK);
         idsChk.setSelection(true);
         idsChk.setText("Ids");
         idsChk.addSelectionListener(new SelectionAdapter() {

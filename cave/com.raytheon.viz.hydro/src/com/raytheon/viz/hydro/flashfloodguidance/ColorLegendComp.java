@@ -30,7 +30,6 @@ import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Canvas;
@@ -49,6 +48,7 @@ import com.raytheon.uf.viz.core.RGBColors;
  * 29 NOV 2007  373        lvenable    Initial creation 
  * 12 Oct 2009  2256       mpduff      Implmented the code.
  * 07 Feb 2012  1578       rferrel     Code clean up non-blocking dialogs.
+ * 15 Mar 2016  5483       randerso    Fix GUI sizing issues
  * 
  * </pre>
  * 
@@ -65,7 +65,7 @@ public class ColorLegendComp extends Composite {
     /**
      * Group composite.
      */
-    private Group mainGroupComposite;
+    private Group mainGroup;
 
     /**
      * Legend canvas.
@@ -167,13 +167,20 @@ public class ColorLegendComp extends Composite {
      * Initialize the class.
      */
     private void init() {
-        setLayout(new FillLayout());
+        GridLayout layout = new GridLayout(1, false);
+        layout.marginHeight = 0;
+        layout.marginWidth = 0;
+        setLayout(layout);
+
+        setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
 
         // Setup the main composite.
-        mainGroupComposite = new Group(this, SWT.NONE);
-        mainGroupComposite.setText(groupTitle);
-        GridLayout gl = new GridLayout(3, false);
-        mainGroupComposite.setLayout(gl);
+        mainGroup = new Group(this, SWT.NONE);
+        mainGroup.setText(groupTitle);
+        GridLayout gl = new GridLayout(1, false);
+        mainGroup.setLayout(gl);
+        mainGroup
+                .setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
 
         setupCanvas();
     }
@@ -184,15 +191,20 @@ public class ColorLegendComp extends Composite {
     private void setupCanvas() {
         font = new Font(parent.getDisplay(), "Courier", 10, SWT.BOLD);
 
-        legendCanvas = new Canvas(mainGroupComposite, SWT.DOUBLE_BUFFERED);
-        legendCanvas.setLayoutData(new GridData(CANVAS_WIDTH, CANVAS_HEIGHT));
+        legendCanvas = new Canvas(mainGroup, SWT.DOUBLE_BUFFERED);
+        GridData layoutData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        layoutData.widthHint = CANVAS_WIDTH;
+        layoutData.heightHint = CANVAS_HEIGHT;
+        legendCanvas.setLayoutData(layoutData);
         legendCanvas.addPaintListener(new PaintListener() {
+            @Override
             public void paintControl(PaintEvent e) {
                 drawColorLegend(e);
             }
         });
 
         legendCanvas.addDisposeListener(new DisposeListener() {
+            @Override
             public void widgetDisposed(DisposeEvent arg0) {
                 if ((font != null) && (font.isDisposed() == false)) {
                     font.dispose();
@@ -213,7 +225,7 @@ public class ColorLegendComp extends Composite {
      */
     private void drawColorLegend(PaintEvent e) {
         e.gc.setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_BLACK));
-        e.gc.fillRectangle(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+        e.gc.fillRectangle(e.x, e.y, e.width, e.height);
 
         e.gc.setForeground(parent.getDisplay().getSystemColor(SWT.COLOR_WHITE));
         e.gc.setFont(font);
@@ -263,9 +275,9 @@ public class ColorLegendComp extends Composite {
                 // We need to move the Y coord down the height of 1 color
                 // bar so there is an empty space between the lowest value
                 // color bar and the MISSING (-9999) color bar.
-                barYOffset = 50 + BAR_HEIGHT * (i + 1);
+                barYOffset = 50 + (BAR_HEIGHT * (i + 1));
             } else {
-                barYOffset = 50 + BAR_HEIGHT * i;
+                barYOffset = 50 + (BAR_HEIGHT * i);
             }
 
             e.gc.fillRectangle(130, barYOffset, BAR_WIDTH, BAR_HEIGHT);
