@@ -114,6 +114,8 @@ import com.vividsolutions.jts.geom.LineString;
  *  10-10-2014  ASM #16844 D. Friedman Prevent some errors when moving track.
  *  02-09-2016  ASM #18421 D. Friedman Don't call ToolsDataManager.setStormTrackData
  *                                     if there is no storm motion.
+ *  03-18-2016  ASM #18751 D. Friedman Followup for #18421: Do not set StormTrackState.oneStormAngle
+ *                                     when motion is zero.
  * </pre>
  * 
  * @author mschenke
@@ -990,7 +992,9 @@ public class StormTrackDisplay implements IRenderable {
         state.futurePoints = futurePoints;
 
         state.angle = angle;
-        StormTrackState.oneStormAngle = angle;
+        if (speed > 0) {
+            StormTrackState.oneStormAngle = angle;
+        }
         state.speed = speed;
 
         postData(state);
@@ -1219,7 +1223,9 @@ public class StormTrackDisplay implements IRenderable {
 
         double angle = state.angle;
         if(!state.justSwitchedToOS) {
-            if (StormTrackState.trackType != null && StormTrackState.trackType.equals("oneStorm")) {
+            if (StormTrackState.trackType != null
+                    && StormTrackState.trackType.equals("oneStorm")
+                    && state.speed > 0) {
                 StormTrackState.oneStormAngle = angle;
             }
         }
