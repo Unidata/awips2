@@ -23,12 +23,12 @@ compat_24 = sys.version_info >= (2, 4)
 __all__ = ['TestProgram', 'main', 'run', 'run_exit', 'runmodule', 'collector',
            'TextTestRunner']
 
-            
+
 class TextTestRunner(unittest.TextTestRunner):
     """Test runner that uses nose's TextTestResult to enable errorClasses,
     as well as providing hooks for plugins to override or replace the test
     output stream, results, and the test case itself.
-    """    
+    """
     def __init__(self, stream=sys.stderr, descriptions=1, verbosity=1,
                  config=None):
         if config is None:
@@ -36,7 +36,7 @@ class TextTestRunner(unittest.TextTestRunner):
         self.config = config
         unittest.TextTestRunner.__init__(self, stream, descriptions, verbosity)
 
-    
+
     def _makeResult(self):
         return TextTestResult(self.stream,
                               self.descriptions,
@@ -50,22 +50,25 @@ class TextTestRunner(unittest.TextTestRunner):
         wrapper = self.config.plugins.prepareTest(test)
         if wrapper is not None:
             test = wrapper
-        
+
         # plugins can decorate or capture the output stream
         wrapped = self.config.plugins.setOutputStream(self.stream)
         if wrapped is not None:
             self.stream = wrapped
-            
+
         result = self._makeResult()
         start = time.time()
-        test(result)
+        try:
+            test(result)
+        except KeyboardInterrupt:
+            pass
         stop = time.time()
         result.printErrors()
         result.printSummary(start, stop)
         self.config.plugins.finalize(result)
         return result
 
-    
+
 class TestProgram(unittest.TestProgram):
     """Collect and run tests, returning success or failure.
 
@@ -104,26 +107,38 @@ class TestProgram(unittest.TestProgram):
         if config is None:
             config = self.makeConfig(env, plugins)
         if addplugins:
-            config.plugins.addPlugins(addplugins)
+            config.plugins.addPlugins(extraplugins=addplugins)
         self.config = config
         self.suite = suite
         self.exit = exit
+        extra_args = {}
+        version = sys.version_info[0:2]
+        if version >= (2,7) and version != (3,0):
+            extra_args['exit'] = exit
         unittest.TestProgram.__init__(
             self, module=module, defaultTest=defaultTest,
-            argv=argv, testRunner=testRunner, testLoader=testLoader)
+            argv=argv, testRunner=testRunner, testLoader=testLoader,
+            **extra_args)
+
+    def getAllConfigFiles(self, env=None):
+        env = env or {}
+        if env.get('NOSE_IGNORE_CONFIG_FILES', False):
+            return []
+        else:
+            return all_config_files()
 
     def makeConfig(self, env, plugins=None):
         """Load a Config, pre-filled with user config files if any are
         found.
         """
-        cfg_files = all_config_files()        
+        cfg_files = self.getAllConfigFiles(env)
         if plugins:
             manager = PluginManager(plugins=plugins)
         else:
             manager = DefaultPluginManager()
         return Config(
             env=env, files=cfg_files, plugins=manager)
-        
+
     def parseArgs(self, argv):
         """Parse argv and env and configure running environment.
         """
@@ -141,7 +156,7 @@ class TestProgram(unittest.TestProgram):
         if self.config.options.showPlugins:
             self.showPlugins()
             sys.exit(0)
-        
+
         if self.testLoader is None:
             self.testLoader = defaultTestLoader(config=self.config)
         elif isclass(self.testLoader):
@@ -150,7 +165,7 @@ class TestProgram(unittest.TestProgram):
         if plug_loader is not None:
             self.testLoader = plug_loader
         log.debug("test loader is %s", self.testLoader)
-        
+
         # FIXME if self.module is a string, add it to self.testNames? not sure
 
         if self.config.testNames:
@@ -162,7 +177,7 @@ class TestProgram(unittest.TestProgram):
         if self.config.workingDir is not None:
             os.chdir(self.config.workingDir)
         self.createTests()
-        
+
     def createTests(self):
         """Create the tests to run. If a self.suite
         is set, then that suite will be used. Otherwise, tests will be
@@ -205,10 +220,10 @@ class TestProgram(unittest.TestProgram):
                 self.options = []
             def add_option(self, *arg, **kw):
                 self.options.append((arg, kw.pop('help', '')))
-        
+
         v = self.config.verbosity
         self.config.plugins.sort()
-        for p in self.config.plugins:            
+        for p in self.config.plugins:
             print "Plugin %s" % p.name
             if v >= 2:
                 print "  score: %s" % p.score
@@ -216,22 +231,37 @@ class TestProgram(unittest.TestProgram):
                                               initial_indent='  ',
                                               subsequent_indent='  '))
                 if v >= 3:
-                    print
-                    print "  Options:"
                     parser = DummyParser()
                     p.addOptions(parser)
-                    for opts, help in parser.options:
-                        print '  %s' % (', '.join(opts))
-                        if help:
-                            print '\n'.join(
-                                textwrap.wrap(help.strip(),
-                                              initial_indent='    ',
-                                              subsequent_indent='    '))
+                    if len(parser.options):
+                        print
+                        print "  Options:"
+                        for opts, help in parser.options:
+                            print '  %s' % (', '.join(opts))
+                            if help:
+                                print '\n'.join(
+                                    textwrap.wrap(help.strip(),
+                                                  initial_indent='    ',
+                                                  subsequent_indent='    '))
                 print
-            
+
     def usage(cls):
-        return open(os.path.join(
-                os.path.dirname(__file__), 'usage.txt'), 'r').read()
+        import nose
+        try:
+            ld = nose.__loader__
+            text = ld.get_data(os.path.join(
+                os.path.dirname(__file__), 'usage.txt'))
+        except AttributeError:
+            f = open(os.path.join(
+                os.path.dirname(__file__), 'usage.txt'), 'r')
+            try:
+                text = f.read()
+            finally:
+                f.close()
+        # Ensure that we return str, not bytes.
+        if not isinstance(text, str):
+            text = text.decode('utf-8')
+        return text
     usage = classmethod(usage)
 
 # backwards compatibility
@@ -263,9 +293,9 @@ def run(*arg, **kw):
     * addplugins: List of **extra** plugins to use. Pass a list of plugin
       instances in this argument to make custom plugins available while
       still using the DefaultPluginManager.
-      
+
     With the exception that the ``exit`` argument is always set
-    to False.    
+    to False.
     """
     kw['exit'] = False
     return TestProgram(*arg, **kw).success
@@ -284,7 +314,7 @@ def collector():
     unittest.TestSuite. The collector will, by default, load options from
     all config files and execute loader.loadTestsFromNames() on the
     configured testNames, or '.' if no testNames are configured.
-    """    
+    """
     # plugins that implement any of these methods are disabled, since
     # we don't control the test runner and won't be able to run them
     # finalize() is also not called, but plugins that use it aren't disabled,

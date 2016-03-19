@@ -75,7 +75,7 @@ class Plugin(object):
 
     def options(self, parser, env):
         """Register commandline options.
-        
+
         Implement this method for normal options behavior with protection from
         OptionConflictErrors. If you override this method and want the default
         --with-$name option to be registered, be sure to call super().
@@ -119,7 +119,7 @@ class Plugin(object):
 
 class IPluginInterface(object):
     """
-    IPluginInteface describes the plugin API. Do not subclass or use this
+    IPluginInterface describes the plugin API. Do not subclass or use this
     class directly.
     """
     def __new__(cls, *arg, **kw):
@@ -217,7 +217,7 @@ class IPluginInterface(object):
 
         :param filename: The file that was loaded
         :type filename: string
-        :param filename: The name of the module
+        :param module: The name of the module
         :type module: string
         """
         pass
@@ -323,8 +323,8 @@ class IPluginInterface(object):
     def formatError(self, test, err):
         """Called in result.addError, before plugin.addError. If you
         want to replace or modify the error tuple, return a new error
-        tuple.
-
+        tuple, otherwise return err, the original error tuple.
+        
         :param test: the test case
         :type test: :class:`nose.case.Test`
         :param err: sys.exc_info() tuple
@@ -339,11 +339,8 @@ class IPluginInterface(object):
     def formatFailure(self, test, err):
         """Called in result.addFailure, before plugin.addFailure. If you
         want to replace or modify the error tuple, return a new error
-        tuple. Because this method is chainable, you must return the
-        test as well, so you you'll return something like::
-
-          return (test, err)
-
+        tuple, otherwise return err, the original error tuple.
+        
         :param test: the test case
         :type test: :class:`nose.case.Test`
         :param err: sys.exc_info() tuple
@@ -631,8 +628,8 @@ class IPluginInterface(object):
         """Called before each test is run. DO NOT return a value unless
         you want to stop other plugins from seeing the test start.
 
-        :param err: sys.exc_info() tuple
-        :type err: 3-tuple
+        :param test: the test case
+        :type test: :class:`nose.case.Test`
         """
         pass
 
@@ -640,7 +637,7 @@ class IPluginInterface(object):
         """Called after the tests in a context have run and the
         context has been torn down.
 
-        :param context: the context about to be setup. May be a module or
+        :param context: the context that has been torn down. May be a module or
              class, or any other object that contains tests.
         """
         pass
@@ -650,16 +647,16 @@ class IPluginInterface(object):
         """Called after each test is run. DO NOT return a value unless
         you want to stop other plugins from seeing that the test has stopped.
 
-        :param err: sys.exc_info() tuple
-        :type err: 3-tuple
+        :param test: the test case
+        :type test: :class:`nose.case.Test`
         """
         pass
 
     def testName(self, test):
         """Return a short test name. Called by `nose.case.Test.__str__`.
 
-        :param err: sys.exc_info() tuple
-        :type err: 3-tuple
+        :param test: the test case
+        :type test: :class:`nose.case.Test`
         """
         pass
     testName._new = True
