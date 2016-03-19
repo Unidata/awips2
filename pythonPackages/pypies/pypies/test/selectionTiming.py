@@ -35,7 +35,7 @@ def hyperRequest():
       results = []
       for dsName in dsNames:
          ds = f[dsName]
-	 sel = numpy.ndarray(ds.shape, dtype=bool)
+         sel = numpy.ndarray(ds.shape, dtype=bool)
          sel[()] = False
          for n in indices:
             sel[n] = True
