@@ -1,16 +1,13 @@
 # cython: profile=False
 
-#+
-# 
-# This file is part of h5py, a low-level Python interface to the HDF5 library.
-# 
-# Copyright (C) 2008 Andrew Collette
-# http://h5py.alfven.org
-# License: BSD  (See LICENSE.txt for full license)
-# 
-# $Date$
-# 
-#-
+# This file is part of h5py, a Python interface to the HDF5 library.
+#
+# http://www.h5py.org
+#
+# Copyright 2008-2013 Andrew Collette and contributors
+#
+# License:  Standard 3-clause BSD; see "license.txt" for full license terms
+#           and contributor agreement.
 
 """
     Proxy functions for read/write, to work around the HDF5 bogus type issue.
@@ -65,6 +62,8 @@ cdef herr_t attr_rw(hid_t attr, hid_t mtype, void *progbuf, int read) except -1:
                 memcpy(conv_buf, progbuf, msize*npoints)
                 H5Tconvert(mtype, atype, npoints, conv_buf, back_buf, H5P_DEFAULT)
                 H5Awrite(attr, atype, conv_buf)
+                H5Dvlen_reclaim(atype, aspace, H5P_DEFAULT, conv_buf)
+
     finally:
         free(conv_buf)
         free(back_buf)
@@ -81,8 +80,8 @@ cdef herr_t attr_rw(hid_t attr, hid_t mtype, void *progbuf, int read) except -1:
 cdef herr_t H5PY_H5Dread(hid_t dset, hid_t mtype, hid_t mspace,
                         hid_t fspace, hid_t dxpl, void* buf) except -1:
     cdef herr_t retval
-    with nogil:
-        retval = H5Dread(dset, mtype, mspace, fspace, dxpl, buf)
+    #with nogil:
+    retval = H5Dread(dset, mtype, mspace, fspace, dxpl, buf)
     if retval < 0:
         return -1
     return retval
@@ -90,8 +89,8 @@ cdef herr_t H5PY_H5Dread(hid_t dset, hid_t mtype, hid_t mspace,
 cdef herr_t H5PY_H5Dwrite(hid_t dset, hid_t mtype, hid_t mspace,
                         hid_t fspace, hid_t dxpl, void* buf) except -1:
     cdef herr_t retval
-    with nogil:
-        retval = H5Dwrite(dset, mtype, mspace, fspace, dxpl, buf)
+    #with nogil:
+    retval = H5Dwrite(dset, mtype, mspace, fspace, dxpl, buf)
     if retval < 0:
         return -1
     return retval
@@ -99,11 +98,13 @@ cdef herr_t H5PY_H5Dwrite(hid_t dset, hid_t mtype, hid_t mspace,
 # =============================================================================
 # Proxy for vlen buf workaround
 
+
 cdef herr_t dset_rw(hid_t dset, hid_t mtype, hid_t mspace, hid_t fspace,
                     hid_t dxpl, void* progbuf, int read) except -1:
 
     cdef htri_t need_bkg
     cdef hid_t dstype = -1      # Dataset datatype
+    cdef hid_t rawdstype = -1
     cdef hid_t dspace = -1      # Dataset dataspace
     cdef hid_t cspace = -1      # Temporary contiguous dataspaces
 
@@ -112,7 +113,17 @@ cdef herr_t dset_rw(hid_t dset, hid_t mtype, hid_t mspace, hid_t fspace,
     cdef hsize_t npoints
 
     try:
-        dstype = H5Dget_type(dset)
+        # Issue 372: when a compound type is involved, using the dataset type
+        # may result in uninitialized data being sent to H5Tconvert for fields
+        # not present in the memory type.  Limit the type used for the dataset
+        # to only those fields present in the memory type.  We can't use the
+        # memory type directly because of course that triggers HDFFV-1063.
+        if (H5Tget_class(mtype) == H5T_COMPOUND) and (not read):
+            rawdstype = H5Dget_type(dset)
+            dstype = make_reduced_type(mtype, rawdstype)
+            H5Tclose(rawdstype)
+        else:
+            dstype = H5Dget_type(dset)
 
         if not (needs_proxy(dstype) or needs_proxy(mtype)):
             if read:
@@ -140,7 +151,7 @@ cdef herr_t dset_rw(hid_t dset, hid_t mtype, hid_t mspace, hid_t fspace,
             else:
                 need_bkg = needs_bkg_buffer(mtype, dstype)
             if need_bkg:
-                back_buf = malloc(H5Tget_size(mtype)*npoints)
+                back_buf = create_buffer(H5Tget_size(dstype), H5Tget_size(mtype), npoints)
                 h5py_copy(mtype, mspace, back_buf, progbuf, H5PY_GATHER)
 
             if read:
@@ -151,7 +162,8 @@ cdef herr_t dset_rw(hid_t dset, hid_t mtype, hid_t mspace, hid_t fspace,
                 h5py_copy(mtype, mspace, conv_buf, progbuf, H5PY_GATHER)
                 H5Tconvert(mtype, dstype, npoints, conv_buf, back_buf, dxpl)
                 H5PY_H5Dwrite(dset, dstype, cspace, fspace, dxpl, conv_buf)
-
+                H5Dvlen_reclaim(dstype, cspace, H5P_DEFAULT, conv_buf)
+ 
     finally:
         free(back_buf)
         free(conv_buf)
@@ -163,6 +175,61 @@ cdef herr_t dset_rw(hid_t dset, hid_t mtype, hid_t mspace, hid_t fspace,
             H5Sclose(cspace)
 
     return 0
+
+
+cdef hid_t make_reduced_type(hid_t mtype, hid_t dstype):
+    # Go through dstype, pick out the fields which also appear in mtype, and
+    # return a new compound type with the fields packed together
+    # See also: issue 372
+
+    cdef hid_t newtype, temptype
+    cdef hsize_t newtype_size, offset
+    cdef char* member_name = NULL
+
+    # Make a list of all names in the memory type.
+    mtype_fields = []
+    for idx in xrange(H5Tget_nmembers(mtype)):
+        member_name = H5Tget_member_name(mtype, idx)
+        try:
+            mtype_fields.append(member_name)
+        finally:
+            free(member_name)
+            member_name = NULL
+
+    # First pass: add up the sizes of matching fields so we know how large a
+    # type to make
+    newtype_size = 0
+    for idx in xrange(H5Tget_nmembers(dstype)):
+        member_name = H5Tget_member_name(dstype, idx)
+        try:
+            if member_name not in mtype_fields:
+                continue
+            temptype = H5Tget_member_type(dstype, idx)
+            newtype_size += H5Tget_size(temptype)
+            H5Tclose(temptype)
+        finally:
+            free(member_name)
+            member_name =  NULL
+
+    newtype = H5Tcreate(H5T_COMPOUND, newtype_size)
+
+    # Second pass: pick out the matching fields and pack them in the new type
+    offset = 0
+    for idx in xrange(H5Tget_nmembers(dstype)):
+        member_name = H5Tget_member_name(dstype, idx)
+        try:
+            if member_name not in mtype_fields:
+                continue
+            temptype = H5Tget_member_type(dstype, idx)
+            H5Tinsert(newtype, member_name, offset, temptype)
+            offset += H5Tget_size(temptype)
+            H5Tclose(temptype)
+        finally:
+            free(member_name)
+            member_name = NULL
+
+    return newtype
+
 
 cdef void* create_buffer(size_t ipt_size, size_t opt_size, size_t nl) except NULL:
     
@@ -189,7 +256,7 @@ ctypedef struct h5py_scatter_t:
     void* buf
 
 cdef herr_t h5py_scatter_cb(void* elem, hid_t type_id, unsigned ndim,
-                hsize_t *point, void *operator_data) except -1:
+                const hsize_t *point, void *operator_data) except -1:
 
     cdef h5py_scatter_t* info = <h5py_scatter_t*>operator_data
    
@@ -201,7 +268,7 @@ cdef herr_t h5py_scatter_cb(void* elem, hid_t type_id, unsigned ndim,
     return 0
 
 cdef herr_t h5py_gather_cb(void* elem, hid_t type_id, unsigned ndim,
-                hsize_t *point, void *operator_data) except -1:
+                const hsize_t *point, void *operator_data) except -1:
 
     cdef h5py_scatter_t* info = <h5py_scatter_t*>operator_data
    
@@ -245,7 +312,12 @@ cdef htri_t needs_bkg_buffer(hid_t src, hid_t dst) except -1:
     if H5Tdetect_class(src, H5T_COMPOUND) or H5Tdetect_class(dst, H5T_COMPOUND):
         return 1
 
-    H5Tfind(src, dst, &info)
+    try:
+        H5Tfind(src, dst, &info)
+    except:
+        print "Failed to find converter for %s -> %s" % (H5Tget_size(src), H5Tget_tag(dst))
+        raise
+
     if info[0].need_bkg == H5T_BKG_YES:
         return 1
 

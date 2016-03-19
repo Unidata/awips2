@@ -1,24 +1,19 @@
-#+
-# 
-# This file is part of h5py, a low-level Python interface to the HDF5 library.
-# 
-# Copyright (C) 2008 Andrew Collette
-# http://h5py.alfven.org
-# License: BSD  (See LICENSE.txt for full license)
-# 
-# $Date$
-# 
-#-
+# This file is part of h5py, a Python interface to the HDF5 library.
+#
+# http://www.h5py.org
+#
+# Copyright 2008-2013 Andrew Collette and contributors
+#
+# License:  Standard 3-clause BSD; see "license.txt" for full license terms
+#           and contributor agreement.
 
-include "config.pxi"
-include "defs.pxd"
+from defs cimport *
 
-from h5 cimport ObjectID
+from _objects cimport ObjectID
 
 cdef class GroupID(ObjectID):
 
-    IF H5PY_18API:
-        cdef readonly object links
-    pass
+    cdef readonly object links
+
 
 
