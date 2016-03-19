@@ -118,22 +118,27 @@ if [ "${1}" = "-WA" ]; then
 fi
 
 if [ "${1}" = "-pydev" ]; then
+   #buildRPM "awips2-python"
+   #buildRPM "awips2-python-numpy"
+   #buildRPM "awips2-python-pyparsing"
+   #buildRPM "awips2-python-six"
+   #buildRPM "awips2-python-nose"
+   #buildRPM "awips2-python-h5py"
+   #buildRPM "awips2-pypies"
+
+   #buildRPM "awips2-python-cycler"
    #buildRPM "awips2-python-shapely"
    #buildRPM "awips2-python-cython"
-   #buildRPM "awips2-python-metpy"
 
    #buildRPM "awips2-python-metpy"
    #buildRPM "awips2-python-cartopy"
-   #buildRPM "awips2-python-numpy"
    #buildRPM "awips2-python-scipy"
    #buildRPM "awips2-python-matplotlib"
-   #buildRPM "awips2-python-pyparsing"
    #buildRPM "awips2-python-basemap"
    buildRPM "awips2-python-awips"
 
    # DONE
    #buildRPM "awips2-python-pint"
-   #buildRPM "awips2-python-six"
    #buildRPM "awips2-python-dateutil"
    exit 0
 
@@ -294,9 +299,9 @@ if [ "${1}" = "-httpd" ]; then
 fi
 if [ "${1}" = "-postgres" ]; then
    #buildRPM "awips2-postgres"
-   buildRPM "awips2-database-standalone-configuration"
    buildRPM "awips2-edex-upc"
-   #buildRPM "awips2-database"
+   buildRPM "awips2-database"
+   buildRPM "awips2-database-standalone-configuration"
    #buildRPM "awips2-maps-database"
    #buildRPM "awips2-ncep-database"
 
