@@ -22,6 +22,7 @@ Packager: Bryan Kowal
 AutoReq: no
 provides: awips2-database
 provides: awips2-static-user
+requires: libpng
 requires: awips2-postgresql
 requires: awips2-psql
 requires: awips2-database-configuration
