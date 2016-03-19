@@ -9,6 +9,12 @@ from nose.plugins.manager import PluginManager
 from nose.plugins.skip import Skip
 from nose import loader
 from nose import suite
+from nose.result import _TextTestResult
+try:
+    # 2.7+
+    from unittest.runner import _WritelnDecorator
+except ImportError:
+    from unittest import _WritelnDecorator
 
 support = os.path.abspath(os.path.join(os.path.dirname(__file__), 'support'))
 
@@ -69,7 +75,7 @@ class TestNoseTestLoader(unittest.TestCase):
 
         assert not res.errors, res.errors
         assert not res.failures, res.failures
-        self.assertEqual(res.testsRun, 5)
+        self.assertEqual(res.testsRun, 6)
 
         # Expected order of calls
         expect = ['test_pak.setup',
@@ -78,6 +84,7 @@ class TestNoseTestLoader(unittest.TestCase):
                   'test_pak.test_mod.test_minus',
                   'test_pak.test_mod.teardown',
                   'test_pak.test_sub.setup',
+                  'test_pak.test_sub.test_sub_init',
                   'test_pak.test_sub.test_mod.setup',
                   'test_pak.test_sub.test_mod.TestMaths.setup_class',
                   'test_pak.test_sub.test_mod.TestMaths.setup',
@@ -225,8 +232,8 @@ class TestNoseTestLoader(unittest.TestCase):
         self.assertEqual(m.state, expect, diff(expect, m.state))
 
     def test_fixture_context_multiple_names_some_common_ancestors(self):
-        stream = unittest._WritelnDecorator(StringIO())
-        res = unittest._TextTestResult(stream, 0, 2)
+        stream = _WritelnDecorator(StringIO())
+        res = _TextTestResult(stream, 0, 2)
         wd = os.path.join(support, 'ltfn')
         l = loader.TestLoader(workingDir=wd)
         suite = l.loadTestsFromNames(
@@ -256,8 +263,8 @@ class TestNoseTestLoader(unittest.TestCase):
         self.assertEqual(m.called, expect, diff(expect, m.called))
 
     def test_fixture_context_multiple_names_no_common_ancestors(self):
-        stream = unittest._WritelnDecorator(StringIO())
-        res = unittest._TextTestResult(stream, 0, 2)
+        stream = _WritelnDecorator(StringIO())
+        res = _TextTestResult(stream, 0, 2)
         wd = os.path.join(support, 'ltfn')
         l = loader.TestLoader(workingDir=wd)
         suite = l.loadTestsFromNames(
@@ -336,8 +343,8 @@ class TestNoseTestLoader(unittest.TestCase):
         l = loader.TestLoader(workingDir=ctx)
         suite = l.loadTestsFromName('no_such_module.py')
 
-        res = unittest._TextTestResult(
-            stream=unittest._WritelnDecorator(sys.stdout),
+        res = _TextTestResult(
+            stream=_WritelnDecorator(sys.stdout),
             descriptions=0, verbosity=1)
         suite(res)
 
@@ -353,8 +360,8 @@ class TestNoseTestLoader(unittest.TestCase):
         l = loader.TestLoader(workingDir=ctx)
         suite = l.loadTestsFromName('no_such_module')
 
-        res = unittest._TextTestResult(
-            stream=unittest._WritelnDecorator(sys.stdout),
+        res = _TextTestResult(
+            stream=_WritelnDecorator(sys.stdout),
             descriptions=0, verbosity=1)
         suite(res)
         print res.errors
@@ -370,8 +377,8 @@ class TestNoseTestLoader(unittest.TestCase):
         l = loader.TestLoader(workingDir=ctx)
         suite = l.loadTestsFromName('fred!')
 
-        res = unittest._TextTestResult(
-            stream=unittest._WritelnDecorator(sys.stdout),
+        res = _TextTestResult(
+            stream=_WritelnDecorator(sys.stdout),
             descriptions=0, verbosity=1)
         suite(res)
         print res.errors
@@ -388,14 +395,80 @@ class TestNoseTestLoader(unittest.TestCase):
         gen = os.path.join(support, 'gen')
         l = loader.TestLoader(workingDir=gen)
         suite = l.loadTestsFromName('test')
-        res = unittest._TextTestResult(
-            stream=unittest._WritelnDecorator(sys.stdout),
+        res = _TextTestResult(
+            stream=_WritelnDecorator(sys.stdout),
             descriptions=0, verbosity=1)
         suite(res)
         assert not res.errors
         self.assertEqual(res.testsRun, 5)
 
-        
+    def test_issue_269(self):
+        """Test classes that raise exceptions in __init__ do not stop test run
+        """
+        wdir = os.path.join(support, 'issue269')
+        l = loader.TestLoader(workingDir=wdir)
+        suite = l.loadTestsFromName('test_bad_class')
+        res = _TextTestResult(
+            stream=_WritelnDecorator(sys.stdout),
+            descriptions=0, verbosity=1)
+        suite(res)
+        print res.errors
+        self.assertEqual(len(res.errors), 1)
+        assert 'raise Exception("pow")' in res.errors[0][1]
+
+    def test_load_from_file(self):
+        res = unittest.TestResult()
+        wd = os.path.join(support, 'package2')
+        l = loader.TestLoader(workingDir=wd)
+        suite = l.loadTestsFromName('test_pak/test_sub/__init__.py')
+        suite(res)
+
+        assert 'test_pak' in sys.modules, \
+               "Context did not load test_pak"
+        m = sys.modules['test_pak']
+        print "test pak state", m.state
+        expect = ['test_pak.setup',
+                  'test_pak.test_sub.setup',
+                  'test_pak.test_sub.test_sub_init',
+                  'test_pak.test_sub.teardown',
+                  'test_pak.teardown']
+        self.assertEqual(len(m.state), len(expect))
+        for item in m.state:
+            self.assertEqual(item, expect.pop(0))
+
+
+    def test_load_from_sub_package(self):
+        res = unittest.TestResult()
+        wd = os.path.join(support, 'package2')
+        l = loader.TestLoader(workingDir=wd)
+        suite = l.loadTestsFromName('test_pak.test_sub')
+        suite(res)
+
+        assert 'test_pak' in sys.modules, \
+               "Context did not load test_pak"
+        m = sys.modules['test_pak']
+        print "test pak state", m.state
+        expect = ['test_pak.setup',
+                  'test_pak.test_sub.setup',
+                  'test_pak.test_sub.test_sub_init',
+                  'test_pak.test_sub.test_mod.setup',
+                  'test_pak.test_sub.test_mod.TestMaths.setup_class',
+                  'test_pak.test_sub.test_mod.TestMaths.setup',
+                  'test_pak.test_sub.test_mod.TestMaths.test_div',
+                  'test_pak.test_sub.test_mod.TestMaths.teardown',
+                  'test_pak.test_sub.test_mod.TestMaths.setup',
+                  'test_pak.test_sub.test_mod.TestMaths.test_two_two',
+                  'test_pak.test_sub.test_mod.TestMaths.teardown',
+                  'test_pak.test_sub.test_mod.TestMaths.teardown_class',
+                  'test_pak.test_sub.test_mod.test',
+                  'test_pak.test_sub.test_mod.teardown',
+                  'test_pak.test_sub.teardown',
+                  'test_pak.teardown']
+        self.assertEqual(len(m.state), len(expect))
+        for item in m.state:
+            self.assertEqual(item, expect.pop(0))
+
+
 # used for comparing lists
 def diff(a, b):
     return '\n' + '\n'.join([ l for l in ndiff(a, b)

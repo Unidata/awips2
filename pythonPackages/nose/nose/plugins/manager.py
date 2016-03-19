@@ -17,6 +17,10 @@ The plugin managers provided with nose are:
 :class:`EntryPointPluginManager`
     This manager uses setuptools entrypoints to load plugins.
 
+:class:`ExtraPluginsPluginManager`
+    This manager loads extra plugins specified with the keyword
+    `addplugins`.
+
 :class:`DefaultPluginMananger`
     This is the manager class that will be used by default. If
     setuptools is installed, it is a subclass of
@@ -48,9 +52,22 @@ import inspect
 import logging
 import os
 import sys
+from itertools import chain as iterchain
 from warnings import warn
+import nose.config
 from nose.failure import Failure
 from nose.plugins.base import IPluginInterface
+from nose.pyversion import sort_list
+
+try:
+    import cPickle as pickle
+except:
+    import pickle
+try:
+    from cStringIO import StringIO
+except:
+    from StringIO import StringIO
+
 
 __all__ = ['DefaultPluginManager', 'PluginManager', 'EntryPointPluginManager',
            'BuiltinPluginManager', 'RestrictedPluginManager']
@@ -77,10 +94,10 @@ class PluginProxy(object):
         self.plugins = []
         for p in plugins:
             self.addPlugin(p, call)
-    
+
     def __call__(self, *arg, **kw):
         return self.call(*arg, **kw)
-    
+
     def addPlugin(self, plugin, call):
         """Add plugin to my list of plugins to call, if it has the attribute
         I'm bound to.
@@ -108,8 +125,8 @@ class PluginProxy(object):
             return self.chain
         else:
             # return a value from the first plugin that returns non-None
-            return self.simple        
-            
+            return self.simple
+
     def chain(self, *arg, **kw):
         """Call plugins in a chain, where the result of each plugin call is
         sent to the next plugin as input. The final output result is returned.
@@ -171,7 +188,7 @@ class NoPlugins(object):
     """Null Plugin manager that has no plugins."""
     interface = IPluginInterface
     def __init__(self):
-        self.plugins = ()
+        self._plugins = self.plugins = ()
 
     def __iter__(self):
         return ()
@@ -201,13 +218,15 @@ class NoPlugins(object):
     def loadPlugins(self):
         pass
 
-    def sort(self, cmpf=None):
+    def sort(self):
         pass
 
 
 class PluginManager(object):
-    """Base class for plugin managers. Does not implement loadPlugins, so it
-    may only be used with a static list of plugins.
+    """Base class for plugin managers. PluginManager is intended to be
+    used only with a static list of plugins. The loadPlugins() implementation
+    only reloads plugins from _extraplugins to prevent those from being
+    overridden by a subclass.
 
     The basic functionality of a plugin manager is to proxy all unknown
     attributes through a ``PluginProxy`` to a list of plugins.
@@ -216,15 +235,16 @@ class PluginManager(object):
     call.
     """
     proxyClass = PluginProxy
-    
+
     def __init__(self, plugins=(), proxyClass=None):
         self._plugins = []
+        self._extraplugins = ()
         self._proxies = {}
         if plugins:
             self.addPlugins(plugins)
         if proxyClass is not None:
             self.proxyClass = proxyClass
-        
+
     def __getattr__(self, call):
         try:
             return self._proxies[call]
@@ -237,10 +257,20 @@ class PluginManager(object):
         return iter(self.plugins)
 
     def addPlugin(self, plug):
+        # allow, for instance, plugins loaded via entry points to
+        # supplant builtin plugins.
+        new_name = getattr(plug, 'name', object())
+        self._plugins[:] = [p for p in self._plugins
+                            if getattr(p, 'name', None) != new_name]
         self._plugins.append(plug)
 
-    def addPlugins(self, plugins):
-        for plug in plugins:
+    def addPlugins(self, plugins=(), extraplugins=()):
+        """extraplugins are maintained in a separate list and
+        re-added by loadPlugins() to prevent their being overwritten
+        by plugins added by a subclass of PluginManager
+        """
+        self._extraplugins = extraplugins
+        for plug in iterchain(plugins, extraplugins):
             self.addPlugin(plug)
 
     def configure(self, options, config):
@@ -258,13 +288,11 @@ class PluginManager(object):
         log.debug("Plugins enabled: %s", enabled)
 
     def loadPlugins(self):
-        pass
+        for plug in self._extraplugins:
+            self.addPlugin(plug)
 
-    def sort(self, cmpf=None):
-        if cmpf is None:
-            cmpf = lambda a, b: cmp(getattr(b, 'score', 1),
-                                    getattr(a, 'score', 1))
-        self._plugins.sort(cmpf)
+    def sort(self):
+        return sort_list(self._plugins, lambda x: getattr(x, 'score', 1), reverse=True)
 
     def _get_plugins(self):
         return self._plugins
@@ -286,7 +314,7 @@ class ZeroNinePlugin:
 
     def options(self, parser, env=os.environ):
         self.plugin.add_options(parser, env)
-    
+
     def addError(self, test, err):
         if not hasattr(self.plugin, 'addError'):
             return
@@ -300,7 +328,7 @@ class ZeroNinePlugin:
         elif issubclass(ec, DeprecatedTest):
             if not hasattr(self.plugin, 'addDeprecated'):
                 return
-            return self.plugin.addDeprecated(test.test)           
+            return self.plugin.addDeprecated(test.test)
         # add capt
         capt = test.capturedOutput
         return self.plugin.addError(test.test, err, capt)
@@ -336,20 +364,18 @@ class ZeroNinePlugin:
     def __getattr__(self, val):
         return getattr(self.plugin, val)
 
-            
+
 class EntryPointPluginManager(PluginManager):
     """Plugin manager that loads plugins from the `nose.plugins` and
     `nose.plugins.0.10` entry points.
     """
     entry_points = (('nose.plugins.0.10', None),
                     ('nose.plugins', ZeroNinePlugin))
-    
+
     def loadPlugins(self):
         """Load plugins by iterating the `nose.plugins` entry point.
         """
-        super(EntryPointPluginManager, self).loadPlugins()
         from pkg_resources import iter_entry_points
-
         loaded = {}
         for entry_point, adapt in self.entry_points:
             for ep in iter_entry_points(entry_point):
@@ -373,6 +399,7 @@ class EntryPointPluginManager(PluginManager):
                 else:
                     plug = plugcls()
                 self.addPlugin(plug)
+        super(EntryPointPluginManager, self).loadPlugins()
 
 
 class BuiltinPluginManager(PluginManager):
@@ -382,18 +409,19 @@ class BuiltinPluginManager(PluginManager):
     def loadPlugins(self):
         """Load plugins in nose.plugins.builtin
         """
-        super(BuiltinPluginManager, self).loadPlugins()
         from nose.plugins import builtin
         for plug in builtin.plugins:
             self.addPlugin(plug())
-        
+        super(BuiltinPluginManager, self).loadPlugins()
+
 try:
     import pkg_resources
-    class DefaultPluginManager(BuiltinPluginManager, EntryPointPluginManager):
+    class DefaultPluginManager(EntryPointPluginManager, BuiltinPluginManager):
         pass
-except ImportError:
-    DefaultPluginManager = BuiltinPluginManager
 
+except ImportError:
+    class DefaultPluginManager(BuiltinPluginManager):
+        pass
 
 class RestrictedPluginManager(DefaultPluginManager):
     """Plugin manager that restricts the plugin list to those not
@@ -407,7 +435,7 @@ class RestrictedPluginManager(DefaultPluginManager):
         self.exclude = exclude
         self.excluded = []
         self._excludedOpts = None
-        
+
     def excludedOption(self, name):
         if self._excludedOpts is None:
             from optparse import OptionParser
@@ -415,7 +443,7 @@ class RestrictedPluginManager(DefaultPluginManager):
             for plugin in self.excluded:
                 plugin.options(self._excludedOpts, env={})
         return self._excludedOpts.get_option('--' + name)
-        
+
     def loadPlugins(self):
         if self.load:
             DefaultPluginManager.loadPlugins(self)
@@ -430,5 +458,3 @@ class RestrictedPluginManager(DefaultPluginManager):
             if ok:
                 allow.append(plugin)
         self.plugins = allow
-
-    

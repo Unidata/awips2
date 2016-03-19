@@ -5,7 +5,6 @@ Further reading
    :maxdepth: 2
 
    doc_tests/test_addplugins/test_addplugins.rst
-   doc_tests/test_coverage_html/coverage_html.rst
    doc_tests/test_doctest_fixtures/doctest_fixtures.rst
    doc_tests/test_init_plugin/init_plugin.rst
    doc_tests/test_issue089/unwanted_package.rst
@@ -18,6 +17,7 @@ Further reading
    doc_tests/test_restricted_plugin_options/restricted_plugin_options.rst
    doc_tests/test_selector_plugin/selector_plugin.rst
    doc_tests/test_allmodules/test_allmodules.rst
+   doc_tests/test_xunit_plugin/test_skips.rst
    more_info
 
 Articles, etc

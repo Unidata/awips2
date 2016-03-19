@@ -13,6 +13,7 @@ import logging
 import os
 import sys
 from nose.plugins.base import Plugin
+from nose.pyversion import exc_to_unicode, force_unicode
 from nose.util import ln
 from StringIO import StringIO
 
@@ -29,7 +30,7 @@ class Capture(Plugin):
     enabled = True
     env_opt = 'NOSE_NOCAPTURE'
     name = 'capture'
-    score = 500
+    score = 1600
 
     def __init__(self):
         self.stdout = []
@@ -86,8 +87,10 @@ class Capture(Plugin):
         return self.formatError(test, err)
 
     def addCaptureToErr(self, ev, output):
-        return '\n'.join([str(ev) , ln('>> begin captured stdout <<'),
-                          output, ln('>> end captured stdout <<')])
+        ev = exc_to_unicode(ev)
+        output = force_unicode(output)
+        return u'\n'.join([ev, ln(u'>> begin captured stdout <<'),
+                           output, ln(u'>> end captured stdout <<')])
 
     def start(self):
         self.stdout.append(sys.stdout)

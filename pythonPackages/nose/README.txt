@@ -16,6 +16,11 @@ removed:
    verbosity=3
    with-doctest=1
 
+There is also possiblity to disable configuration files loading (might
+be useful when runnig i.e. tox and you don't want your global nose
+config file to be used by tox). In order to ignore those configuration
+files simply set an environment variable "NOSE_IGNORE_CONFIG_FILES".
+
 There are several other ways to use the nose test runner besides the
 *nosetests* script. You may use nose in a test script:
 
@@ -61,6 +66,11 @@ may use the assert keyword or raise AssertionErrors to indicate test
 failure. TestCase subclasses may do the same or use the various
 TestCase methods available.
 
+**It is important to note that the default behavior of nose is to not
+include tests from files which are executable.**  To include tests
+from such files, remove their executable bit or use the --exe flag
+(see 'Options' section below).
+
 
 Selecting Tests
 ---------------
@@ -104,18 +114,20 @@ Configuration
 -------------
 
 In addition to passing command-line options, you may also put
-configuration options in a .noserc or nose.cfg file in your home
-directory. These are standard .ini-style config files. Put your
-nosetests configuration in a [nosetests] section. Options are the same
-as on the command line, with the -- prefix removed. For options that
-are simple switches, you must supply a value:
+configuration options in your project's *setup.cfg* file, or a .noserc
+or nose.cfg file in your home directory. In any of these standard ini-
+style config files, you put your nosetests configuration in a
+"[nosetests]" section. Options are the same as on the command line,
+with the -- prefix removed. For options that are simple switches, you
+must supply a value:
 
    [nosetests]
    verbosity=3
    with-doctest=1
 
 All configuration files that are found will be loaded and their
-options combined.
+options combined. You can override the standard config file loading
+with the "-c" option.
 
 
 Using Plugins
@@ -139,7 +151,7 @@ plugins keyword argument.
 0.9 plugins
 -----------
 
-nose 0.11 can use SOME plugins that were written for nose 0.9. The
+nose 1.0 can use SOME plugins that were written for nose 0.9. The
 default plugin manager inserts a compatibility wrapper around 0.9
 plugins that adapts the changed plugin api calls. However, plugins
 that access nose internals are likely to fail, especially if they
@@ -151,10 +163,10 @@ plugin is trying to find out if the test is an instance of a class
 that no longer exists.
 
 
-0.10 plugins
-------------
+0.10 and 0.11 plugins
+---------------------
 
-All plugins written for nose 0.10 should work with nose 0.11.
+All plugins written for nose 0.10 and 0.11 should work with nose 1.0.
 
 
 Options
@@ -193,6 +205,14 @@ Options
    in place of the current working directory, which is the default.
    Others will be added to the list of tests to execute. [NOSE_WHERE]
 
+--py3where=PY3WHERE
+
+   Look for tests in this directory under Python 3.x. Functions the
+   same as 'where', but only applies if running under Python 3.x or
+   above.  Note that, if present under 3.x, this option completely
+   replaces any directories specified with 'where', so the 'where'
+   option becomes ineffective. [NOSE_PY3WHERE]
+
 -m=REGEX, --match=REGEX, --testmatch=REGEX
 
    Files, directories, function names, and class names that match this
@@ -220,6 +240,13 @@ Options
 
    Load logging config from this file -- bypasses all other logging
    config settings.
+
+-I=REGEX, --ignore-files=REGEX
+
+   Completely ignore any file that matches this regular expression.
+   Takes precedence over any other settings or plugins. Specifying
+   this option will replace the default setting. Specify this option
+   multiple times to add more regular expressions [NOSE_IGNORE_FILES]
 
 -e=REGEX, --exclude=REGEX
 
@@ -255,11 +282,16 @@ Options
 
    Traverse through all path entries of a namespace package
 
---first-package-wins=DEFAULT, --first-pkg-wins=DEFAULT, --1st-pkg-wins=DEFAULT
+--first-package-wins, --first-pkg-wins, --1st-pkg-wins
 
    nose's importer will normally evict a package from sys.modules if
    it sees a package with the same name in a different location. Set
    this option to disable that behavior.
+
+--no-byte-compile
+
+   Prevent nose from byte-compiling the source into .pyc files while
+   nose is scanning for and running tests.
 
 -a=ATTR, --attr=ATTR
 
@@ -277,7 +309,7 @@ Options
 
 --nologcapture
 
-   Disable logging capture plugin. Logging configurtion will be left
+   Disable logging capture plugin. Logging configuration will be left
    intact. [NOSE_NOLOGCAPTURE]
 
 --logging-format=FORMAT
@@ -297,11 +329,17 @@ Options
    filter out needless output. Example: filter=foo will capture
    statements issued ONLY to  foo or foo.what.ever.sub but not foobar
    or other logger. Specify multiple loggers with comma:
-   filter=foo,bar,baz. [NOSE_LOGFILTER]
+   filter=foo,bar,baz. If any logger name is prefixed with a minus, eg
+   filter=-foo, it will be excluded rather than included. Default:
+   exclude logging messages from nose itself (-nose). [NOSE_LOGFILTER]
 
 --logging-clear-handlers
 
    Clear all other logging handlers
+
+--logging-level=DEFAULT
+
+   Set the log level to capture
 
 --with-coverage
 
@@ -320,6 +358,11 @@ Options
 
    Include test modules in coverage report [NOSE_COVER_TESTS]
 
+--cover-min-percentage=DEFAULT
+
+   Minimum percentage of coverage for tests to pass
+   [NOSE_COVER_MIN_PERCENTAGE]
+
 --cover-inclusive
 
    Include all python files under working directory in coverage
@@ -334,13 +377,29 @@ Options
 
    Produce HTML coverage information in dir
 
+--cover-branches
+
+   Include branch coverage in coverage report [NOSE_COVER_BRANCHES]
+
+--cover-xml
+
+   Produce XML coverage information
+
+--cover-xml-file=FILE
+
+   Produce XML coverage information in file
+
 --pdb
 
-   Drop into debugger on errors
+   Drop into debugger on failures or errors
 
 --pdb-failures
 
    Drop into debugger on failures
+
+--pdb-errors
+
+   Drop into debugger on errors
 
 --no-deprecated
 
@@ -373,6 +432,11 @@ Options
 
    Find fixtures for a doctest file in module with this name appended
    to the base name of the doctest file
+
+--doctest-options=OPTIONS
+
+   Specify options to pass to doctest. Eg.
+   '+ELLIPSIS,+NORMALIZE_WHITESPACE'
 
 --with-isolation
 
@@ -429,12 +493,21 @@ Options
 
    Spread test run among this many processes. Set a number equal to
    the number of processors or cores in your machine for best results.
-   [NOSE_PROCESSES]
+   Pass a negative number to have the number of processes
+   automatically set to the number of cores. Passing 0 means to
+   disable parallel testing. Default is 0 unless NOSE_PROCESSES is
+   set. [NOSE_PROCESSES]
 
 --process-timeout=SECONDS
 
    Set timeout for return of results from each test runner process.
-   [NOSE_PROCESS_TIMEOUT]
+   Default is 10. [NOSE_PROCESS_TIMEOUT]
+
+--process-restartworker
+
+   If set, will restart each worker process once their tests are done,
+   this helps control memory leaks from killing the system.
+   [NOSE_PROCESS_RESTARTWORKER]
 
 --with-xunit
 
@@ -445,6 +518,11 @@ Options
 
    Path to xml file to store the xunit report in. Default is
    nosetests.xml in the working directory [NOSE_XUNIT_FILE]
+
+--xunit-testsuite-name=PACKAGE
+
+   Name of the testsuite in the xunit xml, generated by plugin.
+   Default test suite name is nosetests.
 
 --all-modules
 
