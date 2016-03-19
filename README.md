@@ -42,6 +42,10 @@ selinux should be **disabled** [(read more about selinux at redhat.com)](https:/
 
 ## CentOS/RHEL 6 Server Config
 
+#### Download awips2.repo yum file
+
+    wget -O /etc/yum.repos.d/awips2.repo http://www.unidata.ucar.edu/software/awips2/doc/awips2.repo
+
 ####  create user `awips` and group `fxalpha` 
         
     groupadd fxalpha
