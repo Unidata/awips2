@@ -48,7 +48,6 @@
     <alias base="NGM213">ngm213</alias>
     <alias base="NGM202">ngm202</alias>
     <alias base="GFS-80km">avn211</alias>
-    <alias base="NAM40">NAM40</alias>
     <alias base="NAM20">NAM20</alias>
     <alias base="NAM40">eta212</alias>
     <alias base="AVN203">avn203</alias>
