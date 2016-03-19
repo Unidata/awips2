@@ -1,40 +1,32 @@
-#+
-# 
-# This file is part of h5py, a low-level Python interface to the HDF5 library.
-# 
-# Copyright (C) 2008 Andrew Collette
-# http://h5py.alfven.org
-# License: BSD  (See LICENSE.txt for full license)
-# 
-# $Date$
-# 
-#-
+# This file is part of h5py, a Python interface to the HDF5 library.
+#
+# http://www.h5py.org
+#
+# Copyright 2008-2013 Andrew Collette and contributors
+#
+# License:  Standard 3-clause BSD; see "license.txt" for full license terms
+#           and contributor agreement.
 
 """
     H5R API for object and region references.
 """
 
-include "config.pxi"
-
 # Pyrex compile-time imports
-from h5 cimport init_hdf5, ObjectID
-from h5i cimport wrap_identifier
-from h5s cimport SpaceID
+from _objects cimport ObjectID
 
-from python cimport PyString_FromStringAndSize
+from ._objects import phil, with_phil
 
-# Initialization
-init_hdf5()
 
 # === Public constants and data structures ====================================
 
 OBJECT = H5R_OBJECT
 DATASET_REGION = H5R_DATASET_REGION
 
+
 # === Reference API ===========================================================
 
-
-def create(ObjectID loc not None, char* name, int ref_type, SpaceID space=None):
+@with_phil
+def create(ObjectID loc not None, char* name, int ref_type, ObjectID space=None):
     """(ObjectID loc, STRING name, INT ref_type, SpaceID space=None)
     => ReferenceObject ref
 
@@ -45,7 +37,7 @@ def create(ObjectID loc not None, char* name, int ref_type, SpaceID space=None):
         Reference to an object in an HDF5 file.  Parameters "loc"
         and "name" identify the object; "space" is unused.
 
-    DATASET_REGION    
+    DATASET_REGION
         Reference to a dataset region.  Parameters "loc" and
         "name" identify the dataset; the selection on "space"
         identifies the region.
@@ -71,6 +63,7 @@ def create(ObjectID loc not None, char* name, int ref_type, SpaceID space=None):
     return ref
 
 
+@with_phil
 def dereference(Reference ref not None, ObjectID id not None):
     """(Reference ref, ObjectID id) => ObjectID or None
 
@@ -81,11 +74,13 @@ def dereference(Reference ref not None, ObjectID id not None):
 
     The reference may be either Reference or RegionReference.
     """
+    import h5i
     if not ref:
         return None
-    return wrap_identifier(H5Rdereference(id.id, <H5R_type_t>ref.typecode, &ref.ref))
+    return h5i.wrap_identifier(H5Rdereference(id.id, <H5R_type_t>ref.typecode, &ref.ref))
 
 
+@with_phil
 def get_region(RegionReference ref not None, ObjectID id not None):
     """(Reference ref, ObjectID id) => SpaceID or None
 
@@ -98,11 +93,13 @@ def get_region(RegionReference ref not None, ObjectID id not None):
     The reference object must be a RegionReference.  If it is zero-filled,
     returns None.
     """
+    import h5s
     if ref.typecode != H5R_DATASET_REGION or not ref:
         return None
-    return SpaceID(H5Rget_region(id.id, <H5R_type_t>ref.typecode, &ref.ref))
+    return h5s.SpaceID(H5Rget_region(id.id, <H5R_type_t>ref.typecode, &ref.ref))
 
 
+@with_phil
 def get_obj_type(Reference ref not None, ObjectID id not None):
     """(Reference ref, ObjectID id) => INT obj_code or None
 
@@ -124,33 +121,35 @@ def get_obj_type(Reference ref not None, ObjectID id not None):
         return None
     return <int>H5Rget_obj_type(id.id, <H5R_type_t>ref.typecode, &ref.ref)
 
-IF H5PY_18API:
-    def get_name(Reference ref not None, ObjectID loc not None):
-        """(Reference ref, ObjectID loc) => STRING name
 
-        Determine the name of the object pointed to by this reference.
-        Requires the HDF5 1.8 API.
-        """
-        cdef ssize_t namesize = 0
-        cdef char* namebuf = NULL
+@with_phil
+def get_name(Reference ref not None, ObjectID loc not None):
+    """(Reference ref, ObjectID loc) => STRING name
 
-        namesize = H5Rget_name(loc.id, <H5R_type_t>ref.typecode, &ref.ref, NULL, 0)
-        if namesize > 0:
-            namebuf = <char*>malloc(namesize+1)
-            try:
-                namesize = H5Rget_name(loc.id, <H5R_type_t>ref.typecode, &ref.ref, namebuf, namesize+1)
-                return namebuf
-            finally:
-                free(namebuf)
+    Determine the name of the object pointed to by this reference.
+    Requires the HDF5 1.8 API.
+    """
+    cdef ssize_t namesize = 0
+    cdef char* namebuf = NULL
+
+    namesize = H5Rget_name(loc.id, <H5R_type_t>ref.typecode, &ref.ref, NULL, 0)
+    if namesize > 0:
+        namebuf = <char*>malloc(namesize+1)
+        try:
+            namesize = H5Rget_name(loc.id, <H5R_type_t>ref.typecode, &ref.ref, namebuf, namesize+1)
+            return namebuf
+        finally:
+            free(namebuf)
+
 
 cdef class Reference:
 
-    """ 
+    """
         Opaque representation of an HDF5 reference.
 
-        Objects of this class are created exclusively by the library and 
-        cannot be modified.  The read-only attribute "typecode" determines 
-        whether the reference is to an object in an HDF5 file (OBJECT) 
+        Objects of this class are created exclusively by the library and
+        cannot be modified.  The read-only attribute "typecode" determines
+        whether the reference is to an object in an HDF5 file (OBJECT)
         or a dataset region (DATASET_REGION).
 
         The object's truth value indicates whether it contains a nonzero

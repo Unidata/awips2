@@ -1,18 +1,15 @@
-#+
-# 
-# This file is part of h5py, a low-level Python interface to the HDF5 library.
-# 
-# Copyright (C) 2008 Andrew Collette
-# http://h5py.alfven.org
-# License: BSD  (See LICENSE.txt for full license)
-# 
-# $Date$
-# 
-#-
+# This file is part of h5py, a Python interface to the HDF5 library.
+#
+# http://www.h5py.org
+#
+# Copyright 2008-2013 Andrew Collette and contributors
+#
+# License:  Standard 3-clause BSD; see "license.txt" for full license terms
+#           and contributor agreement.
 
-include "defs.pxd"
+from defs cimport *
 
-from h5 cimport class ObjectID
+from _objects cimport class ObjectID
 
 cdef class TypeID(ObjectID):
 
@@ -68,7 +65,8 @@ cdef class TypeCompoundID(TypeCompositeID):
 
 # === C API for other modules =================================================
 
-cdef TypeID typewrap(hid_t id_)
+cpdef TypeID typewrap(hid_t id_)
+cdef hid_t H5PY_OBJ
 cpdef TypeID py_create(object dtype, bint logical=*)
 
 
