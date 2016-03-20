@@ -119,7 +119,7 @@ public class ArchivePurgeManager {
         sentPurgeMessage = false;
 
         if (!archiveRootDir.isDirectory()) {
-            statusHandler.error(archiveRootDir.getAbsolutePath()
+            statusHandler.warn(archiveRootDir.getAbsolutePath()
                     + " not a directory.");
             return purgeCount;
         }
