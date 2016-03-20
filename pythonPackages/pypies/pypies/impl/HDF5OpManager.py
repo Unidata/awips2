@@ -30,12 +30,12 @@
 #    07/20/10                      njensen       Initial Creation.
 #    02/20/13        DR 15662      M.Porricelli  Modified __do2DPointRequest
 #                                                to check for null points
-#    03/18/16                      mjames        Refactored h5py HyperSelector 
-#                                                to numpy.ndarray (for h5py 2.6.0)
+#    
+# 
 #
 
 import numpy, pypies, logging, time
-import h5py
+import h5py.selections
 from pypies import StorageException, NotImplementedException
 logger = pypies.logger
 timeMap = pypies.timeMap
@@ -69,7 +69,7 @@ def read(ds, request):
         if len(ds.shape) == 1:
             result = __do1DPointRequest(ds, indices)
         else:
-            sel = numpy.ndarray(ds.shape, dtype=bool)
+            sel = h5py.selections.HyperSelection(ds.shape)
             sel[()] = False
             for n in indices:
                 sel[:,n] = True
@@ -84,7 +84,7 @@ def read(ds, request):
         if len(ds.shape) == 1:
             result = __do1DPointRequest(ds, indices)
         else:
-            sel = numpy.ndarray(ds.shape, dtype=bool)
+            sel = h5py.selections.HyperSelection(ds.shape)
             sel[()] = False
             for n in indices:
                 sel[n] = True
@@ -105,7 +105,7 @@ def read(ds, request):
             slices.append(slice(minIndex[i], maxIndex[i]))
             sizes.append(maxIndex[i] - minIndex[i])
         
-        sel = numpy.ndarray(ds.shape, dtype=bool)
+        sel = h5py.selections.HyperSelection(ds.shape)
         # mask the request slices
         sel[()] = False
         sel[tuple(slices)] = True
@@ -129,7 +129,7 @@ def read(ds, request):
 def __do1DPointRequest(ds, indices):
     points = numpy.asarray(indices)
     points.resize(len(indices), 1)
-    sel = h5py._hl.selections.PointSelection(ds.shape)
+    sel = h5py.selections.PointSelection(ds.shape)
     sel.set(points)
     return ds[sel]
 
@@ -141,7 +141,7 @@ def __do2DPointRequest(ds, points):
         else:
             indices.append((float('nan'),float('nan')))
     arr = numpy.asarray(indices)
-    sel = h5py._hl.selections.PointSelection(ds.shape)
+    sel = h5py.selections.PointSelection(ds.shape)
     sel.set(arr)
     return ds[sel]
     

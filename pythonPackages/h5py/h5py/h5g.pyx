@@ -1,11 +1,14 @@
-# This file is part of h5py, a Python interface to the HDF5 library.
-#
-# http://www.h5py.org
-#
-# Copyright 2008-2013 Andrew Collette and contributors
-#
-# License:  Standard 3-clause BSD; see "license.txt" for full license terms
-#           and contributor agreement.
+#+
+# 
+# This file is part of h5py, a low-level Python interface to the HDF5 library.
+# 
+# Copyright (C) 2008 Andrew Collette
+# http://h5py.alfven.org
+# License: BSD  (See LICENSE.txt for full license)
+# 
+# $Date$
+# 
+#-
 
 """
     Low-level HDF5 "H5G" group interface.
@@ -14,14 +17,18 @@
 include "config.pxi"
 
 # Compile-time imports
-from _objects cimport pdefault
+from h5 cimport init_hdf5, SmartStruct
 from utils cimport emalloc, efree
-from h5p cimport PropID
-cimport _hdf5 # to implement container testing for 1.6
-from _errors cimport set_error_handler, err_cookie
+from h5p cimport PropID, pdefault
+from h5e cimport err_cookie, disable_errors, enable_errors
+IF H5PY_18API:
+    from h5l cimport LinkProxy
 
-from h5py import _objects
-from ._objects import phil, with_phil
+# Initialization
+init_hdf5()
+
+# Runtime imports
+from h5 import H5Error
 
 # === Public constants and data structures ====================================
 
@@ -37,7 +44,7 @@ LINK_ERROR = H5G_LINK_ERROR
 LINK_HARD  = H5G_LINK_HARD
 LINK_SOFT  = H5G_LINK_SOFT
 
-cdef class GroupStat:
+cdef class GroupStat(SmartStruct):
     """Represents the H5G_stat_t structure containing group member info.
 
     Fields (read-only):
@@ -48,7 +55,7 @@ cdef class GroupStat:
     * mtime:    Modification time of this object
     * linklen:  Length of the symbolic link name, or 0 if not a link.
 
-    "Uniquely identifying" means unique among currently open files,
+    "Uniquely identifying" means unique among currently open files, 
     not universally unique.
 
     * Hashable: Yes
@@ -89,41 +96,27 @@ cdef class GroupIter:
     cdef unsigned long idx
     cdef unsigned long nobjs
     cdef GroupID grp
-    cdef list names
-
 
     def __init__(self, GroupID grp not None):
-
         self.idx = 0
         self.grp = grp
         self.nobjs = grp.get_num_objs()
-        self.names = []
-
 
     def __iter__(self):
-
         return self
 
-
     def __next__(self):
-
         if self.idx == self.nobjs:
             self.grp = None
-            self.names = None
             raise StopIteration
-
-        if self.idx == 0:
-            self.grp.links.iterate(self.names.append)
-
-        retval = self.names[self.idx]
-        self.idx += 1
-
+        
+        retval = self.grp.get_objname_by_idx(self.idx)
+        self.idx = self.idx + 1
         return retval
-
 
 # === Basic group management ==================================================
 
-@with_phil
+
 def open(ObjectID loc not None, char* name):
     """(ObjectID loc, STRING name) => GroupID
 
@@ -131,29 +124,37 @@ def open(ObjectID loc not None, char* name):
     """
     return GroupID(H5Gopen(loc.id, name))
 
+IF H5PY_18API:
+    
+    def create(ObjectID loc not None, object name, PropID lcpl=None,
+               PropID gcpl=None):
+        """(ObjectID loc, STRING name or None, PropLCID lcpl=None,
+            PropGCID gcpl=None)
+        => GroupID
 
-@with_phil
-def create(ObjectID loc not None, object name, PropID lcpl=None,
-           PropID gcpl=None):
-    """(ObjectID loc, STRING name or None, PropLCID lcpl=None,
-        PropGCID gcpl=None)
-    => GroupID
+        Create a new group, under a given parent group.  If name is None,
+        an anonymous group will be created in the file.
+        """
+        cdef hid_t gid
+        cdef char* cname = NULL
+        if name is not None:
+            cname = name
 
-    Create a new group, under a given parent group.  If name is None,
-    an anonymous group will be created in the file.
-    """
-    cdef hid_t gid
-    cdef char* cname = NULL
-    if name is not None:
-        cname = name
+        if cname != NULL:
+            gid = H5Gcreate2(loc.id, cname, pdefault(lcpl), pdefault(gcpl), H5P_DEFAULT)
+        else:
+            gid = H5Gcreate_anon(loc.id, pdefault(gcpl), H5P_DEFAULT)
 
-    if cname != NULL:
-        gid = H5Gcreate2(loc.id, cname, pdefault(lcpl), pdefault(gcpl), H5P_DEFAULT)
-    else:
-        gid = H5Gcreate_anon(loc.id, pdefault(gcpl), H5P_DEFAULT)
+        return GroupID(gid)
 
-    return GroupID(gid)
+ELSE:
+    
+    def create(ObjectID loc not None, char* name):
+        """(ObjectID loc, STRING name) => GroupID
 
+        Create a new group, under a given parent group.
+        """
+        return GroupID(H5Gcreate(loc.id, name, -1))
 
 cdef class _GroupVisitor:
 
@@ -175,7 +176,6 @@ cdef herr_t cb_group_iter(hid_t gid, char *name, void* vis_in) except 2:
     return 0
 
 
-@with_phil
 def iterate(GroupID loc not None, object func, int startidx=0, *,
             char* obj_name='.'):
     """ (GroupID loc, CALLABLE func, UINT startidx=0, **kwds)
@@ -203,17 +203,16 @@ def iterate(GroupID loc not None, object func, int startidx=0, *,
     return vis.retval
 
 
-@with_phil
-def get_objinfo(ObjectID obj not None, object name=b'.', int follow_link=1):
+def get_objinfo(ObjectID obj not None, object name='.', int follow_link=1):
     """(ObjectID obj, STRING name='.', BOOL follow_link=True) => GroupStat object
 
     Obtain information about a named object.  If "name" is provided,
     "obj" is taken to be a GroupID object containing the target.
     The return value is a GroupStat object; see that class's docstring
-    for a description of its attributes.
+    for a description of its attributes.  
 
-    If follow_link is True (default) and the object is a symbolic link,
-    the information returned describes its target.  Otherwise the
+    If follow_link is True (default) and the object is a symbolic link, 
+    the information returned describes its target.  Otherwise the 
     information describes the link itself.
     """
     cdef GroupStat statobj
@@ -224,7 +223,6 @@ def get_objinfo(ObjectID obj not None, object name=b'.', int follow_link=1):
     H5Gget_objinfo(obj.id, _name, follow_link, &statobj.infostruct)
 
     return statobj
-
 
 # === Group member management =================================================
 
@@ -252,16 +250,24 @@ cdef class GroupID(ObjectID):
         * Equality: True HDF5 identity unless anonymous
     """
 
-    def __init__(self, hid_t id_):
-        with phil:
-            import h5l
-            self.links = h5l.LinkProxy(id_)
+    IF H5PY_18API:
+        def __init__(self, hid_t id_):
+            self.links = LinkProxy(id_)
 
+    
+    def _close(self):
+        """()
 
-    @with_phil
-    def link(self, char* current_name, char* new_name,
+        Terminate access through this identifier.  You shouldn't have to
+        call this manually; group identifiers are automatically released
+        when their Python wrappers are freed.
+        """
+        H5Gclose(self.id)
+
+    
+    def link(self, char* current_name, char* new_name, 
              int link_type=H5G_LINK_HARD, GroupID remote=None):
-        """(STRING current_name, STRING new_name, INT link_type=LINK_HARD,
+        """(STRING current_name, STRING new_name, INT link_type=LINK_HARD, 
         GroupID remote=None)
 
         Create a new hard or soft link.  current_name identifies
@@ -285,16 +291,16 @@ cdef class GroupID(ObjectID):
         H5Glink2(self.id, current_name, <H5G_link_t>link_type, remote_id, new_name)
 
 
-    @with_phil
+    
     def unlink(self, char* name):
         """(STRING name)
 
         Remove a link to an object from this group.
         """
         H5Gunlink(self.id, name)
+   
 
-
-    @with_phil
+    
     def move(self, char* current_name, char* new_name, GroupID remote=None):
         """(STRING current_name, STRING new_name, GroupID remote=None)
 
@@ -311,7 +317,7 @@ cdef class GroupID(ObjectID):
         H5Gmove2(self.id, current_name, remote_id, new_name)
 
 
-    @with_phil
+    
     def get_num_objs(self):
         """() => INT number_of_objects
 
@@ -322,17 +328,23 @@ cdef class GroupID(ObjectID):
         return size
 
 
-    @with_phil
+    
     def get_objname_by_idx(self, hsize_t idx):
         """(INT idx) => STRING
 
         Get the name of a group member given its zero-based index.
+
+        Due to a limitation of the HDF5 library, the generic exception
+        H5Error is raised if the idx parameter is out-of-range.
         """
         cdef int size
         cdef char* buf
         buf = NULL
 
+        # This function does not properly raise an exception
         size = H5Gget_objname_by_idx(self.id, idx, NULL, 0)
+        if size < 0:
+            raise H5Error("Invalid index")
 
         buf = <char*>emalloc(sizeof(char)*(size+1))
         try:
@@ -343,7 +355,7 @@ cdef class GroupID(ObjectID):
             efree(buf)
 
 
-    @with_phil
+    
     def get_objtype_by_idx(self, hsize_t idx):
         """(INT idx) => INT object_type_code
 
@@ -354,11 +366,19 @@ cdef class GroupID(ObjectID):
         - GROUP
         - DATASET
         - TYPE
+
+        Due to a limitation of the HDF5 library, the generic exception
+        H5Error is raised if the idx parameter is out-of-range.
         """
-        return <int>H5Gget_objtype_by_idx(self.id, idx)
+        # This function does not properly raise an exception
+        cdef int retval
+        retval = H5Gget_objtype_by_idx(self.id, idx)
+        if retval < 0:
+            raise H5Error("Invalid index")
+        return retval
 
 
-    @with_phil
+    
     def get_linkval(self, char* name):
         """(STRING name) => STRING link_value
 
@@ -387,8 +407,7 @@ cdef class GroupID(ObjectID):
         finally:
             efree(value)
 
-
-    @with_phil
+    
     def set_comment(self, char* name, char* comment):
         """(STRING name, STRING comment)
 
@@ -396,8 +415,7 @@ cdef class GroupID(ObjectID):
         """
         H5Gset_comment(self.id, name, comment)
 
-
-    @with_phil
+    
     def get_comment(self, char* name):
         """(STRING name) => STRING comment
 
@@ -418,117 +436,35 @@ cdef class GroupID(ObjectID):
         finally:
             efree(cmnt)
 
-
     # === Special methods =====================================================
 
-    def __contains__(self, name):
+    
+    def __contains__(self, char* name):
         """(STRING name)
 
         Determine if a group member of the given name is present
         """
-        cdef err_cookie old_handler
-        cdef err_cookie new_handler
         cdef herr_t retval
+        cdef err_cookie cookie
         
-        new_handler.func = NULL
-        new_handler.data = NULL
+        cookie = disable_errors()
+        try:
+            retval = H5Gget_objinfo(self.id, name, 1, NULL)
+        finally:
+            enable_errors(cookie)
 
-        if not self:
-            return False
+        return bool(retval >= 0)
 
-        IF HDF5_VERSION >= (1, 8, 5):
-            # New system is more robust but requires H5Oexists_by_name
-            with phil:
-                return _path_valid(self, name)
-        ELSE:
-            with phil:
-                old_handler = set_error_handler(new_handler)
-                retval = _hdf5.H5Gget_objinfo(self.id, name, 0, NULL)
-                set_error_handler(old_handler)
-                return bool(retval >= 0)
-
+    
     def __iter__(self):
         """ Return an iterator over the names of group members. """
-        with phil:
-            return GroupIter(self)
+        return GroupIter(self)
 
-
+    
     def __len__(self):
         """ Number of group members """
         cdef hsize_t size
-        with phil:
-            H5Gget_num_objs(self.id, &size)
-            return size
+        H5Gget_num_objs(self.id, &size)
+        return size
 
-
-IF HDF5_VERSION >= (1, 8, 5):
-    @with_phil
-    def _path_valid(GroupID grp not None, object path not None, PropID lapl=None):
-        """ Determine if *path* points to an object in the file.
-
-        If *path* represents an external or soft link, the link's validity is not
-        checked.
-        """
-        import h5o
-
-        if isinstance(path, bytes):
-            path = path.decode('utf-8')
-        else:
-            path = unicode(path)
-
-        # Empty names are not allowed by HDF5
-        if len(path) == 0:
-            return False
-
-        # Note: we cannot use pp.normpath as it resolves ".." components,
-        # which don't exist in HDF5
-
-        path_parts = path.split('/')
-
-        # Absolute path (started with slash)
-        if path_parts[0] == '':
-            current_loc = h5o.open(grp, b'/', lapl=lapl)
-        else:
-            current_loc = grp
-
-        # HDF5 ignores duplicate or trailing slashes
-        path_parts = [x for x in path_parts if x != '']
-
-        # Special case: path was entirely composed of slashes!
-        if len(path_parts) == 0:
-            path_parts = ['.']  # i.e. the root group
-
-        path_parts = [x.encode('utf-8') for x in path_parts]
-        nparts = len(path_parts)
-
-        for idx, p in enumerate(path_parts):
-
-            # Special case; '.' always refers to the present group
-            if p == b'.':
-                continue
-
-            # Is there any kind of link by that name in this group?
-            if not current_loc.links.exists(p, lapl=lapl):
-                return False
-    
-            # If we're at the last link in the chain, we're done.
-            # We don't check to see if the last part points to a valid object;
-            # it's enough that it exists.
-            if idx == nparts - 1:
-                return True
-
-            # Otherwise, does the link point to a real object?
-            if not h5o.exists_by_name(current_loc, p, lapl=lapl):
-                return False
-
-            # Is that object a group?
-            next_loc = h5o.open(current_loc, p, lapl=lapl)
-            info = h5o.get_info(next_loc)
-            if info.type != H5O_TYPE_GROUP:
-                return False
-
-            # Go into that group
-            current_loc = next_loc
-
-        return True
 

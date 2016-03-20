@@ -1,15 +1,22 @@
-# This file is part of h5py, a Python interface to the HDF5 library.
-#
-# http://www.h5py.org
-#
-# Copyright 2008-2013 Andrew Collette and contributors
-#
-# License:  Standard 3-clause BSD; see "license.txt" for full license terms
-#           and contributor agreement.
+#+
+# 
+# This file is part of h5py, a low-level Python interface to the HDF5 library.
+# 
+# Copyright (C) 2008 Andrew Collette
+# http://h5py.alfven.org
+# License: BSD  (See LICENSE.txt for full license)
+# 
+# $Date$
+# 
+#-
 
-from defs cimport *
+# This file is based on code from the PyTables project.  The complete PyTables
+# license is available at licenses/pytables.txt, in the distribution root
+# directory.
 
-from _objects cimport ObjectID
+include "defs.pxd"
+
+from h5 cimport ObjectID
 
 # --- Base classes ---
 
@@ -41,11 +48,7 @@ cdef class PropCopyID(PropInstanceID):
 
 # --- Object creation ---
 
-cdef class PropOCID(PropCreateID):
-    """ Object creation property list """
-    pass
-
-cdef class PropDCID(PropOCID):
+cdef class PropDCID(PropCreateID):
     """ Dataset creation property list """
     pass
 
@@ -67,17 +70,22 @@ cdef class PropDXID(PropInstanceID):
 
 # --- New in 1.8 ---
 
-cdef class PropLCID(PropCreateID):
-    """ Link creation property list """
-    pass
+IF H5PY_18API:
 
-cdef class PropLAID(PropInstanceID):
-    """ Link access property list """
-    cdef char* _buf
+    cdef class PropLCID(PropCreateID):
+        """ Link creation property list """
+        pass
 
-cdef class PropGCID(PropOCID):
-    """ Group creation property list """
-    pass
+    cdef class PropLAID(PropInstanceID):
+        """ Link access property list """
+        cdef char* _buf
+
+    cdef class PropGCID(PropCreateID):
+        """ Group creation property list """
+        pass
 
 cdef hid_t pdefault(PropID pid)
 cdef object propwrap(hid_t id_in)
+
+
+

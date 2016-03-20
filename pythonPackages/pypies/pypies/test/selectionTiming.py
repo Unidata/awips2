@@ -20,7 +20,7 @@ def pointRequest():
          ds = f[dsName]
          points = numpy.asarray(indices)
          points.resize((len(indices), 1))
-         sel = h5py._hl.selections.PointSelection(ds.shape)
+         sel = h5py.selections.PointSelection(ds.shape)
          sel.set(points)
          result = ds[sel]
          results.append(result)
@@ -35,7 +35,7 @@ def hyperRequest():
       results = []
       for dsName in dsNames:
          ds = f[dsName]
-         sel = numpy.ndarray(ds.shape, dtype=bool)
+         sel = h5py.selections.HyperSelection(ds.shape)
          sel[()] = False
          for n in indices:
             sel[n] = True

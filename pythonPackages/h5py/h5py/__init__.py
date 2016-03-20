@@ -1,94 +1,73 @@
-# This file is part of h5py, a Python interface to the HDF5 library.
-#
-# http://www.h5py.org
-#
-# Copyright 2008-2013 Andrew Collette and contributors
-#
-# License:  Standard 3-clause BSD; see "license.txt" for full license terms
-#           and contributor agreement.
+#+
+# 
+# This file is part of h5py, a low-level Python interface to the HDF5 library.
+# 
+# Copyright (C) 2008 Andrew Collette
+# http://h5py.alfven.org
+# License: BSD  (See LICENSE.txt for full license)
+# 
+# $Date$
+# 
+#-
 
+__doc__ = \
 """
-    This is the h5py package, a Python interface to the HDF5
+    This is the h5py package, a Python interface to the HDF5 
     scientific data format.
+
+    Version %s
+
+    HDF5 %s (using %s API)
 """
 
-from __future__ import absolute_import
-
-
-# --- Library setup -----------------------------------------------------------
-
-# When importing from the root of the unpacked tarball or git checkout,
-# Python sees the "h5py" source directory and tries to load it, which fails.
-# We tried working around this by using "package_dir" but that breaks Cython.
 try:
-    from . import _errors
-except ImportError:
-    import os.path as _op
-    if _op.exists(_op.join(_op.dirname(__file__), '..', 'setup.py')):
-        raise ImportError("You cannot import h5py from inside the install directory.\nChange to another directory first.")
-    else:
-        raise
-    
-_errors.silence_errors()
+    import h5
+except ImportError, e:
+    # Many people try to load h5py after compiling, which fails in the
+    # presence of the source directory
+    import os.path as op
+    if op.exists('setup.py'):
+        raise ImportError('Import error:\n"%s"\n\nBe sure to exit source directory before importing h5py' % e)
+    raise
 
-from ._conv import register_converters as _register_converters
-_register_converters()
+# This is messy but much less frustrating when using h5py from IPython
+import h5, h5a, h5d, h5f, h5fd, h5g, h5l, h5o, h5i, h5p, h5r, h5s, h5t, h5z
+import highlevel, filters, selections, version
 
-from .h5z import _register_lzf
-_register_lzf()
+from h5 import get_config
+from h5e import H5Error
 
+from highlevel import File, Group, Dataset, Datatype, AttributeManager, \
+                      SoftLink, ExternalLink, is_hdf5
 
-# --- Public API --------------------------------------------------------------
+# New way to handle special types
+from h5t import special_dtype, check_dtype
+from h5r import Reference, RegionReference
 
-from . import h5a, h5d, h5ds, h5f, h5fd, h5g, h5r, h5s, h5t, h5p, h5z
+# Deprecated way to handle special types
+# These are going away in 1.4
+from h5t import py_new_vlen as new_vlen
+from h5t import py_get_vlen as get_vlen
+from h5t import py_new_enum as new_enum
+from h5t import py_get_enum as get_enum
 
-from ._hl import filters
-from ._hl.base import is_hdf5, HLObject
-from ._hl.files import File
-from ._hl.group import Group, SoftLink, ExternalLink, HardLink
-from ._hl.dataset import Dataset
-from ._hl.datatype import Datatype
-from ._hl.attrs import AttributeManager
+__doc__ = __doc__ % (version.version, version.hdf5_version, version.api_version)
 
-from .h5 import get_config
-from .h5r import Reference, RegionReference
-from .h5t import special_dtype, check_dtype
+__all__ = ['h5', 'h5f', 'h5g', 'h5s', 'h5t', 'h5d', 'h5a', 'h5p', 'h5r',
+           'h5o', 'h5l', 'h5z', 'h5i', 'version', 'File', 'Group', 'Dataset',
+           'Datatype', 'AttributeManager', 'H5Error', 'get_config', 'is_hdf5',
+           'special_dtype', 'check_dtype', 'SoftLink', 'ExternalLink']
 
-from . import version
-from .version import version as __version__
-
-from .tests import run_tests
-
-def enable_ipython_completer():
-    """ Call this from an interactive IPython session to enable tab-completion
-    of group and attribute names.
-    """
-    import sys
-    if 'IPython' in sys.modules:
-        ip_running = False
-        try:
-            from IPython.core.interactiveshell import InteractiveShell
-            ip_running = InteractiveShell.initialized()
-        except ImportError:
-            # support <ipython-0.11
-            from IPython import ipapi as _ipapi
-            ip_running = _ipapi.get() is not None
-        except Exception:
-            pass
-        if ip_running:
-            from . import ipy_completer
-            return ipy_completer.load_ipython_extension()
-
-    raise RuntimeError('Completer must be enabled in active ipython session')
-
-
-# --- Legacy API --------------------------------------------------------------
-
-from .h5t import py_new_vlen as new_vlen
-from .h5t import py_get_vlen as get_vlen
-from .h5t import py_new_enum as new_enum
-from .h5t import py_get_enum as get_enum
-
-
+try:
+    try:
+        import IPython.core.ipapi as _IP
+    except ImportError:
+        # support <ipython-0.11
+        import IPython.ipapi as _IP
+    if _IP.get() is not None:
+        import _ipy_completer
+        _ipy_completer.activate()
+except Exception:
+    pass
 
 

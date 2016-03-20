@@ -31,38 +31,22 @@ class TestTools(unittest.TestCase):
         else:
             self.fail("eq_(1, 0) did not raise assertion error")
 
-    def test_eq_unittest_flag(self):
-        """Make sure eq_() is in a namespace that has __unittest = 1.
-
-        This lets tracebacks refrain from descending into the eq_ frame.
-
-        """
-        assert '__unittest' in eq_.func_globals
-
-    def test_istest_unittest_flag(self):
-        """Make sure istest() is not in a namespace that has __unittest = 1.
-
-        That is, make sure our __unittest labeling didn't get overzealous.
-
-        """
-        assert '__unittest' not in istest.func_globals
-
     def test_raises(self):
         from nose.case import FunctionTestCase
-
+        
         def raise_typeerror():
             raise TypeError("foo")
 
         def noraise():
             pass
-
+        
         raise_good = raises(TypeError)(raise_typeerror)
         raise_other = raises(ValueError)(raise_typeerror)
         no_raise = raises(TypeError)(noraise)
 
         tc = FunctionTestCase(raise_good)
         self.assertEqual(str(tc), "%s.%s" % (__name__, 'raise_typeerror'))
-
+        
         raise_good()
         try:
             raise_other()
@@ -83,16 +67,10 @@ class TestTools(unittest.TestCase):
         def too_slow():
             time.sleep(.3)
         too_slow = timed(.2)(too_slow)
-
+            
         def quick():
             time.sleep(.1)
         quick = timed(.2)(quick)
-
-        def check_result():
-            return 42
-        check_result = timed(.2)(check_result)
-
-        assert 42 == check_result()
 
         quick()
         try:
@@ -110,21 +88,21 @@ class TestTools(unittest.TestCase):
 
         def f1():
             pass
-
+        
         f2 = make_decorator(func)(f1)
-
+        
         assert f2.setup == 'setup'
         assert f2.teardown == 'teardown'
 
     def test_nested_decorators(self):
         from nose.tools import raises, timed, with_setup
-
+        
         def test():
             pass
-
+        
         def foo():
             pass
-
+        
         test = with_setup(foo, foo)(test)
         test = timed(1.0)(test)
         test = raises(TypeError)(test)
@@ -134,7 +112,7 @@ class TestTools(unittest.TestCase):
     def test_decorator_func_sorting(self):
         from nose.tools import raises, timed, with_setup
         from nose.util import func_lineno
-
+        
         def test1():
             pass
 
@@ -158,13 +136,13 @@ class TestTools(unittest.TestCase):
         self.assertEqual(func_lineno(test1), test1_pos)
         self.assertEqual(func_lineno(test2), test2_pos)
         self.assertEqual(func_lineno(test3), test3_pos)
-
+        
     def test_testcase_funcs(self):
         import nose.tools
         tc_asserts = [ at for at in dir(nose.tools)
                        if at.startswith('assert_') ]
         print tc_asserts
-
+        
         # FIXME: not sure which of these are in all supported
         # versions of python
         assert 'assert_raises' in tc_asserts
@@ -175,7 +153,7 @@ class TestTools(unittest.TestCase):
         from nose.tools import with_setup
         from nose.case import FunctionTestCase
         from unittest import TestResult
-
+        
         called = []
         def test():
             called.append('test')
@@ -185,7 +163,7 @@ class TestTools(unittest.TestCase):
 
         def test3():
             called.append('test3')
-
+            
         def s1():
             called.append('s1')
 
@@ -194,7 +172,7 @@ class TestTools(unittest.TestCase):
 
         def s3():
             called.append('s3')
-
+            
         def t1():
             called.append('t1')
 
@@ -203,7 +181,7 @@ class TestTools(unittest.TestCase):
 
         def t3():
             called.append('t3')
-
+            
         ws1 = with_setup(s1, t1)(test)
         case1 = FunctionTestCase(ws1)
         case1(TestResult())
@@ -224,6 +202,6 @@ class TestTools(unittest.TestCase):
         case3(TestResult())
         self.assertEqual(called, ['s1', 's2', 's3',
                                   'test3', 't3', 't2', 't1'])
-
+        
 if __name__ == '__main__':
     unittest.main()

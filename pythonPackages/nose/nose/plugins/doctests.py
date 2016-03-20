@@ -63,7 +63,7 @@ try:
 except ImportError:
     from StringIO import StringIO
 import sys
-import __builtin__ as builtin_mod
+import __builtin__
 
 log = logging.getLogger(__name__)
 
@@ -170,11 +170,6 @@ class Doctest(Plugin):
                           help="Find fixtures for a doctest file in module "
                           "with this name appended to the base name "
                           "of the doctest file")
-        parser.add_option('--doctest-options', action="append",
-                          dest="doctestOptions",
-                          metavar="OPTIONS",
-                          help="Specify options to pass to doctest. " +
-                          "Eg. '+ELLIPSIS,+NORMALIZE_WHITESPACE'")
         # Set the default as a list, if given in env; otherwise
         # an additional value set on the command line will cause
         # an error.
@@ -191,23 +186,6 @@ class Doctest(Plugin):
         self.extension = tolist(options.doctestExtension)
         self.fixtures = options.doctestFixtures
         self.finder = doctest.DocTestFinder()
-        self.optionflags = 0
-        if options.doctestOptions:
-            flags = ",".join(options.doctestOptions).split(',')
-            for flag in flags:
-                if not flag or flag[0] not in '+-':
-                    raise ValueError(
-                        "Must specify doctest options with starting " +
-                        "'+' or '-'.  Got %s" % (flag,))
-                mode, option_name = flag[0], flag[1:]
-                option_flag = doctest.OPTIONFLAGS_BY_NAME.get(option_name)
-                if not option_flag:
-                    raise ValueError("Unknown doctest option %s" %
-                                     (option_name,))
-                if mode == '+':
-                    self.optionflags |= option_flag
-                elif mode == '-':
-                    self.optionflags &= ~option_flag
 
     def prepareTestLoader(self, loader):
         """Capture loader's suiteClass.
@@ -244,9 +222,7 @@ class Doctest(Plugin):
                 continue
             if not test.filename:
                 test.filename = module_file
-            cases.append(DocTestCase(test,
-                                     optionflags=self.optionflags,
-                                     result_var=self.doctest_result_var))
+            cases.append(DocTestCase(test, result_var=self.doctest_result_var))
         if cases:
             yield self.suiteClass(cases, context=module, can_split=False)
             
@@ -281,7 +257,7 @@ class Doctest(Plugin):
                 log.debug("Fixture module %s resolved to %s",
                           fixt_mod, fixture_context)
                 if hasattr(fixture_context, 'globs'):
-                    globs = fixture_context.globs(globs)                    
+                    globs = fixture_context.globs(globs)
             parser = doctest.DocTestParser()
             test = parser.get_doctest(
                 doc, globs=globs, name=name,
@@ -289,7 +265,6 @@ class Doctest(Plugin):
             if test.examples:
                 case = DocFileCase(
                     test,
-                    optionflags=self.optionflags,
                     setUp=getattr(fixture_context, 'setup_test', None),
                     tearDown=getattr(fixture_context, 'teardown_test', None),
                     result_var=self.doctest_result_var)
@@ -310,7 +285,7 @@ class Doctest(Plugin):
             for test in doctests:
                 if len(test.examples) == 0:
                     continue
-                yield DocTestCase(test, obj=obj, optionflags=self.optionflags,
+                yield DocTestCase(test, obj=obj,
                                   result_var=self.doctest_result_var)
     
     def matches(self, name):
@@ -388,8 +363,6 @@ class DocTestCase(doctest.DocTestCase):
         filename = self._dt_test.filename
         if filename is not None:
             pk = getpackage(filename)
-            if pk is None:
-                return name
             if not name.startswith(pk):
                 name = "%s.%s" % (pk, name)
         return name
@@ -412,14 +385,14 @@ class DocTestCase(doctest.DocTestCase):
     def _displayhook(self, value):
         if value is None:
             return
-        setattr(builtin_mod, self._result_var,  value)
+        setattr(__builtin__, self._result_var,  value)
         print repr(value)
 
     def tearDown(self):
         super(DocTestCase, self).tearDown()
         if self._result_var is not None:
             sys.displayhook = self._old_displayhook
-            delattr(builtin_mod, self._result_var)
+            delattr(__builtin__, self._result_var)
 
 
 class DocFileCase(doctest.DocFileCase):
@@ -445,11 +418,11 @@ class DocFileCase(doctest.DocFileCase):
     def _displayhook(self, value):
         if value is None:
             return
-        setattr(builtin_mod, self._result_var, value)
+        setattr(__builtin__, self._result_var, value)
         print repr(value)
 
     def tearDown(self):
         super(DocFileCase, self).tearDown()
         if self._result_var is not None:
             sys.displayhook = self._old_displayhook
-            delattr(builtin_mod, self._result_var)
+            delattr(__builtin__, self._result_var)

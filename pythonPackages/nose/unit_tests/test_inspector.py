@@ -20,8 +20,7 @@ class TestExpander(unittest.TestCase):
         gb = {}
         exp = Expander(lc, gb)
         
-        for tok in tokenize.generate_tokens(src.readline):
-            exp(*tok)
+        tokenize.tokenize(src.readline, exp)
         # print "'%s'" % exp.expanded_source
         self.assertEqual(exp.expanded_source.strip(), '2 > 2')
 
@@ -60,12 +59,8 @@ class TestExpander(unittest.TestCase):
             et, ev, tb = sys.exc_info()
             lines, lineno = tbsource(tb)
             out = textwrap.dedent(''.join(lines))
-            if sys.version_info < (3,):
-                first_line = '    print n\n'
-            else:
-                first_line = '    print(n)\n'
             self.assertEqual(out,
-                             first_line +
+                             '    print n\n'
                              '    assert n % 2 == 0\n'
                              'try:\n'
                              '    check_even(1)\n'
@@ -116,13 +111,9 @@ class TestExpander(unittest.TestCase):
             et, ev, tb = sys.exc_info()
             out = inspect_traceback(tb)
             print "'%s'" % out.strip()
-            if sys.version_info < (3,):
-                print_line = "    print 1, 3\n"
-            else:
-                print_line = "    print(1, 3)\n"
             self.assertEqual(out.strip(),
-                             "assert {'setup': 1}['setup']\n" +
-                             print_line +
+                             "assert {'setup': 1}['setup']\n" 
+                             "    print 1, 3\n"
                              ">>  assert 1 % 2 == 0 or 3 % 2 == 0")
             
     def test_bug_95(self):

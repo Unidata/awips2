@@ -7,14 +7,13 @@ debugging information.
 """
     
 from nose.plugins import Plugin
-from nose.pyversion import exc_to_unicode, force_unicode
 from nose.inspector import inspect_traceback
 
 class FailureDetail(Plugin):
     """
     Plugin that provides extra information in tracebacks of test failures.
     """
-    score = 1600 # before capture
+    score = 600 # before capture
     
     def options(self, parser, env):
         """Register commmandline options.
@@ -39,11 +38,6 @@ class FailureDetail(Plugin):
         """Add detail from traceback inspection to error message of a failure.
         """
         ec, ev, tb = err
-        tbinfo, str_ev = None, exc_to_unicode(ev)
-
-        if tb:
-            tbinfo = force_unicode(inspect_traceback(tb))
-            str_ev = '\n'.join([str_ev, tbinfo])
+        tbinfo = inspect_traceback(tb)
         test.tbinfo = tbinfo
-        return (ec, str_ev, tb)
-
+        return (ec, '\n'.join([str(ev), tbinfo]), tb)

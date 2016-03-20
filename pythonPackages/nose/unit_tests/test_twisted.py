@@ -30,7 +30,7 @@ test_resolve = deferred()(test_resolve)
 #@deferred()
 def test_raises_bad_return():
     print reactor
-    reactor.resolve("www.python.org")
+    reactor.resolve("nose.python-hosting.com")
 test_raises_bad_return = raises(TypeError)(deferred()(test_raises_bad_return))
 
 # Check we propagate twisted Failures as Exceptions
@@ -38,7 +38,7 @@ test_raises_bad_return = raises(TypeError)(deferred()(test_raises_bad_return))
 #@raises(DNSLookupError)
 #@deferred()
 def test_raises_twisted_error():
-    return reactor.resolve("x.y.invalid")
+    return reactor.resolve("x.y.z")
 test_raises_twisted_error = raises(DNSLookupError)(
     deferred()(test_raises_twisted_error))
 

@@ -3,17 +3,16 @@ import sys
 import unittest
 import warnings
 from cStringIO import StringIO
-from nose.result import _TextTestResult
 here = os.path.dirname(__file__)
 support = os.path.join(here, 'support')
 
 
 class TestRunner(unittest.TextTestRunner):
     def _makeResult(self):
-        self.result = _TextTestResult(
+        self.result = unittest._TextTestResult(
             self.stream, self.descriptions, self.verbosity)
         return self.result
-
+    
 
 class TestNoseTestCollector(unittest.TestCase):
 
@@ -27,7 +26,7 @@ class TestNoseTestCollector(unittest.TestCase):
         warnings.filterwarnings(action='ignore',
                                 category=RuntimeWarning,
                                 module='nose.plugins.manager')
-
+        
         try:
             os.chdir(os.path.join(support, 'issue038'))
             unittest.TestProgram(

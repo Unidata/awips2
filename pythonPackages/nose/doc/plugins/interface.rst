@@ -1,6 +1,3 @@
-
-.. _plugin-interface:
-
 Plugin Interface
 ================
 

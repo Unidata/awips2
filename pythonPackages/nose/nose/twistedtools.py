@@ -70,16 +70,8 @@ def stop_reactor():
     you mix tests using these tools and tests using twisted.trial.
     """
     global _twisted_thread
-
-    def stop_reactor():
-        '''Helper for calling stop from withing the thread.'''
-        reactor.stop()
-
-    reactor.callFromThread(stop_reactor)
+    reactor.stop()
     reactor_thread.join()
-    for p in reactor.getDelayedCalls():
-        if p.active():
-            p.cancel()
     _twisted_thread = None
 
 
@@ -102,7 +94,7 @@ def deferred(timeout=None):
     
         @deferred(timeout=5.0)
         def test_resolve():
-            return reactor.resolve("www.python.org")
+            return reactor.resolve("nose.python-hosting.com")
 
     Attention! If you combine this decorator with other decorators (like
     "raises"), deferred() must be called *first*!

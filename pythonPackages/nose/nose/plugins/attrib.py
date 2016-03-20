@@ -44,19 +44,6 @@ This test could be run with ::
 
     $ nosetests -a speed=slow
 
-In Python 2.6 and higher, ``@attr`` can be used on a class to set attributes
-on all its test methods at once.  For example:
-
-.. code-block:: python
-
-    from nose.plugins.attrib import attr
-    @attr(speed='slow')
-    class MyTestCase:
-        def test_long_integration(self):
-            pass
-        def test_end_to_end_something(self):
-            pass
-
 Below is a reference to the different syntaxes available.
 
 Simple syntax
@@ -100,7 +87,6 @@ Examples using the ``-A`` and ``--eval-attr`` options:
   Evaluates a complex Python expression and runs the test if True
 
 """
-import inspect
 import logging
 import os
 import sys
@@ -112,42 +98,47 @@ log = logging.getLogger('nose.plugins.attrib')
 compat_24 = sys.version_info >= (2, 4)
 
 def attr(*args, **kwargs):
-    """Decorator that adds attributes to classes or functions
+    """Decorator that adds attributes to objects
     for use with the Attribute (-a) plugin.
     """
-    def wrap_ob(ob):
+    def wrap(func):
         for name in args:
-            setattr(ob, name, True)
-        for name, value in kwargs.iteritems():
-            setattr(ob, name, value)
-        return ob
-    return wrap_ob
-
-def get_method_attr(method, cls, attr_name, default = False):
-    """Look up an attribute on a method/ function. 
-    If the attribute isn't found there, looking it up in the
-    method's class, if any.
-    """
-    Missing = object()
-    value = getattr(method, attr_name, Missing)
-    if value is Missing and cls is not None:
-        value = getattr(cls, attr_name, Missing)
-    if value is Missing:
-        return default
-    return value
-
+            # these are just True flags:
+            setattr(func, name, 1)
+        func.__dict__.update(kwargs)
+        return func
+    return wrap
 
 class ContextHelper:
-    """Object that can act as context dictionary for eval and looks up
-    names as attributes on a method/ function and its class. 
-    """
-    def __init__(self, method, cls):
-        self.method = method
-        self.cls = cls
+    """Returns default values for dictionary lookups."""
+    def __init__(self, obj):
+        self.obj = obj
 
     def __getitem__(self, name):
-        return get_method_attr(self.method, self.cls, name)
+        return self.obj.get(name, False)
 
+
+class AttributeGetter:
+    """Helper for looking up attributes
+
+    First we check the method, and if the attribute is not present,
+    we check the method's class.
+    """
+    missing = object()
+
+    def __init__(self, cls, method):
+        self.cls = cls
+        self.method = method
+
+    def get(self, name, default=None):
+        log.debug('Get %s from %s.%s', name, self.cls, self.method)
+        val = self.method.__dict__.get(name, self.missing)
+        if val is self.missing:
+            log.debug('No attribute %s in method, getting from class',
+                      name)
+            val = getattr(self.cls, name, default)
+            log.debug('Class attribute %s value: %s', name, val)
+        return val
 
 class AttributeSelector(Plugin):
     """Selects test cases to be run based on their attributes.
@@ -191,8 +182,8 @@ class AttributeSelector(Plugin):
             for attr in eval_attr:
                 # "<python expression>"
                 # -> eval(expr) in attribute context must be True
-                def eval_in_context(expr, obj, cls):
-                    return eval(expr, None, ContextHelper(obj, cls))
+                def eval_in_context(expr, attribs):
+                    return eval(expr, None, ContextHelper(attribs))
                 self.attribs.append([(attr, eval_in_context)])
 
         # attribute requirements are a comma separated list of
@@ -227,41 +218,41 @@ class AttributeSelector(Plugin):
         if self.attribs:
             self.enabled = True
 
-    def validateAttrib(self, method, cls = None):
-        """Verify whether a method has the required attributes
-        The method is considered a match if it matches all attributes
-        for any attribute group.
-        ."""
+    def validateAttrib(self, attribs):
         # TODO: is there a need for case-sensitive value comparison?
+        # within each group, all must match for the group to match
+        # if any group matches, then the attribute set as a whole
+        # has matched
         any = False
         for group in self.attribs:
             match = True
             for key, value in group:
-                attr = get_method_attr(method, cls, key)
+                obj_value = attribs.get(key)
                 if callable(value):
-                    if not value(key, method, cls):
+                    if not value(key, attribs):
                         match = False
                         break
                 elif value is True:
                     # value must exist and be True
-                    if not bool(attr):
+                    if not bool(obj_value):
                         match = False
                         break
                 elif value is False:
                     # value must not exist or be False
-                    if bool(attr):
+                    if bool(obj_value):
                         match = False
                         break
-                elif type(attr) in (list, tuple):
+                elif type(obj_value) in (list, tuple):
                     # value must be found in the list attribute
+
                     if not str(value).lower() in [str(x).lower()
-                                                  for x in attr]:
+                                                  for x in obj_value]:
                         match = False
                         break
                 else:
                     # value must match, convert to string and compare
-                    if (value != attr
-                        and str(value).lower() != str(attr).lower()):
+                    if (value != obj_value
+                        and str(value).lower() != str(obj_value).lower()):
                         match = False
                         break
             any = any or match
@@ -271,16 +262,27 @@ class AttributeSelector(Plugin):
             return None
         return False
 
+    def wantClass(self, cls):
+        """Accept the class if the class or any method is wanted.
+        """
+        cls_attr = cls.__dict__
+        if self.validateAttrib(cls_attr) is not False:
+            return None
+        # Methods in __dict__.values() are functions, oddly enough.
+        methods = filter(isfunction, cls_attr.values())
+        wanted = filter(lambda m: m is not False,
+                        map(self.wantFunction, methods))
+        if wanted:
+            return None
+        return False
+
     def wantFunction(self, function):
         """Accept the function if its attributes match.
         """
-        return self.validateAttrib(function)
+        return self.validateAttrib(function.__dict__)
 
     def wantMethod(self, method):
         """Accept the method if its attributes match.
         """
-        try:
-            cls = method.im_class
-        except AttributeError:
-            return False
-        return self.validateAttrib(method, cls)
+        attribs = AttributeGetter(method.im_class, method)
+        return self.validateAttrib(attribs)

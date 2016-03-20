@@ -1,44 +1,19 @@
-.\" Man page generated from reStructuredText.
-.
-.TH "NOSETESTS" "1" "April 04, 2015" "1.3" "nose"
+.TH nosetests 1 "2009-04-23" "0.11" "User Commands"
 .SH NAME
-nosetests \- Nicer testing for Python
-.
-.nr rst2man-indent-level 0
-.
-.de1 rstReportMargin
-\\$1 \\n[an-margin]
-level \\n[rst2man-indent-level]
-level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
--
-\\n[rst2man-indent0]
-\\n[rst2man-indent1]
-\\n[rst2man-indent2]
-..
-.de1 INDENT
-.\" .rstReportMargin pre:
-. RS \\$1
-. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
-. nr rst2man-indent-level +1
-.\" .rstReportMargin post:
-..
-.de UNINDENT
-. RE
-.\" indent \\n[an-margin]
-.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
-.nr rst2man-indent-level -1
-.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
-.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
-..
-.SH NICER TESTING FOR PYTHON
-.SS SYNOPSIS
+nosetests \- nicer testing for python
+.\" Man page generated from reStructeredText.
+.INDENT 0.0
+.UNINDENT
+
+.SH SYNOPSIS
 .INDENT 0.0
 .INDENT 3.5
 nosetests [options] [names]
+
 .UNINDENT
 .UNINDENT
-.SS DESCRIPTION
-.sp
+
+.SH DESCRIPTION
 nose collects tests automatically from python source files,
 directories and packages found in its working directory (which
 defaults to the current working directory). Any python source file,
@@ -49,7 +24,7 @@ found in the working directory will be examined for python source files
 or directories that match testMatch. Package discovery descends all
 the way down the tree, so package.tests and package.sub.tests and
 package.sub.sub2.tests will all be collected.
-.sp
+
 Within a test directory or package, any python source file matching
 testMatch will be examined for test cases. Within a test module,
 functions and classes whose names match testMatch and TestCase
@@ -57,420 +32,332 @@ subclasses with any name will be loaded and executed as tests. Tests
 may use the assert keyword or raise AssertionErrors to indicate test
 failure. TestCase subclasses may do the same or use the various
 TestCase methods available.
-.sp
-\fBIt is important to note that the default behavior of nose is to
-not include tests from files which are executable.\fP  To include
-tests from such files, remove their executable bit or use
-the \-\-exe flag (see \(aqOptions\(aq section below).
+
+
 .SS Selecting Tests
-.sp
 To specify which tests to run, pass test names on the command line:
-.INDENT 0.0
-.INDENT 3.5
-.sp
+
+
 .nf
-.ft C
 nosetests only_test_this.py
-.ft P
 .fi
-.UNINDENT
-.UNINDENT
-.sp
 Test names specified may be file or module names, and may optionally
 indicate the test case to run by separating the module or file name
 from the test case name with a colon. Filenames may be relative or
 absolute. Examples:
-.INDENT 0.0
-.INDENT 3.5
-.sp
+
+
 .nf
-.ft C
 nosetests test.module
 nosetests another.test:TestCase.test_method
 nosetests a.test:TestCase
 nosetests /path/to/test/file.py:test_function
-.ft P
 .fi
-.UNINDENT
-.UNINDENT
-.sp
 You may also change the working directory where nose looks for tests
 by using the \-w switch:
-.INDENT 0.0
-.INDENT 3.5
-.sp
+
+
 .nf
-.ft C
 nosetests \-w /path/to/tests
-.ft P
 .fi
-.UNINDENT
-.UNINDENT
-.sp
 Note, however, that support for multiple \-w arguments is now deprecated
 and will be removed in a future release. As of nose 0.10, you can get
 the same behavior by specifying the target directories \fIwithout\fP
 the \-w switch:
-.INDENT 0.0
-.INDENT 3.5
-.sp
+
+
 .nf
-.ft C
 nosetests /path/to/tests /another/path/to/tests
-.ft P
 .fi
-.UNINDENT
-.UNINDENT
-.sp
 Further customization of test selection and loading is possible
 through the use of plugins.
-.sp
+
 Test result output is identical to that of unittest, except for
 the additional features (error classes, and plugin\-supplied
 features such as output capture and assert introspection) detailed
 in the options below.
+
+
 .SS Configuration
-.sp
 In addition to passing command\-line options, you may also put
-configuration options in your project\(aqs \fIsetup.cfg\fP file, or a .noserc
-or nose.cfg file in your home directory. In any of these standard
-ini\-style config files, you put your nosetests configuration in a
-\fB[nosetests]\fP section. Options are the same as on the command line,
-with the \-\- prefix removed. For options that are simple switches, you
-must supply a value:
-.INDENT 0.0
-.INDENT 3.5
-.sp
+configuration options in a .noserc or nose.cfg file in your home
+directory. These are standard .ini\-style config files. Put your
+nosetests configuration in a [nosetests] section. Options are the
+same as on the command line, with the \-\- prefix removed. For
+options that are simple switches, you must supply a value:
+
+
 .nf
-.ft C
 [nosetests]
 verbosity=3
 with\-doctest=1
-.ft P
 .fi
-.UNINDENT
-.UNINDENT
-.sp
-All configuration files that are found will be loaded and their
-options combined. You can override the standard config file loading
-with the \fB\-c\fP option.
+All configuration files that are found will be loaded and their options
+combined.
+
+
 .SS Using Plugins
-.sp
 There are numerous nose plugins available via easy_install and
 elsewhere. To use a plugin, just install it. The plugin will add
 command line options to nosetests. To verify that the plugin is installed,
 run:
-.INDENT 0.0
-.INDENT 3.5
-.sp
+
+
 .nf
-.ft C
 nosetests \-\-plugins
-.ft P
 .fi
-.UNINDENT
-.UNINDENT
-.sp
 You can add \-v or \-vv to that command to show more information
 about each plugin.
-.sp
+
 If you are running nose.main() or nose.run() from a script, you
 can specify a list of plugins to use by passing a list of plugins
 with the plugins keyword argument.
+
+
 .SS 0.9 plugins
-.sp
-nose 1.0 can use SOME plugins that were written for nose 0.9. The
+nose 0.11 can use SOME plugins that were written for nose 0.9. The
 default plugin manager inserts a compatibility wrapper around 0.9
 plugins that adapts the changed plugin api calls. However, plugins
 that access nose internals are likely to fail, especially if they
 attempt to access test case or test suite classes. For example,
 plugins that try to determine if a test passed to startTest is an
 individual test or a suite will fail, partly because suites are no
-longer passed to startTest and partly because it\(aqs likely that the
+longer passed to startTest and partly because it\'s likely that the
 plugin is trying to find out if the test is an instance of a class
 that no longer exists.
-.SS 0.10 and 0.11 plugins
-.sp
-All plugins written for nose 0.10 and 0.11 should work with nose 1.0.
+
+
+.SS 0.10 plugins
+All plugins written for nose 0.10 should work with nose 0.11.
+
+
 .SS Options
-.INDENT 0.0
+
 .TP
-.B \-V, \-\-version
+\fB\-V\fR\fR\fR, \fB\-\-version\fR\fR
 Output nose version and exit
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-p, \-\-plugins
+\fB\-p\fR\fR\fR, \fB\-\-plugins\fR\fR
 Output list of available plugins and exit. Combine with higher verbosity for greater detail
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-v=DEFAULT, \-\-verbose=DEFAULT
+\fB\-v\fR\fR=DEFAULT\fR, \fB\-\-verbose\fR\fR=DEFAULT
 Be more verbose. [NOSE_VERBOSE]
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-\-verbosity=VERBOSITY
+\fB\-\-verbosity\fR\fR=VERBOSITY
 Set verbosity; \-\-verbosity=2 is the same as \-v
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-q=DEFAULT, \-\-quiet=DEFAULT
+\fB\-q\fR\fR=DEFAULT\fR, \fB\-\-quiet\fR\fR=DEFAULT
 Be less verbose
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-c=FILES, \-\-config=FILES
+\fB\-c\fR\fR=FILES\fR, \fB\-\-config\fR\fR=FILES
 Load configuration from config file(s). May be specified multiple times; in that case, all config files will be loaded and combined
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-w=WHERE, \-\-where=WHERE
+\fB\-w\fR\fR=WHERE\fR, \fB\-\-where\fR\fR=WHERE
 Look for tests in this directory. May be specified multiple times. The first directory passed will be used as the working directory, in place of the current working directory, which is the default. Others will be added to the list of tests to execute. [NOSE_WHERE]
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-\-py3where=PY3WHERE
-Look for tests in this directory under Python 3.x. Functions the same as \(aqwhere\(aq, but only applies if running under Python 3.x or above.  Note that, if present under 3.x, this option completely replaces any directories specified with \(aqwhere\(aq, so the \(aqwhere\(aq option becomes ineffective. [NOSE_PY3WHERE]
-.UNINDENT
-.INDENT 0.0
-.TP
-.B \-m=REGEX, \-\-match=REGEX, \-\-testmatch=REGEX
+\fB\-m\fR\fR=REGEX\fR, \fB\-\-match\fR\fR=REGEX\fR, \fB\-\-testmatch\fR\fR=REGEX
 Files, directories, function names, and class names that match this regular expression are considered tests.  Default: (?:^|[b_./\-])[Tt]est [NOSE_TESTMATCH]
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-\-tests=NAMES
+\fB\-\-tests\fR\fR=NAMES
 Run these tests (comma\-separated list). This argument is useful mainly from configuration files; on the command line, just pass the tests to run as additional arguments with no switch.
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-l=DEFAULT, \-\-debug=DEFAULT
+\fB\-l\fR\fR=DEFAULT\fR, \fB\-\-debug\fR\fR=DEFAULT
 Activate debug logging for one or more systems. Available debug loggers: nose, nose.importer, nose.inspector, nose.plugins, nose.result and nose.selector. Separate multiple names with a comma.
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-\-debug\-log=FILE
+\fB\-\-debug\-log\fR\fR=FILE
 Log debug messages to this file (default: sys.stderr)
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-\-logging\-config=FILE, \-\-log\-config=FILE
+\fB\-\-logging\-config\fR\fR=FILE\fR, \fB\-\-log\-config\fR\fR=FILE
 Load logging config from this file \-\- bypasses all other logging config settings.
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-I=REGEX, \-\-ignore\-files=REGEX
-Completely ignore any file that matches this regular expression. Takes precedence over any other settings or plugins. Specifying this option will replace the default setting. Specify this option multiple times to add more regular expressions [NOSE_IGNORE_FILES]
-.UNINDENT
-.INDENT 0.0
+\fB\-e\fR\fR=REGEX\fR, \fB\-\-exclude\fR\fR=REGEX
+Don\'t run tests that match regular expression [NOSE_EXCLUDE]
+
+
 .TP
-.B \-e=REGEX, \-\-exclude=REGEX
-Don\(aqt run tests that match regular expression [NOSE_EXCLUDE]
-.UNINDENT
-.INDENT 0.0
-.TP
-.B \-i=REGEX, \-\-include=REGEX
+\fB\-i\fR\fR=REGEX\fR, \fB\-\-include\fR\fR=REGEX
 This regular expression will be applied to files, directories, function names, and class names for a chance to include additional tests that do not match TESTMATCH.  Specify this option multiple times to add more regular expressions [NOSE_INCLUDE]
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-x, \-\-stop
+\fB\-x\fR\fR\fR, \fB\-\-stop\fR\fR
 Stop running tests after the first error or failure
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-P, \-\-no\-path\-adjustment
-Don\(aqt make any changes to sys.path when loading tests [NOSE_NOPATH]
-.UNINDENT
-.INDENT 0.0
+\fB\-P\fR\fR\fR, \fB\-\-no\-path\-adjustment\fR\fR
+Don\'t make any changes to sys.path when loading tests [NOSE_NOPATH]
+
+
 .TP
-.B \-\-exe
+\fB\-\-exe\fR\fR
 Look for tests in python modules that are executable. Normal behavior is to exclude executable modules, since they may not be import\-safe [NOSE_INCLUDE_EXE]
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-\-noexe
+\fB\-\-noexe\fR\fR
 DO NOT look for tests in python modules that are executable. (The default on the windows platform is to do so.)
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-\-traverse\-namespace
+\fB\-\-traverse\-namespace\fR\fR
 Traverse through all path entries of a namespace package
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-\-first\-package\-wins, \-\-first\-pkg\-wins, \-\-1st\-pkg\-wins
-nose\(aqs importer will normally evict a package from sys.modules if it sees a package with the same name in a different location. Set this option to disable that behavior.
-.UNINDENT
-.INDENT 0.0
+\fB\-\-first\-package\-wins\fR\fR=DEFAULT\fR, \fB\-\-first\-pkg\-wins\fR\fR=DEFAULT\fR, \fB\-\-1st\-pkg\-wins\fR\fR=DEFAULT
+nose\'s importer will normally evict a package from sys.modules if it sees a package with the same name in a different location. Set this option to disable that behavior.
+
+
 .TP
-.B \-\-no\-byte\-compile
-Prevent nose from byte\-compiling the source into .pyc files while nose is scanning for and running tests.
-.UNINDENT
-.INDENT 0.0
-.TP
-.B \-a=ATTR, \-\-attr=ATTR
+\fB\-a\fR\fR=ATTR\fR, \fB\-\-attr\fR\fR=ATTR
 Run only tests that have attributes specified by ATTR [NOSE_ATTR]
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-A=EXPR, \-\-eval\-attr=EXPR
+\fB\-A\fR\fR=EXPR\fR, \fB\-\-eval\-attr\fR\fR=EXPR
 Run only tests for whose attributes the Python expression EXPR evaluates to True [NOSE_EVAL_ATTR]
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-s, \-\-nocapture
-Don\(aqt capture stdout (any stdout output will be printed immediately) [NOSE_NOCAPTURE]
-.UNINDENT
-.INDENT 0.0
+\fB\-s\fR\fR\fR, \fB\-\-nocapture\fR\fR
+Don\'t capture stdout (any stdout output will be printed immediately) [NOSE_NOCAPTURE]
+
+
 .TP
-.B \-\-nologcapture
-Disable logging capture plugin. Logging configuration will be left intact. [NOSE_NOLOGCAPTURE]
-.UNINDENT
-.INDENT 0.0
+\fB\-\-nologcapture\fR\fR
+Disable logging capture plugin. Logging configurtion will be left intact. [NOSE_NOLOGCAPTURE]
+
+
 .TP
-.B \-\-logging\-format=FORMAT
+\fB\-\-logging\-format\fR\fR=FORMAT
 Specify custom format to print statements. Uses the same format as used by standard logging handlers. [NOSE_LOGFORMAT]
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-\-logging\-datefmt=FORMAT
+\fB\-\-logging\-datefmt\fR\fR=FORMAT
 Specify custom date/time format to print statements. Uses the same format as used by standard logging handlers. [NOSE_LOGDATEFMT]
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-\-logging\-filter=FILTER
+\fB\-\-logging\-filter\fR\fR=FILTER
 Specify which statements to filter in/out. By default, everything is captured. If the output is too verbose,
 use this option to filter out needless output.
 Example: filter=foo will capture statements issued ONLY to
  foo or foo.what.ever.sub but not foobar or other logger.
-Specify multiple loggers with comma: filter=foo,bar,baz.
-If any logger name is prefixed with a minus, eg filter=\-foo,
-it will be excluded rather than included. Default: exclude logging messages from nose itself (\-nose). [NOSE_LOGFILTER]
-.UNINDENT
-.INDENT 0.0
+Specify multiple loggers with comma: filter=foo,bar,baz. [NOSE_LOGFILTER]
+
+
 .TP
-.B \-\-logging\-clear\-handlers
+\fB\-\-logging\-clear\-handlers\fR\fR
 Clear all other logging handlers
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-\-logging\-level=DEFAULT
-Set the log level to capture
-.UNINDENT
-.INDENT 0.0
-.TP
-.B \-\-with\-coverage
+\fB\-\-with\-coverage\fR\fR
 Enable plugin Coverage: 
-Activate a coverage report using Ned Batchelder\(aqs coverage module.
+Activate a coverage report using Ned Batchelder\'s coverage module.
  [NOSE_WITH_COVERAGE]
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-\-cover\-package=PACKAGE
+\fB\-\-cover\-package\fR\fR=PACKAGE
 Restrict coverage output to selected packages [NOSE_COVER_PACKAGE]
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-\-cover\-erase
+\fB\-\-cover\-erase\fR\fR
 Erase previously collected coverage statistics before run
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-\-cover\-tests
+\fB\-\-cover\-tests\fR\fR
 Include test modules in coverage report [NOSE_COVER_TESTS]
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-\-cover\-min\-percentage=DEFAULT
-Minimum percentage of coverage for tests to pass [NOSE_COVER_MIN_PERCENTAGE]
-.UNINDENT
-.INDENT 0.0
-.TP
-.B \-\-cover\-inclusive
+\fB\-\-cover\-inclusive\fR\fR
 Include all python files under working directory in coverage report.  Useful for discovering holes in test coverage if not all files are imported by the test suite. [NOSE_COVER_INCLUSIVE]
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-\-cover\-html
+\fB\-\-cover\-html\fR\fR
 Produce HTML coverage information
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-\-cover\-html\-dir=DIR
+\fB\-\-cover\-html\-dir\fR\fR=DIR
 Produce HTML coverage information in dir
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-\-cover\-branches
-Include branch coverage in coverage report [NOSE_COVER_BRANCHES]
-.UNINDENT
-.INDENT 0.0
-.TP
-.B \-\-cover\-xml
-Produce XML coverage information
-.UNINDENT
-.INDENT 0.0
-.TP
-.B \-\-cover\-xml\-file=FILE
-Produce XML coverage information in file
-.UNINDENT
-.INDENT 0.0
-.TP
-.B \-\-pdb
-Drop into debugger on failures or errors
-.UNINDENT
-.INDENT 0.0
-.TP
-.B \-\-pdb\-failures
-Drop into debugger on failures
-.UNINDENT
-.INDENT 0.0
-.TP
-.B \-\-pdb\-errors
+\fB\-\-pdb\fR\fR
 Drop into debugger on errors
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-\-no\-deprecated
+\fB\-\-pdb\-failures\fR\fR
+Drop into debugger on failures
+
+
+.TP
+\fB\-\-no\-deprecated\fR\fR
 Disable special handling of DeprecatedTest exceptions.
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-\-with\-doctest
+\fB\-\-with\-doctest\fR\fR
 Enable plugin Doctest: 
 Activate doctest plugin to find and run doctests in non\-test modules.
  [NOSE_WITH_DOCTEST]
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-\-doctest\-tests
+\fB\-\-doctest\-tests\fR\fR
 Also look for doctests in test modules. Note that classes, methods and functions should have either doctests or non\-doctest tests, not both. [NOSE_DOCTEST_TESTS]
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-\-doctest\-extension=EXT
+\fB\-\-doctest\-extension\fR\fR=EXT
 Also look for doctests in files with this extension [NOSE_DOCTEST_EXTENSION]
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-\-doctest\-result\-variable=VAR
-Change the variable name set to the result of the last interpreter command from the default \(aq_\(aq. Can be used to avoid conflicts with the _() function used for text translation. [NOSE_DOCTEST_RESULT_VAR]
-.UNINDENT
-.INDENT 0.0
+\fB\-\-doctest\-result\-variable\fR\fR=VAR
+Change the variable name set to the result of the last interpreter command from the default \'_\'. Can be used to avoid conflicts with the _() function used for text translation. [NOSE_DOCTEST_RESULT_VAR]
+
+
 .TP
-.B \-\-doctest\-fixtures=SUFFIX
+\fB\-\-doctest\-fixtures\fR\fR=SUFFIX
 Find fixtures for a doctest file in module with this name appended to the base name of the doctest file
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-\-doctest\-options=OPTIONS
-Specify options to pass to doctest. Eg. \(aq+ELLIPSIS,+NORMALIZE_WHITESPACE\(aq
-.UNINDENT
-.INDENT 0.0
-.TP
-.B \-\-with\-isolation
+\fB\-\-with\-isolation\fR\fR
 Enable plugin IsolationPlugin: 
 Activate the isolation plugin to isolate changes to external
 modules to a single test module or package. The isolation plugin
@@ -479,103 +366,96 @@ package runs to its state before the test. PLEASE NOTE that this
 plugin should not be used with the coverage plugin, or in any other case
 where module reloading may produce undesirable side\-effects.
  [NOSE_WITH_ISOLATION]
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-d, \-\-detailed\-errors, \-\-failure\-detail
+\fB\-d\fR\fR\fR, \fB\-\-detailed\-errors\fR\fR\fR, \fB\-\-failure\-detail\fR\fR
 Add detail to error output by attempting to evaluate failed asserts [NOSE_DETAILED_ERRORS]
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-\-with\-profile
+\fB\-\-with\-profile\fR\fR
 Enable plugin Profile: 
 Use this plugin to run tests using the hotshot profiler. 
  [NOSE_WITH_PROFILE]
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-\-profile\-sort=SORT
+\fB\-\-profile\-sort\fR\fR=SORT
 Set sort order for profiler output
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-\-profile\-stats\-file=FILE
+\fB\-\-profile\-stats\-file\fR\fR=FILE
 Profiler stats file; default is a new temp file on each run
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-\-profile\-restrict=RESTRICT
+\fB\-\-profile\-restrict\fR\fR=RESTRICT
 Restrict profiler output. See help for pstats.Stats for details
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-\-no\-skip
+\fB\-\-no\-skip\fR\fR
 Disable special handling of SkipTest exceptions.
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-\-with\-id
+\fB\-\-with\-id\fR\fR
 Enable plugin TestId: 
 Activate to add a test id (like #1) to each test name output. Activate
 with \-\-failed to rerun failing tests only.
  [NOSE_WITH_ID]
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-\-id\-file=FILE
+\fB\-\-id\-file\fR\fR=FILE
 Store test ids found in test runs in this file. Default is the file .noseids in the working directory.
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-\-failed
+\fB\-\-failed\fR\fR
 Run the tests that failed in the last test run.
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-\-processes=NUM
-Spread test run among this many processes. Set a number equal to the number of processors or cores in your machine for best results. Pass a negative number to have the number of processes automatically set to the number of cores. Passing 0 means to disable parallel testing. Default is 0 unless NOSE_PROCESSES is set. [NOSE_PROCESSES]
-.UNINDENT
-.INDENT 0.0
+\fB\-\-processes\fR\fR=NUM
+Spread test run among this many processes. Set a number equal to the number of processors or cores in your machine for best results. [NOSE_PROCESSES]
+
+
 .TP
-.B \-\-process\-timeout=SECONDS
-Set timeout for return of results from each test runner process. Default is 10. [NOSE_PROCESS_TIMEOUT]
-.UNINDENT
-.INDENT 0.0
+\fB\-\-process\-timeout\fR\fR=SECONDS
+Set timeout for return of results from each test runner process. [NOSE_PROCESS_TIMEOUT]
+
+
 .TP
-.B \-\-process\-restartworker
-If set, will restart each worker process once their tests are done, this helps control memory leaks from killing the system. [NOSE_PROCESS_RESTARTWORKER]
-.UNINDENT
-.INDENT 0.0
-.TP
-.B \-\-with\-xunit
+\fB\-\-with\-xunit\fR\fR
 Enable plugin Xunit: This plugin provides test results in the standard XUnit XML format. [NOSE_WITH_XUNIT]
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-\-xunit\-file=FILE
+\fB\-\-xunit\-file\fR\fR=FILE
 Path to xml file to store the xunit report in. Default is nosetests.xml in the working directory [NOSE_XUNIT_FILE]
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-\-xunit\-testsuite\-name=PACKAGE
-Name of the testsuite in the xunit xml, generated by plugin. Default test suite name is nosetests.
-.UNINDENT
-.INDENT 0.0
-.TP
-.B \-\-all\-modules
+\fB\-\-all\-modules\fR\fR
 Enable plugin AllModules: Collect tests from all python modules.
  [NOSE_ALL_MODULES]
-.UNINDENT
-.INDENT 0.0
+
+
 .TP
-.B \-\-collect\-only
+\fB\-\-collect\-only\fR\fR
 Enable collect\-only: 
-Collect and output test names only, don\(aqt run any tests.
+Collect and output test names only, don\'t run any tests.
  [COLLECT_ONLY]
-.UNINDENT
+
+
 .SH AUTHOR
-Nose developers
+jpellerin+nose@gmail.com
+
 .SH COPYRIGHT
-2009, Jason Pellerin
-.\" Generated by docutils manpage writer.
-.
+LGPL
+
+.\" Generated by docutils manpage writer on 2009-05-13 20:29.
+.\" 

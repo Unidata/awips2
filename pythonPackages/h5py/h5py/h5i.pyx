@@ -1,18 +1,36 @@
-# This file is part of h5py, a Python interface to the HDF5 library.
-#
-# http://www.h5py.org
-#
-# Copyright 2008-2013 Andrew Collette and contributors
-#
-# License:  Standard 3-clause BSD; see "license.txt" for full license terms
-#           and contributor agreement.
+#+
+# 
+# This file is part of h5py, a low-level Python interface to the HDF5 library.
+# 
+# Copyright (C) 2008 Andrew Collette
+# http://h5py.alfven.org
+# License: BSD  (See LICENSE.txt for full license)
+# 
+# $Date$
+# 
+#-
 
 """
     Identifier interface for object inspection.
 """
 
-from ._objects import phil, with_phil
+include "config.pxi"
 
+# Pyrex compile-time imports
+from h5 cimport init_hdf5, ObjectID
+from h5f cimport FileID
+from h5d cimport DatasetID
+from h5g cimport GroupID
+from h5a cimport AttrID
+from h5t cimport typewrap
+from h5p cimport propwrap
+
+from utils cimport emalloc, efree
+
+init_hdf5()
+
+# Runtime imports
+from h5 import H5Error
 
 # === Public constants and data structures ====================================
 
@@ -27,50 +45,42 @@ GENPROP_CLS = H5I_GENPROP_CLS
 GENPROP_LST = H5I_GENPROP_LST
 DATATYPE    = H5I_DATATYPE
 
-cpdef ObjectID wrap_identifier(hid_t ident):
+cdef ObjectID wrap_identifier(hid_t ident):
 
     cdef H5I_type_t typecode
     cdef ObjectID obj
 
     typecode = H5Iget_type(ident)
     if typecode == H5I_FILE:
-        import h5f
-        obj = h5f.FileID(ident)
+        obj = FileID(ident)
     elif typecode == H5I_DATASET:
-        import h5d
-        obj = h5d.DatasetID(ident)
+        obj = DatasetID(ident)
     elif typecode == H5I_GROUP:
-        import h5g
-        obj = h5g.GroupID(ident)
+        obj = GroupID(ident)
     elif typecode == H5I_ATTR:
-        import h5a
-        obj = h5a.AttrID(ident)
+        obj = AttrID(ident)
     elif typecode == H5I_DATATYPE:
-        import h5t
-        obj = h5t.typewrap(ident)
+        obj = typewrap(ident)
     elif typecode == H5I_GENPROP_LST:
-        import h5p
-        obj = h5p.propwrap(ident)
+        obj = propwrap(ident)
     else:
         raise ValueError("Unrecognized type code %d" % typecode)
 
     return obj
 
-
 # === Identifier API ==========================================================
 
-@with_phil
+
 def get_type(ObjectID obj not None):
     """ (ObjectID obj) => INT type_code
 
-        Determine the HDF5 typecode of an arbitrary HDF5 object.  The return
-        value is always one of the type constants defined in this module; if
+        Determine the HDF5 typecode of an arbitrary HDF5 object.  The return 
+        value is always one of the type constants defined in this module; if 
         the ID is invalid, BADID is returned.
     """
     return <int>H5Iget_type(obj.id)
 
 
-@with_phil
 def get_name(ObjectID obj not None):
     """ (ObjectID obj) => STRING name, or None
 
@@ -87,35 +97,30 @@ def get_name(ObjectID obj not None):
 
     try:
         namelen = <int>H5Iget_name(obj.id, NULL, 0)
-    except Exception:
+    except H5Error:
         return None
 
     if namelen == 0:    # 1.6.5 doesn't raise an exception
         return None
 
     assert namelen > 0
-    name = <char*>malloc(sizeof(char)*(namelen+1))
+    name = <char*>emalloc(sizeof(char)*(namelen+1))
     try:
         H5Iget_name(obj.id, name, namelen+1)
         pystring = name
         return pystring
     finally:
-        free(name)
+        efree(name)
 
 
-@with_phil
 def get_file_id(ObjectID obj not None):
     """ (ObjectID obj) => FileID
 
         Obtain an identifier for the file in which this object resides.
     """
-    import h5f
-    cdef hid_t fid
-    fid = H5Iget_file_id(obj.id)
-    return h5f.FileID(fid)
+    return FileID(H5Iget_file_id(obj.id))
 
 
-@with_phil
 def inc_ref(ObjectID obj not None):
     """ (ObjectID obj)
 
@@ -128,7 +133,6 @@ def inc_ref(ObjectID obj not None):
     H5Iinc_ref(obj.id)
 
 
-@with_phil
 def get_ref(ObjectID obj not None):
     """ (ObjectID obj) => INT
 
@@ -137,7 +141,6 @@ def get_ref(ObjectID obj not None):
     return H5Iget_ref(obj.id)
 
 
-@with_phil
 def dec_ref(ObjectID obj not None):
     """ (ObjectID obj)
 
@@ -148,3 +151,19 @@ def dec_ref(ObjectID obj not None):
         ObjectID instances by abusing this function.
     """
     H5Idec_ref(obj.id)
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
