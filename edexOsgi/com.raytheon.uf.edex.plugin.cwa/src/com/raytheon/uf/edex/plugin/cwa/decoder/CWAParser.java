@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- *
+ * 
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- *
+ * 
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- *
+ * 
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -44,7 +44,6 @@ import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.common.wmo.WMOTimeParser;
 import com.raytheon.uf.edex.plugin.cwa.CWARecordDao;
@@ -54,11 +53,11 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * The County Warning Area (CWA) text Parser.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 01, 2010            jsanchez    Initial creation
@@ -67,12 +66,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Mar 25, 2014 2930       skorolev    Fixed error in distance.
  * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
- * May 04, 2015 4379       nabowle     Set valid period. Support future end dates.
- *                                     Drop bad dates. Extract patterns. eventId
- *                                     is now only in the db.
- *
+ * 
  * </pre>
- *
+ * 
  * @author jsanchez
  * @version 1.0
  */
@@ -97,8 +93,6 @@ public class CWAParser {
     private double size;
 
     private DataTime startTime;
-
-    private DataTime endTime;
 
     private CWADimension dimension;
 
@@ -125,29 +119,6 @@ public class CWAParser {
     private static final double MAX_VOR_DIST = 999.0;
 
     private Headers headers;
-
-    private static Pattern TIME_PATTERN = Pattern.compile(InternalReport.TIME);
-
-    private static Pattern LINE_GEOM_PTRN = Pattern
-            .compile(InternalReport.LINE_GEOM);
-
-    private static Pattern LINE_GEOM2_PTRN = Pattern
-            .compile(InternalReport.LINE_GEOM2);
-
-    private static Pattern AREA_GEOM_PTRN = Pattern
-            .compile(InternalReport.AREA_GEOM);
-
-    private static Pattern POINT_GEOM2_PTRN = Pattern
-            .compile(InternalReport.POINT_GEOM2);
-
-    private static Pattern SIZE_PTRN = Pattern.compile("(\\d{1,3})");
-
-    private static Pattern VICINITY_PTRN = Pattern
-            .compile(InternalReport.VICINITY);
-
-    private static Pattern DIR_DIST_PTRN = Pattern
-            .compile(InternalReport.DIRDIST);
-
 
     static {
         dirToDeg.put("N", 0f);
@@ -184,7 +155,7 @@ public class CWAParser {
 
     /**
      * Does this parser contain any more reports.
-     *
+     * 
      * @return Does this parser contain any more reports.
      */
     public boolean hasNext() {
@@ -202,7 +173,7 @@ public class CWAParser {
     /**
      * Get the next available report. Returns a null reference if no more
      * reports are available.
-     *
+     * 
      * @return The next available report.
      */
     public CWARecord next() {
@@ -231,6 +202,7 @@ public class CWAParser {
                 PointDataView view = pdc.append();
                 view.setString("wmoHeader", report.getWmoHeader());
                 view.setString("dataURI", report.getDataURI());
+                view.setString("eventId", report.getEventId());
                 view.setString("dimension", report.getDimension().toString());
                 view.setString("text", report.getText());
 
@@ -250,7 +222,7 @@ public class CWAParser {
     }
 
     /**
-     *
+     * 
      * @param obsData
      * @return
      */
@@ -283,7 +255,7 @@ public class CWAParser {
                 case ISSUANCE:
                     if ((eventId != null)
                             && (dimension != CWADimension.CANCELED)) {
-                        validateAndAddReport(reports);
+                        reports.add(getRecord());
                     }
                     clearData();
                     parseIssuanceInfo(s);
@@ -312,7 +284,7 @@ public class CWAParser {
                 case END:
                     if ((eventId != null)
                             && (dimension != CWADimension.CANCELED)) {
-                        validateAndAddReport(reports);
+                        reports.add(getRecord());
                     }
                     clearData();
                     break;
@@ -323,24 +295,8 @@ public class CWAParser {
     }
 
     /**
-     * Validates the current report and adds valid reports to the list.
-     *
-     * @param reports
-     *            The list to add valid reports to.
-     */
-    private void validateAndAddReport(List<CWARecord> reports) {
-        if (this.startTime == null
-                || (this.endTime != null && this.startTime
-                        .greaterThan(this.endTime))) {
-            logger.info("Discarding report due to invalid dates.");
-        } else {
-            reports.add(getRecord());
-        }
-    }
-
-    /**
      * Set the message data and decode all message reports.
-     *
+     * 
      * @param message
      *            Raw message data.
      * @param traceId
@@ -374,10 +330,11 @@ public class CWAParser {
             eventId = parts[0];
         }
 
-        Matcher m = TIME_PATTERN.matcher(issuanceInfo);
+        Pattern p = Pattern.compile(InternalReport.TIME);
+        Matcher m = p.matcher(issuanceInfo);
         if (m.find()) {
             String time = m.group();
-            startTime = getIssuanceDataTime(time);
+            startTime = getDataTime(time);
         }
     }
 
@@ -385,10 +342,11 @@ public class CWAParser {
      * @param validToInfo
      */
     private void parseValidToInfo(String validToInfo) {
-        Matcher m = TIME_PATTERN.matcher(validToInfo);
+        Pattern p = Pattern.compile(InternalReport.TIME);
+        Matcher m = p.matcher(validToInfo);
         if (m.find()) {
             String time = m.group();
-            endTime = getValidToDataTime(time);
+            getDataTime(time);
         }
     }
 
@@ -396,7 +354,8 @@ public class CWAParser {
      * @param vicinityInfo
      */
     private void parseVicinityInfo(String vicinityInfo) {
-        Matcher m = VICINITY_PTRN.matcher(vicinityInfo);
+        Pattern vicinityPtrn = Pattern.compile(InternalReport.VICINITY);
+        Matcher m = vicinityPtrn.matcher(vicinityInfo);
         if (m.find()) {
             String vicinity = m.group(2);
             if (pirepTable.contains(vicinity)) {
@@ -429,7 +388,8 @@ public class CWAParser {
                 getMoreCoords = true;
             } else if (getMoreCoords) {
                 getMoreCoords = false;
-                Matcher m = DIR_DIST_PTRN.matcher(tok);
+                Pattern p = Pattern.compile(InternalReport.DIRDIST);
+                Matcher m = p.matcher(tok);
                 if (m.matches()) {
                     try {
                         distance = Integer.parseInt(m.group(1));
@@ -484,7 +444,7 @@ public class CWAParser {
                     getMoreCoords = true;
                 } else {
                     logger.error("Bad location. '" + tok
-                            + "' not in the pirepsTable.txt");
+                            + "' not in edex_static/base/cwa/pirepsTable.txt");
                 }
             }
         }
@@ -495,13 +455,18 @@ public class CWAParser {
      */
     private void parseGeometryInfo(String geometryInfo) {
         boolean found = false;
+        Pattern lineGeomPtrn = Pattern.compile(InternalReport.LINE_GEOM);
+        Pattern lineGeom2Ptrn = Pattern.compile(InternalReport.LINE_GEOM2);
+        Pattern areaGeomPtrn = Pattern.compile(InternalReport.AREA_GEOM);
+        Pattern pointGeom2Ptrn = Pattern.compile(InternalReport.POINT_GEOM2);
 
-        Pattern patterns[] = { LINE_GEOM_PTRN, LINE_GEOM2_PTRN, AREA_GEOM_PTRN,
-                POINT_GEOM2_PTRN };
+        Pattern patterns[] = { lineGeomPtrn, lineGeom2Ptrn, areaGeomPtrn,
+                pointGeom2Ptrn };
         for (Pattern p : patterns) {
             Matcher m = p.matcher(geometryInfo);
             if (m.find()) {
-                m = SIZE_PTRN.matcher(geometryInfo);
+                Pattern sizePtrn = Pattern.compile("(\\d{1,3})");
+                m = sizePtrn.matcher(geometryInfo);
                 if (m.find()) {
                     size = nauticalmileToMeter.convert(Double.parseDouble((m
                             .group())));
@@ -523,17 +488,13 @@ public class CWAParser {
         text = "";
         dimension = CWADimension.CANCELED;
         startTime = null;
-        endTime = null;
     }
 
     /**
-     * Get the issuance data time.
-     *
      * @param timeStr
-     *            The datatime string.
      * @return DataTime from header
      */
-    private DataTime getIssuanceDataTime(String timeStr) {
+    private DataTime getDataTime(String timeStr) {
         String fileName = (String) headers.get(WMOHeader.INGEST_FILE_NAME);
         Calendar cal = WMOTimeParser.findDataTime(timeStr, fileName);
         if (cal != null) {
@@ -544,46 +505,6 @@ public class CWAParser {
     }
 
     /**
-     * Get the Valid To data time.
-     *
-     * @param timeStr
-     *            The datatime string.
-     * @return The valid to DataTime.
-     */
-    private DataTime getValidToDataTime(String timeStr) {
-        if (this.startTime == null) {
-            return null;
-        }
-        int day;
-        int hour;
-        int minute;
-        try {
-            day = Integer.parseInt(timeStr.substring(0, 2));
-            hour = Integer.parseInt(timeStr.substring(2, 4));
-            minute = Integer.parseInt(timeStr.substring(4).trim());
-        } catch (NumberFormatException e) {
-            logger.error("Valid-to datetime is not a valid format.", e);
-            return null;
-        }
-
-        Calendar cal = this.startTime.getRefTimeAsCalendar();
-        if (day < cal.get(Calendar.DAY_OF_MONTH)) {
-            cal.add(Calendar.MONTH, 1);
-        }
-        if (day > cal.getActualMaximum(Calendar.DAY_OF_MONTH)) {
-            logger.error("Valid-to day is larger than the days in the month.");
-            return null;
-        }
-
-        cal.set(Calendar.DAY_OF_MONTH, day);
-        cal.set(Calendar.HOUR_OF_DAY, hour);
-        cal.set(Calendar.MINUTE, minute);
-        cal.set(Calendar.SECOND, 0);
-        cal.set(Calendar.MILLISECOND, 0);
-        return new DataTime(cal);
-    }
-
-    /**
      * @return CWA Record
      */
     private CWARecord getRecord() {
@@ -591,17 +512,7 @@ public class CWAParser {
         record.setEventId(eventId);
         record.setDimension(dimension);
         record.setMessageData(text);
-
-        Calendar startCal = startTime.getRefTimeAsCalendar();
-        Calendar endCal;
-        if (endTime == null) {
-            endCal = startCal;
-        } else {
-            endCal = endTime.getRefTimeAsCalendar();
-        }
-        TimeRange validTime = new TimeRange(startCal, endCal);
-        DataTime dataTime = new DataTime(startCal, validTime);
-
+        DataTime dataTime = new DataTime(startTime.getRefTimeAsCalendar());
         record.setDataTime(dataTime);
         Coordinate[] coord = null;
         if (coordinates.size() == 1) {
