@@ -105,7 +105,7 @@ public class PurgeText {
                     String awipsHdr = separator.getAwipsHeader();
                     if (awipsHdr != null) {
                         if (awipsHdr.length() > 6) {
-                            log.error("AWIPS Header [" + awipsHdr
+                            log.info("AWIPS Header [" + awipsHdr
                                     + "] too long, truncating to 6 characters");
                             awipsHdr = awipsHdr.substring(0, 6);
                         }
