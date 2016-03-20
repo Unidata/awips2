@@ -60,11 +60,7 @@ function copyLegal()
    rm -f %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar    
 }
 
-TOPO_SRC_DIR="awips2-static/topo/"
-if [ ! -d %{_awipscm_share}/${TOPO_SRC_DIR} ]; then
-   file %{_awipscm_share}/${TOPO_SRC_DIR}
-   exit 1
-fi
+TOPO_SRC_DIR="%{_awipscm_share}/awips2-static/topo/"
 
 TOPO_TO_COPY=\
 (\
@@ -77,12 +73,12 @@ TOPO_TO_COPY=\
    'staticTopo.h5' \
    'usTopo.dat.gz' \
    'worldTopo.dat.gz' \
+   'gtopo30.h5'\
 )
 # Some of these not provided in source code repos
 #
 #TOPO_TO_COPY=\
 #(\
-#   'gtopo30.h5'\
 #   'srtm30.h5'\
 #   'srtm30_plus.h5'\
 #   'defaultTopo.h5' \
@@ -99,7 +95,7 @@ TOPO_TO_COPY=\
 
 for topoFile in ${TOPO_TO_COPY[*]};
 do
-   cp -Pp %{_awipscm_share}/${TOPO_SRC_DIR}/${topoFile} \
+   cp -Pp ${TOPO_SRC_DIR}/${topoFile} \
       ${RPM_BUILD_ROOT}/awips2/edex/data/hdf5/topo
    if [ $? -ne 0 ]; then
       exit 1

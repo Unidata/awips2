@@ -48,9 +48,10 @@ FILES_NATIVE="%{_baseline_workspace}/files.native"
 if [ $? -ne 0 ]; then
    exit 1
 fi
-/bin/cp /awips2/jenkins/buildspace/workspace/awipscm/awips2-static/hydroapps/library.ohd.ofs.so \
+/bin/cp %{_awipscm_share}/awips2-static/hydroapps/library.ohd.ofs.so \
    %{_build_root}/awips2/edex/data/share/hydroapps/lib/native/linux32/
-/bin/cp /awips2/jenkins/buildspace/workspace/awipscm/awips2-static/hydroapps/library.ohd.pproc.so \
+/bin/cp %{_awipscm_share}/awips2-static/hydroapps/library.ohd.pproc.so \
+
    %{_build_root}/awips2/edex/data/share/hydroapps/lib/native/linux32/
 
 /usr/bin/find %{_build_root}/awips2/edex/data/share -name .gitignore -exec rm -rf {} \;

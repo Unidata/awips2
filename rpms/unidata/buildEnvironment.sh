@@ -13,7 +13,7 @@ export BUILD_WORKSPACE=${BUILD_DIR}/workspace
 # baseline is...
 export BASELINE="${JENKINS_WORKSPACE}"
 export AWIPSII_VERSION="15.1.3"
-export AWIPSII_RELEASE="2"
+export AWIPSII_RELEASE="3"
 
 export AWIPSII_TOP_DIR="${BUILD_WORKSPACE}/tmp/rpms_built_dir"
 
@@ -22,7 +22,8 @@ export WORKSPACE="${BUILD_WORKSPACE}/AWIPS2-UPC_build/baseline"
 
 export UFRAME_ECLIPSE="/awips2/eclipse"
 
-export AWIPSCM_SHARE="${BUILD_WORKSPACE}/awipscm"
+#export AWIPSCM_SHARE="${BUILD_WORKSPACE}/awipscm"
+export AWIPSCM_SHARE="/awips2/repo"
 export AWIPSII_BUILD_ROOT="${BUILD_WORKSPACE}/tmp/${USER}/awips-component"
 
 echo "BUILD_DIR = $BUILD_DIR"
