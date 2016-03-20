@@ -444,7 +444,7 @@ public class CWAParser {
                     getMoreCoords = true;
                 } else {
                     logger.error("Bad location. '" + tok
-                            + "' not in the pirepTable.txt");
+                            + "' not in edex_static/base/cwa/pirepsTable.txt");
                 }
             }
         }
