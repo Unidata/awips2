@@ -46,9 +46,7 @@ if [ $? -ne 0 ]; then
    exit 1 
 fi
 
-AWIPS2_STATIC=%{_awipscm_share}/awips2-static
-# /awips2/jenkins/buildspace/workspace/awipscm/awips2-static/shapefiles/
-SHAPEFILES=${AWIPS2_STATIC}/shapefiles
+SHAPEFILES=%{_awipscm_share}/awips2-static/shapefiles/
 if [ ! -d ${SHAPEFILES} ]; then
    file ${SHAPEFILES}
    exit 1

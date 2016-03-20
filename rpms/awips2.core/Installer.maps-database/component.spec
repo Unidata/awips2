@@ -41,15 +41,13 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-STATIC_DATA_DIR="%{_awipscm_share}/awips2-static"
-
 # Copy the sql that is needed to create the maps database.
 PATH_TO_DDL="build.edex/opt/db/ddl"
 PATH_TO_MAPS_DDL="${PATH_TO_DDL}/maps"
 cp -r %{_baseline_workspace}/${PATH_TO_MAPS_DDL}/* \
    ${RPM_BUILD_ROOT}/awips2/database/sqlScripts/share/sql/maps
 
-PATH_TO_STATIC_DDL="${STATIC_DATA_DIR}/maps/db"
+PATH_TO_STATIC_DDL="%{_awipscm_share}/awips2-static/maps/db"
 if [ ! -d ${PATH_TO_STATIC_DDL} ]; then
    file ${PATH_TO_STATIC_DDL}
    exit 1

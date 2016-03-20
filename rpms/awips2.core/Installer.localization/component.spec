@@ -60,7 +60,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # Copy the shapefiles (too large to include in git repo)
-cp -rv /awips2/jenkins/buildspace/workspace/awipscm/awips2-static/shapefiles/ \
+cp -rv %{_awipscm_share}/awips2-static/shapefiles/ \
    ${RPM_BUILD_ROOT}/awips2/edex/data/utility/edex_static/site/%{_localization_site}/
 if [ $? -ne 0 ]; then
    exit 1

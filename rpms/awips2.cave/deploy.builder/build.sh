@@ -9,7 +9,6 @@ VAR_AWIPSII_BUILD_ROOT="/tmp/awips-component"
 VAR_AWIPSII_VERSION=""
 VAR_AWIPSII_RELEASE=""
 VAR_UFRAME_ECLIPSE="/awips2/eclipse"
-VAR_AWIPSCM_SHARE="/awips2/jenkins/buildspace/workspace/awipscm"
 # -----------------------------------------------------------------------------
 
 if [ "${AWIPSII_TOP_DIR}" = "" ] &&

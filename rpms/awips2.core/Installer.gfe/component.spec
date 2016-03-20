@@ -39,7 +39,7 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-GFE_SRC_DIR="${AWIPSCM_SHARE}/awips2-static/gfe"
+GFE_SRC_DIR="%{_awipscm_share}/awips2-static/gfe"
 gfe_tar="${GFE_SRC_DIR}/gfeData.tgz"
 if [ ! -f ${gfe_tar} ]; then
    file ${gfe_tar}
