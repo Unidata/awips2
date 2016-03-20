@@ -139,6 +139,7 @@ AMT           0 WEST UNION                              3886  -8356     0  0
 AMW           0 AMES,IA                                 4203  -9367     0  0
 ANA           0 ANAHEIM,CA                              3383 -11783     0  0
 ANB           0 ANNISTON,AL                             3358  -8585     0  0
+ANC           0 ANCHORAGE                               6115 -15021     0  0
 AND           0 ANDERSON COUNTY                         3450  -8271     0  0
 ANE           0 MINNEAPOLIS,MN                          4513  -9322     0  0
 ANI           0 ANIAK                                   6159 -15960     0  0
@@ -495,6 +496,7 @@ BTL           0 BATTLE CREEK                            4231  -8525     0  0
 BTM           0 BUTTE,MT                                4595 -11250     0  0
 BTN           0 BRITTON                                 4582  -9775     0  0
 BTP           0 BUTLER,PA                               4073  -7992     0  0
+BTR           0 BATON ROUGE                             3049  -9129     0  0
 BTS           0 WOOD RIVER                              5900 -15855     0  0
 BTT           0 BETTLES                                 6691 -15154     0  0
 BTV           0 BURLINGTON                              4440  -7318     0  0

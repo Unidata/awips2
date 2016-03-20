@@ -1156,7 +1156,7 @@ EKE           0 BILOXI,MS                               3040  -8890     0  0
 EKG           0 CARLSBAD,CALIFORNIA                     3300 -11708     0  0
 EKI           0 CORPUS CHRISTI,TX                       2777  -9750     0  0
 EKM           0 ELKHART,IN                              4170  -8598     0  0
-EKN           0 ELKINS                                  3891  -8010     0  0
+EKN           0 ELKINS, WV                              3891  -8010     0  0
 EKO           0 ELKO,NV                                 4082 -11578     0  0
 EKP           0 WISCONSIN RAPIDS,WI                     4448  -8977     0  0
 EKQ           0 ELK SPRING                              3686  -8485     0  0
@@ -2428,6 +2428,7 @@ LSN           0 LOS BANOS,CA                            3698 -12088     0  0
 LSO           0 KELSO                                   4616 -12291     0  0
 LSQ           0 NEWARK,NJ                               4070  -7417     0  0
 LST           0 LONE STAR                               3293  -9474     0  0
+LSU           0 FLYING TIGER                            3049  -9129     0  0
 LSV           0 NELLIS AFB,NV                           3625 -11503     0  0
 LSW           0 DETROIT,MI                              4223  -8353     0  0
 LTA           0 LAKE TAHOE,CA -VOR-                     3915 -12023     0  0
@@ -3885,6 +3886,7 @@ TDW           0 TRADEWIND ARPT,TX                       3518 -10182     0  0
 TDZ           0 TOLEDO,OH                               4158  -8380     0  0
 TEB           0 TETERBORO                               4085  -7406     0  0
 TEC           0 TECH                                    3721  -8041     0  0
+TED           0 TED                              AK US  6117 -14996     0  0
 TEL           0 TELL CITY                               3801  -8669     0  0
 TEW           0 MASON                            MI US  4256  -8442     0  0
 TEX           0 TELLURIDE,CO                            3807 -10753     0  0
