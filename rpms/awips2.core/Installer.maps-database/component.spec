@@ -42,9 +42,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # Copy the sql that is needed to create the maps database.
-PATH_TO_DDL="build.edex/opt/db/ddl"
-PATH_TO_MAPS_DDL="${PATH_TO_DDL}/maps"
-cp -r %{_baseline_workspace}/${PATH_TO_MAPS_DDL}/* \
+cp -r %{_baseline_workspace}/build.edex/opt/db/ddl/maps/* \
    ${RPM_BUILD_ROOT}/awips2/database/sqlScripts/share/sql/maps
 
 PATH_TO_STATIC_DDL="%{_awipscm_share}/awips2-static/maps/db"
@@ -130,62 +128,55 @@ else
 fi
 
 # Is there a maps database?
-MAPS_DB_EXISTS="false"
 MAPS_DB=`${PSQL} -U awips -l | grep maps | awk '{print $1}'`
-if [ "${MAPS_DB}" = "maps" ]; then
-   MAPS_DB_EXISTS="true"
-   # We Have a Maps Database, There Is Nothing To Do.
+
+# Create the maps directory; remove any existing directories.
+if [ -d /awips2/data/maps ]; then
+   su - ${DB_OWNER} -c "rm -rf /awips2/data/maps"					# seems like this is what we want to do...
+fi
+su - ${DB_OWNER} -c "mkdir -p /awips2/data/maps"
+
+# Update the sql script that creates the maps database / tables.
+perl -p -i -e "s/%{database_files_home}%/\/awips2\/data/g" \
+   /awips2/database/sqlScripts/share/sql/maps/createMapsDb.sql
+
+# Run the setup sql for the maps database.
+SQL_FILE="/awips2/database/sqlScripts/share/sql/maps/createMapsDb.sql"
+su - ${DB_OWNER} -c \
+   "${PSQL} -d postgres -U awips -q -p 5432 -f ${SQL_FILE}" >> ${SQL_LOG} 2>&1
+RC=$?
+if [ ! "${RC}" -eq 0 ]; then
+   printFailureMessage
 fi
 
-if [ "${MAPS_DB_EXISTS}" = "false" ]; then
-   # Create the maps directory; remove any existing directories.
-   if [ -d /awips2/data/maps ]; then
-      su - ${DB_OWNER} -c "rm -rf /awips2/data/maps"
-   fi
-   su - ${DB_OWNER} -c "mkdir -p /awips2/data/maps"
-
-   # Update the sql script that creates the maps database / tables.
-   perl -p -i -e "s/%{database_files_home}%/\/awips2\/data/g" \
-      /awips2/database/sqlScripts/share/sql/maps/createMapsDb.sql
-
-   # Run the setup sql for the maps database.
-   SQL_FILE="/awips2/database/sqlScripts/share/sql/maps/createMapsDb.sql"
-   su - ${DB_OWNER} -c \
-      "${PSQL} -d postgres -U awips -q -p 5432 -f ${SQL_FILE}" >> ${SQL_LOG} 2>&1
-   RC=$?
-   if [ ! "${RC}" -eq 0 ]; then
-      printFailureMessage
-   fi
-
-   su - ${DB_OWNER} -c \
-      "${PSQL} -d maps -U awips -q -p 5432 -c \"CREATE EXTENSION postgis;\"" >> ${SQL_LOG} 2>&1
-   if [ $? -ne 0 ]; then
-      printFailureMessage
-   fi
-   
-   su - ${DB_OWNER} -c \
-      "${PSQL} -d maps -U awips -q -p 5432 -c \"CREATE EXTENSION postgis_topology;\"" >> ${SQL_LOG} 2>&1
-   if [ $? -ne 0 ]; then
-      printFailureMessage
-   fi
-
-   # Do we still need legacy?
-   SQL_FILE="/awips2/postgresql/share/contrib/postgis-2.0/legacy.sql"
-   su - ${DB_OWNER} -c \
-      "${PSQL} -d maps -U awips -q -p 5432 -f ${SQL_FILE}" >> ${SQL_LOG} 2>&1
-   if [ $? -ne 0 ]; then
-      printFailureMessage
-   fi
-
-   # Import the data into the maps database.
-   DB_ARCHIVE="/awips2/database/sqlScripts/share/sql/maps/maps.db"
-   su - ${DB_OWNER} -c \
-      "${PG_RESTORE} -d maps -U awips -p 5432 -n mapdata ${DB_ARCHIVE}" >> ${SQL_LOG} 2>&1
-   
-   su - ${DB_OWNER} -c \
-      "${PG_RESTORE} -d maps -U awips -p 5432 -n public -t geometry_columns -a ${DB_ARCHIVE}" \
-      >> ${SQL_LOG} 2>&1
+su - ${DB_OWNER} -c \
+   "${PSQL} -d maps -U awips -q -p 5432 -c \"CREATE EXTENSION postgis;\"" >> ${SQL_LOG} 2>&1
+if [ $? -ne 0 ]; then
+   printFailureMessage
 fi
+   
+su - ${DB_OWNER} -c \
+   "${PSQL} -d maps -U awips -q -p 5432 -c \"CREATE EXTENSION postgis_topology;\"" >> ${SQL_LOG} 2>&1
+if [ $? -ne 0 ]; then
+   printFailureMessage
+fi
+
+# Do we still need legacy?
+SQL_FILE="/awips2/postgresql/share/contrib/postgis-2.0/legacy.sql"
+su - ${DB_OWNER} -c \
+   "${PSQL} -d maps -U awips -q -p 5432 -f ${SQL_FILE}" >> ${SQL_LOG} 2>&1
+if [ $? -ne 0 ]; then
+   printFailureMessage
+fi
+
+# Import the data into the maps database.
+DB_ARCHIVE="/awips2/database/sqlScripts/share/sql/maps/maps.db"
+su - ${DB_OWNER} -c \
+   "${PG_RESTORE} -d maps -U awips -p 5432 -n mapdata ${DB_ARCHIVE}" >> ${SQL_LOG} 2>&1
+   
+su - ${DB_OWNER} -c \
+   "${PG_RESTORE} -d maps -U awips -p 5432 -n public -t geometry_columns -a ${DB_ARCHIVE}" \
+   >> ${SQL_LOG} 2>&1
 
 # stop PostgreSQL if we started it.
 if [ "${I_STARTED_POSTGRESQL}" = "YES" ]; then
