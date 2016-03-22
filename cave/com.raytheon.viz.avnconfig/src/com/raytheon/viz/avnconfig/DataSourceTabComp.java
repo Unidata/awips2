@@ -36,6 +36,7 @@ import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -395,7 +396,9 @@ public class DataSourceTabComp extends Composite implements
         // Add the Add, Replace, and Remove buttons
         // -------------------------------------------
         Composite buttonComp = new Composite(ruleEditorGroup, SWT.NONE);
-        buttonComp.setLayout(new GridLayout(3, true));
+        gl = new GridLayout(3, true);
+        gl.marginWidth = 0;
+        buttonComp.setLayout(gl);
         gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, true, false);
         buttonComp.setLayoutData(gd);
 
@@ -443,7 +446,9 @@ public class DataSourceTabComp extends Composite implements
         // unique controls
         // ---------------------------------------------------
         Composite middleComp = new Composite(ruleEditorGroup, SWT.NONE);
-        middleComp.setLayout(new GridLayout(7, false));
+        gl = new GridLayout(7, false);
+        gl.marginWidth = 0;
+        middleComp.setLayout(gl);
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         middleComp.setLayoutData(gd);
 
@@ -495,7 +500,10 @@ public class DataSourceTabComp extends Composite implements
         // unique controls
         // ---------------------------------------------------
         labelTextComp = new Composite(ruleEditorGroup, SWT.NONE);
-        labelTextComp.setLayout(new GridLayout(11, false));
+        gl = new GridLayout(11, false);
+        gl.marginWidth = 0;
+        gl.horizontalSpacing = 5;
+        labelTextComp.setLayout(gl);
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         labelTextComp.setLayoutData(gd);
 
@@ -504,17 +512,23 @@ public class DataSourceTabComp extends Composite implements
         Label tmpLbl;
         Text tmpText;
 
-        for (int i = 0; i < 4; i++) {
-            gd = new GridData(115, SWT.DEFAULT);
-            tmpLbl = new Label(labelTextComp, SWT.NONE);
-            tmpText = new Text(labelTextComp, SWT.BORDER);
-            tmpText.setLayoutData(gd);
+        GC gc = new GC(labelTextComp);
+        int charWidth = gc.getFontMetrics().getAverageCharWidth();
+        gc.dispose();
 
-            if (i < 3) {
-                gd = new GridData(10, SWT.DEFAULT);
-                Label filler = new Label(labelTextComp, SWT.NONE);
-                filler.setLayoutData(gd);
+        for (int i = 0; i < 4; i++) {
+            tmpLbl = new Label(labelTextComp, SWT.NONE);
+            gd = new GridData(SWT.DEFAULT, SWT.DEFAULT);
+            if (i > 0) {
+                gd.horizontalIndent = charWidth * 2;
             }
+            tmpLbl.setLayoutData(gd);
+
+            tmpText = new Text(labelTextComp, SWT.BORDER);
+
+            gd = new GridData(SWT.DEFAULT, SWT.DEFAULT);
+            gd.widthHint = charWidth * 16;
+            tmpText.setLayoutData(gd);
 
             labelTextArray.add(new LabelTextControls(tmpLbl, tmpText));
         }
