@@ -54,6 +54,13 @@
 #
 #   2010/04/23  ryu  Initial port to AWIPS II.
 #
+#
+# SOFTWARE HISTORY
+# Date         Ticket#    Engineer     Description
+# ------------ ---------- -----------  --------------------------
+# 03/24/2016   18773      ryu          Fix IOError from use of NetCDFVariables
+#                                      in numpy operations
+#                                      
 #=====================================================================
 
 import TimeRange, AbsTime
@@ -1464,8 +1471,8 @@ class BOIVerifyUtility(SmartScript.SmartScript):
     def readRecord(self,parm,model,rec):
        if self.checkFile(parm,model)==0:
           return None
+       rec = int(rec)
        if model in self.OBSMODELS:
-          rec = int(rec)
           if self.oncType==0:
              vals=(self.oncValue[rec].astype(float)*self.oncScale[rec])+self.oncAddit[rec]
              return flipud(vals)
@@ -1903,18 +1910,18 @@ class BOIVerifyUtility(SmartScript.SmartScript):
        #
        if mode=="verify":
           if model in self.OBSMODELS:
-             match=logical_and(less(self.oncStime,endtime),
-                               greater(self.oncEtime,starttime))
+             match=logical_and(less(self.oncStime[:],endtime),
+                               greater(self.oncEtime[:],starttime))
           else:
-             match=logical_and(less(self.fncStime,endtime),
-                               greater(self.fncEtime,starttime))
+             match=logical_and(less(self.fncStime[:],endtime),
+                               greater(self.fncEtime[:],starttime))
        else:
           if model in self.OBSMODELS:
-             match=logical_and(less(self.oncBtime,endtime),
-                               greater_equal(self.oncBtime,starttime))
+             match=logical_and(less(self.oncBtime[:],endtime),
+                               greater_equal(self.oncBtime[:],starttime))
           else:
-             match=logical_and(less(self.fncBtime,endtime),
-                               greater_equal(self.fncBtime,starttime))
+             match=logical_and(less(self.fncBtime[:],endtime),
+                               greater_equal(self.fncBtime[:],starttime))
        #
        #  If a mask is specified - check that too
        #
@@ -1974,11 +1981,11 @@ class BOIVerifyUtility(SmartScript.SmartScript):
        #  Get the records that match the time periods
        #
        if mode=="verify":
-          match=logical_and(less(self.sncStime,endtime),
-                            greater(self.sncEtime,starttime))
+          match=logical_and(less(self.sncStime[:],endtime),
+                            greater(self.sncEtime[:],starttime))
        else:
-          match=logical_and(less(self.sncBtime,endtime),
-                            greater_equal(self.sncBtime,starttime))
+          match=logical_and(less(self.sncBtime[:],endtime),
+                            greater_equal(self.sncBtime[:],starttime))
        #
        #  If a mask is specified - check that too
        #
@@ -2049,7 +2056,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
              rightFcstr=zeros(self.fncFcstr.shape[0], dtype=bool)
              for fid in fcstrIDList:
                 fnum=self.findFcstrNumFromID(fid)
-                rightFcstr[sometrue(equal(self.fncFcstr,fnum),-1)] = True
+                rightFcstr[sometrue(equal(self.fncFcstr[:],fnum),-1)] = True
           #
           #  Get list of forecast records with right cycle
           #
@@ -2057,12 +2064,9 @@ class BOIVerifyUtility(SmartScript.SmartScript):
              rightCycle=ones(self.fncBtime.shape, dtype=bool)
           else:
              rightCycle=zeros(self.fncBtime.shape, dtype=bool)
+             rem = remainder(self.fncBtime[:], DAYSECS).astype(int)
              for cycle in cycleList:
-                if (type(cycle) is types.StringType):
-                   cyc=int(cycle)*HOURSECS
-                else:
-                   cyc=cycle*HOURSECS
-                rem=remainder(self.fncBtime,DAYSECS).astype(int)
+                cyc = int(cycle)*HOURSECS
                 rightCycle[equal(rem,cyc)] = True
           #
           #  get list of forecast records with right forecast hours
@@ -2149,8 +2153,8 @@ class BOIVerifyUtility(SmartScript.SmartScript):
           for fcstrec in fcstrecs:
              stime=self.fncStime[fcstrec]
              etime=self.fncEtime[fcstrec]
-             cross1=greater(etime,self.oncStime)
-             cross2=less(stime,self.oncEtime)
+             cross1=greater(etime,self.oncStime[:])
+             cross2=less(stime,self.oncEtime[:])
              orecs=list(compress(logical_and(cross1,cross2),self.oncRecs))
              if (len(orecs)<1):
                 obrec="-10"  #dummy obs record
@@ -2631,8 +2635,8 @@ class BOIVerifyUtility(SmartScript.SmartScript):
                    return cases
              (stime,etime)=verPer
              totalTime=etime-stime
-             recmatch=logical_and(greater(self.oncEtime,stime),
-                                  less(self.oncStime,etime))
+             recmatch=logical_and(greater(self.oncEtime[:],stime),
+                                  less(self.oncStime[:],etime))
              #
              # When there are matching records...find each basetime that
              # forecast for this period
@@ -3234,12 +3238,13 @@ class BOIVerifyUtility(SmartScript.SmartScript):
              fcstrList.append(fcstr)
        else:
           fcstrList.append(fcstrs)
+
        if ((model!="Official")or(-1 in fcstrList)):
           rightFcstr=ones(self.fncFcstr.shape[0])
        else:
           rightFcstr=zeros(self.fncFcstr.shape[0])
           for fnum in fcstrList:
-             rightFcstr=logical_or(sometrue(equal(self.fncFcstr,fnum),-1),rightFcstr)
+             rightFcstr=logical_or(sometrue(equal(self.fncFcstr[:],fnum),-1),rightFcstr)
        #
        #  Get logical array of records with right cycle
        #
@@ -3259,9 +3264,9 @@ class BOIVerifyUtility(SmartScript.SmartScript):
           rightCycle=ones(self.fncBtime.shape, dtype=bool)
        else:
           rightCycle=zeros(self.fncBtime.shape, dtype=bool)
+          rem = remainder(self.fncBtime[:], DAYSECS).astype('i')
           for cycle in cycleList:
              cyc=cycle*HOURSECS
-             rem=remainder(self.fncBtime,DAYSECS).astype('i')
              rightCycle[equal(rem,cyc)] = True
        #
        #  get logical array of records with right forecast hours
@@ -3298,7 +3303,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
        else:
           rightFcstr=zeros(self.sncFcstr.shape[0], dtype=bool)
           for fnum in fcstrList:
-             rightFcstr[sometrue(equal(self.sncFcstr,fnum),-1)] = True
+             rightFcstr[sometrue(equal(self.sncFcstr[:],fnum),-1)] = True
        #
        #  Get logical array of records with right cycle
        #
@@ -3319,9 +3324,9 @@ class BOIVerifyUtility(SmartScript.SmartScript):
           rightCycle=ones(self.sncBtime.shape, dtype=bool)
        else:
           rightCycle=zeros(self.sncBtime.shape, dtype=bool)
+          rem = remainder(self.sncBtime[:], DAYSECS).astype('i')
           for cycle in cycleList:
              cyc=cycle*HOURSECS
-             rem=remainder(self.sncBtime,DAYSECS).astype('i')
              rightCycle[equal(rem,cyc)] = True
        #
        #  get logical array of records with right forecast hours
@@ -4169,9 +4174,9 @@ class BOIVerifyUtility(SmartScript.SmartScript):
        #
        if srecList is None:
           self.logMsg("finding appropriate records",10)
-          recbase=equal(self.sncBtime,basetime)
-          recfit=logical_and(greater(self.sncEtime,trStart),
-                             less(self.sncStime,trEnd))
+          recbase=equal(self.sncBtime[:],basetime)
+          recfit=logical_and(greater(self.sncEtime[:],trStart),
+                             less(self.sncStime[:],trEnd))
           recmatch=logical_and(recbase,recfit)
           recnumbers=compress(recmatch,self.sncRecs)
           recnumberList=list(recnumbers)
@@ -4242,9 +4247,9 @@ class BOIVerifyUtility(SmartScript.SmartScript):
        #
        self.logMsg("finding grids that intersect",10)
        if model not in self.OBSMODELS:
-          recbase=equal(self.fncBtime,basetime)
-          recfit=logical_and(greater(self.fncEtime,stime),
-                             less(self.fncStime,etime))
+          recbase=equal(self.fncBtime[:],basetime)
+          recfit=logical_and(greater(self.fncEtime[:],stime),
+                             less(self.fncStime[:],etime))
           recmatch=logical_and(recbase,recfit)
           recnumbers=compress(recmatch,self.fncRecs)
           recnumberList=list(recnumbers)
@@ -4252,8 +4257,8 @@ class BOIVerifyUtility(SmartScript.SmartScript):
           for recnum in recnumberList:
              retVal.append((recnum,self.fncStime[recnum],self.fncEtime[recnum]))
        else:
-          recmatch=logical_and(greater(self.oncEtime,stime),
-                             less(self.oncStime,etime))
+          recmatch=logical_and(greater(self.oncEtime[:],stime),
+                             less(self.oncStime[:],etime))
           recnumbers=compress(recmatch,self.oncRecs)
           recnumberList=list(recnumbers)
           recnumberList.sort(lambda x,y: cmp(self.oncStime[x],self.oncStime[y]))
@@ -4358,16 +4363,16 @@ class BOIVerifyUtility(SmartScript.SmartScript):
        if recList is None:
           self.logMsg("finding grids that intersect",10)
           if model not in self.OBSMODELS:
-             recbase=equal(self.fncBtime,basetime)
-             recfit=logical_and(greater(self.fncEtime,stime),
-                                less(self.fncStime,etime))
+             recbase=equal(self.fncBtime[:],basetime)
+             recfit=logical_and(greater(self.fncEtime[:],stime),
+                                less(self.fncStime[:],etime))
              recmatch=logical_and(recbase,recfit)
              recnumbers=compress(recmatch,self.fncRecs)
              recList=list(recnumbers)
              recList.sort(lambda x,y: cmp(self.fncStime[int(x)],self.fncStime[int(y)]))
           else:
-             recmatch=logical_and(greater(self.oncEtime,stime),
-                                 less(self.oncStime,etime))
+             recmatch=logical_and(greater(self.oncEtime[:],stime),
+                                 less(self.oncStime[:],etime))
              recnumbers=compress(recmatch,self.oncRecs)
              recList=list(recnumbers)
              recList.sort(lambda x,y: cmp(self.oncStime[int(x)],self.oncStime[int(y)]))
