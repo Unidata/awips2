@@ -1,0 +1,139 @@
+<configuration debug="false" scan="true">
+   <include file="${edex.home}/conf/logback-edex-properties.xml"/>
+   <include file="${edex.home}/conf/logback-edex-appenders.xml" />
+   
+   <!-- shef log --> 
+   <appender name="shef" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <rollingPolicy class="com.raytheon.uf.common.logback.policy.StdTimeBasedRollingPolicy">
+         <name>shef</name>
+      </rollingPolicy>
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
+   </appender> 
+
+   <!-- activeTableChange log --> 
+   <include file="${edex.home}/conf/logback-activeTableChange.xml"/>
+
+   <!-- Purge log --> 
+   <appender name="purge" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <rollingPolicy class="com.raytheon.uf.common.logback.policy.StdTimeBasedRollingPolicy">
+         <name>purge</name>
+      </rollingPolicy>
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
+   </appender> 
+   
+   <!-- RouteFailedLog log --> 
+   <appender name="RouteFailedLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <rollingPolicy class="com.raytheon.uf.common.logback.policy.StdTimeBasedRollingPolicy">
+         <name>unrecognized-files</name>
+      </rollingPolicy>
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
+   </appender> 
+
+   <!-- ShefPerformanceLog log --> 
+   <appender name="ShefPerfLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <rollingPolicy class="com.raytheon.uf.common.logback.policy.StdTimeBasedRollingPolicy">
+         <name>shef-performance</name>
+      </rollingPolicy>
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
+   </appender> 
+
+   <!-- Gen Areal FFG log --> 
+   <appender name="GenArealFFG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <rollingPolicy class="com.raytheon.uf.common.logback.policy.StdTimeBasedRollingPolicy">
+         <name>gen_areal_ffg</name>
+      </rollingPolicy>
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
+   </appender>
+   
+   <!-- Gen Areal QPE log --> 
+   <appender name="GenArealQPE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <rollingPolicy class="com.raytheon.uf.common.logback.policy.StdTimeBasedRollingPolicy">
+         <name>gen_areal_qpe</name>
+      </rollingPolicy>
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
+   </appender> 
+   
+   <!-- Trigger log --> 
+   <appender name="FailedTriggerLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <rollingPolicy class="com.raytheon.uf.common.logback.policy.StdTimeBasedRollingPolicy">
+         <name>trigger</name>
+      </rollingPolicy>
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
+   </appender>
+   
+   <!-- ohd log --> 
+   <appender name="OhdLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <rollingPolicy class="com.raytheon.uf.common.logback.policy.StdTimeBasedRollingPolicy">
+         <name>ohd</name>
+      </rollingPolicy>
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
+   </appender>
+
+   <appender name="ThreadBasedLog" class="com.raytheon.uf.common.logback.appender.ThreadBasedAppender">
+      <defaultAppenderName>asyncConsole</defaultAppenderName>
+      <appender-ref ref="asyncConsole"/>
+      <appender-ref ref="shef"/>
+      <appender-ref ref="purge"/>
+   </appender>
+
+   <include file="${edex.home}/conf/logback-edex-loggers.xml" />
+   <include file="${edex.home}/conf/logback-edex-limited-loggers.xml"/>
+   <include file="${edex.home}/conf/logback-edex-hibernate-logger.xml"/>
+
+   <logger name="com.raytheon.edex.plugin.shef" additivity="false">
+      <level value="INFO"/>
+      <appender-ref ref="shef" />
+   </logger>
+ 
+ <logger name="com.raytheon.uf.edex.purgesrv" additivity="false">
+   		<level value="INFO"/>
+   		<appender-ref ref="purge"/>
+   </logger>
+   
+   <logger name="com.raytheon.uf.edex.database.purge" additivity="false">
+   		<level value="INFO"/>
+   		<appender-ref ref="purge"/>
+   </logger>
+   
+   <logger name="com.raytheon.edex.db.purge.DataPurgeRegistry" additivity="false">
+   		<level value="INFO"/>
+   		<appender-ref ref="purge"/>
+   </logger>
+   
+   <logger name="RouteFailedLog" additivity="false">
+      <level value="WARN"/>
+      <appender-ref ref="RouteFailedLog"/>
+   </logger>
+
+   <logger name="ShefPerfLog" additivity="false">
+      <level value="INFO"/>
+      <appender-ref ref="ShefPerfLog"/>
+   </logger>
+
+   <logger name="GenArealFFG" additivity="false">
+      <level value="DEBUG"/>
+      <appender-ref ref="GenArealFFG"/>
+   </logger>
+
+   <logger name="GenArealQPE" additivity="false">
+      <level value="DEBUG"/>
+      <appender-ref ref="GenArealQPE"/>
+   </logger>
+
+   <logger name="FailedTriggerLog" additivity="false">
+      <level value="ERROR"/>
+      <appender-ref ref="FailedTriggerLog"/>
+   </logger>
+   
+   <logger name="com.raytheon.uf.edex.ohd" additivity="false">
+      <level value="INFO"/>
+      <appender-ref ref="OhdLog" />
+      <appender-ref ref="console" />
+   </logger>
+
+   <!-- default logging --> 
+   <root> 
+      <level value="INFO"/> 
+      <appender-ref ref="ThreadBasedLog"/> 
+    </root> 
+</configuration> 

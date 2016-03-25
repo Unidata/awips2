@@ -1,0 +1,7 @@
+<included>
+<!-- Loggers shared only by logback-request.xml and logback-ingest.xml -->
+   <logger name="com.raytheon.edex.services.NotifySrv">
+      <level value="WARN"/>
+   </logger>
+
+</included>
