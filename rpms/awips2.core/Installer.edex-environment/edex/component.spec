@@ -74,10 +74,6 @@ mkdir -p %{_build_root}%{_installation_directory}/edex-environment/macro/functio
 if [ $? -ne 0 ]; then
    exit 1
 fi
-mkdir -p %{_build_root}/etc/profile.d
-if [ $? -ne 0 ]; then
-   exit 1
-fi
 
 # create the edex environment directory.
 mkdir -p %{_build_root}/usr/local/edex-environment
@@ -111,10 +107,9 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-_QPID_VERSION="0.32"
 RPM_PROJECT="%{_baseline_workspace}/rpms"
 POSTGRES_INITD="${RPM_PROJECT}/awips2.core/Installer.postgres/scripts/init.d/edex_postgres"
-QPID_INITD="%{_baseline_workspace}/foss/qpid-java-broker-${_QPID_VERSION}/src/patch/qpid-java-broker-${_QPID_VERSION}/wrapper/qpidd"
+QPID_INITD="%{_baseline_workspace}/foss/qpid-java-broker/src/patch/qpid-java-broker/wrapper/qpidd"
 EDEX_INITD="${RPM_PROJECT}/awips2.edex/Installer.edex/scripts/init.d/edex_camel"
 HTTPD_PYPIES_INITD="${RPM_PROJECT}/awips2.core/Installer.httpd-pypies/configuration/etc/init.d/httpd-pypies"
 
@@ -155,13 +150,6 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-# The profile.d script.
-cp ${DELIVERABLES}/profile.d/* \
-   %{_build_root}/etc/profile.d
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-
 %pre
 %post
 %preun
@@ -182,8 +170,6 @@ fi
 /awips2/edex-environment/macro/utilities/*
 %dir /awips2/edex-environment/macro/functions
 /awips2/edex-environment/macro/functions/*
-/etc/profile.d/awips2-edex-env.sh
-/etc/profile.d/awips2-edex-env.csh
 
 %defattr(700,root,root,755)
 /awips2/edex-environment/macro/edex-environment

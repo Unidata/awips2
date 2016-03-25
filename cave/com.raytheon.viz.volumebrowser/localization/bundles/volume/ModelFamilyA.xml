@@ -1,14 +1,9 @@
 <!--AWIPS 1 virtual field for:
 ModFamA| |N|Conv: NonSupercell Tor Family| |OTHER | | \
 *MultiLoad,Layer \
-|0.|TP,Surface \
-|1.|msl-P,Surface|msl-P2,Surface\
 |31.|Wind,Surface\
 |0.|loCape,Surface\
-|0.|PBE,Surface\
-|0.|NBE,Surface\
 |0.|gamma,0-2kmAgl\
-|0.|RV,Surface\
 |0.|NST,Layer|\
 |21.|NST,Layer|\
 |0.|ESP,Layer|\
@@ -19,81 +14,9 @@ ModFamA| |N|Conv: NonSupercell Tor Family| |OTHER | | \
     <displayList>
         <displays xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="d2DMapRenderableDisplay" scale="CONUS" density="1.0" magnification="1.0" zoomLevel="1.0" mapCenter="-79.09835514095181 33.915979250804455 0.0">
             <descriptor xsi:type="mapDescriptor">
-		    <!--|0.|TP,Surface \-->
-                <resource>
-                    <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="true">
-                        <capabilities>
-                            <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
-                        </capabilities>
-                        <resourceType>PLAN_VIEW</resourceType>
-                    </loadProperties>
-                    <properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
-                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
-                    </properties>
-                    <resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
-                        <metadataMap>
-                            <mapping key="info.parameter.abbreviation">
-                                <constraint constraintValue="${TP}" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="info.datasetId">
-                                <constraint constraintValue="${modelName}" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="info.level.leveltwovalue">
-				<constraint constraintValue="-999999" constraintType="EQUALS" />
-                            </mapping>
-                            <mapping key="pluginName">
-                                <constraint constraintValue="grid" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="info.level.masterLevel.name">
-                                <constraint constraintValue="SFC" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="info.level.levelonevalue">
-                                <constraint constraintValue="0.0" constraintType="EQUALS"/>
-                            </mapping>
-                        </metadataMap>
-                        <alertParser xsi:type="dataCubeAlertMessageParser"/>
-                    </resourceData>
-                </resource>
-		
-			<resource>
-				<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="true">
-					<capabilities>
-						<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
-					</capabilities>
-					<resourceType>PLAN_VIEW</resourceType>
-				</loadProperties>
-				<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
-					<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
-				</properties>
-				<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
-					<metadataMap>
-						<mapping key="info.parameter.abbreviation">
-							<constraint constraintValue="msl-P" constraintType="EQUALS"/>
-						</mapping>
-						<mapping key="info.datasetId">
-							<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
-						</mapping>
-						<mapping key="info.level.leveltwovalue">
-							<constraint constraintValue="-999999" constraintType="EQUALS"/>
-						</mapping>
-						<mapping key="pluginName">
-							<constraint constraintValue="grid" constraintType="EQUALS"/>
-						</mapping>
-						<mapping key="info.level.masterLevel.name">
-							<constraint constraintValue="SFC" constraintType="EQUALS"/>
-						</mapping>
-						<mapping key="info.level.levelonevalue">
-							<constraint constraintValue="0.0" constraintType="EQUALS"/>
-						</mapping>
-					</metadataMap>
-					<alertParser xsi:type="dataCubeAlertMessageParser"/>
-				</resourceData>
-			</resource>
-			
-
 		<!--|31.|Wind,Surface\-->
                 <resource>
-                    <loadProperties xsi:type="gridLoadProperties" displayType="BARB" loadWithoutData="true">
+                    <loadProperties xsi:type="gridLoadProperties" displayType="BARB" loadWithoutData="false">
                         <capabilities>
                             <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
                         </capabilities>
@@ -126,7 +49,7 @@ ModFamA| |N|Conv: NonSupercell Tor Family| |OTHER | | \
 		
 		<!--|0.|loCape,Surface\-->
 		<resource>
-			<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="true">
+			<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
 				<capabilities>
 					<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
 				</capabilities>
@@ -155,11 +78,11 @@ ModFamA| |N|Conv: NonSupercell Tor Family| |OTHER | | \
 				</metadataMap>
 				<alertParser xsi:type="dataCubeAlertMessageParser"/>
 			</resourceData>
-                </resource>
+        </resource>
 		
-		<!--|0.|cCape,Surface\-->
+		<!--|0.|gamma,0-2kmAgl\ Note:Not sure about the KmAgl representation-->
 		<resource>
-			<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="true">
+			<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
 				<capabilities>
 					<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
 				</capabilities>
@@ -171,74 +94,7 @@ ModFamA| |N|Conv: NonSupercell Tor Family| |OTHER | | \
 			<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 				<metadataMap>
 					<mapping key="info.parameter.abbreviation">
-						<constraint constraintValue="cCape" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="info.datasetId">
-						<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="pluginName">
-						<constraint constraintValue="grid" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="info.level.masterLevel.name">
-						<constraint constraintValue="SFC" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="info.level.levelonevalue">
-						<constraint constraintValue="0.0" constraintType="EQUALS"/>
-					</mapping>
-				</metadataMap>
-				<alertParser xsi:type="dataCubeAlertMessageParser"/>
-			</resourceData>
-                </resource>
-               
-		<!--|0.|cCin,Surface\-->
-		<resource>
-			<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="true">
-				<capabilities>
-					<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
-				</capabilities>
-				<resourceType>PLAN_VIEW</resourceType>
-			</loadProperties>
-			<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
-				<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
-			</properties>
-			<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
-				<metadataMap>
-					<mapping key="info.parameter.abbreviation">
-						<constraint constraintValue="cCin" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="info.datasetId">
-						<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="pluginName">
-						<constraint constraintValue="grid" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="info.level.masterLevel.name">
-						<constraint constraintValue="SFC" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="info.level.levelonevalue">
-						<constraint constraintValue="0.0" constraintType="EQUALS"/>
-					</mapping>
-				</metadataMap>
-				<alertParser xsi:type="dataCubeAlertMessageParser"/>
-			</resourceData>
-                </resource>
-		
-		
-		<!--|0.|gamma,0-2kmAgl-->
-		<resource>
-			<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="true">
-				<capabilities>
-					<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
-				</capabilities>
-				<resourceType>PLAN_VIEW</resourceType>
-			</loadProperties>
-			<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
-				<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
-			</properties>
-			<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
-				<metadataMap>
-					<mapping key="info.parameter.abbreviation">
-						<constraint constraintValue="gamma" constraintType="EQUALS"/>
+						<constraint constraintValue="qDiv" constraintType="EQUALS"/>
 					</mapping>
 					<mapping key="info.datasetId">
 						<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
@@ -262,48 +118,15 @@ ModFamA| |N|Conv: NonSupercell Tor Family| |OTHER | | \
 			</resourceData>
 		</resource>
 		
-		<!--|0.|RV,Surface\ -->
+		<!--|0.|NST,Layer|\-->
 		<resource>
-			<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="true">
+			<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
 				<capabilities>
 					<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
 				</capabilities>
 				<resourceType>PLAN_VIEW</resourceType>
 			</loadProperties>
 			<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
-				<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
-			</properties>
-			<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
-				<metadataMap>
-					<mapping key="info.parameter.abbreviation">
-						<constraint constraintValue="RV" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="info.datasetId">
-						<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="pluginName">
-						<constraint constraintValue="grid" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="info.level.masterLevel.name">
-						<constraint constraintValue="SFC" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="info.level.levelonevalue">
-						<constraint constraintValue="0.0" constraintType="EQUALS"/>
-					</mapping>
-				</metadataMap>
-				<alertParser xsi:type="dataCubeAlertMessageParser"/>
-			</resourceData>
-                </resource>
-		
-		<!--|0.|NST,Layer|\-->
-		<resource>
-			<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="true">
-				<capabilities>
-					<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
-				</capabilities>
-				<resourceType>PLAN_VIEW</resourceType>
-			</loadProperties>
-			<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
 				<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
 			</properties>
 			<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
@@ -329,15 +152,15 @@ ModFamA| |N|Conv: NonSupercell Tor Family| |OTHER | | \
 			</resourceData>
                 </resource>
 		
-		<!--|21.|NST,Layer|-->
+		<!--|21.|NST,Layer|\ Note: NST(Non-Supercell Tornado) is missing as a derived parameter-->
 		<resource>
-			<loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="true">
+			<loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
 				<capabilities>
 					<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
 				</capabilities>
 				<resourceType>PLAN_VIEW</resourceType>
 			</loadProperties>
-			<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
+			<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
 				<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
 			</properties>
 			<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
@@ -364,10 +187,9 @@ ModFamA| |N|Conv: NonSupercell Tor Family| |OTHER | | \
 		
 		<!--|0.|ESP,Layer|\ ESP (Enhanced Stretching Potential) -->
 		<resource>
-			<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="true">
+			<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
 				<capabilities>
 					<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
-					<capability xsi:type="colorableCapability" colorAsString="PaleGreen2"/>
 				</capabilities>
 				<resourceType>PLAN_VIEW</resourceType>
 			</loadProperties>
@@ -395,6 +217,84 @@ ModFamA| |N|Conv: NonSupercell Tor Family| |OTHER | | \
 				<alertParser xsi:type="dataCubeAlertMessageParser"/>
 			</resourceData>
                 </resource>
+		
+		<!--|0.|BlkMag,0-6kmAgl\ Note:Not sure about the KmAgl representation
+		Used: awips/com.raytheon.viz.volumebrowser/localization/volumebrowser/LevelMappingFile.xml as a guideline
+		-->
+		<resource>
+			<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
+				<capabilities>
+					<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+				</capabilities>
+				<resourceType>PLAN_VIEW</resourceType>
+			</loadProperties>
+			<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
+				<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+			</properties>
+			<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+				<metadataMap>
+					<mapping key="info.parameter.abbreviation">
+						<constraint constraintValue="BlkMag" constraintType="EQUALS"/>
+					</mapping>
+					<mapping key="info.datasetId">
+						<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
+					</mapping>
+					<mapping key="info.level.leveltwovalue">
+						<constraint constraintValue="6000.0" constraintType="EQUALS"/>
+					</mapping>
+					<mapping key="pluginName">
+						<constraint constraintValue="grid" constraintType="EQUALS"/>
+					</mapping>
+					<mapping key="info.level.masterLevel.name">
+						<!--Assumption that FHAG is right level name for KmAgl-->
+						<constraint constraintValue="FHAG" constraintType="EQUALS"/>
+					</mapping>
+					<mapping key="info.level.levelonevalue">
+						<constraint constraintValue="0.0" constraintType="EQUALS"/>
+					</mapping>
+				</metadataMap>
+				<alertParser xsi:type="dataCubeAlertMessageParser"/>
+			</resourceData>
+		</resource>
+		
+		<!--|50.|BlkShr,0-6kmAgl Note:Not sure about the KmAgl representation
+					 Used: awips/com.raytheon.viz.volumebrowser/localization/volumebrowser/LevelMappingFile.xml as a guideline
+					 -->
+		<resource>
+			<loadProperties xsi:type="gridLoadProperties" displayType="ARROW" loadWithoutData="false">
+				<capabilities>
+					<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+				</capabilities>
+				<resourceType>PLAN_VIEW</resourceType>
+			</loadProperties>
+			<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
+				<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+			</properties>
+			<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+				<metadataMap>
+					<mapping key="info.parameter.abbreviation">
+						<constraint constraintValue="BlkShr" constraintType="EQUALS"/>
+					</mapping>
+					<mapping key="info.datasetId">
+						<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
+					</mapping>
+					<mapping key="info.level.leveltwovalue">
+						<constraint constraintValue="6000.0" constraintType="EQUALS"/>
+					</mapping>
+					<mapping key="pluginName">
+						<constraint constraintValue="grid" constraintType="EQUALS"/>
+					</mapping>
+					<mapping key="info.level.masterLevel.name">
+						<!--Assumption that FHAG is right level name for KmAgl-->
+						<constraint constraintValue="FHAG" constraintType="EQUALS"/>
+					</mapping>
+					<mapping key="info.level.levelonevalue">
+						<constraint constraintValue="0.0" constraintType="EQUALS"/>
+					</mapping>
+				</metadataMap>
+				<alertParser xsi:type="dataCubeAlertMessageParser"/>
+			</resourceData>
+		</resource>		
 		
 		<timeMatcher xsi:type="d2DTimeMatcher" deltaFilter="0" forecastFilter="0"/>
                 <numberOfFrames>${frameCount}</numberOfFrames>

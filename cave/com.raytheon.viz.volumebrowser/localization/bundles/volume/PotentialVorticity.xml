@@ -1,0 +1,351 @@
+<bundle xmlns:ns2="group">
+    <displayList>
+        <displays xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="d2DMapRenderableDisplay" scale="CONUS" density="1.0" magnification="1.0" zoomLevel="1.0" mapCenter="-79.09835514095181 33.915979250804455 0.0">
+            <descriptor xsi:type="mapDescriptor">
+<resource>
+                            <loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
+                                <resourceType>PLAN_VIEW</resourceType>
+                                <perspectiveProperty xsi:type="d2dLoadProperties" loadMode="VALID_TIME_SEQ" timeMatchBasis="true"/>
+                                <capabilities>
+                                    <capability xsi:type="displayTypeCapability" displayType="IMAGE"/>
+                                    <capability xsi:type="imagingCapability" contrast="1.0" brightness="0.75" interpolationState="true" alpha="1.0"/>
+                                    <capability xsi:type="colorMapCapability">
+                                        <colorMapParameters>
+                                            <persisted>
+                                                <colorMapMin>8.0E-6</colorMapMin>
+                                                <colorMapMax>8.0E-5</colorMapMax>
+                                            </persisted>
+                                            <jaxbColorMap xsi:type="colorMap">
+                                                <color a="1.0" b="0.0" g="0.0" r="0.0"/>
+                                                <color a="1.0" b="0.011764706" g="0.003921569" r="0.011764706"/>
+                                                <color a="1.0" b="0.02745098" g="0.003921569" r="0.02745098"/>
+                                                <color a="1.0" b="0.039215688" g="0.007843138" r="0.039215688"/>
+                                                <color a="1.0" b="0.05490196" g="0.011764706" r="0.05490196"/>
+                                                <color a="1.0" b="0.06666667" g="0.011764706" r="0.06666667"/>
+                                                <color a="1.0" b="0.08235294" g="0.015686275" r="0.08235294"/>
+                                                <color a="1.0" b="0.09411765" g="0.019607844" r="0.09411765"/>
+                                                <color a="1.0" b="0.105882354" g="0.023529412" r="0.105882354"/>
+                                                <color a="1.0" b="0.12156863" g="0.023529412" r="0.12156863"/>
+                                                <color a="1.0" b="0.13333334" g="0.02745098" r="0.13333334"/>
+                                                <color a="1.0" b="0.14901961" g="0.03137255" r="0.14901961"/>
+                                                <color a="1.0" b="0.16078432" g="0.03137255" r="0.16078432"/>
+                                                <color a="1.0" b="0.1764706" g="0.03529412" r="0.1764706"/>
+                                                <color a="1.0" b="0.1882353" g="0.039215688" r="0.1882353"/>
+                                                <color a="1.0" b="0.20392157" g="0.039215688" r="0.20392157"/>
+                                                <color a="1.0" b="0.21568628" g="0.043137256" r="0.21568628"/>
+                                                <color a="1.0" b="0.22745098" g="0.047058824" r="0.22745098"/>
+                                                <color a="1.0" b="0.24313726" g="0.047058824" r="0.24313726"/>
+                                                <color a="1.0" b="0.25490198" g="0.050980393" r="0.25490198"/>
+                                                <color a="1.0" b="0.27058825" g="0.05490196" r="0.27058825"/>
+                                                <color a="1.0" b="0.28235295" g="0.05490196" r="0.28235295"/>
+                                                <color a="1.0" b="0.29803923" g="0.05882353" r="0.29803923"/>
+                                                <color a="1.0" b="0.30980393" g="0.0627451" r="0.30980393"/>
+                                                <color a="1.0" b="0.32156864" g="0.06666667" r="0.32156864"/>
+                                                <color a="1.0" b="0.3372549" g="0.06666667" r="0.3372549"/>
+                                                <color a="1.0" b="0.34901962" g="0.07058824" r="0.34901962"/>
+                                                <color a="1.0" b="0.3647059" g="0.07450981" r="0.3647059"/>
+                                                <color a="1.0" b="0.3764706" g="0.07450981" r="0.3764706"/>
+                                                <color a="1.0" b="0.39215687" g="0.078431375" r="0.39215687"/>
+                                                <color a="1.0" b="0.40392157" g="0.08235294" r="0.40392157"/>
+                                                <color a="1.0" b="0.41960785" g="0.08235294" r="0.41960785"/>
+                                                <color a="1.0" b="0.43137255" g="0.08627451" r="0.43137255"/>
+                                                <color a="1.0" b="0.44313726" g="0.09019608" r="0.44313726"/>
+                                                <color a="1.0" b="0.45882353" g="0.09019608" r="0.45882353"/>
+                                                <color a="1.0" b="0.47058824" g="0.09411765" r="0.47058824"/>
+                                                <color a="1.0" b="0.4862745" g="0.09803922" r="0.4862745"/>
+                                                <color a="1.0" b="0.49803922" g="0.101960786" r="0.49803922"/>
+                                                <color a="1.0" b="0.5137255" g="0.101960786" r="0.5137255"/>
+                                                <color a="1.0" b="0.5254902" g="0.105882354" r="0.5254902"/>
+                                                <color a="1.0" b="0.5372549" g="0.10980392" r="0.5372549"/>
+                                                <color a="1.0" b="0.5529412" g="0.10980392" r="0.5529412"/>
+                                                <color a="1.0" b="0.5647059" g="0.11372549" r="0.5647059"/>
+                                                <color a="1.0" b="0.5803922" g="0.11764706" r="0.5803922"/>
+                                                <color a="1.0" b="0.5921569" g="0.11764706" r="0.5921569"/>
+                                                <color a="1.0" b="0.60784316" g="0.12156863" r="0.60784316"/>
+                                                <color a="1.0" b="0.61960787" g="0.1254902" r="0.61960787"/>
+                                                <color a="1.0" b="0.63529414" g="0.1254902" r="0.63529414"/>
+                                                <color a="1.0" b="0.64705884" g="0.12941177" r="0.64705884"/>
+                                                <color a="1.0" b="0.65882355" g="0.13333334" r="0.65882355"/>
+                                                <color a="1.0" b="0.6745098" g="0.13725491" r="0.6745098"/>
+                                                <color a="1.0" b="0.6862745" g="0.13725491" r="0.6862745"/>
+                                                <color a="1.0" b="0.7019608" g="0.14117648" r="0.7019608"/>
+                                                <color a="1.0" b="0.7137255" g="0.14509805" r="0.7137255"/>
+                                                <color a="1.0" b="0.7294118" g="0.14509805" r="0.7294118"/>
+                                                <color a="1.0" b="0.7411765" g="0.14901961" r="0.7411765"/>
+                                                <color a="1.0" b="0.7529412" g="0.15294118" r="0.7529412"/>
+                                                <color a="1.0" b="0.76862746" g="0.15294118" r="0.76862746"/>
+                                                <color a="1.0" b="0.78039217" g="0.15686275" r="0.78039217"/>
+                                                <color a="1.0" b="0.79607844" g="0.16078432" r="0.79607844"/>
+                                                <color a="1.0" b="0.80784315" g="0.16078432" r="0.80784315"/>
+                                                <color a="1.0" b="0.8235294" g="0.16470589" r="0.8235294"/>
+                                                <color a="1.0" b="0.8352941" g="0.16862746" r="0.8352941"/>
+                                                <color a="1.0" b="0.8509804" g="0.16862746" r="0.8509804"/>
+                                                <color a="1.0" b="0.8627451" g="0.17254902" r="0.8627451"/>
+                                                <color a="1.0" b="0.8745098" g="0.1764706" r="0.8745098"/>
+                                                <color a="1.0" b="0.8901961" g="0.18039216" r="0.8901961"/>
+                                                <color a="1.0" b="0.9019608" g="0.18039216" r="0.9019608"/>
+                                                <color a="1.0" b="0.91764706" g="0.18431373" r="0.91764706"/>
+                                                <color a="1.0" b="0.92941177" g="0.1882353" r="0.92941177"/>
+                                                <color a="1.0" b="0.92941177" g="0.1882353" r="0.92941177"/>
+                                                <color a="1.0" b="0.92941177" g="0.18431373" r="0.91764706"/>
+                                                <color a="1.0" b="0.92941177" g="0.18431373" r="0.90588236"/>
+                                                <color a="1.0" b="0.93333334" g="0.18039216" r="0.8980392"/>
+                                                <color a="1.0" b="0.93333334" g="0.18039216" r="0.8862745"/>
+                                                <color a="1.0" b="0.93333334" g="0.1764706" r="0.8745098"/>
+                                                <color a="1.0" b="0.93333334" g="0.1764706" r="0.8627451"/>
+                                                <color a="1.0" b="0.93333334" g="0.17254902" r="0.8509804"/>
+                                                <color a="1.0" b="0.9372549" g="0.16862746" r="0.84313726"/>
+                                                <color a="1.0" b="0.9372549" g="0.16862746" r="0.83137256"/>
+                                                <color a="1.0" b="0.9372549" g="0.16470589" r="0.81960785"/>
+                                                <color a="1.0" b="0.9372549" g="0.16470589" r="0.80784315"/>
+                                                <color a="1.0" b="0.9411765" g="0.16078432" r="0.8"/>
+                                                <color a="1.0" b="0.9411765" g="0.16078432" r="0.7882353"/>
+                                                <color a="1.0" b="0.9411765" g="0.15686275" r="0.7764706"/>
+                                                <color a="1.0" b="0.9411765" g="0.15686275" r="0.7647059"/>
+                                                <color a="1.0" b="0.9411765" g="0.15294118" r="0.7529412"/>
+                                                <color a="1.0" b="0.94509804" g="0.14901961" r="0.74509805"/>
+                                                <color a="1.0" b="0.94509804" g="0.14901961" r="0.73333335"/>
+                                                <color a="1.0" b="0.94509804" g="0.14509805" r="0.72156864"/>
+                                                <color a="1.0" b="0.94509804" g="0.14509805" r="0.70980394"/>
+                                                <color a="1.0" b="0.94509804" g="0.14117648" r="0.69803923"/>
+                                                <color a="1.0" b="0.9490196" g="0.14117648" r="0.6901961"/>
+                                                <color a="1.0" b="0.9490196" g="0.13725491" r="0.6784314"/>
+                                                <color a="1.0" b="0.9490196" g="0.13333334" r="0.6666667"/>
+                                                <color a="1.0" b="0.9490196" g="0.13333334" r="0.654902"/>
+                                                <color a="1.0" b="0.9490196" g="0.12941177" r="0.6431373"/>
+                                                <color a="1.0" b="0.9529412" g="0.12941177" r="0.63529414"/>
+                                                <color a="1.0" b="0.9529412" g="0.1254902" r="0.62352943"/>
+                                                <color a="1.0" b="0.9529412" g="0.1254902" r="0.6117647"/>
+                                                <color a="1.0" b="0.9529412" g="0.12156863" r="0.6"/>
+                                                <color a="1.0" b="0.95686275" g="0.12156863" r="0.5921569"/>
+                                                <color a="1.0" b="0.95686275" g="0.11764706" r="0.5803922"/>
+                                                <color a="1.0" b="0.95686275" g="0.11372549" r="0.5686275"/>
+                                                <color a="1.0" b="0.95686275" g="0.11372549" r="0.5568628"/>
+                                                <color a="1.0" b="0.95686275" g="0.10980392" r="0.54509807"/>
+                                                <color a="1.0" b="0.9607843" g="0.10980392" r="0.5372549"/>
+                                                <color a="1.0" b="0.9607843" g="0.105882354" r="0.5254902"/>
+                                                <color a="1.0" b="0.9607843" g="0.105882354" r="0.5137255"/>
+                                                <color a="1.0" b="0.9607843" g="0.101960786" r="0.5019608"/>
+                                                <color a="1.0" b="0.9607843" g="0.09803922" r="0.49019608"/>
+                                                <color a="1.0" b="0.9647059" g="0.09803922" r="0.48235294"/>
+                                                <color a="1.0" b="0.9647059" g="0.09411765" r="0.47058824"/>
+                                                <color a="1.0" b="0.9647059" g="0.09411765" r="0.45882353"/>
+                                                <color a="1.0" b="0.9647059" g="0.09019608" r="0.44705883"/>
+                                                <color a="1.0" b="0.9647059" g="0.09019608" r="0.43529412"/>
+                                                <color a="1.0" b="0.96862745" g="0.08627451" r="0.42745098"/>
+                                                <color a="1.0" b="0.96862745" g="0.08235294" r="0.41568628"/>
+                                                <color a="1.0" b="0.96862745" g="0.08235294" r="0.40392157"/>
+                                                <color a="1.0" b="0.96862745" g="0.078431375" r="0.39215687"/>
+                                                <color a="1.0" b="0.96862745" g="0.078431375" r="0.38039216"/>
+                                                <color a="1.0" b="0.972549" g="0.07450981" r="0.37254903"/>
+                                                <color a="1.0" b="0.972549" g="0.07450981" r="0.36078432"/>
+                                                <color a="1.0" b="0.972549" g="0.07058824" r="0.34901962"/>
+                                                <color a="1.0" b="0.972549" g="0.07058824" r="0.3372549"/>
+                                                <color a="1.0" b="0.9764706" g="0.06666667" r="0.32941177"/>
+                                                <color a="1.0" b="0.9764706" g="0.08627451" r="0.32156864"/>
+                                                <color a="1.0" b="0.9764706" g="0.105882354" r="0.30980393"/>
+                                                <color a="1.0" b="0.98039216" g="0.1254902" r="0.3019608"/>
+                                                <color a="1.0" b="0.98039216" g="0.14509805" r="0.29411766"/>
+                                                <color a="1.0" b="0.98039216" g="0.16862746" r="0.28235295"/>
+                                                <color a="1.0" b="0.98039216" g="0.1882353" r="0.27450982"/>
+                                                <color a="1.0" b="0.98039216" g="0.20784314" r="0.26666668"/>
+                                                <color a="1.0" b="0.98039216" g="0.22745098" r="0.25490198"/>
+                                                <color a="1.0" b="0.9843137" g="0.24705882" r="0.24705882"/>
+                                                <color a="1.0" b="0.9843137" g="0.26666668" r="0.23921569"/>
+                                                <color a="1.0" b="0.9843137" g="0.28627452" r="0.22745098"/>
+                                                <color a="1.0" b="0.9843137" g="0.30588236" r="0.21960784"/>
+                                                <color a="1.0" b="0.9843137" g="0.3254902" r="0.21176471"/>
+                                                <color a="1.0" b="0.9843137" g="0.34901962" r="0.2"/>
+                                                <color a="1.0" b="0.9882353" g="0.36862746" r="0.19215687"/>
+                                                <color a="1.0" b="0.9882353" g="0.3882353" r="0.18431373"/>
+                                                <color a="1.0" b="0.9882353" g="0.40784314" r="0.17254902"/>
+                                                <color a="1.0" b="0.9882353" g="0.42745098" r="0.16470589"/>
+                                                <color a="1.0" b="0.9882353" g="0.44705883" r="0.15686275"/>
+                                                <color a="1.0" b="0.9882353" g="0.46666667" r="0.14509805"/>
+                                                <color a="1.0" b="0.99215686" g="0.4862745" r="0.13725491"/>
+                                                <color a="1.0" b="0.99215686" g="0.5058824" r="0.12941177"/>
+                                                <color a="1.0" b="0.99215686" g="0.5294118" r="0.11764706"/>
+                                                <color a="1.0" b="0.99215686" g="0.54901963" r="0.10980392"/>
+                                                <color a="1.0" b="0.99215686" g="0.5686275" r="0.101960786"/>
+                                                <color a="1.0" b="0.99215686" g="0.5882353" r="0.09019608"/>
+                                                <color a="1.0" b="0.99607843" g="0.60784316" r="0.08235294"/>
+                                                <color a="1.0" b="0.99607843" g="0.627451" r="0.07450981"/>
+                                                <color a="1.0" b="0.99607843" g="0.64705884" r="0.0627451"/>
+                                                <color a="1.0" b="0.99607843" g="0.6666667" r="0.05490196"/>
+                                                <color a="1.0" b="0.99607843" g="0.6862745" r="0.047058824"/>
+                                                <color a="1.0" b="0.99607843" g="0.70980394" r="0.03529412"/>
+                                                <color a="1.0" b="1.0" g="0.7294118" r="0.02745098"/>
+                                                <color a="1.0" b="1.0" g="0.7490196" r="0.019607844"/>
+                                                <color a="1.0" b="1.0" g="0.76862746" r="0.007843138"/>
+                                                <color a="1.0" b="1.0" g="0.7882353" r="0.0"/>
+                                                <color a="1.0" b="1.0" g="0.7882353" r="0.0"/>
+                                                <color a="1.0" b="1.0" g="0.8156863" r="0.0"/>
+                                                <color a="1.0" b="1.0" g="0.84705883" r="0.0"/>
+                                                <color a="1.0" b="1.0" g="0.8745098" r="0.0"/>
+                                                <color a="1.0" b="1.0" g="0.9019608" r="0.0"/>
+                                                <color a="1.0" b="1.0" g="0.9254902" r="0.0"/>
+                                                <color a="1.0" b="1.0" g="0.9529412" r="0.0"/>
+                                                <color a="1.0" b="1.0" g="0.9764706" r="0.0"/>
+                                                <color a="1.0" b="1.0" g="1.0" r="0.0"/>
+                                                <color a="1.0" b="0.9764706" g="1.0" r="0.0"/>
+                                                <color a="1.0" b="0.9529412" g="1.0" r="0.0"/>
+                                                <color a="1.0" b="0.9254902" g="1.0" r="0.0"/>
+                                                <color a="1.0" b="0.9019608" g="1.0" r="0.0"/>
+                                                <color a="1.0" b="0.8745098" g="1.0" r="0.0"/>
+                                                <color a="1.0" b="0.84705883" g="1.0" r="0.0"/>
+                                                <color a="1.0" b="0.8156863" g="1.0" r="0.0"/>
+                                                <color a="1.0" b="0.7882353" g="1.0" r="0.0"/>
+                                                <color a="1.0" b="0.75686276" g="1.0" r="0.0"/>
+                                                <color a="1.0" b="0.7254902" g="1.0" r="0.0"/>
+                                                <color a="1.0" b="0.6901961" g="1.0" r="0.0"/>
+                                                <color a="1.0" b="0.654902" g="1.0" r="0.0"/>
+                                                <color a="1.0" b="0.6156863" g="1.0" r="0.0"/>
+                                                <color a="1.0" b="0.5764706" g="1.0" r="0.0"/>
+                                                <color a="1.0" b="0.53333336" g="1.0" r="0.0"/>
+                                                <color a="1.0" b="0.4862745" g="1.0" r="0.0"/>
+                                                <color a="1.0" b="0.43529412" g="1.0" r="0.0"/>
+                                                <color a="1.0" b="0.3764706" g="1.0" r="0.0"/>
+                                                <color a="1.0" b="0.30588236" g="1.0" r="0.0"/>
+                                                <color a="1.0" b="0.21568628" g="1.0" r="0.0"/>
+                                                <color a="1.0" b="0.0" g="1.0" r="0.0"/>
+                                                <color a="1.0" b="0.0" g="1.0" r="0.21568628"/>
+                                                <color a="1.0" b="0.0" g="1.0" r="0.30588236"/>
+                                                <color a="1.0" b="0.0" g="1.0" r="0.3764706"/>
+                                                <color a="1.0" b="0.0" g="1.0" r="0.43529412"/>
+                                                <color a="1.0" b="0.0" g="1.0" r="0.4862745"/>
+                                                <color a="1.0" b="0.0" g="1.0" r="0.53333336"/>
+                                                <color a="1.0" b="0.0" g="1.0" r="0.5764706"/>
+                                                <color a="1.0" b="0.0" g="1.0" r="0.6156863"/>
+                                                <color a="1.0" b="0.0" g="1.0" r="0.654902"/>
+                                                <color a="1.0" b="0.0" g="1.0" r="0.6901961"/>
+                                                <color a="1.0" b="0.0" g="1.0" r="0.7254902"/>
+                                                <color a="1.0" b="0.0" g="1.0" r="0.75686276"/>
+                                                <color a="1.0" b="0.0" g="1.0" r="0.7882353"/>
+                                                <color a="1.0" b="0.0" g="1.0" r="0.8156863"/>
+                                                <color a="1.0" b="0.0" g="1.0" r="0.84705883"/>
+                                                <color a="1.0" b="0.0" g="1.0" r="0.8745098"/>
+                                                <color a="1.0" b="0.0" g="1.0" r="0.9019608"/>
+                                                <color a="1.0" b="0.0" g="1.0" r="0.9254902"/>
+                                                <color a="1.0" b="0.0" g="1.0" r="0.9529412"/>
+                                                <color a="1.0" b="0.0" g="1.0" r="0.9764706"/>
+                                                <color a="1.0" b="0.0" g="1.0" r="1.0"/>
+                                                <color a="1.0" b="0.0" g="0.9764706" r="1.0"/>
+                                                <color a="1.0" b="0.0" g="0.9529412" r="1.0"/>
+                                                <color a="1.0" b="0.0" g="0.9254902" r="1.0"/>
+                                                <color a="1.0" b="0.0" g="0.9019608" r="1.0"/>
+                                                <color a="1.0" b="0.0" g="0.8745098" r="1.0"/>
+                                                <color a="1.0" b="0.0" g="0.84705883" r="1.0"/>
+                                                <color a="1.0" b="0.0" g="0.8156863" r="1.0"/>
+                                                <color a="1.0" b="0.0" g="0.7882353" r="1.0"/>
+                                                <color a="1.0" b="0.0" g="0.75686276" r="1.0"/>
+                                                <color a="1.0" b="0.0" g="0.7254902" r="1.0"/>
+                                                <color a="1.0" b="0.0" g="0.6901961" r="1.0"/>
+                                                <color a="1.0" b="0.0" g="0.654902" r="1.0"/>
+                                                <color a="1.0" b="0.0" g="0.6156863" r="1.0"/>
+                                                <color a="1.0" b="0.0" g="0.5764706" r="1.0"/>
+                                                <color a="1.0" b="0.0" g="0.53333336" r="1.0"/>
+                                                <color a="1.0" b="0.0" g="0.4862745" r="1.0"/>
+                                                <color a="1.0" b="0.0" g="0.43529412" r="1.0"/>
+                                                <color a="1.0" b="0.0" g="0.3764706" r="1.0"/>
+                                                <color a="1.0" b="0.0" g="0.30588236" r="1.0"/>
+                                                <color a="1.0" b="0.0" g="0.21568628" r="1.0"/>
+                                                <color a="1.0" b="0.0" g="0.0" r="1.0"/>
+                                                <color a="1.0" b="0.21176471" g="0.21176471" r="1.0"/>
+                                                <color a="1.0" b="0.3019608" g="0.3019608" r="1.0"/>
+                                                <color a="1.0" b="0.36862746" g="0.36862746" r="1.0"/>
+                                                <color a="1.0" b="0.42745098" g="0.42745098" r="1.0"/>
+                                                <color a="1.0" b="0.4745098" g="0.4745098" r="1.0"/>
+                                                <color a="1.0" b="0.52156866" g="0.52156866" r="1.0"/>
+                                                <color a="1.0" b="0.5647059" g="0.5647059" r="1.0"/>
+                                                <color a="1.0" b="0.6039216" g="0.6039216" r="1.0"/>
+                                                <color a="1.0" b="0.6392157" g="0.6392157" r="1.0"/>
+                                                <color a="1.0" b="0.6745098" g="0.6745098" r="1.0"/>
+                                                <color a="1.0" b="0.7058824" g="0.7058824" r="1.0"/>
+                                                <color a="1.0" b="0.7372549" g="0.7372549" r="1.0"/>
+                                                <color a="1.0" b="0.76862746" g="0.76862746" r="1.0"/>
+                                                <color a="1.0" b="0.8" g="0.8" r="1.0"/>
+                                                <color a="1.0" b="0.827451" g="0.827451" r="1.0"/>
+                                                <color a="1.0" b="0.85490197" g="0.85490197" r="1.0"/>
+                                                <color a="1.0" b="0.8784314" g="0.8784314" r="1.0"/>
+                                                <color a="1.0" b="0.90588236" g="0.90588236" r="1.0"/>
+                                                <color a="1.0" b="0.92941177" g="0.92941177" r="1.0"/>
+                                                <color a="1.0" b="0.9529412" g="0.9529412" r="1.0"/>
+                                                <color a="1.0" b="0.98039216" g="0.98039216" r="1.0"/>
+                                                <color a="1.0" b="1.0" g="1.0" r="1.0"/>
+                                            </jaxbColorMap>
+                                        </colorMapParameters>
+                                    </capability>
+                                </capabilities>
+                            </loadProperties>
+                            <properties isVisible="true" isHoverOn="false" isMapLayer="false" isBlinking="false" isSystemResource="false" renderingOrderId="IMAGE_WORLD">
+                                <pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                            </properties>
+                            <resourceData xsi:type="gridResourceData" sampling="true" spatial="false" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="true">
+                                <metadataMap>
+                                    <mapping key="info.level.levelonevalue">
+                                        <constraint constraintType="EQUALS" constraintValue="${level}"/>
+                                    </mapping>
+                                    <mapping key="info.level.masterLevel.name">
+                                        <constraint constraintType="EQUALS" constraintValue="MB"/>
+                                    </mapping>
+                                    <mapping key="info.datasetId">
+                                        <constraint constraintType="EQUALS" constraintValue="${modelName}"/>
+                                    </mapping>
+                                    <mapping key="info.parameter.abbreviation">
+                                        <constraint constraintType="EQUALS" constraintValue="pV"/>
+                                    </mapping>
+                                    <mapping key="info.level.leveltwovalue">
+                                        <constraint constraintType="EQUALS" constraintValue="${level}"/>
+                                    </mapping>
+                                    <mapping key="pluginName">
+                                        <constraint constraintType="EQUALS" constraintValue="grid"/>
+                                    </mapping>
+                                </metadataMap>
+                                <alertParser xsi:type="gribDataCubeAlertMessageParser"/>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties xsi:type="gridLoadProperties" displayType="STREAMLINE" loadWithoutData="false">
+                                <resourceType>PLAN_VIEW</resourceType>
+                                <perspectiveProperty xsi:type="d2dLoadProperties" loadMode="VALID_TIME_SEQ" timeMatchBasis="false"/>
+                                <capabilities>
+                                    <capability xsi:type="displayTypeCapability" displayType="STREAMLINE"/>
+                                    <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="DEFAULT"/>
+                                    <capability xsi:type="densityCapability" density="1.25"/>
+                                    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+                                    <capability xsi:type="colorableCapability" colorAsString="white"/>
+                                </capabilities>
+                            </loadProperties>
+                            <properties isVisible="true" isHoverOn="false" isMapLayer="false" isBlinking="false" isSystemResource="false" renderingOrderId="CONTOUR">
+                                <pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                            </properties>
+                            <resourceData xsi:type="gridResourceData" sampling="false" spatial="false" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="true">
+                                <metadataMap>
+                                    <mapping key="info.level.levelonevalue">
+                                        <constraint constraintType="EQUALS" constraintValue="${level}"/>
+                                    </mapping>
+                                    <mapping key="info.level.masterLevel.name">
+                                        <constraint constraintType="EQUALS" constraintValue="MB"/>
+                                    </mapping>
+                                    <mapping key="info.parameter.abbreviation">
+                                        <constraint constraintType="EQUALS" constraintValue="Wind"/>
+                                    </mapping>
+                                    <mapping key="info.datasetId">
+                                        <constraint constraintType="EQUALS" constraintValue="${modelName}"/>
+                                    </mapping>
+                                    <mapping key="info.level.leveltwovalue">
+                                        <constraint constraintType="EQUALS" constraintValue="-999999.0"/>
+                                    </mapping>
+                                    <mapping key="pluginName">
+                                        <constraint constraintType="EQUALS" constraintValue="grid"/>
+                                    </mapping>
+                                </metadataMap>
+                                <alertParser xsi:type="gribDataCubeAlertMessageParser"/>
+                            </resourceData>
+                        </resource>
+			<timeMatcher xsi:type="d2DTimeMatcher" deltaFilter="0" forecastFilter="0"/>
+                <numberOfFrames>${frameCount}</numberOfFrames>
+            </descriptor>
+        </displays>
+    </displayList>
+</bundle>

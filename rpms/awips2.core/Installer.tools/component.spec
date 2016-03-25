@@ -7,8 +7,8 @@
 
 Name: awips2-tools
 Summary: AWIPS II Tools Distribution
-Version: 1.8.5
-Release: %{_component_version}.%{_component_release}%{?dist}
+Version: %{_component_version}
+Release: %{_component_release}%{?dist}
 Group: AWIPSII
 BuildRequires: awips2-python-h5py
 BuildRoot: /tmp
@@ -116,7 +116,6 @@ fi
 
 %install
 mkdir -p %{_build_root}/awips2/tools
-mkdir -p %{_build_root}/etc/profile.d
 
 cd %{_tools_build_loc}/hdf5-1.8.4-patch1
 make install prefix=%{_build_root}/awips2/tools
@@ -147,9 +146,6 @@ function copyLegal()
    rm -f %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar    
 }
 
-PROFILE_D_DIR="rpms/awips2.core/Installer.tools/scripts/profile.d"
-cp %{_baseline_workspace}/${PROFILE_D_DIR}/* %{_build_root}/etc/profile.d
-
 copyLegal "awips2/tools"
 
 %pre
@@ -163,8 +159,6 @@ rm -rf %{_tools_build_loc}
 
 %files
 %defattr(644,awips,fxalpha,755)
-%attr(755,root,root) /etc/profile.d/awips2HDF5Tools.csh
-%attr(755,root,root) /etc/profile.d/awips2HDF5Tools.sh
 %dir /awips2/tools
 %dir /awips2/tools/include
 /awips2/tools/include/*

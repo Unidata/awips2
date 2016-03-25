@@ -1,0 +1,94 @@
+<bundle xmlns:ns2="group">
+    <displayList>
+        <displays xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="d2DMapRenderableDisplay" scale="CONUS" density="1.0" magnification="1.0" zoomLevel="1.0" mapCenter="-66.2005121984067 35.94909693622639 0.0">
+            <descriptor xsi:type="mapDescriptor">
+            	<resource>
+                            <loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
+                                <resourceType>PLAN_VIEW</resourceType>
+                                <perspectiveProperty xsi:type="d2dLoadProperties" loadMode="VALID_TIME_SEQ" timeMatchBasis="true"/>
+                                <capabilities>
+                                    <capability xsi:type="colorableCapability" colorAsString="green"/>
+                                    <capability xsi:type="imagingCapability" contrast="1.0" brightness="0.5" interpolationState="true" alpha="1.0"/>
+                                    <capability xsi:type="colorMapCapability">
+                                        <colorMapParameters colorMapName="Grid/gridded data">
+                                            <persisted/>
+                                        </colorMapParameters>
+                                    </capability>
+                                    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+                                    <capability xsi:type="displayTypeCapability" displayType="IMAGE"/>
+                                    <capability xsi:type="densityCapability" density="1.0"/>
+                                    <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="DEFAULT"/>
+                                </capabilities>
+                            </loadProperties>
+                            <properties isVisible="true" isHoverOn="false" isMapLayer="false" isBlinking="false" isSystemResource="false" renderingOrderId="IMAGE_WORLD">
+                                <pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                            </properties>
+                            <resourceData xsi:type="gridResourceData" sampling="false" spatial="false" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="true">
+                                <metadataMap>
+                                    <mapping key="info.level.levelonevalue">
+                                        <constraint constraintType="EQUALS" constraintValue="0.0"/>
+                                    </mapping>
+                                    <mapping key="info.level.masterLevel.name">
+                                        <constraint constraintType="EQUALS" constraintValue="SFC"/>
+                                    </mapping>
+                                    <mapping key="info.parameter.abbreviation">
+                                        <constraint constraintType="EQUALS" constraintValue="ETSRG"/>
+                                    </mapping>
+                                    <mapping key="info.datasetId">
+                                        <constraint constraintType="EQUALS" constraintValue="${modelName}"/>
+                                    </mapping>
+                                    <mapping key="info.level.leveltwovalue">
+                                        <constraint constraintType="EQUALS" constraintValue="-999999.0"/>
+                                    </mapping>
+                                    <mapping key="pluginName">
+                                        <constraint constraintType="EQUALS" constraintValue="grid"/>
+                                    </mapping>
+                                </metadataMap>
+                                <alertParser xsi:type="gribDataCubeAlertMessageParser"/>
+                            </resourceData>
+                        </resource>
+						<resource>
+                            <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
+                                <resourceType>PLAN_VIEW</resourceType>
+                                <perspectiveProperty xsi:type="d2dLoadProperties" loadMode="VALID_TIME_SEQ" timeMatchBasis="true"/>
+                                <capabilities>
+                                    <capability xsi:type="colorableCapability" colorAsString="burlywood"/>
+                                    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+                                    <capability xsi:type="displayTypeCapability" displayType="CONTOUR"/>
+                                    <capability xsi:type="densityCapability" density="2.0"/>
+                                    <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="DEFAULT"/>
+                                </capabilities>
+                            </loadProperties>
+                            <properties isVisible="true" isHoverOn="false" isMapLayer="false" isBlinking="false" isSystemResource="false" renderingOrderId="CONTOUR">
+                                <pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                            </properties>
+                            <resourceData xsi:type="gridResourceData" sampling="false" spatial="false" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="true">
+                                <metadataMap>
+                                    <mapping key="info.level.levelonevalue">
+                                        <constraint constraintType="EQUALS" constraintValue="0.0"/>
+                                    </mapping>
+                                    <mapping key="info.level.masterLevel.name">
+                                        <constraint constraintType="EQUALS" constraintValue="SFC"/>
+                                    </mapping>
+                                    <mapping key="info.datasetId">
+                                        <constraint constraintType="EQUALS" constraintValue="${modelName}"/>
+                                    </mapping>
+                                    <mapping key="info.parameter.abbreviation">
+                                        <constraint constraintType="EQUALS" constraintValue="ETSRG"/>
+                                    </mapping>
+                                    <mapping key="info.level.leveltwovalue">
+                                        <constraint constraintType="EQUALS" constraintValue="-999999.0"/>
+                                    </mapping>
+                                    <mapping key="pluginName">
+                                        <constraint constraintType="EQUALS" constraintValue="grid"/>
+                                    </mapping>
+                                </metadataMap>
+                                <alertParser xsi:type="gribDataCubeAlertMessageParser"/>
+                            </resourceData>
+                        </resource>
+                <timeMatcher xsi:type="d2DTimeMatcher" deltaFilter="0" forecastFilter="0"/>
+                <numberOfFrames>${frameCount}</numberOfFrames>
+            </descriptor>
+        </displays>
+    </displayList>
+</bundle>

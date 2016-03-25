@@ -8,7 +8,7 @@ import logging
 import sys
 import time
 import GpdCliRequestHandler
-from ufpy import UsageArgumentParser
+from awips import UsageArgumentParser
 from dynamicserialize.dstypes.gov.noaa.nws.ncep.common.dataplugin.gpd.query import GenericPointDataReqMsg
 from dynamicserialize.dstypes.java.util import Date
 

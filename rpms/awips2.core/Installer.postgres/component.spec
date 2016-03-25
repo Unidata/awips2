@@ -1,5 +1,6 @@
 %define _build_arch %(uname -i)
 %define _postgresql_version 9.3.5
+%define _geos_version 3.5.0
 %define _postgres_build_loc %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 #
 # AWIPS II PostgreSQL Spec File
@@ -19,6 +20,7 @@ Vendor: Raytheon
 Packager: Bryan Kowal
 
 AutoReq: no
+Requires: jasper-libs
 provides: awips2-postgresql
 provides: awips2-base-component
 
@@ -69,7 +71,7 @@ tar -xvf ${POSTGRESQL_TAR_FILE}
 cd %{_postgres_build_loc}/postgresql-%{_postgresql_version}
 
 ./configure --prefix=%{_postgres_build_loc}/awips2/postgresql \
-   --with-libxml
+   --with-libxml --with-openssl
 if [ $? -ne 0 ]; then
    exit 1
 fi
@@ -148,19 +150,18 @@ fi
 SRC_DIR="%{_baseline_workspace}/rpms/awips2.core/Installer.postgres/SOURCES"
 PROJ_SRC="proj-4.8.0.zip"
 POSTGIS_SRC="postgis-2.0.6.tar.gz"
-GEOS_BASE="geos-3.4.2"
-GEOS_SRC="geos-3.4.2.tar.bz2"
+GEOS_SRC="geos-%{_geos_version}.tar.bz2"
 GDAL_SRC="gdal192.zip"
 
 # The directory that the src will be in after the tars are unzipped.
 PROJ_SRC_DIR="proj-4.8.0"
 POSTGIS_SRC_DIR="postgis-2.0.6"
-GEOS_SRC_DIR="geos-3.4.2"
+GEOS_SRC_DIR="geos-%{_geos_version}"
 GDAL_SRC_DIR="gdal-1.9.2"
 
 cp ${SRC_DIR}/${POSTGIS_SRC} %{_postgres_build_loc}
 cp ${SRC_DIR}/${PROJ_SRC} %{_postgres_build_loc}
-cp %{_baseline_workspace}/foss/${GEOS_BASE}/packaged/${GEOS_SRC} %{_postgres_build_loc}
+cp %{_baseline_workspace}/foss/geos/packaged/${GEOS_SRC} %{_postgres_build_loc}
 cp ${SRC_DIR}/${GDAL_SRC} %{_postgres_build_loc}
 
 cd %{_postgres_build_loc}
@@ -282,14 +283,11 @@ done
 
 copyLegal "awips2/postgresql"
 
-mkdir -p %{_build_root}/etc/profile.d
 mkdir -p %{_build_root}/etc/ld.so.conf.d
 mkdir -p %{_build_root}/etc/init.d
 touch %{_build_root}/etc/ld.so.conf.d/awips2-postgresql-%{_build_arch}.conf
 echo "/awips2/postgresql/lib" >> %{_build_root}/etc/ld.so.conf.d/awips2-postgresql-%{_build_arch}.conf
 
-PROFILE_D_DIR="rpms/awips2.core/Installer.postgres/scripts/profile.d"
-cp %{_baseline_workspace}/${PROFILE_D_DIR}/* %{_build_root}/etc/profile.d 
 
 # Include the postgresql service script
 cp %{_baseline_workspace}/rpms/awips2.core/Installer.postgres/scripts/init.d/edex_postgres \
@@ -330,8 +328,6 @@ and populate the AWIPS II databases.
 
 %files
 %defattr(644,awips,fxalpha,755)
-%attr(755,root,root) /etc/profile.d/awips2Postgres.csh
-%attr(755,root,root) /etc/profile.d/awips2Postgres.sh
 %attr(755,root,root) /etc/ld.so.conf.d/awips2-postgresql-%{_build_arch}.conf
 %attr(744,root,root) /etc/init.d/edex_postgres
 %attr(700,awips,fxalpha) /awips2/data
@@ -352,8 +348,6 @@ and populate the AWIPS II databases.
 
 %files -n awips2-psql
 %defattr(755,awips,fxalpha,755)
-%attr(755,root,root) /etc/profile.d/awips2PSQL.csh
-%attr(755,root,root) /etc/profile.d/awips2PSQL.sh
 %dir /awips2
 %dir /awips2/psql
 %dir /awips2/psql/bin

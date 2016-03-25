@@ -1,0 +1,85 @@
+BSP programs in Python can be executed in three modes:
+
+1) Using a standard Python interpreter. No special measures need to
+   be taken, the program will execute on a single processor.
+
+2) Using MPI or BSPlib for communication between multiple CPUs.
+   This is the only mode that gives real parallel execution. See
+   below for details.
+
+3) Using the bsp_virtual interpreter.
+   This runs the program with any number of virtual processors,
+   but only one real CPU is used. The main interest of this
+   mode is for debugging, as it permits interactive debugging
+   of any or all virtual processors. See below for details.
+
+   Note: this code is not very well tested yet. In particular,
+   it might fail with programs that manipulate sys.modules
+   directly.
+
+
+Real parallel execution
+-----------------------
+
+In order to use the module Scientific.BSP using more than one real
+processor, you must compile either the BSPlib or the MPI interface.
+See README.BSPlib and README.MPI for installation details. The BSPlib
+interface is probably more efficient (I haven't done extensive tests
+yet), and allows the use of the BSP toolset, on the other hand MPI is
+more widely available and might thus already be installed on your
+machine. For serious use, you should probably install both and make
+comparisons for your own applications. Application programs do not
+have to be modified to switch between MPI and BSPlib, only the method
+to run the program on a multiprocessor machine must be adapted.
+
+To execute a program in parallel mode, use the mpipython or bsppython
+executable. The manual for your MPI or BSPlib installation will tell
+you how to define the number of processors.
+
+Interactive execution in parallel mode is possible using the scripts
+ibsppython and impipython. Note that the latter must be adapted to
+your MPI installation. These scripts emulate a standard Python
+interpreter well enough that they can be used in some developmen
+environments. In particular, they can be used within Emacs Python
+mode.
+
+
+Virtual parallel execution
+--------------------------
+
+The script bsp_virtual implements a BSP virtual machine that
+serializes the execution of any number of virtual processors. There is
+no significant overhead, but there isn't any real parallelism either,
+only one CPU is used. However, this mode allows the most convenient
+interactive development, including interactive debugging on all
+virtual processors. In combination with Emacs and its Python mode, it
+is a very convenient development environment for parallel programs.
+
+bsp_virtual emulates a standard Python interpreter even better than
+the interactive BSP scripts mentioned above. In addition, it provides
+interactive debugging of virtual processes. The commandline syntax is
+
+   bsp_virtual np [options] [script.py]
+
+where np is the number of (virtual) processors and script.py is
+a Python script to execute. The options are
+
+   -i:  continue in interactive mode after the script terminates
+   -r:  print the runtime used by each virtual processor
+
+Debugging is handled by the standard pdb, which however is invoked in
+a different way. Debugging commands are identified by an exclamation
+mark (!) at the beginning of the command line. The following two
+debugging commands are available:
+
+   !pm(pid)
+      Runs a post-mortem inspection after an exception. pid is the
+      processor id to be inspected. Note that *all* processor states
+      can be inspected, not only the one of the process that crashed.
+
+   !run(pids, command)
+      Run command (a string) under debugger control. pids is a list
+      of processor ids that are subject to debugging. It can also be
+      an integer instead of a list, for debugging a single process.
+      The debugging commands are the same as in the standard pdb.
+

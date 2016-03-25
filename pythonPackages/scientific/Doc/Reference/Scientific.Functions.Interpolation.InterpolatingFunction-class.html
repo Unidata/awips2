@@ -1,0 +1,906 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Scientific.Functions.Interpolation.InterpolatingFunction</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="Scientific-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://dirac.cnrs-orleans.fr/ScientificPython/">Scientific Python</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="Scientific-module.html">Package&nbsp;Scientific</a> ::
+        <a href="Scientific.Functions-module.html">Package&nbsp;Functions</a> ::
+        <a href="Scientific.Functions.Interpolation-module.html">Module&nbsp;Interpolation</a> ::
+        Class&nbsp;InterpolatingFunction
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<!-- ==================== CLASS DESCRIPTION ==================== -->
+<h1 class="epydoc">Class InterpolatingFunction</h1><p class="nomargin-top"></p>
+<dl><dt>Known Subclasses:</dt>
+<dd>
+      <ul class="subclass-list">
+<li><a href="Scientific.Functions.Interpolation.NetCDFInterpolatingFunction-class.html">NetCDFInterpolatingFunction</a></li><li>, <a href="Scientific.Geometry.TensorAnalysis.TensorField-class.html">Geometry.TensorAnalysis.TensorField</a></li>  </ul>
+</dd></dl>
+
+<hr />
+<p><a name="index-Function"></a><i class="indexterm">Function</i> defined
+  by values on a <a name="index-grid"></a><i class="indexterm">grid</i> 
+  using <a name="index-interpolation"></a><i 
+  class="indexterm">interpolation</i></p>
+  <p>An interpolating function of <i class="math">n</i> variables with <i 
+  class="math">m</i>-dimensional values is defined by an <i 
+  class="math">(n+m)</i>-dimensional array of values and <i 
+  class="math">n</i> one-dimensional arrays that define the variables 
+  values corresponding to the grid points. The grid does not have to be 
+  equidistant.</p>
+  <p>An InterpolatingFunction object has attributes <code>real</code> and 
+  <code>imag</code> like a complex function (even if its values are 
+  real).</p>
+
+<!-- ==================== INSTANCE METHODS ==================== -->
+<a name="section-InstanceMethods"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td align="left" colspan="2" class="table-header">
+    <span class="table-header">Instance Methods</span></td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="__abs__"></a><span class="summary-sig-name">__abs__</span>(<span class="summary-sig-arg">self</span>)</span></td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">number</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html#__call__" class="summary-sig-name">__call__</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">*points</span>)</span><br />
+      Returns:
+      the function value obtained by linear interpolation</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="__getattr__"></a><span class="summary-sig-name">__getattr__</span>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">attr</span>)</span></td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type"><a 
+      href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html"
+      class="link">InterpolatingFunction</a> or number</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html#__getitem__" class="summary-sig-name">__getitem__</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">i</span>)</span><br />
+      Returns:
+      an InterpolatingFunction whose number of variables is reduced, or a 
+      number if no variable is left</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type"><a 
+      href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html"
+      class="link">InterpolatingFunction</a> or number</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html#__getslice__" class="summary-sig-name">__getslice__</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">i</span>,
+        <span class="summary-sig-arg">j</span>)</span><br />
+      Returns:
+      an InterpolatingFunction whose number of variables is reduced by one,
+      or a number if no variable is left</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html#__init__" class="summary-sig-name">__init__</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">axes</span>,
+        <span class="summary-sig-arg">values</span>,
+        <span class="summary-sig-arg">default</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">period</span>=<span class="summary-sig-default">None</span>)</span></td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type"><code>int</code></span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html#__len__" class="summary-sig-name">__len__</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Returns:
+      number of variables</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="arccos"></a><span class="summary-sig-name">arccos</span>(<span class="summary-sig-arg">self</span>)</span></td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="arcsin"></a><span class="summary-sig-name">arcsin</span>(<span class="summary-sig-arg">self</span>)</span></td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="arctan"></a><span class="summary-sig-name">arctan</span>(<span class="summary-sig-arg">self</span>)</span></td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="cos"></a><span class="summary-sig-name">cos</span>(<span class="summary-sig-arg">self</span>)</span></td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="cosh"></a><span class="summary-sig-name">cosh</span>(<span class="summary-sig-arg">self</span>)</span></td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type"><a 
+      href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html"
+      class="link">InterpolatingFunction</a> or number</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html#definiteIntegral" class="summary-sig-name">definiteIntegral</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">variable</span>=<span class="summary-sig-default">0</span>)</span><br />
+      Returns:
+      a new InterpolatingFunction containing the numerical <a 
+      name="index-integral"></a><i class="indexterm">integral</i>.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type"><a 
+      href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html"
+      class="link">InterpolatingFunction</a></span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html#derivative" class="summary-sig-name">derivative</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">variable</span>=<span class="summary-sig-default">0</span>)</span><br />
+      Returns:
+      a new InterpolatingFunction containing the numerical derivative</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="exp"></a><span class="summary-sig-name">exp</span>(<span class="summary-sig-arg">self</span>)</span></td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type"><a href="Scientific.Functions.Polynomial-module.html" 
+      class="link">Scientific.Functions.Polynomial</a></span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html#fitPolynomial" class="summary-sig-name">fitPolynomial</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">order</span>)</span><br />
+      Returns:
+      a polynomial whose coefficients have been obtained by a <a 
+      name="index-least_squares"></a><i class="indexterm">least-squares</i>
+      fit to the grid values</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type"><a 
+      href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html"
+      class="link">InterpolatingFunction</a></span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html#integral" class="summary-sig-name">integral</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">variable</span>=<span class="summary-sig-default">0</span>)</span><br />
+      Returns:
+      a new InterpolatingFunction containing the numerical <a 
+      name="index-integral"></a><i class="indexterm">integral</i>.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="log"></a><span class="summary-sig-name">log</span>(<span class="summary-sig-arg">self</span>)</span></td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type"><a 
+      href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html"
+      class="link">InterpolatingFunction</a></span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html#selectInterval" class="summary-sig-name">selectInterval</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">first</span>,
+        <span class="summary-sig-arg">last</span>,
+        <span class="summary-sig-arg">variable</span>=<span class="summary-sig-default">0</span>)</span><br />
+      Returns:
+      a new InterpolatingFunction whose grid is restricted</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="sin"></a><span class="summary-sig-name">sin</span>(<span class="summary-sig-arg">self</span>)</span></td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="sinh"></a><span class="summary-sig-name">sinh</span>(<span class="summary-sig-arg">self</span>)</span></td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="sqrt"></a><span class="summary-sig-name">sqrt</span>(<span class="summary-sig-arg">self</span>)</span></td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="tan"></a><span class="summary-sig-name">tan</span>(<span class="summary-sig-arg">self</span>)</span></td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="tanh"></a><span class="summary-sig-name">tanh</span>(<span class="summary-sig-arg">self</span>)</span></td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+</table>
+<!-- ==================== METHOD DETAILS ==================== -->
+<a name="section-MethodDetails"></a>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td align="left" colspan="2" class="table-header">
+    <span class="table-header">Method Details</span></td>
+</tr>
+</table>
+<a name="__call__"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">__call__</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">*points</span>)</span>
+    <br /><em class="fname">(Call operator)</em>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Returns: number</dt>
+        <dd>the function value obtained by linear interpolation</dd>
+    <dt>Raises:</dt>
+    <dd><ul class="nomargin-top">
+        <li><code><strong class='fraise'>TypeError</strong></code> - if the number of arguments (<code>len(points)</code>) does not 
+        match the number of variables of the function</li>
+        <li><code><strong class='fraise'>ValueError</strong></code> - if the evaluation point is outside of the domain of definition and 
+        no default value is defined</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="__getitem__"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">__getitem__</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">i</span>)</span>
+    <br /><em class="fname">(Indexing operator)</em>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>i</code></strong> (indexing expression) - any indexing expression possible for <code>N.array</code> that 
+          does not use <code>N.NewAxis</code></li>
+    </ul></dd>
+    <dt>Returns: <a 
+      href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html"
+      class="link">InterpolatingFunction</a> or number</dt>
+        <dd>an InterpolatingFunction whose number of variables is reduced, or
+          a number if no variable is left</dd>
+    <dt>Raises:</dt>
+    <dd><ul class="nomargin-top">
+        <li><code><strong class='fraise'>TypeError</strong></code> - if i is not an allowed index expression</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="__getslice__"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">__getslice__</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">i</span>,
+        <span class="sig-arg">j</span>)</span>
+    <br /><em class="fname">(Slicling operator)</em>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>i</code></strong> (<code>int</code>) - lower slice index</li>
+        <li><strong class="pname"><code>j</code></strong> (<code>int</code>) - upper slice index</li>
+    </ul></dd>
+    <dt>Returns: <a 
+      href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html"
+      class="link">InterpolatingFunction</a> or number</dt>
+        <dd>an InterpolatingFunction whose number of variables is reduced by 
+          one, or a number if no variable is left</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="__init__"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">__init__</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">axes</span>,
+        <span class="sig-arg">values</span>,
+        <span class="sig-arg">default</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">period</span>=<span class="sig-default">None</span>)</span>
+    <br /><em class="fname">(Constructor)</em>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>axes</code></strong> (sequence of N.array) - a sequence of one-dimensional arrays, one for each variable, 
+          specifying the values of the variables at the grid points</li>
+        <li><strong class="pname"><code>values</code></strong> (N.array) - the function values on the grid</li>
+        <li><strong class="pname"><code>default</code></strong> (number or <code>None</code>) - the value of the function outside the grid. A value of 
+          <code>None</code> means that the function is undefined outside 
+          the grid and that any attempt to evaluate it there raises an 
+          exception.</li>
+        <li><strong class="pname"><code>period</code></strong> (sequence of numbers or <code>None</code>) - the period for each of the variables, or <code>None</code> for 
+          variables in which the function is not periodic.</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="__len__"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">__len__</span>(<span class="sig-arg">self</span>)</span>
+    <br /><em class="fname">(Length operator)</em>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Returns: <code>int</code></dt>
+        <dd>number of variables</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="definiteIntegral"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">definiteIntegral</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">variable</span>=<span class="sig-default">0</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>variable</code></strong> (<code>int</code>) - the index of the variable of the function with respect to which 
+          the <a name="index-integration"></a><i 
+          class="indexterm">integration</i> is performed</li>
+    </ul></dd>
+    <dt>Returns: <a 
+      href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html"
+      class="link">InterpolatingFunction</a> or number</dt>
+        <dd>a new InterpolatingFunction containing the numerical <a 
+          name="index-integral"></a><i class="indexterm">integral</i>. The 
+          integration constant is defined such that the integral at the 
+          first grid point is zero. If the original function has only one 
+          free variable, the definite integral is a number</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="derivative"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">derivative</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">variable</span>=<span class="sig-default">0</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>variable</code></strong> (<code>int</code>) - the index of the variable of the function with respect to which 
+          the <a name="index-derivative"></a><i 
+          class="indexterm">derivative</i> is taken</li>
+    </ul></dd>
+    <dt>Returns: <a 
+      href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html"
+      class="link">InterpolatingFunction</a></dt>
+        <dd>a new InterpolatingFunction containing the numerical derivative</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="fitPolynomial"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">fitPolynomial</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">order</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>order</code></strong> (<code>int</code>) - the order of the <a name="index-polynomial"></a><i 
+          class="indexterm">polynomial</i> to be fitted</li>
+    </ul></dd>
+    <dt>Returns: <a href="Scientific.Functions.Polynomial-module.html" 
+      class="link">Scientific.Functions.Polynomial</a></dt>
+        <dd>a polynomial whose coefficients have been obtained by a <a 
+          name="index-least_squares"></a><i 
+          class="indexterm">least-squares</i> fit to the grid values</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="integral"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">integral</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">variable</span>=<span class="sig-default">0</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>variable</code></strong> (<code>int</code>) - the index of the variable of the function with respect to which 
+          the <a name="index-integration"></a><i 
+          class="indexterm">integration</i> is performed</li>
+    </ul></dd>
+    <dt>Returns: <a 
+      href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html"
+      class="link">InterpolatingFunction</a></dt>
+        <dd>a new InterpolatingFunction containing the numerical <a 
+          name="index-integral"></a><i class="indexterm">integral</i>. The 
+          integration constant is defined such that the integral at the 
+          first grid point is zero.</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="selectInterval"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">selectInterval</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">first</span>,
+        <span class="sig-arg">last</span>,
+        <span class="sig-arg">variable</span>=<span class="sig-default">0</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>first</code></strong> (<code>float</code>) - lower limit of an axis interval</li>
+        <li><strong class="pname"><code>last</code></strong> (<code>float</code>) - upper limit of an axis interval</li>
+        <li><strong class="pname"><code>variable</code></strong> (<code>int</code>) - the index of the variable of the function along which the 
+          interval restriction is applied</li>
+    </ul></dd>
+    <dt>Returns: <a 
+      href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html"
+      class="link">InterpolatingFunction</a></dt>
+        <dd>a new InterpolatingFunction whose grid is restricted</dd>
+  </dl>
+</td></tr></table>
+</div>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="Scientific-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://dirac.cnrs-orleans.fr/ScientificPython/">Scientific Python</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0 on Tue Oct 28 14:16:03 2008
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

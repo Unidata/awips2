@@ -23,7 +23,7 @@
 import logging
 import shutil
 import sys
-from ufpy import ConfigFileUtil
+from awips import ConfigFileUtil
 
 
 logging.basicConfig(format="%(asctime)s %(levelname)s:  %(message)s", 

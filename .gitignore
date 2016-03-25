@@ -10,4 +10,4 @@ bin-test/
 *.pyc
 *.o
 *.orig
-
+*.log

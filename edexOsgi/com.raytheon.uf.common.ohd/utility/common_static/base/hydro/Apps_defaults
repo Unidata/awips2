@@ -148,7 +148,7 @@
 
 apps_dir           : $(SHARE_DIR)/hydroapps   # Hydrologic applications directory
 
-data_archive_root  : /data_store  # root directory of the data archive
+data_archive_root  : /awips2/data_store  # root directory of the data archive
 
 mcp3_icp_iface     :  $(HOME)/mcp3_ntrfc
 #mcp3_icp_iface    :  /tmp/$(LOGNAME)/mcp3_ntrfc
@@ -240,14 +240,14 @@ mpe_display_maps   : statesCounties
 
 #  database selection tokens
 server_name        : ONLINE      # Informix database server name
-db_name            : hd_ob92lwx # IHFS database name
-damcat_db_name     : dc_ob5xxx   # Dam Catalog database name
+db_name            : hd_ob92oax    # IHFS database name
+damcat_db_name     : dc_ob7oax     # Dam Catalog database name
 hdb_db_name        : ob81_histdata # Historical database. 
-pghost             : dx1f         # The machine PostGres is running on
+pghost             : localhost     # The machine PostGres is running on
 pguser             : awips      # The user allowed to access PostGres
 pgport             : 5432        # The PostGres Server port
 adb_name           : adb_ob7xxx  # RFC archive database name
-rax_pghost         : ax          # The machine PostGres is running on for the adb
+rax_pghost         : localhost     # The machine PostGres is running on for the adb
 
 # vacuum log dir token.
 vacuum_log_dir     : $(whfs_log_dir)/vacuum
@@ -281,11 +281,11 @@ damcrest_res_dir        : $(whfs_config_dir)/damcrest
 #===================== SHEFDECODE Application Tokens ================================
 
 shefdecode_userid  : oper                     # controlling UNIX user
-shefdecode_host    : dx1f                     # controlling UNIX system.
+shefdecode_host    : localhost                # controlling UNIX system.
 shefdecode_dir     : $(apps_dir)/shefdecode   # main directory location
 shefdecode_bin     : $(shefdecode_dir)/bin    # executable programs location
 shefdecode_input   : $(shefdecode_dir)/input  # SHEF parameter file location
-shef_data_dir      : /data/fxa/ispan/hydro    # input products location
+shef_data_dir      : /awips2/edex/data/shef   # input products location
 
 shefdecode_log     : $(shefdecode_dir)/logs/decoder  # daily log files location
 shef_error_dir     : $(shefdecode_dir)/logs/product  # product log files location
@@ -345,7 +345,7 @@ shef_out : OFF
 
 #===================== WHFS Applications Tokens ================================
 
-whfs_base_dir          : $(apps_dir)/whfs    # top of the WHFS tree
+whfs_base_dir          : /awips2/edex/data/share/hydroapps/whfs    # top of the WHFS tree
 whfs_local_dir         : $(whfs_base_dir)/local       # top of WHFS local tree
 whfs_local_data_dir    : $(whfs_local_dir)/data       # top of WHFS local data tree
 whfs_local_grid_dir    : $(whfs_local_data_dir)/grid  # top of WHFS grids tree
@@ -397,7 +397,7 @@ sws_home_dir           : $(whfs_bin_dir)/pa   # SWS dir
 # -----------------------------------------------------------------
 
 gage_pp_userid     : oper                     # controlling UNIX user
-gage_pp_host       : dx                       # controlling UNIX system
+gage_pp_host       : localhost                # controlling UNIX system
 gage_pp_data       : $(pproc_local_data)/gpp_input  # input data files location 
 gage_pp_log        : $(pproc_log)/gage_pp     # daily log files location
 gage_pp_sleep	   : 10	  # sleep duration in seconds in between queries
@@ -1220,7 +1220,7 @@ dsp_duration            : 60
 hpe_base_radar_mosaic  : ERMOSAIC
 hpe_qpe_fieldtype      : ERMOSAIC
 hpe_load_misbin        : OFF
-hpe_debug_log          : ON
+hpe_debug_log          : OFF
 hpe_use_locbias        : OFF
 hpe_runfreq          :  5
 hpe_timelag          :  5
@@ -1817,7 +1817,7 @@ sshp_ingest_xml_dir       : $(local_data_sshp_dir)/ingest_xml
 sshp_incoming_dir         : $(local_data_sshp_dir)/incoming
 sshp_outgoing_dir         : $(local_data_sshp_dir)/outgoing
 sshp_log_dir              : $(whfs_log_dir)/sshp
-sshp_java_process_host    : px1f
+sshp_java_process_host    : localhost
 sshp_invoke_map_preprocess: ON
 sshp_map_qpe_to_use	  : MIXED    # choices are: MIXED, LOCAL_BEST_ONLY, RFC_ONLY
 sshp_fcst_ts         	  : FZ       # SSHP type-source code for generated forecasts
@@ -1880,7 +1880,7 @@ hdb_map_projection   : FLAT       # The initial map projection used by HDB.
 # ====================== DHM Token =======================
 dhm_data_dir               : $(ofs_files)/$(ofs_level)/dhmdata	 # DHM data dir
 dhm_d2d_data_dir           : /data/fxa/Grid/LOCAL/netCDF/DHM  # d2d data dir
-dhm_d2d_notify_bin_dir     : /awips/fxa/bin              # d2d notify bin dir
+dhm_d2d_notify_bin_dir     : /awips2/fxa/bin              # d2d notify bin dir
 rdhm_input_dir             :  $(geo_data)
 dhm_rain_plus_melt_data_dir:  $(geo_data)
 

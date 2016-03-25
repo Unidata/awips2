@@ -33,7 +33,7 @@
 #
 
 import logging
-from ufpy import AlertVizHandler
+from awips import AlertVizHandler
 
 PLUGIN_NAME = 'com.raytheon.viz.aviation'
 CLIMATE_CATEGORY = "CLIMATE"

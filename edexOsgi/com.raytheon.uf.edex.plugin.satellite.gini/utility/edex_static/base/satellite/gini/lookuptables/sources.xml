@@ -20,4 +20,5 @@
     -->
 <numericLookupTable id="sources">
     <entry index="1" value="NESDIS" />
+    <entry index="101" value="UCAR" />
 </numericLookupTable>

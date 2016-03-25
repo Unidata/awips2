@@ -20,7 +20,7 @@
     -->
     
 <compositeModel>
-	<modelName>UKMET-NorthernHemisphere</modelName>
-	<grid>371</grid>
-	<componentModels>UKMET37:UKMET38:UKMET39:UKMET40</componentModels>
+	<modelName>UKMET-Global</modelName>
+	<grid>289145</grid>
+	<componentModels>UKMET37:UKMET38:UKMET39:UKMET40:UKMET41:UKMET42:UKMET43:UKMET44</componentModels>
 </compositeModel>

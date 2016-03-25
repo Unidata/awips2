@@ -1,0 +1,518 @@
+2.7.9 --> 2.7.10
+----------------
+
+Bug fixes:
+
+- Removed all occurrences of "as" as a variable name for compatibility
+  with Python 2.6.
+
+- Installation without the netCDF module did not work.
+
+Improvements:
+
+- Vector.dyadicProduct() was replaced by a more efficient implementation.
+
+- Scientific.IO.PDB: Atom objects now have a parent attribute whose
+  value is the containing group.
+
+
+2.7.8 --> 2.7.9
+---------------
+
+License change: ScientificPython is now distributed under the
+CeCILL-C license, which is an adaptation of the LGPL to French
+law. The previously used CeCILL license, similar to the GPL, was
+considered too restrictive.
+
+Bug fixes:
+
+- MPI interfaces did not work correctly with NumPy and/or Python 2.5.
+
+Improvements:
+
+- Compilation script for mpipython works around a Python configuration
+  bug under MacOS X.
+- Docstrings have been cleaned up.
+
+2.7.7 --> 2.7.8
+---------------
+
+Bug fixes:
+
+- Due to a typo in Scientific.IO.PDBSpaceGroups, some space group
+  names were not found in the space group table.
+
+Improvements:
+
+- Vector objects can now be multiplied with NumPy scalar objects
+  (which is what you get when extracting numbers from NumPy
+  arrays). Due to the way NumPy scalars handle multiplication, the
+  result used to be an array rather than a Vector, which caused
+  various applications to crash.
+
+- The build procedure under Windows has been improved. It can
+  generate a binary installer that includes the netCDF DLL,
+  making ScientificPython independent of a netCDF installation.
+
+2.7.6 --> 2.7.7
+---------------
+
+Bug fixes:
+
+- Installation on Windows didn't work because the Unix maths libraries
+  don't exist there.
+
+
+Improvements:
+
+- InterpolatingFunction and TensorField objects can represent
+  periodic functions/fields.
+
+- DistributedComputing: the watchdog period of slave processes is now
+  a user-definable parameter.
+
+- PDBSpaceGroups was simplified, making it shorter and faster to load.
+
+- Scientific.N contains the array type object in the variable array_type.
+  This makes it possible to write Pyrex modules using arrays in such a
+  way that they always use the numeric module for which ScientificPython
+  was compiled.
+
+ 
+2.7.5 --> 2.7.6
+---------------
+
+Bug fixes:
+
+- NumPy compatibility fixes.
+
+- Pyro 3.6 compatibility fix in DistributedComputing.MasterSlave
+
+
+2.7.4 --> 2.7.5
+---------------
+
+New features:
+
+- Scaling, inversion, and shear transformations added to
+  Geometry.Transformations
+
+Improvements:
+
+- PDB parser handles CRYST1, SCALEn and MTRIXn records
+- Better identification of the Numerics package that is being used
+
+Bug fixes:
+
+- Scientific_affinitypropagation.c compiles with NumPy
+
+
+2.7.3 --> 2.7.4
+---------------
+
+New features:
+
+- New module Clustering.AffinityPropagation.
+- New class BSP.ParRootSequence.
+
+Bug fixes:
+
+- Replaced float equality test in Functions.InterpolatingFunction
+- Removed exception for order > 1 in Derivatives.DerivVar.__init__
+- Fixed reading of non-string attributes from netCDF files.
+
+Improvements:
+
+- New methods getBinIndices and getBinCount in Statistics.Histogram.Histogram
+- Physics.PhysicalQuantities: unit definitions added to doc string
+
+2.7.2 --> 2.7.3
+---------------
+
+Improvements:
+
+- Added multi-module setup for master-slave computations.
+- More information available through task_manager.
+- task_manager can start slave processes.
+
+2.7.1 --> 2.7.2
+---------------
+
+Bug fixes:
+
+- Scientific_netcdf would not compile with NumPy under Python 2.4
+  because NumPy also defined Py_ssize_t.
+
+2.7 --> 2.7.1
+-------------
+
+Improvements:
+
+- NumPy compatibility. Scientific_netcdf was revised by hand.
+  The Python code was run through numpy.oldnumeric.alter_code1 to
+  identify the critical sections, which were then all handled in
+  some way. It is possible that there are still incompatibilities
+  of the kind that numpy.oldnumeric.alter_code1 cannot detect
+
+
+2.5.12hg --> 2.7
+----------------
+
+New features:
+
+- Subpackage Scientific.DistributedComputing for easy parallelization
+  of independent tasks.
+
+2.5.11 --> 2.5.12hg
+-------------------
+
+Bug fixes:
+
+- VRML2 output would crash for scenes containing Line objects
+- Pyrex implmentation of vector objects could crash instead of raising
+  an exception in divide operations.
+- Pyrex implmentation of vector objects would raise exceptions incorrectly
+  under Python 2.5
+
+Improvements:
+
+- builds Macintosh packages with documentation and examples
+
+2.5.10 --> 2.5.11
+-----------------
+
+Bug fixes:
+
+- Pyrex implementation of vector objects raised exceptions in comparisons
+- Pyrex implementation of vector objects did not accept negative indices
+- Some object deletions during conversion to epydoc had to be reversed
+
+Improvements:
+
+- Two test suites
+
+2.5.9 --> 2.5.10
+----------------
+
+Bug fixes:
+
+- Fixed netCDF error handling
+
+Improvements:
+
+- Support for NumPy (not very well tested yet)
+- Scientific.NumberDict more efficient
+
+2.5.8 --> 2.5.9
+---------------
+
+Improvements:
+
+- Scientifc.IO.NetCDF supports the new 64-bit data structures in Python 2.5
+  (not yet tested on a 64-bit machine)
+- Docstrings modified for use with Epydoc.
+
+2.5.7 --> 2.5.8
+---------------
+
+Bug fixes:
+
+- Syntax error in Scientific.IO.PDB
+- Attribute deletion in netCDF file and variable objects caused a crash.
+
+2.5.6 --> 2.5.7
+----------------
+
+Bug fixes:
+
+- Tensor-vector multiplication was incorrect with the Pyrex implementation
+  of vector objects.
+
+2.5.5 --> 2.5.6
+----------------
+
+Bug fixes:
+
+- Scientific.BSP.ParClass did not pass on __call__ and __getitem__
+  to local class
+- Scientific.BSP.ParClass: Class wrappers did not always return the right
+  global object.
+
+2.5.4 --> 2.5.5
+----------------
+
+Bug fixes:
+
+- Scientific.IO.NetCDF.NetCDFVariable.assignValue() had incomplete error
+  reporting. Some errors would not raise exceptions as required.
+
+
+2.5.3 --> 2.5.4
+----------------
+
+Improvements:
+
+- A "test" method on MPI request objects permits to check if data
+  is available (thanks to Jakob Schiotz for this addition).
+
+Bug fixes:
+
+- The new Pyrex vector objects could not be pickled.
+
+2.5.1 --> 2.5.3
+----------------
+
+Improvements:
+
+- The class Scientific.Geometry.Vector has been reimplemented in Pyrex,
+  yielding much faster vector operations. There is, however, the restriction
+  that the vector elements must be of type "float". For the rare applications
+  where this condition is not fulfilled (such as
+  Scientific.Functions.Derivatives.DerivVector), the Python implementation
+  remains accessible as Scientific.Geometry.VectorModule.Vector.
+
+2.4.9 --> 2.5.1
+----------------
+
+Improvements:
+
+- Vector and Tensor objects permit comparison with other types
+  of objects (which always return False)
+- Numarray can be used instead of Numeric as far as possible
+  (see README for details)
+
+2.4.7 --> 2.4.9:
+----------------
+
+Bug fixes:
+
+- Integer array attributes caused a TypeError with recent versions of
+  Numeric (that don't do silent casts from Long to Int any more).
+
+Additions:
+
+- Method "threeAngles" in Geometry.Transformation.Rotation.
+
+
+2.4.6 --> 2.4.7:
+----------------
+
+Bug fixes:
+
+- Scientific.BSP: alltrue() and anytrue() sometimes returned wrong results.
+
+Additions:
+
+- Scientific.Visualization.VMD can now correctly launch VMD under Windows
+
+
+2.4.3 --> 2.4.4:
+----------------
+
+Bug fixes:
+
+NetCDF error messages should now be correct. No more "unknown errors"!
+
+2.4 --> 2.4.1:
+--------------
+
+Bug fixes:
+
+- Scientific.MPI did not contain the _C_API object needed by C extension
+  modules that call MPI.
+- The arguments to the receiveString method are now optional, as documented.
+
+2.3.3 --> 2.4:
+--------------
+
+Bug fixes:
+
+- Memory function calculation in Scientific.Signals.Models
+  returned a wrong value for the first point.
+- Some indexing problems in Scientific.IO.NetCDF were fixed;
+  none of them caused wrong results, just unjustified exceptions.
+
+2.3.2 --> 2.3.3:
+----------------
+
+Bug fixes:
+
+- The method divide() assumed the wrong coefficient order.
+
+New features:
+
+- Module Scientific.Signals.Models
+- Class Scientific.Statistics.Histogram.WeightedHistogram
+
+
+2.3.1 --> 2.3.2:
+----------------
+
+Incompatible changes:
+
+- Specification of routines in Scientific.BSP changed.
+
+
+2.2 --> 2.3.1
+-------------
+
+New features:
+
+- New modules Scientific.BSP and Scientific.BSP.IO
+
+2.1.5 --> 2.2
+-------------
+
+Bug fixes:
+
+- The sign convention for rotation angles was not correctly applied
+  in Scientific.Geometry.Transformation and Scientific.Geometry.Quaternions.
+  Everything was consistent, but with the wrong sign.
+
+Improvements:
+
+- Scientific.IO.PDB can handle a larger range of variant formats for DNA
+
+New features:
+
+- New module Scientific.Visualization.VPython.
+
+- Scientific.IO.TextFile also handles bzip2 compressed files
+  (extension .bz2). This only works if bzip2 is installed.
+
+
+2.1.4 --> 2.1.5
+---------------
+
+New features:
+
+- Scientific.TkWidgets.TkPlotCanvas:
+  - Popup menu on right button
+  - Value display on middle button
+  - HorizontalLine, VerticalLine objects
+
+Modifications:
+
+- MPI interface no longer assumes that MPI_Op and MPI_Datatype are
+  integers (they aren't in LAM, for example).
+
+
+2.1.3 --> 2.1.4
+---------------
+
+New features:
+
+- New MPI functions implemented by Jakob Schiotz:
+  - nonblocking send and receive
+  - abort
+  - reduce and allreduce
+
+Modifications:
+
+- The Python interpreter lock is released during calls to the netCDF
+  library, permitting other threads to continue during I/O operations.
+  An internal lock has been added to prevent reentrant calls to the
+  netCDF library, which is not thread safe.
+  (If you don't understand any of this, you shouldn't care, it has
+  no consequences unless you use threads.)
+- Methods receive and receiveString on MPI communicator objects
+  can be called without source and tag arguments (defaults to None).
+
+
+Bug fixes:
+
+- The compilation script did not work correctly for MPI support
+
+
+2.1.2 --> 2.1.3
+---------------
+
+New features:
+
+- Some small utility widgets have been added to Scientific.TkWidgets.
+  They are not particularly "scientific", but not worth the effort
+  of a separate distribution.
+
+Bug fixes:
+
+- The abs() function didn't work on DerivVar objects (modules
+  Scientific.Functions.Derivatives and Scientific.Functions.FirstDerivatives)
+  with negative values.
+
+- The method projectionOf in Scientific.Geometry.Objects3D.Plane was
+  wrong.
+
+
+2.1.1 --> 2.1.2
+---------------
+
+Installation:
+
+- The mpipython executable is compiled using 'mpicc', which should simplify
+  installation significantly because all library specifications are
+  automatically taken into account. In other words, MPI support should
+  work on all platforms without any modifications to the Setup file.
+  (Thanks to Jakob Schiotz for this suggestion!)
+
+- Some 'extern' declarations were changed to 'staticforward' to please
+  some compilers.
+
+Documentation:
+
+- the documentation for the methods receive and receiveString were
+  wrong.
+
+
+2.1.0 --> 2.1.1
+---------------
+
+Bug fixes:
+
+- The upper bound for MPI message tags was not treated correctly,
+  leading to a bound of zero on some platforms.
+
+Modifications:
+
+- The methods sendArray and sendString were combined into a single
+  method send.
+
+- broadcastArray was renamed to broadcast, shareArray was renamed to share,
+  receiveArray was renamed to receive. The only function that retains
+  a data type indication is receiveString.
+
+
+2.0.1 --> 2.1.0
+---------------
+
+Additions:
+
+- MPI interface in Scientific.MPI
+
+
+2.0 --> 2.0.1
+-------------
+
+Bug fixes:
+
+- The method integral() in class
+  Scientific.Functions.Interpolation.InterpolatingFunction
+  didn't work.
+
+- Integer attributes were handled incorrectly on machines with
+  64 bit long types (DEC Alpha, 64-bit SGI machines)
+
+- Syntax errors in Scientific.Visualization.VRML2 fixed.
+
+- Memory leaks fixed.
+
+
+Additions:
+
+- Scientific.Functions.Interpolation.InterpolatingFunction
+  instances support most array indexing operations (all except
+  NewAxis, which makes no sense)
+
+- New class Scientific.Functions.Interpolation.NetCDFInterpolatingFunction
+  represents a function defined by a variable stored in a netCDF file.
+
+- Append mode in Scientific.IO.TextFile.TextFile

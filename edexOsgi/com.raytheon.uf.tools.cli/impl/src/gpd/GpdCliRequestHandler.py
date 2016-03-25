@@ -8,7 +8,7 @@
 ##
 import os
 from dynamicserialize.dstypes.gov.noaa.nws.ncep.common.dataplugin.gpd.query import GenericPointDataReqMsg
-from ufpy import ThriftClient
+from awips import ThriftClient
 
 
 class GpdCliRequestHandler:

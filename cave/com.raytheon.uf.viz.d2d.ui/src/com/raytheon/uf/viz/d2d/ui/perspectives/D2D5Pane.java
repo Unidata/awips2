@@ -65,9 +65,9 @@ public class D2D5Pane implements IPerspectiveFactory {
     private static final String BASE_VIEW_ID_PREFIX = SideView.ID
             + UiUtil.SECONDARY_ID_SEPARATOR + "sideView";
 
-    private static final float THREE_PANE_WIDTH = 0.4f;
+    private static final float FIVE_PANE_WIDTH = 0.1f;
 
-    private static final float FIVE_PANE_WIDTH = 0.2f;
+    private static final float ZERO_PANE_WIDTH = 0.0f;
 
     /*
      * (non-Javadoc)
@@ -93,31 +93,32 @@ public class D2D5Pane implements IPerspectiveFactory {
             }
         }
 
-        int numViews = ChangeD2DLayoutAction.getViewCount() == 2 ? 2
-                : baseViewsToAdd.size();
+        int numViews = ChangeD2DLayoutAction.getViewCount() > 0 ? 0
+                : 4;
 
         String lastAdded = null;
 
         Collections.sort(baseViewsToAdd);
 
-        for (int i = 0; i < baseViewsToAdd.size(); ++i) {
-            String baseView = baseViewsToAdd.get(i);
-            if (baseViewsToAdd.contains(baseView)) {
-                if (lastAdded == null) {
-                    layout.addStandaloneView(
-                            baseView,
-                            false,
-                            IPageLayout.LEFT,
-                            ChangeD2DLayoutAction.getViewCount() == 2 ? THREE_PANE_WIDTH
-                                    : FIVE_PANE_WIDTH, editorArea);
-                } else {
-                    layout.addStandaloneView(baseView, false,
-                            IPageLayout.BOTTOM, (i >= numViews) ? 1.0f
-                                    : 1.0f / (numViews - i + 1), lastAdded);
-                }
-                lastAdded = baseView;
-                addedViews.add(lastAdded);
-            }
+        if (numViews > 0) {
+	        for (int i = 0; i < baseViewsToAdd.size(); ++i) {
+	            String baseView = baseViewsToAdd.get(i);
+	            if (baseViewsToAdd.contains(baseView)) {
+	                if (lastAdded == null) {
+	                    layout.addStandaloneView(
+	                            baseView,
+	                            false,
+	                            IPageLayout.LEFT,
+	                            FIVE_PANE_WIDTH, editorArea);
+	                } else {
+	                    layout.addStandaloneView(baseView, false,
+	                            IPageLayout.BOTTOM, (i >= numViews) ? 1.0f
+	                                    : 1.0f / (numViews - i + 1), lastAdded);
+	                }
+	                lastAdded = baseView;
+	                addedViews.add(lastAdded);
+	            }
+	        }
         }
 
         addedViews.addAll(baseViewsToAdd);

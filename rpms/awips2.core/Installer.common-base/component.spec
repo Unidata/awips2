@@ -23,8 +23,6 @@ Packager: Bryan Kowal
 AutoReq: no
 provides: awips2-common-base
 requires: awips2-base
-requires: netcdf = 4.1.2
-requires: netcdf-devel = 4.1.2
 
 %description
 AWIPS II Common Base - Contains common plugins utilized by both EDEX and CAVE.

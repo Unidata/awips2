@@ -33,9 +33,11 @@
 #    10/09/12        DR 13901      D. Friedman    Limit execution time
 #    02/20/13        DR 15836      D. Friedman    Handle comma-delimited args.
 #                                                 Improve logging.
+#    09/08/15                      mjames@ucar    Check/assign relevant header
+#                                                 for grib messages
 ##############################################################################
 
-from ufpy import qpidingest
+from awips import qpidingest
 from lib.Util import doWithinTime
 
 import logging
@@ -60,6 +62,7 @@ class mhsFileIngest:
 
     def qpidNotify(self):
         cnn = self.conn
+	grib_regex = "grib"
         
         #Get uplink files
         #
@@ -76,7 +79,7 @@ class mhsFileIngest:
         fileCount=0
         errCount=0
         for outfile in args:
-            #Make sure incoming file exists in /data_store/mhs directory 
+            #Make sure incoming file exists in /awips2/data_store/mhs directory 
 #           print "outfle:", outfile
             if os.path.exists(outfile):
                 try:
@@ -87,7 +90,11 @@ class mhsFileIngest:
                 else:
                     #Parse wmoId header info
                     firstLine=f.readline()
-                    wmoHdr=firstLine[0:11]
+		    if grib_regex in outfile: # this comes from /awips2/data_store/grib2 or /awips2/data_store/mrms
+                        wmoHdr = grib_regex
+                    else:
+		        #read first line to get wmo header
+                        wmoHdr=firstLine[0:11]
 #                    print "WMO header:", wmoHdr
                     f.close()
                     #Send message to the external dropbox queue for file to be ingested

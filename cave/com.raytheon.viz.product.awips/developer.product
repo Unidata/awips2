@@ -14,8 +14,8 @@
    </configIni>
 
    <launcherArgs>
-      <programArgs>-data @user.home/caveData -user @user.home/caveData -clean -consoleLog -alertviz</programArgs>
-      <vmArgs>-Xmx1536M
+      <programArgs>-data @user.home/caveData -user @user.home/caveData -clean -consoleLog -component thinclient -alertviz</programArgs>
+      <vmArgs>-Xmx3536M
 -XX:+UseG1GC
 -Dosgi.instance.area.readOnly=true
 -Dorg.eclipse.update.reconcile=false -XX:MaxPermSize=256m 

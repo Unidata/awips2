@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?><testsuite name="nosetests" tests="4" errors="1" failures="1" skip="1"><testcase classname="test_skip" name="test_ok" time="0.001"></testcase><testcase classname="test_skip" name="test_err" time="0.000"><error type="exceptions.Exception" message="oh no"><![CDATA[Traceback (most recent call last):
+  File "/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/unittest/case.py", line 331, in run
+    testMethod()
+  File "/Users/jszakmeister/projects/nose/nose/case.py", line 197, in runTest
+    self.test(*self.arg)
+  File "/Users/jszakmeister/projects/nose/functional_tests/doc_tests/test_xunit_plugin/support/test_skip.py", line 7, in test_err
+    raise Exception("oh no")
+Exception: oh no
+]]></error></testcase><testcase classname="test_skip" name="test_fail" time="0.000"><failure type="exceptions.AssertionError" message="bye"><![CDATA[Traceback (most recent call last):
+  File "/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/unittest/case.py", line 331, in run
+    testMethod()
+  File "/Users/jszakmeister/projects/nose/nose/case.py", line 197, in runTest
+    self.test(*self.arg)
+  File "/Users/jszakmeister/projects/nose/functional_tests/doc_tests/test_xunit_plugin/support/test_skip.py", line 10, in test_fail
+    assert False, "bye"
+AssertionError: bye
+]]></failure></testcase><testcase classname="test_skip" name="test_skip" time="0.000"><skipped type="unittest.case.SkipTest" message="not me"><![CDATA[SkipTest: not me
+]]></skipped></testcase></testsuite>

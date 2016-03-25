@@ -1,7 +1,7 @@
 <project default="main" basedir=".">
 
 	<!-- TODO: Verify These Properties References An Actual Directory. -->
-	<property name="eclipse.dir" value="/opt/uframe-eclipse" />
+	<property name="eclipse.dir" value="/awips2/eclipse" />
 	<property name="build.version" value="1.0.0" />
 	<property name="build.os" value="linux" />
 	<property name="build.ws" value="gtk" />
@@ -239,9 +239,6 @@
 			<param name="feature" value="com.raytheon.uf.viz.registry.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
-			<param name="feature" value="com.raytheon.uf.viz.datadelivery.feature" />
-		</antcall>
-		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.npp.feature" />
 		</antcall>
         <antcall target="p2.build.repo">
@@ -281,7 +278,9 @@
 		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.d2d.ui.awips.feature" />
 		</antcall>
-
+		<antcall target="p2.build.repo">
+			<param name="feature" value="gov.noaa.gsd.viz.ensemble.feature" />
+		</antcall>
 		<antcall target="cleanup.features" />
 	</target>
 

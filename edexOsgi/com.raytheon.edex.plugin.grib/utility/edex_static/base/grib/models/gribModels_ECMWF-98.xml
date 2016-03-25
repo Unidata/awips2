@@ -864,10 +864,10 @@
 	</model>
 
 	<model>
-		<name>ECMF-NorthernHemisphere</name>
+                <name>ECMF-Global</name>
 		<center>98</center>
 		<subcenter>0</subcenter>
-		<grid>372</grid>
+                <grid>14573</grid>
 		<process>
 			<id>120</id>
 			<id>121</id>

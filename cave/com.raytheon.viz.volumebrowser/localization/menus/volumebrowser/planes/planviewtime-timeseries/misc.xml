@@ -112,6 +112,5 @@
         indentText="false" />
     <contribute xsi:type="menuItem" textLookup="LevelMapping"
         key="0BSS" indentText="false" />
-    <contribute xsi:type="menuItem" textLookup="LevelMapping"
-        key="NTAT" indentText="false" />
+  
 </menuTemplate>

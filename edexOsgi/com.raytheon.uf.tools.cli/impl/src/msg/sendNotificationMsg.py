@@ -38,7 +38,7 @@ import os, socket
 #
 #
 
-from ufpy import NotificationMessage
+from awips import NotificationMessage
 
 class PrintHelpOnErrorParser(ArgumentParser):
    def error(self, message):

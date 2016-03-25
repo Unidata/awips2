@@ -7,7 +7,7 @@ import ConfigParser
 from optparse import OptionParser
 from nose.util import absdir, tolist
 from nose.plugins.manager import NoPlugins
-from warnings import warn
+from warnings import warn, filterwarnings
 
 log = logging.getLogger(__name__)
 
@@ -25,6 +25,8 @@ config_files = [
 # Windows and IronPython
 exe_allowed_platforms = ('win32', 'cli')
 
+filterwarnings("always", category=DeprecationWarning,
+               module=r'(.*\.)?nose\.config')
 
 class NoSuchOptionError(Exception):
     def __init__(self, name):
@@ -129,7 +131,10 @@ class ConfiguredDefaultsOptionParser(object):
         except ConfigError, exc:
             self._error(str(exc))
         else:
-            self._applyConfigurationToValues(self._parser, config, values)
+            try:
+                self._applyConfigurationToValues(self._parser, config, values)
+            except ConfigError, exc:
+                self._error(str(exc))
         return self._parser.parse_args(args, values)
 
 
@@ -168,7 +173,8 @@ class Config(object):
       self.testNames = ()
       self.verbosity = int(env.get('NOSE_VERBOSE', 1))
       self.where = ()
-      self.workingDir = None   
+      self.py3where = ()
+      self.workingDir = None
     """
 
     def __init__(self, **kw):
@@ -185,10 +191,11 @@ class Config(object):
         self.getTestCaseNamesCompat = False
         self.includeExe = env.get('NOSE_INCLUDE_EXE',
                                   sys.platform in exe_allowed_platforms)
-        self.ignoreFiles = (re.compile(r'^\.'),
-                            re.compile(r'^_'),
-                            re.compile(r'^setup\.py$')
-                            )
+        self.ignoreFilesDefaultStrings = [r'^\.',
+                                          r'^_',
+                                          r'^setup\.py$',
+                                          ]
+        self.ignoreFiles = map(re.compile, self.ignoreFilesDefaultStrings)
         self.include = None
         self.loggingConfig = None
         self.logStream = sys.stderr
@@ -202,19 +209,44 @@ class Config(object):
         self.testNames = []
         self.verbosity = int(env.get('NOSE_VERBOSE', 1))
         self.where = ()
+        self.py3where = ()
         self.workingDir = os.getcwd()
         self.traverseNamespace = False
         self.firstPackageWins = False
         self.parserClass = OptionParser
-        
+        self.worker = False
+
         self._default = self.__dict__.copy()
         self.update(kw)
         self._orig = self.__dict__.copy()
 
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        del state['stream']
+        del state['_orig']
+        del state['_default']
+        del state['env']
+        del state['logStream']
+        # FIXME remove plugins, have only plugin manager class
+        state['plugins'] = self.plugins.__class__
+        return state
+
+    def __setstate__(self, state):
+        plugincls = state.pop('plugins')
+        self.update(state)
+        self.worker = True
+        # FIXME won't work for static plugin lists
+        self.plugins = plugincls()
+        self.plugins.loadPlugins()
+        # needed so .can_configure gets set appropriately
+        dummy_parser = self.parserClass()
+        self.plugins.addOptions(dummy_parser, {})
+        self.plugins.configure(self.options, self)
+
     def __repr__(self):
         d = self.__dict__.copy()
         # don't expose env, could include sensitive info
-        d['env'] = {} 
+        d['env'] = {}
         keys = [ k for k in d.keys()
                  if not k.startswith('_') ]
         keys.sort()
@@ -258,12 +290,18 @@ class Config(object):
         if options.testNames is not None:
             self.testNames.extend(tolist(options.testNames))
 
-        # `where` is an append action, so it can't have a default value 
+        if options.py3where is not None:
+            if sys.version_info >= (3,):
+                options.where = options.py3where
+
+        # `where` is an append action, so it can't have a default value
         # in the parser, or that default will always be in the list
         if not options.where:
             options.where = env.get('NOSE_WHERE', None)
 
         # include and exclude also
+        if not options.ignoreFiles:
+            options.ignoreFiles = env.get('NOSE_IGNORE_FILES', [])
         if not options.include:
             options.include = env.get('NOSE_INCLUDE', [])
         if not options.exclude:
@@ -280,12 +318,21 @@ class Config(object):
         self.firstPackageWins = options.firstPackageWins
         self.configureLogging()
 
+        if not options.byteCompile:
+            sys.dont_write_bytecode = True
+
         if options.where is not None:
             self.configureWhere(options.where)
-        
+
         if options.testMatch:
             self.testMatch = re.compile(options.testMatch)
-                
+
+        if options.ignoreFiles:
+            self.ignoreFiles = map(re.compile, tolist(options.ignoreFiles))
+            log.info("Ignoring files matching %s", options.ignoreFiles)
+        else:
+            log.info("Ignoring files matching %s", self.ignoreFilesDefaultStrings)
+
         if options.include:
             self.include = map(re.compile, tolist(options.include))
             log.info("Including tests matching %s", options.include)
@@ -309,7 +356,7 @@ class Config(object):
             from logging.config import fileConfig
             fileConfig(self.loggingConfig)
             return
-        
+
         format = logging.Formatter('%(name)s: %(levelname)s: %(message)s')
         if self.debugLog:
             handler = logging.FileHandler(self.debugLog)
@@ -322,10 +369,22 @@ class Config(object):
 
         # only add our default handler if there isn't already one there
         # this avoids annoying duplicate log messages.
-        if handler not in logger.handlers:
+        found = False
+        if self.debugLog:
+            debugLogAbsPath = os.path.abspath(self.debugLog)
+            for h in logger.handlers:
+                if type(h) == logging.FileHandler and \
+                        h.baseFilename == debugLogAbsPath:
+                    found = True
+        else:
+            for h in logger.handlers:
+                if type(h) == logging.StreamHandler and \
+                        h.stream == self.logStream:
+                    found = True
+        if not found:
             logger.addHandler(handler)
 
-        # default level    
+        # default level
         lvl = logging.WARNING
         if self.verbosity >= 5:
             lvl = 0
@@ -357,7 +416,7 @@ class Config(object):
             if not self.workingDir:
                 abs_path = absdir(path)
                 if abs_path is None:
-                    raise ValueError("Working directory %s not found, or "
+                    raise ValueError("Working directory '%s' not found, or "
                                      "not a directory" % path)
                 log.info("Set working dir to %s", abs_path)
                 self.workingDir = abs_path
@@ -374,6 +433,7 @@ class Config(object):
                      "the -w argument on the command line, or by using the "
                      "--tests argument in a configuration file.",
                      DeprecationWarning)
+                warned = True
             self.testNames.append(path)
 
     def default(self):
@@ -426,6 +486,16 @@ class Config(object):
             "to the list of tests to execute. [NOSE_WHERE]"
             )
         parser.add_option(
+            "--py3where", action="append", dest="py3where",
+            metavar="PY3WHERE",
+            help="Look for tests in this directory under Python 3.x. "
+            "Functions the same as 'where', but only applies if running under "
+            "Python 3.x or above.  Note that, if present under 3.x, this "
+            "option completely replaces any directories specified with "
+            "'where', so the 'where' option becomes ineffective. "
+            "[NOSE_PY3WHERE]"
+            )
+        parser.add_option(
             "-m", "--match", "--testmatch", action="store",
             dest="testMatch", metavar="REGEX",
             help="Files, directories, function names, and class names "
@@ -457,6 +527,15 @@ class Config(object):
             default=self.loggingConfig, metavar="FILE",
             help="Load logging config from this file -- bypasses all other"
             " logging config settings.")
+        parser.add_option(
+            "-I", "--ignore-files", action="append", dest="ignoreFiles",
+            metavar="REGEX",
+            help="Completely ignore any file that matches this regular "
+            "expression. Takes precedence over any other settings or "
+            "plugins. "
+            "Specifying this option will replace the default setting. "
+            "Specify this option multiple times "
+            "to add more regular expressions [NOSE_IGNORE_FILES]")
         parser.add_option(
             "-e", "--exclude", action="append", dest="exclude",
             metavar="REGEX",
@@ -498,10 +577,15 @@ class Config(object):
             help="Traverse through all path entries of a namespace package")
         parser.add_option(
             "--first-package-wins", "--first-pkg-wins", "--1st-pkg-wins",
-            default=False, dest="firstPackageWins",
+            action="store_true", default=False, dest="firstPackageWins",
             help="nose's importer will normally evict a package from sys."
             "modules if it sees a package with the same name in a different "
             "location. Set this option to disable that behavior.")
+        parser.add_option(
+            "--no-byte-compile",
+            action="store_false", default=True, dest="byteCompile",
+            help="Prevent nose from byte-compiling the source into .pyc files "
+            "while nose is scanning for and running tests.")
 
         self.plugins.loadPlugins()
         self.pluginOpts(parser)
@@ -522,7 +606,7 @@ class Config(object):
 
     def todict(self):
         return self.__dict__.copy()
-        
+
     def update(self, d):
         self.__dict__.update(d)
 
@@ -530,8 +614,14 @@ class Config(object):
 class NoOptions(object):
     """Options container that returns None for all options.
     """
-    def __getattr__(self, attr):
-        return None
+    def __getstate__(self):
+        return {}
+
+    def __setstate__(self, state):
+        pass
+
+    def __getnewargs__(self):
+        return ()
 
     def __nonzero__(self):
         return False

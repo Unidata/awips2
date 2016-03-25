@@ -139,7 +139,7 @@ public class GFSProcessor extends SixHrPrecipGridProcessor {
         DatabaseQuery query = new DatabaseQuery(GridRecord.class);
         query.addQueryParam(GridConstants.PARAMETER_ABBREVIATION, "TP6hr",
                 QueryOperand.IN);
-        query.addQueryParam(GridConstants.DATASET_ID, "GFS213");
+        query.addQueryParam(GridConstants.DATASET_ID, "GFS-95km");
         query.addQueryParam("dataTime.refTime", refTime);
         query.addQueryParam("dataTime.fcstTime", 648000,
                 QueryOperand.GREATERTHANEQUALS);

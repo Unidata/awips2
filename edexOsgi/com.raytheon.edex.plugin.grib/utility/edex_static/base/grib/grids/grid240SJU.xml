@@ -21,11 +21,11 @@
 <polarStereoGridCoverage>
     <name>240105</name>
     <description>HRAP Grid for SJU (Basin RFC San Juan, PR)</description>
-    <la1>17.181</la1>
-    <lo1>-70.981</lo1>
+    <la1>17.318</la1>
+    <lo1>-70.582</lo1>
     <firstGridPointCorner>LowerLeft</firstGridPointCorner>
-    <nx>228</nx>
-    <ny>229</ny>
+    <nx>205</nx>
+    <ny>205</ny>
     <dx>4.762</dx>
     <dy>4.762</dy>
     <spacingUnit>km</spacingUnit>

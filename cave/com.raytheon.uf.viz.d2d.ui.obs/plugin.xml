@@ -22,7 +22,7 @@
 <plugin>
     <extension point="org.eclipse.ui.menus">
         <menuContribution locationURI="menu:org.eclipse.ui.main.menu?after=d2d.obsMenu">
-            <menu id="obs" label="Obs" mnemonic="O">
+            <menu id="obs" label="Surface" mnemonic="O">
                 <visibleWhen>
                     <reference
                         definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
@@ -32,26 +32,32 @@
                 </separator>
                 <separator name="EndOfInitial" visible="true">
                 </separator>
-                <command commandId="com.raytheon.viz.ui.actions.titleAction"
-                    label="------ METAR ------">
-                </command>
                 <separator name="METAR" visible="false">
                 </separator>
                 <separator name="EndOfMetar" visible="true">
                 </separator>
-                <command commandId="com.raytheon.viz.ui.actions.titleAction"
-                    label="------ Synoptic ------">
-                </command>
                 <separator name="SYNOPTIC" visible="false">
                 </separator>
                 <separator name="EndOfSynoptic" visible="true">
                 </separator>
-                <command commandId="com.raytheon.viz.ui.actions.titleAction"
-                    label="------ Local data ------">
-                </command>
-                <separator name="LocalData" visible="false">
+
+                <separator
+                      name="WATCHWARN"
+                      visible="false">
                 </separator>
-                <separator name="EndOfLocalData" visible="true">
+				
+				<separator name="EndOfMos" visible="true">
+                </separator>
+                
+                <command
+                      commandId="com.raytheon.viz.ui.actions.titleAction"
+                      label="------ Lightning ------">
+                </command>
+                <separator
+                      name="USPLNPLACEHOLDER"
+                      visible="false">
+                </separator>
+				<separator name="MOS" visible="false">
                 </separator>
                 <command commandId="com.raytheon.viz.ui.actions.titleAction"
                     label="------ Maritime ------" id="MARITIME">

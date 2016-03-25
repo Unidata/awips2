@@ -1,0 +1,62 @@
+#!/bin/bash
+#
+# edex_ldm:	This starts and stops the LDM on EDEX
+#
+# chkconfig:	35 99 0
+# description:	edex_ldm starts/stops LDM software for AWIPS II
+#
+
+LDM_INSTALL="/awips2/ldm"
+PATH=/awips2/python/bin:/awips2/notification/bin:/awips2/java/bin:/awips2/tools/bin:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:${LDM_INSTALL}/bin:${LDM_INSTALL}/decoders:${LDM_INSTALL}/util
+
+# Source function library.
+. /etc/init.d/functions
+
+RETVAL=0
+LDM_USER=awips
+
+function clean_ldm() {
+
+	echo -ne "Cleaning LDM:\t"
+	su ${LDM_USER} -lc "ldmadmin clean" > /dev/null 2>&1 && success || failure
+	myRetVal=$?
+        if [[ ${myRetVal} -ne 0 ]]
+        then
+                return ${myRetVal}
+        fi
+	echo
+	if [[ -f ${LDM_INSTALL}/var/queues/ldm.pq ]] 
+	then
+		echo -ne "\nDeleting the ldm queue:\t"
+		su ${LDM_USER} -lc "ldmadmin delqueue" > /dev/null 2>&1 && success || failure
+		echo
+	fi
+        echo -ne "\nCreating the ldm queue:\t"
+	su ${LDM_USER} -lc "regutil -s '1500M' /queue/size"
+        su ${LDM_USER} -lc "ldmadmin mkqueue" > /dev/null 2>&1 && success || failure
+	myRetVal=$?
+        echo
+	return ${myRetVal}
+}
+
+case $1 in
+
+'start')
+	if ! clean_ldm; then exit 1 ; fi
+	echo -n "Starting AWIPS II LDM:"
+        su ${LDM_USER} -lc "ldmadmin start"
+	;;
+
+'stop')
+	echo -n "Stopping AWIPS II LDM:"
+	su ${LDM_USER} -lc "ldmadmin stop"
+	;;
+
+*)
+	echo "usage: $0 {start|stop|restart}"
+	RETVAL=1
+	;;
+
+esac
+
+exit $RETVAL

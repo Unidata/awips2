@@ -41,7 +41,7 @@
 # 
 #
 
-from ufpy.dataaccess import IDataRequest
+from awips.dataaccess import IDataRequest
 
 from com.raytheon.uf.common.dataaccess import DataAccessLayer as JavaDataAccessLayer
 from com.raytheon.uf.common.dataaccess.impl import DefaultDataRequest

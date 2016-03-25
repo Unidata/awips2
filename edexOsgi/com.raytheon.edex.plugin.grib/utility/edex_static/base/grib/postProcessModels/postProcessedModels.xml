@@ -49,7 +49,7 @@
 		post processor. These models may have some parameters which are incorrectly 
 		labeled Celsius vs. Kelvin. The list of parameters to correct is in temperatureCorrectionParameters.xml -->
 	<postProcessedModel>
-		<modelName>ETA218|GFS212|GFS213|ETA242|RTOFS-.*</modelName>
+		<modelName>NAM12|GFS40|GFS-95km|AK-NAM-11km|RTOFS-.*</modelName>
 		<processorName>TemperatureCorrectionPostProcessor</processorName>
 	</postProcessedModel>
 
@@ -73,13 +73,13 @@
 
 	<!-- Post processor definition for the ETA (NAM80) model -->
 	<postProcessedModel>
-		<modelName>ETA</modelName>
+		<modelName>NAM-80km</modelName>
 		<processorName>Nam80PostProcessor</processorName>
 	</postProcessedModel>
 
 	<!-- Post processor definition for the RUC236 model -->
 	<postProcessedModel>
-		<modelName>RUC236</modelName>
+		<modelName>RAP40</modelName>
 		<processorName>RUC236GribPostProcessor</processorName>
 	</postProcessedModel>
 
@@ -96,7 +96,7 @@
 	</postProcessedModel>
 
 	<postProcessedModel>
-		<modelName>Canadian-Reg</modelName>
+		<modelName>CMC</modelName>
 		<processorName>CanadianRegPostProcessor</processorName>
 	</postProcessedModel>
 
@@ -108,7 +108,7 @@
 
 	<!-- Post processor definition for the RUC130 model -->
 	<postProcessedModel>
-		<modelName>RUC130</modelName>
+		<modelName>RAP13</modelName>
 		<processorName>RUC130GribPostProcessor</processorName>
 	</postProcessedModel>
 	

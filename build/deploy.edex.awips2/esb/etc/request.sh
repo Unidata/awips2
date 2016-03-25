@@ -19,8 +19,11 @@
 # further licensing information.
 ##
 export INIT_MEM=128 # in Meg
-export MAX_MEM=2144 # in Meg
-
+if [ "$EDEX_ARCH" == "64-bit" ]; then
+    export MAX_MEM=4096 # in Meg
+else
+    export MAX_MEM=1376 # in Meg
+fi
 export SERIALIZE_POOL_MAX_SIZE=24
 export SERIALIZE_STREAM_INIT_SIZE_MB=2
 export SERIALIZE_STREAM_MAX_SIZE_MB=8
@@ -28,5 +31,4 @@ export SERIALIZE_STREAM_MAX_SIZE_MB=8
 
 export EDEX_DEBUG_PORT=5005
 export EDEX_JMX_PORT=1616
-export LOG_CONF=logback-request.xml
 export MGMT_PORT=9601

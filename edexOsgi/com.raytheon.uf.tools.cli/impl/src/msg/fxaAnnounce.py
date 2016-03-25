@@ -40,7 +40,7 @@ import os
 #    11/11/2011      11484         rferrel        Added SYSTEM for WSHNIMNAT
 #
 
-from ufpy import NotificationMessage 
+from awips import NotificationMessage 
 
 def usage():
   print ''

@@ -1,0 +1,1645 @@
+# This is the main file for model BUFR sounding ingest.  This will be clipped to the
+# regional scale for most sites to produce the file modelBufrStationInfo.txt
+#wmo          |stn  |lat     |lon        |elev |location                       |or|type
+0000000001    |YAJ  | 69.580 |-140.180   |9999 |  KOMAKUK, YT                  |US|11
+0000000002    |WRP  | 69.900 |-128.970   |9999 |  NICHOLSON, NT                |US|11
+0000000003    |WXK  | 69.580 |-120.750   |9999 |  CLINTON POINT, NT            |US|11
+0000000004    |SRR  | 65.000 |-132.000   |9999 |  SNAKE RIVER, YT              |US|11
+0000000005    |CRR  | 65.000 |-120.000   |9999 |  SW CAMSELL RIVER, NT         |US|11
+0000000007    |WTD  | 65.100 |-102.430   |9999 |  ROBERTSON LAKE, NT           |US|11
+0000000008    |MTL  | 60.000 |-140.000   |9999 |  MT. LOGAN, YT                |US|11
+0000000009    |EFL  | 60.000 |-120.000   |9999 |  E. FT. LIARD, NT             |US|11
+0000000010    |ENL  | 60.000 |-100.000   |9999 |  SE ENNADAI LAKE, NT          |US|11
+0000000011    |SWW  | 57.000 |-127.000   |9999 |  SW WARE, BC                  |US|11
+0000000012    |PASC | 70.200 |-148.470   |  17 |  DEADHORSE, AK                |US|10
+0000000014    |CHRL | 53.630 |-106.200   |9999 |  NR CHRISTOPHER LAKE, SA      |US|11
+0000000015    |PAFM | 67.100 |-157.850   |  88 |  AMBLER, AK                   |US|10
+0000000016    |CNLK | 53.990 |-105.120   |9999 |  11 E OF CANDLE LAKE, SA      |US|11
+0000000017    |WJA  | 52.880 |-118.070   |9999 |  JASPER, AB                   |US|11
+0000000018    |FTR  | 62.500 |-107.000   |9999 |  FT. RELIANCE, NT             |US|11
+0000000019    |GTP  | 43.900 |-110.000   |9999 |  NR. GRAND TETON NTL PK, WY   |US|12
+0000000020    |MRLS | 45.800 | -97.450   |9999 |  MARSHALL COUNTY RAWS, SD     |US|12
+0000000021    |CHE  | 43.500 | -95.600   |9999 |  NR. CHEROKEE, IA             |US|12
+0000000037    |CRL  | 42.040 | -94.790   |9999 |  CARROLL, IA                  |US|12
+0000000050    |MAR  | 42.110 | -92.920   |9999 |  MARSHALLTOWN, IA             |US|12
+0000000052    |ABL  | 34.100 | -86.100   |9999 |  NR. ALBERTVILLE, AL          |US|12
+0000000053    |CLD  | 35.200 | -84.800   |9999 |  NR. CLEVELAND, KY            |US|12
+0000000054    |BRA  | 34.800 | -84.050   |9999 |  BLUE RIDGE OF APPALACH.,GA   |US|12
+0000000055    |FRI  | 36.720 | -80.970   |9999 |  FRIES, VA                    |US|12
+0000000057    |MRP  | 48.320 |-113.350   |9999 |  MARIAS PASS, MT              |US|12
+0000000058    |PSR  | 42.200 |-107.200   |9999 |  PATHFINDER/SEMINOE RES,WY    |US|12
+0000000059    |LUS  | 42.760 |-104.450   |9999 |  LUSK, WY                     |US|12
+0000000060    |ATH  | 42.300 |-102.400   |9999 |  NR. ANTIOCH, NE              |US|12
+0000000061    |AIH  | 42.600 | -99.900   |9999 |  NR. AINSWORTH, NE            |US|12
+0000000063    |LDL  | 39.100 |-106.200   |9999 |  NR. LEADVILLE, CO            |US|12
+0000000065    |CAI  | 37.300 | -88.900   |9999 |  NR. CAIRO, IL                |US|10
+0000000066    |KKL  | 40.200 | -92.600   |9999 |  NR. KIRKSVILLE, MO           |US|12
+0000000068    |LW1  | 34.900 | -98.100   |9999 |  LITTLE WASHITA #147          |US|12
+0000000071    |FPK  | 48.310 |-105.100   | 634 |  FORT PECK, MT                |US|12
+0000000072    |GNC  | 34.250 | -89.870   |  98 |  GOODWIN CREEK, MS            |US|12
+0000000073    |TBL  | 40.130 |-105.240   |1689 |  TABLE MTN, CO                |US|12
+0000000074    |W#N  | 37.480 | -96.930   |9999 |  WALNUT RIVER, KS             |US|12
+0000000076    |O#K  | 35.970 | -84.280   |9999 |  OAK RIDGE, TN                |US|12
+0000000078    |V#L  | 42.860 |-100.410   |9999 |  VALENTINE, NE                |US|12
+0000000080    |CSQ  | 41.020 | -94.360   |9999 |  CRESTON, IA                  |US|12
+0000000081    |WHI  | 42.040 | -77.760   |9999 |  WHITESVILLE, NY              |US|12
+0000000082    |PIE  | 39.170 | -79.520   |9999 |  PIERCE, WV                   |US|12
+0000000085    |CLN  | 31.710 | -89.410   |9999 |  COLLINS, MS                  |US|12
+0000000091    |GNB  | 44.920 | -80.420   |9999 |  GEORGIAN BAY                 |US|22
+0000000096    |BH1  | 45.270 |-103.540   |9999 |  REDIG, SD                    |US|11
+0000000097    |BH2  | 44.790 |-104.730   |9999 |  BLACK HILLS NW, WY           |US|11
+0000000098    |BH3  | 44.460 |-103.850   |9999 |  BLACK HILLS NORTH, WY        |US|11
+0000000099    |BH4  | 43.350 |-104.690   |9999 |  BLACK HILLS SW,  WY          |US|11
+0000000100    |BH5  | 43.530 |-103.650   |9999 |  BLACK HILLS SOUTH, SD        |US|11
+0000000101    |MRS  | 45.500 | -95.900   |9999 |  MORRIS, MN                   |US|11
+0000000102    |WSC  | 44.100 | -93.500   |9999 |  WASECA, MN                   |US|11
+0000000103    |DSC  | 35.340 |-116.880   | 961 |  GOLDSTONE, CA                |US|10
+0000000151    |RSL  | 34.400 | -87.600   |9999 |  NR. RUSSELVILLE, AL          |US|12
+0000000152    |G001 | 47.500 |-121.100   |9999 |  CLE ELUM, WA                 |US|11
+0000000154    |G003 | 44.500 |-122.700   |9999 |  SANTIAM RIVER, OR            |US|11
+0000000155    |G004 | 44.000 |-115.000   |9999 |  UPPER BOISE, ID              |US|11
+0000000156    |G005 | 46.900 |-121.300   |9999 |  UPPER YAKIMA, WA             |US|11
+0000000158    |G007 | 44.100 |-120.500   |9999 |  OCHOCO, OR                   |US|11
+0000000160    |G009 | 42.700 |-121.400   |9999 |  TAYLOR BUTTE, OR             |US|11
+0000000161    |G010 | 32.420 |-110.730   |9999 |  CATALINA MTNS FLX STN, AZ    |US|11
+0000000162    |G011 | 36.610 | -97.490   |9999 |  SGP EXPER FLX STN, OK        |US|11
+0000000170    |COL1 | 45.680 |-121.270   |9999 |  COLUMBIA RIVER SITE 1, OR    |US|11
+0000000171    |COL2 | 45.720 |-121.560   |9999 |  COLUMBIA RIVER SITE 2, OR    |US|11
+0000000172    |COL3 | 45.680 |-120.820   |9999 |  COLUMBIA RIVER SITE 3, OR    |US|11
+0000000173    |COL4 | 45.720 |-120.210   |9999 |  COLUMBIA RIVER SITE 4, OR    |US|11
+0000000180    |TRAV | 38.060 |-121.770   |9999 |  NR. TRAVIS AFB, CA           |US|11
+0000000181    |PESC | 37.100 |-122.280   |9999 |  NR. PESCADERO, CA            |US|11
+0000000182    |PTBA | 37.820 |-122.470   |9999 |  NR. PT. BONITA, CA           |US|11
+0000000183    |SANQ | 37.940 |-122.500   |9999 |  NR. SAN QUENTIN, CA          |US|11
+0000000184    |GLRY | 37.070 |-121.120   |9999 |  NR. GILROY, CA               |US|11
+0000000185    |KBNV | 40.200 |-113.300   |9999 |  BONNEVILLE LAKE BED, UT      |US|11
+0000000190    |ATLH | 40.420 | -73.980   |9999 |  ATLANTIC HIGHLANDS, NJ       |US|11
+0000000191    |ATL1 | 37.200 | -74.800   |   0 |  NORTHEAST OF VA BEACH, VA    |US|21
+0000000192    |ATL2 | 36.050 | -74.250   |   0 |  OFFSHORE OF DUCK, NC         |US|21
+0000000193    |ATL3 | 32.800 | -77.200   |   0 |  SOUTH OF CAPE FEAR, NC       |US|21
+0000000194    |ATL4 | 38.600 | -73.750   |   0 |  EAST OF LEWES, DE            |US|21
+0000000195    |GMX1 | 29.200 | -87.250   |   0 |  SOUTH OF PENSACOLA, FL       |US|21
+0000000196    |KERY | 46.310 | -85.460   | 265 |  NEWBERRY, MI                 |US|10
+0000000197    |STDM | 47.180 | -87.220   | 183 |  STANNARD ROCK, MI            |US|20
+0000000198    |KMKX | 42.970 | -88.550   | 285 |  MILWAUKEE NWS WI             |US|10
+0000000199    |JAYV | 44.940 | -72.510   |1875 |  JAY PEAK VT                  |US|11
+0000000200    |GRUN | 37.270 | -82.100   |9999 |  GRUNDY VA                    |US|11
+0000000202    |A#2  | 74.300 |-156.600   |   0 |  NORTH OF BARROW, AK ARCTIC   |US|20
+0000000203    |A#3  | 75.000 |-140.000   |   0 |  N OF BARTAR ISL, AK ARCTIC   |US|20
+0000000204    |A#4  | 60.600 |-173.300   |   0 |  NEAR ST MATTHEW ISL BERING   |US|20
+0000000205    |A#C  | 59.900 |-161.750   |9999 |  SSE OF BETHEL           AK   |US|11
+0000000206    |PAEC | 62.880 |-149.830   | 381 |  CHULITNA                AK   |US|11
+0000000207    |PATO | 60.790 |-148.830   |  29 |  PORTAGE_GLACIER_CENTER  AK   |US|11
+0000000208    |A#D  | 60.490 |-149.790   |9999 |  COOPER LANDING          AK   |US|11
+0000000209    |A#E  | 60.950 |-149.140   |9999 |  GIRDWOOD                AK   |US|11
+0000000210    |PAWR | 60.780 |-148.720   |  30 |  WHITTIER                AK   |US|11
+0000000211    |KLCB | 29.220 |-114.280   |9999 |  LAGUNA CHAPELA BAJA          |MX|11
+0000000212    |TNB  | 36.200 | -81.650   | 960 |  BOONE                   NC   |US|11
+0000000213    |KENW | 42.590 | -87.940   | 220 |  KENOSHA_(ASOS)          WI   |US|11
+0000000227    |REO  | 42.590 |-117.870   |1234 |  ROME                    OR   |US|10
+0000000228    |SWY  | 47.080 |-122.360   |9999 |  SPANAWAY                WA   |US|12
+0000000229    |WPT  | 46.910 |-124.110   |9999 |  WESTPORT                WA   |US|12
+0000000230    |LUT  | 47.660 | -90.910   |9999 |  NEAR LUTSEN             MN   |US|11
+0000000231    |PWN  | 46.770 | -91.250   |9999 |  NEAR PORT WING          WI   |US|11
+0000000232    |SDP  | 55.310 |-160.520   |   6 |  NEAR SAND POINT         AK   |US|11
+0000000233    |KISO | 35.330 | -77.600   |9999 |  KINSTON                 NC   |US|11
+0000000234    |KMVL | 44.530 | -72.610   | 223 |  MORRISVILLE-STOWE APT   VT   |US|11
+0000000235    |KGKL | 41.630 | -80.210   | 427 |  MEADVILLE               PA   |US|11
+0000000236    |K48I | 38.690 | -80.650   | 255 |  SUTTON                  WV   |US|11
+0000000237    |KGXA | 34.340 |-117.400   | 923 |  GRAY BUTTE FIELD        CA   |US|11
+0000000238    |EMF  | 34.370 |-117.360   | 873 |  EL MIRAGE FIELD         CA   |US|11
+0000000239    |ISQ  | 45.970 | -86.170   | 209 |  MANISTIQUE              MI   |US|11
+0000000240    |P53  | 46.420 | -86.650   |9999 |  MUNISING                MI   |US|11
+0000000241    |K3LF | 39.160 | -89.670   |9999 |  LITCHFIELD              IL   |US|11
+0000000247    |PHP  | 44.050 |-101.600   | 673 |  PHILIP_AIRPORT          SD   |US|10
+0000000251    |KLDM | 43.580 | -86.240   |9999 |  LUDINGTON               MI   |US|12
+0000000252    |KRQB | 43.430 | -85.300   | 920 |  BIG RAPIDS  MI               |US|12
+0000000253    |KMOP | 43.370 | -84.440   | 770 |  MOUNT PLEASANT  MI           |US|12
+0000000254    |FTSR | 34.380 |-104.230   |9999 |  FORT SUMNER NM               |US|12
+0000000255    |WTRO | 46.700 | -48.000   |   0 |  WHITE ROSE OIL RIG           |US|21
+0000000256    |MRYS | 47.200 | -55.100   |9999 |  MARYSTOWN  NF                |US|00
+0000000257    |BIV  | 42.750 | -86.100   | 210 |  TULIP_CITY_ARPT/HOLLAND MI   |US|11
+0000000258    |LWA  | 42.410 | -86.280   |9999 |  SOUTH HAVEN MI               |US|11
+0000000259    |JOES | 45.350 |-117.230   |1250 |  JOSEPH  OR                   |US|11
+0000000260    |HNR  | 41.590 | -95.340   | 375 |  HARLAN_MUNICIPAL_AIRPT  IA   |US|11
+0000000261    |KSBM | 43.780 | -87.850   | 233 |  SHEBOYGAN_(ASOS)  WI         |US|11
+0000000262    |FSTK | 30.900 |-102.850   |9999 |  FORT_STOCKTON_(ASOS)  TX     |US|11
+0000000263    |LLQ  | 33.640 | -91.750   |  82 |  MONTICELLO_ARPT_(ASOS) AR    |US|11
+0000000264    |BPK  | 36.220 | -92.280   | 283 |  MOUNTAIN HOME  AR            |US|11
+0000000265    |KPEQ | 31.380 |-103.510   | 796 |  PECOS_MUNICIPAL  TX          |US|11
+0000000266    |KIMM | 26.420 | -81.440   |9999 |  IMMOKALEE  FL                |US|11
+0000000267    |2IS  | 26.750 | -80.940   |9999 |  CLEWISTON  FL                |US|11
+0000000268    |BBD  | 31.180 | -99.320   |9999 |  BRADY_CURTIS_FIELD  TX       |US|11
+0000000269    |SOA  | 30.590 |-100.650   |9999 |  SONORA_MUNICIPAL  TX         |US|11
+0000000270    |CFC  | 39.080 |-120.940   |9999 |  COLFAX WATER            CA   |US|12
+0000000271    |MPI  | 37.510 |-120.040   |9999 |  MARIPOSA                CA   |US|12
+0000000273    |NXD  | 37.580 |-120.270   |9999 |  NEW EXCHEQUER DAM       CA   |US|12
+0000000274    |PFD  | 36.830 |-119.330   |9999 |  PINE FLAT DAM           CA   |US|12
+0000000275    |TPK  | 35.850 |-121.310   |9999 |  THREE PEAKS RAIN GAUGE  CA   |US|12
+0000000276    |RVD  | 47.310 |-121.850   |9999 |  RAVENSDALE              WA   |US|12
+0000000277    |SHS  | 38.490 |-121.220   |9999 |  SACRAMENTO ARO SITE     CA   |US|12
+0000000278    |TNF  | 39.130 |-120.800   |9999 |  TAHOE NATL FOREST       CA   |US|12
+0000000279    |STA  | 40.720 |-122.430   |9999 |  SHASTA DAM              CA   |US|12
+0000000280    |RUTG | 40.500 | -74.450   |9999 |  NEW BRUNSWICK (RUTGERS) NJ   |US|12
+0000000282    |APPL | 42.990 | -70.620   |   0 |  APPLEDORE ISLAND        ME   |US|22
+0000000283    |MCGL | 45.500 | -73.570   |9999 |  MONTREAL (MCGILL) QB         |US|12
+0000000284    |LISO | 41.100 | -72.890   |   0 |  LONG ISLAND SOUND            |US|22
+0000000285    |KCIC | 39.690 |-121.910   |  41 |  NEAR CHICO              CA   |US|12
+0000000286    |GVY  | 39.170 |-121.110   | 689 |  GRASS VALLEY            CA   |US|12
+0000000287    |LHS  | 35.620 |-119.690   |  80 |  LOST HILLS              CA   |US|12
+0000000288    |PPB  | 35.660 |-121.280   |  11 |  POINT PIEDRAS BLANCAS   CA   |US|12
+0000000289    |CZC  | 38.610 |-123.210   | 475 |  CAZADERO                CA   |US|12
+0000000290    |FRS  | 38.510 |-123.220   |  70 |  FORT ROSS               CA   |US|12
+0000000291    |CVD  | 38.780 |-122.990   |  83 |  CLOVERDALE              CA   |US|12
+0000000292    |CCL  | 37.110 |-120.240   |  76 |  CHOWCHILLA              CA   |US|12
+0000000293    |CCR  | 39.990 |-122.060   |9999 |  CONCORD                 CA   |US|12
+0000000294    |HLD  | 39.000 |-123.120   | 165 |  HOPLAND                 CA   |US|12
+0000000295    |ROD  | 38.510 |-122.960   |  30 |  RIO DELL                CA   |US|12
+0000000296    |OSC  | 33.500 |-106.180   |9999 |  OSCURA RANGE CAMP       NM   |US|12
+0000000297    |95E  | 33.820 |-106.650   |9999 |  STALLION ARMY AIRFLD    NM   |US|12
+0000000298    |ALTA | 40.580 |-111.630   |9999 |  ALTA COLLINS            UT   |US|12
+0000000299    |BAX  | 43.780 | -82.990   | 234 |  BAD_AXE      MI              |US|12
+0000000301    |5AG  | 58.000 |-142.000   |   0 |  PACIFIC OCEAN                |US|20
+0000000302    |A#5  | 54.000 |-143.000   |   0 |  CENTRAL GULF OF AK     PAC   |US|20
+0000000303    |5AF  | 56.000 |-137.000   |   0 |  PACIFIC OCEAN                |US|20
+0000000304    |A#6  | 55.000 |-155.000   |   0 |  GULF OF AK  S KODIAK I PAC   |US|20
+0000000305    |A#7  | 53.000 |-139.000   |   0 |  PACIFIC  W OF BC             |US|20
+0000000306    |A#8  | 51.100 |-147.400   |   0 |  PACIFIC  NEAR SHIP PAPA      |US|20
+0000000307    |A#9  | 52.000 |-162.000   |   0 |  PACIFIC  S OF AK PENINSULA   |US|20
+0000000308    |A#A  | 49.500 |-153.700   |   0 |  NORTH PACIFIC                |US|20
+0000000309    |A#B  | 49.200 |-168.800   |   0 |  PACIFIC  S OF ALEUTIANS      |US|20
+0000000310    |S#1  | 50.000 |-135.000   |   0 |  PACIFIC OCEAN                |US|20
+0000000311    |S#2  | 38.500 |-129.000   |   0 |  PACIFIC OCEAN                |US|20
+0000000312    |S#3  | 34.000 |-126.000   |   0 |  PACIFIC OCEAN                |US|20
+0000000313    |S#4  | 29.500 |-123.000   |   0 |  PACIFIC OCEAN                |US|20
+0000000314    |S#5  | 25.000 |-120.000   |   0 |  PACIFIC OCEAN                |US|20
+0000000315    |S#6  | 25.000 |-115.000   |   0 |  PACIFIC OCEAN                |US|20
+0000000330    |NW1  | 44.300 |-140.800   |   0 |  PACIFIC OCEAN                |US|20
+0000000331    |NW2  | 47.700 |-144.100   |   0 |  PACIFIC OCEAN                |US|20
+0000000332    |NW3  | 37.400 |-137.000   |   0 |  PACIFIC OCEAN                |US|20
+0000000333    |NW4  | 47.000 |-138.000   |   0 |  PACIFIC OCEAN                |US|20
+0000000334    |NW5  | 43.600 |-135.500   |   0 |  PACIFIC OCEAN                |US|20
+0000000335    |NW6  | 39.700 |-133.300   |   0 |  PACIFIC OCEAN                |US|20
+0000000336    |NW7  | 48.500 |-129.500   |   0 |  PACIFIC OCEAN                |US|20
+0000000337    |NW8  | 44.600 |-127.500   |   0 |  PACIFIC OCEAN                |US|20
+0000000338    |NW9  | 50.500 |-141.380   |   0 |  PACIFIC OCEAN                |US|20
+0000000339    |NWA  | 40.500 |-126.980   |   0 |  PACIFIC OCEAN                |US|20
+0000000340    |BS1  | 55.000 | 170.000   |   0 |  BERING SEA                   |US|20
+0000000341    |BS2  | 55.000 | 180.000   |   0 |  BERING SEA                   |US|20
+0000000342    |BS3  | 60.000 | 175.000   |   0 |  BERING SEA                   |US|20
+0000000345    |KPNA | 42.800 |-109.810   |2163 |  PINEDALE                WY   |US|11
+0000000346    |WLM  | 39.150 |-122.150   |9999 |  WILLIAM                 CA   |US|11
+0000000347    |BNY  | 40.880 |-121.660   |9999 |  BURNEY                  CA   |US|11
+0000000348    |SON  | 37.990 |-120.380   |9999 |  SONORA                  CA   |US|11
+0000000349    |YSV  | 37.740 |-118.590   |1219 |  YOSEMITE VALLEY         CA   |US|11
+0000000350    |LSY  | 36.200 |-119.100   |9999 |  LINDSAY                 CA   |US|11
+0000000351    |JHN  | 35.970 |-118.540   |9999 |  JOHNSONDALE             CA   |US|11
+0000000352    |FZP  | 34.830 |-118.950   |9999 |  FRAZIER PARK            CA   |US|11
+0000000353    |COA  | 36.140 |-120.350   |9999 |  COALINGA                CA   |US|11
+0000000354    |TBM  | 36.650 |-118.480   |9999 |  TABLE MOUNTAIN          CA   |US|11
+0000000355    |KPSF | 42.470 | -73.290   | 364 |  PITTSFIELD              MA   |US|11
+0000000356    |KUNI | 39.210 | -82.230   | 232 |  ATHENS/ALBANY           OH   |US|11
+0000000357    |K36U | 40.480 |-111.430   |9999 |  HEBER VALLEY MUN APT    UT   |US|11
+0000000358    |B40  | 33.020 |-114.240   | 303 |  YUMA                    AZ   |US|11
+0000000359    |B41  | 31.490 |-110.300   |1482 |  FT HUACHUCA             AZ   |US|11
+0000000360    |B42  | 32.020 |-107.870   |1293 |  DEMING                  NM   |US|11
+0000000361    |B43  | 30.430 |-104.330   |1433 |  MARFA                   TX   |US|11
+0000000362    |B44  | 28.390 |-110.290   | 214 |  EAGLE PASS              TX   |US|11
+0000000363    |B45  | 26.570 | -98.820   |  98 |  RIO GRANDE CITY         TX   |US|11
+0000000364    |B46  | 28.710 | -95.960   |   2 |  MATAGORDA               TX   |US|11
+0000000365    |B47  | 29.810 | -91.660   |   4 |  MORGAN CITY             LA   |US|11
+0000000366    |B48  | 24.700 | -80.510   |   1 |  CUDJOE KEY              FL   |US|11
+0000000367    |B49  | 17.980 | -67.080   |  17 |  LAJAS                   PR   |US|11
+0000000368    |MAW  | 46.190 |-121.700   |9999 |  MT ADAMS WEST           WA   |US|11
+0000000369    |SHNW | 46.280 |-122.280   |9999 |  MT ST HELENS NW         WA   |US|11
+0000000370    |MHW  | 45.350 |-121.940   |9999 |  MT HOOD WEST            OR   |US|11
+0000000371    |TSW  | 44.170 |-122.060   |9999 |  THREE SISTERS WEST      OR   |US|11
+0000000372    |FLK  | 45.030 | -99.110   | 482 |  FAULKTON                SD   |US|11
+0000000373    |PEV  | 45.460 | -91.740   | 421 |  PEEVER                  SD   |US|11
+0000000374    |KK68 | 38.280 | -95.220   | 301 |  GARNETT AIRPORT         KS   |US|11
+0000000375    |KMYZ | 39.860 | -96.630   | 391 |  MARYSVILLE AIRPORT      KS   |US|11
+0000000376    |BYG  | 44.380 |-106.720   |1513 |  JOHNSON_CTY/BUFFALO     WY   |US|11
+0000000377    |KGEY | 44.520 |-108.080   |1199 |  GREYBULL_AIRPORT        WY   |US|11
+0000000378    |KMDZ | 45.100 | -90.300   | 448 |  MEDFORD                 WI   |US|10
+0000000379    |82MN | 44.460 | -92.290   | 214 |  LAKE CITY               MN   |US|10
+0000000380    |KPSO | 37.290 |-107.060   |2336 |  PAGOSA SPRINGS          CO   |US|10
+0000000381    |KAIB | 38.230 |-108.560   |1811 |  NUCLA                   CO   |US|10
+0000000382    |KEE0 | 40.050 |-107.890   |1955 |  MEEKER                  CO   |US|10
+0000000383    |KIOW | 41.640 | -91.540   | 204 |  IOWA CITY               IA   |US|10
+0000000384    |K4MB | 39.050 |-105.510   |3438 |  WILKERSON PASS          CO   |US|12
+0000000385    |K20V | 40.050 |-106.360   |2259 |  KREMMLING               CO   |US|12
+0000000386    |KLWV | 38.760 | -87.610   | 131 |  LAWRENCEVILLE/VINCENNES IL   |US|12
+0000000387    |K1H2 | 39.070 | -88.530   | 179 |  EFFINGHAM CO MEM APT    IL   |US|12
+0000000388    |KGBG | 40.940 | -90.430   | 233 |  GALESBURG               IL   |US|12
+0000000389    |KIJX | 39.770 | -90.240   | 190 |  JACKSONVILLE            IL   |US|12
+0000000390    |KMTO | 39.480 | -88.280   | 220 |  COLES CO MEM APT        IL   |US|12
+0000000391    |KICR | 43.390 | -99.840   | 620 |  WINNER                  SD   |US|12
+0000000392    |KIEN | 43.020 |-102.520   | 998 |  PINE RIDGE              SD   |US|12
+0000000393    |KECS | 43.890 |-104.320   |1272 |  NEWCASTLE               WY   |US|12
+0000000394    |UNIS | 44.560 |-102.660   | 887 |  UNION CENTER            SD   |US|12
+0000000395    |WGTW | 43.740 |-105.740   |1539 |  WRIGHT                  WY   |US|12
+0000000396    |KLNL | 46.150 | -98.210   | 520 |  LAND O'LAKES            WI   |US|12
+0000000397    |MQTM | 46.540 | -87.390   | 189 |  MARQUETTE               MI   |US|12
+0000000398    |GRMM | 46.680 | -85.970   | 185 |  GRAND MARAIS            MI   |US|22
+0000000399    |KTNM | 46.610 | -88.910   | 385 |  KENTON                  MI   |US|12
+0000000401    |S#7  | 28.000 | -87.000   |   0 |  GULF OF MEXICO               |US|22
+0000000402    |S#8  | 28.200 | -93.700   |   0 |  GULF OF MEXICO               |US|20
+0000000403    |S#9  | 28.500 | -92.300   |   0 |  GULF OF MEXICO               |US|22
+0000000404    |S#A  | 27.900 | -91.000   |   0 |  GULF OF MEXICO               |US|22
+0000000405    |S#B  | 28.000 | -89.000   |   0 |  GULF OF MEXICO               |US|20
+0000000406    |S#C  | 28.000 | -85.000   |   0 |  GULF OF MEXICO               |US|22
+0000000501    |3J2  | 31.000 | -79.000   |   0 |  ATLANTIC  BLAKE PLATEAU      |US|20
+0000000502    |AFA  | 48.000 | -65.000   |   0 |  ATLANTIC  CHALEUR BAY        |US|20
+0000000601    |C01  | 37.200 |-118.800   |9999 |  NEAR YOSEMITE  CA            |US|12
+0000000602    |C02  | 47.610 |-103.260   |9999 |  WOLFORD  ND                  |US|12
+0000000603    |C03  | 37.800 | -97.010   |9999 |  TOWANDA  KS                  |US|12
+0000000604    |C04  | 34.600 | -94.300   |9999 |  NEAR MENA  AR                |US|12
+0000000606    |C06  | 37.900 | -95.200   |9999 |  NEAR MORAN  KS               |US|12
+0000000607    |C07  | 38.500 |-101.500   |9999 |  NEAR BRANDON  KS             |US|12
+0000000608    |C08  | 37.400 |-105.200   |9999 |  NEAR WHISKEY CRK  CO         |US|12
+0000000609    |C09  | 36.000 |-105.300   |9999 |  NEAR HOLMAN  NM              |US|12
+0000000610    |C10  | 34.200 |-101.700   |9999 |  NEAR PLAINVIEW  TX           |US|12
+0000000611    |C11  | 33.600 | -99.300   |9999 |  NEAR SEYMOUR TX              |US|12
+0000000612    |C12  | 33.700 | -97.400   |9999 |  NEAR MUENSTER  TX            |US|12
+0000000613    |C13  | 37.100 | -92.300   |9999 |  NEAR MTN GROVE  MO           |US|12
+0000000614    |C14  | 41.000 |-107.000   |9999 |  NORTHERN ROCKIES             |US|12
+0000000617    |HMM  | 46.250 |-114.150   |9999 |  HAMILTON      MT             |US|12
+0000000618    |C18  | 47.000 |-112.500   |9999 |  NORTHERN ROCKIES             |US|12
+0000000619    |C19  | 49.000 |-114.000   |9999 |  NORTHERN ROCKIES             |US|12
+0000000622    |C22  | 47.500 | -99.000   |9999 |  NEAR NEW ROCKFORD  ND        |US|12
+0000000623    |C23  | 46.200 | -97.500   |9999 |  NEAR LISBON  ND              |US|12
+0000000625    |C25  | 40.800 | -84.200   |9999 |  NEAR LIMA  OH                |US|12
+0000000627    |C27  | 38.000 | -80.000   |   0 |  NEAR HOT SPRINGS  VA         |US|12
+0000000628    |C28  | 34.500 | -82.500   |9999 |  NEAR CLEVELAND  GA           |US|12
+0000000629    |KBVN | 41.730 | -98.010   | 551 |  ALBION                  NE   |US|12
+0000000630    |KHNR | 41.580 | -95.340   | 375 |  HARLAN                  IA   |US|12
+0000000631    |KLCG | 42.240 | -96.980   | 435 |  WAYNE                   NE   |US|12
+0000000632    |PTT  | 37.700 | -98.750   | 595 |  PRATT                   KS   |US|12
+0000000633    |D55  | 48.750 | -98.390   | 490 |  LANGDON                 ND   |US|12
+0000000634    |KHCO | 48.750 | -96.940   | 250 |  HALLOCK                 MN   |US|12
+0000000635    |IVNH | 44.460 | -96.250   | 515 |  IVANHOE                 MN   |US|12
+0000000636    |KSPW | 43.170 | -95.210   | 403 |  SPENCER                 IA   |US|12
+0000000637    |K9D1 | 43.220 | -99.400   | 661 |  GREGORY                 SD   |US|12
+0000000638    |RLAS | 43.260 | -98.760   | 521 |  LAKE ANDES              SD   |US|12
+0000000639    |KJYR | 40.900 | -97.620   | 509 |  YORK                    NE   |US|12
+0000000640    |KLXN | 40.790 | -99.780   | 734 |  LEXINGTON               NE   |US|12
+0000000641    |KHJH | 40.150 | -97.580   | 447 |  HEBRON                  NE   |US|12
+0000000642    |KPHG | 39.730 | -99.320   | 581 |  PHILLIPSBURG            KS   |US|12
+0000000643    |KPOF | 36.770 | -90.320   | 101 |  POPLAR BLUFF            MO   |US|12
+0000000644    |2I0  | 37.360 | -87.400   | 134 |  MADISONVILLE            KY   |US|12
+0000000645    |KOVO | 39.050 | -85.610   | 231 |  NORTH VERNON            IN   |US|12
+0000000646    |SJS  | 37.750 | -82.640   | 372 |  BIG SANDY REG APT       KY   |US|12
+0000000647    |K1A6 | 36.610 | -83.740   | 352 |  MIDDLESBORO/BELL_CO_APT KY   |US|12
+0000000648    |KEKQ | 36.860 | -84.860   | 294 |  WAYNE_COUNTY_APT        KY   |US|12
+0000000649    |KIOB | 38.060 | -83.980   | 311 |  MT STERLING/MGY_CO_APT  KY   |US|12
+0000000650    |KOGA | 41.120 |-101.770   | 999 |  OGALLALA                NE   |US|12
+0000000651    |KTIF | 41.960 |-100.570   | 892 |  THEDFORD                NE   |US|12
+0000000652    |KDUB | 43.550 |-109.690   |2224 |  DUBOIS                  WY   |US|12
+0000000653    |KAFO | 42.710 |-110.940   |1890 |  AFTON                   WY   |US|12
+0000000654    |KEMM | 41.820 |-110.560   |2220 |  KEMMERER                WY   |US|12
+0000000655    |KPOY | 44.870 |-108.790   |1553 |  POWELL                  WY   |US|12
+0000000656    |KU68 | 44.910 |-108.450   |1248 |  COWLEY                  WY   |US|12
+0000000657    |KYC  | 43.710 |-106.630   |1427 |  KAYCEE                  WY   |US|12
+0000000658    |KDLL | 43.520 | -89.770   | 298 |  BARABOO/WI DELLS        WI   |US|12
+0000000659    |KFLD | 43.770 | -88.490   | 241 |  FOND DU LAC             WI   |US|12
+0000000660    |KMRJ | 42.890 | -90.240   | 359 |  MINERAL POINT           WI   |US|12
+0000000661    |KUES | 43.040 | -88.240   | 285 |  WAUKESHA                WI   |US|12
+0000000662    |KY50 | 44.040 | -89.310   | 262 |  WAUTOMA                 WI   |US|12
+0000000663    |KVYS | 41.350 | -89.150   | 199 |  PERU                    IL   |US|12
+0000000664    |KMGC | 41.700 | -86.820   | 200 |  MICHIGAN CITY           IN   |US|12
+0000000665    |KIKK | 41.070 | -87.850   | 150 |  KANKAKEE                IL   |US|12
+0000000667    |KRPJ | 41.890 | -89.080   | 238 |  ROCHELLE/KORITZ_FIELD   IL   |US|12
+0000000668    |KRPD | 45.420 | -91.770   | 347 |  RICE LAKE               WI   |US|12
+0000000669    |KLJF | 45.100 | -94.510   | 348 |  LITCHFIELD              MN   |US|12
+0000000670    |KCNB | 44.730 | -96.270   | 364 |  CANBY                   MN   |US|12
+0000000671    |K2V5 | 40.100 |-102.240   |1121 |  WRAY                    CO   |US|12
+0000000672    |KC1  | 38.760 |-102.790   |1306 |  KIT CARSON              CO   |US|12
+0000000673    |DDOR | 45.290 | -86.980   | 178 |  DEATHS DOOR             WI   |US|22
+0000000674    |KISW | 44.360 | -89.840   | 311 |  WISCONSIN RAPIDS        WI   |US|12
+0000000675    |TMSR | 39.990 | -74.170   |   8 |  TOMS RIVER              NJ   |US|12
+0000000676    |ELZB | 37.700 | -85.870   |9999 |  ELIZABETHTOWN           KY   |US|12
+0000000678    |K9K8 | 37.670 | -98.120   | 490 |  KINGMAN                 KS   |US|12
+0000000679    |K8K2 | 37.280 | -98.040   | 435 |  HARPER                  KS   |US|12
+0000000680    |KURL | 38.300 | -95.720   | 358 |  BURLINGTON              KS   |US|12
+0000000681    |K13K | 37.850 | -96.290   | 368 |  EUREKA                  KS   |US|12
+0000000682    |K9K7 | 38.750 | -98.230   | 492 |  ELLSWORTH               KS   |US|12
+0000000683    |ATL5 | 39.550 | -73.900   |   0 |  EAST OF LONG BEACH IS   ATL  |US|22
+0000000684    |ATL6 | 39.700 | -71.600   |   0 |  SOUTH OF MONTAUK        ATL  |US|22
+0000000691    |KCFV | 37.090 | -95.570   | 226 |  COFFEYVILLE             KS   |US|12
+0000000692    |KMPH | 38.350 | -97.690   | 457 |  MCPHERSON               KS   |US|12
+0000000693    |C32  | 37.350 | -99.350   |9999 |  R08-ARM/CART  KS             |US|12
+0000000694    |C33  | 35.300 | -98.900   |9999 |  R22-ARM/CART  OK             |US|12
+0000000695    |C34  | 35.500 | -97.000   |9999 |  P20-ARM/CART  OK             |US|12
+0000000696    |C35  | 34.980 | -94.690   | 143 |  WISTER  OK                   |US|10
+0000000697    |C36  | 36.600 |-101.600   | 996 |  GOODWELL  OK                 |US|10
+0000000698    |SVL  | 42.500 | -78.680   |9999 |  SPRINGVILLE             NY   |US|11
+0000000699    |MTG  | 43.490 | -76.220   |9999 |  MONTAGUE                NY   |US|11
+0000000704    |TVR  | 32.350 | -91.030   |  26 |  VICKSBURG/TALLULAH_ARPT  MS  |US|11
+0000000705    |EVR  | 25.860 | -81.380   |9999 |  EVERGLADES CITY  FL          |US|11
+0000000706    |INV  | 28.840 | -82.330   |9999 |  INVERNESS  FL                |US|11
+0000000707    |MCR  | 32.070 | -82.900   |9999 |  MCRAE  GA                    |US|11
+0000000708    |GVH  | 31.710 | -87.780   |9999 |  GROVE HILL  AL               |US|11
+0000000709    |STV  | 33.450 | -88.820   |9999 |  STARKVILLE  MS               |US|11
+0000000710    |BKY  | 34.890 | -91.200   |9999 |  BRINKLEY  AR                 |US|11
+0000000711    |MCH  | 35.480 | -86.090   |9999 |  MANCHESTER  TN               |US|11
+0000000712    |LIN  | 35.620 | -87.840   |9999 |  LINDEN  TN                   |US|11
+0000000713    |CND  | 36.950 | -85.260   |9999 |  CUNDIFF  KY                  |US|11
+0000000714    |BDS  | 33.620 |-103.020   |9999 |  BLEDSOE  TX                  |US|11
+0000000715    |SRK  | 35.210 |-100.250   |9999 |  SHAMROCK  TX                 |US|11
+0000000716    |OKL  | 39.130 |-100.870   |9999 |  OAKLEY  KS                   |US|11
+0000000717    |WIN  | 37.010 | -91.360   |9999 |  WINONA  MO                   |US|11
+0000000718    |CNN  | 38.370 | -93.790   |9999 |  CLINTON  MO                  |US|11
+0000000719    |MBY  | 39.420 | -92.440   |9999 |  MOBERLY  MO                  |US|11
+0000000720    |LBT  | 34.610 | -79.060   |  38 |  LUMBERTON_MUNI_AIRPORT  NC   |US|11
+0000000721    |KFMH | 41.650 | -70.520   |  40 |  FALMOUTH/OTIS  MA            |US|11
+0000000722    |KOGB | 33.460 | -80.850   |  59 |  ORANGEBURG/MUNI_ARPT  SC     |US|11
+0000000723    |KRCX | 45.500 | -91.000   | 377 |  LADYSMITH  WI                |US|11
+0000000724    |KJMR | 45.890 | -93.270   | 309 |  MORA  MN                     |US|11
+0000000725    |KRNH | 45.150 | -92.540   | 304 |  NEW RICHMOND  WI             |US|11
+0000000726    |KAQP | 45.230 | -96.000   | 311 |  APPLETON  MN                 |US|11
+0000000727    |KDAF | 44.030 | -90.080   | 287 |  NECEDAH  WI                  |US|11
+0000000728    |MHS  | 41.320 |-122.320   |1085 |  MOUNT SHASTA  CA             |US|11
+0000000729    |RCK  | 42.550 |-119.660   |1719 |  ROCK CREEK  OR               |US|11
+0000000730    |FRO  | 43.330 |-120.840   |1350 |  FORT ROCK  OR                |US|11
+0000000731    |SSB  | 41.390 |-123.490   | 280 |  SOMES BAR  CA                |US|11
+0000000732    |ROU  | 41.430 |-121.460   |1603 |  ROUND MOUNTAIN  CA           |US|11
+0000000733    |K4S3 | 45.360 |-117.250   |1256 |  JOSEPH  OR                   |US|11
+0000000734    |K5J0 | 44.400 |-118.960   |1127 |  JOHN DAY  OR                 |US|11
+0000000735    |KIXA | 36.330 | -77.640   |  44 |  ROANOKE RAPIDS  NC           |US|11
+0000000736    |KRCZ | 34.890 | -79.760   | 109 |  ROCKINGHAM/RICHMOND CO  NC   |US|11
+0000000737    |KPHD | 40.470 | -81.420   | 273 |  NEW PHILADELPHIA  OH         |US|11
+0000000738    |KTT  | 40.820 | -79.530   | 245 |  KITTANNING  PA               |US|11
+0000000739    |KIDI | 40.630 | -79.110   | 428 |  INDIANA  PA                  |US|11
+0000000740    |K2G4 | 39.580 | -79.340   | 894 |  OAKLAND  MD                  |US|11
+0000000741    |KAFJ | 40.140 | -80.290   | 361 |  WASHINGTON  PA               |US|11
+0000000742    |EON  | 42.460 | -75.060   |9999 |  ONEONTA  NY                  |US|11
+0000000743    |KGUY | 36.680 |-101.500   | 952 |  GUYMON_(ASOS)  OK            |US|11
+0000000744    |KEET | 33.170 | -86.770   | 178 |  SHELBY_COUNTY_ARPT  AL       |US|11
+0000000745    |KHBG | 31.270 | -89.260   |  46 |  CHAIN_MUNICIPAL_AIRPORT  MS  |US|11
+0000000746    |KISM | 28.290 | -81.440   |  25 |  KISSIMMEE_MUNI_AIRPORT  FL   |US|11
+0000000747    |KLEE | 28.820 | -81.810   |  24 |  LEESBURG_MUNICIPAL_ARPT  FL  |US|11
+0000000748    |KCXO | 30.360 | -95.410   |  45 |  CONROE_AIRPORT_(ASOS)  TX    |US|11
+0000000749    |KUTS | 30.730 | -95.470   | 112 |  HUNTSVILLE_(ASOS)  TX        |US|11
+0000000750    |D07  | 45.020 |-102.020   | 787 |  FAITH  SD                    |US|11
+0000000751    |UVA  | 29.210 | -99.740   | 287 |  UVALDE/GARNER_FIELD_ARPT TX  |US|11
+0000000752    |JWG  | 35.870 | -98.420   | 472 |  WATONGA  OK                  |US|11
+0000000753    |KPNT | 40.920 | -88.620   | 201 |  PONTIAC  IL                  |US|11
+0000000754    |WTBY | 41.560 | -73.050   |  82 |  WATERBURY  CT                |US|11
+0000000755    |BON  | 48.690 |-116.320   | 539 |  BONNERS FERRY  ID            |US|11
+0000000756    |REP  | 48.650 |-118.730   | 795 |  REPUBLIC  WA                 |US|11
+0000000757    |PLA  | 47.760 |-120.650   | 591 |  PLAIN  WA                    |US|11
+0000000758    |WNTR | 48.490 |-120.240   | 535 |  WINTHROP WA                  |US|11
+0000000759    |KLG  | 47.540 |-116.140   | 707 |  KELLOGG  ID                  |US|11
+0000000760    |WEV  | 40.730 |-122.940   | 681 |  WEAVERVILLE  CA              |US|11
+0000000761    |WCK  | 40.940 |-123.630   | 183 |  WILLOW CREEK  CA             |US|11
+0000000762    |YOB  | 40.340 |-123.070   |1453 |  YOLLA BOLLA  CA              |US|11
+0000000763    |COV  | 39.750 |-123.210   | 421 |  COVELO  CA                   |US|11
+0000000764    |KBBG | 36.540 | -93.200   | 397 |  BRANSON  MO                  |US|11
+0000000765    |PASA | 63.680 |-170.500   |  16 |  SAVOONGA_AIRPORT, AK         |US|11
+0000000766    |KAKP | 68.130 |-151.730   | 643 |  ANAKTUVUK_PASS, AK           |US|11
+0000000767    |PAGM | 63.770 |-171.730   |   8 |  GAMBELL, AK                  |US|11
+0000000768    |PAMY | 60.370 |-166.270   |  15 |  MEKORYUK, AK                 |US|11
+0000000769    |SHIV | 56.650 |-161.370   |9999 |  SHIVELUCH, AK                |US|11
+0000000770    |KYMY | 54.050 |-159.430   |9999 |  KARYMSKY, AK                 |US|11
+0000000801    |BAB  | 39.490 |-121.610   |  72 |  BEALE AFB  CA                |US|10
+0000000802    |CBN  | 33.900 | -88.330   | 169 |  COLUMBUS AFB  MS             |US|10
+0000000804    |CVS  | 34.640 |-103.630   |1436 |  CANNON AFB  NM               |US|10
+0000000805    |DOV  | 38.830 | -75.430   |  50 |  DOVER AFB  DE                |US|10
+0000000807    |DYS  | 32.540 | -99.250   | 480 |  DYESS AFB  TX                |US|10
+0000000808    |EAX  | 38.810 | -94.260   | 333 |  KANSAS C/PLEASANT HILL  MO   |US|12
+0000000810    |END  | 36.340 | -97.920   | 385 |  VANCE AFB  OK                |US|10
+0000000811    |FDR  | 34.360 | -98.980   | 401 |  FREDERICK  OK                |US|10
+0000000813    |GVS  | 40.720 | -85.930   | 278 |  GRISSOM AFB  IN              |US|12
+0000000814    |HOO  | 30.720 | -97.380   | 182 |  CENTRAL TEXAS  TX            |US|10
+0000000815    |HSI  | 40.320 | -98.440   | 626 |  GRAND ISLAND/HASTINGS  NE    |US|10
+0000000816    |LOR  | 31.460 | -85.460   | 151 |  FT. RUCKER  AL               |US|10
+0000000817    |MAX  | 32.540 | -85.790   | 157 |  EAST ALABAMA  AL             |US|10
+0000000818    |KMIB | 48.500 |-101.400   | 468 |  MINOT AFB  ND                |US|12
+0000000819    |MOR  | 36.170 | -83.400   | 437 |  TRI CITY/MORRISTOWN, TN      |US|10
+0000000821    |RME  | 43.470 | -75.460   | 497 |  GRIFFISS AFB, NY             |US|10
+0000000822    |WRB  | 32.680 | -83.350   | 187 |  ROBINS AFB, GA               |US|10
+0000000823    |XRW  | 36.740 | -87.290   | 186 |  FT. CAMPBELL, KY             |US|10
+0000000831    |NGX  | 31.400 |-114.490   |   0 |  N. GULF OF CA, AZ            |US|20
+0000000832    |AJO  | 32.370 |-112.870   | 549 |  AJO, AZ                      |US|10
+0000000833    |E74  | 32.820 |-109.680   | 950 |  SAFFORD, AZ                  |US|10
+0000000834    |LBY  | 48.390 |-115.550   | 579 |  LIBBY, MT                    |US|10
+0000000835    |PWD  | 48.760 |-104.520   | 623 |  PLENTYWOOD, MT               |US|10
+0000000837    |SEF  | 37.700 |-123.000   |  25 |  SE FARALLON ISLAND, CA       |US|00
+0000000838    |BOD  | 38.320 |-123.070   |  12 |  BODEGA BAY, CA               |US|00
+0000000839    |BHK  | 46.370 |-104.280   | 903 |  BAKER, MT                    |US|10
+0000000841    |IPX  | 44.420 |-111.370   |1917 |  ISLAND PARK, ID              |US|10
+0000000842    |MLD  | 42.170 |-112.280   |1363 |  MALAD CITY, ID               |US|10
+0000000844    |P68  | 39.500 |-115.950   |1982 |  EUREKA, NV                   |US|10
+0000000845    |BDG  | 38.300 |-119.160   |1200 |  BRIDGEPORT, CA               |US|10
+0000000847    |KPBG | 44.650 | -73.490   |  71 |  PLATTSBURGH INTL, NY         |US|10
+0000000850    |8V7  | 37.280 |-102.610   |1335 |  SPRNGFLD/CMNCHE NT GRS, CO   |US|10
+0000000851    |JACK | 45.640 | -70.260   |9999 |  JACKMAN, ME                  |US|10
+0000000852    |ESTC | 47.460 | -69.220   |9999 |  ESTCOURT, ME                 |US|10
+0000000853    |VANC | 45.560 | -67.430   |9999 |  VANCEBORO, ME                |US|10
+0000000854    |CAN  | 42.050 | -73.200   |9999 |  NR CANAAN, CT                |US|10
+0000000900    |5SZ  | 62.720 |-143.970   |9999 |  NR CIRCLE, AK                |US|11
+0000000901    |AWR  | 67.750 |-144.110   |9999 |  ARCTIC NWR, AK               |US|11
+0000000902    |BIR  | 65.590 |-144.360   |9999 |  ARCTIC NWR, AK               |US|11
+0000000903    |BLS  | 61.950 |-151.000   |9999 |  SW OF NENANA , AK            |US|11
+0000000904    |BTL  | 57.270 |-154.560   |9999 |  NR KOKAKLEK LK, AK           |US|11
+0000000905    |BVR  | 66.150 |-148.030   |9999 |  ARCTIC NWR, AK               |US|11
+0000000906    |GRF  | 67.030 |-143.290   |9999 |  ARCTIC NWR , AK              |US|11
+0000000907    |HAY  | 65.200 |-161.150   |9999 |  NR KIANA, AK                 |US|11
+0000000908    |H02  | 59.750 |-151.370   |9999 |  NR WILLOW , AK               |US|11
+0000000909    |INK  | 63.390 |-158.830   |9999 |  NW OF NULATO , AK            |US|11
+0000000910    |KAK  | 56.970 |-134.000   |9999 |  NR KLUKWAN, AK               |US|11
+0000000911    |KEL  | 67.950 |-162.310   |9999 |  NR ICY CAPE, AK              |US|11
+0000000912    |KNA  | 60.590 |-150.320   |9999 |  NR SUTTON, AK                |US|11
+0000000913    |KNL  | 60.370 |-149.410   |9999 |  NR CHICKALOON, AK            |US|11
+0000000914    |MAC  | 61.320 |-142.590   |9999 |  NR NORTHWAY, AK              |US|11
+0000000915    |NCK  | 60.030 |-151.660   |9999 |  NR NANCY, AK                 |US|11
+0000000916    |NOA  | 68.070 |-158.710   |9999 |  NTL. PETROL RSRVE, AK        |US|11
+0000000917    |PANI | 61.580 |-159.540   |9999 |  NE OF SHAGELUK, AK           |US|11
+0000000918    |PAXK | 63.030 |-145.490   |9999 |  NW OF CHICKEN, AK            |US|11
+0000000919    |QRZ  | 65.410 |-164.660   |9999 |  NR TAYLOR, AK                |US|11
+0000000920    |TEL  | 63.440 |-153.360   |9999 |  WNW OF ANDERSON, AK          |US|11
+0000000921    |AHN  | 59.250 |-135.520   |9999 |  NR HAINES BOAT HARBOR, AK    |US|11
+0000000922    |PAKW | 55.580 |-133.100   |9999 |  PORT ALEXANDER, AK           |US|11
+0000000923    |WON  | 63.490 |-150.880   |9999 |  NR MANLEY HOT SPRINGS, AK    |US|11
+0000000924    |TOK  | 62.970 |-143.340   |9999 |  NE OF BIG DELTA, AK          |US|11
+0000000925    |CKN  | 64.050 |-141.930   |9999 |  CHICKEN, AK                  |US|11
+0000000926    |NRU  | 66.850 |-154.340   |9999 |  W OF BETTLES FIELD, AK       |US|11
+0000000927    |KAN  | 66.080 |-152.170   |9999 |  KANUTI NWR, AK               |US|11
+0000000928    |SRV  | 61.640 |-156.440   |9999 |  NR STONY RIVER, AK           |US|11
+0000000929    |BDP  | 69.500 |-156.500   |9999 |  S OF BARROW, AK              |US|11
+0000000930    |PLN  | 69.000 |-149.000   |9999 |  NR SAGWON, AK                |US|11
+0000000931    |PLS  | 67.750 |-149.000   |9999 |  ARCTIC NWR, AK               |US|11
+0000000932    |COT  | 65.340 |-155.950   |9999 |  NR HUGHES, AK                |US|11
+0000000933    |POR  | 64.100 |-155.560   |9999 |  NR HUGHES, AK                |US|11
+0000000934    |WNL  | 64.310 |-151.080   |9999 |  NR MINTO, AK                 |US|11
+0000000935    |KIL  | 60.320 |-160.200   |9999 |  NR ANIAK, AK                 |US|11
+0000000936    |MTV  | 62.100 |-163.800   |9999 |  S OF ST MICHAEL, AK          |US|11
+0000000937    |ICC  | 70.400 |-161.900   |9999 |  NR WAINWRIGHT, AK            |US|11
+0000000938    |BFX  | 71.320 |-156.620   |9999 |  BARROW CEOP FLUX STN         |US|11
+0000000939    |OPA1 | 42.350 | -67.700   |   0 |  ATLANTIC OCEAN               |US|20
+0000000940    |OPA2 | 39.300 | -72.000   |   0 |  ATLANTIC OCEAN               |US|20
+0000000941    |OPA3 | 39.300 | -65.700   |   0 |  ATLANTIC OCEAN               |US|20
+0000000942    |OPA4 | 37.300 | -70.100   |   0 |  ATLANTIC OCEAN               |US|20
+0000000943    |OPA5 | 36.300 | -74.600   |   0 |  ATLANTIC OCEAN               |US|20
+0000000944    |OPA6 | 35.600 | -73.800   |   0 |  ATLANTIC OCEAN               |US|20
+0000000945    |OPA7 | 34.900 | -70.800   |   0 |  ATLANTIC OCEAN               |US|20
+0000000946    |OPA8 | 33.800 | -76.000   |   0 |  ATLANTIC OCEAN               |US|20
+0000000947    |OPA9 | 32.800 | -72.300   |   0 |  ATLANTIC OCEAN               |US|20
+0000000948    |OPP1 | 48.100 |-130.500   |   0 |  PACIFIC OCEAN                |US|20
+0000000949    |OPP2 | 48.100 |-126.600   |   0 |  PACIFIC OCEAN                |US|20
+0000000950    |OPP3 | 45.300 |-129.700   |   0 |  PACIFIC OCEAN                |US|20
+0000000951    |OPP4 | 45.300 |-125.600   |   0 |  PACIFIC OCEAN                |US|20
+0000000952    |OPP5 | 41.750 |-129.900   |   0 |  PACIFIC OCEAN                |US|20
+0000000953    |OPP6 | 41.900 |-125.800   |   0 |  PACIFIC OCEAN                |US|20
+0000000954    |OPP7 | 39.200 |-125.500   |   0 |  PACIFIC OCEAN                |US|20
+0000000955    |OPP8 | 36.400 |-125.400   |   0 |  PACIFIC OCEAN                |US|20
+0000000956    |OPP9 | 33.300 |-125.000   |   0 |  PACIFIC OCEAN                |US|20
+0000000957    |OPPA | 34.600 |-122.300   |   0 |  PACIFIC OCEAN                |US|20
+0000000958    |OPPB | 30.900 |-121.500   |   0 |  PACIFIC OCEAN                |US|20
+0000000959    |OPPC | 29.600 |-117.000   |   0 |  PACIFIC OCEAN                |US|20
+0000021982    |U#2  | 70.970 |-178.530   |   3 |  OSTROV VRANGELYA, RUSSIA     |US|10
+0000025173    |UHMI | 68.920 |-179.480   |   7 |  MYS SCHMIDT                  |US|10
+0000025399    |U#C  | 66.170 |-169.830   |   7 |  MYS WELLEN                   |US|10
+0000025551    |UHMA | 64.680 | 170.420   |  22 |  MARKOVO, RUSSIA              |US|10
+0000025563    |UHAZ | 64.730 | 177.500   |   5 |  ANADYR, RUSSIA               |US|10
+0000025677    |U#6  | 63.050 | 179.320   |  85 |  UGOLNAJA, RUSSIA             |US|10
+0000041001    |B#1  | 34.900 | -73.000   |   0 |  BUOY  E HATTERAS       ATL   |US|20
+0000041002    |B#2  | 32.300 | -75.200   |   0 |  BUOY  S HATTERAS       ATL   |US|20
+0000041004    |B#T  | 32.500 | -79.070   |   0 |  BUOY E SAVANNAH        ATL   |US|20
+0000041006    |B#3  | 29.300 | -77.400   |   0 |  BUOY  E DAYTONA        ATL   |US|20
+0000041010    |B#4  | 28.900 | -78.500   |   0 |  BUOY  CANAVERAL EAST   ATL   |US|20
+0000042001    |B#5  | 25.900 | -89.700   |   0 |  BUOY  MID GULF         MEX   |US|22
+0000042002    |B#6  | 25.900 | -93.600   |   0 |  BUOY  W GULF           MEX   |US|22
+0000042003    |B#7  | 25.900 | -85.900   |   0 |  BUOY  E GULF           MEX   |US|22
+0000042019    |B#8  | 27.900 | -95.000   |   0 |  BUOY  LANELLE  GULF OF MEX   |US|22
+0000042020    |B#9  | 27.000 | -96.500   |   0 |  BUOY  EILEEN   GULF OF MEX   |US|22
+0000044004    |C7H  | 38.500 | -70.700   |   0 |  BUOY  HOTEL            ATL   |US|20
+0000044005    |9B6  | 42.600 | -68.600   |   0 |  BUOY  GULF OF ME       ATL   |US|20
+0000044008    |B#A  | 40.500 | -69.400   |   0 |  BUOY  NANTUCKET        ATL   |US|20
+0000044009    |B#W  | 38.500 | -74.700   |   0 |  BUOY  E FENWICK IL     ATL   |US|20
+0000044011    |B#B  | 41.100 | -66.600   |   0 |  BUOY  GEORGES BANK     ATL   |US|20
+0000044014    |B#S  | 36.600 | -74.800   |   0 |  BUOY  E MACKAY IL      ATL   |US|20
+0000044017    |B#V  | 40.700 | -72.100   |   0 |  BUOY  23 SW MONTAUK    ATL   |US|20
+0000044025    |B#Q  | 40.300 | -73.200   |   0 |  BUOY                   ATL   |US|20
+0000044027    |JPB  | 44.300 | -67.300   |   0 |  JONESPORT BUOY G OF MAINE ATL|US|20
+0000044065    |B#X  | 40.370 | -73.700   |   0 |  BUOY  AMBROSE LIGHT          |US|20
+0000045001    |LS1  | 48.060 | -87.780   | 183 |  BUOY MID LAKE SUPERIOR       |US|20
+0000045002    |LM1  | 45.330 | -86.420   | 177 |  BUOY NORTHERN LAKE MICH      |US|20
+0000045003    |LH1  | 45.350 | -82.840   | 177 |  BUOY NORTHERN LAKE HURON     |US|20
+0000045004    |LS2  | 47.560 | -86.550   | 183 |  BUOY EASTERN LAKE SUPERIOR   |US|20
+0000045005    |LE1  | 41.680 | -82.400   | 174 |  BUOY WESTERN LAKE ERIE       |US|20
+0000045006    |LS3  | 47.320 | -89.870   | 183 |  BUOY WESTERN LAKE SUPERIOR   |US|20
+0000045007    |LM2  | 42.670 | -87.020   | 177 |  BUOY SOUTHERN LAKE MICH      |US|20
+0000045008    |LH2  | 44.280 | -82.420   | 177 |  BUOY SOUTHERN LAKE HURON     |US|20
+0000045012    |LO1  | 43.620 | -77.410   |  75 |  BUOY CENTER LAKE ONTARIO     |US|20
+0000045132    |LE2  | 42.470 | -81.220   |9999 |  BUOY PORT STANLEY            |US|20
+0000045139    |LO2  | 43.400 | -79.450   |9999 |  BUOY WESTERN LAKE ONTARIO    |US|20
+0000045142    |LE3  | 42.740 | -79.350   |9999 |  BUOY PORT COLBORNE           |US|20
+0000046001    |B#C  | 56.300 |-148.200   |   0 |  BUOY  GULF OF AK       PAC   |US|20
+0000046002    |B#D  | 42.500 |-130.500   |   0 |  BUOY  OREGON           PAC   |US|20
+0000046003    |B#E  | 51.900 |-155.900   |   0 |  BUOY  S ALEUTIANS      PAC   |US|20
+0000046005    |B#F  | 46.100 |-131.000   |   0 |  BUOY  WASHINGTON       PAC   |US|20
+0000046006    |B#G  | 40.900 |-137.500   |   0 |  BUOY  SE PAPA          PAC   |US|20
+0000046014    |B#H  | 39.200 |-124.000   |   0 |  BUOY  PT ARENA         PAC   |US|20
+0000046015    |B015 | 42.750 |-124.820   |   0 |  BUOY  W CAPE BLANCO    PAC   |US|20
+0000046029    |B#J  | 46.200 |-124.200   |   0 |  BUOY  COL RIVER BAR    PAC   |US|20
+0000046030    |B#K  | 40.400 |-124.500   |   0 |  BUOY  BLUNTS REEF      PAC   |US|20
+0000046035    |B#L  | 57.000 |-177.700   |   0 |  BUOY  BERING SEA       PAC   |US|20
+0000046047    |B#U  | 32.400 |-119.500   |   0 |  BUOY  W SAN DIEGO      PAC   |US|20
+0000051001    |B#M  | 23.400 |-162.300   |   0 |  BUOY  NW KAUAI         PAC   |US|20
+0000051002    |B#N  | 17.200 |-157.800   |   0 |  BUOY  S OAHU           PAC   |US|20
+0000051003    |B#O  | 19.300 |-160.800   |   0 |  BUOY  S KAUAI          PAC   |US|20
+0000051004    |B#P  | 17.400 |-152.500   |   0 |  BUOY  SE HAWAII        PAC   |US|20
+0000070341    |HOM  | 59.770 |-151.170   | 296 |  HMRA2 HOMER AK               |US|12
+0000072253    |SAT  | 29.700 | -98.010   | 219 |  AUSTIN/SAN ANTONIO, TX       |US|12
+0000072327    |BNA  | 36.250 | -86.570   | 180 |  NASHVILLE/BERRY, TN          |US|12
+0000072356    |TUL  | 36.180 | -95.560   | 226 |  TULSA, OK                    |US|10
+0000072384    |BFL  | 35.240 |-119.030   | 154 |  BAKERSFIELD, CA              |US|10
+0000072464    |PUB  | 38.460 |-104.180   |1618 |  PUEBLO  CO                   |US|12
+0000072524    |CLE  | 41.500 | -81.600   | 213 |  CLEVELAND  OH                |US|12
+0000072578    |PIH  | 43.110 |-112.680   |1382 |  POCATELLO/IDAHO FALLS  ID    |US|10
+0000090001    |G#1  | 36.500 |-100.800   |9999 |  PERRYTON  TX                 |US|12
+0000090002    |G#2  | 30.300 |-101.700   |9999 |  SHEFFIELD  TX                |US|12
+0000090003    |G#3  | 27.700 |-102.500   |9999 |  MUZQUIZ  COAH  MEXICO        |US|12
+0000090004    |G#4  | 30.500 | -99.100   |9999 |  FREDRICKSBURG  TX            |US|12
+0000090005    |G#5  | 28.400 | -98.700   |9999 |  COTULLA  TX                  |US|12
+0000090006    |G#6  | 26.300 | -98.800   |9999 |  RIO GRANDE CITY  TX          |US|12
+0000090007    |G#7  | 24.400 | -97.400   |   0 |  W  GULF OF MEXICO GFMX#7     |US|22
+0000090008    |G#8  | 25.900 | -95.300   |   0 |  W  GULF OF MEXICO GFMX#8     |US|20
+0000090009    |G#9  | 24.500 | -94.400   |   0 |  W  GULF OF MEXICO GFMX#9     |US|22
+0000090010    |G#A  | 23.300 | -95.600   |   0 |  W  GULF OF MEXICO GFMX#10    |US|22
+0000090011    |G#B  | 18.300 | -94.200   |9999 |  COATZACOALCOS  V C  MEXICO   |US|10
+0000090012    |G#C  | 21.400 | -93.100   |   0 |  BAY OF CAMPECHE GFMX#12      |US|20
+0000090013    |G#D  | 23.300 | -91.600   |   0 |  GULF OF MEXICO GFMX#13       |US|22
+0000090014    |G#E  | 23.700 | -88.700   |   0 |  SE GULF OF MEXICO GFMX#14    |US|22
+0000090015    |G#F  | 23.000 | -85.000   |   0 |  SE GULF OF MEXICO GFMX#15    |US|20
+0000090016    |G#G  | 23.500 | -98.000   |9999 |  NORTH OF TAMPICO  TAMPS      |US|12
+0000099001    |HYR  | 46.020 | -91.450   | 370 |  HAYWARD_MUNI_AIRPORT  WI     |US|10
+0000099002    |PMH  | 38.830 | -82.800   |9999 |  PORTSMOUTH OH                |US|10
+0000099006    |WOO  | 38.880 | -78.520   | 251 |  WOODSTOCK, VA                |US|10
+0000099007    |CBE  | 39.620 | -78.760   |9999 |  CUMBERLAND, MD               |US|10
+0000099008    |W54  | 39.610 | -77.010   |9999 |  WESTMINSTER, MD              |US|10
+0000255940    |UHMD | 64.430 |-173.230   |   3 |  PROVIDENJA_BAY          HA   |US|10
+0000420200    |BGTL | 76.530 | -68.750   |  59 |  THULE_AB                --   |US|10
+0000700260    |PABR | 71.300 |-156.780   |   4 |  BARROW/POST-ROGERS      AK   |US|12
+0000700860    |PABA | 70.130 |-143.630   |  16 |  BARTER ISLAND           AK   |US|10
+0000701040    |PALU | 68.880 |-166.130   |   3 |  CAPE_LISBURNE(AWOS)     AK   |US|10
+0000701330    |PAOT | 66.870 |-162.630   |   5 |  KOTZEBUE/RALPH_WIEN_(AS AK   |US|10
+0000701620    |PAUM | 69.370 |-152.130   |  85 |  UMIAT                   AK   |US|10
+0000701740    |PABT | 66.920 |-151.520   | 196 |  BETTLES_FIELD           AK   |US|10
+0000701780    |PATA | 65.170 |-152.100   |  67 |  TANANA/CALHOUN_MEM      AK   |US|10
+0000701940    |PFYU | 66.570 |-145.270   | 131 |  FORT_YUKON_(AWOS)       AK   |US|10
+0000702000    |PAOM | 64.500 |-165.430   |   7 |  NOME_(ASOS)             AK   |US|12
+0000702070    |PAUN | 63.880 |-160.800   |   6 |  UNALAKLEET_(AWOS)       AK   |US|10
+0000702120    |PACZ | 61.780 |-166.030   | 146 |  CAPE_ROMANZOFF_AWOS     AK   |US|10
+0000702190    |PABE | 60.780 |-161.800   |  46 |  BETHEL AIRPORT          AK   |US|10
+0000702220    |PAGA | 64.730 |-156.930   |  46 |  GALENA_AIRPORT          AK   |US|10
+0000702310    |PAMC | 62.970 |-155.620   | 103 |  MCGRATH_(ASOS)          AK   |US|10
+0000702315    |PATL | 62.900 |-155.980   | 294 |  TATALINA_(AWOS)         AK   |US|10
+0000702350    |PASV | 61.100 |-155.580   | 484 |  SPARREVOHN_(AWOS)       AK   |US|10
+0000702510    |PATK | 62.300 |-150.100   | 109 |  TALKEETNA_(ASOS)        AK   |US|10
+0000702550    |PASW | 61.970 |-151.180   |  45 |  SKWENTNA                AK   |US|11
+0000702590    |PAEN | 60.570 |-151.250   |  29 |  KENAI_MUNICIPAL         AK   |US|10
+0000702610    |PAFA | 64.820 |-147.870   | 138 |  FAIRBANKS_INTL_ARPT     AK   |US|12
+0000702650    |PAEI | 64.670 |-147.100   | 167 |  EIELSON_AFB_______&     AK   |US|10
+0000702660    |PABI | 63.970 |-145.700   | 398 |  FT.GREELY/BIG DELTA     AK   |US|10
+0000702710    |PAGK | 62.150 |-145.450   | 481 |  GULKANA_ARPT_(AUT)      AK   |US|10
+0000702720    |PAED | 61.250 |-149.800   |  65 |  ELMENDORF_AFB_____&     AK   |US|10
+0000702730    |PANC | 61.170 |-150.020   |  40 |  ANCHORAGE_INTL_ARPT_(AS AK   |US|12
+0000702740    |PAAQ | 61.600 |-149.080   |  71 |  PALMER_MUNICIPAL_(ASOS) AK   |US|10
+0000702750    |PAVW | 61.130 |-146.350   |  10 |  VALDEZ (COASTAL POINT)  AK   |US|20
+0000702770    |PAWD | 60.120 |-149.450   |  18 |  SEWARD_(ASOS)           AK   |US|11
+0000702820    |PAEG | 64.780 |-141.150   | 268 |  EAGLE                   AK   |US|10
+0000702910    |PAOR | 62.970 |-141.930   | 525 |  NORTHWAY                AK   |US|10
+0000702960    |PACV | 60.500 |-145.500   |  13 |  CORDOVA/MILE 13         AK   |US|10
+0000703050    |PAEH | 58.650 |-162.070   | 165 |  CAPE_NEWENHAM(AWOS)     AK   |US|10
+0000703080    |PASN | 57.150 |-170.220   |   9 |  SAINT_PAUL_ISLAND_(ASOS AK   |US|00
+0000703160    |PACD | 55.200 |-162.730   |  31 |  COLD_BAY_AIRPORT_(ASOS) AK   |US|10
+0000703210    |PADL | 59.050 |-158.520   |  29 |  DILLINGHAM_(AMOS)       AK   |US|10
+0000703260    |PAKN | 58.680 |-156.650   |  15 |  KING_SALMON_(ASOS)      AK   |US|10
+0000703400    |PAIL | 59.750 |-154.920   |  49 |  ILIAMNA_ARPT_(ASOS)     AK   |US|10
+0000703410    |PAHO | 59.630 |-151.500   |  22 |  HOMER MUNICIPAL         AK   |US|10
+0000703430    |PAMD | 59.430 |-146.330   |  14 |  MIDDLETON_ISL._AMOS     AK   |US|10
+0000703500    |PADQ | 57.750 |-152.500   |  34 |  KODIAK_(ASOS)           AK   |US|10
+0000703610    |PAYA | 59.520 |-139.670   |   9 |  YAKUTAT_(ASOS)          AK   |US|10
+0000703620    |PAGY | 59.470 |-135.300   |   5 |  SKAGWAY_(ASOS)          AK   |US|10
+0000703670    |PAGS | 58.420 |-135.730   |   9 |  GUSTAVUS                AK   |US|10
+0000703710    |PASI | 57.070 |-135.350   |  20 |  SITKA/JAPONSKI_ARPT_(AS AK   |US|10
+0000703810    |PAJN | 58.370 |-134.580   |   7 |  JUNEAU_INTL_AIRPORT     AK   |US|10
+0000703860    |PAPG | 56.820 |-132.970   |   0 |  PETERSBURG              AK   |US|10
+0000703870    |PAWG | 56.480 |-132.370   |  13 |  WRANGELL                AK   |US|10
+0000703950    |PAKT | 55.350 |-131.700   |  29 |  KETCHIKAN INTL ARPT     AK   |US|10
+0000703980    |PANT | 55.030 |-131.570   |  34 |  ANNETTE_ISLAND_(ASOS)   AK   |US|10
+0000704140    |PASY | 52.720 | 174.120   |  30 |  SHEMYA_AFB              AK   |US|10
+0000704540    |PADK | 51.880 |-176.650   |   4 |  ADAK_NAS/MITCHELL       AK   |US|00
+0000704820    |PIKO | 52.950 |-168.850   |  21 |  NIKOLSKI_(AMOS)         AK   |US|00
+0000704890    |PADU | 53.900 |-166.550   |   4 |  DUTCH HARBOR            AK   |US|10
+0000710310    |CWZV | 51.930 |-131.020   |  92 |  CAPE_ST_JAMES           BC   |US|10
+0000710430    |CYVQ | 65.280 |-126.750   |  95 |  NORMAN WELLS            NT   |US|12
+0000710513    |CYSY | 72.000 |-125.280   |  86 |  SACHS_HARBOUR_ARPT      NT   |US|10
+0000710680    |CYPE | 56.230 |-117.430   | 571 |  PEACE_RIVER_AIRPORT     AB   |US|11
+0000710720    |CYMD | 76.230 |-119.330   |  12 |  MOULD_BAY_AIRPORT       NT   |US|10
+0000710780    |CYYL | 56.870 |-101.080   | 357 |  LYNN LAKE AIRPORT       MB   |US|12
+0000710790    |CYTH | 55.750 | -97.870   | 206 |  THOMPSON ZOO            MB   |US|12
+0000710810    |CYUX | 68.780 | -81.250   |   8 |  HALL_BEACH_AIRPORT      NT   |US|10
+0000710820    |CWLT | 82.500 | -62.330   |  66 |  ALERT                   NT   |US|10
+0000711080    |CYXX | 49.030 |-122.370   |  58 |  ABBOTSFORD_AIRPORT      BC   |US|10
+0000711090    |CYZT | 50.680 |-127.370   |  22 |  PORT_HARDY_AIRPORT      BC   |US|10
+0000711190    |CWSE | 53.550 |-114.100   | 766 |  EDMONTON/STONY_PLAI     AB   |US|12
+0000711230    |CYEG | 53.300 |-113.580   | 723 |  EDMONTON_INTL_ARPT      AB   |US|10
+0000711250    |CYLJ | 54.130 |-108.520   | 480 |  MEADOW_LAKE_AIRPORT     SA   |US|10
+0000711300    |CYBU | 53.330 |-104.000   | 374 |  NIPAWIN_AIRPORT         SA   |US|10
+0000711510    |CWQG | 46.900 | -71.500   | 168 |  VALCARTIER              QB   |US|10
+0000711970    |CWZB | 47.570 | -59.170   |  40 |  PORT-AUX-BASQUES        NF   |US|10
+0000712030    |CWLW | 49.950 |-119.400   | 456 |  KELOWNA                 BC   |US|12
+0000712220    |CWKX | 58.420 |-130.000   | 816 |  DEASE_LAKE_CS           BC   |US|10
+0000712630    |CYHM | 43.170 | -79.930   | 777 |  HAMMILTON AIRPORT       ON   |US|12
+0000713680    |CYKF | 43.470 | -80.380   | 317 |  WATERLOO_WELL           ON   |US|12
+0000713950    |CYHZ | 44.880 | -63.500   | 145 |  HALIFAX_INTL_ARPT_&     NS   |US|10
+0000713970    |CYZX | 44.980 | -64.920   |  28 |  GREENWOOD_(CAN-MIL)     NS   |US|11
+0000713990    |CWOS | 43.720 | -65.250   |  30 |  SHELBURNE               NS   |US|10
+0000714963    |CYWO | 65.770 |-111.250   | 494 |  LUPIN_ARPT_(SAWR)       NT   |US|11
+0000715380    |CYQG | 42.270 | -82.970   | 190 |  WINDSOR_AIRPORT         ON   |US|10
+0000716000    |CWSA | 43.930 | -60.020   |   4 |  SABLE_ISLAND______&     NS   |US|00
+0000716010    |CYAW | 44.630 | -63.500   |  51 |  SHEARWATER(CAN-MIL)     NS   |US|10
+0000716030    |CYQI | 43.870 | -66.100   |   9 |  YARMOUTH                NS   |US|10
+0000716090    |CYSJ | 45.320 | -65.880   | 109 |  SAINT_JOHN_AIRPORT      NB   |US|11
+0000716230    |CYXU | 43.030 | -81.150   | 912 |  LONDON AIRPORT          ON   |US|12
+0000716240    |CYYZ | 43.670 | -79.630   | 173 |  TORONTO/PEARSON         ON   |US|10
+0000716250    |CYWA | 45.950 | -77.320   | 130 |  PETAWAWA_A,ONT          ON   |US|10
+0000716270    |CYUL | 45.470 | -73.750   |  36 |  MONTREAL/DORVAL         QB   |US|10
+0000716278    |CYMX | 45.680 | -74.030   |  82 |  MONTREAL/MIRABEL        QB   |US|10
+0000716280    |CYOW | 45.320 | -75.670   | 114 |  OTTAWA_INTL_AIRPORT     ON   |US|10
+0000716290    |CYPQ | 44.230 | -78.370   | 626 |  PETERBOROUGH AIRPORT    ON   |US|12
+0000716300    |CYQA | 44.970 | -79.300   | 925 |  MUSKOKA AIRPORT         ON   |US|12
+0000716330    |CYVV | 44.750 | -81.100   | 728 |  WIARTON AIRPORT         ON   |US|12
+0000717010    |CYCX | 45.830 | -66.430   |  51 |  GAGETOWN__(CAN-MIL)     NB   |US|12
+0000717050    |CYQM | 46.120 | -64.680   |  71 |  MONCTON_AIRPORT         NB   |US|12
+0000717060    |CYYG | 46.280 | -63.130   |  54 |  CHARLOTTETOWN_ARPT      PE   |US|12
+0000717070    |CYQY | 46.170 | -60.050   |  62 |  SYDNEY_AIRPORT          NS   |US|10
+0000717220    |CWMW | 46.380 | -75.970   | 170 |  MANIWAKI                QB   |US|12
+0000717250    |CYVO | 48.050 | -77.780   | 337 |  VAL D'OR                PQ   |US|10
+0000717310    |CYYB | 46.370 | -79.420   | 371 |  NORTH BAY               ON   |US|10
+0000717380    |CYXZ | 47.970 | -84.780   | 287 |  WAWA_AIRPORT            ON   |US|10
+0000717390    |CYTS | 48.570 | -81.370   | 295 |  TIMMINS_AIRPORT         ON   |US|10
+0000717460    |CYLH | 52.230 | -87.880   | 242 |  LANSDOWNE HOUSE         ON   |US|10
+0000717490    |CYQT | 48.370 | -89.320   | 199 |  THUNDER_BAY_AIRPORT     ON   |US|10
+0000717990    |CYYJ | 48.650 |-123.430   |  19 |  VICTORIA_INTL_ARPT      BC   |US|10
+0000718010    |CYYT | 47.620 | -52.730   | 140 |  SAINT_JOHN'S_ARPT       NF   |US|10
+0000718030    |CYQX | 48.950 | -54.570   | 151 |  GANDER_INTL_AIRPORT     NF   |US|10
+0000718090    |CYDF | 49.220 | -57.400   |  22 |  DEER LAKE               NF   |US|12
+0000718110    |CYZV | 50.220 | -66.270   |  55 |  SEPT-ILES_AIRPORT       QB   |US|10
+0000718150    |CYJT | 48.530 | -58.550   |  26 |  STEPHENVILLE_ARPT       NF   |US|10
+0000718160    |CYYR | 53.320 | -60.420   |  49 |  GOOSE_BAY_AIRPORT       NF   |US|10
+0000718220    |CYMT | 49.770 | -74.530   | 387 |  CHIBOUGAMAU-CHAPAIS     QB   |US|10
+0000718230    |CYAH | 53.750 | -73.670   | 306 |  LA_GRANDE_IV_ARPT       QB   |US|10
+0000718340    |CYGQ | 49.780 | -86.930   |1151 |  GERALDTON AIRPORT       ON   |US|12
+0000718360    |CWZC | 51.270 | -80.650   |  10 |  MOOSONEE_(SAWR)___&     ON   |US|12
+0000718365    |CYMO | 51.280 | -80.600   |  29 |  MOOSONEE AIRPORT        ON   |US|12
+0000718454    |CYPL | 51.450 | -90.200   | 386 |  PICKLE_LAKE(MAN)        ON   |US|10
+0000718480    |CYTL | 53.830 | -89.870   |9999 |  BIG TROUT LAKE          ON   |US|12
+0000718500    |CYQK | 49.780 | -94.370   |1348 |  KENORA AIRPORT          ON   |US|12
+0000718520    |CYWG | 49.900 | -97.230   | 239 |  WINNIPEG_INTL_ARPT      MN   |US|10
+0000718530    |CWLO | 49.780 | -99.650   | 373 |  CAMP SHILO              MB   |US|10
+0000718575    |CYFO | 54.680 |-101.680   | 304 |  FLIN_FLON_AIRPORT       MN   |US|10
+0000718630    |CYQR | 50.430 |-104.670   | 577 |  REGINA_AIRPORT          SA   |US|10
+0000718660    |CYXE | 52.170 |-106.680   | 504 |  SASKATOON_AIRPORT       SA   |US|10
+0000718670    |CYQD | 53.970 |-101.100   | 271 |  THE_PAS_AIRPORT         MN   |US|12
+0000718690    |CYPA | 53.220 |-105.680   | 428 |  PRINCE_ALBERT_ARPT      SA   |US|12
+0000718720    |CYXH | 50.020 |-110.720   | 716 |  MEDICINE_HAT_ARPT       AB   |US|12
+0000718740    |YQL  | 49.630 |-112.800   | 929 |  LETHBRIDGE_AIRPORT      AB   |US|10
+0000718770    |CYYC | 51.120 |-114.020   |1084 |  CALGARY_INTNL_ARPT      AB   |US|10
+0000718800    |CYXC | 49.620 |-115.780   | 939 |  CRANBROOK               BC   |US|10
+0000718840    |CYCG | 49.300 |-117.630   | 495 |  CASTLEGAR_AIRPORT       BC   |US|10
+0000718920    |CYVR | 49.180 |-123.170   |   2 |  VANCOUVER_INTL_ARPT     BC   |US|10
+0000718930    |CYQQ | 49.720 |-124.900   |  24 |  COMOX_(CAN-MIL)         BC   |US|10
+0000718960    |CYXS | 53.880 |-122.680   | 691 |  PRINCE_GEORGE_ARPT      BC   |US|12
+0000719060    |CYVP | 58.100 | -68.420   |  37 |  KUUJJUAQ_AIRPORT        QB   |US|10
+0000719070    |CWPH | 58.450 | -78.120   | 253 |  INUKJUAK                QB   |US|10
+0000719090    |CYFB | 63.750 | -68.530   |  34 |  FROBISHER/IQALUIT       NT   |US|10
+0000719130    |CYYQ | 58.750 | -94.070   |  29 |  CHURCHILL_AIRPORT       MN   |US|10
+0000719150    |CYZS | 64.200 | -83.370   |  64 |  CORAL_HARBOUR_ARPT      NT   |US|10
+0000719170    |CWEU | 79.980 | -85.930   |  10 |  EUREKA                  NT   |US|10
+0000719200    |CWFN | 57.350 |-107.130   | 495 |  CREE_LAKE_(MAPS)        SA   |US|11
+0000719240    |CYRB | 74.720 | -94.950   |  40 |  RESOLUTE BAY            NT   |US|10
+0000719250    |CYCB | 69.100 |-105.120   |  27 |  CAMBRIDGE_BAY_ARPT      NT   |US|10
+0000719260    |CYBK | 64.300 | -96.000   |  49 |  BAKER LAKE              NT   |US|10
+0000719310    |CWLB | 54.770 |-112.020   | 567 |  LAC_LA_BICHE_(MARS)     AB   |US|11
+0000719340    |CYSM | 60.020 |-111.950   | 203 |  FORT_SMITH_AIRPORT      NT   |US|12
+0000719360    |CYZF | 62.500 |-114.400   |9999 |  YELLOW KNIFE            NT   |US|12
+0000719450    |CYYE | 58.830 |-122.580   | 382 |  FORT_NELSON_AIRPORT     BC   |US|12
+0000719460    |CYFS | 61.800 |-121.200   |9999 |  FORT SIMPSON            NT   |US|12
+0000719530    |CYQH | 60.120 |-128.820   | 690 |  WATSON_LAKE_AIRPORT     YK   |US|11
+0000719570    |CYEV | 68.320 |-133.530   | 103 |  INUVIK                  NT   |US|12
+0000719640    |CYXY | 60.720 |-135.070   | 703 |  WHITEHORSE_AIRPORT      YK   |US|12
+0000719660    |CYDA | 64.050 |-139.130   | 369 |  DAWSON_AIRPORT          YK   |US|11
+0000719665    |CYOC | 67.570 |-139.820   | 251 |  OLD_CROW_AIRPORT        YK   |US|10
+0000722010    |KEYW | 24.550 | -81.750   |   6 |  KEY_WEST_INTL_ARPT      FL   |US|22
+0000722016    |KMTH | 24.730 | -81.050   |   2 |  MARATHON_AIRPORT_(ASOS) FL   |US|00
+0000722020    |KMIA | 25.820 | -80.280   |   4 |  MIAMI_INTL_AIRPORT      FL   |US|10
+0000722024    |KOPF | 25.900 | -80.280   |   3 |  MIAMI/OPA_LOCKA         FL   |US|10
+0000722025    |KFLL | 26.070 | -80.150   |   7 |  FT_LAUDERDALE/HOLLY     FL   |US|10
+0000722029    |KTMB | 25.650 | -80.430   |   3 |  MIAMI/KENDALL-TAMIA     FL   |US|10
+0000722030    |KPBI | 26.680 | -80.120   |   6 |  WEST_PALM_BEACH         FL   |US|12
+0000722039    |KFXE | 26.200 | -80.170   |   4 |  FORT_LAUDERDALE         FL   |US|10
+0000722040    |KMLB | 28.100 | -80.650   |  11 |  MELBOURNE_REGIONAL      FL   |US|10
+0000722045    |KVRB | 27.650 | -80.420   |   8 |  VERO_BEACH_MUNI         FL   |US|10
+0000722050    |KMCO | 28.430 | -81.320   |  32 |  ORLANDO_JETPORT___&     FL   |US|10
+0000722056    |KDAB | 29.180 | -81.050   |  11 |  DAYTONA_BEACH_RGNL      FL   |US|10
+0000722060    |KJAX | 30.500 | -81.690   |   9 |  JACKSONVILLE_INTL       FL   |US|12
+0000722067    |KVQQ | 30.220 | -81.880   |  25 |  CECIL_FIELD_NAS         FL   |US|11
+0000722070    |KSAV | 32.130 | -81.190   |  15 |  SAVANNAH_MUNICIPAL      GA   |US|10
+0000722079    |KHXD | 32.220 | -80.700   |   6 |  HILTON_HEAD_(AWOS)      SC   |US|11
+0000722080    |KCHS | 32.900 | -80.030   |  15 |  CHARLESTOWN_MUNI        SC   |US|12
+0000722100    |TBW  | 27.700 | -82.380   |  13 |  TAMPA                   FL   |US|12
+0000722103    |KFPR | 27.500 | -80.370   |   7 |  FT_PIERCE/ST_LUCIE      FL   |US|10
+0000722106    |KFMY | 26.580 | -81.870   |   5 |  FORT_MYERS/PAGE_FLD     FL   |US|10
+0000722108    |KRSW | 26.530 | -81.750   |   9 |  FT_MYERS/SW_FLORIDA     FL   |US|10
+0000722110    |KTPA | 27.970 | -82.530   |   3 |  TAMPA_INTL_AIRPORT      FL   |US|10
+0000722115    |KSRQ | 27.400 | -82.550   |   9 |  SARASOTA-BRADENTON      FL   |US|10
+0000722116    |KPIE | 27.920 | -82.680   |   3 |  SAINT_PETERSBURG        FL   |US|10
+0000722120    |CTY  | 29.620 | -83.100   |  12 |  CROSS_CITY_ARPT_(ASOS)  FL   |US|10
+0000722130    |KAYS | 31.250 | -82.400   |  46 |  WAYCROSS/WARE_CO.       GA   |US|12
+0000722136    |KBQK | 31.250 | -81.470   |   8 |  BRUNSWICK/GLYNCO        GA   |US|10
+0000722137    |KSSI | 31.150 | -81.370   |   6 |  BRUNSWICK/MALCOLM       GA   |US|10
+0000722140    |KTLH | 30.380 | -84.370   |  21 |  TALLAHASSEE_RGNL        FL   |US|12
+0000722146    |KGNV | 29.680 | -82.270   |  46 |  GAINESVILLE_RGNL        FL   |US|10
+0000722150    |FFC  | 33.360 | -84.570   | 246 |  PEACHTREE CITY/FALCON   GA   |US|12
+0000722160    |KABY | 31.530 | -84.180   |  59 |  ALBANY_MUNICIPAL        GA   |US|10
+0000722166    |KVLD | 30.780 | -83.280   |  62 |  VALDOSTA_REGIONAL       GA   |US|10
+0000722170    |KMCN | 32.700 | -83.650   | 110 |  MACON/LEWIS_WILSON      GA   |US|10
+0000722180    |KAGS | 33.370 | -81.970   |  45 |  AUGUSTA/BUSH_FIELD      GA   |US|10
+0000722190    |KATL | 33.650 | -84.420   | 315 |  ATLANTA_INTL_ARPT       GA   |US|10
+0000722195    |KFTY | 33.780 | -84.520   | 256 |  ATLANTA/FULTON_CO.      GA   |US|10
+0000722196    |KPDK | 33.880 | -84.300   | 305 |  ATLANTA/DEKALB          GA   |US|10
+0000722200    |AQQ  | 29.730 | -84.980   |   7 |  APALACHICOLA            FL   |US|10
+0000722210    |VPS  | 30.560 | -85.920   |  68 |  EGLIN AFB               FL   |US|12
+0000722223    |KPNS | 30.470 | -87.180   |  37 |  PENSACOLA_REGIONAL&     FL   |US|10
+0000722230    |KMOB | 30.680 | -88.250   |  67 |  MOBILE/BATES_FIELD      AL   |US|10
+0000722235    |KBFM | 30.630 | -88.070   |   8 |  MOBILE_DOWNTOWN_(ASOS)  AL   |US|10
+0000722245    |KPFN | 30.220 | -85.680   |   6 |  PANAMA_CITY/BAY_CO.     FL   |US|10
+0000722250    |LSF  | 32.330 | -84.830   | 130 |  FORT BENNING            GA   |US|10
+0000722255    |KCSG | 32.520 | -84.930   | 121 |  COLUMBUS_METRO_ARPT     GA   |US|10
+0000722260    |KMGM | 32.300 | -86.400   |  62 |  MONTGOMERY/DANNELLY     AL   |US|10
+0000722268    |KDHN | 31.320 | -85.450   | 122 |  DOTHAN_MUNICIPAL        AL   |US|10
+0000722280    |KBHM | 33.570 | -86.750   | 192 |  BIRMINGHAM_MUNI         AL   |US|10
+0000722286    |KTCL | 33.220 | -87.620   |  52 |  TUSCALOOSA_MUNI         AL   |US|10
+0000722287    |KANB | 33.580 | -85.850   | 186 |  ANNISTON/CALHOUN_CO     AL   |US|10
+0000722290    |KCKL | 32.900 | -87.250   | 140 |  CENTREVILLE/BIBB_CO     AL   |US|10
+0000722300    |BMX  | 33.170 | -86.770   | 178 |  SHELBY COUNTY ARPT      AL   |US|12
+0000722310    |KMSY | 29.980 | -90.250   |   9 |  NEW_ORLEANS/MOISANT     LA   |US|10
+0000722314    |KARA | 30.030 | -91.880   |   7 |  NEW_IBERIA/ACADIANA     LA   |US|11
+0000722315    |KNEW | 30.050 | -90.030   |   3 |  NEW_ORLEANS/LAKEFRO     LA   |US|10
+0000722317    |KBTR | 30.530 | -91.150   |  21 |  BATON_ROUGE/RYAN        LA   |US|10
+0000722330    |6RO  | 30.330 | -89.820   |   8 |  SLIDELL                 LA   |US|12
+0000722340    |KMEI | 32.330 | -88.750   |  94 |  MERIDIAN/KEY_FIELD      MS   |US|10
+0000722348    |KPIB | 31.470 | -89.330   |  91 |  PINE_BELT_RGNL_AWOS     MS   |US|10
+0000722350    |KJAN | 32.320 | -90.080   | 101 |  JACKSON/THOMPSON        MS   |US|12
+0000722356    |KGLH | 33.480 | -90.980   |  40 |  GREENVILLE_MUNI         MS   |US|10
+0000722358    |KMCB | 31.180 | -90.470   | 126 |  MCCOMB/LEWIS_FIELD      MS   |US|10
+0000722359    |KGWO | 33.500 | -90.080   |  47 |  GREENWOOD/LEFLORE       MS   |US|10
+0000722390    |KPOE | 31.050 | -93.200   | 100 |  FORT_POLK_(ARMY)        LA   |US|11
+0000722400    |KLCH | 30.120 | -93.220   |  10 |  LAKE_CHARLES_MUNI       LA   |US|12
+0000722405    |KLFT | 30.200 | -91.980   |  13 |  LAFAYETTE_REGIONAL      LA   |US|10
+0000722410    |KBPT | 29.950 | -94.020   |   7 |  BEAUMONT/PORT_ARTHU     TX   |US|10
+0000722420    |KGLS | 29.300 | -94.800   |  16 |  GALVESTON/SCHOLES_&     TX   |US|10
+0000722430    |KIAH | 29.970 | -95.350   |  33 |  HOUSTON/INTERCONTIN     TX   |US|12
+0000722435    |KHOU | 29.650 | -95.280   |  14 |  HOUSTON/WILL_HOBBY      TX   |US|10
+0000722445    |KCLL | 30.580 | -96.370   |  98 |  COLLEGE_STATION         TX   |US|10
+0000722446    |KLFK | 31.230 | -94.750   |  88 |  LUFKIN/ANGELINA_CO      TX   |US|10
+0000722448    |KTYR | 32.340 | -95.400   | 166 |  TYLER/POUNDS_FLD        TX   |US|10
+0000722470    |KGGG | 32.340 | -94.650   | 124 |  LONGVIEW/GREGG_CO&      TX   |US|12
+0000722480    |KSHV | 32.470 | -93.820   |  79 |  SHREVEPORT_REGIONAL     LA   |US|12
+0000722486    |KMLU | 32.520 | -92.030   |  24 |  MONROE_REGIONAL         LA   |US|10
+0000722487    |KESF | 31.400 | -92.300   |  34 |  ALEXANDRIA/ESLER        LA   |US|10
+0000722490    |FWD  | 32.830 | -97.300   | 171 |  FORT WORTH              TX   |US|12
+0000722500    |KBRO | 25.900 | -97.430   |   6 |  BROWNSVILLE_INTL        TX   |US|12
+0000722505    |KHRL | 26.230 | -97.650   |  11 |  HARLINGEN_INTL_ARPT     TX   |US|10
+0000722506    |KMFE | 26.180 | -98.230   |  33 |  MCALLEN/MILLER_INTL     TX   |US|10
+0000722510    |KCRP | 27.770 | -97.500   |  13 |  CORPUS_CHRISTI_INTL     TX   |US|12
+0000722517    |KALI | 27.730 | -98.030   |  54 |  ALICE_INTL_AIRPORT      TX   |US|10
+0000722520    |KLRD | 27.550 | -99.470   | 155 |  LAREDO_INTL_AIRPORT     TX   |US|10
+0000722527    |KLBX | 29.120 | -95.470   |   8 |  ANGLETON/LAKE_JACKS     TX   |US|11
+0000722530    |KSAT | 29.530 | -98.470   | 242 |  SAN_ANTONIO_INTL        TX   |US|10
+0000722540    |KAUS | 30.300 | -97.700   | 189 |  AUSTIN/MUELLER_MUNI     TX   |US|10
+0000722550    |KVCT | 28.850 | -96.920   |  36 |  VICTORIA_REGIONAL       TX   |US|12
+0000722560    |KACT | 31.620 | -97.220   | 155 |  WACO-MADISON_COOPER     TX   |US|10
+0000722576    |KGRK | 31.070 | -97.830   | 309 |  FORT_HOOD/GRAY_AAF      TX   |US|11
+0000722583    |KDAL | 32.840 | -96.850   | 148 |  DALLAS/LOVE_FIELD_&     TX   |US|10
+0000722587    |PRX  | 33.630 | -95.450   | 167 |  PARIS/COX_FIELD         TX   |US|12
+0000722590    |KDFW | 32.900 | -97.030   | 182 |  DALLAS/FT_WORTH         TX   |US|10
+0000722593    |KMHV | 35.070 |-118.150   | 849 |  MOJAVE                  CA   |US|12
+0000722596    |KFTW | 32.820 | -97.370   | 216 |  FORT_WORTH/MEACHAM      TX   |US|10
+0000722600    |KSEP | 32.220 | -98.180   | 402 |  STEPHENVILLE/CLARK      TX   |US|10
+0000722610    |KDRT | 29.370 |-100.920   | 307 |  DEL_RIO_INTL_(AUT)      TX   |US|12
+0000722620    |GDP  | 31.830 |-104.800   |1662 |  GUADALUPE_PASS_AMOS     TX   |US|10
+0000722630    |KSJT | 31.370 |-100.500   | 582 |  SAN_ANGELO/MATHIS       TX   |US|10
+0000722636    |KDHT | 36.020 |-102.550   |1216 |  DALHART_MUNICIPAL       TX   |US|10
+0000722640    |MRF  | 30.370 |-104.020   |1481 |  MARFA_MUNI_(AMOS)       TX   |US|12
+0000722650    |KMAF | 31.950 |-102.180   | 872 |  MIDLAND_REGIONAL        TX   |US|12
+0000722656    |KINK | 31.780 |-103.200   | 859 |  WINK/WINKLER_CO.        TX   |US|10
+0000722660    |KABI | 32.410 | -99.680   | 546 |  ABILENE_MUNICIPAL       TX   |US|10
+0000722670    |KLBB | 33.650 |-101.820   | 988 |  LUBBOCK_INTL_ARPT       TX   |US|10
+0000722680    |KROW | 33.300 |-104.530   |1118 |  ROSWELL/INDUSTRIAL      NM   |US|12
+0000722687    |KCNM | 32.330 |-104.270   |1004 |  CARLSBAD/CAVERN_CTY     NM   |US|10
+0000722688    |KHOB | 32.680 |-103.220   |1115 |  HOBBS/LEA_CO.           NM   |US|10
+0000722690    |WSD  | 32.240 |-106.220   |1207 |  WHITE SANDS             NM   |US|10
+0000722695    |KLRU | 32.280 |-106.920   |1358 |  LAS_CRUCES_INTL         NM   |US|11
+0000722700    |KELP | 31.800 |-106.400   |1194 |  EL_PASO_INTL_ARPT       TX   |US|10
+0000722710    |KTCS | 33.230 |-107.270   |1481 |  TRUTH_OR_CONSEQUENC     NM   |US|10
+0000722725    |KDMN | 32.270 |-107.720   |1313 |  DEMING_MUNICIPAL        NM   |US|10
+0000722730    |FHU  | 31.570 |-110.330   |1438 |  FORT HUACHUCA           AZ   |US|10
+0000722735    |KDUG | 31.470 |-109.600   |1265 |  DOUGLAS_BISBEE_INTL     AZ   |US|10
+0000722740    |KTUS | 32.120 |-110.930   | 779 |  TUCSON_INTL_AIRPORT     AZ   |US|12
+0000722780    |KPHX | 33.430 |-112.020   | 337 |  PHOENIX/SKY_HARBOR      AZ   |US|10
+0000722800    |KYUM | 32.650 |-114.600   |  63 |  YUMA_INTL_AIRPORT       AZ   |US|12
+0000722865    |KONT | 34.050 |-117.600   | 287 |  ONTARIO_INTL_ARPT       CA   |US|10
+0000722868    |KPSP | 33.830 |-116.500   | 141 |  PALM_SPRINGS_RGNL       CA   |US|10
+0000722880    |KBUR | 34.200 |-118.350   | 236 |  BURBANK/GLENDALE        CA   |US|10
+0000722886    |KVNY | 34.220 |-118.480   | 244 |  VAN_NUYS_AIRPORT        CA   |US|10
+0000722897    |KSBP | 35.230 |-120.630   |  64 |  SAN_LUIS_OBISPO         CA   |US|10
+0000722900    |KSAN | 32.730 |-117.170   |   9 |  SAN_DIEGO/LINDBERG&     CA   |US|10
+0000722904    |KSDM | 32.570 |-116.980   | 160 |  SAN_DIEGO/BROWN_FLD     CA   |US|10
+0000722910    |KNSI | 33.250 |-119.450   |  10 |  SAN NICOLAS ISLAND      CA   |US|10
+0000722927    |KCRQ | 33.130 |-117.280   | 328 |  CARLSBAD                CA   |US|10
+0000722930    |NKX  | 32.850 |-117.120   | 128 |  MIRAMAR_NAS_______&     CA   |US|12
+0000722950    |KLAX | 33.930 |-118.400   |  32 |  LOS_ANGELES_INTL        CA   |US|12
+0000722970    |KLGB | 33.820 |-118.150   |  12 |  LONG_BEACH_AIRPORT      CA   |US|10
+0000722977    |KSNA | 33.680 |-117.870   |  16 |  SANTA_ANA/JON-WAYNE     CA   |US|10
+0000723013    |KILM | 34.270 | -77.900   |  10 |  WILMINGTON/NEW_HAN&     NC   |US|10
+0000723030    |KPOB | 35.170 | -79.020   |  66 |  POPE_AFB                NC   |US|10
+0000723035    |KFAY | 34.980 | -78.870   |  58 |  FAYETTEVILLE_RGNL       NC   |US|10
+0000723040    |KHAT | 35.270 | -75.550   |   3 |  CAPE_HATTERAS           NC   |US|12
+0000723050    |KMHX | 34.780 | -76.870   |  11 |  NEWPORT                 NC   |US|12
+0000723060    |KRDU | 35.870 | -78.780   | 134 |  RALEIGH-DURHAM          NC   |US|10
+0000723065    |KPGV | 35.640 | -77.390   |   8 |  GREENVILLE              NC   |US|11
+0000723066    |KGSB | 35.330 | -77.970   |  33 |  SEYMOUR-JOHNSON_AFB     NC   |US|11
+0000723068    |KRWI | 35.840 | -77.900   |  48 |  ROCKY_MOUNT-WILSON      NC   |US|10
+0000723069    |KOAJ | 34.820 | -77.610   |  29 |  JACKSONVILLE            NC   |US|12
+0000723080    |KORF | 36.900 | -76.190   |   9 |  NORFOLK_INTL_ARPT       VA   |US|10
+0000723086    |KPHF | 37.130 | -76.500   |  13 |  NEWPORT_NEWS            VA   |US|10
+0000723095    |KEWN | 35.070 | -77.050   |   6 |  NEW_BERN/CRAVEN_CO      NC   |US|10
+0000723100    |KCAE | 33.950 | -81.120   |  69 |  COLUMBIA_METRO          SC   |US|10
+0000723106    |KFLO | 34.180 | -79.720   |  45 |  FLORENCE_REGIONAL       SC   |US|10
+0000723110    |KAHN | 33.950 | -83.320   | 247 |  ATHENS_MUNICIPAL        GA   |US|12
+0000723119    |KGMU | 34.840 | -82.350   | 319 |  GREENVILLE_DOWNTOWN     SC   |US|10
+0000723120    |KGSP | 34.900 | -82.220   | 296 |  GREENVILLE/SPARTANB     SC   |US|10
+0000723125    |KAND | 34.500 | -82.720   | 238 |  ANDERSON_CO_AIRPORT     SC   |US|10
+0000723140    |KCLT | 35.220 | -80.930   | 234 |  CHARLOTTE/DOUGLAS       NC   |US|10
+0000723145    |KHKY | 35.730 | -81.370   | 362 |  HICKORY_REGIONAL        NC   |US|10
+0000723150    |KAVL | 35.430 | -82.550   | 661 |  ASHEVILLE_MUNICIPAL     NC   |US|12
+0000723170    |KGSO | 36.080 | -79.940   | 270 |  GREENSBORO/PIEDMONT     NC   |US|12
+0000723180    |KRNK | 37.210 | -80.410   | 653 |  BLACKSBURG/ROANOKE UA   VA   |US|12
+0000723183    |KTRI | 36.480 | -82.400   | 463 |  BRISTOL/TRI-CITY__&     TN   |US|10
+0000723193    |KINT | 36.130 | -80.220   | 296 |  WINSTON-SALEM/SMITH     NC   |US|10
+0000723230    |KHSV | 34.650 | -86.770   | 196 |  HUNTSVILLE/MADISON      AL   |US|12
+0000723235    |KMSL | 34.750 | -87.620   | 168 |  MUSCLE_SHOALS_RGNL      AL   |US|10
+0000723240    |KCHA | 35.030 | -85.200   | 210 |  CHATTANOOGA/LOVELL      TN   |US|10
+0000723260    |KTYS | 35.820 | -83.980   | 299 |  KNOXVILLE_MUNICIPAL     TN   |US|10
+0000723265    |KCSV | 35.950 | -85.080   | 573 |  CROSSVILLE_MEMORIAL     TN   |US|10
+0000723270    |KBNA | 36.130 | -86.680   | 180 |  NASHVILLE_METRO         TN   |US|10
+0000723320    |KTUP | 34.270 | -88.770   | 110 |  TUPELO/C.D._LEMONS&     MS   |US|10
+0000723340    |KMEM | 35.050 | -90.000   |  87 |  MEMPHIS_INTL_ARPT       TN   |US|10
+0000723346    |KMKL | 35.590 | -88.920   | 132 |  JACKSON/MCKELLAR        TN   |US|12
+0000723400    |KLZK | 34.830 | -92.250   | 165 |  NORTH_LITTLE_ROCK       AR   |US|12
+0000723403    |KLIT | 34.730 | -92.230   |  79 |  LITTLE_ROCK/ADAMS_&     AR   |US|10
+0000723407    |KJBR | 35.830 | -90.650   |  80 |  JONESBORO_MUNICIPAL     AR   |US|10
+0000723415    |KHOT | 34.480 | -93.100   | 165 |  HOT_SPRINGS             AR   |US|10
+0000723417    |KPBF | 34.180 | -91.930   |  63 |  PINE_BLUFF/GRIDER       AR   |US|10
+0000723418    |KTXK | 33.450 | -93.980   | 119 |  TEXARKANA_RGNL/WEBB     AR   |US|10
+0000723419    |KELD | 33.220 | -92.800   |  77 |  EL_DORADO/GOODWIN       AR   |US|10
+0000723440    |KFSM | 35.330 | -94.370   | 141 |  FORT_SMITH_MUNI         AR   |US|10
+0000723445    |KFYV | 36.000 | -94.170   | 381 |  FAYETTEVILLE/DRAKE      AR   |US|12
+0000723446    |KHRO | 36.270 | -93.150   | 416 |  HARRISON/BOONE_CO.      AR   |US|10
+0000723447    |FLP  | 36.200 | -92.470   | 350 |  FLIPPIN                 AR   |US|10
+0000723448    |KBVX | 35.730 | -91.650   | 141 |  BATESVILLE_(AWOS)       AR   |US|10
+0000723480    |KUNO | 36.880 | -91.900   | 374 |  WEST_PLAINS             MO   |US|10
+0000723489    |KCGI | 37.230 | -89.570   | 104 |  CAPE_GIRARDEAU_MUNI     MO   |US|10
+0000723490    |KHFJ | 36.910 | -94.020   | 438 |  MONETT                  MO   |US|12
+0000723495    |KJLN | 37.150 | -94.500   | 299 |  JOPLIN_REGIONAL         MO   |US|10
+0000723510    |KSPS | 33.980 | -98.500   | 314 |  WICHITA_FALLS/SHEP      TX   |US|10
+0000723525    |KHBR | 34.980 | -99.050   | 477 |  HOBART_MUNICIPAL        OK   |US|10
+0000723526    |KCSM | 35.330 | -99.200   | 586 |  CLINTON-SHERMAN_(ASOS)  OK   |US|11
+0000723527    |KGAG | 36.300 | -99.770   | 678 |  GAGE/SHATTUCK           OK   |US|10
+0000723530    |KOKC | 35.400 | -97.600   | 397 |  OKLAHOMA_CITY(AWOS)     OK   |US|10
+0000723546    |KPNC | 36.730 | -97.100   | 307 |  PONCA_CITY_MUNI         OK   |US|10
+0000723550    |FSI  | 34.600 | -98.400   | 360 |  FORT SILL               OK   |US|12
+0000723555    |ADM  | 34.300 | -97.020   | 232 |  ARDMORE_MUNICIPAL       OK   |US|10
+0000723560    |KTUL | 36.200 | -95.900   | 206 |  TULSA_INTL_ARPT(AW)     OK   |US|10
+0000723565    |KBVO | 36.760 | -96.010   | 217 |  BARTLESVILLE            OK   |US|12
+0000723566    |KMLC | 34.880 | -95.780   | 235 |  MC_ALESTER_REGIONAL     OK   |US|12
+0000723570    |OUN  | 35.230 | -97.470   | 358 |  NORMAN                  OK   |US|12
+0000723604    |KCDS | 34.430 |-100.280   | 595 |  CHILDRESS_MUNICIPAL     TX   |US|10
+0000723627    |KGUP | 35.520 |-108.780   |1972 |  GALLUP_MUNI/CLARKE      NM   |US|10
+0000723630    |KAMA | 35.230 |-101.700   |1099 |  AMARILLO_ARPT(AWOS)     TX   |US|12
+0000723640    |KEPZ | 31.870 |-106.700   |1252 |  SANTA_TERESA            NM   |US|12
+0000723650    |KABQ | 35.050 |-106.620   |1620 |  ALBUQUERQUE_INTL        NM   |US|12
+0000723656    |KSAF | 35.620 |-106.080   |1934 |  SANTA_FE_CO_MUNI        NM   |US|10
+0000723658    |KFMN | 36.750 |-108.230   |1677 |  FARMINGTON_REGIONAL     NM   |US|10
+0000723676    |KTCC | 35.180 |-103.600   |1239 |  TUCUMCARI_MUNICIPAL     NM   |US|10
+0000723677    |KLVS | 35.650 |-105.150   |2095 |  LAS_VEGAS_MUNICIPAL     NM   |US|12
+0000723700    |IGM  | 35.270 |-113.950   |1033 |  KINGMAN_(ASOS)          AZ   |US|10
+0000723710    |KPGA | 36.930 |-111.450   |1304 |  PAGE_MUNI_(AMOS)__&     AZ   |US|10
+0000723720    |PRC  | 34.530 |-112.470   |1633 |  PRESCOTT                AZ   |US|10
+0000723723    |KPRC | 34.650 |-112.420   |1537 |  PRESCOTT/LOVE_FLD_&     AZ   |US|10
+0000723740    |KINW | 35.020 |-110.730   |1488 |  WINSLOW_(AUT)           AZ   |US|10
+0000723747    |SOW  | 34.270 |-110.000   |1954 |  SHOW_LOW_MUNICIPAL      AZ   |US|10
+0000723754    |SJN  | 34.510 |-109.380   |1745 |  ST._JOHNS_AIR_PARK      AZ   |US|10
+0000723755    |KFLG | 35.130 |-111.670   |2137 |  FLAGSTAFF_(AMOS)        AZ   |US|10
+0000723760    |FLG  | 35.230 |-111.820   |2192 |  FLAGSTAFF               AZ   |US|12
+0000723783    |KGCN | 35.950 |-112.150   |2014 |  GRAND_CANYON_PARK       AZ   |US|10
+0000723805    |KEED | 34.770 |-114.620   | 302 |  NEEDLES_AIRPORT         CA   |US|10
+0000723810    |EDW  | 34.920 |-117.900   | 724 |  EDWARDS AFB             CA   |US|10
+0000723815    |KDAG | 34.840 |-116.780   | 587 |  BARSTOW-DAGGETT         CA   |US|10
+0000723816    |KWJF | 34.730 |-118.220   | 715 |  LANCASTER/FOX_FIELD     CA   |US|10
+0000723820    |KPMD | 34.630 |-118.080   | 774 |  PALMDALE_PRODUCTION     CA   |US|10
+0000723840    |KBFL | 35.430 |-119.050   | 150 |  BAKERSFIELD/MEADOWS     CA   |US|10
+0000723860    |KLAS | 36.080 |-115.170   | 664 |  LAS_VEGAS/MCCARRAN      NV   |US|10
+0000723870    |KDRA | 36.620 |-116.020   |1009 |  MERCURY/DESERT_ROCK     NV   |US|12
+0000723890    |KFAT | 36.770 |-119.720   | 100 |  FRESNO_AIR_TERMINAL     CA   |US|10
+0000723910    |NTD  | 34.120 |-119.120   |   2 |  PT_MUGU_NAWS            CA   |US|10
+0000723925    |KSBA | 34.430 |-119.830   |   3 |  SANTA_BARBARA_MUNI      CA   |US|10
+0000723930    |VBG  | 34.750 |-120.570   | 100 |  VANDENBERG AFB          CA   |US|12
+0000723940    |KSMX | 34.900 |-120.450   |  73 |  SANTA_MARIA_PUBLIC      CA   |US|10
+0000723965    |KPRB | 35.660 |-120.630   | 255 |  PASO_ROBLES_MUNI        CA   |US|10
+0000724010    |KRIC | 37.500 | -77.330   |  54 |  RICHMOND/BYRD_FIELD     VA   |US|10
+0000724016    |KCHO | 38.130 | -78.440   | 195 |  CHARLOTTESVILLE         VA   |US|10
+0000724017    |KFVX | 37.350 | -78.430   | 125 |  FARMVILLE               VA   |US|10
+0000724020    |WAL  | 37.930 | -75.480   |  41 |  WALLOPS_ISLAND_STN_(ASO VA   |US|12
+0000724030    |KIAD | 38.950 | -77.440   |  98 |  WASHINGTON/DULLES       VA   |US|12
+0000724040    |NHK  | 38.280 | -76.400   |  12 |  PATUXENT_RIVER_NAS      MD   |US|10
+0000724045    |KSBY | 38.330 | -75.510   |  16 |  SALISBURY_REGIONAL      MD   |US|10
+0000724050    |KDCA | 38.840 | -77.030   |  20 |  WASHINGTON/NATIONAL     VA   |US|10
+0000724060    |KBWI | 39.180 | -76.670   |  47 |  BALTIMORE/WASH_INTL     MD   |US|10
+0000724066    |HGR  | 39.700 | -77.730   | 215 |  HAGERSTOWN_REGIONAL_(AS MD   |US|10
+0000724067    |KMTN | 39.330 | -76.420   |   7 |  BALTIMORE/MARTIN        MD   |US|10
+0000724070    |KACY | 39.450 | -74.570   |  20 |  ATLANTIC_CITY_INTL      NJ   |US|10
+0000724075    |KMIV | 39.370 | -75.070   |  25 |  MILLVILLE_MUNICIPAL     NJ   |US|10
+0000724080    |KPHL | 39.880 | -75.250   |   9 |  PHILADELPHIA_INTL       PA   |US|10
+0000724085    |KPNE | 40.080 | -75.010   |  37 |  PHILADELPHIA_NE         PA   |US|10
+0000724089    |KILG | 39.680 | -75.600   |  24 |  WILMINGTON_AIRPORT      DE   |US|10
+0000724095    |KTTN | 40.280 | -74.820   |  65 |  TRENTON/MERCER CO.      NJ   |US|10
+0000724096    |KWRI | 40.020 | -74.600   |  41 |  MCGUIRE_AFB             NJ   |US|12
+0000724097    |KMMU | 40.800 | -74.420   |  57 |  MORRISTOWN_MUNI         NJ   |US|10
+0000724100    |KLYH | 37.330 | -79.190   | 286 |  LYNCHBURG/P._GLENN      VA   |US|10
+0000724106    |KDAN | 36.570 | -79.330   | 174 |  DANVILLE_REGIONAL       VA   |US|10
+0000724110    |KROA | 37.320 | -79.970   | 358 |  ROANOKE_MUNICIPAL       VA   |US|12
+0000724120    |KBKW | 37.780 | -81.120   | 766 |  BECKLEY_MEMORIAL        WV   |US|10
+0000724125    |KBLF | 37.300 | -81.190   | 871 |  BLUEFIELD/MERCER_CO     WV   |US|10
+0000724127    |KLWB | 37.870 | -80.400   | 702 |  LEWISBURG/GREENBRIE     WV   |US|10
+0000724140    |KCRW | 38.370 | -81.600   | 299 |  CHARLESTON/KANAWHA      WV   |US|10
+0000724170    |KEKN | 38.880 | -79.850   | 609 |  ELKINS/RANDOLPH_FLD     WV   |US|12
+0000724175    |KCKB | 39.300 | -80.230   | 367 |  CLARKSBURG/BENEDUM      WV   |US|10
+0000724176    |KMGW | 39.650 | -79.920   | 380 |  MORGANTOWN/HART_FLD     WV   |US|10
+0000724177    |KMRB | 39.400 | -77.980   | 170 |  MARTINSBURG_RGNL        WV   |US|10
+0000724210    |KCVG | 39.050 | -84.670   | 267 |  CINCINNATI/COVINGTO     KY   |US|12
+0000724220    |KLEX | 38.030 | -84.600   | 301 |  LEXINGTON/BLUEGRASS     KY   |US|10
+0000724230    |KSDF | 38.180 | -85.730   | 149 |  LOUISVILLE/STANDIFO     KY   |US|12
+0000724236    |KJKL | 37.590 | -83.320   | 421 |  JACKSON/J._CARROLL      KY   |US|10
+0000724237    |KOWB | 37.750 | -87.160   | 124 |  OWENSBORO               KY   |US|12
+0000724240    |KFTK | 37.910 | -85.970   | 230 |  FORT KNOX/GOODMAN FLD   KY   |US|12
+0000724243    |KLOZ | 37.080 | -84.080   | 369 |  LONDON-CORBIN_ARPT&     KY   |US|12
+0000724250    |KHTS | 38.370 | -82.550   | 255 |  HUNTINGTON/TRI_STAT     WV   |US|12
+0000724260    |ILN  | 39.420 | -83.830   | 317 |  WILMINGTON              OH   |US|12
+0000724273    |KPKB | 39.340 | -81.430   | 262 |  PARKERSBURG/WILSON&     WV   |US|10
+0000724275    |KHLG | 40.180 | -80.650   | 365 |  WHEELING/OHIO_CO.       WV   |US|10
+0000724280    |KCMH | 40.000 | -82.880   | 249 |  PORT_COLUMBUS_INTL      OH   |US|10
+0000724285    |KLCK | 39.820 | -82.930   | 227 |  COLUMBUS/RICKENBACKER   OH   |US|11
+0000724286    |KZZV | 39.950 | -81.900   | 274 |  ZANESVILLE_MUNI         OH   |US|10
+0000724290    |KDAY | 39.900 | -84.200   | 306 |  DAYTON/JAMES_M_COX      OH   |US|10
+0000724297    |KLUK | 39.090 | -84.420   | 147 |  CINCINNATI/LUNKIN       OH   |US|10
+0000724320    |KEVV | 38.050 | -87.530   | 118 |  EVANSVILLE_REGIONAL     IN   |US|10
+0000724330    |SLO  | 38.650 | -88.970   | 175 |  SALEM                   IL   |US|12
+0000724336    |KMDH | 37.780 | -89.250   | 125 |  CARBONDALE              IL   |US|12
+0000724340    |KSTL | 38.750 | -90.370   | 172 |  ST._LOUIS/LAMBERT       MO   |US|10
+0000724345    |KSUS | 38.660 | -90.650   | 141 |  SPIRIT_OF_ST_LOUIS      MO   |US|10
+0000724350    |KPAH | 37.070 | -88.770   | 120 |  PADUCAH/BARKLEY___&     KY   |US|12
+0000724373    |KHUF | 39.450 | -87.320   | 178 |  TERRE_HAUTE/HULMAN&     IN   |US|10
+0000724375    |KBMG | 39.150 | -86.620   | 258 |  BLOOMINGTON/MONROE_(ASO IN   |US|11
+0000724380    |KIND | 39.730 | -86.270   | 246 |  INDIANAPOLIS_INTL       IN   |US|10
+0000724386    |KLAF | 40.410 | -86.930   | 185 |  LAFAYETTE/PURDUE_U      IN   |US|10
+0000724390    |KSPI | 39.840 | -89.670   | 187 |  SPRINGFIELD/CAPITAL     IL   |US|10
+0000724396    |KUIN | 39.950 | -91.200   | 234 |  QUINCY_MUNI/BALDWIN     IL   |US|10
+0000724397    |KBMI | 40.480 | -88.920   | 267 |  BLOOMINGTON/NORMAL      IL   |US|11
+0000724398    |KDNV | 40.120 | -87.600   | 212 |  DANVILLE/VERMILLION APT IL   |US|12
+0000724400    |KSGF | 37.230 | -93.380   | 387 |  SPRINGFLD_MUNI(AWS)     MO   |US|12
+0000724450    |KCOU | 38.820 | -92.220   | 274 |  COLUMBIA_REGIONAL       MO   |US|12
+0000724454    |KFAM | 37.770 | -90.430   | 288 |  FARMINGTON_AIRPORT      MO   |US|10
+0000724456    |KVIH | 38.130 | -91.770   |9999 |  ROLLA/VICHY_AIRPORT     MO   |US|11
+0000724460    |KMCI | 39.320 | -94.720   | 312 |  KANSAS_CITY_INTL        MO   |US|10
+0000724463    |KMKC | 39.120 | -94.600   | 231 |  KANSAS_CITY_MUNI__&     MO   |US|10
+0000724490    |KSTJ | 39.770 | -94.920   | 249 |  ST_JOSEPH/ROSECRANS     MO   |US|10
+0000724500    |KICT | 37.650 | -97.430   | 408 |  WICHITA/CONTINE(AW)     KS   |US|10
+0000724506    |KHUT | 38.070 | -97.870   | 470 |  HUTCHINSON_MUNI         KS   |US|10
+0000724507    |KCNU | 37.660 | -95.480   | 305 |  CHANUTE/MARTIN_JOHN     KS   |US|10
+0000724510    |KDDC | 37.770 | -99.970   | 790 |  DODGE_CITY(AWOS)        KS   |US|12
+0000724515    |KGCK | 37.930 |-100.720   | 881 |  GARDEN_CITY_MUNI        KS   |US|10
+0000724516    |KLBL | 37.040 |-100.970   | 879 |  LIBERAL                 KS   |US|12
+0000724517    |KGBD | 38.340 | -98.860   | 575 |  GREAT BEND              KS   |US|12
+0000724518    |KHYS | 38.850 | -99.270   | 609 |  HAYS_MUNI_(AWOS)        KS   |US|12
+0000724520    |KP28 | 37.270 | -98.550   | 468 |  MEDICINE LODGE          KS   |US|12
+0000724555    |KMHK | 39.130 | -96.670   | 322 |  MANHATTAN_MUNICIPAL     KS   |US|10
+0000724556    |KEMP | 38.330 | -96.190   | 368 |  EMPORIA                 KS   |US|10
+0000724560    |KTOP | 39.070 | -95.620   | 270 |  TOPEKA/BILLARD_MUNI     KS   |US|12
+0000724565    |KFOE | 38.950 | -95.670   | 329 |  TOPEKA/FORBES_FIELD     KS   |US|10
+0000724580    |KCNK | 39.550 | -97.650   | 453 |  CONCORDIA/BLOSSER       KS   |US|10
+0000724585    |KRSL | 38.870 | -98.820   | 568 |  RUSSELL_MUNICIPAL       KS   |US|10
+0000724586    |KSLN | 38.800 | -97.650   | 388 |  SALINA_MUNICIPAL        KS   |US|10
+0000724604    |KEHA | 37.010 |-101.880   |1099 |  ELKHART                 KS   |US|12
+0000724620    |KALS | 37.450 |-105.870   |2299 |  ALAMOSA_MUNI(AWOS)      CO   |US|10
+0000724625    |KDRO | 37.150 |-107.750   |2038 |  DURANGO/LA_PLATA_CO     CO   |US|10
+0000724627    |KTEX | 37.950 |-107.900   |2769 |  TELLURIDE               CO   |US|10
+0000724635    |LHX  | 38.050 |-103.520   |1292 |  LA_JUNTA_MUNICIPAL_(ASO CO   |US|10
+0000724636    |LAA  | 38.070 |-102.680   |1129 |  LAMAR_MUNICIPAL_(ASOS)  CO   |US|10
+0000724640    |KPUB | 38.280 |-104.520   |1439 |  PUEBLO_MEMORIAL(AW)     CO   |US|10
+0000724650    |KGLD | 39.370 |-101.700   |1124 |  GOODLAND/RENNER(AW)     KS   |US|10
+0000724655    |KHLC | 39.380 | -99.830   | 678 |  HILL CITY               KS   |US|12
+0000724660    |KCOS | 38.820 |-104.720   |1881 |  COLORADO_SPRINGS        CO   |US|10
+0000724666    |KAPA | 39.570 |-104.850   |1793 |  DENVER/CENTENNIAL       CO   |US|10
+0000724675    |KEGE | 39.650 |-106.920   |1993 |  EAGLE_CO._REGIONAL      CO   |US|10
+0000724676    |KASE | 39.220 |-106.870   |2382 |  ASPEN/SARDY_FIELD       CO   |US|10
+0000724677    |KGUC | 38.530 |-106.930   |2339 |  GUNNISON_CO._(AWOS)     CO   |US|10
+0000724680    |FCS  | 38.700 |-104.770   |1789 |  FORT CARSON             CO   |US|10
+0000724690    |DEN  | 39.750 |-104.870   |1611 |  DENVER/STAPLETON        CO   |US|12
+0000724698    |AKO  | 40.170 |-103.220   |1431 |  AKRON/WASHINGTON_CO_ASO CO   |US|11
+0000724699    |KBJC | 39.910 |-105.120   |1724 |  BROOMFIELD/JEFFCO       CO   |US|10
+0000724700    |PUC  | 39.620 |-110.750   |1805 |  PRICE/CARBON_(ASOS)     UT   |US|11
+0000724723    |4BL  | 37.620 |-109.470   |1840 |  BLANDING__________&     UT   |US|10
+0000724735    |4HV  | 38.370 |-110.720   |1314 |  HANKSVILLE              UT   |US|10
+0000724754    |KSGU | 37.040 |-113.500   | 896 |  SAINT_GEORGE AIRPORT    UT   |US|10
+0000724755    |KCDC | 37.700 |-113.100   |1714 |  CEDAR_CITY_MUNI         UT   |US|10
+0000724756    |KBCE | 37.700 |-112.150   |2312 |  BRYCE_CANYON            UT   |US|10
+0000724760    |KGJT | 39.120 |-108.530   |1475 |  GRAND_JUNCTION          CO   |US|12
+0000724765    |KMTJ | 38.500 |-107.900   |1755 |  MONTROSE_CO._ARPT       CO   |US|10
+0000724767    |KCEZ | 37.300 |-108.670   |1803 |  CORTEZ                  CO   |US|12
+0000724768    |KGXY | 40.430 |-104.630   |1420 |  GREELEY                 CO   |US|12
+0000724769    |KFNL | 40.450 |-105.010   |1529 |  FORT COLLINS/LOVELAND   CO   |US|12
+0000724773    |U28  | 39.000 |-110.170   |1241 |  GREEN_RIVER_RANGE_&     UT   |US|10
+0000724776    |KCNY | 38.760 |-109.750   |1388 |  MOAB/CANYONLANDS        UT   |US|10
+0000724795    |U24  | 39.330 |-112.580   |1414 |  DELTA                   UT   |US|10
+0000724796    |KLGU | 41.780 |-111.850   |1358 |  LOGAN-CACHE AIRPORT     UT   |US|10
+0000724800    |KBIH | 37.370 |-118.370   |1263 |  BISHOP_AIRPORT          CA   |US|10
+0000724815    |KMCE | 37.280 |-120.520   |  47 |  MERCED/MACREADY_FLD     CA   |US|10
+0000724830    |KSAC | 38.520 |-121.500   |   8 |  SACRAMENTO/EXECUTIV     CA   |US|10
+0000724835    |KMHR | 38.550 |-121.300   |  29 |  MATHER FIELD            CA   |US|11
+0000724839    |KSMF | 38.700 |-121.580   |   7 |  SACRAMENTO_METRO        CA   |US|10
+0000724855    |KTPH | 38.050 |-117.080   |1654 |  TONOPAH_AIRPORT         NV   |US|10
+0000724856    |KHTH | 38.550 |-118.630   |1285 |  HAWTHORNE MUNICIPAL     CA   |US|10
+0000724860    |KELY | 39.280 |-114.850   |1909 |  ELY/YELLAND_FLD         NV   |US|12
+0000724870    |KP38 | 37.620 |-114.520   |1335 |  CALIENTE_(AMOS)         NV   |US|10
+0000724880    |KRNO | 39.500 |-119.780   |1341 |  RENO/CANNON_INTL        NV   |US|10
+0000724890    |KREV | 39.570 |-119.790   |1515 |  RENO                    NV   |US|12
+0000724915    |KMRY | 36.580 |-121.850   |  77 |  MONTEREY_PENINSULA      CA   |US|10
+0000724917    |KSNS | 36.660 |-121.600   |  26 |  SALINAS_MUNICIPAL       CA   |US|10
+0000724920    |KSCK | 37.900 |-121.250   |   8 |  STOCKTON_METRO          CA   |US|10
+0000724927    |KLVK | 37.700 |-121.820   | 121 |  LIVERMORE_MUNICIPAL     CA   |US|11
+0000724930    |KOAK | 37.730 |-122.220   |   3 |  OAKLAND                 CA   |US|12
+0000724940    |KSFO | 37.620 |-122.380   |   5 |  SAN_FRANCISCO_INTL      CA   |US|10
+0000724945    |KSJC | 37.370 |-121.930   |  17 |  SAN_JOSE_INTL_ARPT      CA   |US|10
+0000724957    |KSTS | 38.520 |-122.820   |  38 |  SANTA_ROSA_(AWOS)       CA   |US|10
+0000725010    |OKX  | 40.870 | -72.860   |  20 |  BROOKHAVEN              NY   |US|12
+0000725020    |KEWR | 40.700 | -74.170   |   9 |  NEWARK_INTL_AIRPORT     NJ   |US|10
+0000725025    |KTEB | 40.840 | -74.070   |   3 |  TETERBORO_AIRPORT       NJ   |US|10
+0000725030    |KLGA | 40.770 | -73.900   |   9 |  NEW_YORK/LA_GUARDIA     NY   |US|10
+0000725035    |KISP | 40.800 | -73.100   |  30 |  ISLIP/MACARTHUR         NY   |US|10
+0000725036    |KPOU | 41.630 | -73.870   |  51 |  POUGHKEEPSIE            NY   |US|10
+0000725037    |KHPN | 41.070 | -73.690   | 134 |  WHITE_PLAINS            NY   |US|10
+0000725038    |KSWF | 41.500 | -74.100   | 150 |  NEWBURGH/STEWART        NY   |US|10
+0000725040    |KBDR | 41.170 | -73.120   |   5 |  BRIDGEPORT/SIKORSKI     CT   |US|10
+0000725045    |KHVN | 41.270 | -72.870   |   4 |  NEW_HAVEN/TWEED         CT   |US|10
+0000725046    |KGON | 41.330 | -72.050   |   3 |  GROTON/NEW_LONDON       CT   |US|10
+0000725058    |BID  | 41.170 | -71.580   |  33 |  BLOCK_ISLAND_(AWOS)     RI   |US|00
+0000725063    |KACK | 41.250 | -70.070   |  15 |  NANTUCKET_MEMORIAL&     MA   |US|20
+0000725064    |KPYM | 41.920 | -70.730   |  45 |  PLYMOUTH                MA   |US|10
+0000725065    |KEWB | 41.680 | -70.970   |  24 |  NEW_BEDFORD_MUNI        MA   |US|10
+0000725067    |KHYA | 41.670 | -70.280   |  16 |  HYANNIS/POLANDO_FLD     MA   |US|10
+0000725070    |KPVD | 41.730 | -71.430   |  19 |  PROVIDENCE/GREEN        RI   |US|10
+0000725074    |KOQU | 41.600 | -71.420   |   6 |  N._KINGSTON/QUONSET     RI   |US|10
+0000725080    |KBDL | 41.930 | -72.680   |  55 |  HARTFORD/BRADLEY        CT   |US|10
+0000725084    |IJD  | 41.730 | -72.180   |  76 |  WILLIMANTIC             CT   |US|10
+0000725085    |KORE | 42.570 | -72.270   | 164 |  ORANGE_(ASOS)           MA   |US|10
+0000725087    |KHFD | 41.730 | -72.650   |   6 |  HARTFORD/BRAINARD       CT   |US|10
+0000725088    |KBVY | 42.580 | -70.920   |  33 |  BEVERLY_MUNICIPAL       MA   |US|10
+0000725090    |KBOS | 42.370 | -71.030   |   9 |  BOSTON/LOGAN_INTL_&     MA   |US|10
+0000725095    |KORH | 42.270 | -71.870   | 308 |  WORCESTER_(AMOS)        MA   |US|10
+0000725103    |KRDG | 40.380 | -75.970   | 105 |  READING/SPAATZ_FLD&     PA   |US|10
+0000725115    |KMDT | 40.200 | -76.760   |  94 |  MIDDLETOWN/OLMSTED      PA   |US|10
+0000725116    |KLNS | 40.120 | -76.290   | 123 |  LANCASTER               PA   |US|12
+0000725125    |KDUJ | 41.180 | -78.900   | 554 |  DU_BOIS_(AWOS)          PA   |US|10
+0000725126    |KAOO | 40.300 | -78.320   | 458 |  ALTOONA/BLAIR_CO.       PA   |US|12
+0000725127    |KJST | 40.320 | -78.830   | 696 |  JOHNSTOWN/CAMBRIA       PA   |US|10
+0000725128    |KUNV | 40.840 | -77.850   | 378 |  STATE_COLLEGE           PA   |US|10
+0000725130    |KAVP | 41.330 | -75.730   | 289 |  WILKES-BARRE/SCRANT     PA   |US|10
+0000725140    |KIPT | 41.250 | -76.920   | 160 |  WILLIAMSPORT            PA   |US|10
+0000725145    |KMSV | 41.700 | -74.800   | 428 |  MONTICELLO              NY   |US|11
+0000725150    |KBGM | 42.220 | -75.980   | 497 |  BINGHAMTON/BROOME       NY   |US|10
+0000725155    |KITH | 42.480 | -76.440   | 335 |  ITHACA/TOMPKINS_CO.     NY   |US|10
+0000725156    |KELM | 42.170 | -76.900   | 291 |  ELMIRA/CORNING_RGNL     NY   |US|10
+0000725165    |RUT  | 43.530 | -72.950   | 240 |  RUTLAND_STATE(AWOS)     VT   |US|10
+0000725170    |KABE | 40.650 | -75.430   | 117 |  ALLENTOWN-BETHLEHEM     PA   |US|10
+0000725180    |KALB | 42.750 | -73.800   |  89 |  ALBANY_COUNTY_ARPT      NY   |US|12
+0000725185    |KGFL | 43.330 | -73.620   | 100 |  GLEN_FALLS/WARREN       NY   |US|10
+0000725186    |OGS  | 44.680 | -75.470   |  91 |  OGDENSBURG_INTL         NY   |US|10
+0000725190    |KSYR | 43.120 | -76.120   | 124 |  SYRACUSE/HANCOCK        NY   |US|10
+0000725197    |KUCA | 43.150 | -75.370   | 226 |  UTICA/ONEIDA_CO.        NY   |US|10
+0000725200    |KPIT | 40.500 | -80.220   | 373 |  PITTSBURGH_INTL         PA   |US|12
+0000725204    |KBVI | 40.770 | -80.400   | 382 |  BEAVER_FALLS_ARPT       PA   |US|10
+0000725205    |KAGC | 40.340 | -79.930   | 382 |  PITTSBURGH/ALLEGHEN     PA   |US|10
+0000725207    |KLBE | 40.280 | -79.400   | 361 |  LATROBE/WESTMORLAND     PA   |US|10
+0000725210    |KCAK | 40.910 | -81.430   | 377 |  AKRON-CANTON_RGNL       OH   |US|10
+0000725235    |KJHW | 42.150 | -79.260   | 525 |  JAMESTOWN_(AWOS)        NY   |US|10
+0000725240    |KCLE | 41.420 | -81.870   | 245 |  CLEVELAND/HOPKINS       OH   |US|10
+0000725246    |KMFD | 40.820 | -82.520   | 395 |  MANSFIELD/LAHM_MUNI     OH   |US|10
+0000725250    |KYNG | 41.270 | -80.670   | 361 |  YOUNGSTOWN_MUNI         OH   |US|10
+0000725260    |KERI | 42.080 | -80.180   | 225 |  ERIE_INTL_AIRPORT       PA   |US|10
+0000725266    |KBFD | 41.800 | -78.620   | 653 |  BRADFORD_REGIONAL       PA   |US|10
+0000725267    |KFKL | 41.380 | -79.870   | 469 |  FRANKLIN(AWOS)          PA   |US|10
+0000725280    |KBUF | 42.930 | -78.730   | 215 |  BUFFALO_INTL_ARPT       NY   |US|12
+0000725287    |KIAG | 43.100 | -78.940   | 180 |  NIAGARA_FALLS_INTL      NY   |US|10
+0000725290    |KROC | 43.120 | -77.670   | 169 |  ROCHESTER/MONROE_CO     NY   |US|10
+0000725300    |KORD | 41.980 | -87.900   | 205 |  CHICAGO/O'HARE_ARPT     IL   |US|12
+0000725305    |KDPA | 41.920 | -88.250   | 231 |  W._CHICAGO/DU_PAGE      IL   |US|10
+0000725315    |KCMI | 40.030 | -88.280   | 230 |  CHAMPAIGN/URBANA        IL   |US|10
+0000725316    |KDEC | 39.830 | -88.870   | 208 |  DECATUR_AIRPORT         IL   |US|10
+0000725320    |KPIA | 40.660 | -89.680   | 202 |  PEORIA_REGIONAL         IL   |US|12
+0000725326    |KSQI | 41.740 | -89.680   | 197 |  STERLING/ROCK FALLS     IL   |US|12
+0000725330    |KFWA | 41.000 | -85.200   | 252 |  FORT_WAYNE/BAER_FLD     IN   |US|10
+0000725336    |MIE  | 40.250 | -85.400   | 286 |  MUNCIE/JOHNSON_FLD      IN   |US|10
+0000725337    |KGYY | 41.620 | -87.420   | 590 |  GARY                    IN   |US|10
+0000725340    |KMDW | 41.780 | -87.750   | 190 |  CHICAGO/MIDWAY          IL   |US|10
+0000725346    |KCGX | 41.870 | -87.600   | 181 |  CHICAGO/MEIGS           IL   |US|10
+0000725350    |KSBN | 41.700 | -86.320   | 236 |  SOUTH_BEND/ST._JOE      IN   |US|12
+0000725360    |KTOL | 41.600 | -83.800   | 211 |  TOLEDO_EXPRESS          OH   |US|10
+0000725366    |KFDY | 41.020 | -83.670   | 247 |  FINDLAY(AWOS)           OH   |US|12
+0000725370    |KDTW | 42.230 | -83.330   | 202 |  DETROIT_METRO           MI   |US|10
+0000725375    |KDET | 42.420 | -83.020   | 191 |  DETROIT_CITY_ARPT       MI   |US|10
+0000725384    |KPHN | 42.920 | -82.530   | 198 |  ST.CLAIR_COUNTY_INT     MI   |US|10
+0000725387    |KP59 | 47.450 | -87.900   | 190 |  COPPER HARBOR           MI   |US|00
+0000725390    |KLAN | 42.770 | -84.600   | 266 |  LANSING/CAPITAL         MI   |US|10
+0000725395    |KJXN | 42.270 | -84.470   | 305 |  JACKSON/REYNOLDS        MI   |US|10
+0000725396    |KBTL | 42.300 | -85.250   | 290 |  BATTLE_CREEK            MI   |US|10
+0000725430    |KRFD | 42.200 | -89.100   | 226 |  ROCKFORD                IL   |US|10
+0000725440    |KMLI | 41.450 | -90.520   | 181 |  MOLINE/QUAD_CITY        IL   |US|10
+0000725450    |KCID | 41.880 | -91.700   | 265 |  CEDAR_RAPIDS_MUNI       IA   |US|12
+0000725455    |KBRL | 40.780 | -91.130   | 213 |  BURLINGTON_MUNI         IA   |US|10
+0000725460    |KDSM | 41.530 | -93.650   | 294 |  DES_MOINES_INTL         IA   |US|10
+0000725465    |KOTM | 41.100 | -92.450   | 258 |  OTTUMWA_INDUSTRIAL      IA   |US|10
+0000725467    |KSDA | 40.750 | -95.410   | 296 |  SHENANDOAH              IA   |US|12
+0000725470    |KDBQ | 42.400 | -90.700   | 329 |  DUBUQUE_MUNICIPAL       IA   |US|10
+0000725476    |KDEH | 43.280 | -91.740   | 353 |  DECORAH                 IA   |US|10
+0000725480    |KALO | 42.550 | -92.400   | 268 |  WATERLOO_MUNICIPAL      IA   |US|10
+0000725485    |KMCW | 43.150 | -93.330   | 370 |  MASON_CITY_MUNI         IA   |US|10
+0000725490    |KFOD | 42.550 | -94.200   | 355 |  FORT DODGE              IA   |US|11
+0000725496    |SLB  | 42.600 | -95.230   | 454 |  STORM LAKE              IA   |US|11
+0000725500    |KOMA | 41.300 | -95.900   | 299 |  OMAHA/EPPLEY_FIELD&     NE   |US|10
+0000725510    |KLNK | 40.840 | -96.750   | 362 |  LINCOLN_MUNICIPAL       NE   |US|12
+0000725515    |KBIE | 40.300 | -96.750   | 403 |  BEATRICE                NE   |US|12
+0000725520    |KGRI | 40.970 | -98.320   | 566 |  GRAND_ISLAND(AWOS)      NE   |US|10
+0000725524    |ODX  | 41.620 | -98.950   | 631 |  ORD/SHARP_FIELD_(ASOS)  NE   |US|11
+0000725526    |KEAR | 40.730 | -99.000   | 649 |  KEARNEY                 NE   |US|12
+0000725533    |FNB  | 40.080 | -95.600   | 300 |  FALLS_CITY/BRENNER      NE   |US|11
+0000725555    |KBBW | 41.440 | -99.640   | 776 |  BROKEN BOW              NE   |US|12
+0000725560    |KOFK | 41.980 | -97.430   | 473 |  NORFOLK/STEFAN_FLD      NE   |US|10
+0000725565    |KOLU | 41.450 | -97.340   | 440 |  COLUMBUS                NE   |US|12
+0000725566    |KONL | 42.470 | -98.690   | 619 |  O'NEILL                 NE   |US|12
+0000725570    |KSUX | 42.400 | -96.380   | 336 |  SIOUX_CITY_MUNI         IA   |US|12
+0000725580    |OAX  | 41.320 | -96.370   | 350 |  OMAHA/VALLEY            NE   |US|12
+0000725610    |SNY  | 41.100 |-102.980   |1312 |  SIDNEY_MUNI_(ASOS)      NE   |US|10
+0000725620    |KLBF | 41.130 |-100.680   | 849 |  N._PLATTE/LEE_BIRD      NE   |US|12
+0000725626    |KIML | 40.510 |-101.620   | 998 |  IMPERIAL                NE   |US|12
+0000725628    |KHDE | 40.450 | -99.330   | 705 |  HOLDREGE                NE   |US|12
+0000725635    |KAIA | 42.050 |-102.800   |1198 |  ALLIANCE                NE   |US|11
+0000725636    |KCDR | 42.830 |-103.100   |1005 |  CHADRON_MUNICIPAL       NE   |US|10
+0000725640    |KCYS | 41.150 |-104.820   |1872 |  CHEYENNE/WARREN_AFB     WY   |US|10
+0000725645    |KLAR | 41.320 |-105.670   |2218 |  LARAMIE/GEN._BREES      WY   |US|10
+0000725650    |KDEN | 39.870 |-104.670   |1656 |  DENVER_INTNL_ARPT       CO   |US|10
+0000725660    |KBFF | 41.870 |-103.600   |1206 |  SCOTTSBLUFF/HEILIG      NE   |US|10
+0000725690    |KCPR | 42.920 |-106.470   |1612 |  CASPER/NATRONA_INTL     WY   |US|12
+0000725705    |KVEL | 40.430 |-109.520   |1608 |  VERNAL                  UT   |US|10
+0000725715    |KHDN | 40.480 |-107.220   |2012 |  HAYDEN/YAMPA_(AWOS)     CO   |US|10
+0000725717    |KRIL | 39.530 |-107.730   |1678 |  RIFLE                   CO   |US|10
+0000725720    |KSLC | 40.780 |-111.970   |1288 |  SALT_LAKE_CITY_INTL     UT   |US|12
+0000725724    |KPVU | 40.220 |-111.720   |1369 |  PROVO_MUNI_(AWOS)       UT   |US|10
+0000725744    |KRKS | 41.600 |-109.070   |2060 |  ROCK_SPRINGS______&     WY   |US|10
+0000725745    |KRWL | 41.800 |-107.200   |2077 |  RAWLINS_MUNICIPAL       WY   |US|10
+0000725750    |KOGD | 41.200 |-112.020   |1362 |  OGDEN-HINCKLEY_MUNI     UT   |US|10
+0000725760    |KLND | 42.820 |-108.730   |1694 |  LANDER/HUNT_FIELD       WY   |US|10
+0000725765    |KRIW | 43.070 |-108.470   |1684 |  RIVERTON_REGIONAL       WY   |US|12
+0000725775    |EVW  | 41.280 |-111.030   |2183 |  EVANSTON/BURNS_FLD      WY   |US|12
+0000725776    |KJAC | 43.600 |-110.730   |1964 |  JACKSON_HOLE_(AWOS)     WY   |US|10
+0000725780    |KPIH | 42.920 |-112.600   |1365 |  POCATELLO_MUNICIPAL     ID   |US|10
+0000725785    |KIDA | 43.520 |-112.070   |1445 |  IDAHO_FALLS/FANNING     ID   |US|10
+0000725788    |MYL  | 44.880 |-116.100   |1531 |  MC_CALL_(ASOS)          ID   |US|10
+0000725805    |KLOL | 40.070 |-118.570   |1190 |  LOVELOCK/DERBY_FLD      NV   |US|10
+0000725810    |KENV | 40.730 |-114.030   |1292 |  WENDOVER_(AUT)          UT   |US|10
+0000725820    |KLKN | 40.870 |-115.730   |1608 |  ELKO                    NV   |US|10
+0000725825    |KEKO | 40.830 |-115.780   |1565 |  ELKO(AWOS)              NV   |US|10
+0000725827    |AWH  | 41.670 |-115.780   |1902 |  WILDHORSE_RES/ELKO      NV   |US|10
+0000725830    |KWMC | 40.900 |-117.800   |1315 |  WINNEMUCCA_MUNI         NV   |US|10
+0000725837    |KSVE | 40.380 |-120.570   |1263 |  SUSANVILLE MUNI         CA   |US|10
+0000725840    |BLU  | 39.280 |-120.700   |1609 |  BLUE CANYON             CA   |US|10
+0000725846    |KTRK | 39.320 |-120.130   |1798 |  TRUCKEE-TAHOE           CA   |US|10
+0000725847    |KTVL | 38.900 |-120.000   |1909 |  SOUTH_LAKE_TAHOE        CA   |US|10
+0000725865    |KSUN | 43.500 |-114.300   |1620 |  HAILEY/FRIEDMAN_MEM     ID   |US|10
+0000725866    |KTWF | 42.480 |-114.480   |1265 |  TWIN_FALLS/JOSLIN       ID   |US|10
+0000725867    |KBYI | 42.550 |-113.770   |1265 |  BURLEY_MUNICIPAL        ID   |US|10
+0000725895    |KLMT | 42.150 |-121.730   |1247 |  KLAMATH_FALLS/KINGS     OR   |US|10
+0000725905    |KUKI | 39.130 |-123.200   | 187 |  UKIAH_MUNI_(AWOS)       CA   |US|10
+0000725910    |KRBL | 40.150 |-122.250   | 108 |  RED_BLUFF_MUNICIPAL     CA   |US|10
+0000725920    |KRDD | 40.500 |-122.300   | 153 |  REDDING_MUNICIPAL_&     CA   |US|10
+0000725945    |KACV | 40.980 |-124.100   |  66 |  ARCATA/EUREKA_ARPT      CA   |US|10
+0000725946    |KCEC | 41.780 |-124.230   |  17 |  CRESCENT_CITY           CA   |US|10
+0000725958    |KAAT | 41.500 |-120.530   |1341 |  ALTURAS                 CA   |US|10
+0000725970    |KMFR | 42.370 |-122.870   | 405 |  MEDFORD/JACKSON_CO.     OR   |US|12
+0000726050    |KCON | 43.200 | -71.500   | 105 |  CONCORD_MUNICIPAL       NH   |US|10
+0000726055    |KPSM | 43.080 | -70.820   |  31 |  PEASE_AFB/PORTSMOUT     NH   |US|10
+0000726060    |KPWM | 43.650 | -70.320   |  19 |  PORTLAND_INTL_JET       ME   |US|10
+0000726064    |KSFM | 43.400 | -70.720   |  74 |  SANFORD_MUNI_(AWOS)     ME   |US|11
+0000726077    |KBHB | 44.450 | -68.370   |  26 |  BAR_HARBOR_(AWOS)       ME   |US|10
+0000726079    |KRKD | 44.070 | -69.100   |  17 |  ROCKLAND/KNOX(AWOS)     ME   |US|10
+0000726080    |KEPO | 44.920 | -67.000   |  23 |  EASTPORT                ME   |US|10
+0000726083    |KFVE | 47.280 | -68.320   | 301 |  FRENCHVILLE             ME   |US|10
+0000726088    |KBGR | 44.800 | -68.830   |  59 |  BANGOR_INTL_ARPT__&     ME   |US|10
+0000726115    |VSF  | 43.350 | -72.520   | 176 |  SPRINGFIELD/HARTNES_(AS VT   |US|10
+0000726116    |KLEB | 43.630 | -72.300   | 182 |  LEBANON_MUNICIPAL       NH   |US|12
+0000726134    |KHIE | 44.370 | -71.550   | 327 |  WHITEFIELD              NH   |US|12
+0000726140    |1V4  | 44.420 | -72.020   | 214 |  ST._JOHNSBURY_(ASOS)    VT   |US|10
+0000726145    |KMPV | 44.200 | -72.570   | 355 |  BARRE-MONTPELIER        VT   |US|10
+0000726160    |KBML | 44.580 | -71.180   | 353 |  BERLIN_MUNICIPAL        NH   |US|10
+0000726170    |KBTV | 44.470 | -73.150   | 104 |  BURLINGTON_INTL         VT   |US|10
+0000726180    |KRUM | 44.530 | -70.530   | 205 |  RUMFORD                 ME   |US|10
+0000726184    |KLEW | 44.050 | -70.280   |  88 |  AUBURN-LEWISTON         ME   |US|11
+0000726185    |KAUG | 44.320 | -69.800   | 107 |  AUGUSTA_STATE_ARPT      ME   |US|10
+0000726190    |KGNR | 45.470 | -69.580   | 316 |  GREENVILLE_(AMOS)_&     ME   |US|10
+0000726196    |KMLT | 45.650 | -68.680   | 124 |  MILLINOCKET_MUNI        ME   |US|10
+0000726223    |KMSS | 44.930 | -74.850   |  65 |  MASSENA/RICHARDS__&     NY   |US|10
+0000726227    |KART | 44.000 | -76.010   |  99 |  WATERTOWN_INTL_ARPT     NY   |US|10
+0000726228    |KSLK | 44.380 | -74.190   | 507 |  SARANAC_LAKE/ADIRON     NY   |US|10
+0000726320    |DTX  | 42.700 | -83.470   |9999 |  DETROIT/PONTIAC         MI   |US|10
+0000726340    |APX  | 44.900 | -84.720   | 447 |  GAYLORD                 MI   |US|10
+0000726350    |KGRR | 42.880 | -85.520   | 245 |  GRAND_RAPIDS_INTL       MI   |US|10
+0000726357    |KAZO | 42.230 | -85.550   | 266 |  KALAMAZOO_INTL_ARPT     MI   |US|10
+0000726360    |KMKG | 43.170 | -86.250   | 193 |  MUSKEGON                MI   |US|10
+0000726370    |KFNT | 42.970 | -83.750   | 233 |  FLINT/BISHOP_INTL       MI   |US|12
+0000726375    |KPTK | 42.670 | -83.420   | 299 |  PONTIAC-OAKLAND         MI   |US|10
+0000726379    |KMBS | 43.530 | -84.080   | 204 |  SAGINAW/TRI_CITY        MI   |US|10
+0000726384    |KCAD | 44.280 | -85.420   | 398 |  CADILLAC/WEXFORD_CO     MI   |US|12
+0000726385    |KMBL | 44.280 | -86.250   | 189 |  MANISTEE_(AWOS)         MI   |US|12
+0000726387    |KTVC | 44.730 | -85.580   | 190 |  TRAVERSE_CITY/CHERR     MI   |US|10
+0000726390    |KAPN | 45.070 | -83.570   | 211 |  ALPENA_CO._REGIONAL     MI   |US|10
+0000726400    |KMKE | 42.950 | -87.900   | 211 |  MILWAUKEE/MITCHELL      WI   |US|12
+0000726410    |KMSN | 43.130 | -89.330   | 264 |  MADISON/DANE_RGNL       WI   |US|12
+0000726415    |KJVL | 42.620 | -89.040   | 246 |  JANESVILLE/DOOR_CO      WI   |US|12
+0000726416    |KLNR | 43.210 | -90.180   | 219 |  LONE ROCK               WI   |US|12
+0000726430    |KLSE | 43.870 | -91.250   | 202 |  LA_CROSSE_MUNICIPAL     WI   |US|10
+0000726435    |KEAU | 44.870 | -91.480   | 276 |  EAU_CLAIRE_CO._ARPT     WI   |US|10
+0000726440    |KRST | 43.920 | -92.500   | 402 |  ROCHESTER_MUNICIPAL     MN   |US|10
+0000726450    |KGRB | 44.480 | -88.130   | 214 |  GREEN_BAY/STRAUBEL      WI   |US|12
+0000726455    |KMTW | 44.130 | -87.680   | 198 |  MANITOWOC_CO_APT        WI   |US|12
+0000726456    |KOSH | 43.980 | -88.550   | 246 |  OSHKOSH/WITTMAN_FLD     WI   |US|10
+0000726463    |KAUW | 44.930 | -89.630   | 366 |  WAUSAU_MUNICIPAL__&     WI   |US|10
+0000726480    |KESC | 45.730 | -87.080   | 187 |  ESCANABA                MI   |US|10
+0000726487    |KMNM | 45.120 | -87.630   | 191 |  MENOMINEE               MI   |US|10
+0000726490    |MPX  | 44.850 | -93.570   |9999 |  CHANHAUSSEN             MN   |US|12
+0000726510    |KFSD | 43.580 | -96.730   | 435 |  SIOUX_FALLS/FOSS        SD   |US|12
+0000726515    |KBKX | 44.310 | -96.820   | 502 |  BROOKINGS               SD   |US|12
+0000726525    |KYKN | 42.920 | -97.380   | 398 |  YANKTON(AWOS)           SD   |US|10
+0000726530    |K9V9 | 43.800 | -99.320   | 530 |  CHAMBERLAIN(AMOS)       SD   |US|10
+0000726540    |KHON | 44.380 | -98.220   | 393 |  HURON_REGIONAL          SD   |US|12
+0000726545    |KMHE | 43.770 | -98.030   | 397 |  MITCHELL_(AWOS)         SD   |US|10
+0000726546    |KATY | 44.920 | -97.150   | 533 |  WATERTOWN_MUNICIPAL     SD   |US|10
+0000726550    |STC  | 45.550 | -94.070   | 312 |  ST._CLOUD_MUNICIPAL_(AS MN   |US|12
+0000726555    |KBRD | 46.400 | -94.130   | 374 |  BRAINERD/WIELAND        MN   |US|10
+0000726556    |KRWF | 44.550 | -95.080   | 312 |  REDWOOD_FALLS_MUNI      MN   |US|10
+0000726557    |KAXN | 45.870 | -95.400   | 434 |  ALEXANDRIA/CHANDLER     MN   |US|10
+0000726559    |KMML | 44.450 | -95.820   | 359 |  MARSHALL                MN   |US|12
+0000726567    |KULM | 44.320 | -94.500   | 308 |  NEW ULM                 MN   |US|12
+0000726578    |KLXL | 45.950 | -94.350   | 342 |  LITTLE FALLS            MN   |US|12
+0000726580    |KMSP | 44.880 | -93.220   | 255 |  MINNEAPOLIS-ST_PAUL     MN   |US|10
+0000726586    |KFRM | 43.650 | -94.420   | 354 |  FAIRMONT_MUNI(AWOS)     MN   |US|10
+0000726589    |KAEL | 43.680 | -93.370   | 383 |  ALBERT LEA              MN   |US|12
+0000726590    |KABR | 45.450 | -98.430   | 396 |  ABERDEEN_REGIONAL       SD   |US|12
+0000726620    |KRAP | 44.060 |-103.050   | 966 |  RAPID_CITY_REGIONAL     SD   |US|12
+0000726650    |KGCC | 44.350 |-105.530   |1230 |  GILLETTE_(AMOS)         WY   |US|10
+0000726660    |KSHR | 44.770 |-106.970   |1209 |  SHERIDAN_CO._ARPT       WY   |US|10
+0000726664    |KP60 | 44.540 |-110.420   |2388 |  LAKE YELLOWSTONE        WY   |US|12
+0000726665    |KWRL | 43.970 |-107.950   |1294 |  WORLAND_MUNICIPAL       WY   |US|10
+0000726670    |4BQ  | 45.450 |-105.400   | 922 |  BROADUS                 MT   |US|10
+0000726676    |GDV  | 47.130 |-104.800   |9999 |  GLENDIVE                MT   |US|10
+0000726685    |KY26 | 45.530 |-100.430   | 508 |  MOBRIDGE                SD   |US|10
+0000726686    |KPIR | 44.380 |-100.280   | 531 |  PIERRE_MUNICIPAL        SD   |US|10
+0000726695    |KY22 | 45.930 |-102.170   | 781 |  LEMMON                  SD   |US|10
+0000726700    |KCOD | 44.520 |-109.020   |1553 |  CODY_MUNI_(AWOS)__&     WY   |US|10
+0000726710    |KBPI | 42.580 |-110.110   |2131 |  BIG PINEY               WY   |US|11
+0000726764    |KWYS | 44.680 |-111.120   |2025 |  WEST_YELLOWSTONE        MT   |US|10
+0000726770    |KBIL | 45.800 |-108.530   |1088 |  BILLINGS/LOGAN_INTL     MT   |US|12
+0000726776    |KLWT | 47.050 |-109.470   |1270 |  LEWISTOWN_MUNICIPAL     MT   |US|10
+0000726785    |KBTM | 45.950 |-112.500   |1690 |  BUTTE/BERT_MOONEY       MT   |US|10
+0000726796    |KLDN | 45.250 |-112.550   |1597 |  DILLON_AIRPORT          MT   |US|10
+0000726797    |KBZN | 45.780 |-111.150   |1364 |  BOZEMAN/GALLATIN        MT   |US|12
+0000726798    |LVM  | 45.700 |-110.450   |1419 |  LIVINGSTON/MISSION      MT   |US|10
+0000726810    |KBOI | 43.570 |-116.220   | 874 |  BOISE_MUNICIPAL         ID   |US|12
+0000726830    |KBNO | 43.580 |-118.950   |1271 |  BURNS_MUNI_(AMOS)_&     OR   |US|10
+0000726835    |KRDM | 44.250 |-121.150   | 938 |  REDMOND_(AWOS)          OR   |US|10
+0000726865    |SMN  | 45.120 |-113.880   |1233 |  SALMON/LEMHI            ID   |US|10
+0000726873    |GVL  | 45.950 |-116.130   |1009 |  GRANGEVILLE             ID   |US|10
+0000726880    |KPDT | 45.680 |-118.850   | 456 |  PENDLETON_MUNICIPAL     OR   |US|10
+0000726886    |KBKE | 44.830 |-117.820   |1027 |  BAKER_MUNICIPAL         OR   |US|10
+0000726904    |KRBG | 43.230 |-123.350   | 160 |  ROSEBURG_MUNICIPAL      OR   |US|11
+0000726917    |KOTH | 43.420 |-124.250   |   4 |  NORTH_BEND_(AWOS)       OR   |US|10
+0000726930    |KEUG | 44.120 |-123.220   | 114 |  EUGENE/MAHLON_SWEET     OR   |US|10
+0000726940    |KSLE | 44.920 |-123.000   |  61 |  SALEM/MCNARY            OR   |US|12
+0000726950    |ONP  | 44.580 |-124.060   |  37 |  NEWPORT                 OR   |US|10
+0000726980    |KPDX | 45.600 |-122.600   |  12 |  PORTLAND_INTL_ARPT      OR   |US|10
+0000726985    |KTTD | 45.550 |-122.400   |  11 |  PORTLAND/TROUTDALE      OR   |US|10
+0000726986    |KHIO | 45.530 |-122.950   |  62 |  PORTLAND/HILLSBORO      OR   |US|10
+0000726988    |KDLS | 45.620 |-121.170   |  74 |  THE_DALLES_MUNI         OR   |US|10
+0000727033    |KHUL | 46.120 | -67.800   | 150 |  HOULTON_INTL_ARPT_&     ME   |US|10
+0000727119    |K40B | 46.620 | -69.530   | 314 |  CLAYTON_LAKE            ME   |US|10
+0000727120    |KCAR | 46.870 | -68.010   | 190 |  CARIBOU_MUNICIPAL       ME   |US|12
+0000727130    |KPQI | 46.680 | -68.050   | 146 |  PRESQUE_ISLE_(AWOS)     ME   |US|10
+0000727340    |ANJ  | 46.470 | -84.370   | 221 |  SAULT_STE_MARIE___(ASOS MI   |US|12
+0000727344    |KCIU | 46.250 | -84.470   | 244 |  CHIPPEWA_INTL(AWOS)     MI   |US|10
+0000727347    |KPLN | 45.570 | -84.800   | 219 |  PELLSTON/EMMET_CO.      MI   |US|10
+0000727415    |RHI  | 45.630 | -89.470   | 495 |  RHINELANDER/ONEIDA_(ASO WI   |US|12
+0000727430    |KMQT | 46.530 | -87.550   | 434 |  MARQUETTE_CO._ARPT&     MI   |US|10
+0000727435    |SAW  | 46.350 | -87.400   | 372 |  KI_SAWYER AFB           MI   |US|12
+0000727437    |IMT  | 45.820 | -88.120   | 360 |  IRON_MOUNTAIN/FORD_(ASO MI   |US|10
+0000727440    |KCMX | 47.170 | -88.500   | 329 |  HOUGHTON_CO._MEM        MI   |US|10
+0000727445    |KIWD | 46.530 | -90.130   | 375 |  IRONWOOD                MI   |US|10
+0000727450    |KDLH | 46.830 | -92.180   | 432 |  DULUTH_INTL_AIRPORT     MN   |US|12
+0000727455    |KHIB | 47.380 | -92.830   | 412 |  HIBBING-CHISHOLM        MN   |US|10
+0000727457    |KDTL | 46.830 | -95.890   | 426 |  DETROIT LAKES           MN   |US|12
+0000727459    |KELO | 47.820 | -91.830   | 443 |  ELY_MUNI_(AWOS)         MN   |US|10
+0000727470    |KINL | 48.570 | -93.380   | 361 |  INTERNATIONAL_FALLS     MN   |US|12
+0000727476    |KBDE | 48.730 | -94.620   | 330 |  BAUDETTE_INTL_ARPT      MN   |US|10
+0000727530    |KFAR | 46.900 | -96.800   | 274 |  FARGO/HECTOR_FIELD      ND   |US|10
+0000727535    |KJMS | 46.930 | -98.680   | 457 |  JAMESTOWN_MUNICIPAL     ND   |US|10
+0000727550    |KBJI | 47.500 | -94.930   | 420 |  BEMIDJI_MUNICIPAL       MN   |US|12
+0000727564    |KRAD | 48.930 | -95.330   | 328 |  WARROAD(AWOS)           MN   |US|10
+0000727576    |KGFK | 47.950 | -97.180   | 257 |  GRAND_FORKS_INTL        ND   |US|10
+0000727580    |KP11 | 48.100 | -98.870   | 443 |  DEVILS_LAKE_(AMOS)      ND   |US|10
+0000727640    |KBIS | 46.770 |-100.750   | 506 |  BISMARCK_MUNICIPAL      ND   |US|12
+0000727645    |KDIK | 46.800 |-102.800   | 789 |  DICKINSON_MUNICIPAL     ND   |US|10
+0000727670    |KISN | 48.180 |-103.630   | 581 |  WILLISTON/SLOULIN       ND   |US|10
+0000727676    |KMOT | 48.270 |-101.280   | 523 |  MINOT_INTL_AIRPORT      ND   |US|10
+0000727680    |KGGW | 48.220 |-106.620   | 700 |  GLASGOW_INTL_ARPT       MT   |US|12
+0000727684    |JDN  | 47.330 |-106.930   |9999 |  JORDAN                  MT   |US|12
+0000727687    |KSDY | 47.700 |-104.200   | 605 |  SIDNEY-RICHLAND         MT   |US|10
+0000727720    |KHLN | 46.600 |-112.000   |1188 |  HELENA_REGIONAL         MT   |US|10
+0000727730    |KMSO | 46.920 |-114.080   | 972 |  MISSOULA/BELL_FIELD     MT   |US|10
+0000727750    |KGTF | 47.480 |-111.370   |1115 |  GREAT_FALLS_INTL        MT   |US|12
+0000727770    |KHVR | 48.550 |-109.770   | 792 |  HAVRE_(AMOS)            MT   |US|10
+0000727790    |KGPI | 48.300 |-114.270   | 906 |  GLACIER PARK INTL       MT   |US|12
+0000727796    |KCTB | 48.600 |-112.370   |1175 |  CUT_BANK_(AWOS)         MT   |US|10
+0000727810    |KYKM | 46.570 |-120.530   | 325 |  YAKIMA_AIR_TERMINAL     WA   |US|10
+0000727815    |SMP  | 47.280 |-121.330   |1209 |  STAMPEDE_PASS_(ASOS)    WA   |US|10
+0000727825    |KEAT | 47.400 |-120.200   | 379 |  WENATCHEE/PANGBORN      WA   |US|10
+0000727826    |KEPH | 47.300 |-119.520   | 388 |  EPHRATA_MUNICIPAL       WA   |US|10
+0000727827    |KMWH | 47.200 |-119.320   | 361 |  MOSES_LAKE/GRANT_CO     WA   |US|10
+0000727830    |KLWS | 46.380 |-117.020   | 438 |  LEWISTON_(AMOS)         ID   |US|10
+0000727834    |KCOE | 47.770 |-116.820   | 707 |  COEUR_D'ALENE(AWOS)     ID   |US|10
+0000727845    |KPSC | 46.270 |-119.120   | 124 |  PASCO/TRI-CITIES        WA   |US|10
+0000727846    |KALW | 46.100 |-118.280   | 367 |  WALLA_WALLA_RGNL        WA   |US|10
+0000727850    |KGEG | 47.630 |-117.530   | 721 |  SPOKANE_INTL_ARPT       WA   |US|12
+0000727856    |KSFF | 47.680 |-117.320   | 595 |  SPOKANE/FELTS_FIELD     WA   |US|10
+0000727857    |KPUW | 46.750 |-117.120   | 778 |  PULLMAN/MOSCOW_RGNL     WA   |US|12
+0000727860    |KOTX | 47.700 |-117.600   | 728 |  SPOKANE                 WA   |US|12
+0000727870    |CQV  | 48.550 |-117.880   | 572 |  COLVILLE                WA   |US|10
+0000727883    |KELN | 47.030 |-120.530   | 538 |  ELLENSBURG/BOWERS       WA   |US|12
+0000727885    |KCLM | 48.120 |-123.500   |  88 |  PORT_ANGELES_INTL       WA   |US|10
+0000727890    |4OM  | 48.420 |-119.530   | 382 |  OMAK                    WA   |US|10
+0000727910    |KAST | 46.150 |-123.880   |   7 |  ASTORIA/CLATSOP         OR   |US|10
+0000727920    |KOLM | 46.970 |-122.900   |  61 |  OLYMPIA                 WA   |US|10
+0000727923    |KHQM | 46.970 |-123.930   |   4 |  HOQUIAM/BOWERMAN        WA   |US|10
+0000727924    |KLS  | 46.120 |-122.940   |   5 |  KELSO-LONGVEIW_AWOS     WA   |US|11
+0000727930    |KSEA | 47.450 |-122.300   | 137 |  SEATTLE-TACOMA_INTL     WA   |US|10
+0000727934    |KRNT | 47.500 |-122.220   |   9 |  RENTON_MUNICIPAL        WA   |US|10
+0000727935    |KBFI | 47.530 |-122.300   |   5 |  SEATTLE/BOEING_FLD      WA   |US|10
+0000727937    |KPAE | 47.900 |-122.280   | 185 |  EVERETT/PAINE_FIELD     WA   |US|10
+0000727938    |KTIW | 47.270 |-122.580   |  89 |  TACOMA_NARROWS          WA   |US|10
+0000727960    |AGR  | 27.650 | -81.330   |  20 |  AVON PARK               FL   |US|10
+0000727970    |UIL  | 47.950 |-124.550   |  62 |  QUILLAYUTE_STATE_(ASOS) WA   |US|12
+0000727976    |KBLI | 48.800 |-122.530   |  48 |  BELLINGHAM_INTL         WA   |US|10
+0000740030    |DPG  | 40.170 |-112.930   |1325 |  DUGWAY PROVING GNDS     UT   |US|10
+0000742300    |KMLS | 46.430 |-105.870   | 801 |  MILES_CITY________&     MT   |US|12
+0000743410    |P#3  | 44.670 | -95.450   | 319 |  WDLM5 WOOD LAKE         MN   |US|12
+0000743570    |P#4  | 43.220 | -90.530   | 226 |  BLRW3 BLUE RIVER        WI   |US|12
+0000743700    |GTB  | 44.050 | -75.730   | 207 |  FORT_DRUM/WHEELER       NY   |US|12
+0000743890    |GYX  | 43.900 | -70.250   | 125 |  GRAY                    ME   |US|12
+0000743945    |KMHT | 42.930 | -71.430   |  71 |  MANCHESTER_AIRPARK      NH   |US|10
+0000744310    |P#5  | 41.900 |-106.190   |1997 |  MBWW4 MEDICINE BOW      WY   |US|12
+0000744330    |P#6  | 40.090 |-100.650   | 800 |  RWDN1 MCCOOK            NE   |US|12
+0000744370    |P#7  | 42.910 |-101.690   | 991 |  MRRN1 MERRIMAN          NE   |US|12
+0000744400    |P#8  | 40.100 | -97.340   | 433 |  FBYN1 FAIRBURY          NE   |US|12
+0000744450    |P#9  | 42.210 | -97.790   | 524 |  NLGN1 NELIGH            NE   |US|12
+0000744490    |P#A  | 41.900 | -93.700   | 315 |  SLAI4 SLATER            IA   |US|12
+0000744550    |DVN  | 41.610 | -90.570   | 229 |  QUAD_CITIES/QUAD_CITIES IA   |US|10
+0000744655    |KARR | 41.770 | -88.480   | 215 |  AURORA                  IL   |US|12
+0000744660    |P#B  | 40.810 | -87.050   | 212 |  WLCI3 WOLCOTT           IN   |US|12
+0000744680    |KMDN | 38.830 | -85.420   | 266 |  JEFFERSON_PRVG_GRND     IN   |US|10
+0000744860    |KJFK | 40.650 | -73.780   |   7 |  NEW_YORK/JF_KENNEDY     NY   |US|10
+0000744900    |KBED | 42.470 | -71.280   |  41 |  HANSCOM_FLD/BEDFORD     MA   |US|10
+0000744904    |KLWM | 42.720 | -71.120   |  45 |  LAWRENCE_MUNICIPAL      MA   |US|10
+0000744910    |KCEF | 42.200 | -72.530   |  75 |  CHICOPEE/WESTOVER       MA   |US|10
+0000744915    |KBAF | 42.150 | -72.720   |  83 |  WESTFIELD/BARNES        MA   |US|10
+0000744940    |KCHH | 41.670 | -69.970   |  16 |  CHATHAM                 MA   |US|22
+0000744994    |KSCH | 42.850 | -73.930   | 115 |  SCHENECTADY_AIRPORT     NY   |US|10
+0000745300    |P#C  | 37.770 |-102.180   |1155 |  GDAC2 GRANADA           CO   |US|12
+0000745320    |LIC  | 39.260 |-103.700   |1694 |  LIMON                   CO   |US|12
+0000745330    |P#D  | 40.180 |-104.720   |1524 |  PLTC2 PLATTEVILLE       CO   |US|12
+0000745410    |P#E  | 37.650 | -99.090   | 648 |  HVLK1 HAVILAND          KS   |US|12
+0000745420    |P#F  | 37.380 | -95.630   | 255 |  NDSK1 NEODESHA          KS   |US|12
+0000745460    |P#G  | 38.310 | -97.300   | 447 |  HBRK1 HILLSBORO         KS   |US|12
+0000745500    |P#H  | 37.520 | -92.700   | 390 |  CNWM7 CONWAY            MO   |US|12
+0000745510    |P#I  | 39.580 | -94.190   | 297 |  LTHM7 LATHROP           MO   |US|12
+0000745560    |P#J  | 39.660 | -90.480   | 170 |  WNCI2 WINCHESTER        IL   |US|12
+0000745600    |ILX  | 40.150 | -89.330   |9999 |  LINCOLN                 IL   |US|12
+0000746120    |NID  | 35.680 |-117.680   | 696 |  CHINA_LAKE_(NAF)__&     CA   |US|10
+0000746290    |P#L  | 32.410 |-106.350   |1224 |  WSMN5 WHITE SANDS MR    NM   |US|12
+0000746300    |P#M  | 36.840 |-107.910   |1902 |  AZCN5 AZTEC             NM   |US|12
+0000746400    |P#N  | 36.070 | -99.220   | 648 |  VCIO2 VICI              OK   |US|12
+0000746410    |KWWR | 36.430 | -99.530   | 667 |  WEST_WOODWARD           OK   |US|11
+0000746470    |P#O  | 36.690 | -97.480   | 306 |  LMNO2 LAMONT            OK   |US|12
+0000746480    |P#P  | 35.680 | -95.860   | 219 |  HKLO2 HASKELL/MORRIS    OK   |US|12
+0000746490    |P#Q  | 34.980 | -97.520   | 331 |  PRCO2 PURCELL           OK   |US|12
+0000746620    |P#R  | 36.880 | -89.970   | 130 |  BLMM7 BLOOMFIELD        MO   |US|12
+0000746716    |KBWG | 36.970 | -86.420   | 167 |  BOWLING_GREEN           KY   |US|10
+0000746943    |KECG | 36.270 | -76.180   |   4 |  ELIZABETH_CITY(CGS)     NC   |US|10
+0000747185    |KIPL | 32.830 |-115.580   | -17 |  IMPERIAL                CA   |US|10
+0000747187    |KTRM | 33.630 |-116.170   | -36 |  THERMAL_AIRPORT         CA   |US|10
+0000747188    |KBLH | 33.620 |-114.720   | 121 |  BLYTHE_AIRPORT          CA   |US|10
+0000747310    |P#S  | 35.080 |-103.610   |1241 |  TCUN5 TUCUMCARI         NM   |US|12
+0000747320    |HMN  | 33.080 |-106.120   |1300 |  HOLLOMAN AFB            NM   |US|10
+0000747330    |E28  | 32.900 |-106.400   |1193 |  NORTHRUP STRIP          NM   |US|10
+0000747350    |P#T  | 33.020 |-100.980   | 707 |  JTNT2 JAYTON            TX   |US|12
+0000747400    |JCT  | 30.500 | -99.770   | 522 |  JUNCTION_(ASOS)         TX   |US|11
+0000747500    |P#U  | 31.780 | -95.710   | 119 |  PATT2 PALESTINE         TX   |US|12
+0000747520    |P#V  | 34.110 | -94.290   | 195 |  DQUA4 DEQUEEN           AR   |US|12
+0000747530    |P#W  | 31.900 | -92.780   |  93 |  WNFL1 WINNFIELD         LA   |US|12
+0000747685    |KGPT | 30.400 | -89.070   |   9 |  GULFPORT-BILOXI         MS   |US|10
+0000747690    |P#X  | 34.090 | -88.860   | 125 |  OKOM6 OKOLONA           MS   |US|12
+0000747800    |U#9  | 31.900 | -81.630   |  27 |  FORT STEWART            GA   |US|10
+0000747810    |VAD  | 30.890 | -83.010   |  77 |  MOODY AFB               GA   |US|10
+0000747900    |KSSC | 33.970 | -80.470   |  74 |  SHAW_AFB/SUMTER         SC   |US|11
+0000747910    |KMYR | 33.680 | -78.930   |   8 |  MYRTLE_BEACH(CIV)       SC   |US|10
+0000747915    |KCRE | 33.820 | -78.720   |  10 |  NORTH_MYRTLE_BEACH      SC   |US|10
+0000747940    |XMR  | 28.470 | -80.550   |   3 |  CAPE CANAVERAL          FL   |US|12
+0000760013    |MMTJ | 32.550 |-116.970   | 152 |  TIJUANA_INTL_ARPT_&     MX   |US|10
+0000760053    |MMML | 32.630 |-115.240   |  22 |  MEXICALI_INTL_ARPT&     MX   |US|10
+0000760753    |MMCS | 31.630 |-106.430   |1171 |  CIUDAD_JUAREZ_INTL&     MX   |US|10
+0000761510    |ILS  | 28.880 |-118.300   |   6 |  ISLA GUADALUPE, B.C.         |US| 0
+0000761600    |MMHO | 29.070 |-110.970   | 211 |  HERMOSILLO_INTL___&     MX   |US|10
+0000762253    |MMCU | 28.700 |-105.970   |1360 |  CHIHUAHUA_INTL_ARPT     MX   |US|12
+0000762530    |MMCN | 27.320 |-112.300   |  75 |  SANTA_ROSALIA___&       MX   |US|10
+0000762555    |MMGM | 27.970 |-110.930   |  27 |  GUAYMAS_INTL_ARPT       MX   |US|10
+0000762560    |EMP  | 27.950 |-110.800   |  12 |  EMPALME, SON.                |US|12
+0000762863    |MMNL | 27.430 | -99.570   | 148 |  NUEVO_LAREDO_INTL_&     MX   |US|10
+0000763503    |MMRX | 26.020 | -98.230   |  39 |  REYNOSA_INTL_ARPT_&     MX   |US|10
+0000763820    |MMTC | 25.530 |-103.450   |1124 |  TORREON_AIRPORT___&     --   |US|12
+0000763940    |MTY  | 25.870 |-100.200   | 450 |  MONTERREY AEROPUERTO, N.L.   |US|12
+0000763943    |MMMY | 25.780 |-100.100   | 387 |  MONTERREY/GEN_MARIA     MX   |US|10
+0000763993    |MMMA | 25.770 | -97.530   |   8 |  MATAMOROS_INTL____&     MX   |US|10
+0000764050    |LAP  | 24.170 |-110.420   |  10 |  LA PAZ, B.C.                 |US|10
+0000764055    |MMLP | 24.070 |-110.370   |  21 |  LA_PAZ_INTL_AIRPORT     MX   |US|10
+0000764056    |MMSD | 23.150 |-109.700   | 109 |  SAN_JOSE_DEL_CABO_&     MX   |US|10
+0000764120    |MMCL | 24.820 |-107.400   |  39 |  CULIACAN_(CITY)___&     MX   |US|10
+0000764235    |MMDO | 24.130 |-104.530   |1857 |  DURANGO_AIRPORT         MX   |US|10
+0000764580    |MZT  | 23.200 |-106.420   |   4 |  MAZATLAN, SIN.               |US|12
+0000764593    |MMMZ | 23.170 |-106.270   |  10 |  MAZATLAN/G._BUELNA      MX   |US|10
+0000764910    |CVM  | 23.730 | -99.130   | 321 |  CIUDAD VICTORIA, TAMPS.      |US|12
+0000764915    |MMCV | 23.720 | -98.970   | 238 |  CIUDAD_VICTORIA_APT     MX   |US|10
+0000765255    |MMZC | 22.900 |-102.680   |2140 |  ZACATECAS_ARPT          MX   |US|10
+0000765390    |MMSP | 22.150 |-100.980   |1903 |  SAN_LUIS_POTOSI         MX   |US|10
+0000765493    |MMTM | 22.280 | -97.870   |  24 |  TAMPICO/GEN_FJ_MINA     MX   |US|12
+0000765710    |MMAS | 21.880 |-102.300   |1885 |  AGUASCALIENTES          MX   |US|10
+0000765906    |MMUN | 21.030 | -86.870   |   5 |  CANCUN_INTL_AIRPORT     MX   |US|10
+0000766013    |MMPR | 20.680 |-105.250   |   6 |  PUERTO_VALLARTA/LIC     MX   |US|10
+0000766133    |MMGL | 20.520 |-103.320   |1528 |  DON_MIGUEL/GUADALAJ     MX   |US|10
+0000766440    |MMMD | 20.980 | -89.650   |  10 |  MERIDA_INTL_ARPT        MX   |US|12
+0000766493    |MMCZ | 20.530 | -86.930   |   5 |  COZUMEL_(CIV/MIL)       MX   |US|10
+0000766534    |MMZO | 19.150 |-104.570   |   8 |  MANZANILLO_INTL___&     MX   |US|10
+0000766655    |MMMM | 19.850 |-101.030   |1833 |  MORELIA_NEW             MX   |US|10
+0000766753    |MMTO | 19.350 | -99.570   |2576 |  TOLUCA/JOSE_MARIA_&     MX   |US|10
+0000766793    |MMMX | 19.430 | -99.100   |2238 |  MEXICO_CITY/LICENCI     --   |US|12
+0000766913    |MMVR | 19.150 | -96.180   |  29 |  GEN._HERIBERTO_JARA     MX   |US|10
+0000767383    |MMMT | 18.100 | -94.580   |  40 |  MINATITLAN              MX   |US|10
+0000767493    |MMCE | 18.650 | -91.800   |   2 |  CIUDAD_DEL_CARMEN_&     MX   |US|10
+0000767584    |MMZH | 17.600 |-101.470   |   6 |  IXTAPA-ZIHUATANEJO      MX   |US|10
+0000768056    |MMAA | 16.770 | -99.750   |   5 |  ACAPULCO/G._ALVAREZ     MX   |US|10
+0000768485    |MMBT | 15.780 | -96.270   | 143 |  BAHIAS_DE_HUATULCO&     MX   |US|10
+0000769043    |MMTP | 14.780 | -92.380   |  29 |  TAPACHULA_________&     MX   |US|10
+0000780160    |TXKF | 32.370 | -64.680   |   3 |  BERMUDA_NAS/KINDLEY     --   |US|00
+0000780610    |MYGW | 26.700 | -78.970   |   4 |  WEST_END_INTL_ARPT      BA   |US|00
+0000780620    |MYGF | 26.550 | -78.690   |  11 |  FREEPORT_INTL_ARPT      BA   |US|00
+0000780700    |MYBS | 25.730 | -79.300   |   3 |  ALICE_TOWN/S_BIMINI     BA   |US|00
+0000780730    |MYNN | 25.050 | -77.470   |   7 |  NASSAU_INTL_AIRPORT     --   |US|02
+0000780920    |MYEG | 23.500 | -75.760   |   3 |  GEORGE_TOWN/EXUMA       BA   |US|00
+0000782210    |MUNG | 21.830 | -82.780   |  23 |  NUEVA_GERONA_(MIL)      CU   |US|00
+0000782240    |MUHA | 22.980 | -82.400   |  59 |  HAVANA/JOSE_MARTI       CU   |US|10
+0000782290    |MUVR | 23.130 | -81.280   |   3 |  VARADERO                CU   |US|00
+0000782550    |MUCM | 21.420 | -77.850   | 122 |  CAMAGUEY/IGANCIO        CU   |US|12
+0000782560    |MUMZ | 20.330 | -77.120   |  60 |  MANZANILLO              CU   |US|10
+0000782593    |MUBY | 20.400 | -76.620   |  64 |  BAYAMO____________&     CU   |US|10
+0000782640    |MUCU | 19.960 | -75.850   |  69 |  SANTIAGO_DE_CUBA        CU   |US|10
+0000782670    |MUGT | 20.080 | -75.150   |   8 |  GUANTANAMO              CU   |US|00
+0000782680    |MUBA | 20.350 | -74.500   |   9 |  BARACOA_(CIV/MIL)       CU   |US|00
+0000782684    |MUMO | 20.650 | -74.920   |   5 |  MOA_(MIL)               CU   |US|00
+0000783334    |MUCL | 21.620 | -81.550   |   2 |  CAYO_LARGO_DEL_SUR      CU   |US|00
+0000783460    |MUCA | 21.780 | -78.780   |  26 |  CIEGO_AVILA/VENEZUE     CU   |US|10
+0000783570    |MUVT | 20.950 | -76.940   | 106 |  LAS_TUNAS/VICTORIA      CU   |US|10
+0000783670    |MUGM | 19.900 | -75.120   |  23 |  GUANTANAMO_BAY_NAS      CU   |US|10
+0000783840    |MWCR | 19.280 | -81.350   |   3 |  OWEN_ROBERTS_INTL       GC   |US|02
+0000783880    |MKJS | 18.500 | -77.920   |   3 |  SANGSTER/MONTEGO        JM   |US|00
+0000783970    |MKJP | 17.930 | -76.780   |   9 |  NORMAN_MANLEY/KINGS     JM   |US|00
+0000784090    |MTCH | 19.750 | -72.180   |   3 |  CAP-HAITIEN_INTL        HA   |US|00
+0000784390    |MTPP | 18.570 | -72.300   |  29 |  PORT-AU-PRINCE_ARPT     HA   |US|10
+0000784570    |MDPP | 19.750 | -70.550   |  15 |  PUERTO_PLATA_INTL       DR   |US|00
+0000784600    |MDST | 19.460 | -70.690   | 183 |  SANTIAGO_INTL_ARPT      DR   |US|10
+0000784790    |MDPC | 18.570 | -68.370   |  12 |  PUNTA_CANA              DR   |US|00
+0000784850    |MDSD | 18.430 | -69.670   |  18 |  CAUCEDO/DE_LAS_AMER     DR   |US|00
+0000784860    |DSD  | 18.470 | -69.880   |  14 |  SANTO DOMINGO           DR   |US| 0
+0000785140    |TJBQ | 18.500 | -67.120   |  72 |  AQUADILLA/BORINQUEN     PU   |US|10
+0000785145    |TJMZ | 18.270 | -67.150   |   9 |  MAYAGUEZ/EUGENIO        PU   |US|00
+0000785203    |TJPS | 18.020 | -66.570   |   9 |  PONCE/MERCEDITA___&     PU   |US|00
+0000785260    |TJSJ | 18.430 | -66.000   |  19 |  SAN_JUAN_INTL_ARPT      PU   |US|00
+0000785430    |TIST | 18.330 | -64.970   |  67 |  C._AMALIE/CYRIL_E.      VI   |US|10
+0000785470    |TISX | 17.700 | -64.800   |  17 |  CHRISTIANSTED/ALEXA     VI   |US|00
+0000785500    |TUPJ | 18.450 | -64.530   |   4 |  BEEF_ISL/ROADTOWN       VI   |US|00
+0000785830    |MZBZ | 17.530 | -88.300   |   5 |  BELIZE_INTL_AIRPORT     BH   |US|00
+0000786150    |MGFL | 16.920 | -89.880   | 115 |  FLORES/SANTA_ELENA      GU   |US|10
+0000786270    |MGHT | 15.320 | -91.470   |1901 |  HUEHUETENANGO           GU   |US|10
+0000786370    |MGPB | 15.720 | -88.600   |   1 |  PUERTO_BARRIOS(MIL)     GU   |US|00
+0000786410    |MGGT | 14.580 | -90.520   |1489 |  GUATEMALA/LA_AURORA     GU   |US|10
+0000786470    |MGSJ | 13.920 | -90.820   |   2 |  SAN_JOSE_(CIV/MIL)      GU   |US|00
+0000786500    |MSAC | 13.570 | -89.830   |  15 |  ACAJUTLA/SONSONATE      ES   |US|10
+0000786630    |MSSS | 13.700 | -89.120   | 621 |  ILOPANGO/S.SALVADOR     ES   |US|10
+0000786660    |MSLP | 13.430 | -89.050   |  25 |  EL_SALVADOR_INTL        ES   |US|10
+0000787000    |MHAM | 13.280 | -87.670   |   5 |  AMAPALA/LOS_PELONAS     HO   |US|00
+0000787010    |MHNJ | 16.460 | -85.920   |   2 |  GUANAJA                 HO   |US|00
+0000787030    |MHRO | 16.320 | -86.530   |   5 |  ROATAN                  HO   |US|00
+0000787050    |MHLC | 15.730 | -86.870   |   3 |  LA_CEIBA/GOLOSON__&     HO   |US|00
+0000787060    |MHTE | 15.720 | -87.480   |   3 |  TELA                    HO   |US|00
+0000787070    |MHYR | 15.170 | -87.120   | 670 |  YORO                    HO   |US|10
+0000787080    |MHLM | 15.450 | -87.930   |  31 |  LA_MESA/PEDRO_SULA      HO   |US|00
+0000787110    |MHPL | 15.220 | -83.800   |  13 |  PUERTO_LEMPIRA          HO   |US|00
+0000787140    |MHCA | 14.900 | -85.930   | 442 |  CATACAMAS               HO   |US|10
+0000787170    |MHSR | 14.780 | -88.780   |1079 |  SANTA_ROSA_DE_COPAN     HO   |US|10
+0000787190    |MHLE | 14.330 | -88.170   |1100 |  LA_ESPERANZA            HO   |US|10
+0000787200    |MHTG | 14.050 | -87.220   | 994 |  TEGUCIGALPA/TONCONT     HO   |US|10
+0000787240    |MHCH | 13.300 | -87.180   |  48 |  CHOLUTECA               HO   |US|00
+0000787300    |MNPC | 14.050 | -83.370   |  20 |  PUERTO_CABEZAS(MIL)     NK   |US|00
+0000787410    |MNMG | 12.150 | -86.170   |  50 |  MANAGUA/AUGUSTO_CES     NK   |US|00
+0000787613    |MRCH |  9.970 | -84.780   |   2 |  CHACARITA               CS   |US|00
+0000787620    |MROC | 10.000 | -84.220   | 931 |  SAN_JOSE/SANTAMARIA     CS   |US|10
+0000787625    |MRPV |  9.950 | -84.150   | 994 |  TOBIAS_BOLANOS_INTL     CS   |US|10
+0000787670    |MRLM | 10.000 | -83.050   |  -4 |  LIMON_INTL_AIRPORT      CS   |US|00
+0000787740    |MRLB | 10.600 | -85.550   |  93 |  LIBERIA/TOMAS_GUARD     CS   |US|10
+0000787838    |MPCH |  9.430 | -82.520   |   6 |  CAPTAIN_MANUEL_NINO     PM   |US|00
+0000787920    |MPTO |  9.050 | -79.370   |  11 |  TOCUMEN/GEN._OMAR       PM   |US|00
+0000787930    |MPDA |  8.390 | -82.420   |  26 |  DAVID/ENRIQUE_MALEK     PM   |US|10
+0000787935    |MPBO |  9.350 | -82.250   |   3 |  BOCAS_DEL_TORO_INTL     PM   |US|00
+0000787950    |MPSA |  8.080 | -80.940   |  88 |  SANTIAGO                PM   |US|10
+0000788067    |MPMG |  8.970 | -79.510   |  13 |  MARCOS_A._GELABERT      PM   |US|00
+0000788460    |TQPF | 18.200 | -63.050   |  31 |  WALL_BLAKE              VI   |US|10
+0000788564    |TRPM | 16.750 | -62.170   |  12 |  BLACKBURNE/PLYMOUTH     AT   |US|00
+0000788580    |TKPK | 17.290 | -62.680   |  48 |  GOLDEN_ROCK             AT   |US|10
+0000788590    |TKPN | 17.200 | -62.580   |  17 |  CHARLESTOWN/NEWCAST     AT   |US|00
+0000788620    |TAPA | 17.120 | -61.780   |  14 |  COOLIDGE_AIRPORT        AT   |US|00
+0000788660    |TNCM | 18.040 | -63.120   |   9 |  PRINSES_JULIANA         MN   |US|00
+0000788730    |TNCE | 17.480 | -62.980   |  39 |  FDR_ARPT/ORANJESTAD     MN   |US|10
+0000788940    |TFFJ | 17.900 | -62.850   |  52 |  GUSTAVIA/ST.BARTHEL     MF   |US|10
+0000788970    |TFFR | 16.270 | -61.520   |   8 |  LE_RAIZET/GUADELOUP     MF   |US|00
+0000789050    |TDPD | 15.530 | -61.300   |  14 |  MELVILLE_HALL_ARPT      DO   |US|00
+0000789060    |TDCF | 15.530 | -61.400   |   5 |  CANEFIELD_AIRPORT       DO   |US|00
+0000789070    |TDPR | 15.300 | -61.400   |  72 |  ROSEAU                  DO   |US|10
+0000789820    |TNCA | 12.500 | -70.010   |  33 |  REINA_BEATRIX_INTL      NU   |US|10
+0000789880    |TNCC | 12.200 | -68.970   |  67 |  HATO_ARPT_(CIV/MIL)     NU   |US|10
+0000789900    |TNCB | 12.150 | -68.280   |   7 |  FLAMINGO_AIRPORT        NU   |US|00
+0000800010    |SKSP | 12.580 | -81.720   |  -2 |  SAN_ANDRES_ISLAND       --   |US|00
+0000800090    |SKSM | 11.130 | -74.230   |   1 |  SANTA_MARTA/SIMON       --   |US|00
+0000800220    |SKCG | 10.450 | -75.520   |   1 |  CARTAGENA/RAFAEL_NU     --   |US|00
+0000800280    |SKBQ | 10.900 | -74.770   |  10 |  BARRANQUILLA/ERNEST     --   |US|00
+0000800940    |SKBG |  7.100 | -73.200   |1189 |  BUCARAMANGO/PALONEG     --   |US|10
+0000801100    |SKMD |  6.220 | -75.600   |1499 |  MEDELLIN/OLAYA_HER      --   |US|10
+0000801120    |SKRG |  6.180 | -75.430   |2137 |  RIONEGRO/JOSE_MARI&     --   |US|10
+0000802100    |SKPE |  4.820 | -75.800   |1342 |  PEREIRA/MATECANA        --   |US|10
+0000802220    |SKBO |  4.700 | -74.130   |2548 |  BOGOTA/ELDORADO         --   |US|10
+0000804070    |SVMC | 10.570 | -71.730   |  65 |  MARACAIBO/LA_CHINTA     --   |US|10
+0000804150    |SVMI | 10.600 | -66.980   |  48 |  CARACAS/S._BOLIVAR      --   |US|10
+0000911650    |PHLI | 21.980 |-159.350   |  45 |  LIHUE/KAUAI_ISLAND_(ASO HI   |US|00
+0000911780    |PHNA | 21.320 |-158.070   |  15 |  BARBERS_PT_NAS/OAHU     HI   |US|00
+0000911820    |PHNL | 21.350 |-157.930   |   5 |  HONOLULU INTL/OAHU      HI   |US|00
+0000911860    |PHMK | 21.150 |-157.100   | 137 |  MOLOKAI (AMOS)          HI   |US|10
+0000911900    |PHOG | 20.900 |-156.430   |  20 |  KAHULUI_ARPT/MAUI_(ASOS HI   |US|00
+0000912850    |PHTO | 19.720 |-155.070   |  11 |  HILO/LYMAN_FIELD_(ASOS) HI   |US|10
+0000980091    |KGZH | 31.420 | -87.050   |  79 |  EVERGREEN_(ASOS)        AL   |US|10
+0000994040    |FPS7 | 33.490 | -77.590   |   0 |  FRYING PAN SHOALS       NC   |US|10
+0000999901    |PHKO | 19.730 |-156.050   |  13 |  KEAHOLE POINT/KONA      HI   |US|00
+0000999902    |PAHN | 59.230 |-135.430   |  10 |  HAINES BOAT HARBOR      AK   |US|00
+0000999903    |PAVD | 61.130 |-146.250   |  37 |  VALDEZ (INLAND POINT)   AK   |US|10
+0000999904    |PHNY | 20.780 |-156.950   | 399 |  LANAI CITY AIRPORT      HI   |US|10
+0000999905    |PHJH | 21.020 |-156.630   |  40 |  LAHAINA/WEST MAUI       HI   |US|10
+0000999909    |PSE  | 17.850 | -66.520   |   0 |  PONCE,PUERTO RICO            |US|00
+0000999911    |MAZ  | 18.170 | -67.150   |   0 |  MAYAGUEZ,PUERTO RICO         |US|00
+0000999912    |RUE  | 35.250 | -93.090   | 120 |  RUSSELLVILLE_MCPL       AR   |US|10

@@ -44,7 +44,7 @@ import sys
 
 from datetime import datetime
 from datetime import timedelta
-from ufpy.dataaccess import DataAccessLayer
+from awips.dataaccess import DataAccessLayer
 from dynamicserialize.dstypes.com.raytheon.uf.common.time import TimeRange
 
 def get_args():

@@ -28,7 +28,7 @@ import time
 from xml.dom.minidom import parseString
 
 #import stomp
-from ufpy import stomp
+from awips import stomp
 
 exit_cond = None
 

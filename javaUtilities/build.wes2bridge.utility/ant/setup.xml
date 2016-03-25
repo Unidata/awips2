@@ -6,7 +6,7 @@
 	<property name="destination.directory" 
 		value="" />
 	<!-- The location of uframe-eclipse. -->
-	<property name="eclipse.directory" value="/opt/uframe-eclipse" />
+	<property name="eclipse.directory" value="/awips2/eclipse" />
 	<!-- Used to indicate if this is part of an rpm build. -->
 	<property name="rpm.build" value="false" />
 	

@@ -16,7 +16,7 @@ When adding ``--with-id`` you'll see::
   % nosetests -v --with-id
   #1 tests.test_a ... ok
   #2 tests.test_b ... ok
-  #2 tests.test_c ... ok
+  #3 tests.test_c ... ok
 
 Then you can re-run individual tests by supplying just an id number::
 
@@ -85,9 +85,9 @@ Second::
 .. note ::
 
   If you expect to use ``--failed`` regularly, it's a good idea to always run
-  run using the ``--with-id`` option. This will ensure that an id file is
-  always created, allowing you to add ``--failed`` to the command line as soon
-  as you have failing tests. Otherwise, your first run using ``--failed`` will
+  using the ``--with-id`` option. This will ensure that an id file is always
+  created, allowing you to add ``--failed`` to the command line as soon as
+  you have failing tests. Otherwise, your first run using ``--failed`` will
   (perhaps surprisingly) run *all* tests, because there won't be an id file
   containing the record of failed tests from your previous run.
   
@@ -152,7 +152,7 @@ class TestId(Plugin):
         # used to track ids seen when tests is filled from
         # loaded ids file
         self._seen = {}
-        self._write_hashes = options.verbosity >= 2
+        self._write_hashes = conf.verbosity >= 2
 
     def finalize(self, result):
         """Save new ids file, if needed.
@@ -160,10 +160,10 @@ class TestId(Plugin):
         if result.wasSuccessful():
             self.failed = []
         if self.collecting:
-            ids = dict(zip(self.tests.values(), self.tests.keys()))
+            ids = dict(list(zip(list(self.tests.values()), list(self.tests.keys()))))
         else:
             ids = self.ids
-        fh = open(self.idfile, 'w')
+        fh = open(self.idfile, 'wb')
         dump({'ids': ids,
               'failed': self.failed,
               'source_names': self.source_names}, fh)
@@ -177,7 +177,7 @@ class TestId(Plugin):
         """
         log.debug('ltfn %s %s', names, module)
         try:
-            fh = open(self.idfile, 'r')
+            fh = open(self.idfile, 'rb')
             data = load(fh)
             if 'ids' in data:
                 self.ids = data['ids']
@@ -190,7 +190,7 @@ class TestId(Plugin):
                 self.source_names = names
             if self.ids:
                 self.id = max(self.ids) + 1
-                self.tests = dict(zip(self.ids.values(), self.ids.keys()))
+                self.tests = dict(list(zip(list(self.ids.values()), list(self.ids.keys()))))
             else:
                 self.id = 1
             log.debug(
@@ -198,6 +198,11 @@ class TestId(Plugin):
                 self.ids, self.tests, self.failed, self.source_names,
                 self.idfile)
             fh.close()
+        except ValueError, e:
+            # load() may throw a ValueError when reading the ids file, if it
+            # was generated with a newer version of Python than we are currently
+            # running.
+            log.debug('Error loading %s : %s', self.idfile, str(e))
         except IOError:
             log.debug('IO error reading %s', self.idfile)
 

@@ -1,0 +1,14 @@
+EAST        2
+WEST        2
+CENTRAL     3
+
+# satellite name    Imager Generation
+# -------------------------------------------
+# GOES-I,J,K,L      First (1)
+# GOES-M,N,O,P      Second (2)
+#
+# GOES-I,J,K,L (GOES-8,9,10,11) have the first generation imager, designated as 1
+# GOES-M,N,O,P (GOES-12,13,14,15) will have the second generation imager, designated as 2
+#
+# CENTRAL(GOES-CENTRAL) is included in this file for the future, for a possible
+# 3 satellite (GOES-EAST,GOES-WEST,GOES-CENTRAL) scenario.

@@ -44,22 +44,15 @@
 	<contribute xsi:type="bundleItem" file="bundles/tools/DistanceScale.xml"
 		menuText="Distance Scale" id="distanceScaleTool" timeQuery="false" />
 	
-    <contribute xsi:type="bundleItem" file="bundles/tools/EstimatedActualVelocity.xml"
-        menuText="Estimated Actual Velocity" id="estimatedActualVelocityTool" timeQuery="false" />
- 
 	<contribute xsi:type="bundleItem" file="bundles/tools/FeatureFollowingZoom.xml"
 		menuText="Feature Following Zoom" id="featureFollowingZoomTool" timeQuery="false" />
 		
 	<contribute xsi:type="command"
-		commandId="com.raytheon.viz.ui.viz.radarapps.fsi.startFSI"
-		menuText="4-D Storm Investigator (FSI)" />    	
+		commandId="com.raytheon.viz.awipstools.timeofarrival"
+		menuText="Time of Arrival / Lead Time" />
     
     <contribute xsi:type="bundleItem" file="bundles/tools/Home.xml"
-		menuText="Home" id="homeTool" timeQuery="false" />
-    
-    <contribute xsi:type="command"
-		commandId="com.raytheon.viz.awipstools.lapstools"
-		menuText="LAPS tools..." id="lapsTools" />
+		menuText="Home" id="homeTool" timeQuery="false" />    
     
     <!-- TODO move into points plugin somehow -->
     <contribute xsi:type="bundleItem" file="bundles/tools/Points.xml"
@@ -69,9 +62,6 @@
 		commandId="com.raytheon.viz.awipstools.puthomecursor"
 		menuText="Put home cursor..." />
     
-    <contribute xsi:type="command"
-		commandId="com.raytheon.viz.radar.ui.RadarDisplayControls"
-		menuText="Radar Display Controls..." />
     
     <contribute xsi:type="bundleItem" file="bundles/tools/RangeRings.xml"
 		menuText="Range Rings" id="rangeRingsTool" timeQuery="false" />
@@ -85,16 +75,28 @@
 		menuText="Text Window..." />
   
     <contribute xsi:type="command"
-        commandId="com.raytheon.viz.awipstools.timeofarrival"
-        menuText="Time Of Arrival / Lead Time" />
-    
-    <contribute xsi:type="command"
 		commandId="com.raytheon.viz.awipstools.unitscalculator"
 		menuText="Units Calculator..." />
+    
+    
+    <contribute xsi:type="separator" id="RadarTools" />
+    <contribute xsi:type="titleItem" titleText="------ Radar Tools ------"
+                id="RadarTools" /> 
+    
+    <contribute xsi:type="bundleItem" file="bundles/tools/EstimatedActualVelocity.xml"
+		menuText="Estimated Actual Velocity" id="estimatedActualVelocityTool" timeQuery="false" />
+		
+	<contribute xsi:type="command"
+		commandId="com.raytheon.viz.ui.viz.radarapps.fsi.startFSI"
+		menuText="4-D Storm Investigator (FSI)" />
     
     <contribute xsi:type="bundleItem" file="bundles/tools/VRShear.xml"
 		menuText="VR - Shear" id="vrShearTool" timeQuery="false" />
 	
+    <contribute xsi:type="command"
+		commandId="com.raytheon.viz.radar.ui.RadarDisplayControls"
+		menuText="Radar Display Controls..." />
+		
 	<!-- example arbitrary command below, commandAction parameter is required, 
 	the others default to false if undefined.  If captureOutput is true then after 
 	the launched command closes a dialog box will show the contents printed to 

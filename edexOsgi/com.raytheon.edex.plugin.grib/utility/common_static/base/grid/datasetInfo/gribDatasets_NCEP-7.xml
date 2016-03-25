@@ -8,6 +8,7 @@
     <info>
         <title>NAM80</title>
         <datasetId>ETA</datasetId>
+        <alias>NAM-80km</alias>
         <dt>6</dt>
     </info>
     <info>
@@ -57,7 +58,7 @@
     </info>
     <info>
         <title>GFS360</title>
-        <datasetId>GFS201</datasetId>
+        <datasetId>GFS-NH</datasetId>
         <dt>6</dt>
     </info>
     <info>
@@ -67,16 +68,16 @@
     </info>
     <info>
         <title>GFS20-CONUS</title>
-        <datasetId>GFS215</datasetId>
+        <datasetId>GFS-20km</datasetId>
         <dt>3</dt>
     </info>
     <info>
         <title>GFS20-AK</title>
-        <datasetId>GFS217</datasetId>
+        <datasetId>AK-GFS-22km</datasetId>
         <dt>3</dt>
     </info>
     <info>
-        <title>GFS20-PAC</title>
+        <title>GFS-EPac-20km</title>
         <datasetId>GFS-PAC-20KM</datasetId>
         <dt>3</dt>
     </info>
@@ -92,7 +93,7 @@
     </info>
     <info>
         <title>GFS90</title>
-        <datasetId>GFS213</datasetId>
+        <datasetId>GFS-95km</datasetId>
         <dt>6</dt>
     </info>
     <info>
@@ -107,18 +108,19 @@
     </info>
     <info>
         <title>GFS80</title>
-        <datasetId>AVN211</datasetId>
+        <datasetId>GFS-80km</datasetId>
         <dt>6</dt>
     </info>
     <info>
         <title>NAM40</title>
-        <datasetId>mesoEta212</datasetId>
+        <datasetId>NAM40</datasetId>
+        <alias>NAM-40km</alias>
         <dt>3</dt>
     </info>
     <info>
         <title>NAM20</title>
-        <datasetId>mesoEta215</datasetId>
-        <alias>mesoEta212</alias>
+        <datasetId>NAM20</datasetId>
+        <alias>NAM-20km</alias>
         <dt>3</dt>
     </info>
     <info>
@@ -128,7 +130,7 @@
     </info>
     <info>
         <title>NAMWX</title>
-        <datasetId>ETA212</datasetId>
+        <datasetId>NAM40</datasetId>
         <dt>3</dt>
     </info>
     <info>
@@ -158,7 +160,7 @@
     </info>
     <info>
         <title>NAM95</title>
-        <datasetId>ETA207</datasetId>
+        <datasetId>AK-NAM-95km</datasetId>
         <dt>6</dt>
     </info>
     <info>
@@ -208,7 +210,7 @@
     </info>
     <info>
         <title>GWW</title>
-        <datasetId>GWW233</datasetId>
+        <datasetId>WaveWatch</datasetId>
         <dt>6</dt>
     </info>
     <info>
@@ -258,37 +260,38 @@
     </info>
     <info>
         <title>GFS75</title>
-        <datasetId>AVN225</datasetId>
+        <datasetId>Hawaii-GFS-80km</datasetId>
         <dt>6</dt>
     </info>
     <info>
         <title>AKWAVE</title>
-        <datasetId>AKWAVE239</datasetId>
+        <datasetId>WaveWatch-AK</datasetId>
         <dt>6</dt>
     </info>
     <info>
         <title>WNAwave</title>
-        <datasetId>WNAWAVE238</datasetId>
+        <datasetId>WaveWatch-WNA</datasetId>
         <dt>6</dt>
     </info>
     <info>
-        <title>AK-NAM40</title>
-        <datasetId>mesoEta216</datasetId>
+        <title>AK-NAM-45km</title>
+        <datasetId>AK-NAM-45km</datasetId>
         <dt>6</dt>
     </info>
     <info>
         <title>AK-NAM20</title>
-        <datasetId>mesoEta217</datasetId>
+        <datasetId>AK-NAM-22km</datasetId>
         <dt>6</dt>
     </info>
     <info>
         <title>NAM12</title>
         <datasetId>ETA218</datasetId>
+        <alias>NAM-12km</alias>
         <dt>3</dt>
     </info>
     <info>
         <title>AK-NAM12</title>
-        <datasetId>ETA242</datasetId>
+        <datasetId>AK-NAM-11km</datasetId>
         <dt>3</dt>
     </info>
     <info>
@@ -298,17 +301,17 @@
 	</info>
     <info>
         <title>ENPwave</title>
-        <datasetId>ENPWAVE253</datasetId>
+        <datasetId>WaveWatch-ENP</datasetId>
         <dt>6</dt>
     </info>
     <info>
-        <title>HurWave238</title>
-        <datasetId>HurWave238</datasetId>
+        <title>WaveWatch-WNA-Hurr</title>
+        <datasetId>WaveWatch-WNA-Hurr</datasetId>
         <dt>6</dt>
     </info>
     <info>
-        <title>HurWave253</title>
-        <datasetId>HurWave253</datasetId>
+        <title>WaveWatch-ENP-Hurr</title>
+        <datasetId>WaveWatch-ENP-Hurr</datasetId>
         <dt>6</dt>
     </info>
     <info>
@@ -343,7 +346,7 @@
     </info>
     <info>
         <title>DGEX</title>
-        <datasetId>DGEX186</datasetId>
+        <datasetId>AK-DGEX-12km</datasetId>
         <dt>6</dt>
     </info>
     <info>
@@ -353,12 +356,12 @@
     </info>
     <info>
         <title>AK-GFS</title>
-        <datasetId>GFS160</datasetId>
+        <datasetId>AK-GFS</datasetId>
         <dt>6</dt>
     </info>
     <info>
         <title>PR-GFS</title>
-        <datasetId>GFS254</datasetId>
+        <datasetId>GFS-EPac-40km</datasetId>
         <dt>6</dt>
     </info>
     <info>
@@ -507,8 +510,8 @@
         <dt>3</dt>
     </info>
     <info>
-        <title>HiResW-ARW-HI</title>
-        <datasetId>HiResW-ARW-HI</datasetId>
+        <title>HiResW-ARW-Hawaii</title>
+        <datasetId>HiResW-ARW-Hawaii</datasetId>
         <dt>3</dt>
     </info>
     <info>
@@ -537,8 +540,8 @@
         <dt>3</dt>
     </info>
     <info>
-        <title>HiResW-NMM-HI</title>
-        <datasetId>HiResW-NMM-HI</datasetId>
+        <title>HiResW-NMM-Hawaii</title>
+        <datasetId>HiResW-NMM-Hawaii</datasetId>
         <dt>3</dt>
     </info>
     <info>
@@ -618,7 +621,7 @@
     </info>
     <info>
         <title>PR-NAM12</title>
-        <datasetId>mesoEta237</datasetId>
+        <datasetId>PR-NAM</datasetId>
         <dt>3</dt>
     </info>
     <info>
@@ -673,12 +676,12 @@
     </info>
     <info>
         <title>AK-SREF</title>
-        <datasetId>SREF216</datasetId>
+        <datasetId>AK-SREF-45km</datasetId>
         <dt>3</dt>
     </info>
     <info>
         <title>PR-SREF</title>
-        <datasetId>SREF243</datasetId>
+        <datasetId>SREF-EPac</datasetId>
         <dt>3</dt>
     </info>
     <info>
@@ -913,7 +916,7 @@
     </info>
     <info>
         <title>HI-GriddedMOS</title>
-        <datasetId>MOSGuide-HI</datasetId>
+        <datasetId>MOSGuide-Hawaii</datasetId>
         <dt>3</dt>
     </info>
     <info>

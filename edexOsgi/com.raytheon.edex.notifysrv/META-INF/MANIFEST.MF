@@ -5,7 +5,7 @@ Bundle-SymbolicName: com.raytheon.edex.notifysrv
 Bundle-Version: 1.12.1174.qualifier
 Bundle-Vendor: RAYTHEON
 Export-Package: com.raytheon.edex.services
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: com.raytheon.uf.edex.core;bundle-version="1.12.1174",
  com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
  org.apache.commons.configuration;bundle-version="1.6.0"

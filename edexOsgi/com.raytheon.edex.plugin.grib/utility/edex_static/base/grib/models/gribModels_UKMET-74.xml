@@ -23,6 +23,20 @@ F.Achorn/OPC	10/15/13	Added Ukmet HR tiles 1-8
 		<process>
 			<id>15</id>
 			<id>19</id>
+                        <id>89</id>
+                </process>
+        </model>
+
+	<model>
+		<name>UKMET-Global</name>
+		<center>74</center>
+		<subcenter>0</subcenter>
+		<grid>289145</grid>
+		<process>
+			<id>15</id>
+			<id>19</id>
+			<id>44</id>
+			<id>45</id>
 			<id>89</id>
 		</process>
 	</model>

@@ -44,7 +44,7 @@ public class ArchiveCaseCreationAuthRequestHandler extends
 
     private final String CASE_DIR_KEY = "archive.case.directory";
 
-    private final String CASE_DIR_DEFAULT = "/data/archiver";
+    private final String CASE_DIR_DEFAULT = "/awips2/edex/data/archiver/";
 
     @Override
     public ArchiveAdminAuthRequest handleRequest(ArchiveAdminAuthRequest request)
