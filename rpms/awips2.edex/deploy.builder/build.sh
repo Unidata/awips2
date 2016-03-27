@@ -3,12 +3,13 @@
 
 # Build Variables:
 # -----------------------------------------------------------------------------
-VAR_AWIPSII_TOP_DIR="/home/mjames/rpmbuild"
-VAR_WORKSPACE="/awips2/jenkins/buildspace/workspace"
+VAR_AWIPSII_TOP_DIR="/home/bkowal/rpmbuild"
+VAR_WORKSPACE="/common/bkowal/git/thunder/baseline"
 VAR_AWIPSII_BUILD_ROOT="/tmp/awips-component"
 VAR_AWIPSII_VERSION=""
 VAR_AWIPSII_RELEASE=""
-VAR_UFRAME_ECLIPSE="/awips2/eclipse"
+VAR_UFRAME_ECLIPSE="/opt/uframe-eclipse"
+VAR_AWIPSCM_SHARE="/awipscm"
 # -----------------------------------------------------------------------------
 
 if [ "${AWIPSII_TOP_DIR}" = "" ] &&
@@ -50,6 +51,10 @@ function prepareBuildEnvironment()
 
    if [ "${UFRAME_ECLIPSE}" = "" ]; then
       export UFRAME_ECLIPSE="${VAR_UFRAME_ECLIPSE}"
+   fi
+
+   if [ "${AWIPSCM_SHARE}" = "" ]; then
+      export AWIPSCM_SHARE="${VAR_AWIPSCM_SHARE}"
    fi
 }
 
@@ -150,7 +155,6 @@ cd ../
 
 buildRPM "Installer.edex"
 buildRPM "Installer.edex-configuration"
-#buildRPM "Installer.edex-shapefiles"
 
 # build the edex-hazards component
 export COMPONENT_NAME="edex-hazards"
@@ -162,8 +166,6 @@ DIST="${WORKSPACE}/build.edex/edex/dist"
 for edex_zip in `cd ${DIST}; ls -1;`;
 do
    edex_component=`python -c "zipFile='${edex_zip}'; componentName=zipFile.replace('.zip',''); print componentName;"`
-   # do not build edex-datadelivery since it is now built differently from the other edex feature rpms
-   # since this is currently the only case, the exclusion will be hard-coded
   
    #Data Delivery and Hazard Services components are built separately
    if [ ! "${edex_component}" = "edex-datadelivery" ] &&
@@ -175,10 +177,10 @@ do
 done
 
 # build the edex-datadelivery rpm
-#export COMPONENT_NAME="edex-datadelivery"
-#patchSpecification
-#buildRPM "Installer.edex-datadelivery"
-#unset COMPONENT_NAME
+export COMPONENT_NAME="edex-datadelivery"
+patchSpecification
+buildRPM "Installer.edex-datadelivery"
+unset COMPONENT_NAME
 
 #build shapefiles RPM last
-#buildRPM "Installer.edex-shapefiles"
+buildRPM "Installer.edex-shapefiles"

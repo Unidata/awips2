@@ -51,6 +51,10 @@ function prepareBuildEnvironment()
    if [ "${UFRAME_ECLIPSE}" = "" ]; then
       export UFRAME_ECLIPSE="${VAR_UFRAME_ECLIPSE}"
    fi
+
+   if [ "${AWIPSCM_SHARE}" = "" ]; then
+      export AWIPSCM_SHARE="/awips2/repo"
+   fi
 }
 
 function setTargetArchitecture()
@@ -64,7 +68,6 @@ function setTargetArchitecture()
       export EDEX_BUILD_BITS="32"
    fi
 }
-
 
 export TARGET_BUILD_ARCH=
 # If the architecture has not been specified, default to 32-bit.
@@ -80,53 +83,26 @@ function buildRPM()
    # Arguments:
    #   ${1} == specs file
 
-   if [ ! "${COMPONENT_NAME}" = "edex-binlightning" ] ||
-      [ ${LIGHTNING} = true ]; then
-      rpmbuild -ba --target=${TARGET_BUILD_ARCH} \
-         --define '_topdir %(echo ${AWIPSII_TOP_DIR})' \
-         --define '_baseline_workspace %(echo ${WORKSPACE})' \
-         --define '_uframe_eclipse %(echo ${UFRAME_ECLIPSE})' \
-         --define '_awipscm_share %(echo ${AWIPSCM_SHARE})' \
-         --define '_build_root %(echo ${AWIPSII_BUILD_ROOT})' \
-         --define '_component_version %(echo ${AWIPSII_VERSION})' \
-         --define '_component_release %(echo ${AWIPSII_RELEASE})' \
-         --define '_component_name %(echo ${COMPONENT_NAME})' \
-         --define '_build_arch %(echo ${EDEX_BUILD_ARCH})' \
-         --define '_build_bits %(echo ${EDEX_BUILD_BITS})' \
-         --buildroot ${AWIPSII_BUILD_ROOT} \
-         ${1}/component.spec
-      RC=$?
-      if [ ${RC} -ne 0 ]; then
-         echo "FATAL: rpmbuild failed."
-         exit 1
-      fi
+   rpmbuild -ba --target=${TARGET_BUILD_ARCH} \
+      --define '_topdir %(echo ${AWIPSII_TOP_DIR})' \
+      --define '_baseline_workspace %(echo ${WORKSPACE})' \
+      --define '_uframe_eclipse %(echo ${UFRAME_ECLIPSE})' \
+      --define '_awipscm_share %(echo ${AWIPSCM_SHARE})' \
+      --define '_build_root %(echo ${AWIPSII_BUILD_ROOT})' \
+      --define '_component_version %(echo ${AWIPSII_VERSION})' \
+      --define '_component_release %(echo ${AWIPSII_RELEASE})' \
+      --define '_component_name %(echo ${COMPONENT_NAME})' \
+      --define '_build_arch %(echo ${EDEX_BUILD_ARCH})' \
+      --define '_build_bits %(echo ${EDEX_BUILD_BITS})' \
+      --buildroot ${AWIPSII_BUILD_ROOT} \
+      ${1}/component.spec
+   RC=$?
+   if [ ${RC} -ne 0 ]; then
+      echo "FATAL: rpmbuild failed."
+      exit 1
    fi
 }
-
 prepareBuildEnvironment
-
-pushd .
-cd ${WORKSPACE}/build.edex
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-if [ ${LIGHTNING} = true ]; then
-   /awips2/ant/bin/ant -f build.xml -Dlightning=true \
-      -Duframe.eclipse=${UFRAME_ECLIPSE}
-   RC=$?
-else
-   /awips2/ant/bin/ant -f build.xml \
-      -Duframe.eclipse=${UFRAME_ECLIPSE}
-   RC=$?
-fi
-if [ ${RC} -ne 0 ]; then
-   exit 1
-fi
-popd
 setTargetArchitecture
-
-# Adjust Our Execution Position.
-cd ../
-
+cd ..
 buildRPM "Installer.edex-shapefiles"
-

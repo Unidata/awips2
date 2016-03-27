@@ -32,7 +32,10 @@ function lookupRPM()
    installer_dir="${rpms_dir}/../installers/RPMs"
 
    # lookup the rpm.
-
+   if [ "${1}" = "awips2-edex-shapefiles" ]; then
+      export RPM_SPECIFICATION="${awips2_edex_dir=}/Installer.edex-shapefiles"
+      return 0
+   fi
    # foss rpms -> python rpms.
    if [ "${1}" = "awips2-maven" ]; then
       export RPM_SPECIFICATION="${installer_dir}/maven-3.2.3/"

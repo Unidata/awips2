@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -v
 set -xe
 
 export JENKINS_WORKSPACE=/awips2/repo/awips2-builds

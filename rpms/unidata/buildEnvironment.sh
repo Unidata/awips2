@@ -22,7 +22,7 @@ export WORKSPACE="${BUILD_WORKSPACE}/AWIPS2-UPC_build/baseline"
 
 export UFRAME_ECLIPSE="/awips2/eclipse"
 
-export AWIPSCM_SHARE="${BUILD_WORKSPACE}/awipscm"
+export AWIPSCM_SHARE="/awips2/repo"
 export AWIPSII_BUILD_ROOT="${BUILD_WORKSPACE}/tmp/${USER}/awips-component"
 
 echo "BUILD_DIR = $BUILD_DIR"

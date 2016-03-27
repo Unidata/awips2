@@ -247,7 +247,6 @@ function importShapefiles()
       return 0
    fi
 
-   
    # indicate success
    echo "INFO: The FFMP and WarnGen shapefiles were successfully imported." >> ${log_file}
    return 0
