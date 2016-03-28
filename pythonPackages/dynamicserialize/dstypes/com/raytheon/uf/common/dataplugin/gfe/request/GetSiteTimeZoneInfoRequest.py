@@ -18,23 +18,27 @@
 # further licensing information.
 ##
 
-# File auto-generated against equivalent DynamicSerialize Java class
+##
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    xx/xx/??                      dgilling       Initial Creation.
+#    12/02/15         5129         dgilling       Refactor based on AbstractGfeRequest.
+# 
+##
 
-class GetSiteTimeZoneInfoRequest(object):
+from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.request import AbstractGfeRequest
+
+class GetSiteTimeZoneInfoRequest(AbstractGfeRequest):
 
     def __init__(self):
-        self.workstationID = None
-        self.siteID = None
+        super(GetSiteTimeZoneInfoRequest, self).__init__()
+        self.requestedSiteIDs = None
 
-    def getWorkstationID(self):
-        return self.workstationID
+    def getRequestedSiteIDs(self):
+        return self.requestedSiteIDs
 
-    def setWorkstationID(self, workstationID):
-        self.workstationID = workstationID
-
-    def getSiteID(self):
-        return self.siteID
-
-    def setSiteID(self, siteID):
-        self.siteID = siteID
+    def setRequestedSiteIDs(self, requestedSiteIDs):
+        self.requestedSiteIDs = requestedSiteIDs
 

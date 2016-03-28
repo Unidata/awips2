@@ -19,8 +19,8 @@
  **/
 package com.raytheon.uf.edex.plugin.text.impl.separator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.site.SiteMap;
@@ -43,6 +43,7 @@ import com.raytheon.uf.edex.plugin.text.impl.WMOReportData;
  *                                     have checks like A1.
  * Mar 13, 2014 2652       skorolev    Fixed calculation of message end.
  * Apr 01, 2014 2915       dgilling    Support re-factored TextDBStaticData.
+ * Dec 09, 2015 5166       kbisanz     Update logging to use SLF4J.
  * </pre>
  * 
  * @author jkorman
@@ -51,7 +52,7 @@ import com.raytheon.uf.edex.plugin.text.impl.WMOReportData;
 
 public class StdTextSeparator extends WMOMessageSeparator {
 
-    private final Log logger = LogFactory.getLog(getClass());
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private boolean stdFlg = false;
 

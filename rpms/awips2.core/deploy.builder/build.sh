@@ -65,7 +65,7 @@ function buildRPM()
       echo "The AWIPSII Version is $AWIPSII_VERSION in the buildRPM function"
       echo "The AWIPSII Release is $AWIPSII_RELEASE in the buildRPM function"
 
-      rpmbuild -ba --target=i386 \
+      rpmbuild -bb --target=i386 \
          --define '_topdir %(echo ${RPM_TOP_DIR})' \
          --define '_component_version %(echo ${AWIPSII_VERSION})' \
          --define '_component_release %(echo ${AWIPSII_RELEASE})' \
@@ -73,6 +73,7 @@ function buildRPM()
          --define '_component_build_time %(echo ${AWIPSII_BUILD_TIME})' \
          --define '_component_build_system %(echo ${AWIPSII_BUILD_SYSTEM})' \
          --define '_svn_tag %(echo ${AWIPSII_BUILD_TAG})' \
+         --define '_build_site %(echo ${AWIPSII_BUILD_SITE})' \
          --buildroot ${BUILDROOT_DIR} \
          ${COMPONENT_SPECS}
 
@@ -92,9 +93,10 @@ function buildRPM()
 
    export BUILDROOT_DIR="${BUILDROOT_DIR}"
    # Build The RPM.
-   rpmbuild -ba --target=i386 \
+   rpmbuild -bb --target=i386 \
       --define '_topdir %(echo ${RPM_TOP_DIR})' \
       --define '_build_root %(echo ${BUILDROOT_DIR})' \
+      --define '_build_site %(echo ${AWIPSII_BUILD_SITE})' \
       --define '_component_version %(echo ${AWIPSII_VERSION})' \
       --define '_component_release %(echo ${AWIPSII_RELEASE})' \
       --define '_baseline_workspace %(echo ${WORKSPACE_DIR})' \
@@ -142,7 +144,7 @@ function buildLocalizationRPMs()
 
       rm -rf ${BUILDROOT_DIR}
 
-      rpmbuild -ba \
+      rpmbuild -bb \
          --define '_topdir %(echo ${RPM_TOP_DIR})' \
          --define '_component_version %(echo ${AWIPSII_VERSION})' \
          --define '_component_release %(echo ${AWIPSII_RELEASE})' \
@@ -150,6 +152,7 @@ function buildLocalizationRPMs()
          --define '_baseline_workspace %(echo ${WORKSPACE_DIR})' \
          --define '_localization_site %(echo ${site})' \
          --define '_localization_directory %(echo ${LOCALIZATION_DIRECTORY})' \
+         --define '_build_site %(echo ${AWIPSII_BUILD_SITE})' \
          --buildroot ${BUILDROOT_DIR} \
          ../Installer.localization/component.spec
       RC=$?

@@ -12,9 +12,10 @@ URL: N/A
 License: N/A
 Distribution: N/A
 Vendor: Raytheon
-Packager: Bryan Kowal
+Packager: %{_build_site}
 
 AutoReq: no
+Provides: awips2-localapps-environment
 
 %description
 AWIPS II localapps Environment Spec File - This rpm will install

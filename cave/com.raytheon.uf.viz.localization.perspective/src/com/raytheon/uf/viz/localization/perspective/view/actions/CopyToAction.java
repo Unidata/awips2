@@ -35,7 +35,6 @@ import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -57,6 +56,8 @@ import com.raytheon.uf.viz.localization.service.ILocalizationService;
  * Nov 3, 2010             mschenke    Initial creation
  * Oct 13, 2015 4410       bsteffen    Allow localization perspective to mix
  *                                     files for multiple Localization Types.
+ * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
+ * Jan 11, 2016 5242       kbisanz     Replaced calls to deprecated LocalizationFile methods
  * 
  * </pre>
  * 
@@ -84,14 +85,6 @@ public class CopyToAction extends AbstractToAction {
         this(data.getFile(), data.getPathData(), service);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.localization.perspective.view.actions.AbstractToAction
-     * #isLevelEnabled(com.raytheon.uf.common.localization.LocalizationContext.
-     * LocalizationLevel)
-     */
     @Override
     protected boolean isLevelEnabled(LocalizationLevel level) {
         boolean enabled = super.isLevelEnabled(level);
@@ -102,21 +95,12 @@ public class CopyToAction extends AbstractToAction {
         return enabled;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.localization.filetreeview.actions.AbstractToAction
-     * #run
-     * (com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
-     * )
-     */
     @Override
     protected void run(LocalizationLevel level) {
         IPathManager pm = PathManagerFactory.getPathManager();
         ILocalizationFile newFile = pm.getLocalizationFile(
                 pm.getContext(file.getContext().getLocalizationType(), level),
-                file.getName());
+                file.getPath());
         removeAlternateTypeFiles(level);
         copyFile(newFile);
     }
@@ -133,12 +117,12 @@ public class CopyToAction extends AbstractToAction {
 
         for (LocalizationType type : pathData.getTypes()) {
             if (type != file.getContext().getLocalizationType()) {
-                LocalizationFile altFile = pm.getLocalizationFile(
-                        pm.getContext(type, level), file.getName());
+                ILocalizationFile altFile = pm.getLocalizationFile(
+                        pm.getContext(type, level), file.getPath());
                 if (altFile.exists()) {
                     try {
                         altFile.delete();
-                    } catch (LocalizationOpFailedException e) {
+                    } catch (LocalizationException e) {
                         statusHandler.handle(Priority.PROBLEM,
                                 "Unable to delete existing " + type.name()
                                         + " " + level + " file.", e);

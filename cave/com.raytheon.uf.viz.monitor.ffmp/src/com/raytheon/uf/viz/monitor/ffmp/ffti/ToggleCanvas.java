@@ -45,6 +45,7 @@ import org.eclipse.swt.widgets.Display;
  * ------------ ---------- ----------- --------------------------
  * ????????????            lvenable    Initial creation
  * Oct 10, 2013 #2464      lvenable    Fix font memory leak.
+ * Nov 05, 2015 #5070      randerso    Changed to use system font name (not AWT)
  * 
  * </pre>
  * 
@@ -124,7 +125,7 @@ public class ToggleCanvas {
     }
 
     private void init() {
-        labelFont = new Font(display, "Monospaced", 10, SWT.BOLD);
+        labelFont = new Font(display, "Monospace", 10, SWT.BOLD);
 
         parentComp.addDisposeListener(new DisposeListener() {
             @Override
@@ -145,6 +146,7 @@ public class ToggleCanvas {
 
         canvas.setLayoutData(gd);
         canvas.addPaintListener(new PaintListener() {
+            @Override
             public void paintControl(PaintEvent e) {
                 drawCanvas(e.gc);
             }

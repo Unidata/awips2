@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.plugin.AbstractRecordSeparator;
@@ -56,6 +56,8 @@ import com.raytheon.uf.edex.decodertools.core.IDecoderInput;
  * 20080103            384 jkorman     Initial Coding.
  * 11/25/08          #1684 chammack    Camel Refactor
  * May 14, 2014 2536       bclement    moved WMO Header to common
+ * Dec 16, 2015 5166       kbisanz     Update logging to use SLF4J
+ *                                     by adding private logger
  * </pre>
  * 
  * @author jkorman
@@ -63,7 +65,7 @@ import com.raytheon.uf.edex.decodertools.core.IDecoderInput;
  */
 public class RECCOSeparator extends AbstractRecordSeparator {
     /** The logger */
-    private Log logger = LogFactory.getLog(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     private static final String RECCO_HDR = "9(222|555|777)9";
 

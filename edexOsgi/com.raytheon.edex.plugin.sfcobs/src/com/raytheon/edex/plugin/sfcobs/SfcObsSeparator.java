@@ -25,8 +25,8 @@ import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.plugin.AbstractRecordSeparator;
@@ -53,9 +53,10 @@ import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20070925            391 jkorman     Initial Coding.
+ * 20070925     391        jkorman     Initial Coding.
  * May 14, 2014 2536       bclement    moved WMO Header to common
  * Sep 26, 2014 3629       mapeters    Added SOM constant, replaced static imports.
+ * Dec 17, 2015 5166       kbisanz     Update logging to use SLF4J
  * </pre>
  * 
  * @author jkorman
@@ -63,7 +64,7 @@ import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
  */
 public class SfcObsSeparator extends AbstractRecordSeparator {
     /** The logger */
-    private Log logger = LogFactory.getLog(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     private static final String SOM = String
             .valueOf((char) IDecoderConstants.ASCII_SOM);

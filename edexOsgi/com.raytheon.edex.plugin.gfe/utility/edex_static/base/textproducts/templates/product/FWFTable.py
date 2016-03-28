@@ -982,8 +982,8 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
                 timeRange=self._extendedRange)
             fcst = fcst + extended
         if self._includeOutlooks:
-            fcst = fcst + "\n.Outlook 6 to 10 days... \n\n.Outlook 8 to 14 days...\n\n\n"
-            fcst = fcst + "\n.Outlook\n\n"
+            fcst = fcst + "\n.OUTLOOK 6 TO 10 DAYS... \n\n.OUTLOOK 8 TO 14 DAYS...\n\n\n"
+            fcst = fcst + "\n.OUTLOOK\n\n"
             
         # Make summary headline string and substitute for "<HEADLINE>" placeholder
         headlineStr = ""

@@ -22,8 +22,6 @@ package com.raytheon.uf.common.dataplugin.tcs;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -64,6 +62,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Oct 22, 2013 2361       njensen     Remove XML annotations
  * Jul 23, 2014 3410       bclement    location changed to floats
  * Jul 28, 2015 4360       rferrel     Named unique constraint. Made productType non-nullable.
+ * Jan 27, 2016 5285       tgurney     Remove dataURI column and update unique constraint.
  * 
  * </pre>
  * 
@@ -72,7 +71,8 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "tcsseq")
-@Table(name = "tcs", uniqueConstraints = { @UniqueConstraint(name = "uk_tcs_datauri_fields", columnNames = { "dataURI" }) })
+@Table(name = "tcs", uniqueConstraints = { @UniqueConstraint(name = "uk_tcs_datauri_fields", columnNames = {
+        "refTime", "productType", "latitude", "longitude", "stationId" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
@@ -175,17 +175,6 @@ public class TropicalCycloneSummary extends PersistablePluginDataObject
      */
     public void setWmoHeader(String wmoHeader) {
         this.wmoHeader = wmoHeader;
-    }
-
-    /**
-     * Set the data uri for this observation.
-     * 
-     * @param dataURI
-     */
-    @Override
-    public void setDataURI(String dataURI) {
-        super.setDataURI(dataURI);
-        identifier = dataURI;
     }
 
     @Override
@@ -319,13 +308,6 @@ public class TropicalCycloneSummary extends PersistablePluginDataObject
             }
         }
         return s;
-    }
-
-    @Override
-    @Column
-    @Access(AccessType.PROPERTY)
-    public String getDataURI() {
-        return super.getDataURI();
     }
 
     @Override

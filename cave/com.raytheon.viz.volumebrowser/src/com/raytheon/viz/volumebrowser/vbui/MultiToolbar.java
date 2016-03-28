@@ -31,6 +31,8 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.menus.IMenuService;
@@ -47,8 +49,10 @@ import org.eclipse.ui.menus.IMenuService;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 2, 2011            bsteffen     Initial creation
+ * Nov  2, 2011            bsteffen    Initial creation
  * Jul 31, 2012 #875       rferrel     Added add(IAction) method.
+ * Jan 12, 2016 #5055      randerso    Added support for adjusting split when dialog resized.
+ *                                     Code cleanup
  * 
  * </pre>
  * 
@@ -67,9 +71,30 @@ public class MultiToolbar extends Composite {
     // will trigger a resplit.
     private boolean isDirty = false;
 
+    /**
+     * Constructor
+     * 
+     * @param parent
+     *            a widget which will be the parent of the new instance (cannot
+     *            be null)
+     * @param style
+     *            the style of widget to construct
+     */
     public MultiToolbar(Composite parent, int style) {
         super(parent, style);
-        setLayout(new GridLayout(1, false));
+        GridLayout layout = new GridLayout(1, false);
+        layout.marginWidth = 0;
+        layout.marginHeight = 0;
+        layout.horizontalSpacing = 0;
+        layout.verticalSpacing = 0;
+        setLayout(layout);
+    }
+
+    /**
+     * @return the numBars
+     */
+    public int getNumBars() {
+        return numBars;
     }
 
     /**
@@ -77,10 +102,11 @@ public class MultiToolbar extends Composite {
      **/
     private ToolBarManager createToolBarManager() {
         ToolBarManager tbm = new ToolBarManager(SWT.NONE);
+        ToolBar tb = tbm.createControl(this);
         GridData data = new GridData(GridData.CENTER, GridData.CENTER, true,
                 false);
         data.horizontalAlignment = GridData.CENTER;
-        tbm.createControl(this).setLayoutData(data);
+        tb.setLayoutData(data);
         tbms.add(tbm);
         return tbm;
     }
@@ -114,6 +140,7 @@ public class MultiToolbar extends Composite {
         return tbm;
     }
 
+    @Override
     public void update() {
         if (isDirty && numBars > 1) {
             splitToMultipleBars(numBars);
@@ -169,18 +196,18 @@ public class MultiToolbar extends Composite {
      * @param numBars
      */
     public void splitToMultipleBars(int numBars) {
-        this.numBars = numBars;
         List<IContributionItem> items = new ArrayList<IContributionItem>();
         for (ToolBarManager tbm : tbms) {
             items.addAll(Arrays.asList(tbm.getItems()));
         }
         disposeToolbars();
-        splitContruibutionItems(items, numBars);
+        this.numBars = numBars;
+        splitContributionItems(items, numBars);
         isDirty = false;
         update();
     }
 
-    private void splitContruibutionItems(List<IContributionItem> items,
+    private void splitContributionItems(List<IContributionItem> items,
             int numBars) {
         // The reason we recalculate for every row is so that 13 in four rows is
         // 4,3,3,3 instead of 4,4,4,1
@@ -192,8 +219,8 @@ public class MultiToolbar extends Composite {
         for (int i = 0; i < itemsPerBar; i++) {
             tbm.add(items.remove(0));
         }
-        if (numBars > 1) {
-            splitContruibutionItems(items, numBars - 1);
+        if (numBars > 1 && items.size() > 0) {
+            splitContributionItems(items, numBars - 1);
         }
     }
 
@@ -201,4 +228,21 @@ public class MultiToolbar extends Composite {
         toolItemSelectionListeners.add(listener);
     }
 
+    public int barsNeeded() {
+        int barsNeeded = 1;
+        int width = getClientArea().width;
+        if (width > 0) {
+            int x = 4; // Overhead per toolbar
+            for (Control child : getChildren()) {
+                for (ToolItem item : ((ToolBar) child).getItems()) {
+                    if (x + item.getWidth() > width) {
+                        barsNeeded++;
+                        x = 4;
+                    }
+                    x += item.getWidth();
+                }
+            }
+        }
+        return barsNeeded;
+    }
 }

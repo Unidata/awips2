@@ -20,12 +20,9 @@
 package com.raytheon.uf.viz.localization.perspective.view;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.ViewerDropAdapter;
 import org.eclipse.swt.dnd.DND;
@@ -35,23 +32,14 @@ import org.eclipse.swt.dnd.TransferData;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
-import com.raytheon.uf.common.localization.FileUpdatedMessage;
-import com.raytheon.uf.common.localization.FileUpdatedMessage.FileChangeType;
-import com.raytheon.uf.common.localization.ILocalizationFileObserver;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
-import com.raytheon.uf.common.localization.LocalizationUtil;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
-import com.raytheon.uf.common.localization.msgs.ListResponseEntry;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.common.util.FileUtil;
-import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.localization.filetreeview.FileTreeEntryData;
 import com.raytheon.uf.viz.localization.filetreeview.LocalizationFileEntryData;
 import com.raytheon.uf.viz.localization.filetreeview.LocalizationFileGroupData;
@@ -69,7 +57,8 @@ import com.raytheon.uf.viz.localization.perspective.view.actions.ImportFileActio
  * Jul 1, 2011             mschenke    Initial creation
  * Oct 13, 2015 4410       bsteffen    Allow localization perspective to mix
  *                                     files for multiple Localization Types.
- * 
+ * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
+ * Jan 11, 2016 5242       kbisanz     Deleted unused dropLocalizationFile(...)
  * 
  * </pre>
  * 
@@ -120,7 +109,7 @@ public class LocalizationFileDragNDropSource extends ViewerDropAdapter
         if (toDelete != null) {
             try {
                 toDelete.delete();
-            } catch (LocalizationOpFailedException e) {
+            } catch (LocalizationException e) {
                 UFStatus.getHandler().handle(Priority.PROBLEM,
                         "Error deleting old file", e);
             }
@@ -186,64 +175,6 @@ public class LocalizationFileDragNDropSource extends ViewerDropAdapter
                     potentialDelete = null;
                 }
                 return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean dropLocalizationFile(FileTreeEntryData data,
-            ListResponseEntry toMoveData) {
-        IPathManager pm = PathManagerFactory.getPathManager();
-        LocalizationFile toMove = pm.getLocalizationFile(
-                toMoveData.getContext(), toMoveData.getFileName());
-        String fileName = LocalizationUtil.extractName(toMove.getName());
-        String newName = data.getPath() + File.separator + fileName;
-        LocalizationType type = toMove.getContext().getLocalizationType();
-        if (!data.getPathData().getTypes().contains(type)) {
-            type = data.getPathData().getTypes().get(0);
-        }
-        final LocalizationFile moveTo = pm.getLocalizationFile(pm.getContext(
-                type, toMoveData.getContext().getLocalizationLevel()), newName);
-        boolean move = true;
-        if (moveTo.exists()) {
-            move = MessageDialog.openQuestion(view.getSite().getShell(),
-                    "Override File", "A file with the name '" + fileName
-                            + "' already exists in the '" + data.getName()
-                            + "' folder.  Do you want to override it?");
-        }
-        if (move) {
-            final Runnable select = new Runnable() {
-                @Override
-                public void run() {
-                    view.selectFile(moveTo);
-                }
-            };
-            // Make sure we select the file after the drop
-            if (moveTo.exists() == false) {
-                final ILocalizationFileObserver[] observers = new ILocalizationFileObserver[1];
-                ILocalizationFileObserver observer = new ILocalizationFileObserver() {
-                    @Override
-                    public void fileUpdated(FileUpdatedMessage message) {
-                        if (message.getChangeType() != FileChangeType.DELETED) {
-                            view.fileUpdated(message);
-                            VizApp.runAsync(select);
-                        }
-                        moveTo.removeFileUpdatedObserver(observers[0]);
-                    }
-                };
-                observers[0] = observer;
-                moveTo.addFileUpdatedObserver(observer);
-            } else {
-                VizApp.runAsync(select);
-            }
-            try (InputStream is = toMove.openInputStream();
-                    SaveableOutputStream os = moveTo.openOutputStream()) {
-                FileUtil.copy(is, os);
-                os.save();
-                return true;
-            } catch (IOException | LocalizationException e) {
-                UFStatus.getHandler().handle(Priority.PROBLEM,
-                        "Error copying file contents", e);
             }
         }
         return false;

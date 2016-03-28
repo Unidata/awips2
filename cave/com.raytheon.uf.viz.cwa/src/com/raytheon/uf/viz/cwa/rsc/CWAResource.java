@@ -70,9 +70,9 @@ import com.vividsolutions.jts.geom.Polygon;
 
 /**
  * Resource for Center Weather Advisory
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
@@ -81,8 +81,10 @@ import com.vividsolutions.jts.geom.Polygon;
  *                                      compabilities.
  * May 11, 2015 4379       nabowle      Display all current CWAs for each frame.
  * Jun 15, 2015 4379       nabowle      Make last frame a live frame.
+ * Nov 05, 2015 5070       randerso     Adjust font sizes for dpi scaling
+ * 
  * </pre>
- *
+ * 
  * @author jsanchez
  * @version 1.0
  */
@@ -186,11 +188,11 @@ public class CWAResource extends
             constraints.put(END, constraint);
 
             // Request the point data
-            this.pdc = PointDataRequest
-                    .requestPointDataAllLevels((DataTime) null,
+            this.pdc = PointDataRequest.requestPointDataAllLevels(
+                    (DataTime) null,
                     resourceData.getMetadataMap().get("pluginName")
-                            .getConstraintValue(),
-                    getParameters(), null, constraints);
+                            .getConstraintValue(), getParameters(), null,
+                    constraints);
 
             if (wfs != null) {
                 wfs.dispose();
@@ -249,7 +251,7 @@ public class CWAResource extends
         /**
          * Get the list of PointDataViews. PointDataViews that share an event id
          * will be deduplicated to the most recent record for that event id.
-         *
+         * 
          * @return The list of PointDataViews.
          * @throws VizException
          */
@@ -332,7 +334,7 @@ public class CWAResource extends
 
     /**
      * Cancel the heart beat timer task
-     *
+     * 
      * @param resource
      */
     protected static void cancelRefreshTask(CWAResource resource) {
@@ -373,7 +375,7 @@ public class CWAResource extends
      * Get the current/simulated time to the minute. Seconds and Milliseconds
      * will be zero so a consistent time can be used each minute when retrieving
      * from the frame map.
-     *
+     * 
      * @return
      */
     public static DataTime now() {
@@ -424,7 +426,7 @@ public class CWAResource extends
 
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
-        this.font = target.initializeFont("Monospace", 11,
+        this.font = target.initializeFont("Monospace", 9,
                 new Style[] { Style.ITALIC });
         updateLiveFrame(now());
         scheduleRefreshTask(this);
@@ -516,7 +518,7 @@ public class CWAResource extends
 
     /**
      * Adds a new record to this resource
-     *
+     * 
      * @param obj
      */
     protected void addRecord(CWARecord obj) {

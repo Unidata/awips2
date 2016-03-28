@@ -54,6 +54,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 04 DEC 2007  373        lvenable    Initial creation
  * 06 Nov 2014  DCS 16776  zwang       Add control for MBA
  * May 13, 2015 4461       bsteffen    Add option for sails.
+ * Jan 14, 2016 5054       randerso    Made independent shell to keep same
+ *                                     behavior as when parented by dummy shell
  * 
  * </pre>
  * 
@@ -205,7 +207,7 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
      *            Parent shell.
      */
     public RadarDisplayControlDlg(Shell parent) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.INDEPENDENT_SHELL);
         setText("Radar Display Controls");
 
         this.values = RadarDisplayManager.getInstance().getCurrentSettings();

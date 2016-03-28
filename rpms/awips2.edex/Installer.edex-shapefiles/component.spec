@@ -12,12 +12,12 @@ URL: N/A
 License: N/A
 Distribution: N/A
 Vendor: Raytheon
-Packager: Bryan Kowal
+Packager: %{_build_site}
 
 AutoReq: no
-provides: awips2-edex-shapefiles
-requires: awips2
-requires: awips2-edex-base
+Provides: awips2-edex-shapefiles
+Requires: awips2
+Requires: awips2-edex-base
 
 # Turn off the brp-python-bytecompile script
 %global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-python-bytecompile[[:space:]].*$!!g')
@@ -46,22 +46,9 @@ if [ $? -ne 0 ]; then
    exit 1 
 fi
 
-AWIPS2_STATIC=%{_awipscm_share}/awips2-static
-
-# Determine which version of the shapefiles we should use.
-COMMON=%{_baseline_workspace}/rpms/common
-if [ ! -f ${COMMON}/static.versions/LATEST.maps ]; then
-   file ${COMMON}/static.versions/LATEST.maps
-   exit 1
-fi
-
-LATEST=`cat ${COMMON}/static.versions/LATEST.maps`
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-SHAPEFILES=${AWIPS2_STATIC}/maps/${LATEST}/shapefiles
+SHAPEFILES=%{_static_files}/maps/shapefiles
 if [ ! -d ${SHAPEFILES} ]; then
-   file ${SHAPEFILES}
+   echo "File ${SHAPEFILES} not found!"
    exit 1
 fi
 

@@ -16,40 +16,13 @@
 		<name>nogaps</name>
 		<center>58</center>
 		<subcenter>0</subcenter>
-		<grid>401</grid>
-		<process>
-			<id>58</id>
-			<id>18</id>
-		</process>
-	</model>
-
-	<model>
-		<name>nogaps</name>
-		<center>58</center>
-		<subcenter>0</subcenter>
-		<grid>362181001</grid>
-		<process>
-			<id>58</id>
-			<id>18</id>
-		</process>
-	</model>
-
-	<model>
-		<name>nogaps</name>
-		<center>58</center>
-		<subcenter>0</subcenter>
-		<grid>362181002</grid>
-		<process>
-			<id>58</id>
-			<id>18</id>
-		</process>
-	</model>
-
-	<model>
-		<name>nogaps</name>
-		<center>58</center>
-		<subcenter>0</subcenter>
-		<grid>2291</grid>
+		<grids>
+            <id>401</id>
+            <id>362181001</id>
+            <id>362181002</id>
+            <id>2291</id>
+            <id>361181002</id>
+        </grids>
 		<process>
 			<id>58</id>
 			<id>18</id>
@@ -60,78 +33,26 @@
 		<name>fens</name>
 		<center>58</center>
 		<subcenter>0</subcenter>
-		<grid>2291</grid>
+		<grids>
+            <id>2291</id>
+            <id>361181002</id>
+        </grids>
 		<process>
 			<id>50</id>
 		</process>
 	</model>
 
 	<model>
-		<name>nogaps</name>
-		<center>58</center>
-		<subcenter>0</subcenter>
-		<grid>361181002</grid>
-		<process>
-			<id>18</id>
-			<id>58</id>
-		</process>
-	</model>
-
-	<model>
-		<name>fens</name>
-		<center>58</center>
-		<subcenter>0</subcenter>
-		<grid>361181002</grid>
-		<process>
-			<id>50</id>
-		</process>
-	</model>
-	
-	<model>
 		<name>fnmocWave</name>
 		<center>58</center>
 		<subcenter>0</subcenter>
-		<grid>401</grid>
-		<process>
-			<id>110</id>
-		</process>
-	</model>
-
-	<model>
-		<name>fnmocWave</name>
-		<center>58</center>
-		<subcenter>0</subcenter>
-		<grid>362181001</grid>
-		<process>
-			<id>110</id>
-		</process>
-	</model>
-
-	<model>
-		<name>fnmocWave</name>
-		<center>58</center>
-		<subcenter>0</subcenter>
-		<grid>362181002</grid>
-		<process>
-			<id>110</id>
-		</process>
-	</model>
-
-	<model>
-		<name>fnmocWave</name>
-		<center>58</center>
-		<subcenter>0</subcenter>
-		<grid>2291</grid>
-		<process>
-			<id>110</id>
-		</process>
-	</model>
-
-	<model>
-		<name>fnmocWave</name>
-		<center>58</center>
-		<subcenter>0</subcenter>
-		<grid>361181002</grid>
+		<grids>
+            <id>401</id>
+            <id>362181001</id>
+            <id>362181002</id>
+            <id>2291</id>
+            <id>361181002</id>
+        </grids>
 		<process>
 			<id>110</id>
 		</process>
@@ -148,7 +69,7 @@
 	</model>
 
 	<model>
-		<name>AK-NOGAPS</name>
+		<name>${REGION}-NOGAPS</name>
 		<center>58</center>
 		<subcenter>20</subcenter>
 		<grid>242</grid>
@@ -156,8 +77,6 @@
 			<id>120</id>
 		</process>
 	</model>
-
-
 
 	<!-- END SUBCENTER 20 -->
 </gribModelSet>

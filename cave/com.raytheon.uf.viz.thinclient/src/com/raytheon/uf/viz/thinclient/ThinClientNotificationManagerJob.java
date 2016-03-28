@@ -36,8 +36,8 @@ import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
 
 /**
  * Listens to changes to the "Disable JMS" option in the Thin Client
- * Preferences. Will automatically connect to and disconnect from the
- * JMS Server as the option is updated.
+ * Preferences. Will automatically connect to and disconnect from the JMS Server
+ * as the option is updated.
  * 
  * <pre>
  * 
@@ -48,6 +48,7 @@ import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
  * Nov 29, 2011            bsteffen     Initial creation
  * Aug 27, 2013 2295       bkowal       The entire jms connection string is now
  *                                      provided by EDEX.
+ * Feb 08, 2016 5281       tjensen      Replaced disableJms with dataRefreshMethod
  * 
  * </pre>
  * 
@@ -62,7 +63,7 @@ public class ThinClientNotificationManagerJob extends NotificationManagerJob
 
     private static ThinClientNotificationManagerJob instance;
 
-    private Boolean disableJMS;
+    private String dataRefreshMethod;
 
     public static synchronized ThinClientNotificationManagerJob getInstance() {
         if (instance == null) {
@@ -75,17 +76,20 @@ public class ThinClientNotificationManagerJob extends NotificationManagerJob
     public ThinClientNotificationManagerJob() {
         super();
         IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-        disableJMS = store
-                .getBoolean(ThinClientPreferenceConstants.P_DISABLE_JMS);
+        dataRefreshMethod = store
+                .getString(ThinClientPreferenceConstants.P_DATA_REFRESH_METHOD);
+
         store.addPropertyChangeListener(this);
-        if (!disableJMS) {
+        if (ThinClientPreferenceConstants.P_DATA_REFRESH_METHOD_PUSH
+                .equals(dataRefreshMethod)) {
             connect(true);
         }
     }
 
     @Override
     protected void connect(boolean notifyError) {
-        if (disableJMS == null || disableJMS) {
+        if (ThinClientPreferenceConstants.P_DATA_REFRESH_METHOD_POLL
+                .equals(dataRefreshMethod)) {
             return;
         } else {
             super.connect(notifyError);
@@ -94,10 +98,12 @@ public class ThinClientNotificationManagerJob extends NotificationManagerJob
 
     @Override
     public void propertyChange(PropertyChangeEvent event) {
-        if (ThinClientPreferenceConstants.P_DISABLE_JMS.equals(event
+        if (ThinClientPreferenceConstants.P_DATA_REFRESH_METHOD.equals(event
                 .getProperty())) {
-            disableJMS = Boolean.valueOf(String.valueOf(event.getNewValue()));
-            if (disableJMS) {
+            dataRefreshMethod = String.valueOf(event.getNewValue());
+
+            if (ThinClientPreferenceConstants.P_DATA_REFRESH_METHOD_POLL
+                    .equals(dataRefreshMethod)) {
                 disconnect(true);
             } else {
                 if (VizApp.getJmsConnectionString() == null) {

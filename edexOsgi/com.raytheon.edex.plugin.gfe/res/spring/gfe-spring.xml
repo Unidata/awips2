@@ -13,7 +13,11 @@
     <bean id="smartInitQueue" class="com.raytheon.edex.plugin.gfe.smartinit.SmartInitQueue" factory-method="createQueue"/>
 
     <bean id="gfeSitesActiveIngest" factory-bean="siteAwareRegistry" factory-method="register"
-            depends-on="smartInitQueue">
+            depends-on="smartInitQueue, gfeActivationAsyncIngest">
+        <constructor-arg ref="gfeSiteActivation"/>
+    </bean>
+    
+    <bean id="gfeActivationAsyncIngest" factory-bean="contextManager" factory-method="registerAsyncStartupBean">
         <constructor-arg ref="gfeSiteActivation"/>
     </bean>
 

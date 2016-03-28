@@ -19,8 +19,8 @@
  **/
 package com.raytheon.edex.plugin.sfcobs.decoder.synoptic;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder;
@@ -37,9 +37,10 @@ import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20071010            391 jkorman     Initial coding.
- * 20071217            453 jkorman     Added code to report MAROB report type.
- * Sep 30, 2014       3629 mapeters    Replaced {@link AbstractSfcObsDecoder#matchElement()} calls.
+ * 20071010     391        jkorman     Initial coding.
+ * 20071217     453        jkorman     Added code to report MAROB report type.
+ * Sep 30, 2014 3629       mapeters    Replaced {@link AbstractSfcObsDecoder#matchElement()} calls.
+ * Dec 17, 2015 5166       kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -50,7 +51,7 @@ import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
 public class MAROBSynopticDecoder extends SHIPSynopticDecoder {
 
     // The logger
-    private Log logger = LogFactory.getLog(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     /**
      * Create and set up the MAROB synoptic decoder.

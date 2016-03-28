@@ -22,8 +22,8 @@ package com.raytheon.edex.plugin.sfcobs.decoder.synoptic;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder;
@@ -51,9 +51,10 @@ import com.raytheon.uf.edex.pointdata.spatial.ObStationDao;
  * ------------ ---------- ----------- --------------------------
  * 20070928     391        jkorman     Initial Coding.
  * Dec 17, 2007 600        bphillip    Added dao pool usage
- * 20080116            798 jkorman     Changed logging levels.
+ * 20080116     798        jkorman     Changed logging levels.
  * Feb 27, 2013 1638       mschenke    Moved ObStationDao to edex pointdata plugin
  * Sep 30, 2014 3629       mapeters    Replaced {@link AbstractSfcObsDecoder#matchElement()} calls.
+ * Dec 17, 2015 5166       kbisanz     Update logging to use SLF4J
  * </pre>
  * 
  * @author jkorman
@@ -62,7 +63,7 @@ import com.raytheon.uf.edex.pointdata.spatial.ObStationDao;
 public class LandSynopticDecoder extends AbstractSynopticDecoder {
 
     // The logger
-    private Log logger = LogFactory.getLog(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     protected ObStation stationInfo = null;
 

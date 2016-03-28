@@ -23,7 +23,7 @@ import java.io.IOException;
 
 import jep.JepException;
 
-import com.raytheon.uf.common.python.concurrent.AbstractPythonScriptFactory;
+import com.raytheon.uf.common.python.concurrent.PythonInterpreterFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -38,7 +38,8 @@ import com.raytheon.viz.gfe.core.DataManager;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 7, 2013            mnash     Initial creation
+ * Feb 07, 2013            mnash       Initial creation
+ * Dec 14, 2015  #4816     dgilling    Rewrite based on PythonInterpreterFactory.
  * 
  * </pre>
  * 
@@ -46,8 +47,8 @@ import com.raytheon.viz.gfe.core.DataManager;
  * @version 1.0
  */
 
-public class QueryScriptFactory extends
-        AbstractPythonScriptFactory<QueryScript> {
+public class QueryScriptFactory implements
+        PythonInterpreterFactory<QueryScript> {
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(QueryScriptFactory.class);
 
@@ -57,25 +58,9 @@ public class QueryScriptFactory extends
      * 
      */
     public QueryScriptFactory(DataManager dataMgr) {
-        this("gfequeryscript", 1);
         this.manager = dataMgr;
     }
 
-    /**
-     * @param name
-     * @param maxThreads
-     */
-    public QueryScriptFactory(String name, int maxThreads) {
-        super(name, maxThreads);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.python.concurrent.AbstractPythonScriptFactory#
-     * createPythonScript()
-     */
     @Override
     public QueryScript createPythonScript() {
         try {

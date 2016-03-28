@@ -21,6 +21,7 @@
 package com.raytheon.edex.plugin.grib.spatial;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -43,10 +44,10 @@ import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.gridcoverage.exception.GridCoverageException;
 import com.raytheon.uf.common.gridcoverage.lookup.GridCoverageLookup;
 import com.raytheon.uf.common.gridcoverage.subgrid.SubGrid;
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
@@ -82,6 +83,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jul 21, 2014  3373     bclement     JAXB managers only live during initializeGrids()
  * Mar 04, 2015  3959     rjpeter      Update for grid based subgridding.
  * Sep 28, 2015  4868     rjpeter      Allow subgrids to be defined per coverage.
+ * Feb 16, 2016  5237     bsteffen     Replace deprecated localization API.
+ * 
  * </pre>
  * 
  * @author bphillip
@@ -633,16 +636,15 @@ public class GribSpatialCache {
     private Coordinate getDefaultSubGridCenterPoint() throws Exception {
         Coordinate defaultCenterPoint = null;
         IPathManager pm = PathManagerFactory.getPathManager();
-        LocalizationFile defaultSubGridLocationFile = pm
+        ILocalizationFile defaultSubGridLocationFile = pm
                 .getStaticLocalizationFile("/grib/defaultSubGridCenterPoint.xml");
         SingleTypeJAXBManager<DefaultSubGridCenterPoint> subGridCenterJaxb = new SingleTypeJAXBManager<DefaultSubGridCenterPoint>(
                 DefaultSubGridCenterPoint.class);
         if ((defaultSubGridLocationFile != null)
                 && defaultSubGridLocationFile.exists()) {
-            try {
-                DefaultSubGridCenterPoint defaultSubGridLocation = defaultSubGridLocationFile
-                        .jaxbUnmarshal(DefaultSubGridCenterPoint.class,
-                                subGridCenterJaxb);
+            try (InputStream is = defaultSubGridLocationFile.openInputStream()) {
+                DefaultSubGridCenterPoint defaultSubGridLocation = subGridCenterJaxb
+                        .unmarshalFromInputStream(is);
                 if ((defaultSubGridLocation != null)
                         && (defaultSubGridLocation.getCenterLatitude() != null)
                         && (defaultSubGridLocation.getCenterLongitude() != null)) {
@@ -657,8 +659,7 @@ public class GribSpatialCache {
             } catch (Exception e) {
                 statusHandler.error(
                         "Unable to load default sub grid location from file: "
-                                + defaultSubGridLocationFile.getFile()
-                                        .getAbsolutePath(), e);
+                                + defaultSubGridLocationFile.getPath(), e);
             }
         }
 

@@ -13,7 +13,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.TimeZone;
 
-import org.apache.commons.logging.Log;
+import org.slf4j.Logger;
 
 import com.raytheon.uf.common.dataplugin.acars.ACARSRecord;
 import com.raytheon.uf.common.dataplugin.acarssounding.ACARSSoundingLayer;
@@ -31,6 +31,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  *                                      based on altitude here
  * Aug 18, 2014 3530       bclement     removed TimeTools usage and dead code
  * Sep 02, 2014 3549       njensen      Improve error message
+ * Dec 10, 2015 5166       kbisanz      Update logging to use SLF4J
  * 
  * </pre>
  */
@@ -70,7 +71,7 @@ public final class ACARSSoundingTools {
     public static final int CUTOFF_HOURS = 6;
 
     public static final int OBS_TIME_SIZE = 20;
-    
+
     // Only use 100 for size of the dataURI - ACARS dataURIs don't get much
     // bigger than about 90 at most.
     public static final String OUT_FMT = ACARS_NEW_OBS + "X:%"
@@ -178,7 +179,6 @@ public final class ACARSSoundingTools {
         }
     };
 
-    
     /**
      * Don't allow this class to be instantiated.
      */
@@ -218,7 +218,7 @@ public final class ACARSSoundingTools {
      * @return
      */
     public static final List<String> getAircraftData(File tailNumberFile,
-            Log logger) {
+            Logger logger) {
 
         ArrayList<String> uris = new ArrayList<String>();
         BufferedReader bf = null;
@@ -229,7 +229,8 @@ public final class ACARSSoundingTools {
                 uris.add(s);
             }
         } catch (IOException ioe) {
-            logger.error("Error reading data for tailnumber "
+            logger.error(
+                    "Error reading data for tailnumber "
                             + tailNumberFile.getName(), ioe);
         } finally {
             if (bf != null) {
@@ -251,7 +252,7 @@ public final class ACARSSoundingTools {
      * @param logger
      */
     public static final void writeAircraftData(File tailNumberFile,
-            List<String> acarsDataURIs, Log logger) {
+            List<String> acarsDataURIs, Logger logger) {
         if (acarsDataURIs != null) {
             // Check if there is at least one not null data item to write.
             boolean writeData = false;
@@ -297,16 +298,16 @@ public final class ACARSSoundingTools {
      * @return
      */
     public static final List<ACARSRecord> readAircraftData(File tailNumberFile,
-            List<ACARSRecord> obs, HashSet<String> dups, Log logger) {
+            List<ACARSRecord> obs, HashSet<String> dups, Logger logger) {
 
-        if(obs == null) {
+        if (obs == null) {
             obs = new ArrayList<ACARSRecord>();
         }
 
-        if(dups == null) {
+        if (dups == null) {
             dups = new HashSet<String>();
         }
-        
+
         if ((tailNumberFile != null) && (tailNumberFile.exists())) {
             BufferedReader bf = null;
             try {
@@ -314,9 +315,9 @@ public final class ACARSSoundingTools {
                 String s = null;
                 while ((s = bf.readLine()) != null) {
                     s = removeTrailingSpace(s);
-                    long obsTime = parseLong(s.substring(0,20),0);
+                    long obsTime = parseLong(s.substring(0, 20), 0);
                     // Don't process if bad obstime.
-                    if(obsTime > 0) {
+                    if (obsTime > 0) {
                         String uri = s.substring(21);
 
                         if (!dups.contains(uri)) {
@@ -479,33 +480,40 @@ public final class ACARSSoundingTools {
 
     /**
      * Does a time tB lie between times tA and tC.
+     * 
      * @param tA
      * @param tB
      * @param tC
      * @return
      */
-    public static final boolean betweenTimes(Calendar tA, Calendar tB, Calendar tC) {
-        return (tB.compareTo(tA) > 0)&&(tB.compareTo(tC) < 0);
-    }
-    
-    /**
-     * Does a time tB lie between times tA and tC.
-     * @param tA
-     * @param tB
-     * @param tC
-     * @return
-     */
-    public static final boolean betweenFlightLevel(Integer fA, Integer fB, Integer fC) {
-        boolean result = (fB.compareTo(fA) > 0)&&(fB.compareTo(fC) < 0); 
-        return result |= (fB.compareTo(fA) < 0)&&(fB.compareTo(fC) > 0);
+    public static final boolean betweenTimes(Calendar tA, Calendar tB,
+            Calendar tC) {
+        return (tB.compareTo(tA) > 0) && (tB.compareTo(tC) < 0);
     }
 
     /**
-     * Determine if a target ACARS observation lies between two
-     * given layers based on observation time and flight level. 
-     * @param layerA First layer.
+     * Does a time tB lie between times tA and tC.
+     * 
+     * @param tA
+     * @param tB
+     * @param tC
+     * @return
+     */
+    public static final boolean betweenFlightLevel(Integer fA, Integer fB,
+            Integer fC) {
+        boolean result = (fB.compareTo(fA) > 0) && (fB.compareTo(fC) < 0);
+        return result |= (fB.compareTo(fA) < 0) && (fB.compareTo(fC) > 0);
+    }
+
+    /**
+     * Determine if a target ACARS observation lies between two given layers
+     * based on observation time and flight level.
+     * 
+     * @param layerA
+     *            First layer.
      * @param rec
-     * @param layerB Second layer.
+     * @param layerB
+     *            Second layer.
      * @return Does the observation lie between the given layers.
      */
     public static boolean checkBetween(ACARSSoundingLayer layerA,
@@ -520,25 +528,25 @@ public final class ACARSSoundingTools {
         }
         return result;
     }
-    
+
     public static final String removeTrailingSpace(String target) {
         String value = null;
-        if(target != null) {
-            int i = target.length()-1;
-            for(;i > -1;i--) {
-                if(!Character.isWhitespace(target.charAt(i))) {
+        if (target != null) {
+            int i = target.length() - 1;
+            for (; i > -1; i--) {
+                if (!Character.isWhitespace(target.charAt(i))) {
                     break;
                 }
             }
-            if(i == -1) {
+            if (i == -1) {
                 value = new String();
-            } else if(i > -1) {
-                value = target.substring(0,i+1);
+            } else if (i > -1) {
+                value = target.substring(0, i + 1);
             }
         }
         return value;
     }
-    
+
     /**
      * 
      * @param s
@@ -547,33 +555,35 @@ public final class ACARSSoundingTools {
      */
     public static final long parseLong(String s, long defValue) {
         long value = defValue;
-        if(s != null) {
+        if (s != null) {
             try {
-                value = Long.parseLong(s.trim()); 
-            } catch(Exception e) {
+                value = Long.parseLong(s.trim());
+            } catch (Exception e) {
                 // nothing
             }
-            
+
         }
         return value;
     }
+
     /**
      * 
      * @param file
      * @param logger
      * @return
      */
-    public static final boolean deleteFile(File file, Log logger, String logMessage) {
+    public static final boolean deleteFile(File file, Logger logger,
+            String logMessage) {
         boolean deleted = false;
-        if(file != null) {
+        if (file != null) {
             deleted = file.delete();
             if (!deleted) {
-                logger.error(String.format(logMessage,file.getName()));
+                logger.error(String.format(logMessage, file.getName()));
             }
         }
         return deleted;
     }
-    
+
     /**
      * 
      * @param args
@@ -583,30 +593,30 @@ public final class ACARSSoundingTools {
         long start = System.currentTimeMillis();
         try {
             Thread.sleep(10000L);
-        } catch(Exception e) {
+        } catch (Exception e) {
             // nothing.
         }
         return (System.currentTimeMillis() - start);
     } // end
 
-    public static final void main(String [] args) {
-        
-//        System.out.println("Test betweenTimes() passed test [" + test_betweenTimes() + "]");
-//        System.out.println("Test betweenFlightLevel() passed test [" + test_betweenFlightLevel() + "]");
-//        
-//        String STD_TM_FMT = "%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS";
-//        
-//        Calendar c = TimeTools.getSystemCalendar();
-//        System.out.println(String.format(STD_TM_FMT,c));
-        
+    public static final void main(String[] args) {
+
+        // System.out.println("Test betweenTimes() passed test [" + test_betweenTimes() + "]");
+        // System.out.println("Test betweenFlightLevel() passed test [" + test_betweenFlightLevel() + "]");
+        //
+        // String STD_TM_FMT = "%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS";
+        //
+        // Calendar c = TimeTools.getSystemCalendar();
+        // System.out.println(String.format(STD_TM_FMT,c));
+
         System.out.println(removeTrailingSpace("   THIS IS A TEST   "));
         System.out.println(removeTrailingSpace("   THIS IS A TESTXXX"));
         System.out.println(removeTrailingSpace("   THIS IS A TEST  X"));
         System.out.println(removeTrailingSpace(" "));
         System.out.println(removeTrailingSpace("X"));
-        
+
         String s = removeTrailingSpace("       1307539490000:/acars/2011-06-08_13:24:50.0/0HKEILZA/null/14.73/-90.51/2807");
-        System.out.println(parseLong(s.substring(0,20),0));
-        
+        System.out.println(parseLong(s.substring(0, 20), 0));
+
     }
 }

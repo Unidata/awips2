@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -31,9 +31,11 @@ import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IPathEditorInput;
 import org.eclipse.ui.IPersistableElement;
 
+import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.LocalizationUtil;
+import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 
@@ -49,7 +51,9 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * ------------ ---------- ----------- --------------------------
  * Nov 3,  2010            mschenke    Initial creation
  * Nov 27, 2013            mschenke    Moved into localization.perspective project
- * Feb 11, 2015  4108      randerso    Implmented hashCode() and equals()
+ * Feb 11, 2015 4108       randerso    Implmented hashCode() and equals()
+ * Jan 06, 2016 4834       nabowle     add refreshLocalizationFile().
+ * Jan 11, 2016 5242       kbisanz     Replaced calls to deprecated LocalizationFile methods
  * 
  * </pre>
  * 
@@ -85,8 +89,19 @@ public class LocalizationEditorInput implements IFileEditorInput,
 
     public void setLocalizationFile(LocalizationFile localizationFile) {
         this.localizationFile = localizationFile;
-        name = LocalizationUtil.extractName(localizationFile.getName());
+        name = LocalizationUtil.extractName(localizationFile.getPath());
         file = null;
+    }
+
+    /**
+     * Refreshes the localizationFile reference.
+     */
+    public void refreshLocalizationFile() {
+        IPathManager pathManager = PathManagerFactory.getPathManager();
+        LocalizationFile latestFile = pathManager.getLocalizationFile(
+                this.localizationFile.getContext(),
+                this.localizationFile.getPath());
+        this.localizationFile = latestFile;
     }
 
     /**
@@ -96,55 +111,30 @@ public class LocalizationEditorInput implements IFileEditorInput,
         return localizationFile;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.IEditorInput#exists()
-     */
     @Override
     public boolean exists() {
         return localizationFile.exists();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.IEditorInput#getImageDescriptor()
-     */
     @Override
     public ImageDescriptor getImageDescriptor() {
         return null;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.IEditorInput#getName()
-     */
     @Override
     public String getName() {
         return name + " - "
                 + localizationFile.getContext().getLocalizationLevel();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.IEditorInput#getPersistable()
-     */
     @Override
     public IPersistableElement getPersistable() {
         return this;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.IEditorInput#getToolTipText()
-     */
     @Override
     public String getToolTipText() {
-        String tip = localizationFile.getName();
+        String tip = localizationFile.getPath();
         if (localizationFile.isProtected()) {
             tip += " (Protected @ " + localizationFile.getProtectedLevel()
                     + ")";
@@ -152,32 +142,17 @@ public class LocalizationEditorInput implements IFileEditorInput,
         return tip;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.core.runtime.IAdaptable#getAdapter(java.lang.Class)
-     */
     @SuppressWarnings("rawtypes")
     @Override
     public Object getAdapter(Class adapter) {
         return Platform.getAdapterManager().getAdapter(this, adapter);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.IStorageEditorInput#getStorage()
-     */
     @Override
     public IStorage getStorage() throws CoreException {
         return getFile();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.IFileEditorInput#getFile()
-     */
     @Override
     public IFile getFile() {
         if (file.exists() == false) {
@@ -192,25 +167,15 @@ public class LocalizationEditorInput implements IFileEditorInput,
         return file;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.IPathEditorInput#getPath()
-     */
     @Override
     public IPath getPath() {
         return getFile().getRawLocation();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.IPersistable#saveState(org.eclipse.ui.IMemento)
-     */
     @Override
     public void saveState(IMemento memento) {
         LocalizationContext ctx = localizationFile.getContext();
-        memento.putString(FILE_NAME_ID, localizationFile.getName());
+        memento.putString(FILE_NAME_ID, localizationFile.getPath());
         memento.putString(CONTEXT_NAME_ID, ctx.getContextName());
         memento.putString(CONTEXT_TYPE_ID, ctx.getLocalizationType().name());
         memento.putString(CONTEXT_LEVEL_ID, ctx.getLocalizationLevel().name());
@@ -218,21 +183,11 @@ public class LocalizationEditorInput implements IFileEditorInput,
                 .toPortableString());
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.IPersistableElement#getFactoryId()
-     */
     @Override
     public String getFactoryId() {
         return FACTORY_ID;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#hashCode()
-     */
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -242,11 +197,6 @@ public class LocalizationEditorInput implements IFileEditorInput,
         return result;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {

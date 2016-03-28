@@ -54,9 +54,10 @@ import com.raytheon.viz.radar.rsc.mosaic.RadarMosaicResource;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 29, 2010            mschenke     Initial creation
- * Aug 14, 2014 3523       mapeters     Updated deprecated {@link DrawableString#textStyle} 
- *                                      assignments.
+ * Jul 29, 2010            mschenke    Initial creation
+ * Aug 14, 2014 3523       mapeters    Updated deprecated {@link DrawableString#textStyle} 
+ *                                     assignments.
+ * Nov 05, 2015 5070       randerso    Adjust font sizes for dpi scaling
  * 
  * </pre>
  * 
@@ -142,7 +143,7 @@ public class RadarTextResource extends
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         // initialize the font
-        textFont = target.initializeFont(java.awt.Font.DIALOG, 11.0f,
+        textFont = target.initializeFont(java.awt.Font.DIALOG, 9,
                 new IFont.Style[] {});
     }
 

@@ -85,6 +85,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 10/17/2013    1682       bphillip    Added software history
  * 10/23/2013    1538       bphillip    Removed unused constructors
  * 12/2/2013     1829       bphillip    Added Hibernate annotations
+ * 12/4/2015     4993       bphillip    Added formateResponse option
  * </pre>
  * 
  * @author bphillip
@@ -145,6 +146,8 @@ public class QueryRequest extends RegistryRequestType {
 
     public static final Boolean DEFAULT_MATCH_OLDER_VERSIONS = new Boolean(
             false);
+    
+    public static final String FORMAT_RESPONSE = "formatResponse";
 
     @XmlElement(name = "ResponseOption", required = true)
     @DynamicSerializeElement

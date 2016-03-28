@@ -26,8 +26,8 @@ import java.util.Map;
 
 import jep.JepException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.plugin.gfe.reference.MapManager;
 import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
@@ -50,7 +50,8 @@ import com.raytheon.uf.common.util.FileUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 4, 2011            wldougher     Moved from MapManager
+ * May 04, 2011            wldougher   Moved from MapManager
+ * Dec 15, 2015 5166       kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -59,8 +60,8 @@ import com.raytheon.uf.common.util.FileUtil;
  */
 
 public class CombinationsFileMaker {
-    private static final Log theLogger = LogFactory
-            .getLog(CombinationsFileMaker.class);
+    private static final Logger theLogger = LoggerFactory
+            .getLogger(CombinationsFileMaker.class);
 
     // Unit tests may use a custom path manager
     protected IPathManager pathMgr = PathManagerFactory.getPathManager();
@@ -107,8 +108,8 @@ public class CombinationsFileMaker {
         caveStaticConfig.setContextName(site);
 
         String definitionDir = pathMgr
-                .getLocalizationFile(caveStaticConfig,
-                        GfePyIncludeUtil.REGULAR).getFile().getPath();
+                .getLocalizationFile(caveStaticConfig, GfePyIncludeUtil.REGULAR)
+                .getFile().getPath();
         File outputDirFile = pathMgr.getLocalizationFile(caveStaticConfig,
                 FileUtil.join("gfe", "combinations")).getFile();
         outputDirFile.mkdir();

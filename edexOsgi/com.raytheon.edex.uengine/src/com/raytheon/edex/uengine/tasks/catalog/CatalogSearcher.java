@@ -23,9 +23,9 @@ package com.raytheon.edex.uengine.tasks.catalog;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.metadata.ClassMetadata;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.message.CatalogAttribute;
@@ -42,15 +42,17 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * 
  * 
  * <pre>
- *    
+ * 
  *     SOFTWARE HISTORY
  *    
  *     Date         Ticket#     Engineer    Description
  *     ------------ ----------  ----------- --------------------------
  *     Nov 13, 2006             chammack    Initial Creation.
- *     Feb 19, 2007				garmendariz	Modified to use database instead of Lucene
+ *     Feb 19, 2007             garmendariz Modified to use database instead of Lucene
  *     Dec 12, 2007
- *     
+ *     Dec 10, 2015 5166        kbisanz     Update logging to use SLF4J and
+ *                                          fixed warnings
+ * 
  * </pre>
  * 
  * @author chammack
@@ -59,8 +61,8 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
 public class CatalogSearcher {
 
     /** The logger */
-    protected final transient static Log logger = LogFactory
-            .getLog(CatalogSearcher.class);
+    protected final transient static Logger logger = LoggerFactory
+            .getLogger(CatalogSearcher.class);
 
     public static final String TYPE_DISTINCT_VALUE = "distinctValue";
 
@@ -96,7 +98,6 @@ public class CatalogSearcher {
      * @return the response
      * @throws EdexException
      */
-    @SuppressWarnings("unchecked")
     public static ResponseMessageCatalog search(DatabaseQuery query,
             String dbName, String queryClass) throws EdexException {
         ResponseMessageCatalog rmc = new ResponseMessageCatalog();
@@ -160,8 +161,6 @@ public class CatalogSearcher {
     public static ResponseMessageCatalog search(DatabaseQuery query)
             throws EdexException {
         ResponseMessageCatalog rmc = null;
-        List<?> queryResults = null;
-        CoreDao dao = null;
 
         return rmc;
 
@@ -217,7 +216,7 @@ public class CatalogSearcher {
     // break;
     // }
     // }
-    //            
+    //
     //
     // if (uniqueValues) {
     // queryResults = dataDao.queryByCriteria(fields, values,
@@ -295,8 +294,8 @@ public class CatalogSearcher {
     // throw new EdexException("Unable to instantiate class ["
     // + dataDao.getDaoClass() + "]");
     // }
-    //               
-    //                
+    //
+    //
     // GregorianCalendar cal = null;
     // for (int i = 0; i < queryResults.size(); i++) {
     //

@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.edex.plugin.redbook.decoder;
 
+import java.io.InputStream;
 import java.util.HashMap;
 
 import javax.xml.bind.JAXB;
@@ -28,11 +29,10 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.localization.FileUpdatedMessage;
-import com.raytheon.uf.common.localization.ILocalizationFileObserver;
+import com.raytheon.uf.common.localization.ILocalizationFile;
+import com.raytheon.uf.common.localization.ILocalizationPathObserver;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -52,6 +52,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Nov 04, 2013        2361 njensen     Use JAXB for XML instead of SerializationUtil
  * Jun 25, 2015        4512 mapeters    Added addEntry(), check for redbookFcstMap.xml
  *                                      in common_static before edex_static
+ * Feb 16, 2016        5237 bsteffen    Replace deprecated localization API.
  * 
  * </pre>
  * 
@@ -93,10 +94,29 @@ public class RedbookFcstMap {
         mapping.put(key, value);
     }
 
-    private static RedbookFcstMap load(LocalizationFile xmlFile) {
+    private static RedbookFcstMap load() {
+        IPathManager pathMgr = PathManagerFactory.getPathManager();
+        /*
+         * Check common_static/configured first, as it is now being saved there.
+         * If not found, check edex_static/base, where it used to be stored (in
+         * the future edex_static should no longer need to be checked).
+         */
+        LocalizationContext context = pathMgr.getContext(
+                LocalizationContext.LocalizationType.COMMON_STATIC,
+                LocalizationContext.LocalizationLevel.CONFIGURED);
+        ILocalizationFile xmlFile = pathMgr.getLocalizationFile(context,
+                REDBOOK_FCST_MAP_XML);
+        if (xmlFile == null || !xmlFile.exists()) {
+            context = pathMgr.getContext(
+                    LocalizationContext.LocalizationType.EDEX_STATIC,
+                    LocalizationContext.LocalizationLevel.BASE);
+            xmlFile = pathMgr
+                    .getLocalizationFile(context, REDBOOK_FCST_MAP_XML);
+        }
+
         RedbookFcstMap loadedMap = null;
-        try {
-            loadedMap = JAXB.unmarshal(xmlFile.getFile(), RedbookFcstMap.class);
+        try (InputStream is = xmlFile.openInputStream()) {
+            loadedMap = JAXB.unmarshal(is, RedbookFcstMap.class);
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM, e.getMessage(), e);
         }
@@ -119,34 +139,14 @@ public class RedbookFcstMap {
      */
     public static synchronized RedbookFcstMap getInstance() {
         if (instance == null) {
-            IPathManager pathMgr = PathManagerFactory.getPathManager();
-            /*
-             * Check common_static/configured first, as it is now being saved
-             * there. If not found, check edex_static/base, where it used to be
-             * stored (in the future edex_static should no longer need to be
-             * checked).
-             */
-            LocalizationContext context = pathMgr.getContext(
-                    LocalizationContext.LocalizationType.COMMON_STATIC,
-                    LocalizationContext.LocalizationLevel.CONFIGURED);
-            LocalizationFile xmlFile = pathMgr.getLocalizationFile(context,
-                    REDBOOK_FCST_MAP_XML);
-            if (xmlFile == null || !xmlFile.exists()) {
-                context = pathMgr.getContext(
-                        LocalizationContext.LocalizationType.EDEX_STATIC,
-                        LocalizationContext.LocalizationLevel.BASE);
-                xmlFile = pathMgr.getLocalizationFile(context,
-                        REDBOOK_FCST_MAP_XML);
-            }
-
-            final LocalizationFile finalXmlFile = xmlFile;
-            instance = load(xmlFile);
-            xmlFile.addFileUpdatedObserver(new ILocalizationFileObserver() {
+            instance = load();
+            PathManagerFactory.getPathManager().addLocalizationPathObserver(REDBOOK_FCST_MAP_XML, new ILocalizationPathObserver() {
+                
                 @Override
-                public void fileUpdated(FileUpdatedMessage message) {
-                    RedbookFcstMap updatedMap = load(finalXmlFile);
+                public void fileChanged(ILocalizationFile file) {
+                    RedbookFcstMap updatedMap = load();
                     instance.mapping.clear();
-                    instance.mapping.putAll(updatedMap.mapping);
+                    instance.mapping.putAll(updatedMap.mapping);                    
                 }
             });
         }

@@ -30,8 +30,8 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.FileUtil;
+import com.raytheon.uf.edex.plugin.text.AlarmAlertUtil;
 import com.raytheon.uf.edex.plugin.text.db.TextDB;
-import com.raytheon.uf.edex.plugin.text.dbsrv.impl.AlarmAlertUtil;
 
 /**
  * Provides SHEF with the ability to generate alert/alarms report products and

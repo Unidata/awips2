@@ -63,7 +63,11 @@ import com.raytheon.viz.mpe.util.DailyQcUtils;
  * Nov 12, 2008            snaples     Initial creation
  * Sep 11, 2013 #2353      lvenable    Fixed cursor memory leak.
  * Mar 10, 2015 14575      snaples     Added status flag.
+<<<<<<< HEAD
  * Feb 22, 2016 18599      snaples     Fixed static calls to DailyQCUtils.
+=======
+ * Jan 15, 2016 5054       randerso    Use proper parent shell
+>>>>>>> origin/master_16.2.2
  * 
  * </pre>
  * 
@@ -119,7 +123,7 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
     private int dqc_good = 0;
 
     public static DrawDQCStations ddq;
-    
+
     private DailyQcUtils dqc;
 
     public static ArrayList<String> dataType = new ArrayList<String>();
@@ -130,9 +134,9 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
 
     OtherTempOptions oto = new OtherTempOptions();
 
-//    Tdata[] tdata = new Tdata[0];
+    // Tdata[] tdata = new Tdata[0];
 
-//    Ts[] ts;
+    // Ts[] ts;
 
     private int time_pos;
 
@@ -218,7 +222,7 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
         dqc_good = dqc.qcDataHasChanged(prevDate, currDate, QcArea, qcDays,
                 false);
         if (dqc_good == 1) {
-            SaveLevel2Data s2 = new SaveLevel2Data();
+            SaveLevel2Data s2 = new SaveLevel2Data(getShell());
             dqc_good = s2.check_new_area(currDate, QcArea, qcDays);
             if (dqc_good == 0) {
                 dqc_good = dqc.qcDataReload(currDate, QcArea, qcDays, false);
@@ -296,14 +300,15 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
         isfinished = true;
         isOpen = false;
         font.dispose();
-        SaveLevel2Data s2 = new SaveLevel2Data();
+        SaveLevel2Data s2 = new SaveLevel2Data(getShell());
         s2.send_dbase_new_area();
-        DailyQcUtils dc = new DailyQcUtils();
-        dc.clearData();
+//        DailyQcUtils dc = new DailyQcUtils();
+        DailyQcUtils.clearData();
         displayMgr.displayFieldData(df);
         removePerspectiveListener();
         if (MPEDisplayManager.getCurrent() != null) {
             display.asyncExec(new Runnable() {
+                @Override
                 public void run() {
                     ChooseDataPeriodDialog dialog = new ChooseDataPeriodDialog(
                             getParent().getShell());
@@ -333,7 +338,7 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
             int qcDays = MPEDisplayManager.getCurrent().getDqcDays();
             // checks to see if area or date has changed since last data load
             dqc_good = dqc.qcDataReload(currDate, QcArea, qcDays, false);
-//            tdata = DailyQcUtils.tdata;
+            // tdata = DailyQcUtils.tdata;
 
         }
         dataSet.clear();
@@ -358,7 +363,7 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
             }
         }
 
-//        ts = DailyQcUtils.ts;
+        // ts = DailyQcUtils.ts;
         this.createDataOptionsGroup();
         this.createPointTypeGroup();
         this.createPointQualityGroup();
@@ -608,7 +613,7 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
         pointQualGroup.setLayoutData(gd);
 
         int i;
-//        int qflag[] = dqc.qflag;
+        // int qflag[] = dqc.qflag;
 
         for (i = 0; i < 10; i++) {
            DailyQcUtils.qflag[i] = 1;
@@ -619,8 +624,7 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
         boolean mpe_show_missing_gage_set = false;
         if (dqc.mpe_show_missing_gage.length() > 0) {
             if ((dqc.mpe_show_missing_gage.equalsIgnoreCase("All"))
-                    || (dqc.mpe_show_missing_gage
-                            .equalsIgnoreCase("Reported"))) {
+                    || (dqc.mpe_show_missing_gage.equalsIgnoreCase("Reported"))) {
                 mpe_show_missing_gage_set = true;
             } else {
                 mpe_show_missing_gage_set = false;

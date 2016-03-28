@@ -37,6 +37,7 @@ import java.util.regex.Pattern;
 import javax.xml.bind.JAXB;
 
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.common.dataplugin.text.alarms.AlarmAlertProduct;
 import com.raytheon.uf.common.dataplugin.text.alarms.AlarmAlertProduct.ProductType;
@@ -52,7 +53,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -77,27 +78,21 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * ------------ ---------- ----------- --------------------------
  * Sep 18, 2009            mnash       Initial creation
  * 03/19/2012              D. Friedman Fix determination of "Alarm" entries.
- * 12/07/2012	15555	   m.gamazaychikov	Added methods and constants for 
- * 											the implementation of proximity alarm
- * 07/24/2014   3423       randerso    Ensure ringBell is called on UI thread
- * 09/09/2014   3580       mapeters    Removed IQueryTransport usage (no longer exists).
- * 12/03/2014   ASM #16829 D. Friedman Lazy initialization of alarmAlertBell
- * 11/29/2015   ASM #14995 m.gamazaychikov Made sure that non-standard latlons in 
- * 					   LAT...LON string did not result in error.
+ * 12/07/2012   15555  m.gamazaychikov Added methods and constants for 
+ *                                     the implementation of proximity alarm
+ * 07/24/2014    3423      randerso    Ensure ringBell is called on UI thread
+ * 09/09/2014    3580      mapeters    Removed IQueryTransport usage (no longer exists).
+ * 12/03/2014   16829      D. Friedman Lazy initialization of alarmAlertBell
+ * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
+ * 11/29/2015   14995  m.gamazaychikov Made sure that non-standard latlons in 
+ *                                     LAT...LON string did not result in error.
+ * 15/01/2016    5054      randerso    Use proper parent shell
+ * 
  * 
  * </pre>
  * 
  * @author mnash
  * @version 1.0
- */
-
-/**
- * @author michaelg
- *
- */
-/**
- * @author michaelg
- * 
  */
 public class AlarmAlertFunctions {
 
@@ -135,10 +130,6 @@ public class AlarmAlertFunctions {
 
     private static final double ONE_DEGREE_KM = 111.20;
 
-    protected void getGIS() {
-
-    }
-
     /**
      * Create the string for distance in the dialog
      * 
@@ -155,13 +146,14 @@ public class AlarmAlertFunctions {
              * DR15555 - check the text content, if it is not a valid number set
              * the text to default 3000 mi
              */
-            Scanner scn = new Scanner(prod.getAorDistance());
-            while (scn.hasNext()) {
-                if (!scn.hasNextInt()) {
-                    prod.setAorDistance(DEFAULT_DISTANCE);
-                    break;
-                } else {
-                    scn.next();
+            try (Scanner scn = new Scanner(prod.getAorDistance())) {
+                while (scn.hasNext()) {
+                    if (!scn.hasNextInt()) {
+                        prod.setAorDistance(DEFAULT_DISTANCE);
+                        break;
+                    } else {
+                        scn.next();
+                    }
                 }
             }
             string.append("AOR+" + prod.getAorDistance() + prod.getAorLabel());
@@ -169,10 +161,6 @@ public class AlarmAlertFunctions {
             string.append("UGC-" + prod.getUgcList());
         }
         return string.toString();
-    }
-
-    protected void print(String textToPrint) {
-
     }
 
     protected static void ringBell(boolean sound) {
@@ -524,7 +512,6 @@ public class AlarmAlertFunctions {
             double lonE = coords[i].x;
             if (coords[i].x < centerLon) {
                 lonE = coords[i].x - deltaX;
-                ;
             } else if (coords[i].x > centerLon) {
                 lonE = coords[i].x + deltaX;
             } else if (coords[i].x == centerLon) {
@@ -762,7 +749,7 @@ public class AlarmAlertFunctions {
             JAXB.marshal(alarms, file.getFile());
             try {
                 file.save();
-            } catch (LocalizationOpFailedException e) {
+            } catch (LocalizationException e) {
                 statusHandler.handle(Priority.SIGNIFICANT,
                         e.getLocalizedMessage(), e);
             }
@@ -812,7 +799,7 @@ public class AlarmAlertFunctions {
                     lFile.getFile().createNewFile();
                     try {
                         lFile.save();
-                    } catch (LocalizationOpFailedException e) {
+                    } catch (LocalizationException e) {
                         statusHandler.handle(Priority.SIGNIFICANT,
                                 e.getLocalizedMessage(), e);
                     }
@@ -852,7 +839,7 @@ public class AlarmAlertFunctions {
                     w.close();
                     try {
                         lFile.save();
-                    } catch (LocalizationOpFailedException e) {
+                    } catch (LocalizationException e) {
                         statusHandler.handle(Priority.SIGNIFICANT,
                                 e.getLocalizedMessage(), e);
                     }
@@ -876,8 +863,11 @@ public class AlarmAlertFunctions {
      */
     public static AlarmAlertBell getAlarmalertbell() {
         if (alarmAlertBell == null) {
-            // No synchronize because this must be called on the UI thread anyway.
-            alarmAlertBell = new AlarmAlertBell(new Shell());
+            // No synchronize because this must be called on the UI thread
+            // anyway.
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
+            alarmAlertBell = new AlarmAlertBell(shell);
         }
         return alarmAlertBell;
     }

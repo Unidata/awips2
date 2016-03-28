@@ -4758,4 +4758,153 @@ in | .03937 | 0 |  4 |    |   |..|8000F0FF| | 16 | \
       <displayUnits>ft</displayUnits>
     </contourStyle>
   </styleRule>
+
+<!-- WPC Probablistic Winter Prediction Forecast (PWPF) -->
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>TOTSN5pct12hr</parameter>
+      <parameter>TOTSN10pct12hr</parameter>
+      <parameter>TOTSN25pct12hr</parameter>
+      <parameter>TOTSN50pct12hr</parameter>
+      <parameter>TOTSN75pct12hr</parameter>
+      <parameter>TOTSN90pct12hr</parameter>
+      <parameter>TOTSN95pct12hr</parameter>
+
+      <parameter>TOTSN5pct24hr</parameter>
+      <parameter>TOTSN10pct24hr</parameter>
+      <parameter>TOTSN25pct24hr</parameter>
+      <parameter>TOTSN50pct24hr</parameter>
+      <parameter>TOTSN75pct24hr</parameter>
+      <parameter>TOTSN90pct24hr</parameter>
+      <parameter>TOTSN95pct24hr</parameter>
+
+      <parameter>TOTSN5pct48hr</parameter>
+      <parameter>TOTSN10pct48hr</parameter>
+      <parameter>TOTSN25pct48hr</parameter>
+      <parameter>TOTSN50pct48hr</parameter>
+      <parameter>TOTSN75pct48hr</parameter>
+      <parameter>TOTSN90pct48hr</parameter>
+      <parameter>TOTSN95pct48hr</parameter>
+
+      <parameter>TOTSN5pct72hr</parameter>
+      <parameter>TOTSN10pct72hr</parameter>
+      <parameter>TOTSN25pct72hr</parameter>
+      <parameter>TOTSN50pct72hr</parameter>
+      <parameter>TOTSN75pct72hr</parameter>
+      <parameter>TOTSN90pct72hr</parameter>
+      <parameter>TOTSN95pct72hr</parameter>
+    </paramLevelMatches>
+    <contourStyle>
+      <displayUnits label="in">in</displayUnits>
+      <contourLabeling labelSpacing="4">
+        <values>1 2 4 6 8 10 12 15 18 21 24 27 30 33 36 42 48</values>
+     </contourLabeling>
+    </contourStyle>
+  </styleRule>
+
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>FRZR5pct12hr</parameter>
+      <parameter>FRZR10pct12hr</parameter>
+      <parameter>FRZR25pct12hr</parameter>
+      <parameter>FRZR50pct12hr</parameter>
+      <parameter>FRZR75pct12hr</parameter>
+      <parameter>FRZR90pct12hr</parameter>
+      <parameter>FRZR95pct12hr</parameter>
+
+      <parameter>FRZR5pct24hr</parameter>
+      <parameter>FRZR10pct24hr</parameter>
+      <parameter>FRZR25pct24hr</parameter>
+      <parameter>FRZR50pct24hr</parameter>
+      <parameter>FRZR75pct24hr</parameter>
+      <parameter>FRZR90pct24hr</parameter>
+      <parameter>FRZR95pct24hr</parameter>
+
+      <parameter>FRZR5pct48hr</parameter>
+      <parameter>FRZR10pct48hr</parameter>
+      <parameter>FRZR25pct48hr</parameter>
+      <parameter>FRZR50pct48hr</parameter>
+      <parameter>FRZR75pct48hr</parameter>
+      <parameter>FRZR90pct48hr</parameter>
+      <parameter>FRZR95pct48hr</parameter>
+
+      <parameter>FRZR5pct72hr</parameter>
+      <parameter>FRZR10pct72hr</parameter>
+      <parameter>FRZR25pct72hr</parameter>
+      <parameter>FRZR50pct72hr</parameter>
+      <parameter>FRZR75pct72hr</parameter>
+      <parameter>FRZR90pct72hr</parameter>
+      <parameter>FRZR95pct72hr</parameter>
+    </paramLevelMatches>
+    <contourStyle>
+      <displayUnits label="in">in</displayUnits>
+      <contourLabeling labelSpacing="4">
+        <values>.01 .1 .25 .5 .75 1 1.5 2 2.5 3 4 5 6 7 8 9 10</values>
+     </contourLabeling>
+    </contourStyle>
+  </styleRule>
+
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>FRZR0.01in12hr</parameter>
+      <parameter>FRZR0.1in12hr</parameter>
+      <parameter>FRZR0.25in12hr</parameter>
+      <parameter>FRZR0.5in12hr</parameter>
+      <parameter>FRZR1in12hr</parameter>
+
+      <parameter>FRZR0.01in24hr</parameter>
+      <parameter>FRZR0.1in24hr</parameter>
+      <parameter>FRZR0.25in24hr</parameter>
+      <parameter>FRZR0.5in24hr</parameter>
+      <parameter>FRZR1in24hr</parameter>
+
+      <parameter>FRZR0.1in48hr</parameter>
+      <parameter>FRZR0.25in48hr</parameter>
+      <parameter>FRZR0.5in48hr</parameter>
+      <parameter>FRZR1in48hr</parameter>
+
+      <parameter>FRZR0.1in72hr</parameter>
+      <parameter>FRZR0.25in72hr</parameter>
+      <parameter>FRZR0.5in72hr</parameter>
+      <parameter>FRZR1in72hr</parameter>
+
+      <parameter>TOTSN1in12hr</parameter>
+      <parameter>TOTSN2in12hr</parameter>
+      <parameter>TOTSN4in12hr</parameter>
+      <parameter>TOTSN6in12hr</parameter>
+      <parameter>TOTSN8in12hr</parameter>
+      <parameter>TOTSN12in12hr</parameter>
+      <parameter>TOTSN18in12hr</parameter>
+
+      <parameter>TOTSN1in24hr</parameter>
+      <parameter>TOTSN2in24hr</parameter>
+      <parameter>TOTSN4in24hr</parameter>
+      <parameter>TOTSN6in24hr</parameter>
+      <parameter>TOTSN8in24hr</parameter>
+      <parameter>TOTSN12in24hr</parameter>
+      <parameter>TOTSN18in24hr</parameter>
+
+      <parameter>TOTSN2in48hr</parameter>
+      <parameter>TOTSN4in48hr</parameter>
+      <parameter>TOTSN8in48hr</parameter>
+      <parameter>TOTSN12in48hr</parameter>
+      <parameter>TOTSN18in48hr</parameter>
+      <parameter>TOTSN24in48hr</parameter>
+      <parameter>TOTSN30in48hr</parameter>
+
+      <parameter>TOTSN2in72hr</parameter>
+      <parameter>TOTSN4in72hr</parameter>
+      <parameter>TOTSN8in72hr</parameter>
+      <parameter>TOTSN12in72hr</parameter>
+      <parameter>TOTSN18in72hr</parameter>
+      <parameter>TOTSN24in72hr</parameter>
+      <parameter>TOTSN30in72hr</parameter>
+    </paramLevelMatches>
+    <contourStyle>
+      <displayUnits label="%">%/100</displayUnits>
+      <contourLabeling labelSpacing="4">
+        <values>1 5 10 20 30 40 50 60 70 80 90 95</values>
+     </contourLabeling>
+    </contourStyle>
+  </styleRule>
 </styleRuleset>

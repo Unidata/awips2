@@ -37,6 +37,8 @@ import com.raytheon.uf.edex.plugin.bufrmos.dao.BufrMosLocationDao;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 24, 2011            rjpeter     Initial creation
+ * Jan 19, 2016 4677       tgurney     Use hashCode instead of id
+ *                                     as key for caching
  * 
  * </pre>
  * 
@@ -59,11 +61,8 @@ public class BufrMosLocationCache {
 
     public BufrMosDataLocation getLocation(BufrMosDataLocation locationToLookup)
             throws DataAccessLayerException {
-        if (locationToLookup.getId() == null) {
-            locationToLookup.generateId();
-        }
 
-        Integer key = locationToLookup.getId();
+        Integer key = locationToLookup.hashCode();
 
         BufrMosDataLocation rval = null;
         WeakReference<BufrMosDataLocation> reference = null;
@@ -81,8 +80,8 @@ public class BufrMosLocationCache {
             }
 
             synchronized (locationCache) {
-                locationCache
-                        .put(key, new WeakReference<BufrMosDataLocation>(rval));
+                locationCache.put(key, new WeakReference<BufrMosDataLocation>(
+                        rval));
             }
         }
 

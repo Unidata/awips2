@@ -38,8 +38,8 @@ import com.raytheon.uf.common.dataplugin.fog.FogRecord.FOG_THREAT;
 import com.raytheon.uf.common.jms.notification.NotificationMessage;
 import com.raytheon.uf.common.monitor.MonitorAreaUtils;
 import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
+import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -89,6 +89,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Mar 09, 2014 3888       dhladky     Stopped processing when dialogs are null or disposed.
  * Sep 18, 2015 3873       skorolev    Removed common definitions. Replaced deprecated NotificationMessage.
  * Dec 17, 2015 3873       dhladky     Abstracted handling of dialogTime and Zone dialog events.
+ * Jan 04, 2016 5115       skorolev    Corrected imports and replaced Mon.Name with App.Name.
  * 
  * 
  * </pre>
@@ -143,7 +144,7 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
      */
     private FogMonitor() {
         pluginPatterns.add(fssPattern);
-        fogConfig = FSSObsMonitorConfigurationManager.getInstance(MonName.fog);
+        fogConfig = FSSObsMonitorConfigurationManager.getInstance(AppName.FOG);
         updateMonitoringArea();
         initObserver(OBS, this);
         createDataStructures();

@@ -26,8 +26,8 @@ import java.util.Map;
 
 import jep.JepException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
 import com.raytheon.uf.common.dataplugin.gfe.request.IscCreateDomainDictRequest;
@@ -50,9 +50,10 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * 
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 07/06/09      1995       bphillip    Initial port
- * 09/22/09      3058       rjpeter     Converted to IRequestHandler
- * 09/05/13      2307       dgilling    Use better PythonScript constructor.
+ * 07/06/09     1995        bphillip    Initial port
+ * 09/22/09     3058        rjpeter     Converted to IRequestHandler
+ * 09/05/13     2307        dgilling    Use better PythonScript constructor.
+ * 12/15/15     5166        kbisanz     Update logging to use SLF4J
  * </pre>
  * 
  * @author bphillip
@@ -60,7 +61,8 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  */
 public class IscCreateDomainDictHandler implements
         IRequestHandler<IscCreateDomainDictRequest> {
-    protected final transient Log logger = LogFactory.getLog(getClass());
+    protected final transient Logger logger = LoggerFactory
+            .getLogger(getClass());
 
     @Override
     public ServerResponse<Object> handleRequest(

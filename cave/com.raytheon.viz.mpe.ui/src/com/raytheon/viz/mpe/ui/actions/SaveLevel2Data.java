@@ -80,6 +80,7 @@ import com.raytheon.viz.mpe.util.WriteQPFGrids;
  * Mar 10, 2015 14575      snaples     Added status check to make sure that we close everything before exiting.
  * Jun 25, 2015 17462      snaples     Fixed loop of basins for temp and freezing.
  * Dec 07, 2015 5172       bkowal      Prevent NPE on close. Cleanup all warnings and e print stack trace usage.
+ * Jan 15, 2016 5054       randerso    Added proper constructor with parent shell parameter
  * 
  * </pre>
  * 
@@ -110,9 +111,17 @@ public class SaveLevel2Data {
 
     public static int[] qctype_flag = new int[NUM_QCTYPE];
 
-    private Shell shell = new Shell();
+    private final Shell shell;
 
     DailyQcUtils dqc = DailyQcUtils.getInstance();
+
+    /**
+     * @param shell
+     *            parent shell for dialogs
+     */
+    public SaveLevel2Data(Shell shell) {
+        this.shell = shell;
+    }
 
     public int check_new_area(Date curDate, String area, int days) {
         int j, m;
@@ -120,7 +129,7 @@ public class SaveLevel2Data {
         qarea = area;
         qdays = days;
 
-        if (DailyQcUtils.pdata == null || DailyQcUtils.pdata.length < 10) {
+        if ((DailyQcUtils.pdata == null) || (DailyQcUtils.pdata.length < 10)) {
             return 0;
         }
         /* Check if any of the GageQC datasets have not been QC'd. */
@@ -132,8 +141,8 @@ public class SaveLevel2Data {
                 if (DailyQcUtils.pdata[j] == null) {
                     return 0;
                 }
-                if (DailyQcUtils.pdata[j].used[m] != 1
-                        || DailyQcUtils.pdata[j].level != 1) {
+                if ((DailyQcUtils.pdata[j].used[m] != 1)
+                        || (DailyQcUtils.pdata[j].level != 1)) {
                     continue;
                 }
 
@@ -152,8 +161,8 @@ public class SaveLevel2Data {
         for (j = 0; j < MAX_GAGEQC_DAYS; j++) {
             for (m = 0; m < 5; m++) {
                 /* not databased */
-                if (DailyQcUtils.zdata[j].used[m] != 1
-                        || DailyQcUtils.zdata[j].level[m] != 1) {
+                if ((DailyQcUtils.zdata[j].used[m] != 1)
+                        || (DailyQcUtils.zdata[j].level[m] != 1)) {
                     continue;
                 }
 
@@ -167,8 +176,8 @@ public class SaveLevel2Data {
         for (j = 0; j < MAX_GAGEQC_DAYS; j++) {
             for (m = 0; m < 5; m++) {
                 /* not databased */
-                if (DailyQcUtils.tdata[j].used[m] != 1
-                        || DailyQcUtils.tdata[j].level[m] != 1) {
+                if ((DailyQcUtils.tdata[j].used[m] != 1)
+                        || (DailyQcUtils.tdata[j].level[m] != 1)) {
                     continue;
                 }
 
@@ -201,8 +210,8 @@ public class SaveLevel2Data {
 
             for (m = 0; m < 5; m++) {
 
-                if (DailyQcUtils.pdata[j].used[m] != 1
-                        || DailyQcUtils.pdata[j].level != 1) {
+                if ((DailyQcUtils.pdata[j].used[m] != 1)
+                        || (DailyQcUtils.pdata[j].level != 1)) {
                     continue;
                 }
 
@@ -231,8 +240,8 @@ public class SaveLevel2Data {
 
             for (m = 0; m < 5; m++) {
 
-                if (DailyQcUtils.zdata[j].used[m] != 1
-                        || DailyQcUtils.zdata[j].level[m] != 1) {
+                if ((DailyQcUtils.zdata[j].used[m] != 1)
+                        || (DailyQcUtils.zdata[j].level[m] != 1)) {
                     continue;
                 }
 
@@ -260,8 +269,8 @@ public class SaveLevel2Data {
 
             for (m = 0; m < 6; m++) {
 
-                if (DailyQcUtils.tdata[j].used[m] != 1
-                        || DailyQcUtils.tdata[j].level[m] != 1) {
+                if ((DailyQcUtils.tdata[j].used[m] != 1)
+                        || (DailyQcUtils.tdata[j].level[m] != 1)) {
                     continue;
                 }
 
@@ -289,8 +298,8 @@ public class SaveLevel2Data {
             for (m = 0; m < 5; m++) {
 
                 /* not databased */
-                if (DailyQcUtils.pdata[j].used[m] != 3
-                        && DailyQcUtils.pdata[j].used[m] != 2) {
+                if ((DailyQcUtils.pdata[j].used[m] != 3)
+                        && (DailyQcUtils.pdata[j].used[m] != 2)) {
                     continue;
                 }
 
@@ -337,8 +346,9 @@ public class SaveLevel2Data {
         if (DailyQcUtils.pdata == null) {
             return;
         }
-        if (DailyQcUtils.pdata.length == 0 && DailyQcUtils.tdata.length == 0
-                && DailyQcUtils.zdata.length == 0) {
+        if ((DailyQcUtils.pdata.length == 0)
+                && (DailyQcUtils.tdata.length == 0)
+                && (DailyQcUtils.zdata.length == 0)) {
             return;
         }
         for (j = 0; j < MAX_GAGEQC_DAYS; j++) {
@@ -350,14 +360,14 @@ public class SaveLevel2Data {
 
             for (m = 0; m < 5; m++) {
 
-                if (DailyQcUtils.pdata[j].used[m] != 3
-                        && DailyQcUtils.pdata[j].used[m] != 2) {
+                if ((DailyQcUtils.pdata[j].used[m] != 3)
+                        && (DailyQcUtils.pdata[j].used[m] != 2)) {
 
-                    if (DailyQcUtils.zdata[j].used[m] != 3
-                            && DailyQcUtils.zdata[j].used[m] != 2) {
+                    if ((DailyQcUtils.zdata[j].used[m] != 3)
+                            && (DailyQcUtils.zdata[j].used[m] != 2)) {
 
-                        if (DailyQcUtils.tdata[j].used[m] != 3
-                                && DailyQcUtils.tdata[j].used[m] != 2) {
+                        if ((DailyQcUtils.tdata[j].used[m] != 3)
+                                && (DailyQcUtils.tdata[j].used[m] != 2)) {
                             continue;
                         }
 
@@ -405,7 +415,7 @@ public class SaveLevel2Data {
             String tokenName = "mpe_map_one_zone";
             String tokenValue = apps_defaults.getToken(tokenName);
 
-            if (tokenValue != null && tokenValue.length() > 0) {
+            if ((tokenValue != null) && (tokenValue.length() > 0)) {
                 /* we use the token ON and OFF */
                 if (tokenValue.equalsIgnoreCase(ON)) {
                     token_of_mpe_map_one_zone = 1;
@@ -451,7 +461,8 @@ public class SaveLevel2Data {
         int num_period_qc = 0;
         String fname_nc = "";
         float[][] datavals = new float[hrap_grid.maxi][hrap_grid.maxj];
-        if (dqc.mpe_dqc_save_grib == true || dqc.mpe_dqc_save_netcdf == true) {
+        if ((dqc.mpe_dqc_save_grib == true)
+                || (dqc.mpe_dqc_save_netcdf == true)) {
             for (int h = 0; h < hrap_grid.maxj; h++) {
                 for (int i = 0; i < hrap_grid.maxi; i++) {
                     datavals[i][h] = (DailyQcUtils.pcp.value[i][h] / 100.f);
@@ -468,7 +479,7 @@ public class SaveLevel2Data {
         if (first == 0) {
             String l2Type = apps_defaults.getToken("mpe_level2_type_value");
 
-            if (l2Type != null && l2Type.length() > 0) {
+            if ((l2Type != null) && (l2Type.length() > 0)) {
                 type = l2Type.trim();
             } else {
                 type = "2";
@@ -482,9 +493,10 @@ public class SaveLevel2Data {
         }
         save_isom = DailyQcUtils.isom;
 
-        if ((DailyQcUtils.qpf_flag == true || DailyQcUtils.maxmin_flag == true || DailyQcUtils.z_flag == true)
-                && DailyQcUtils.pcpn_day == 0
-                && (dqc.curHr18_00 == 1 || dqc.curHr00_06 == 1 || dqc.curHr06_12 == 1)) {
+        if (((DailyQcUtils.qpf_flag == true)
+                || (DailyQcUtils.maxmin_flag == true) || (DailyQcUtils.z_flag == true))
+                && (DailyQcUtils.pcpn_day == 0)
+                && ((dqc.curHr18_00 == 1) || (dqc.curHr00_06 == 1) || (dqc.curHr06_12 == 1))) {
             /*
              * if run DQC at the time frames such as curHr18_00 or curHr00_06 or
              * curHr06_12, for precipitation, do not display the 24 hr
@@ -555,7 +567,8 @@ public class SaveLevel2Data {
              */
 
             // Sanity check
-            if (DailyQcUtils.pdata == null || DailyQcUtils.pdata.length <= 0) {
+            if ((DailyQcUtils.pdata == null)
+                    || (DailyQcUtils.pdata.length <= 0)) {
                 return;
             }
 
@@ -570,8 +583,8 @@ public class SaveLevel2Data {
                  * saved.
                  */
 
-                if ((DailyQcUtils.pdata[j].used[m] == 3 || DailyQcUtils.pdata[j].used[m] == 2)
-                        && qctype_flag[0] == 1) {
+                if (((DailyQcUtils.pdata[j].used[m] == 3) || (DailyQcUtils.pdata[j].used[m] == 2))
+                        && (qctype_flag[0] == 1)) {
                     break;
                 }
             }
@@ -588,8 +601,8 @@ public class SaveLevel2Data {
              * other if run DQC on partial time frame and j=0
              */
 
-            if (j == 0
-                    && (dqc.curHr00_06 == 1 || dqc.curHr06_12 == 1 || dqc.curHr18_00 == 1)) {
+            if ((j == 0)
+                    && ((dqc.curHr00_06 == 1) || (dqc.curHr06_12 == 1) || (dqc.curHr18_00 == 1))) {
             } else {
                 EstDailyStations eds = new EstDailyStations();
                 eds.estimate_daily_stations(j, DailyQcUtils.precip_stations,
@@ -637,7 +650,8 @@ public class SaveLevel2Data {
             // save for each 6 hour periods
             for (l = 0; l < 5; l++) {
 
-                if (DailyQcUtils.pdata[j].used[l] == 0 || qctype_flag[0] == -1) {
+                if ((DailyQcUtils.pdata[j].used[l] == 0)
+                        || (qctype_flag[0] == -1)) {
                     continue;
                 }
 
@@ -704,7 +718,7 @@ public class SaveLevel2Data {
                 }
 
                 if (l < 4) {
-                    num = j * 4 + 3 - l;
+                    num = ((j * 4) + 3) - l;
                 } else {
                     num = 40 + j;
                 }
@@ -718,7 +732,8 @@ public class SaveLevel2Data {
             // save the whole days
             for (l = 0; l < 5; l++) {
 
-                if (DailyQcUtils.pdata[j].used[l] == 0 || qctype_flag[0] == -1) {
+                if ((DailyQcUtils.pdata[j].used[l] == 0)
+                        || (qctype_flag[0] == -1)) {
                     continue;
                 }
 
@@ -773,7 +788,7 @@ public class SaveLevel2Data {
                 }
 
                 if (l < 4) {
-                    num = j * 4 + 3 - l;
+                    num = ((j * 4) + 3) - l;
                 } else {
                     num = 40 + j;
                 }
@@ -994,7 +1009,7 @@ public class SaveLevel2Data {
             /* write_qc_file(type); */
             for (l = 0; l < 4; l++) {
 
-                int jj = j * 4 + 3 - l;
+                int jj = ((j * 4) + 3) - l;
 
                 if (pcp_in_use[jj] != 1) {
                     continue;
@@ -1016,7 +1031,7 @@ public class SaveLevel2Data {
             found: for (m = 0; mean_areal_precip_global[m] != null; m++) {
                 for (k = 0; k < 4; k++) {
 
-                    num = j * 4 + 3 - k;
+                    num = ((j * 4) + 3) - k;
 
                     if (mean_areal_precip_global[m].maps_done != null) {
                         if (mean_areal_precip_global[m].maps_done[num] == 1) {
@@ -1091,7 +1106,7 @@ public class SaveLevel2Data {
 
                         /* fix for polygon basins */
                         if (dqc.mpe_rfc_name.equalsIgnoreCase("cbrfc")
-                                && mean_areal_precip_global[m].hb5.length() == 7) {
+                                && (mean_areal_precip_global[m].hb5.length() == 7)) {
 
                             xbuf.append(mean_areal_precip_global[m].bchar
                                     .charAt(0));
@@ -1100,15 +1115,16 @@ public class SaveLevel2Data {
 
                         else {
 
-                            if (l == 0 && numzones != 1 && one_zone_flag != 1) {
+                            if ((l == 0) && (numzones != 1)
+                                    && (one_zone_flag != 1)) {
                                 xbuf.append("L");
                                 xbuf.append(mean_areal_precip_global[m].bchar
                                         .charAt(0));
 
                             }
 
-                            else if (l == 0 && numzones == 1
-                                    && one_zone_flag != 1) {
+                            else if ((l == 0) && (numzones == 1)
+                                    && (one_zone_flag != 1)) {
                                 xbuf.append("O");
                                 xbuf.append(mean_areal_precip_global[m].bchar
                                         .charAt(0));
@@ -1146,12 +1162,13 @@ public class SaveLevel2Data {
 
                         for (k = 0; k < 4; k++) {
 
-                            int h = j * 4 + (3 - k);
+                            int h = (j * 4) + (3 - k);
 
                             /* fix for polygon basins */
 
                             if (dqc.mpe_rfc_name.equalsIgnoreCase("cbrfc")
-                                    && mean_areal_precip_global[m].hb5.length() == 7) {
+                                    && (mean_areal_precip_global[m].hb5
+                                            .length() == 7)) {
                                 temp = mean_areal_precip_global[m].lz[h];
                             } else if (l == 0) {
                                 temp = mean_areal_precip_global[m].lz[h];
@@ -1181,7 +1198,7 @@ public class SaveLevel2Data {
                         if (one_zone_flag == 0) {
                             fp.write(xbuf.toString());
                             fp.newLine();
-                        } else if (one_zone_flag == 1 && l == 0) {
+                        } else if ((one_zone_flag == 1) && (l == 0)) {
                             fp.write(xbuf.toString());
                             statusHandler
                                     .info("Writing out record to One Zone MAP file: "
@@ -1337,9 +1354,9 @@ public class SaveLevel2Data {
                  * level 1 pass through here to the save data question
                  */
 
-                if ((DailyQcUtils.zdata[j].used[m] == 3
-                        || DailyQcUtils.zdata[j].used[m] == 2 || DailyQcUtils.zdata[j].used[m] == 1)
-                        && qctype_flag[2] == 1) {
+                if (((DailyQcUtils.zdata[j].used[m] == 3)
+                        || (DailyQcUtils.zdata[j].used[m] == 2) || (DailyQcUtils.zdata[j].used[m] == 1))
+                        && (qctype_flag[2] == 1)) {
                     break;
                 }
 
@@ -1372,7 +1389,8 @@ public class SaveLevel2Data {
 
             for (l = 0; l < 4; l++) {
 
-                if (DailyQcUtils.zdata[j].used[l] == 0 || qctype_flag[2] == -1) {
+                if ((DailyQcUtils.zdata[j].used[l] == 0)
+                        || (qctype_flag[2] == -1)) {
                     continue;
                 }
                 /*
@@ -1420,7 +1438,7 @@ public class SaveLevel2Data {
                 wqg.write_qpf_grids(dbuf);
 
                 /* output grid to file in netCDF format */
-                if (l + 1 <= num_period_qc) {
+                if ((l + 1) <= num_period_qc) {
                     if (dqc.mpe_dqc_save_netcdf == true) {
                         WriteDQCNetCDFGrids wng = new WriteDQCNetCDFGrids();
                         wng.write_dqc_netcdf_grids(fname_nc, l, num_period_qc,
@@ -1446,7 +1464,7 @@ public class SaveLevel2Data {
                     }
                 }
 
-                num = 100 + j * 4 + 3 - l;
+                num = (100 + (j * 4) + 3) - l;
 
                 MakeRsel mr = new MakeRsel();
                 mr.make_rsel(num, num - 100);
@@ -1566,7 +1584,7 @@ public class SaveLevel2Data {
 
                 for (k = 0; k < 4; k++) {
 
-                    num = j * 4 + 3 - k;
+                    num = ((j * 4) + 3) - k;
 
                     if (mean_areal_precip_global[m].zmaps_done[num] == 1) {
                         break foundz;
@@ -1630,7 +1648,7 @@ public class SaveLevel2Data {
 
                         /* fix for polygon basins */
                         if (dqc.mpe_rfc_name.equalsIgnoreCase("cbrfc")
-                                && mean_areal_precip_global[m].hb5.length() == 7) {
+                                && (mean_areal_precip_global[m].hb5.length() == 7)) {
 
                             // logMessage ("polygon write\n");
                             xbuf.append(mean_areal_precip_global[m].bchar
@@ -1640,7 +1658,7 @@ public class SaveLevel2Data {
 
                         else {
 
-                            if (l == 0 && numzones != 1) {
+                            if ((l == 0) && (numzones != 1)) {
 
                                 xbuf.append("L");
                                 xbuf.append(mean_areal_precip_global[m].bchar
@@ -1648,7 +1666,7 @@ public class SaveLevel2Data {
 
                             }
 
-                            else if (l == 0 && numzones == 1) {
+                            else if ((l == 0) && (numzones == 1)) {
 
                                 xbuf.append("O");
                                 xbuf.append(mean_areal_precip_global[m].bchar
@@ -1701,10 +1719,11 @@ public class SaveLevel2Data {
 
                         for (k = 0; k < 4; k++) {
 
-                            int h = j * 4 + (3 - k);
+                            int h = (j * 4) + (3 - k);
 
                             if (dqc.mpe_rfc_name.equalsIgnoreCase("cbrfc")
-                                    && mean_areal_precip_global[m].hb5.length() == 7) {
+                                    && (mean_areal_precip_global[m].hb5
+                                            .length() == 7)) {
                                 temp = mean_areal_precip_global[m].zlz[h];
 
                             } else if (l == 0) {
@@ -1787,8 +1806,8 @@ public class SaveLevel2Data {
 
             for (m = 0; m < 6; m++) {
 
-                if ((DailyQcUtils.tdata[j].used[m] == 3 || DailyQcUtils.tdata[j].used[m] == 2)
-                        && qctype_flag[1] == 1) {
+                if (((DailyQcUtils.tdata[j].used[m] == 3) || (DailyQcUtils.tdata[j].used[m] == 2))
+                        && (qctype_flag[1] == 1)) {
                     break;
                 }
 
@@ -1800,8 +1819,8 @@ public class SaveLevel2Data {
 
             /* re-create all pcpn and maps if necessary */
 
-            if (j == 0
-                    && (dqc.curHr00_06 == 1 || dqc.curHr06_12 == 1 || dqc.curHr18_00 == 1)) {
+            if ((j == 0)
+                    && ((dqc.curHr00_06 == 1) || (dqc.curHr06_12 == 1) || (dqc.curHr18_00 == 1))) {
                 // do not estimate
             } else {
 
@@ -1842,7 +1861,8 @@ public class SaveLevel2Data {
 
             for (l = 5; l >= 0; l--) {
 
-                if (DailyQcUtils.tdata[j].used[l] == 0 || qctype_flag[1] == -1) {
+                if ((DailyQcUtils.tdata[j].used[l] == 0)
+                        || (qctype_flag[1] == -1)) {
                     continue;
                 }
 
@@ -1905,7 +1925,7 @@ public class SaveLevel2Data {
                 wqg.write_qpf_grids(dbuf);
 
                 /* output grid to file in netCDF format */
-                if (l + 1 <= num_period_qc) {
+                if ((l + 1) <= num_period_qc) {
                     if (dqc.mpe_dqc_save_netcdf == true) {
                         WriteDQCNetCDFGrids wng = new WriteDQCNetCDFGrids();
                         wng.write_dqc_netcdf_grids(fname_nc, l, num_period_qc,
@@ -1933,7 +1953,7 @@ public class SaveLevel2Data {
                     }
                 }
 
-                num = 150 + j * 4 + 3 - l;
+                num = (150 + (j * 4) + 3) - l;
 
                 if (l < 4) {
                     MakeMat mmt = new MakeMat();
@@ -2179,7 +2199,7 @@ public class SaveLevel2Data {
 
                 for (k = 0; k < 4; k++) {
 
-                    num = j * 4 + 3 - k;
+                    num = ((j * 4) + 3) - k;
 
                     if (mean_areal_precip_global[m].tmaps_done[num] == 1) {
                         break foundt;
@@ -2245,7 +2265,7 @@ public class SaveLevel2Data {
                         /* fix for polygon basins */
 
                         if (dqc.mpe_rfc_name.equalsIgnoreCase("cbrfc")
-                                && mean_areal_precip_global[m].hb5.length() == 7) {
+                                && (mean_areal_precip_global[m].hb5.length() == 7)) {
                             // logMessage ("polygon write\n");
                             xbuf.append(mean_areal_precip_global[m].bchar
                                     .charAt(0));
@@ -2253,12 +2273,12 @@ public class SaveLevel2Data {
                         }
 
                         else {
-                            if (l == 0 && numzones != 1) {
+                            if ((l == 0) && (numzones != 1)) {
                                 xbuf.append("L");
                                 xbuf.append(mean_areal_precip_global[m].bchar
                                         .charAt(0));
 
-                            } else if (l == 0 && numzones == 1) {
+                            } else if ((l == 0) && (numzones == 1)) {
                                 xbuf.append("O");
                                 xbuf.append(mean_areal_precip_global[m].bchar
                                         .charAt(0));
@@ -2304,10 +2324,11 @@ public class SaveLevel2Data {
 
                         for (k = 0; k < 4; k++) {
 
-                            int h = j * 4 + (3 - k);
+                            int h = (j * 4) + (3 - k);
 
                             if (dqc.mpe_rfc_name.equalsIgnoreCase("cbrfc")
-                                    && mean_areal_precip_global[m].hb5.length() == 7) {
+                                    && (mean_areal_precip_global[m].hb5
+                                            .length() == 7)) {
 
                                 temp = mean_areal_precip_global[m].tlz[h];
 
@@ -2392,8 +2413,8 @@ public class SaveLevel2Data {
 
         int pcpn_day = DailyQcUtils.pcpn_day;
 
-        if (DailyQcUtils.qpf_flag == true || DailyQcUtils.z_flag == true
-                || DailyQcUtils.maxmin_flag == true) {
+        if ((DailyQcUtils.qpf_flag == true) || (DailyQcUtils.z_flag == true)
+                || (DailyQcUtils.maxmin_flag == true)) {
 
             if (DailyQcUtils.qpf_flag == true) {
                 QcPrecipOptionsDialog.dataSet.clear();
@@ -2437,36 +2458,42 @@ public class SaveLevel2Data {
             int grids_flag = DailyQcUtils.grids_flag;
             int map_flag = DailyQcUtils.map_flag;
 
-            if (points_flag == 1 && pcp_in_use[time_pos] == -1) {
+            if ((points_flag == 1) && (pcp_in_use[time_pos] == -1)) {
                 k = 0;
             }
 
-            else if (points_flag == 1 && grids_flag == -1 && map_flag == -1) {
+            else if ((points_flag == 1) && (grids_flag == -1)
+                    && (map_flag == -1)) {
                 k = 0;
             }
 
-            else if (points_flag == -1 && grids_flag == 1 && map_flag == -1) {
+            else if ((points_flag == -1) && (grids_flag == 1)
+                    && (map_flag == -1)) {
                 k = 1;
             }
 
-            else if (points_flag == -1 && grids_flag == -1 && map_flag == 1) {
+            else if ((points_flag == -1) && (grids_flag == -1)
+                    && (map_flag == 1)) {
                 k = 2;
             }
 
-            else if (points_flag == 1 && grids_flag == 1 && map_flag == -1) {
+            else if ((points_flag == 1) && (grids_flag == 1)
+                    && (map_flag == -1)) {
                 k = 3;
             }
 
-            else if (points_flag == 1 && grids_flag == -1 && map_flag == 1) {
+            else if ((points_flag == 1) && (grids_flag == -1)
+                    && (map_flag == 1)) {
                 k = 4;
             }
 
-            else if (points_flag == -1 && grids_flag == -1 && map_flag == -1) {
+            else if ((points_flag == -1) && (grids_flag == -1)
+                    && (map_flag == -1)) {
                 k = 5;
             }
 
-            if (DailyQcUtils.qpf_flag == true
-                    && QcPrecipOptionsDialog.isOpen == true) {
+            if ((DailyQcUtils.qpf_flag == true)
+                    && (QcPrecipOptionsDialog.isOpen == true)) {
                 QcPrecipOptionsDialog.selectDataSetVal(k);
             }
         }

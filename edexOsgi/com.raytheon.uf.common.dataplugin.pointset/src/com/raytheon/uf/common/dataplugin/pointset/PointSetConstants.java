@@ -29,13 +29,13 @@ package com.raytheon.uf.common.dataplugin.pointset;
  * SOFTWARE HISTORY
  * 
  * Date          Ticket#  Engineer  Description
- * ------------- -------- --------- --------------------------
+ * ------------- -------- --------- --------------------
  * Aug 28, 2015  4709     bsteffen  Initial creation
+ * Jan 21, 2016  5208     bsteffen  Add scale and offset
  * 
  * </pre>
  * 
  * @author bsteffen
- * @version 1.0
  */
 public class PointSetConstants {
 
@@ -59,5 +59,9 @@ public class PointSetConstants {
     public static final String LEVEL_ONE = LEVEL + ".levelonevalue";
 
     public static final String LEVEL_TWO = LEVEL + ".leveltwovalue";
+
+    public static final String ADD_OFFSET = "add_offset";
+
+    public static final String SCALE_FACTOR = "scale_factor";
 
 }

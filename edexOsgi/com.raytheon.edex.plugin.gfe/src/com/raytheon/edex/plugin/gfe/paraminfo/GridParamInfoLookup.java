@@ -61,6 +61,8 @@ import com.raytheon.uf.common.util.mapping.MultipleMappingException;
  * Oct 14, 2013  2473     bsteffen    Remove lookup of deprecated grib files.
  * Jun 05, 2015  4495     njensen     Improved error message
  * Jul 13, 2015  4537     randerso    Removed unused function
+ * Jan 27, 2016  5237     tgurney     Remove deprecated LocalizationFile
+ *                                    method call
  * 
  * </pre>
  * 
@@ -190,7 +192,7 @@ public class GridParamInfoLookup {
             } catch (JAXBException e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Error unmarshalling grid parameter information from file "
-                                + file.getName(), e);
+                                + file.getPath(), e);
             }
         }
         for (GridParamInfo gridParamInfo : modelParamMap.values()) {

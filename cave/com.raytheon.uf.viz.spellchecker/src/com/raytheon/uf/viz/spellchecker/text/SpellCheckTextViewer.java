@@ -66,7 +66,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.core.VizApp;
@@ -81,15 +81,16 @@ import com.raytheon.uf.viz.spellchecker.jobs.EnhancedSpellCheckJob;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 18, 2014 3453       rblum     Initial creation
- * Aug 06, 2014 3453       rblum     Refreshing all viewers on enable/
- *                                   disable of spell checking.
- * Aug 18, 2014 3453       rblum     Added the spell check dictionary
- *                                   to site level localization.
- * Oct 01, 2014 3453       rblum     Allow MB3 click anywhere in the textbox
- *                                   to enable/disable spellcheck.
- * Mar 27, 2015 4138       dhladky   Guava name change.
- * Apr 14, 2015 4362       mapeters  Allow external contribution of menu items.
+ * Jun 18, 2014 3453       rblum       Initial creation
+ * Aug 06, 2014 3453       rblum       Refreshing all viewers on enable/
+ *                                     disable of spell checking.
+ * Aug 18, 2014 3453       rblum       Added the spell check dictionary
+ *                                     to site level localization.
+ * Oct 01, 2014 3453       rblum       Allow MB3 click anywhere in the textbox
+ *                                     to enable/disable spellcheck.
+ * Mar 27, 2015 4138       dhladky     Guava name change.
+ * Apr 14, 2015 4362       mapeters    Allow external contribution of menu items.
+ * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
  * 
  * </pre>
  * 
@@ -387,7 +388,7 @@ public class SpellCheckTextViewer extends TextViewer implements
                         if (lf != null) {
                             lf.save();
                         }
-                    } catch (LocalizationOpFailedException exception) {
+                    } catch (LocalizationException exception) {
                         statusHandler.error(
                                 "Unable to save dictionary into localization",
                                 exception);

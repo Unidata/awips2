@@ -28,8 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.uf.common.dataplugin.gfe.DiscreteTerm;
 import com.raytheon.uf.common.dataplugin.gfe.config.ProjectionData;
@@ -51,7 +51,7 @@ import com.raytheon.uf.common.dataplugin.gfe.weather.WxDefinition;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 03/11/08     #1030      randerso    Initial port	
+ * 03/11/08     #1030      randerso    Initial port
  * 04/08/08     #875       bphillip    Changed exception handling
  * 06/24/08     #1160      randerso    Added a method to get the Topo dbId
  * 07/09/09     #2590      njensen     No longer singleton
@@ -59,6 +59,7 @@ import com.raytheon.uf.common.dataplugin.gfe.weather.WxDefinition;
  * 08/14/2013   #1571      randerso    Changed to use ProjectionType enum
  * 03/05/2015   #4169      randerso    Changed model name mappings to return null if no mapping
  * 04/09/2015   #4383      dgilling    Support FireWx ISC.
+ * 12/15/2015   #5166      kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -66,8 +67,8 @@ import com.raytheon.uf.common.dataplugin.gfe.weather.WxDefinition;
  * @version 1.0
  */
 public class IFPServerConfig {
-    private static final Log theLogger = LogFactory
-            .getLog(IFPServerConfig.class);
+    private static final Logger theLogger = LoggerFactory
+            .getLogger(IFPServerConfig.class);
 
     private String _serverHost, _mhsid;
 

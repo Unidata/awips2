@@ -29,8 +29,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <pre>
@@ -42,6 +42,7 @@ import org.apache.commons.logging.LogFactory;
  * 20071127            382 jkorman     Initial Coding.
  * 20080214            862 jkorman     BUFRMOS implementation changes.
  * 9/16/2014    #3628      mapeters    Moved from uf.edex.decodertools plugin.
+ * 12/14/2015   5166       kbisanz     Update logging to use SLF4J
  * </pre>
  * 
  * @author jkorman
@@ -49,7 +50,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class DescriptorFactory {
 
-    private Log logger = LogFactory.getLog(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     private static Pattern DESC_PATTERN = Pattern
             .compile("[0-3] \\d{2} \\d{3}");
@@ -173,7 +174,8 @@ public class DescriptorFactory {
         }
         readTableD(resourceClassReference, DEFAULT_TABLE_D, false);
         if (tableD != null) {
-            readTableD(resourceClassReference, "/res/bufrtables/" + tableD, true);
+            readTableD(resourceClassReference, "/res/bufrtables/" + tableD,
+                    true);
         }
     }
 
@@ -182,7 +184,8 @@ public class DescriptorFactory {
      * @param resourceClassReference
      * @param tableD
      */
-    private void readTableD(Class<?> resourceClassReference, String tableD, boolean allowOverwrites) {
+    private void readTableD(Class<?> resourceClassReference, String tableD,
+            boolean allowOverwrites) {
         InputStream strm = null;
         BufferedReader bf = null;
 
@@ -199,13 +202,17 @@ public class DescriptorFactory {
                         switch (line.charAt(0)) {
 
                         case ' ': {
-                            if(tableDInstance != null) {
+                            if (tableDInstance != null) {
                                 BUFRDescriptor desc = getDescriptor(line);
                                 if (desc != null) {
-                                    if(tableDInstance.isDefined()) {
-                                        logger.debug("Attempting to add [" + line + "] to a defined descriptor");
+                                    if (tableDInstance.isDefined()) {
+                                        logger.debug("Attempting to add ["
+                                                + line
+                                                + "] to a defined descriptor");
                                     } else {
-                                        logger.debug("Adding [" + desc + "] to [" + tableDInstance + "]");
+                                        logger.debug("Adding [" + desc
+                                                + "] to [" + tableDInstance
+                                                + "]");
                                         tableDInstance.addDescriptor(desc);
                                     }
                                 }
@@ -213,24 +220,25 @@ public class DescriptorFactory {
                             break;
                         }
                         case '3': {
-                            if(tableDInstance != null) {
+                            if (tableDInstance != null) {
                                 // we were defining an entry
                                 tableDInstance.setDefined(true);
                             }
                             tableDInstance = null;
-                            
+
                             Matcher m = DESC_PATTERN.matcher(line);
                             if (m.find()) {
-                                String s = line.substring(m.start(),
-                                        m.end()).trim();
+                                String s = line.substring(m.start(), m.end())
+                                        .trim();
                                 tableDInstance = getDescriptor(s);
-                                if(tableDInstance.isDefined() && allowOverwrites) {
-                                    tableDInstance.setSubList(new ArrayList<BUFRDescriptor>());
+                                if (tableDInstance.isDefined()
+                                        && allowOverwrites) {
+                                    tableDInstance
+                                            .setSubList(new ArrayList<BUFRDescriptor>());
                                 }
                             } else {
-                                logger
-                                        .debug("Could not create descriptor for ["
-                                                + line + "]");
+                                logger.debug("Could not create descriptor for ["
+                                        + line + "]");
                             }
                             break;
                         }
@@ -388,13 +396,13 @@ public class DescriptorFactory {
     // return factoryInstance;
     // }
 
-    
     /**
      * 
      * @param descriptor
      * @param indent
      */
-    private static void displayDescriptor(BUFRDescriptor descriptor, String indent, Log logger) {
+    private static void displayDescriptor(BUFRDescriptor descriptor,
+            String indent, Logger logger) {
         if (descriptor.getSubList() != null) {
             logger.debug(descriptor.getStringDescriptor());
             logger.debug(indent + "  [");
@@ -408,7 +416,8 @@ public class DescriptorFactory {
     /**
      * 
      */
-    public static void display(List<BUFRDescriptor> list, String indent, Log logger) {
+    public static void display(List<BUFRDescriptor> list, String indent,
+            Logger logger) {
         for (BUFRDescriptor d : list) {
             displayDescriptor(d, indent, logger);
         }

@@ -77,6 +77,7 @@ import com.raytheon.viz.ui.personalities.awips.CAVE;
  * Jun 26, 2015  4474     bsteffen  Register the PathManager as an OSGi service.
  * Dec 04, 2015  5169     bsteffen  Allow ProductAlertObserver to send messages
  *                                  to the AutoUpdater
+ * Feb 08, 2016, 5281     tjensen   Combined Data and Menu Refresh Intervals
  * 
  * </pre>
  * 
@@ -93,13 +94,6 @@ public class ThinClientComponent extends CAVE implements IThinClientComponent {
 
     private StatsJob statsJob;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent#startInternal
-     * (java.lang.String)
-     */
     @Override
     protected void startInternal(String componentName) throws Exception {
         IPreferenceStore store = Activator.getDefault().getPreferenceStore();
@@ -111,7 +105,7 @@ public class ThinClientComponent extends CAVE implements IThinClientComponent {
         // Initialize the timed menu time refresher
         store.addPropertyChangeListener(new TimedRefresher(
                 new MenuTimeRefreshTask(),
-                ThinClientPreferenceConstants.P_MENU_TIME_REFRESH_INTERVAL));
+                ThinClientPreferenceConstants.P_DATA_REFRESH_INTERVAL));
 
         // Start network statistics
         statsJob = new StatsJob("HTTP Network Statistics", HttpClient
@@ -163,12 +157,6 @@ public class ThinClientComponent extends CAVE implements IThinClientComponent {
                         .getUnderlyingFactory()));
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent#
-     * initializeLocalization()
-     */
     @Override
     protected void initializeLocalization() throws Exception {
         /*
@@ -197,23 +185,11 @@ public class ThinClientComponent extends CAVE implements IThinClientComponent {
                         PathManagerFactory.getPathManager(), null);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.personalities.awips.AbstractAWIPSComponent#
-     * createAWIPSWorkbenchAdvisor()
-     */
     @Override
     protected AWIPSWorkbenchAdvisor createAWIPSWorkbenchAdvisor() {
         return new ThinClientWorkbenchAdvisor();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent#
-     * initializeObservers()
-     */
     @Override
     protected void initializeObservers() {
         ThinClientNotificationManagerJob.getInstance();

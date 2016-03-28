@@ -33,12 +33,15 @@ import org.eclipse.swt.widgets.Event;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
-import com.raytheon.viz.gfe.ui.zoneselector.AbstractZoneSelector;
-import com.raytheon.viz.gfe.ui.zoneselector.ZoneSelector.IZoneSelectionListener;
-import com.raytheon.viz.gfe.ui.zoneselector.ZoneSelectorResource;
+import com.raytheon.uf.viz.zoneselector.AbstractZoneSelector;
+import com.raytheon.uf.viz.zoneselector.ZoneSelectorResource;
+import com.raytheon.viz.ghg.monitor.event.AbstractGhgMonitorEvent.GhgEventListener;
+import com.raytheon.viz.ghg.monitor.event.GhgMonitorZoneSelectionEvent;
 import com.raytheon.viz.ui.input.InputAdapter;
+import com.raytheon.viz.ui.input.PanHandler;
 
 /**
  * GHG Spatial Viewer
@@ -49,7 +52,8 @@ import com.raytheon.viz.ui.input.InputAdapter;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 23, 2011            randerso     Initial creation
+ * Aug 23, 2011            randerso    Initial creation
+ * Feb 05, 2016 #5316      randerso    Fleshed out implementation
  * 
  * </pre>
  * 
@@ -58,13 +62,53 @@ import com.raytheon.viz.ui.input.InputAdapter;
  */
 
 public class GHGSpatialViewer extends AbstractZoneSelector {
-    // TODO: This is a start at converting the GHGMonitor to use the classes
-    // created for the ZoneSelector. Unforturnately it will require significant
-    // refactoring of GHGMonitor to get this to work and we don't have time or a
-    // pressing need to do this now.
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GHGSpatialViewer.class);
+
+    /**
+     * Enumeration defining the available zoom level.
+     */
+    public enum ZoomLevel {
+        /** 1x zoom (No Zoom) */
+        ZOOM_1("No Zoom", 1),
+
+        /** 2x zoom */
+        ZOOM_2("x2", 2),
+
+        /** 4x zoom */
+        ZOOM_4("x4", 4),
+
+        /** 6x zoom */
+        ZOOM_6("x6", 6),
+
+        /** 8x zoom */
+        ZOOM_8("x8", 8),
+
+        /** 12x zoom */
+        ZOOM_12("x12", 12),
+
+        /** 16x zoom */
+        ZOOM_16("x16", 16);
+
+        private String displayName;
+
+        private int level;
+
+        private ZoomLevel(String displayName, int level) {
+            this.displayName = displayName;
+            this.level = level;
+        }
+
+        @Override
+        public String toString() {
+            return displayName;
+        }
+
+        public int getZoomLevel() {
+            return level;
+        }
+    }
 
     private static final Map<String, List<String>> mapConfigure;
     static {
@@ -72,8 +116,8 @@ public class GHGSpatialViewer extends AbstractZoneSelector {
         mapConfigure.put("FIPS", Arrays.asList("Counties", "Marine_Zones"));
         mapConfigure.put("Public", Arrays.asList("Zones"));
         mapConfigure.put("FireWx", Arrays.asList("FireWxZones"));
-        mapConfigure.put("Marine", Arrays.asList("Marine_Zones"
-        /* , "OffshoreMZones" */));
+        mapConfigure.put("Marine",
+                Arrays.asList("Marine_Zones", "Offshore_Marine_Zones"));
     }
 
     IInputHandler theMouseListener = new InputAdapter() {
@@ -188,6 +232,14 @@ public class GHGSpatialViewer extends AbstractZoneSelector {
 
     private Point pressInfo;
 
+    private List<GhgEventListener> zoneSelectionListenerList = new ArrayList<>();
+
+    /**
+     * @param parent
+     * @param myWfo
+     * @param gloc
+     * @param callback
+     */
     public GHGSpatialViewer(Composite parent, String myWfo, GridLocation gloc,
             IZoneSelectionListener callback) {
         super(parent, gloc, callback);
@@ -224,7 +276,7 @@ public class GHGSpatialViewer extends AbstractZoneSelector {
         // click?
         if (diff < 10) {
             List<String> zones = this.selectedZones(x, y);
-            if (this.selectCB != null && !zones.isEmpty()) {
+            if ((this.selectCB != null) && !zones.isEmpty()) {
                 this.selectCB.zoneSelected(zones.get(0));
             }
         }
@@ -234,7 +286,7 @@ public class GHGSpatialViewer extends AbstractZoneSelector {
     public void setMap(String mapName) {
         this.mapName = mapName;
         List<String> mapList = mapConfigure.get(mapName);
-        super.setMap(mapList);
+        super.setMap(mapList, true);
 
         for (ZoneSelectorResource rsc : mapRscList) {
             rsc.setMyWfo(this.myWfo);
@@ -246,11 +298,87 @@ public class GHGSpatialViewer extends AbstractZoneSelector {
         setMapInternal(mapRscList);
     }
 
-    public List<String> knownMaps() {
+    public static List<String> knownMaps() {
         return new ArrayList<String>(mapConfigure.keySet());
     }
 
     public String getCurrentMap() {
         return this.mapName;
+    }
+
+    @Override
+    protected void registerHandlers(IDisplayPane pane) {
+        super.registerHandlers(pane);
+        registerMouseHandler(new PanHandler(this));
+
+        registerMouseHandler(new InputAdapter() {
+            private boolean drag = false;
+
+            @Override
+            public boolean handleMouseUp(int x, int y, int mouseButton) {
+                if (mouseButton == 1) {
+                    if (!drag) {
+                        List<String> zones = selectedZones(x, y);
+                        GhgMonitorZoneSelectionEvent evt = new GhgMonitorZoneSelectionEvent();
+                        evt.setHighlightedZones(zones);
+                        fireZoneSelectionEvent(evt);
+                    }
+                    this.drag = false;
+                }
+                return false;
+            }
+
+            @Override
+            public boolean handleMouseDownMove(int x, int y, int mouseButton) {
+                if (mouseButton == 1) {
+                    this.drag = true;
+                }
+                return false;
+            }
+        });
+    }
+
+    /**
+     * @param selectionColor
+     * @param highlightedZones
+     */
+    public void setHighlightedZones(RGB selectionColor,
+            String... highlightedZones) {
+        for (ZoneSelectorResource rsc : mapRscList) {
+            rsc.clearZones();
+            rsc.setZone(selectionColor, highlightedZones);
+        }
+    }
+
+    /**
+     * Add a listener to the list.
+     * 
+     * @param listener
+     */
+    public void addSelectionListener(GhgEventListener listener) {
+        if (!zoneSelectionListenerList.contains(listener)) {
+            zoneSelectionListenerList.add(listener);
+        }
+    }
+
+    /**
+     * Remove a listener from the list.
+     * 
+     * @param listener
+     */
+    public void removeSelectionListener(GhgEventListener listener) {
+        zoneSelectionListenerList.remove(listener);
+    }
+
+    /**
+     * Fire the map change event.
+     * 
+     * @param event
+     *            The GhgMonitorZoneSelectionEvent object
+     */
+    private void fireZoneSelectionEvent(GhgMonitorZoneSelectionEvent event) {
+        for (GhgEventListener listener : zoneSelectionListenerList) {
+            listener.notifyUpdate(event);
+        }
     }
 }

@@ -34,7 +34,8 @@ import com.raytheon.uf.common.dataplugin.fssobs.FSSObsRecord;
 import com.raytheon.uf.common.geospatial.SpatialException;
 import com.raytheon.uf.common.monitor.MonitorAreaUtils;
 import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
+import com.raytheon.uf.common.monitor.config.ThresholdMgr;
+import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.monitor.data.ObConst;
 import com.raytheon.uf.common.monitor.events.MonitorConfigEvent;
 import com.raytheon.uf.common.monitor.events.MonitorConfigListener;
@@ -65,6 +66,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Oct 19, 2015 3841       skorolev     Corrected isNearZone.
  * Nov 12, 2015 3841       dhladky      Augmented Slav's moving platform fix.
  * Dec 02, 2015 3873       dhladky      Fixed performance problems, missing params.
+ * Jan 04, 2016 5115       skorolev     Added checkThresholds.
  * 
  * </pre>
  * 
@@ -102,6 +104,12 @@ public class FSSObsGenerator extends CompositeProductGenerator implements
 
     public FSSObsMonitorConfigurationManager snowmcm = null;
 
+    private FSSObsAlarmMgr fogThMgr = null;
+
+    private FSSObsAlarmMgr ssThMgr = null;
+
+    private FSSObsAlarmMgr snowThMgr = null;
+
     /** Zone constant char */
     private static final char Z = 'Z';
 
@@ -123,7 +131,7 @@ public class FSSObsGenerator extends CompositeProductGenerator implements
     public void generateProduct(URIGenerateMessage genMessage) {
 
         FSSObsConfig fss_config = null;
-               
+
         try {
             fss_config = new FSSObsConfig(genMessage, this);
             this.setPluginDao(new FSSObsDAO(productType));
@@ -133,11 +141,11 @@ public class FSSObsGenerator extends CompositeProductGenerator implements
         }
         List<FSSObsRecord> fssRecs = new ArrayList<FSSObsRecord>();
         for (String uri : genMessage.getUris()) {
-            
+
             boolean isStationary = true;
             String reportType = null;
             boolean inRange = false;
-            
+
             // check if moving type
             for (String t : movingTypes) {
                 if (uri.contains(t)) {
@@ -160,7 +168,6 @@ public class FSSObsGenerator extends CompositeProductGenerator implements
                         // If the location info is bad. we don't want it.
                         inRange = false;
                     }
-
                     break;
                 }
             }
@@ -178,13 +185,14 @@ public class FSSObsGenerator extends CompositeProductGenerator implements
 
             // We only want what we know how to decode
             if (reportType != null && inRange) {
-                
-                FSSObsRecord fssObsRec = new FSSObsRecord();
-                fssObsRec.setReportType(reportType);
-                fssObsRec.setStationary(isStationary);
-                fssObsRec = fss_config.getTableRow(uri);
-                FSSObsDataTransform.buildView(fssObsRec);
-                fssRecs.add(fssObsRec);
+                try {
+                    FSSObsRecord fssObsRec = fss_config.getTableRow(uri);
+                    FSSObsDataTransform.buildView(fssObsRec);
+                    fssRecs.add(fssObsRec);
+                    checkThresholds(fssObsRec);
+                } catch (Exception e) {
+                    statusHandler.error("Error building FSSObsRecord", e);
+                }
             }
         }
 
@@ -195,7 +203,7 @@ public class FSSObsGenerator extends CompositeProductGenerator implements
                     + fssRecs.size() + " records.");
         }
     }
-    
+
     /**
      * Checks if ship is near monitoring zones and should be included in FSSObs
      * data.
@@ -217,15 +225,15 @@ public class FSSObsGenerator extends CompositeProductGenerator implements
             retVal = checkMarineZones(getSSConfig(), ssShipDist, latShip,
                     lonShip);
         }
-        
+
         double fogShipDist = getFogConfig().getShipDistance();
-        
+
         if (fogShipDist != 0.0 && !retVal) {
             // check Fog zones
             retVal = checkMarineZones(getFogConfig(), fogShipDist, latShip,
                     lonShip);
         }
-        
+
         return retVal;
     }
 
@@ -245,7 +253,6 @@ public class FSSObsGenerator extends CompositeProductGenerator implements
      */
     private boolean checkMarineZones(FSSObsMonitorConfigurationManager cfg,
             double configDist, double lat, double lon) {
-        boolean retVal = false;
         for (String zone : cfg.getAreaList()) {
             if (zone.charAt(2) == Z) {
                 // initial distance
@@ -262,14 +269,52 @@ public class FSSObsGenerator extends CompositeProductGenerator implements
                                 ssXML.getCLon());
                     }
                 } catch (SpatialException e) {
-                    statusHandler.handle(Priority.PROBLEM, "Couldn't find marine zone within distance. lon: "+lon+" lat: "+lat+" dist: "+configDist, e);
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Couldn't find marine zone within distance. lon: "
+                                    + lon + " lat: " + lat + " dist: "
+                                    + configDist, e);
                 }
                 if (shipTozone < configDist) {
-                    retVal = true;
+                    // enough just one zone to include data
+                    return true;
                 }
             }
         }
-        return retVal;
+        return false;
+    }
+
+    /**
+     * Checks if parameters of FSSObs monitors exceed threshold values and sends
+     * AlertViz messages.
+     * 
+     * @param fssObsRec
+     */
+    private void checkThresholds(FSSObsRecord fssObsRec) {
+        String stnName = fssObsRec.getStationId();
+        List<String> fogAreaList = getFogConfig().getAreaByStationId(stnName);
+        List<String> ssAreaList = getSSConfig().getAreaByStationId(stnName);
+        List<String> snowAreaList = getSnowConfig().getAreaByStationId(stnName);
+        if (!fogAreaList.isEmpty()) {
+            FSSObsAlarmMgr.setPluginName(AppName.FOG.name());
+            ThresholdMgr fogMgr = getFogThMgr().getFogThreshMgr();
+            fogMgr.readThresholdXml();
+            getFogThMgr().sendAlertVizMsg(fogMgr, fssObsRec,
+                    getFogConfig().getTimeWindow(), fogAreaList);
+        }
+        if (!ssAreaList.isEmpty()) {
+            FSSObsAlarmMgr.setPluginName(AppName.SAFESEAS.name());
+            ThresholdMgr ssMgr = getSSThMgr().getSsThreshMgr();
+            ssMgr.readThresholdXml();
+            getSSThMgr().sendAlertVizMsg(ssMgr, fssObsRec,
+                    getSSConfig().getTimeWindow(), ssAreaList);
+        }
+        if (!snowAreaList.isEmpty()) {
+            FSSObsAlarmMgr.setPluginName(AppName.SNOW.name());
+            ThresholdMgr snowMgr = getSnowThMgr().getSnowThreshMgr();
+            snowMgr.readThresholdXml();
+            getSnowThMgr().sendAlertVizMsg(snowMgr, fssObsRec,
+                    getSnowConfig().getTimeWindow(), snowAreaList);
+        }
     }
 
     /*
@@ -381,7 +426,7 @@ public class FSSObsGenerator extends CompositeProductGenerator implements
      */
     public FSSObsMonitorConfigurationManager getFogConfig() {
         if (fogmcm == null) {
-            fogmcm = FSSObsMonitorConfigurationManager.getInstance(MonName.fog);
+            fogmcm = FSSObsMonitorConfigurationManager.getInstance(AppName.FOG);
             fogmcm.addListener(this);
         }
         return fogmcm;
@@ -394,7 +439,8 @@ public class FSSObsGenerator extends CompositeProductGenerator implements
      */
     public FSSObsMonitorConfigurationManager getSSConfig() {
         if (ssmcm == null) {
-            ssmcm = FSSObsMonitorConfigurationManager.getInstance(MonName.ss);
+            ssmcm = FSSObsMonitorConfigurationManager
+                    .getInstance(AppName.SAFESEAS);
             ssmcm.addListener(this);
         }
         return ssmcm;
@@ -408,9 +454,45 @@ public class FSSObsGenerator extends CompositeProductGenerator implements
     public FSSObsMonitorConfigurationManager getSnowConfig() {
         if (snowmcm == null) {
             snowmcm = FSSObsMonitorConfigurationManager
-                    .getInstance(MonName.snow);
+                    .getInstance(AppName.SNOW);
+            snowmcm.addListener(this);
         }
         return snowmcm;
     }
 
+    /**
+     * Gets Fog Alarm Threshold manager.
+     * 
+     * @return manager
+     */
+    private FSSObsAlarmMgr getFogThMgr() {
+        if (fogThMgr == null) {
+            this.fogThMgr = FSSObsAlarmMgr.getInstance(AppName.FOG);
+        }
+        return fogThMgr;
+    }
+
+    /**
+     * Gets SAFESEAS Alarm Threshold manager.
+     * 
+     * @return manager
+     */
+    private FSSObsAlarmMgr getSSThMgr() {
+        if (ssThMgr == null) {
+            this.ssThMgr = FSSObsAlarmMgr.getInstance(AppName.SAFESEAS);
+        }
+        return ssThMgr;
+    }
+
+    /**
+     * Gets Fog Alarm Threshold manager.
+     * 
+     * @return manager
+     */
+    private FSSObsAlarmMgr getSnowThMgr() {
+        if (snowThMgr == null) {
+            this.snowThMgr = FSSObsAlarmMgr.getInstance(AppName.SNOW);
+        }
+        return snowThMgr;
+    }
 }

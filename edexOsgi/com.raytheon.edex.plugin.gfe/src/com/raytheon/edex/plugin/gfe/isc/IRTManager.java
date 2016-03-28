@@ -48,6 +48,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * 08/10/09     1995       bphillip    Initial creation
  * 06/13/13     2044       randerso    Refactored to use IFPServer
  * 03/11/15     4128       dgilling    Refactored to use ISCServiceProvider.
+ * 11/11/15     5110       dgilling    Fix copy/paste error in log message.
  * 
  * </pre>
  * 
@@ -119,7 +120,8 @@ public final class IRTManager {
                 irtMap.put(siteID, future);
             } catch (RejectedExecutionException e) {
                 statusHandler.handle(Priority.PROBLEM,
-                        "Unable to submit fetchAT job for execution:", e);
+                        "Unable to submit IRT registration job for execution:",
+                        e);
                 irtMap.remove(siteID);
             }
         }

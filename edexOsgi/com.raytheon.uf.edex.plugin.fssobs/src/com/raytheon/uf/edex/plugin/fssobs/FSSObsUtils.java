@@ -61,6 +61,7 @@ import com.raytheon.uf.edex.pointdata.PointDataQuery;
  * Sep 04, 2014 3220       skorolev    Removed getStations method.
  * Sep 18, 2015 3873       skorolev    Removed identical constant definitions.
  * Dec 02, 2015 3873       dhladky     Logging change.
+ * Jan 05, 2016 5115       skorolev    Changed unit for Wind Chill to Fahrenheit.
  * 
  * </pre>
  * 
@@ -79,6 +80,10 @@ public class FSSObsUtils {
     /** CELSIUS --> KELVIN */
     private static final UnitConverter cToK = SI.CELSIUS
             .getConverterTo(SI.KELVIN);
+
+    /** CELSIUS --> FAHRENHEIT */
+    private static final UnitConverter cToF = SI.CELSIUS
+            .getConverterTo(NonSI.FAHRENHEIT);
 
     /** Knots --> kilometers per hour */
     private static final UnitConverter knotToKph = NonSI.KNOT
@@ -427,8 +432,8 @@ public class FSSObsUtils {
         sc.close();
         if (temp != ObConst.MISSING && windspd != ObConst.MISSING) {
             float speedKPH = (float) knotToKph.convert(windspd);
-            // in Kelvin
-            retVal[3] = (float) cToK.convert(calcWindChill(
+            // in Fahrenheit
+            retVal[3] = (float) cToF.convert(calcWindChill(
                     (float) fToC.convert(temp), speedKPH));
             // in minutes
             retVal[4] = calcFrostbiteTime(speedKPH, (float) fToC.convert(temp));

@@ -72,30 +72,31 @@ import com.raytheon.viz.ui.panes.PaneManager;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * The side view for "docking" maps
+ * The side view for "docking" displays.
  * 
  * <pre>
  * 
- *      SOFTWARE HISTORY
+ * SOFTWARE HISTORY
  *     
- *      Date       	    Ticket#		Engineer	Description
- *      ------------	----------	-----------	--------------------------
- *      7/1/06                      chammack    Initial Creation.
- *      Dec 19, 2007                njensen     Support for different tab types.
- *      Jul  8, 2009    #830        bgonzale    use pane manager instead of managing own panes.
- *      Oct  22, 2009   #3348       bsteffen    limit number of frames in sidepane rather than reseting
- *      Jul 1, 2010     #6146       bkowal      Updates the legend mode so that smaller panes will 
- *                                              now include a legend
- *      Nov 20, 2012   DR 15524    M.Porricelli Changed so interactive screens still editable when
- *                                              swapped to side panel
- *      Mar 21, 2013       1638     mschenke    Changed map scales not tied to d2d
- *      Aug  9, 2013   DR 16427     D. Friedman Swap additional input handlers.
- *      Oct 10, 2013    #2104       mschenke    Switched to use MapScalesManager
- *      Jul 15, 2014     2954       njensen     Updated init() for MapScalesManager change
- *      Aug 25, 2014     3467       mapeters    Removed changing of editability from swapPanes().
- *      Mar 02, 2015     4204       njensen     Support for swapping part names
- *      Apr 02, 2015     4204       njensen     Fix 4-panel swap of renamed parts
- *      Sep 18, 2015   DR 17996     D. Friedman Clear editor pane's IRenderableDisplay before swap
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * Jul 01, 2006             chammack    Initial Creation.
+ * Dec 19, 2007             njensen     Support for different tab types.
+ * Jul 08, 2009    830      bgonzale    use pane manager instead of managing own panes.
+ * Oct 22, 2009    334      bsteffen    limit number of frames in sidepane rather than reseting
+ * Jul 01, 2010    6146     bkowal      Updates the legend mode so that smaller panes will 
+ *                                       now include a legend
+ * Nov 20, 2012 DR 15524    M.Porricelli Changed so interactive screens still editable when
+ *                                        swapped to side panel
+ * Mar 21, 2013    1638     mschenke    Changed map scales not tied to d2d
+ * Aug 09, 2013 DR 16427    D. Friedman Swap additional input handlers.
+ * Oct 10, 2013    2104     mschenke    Switched to use MapScalesManager
+ * Jul 15, 2014    2954     njensen     Updated init() for MapScalesManager change
+ * Aug 25, 2014    3467     mapeters    Removed changing of editability from swapPanes().
+ * Mar 02, 2015    4204     njensen     Support for swapping part names
+ * Apr 02, 2015    4204     njensen     Fix 4-panel swap of renamed parts
+ * Sep 18, 2015 DR 17996    D. Friedman Clear editor pane's IRenderableDisplay before swap
+ * Oct 21, 2015    5023     njensen     Removed unnecessary setPartName()
  * 
  * </pre>
  * 
@@ -151,13 +152,6 @@ public class SideView extends ViewPart implements IMultiPaneEditor,
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.ui.part.WorkbenchPart#createPartControl(org.eclipse.swt.widgets
-     * .Composite)
-     */
     @Override
     public void createPartControl(Composite parent) {
         try {
@@ -202,24 +196,12 @@ public class SideView extends ViewPart implements IMultiPaneEditor,
 
         int buttonDown = 0;
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see com.raytheon.viz.ui.input.IInputHandler#handleMouseDown(int,
-         * int, int)
-         */
         @Override
         public boolean handleMouseDown(int x, int y, int mouseButton) {
             buttonDown = mouseButton;
             return false;
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see com.raytheon.viz.ui.input.IInputHandler#handleMouseUp(int, int,
-         * int)
-         */
         @Override
         public boolean handleMouseUp(int x, int y, int mouseButton) {
             if (buttonDown == 3 && buttonDown == mouseButton) { // right click
@@ -231,11 +213,6 @@ public class SideView extends ViewPart implements IMultiPaneEditor,
         }
     };
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.IDisplayPaneContainer#getDisplayPanes()
-     */
     @Override
     public IDisplayPane[] getDisplayPanes() {
         if (this.paneManager == null) {
@@ -245,43 +222,21 @@ public class SideView extends ViewPart implements IMultiPaneEditor,
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.IDisplayPaneContainer#getLoopProperties()
-     */
     @Override
     public LoopProperties getLoopProperties() {
         return this.loopProperties;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.IDisplayPaneContainer#setLoopProperties(com.raytheon
-     * .viz.core.datastructure.LoopProperties)
-     */
     @Override
     public void setLoopProperties(LoopProperties loopProperties) {
         this.loopProperties = loopProperties;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.IDisplayPaneContainer#getActiveDisplayPane()
-     */
     @Override
     public IDisplayPane getActiveDisplayPane() {
         return paneManager.getActiveDisplayPane();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.IDisplayPaneContainer#refresh()
-     */
     @Override
     public void refresh() {
         paneManager.refresh();
@@ -425,7 +380,10 @@ public class SideView extends ViewPart implements IMultiPaneEditor,
                         IRenderableDisplay display = editorPanes[i]
                                 .getRenderableDisplay();
                         boolean hide = editorHiddenDisplays.contains(display);
-                        // TODO: See note above for the isCompatibleEditor condition.
+                        /*
+                         * TODO: See note above for the isCompatibleEditor
+                         * condition.
+                         */
                         if (isCompatibleEditor) {
                             editorPanes[i].setRenderableDisplay(null);
                         }
@@ -492,11 +450,6 @@ public class SideView extends ViewPart implements IMultiPaneEditor,
                                 }
                             }
                         }
-                        /*
-                         * have to set part name again here cause addPane() or
-                         * removePane() may mess it up
-                         */
-                        theEditor.setPartName(viewName);
                     } else {
                         int min = Math.min(viewPaneCount, editorPaneCount);
                         for (int i = 0; i < min; ++i) {
@@ -626,24 +579,11 @@ public class SideView extends ViewPart implements IMultiPaneEditor,
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.IDisplayPaneContainer#translateClick(double,
-     * double)
-     */
     @Override
     public Coordinate translateClick(double x, double y) {
         return paneManager.translateClick(x, y);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.IDisplayPaneContainer#translateInverseClick(
-     * com.vividsolutions.jts.geom.Coordinate)
-     */
     @Override
     public double[] translateInverseClick(Coordinate c) {
         return paneManager.translateInverseClick(c);
@@ -703,68 +643,34 @@ public class SideView extends ViewPart implements IMultiPaneEditor,
         paneManager.showPane(pane);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.uf.viz.core.IDisplayPaneContainer#
-     * addRenderableDisplayChangedListener
-     * (com.raytheon.uf.viz.core.IRenderableDisplayChangedListener)
-     */
     @Override
     public void addRenderableDisplayChangedListener(
             IRenderableDisplayChangedListener displayChangedListener) {
-
+        // no op
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.uf.viz.core.IDisplayPaneContainer#
-     * notifyRenderableDisplayChangedListeners
-     * (com.raytheon.uf.viz.core.IDisplayPane,
-     * com.raytheon.uf.viz.core.drawables.IRenderableDisplay)
-     */
     @Override
     public void notifyRenderableDisplayChangedListeners(IDisplayPane pane,
             IRenderableDisplay display, DisplayChangeType type) {
-
+        // no op
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.uf.viz.core.IDisplayPaneContainer#
-     * removeRenderableDisplayChangedListener
-     * (com.raytheon.uf.viz.core.IRenderableDisplayChangedListener)
-     */
     @Override
     public void removeRenderableDisplayChangedListener(
             IRenderableDisplayChangedListener displayChangedListener) {
-
+        // no op
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.editor.IMultiPaneEditor#addSelectedPaneChangedListener
-     * (com.raytheon.viz.ui.editor.ISelectedPaneChangedListener)
-     */
     @Override
     public void addSelectedPaneChangedListener(
             ISelectedPanesChangedListener listener) {
+        // no op
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.editor.IMultiPaneEditor#removeSelectedPaneChangedListener
-     * (com.raytheon.viz.ui.editor.ISelectedPaneChangedListener)
-     */
     @Override
     public void removeSelectedPaneChangedListener(
             ISelectedPanesChangedListener listener) {
+        // no op
     }
 
     @Override
@@ -783,26 +689,11 @@ public class SideView extends ViewPart implements IMultiPaneEditor,
         paneManager.unregisterMouseHandler(handler);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.editor.IMultiPaneEditor#getSelectedPanes(java.lang
-     * .String)
-     */
     @Override
     public IDisplayPane[] getSelectedPanes(String action) {
         return paneManager.getSelectedPanes(action);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.color.IBackgroundColorChangedListener#setColor(com
-     * .raytheon.viz.ui.color.IBackgroundColorChangedListener.BGColorMode,
-     * org.eclipse.swt.graphics.RGB)
-     */
     @Override
     public void setColor(BGColorMode mode, RGB newColor) {
         for (IDisplayPane pane : getDisplayPanes()) {

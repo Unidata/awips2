@@ -53,7 +53,8 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 16, 2009            bsteffen     Initial creation
+ * Sep 16, 2009            bsteffen    Initial creation
+ * Feb 04, 2016 5310       tgurney     Remove dependency on dataURI
  * 
  * </pre>
  * 
@@ -175,14 +176,12 @@ public class NcwfPolygonResource extends
         DataTime dataTime = null;
 
         for (BUFRncwf r : records) {
-            constraint.addToConstraintValueList(r.getDataURI());
             dataTime = r.getDataTime();
         }
-        Map<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>();
-        constraints.put("dataURI", constraint);
         PointDataContainer pdc = PointDataRequest.requestPointDataAllLevels(
                 dataTime, resourceData.getMetadataMap().get("pluginName")
-                        .getConstraintValue(), parameters, null, constraints);
+                        .getConstraintValue(), parameters, null,
+                resourceData.getMetadataMap());
 
         for (int uriCounter = 0; uriCounter < pdc.getAllocatedSz(); uriCounter++) {
             PointDataView pdv = pdc.readRandom(uriCounter);
@@ -206,6 +205,7 @@ public class NcwfPolygonResource extends
 
     }
 
+    @Override
     protected void addRecord(BUFRncwf obj) {
 
         DataTime time = calculateBinTime(obj.getDataTime());

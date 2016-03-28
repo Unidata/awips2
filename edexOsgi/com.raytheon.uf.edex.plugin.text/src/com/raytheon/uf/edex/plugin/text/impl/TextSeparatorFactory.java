@@ -21,8 +21,8 @@ package com.raytheon.uf.edex.plugin.text.impl;
 
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.site.SiteUtil;
@@ -52,6 +52,7 @@ import com.raytheon.uf.edex.plugin.text.impl.separator.WMOMessageSeparator;
  * Apr 01, 2014 2915       dgilling    Support re-factored TextDBStaticData.
  * May 14, 2014 2536       bclement    moved WMO Header to common
  * Jul 10, 2014 2914       garmendariz Remove EnvProperties
+ * Dec 09, 2015 5166       kbisanz     Update logging to use SLF4J.
  * 
  * </pre>
  * 
@@ -61,8 +62,8 @@ import com.raytheon.uf.edex.plugin.text.impl.separator.WMOMessageSeparator;
 
 public class TextSeparatorFactory {
 
-    private static final Log logger = LogFactory
-            .getLog(TextSeparatorFactory.class);
+    private static final Logger logger = LoggerFactory
+            .getLogger(TextSeparatorFactory.class);
 
     private static final String siteId = SiteUtil.getSite();
 

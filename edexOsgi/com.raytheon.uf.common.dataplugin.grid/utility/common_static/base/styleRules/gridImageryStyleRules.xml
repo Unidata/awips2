@@ -5635,4 +5635,168 @@
         </colorbarLabeling>
       </imageStyle>
     </styleRule>
+<!-- WPC Probablistic Winter Prediction Forecast (PWPF) -->
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>TOTSN5pct12hr</parameter>
+            <parameter>TOTSN10pct12hr</parameter>
+            <parameter>TOTSN25pct12hr</parameter>
+            <parameter>TOTSN50pct12hr</parameter>
+            <parameter>TOTSN75pct12hr</parameter>
+            <parameter>TOTSN90pct12hr</parameter>
+            <parameter>TOTSN95pct12hr</parameter>
+
+            <parameter>TOTSN5pct24hr</parameter>
+            <parameter>TOTSN10pct24hr</parameter>
+            <parameter>TOTSN25pct24hr</parameter>
+            <parameter>TOTSN50pct24hr</parameter>
+            <parameter>TOTSN75pct24hr</parameter>
+            <parameter>TOTSN90pct24hr</parameter>
+            <parameter>TOTSN95pct24hr</parameter>
+
+            <parameter>TOTSN5pct48hr</parameter>
+            <parameter>TOTSN10pct48hr</parameter>
+            <parameter>TOTSN25pct48hr</parameter>
+            <parameter>TOTSN50pct48hr</parameter>
+            <parameter>TOTSN75pct48hr</parameter>
+            <parameter>TOTSN90pct48hr</parameter>
+            <parameter>TOTSN95pct48hr</parameter>
+
+            <parameter>TOTSN5pct72hr</parameter>
+            <parameter>TOTSN10pct72hr</parameter>
+            <parameter>TOTSN25pct72hr</parameter>
+            <parameter>TOTSN50pct72hr</parameter>
+            <parameter>TOTSN75pct72hr</parameter>
+            <parameter>TOTSN90pct72hr</parameter>
+            <parameter>TOTSN95pct72hr</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits label="in">in</displayUnits>
+            <range scale="LINEAR"> 
+                <minValue>0</minValue>
+                <maxValue>49</maxValue> 
+            </range>
+            <colorbarLabeling>
+                <increment>2</increment>
+            </colorbarLabeling>
+            <defaultColormap>Grid/pwpf_snow</defaultColormap>
+            <interpolate>false</interpolate>
+        </imageStyle>
+    </styleRule>
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>FRZR5pct12hr</parameter>
+            <parameter>FRZR10pct12hr</parameter>
+            <parameter>FRZR25pct12hr</parameter>
+            <parameter>FRZR50pct12hr</parameter>
+            <parameter>FRZR75pct12hr</parameter>
+            <parameter>FRZR90pct12hr</parameter>
+            <parameter>FRZR95pct12hr</parameter>
+
+            <parameter>FRZR5pct24hr</parameter>
+            <parameter>FRZR10pct24hr</parameter>
+            <parameter>FRZR25pct24hr</parameter>
+            <parameter>FRZR50pct24hr</parameter>
+            <parameter>FRZR75pct24hr</parameter>
+            <parameter>FRZR90pct24hr</parameter>
+            <parameter>FRZR95pct24hr</parameter>
+
+            <parameter>FRZR5pct48hr</parameter>
+            <parameter>FRZR10pct48hr</parameter>
+            <parameter>FRZR25pct48hr</parameter>
+            <parameter>FRZR50pct48hr</parameter>
+            <parameter>FRZR75pct48hr</parameter>
+            <parameter>FRZR90pct48hr</parameter>
+            <parameter>FRZR95pct48hr</parameter>
+
+            <parameter>FRZR5pct72hr</parameter>
+            <parameter>FRZR10pct72hr</parameter>
+            <parameter>FRZR25pct72hr</parameter>
+            <parameter>FRZR50pct72hr</parameter>
+            <parameter>FRZR75pct72hr</parameter>
+            <parameter>FRZR90pct72hr</parameter>
+            <parameter>FRZR95pct72hr</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits label="in">in</displayUnits>
+            <range scale="LINEAR"> 
+                <minValue>0</minValue>
+                <maxValue>11</maxValue> 
+            </range>
+            <colorbarLabeling>
+                <increment>1</increment>
+            </colorbarLabeling>
+            <defaultColormap>Grid/pwpf_frzr</defaultColormap>
+            <interpolate>false</interpolate>
+        </imageStyle>
+    </styleRule>
+	<styleRule>
+        <paramLevelMatches>
+            <parameter>FRZR0.01in12hr</parameter>
+            <parameter>FRZR0.1in12hr</parameter>
+            <parameter>FRZR0.25in12hr</parameter>
+            <parameter>FRZR0.5in12hr</parameter>
+            <parameter>FRZR1in12hr</parameter>
+
+            <parameter>FRZR0.01in24hr</parameter>
+            <parameter>FRZR0.1in24hr</parameter>
+            <parameter>FRZR0.25in24hr</parameter>
+            <parameter>FRZR0.5in24hr</parameter>
+            <parameter>FRZR1in24hr</parameter>
+
+            <parameter>FRZR0.1in48hr</parameter>
+            <parameter>FRZR0.25in48hr</parameter>
+            <parameter>FRZR0.5in48hr</parameter>
+            <parameter>FRZR1in48hr</parameter>
+
+            <parameter>FRZR0.1in72hr</parameter>
+            <parameter>FRZR0.25in72hr</parameter>
+            <parameter>FRZR0.5in72hr</parameter>
+            <parameter>FRZR1in72hr</parameter>
+
+            <parameter>TOTSN1in12hr</parameter>
+            <parameter>TOTSN2in12hr</parameter>
+            <parameter>TOTSN4in12hr</parameter>
+            <parameter>TOTSN6in12hr</parameter>
+            <parameter>TOTSN8in12hr</parameter>
+            <parameter>TOTSN12in12hr</parameter>
+            <parameter>TOTSN18in12hr</parameter>
+
+            <parameter>TOTSN1in24hr</parameter>
+            <parameter>TOTSN2in24hr</parameter>
+            <parameter>TOTSN4in24hr</parameter>
+            <parameter>TOTSN6in24hr</parameter>
+            <parameter>TOTSN8in24hr</parameter>
+            <parameter>TOTSN12in24hr</parameter>
+            <parameter>TOTSN18in24hr</parameter>
+
+            <parameter>TOTSN2in48hr</parameter>
+            <parameter>TOTSN4in48hr</parameter>
+            <parameter>TOTSN8in48hr</parameter>
+            <parameter>TOTSN12in48hr</parameter>
+            <parameter>TOTSN18in48hr</parameter>
+            <parameter>TOTSN24in48hr</parameter>
+            <parameter>TOTSN30in48hr</parameter>
+
+            <parameter>TOTSN2in72hr</parameter>
+            <parameter>TOTSN4in72hr</parameter>
+            <parameter>TOTSN8in72hr</parameter>
+            <parameter>TOTSN12in72hr</parameter>
+            <parameter>TOTSN18in72hr</parameter>
+            <parameter>TOTSN24in72hr</parameter>
+            <parameter>TOTSN30in72hr</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits label="%">%/100</displayUnits>
+            <range scale="LINEAR"> 
+                <minValue>0</minValue>
+                <maxValue>100</maxValue> 
+            </range>
+            <colorbarLabeling>
+                <increment>10</increment>
+            </colorbarLabeling>
+            <defaultColormap>Grid/pwpf_prob</defaultColormap>
+            <interpolate>false</interpolate>
+        </imageStyle>
+    </styleRule>
 </styleRuleset>

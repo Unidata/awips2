@@ -453,13 +453,13 @@ class TextProduct(GenericHazards.TextProduct):
                  
         if len(ctas) > 0: 
             hazardBodyPhrase = hazardBodyPhrase + \
-                               'Precautionary/preparedness actions...\n\n'
+                               'PRECAUTIONARY/PREPAREDNESS ACTIONS...\n\n'
             for c in ctas: 
                 hazardBodyPhrase = hazardBodyPhrase +  c + '\n\n'
             hazardBodyPhrase = hazardBodyPhrase + '&&\n\n' 
  
         # Make sure there is only one CAP tag pairs
-        hazardBodyPhrase = re.sub(r'&&\s*Precautionary/preparedness actions\.\.\.\n', \
+        hazardBodyPhrase = re.sub(r'&&\s*PRECAUTIONARY/PREPAREDNESS ACTIONS\.\.\.\n', \
                                   "", hazardBodyPhrase) 
 
         return hazardBodyPhrase
@@ -870,14 +870,14 @@ class TextProduct(GenericHazards.TextProduct):
         # Added to place line feeds in the CAP tags to keep separate from CTAs
 
         fcst = string.replace(fcst, \
-                              r"Precautionary/preparedness actions\.\.\.", \
-                              r"\nPrecautionary/preparedness actions\.\.\.\n")
+                              r"PRECAUTIONARY/PREPAREDNESS ACTIONS\.\.\.", \
+                              r"\nPRECAUTIONARY/PREPAREDNESS ACTIONS\.\.\.\n")
         # Commented out following line to prevent it from changing bullet indentation
         #fcst = string.replace(fcst, "\n ","\n")
         fcst = string.replace(fcst, "&&", "\n&&\n")
 
         # Prevent empty Call to Action Tags
-        fcst = re.sub(r'\nPrecautionary/preparedness actions\.\.\.\s*&&\n', \
+        fcst = re.sub(r'\nPRECAUTIONARY/PREPAREDNESS ACTIONS\.\.\.\s*&&\n', \
                       "", fcst)
 
         fcst = self._indentBulletText(fcst)

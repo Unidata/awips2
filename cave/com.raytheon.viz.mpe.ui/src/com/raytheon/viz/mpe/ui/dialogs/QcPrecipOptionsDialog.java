@@ -70,6 +70,8 @@ import com.raytheon.viz.mpe.util.DailyQcUtils;
  * Sep 11, 2015 17988      snaples     Fixed issue with wait cursor not showing when Rendering Grids.
  * Nov 18, 2015 18093      snaples     Fixed problem with arrows being disabled when new
  *                                     day rollover >18Z occurs.
+ * Jan 15, 2016 5054       randerso    Use proper parent shell
+ * 
  * </pre>
  * 
  * @author snaples
@@ -132,9 +134,9 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
     private static boolean isfinished = true;
 
     private static int dqc_good = 0;
-    
+
     public static DrawDQCStations ddq;
-    
+
     private DailyQcUtils dqc;
 
     public static ArrayList<String> dataType = new ArrayList<String>();
@@ -143,11 +145,11 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
 
     OtherPrecipOptions opo = new OtherPrecipOptions();
 
-//    int[] pcp_in_use;
+    // int[] pcp_in_use;
 
-//    Pdata[] pdata = new Pdata[0];
+    // Pdata[] pdata = new Pdata[0];
 
-//    Ts[] ts;
+    // Ts[] ts;
 
     private int time_pos;
 
@@ -158,7 +160,7 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
     final GageQcSelect gq = new GageQcSelect();
 
     int i = 0;
-    
+
     /**
      * Constructor.
      * 
@@ -169,12 +171,13 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
         super(parent);
         MPEDisplayManager.getCurrent().setQpf(true);
         dqc = DailyQcUtils.getInstance();
-        
+
     }
 
     private int getOpts() {
         int ik = 0;
-        if (DailyQcUtils.points_flag == 1 && DailyQcUtils.pcp_in_use[time_pos] == -1) {
+        if (DailyQcUtils.points_flag == 1
+                && DailyQcUtils.pcp_in_use[time_pos] == -1) {
             ik = 0;
         } else if (DailyQcUtils.points_flag == 1
                 && DailyQcUtils.grids_flag == -1 && DailyQcUtils.map_flag == -1
@@ -220,7 +223,7 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
         String QcArea = ChooseDataPeriodDialog.prevArea;
         AppsDefaults appDefaults = AppsDefaults.getInstance();
         DisplayFieldData df = displayMgr.getDisplayFieldType();
-        
+
         if (currDate == null) {
             currDate = prevDate;
         }
@@ -234,7 +237,7 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
         dqc_good = dqc.qcDataHasChanged(prevDate, currDate, QcArea, qcDays,
                 false);
         if (dqc_good == 1) {
-            SaveLevel2Data s2 = new SaveLevel2Data();
+            SaveLevel2Data s2 = new SaveLevel2Data(getShell());
             dqc_good = s2.check_new_area(currDate, QcArea, qcDays);
             if (dqc_good == 0) {
                 dqc_good = dqc.qcDataReload(currDate, QcArea, qcDays, false);
@@ -312,14 +315,15 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
         isfinished = true;
         isOpen = false;
         font.dispose();
-        SaveLevel2Data s2 = new SaveLevel2Data();
+        SaveLevel2Data s2 = new SaveLevel2Data(getShell());
         s2.send_dbase_new_area();
-//        DailyQcUtils dc = new DailyQcUtils();
+        // DailyQcUtils dc = new DailyQcUtils();
         dqc.clearData();
         displayMgr.displayFieldData(df);
         removePerspectiveListener();
         if (MPEDisplayManager.getCurrent() != null) {
             display.asyncExec(new Runnable() {
+                @Override
                 public void run() {
                     ChooseDataPeriodDialog dialog = new ChooseDataPeriodDialog(
                             getParent().getShell());
@@ -365,7 +369,7 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
             }
         }
 
-//        ts = DailyQcUtils.ts;
+        // ts = DailyQcUtils.ts;
         this.createDataOptionsGroup();
         this.createPointTypeGroup();
         this.createPointQualityGroup();
@@ -418,8 +422,7 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
             }
         });
         if (DailyQcUtils.qcDays == 1
-                && (dqc.curHr18_00 == 1
-                        || dqc.curHr00_06 == 1 || dqc.curHr06_12 == 1)) {
+                && (dqc.curHr18_00 == 1 || dqc.curHr00_06 == 1 || dqc.curHr06_12 == 1)) {
             selsix24Cbo.setEnabled(false);
         } else {
             selsix24Cbo.setEnabled(true);
@@ -499,7 +502,8 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
         renderGridsBtn = new Button(renderComp, SWT.PUSH);
         renderGridsBtn.setText("Render Grids+MAPs");
         renderGridsBtn.setLayoutData(gd);
-        if (DailyQcUtils.pcp_in_use[time_pos] == -1 && DailyQcUtils.pdata[i].used[4] != 0) {
+        if (DailyQcUtils.pcp_in_use[time_pos] == -1
+                && DailyQcUtils.pdata[i].used[4] != 0) {
             renderGridsBtn.setEnabled(true);
         } else {
             renderGridsBtn.setEnabled(false);
@@ -669,8 +673,7 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
         boolean mpe_show_missing_gage_set = false;
         if (dqc.mpe_show_missing_gage.length() > 0) {
             if ((dqc.mpe_show_missing_gage.equalsIgnoreCase("All"))
-                    || (dqc.mpe_show_missing_gage
-                            .equalsIgnoreCase("Reported"))) {
+                    || (dqc.mpe_show_missing_gage.equalsIgnoreCase("Reported"))) {
                 mpe_show_missing_gage_set = true;
             } else {
                 mpe_show_missing_gage_set = false;

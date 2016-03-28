@@ -39,8 +39,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.PaintEvent;
-import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -53,7 +51,6 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
@@ -85,6 +82,7 @@ import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.zoneselector.AbstractZoneSelector.IZoneSelectionListener;
 import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.PythonPreferenceStore;
@@ -96,29 +94,30 @@ import com.raytheon.viz.gfe.core.griddata.IGridData;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.product.TextDBUtil;
 import com.raytheon.viz.gfe.ui.zoneselector.ZoneSelector;
-import com.raytheon.viz.gfe.ui.zoneselector.ZoneSelector.IZoneSelectionListener;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.statusline.StatusMessage.Importance;
 import com.raytheon.viz.ui.statusline.StatusStore;
 
 /**
  * Make Hazard Dialog
- *
+ * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer     Description
  * ------------ ---------- -----------  --------------------------
- * 	Jun 5, 2008				Eric Babin  Initial Creation
- *  Sep 27,2010 5813        gzhou       get etn from param pattern hazXXXnnn
- *  Feb 28,2012 14436		mli		    Add RP.S - Rip Current
- *  Apr 03,2012 436         randerso    Reworked dialog to be called by Python MakeHazard procedure
- *  Apr 09,2012 436         randerso    Merged RNK's MakeHazards_Elevation procedure
- *  May 30,2012 2028        randerso    Cleaned up dialog layout
- *  Nov 13,2014 646         lshi        Fixed hard coded endTimeSlider's Max value
- *  Jul 30,2015 17770       lshi        Add handling for AT, EP, CP and WP basins
- *
+ * Jun 05, 2008            Eric Babin   Initial Creation
+ * Sep 27, 2010 5813       gzhou        get etn from param pattern hazXXXnnn
+ * Feb 28, 2012 14436      mli          Add RP.S - Rip Current
+ * Apr 03, 2012 436        randerso     Reworked dialog to be called by Python MakeHazard procedure
+ * Apr 09, 2012 436        randerso     Merged RNK's MakeHazards_Elevation procedure
+ * May 30, 2012 2028       randerso     Cleaned up dialog layout
+ * Nov 13, 2014 646        lshi         Fixed hard coded endTimeSlider's Max value
+ * Jul 30, 2015 17770      lshi         Add handling for AT, EP, CP and WP basins
+ * Jan 14, 2016 5239       randerso     Fixed Zones included/not included labels not always visible
+ * Feb 05, 2016 5316       randerso     Moved AbstractZoneSelector to separate project
+ * 
  * </pre>
- *
+ * 
  * @author ebabin
  * @version 1.0
  */
@@ -129,8 +128,6 @@ public class MakeHazardDialog extends CaveSWTDialog implements
             .getHandler(MakeHazardDialog.class);
 
     private static final String DEFAULT_MAP_COLOR = "red";
-
-    private static final int LEGEND_HEIGHT = 16;
 
     private static final double DEFAULT_AREA_THRESHOLD = 0.10;
 
@@ -167,7 +164,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
 
     /**
      * Used by hazard start and end Time.
-     *
+     * 
      */
     private int toHours = 96;
 
@@ -220,10 +217,6 @@ public class MakeHazardDialog extends CaveSWTDialog implements
 
     private Composite topComp;
 
-    private Canvas excluded;
-
-    private Canvas included;
-
     private Map<String, Integer> comboDict;
 
     private String currentHazardType;
@@ -234,13 +227,13 @@ public class MakeHazardDialog extends CaveSWTDialog implements
 
     private org.eclipse.swt.widgets.List hazardGroupList;
 
-    private static final String[] WMO_TITLES = {
-        "NATIONAL HURRICANE CENTER",        //NHC
-        "NATIONAL WEATHER SERVICE TIYAN",   //GUM
-        "CENTRAL PACIFIC HURRICANE CENTER"  //CPHC
+    private static final String[] WMO_TITLES = { "NATIONAL HURRICANE CENTER", // NHC
+            "NATIONAL WEATHER SERVICE TIYAN", // GUM
+            "CENTRAL PACIFIC HURRICANE CENTER" // CPHC
     };
 
-    private static final Map<String, String> BASINS = ImmutableMap.of("AT", "10", "EP", "20", "CP", "30", "WP", "40");
+    private static final Map<String, String> BASINS = ImmutableMap.of("AT",
+            "10", "EP", "20", "CP", "30", "WP", "40");
 
     public MakeHazardDialog(Shell parent, DataManager dataManager,
             String colorName, int defaultMapWidth, int timeScaleEndTime,
@@ -372,13 +365,13 @@ public class MakeHazardDialog extends CaveSWTDialog implements
         TimeRange timeRange = null;
         Parm parm = null;
         String parmName = null;
-        if (parms != null && parms.length == 1) {
+        if ((parms != null) && (parms.length == 1)) {
             parm = parms[0];
             parmName = parm.getParmID().getParmName();
         }
 
         // Check for an ETN or segment #
-        if (parmName != null && parmName.startsWith("haz")) {
+        if ((parmName != null) && parmName.startsWith("haz")) {
 
             // DR 5813
             // parmName example: hazXXXnnn
@@ -387,7 +380,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
             while (Character.isDigit(parmName.charAt(--index))) {
             }
 
-            if (index < parmName.length() - 1) {
+            if (index < (parmName.length() - 1)) {
                 String etn = parmName.substring(index + 1);
                 if (Integer.parseInt(etn) > 0) {
                     this.etnSegNumberField.setText(etn);
@@ -397,7 +390,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
 
         timeRange = determineTimeRange(parm);
 
-        if (parmName == null || !parmName.startsWith("haz")) {
+        if ((parmName == null) || !parmName.startsWith("haz")) {
             setTRSliders(timeRange);
             return;
         }
@@ -405,7 +398,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
         IGridData[] grids = null;
         if (timeRange != null) {
             grids = parm.getGridInventory(timeRange);
-            if (grids == null || grids.length != 1) {
+            if ((grids == null) || (grids.length != 1)) {
                 timeRange = null;
             } else {
                 timeRange = grids[0].getGridTime();
@@ -455,10 +448,10 @@ public class MakeHazardDialog extends CaveSWTDialog implements
                 updateTime(startHour, startTimeLabel);
 
                 int endHour = (int) (endLong - zeroLong) / (60 * 60 * 1000);
-                if (endHour < startHour + 1) {
+                if (endHour < (startHour + 1)) {
                     endHour = startHour + 1;
                 }
-                if (endHour > toHours + 1) {
+                if (endHour > (toHours + 1)) {
                     statusHandler.handle(Priority.VERBOSE,
                             "Hazard end time is beyond date slider limit");
                     endHour = toHours + 1;
@@ -475,7 +468,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
      * preview() process. Currently, we don't implement preview(), but we
      * probably will at some point in the future. When we do, we can get rid of
      * this method and let preview() do this for us like AWIPS I did.
-     *
+     * 
      * @param parm
      * @return
      */
@@ -484,7 +477,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
                 .getSpatialEditorTime();
 
         TimeRange timeRange = dataManager.getParmOp().getSelectionTimeRange();
-        if (timeRange != null && timeRange.isValid()) {
+        if ((timeRange != null) && timeRange.isValid()) {
             if (!timeRange.contains(seTime)) {
                 statusHandler
                         .handle(Priority.PROBLEM,
@@ -495,7 +488,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
             timeRange = null;
             if (parm != null) {
                 timeRange = parm.getParmState().getSelectedTimeRange();
-                if (timeRange != null && !timeRange.isValid()) {
+                if ((timeRange != null) && !timeRange.isValid()) {
                     timeRange = null;
                 }
             }
@@ -508,9 +501,9 @@ public class MakeHazardDialog extends CaveSWTDialog implements
             }
         }
 
-        if (timeRange != null && parm != null) {
+        if ((timeRange != null) && (parm != null)) {
             IGridData[] grids = parm.getGridInventory(timeRange);
-            if (grids != null && grids.length > 1) {
+            if ((grids != null) && (grids.length > 1)) {
                 // There should be a yes/no dialog pop up...
             }
         }
@@ -522,7 +515,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
      * Figure out the hazard type (i.e., "Winter Weather") and db tables to use,
      * based on phen_sig. The same phensig sometimes appears in multiple hazard
      * types, so pick the one that draws from the most db tables.
-     *
+     * 
      * @param phen_sig
      */
     protected void pickDefaultCategory(String phen_sig) {
@@ -531,11 +524,11 @@ public class MakeHazardDialog extends CaveSWTDialog implements
         Map<String, List<String>> hazDict = getHazardsDictionary();
         for (Map.Entry<String, List<String>> entry : hazDict.entrySet()) {
             List<String> phenSigsForType = entry.getValue();
-            if (phenSigsForType != null && phenSigsForType.contains(phen_sig)) {
+            if ((phenSigsForType != null) && phenSigsForType.contains(phen_sig)) {
                 String entryHazardType = entry.getKey();
                 List<String> entryHazTables = mapNames.get(entryHazardType);
-                if (hazTables == null
-                        || hazTables.size() < entryHazTables.size()) {
+                if ((hazTables == null)
+                        || (hazTables.size() < entryHazTables.size())) {
                     hazardType = entryHazardType;
                     hazTables = entryHazTables;
                 }
@@ -578,7 +571,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
      * Create the hazard in response to the run or run/dismiss button. Indicate
      * whether the run succeeded so run/dismiss knows whether it's OK to close
      * the dialog.
-     *
+     * 
      * @return true if the hazard was created, false otherwise.
      */
     private boolean doRunInternal(boolean dismiss) {
@@ -698,7 +691,8 @@ public class MakeHazardDialog extends CaveSWTDialog implements
                 if (baseEtnCode != null) {
                     nationalBase = baseEtnCode;
                 } else {
-                    statusHandler.warn("Undefined basin ID: " + baseETN + ", defaulting to AT");
+                    statusHandler.warn("Undefined basin ID: " + baseETN
+                            + ", defaulting to AT");
                 }
                 String stormNum = altFileName.substring(2, 4);
                 tropicalETN = nationalBase + stormNum;
@@ -869,37 +863,33 @@ public class MakeHazardDialog extends CaveSWTDialog implements
         showMapLabelsButton.setText("Map Labels");
 
         comp = new Composite(buttonComp, SWT.NONE);
-        layout = new GridLayout(1, false);
+        layout = new GridLayout(2, false);
         layout.marginHeight = 0;
         layout.marginWidth = 0;
         comp.setLayout(layout);
-        layoutData = new GridData(SWT.FILL, SWT.FILL, true, true);
+        layoutData = new GridData(SWT.RIGHT, SWT.FILL, true, true);
         comp.setLayoutData(layoutData);
 
-        excluded = new Canvas(comp, SWT.NONE);
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        gd.heightHint = LEGEND_HEIGHT;
-        excluded.setLayoutData(gd);
-        excluded.addPaintListener(new PaintListener() {
+        GC gc = new GC(getDisplay());
+        int height = gc.getFontMetrics().getHeight();
+        gc.dispose();
 
-            @Override
-            public void paintControl(PaintEvent e) {
-                paintLegend(e.gc, zoneSelector.getNoZoneColor(),
-                        "Zones not included");
-            }
-        });
+        Label label = new Label(comp, SWT.NONE);
+        label.setBackground(new Color(getDisplay(), zoneSelector
+                .getNoZoneColor()));
+        gd = new GridData(height, height);
+        label.setLayoutData(gd);
 
-        included = new Canvas(comp, SWT.NONE);
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        gd.heightHint = 16;
-        included.setLayoutData(gd);
-        included.addPaintListener(new PaintListener() {
+        label = new Label(comp, SWT.NONE);
+        label.setText("Zones not included");
 
-            @Override
-            public void paintControl(PaintEvent e) {
-                paintLegend(e.gc, mapColor, "Zones included");
-            }
-        });
+        label = new Label(comp, SWT.NONE);
+        label.setBackground(new Color(getDisplay(), mapColor));
+        gd = new GridData(height, height);
+        label.setLayoutData(gd);
+
+        label = new Label(comp, SWT.NONE);
+        label.setText("Zones included");
 
         showMapLabelsButton.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -961,21 +951,6 @@ public class MakeHazardDialog extends CaveSWTDialog implements
         usingLabel.setText(EDIT_AREA_MSG);
     }
 
-    private void paintLegend(GC gc, RGB color, String text) {
-        Color bg = new Color(getDisplay(), color);
-        gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_WHITE));
-        gc.setBackground(bg);
-        int height = gc.getFontMetrics().getHeight();
-        gc.fillRectangle(height, 0, height, height);
-        gc.drawRectangle(height, 0, height, height);
-
-        gc.setBackground(CAVEMode.getBackgroundColor());
-        gc.setForeground(CAVEMode.getForegroundColor());
-        gc.drawText(text, height * 2
-                + gc.getFontMetrics().getAverageCharWidth(), 0);
-        bg.dispose();
-    }
-
     private void createSelectHazardComponent(Composite hazardComp) {
         GridLayout gl = new GridLayout(2, false);
         gl.marginHeight = 0;
@@ -998,7 +973,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
         selectedHazardList = new org.eclipse.swt.widgets.List(hazardGroup,
                 SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL | SWT.SINGLE);
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        gd.heightHint = selectedHazardList.getItemHeight() * 16
+        gd.heightHint = (selectedHazardList.getItemHeight() * 16)
                 + selectedHazardList.getBorderWidth();
         selectedHazardList.setLayoutData(gd);
 
@@ -1035,8 +1010,8 @@ public class MakeHazardDialog extends CaveSWTDialog implements
         hazardGroupList = new org.eclipse.swt.widgets.List(hazardTypeGroup,
                 SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL | SWT.SINGLE);
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        gd.heightHint = hazardGroupList.getItemHeight()
-                * Math.min(12, groups.size())
+        gd.heightHint = (hazardGroupList.getItemHeight() * Math.min(12,
+                groups.size()))
                 + hazardGroupList.getBorderWidth();
         hazardGroupList.setLayoutData(gd);
         hazardGroupList.addSelectionListener(selAdapt);
@@ -1133,7 +1108,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
              * Event handler for when the user moves the slider. This updates
              * the slider label and changes the end time slider if the end time
              * is before the start time.
-             *
+             * 
              * @param e
              *            The event that caused this handler to be called.
              */
@@ -1181,7 +1156,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
         gd.minimumWidth = 200;
         endTimeSlider.setLayoutData(gd);
 
-        toHours = this.timeScaleEndTime; //#646
+        toHours = this.timeScaleEndTime; // #646
         endTimeSlider.setMinimum(1);
         endTimeSlider.setMaximum(toHours + 1);
         endTimeSlider.setIncrement(1);
@@ -1198,7 +1173,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
              * Event handler for when the user moves the slider. This updates
              * the slider label and changes the start time slider if the end
              * time is before the start time.
-             *
+             * 
              * @param e
              *            The event that caused this handler to be called.
              */
@@ -1315,7 +1290,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
      * Add <code>selection</code> hours to <code>hazardStartTime</code> (that
      * is, the default starting time), and set the text of <code>label</code> to
      * the result, formatted by <code>dateFormatter</code>.
-     *
+     * 
      * @param selection
      *            The integer slider value selected by the user.
      * @param label
@@ -1348,7 +1323,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
      * Set the hazard type in the radio button control. If the hazard type is
      * changed, the radio button selection listener will fire, changing and
      * clearing selectedHazardList as a side effect.
-     *
+     * 
      * @param hazardType
      *            the hazard type to select.
      */
@@ -1368,7 +1343,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
                 if (laData != null) {
                     String label = eaName;
                     String display = (String) laData.get(1);
-                    if (display != null && !display.isEmpty()) {
+                    if ((display != null) && !display.isEmpty()) {
                         label = display;
                     }
                     leCombo.add(label);
@@ -1397,12 +1372,12 @@ public class MakeHazardDialog extends CaveSWTDialog implements
      * Set the selection in selectedHazardList to the first item that starts
      * with phen_sig. If phen_sig is null or an empty string, clears all
      * selections.
-     *
+     * 
      * @param phen_sig
      *            The phen_sig to select
      */
     public void setHazard(String phen_sig) {
-        if (phen_sig == null || phen_sig.length() == 0) {
+        if ((phen_sig == null) || (phen_sig.length() == 0)) {
             selectedHazardList.deselectAll();
             return;
         }
@@ -1443,7 +1418,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
 
             @SuppressWarnings("unchecked")
             List<String> zoneList = (List<String>) laData.get(2);
-            if (zoneList != null && !zoneList.isEmpty()) {
+            if ((zoneList != null) && !zoneList.isEmpty()) {
                 Map<String, Integer> comboDict = new HashMap<String, Integer>(
                         zoneList.size());
                 for (String z : zoneList) {
@@ -1481,7 +1456,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
             List<String> zoneIdsToShow = getAreaList(grid2DBit);
 
             // Select the zones
-            if (zoneIdsToShow != null && zoneIdsToShow.size() > 0) {
+            if ((zoneIdsToShow != null) && (zoneIdsToShow.size() > 0)) {
                 usingLabel.setText(ZONES_MSG);
                 for (String z : zoneIdsToShow) {
                     this.comboDict.put(z, 1);
@@ -1500,7 +1475,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.gfe.ui.zoneselector.ZoneSelector.IZoneSelectionListener
      * #zonesSelected()

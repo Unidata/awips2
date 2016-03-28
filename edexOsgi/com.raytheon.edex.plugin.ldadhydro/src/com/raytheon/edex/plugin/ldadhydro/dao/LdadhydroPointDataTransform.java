@@ -25,8 +25,8 @@ import java.util.Map;
 
 import javax.xml.bind.JAXBException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
@@ -45,7 +45,8 @@ import com.raytheon.uf.common.pointdata.PointDataView;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 19, 2010            bsteffen     Initial creation
+ * Nov 19, 2010            bsteffen    Initial creation
+ * Dec 17, 2015 5166       kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -54,7 +55,7 @@ import com.raytheon.uf.common.pointdata.PointDataView;
  */
 public class LdadhydroPointDataTransform {
 
-    private Log logger = LogFactory.getLog(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     private LdadHydroDao dao;
 

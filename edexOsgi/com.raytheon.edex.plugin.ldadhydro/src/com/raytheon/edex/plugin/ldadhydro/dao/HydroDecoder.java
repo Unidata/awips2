@@ -43,8 +43,10 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.raytheon.edex.exception.DecoderException;
-import com.raytheon.edex.plugin.AbstractDecoder;
 import com.raytheon.edex.plugin.IBinaryDecoder;
 import com.raytheon.edex.plugin.ldad.common.DecodedData;
 import com.raytheon.edex.plugin.ldad.common.LdadField;
@@ -69,15 +71,20 @@ import com.raytheon.uf.common.time.DataTime;
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * 10/16/13     DR 16685    M.Porricelli Add error checking for date
  *                                       format
- * Jul 23, 2014 3410       bclement    location changed to floats
+ * Jul 23, 2014 3410        bclement    location changed to floats
+ * Dec 17, 2015 5166        kbisanz     Update logging to use SLF4J
+ *                                      by adding private logger and stop
+ *                                      extending AbstractDecoder
  * </pre>
  * 
  * @author vkorolev
  * @version 1
  */
 
-public class HydroDecoder<E> extends AbstractDecoder implements IBinaryDecoder {
-	
+public class HydroDecoder<E> implements IBinaryDecoder {
+
+    private Logger logger = LoggerFactory.getLogger(getClass());
+
     private static final String BAD_PROPERTY_FMT = "NumberFormatException setting property %s.%s(%s %s)";
 
     private String traceId = null;
@@ -199,11 +206,11 @@ public class HydroDecoder<E> extends AbstractDecoder implements IBinaryDecoder {
                         }
                         // DataTime = Observation time
                         Calendar ot = record.getObservationTime();
-                        if (ot != null){
-                           DataTime dt = new DataTime(ot);
-                           record.setDataTime(dt);
-                           record.setLocation(location);
-                           retVal.add(record);
+                        if (ot != null) {
+                            DataTime dt = new DataTime(ot);
+                            record.setDataTime(dt);
+                            record.setLocation(location);
+                            retVal.add(record);
                         }
                         // logger.info("-------------------------------------------------------");
                     }
@@ -259,12 +266,13 @@ public class HydroDecoder<E> extends AbstractDecoder implements IBinaryDecoder {
                     cal.setTimeZone(TimeZone.getTimeZone("GMT"));
                     cal.setTime(ot);
                     val = cal;
-                } catch(Exception e) {
-                    logger.error("Could not parse date field [" + name + ":"  + value + "]");
+                } catch (Exception e) {
+                    logger.error("Could not parse date field [" + name + ":"
+                            + value + "]");
                     return;
                 }
                 // only numbers
-             } else {
+            } else {
                 Double tval = null;
                 try {
                     tval = Double.parseDouble(value);

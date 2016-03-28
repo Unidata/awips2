@@ -23,8 +23,8 @@
 package com.raytheon.viz.gfe.core.script.action;
 
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IInputValidator;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
@@ -36,37 +36,43 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.viz.gfe.GFEException;
 import com.raytheon.viz.gfe.PythonUtil;
 import com.raytheon.viz.gfe.core.script.ExistMode;
-import com.raytheon.viz.gfe.core.script.IScriptUtil;
-import com.raytheon.viz.gfe.core.script.IScriptUtil.Overwrite;
 import com.raytheon.viz.gfe.core.script.NewInputValidator;
+import com.raytheon.viz.gfe.core.script.PythonFileTemplate;
+import com.raytheon.viz.gfe.core.script.PythonFileTemplate.Overwrite;
 import com.raytheon.viz.gfe.dialogs.ScriptNameInputDialog;
 
 /**
  * An Action for creating a new instance of a script.
  * 
+ * <pre>
+ *
+ * SOFTWARE HISTORY
+ *
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * ???                     wldougher   Initial creation
+ * Jan 19, 2016  4834      njensen     Cleaned up warnings
+ *
+ * </pre>
+ * 
  * @author wldougher
  * 
  */
 public class NewAction extends Action {
+
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(NewAction.class);
 
-    protected IScriptUtil util;
+    protected PythonFileTemplate util;
 
     /**
-     * @param selected
      * @param util
      */
-    public NewAction(IScriptUtil util) {
+    public NewAction(PythonFileTemplate util) {
         super("New...");
         this.util = util;
     }
 
-    /**
-     * 
-     * 
-     * @see org.eclipse.jface.action.Action#run()
-     */
     @Override
     public void run() {
         Shell parent = Display.getCurrent().getActiveShell();
@@ -76,7 +82,7 @@ public class NewAction extends Action {
                 + type, "Name", "My" + type, validator, util);
         dialog.setMode(ExistMode.ERR_EXISTS);
         int rtnCode = dialog.open();
-        if (rtnCode == Dialog.OK) {
+        if (rtnCode == Window.OK) {
             String script = dialog.getValue().trim();
             try {
                 // since createNew() will only return if a LocalizationFile is

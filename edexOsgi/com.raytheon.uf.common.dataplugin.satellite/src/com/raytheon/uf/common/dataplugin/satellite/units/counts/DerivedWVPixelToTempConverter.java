@@ -23,7 +23,7 @@ import javax.measure.converter.ConversionException;
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.SI;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 public class DerivedWVPixelToTempConverter extends UnitConverter {
 

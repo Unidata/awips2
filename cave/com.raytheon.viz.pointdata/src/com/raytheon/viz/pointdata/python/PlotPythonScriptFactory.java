@@ -27,7 +27,7 @@ import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.python.concurrent.AbstractPythonScriptFactory;
+import com.raytheon.uf.common.python.concurrent.PythonInterpreterFactory;
 import com.raytheon.viz.pointdata.PlotModelFactory;
 
 /**
@@ -44,6 +44,7 @@ import com.raytheon.viz.pointdata.PlotModelFactory;
  * ------------- -------- ----------- --------------------------
  * Mar 14, 2014  2868     njensen     Initial creation
  * Jun 06, 2014  2061     bsteffen    Remove old PlotResource
+ * Dec 14, 2015  4816     dgilling    Support refactored PythonJobCoordinator API.
  * 
  * </pre>
  * 
@@ -51,12 +52,14 @@ import com.raytheon.viz.pointdata.PlotModelFactory;
  * @version 1.0
  */
 
-public class PlotPythonScriptFactory extends
-        AbstractPythonScriptFactory<PlotPythonScript> {
+public class PlotPythonScriptFactory implements
+        PythonInterpreterFactory<PlotPythonScript> {
 
     private static String includePath;
 
     private static String baseFilePath;
+
+    protected String plotSvgName;
 
     protected String scriptText;
 
@@ -76,7 +79,7 @@ public class PlotPythonScriptFactory extends
      */
     public PlotPythonScriptFactory(String plotSvgName, String scriptText,
             String plotDelegateName) {
-        super(plotSvgName, 1);
+        this.plotSvgName = plotSvgName;
         this.scriptText = scriptText;
         this.plotDelegateName = plotDelegateName;
     }
@@ -112,6 +115,6 @@ public class PlotPythonScriptFactory extends
         }
 
         return new PlotPythonScript(baseFilePath, includePath, scriptText,
-                plotDelegateName, this.getName());
+                plotDelegateName, plotSvgName);
     }
 }

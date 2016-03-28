@@ -23,8 +23,8 @@ import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.uf.common.dataplugin.bufrua.UAObs;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
@@ -55,6 +55,8 @@ import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
  *                                     bufrua.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools
+ * Dec 14, 2015 5166       kbisanz     Update logging to use SLF4J and
+ *                                     make logger protected
  * Mar 11, 2016 13302      kshrestha   Removed adjustment of valid time hour
  * 
  * </pre>
@@ -74,7 +76,7 @@ public abstract class AbstractBUFRUAAdapter extends BUFRPointDataAdapter<UAObs> 
 
     private static final int MINUTE_POS = 8;
 
-    Log logger = LogFactory.getLog(getClass());
+    protected Logger logger = LoggerFactory.getLogger(getClass());
 
     WMOHeader wmoHeader;
 

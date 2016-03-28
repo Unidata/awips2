@@ -21,8 +21,8 @@ package com.raytheon.edex.plugin.bufrua.util;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,12 +30,13 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.raytheon.uf.common.localization.ILocalizationFile;
+import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
-import com.raytheon.uf.common.localization.PathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 
@@ -45,9 +46,11 @@ import com.raytheon.uf.common.status.UFStatus;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jul 15, 2010            mnash     Initial creation
+ * 
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- -------------------------------------
+ * Jul 15, 2010  5571     mnash     Initial creation
+ * Feb 16, 2016  5237     bsteffen  Replace deprecated localization API.
  * 
  * </pre>
  * 
@@ -80,7 +83,7 @@ public class RaobSitesInUseUtil {
      * 
      * @throws IOException
      */
-    private static void parseFile(String site) throws IOException {
+    private static void parseFile(String site) {
         if (parsed && raobSite.equals(site)) {
             return;
         }
@@ -93,7 +96,7 @@ public class RaobSitesInUseUtil {
         }
 
         siteMap.clear();
-        PathManager pm = (PathManager) PathManagerFactory.getPathManager();
+        IPathManager pm = PathManagerFactory.getPathManager();
 
         LocalizationContext context = null;
         if (site != null) {
@@ -104,10 +107,10 @@ public class RaobSitesInUseUtil {
                     LocalizationLevel.SITE);
         }
 
-        LocalizationFile file = pm.getLocalizationFile(context, "upperair"
+        ILocalizationFile file = pm.getLocalizationFile(context, "upperair"
                 + File.separator + "raobSitesInUse.txt");
 
-        if (!file.exists()) {
+        if (file == null || !file.exists()) {
             LocalizationContext baseContext = pm.getContext(
                     LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
             file = pm.getLocalizationFile(baseContext, "upperair"
@@ -116,33 +119,34 @@ public class RaobSitesInUseUtil {
                     .info("Site raobSitesInUse.txt file not configured for "
                             + site + ".  Using the base file.");
         }
-        if (file != null) {
-            BufferedReader buf = new BufferedReader(new FileReader(
-                    file.getFile()));
-            System.out.println("temping");
-            String temp = buf.readLine();
-            temp = buf.readLine();
-            String radarType = "";
-            List<UpperAirSite> sites = new ArrayList<UpperAirSite>();
-            while (temp != null) {
-                temp = temp.trim();
-                if (temp.startsWith("#")) {
-                    sites = new ArrayList<UpperAirSite>();
-                    radarType = temp.substring(1, temp.indexOf(" ", 2));
-                    siteMap.put(radarType.trim(), sites);
-                } else if (!temp.isEmpty()) {
-                    Matcher m = raob_pattern.matcher(temp);
-                    while (m.find()) {
-                        UpperAirSite uaSite = new UpperAirSite();
-                        uaSite.setIcao(m.group(1));
-                        uaSite.setSiteId(m.group(2));
-                        uaSite.setCity(m.group(3));
-                        sites.add(uaSite);
-                    }
-                }
+        if (file != null && file.exists()) {
+            try (BufferedReader buf = new BufferedReader(new InputStreamReader(
+                    file.openInputStream()))) {
+                String temp = buf.readLine();
                 temp = buf.readLine();
+                String radarType = "";
+                List<UpperAirSite> sites = new ArrayList<UpperAirSite>();
+                while (temp != null) {
+                    temp = temp.trim();
+                    if (temp.startsWith("#")) {
+                        sites = new ArrayList<UpperAirSite>();
+                        radarType = temp.substring(1, temp.indexOf(" ", 2));
+                        siteMap.put(radarType.trim(), sites);
+                    } else if (!temp.isEmpty()) {
+                        Matcher m = raob_pattern.matcher(temp);
+                        while (m.find()) {
+                            UpperAirSite uaSite = new UpperAirSite();
+                            uaSite.setIcao(m.group(1));
+                            uaSite.setSiteId(m.group(2));
+                            uaSite.setCity(m.group(3));
+                            sites.add(uaSite);
+                        }
+                    }
+                    temp = buf.readLine();
+                }
+            } catch (IOException | LocalizationException e) {
+                statusHandler.error("Error reading " + file.getPath(), e);
             }
-            buf.close();
         }
     }
 
@@ -153,11 +157,7 @@ public class RaobSitesInUseUtil {
      * @return
      */
     public static List<UpperAirSite> getSite(String site, String type) {
-        try {
-            parseFile(site);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        parseFile(site);
         return siteMap.get(type);
     }
 

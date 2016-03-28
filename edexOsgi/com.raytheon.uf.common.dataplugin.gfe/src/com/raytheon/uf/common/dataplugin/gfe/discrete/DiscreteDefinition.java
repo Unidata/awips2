@@ -40,6 +40,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 10, 2011            randerso     Initial creation
+ * Jan 05, 2015  #5184     dgilling     Added getHazardDescription.
  * 
  * </pre>
  * 
@@ -483,5 +484,36 @@ public class DiscreteDefinition {
         }
         sb.append("]");
         return sb.toString();
+    }
+
+    /**
+     * Get a hazard description for a phen.sig value. This code was essentially
+     * copied from MakeHazardDialog.
+     * 
+     * @param parmNameAndLevel
+     *            Parm name in the parmName_Level format.
+     * @param phenSig
+     *            The phensig whose description is needed.
+     * 
+     * @return the description for the phensig.
+     */
+    public String getHazardDescription(String parmNameAndLevel, String phenSig) {
+        String sdesc = keyDesc(parmNameAndLevel, phenSig);
+
+        if (sdesc.isEmpty()) {
+            if ("CF.S".equals(phenSig)) {
+                sdesc = "Coastal Flood Statement";
+            } else if ("LS.S".equals(phenSig)) {
+                sdesc = "Lakeshore Flood Statement";
+            } else if ("MA.S".equals(phenSig)) {
+                sdesc = "Marine Weather Statement";
+            } else if ("HU.S".equals(phenSig)) {
+                sdesc = "Hurricane Local Statement";
+            } else {
+                sdesc = "UNKNOWN PHENOMENON.SIGNIFICANCE";
+            }
+        }
+
+        return sdesc;
     }
 }

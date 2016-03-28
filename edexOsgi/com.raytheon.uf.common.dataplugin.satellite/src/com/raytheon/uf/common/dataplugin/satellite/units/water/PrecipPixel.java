@@ -26,7 +26,7 @@ import javax.measure.unit.DerivedUnit;
 import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * Represents a pixel value on a POES or DMSP satellite precipitation image
@@ -43,26 +43,26 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
  */
 public class PrecipPixel extends DerivedUnit<Length> {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	@Override
-	public boolean equals(Object anObject) {
-		return (anObject instanceof PrecipPixel);
+    @Override
+    public boolean equals(Object anObject) {
+        return (anObject instanceof PrecipPixel);
 
-	}
+    }
 
-	@Override
-	public Unit<Length> getStandardUnit() {
-		return SI.METRE;
-	}
+    @Override
+    public Unit<Length> getStandardUnit() {
+        return SI.METRE;
+    }
 
-	@Override
-	public int hashCode() {
-		return HashCodeBuilder.reflectionHashCode(this);
-	}
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
 
-	@Override
-	public UnitConverter toStandardUnit() {
-		return new PrecipPixelToLengthConverter();
-	}
+    @Override
+    public UnitConverter toStandardUnit() {
+        return new PrecipPixelToLengthConverter();
+    }
 }

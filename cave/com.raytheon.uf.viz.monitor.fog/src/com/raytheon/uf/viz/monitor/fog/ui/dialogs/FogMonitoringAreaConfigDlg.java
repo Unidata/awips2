@@ -27,7 +27,6 @@ import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
@@ -56,6 +55,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Oct 27, 2014 3667       skorolev     Cleaned code.
  * Feb 10, 2015 3886       skorolev     Changed confirmation message.
  * Aug 17, 2015 3841       skorolev     Corrected handleOkBtnSelection.
+ * Jan 04, 2016 5115       skorolev     Replaced MonName with AppName.
  * 
  * </pre>
  * 
@@ -148,7 +148,7 @@ public class FogMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
     protected FSSObsMonitorConfigurationManager getInstance() {
         if (configMgr == null) {
             configMgr = FSSObsMonitorConfigurationManager
-                    .getInstance(MonName.fog);
+                    .getInstance(AppName.FOG);
         }
         return configMgr;
     }

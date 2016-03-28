@@ -10,12 +10,13 @@ function buildRPM()
       exit 1
    fi
 
-   /usr/bin/rpmbuild -ba \
+   /usr/bin/rpmbuild -bb \
       --define '_topdir %(echo ${AWIPSII_TOP_DIR})' \
       --define '_baseline_workspace %(echo ${WORKSPACE})' \
       --define '_uframe_eclipse %(echo ${UFRAME_ECLIPSE})' \
-      --define '_awipscm_share %(echo ${AWIPSCM_SHARE})' \
+      --define '_static_files %(echo ${AWIPSII_STATIC_FILES})' \
       --define '_build_root %(echo ${AWIPSII_BUILD_ROOT})' \
+      --define '_build_site %(echo ${AWIPSII_BUILD_SITE})' \
       --define '_component_version %(echo ${AWIPSII_VERSION})' \
       --define '_component_release %(echo ${AWIPSII_RELEASE})' \
       --define '_component_build_date %(echo ${COMPONENT_BUILD_DATE})' \
@@ -55,16 +56,6 @@ if [ $? -ne 0 ]; then
    echo "ERROR: Unable to source the common functions."
    exit 1
 fi
-source ${common_dir}/usage.sh
-if [ $? -ne 0 ]; then
-   echo "ERROR: Unable to source the common functions."
-   exit 1
-fi
-source ${common_dir}/rpms.sh
-if [ $? -ne 0 ]; then
-   echo "ERROR: Unable to source the common functions."
-   exit 1
-fi
 source ${common_dir}/systemInfo.sh
 if [ $? -ne 0 ]; then
    echo "ERROR: Unable to retrieve the system information."
@@ -78,54 +69,26 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-export LIGHTNING=true
-# Determine if the optional '-nobinlightning' argument has been specified.
-if [ "${2}" = "-nobinlightning" ]; then
-   LIGHTNING=false
+if [ "${1}" = "-full" ]; then
+   buildRPM "awips2-qpid-lib"
+   buildRPM "awips2-qpid-java"
+   buildRPM "awips2-qpid-java-broker"
+   buildRPM "awips2-java"
+   buildRPM "awips2-notification"
+
+   exit 0
 fi
 
-if [ "${1}" = "-python-qpid" ]; then
-#   buildRPM "awips2"
-#   buildRPM "awips2-python-qpid"
-#   buildRPM "awips2-python"
-#   buildRPM "awips2-python-cherrypy"
-   buildRPM "awips2-python-dynamicserialize"
-#   buildRPM "awips2-python-nose"
-#   buildRPM "awips2-python-numpy"
-#   buildRPM "awips2-python-h5py"
-#   buildRPM "awips2-python-jimporter"
-#   buildRPM "awips2-python-matplotlib"
-#   buildRPM "awips2-python-pil"
-#   buildRPM "awips2-python-pmw"
-#   buildRPM "awips2-python-pupynere"
-#   buildRPM "awips2-python-scientific"
-#   buildRPM "awips2-python-scipy"
-#   buildRPM "awips2-python-tables"
-#   buildRPM "awips2-python-thrift"
-#   buildRPM "awips2-python-tpg"
-#   buildRPM "awips2-python-ufpy"
-#   buildRPM "awips2-python-werkzeug"
-#   buildRPM "awips2-python-pygtk"
-#   buildRPM "awips2-python-pycairo"
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
+if [ "${1}" = "-qpid" ]; then
+   buildRPM "awips2-qpid-lib"
+   buildRPM "awips2-qpid-java"
+   buildRPM "awips2-qpid-java-broker"
 
-   buildQPID
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
+   exit 0
+fi
 
-   #buildRPM "awips2-ant"
-   #unpackHttpdPypies
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-   #buildRPM "awips2-httpd-pypies"
-   #buildRPM "awips2-java"
-   #buildRPM "awips2-ldm"
-   #buildRPM "awips2-tools"
-   buildRPM "awips2-python-shapely"
+if [ "${1}" = "-java" ]; then
+   buildRPM "awips2-java"
 
    exit 0
 fi
@@ -136,311 +99,11 @@ if [ "${1}" = "-notification" ]; then
    exit 0
 fi
 
+echo "Usage: $0 OPTION"
+echo "   -full          perform a full build of all the rpms."
+echo "   -qpid          build only the QPID rpms."
+echo "   -java          build only the Java rpm."
+echo "   -notification  build only the notification rpm."
+echo "   --help         display this message and exit."
 
-if [ "${1}" = "-postgres" ]; then
-   buildRPM "awips2-postgres"
-   buildRPM "awips2-database-server-configuration"
-   buildRPM "awips2-database-standalone-configuration"
-   buildRPM "awips2-database"
-   buildRPM "awips2-maps-database"
-   buildRPM "awips2-pgadmin3"
-   buildRPM "awips2-data.hdf5-topo"
-   buildRPM "awips2-notification"
-   buildRPM "awips2-tools"
-
-   exit 0
-fi
-
-if [ "${1}" = "-delta" ]; then
-   buildRPM "awips2"
-   buildRPM "awips2-common-base"
-   buildCAVE
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-   buildRPM "awips2-alertviz"
-   buildEDEX
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-
-   buildRPM "awips2"
-   buildRPM "awips2-ncep-database"
-   buildRPM "awips2-gfesuite-client"
-   buildRPM "awips2-gfesuite-server"
-   buildRPM "awips2-python-dynamicserialize"
-   buildRPM "awips2-python-ufpy"
-
-   buildRPM "awips2-adapt-native"
-   buildRPM "awips2-aviation-shared"
-   buildRPM "awips2-cli"
-   buildRPM "awips2-database"
-   buildRPM "awips2-database-server-configuration"
-   buildRPM "awips2-database-standalone-configuration"
-   buildRPM "awips2-hydroapps-shared"
-   buildRPM "awips2-localapps-environment"
-   buildRPM "awips2-maps-database"
-   buildRPM "awips2-notification"
-   buildRPM "awips2-pypies"
-   buildRPM "awips2-data.hdf5-topo"
-   buildRPM "awips2-data.gfe"
-   buildRPM "awips2-rcm"
-   buildRPM "awips2-edex-environment"
-   buildLocalizationRPMs
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-
-   exit 0
-fi
-
-if [ "${1}" = "-full" ]; then
-   buildRPM "awips2-common-base"
-   buildCAVE
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-   buildRPM "awips2-alertviz"
-   buildEDEX
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-   buildRPM "awips2-python"
-   buildRPM "awips2-python-cherrypy"
-   buildRPM "awips2-python-dynamicserialize"
-   buildRPM "awips2-python-h5py"
-   buildRPM "awips2-python-jimporter"
-   buildRPM "awips2-python-matplotlib"
-   buildRPM "awips2-python-nose"
-   buildRPM "awips2-python-numpy"
-   buildRPM "awips2-python-pil"
-   buildRPM "awips2-python-pmw"
-   buildRPM "awips2-python-pupynere"
-   buildRPM "awips2-python-qpid"
-   buildRPM "awips2-python-scientific"
-   buildRPM "awips2-python-scipy"
-   buildRPM "awips2-python-tables"
-   buildRPM "awips2-python-thrift"
-   buildRPM "awips2-python-tpg"
-   buildRPM "awips2-python-ufpy"
-   buildRPM "awips2-python-werkzeug"
-   buildRPM "awips2-python-pygtk"
-   buildRPM "awips2-python-pycairo"
-
-   buildRPM "awips2"
-   buildRPM "awips2-adapt-native"
-   buildRPM "awips2-aviation-shared"
-   buildRPM "awips2-cli"
-   buildRPM "awips2-database"
-   buildRPM "awips2-database-server-configuration"
-   buildRPM "awips2-database-standalone-configuration"
-   buildRPM "awips2-data.gfe"
-   buildRPM "awips2-gfesuite-client"
-   buildRPM "awips2-gfesuite-server"
-   buildRPM "awips2-hydroapps-shared"
-   buildRPM "awips2-localapps-environment"
-   buildRPM "awips2-ncep-database"
-   buildRPM "awips2-maps-database"
-   buildRPM "awips2-notification"
-   buildRPM "awips2-pypies"
-   buildRPM "awips2-data.hdf5-topo"
-   buildRPM "awips2-rcm"
-   buildLocalizationRPMs
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-
-   buildQPID
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-
-   buildRPM "awips2-ant"
-   unpackHttpdPypies
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-   buildRPM "awips2-httpd-pypies"
-   buildJava
-   buildRPM "awips2-groovy"
-   buildRPM "awips2-ldm"
-   buildRPM "awips2-postgres"
-   buildRPM "awips2-pgadmin3"
-   buildRPM "awips2-tools"
-   buildRPM "awips2-edex-environment"
-   buildRPM "awips2-openfire"
-   buildRPM "awips2-collab-dataserver"
-   buildRPM "awips2-python-shapely"
-
-   exit 0
-fi
-
-if [ "${1}" = "-ade" ]; then
-   buildRPM "awips2-eclipse"
-   buildJava
-   buildRPM "awips2-ant"
-   buildRPM "awips2-python"
-   buildRPM "awips2-python-cherrypy"
-   buildRPM "awips2-python-dynamicserialize"
-   buildRPM "awips2-python-h5py"
-   buildRPM "awips2-python-jimporter"
-   buildRPM "awips2-python-matplotlib"
-   buildRPM "awips2-python-nose"
-   buildRPM "awips2-python-numpy"
-   buildRPM "awips2-python-pil"
-   buildRPM "awips2-python-pmw"
-   buildRPM "awips2-python-pupynere"
-   buildRPM "awips2-python-qpid"
-   buildRPM "awips2-python-scientific"
-   buildRPM "awips2-python-scipy"
-   buildRPM "awips2-python-tables"
-   buildRPM "awips2-python-thrift"
-   buildRPM "awips2-python-tpg"
-   buildRPM "awips2-python-ufpy"
-   buildRPM "awips2-python-werkzeug"
-   buildRPM "awips2-python-pygtk"
-   buildRPM "awips2-python-pycairo"
-   buildRPM "awips2-python-shapely"
-   buildQPID -ade
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-
-   # Package the ade.
-   # Create the containing directory.
-   ade_directory="awips2-ade-${AWIPSII_VERSION}-${AWIPSII_RELEASE}"
-   if [ -d ${WORKSPACE}/${ade_directory} ]; then
-      rm -rf ${WORKSPACE}/${ade_directory}
-      if [ $? -ne 0 ]; then
-         exit 1
-      fi
-   fi
-   mkdir -p ${WORKSPACE}/${ade_directory}
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-
-   # Copy the rpms to the directory.
-   cp -v ${AWIPSII_TOP_DIR}/RPMS/i386/* \
-      ${AWIPSII_TOP_DIR}/RPMS/noarch/* \
-      ${WORKSPACE}/${ade_directory}
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-
-   awips2_ade_directory="${WORKSPACE}/rpms/awips2.ade"
-   # Copy the install and uninstall script to the directory.
-   cp -v ${awips2_ade_directory}/tar.ade/scripts/*.sh \
-      ${WORKSPACE}/${ade_directory}
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-
-    # Build the source jar file
-    ade_work_dir="/home/dmsys/Dim12/build/AWIPS2/AWIPS2-ADE-OB13.5.1-CM"
-    cd $ade_work_dir
-    ./build_source_jar.sh
-    cp -v /tmp/awips-component/tmp/awips2-ade-baseline-SOURCES.jar ${WORKSPACE}/${ade_directory}
-
-   # Tar the directory.
-   pushd . > /dev/null 2>&1
-   cd ${WORKSPACE}
-   tar -cvf ${ade_directory}.tar ${ade_directory}
-   popd > /dev/null 2>&1
-   RC=$?
-   if [ ${RC} -ne 0 ]; then
-      exit 1
-   fi
-
-   exit 0
-fi
-
-if [ "${1}" = "-viz" ]; then
-   buildRPM "awips2"
-   buildRPM "awips2-common-base"
-  # buildRPM "awips2-rcm"
-  # buildRPM "awips2-hydroapps-shared"
-  # buildRPM "awips2-notification"
-   buildCAVE
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-   buildRPM "awips2-alertviz"
-
-   exit 0
-fi
-
-if [ "${1}" = "-edex" ]; then
-   #buildRPM "awips2"
-   #buildRPM "awips2-common-base"
- #  buildRPM "awips2-adapt-native"
-   #buildRPM "awips2-python-qpid"
- # buildRPM "awips2-cli"
-   buildRPM "awips2-gfesuite-client"
-   buildRPM "awips2-gfesuite-server"
- # buildRPM "awips2-ncep-database"
- # buildRPM "awips2-python-dynamicserialize"
-   buildEDEX
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-
-   exit 0
-fi
-
-if [ "${1}" = "-qpid" ]; then
-   buildQPID
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-
-   exit 0
-fi
-
-if [ "${1}" = "-ldm" ]; then
-   buildRPM "awips2-ldm"
-
-   exit 0
-fi
-
-if [ "${1}" = "-package" ]; then
-   repository_directory="awips2-repository-${AWIPSII_VERSION}-${AWIPSII_RELEASE}"
-   if [ -d ${WORKSPACE}/${repository_directory} ]; then
-      rm -rf ${WORKSPACE}/${repository_directory}
-      if [ $? -ne 0 ]; then
-         exit 1
-      fi
-   fi
-   mkdir -p ${WORKSPACE}/${repository_directory}/${AWIPSII_VERSION}-${AWIPSII_RELEASE}
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-
-   cp -r ${AWIPSII_TOP_DIR}/RPMS/* \
-      ${WORKSPACE}/${repository_directory}/${AWIPSII_VERSION}-${AWIPSII_RELEASE}
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-
-   rpms_directory="${WORKSPACE}/rpms"
-   comps_xml="${rpms_directory}/common/yum/arch.x86/comps.xml"
-   cp -v ${comps_xml} ${WORKSPACE}/${repository_directory}
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-
-   pushd . > /dev/null
-   cd ${WORKSPACE}
-   tar -cvf ${repository_directory}.tar ${repository_directory}
-   RC=$?
-   popd > /dev/null
-   if [ ${RC} -ne 0 ]; then
-      exit 1
-   fi
-
-   exit 0
-fi
-
-
-usage
 exit 0

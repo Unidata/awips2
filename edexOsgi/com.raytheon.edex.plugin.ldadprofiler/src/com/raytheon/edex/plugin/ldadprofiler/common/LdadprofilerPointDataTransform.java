@@ -25,8 +25,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.plugin.ldadprofiler.dao.LdadProfilerDao;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
@@ -45,6 +45,7 @@ import com.raytheon.uf.common.serialization.SerializationException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 29, 2009            vkorolev    Initial creation
+ * Dec 17, 2015 5166       kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -98,7 +99,7 @@ public class LdadprofilerPointDataTransform {
 
     private PointDataDescription pdd;
 
-    private Log logger = LogFactory.getLog(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     public LdadprofilerPointDataTransform() {
 
@@ -134,7 +135,6 @@ public class LdadprofilerPointDataTransform {
         return pdo;
     }
 
-    @SuppressWarnings("unchecked")
     private PointDataView buildView(PointDataContainer container,
             ProfilerLdadObs record) {
         PointDataView pdv = container.append();

@@ -24,7 +24,6 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import com.raytheon.uf.viz.thinclient.Activator;
 import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
 import com.raytheon.uf.viz.thinclient.refresh.TimedRefresher.RefreshTimerTask;
-import com.raytheon.viz.alerts.jobs.MenuUpdater;
 
 /**
  * Timer task that is responsible for requerying menu times
@@ -36,6 +35,7 @@ import com.raytheon.viz.alerts.jobs.MenuUpdater;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 10, 2011            mschenke     Initial creation
+ * Feb 08, 2016  5281      tjensen      Replaced disableJms with dataRefreshMethod
  * 
  * </pre>
  * 
@@ -45,42 +45,23 @@ import com.raytheon.viz.alerts.jobs.MenuUpdater;
 
 public class MenuTimeRefreshTask implements RefreshTimerTask {
 
-    private MenuUpdater menuUpdater = new MenuUpdater();
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.util.TimerTask#run()
-     */
     @Override
     public void run() {
         IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-        if (!store.getBoolean(ThinClientPreferenceConstants.P_DISABLE_JMS)) {
+        if (ThinClientPreferenceConstants.P_DATA_REFRESH_METHOD_PUSH
+                .equals(store
+                        .getString(ThinClientPreferenceConstants.P_DATA_REFRESH_METHOD))) {
             return;
         }
         ThinClientURICatalog.getInstance().requeryAllMenuTimes();
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.thinclient.refresh.TimedRefresher.RefreshTimerTask
-     * #scheduled()
-     */
     @Override
     public void scheduled() {
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.thinclient.refresh.TimedRefresher.RefreshTimerTask
-     * #stopped()
-     */
     @Override
     public void stopped() {
 

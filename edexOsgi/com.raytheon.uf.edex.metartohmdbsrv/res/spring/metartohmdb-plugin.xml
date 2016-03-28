@@ -4,11 +4,10 @@
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
     <bean id="metarToHMDB" class="com.raytheon.uf.edex.metartohmdb.MetarToHMDBSrv" />
-    
+
     <camelContext id="metarToHMDB-camel"
         xmlns="http://camel.apache.org/schema/spring"
         errorHandlerRef="errorHandler">
-        <endpoint id="metarToHMDBEndpoint" />
 
         <route id="metarToHMDBRoute">
             <from uri="direct-vm:metarToHMDB"/>

@@ -25,7 +25,7 @@ import javax.measure.converter.UnitConverter;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * Converts a rainfall rate of mm/hr to a pixel value
@@ -43,77 +43,79 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
  */
 public class RainfallRateToPixelConverter extends UnitConverter {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private static UnitConverter mtrPerSecToMilimtrPerHr = ((SI.METRE).divide(SI.SECOND))
-	        .getConverterTo((SI.MILLI(SI.METRE)).divide(NonSI.HOUR));
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.measure.converter.UnitConverter#convert(double)
-	 */
-	@Override
-	public double convert(double aRate) throws ConversionException {
-		double result = 0.0;
-		
-		aRate = mtrPerSecToMilimtrPerHr.convert(aRate);
-		if (aRate == 0) {
-			result = 0.0;
-		} else if (aRate <= 6.0) {
-			result = (aRate * 25.0 / 6.0) + 108.0;
-		} else if (aRate <= 20.0) {
-			result = 133.0 + (35.0 / 14.0 * (aRate - 6.0));
-		} else {
-			result = 2.0 * (aRate + 64.0);
-		}
+    private static UnitConverter mtrPerSecToMilimtrPerHr = ((SI.METRE)
+            .divide(SI.SECOND)).getConverterTo((SI.MILLI(SI.METRE))
+            .divide(NonSI.HOUR));
 
-		if (result < 0) {
-			result = 0.0;
-		} else if (result > 255) {
-			result = 255.0;
-		}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.measure.converter.UnitConverter#convert(double)
+     */
+    @Override
+    public double convert(double aRate) throws ConversionException {
+        double result = 0.0;
 
-		return result;
-	}
+        aRate = mtrPerSecToMilimtrPerHr.convert(aRate);
+        if (aRate == 0) {
+            result = 0.0;
+        } else if (aRate <= 6.0) {
+            result = (aRate * 25.0 / 6.0) + 108.0;
+        } else if (aRate <= 20.0) {
+            result = 133.0 + (35.0 / 14.0 * (aRate - 6.0));
+        } else {
+            result = 2.0 * (aRate + 64.0);
+        }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.measure.converter.UnitConverter#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object aConverter) {
-		return (aConverter instanceof RainfallRateToPixelConverter);
-	}
+        if (result < 0) {
+            result = 0.0;
+        } else if (result > 255) {
+            result = 255.0;
+        }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.measure.converter.UnitConverter#hashCode()
-	 */
-	@Override
-	public int hashCode() {
-		return HashCodeBuilder.reflectionHashCode(this);
-	}
+        return result;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.measure.converter.UnitConverter#inverse()
-	 */
-	@Override
-	public UnitConverter inverse() {
-		return new RainfallPixelToRateConverter();
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.measure.converter.UnitConverter#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object aConverter) {
+        return (aConverter instanceof RainfallRateToPixelConverter);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.measure.converter.UnitConverter#isLinear()
-	 */
-	@Override
-	public boolean isLinear() {
-		return false;
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.measure.converter.UnitConverter#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.measure.converter.UnitConverter#inverse()
+     */
+    @Override
+    public UnitConverter inverse() {
+        return new RainfallPixelToRateConverter();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.measure.converter.UnitConverter#isLinear()
+     */
+    @Override
+    public boolean isLinear() {
+        return false;
+    }
 
 }

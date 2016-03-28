@@ -48,6 +48,7 @@ import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
+import com.raytheon.uf.common.dataplugin.pointset.PointSetData;
 import com.raytheon.uf.common.dataplugin.pointset.PointSetLocation;
 import com.raytheon.uf.common.dataplugin.pointset.PointSetRecord;
 import com.raytheon.uf.common.dataplugin.pointset.triangulate.DelauneyTriangulator;
@@ -56,8 +57,7 @@ import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
-import com.raytheon.uf.common.parameter.lookup.ParameterLookup;
-import com.raytheon.uf.edex.netcdf.description.VariableDescription;
+import com.raytheon.uf.edex.netcdf.decoder.util.NetcdfDecoderUtils;
 import com.raytheon.uf.edex.netcdf.description.exception.InvalidDescriptionException;
 import com.raytheon.uf.edex.plugin.pointset.netcdf.description.PointSetProductDescriptions;
 import com.raytheon.uf.edex.plugin.pointset.netcdf.description.ProductDescription;
@@ -79,8 +79,10 @@ import com.raytheon.uf.edex.plugin.pointset.netcdf.description.TriangulationDesc
  * SOFTWARE HISTORY
  * 
  * Date          Ticket#  Engineer  Description
- * ------------- -------- --------- --------------------------
+ * ------------- -------- --------- --------------------------------------------
  * Aug 11, 2015  4709     bsteffen  Initial creation
+ * Jan 21, 2016  5208     bsteffen  Decode scale, offset, units, long_name when
+ *                                  they are present and extra validation.
  * 
  * </pre>
  * 
@@ -103,14 +105,9 @@ public class PointSetNetcdfDecoder {
 
     private LevelFactory levelFactory;
 
-    private ParameterLookup parameterLookup;
-
     public PointSetRecord[] decode(File file) {
         if (levelFactory == null) {
             levelFactory = LevelFactory.getInstance();
-        }
-        if (parameterLookup == null) {
-            parameterLookup = ParameterLookup.getInstance();
         }
         try {
             NetcdfFile netcdfFile = NetcdfFile.open(file.getAbsolutePath());
@@ -244,8 +241,7 @@ public class PointSetNetcdfDecoder {
             }
         }
 
-        PointSetRecord record = description.getRecord(file, parameterLookup,
-                levelFactory);
+        PointSetRecord record = description.getRecord(file, levelFactory);
         if (record == null) {
             if (debug) {
                 logger.debug(
@@ -309,7 +305,27 @@ public class PointSetNetcdfDecoder {
                     dataVarName, dataType);
             return null;
         }
-        record.setData(numericData);
+
+        Attribute longNameAttribute = dataVariable.findAttribute("long_name");
+        if (longNameAttribute != null) {
+            record.getParameter().setName(longNameAttribute.getStringValue());
+        }
+        Attribute unitsAttribute = dataVariable.findAttribute("units");
+        if (unitsAttribute != null) {
+            record.getParameter()
+                    .setUnitString(unitsAttribute.getStringValue());
+        }
+        PointSetData data = new PointSetData(numericData);
+
+        Number scale = NetcdfDecoderUtils.getScaleFactor(dataVariable);
+        if (scale != NetcdfDecoderUtils.DEFAULT_SCALE_FACTOR) {
+            data.setScale(scale.floatValue());
+        }
+        Number offset = NetcdfDecoderUtils.getAddOffset(dataVariable);
+        if (offset != NetcdfDecoderUtils.DEFAULT_ADD_OFFSET) {
+            data.setOffset(offset.floatValue());
+        }
+        record.setData(data);
 
         StringBuilder locationKeyBuilder = new StringBuilder();
         lonVariable.getNameAndDimensions(locationKeyBuilder);
@@ -377,19 +393,23 @@ public class PointSetNetcdfDecoder {
         PointSetProductDescriptions descriptions = new PointSetProductDescriptions();
         for (LocalizationFile file : files) {
             logger.info("Loading pointset data description from "
-                    + file.getName());
+                    + file.getPath());
             try (InputStream inputStream = file.openInputStream()) {
                 PointSetProductDescriptions unmarshalled = JAXB.unmarshal(
                         inputStream, PointSetProductDescriptions.class);
                 for (ProductDescription description : unmarshalled
                         .getDescriptions()) {
-                    if (validate(file.getName(), description)) {
+                    try {
+                        description.validate();
                         descriptions.addDescription(description);
+                    } catch (InvalidDescriptionException e) {
+                        logger.warn("Discarding data description from {}: {}.",
+                                file.getPath(), e.getMessage(), e);
                     }
                 }
             } catch (LocalizationException | IOException e) {
                 logger.error("Unable to load product descriptions from {}",
-                        file.getName(), e);
+                        file.getPath(), e);
             }
         }
         this.descriptions = descriptions;
@@ -403,23 +423,4 @@ public class PointSetNetcdfDecoder {
         this.levelFactory = levelFactory;
     }
 
-    public void setParameterLookup(ParameterLookup parameterLookup) {
-        this.parameterLookup = parameterLookup;
-    }
-
-    protected boolean validate(String fileName, ProductDescription description) {
-        VariableDescription data = description.getData();
-        if (data == null) {
-            logger.warn(
-                    "Discarding data description from {} because no data element is present.",
-                    fileName);
-            return false;
-        } else if (data.getName() == null) {
-            logger.warn(
-                    "Discarding data description from {} because data element has no name.",
-                    fileName);
-            return false;
-        }
-        return true;
-    }
 }

@@ -37,9 +37,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
@@ -48,6 +46,8 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate4.SessionFactoryUtils;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
@@ -102,6 +102,7 @@ import com.raytheon.uf.edex.database.purge.PurgeLogger;
  * Jan 27, 2015 4031        rferrel     Resolve AFOS PILs site conflict using preferredAfosFirstLetter.
  * May 05, 2015 4462        rferrel     {@link #write(StdTextProduct)} when missing set the textProduct's site.
  * Jul 06, 2015 4612        rferrel     Get all sites matching the preferredafosFirstLetter.
+ * Dec 09, 2015 5166        kbisanz     Update logging to use SLF4J.
  * </pre>
  * 
  * @author garmendariz
@@ -166,7 +167,7 @@ public class StdTextProductDao extends CoreDao {
 
             + " order by " + REFTIME + " desc" + ", " + INSERTTIME + " desc";
 
-    private Log logger = LogFactory.getLog(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     private final static char[] preferredAfosFirstLetter;
     static {

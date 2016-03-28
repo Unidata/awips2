@@ -8,7 +8,7 @@ import java.util.Map;
 import org.apache.commons.configuration.ConfigurationException;
 
 import com.raytheon.uf.common.localization.LocalizationFile;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.viz.avnconfig.AvnConfigConstants.triggerType;
 
 /**
@@ -24,6 +24,7 @@ import com.raytheon.viz.avnconfig.AvnConfigConstants.triggerType;
  * Oct 20, 2010            rferrel     Initial creation
  * Dec  7, 2010 7621       rferrel     Added getTemplateFile.
  * Feb 16, 2011 7878       rferrel     Modifications to handle ids.cfg.
+ * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
  * 
  * </pre>
  * 
@@ -60,11 +61,10 @@ public interface ITafSiteConfig {
      * @param defaultProduct
      *            - New default product
      * @throws ConfigurationException
-     * @throws LocalizationCommunicationException
-     * @throws LocalizationOpFailedException
+     * @throws LocalizationException
      */
     public void setDefault(String defaultProduct)
-            throws ConfigurationException, LocalizationOpFailedException;
+            throws ConfigurationException, LocalizationException;
 
     /**
      * @return defaultProduct
@@ -107,12 +107,11 @@ public interface ITafSiteConfig {
      * @param collectivePil
      *            - product's collective Pil value
      * @throws ConfigurationException
-     * @throws LocalizationCommunicationException
-     * @throws LocalizationOpFailedException
+     * @throws LocalizationException
      */
     public void saveProduct(String newProduct, List<String> siteList,
             String workPil, String collectivePil)
-            throws ConfigurationException, LocalizationOpFailedException;
+            throws ConfigurationException, LocalizationException;
 
     /**
      * Removes a product and save the change.
@@ -120,11 +119,10 @@ public interface ITafSiteConfig {
      * @param product
      *            - product name to delete
      * @throws ConfigurationException
-     * @throws LocalizationCommunicationException
-     * @throws LocalizationOpFailedException
+     * @throws LocalizationException
      */
     public void deleteProduct(String product) throws ConfigurationException,
-            LocalizationOpFailedException;
+            LocalizationException;
 
     /**
      * Update a site's start Hour template and save the change.
@@ -136,11 +134,10 @@ public interface ITafSiteConfig {
      * @param template
      *            - new template
      * @throws ConfigurationException
-     * @throws LocalizationCommunicationException
-     * @throws LocalizationOpFailedException
+     * @throws LocalizationException
      */
     public void saveTafTemplate(String siteId, String startHour, String template)
-            throws ConfigurationException, LocalizationOpFailedException;
+            throws ConfigurationException, LocalizationException;
 
     /**
      * Obtain the template for the given site and start hour
@@ -172,11 +169,10 @@ public interface ITafSiteConfig {
      *            - new taf site data
      * @throws IOException
      * @throws ConfigurationException
-     * @throws LocalizationCommunicationException
-     * @throws LocalizationOpFailedException
+     * @throws LocalizationException
      */
     public void setSite(String siteId, TafSiteData site) throws IOException,
-            ConfigurationException, LocalizationOpFailedException;
+            ConfigurationException, LocalizationException;
 
     /**
      * Get a sorted list of sites names.
@@ -210,10 +206,10 @@ public interface ITafSiteConfig {
      * @return identList
      * @throws IOException
      * @throws ConfigurationException
-     * @throws LocalizationOpFailedException
+     * @throws LocalizationException
      */
     public List<String> getIdsSiteList() throws IOException,
-            ConfigurationException, LocalizationOpFailedException;
+            ConfigurationException, LocalizationException;
 
     /**
      * Get pil value for the desired site.
@@ -222,10 +218,10 @@ public interface ITafSiteConfig {
      * @return pil
      * @throws IOException
      * @throws ConfigurationException
-     * @throws LocalizationOpFailedException
+     * @throws LocalizationException
      */
     public String getIdsPil(String site) throws IOException,
-            ConfigurationException, LocalizationOpFailedException;
+            ConfigurationException, LocalizationException;
 
     /**
      * Generate a ids site/ident entry.
@@ -236,18 +232,18 @@ public interface ITafSiteConfig {
      *            - site's pil/METAR AFOS ID
      * @throws IOException
      * @throws ConfigurationException
-     * @throws LocalizationOpFailedException
+     * @throws LocalizationException
      */
     public void setIdsSite(String site, String pil) throws IOException,
-            ConfigurationException, LocalizationOpFailedException;
+            ConfigurationException, LocalizationException;
 
     /**
      * Delete the ids site/ident entry.
      * 
      * @param site
      * @throws ConfigurationException
-     * @throws LocalizationOpFailedException
+     * @throws LocalizationException
      */
     public void removeIdsSite(String site) throws ConfigurationException,
-            LocalizationOpFailedException;
+            LocalizationException;
 }

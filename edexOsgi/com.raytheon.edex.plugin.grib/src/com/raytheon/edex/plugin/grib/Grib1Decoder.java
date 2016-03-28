@@ -101,6 +101,7 @@ import com.raytheon.uf.common.util.mapping.MultipleMappingException;
  * Sep 09, 2014  3356     njensen     Remove CommunicationException
  * Mar 05, 2015  3959     rjpeter     Added world wrap check to subGrid.
  * Oct 01, 2015  4868     rjpeter     Discard invalid subgrids.
+ * Dec 16, 2015  5182     tjensen     Updated GribModelLookup calls to pass in filepath.
  * </pre>
  * 
  * @author bphillip
@@ -159,7 +160,7 @@ public class Grib1Decoder {
             ArrayList<Grib1Record> records = g1i.getRecords();
             List<GridRecord> gribRecords = new ArrayList<GridRecord>();
             for (int i = 0; i < records.size(); i++) {
-                GridRecord rec = decodeRecord(records.get(i), raf);
+                GridRecord rec = decodeRecord(records.get(i), raf, fileName);
                 if (rec != null) {
                     gribRecords.add(rec);
                 }
@@ -194,12 +195,14 @@ public class Grib1Decoder {
      *            The record to decode
      * @param raf
      *            The file object
+     * @param filePath
+     *            The path of the file to decode
      * @return The decoded GridRecord
      * @throws GribException
      *             If the record cannot be decoded properly
      */
-    private GridRecord decodeRecord(Grib1Record rec, RandomAccessFile raf)
-            throws GribException {
+    private GridRecord decodeRecord(Grib1Record rec, RandomAccessFile raf,
+            String filePath) throws GribException {
 
         GridRecord retVal = new GridRecord();
 
@@ -321,7 +324,7 @@ public class Grib1Decoder {
         retVal.addExtraAttribute("gridid", gridCoverage.getName());
 
         retVal.setDatasetId(createModelName(centerid, subcenterid, genProcess,
-                gridCoverage));
+                gridCoverage, filePath));
 
         // Get the level information
         float[] levelMetadata = this.convertGrib1LevelInfo(
@@ -512,7 +515,7 @@ public class Grib1Decoder {
 
         // check if FLAG.FCST_USED needs to be removed
         checkForecastFlag(retVal.getDataTime(), centerid, subcenterid,
-                genProcess, gridCoverage);
+                genProcess, gridCoverage, filePath);
 
         return retVal;
     }
@@ -927,29 +930,31 @@ public class Grib1Decoder {
      * @param centerId
      * @param subcenterId
      * @param process
+     * @param filePath
      * @param gridId
      * @return
      */
     private String createModelName(int centerId, int subcenterId, int process,
-            GridCoverage grid) {
+            GridCoverage grid, String filePath) {
         return GribModelLookup.getInstance().getModelName(centerId,
-                subcenterId, grid, process, null);
+                subcenterId, grid, process, null, filePath);
     }
 
     /**
      * Check if the forecast flag should be removed
      * 
      * @param time
-     *            he datatime to remove forecast flag if needed
+     *            The datatime to remove forecast flag if needed
      * @param centerId
      * @param subcenterId
      * @param process
+     * @param filePath
      * @param gridId
      */
     private void checkForecastFlag(DataTime time, int centerId,
-            int subcenterId, int process, GridCoverage grid) {
+            int subcenterId, int process, GridCoverage grid, String filePath) {
         GridModel gridModel = GribModelLookup.getInstance().getModel(centerId,
-                subcenterId, grid, process, null);
+                subcenterId, grid, process, null, filePath);
         if ((gridModel != null) && gridModel.getAnalysisOnly()) {
             time.getUtilityFlags().remove(FLAG.FCST_USED);
         }

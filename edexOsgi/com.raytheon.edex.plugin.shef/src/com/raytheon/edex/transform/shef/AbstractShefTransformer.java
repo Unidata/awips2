@@ -30,8 +30,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.xml.transform.TransformerException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.transform.shef.obs.ObsToSHEFOptions;
@@ -55,6 +55,7 @@ import com.raytheon.uf.common.wmo.WMOTimeParser;
  * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
  * Jul 01, 2015 16903      lbousaidi   added routine for synoptic data
  * Oct 29, 2015 4783       bkowal      Made {@link #metar2ShefOptions} protected.
+ * Dec 16, 2015 5166       kbisanz     Update logging to use SLF4J
  * </pre>
  * 
  * @author jkorman
@@ -73,17 +74,17 @@ public abstract class AbstractShefTransformer<T extends PluginDataObject>
     private final String WMO_HEADER_FMT;
 
     private static final String ARCHIVE_FORMAT = "%s_%04d";
-    
+
     // Note that the nuber of digits must agree with ARCHIVE_FORMAT
     private static final int MAX_ARCHIVE_SEQUENCE = 10000;
-    
+
     private static final String WMO_MSG_SEQ_FMT = "%03d";
-    
+
     // WMO Sequence number range from 001..999
     private static final int MAX_WMO_MSG_SEQ = 1000;
-    
+
     public static final String METAR_2_SHEF_NNN = "MTR";
-    
+
     public static final String METAR_2_SHEF_OPT = "metar2shef_options";
 
     public static final String SHEF_A_RECORD = ".A";
@@ -103,7 +104,7 @@ public abstract class AbstractShefTransformer<T extends PluginDataObject>
     public static final String SHEF_OBS_BASISTIME_FMT = "/DC%1$ty%1$tm%1$td%1$tH%1$tM";
 
     public static final String OPT_ARC_ENABLE = "archive_enable";
-    
+
     public static final String OPT_SHEF_ARC_DIR = "archive_shefdata_dir";
 
     // ***********************
@@ -114,7 +115,7 @@ public abstract class AbstractShefTransformer<T extends PluginDataObject>
     // ***********************
     // Exposed properties
 
-    protected Log logger = LogFactory.getLog(getClass());
+    protected Logger logger = LoggerFactory.getLogger(getClass());
 
     private String serviceName = null;
 
@@ -127,24 +128,28 @@ public abstract class AbstractShefTransformer<T extends PluginDataObject>
     protected String metar2ShefOptions = null;
 
     private boolean archiveEnabled = false;
-    
+
     private String shefArchiveDir = null;
 
     private File shefArchiveFileDir = null;
-    
+
     protected ObsToSHEFOptions options = null;
 
     private static AtomicInteger sequenceNumber = new AtomicInteger();
 
     protected static AtomicInteger msgSequence = new AtomicInteger();
+
     // ************************************************************
 
     /**
      * Create the common transformer.
-     * @param cmdLine Command line options that may be used if these
-     * options are not present in the Apps_defaults.
-     * @param headerFmt The specific WMO header format string to be used
-     * when constructing a WMO header for a particular subclass.
+     * 
+     * @param cmdLine
+     *            Command line options that may be used if these options are not
+     *            present in the Apps_defaults.
+     * @param headerFmt
+     *            The specific WMO header format string to be used when
+     *            constructing a WMO header for a particular subclass.
      */
     public AbstractShefTransformer(String cmdLine, String headerFmt) {
 
@@ -169,8 +174,8 @@ public abstract class AbstractShefTransformer<T extends PluginDataObject>
             throws TransformerException {
         String cmdLine = AppsDefaults.getInstance().getToken(METAR_2_SHEF_OPT,
                 null);
-        if(options != null) {
-            if(cmdLine != null) {
+        if (options != null) {
+            if (cmdLine != null) {
                 if (!cmdLine.equals(metar2ShefOptions)) {
                     metar2ShefOptions = cmdLine;
                     options.updateCommandLine(cmdLine);
@@ -179,7 +184,7 @@ public abstract class AbstractShefTransformer<T extends PluginDataObject>
             options.updateOptions();
         }
         configureArchiveDir();
-        
+
         return transformReport(report, headers);
     }
 
@@ -190,7 +195,7 @@ public abstract class AbstractShefTransformer<T extends PluginDataObject>
      */
     public static Iterator<?> iterate(PluginDataObject[] objects) {
         Iterator<PluginDataObject> it = null;
-        if ((objects != null)&&(objects.length > 0)) {
+        if ((objects != null) && (objects.length > 0)) {
             List<PluginDataObject> obj = Arrays.asList(objects);
             if (obj != null) {
                 it = obj.iterator();
@@ -219,16 +224,21 @@ public abstract class AbstractShefTransformer<T extends PluginDataObject>
 
     /**
      * Transform the input report to a SHEF encoded report.
-     * @param report A report to transform.
+     * 
+     * @param report
+     *            A report to transform.
      * @return The encoded SHEF report.
-     * @throws TransformerException An error occurred during proccessing.
+     * @throws TransformerException
+     *             An error occurred during proccessing.
      */
     protected abstract byte[] transformReport(T report, Headers headers)
             throws TransformerException;
 
     /**
      * Create a new buffer containing the opening stanza of a WMO bulletin.
-     * @param sequenceId Abuffer 
+     * 
+     * @param sequenceId
+     *            Abuffer
      * @param report
      * @return
      */
@@ -250,15 +260,15 @@ public abstract class AbstractShefTransformer<T extends PluginDataObject>
             String stationId, Headers headers, WMOHeader hdr) {
 
         Calendar c = null;
-        
-        if((hdr != null)&&(headers != null)) {
+
+        if ((hdr != null) && (headers != null)) {
             String fileName = (String) headers.get(WMOHeader.INGEST_FILE_NAME);
             c = WMOTimeParser.findDataTime(hdr.getYYGGgg(), fileName);
         } else {
             c = TimeUtil.newGmtCalendar();
         }
         buffer.append(String.format(WMO_HEADER_FMT, stationId, c));
-        
+
         return buffer;
     }
 
@@ -273,17 +283,18 @@ public abstract class AbstractShefTransformer<T extends PluginDataObject>
             String stationId, Headers headers, String hdr) {
 
         Calendar c = null;
-        
-        if((hdr != null)&&(headers != null)) {
+
+        if ((hdr != null) && (headers != null)) {
             String fileName = (String) headers.get(WMOHeader.INGEST_FILE_NAME);
             c = WMOTimeParser.findDataTime(hdr, fileName);
         } else {
             c = TimeUtil.newGmtCalendar();
         }
         buffer.append(String.format(WMO_HEADER_FMT, stationId, c));
-        
+
         return buffer;
     }
+
     /**
      * 
      * @param buffer
@@ -396,7 +407,8 @@ public abstract class AbstractShefTransformer<T extends PluginDataObject>
 
     /**
      * Get the state of the archive enabled flag. This value follows
-     * AppsDefaults:archive_enable. 
+     * AppsDefaults:archive_enable.
+     * 
      * @return The archive enabled state.
      */
     private boolean isArchiveEnabled() {
@@ -405,12 +417,13 @@ public abstract class AbstractShefTransformer<T extends PluginDataObject>
 
     /**
      * Get the shef archive file directory if it exists.
-     * @return 
+     * 
+     * @return
      */
     private File getShefArchiveFileDir() {
         return shefArchiveFileDir;
     }
-    
+
     /**
      * 
      */
@@ -428,28 +441,33 @@ public abstract class AbstractShefTransformer<T extends PluginDataObject>
 
     /**
      * Write an encoded SHEF observation to a specified archive directory.
-     * @param shefObs The SHEF encoded data to archive.
-     * @param fileName The base filename.
+     * 
+     * @param shefObs
+     *            The SHEF encoded data to archive.
+     * @param fileName
+     *            The base filename.
      */
     protected void archiveSHEFObs(String shefObs, String fileName) {
-        if(isArchiveEnabled()) {
+        if (isArchiveEnabled()) {
             File arcFile = getShefArchiveFileDir();
-            if(arcFile != null) {
-                String fName = String.format(ARCHIVE_FORMAT, fileName, getSequenceNumber());
+            if (arcFile != null) {
+                String fName = String.format(ARCHIVE_FORMAT, fileName,
+                        getSequenceNumber());
                 File outFile = new File(arcFile, fName);
                 FileOutputStream fos = null;
                 try {
                     fos = new FileOutputStream(outFile);
                     fos.write(shefObs.getBytes());
                     fos.flush();
-                } catch(IOException ioe) {
+                } catch (IOException ioe) {
                     logger.error("Could not archive data " + fName);
                 } finally {
-                    if(fos != null) {
+                    if (fos != null) {
                         try {
                             fos.close();
-                        } catch(IOException ioe) {
-                            logger.error("Could not close archive file " + fName);
+                        } catch (IOException ioe) {
+                            logger.error("Could not close archive file "
+                                    + fName);
                         }
                     }
                 }
@@ -458,9 +476,10 @@ public abstract class AbstractShefTransformer<T extends PluginDataObject>
             }
         }
     }
-    
+
     /**
      * Get the next sequence number.
+     * 
      * @return The sequence number.
      */
     private synchronized int getSequenceNumber() {
@@ -471,6 +490,7 @@ public abstract class AbstractShefTransformer<T extends PluginDataObject>
 
     /**
      * Get the next message sequence number.
+     * 
      * @return The message sequence number.
      */
     private synchronized int getMsgSequenceNumber() {

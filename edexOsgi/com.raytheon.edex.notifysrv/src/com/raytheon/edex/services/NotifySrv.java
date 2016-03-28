@@ -23,8 +23,8 @@ package com.raytheon.edex.services;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.subscription.ISubscriptionManager;
 import com.raytheon.edex.subscription.Script;
@@ -43,13 +43,14 @@ import com.raytheon.uf.edex.core.EdexException;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date       	Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
  * 14Aug2006    #18         MW Fegan    Initial Creation.
  * 06Feb2007    TO5         MW Fegan    Removed JMX registration.
  * 27Apr2007    208         MW Fegan    Pass only dataURI in message.
  * 26Nov2007    443         bphillip    Modified to receive lists of PluginDataObjects
  * Jul 10, 2014 2914        garmendariz Remove EnvProperties
+ * Dec 10, 2015 5166        kbisanz     Update logging to use SLF4J
  * </pre>
  * 
  * @author mfegan
@@ -60,7 +61,7 @@ public class NotifySrv {
 
     private ISubscriptionManager subscriptionManager;
 
-    private Log logger = LogFactory.getLog(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     /**
      * Constructor. Constructs the Notification Server object and registers with

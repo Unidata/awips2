@@ -142,6 +142,8 @@ import com.raytheon.viz.hydrocommon.util.DbUtils;
  * 05 Sep   2013 #2332   lvenable     Fixed memory leaks.       
  * 24 Jan   2013  15959  lbousaidi    Swap the corner points of the bounding box when zooming.    
  * 22 Oct   2015  13736  xwei         Fixed missing data after zoom, edit, & reset problem
+ * Nov 18   2015  5073   skorolev     Fixed drawing PP time series.
+ *     
  * @author lvenable
  * @version 1.0
  * 
@@ -842,7 +844,8 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                 }
 
                 /* Precipitation physical element */
-                if (td.getPe().equalsIgnoreCase(HydroConstants.PP)) {
+                if (td.getPe().equalsIgnoreCase(HydroConstants.PP)
+                        && td.isTraceOn()) {
                     precipPE = true;
                     setBackgroundColor(td, j, gc);
                     int[] ia = new int[8];
@@ -1265,12 +1268,12 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                 }
                 Date xMin = pixel2x(gd, rubberBandX1 - GRAPHBORDER_LEFT);
                 Date xMax = pixel2x(gd, rubberBandX2 - GRAPHBORDER_LEFT);
-                //Swap the corner points of the bounding box when zooming
+                // Swap the corner points of the bounding box when zooming
                 if (xMin.after(xMax)) {
-                	Date xtmp;
-                	xtmp= xMin;
-                	xMin=xMax;
-                	xMax=xtmp;                	
+                    Date xtmp;
+                    xtmp = xMin;
+                    xMin = xMax;
+                    xMax = xtmp;
                 }
                 gd.setXMin(xMin);
                 gd.setXMax(xMax);
@@ -1286,12 +1289,12 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                 if (ymin < gd.getYmin()) {
                     ymin = gd.getYmin();
                 }
-                //Swap the corner points of the bounding box when zooming
+                // Swap the corner points of the bounding box when zooming
                 if (ymin > ymax) {
-                	double ytmp;
-                	ytmp= ymin;
-                	ymin=ymax;
-                	ymax=ytmp;
+                    double ytmp;
+                    ytmp = ymin;
+                    ymin = ymax;
+                    ymax = ytmp;
                 }
                 gd.setYmin(ymin);
                 gd.setYmax(ymax);

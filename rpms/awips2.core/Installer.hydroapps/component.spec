@@ -13,12 +13,12 @@ URL: N/A
 License: N/A
 Distribution: N/A
 Vendor: Raytheon
-Packager: Bryan Kowal
+Packager: %{_build_site}
 
 AutoReq: no
-provides: awips2-hydroapps-shared
-obsoletes: awips2-hydroapps
-requires: awips2-edex-base
+Provides: awips2-hydroapps-shared
+Obsoletes: awips2-hydroapps
+Requires: awips2-edex-base
 
 %description
 AWIPS II Hydroapps Distribution - Includes applications, configurations, and

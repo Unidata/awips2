@@ -14,10 +14,10 @@ URL: N/A
 License: N/A
 Distribution: N/A
 Vendor: Raytheon
-Packager: Bryan Kowal
+Packager: %{_build_site}
 
 AutoReq: no
-provides: awips2-data.gfe
+Provides: awips2-data.gfe
 
 %description
 AWIPS II gfe Distribution - Contains the AWIP II gfe netcdf files.
@@ -39,18 +39,10 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-# Determine which version of the gfe we should use.
-RPM_COMMON_DIR="%{_baseline_workspace}/rpms/common/static.versions"
-if [ ! -f ${RPM_COMMON_DIR}/LATEST.gfe ]; then
-   file ${RPM_COMMON_DIR}/LATEST.gfe
-   exit 1
-fi
-VERSION_DIR=`cat ${RPM_COMMON_DIR}/LATEST.gfe`
-
-GFE_SRC_DIR="${AWIPSCM_SHARE}/awips2-static/gfe/${VERSION_DIR}"
+GFE_SRC_DIR="%{_static_files}/gfe"
 gfe_tar="${GFE_SRC_DIR}/gfeData.tgz"
 if [ ! -f ${gfe_tar} ]; then
-   file ${gfe_tar}
+   echo "File ${gfe_tar} not found!"
    exit 1
 fi
 

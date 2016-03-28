@@ -28,6 +28,8 @@ import com.raytheon.uf.edex.auth.roles.IRoleStorage;
  * ------------ ---------- ----------- --------------------------
  * May 25, 2010            rgeorge     Initial creation
  * Oct 09, 2013 2361       njensen     Use JAXBManager for XML
+ * Jan 27, 2016 5237       tgurney     Replace deprecated LocalizationFile
+ *                                     method calls
  * 
  * </pre>
  * 
@@ -86,15 +88,15 @@ public class NwsRoleStorage implements IRoleStorage {
             if (locFile.exists()) {
                 file = locFile.getFile();
 
-                if (lastUsedFileMap.get(locFile.getName()) == null
+                if (lastUsedFileMap.get(locFile.getPath()) == null
                         || (file != null && (file.equals(lastUsedFileMap
-                                .get(locFile.getName())) == false || file
+                                .get(locFile.getPath())) == false || file
                                 .lastModified() > lastModificationTimeMap
-                                .get(locFile.getName())))) {
+                                .get(locFile.getPath())))) {
                     // First time we found a role file, or we have a different
                     // file to
                     // use or we were modified since our last check
-                    lastUsedFileMap.put(locFile.getName(), file);
+                    lastUsedFileMap.put(locFile.getPath(), file);
                     try {
                         roleData = jaxb.unmarshalFromXmlFile(file
                                 .getAbsolutePath());
@@ -105,7 +107,7 @@ public class NwsRoleStorage implements IRoleStorage {
                                 "Error loading file: " + file.getName(), e);
                     }
 
-                    lastModificationTimeMap.put(locFile.getName(),
+                    lastModificationTimeMap.put(locFile.getPath(),
                             file.lastModified());
                 }
             }
@@ -132,13 +134,6 @@ public class NwsRoleStorage implements IRoleStorage {
         return roleData;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.plugin.nwsauth.roles.IRoleStorage#isAuthorized
-     * (java.lang.String, java.lang.String, java.lang.String)
-     */
     @Override
     public boolean isAuthorized(String permission, String user,
             String application) throws AuthorizationException {

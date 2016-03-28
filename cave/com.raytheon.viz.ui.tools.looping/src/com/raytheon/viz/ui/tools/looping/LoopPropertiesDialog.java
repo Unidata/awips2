@@ -57,6 +57,7 @@ import com.raytheon.viz.ui.keys.PageUpDownKey;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Aug 1, 2006              chammack    Initial Creation.
+ * Jan 12, 2016  5238       lvenable    Increased label width so the scale labels do not get hidden.
  * 
  * </pre>
  * 
@@ -126,7 +127,7 @@ public class LoopPropertiesDialog extends CaveJFACEDialog implements
 
     private static final int SCALE_WIDTH = 130;
 
-    private static final int LABEL_WIDTH = 35;
+    private static final int LABEL_WIDTH = 60;
 
     private final String title;
 
@@ -152,7 +153,7 @@ public class LoopPropertiesDialog extends CaveJFACEDialog implements
 
     private LoopProperties loopProperties;
 
-    private PageUpDownListener keyListener = new PageUpDownListener();
+    private final PageUpDownListener keyListener = new PageUpDownListener();
 
     /**
      * Constructor
@@ -267,6 +268,7 @@ public class LoopPropertiesDialog extends CaveJFACEDialog implements
         fwdLoopSpeedLabel = new Label(composite, SWT.NONE);
         fwdLoopSpeedLabel.setLayoutData(new GridData(LABEL_WIDTH, SWT.DEFAULT));
         fwdLoopSpeedScale.addListener(SWT.Selection, new Listener() {
+            @Override
             public void handleEvent(Event event) {
                 loopProperties
                         .setFwdFrameTime(calculateFrameTime(fwdLoopSpeedScale));
@@ -289,6 +291,7 @@ public class LoopPropertiesDialog extends CaveJFACEDialog implements
         revLoopSpeedLabel = new Label(composite, SWT.NONE);
         revLoopSpeedLabel.setLayoutData(new GridData(LABEL_WIDTH, SWT.DEFAULT));
         revLoopSpeedScale.addListener(SWT.Selection, new Listener() {
+            @Override
             public void handleEvent(Event event) {
                 loopProperties
                         .setRevFrameTime(calculateFrameTime(revLoopSpeedScale));
@@ -314,6 +317,7 @@ public class LoopPropertiesDialog extends CaveJFACEDialog implements
         firstFrameDwellLabel.setLayoutData(new GridData(LABEL_WIDTH,
                 SWT.DEFAULT));
         firstFrameDwellScale.addListener(SWT.Selection, new Listener() {
+            @Override
             public void handleEvent(Event event) {
                 loopProperties
                         .setFirstFrameDwell(calculateDwellTime(firstFrameDwellScale));
@@ -339,6 +343,7 @@ public class LoopPropertiesDialog extends CaveJFACEDialog implements
         lastFrameDwellLabel
                 .setLayoutData(new GridData(LABEL_WIDTH, SWT.DEFAULT));
         lastFrameDwellScale.addListener(SWT.Selection, new Listener() {
+            @Override
             public void handleEvent(Event event) {
                 loopProperties
                         .setLastFrameDwell(calculateDwellTime(lastFrameDwellScale));
@@ -350,6 +355,7 @@ public class LoopPropertiesDialog extends CaveJFACEDialog implements
         isLoopingButton = new Button(composite, SWT.CHECK);
         isLoopingButton.setText("Looping");
         isLoopingButton.addListener(SWT.Selection, new Listener() {
+            @Override
             public void handleEvent(Event event) {
                 loopProperties.setLooping(isLoopingButton.getSelection());
                 if ((loopProperties.getFwdFrameTime() == 0)

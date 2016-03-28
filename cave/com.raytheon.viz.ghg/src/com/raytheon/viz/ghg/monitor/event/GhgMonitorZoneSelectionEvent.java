@@ -19,49 +19,51 @@
  **/
 package com.raytheon.viz.ghg.monitor.event;
 
-import java.util.EventObject;
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * Ghg Monitor map selection event object.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 2, 2010            mpduff     Initial creation
- *
+ * Jun 02, 2010            mpduff      Initial creation
+ * Feb 05, 2016   #5316    randerso    Changed to extend AbstractGhgMonitorEvent
+ *                                     removed unnecessary field
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
- * @version 1.0	
+ * @version 1.0
  */
 
-public class GhgMonitorZoneSelectionEvent extends EventObject {
+public class GhgMonitorZoneSelectionEvent extends AbstractGhgMonitorEvent {
 
-    private static final long serialVersionUID = 7240901206407383480L;
-    
-    private String[] highlightedZones = null;
+    private Collection<String> highlightedZones = Collections.emptyList();
 
     /**
      * @param source
      */
-    public GhgMonitorZoneSelectionEvent(Object source) {
-        super(source);
+    public GhgMonitorZoneSelectionEvent() {
+        super();
     }
 
     /**
      * @return the highlightedZones
      */
-    public String[] getHighlightedZones() {
+    public Collection<String> getHighlightedZones() {
         return highlightedZones;
     }
 
     /**
-     * @param highlightedZones the highlightedZones to set
+     * @param highlightedZones
+     *            the highlightedZones to set
      */
-    public void setHighlightedZones(String[] highlightedZones) {
+    public void setHighlightedZones(Collection<String> highlightedZones) {
         this.highlightedZones = highlightedZones;
     }
 }

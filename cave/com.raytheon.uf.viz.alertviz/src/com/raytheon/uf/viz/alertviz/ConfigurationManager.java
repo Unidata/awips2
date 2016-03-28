@@ -19,11 +19,8 @@
  **/
 package com.raytheon.uf.viz.alertviz;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -34,13 +31,15 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -58,14 +57,18 @@ import com.raytheon.uf.viz.alertviz.config.Source;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 7, 2010            mschenke     Initial creation
+ * Apr 07, 2010            mschenke    Initial creation
  * Mar 16, 2011 6531       rferrel     Start up loads host dependent
  *                                     configuration file.
- * Aug 28 2012  13528     Xiaochuan    Using setNewConfiguration() to 
+ * Aug 28, 2012 13528      Xiaochuan   Using setNewConfiguration() to 
  *                                     re-set configuration data and
  *                                     run notifyListeners().
- * Apr 07 2015  4346       rferrel     Created {@link #retrieveBaseConfiguration()}.
+ * Apr 07, 2015 4346       rferrel     Created {@link #retrieveBaseConfiguration}.
  * May 20, 2015 4346       rjpeter     Updated to also load from common_static.
+ * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
+ * Jan 11, 2016 5242       kbisanz     Replaced calls to deprecated ILocalizationFile methods
+ * Feb 12, 2016 4834       bsteffen    Fix multiple saves of the customConfiguration.
+ * 
  * </pre>
  * 
  * @author mschenke
@@ -166,7 +169,7 @@ public class ConfigurationManager {
         ConfigContext workstationContext = DEFAULT_WORKSTATION_CONFIG;
 
         try {
-            LocalizationFile file = getLocalizationFile(workstationContext);
+            ILocalizationFile file = getLocalizationFile(workstationContext);
 
             if (file == null || !file.exists()) {
                 ConfigContext sourceContext = DEFAULT_SITE_CONFIG;
@@ -262,7 +265,7 @@ public class ConfigurationManager {
     /**
      * Delete the configuration passed in
      * 
-     * @param name
+     * @param context
      */
     public void deleteConfiguration(ConfigContext context) {
         if (context.isBaseOrConfiguredLevel() || isDefaultConfig(context)) {
@@ -272,7 +275,7 @@ public class ConfigurationManager {
             if (current.equals(context)) {
                 loadAsCurrent(DEFAULT_WORKSTATION_CONFIG);
             }
-            LocalizationFile file = getLocalizationFile(context);
+            ILocalizationFile file = getLocalizationFile(context);
             try {
                 file.delete();
             } catch (Exception e) {
@@ -317,10 +320,10 @@ public class ConfigurationManager {
     private void loadFromLocalizationType(LocalizationType type) {
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext[] contexts = pm.getLocalSearchHierarchy(type);
-        LocalizationFile[] files = pm.listFiles(contexts, CONFIG_DIR,
+        ILocalizationFile[] files = pm.listFiles(contexts, CONFIG_DIR,
                 EXTENSIONS, true, true); // Win32
 
-        for (LocalizationFile file : files) {
+        for (ILocalizationFile file : files) {
             LocalizationContext fileContext = file.getContext();
 
             /*
@@ -329,8 +332,8 @@ public class ConfigurationManager {
              */
             if ((fileContext.getLocalizationLevel() != LocalizationLevel.BASE)
                     || ((fileContext.getLocalizationLevel() == LocalizationLevel.BASE) && DEFAULT_BASE_CONFIG
-                            .getLocalizationFileName().equals(file.getName()))) {
-                String fileName = file.getName();
+                            .getLocalizationFileName().equals(file.getPath()))) {
+                String fileName = file.getPath();
                 LocalizationContext locContext = file.getContext();
                 String name = fileName.substring(
                         fileName.lastIndexOf(IPathManager.SEPARATOR) + 1, // win32
@@ -362,7 +365,7 @@ public class ConfigurationManager {
     }
 
     public Configuration retrieveConfiguration(ConfigContext configContext) {
-        LocalizationFile file = getLocalizationFile(configContext);
+        ILocalizationFile file = getLocalizationFile(configContext);
         if (DEFAULT_BASE_CONFIG.equals(configContext)) {
             if (baseConfiguration == null) {
                 baseConfiguration = retrieveBaseConfiguration();
@@ -379,7 +382,7 @@ public class ConfigurationManager {
      * @return configuration
      */
     private Configuration retrieveBaseConfiguration() {
-        LocalizationFile file = getLocalizationFile(DEFAULT_BASE_CONFIG);
+        ILocalizationFile file = getLocalizationFile(DEFAULT_BASE_CONFIG);
         Configuration configuration = retrieveConfiguration(file);
         configuration = mergeBaseConfigurations(LocalizationType.CAVE_STATIC,
                 configuration);
@@ -393,12 +396,12 @@ public class ConfigurationManager {
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext context = pm.getContext(type,
                 LocalizationLevel.BASE);
-        LocalizationFile[] files = pm.listFiles(context, CONFIG_DIR,
+        ILocalizationFile[] files = pm.listFiles(context, CONFIG_DIR,
                 EXTENSIONS, false, true);
-        for (LocalizationFile f : files) {
+        for (ILocalizationFile f : files) {
             // Merge other base files with the default.
             if (!DEFAULT_BASE_CONFIG.getLocalizationFileName().equals(
-                    f.getName())) {
+                    f.getPath())) {
                 Configuration fileConfig = retrieveConfiguration(f);
                 Configuration mergeConfig = configuration.mergeUnder(
                         fileConfig, true);
@@ -409,14 +412,11 @@ public class ConfigurationManager {
         return configuration;
     }
 
-    public Configuration retrieveConfiguration(LocalizationFile file) {
+    public Configuration retrieveConfiguration(ILocalizationFile file) {
         Configuration config = null;
-        if (file != null) {
+        if (file != null && file.exists()) {
             try {
-                File actualFile = file.getFile();
-                if (actualFile != null && actualFile.exists()) {
-                    config = (Configuration) deserializeFromFile(actualFile);
-                }
+                config = (Configuration) deserializeFromFile(file);
             } catch (SerializationException e) {
                 statusHandler.handle(Priority.CRITICAL,
                         "Error deserializing configuration xml", e);
@@ -427,18 +427,12 @@ public class ConfigurationManager {
 
     private boolean saveToFile(ConfigContext cContext, Configuration config) {
         boolean success = true;
-        LocalizationFile file = getLocalizationFile(cContext);
+        ILocalizationFile file = getLocalizationFile(cContext);
         try {
             // do not attempt to save to base
             if (file != null
                     && file.getContext().getLocalizationLevel() != LocalizationLevel.BASE) {
-                serializeToFile(config, file.getFile());
-                if (!file.save()) {
-                    // failed to save delete the local copy and switch to the
-                    // default config.
-                    file.delete();
-                    success = false;
-                }
+                serializeToFile(config, file);
             }
         } catch (SerializationException e) {
             statusHandler.handle(Priority.CRITICAL,
@@ -468,62 +462,27 @@ public class ConfigurationManager {
         }
     }
 
-    private void serializeToFile(Object obj, File file)
+    private void serializeToFile(Object obj, ILocalizationFile file)
             throws SerializationException {
-        FileWriter writer = null;
-        Marshaller msh = marshaller;
-        try {
-            File dir = file.getParentFile();
-            if (dir.isDirectory() == false) {
-                dir.delete();
-                dir.mkdirs();
-            }
-            msh.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, new Boolean(true));
-            writer = new FileWriter(file);
-            msh.marshal(obj, writer);
+        try (SaveableOutputStream os = file.openOutputStream()) {
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT,
+                    new Boolean(true));
+            marshaller.marshal(obj, os);
+            os.save();
         } catch (Exception e) {
             throw new SerializationException(e);
-        } finally {
-            if (writer != null) {
-                try {
-                    writer.close();
-                } catch (IOException e) {
-                    // Log to internal Log4j log
-                    Container
-                            .logInternal(
-                                    Priority.ERROR,
-                                    "ConfigurationManager: exception closing file writer.",
-                                    e);
-                }
-            }
         }
     }
 
-    private Object deserializeFromFile(File file) throws SerializationException {
-        FileReader reader = null;
-        Unmarshaller msh = unmarshaller;
-        try {
-            reader = new FileReader(file);
-            Object obj = msh.unmarshal(reader);
-            return obj;
-        } catch (FileNotFoundException e) {
+    private Object deserializeFromFile(ILocalizationFile file)
+            throws SerializationException {
+        try (InputStream is = file.openInputStream()) {
+            return unmarshaller.unmarshal(is);
+        } catch (LocalizationException | IOException | JAXBException e) {
             Container.logInternal(Priority.ERROR,
-                    "AlertViz ConfigurationManager unable to find file: "
-                            + file.getAbsolutePath(), e);
+                    "ConfigurationManager: Exception unmarshalling from file: "
+                            + file.getPath(), e);
             throw new SerializationException(e);
-        } catch (JAXBException e) {
-            Container.logInternal(Priority.ERROR,
-                    "ConfigurationManager: JAXB exception unmarshalling from file: "
-                            + file.getAbsolutePath(), e);
-            throw new SerializationException(e);
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    // ignore
-                }
-            }
         }
     }
 
@@ -531,15 +490,12 @@ public class ConfigurationManager {
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext ctx = pm.getContext(LocalizationType.CAVE_STATIC,
                 LocalizationLevel.SITE);
-        LocalizationFile file = pm.getLocalizationFile(ctx,
+        ILocalizationFile file = pm.getLocalizationFile(ctx,
                 ConfigContext.ALERTVIZ_DIR + IPathManager.SEPARATOR
                         + "AlertVizForced.xml");
-        File actualFile = file.getFile();
-        // Win32: JHB put in check for length
-        if (actualFile != null && actualFile.exists()
-                && actualFile.length() > 0) {
-            try {
-                return (ForcedConfiguration) unmarshaller.unmarshal(actualFile);
+        if (file != null && file.exists()) {
+            try (InputStream is = file.openInputStream()) {
+                return (ForcedConfiguration) unmarshaller.unmarshal(is);
             } catch (Exception e) {
                 statusHandler.handle(Priority.SIGNIFICANT,
                         "Error deserializing forced configuration", e);
@@ -569,10 +525,9 @@ public class ConfigurationManager {
     }
 
     private void updateCustom(boolean isRemove, Object obj) {
-        LocalizationFile locFile = getCustomLocalization();
-        File customFile = locFile.getFile();
+        ILocalizationFile locFile = getCustomLocalization();
         try {
-            customConfiguration = (Configuration) deserializeFromFile(customFile);
+            customConfiguration = (Configuration) deserializeFromFile(locFile);
             if (obj instanceof Category) {
                 Map<String, Category> categories = customConfiguration
                         .getCategories();
@@ -594,11 +549,10 @@ public class ConfigurationManager {
                 }
                 customConfiguration.setSources(sources);
             }
-            serializeToFile(customConfiguration, customFile);
-            locFile.save();
+            serializeToFile(customConfiguration, locFile);
+            /* Must reload fresh copy next time it is used. */
+            customLocalization = null;
         } catch (SerializationException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-        } catch (LocalizationOpFailedException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
     }

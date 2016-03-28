@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <contribute xsi:type="toolbarSubMenu" menuText="Probablistic Forecasts">
+        <contribute xsi:type="toolbarSubMenu" menuText="12hr">
+            <contribute xsi:type="menuItem" menuText="5th Percentile Snow accumulation" key="TOTSN5pct12hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="10th Percentile Snow accumulation" key="TOTSN10pct12hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="25th Percentile Snow accumulation" key="TOTSN25pct12hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="50th Percentile Snow accumulation" key="TOTSN50pct12hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="75th Percentile Snow accumulation" key="TOTSN75pct12hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="90th Percentile Snow accumulation" key="TOTSN90pct12hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="95th Percentile Snow accumulation" key="TOTSN95pct12hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="% chance &gt; 1in Snow" key="TOTSN1in12hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="% chance &gt; 2in Snow" key="TOTSN2in12hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="% chance &gt; 4in Snow" key="TOTSN4in12hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="% chance &gt; 6in Snow" key="TOTSN6in12hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="% chance &gt; 8in Snow" key="TOTSN8in12hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="% chance &gt; 12in Snow" key="TOTSN12in12hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="% chance &gt; 18in Snow" key="TOTSN18in12hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="5th Percentile Freezing Rain accumulation" key="FRZR5pct12hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="10th Percentile Freezing Rain accumulation" key="FRZR10pct12hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="25th Percentile Freezing Rain accumulation" key="FRZR25pct12hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="50th Percentile Freezing Rain accumulation" key="FRZR50pct12hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="75th Percentile Freezing Rain accumulation" key="FRZR75pct12hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="90th Percentile Freezing Rain accumulation" key="FRZR90pct12hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="95th Percentile Freezing Rain accumulation" key="FRZR95pct12hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="% chance &gt; 0.01in Freezing Rain" key="FRZR0.01in12hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="% chance &gt; 0.1in Freezing Rain" key="FRZR0.1in12hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="% chance &gt; 0.25in Freezing Rain" key="FRZR0.25in12hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="% chance &gt; 0.5in Freezing Rain" key="FRZR0.5in12hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="% chance &gt; 1in Freezing Rain" key="FRZR1in12hr" indentText="false" />
+        </contribute>
+        <contribute xsi:type="toolbarSubMenu" menuText="24hr">
+            <contribute xsi:type="menuItem" menuText="5th Percentile Snow accumulation" key="TOTSN5pct24hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="10th Percentile Snow accumulation" key="TOTSN10pct24hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="25th Percentile Snow accumulation" key="TOTSN25pct24hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="50th Percentile Snow accumulation" key="TOTSN50pct24hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="75th Percentile Snow accumulation" key="TOTSN75pct24hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="90th Percentile Snow accumulation" key="TOTSN90pct24hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="95th Percentile Snow accumulation" key="TOTSN95pct24hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="% chance &gt; 1in Snow" key="TOTSN1in24hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="% chance &gt; 2in Snow" key="TOTSN2in24hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="% chance &gt; 4in Snow" key="TOTSN4in24hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="% chance &gt; 6in Snow" key="TOTSN6in24hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="% chance &gt; 8in Snow" key="TOTSN8in24hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="% chance &gt; 12in Snow" key="TOTSN12in24hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="% chance &gt; 18in Snow" key="TOTSN18in24hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="5th Percentile Freezing Rain accumulation" key="FRZR5pct24hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="10th Percentile Freezing Rain accumulation" key="FRZR10pct24hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="25th Percentile Freezing Rain accumulation" key="FRZR25pct24hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="50th Percentile Freezing Rain accumulation" key="FRZR50pct24hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="75th Percentile Freezing Rain accumulation" key="FRZR75pct24hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="90th Percentile Freezing Rain accumulation" key="FRZR90pct24hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="95th Percentile Freezing Rain accumulation" key="FRZR95pct24hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="% chance &gt; 0.01in Freezing Rain" key="FRZR0.01in24hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="% chance &gt; 0.1in Freezing Rain" key="FRZR0.1in24hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="% chance &gt; 0.25in Freezing Rain" key="FRZR0.25in24hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="% chance &gt; 0.5in Freezing Rain" key="FRZR0.5in24hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="% chance &gt; 1in Freezing Rain" key="FRZR1in24hr" indentText="false" />
+        </contribute>
+        <contribute xsi:type="toolbarSubMenu" menuText="48hr">
+            <contribute xsi:type="menuItem" menuText="5th Percentile Snow accumulation" key="TOTSN5pct48hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="10th Percentile Snow accumulation" key="TOTSN10pct48hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="25th Percentile Snow accumulation" key="TOTSN25pct48hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="50th Percentile Snow accumulation" key="TOTSN50pct48hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="75th Percentile Snow accumulation" key="TOTSN75pct48hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="90th Percentile Snow accumulation" key="TOTSN90pct48hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="95th Percentile Snow accumulation" key="TOTSN95pct48hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="% chance &gt; 2in Snow" key="TOTSN2in48hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="% chance &gt; 4in Snow" key="TOTSN4in48hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="% chance &gt; 8in Snow" key="TOTSN8in48hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="% chance &gt; 12in Snow" key="TOTSN12in48hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="% chance &gt; 18in Snow" key="TOTSN18in48hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="% chance &gt; 24in Snow" key="TOTSN24in48hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="% chance &gt; 30in Snow" key="TOTSN30in48hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="5th Percentile Freezing Rain accumulation" key="FRZR5pct48hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="10th Percentile Freezing Rain accumulation" key="FRZR10pct48hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="25th Percentile Freezing Rain accumulation" key="FRZR25pct48hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="50th Percentile Freezing Rain accumulation" key="FRZR50pct48hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="75th Percentile Freezing Rain accumulation" key="FRZR75pct48hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="90th Percentile Freezing Rain accumulation" key="FRZR90pct48hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="95th Percentile Freezing Rain accumulation" key="FRZR95pct48hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="% chance &gt; 0.1in Freezing Rain" key="FRZR0.1in48hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="% chance &gt; 0.25in Freezing Rain" key="FRZR0.25in48hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="% chance &gt; 0.5in Freezing Rain" key="FRZR0.5in48hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="% chance &gt; 1in Freezing Rain" key="FRZR1in48hr" indentText="false" />
+        </contribute>
+        <contribute xsi:type="toolbarSubMenu" menuText="72hr">
+            <contribute xsi:type="menuItem" menuText="5th Percentile Snow accumulation" key="TOTSN5pct72hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="10th Percentile Snow accumulation" key="TOTSN10pct72hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="25th Percentile Snow accumulation" key="TOTSN25pct72hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="50th Percentile Snow accumulation" key="TOTSN50pct72hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="75th Percentile Snow accumulation" key="TOTSN75pct72hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="90th Percentile Snow accumulation" key="TOTSN90pct72hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="95th Percentile Snow accumulation" key="TOTSN95pct72hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="% chance &gt; 2in Snow" key="TOTSN2in72hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="% chance &gt; 4in Snow" key="TOTSN4in72hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="% chance &gt; 8in Snow" key="TOTSN8in72hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="% chance &gt; 12in Snow" key="TOTSN12in72hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="% chance &gt; 18in Snow" key="TOTSN18in72hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="% chance &gt; 24in Snow" key="TOTSN24in72hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="% chance &gt; 30in Snow" key="TOTSN30in72hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="5th Percentile Freezing Rain accumulation" key="FRZR5pct72hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="10th Percentile Freezing Rain accumulation" key="FRZR10pct72hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="25th Percentile Freezing Rain accumulation" key="FRZR25pct72hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="50th Percentile Freezing Rain accumulation" key="FRZR50pct72hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="75th Percentile Freezing Rain accumulation" key="FRZR75pct72hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="90th Percentile Freezing Rain accumulation" key="FRZR90pct72hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="95th Percentile Freezing Rain accumulation" key="FRZR95pct72hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="% chance &gt; 0.1in Freezing Rain" key="FRZR0.1in72hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="% chance &gt; 0.25in Freezing Rain" key="FRZR0.25in72hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="% chance &gt; 0.5in Freezing Rain" key="FRZR0.5in72hr" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="% chance &gt; 1in Freezing Rain" key="FRZR1in72hr" indentText="false" />
+        </contribute>
+    </contribute>
+</menuTemplate>

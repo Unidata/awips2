@@ -34,10 +34,11 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
+import com.raytheon.uf.viz.zoneselector.AbstractZoneSelector;
+import com.raytheon.uf.viz.zoneselector.ZoneSelectorResource;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.PythonPreferenceStore;
 import com.raytheon.viz.gfe.dialogs.formatterlauncher.IZoneCombiner;
@@ -54,6 +55,8 @@ import com.raytheon.viz.ui.input.InputAdapter;
  * ------------ ---------- ----------- --------------------------
  * Aug 11, 2011            randerso    Initial creation
  * Aug 31, 2015  4749      njensen     Overrode dispose()
+ * Feb 05, 2016 5316       randerso    Moved AbstractZoneSelector to separate project
+ *                                     Code cleanup
  * 
  * </pre>
  * 
@@ -62,13 +65,6 @@ import com.raytheon.viz.ui.input.InputAdapter;
  */
 
 public class ZoneSelector extends AbstractZoneSelector {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(ZoneSelector.class);
-
-    public static interface IZoneSelectionListener {
-        public void zoneSelected(String zone);
-    }
-
     private static final int NO_GROUP = -1;
 
     IInputHandler theMouseListener = new InputAdapter() {
@@ -83,23 +79,11 @@ public class ZoneSelector extends AbstractZoneSelector {
          */
         private static final int MB2 = 2;
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see com.raytheon.viz.ui.input.IInputHandler#handleDoubleClick(int,
-         * int)
-         */
         @Override
         public boolean handleDoubleClick(int x, int y, int button) {
             return false;
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see com.raytheon.viz.ui.input.IInputHandler#handleMouseDown(int,
-         * int, int)
-         */
         @Override
         public boolean handleMouseDown(int x, int y, int mouseButton) {
             switch (mouseButton) {
@@ -118,12 +102,6 @@ public class ZoneSelector extends AbstractZoneSelector {
             return true;
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see com.raytheon.viz.ui.input.IInputHandler#handleMouseDownMove(int,
-         * int, int)
-         */
         @Override
         public boolean handleMouseDownMove(int x, int y, int mouseButton) {
             switch (mouseButton) {
@@ -135,34 +113,16 @@ public class ZoneSelector extends AbstractZoneSelector {
             return true;
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see com.raytheon.viz.ui.input.IInputHandler#handleMouseHover(int,
-         * int)
-         */
         @Override
         public boolean handleMouseHover(int x, int y) {
             return false;
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see com.raytheon.viz.ui.input.IInputHandler#handleMouseMove(int,
-         * int)
-         */
         @Override
         public boolean handleMouseMove(int x, int y) {
             return false;
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see com.raytheon.viz.ui.input.IInputHandler#handleMouseUp(int, int,
-         * int)
-         */
         @Override
         public boolean handleMouseUp(int x, int y, int mouseButton) {
             switch (mouseButton) {
@@ -200,8 +160,6 @@ public class ZoneSelector extends AbstractZoneSelector {
     // current color map
     private List<RGB> colors;
 
-    private RGB noZoneColor;
-
     // state flag, whether to label the zone groups
     private boolean labelZoneGroups;
 
@@ -217,11 +175,22 @@ public class ZoneSelector extends AbstractZoneSelector {
 
     private String pressZone;
 
+    /**
+     * @param parent
+     * @param gloc
+     * @param lclFmtrDialog
+     */
     public ZoneSelector(Composite parent, GridLocation gloc,
             IZoneCombiner lclFmtrDialog) {
         this(parent, gloc, lclFmtrDialog, null);
     }
 
+    /**
+     * @param parent
+     * @param gloc
+     * @param lclFmtrDialog
+     * @param selectCB
+     */
     public ZoneSelector(Composite parent, GridLocation gloc,
             IZoneCombiner lclFmtrDialog, IZoneSelectionListener selectCB) {
         super(parent, gloc, selectCB);
@@ -236,8 +205,6 @@ public class ZoneSelector extends AbstractZoneSelector {
                 "black"));
         backColor = RGBColors.getRGBColor(config(
                 "ZoneCombiner_backgroundColor", "gray40"));
-
-        registerMouseHandler(theMouseListener);
     }
 
     @Override
@@ -246,8 +213,20 @@ public class ZoneSelector extends AbstractZoneSelector {
         super.dispose();
     }
 
-    // command to set the state of include all zones. If it has changed,
-    // redo the combo dictionary and redraw.
+    @Override
+    protected void registerHandlers(IDisplayPane pane) {
+        super.registerHandlers(pane);
+
+        registerMouseHandler(theMouseListener);
+    }
+
+    /**
+     * Command to set the state of include all zones.
+     * 
+     * If it has changed, redo the combo dictionary and redraw.
+     * 
+     * @param includeAllZones
+     */
     public void setIncludeAllZones(boolean includeAllZones) {
         if (this.includeAllZones != includeAllZones) {
             this.includeAllZones = includeAllZones;
@@ -257,7 +236,11 @@ public class ZoneSelector extends AbstractZoneSelector {
         }
     }
 
-    // command to limit combos to one group
+    /**
+     * Command to limit combos to one group
+     * 
+     * @param limitOneGroup
+     */
     public void setLimitToOneGroup(boolean limitOneGroup) {
         if (this.limitToOneGroup != limitOneGroup) {
             this.limitToOneGroup = limitOneGroup;
@@ -270,9 +253,14 @@ public class ZoneSelector extends AbstractZoneSelector {
         }
     }
 
+    /**
+     * @param mapNames
+     * @param comboDict
+     * @param colors
+     */
     public void setMap(List<String> mapNames, Map<String, Integer> comboDict,
             List<RGB> colors) {
-        super.setMap(mapNames);
+        super.setMap(mapNames, false);
         setMapInternal(mapRscList, comboDict, colors);
     }
 
@@ -307,23 +295,35 @@ public class ZoneSelector extends AbstractZoneSelector {
         cleanUpCombosOfUnknownZones();
     }
 
-    // get current list of colors
+    /**
+     * @return current list of colors
+     */
     public List<RGB> getColors() {
         return this.colors;
     }
 
-    // get current combinations
+    /**
+     * @return current combinations
+     */
     public Map<String, Integer> getCombos() {
         return this.comboDict;
     }
 
-    // update colors command
+    /**
+     * update colors command
+     * 
+     * @param colors
+     */
     public void updateColors(List<RGB> colors) {
         this.colors = colors;
         this.updateCombos(this.comboDict);
     }
 
-    // command to label the zone groups
+    /**
+     * command to label the zone groups
+     * 
+     * @param labelZoneGroups
+     */
     public void setLabelZoneGroups(boolean labelZoneGroups) {
         if (labelZoneGroups == this.labelZoneGroups) {
             return;
@@ -334,7 +334,11 @@ public class ZoneSelector extends AbstractZoneSelector {
         }
     }
 
-    // update combo dictionary with different combinations
+    /**
+     * update combo dictionary with different combinations
+     * 
+     * @param comboDict
+     */
     public void updateCombos(Map<String, Integer> comboDict) {
         if (this.limitToOneGroup) {
             comboDict = this.setOneGroup(comboDict);
@@ -370,7 +374,7 @@ public class ZoneSelector extends AbstractZoneSelector {
                 + Math.abs(y - this.pressLocation.y);
 
         // drag
-        if (diff >= 10 && this.pressZone != null) {
+        if ((diff >= 10) && (this.pressZone != null)) {
             // get the zones that were selected
             List<String> zones = this.selectedZones(x, y);
 
@@ -481,10 +485,10 @@ public class ZoneSelector extends AbstractZoneSelector {
         } else {
             // make some extra colors
             Random random = new Random();
-            while (groupNumber - this.colors.size() > 0) {
-                RGB rgb = new RGB(random.nextInt(210 - 30 + 1) + 30,
-                        random.nextInt(210 - 30 + 1) + 30,
-                        +random.nextInt(210 - 30 + 1) + 30);
+            while ((groupNumber - this.colors.size()) > 0) {
+                RGB rgb = new RGB(random.nextInt((210 - 30) + 1) + 30,
+                        random.nextInt((210 - 30) + 1) + 30,
+                        +random.nextInt((210 - 30) + 1) + 30);
                 this.colors.add(rgb);
             }
             return this.getGroupColor(groupNumber);
@@ -532,7 +536,7 @@ public class ZoneSelector extends AbstractZoneSelector {
         // deal with the group label
         this.setZoneGroupLabel(zone, group);
 
-        if (doCallback && this.selectCB != null) {
+        if (doCallback && (this.selectCB != null)) {
             this.selectCB.zoneSelected(zone);
         }
     }
@@ -550,7 +554,7 @@ public class ZoneSelector extends AbstractZoneSelector {
             }
         }
 
-        if (deletedEans.size() > 0 && this.lclFmtrDialog != null) {
+        if ((deletedEans.size() > 0) && (this.lclFmtrDialog != null)) {
             this.lclFmtrDialog.setStatusText("S",
                     "Removed Unknown Edit Areas: " + deletedEans);
         }
@@ -574,7 +578,7 @@ public class ZoneSelector extends AbstractZoneSelector {
     // sets the zone to the given color, does not affect the combinations
     private void setZone(String zoneName, RGB color) {
         for (ZoneSelectorResource mapRsc : this.mapRscList) {
-            mapRsc.setZone(zoneName, color);
+            mapRsc.setZone(color, zoneName);
         }
 
         // this.update_idletasks();
@@ -658,6 +662,9 @@ public class ZoneSelector extends AbstractZoneSelector {
         return groupings;
     }
 
+    /**
+     * @return the no zone color
+     */
     public RGB getNoZoneColor() {
         return this.noZoneColor;
     }

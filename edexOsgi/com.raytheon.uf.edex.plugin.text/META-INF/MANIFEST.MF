@@ -2,9 +2,9 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Text Plug-in
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.text
-Bundle-Version: 1.15.1.qualifier
+Bundle-Version: 1.16.0.qualifier
 Bundle-Vendor: RAYTHEON
-Require-Bundle: org.apache.commons.lang,
+Require-Bundle: org.apache.commons.lang3;bundle-version="3.4.0",
  com.raytheon.edex.common,
  javax.persistence,
  com.raytheon.uf.common.serialization.comm,
@@ -13,22 +13,14 @@ Require-Bundle: org.apache.commons.lang,
  com.raytheon.uf.common.site;bundle-version="1.12.1174",
  com.raytheon.uf.edex.archive,
  com.raytheon.uf.edex.ndm;bundle-version="1.0.0",
- com.raytheon.uf.common.localization;bundle-version="1.14.0"
+ com.raytheon.uf.common.localization;bundle-version="1.14.0",
+ com.raytheon.uf.common.dataplugin.text
 Export-Package: com.raytheon.uf.edex.plugin.text,
  com.raytheon.uf.edex.plugin.text.dao,
  com.raytheon.uf.edex.plugin.text.db,
- com.raytheon.uf.edex.plugin.text.dbsrv,
- com.raytheon.uf.edex.plugin.text.dbsrv.impl,
- com.raytheon.uf.edex.plugin.text.security
+ com.raytheon.uf.edex.plugin.text.impl
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Import-Package: com.raytheon.edex.uengine.runners,
- com.raytheon.uf.common.dataplugin.text,
- com.raytheon.uf.common.dataplugin.text.alarms,
- com.raytheon.uf.common.dataplugin.text.db,
- com.raytheon.uf.common.dataplugin.text.dbsrv,
- com.raytheon.uf.common.dataplugin.text.request,
- com.raytheon.uf.common.dataplugin.text.util,
- com.raytheon.uf.common.message,
+Import-Package: com.raytheon.uf.common.message,
  com.raytheon.uf.common.wmo,
- org.apache.commons.logging,
+ org.slf4j,
  org.quartz

@@ -22,8 +22,8 @@ package com.raytheon.edex.plugin.poessounding;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.plugin.AbstractRecordSeparator;
@@ -48,8 +48,9 @@ import com.raytheon.uf.edex.bufrtools.packets.IBUFRDataPacket;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20080303           1026 jkorman     Initial implementation.
+ * Mar 03, 2008 1026       jkorman     Initial implementation.
  * May 14, 2014 2536       bclement    moved WMO Header to common
+ * Dec 15, 2015 5166       kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -59,7 +60,7 @@ import com.raytheon.uf.edex.bufrtools.packets.IBUFRDataPacket;
 public class POESSoundingSeparator extends AbstractRecordSeparator implements
         IDescriptorFactorySelector {
 
-    private Log logger = LogFactory.getLog(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     private WMOHeader wmoHeader = null;
 

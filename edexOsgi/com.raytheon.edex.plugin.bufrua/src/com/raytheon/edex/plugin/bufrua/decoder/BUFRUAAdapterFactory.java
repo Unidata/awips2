@@ -19,8 +19,8 @@
  **/
 package com.raytheon.edex.plugin.bufrua.decoder;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.uf.common.dataplugin.bufrua.UAObs;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
@@ -36,6 +36,8 @@ import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 21, 2009            jkorman     Initial creation
+ * Dec 14, 2015 5166       kbisanz     Update logging to use SLF4J and
+ *                                     make logger protected
  * 
  * </pre>
  * 
@@ -45,7 +47,7 @@ import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
 
 public class BUFRUAAdapterFactory {
 
-    Log logger = LogFactory.getLog(getClass());
+    protected Logger logger = LoggerFactory.getLogger(getClass());
 
     private PointDataDescription pdd;
 
@@ -71,26 +73,27 @@ public class BUFRUAAdapterFactory {
      * @return
      */
     public AbstractBUFRUAAdapter getAdapter(WMOHeader wmoHeader) {
-        
+
         AbstractBUFRUAAdapter adapter = null;
-        
-        int ii = wmoHeader.getIi() % 10;;
-        
-        switch(ii) {
-        case 1 :
-        case 3 : {
+
+        int ii = wmoHeader.getIi() % 10;
+
+        switch (ii) {
+        case 1:
+        case 3: {
             adapter = new BUFRUAManLevelAdapter(pdd, dao, pluginName);
             break;
         }
-        case 2 :
-        case 4 :
-        case 6 :
-        case 8 : {
+        case 2:
+        case 4:
+        case 6:
+        case 8: {
             adapter = new BUFRUASigLevelAdapter(pdd, dao, pluginName);
             break;
         }
-        default : {
-            logger.error("Unknown WMOHeader info. Creating null adapter for " + wmoHeader.getWmoHeader());
+        default: {
+            logger.error("Unknown WMOHeader info. Creating null adapter for "
+                    + wmoHeader.getWmoHeader());
             adapter = new BUFRUANullLevelAdapter(pdd, dao, pluginName);
         }
         } // switch

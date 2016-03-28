@@ -20,8 +20,8 @@
 package com.raytheon.viz.gfe.smarttool;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.Properties;
 
 import org.apache.velocity.Template;
@@ -40,6 +40,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.python.PythonFileFilter;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -53,11 +54,12 @@ import com.raytheon.viz.gfe.PythonUtil;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Mar 20, 2008				njensen	    Initial creation
- * Sep 25, 2008 1562        askripsky   Moved methods out to
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * Mar 20, 2008             njensen     Initial creation
+ * Sep 25, 2008  1562       askripsky   Moved methods out to
  * Sep 09, 2013 #2033       dgilling    Use new templates directory.
+ * Jan 18, 2016  4834       njensen     Fix creating new files, deleted dead code
  * 
  * </pre>
  * 
@@ -66,6 +68,15 @@ import com.raytheon.viz.gfe.PythonUtil;
  */
 
 public class SmartToolEdit {
+
+    /*
+     * TODO Functionality should be consolidated to an extension of
+     * AbstractScriptUtil to follow the same pattern as when creating other new
+     * python files for GFE. Currently AbstractScriptUtil does not support extra
+     * args to velocity like the parmToEdit so it will need to be further
+     * improved before that is possible.
+     */
+
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(SmartToolEdit.class);
 
@@ -102,23 +113,22 @@ public class SmartToolEdit {
                 IPathManager pathMgr = PathManagerFactory.getPathManager();
                 LocalizationContext cx = pathMgr.getContext(
                         LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
-                localizationFile = PathManagerFactory.getPathManager()
-                        .getLocalizationFile(
-                                cx,
-                                GfePyIncludeUtil.SMART_TOOLS + File.separator
-                                        + toolFilename);
-                if (localizationFile != null) {
-                    File file = localizationFile.getFile();
-                    if (!file.getParentFile().exists()) {
-                        file.getParentFile().mkdirs();
+                String filename = GfePyIncludeUtil.SMART_TOOLS
+                        + IPathManager.SEPARATOR + toolFilename;
+                localizationFile = pathMgr.getLocalizationFile(cx, filename);
+                if (!localizationFile.isProtected()) {
+                    try (SaveableOutputStream sos = localizationFile
+                            .openOutputStream();
+                            OutputStreamWriter writer = new OutputStreamWriter(
+                                    sos)) {
+                        template.merge(context, writer);
+                        writer.close();
+                        sos.save();
+                        // refresh reference in memory
+                        localizationFile = pathMgr.getLocalizationFile(cx,
+                                filename);
+                        PythonUtil.openPythonFile(localizationFile);
                     }
-
-                    FileWriter fw = new FileWriter(localizationFile.getFile());
-
-                    template.merge(context, fw);
-                    fw.close();
-                    localizationFile.save();
-                    PythonUtil.openPythonFile(localizationFile);
                 } else {
                     // Display Protected file message
                     Shell shell = PlatformUI.getWorkbench()
@@ -135,68 +145,6 @@ public class SmartToolEdit {
             statusHandler.error(
                     "Error retrieving templates directory for new smart tool.",
                     e);
-        }
-
-        return localizationFile;
-    }
-
-    public static LocalizationFile initializeNewUtility(String utilityName) {
-        LocalizationFile localizationFile = null;
-
-        String toolFilename = new String(utilityName);
-        if (!toolFilename.endsWith(PythonFileFilter.EXTENSION)) {
-            toolFilename += PythonFileFilter.EXTENSION;
-        }
-
-        try {
-            File templateFile = new File(FileLocator.resolve(
-                    FileLocator.find(Activator.getDefault().getBundle(),
-                            new Path(SmartToolConstants.TEMPLATES_DIR), null))
-                    .getPath());
-
-            try {
-                Properties p = new Properties();
-                p.setProperty("file.resource.loader.path",
-                        templateFile.getPath());
-                Velocity.init(p);
-                VelocityContext context = new VelocityContext();
-
-                context.put("itemName", utilityName);
-                String author = LocalizationManager.getInstance()
-                        .getCurrentUser();
-                context.put("author", author);
-
-                Template template = null;
-                template = Velocity.getTemplate("utility.vm");
-
-                IPathManager pathMgr = PathManagerFactory.getPathManager();
-                LocalizationContext cx = pathMgr.getContext(
-                        LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
-                localizationFile = PathManagerFactory.getPathManager()
-                        .getLocalizationFile(
-                                cx,
-                                GfePyIncludeUtil.UTILITIES + File.separator
-                                        + toolFilename);
-                File file = localizationFile.getFile();
-                if (!file.getParentFile().exists()) {
-                    file.getParentFile().mkdirs();
-                }
-
-                FileWriter fw = new FileWriter(localizationFile.getFile());
-
-                template.merge(context, fw);
-                fw.close();
-
-                localizationFile.save();
-
-                PythonUtil.openPythonFile(localizationFile);
-            } catch (Exception e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error creating new utility", e);
-            }
-        } catch (IOException e) {
-            statusHandler.error(
-                    "Error retrieving templates directory for new utility.", e);
         }
 
         return localizationFile;

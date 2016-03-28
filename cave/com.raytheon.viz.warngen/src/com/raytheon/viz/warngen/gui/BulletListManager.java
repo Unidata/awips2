@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 
 import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
 import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
@@ -430,8 +430,7 @@ public class BulletListManager {
     private void loadBullets(Bullet[] bullets, DamInfoBullet[] damInfoBullets) {
         this.bullets = bullets;
         if (damInfoBullets != null) {
-            this.bullets = (Bullet[]) ArrayUtils
-                    .addAll(bullets, damInfoBullets);
+            this.bullets = ArrayUtils.addAll(bullets, damInfoBullets);
         }
     }
 

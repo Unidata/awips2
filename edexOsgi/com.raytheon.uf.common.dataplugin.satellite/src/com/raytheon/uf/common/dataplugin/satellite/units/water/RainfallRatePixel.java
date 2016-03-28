@@ -27,7 +27,7 @@ import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * Represents a pixel value of a rainfall rate (mm/hr) on a POES or DMSP
@@ -46,27 +46,26 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
  */
 public class RainfallRatePixel extends DerivedUnit<Velocity> {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	@Override
-	public boolean equals(Object anObject) {
-		return (anObject instanceof RainfallRatePixel);
-	}
+    @Override
+    public boolean equals(Object anObject) {
+        return (anObject instanceof RainfallRatePixel);
+    }
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public Unit<Velocity> getStandardUnit() {
-		return (Unit<Velocity>) (SI.MILLI(SI.METRE))
-				.divide(NonSI.HOUR);
-	}
+    @SuppressWarnings("unchecked")
+    @Override
+    public Unit<Velocity> getStandardUnit() {
+        return (Unit<Velocity>) (SI.MILLI(SI.METRE)).divide(NonSI.HOUR);
+    }
 
-	@Override
-	public int hashCode() {
-		return HashCodeBuilder.reflectionHashCode(this);
-	}
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
 
-	@Override
-	public UnitConverter toStandardUnit() {
-		return new RainfallPixelToRateConverter();
-	}
+    @Override
+    public UnitConverter toStandardUnit() {
+        return new RainfallPixelToRateConverter();
+    }
 }

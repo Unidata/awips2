@@ -20,12 +20,16 @@
 package com.raytheon.uf.edex.metartohmdb.dao;
 
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
@@ -43,12 +47,15 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * Jun 29, 2009            jkorman     Initial creation
  * Sep 18, 2014 #3627      mapeters    Updated deprecated {@link TimeTools} usage.
  * Jun 18, 2015 4500       rjpeter     Fix SQL Injection concern.
+ * Oct 30, 2015 5035       bclement    added getInsertStatement
  * </pre>
  * 
  * @author jkorman
  * @version 1.0
  */
 public class HMDBRptDao extends CoreDao {
+
+    public static final String REPORT_TABLE_NAME = "rpt";
 
     private static final Object LOCK = new Object();
 
@@ -64,15 +71,53 @@ public class HMDBRptDao extends CoreDao {
     public boolean storeToTable(HMDBReport report) {
         boolean status = true;
         synchronized (LOCK) {
-            logger.debug("SQL = " + report.toInsertSQL());
+            Map<String, Object> parameters = report.getColumnValues();
+            String sql = getInsertStatement(REPORT_TABLE_NAME,
+                    parameters.keySet());
+            if (logger.isPriorityEnabled(Priority.DEBUG)) {
+                /* avoid formatting parameters if not in debug */
+                logger.debug("SQL = " + sql + " PARAMETERS = " + parameters);
+            }
             try {
-                status = (executeSQLUpdate(report.toInsertSQL()) == 1);
+                status = (executeSQLUpdate(sql, parameters) == 1);
             } catch (Exception e) {
-                logger.error("Insert query = " + report.toInsertSQL());
+                logger.error("SQL = " + sql + " PARAMETERS = " + parameters);
                 logger.error("Error writing to rpt table", e);
             }
         }
         return status;
+    }
+
+    /**
+     * Create a parameterized insert statement that can be passed to
+     * {@link CoreDao#executeSQLUpdate(String, Map)}
+     * 
+     * @param table
+     * @param columns
+     * @return
+     */
+    private static String getInsertStatement(String table,
+            Collection<String> columns) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("INSERT INTO ").append(table);
+        sb.append(" (");
+        if (!columns.isEmpty()) {
+            Iterator<String> iter = columns.iterator();
+            sb.append(iter.next());
+            while (iter.hasNext()) {
+                sb.append(',').append(iter.next());
+            }
+        }
+        sb.append(") VALUES (");
+        if (!columns.isEmpty()) {
+            Iterator<String> iter = columns.iterator();
+            sb.append(':').append(iter.next());
+            while (iter.hasNext()) {
+                sb.append(",:").append(iter.next());
+            }
+        }
+        sb.append(");");
+        return sb.toString();
     }
 
     /**

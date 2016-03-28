@@ -75,6 +75,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                       MB3 clicking off the map in editable mode.
  *  14Aug2014    3523        mapeters    Updated deprecated {@link DrawableString#textStyle} 
  *                                       assignments.
+ *  05Nov2015   #5070        randerso    Adjust font sizes for dpi scaling
+ * 
  * </pre>
  * 
  * @author ebabin
@@ -84,8 +86,8 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 public class HomeToolLayer extends AbstractMovableToolLayer<Coordinate>
         implements IContextMenuContributor, IPointChangedListener {
-	
-	private IFont labelFont;
+
+    private IFont labelFont;
 
     public static final String DEFAULT_NAME = "Home Location";
 
@@ -97,28 +99,28 @@ public class HomeToolLayer extends AbstractMovableToolLayer<Coordinate>
 
     private GeodeticCalculator gc;
 
-	public HomeToolLayer(GenericToolsResourceData<HomeToolLayer> resourceData,
-			LoadProperties loadProperties) {
-		super(resourceData, loadProperties, false);
-		// add magnification capability
-		getCapabilities().addCapability(new MagnificationCapability());
-		selectLocationAction = new AbstractRightClickAction() {
-			@Override
-			public void run() {
-				save(null, lastMouseLoc);
-				resetHome();
-			}
-		};
-		selectLocationAction.setText("Select Location");
-		moveElementAction = new AbstractRightClickAction() {
-			@Override
-			public void run() {
-				makeSelectedLive();
-			}
-		};
-		moveElementAction.setText("Move Entire Element");
-		this.rightClickMovesToCoord = true;
-	}
+    public HomeToolLayer(GenericToolsResourceData<HomeToolLayer> resourceData,
+            LoadProperties loadProperties) {
+        super(resourceData, loadProperties, false);
+        // add magnification capability
+        getCapabilities().addCapability(new MagnificationCapability());
+        selectLocationAction = new AbstractRightClickAction() {
+            @Override
+            public void run() {
+                save(null, lastMouseLoc);
+                resetHome();
+            }
+        };
+        selectLocationAction.setText("Select Location");
+        moveElementAction = new AbstractRightClickAction() {
+            @Override
+            public void run() {
+                makeSelectedLive();
+            }
+        };
+        moveElementAction.setText("Move Entire Element");
+        this.rightClickMovesToCoord = true;
+    }
 
     @Override
     protected void disposeInternal() {
@@ -128,9 +130,9 @@ public class HomeToolLayer extends AbstractMovableToolLayer<Coordinate>
 
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
-    	// initialize font for  magnification capability
-    	labelFont = target.initializeFont(
-                target.getDefaultFont().getFontName(), 12.0f,
+        // initialize font for magnification capability
+        labelFont = target.initializeFont(
+                target.getDefaultFont().getFontName(), 10,
                 new Style[] { Style.BOLD });
         super.initInternal(target);
         resetHome();
@@ -149,7 +151,7 @@ public class HomeToolLayer extends AbstractMovableToolLayer<Coordinate>
     protected void paint(IGraphicsTarget target, PaintProperties paintProps,
             Coordinate home, SelectionStatus status) throws VizException {
         RGB color = getCapability(ColorableCapability.class).getColor();
-    	// set font for  magnification capability
+        // set font for magnification capability
         labelFont.setMagnification(getCapability(MagnificationCapability.class)
                 .getMagnification().floatValue());
         if (status == SelectionStatus.SELECTED) {

@@ -51,13 +51,15 @@ import com.raytheon.viz.hydrocommon.pdc.PDCOptionData;
 import com.raytheon.viz.hydrocommon.pdc.PDCOptions;
 
 /**
- * TODO Add Description
+ * PointData Control Derive.
  * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 15, 2008            mpduff     Initial creation
+ * Nov 24, 2015 5142       skorolev   Fixed time window issue for precipitation.
+ * 
  * </pre>
  * 
  * @author mpduff
@@ -71,17 +73,17 @@ public class PointDataControlDerive {
 
     private static final int PRECIP_TS_BEST = 64;
 
-    private ArrayList<Observation> heightList;
+    private List<Observation> heightList;
 
-    private ArrayList<Observation> qList;
+    private List<Observation> qList;
 
-    private ArrayList<Riverstatus> riverStatusList;
+    private List<Riverstatus> riverStatusList;
 
-    private ArrayList<Observation> obsList;
+    private List<Observation> obsList;
 
-    private ArrayList<GageData> dataList = new ArrayList<GageData>();
+    private final List<GageData> dataList = new ArrayList<GageData>();
 
-    Map<String, List<IngestFilter>> tsRankingMap = null;
+    private Map<String, List<IngestFilter>> tsRankingMap = null;
 
     private double change = PDCConstants.MISSING_VALUE;
 
@@ -99,22 +101,21 @@ public class PointDataControlDerive {
      * lid. It eliminates these multiple reports by using type source ranking
      * from the Ingest table.
      * 
-     * @param  isOneTime  Is this being run via the runOneTime method?
-     * @return ArrayList<GageData> The list of data with a single entry per lid,
-     *         or null if no data
+     * @param isOneTime
+     *            Is this being run via the runOneTime method?
+     * @param pcOptions
+     * 
      */
     public void deriveRiverReports(boolean isOneTime, PDCOptions pcOptions) {
-        PointDataControlManager pdcManager = PointDataControlManager.getInstance();
+        PointDataControlManager pdcManager = PointDataControlManager
+                .getInstance();
         HydroDisplayManager displayManager = HydroDisplayManager.getInstance();
-        heightList = (ArrayList<Observation>) pdcManager.getObsHeightList();
-        qList = (ArrayList<Observation>) pdcManager.getObsDischargeList();
-        riverStatusList = (ArrayList<Riverstatus>) pdcManager
-                .getRiverStatusList();
+        heightList = pdcManager.getObsHeightList();
+        qList = pdcManager.getObsDischargeList();
+        riverStatusList = pdcManager.getRiverStatusList();
 
         List<GageData> repObsPtr = null;
         List<GageData> repFcstPtr = null;
-
-//        PDCOptionData pcOptions = pdcManager.getPCOptionData();
 
         String currentLid = null;
         int startRecord = 0;
@@ -207,8 +208,11 @@ public class PointDataControlDerive {
                 changeWindow /= 2;
             }
 
-            heightList.trimToSize();
-            if ((heightList != null) && (heightList.size() > 0)) {
+            if ((heightList != null) && !heightList.isEmpty()) {
+                List<Observation> tmpList = heightList;
+                heightList = new ArrayList<>(tmpList.size());
+                heightList.addAll(tmpList);
+                tmpList = null;
                 repObsPtr = processList(heightList, changeWindow);
             }
 
@@ -216,16 +220,15 @@ public class PointDataControlDerive {
                 repObsPtr = processList(qList, changeWindow);
             }
         }
-        
+
         if (isOneTime) {
             pdcManager.setFcst2ReportList(repFcstPtr);
             pdcManager.setObs2ReportList(repObsPtr);
         } else {
             pdcManager.setFcstReportList(repFcstPtr);
-            
+
             /*
-             *  We don't want to trigger a draw here so set 
-             * flag to false.
+             * We don't want to trigger a draw here so set flag to false.
              */
             displayManager.setDrawStation(false);
             pdcManager.setObsReportList(repObsPtr);
@@ -241,14 +244,14 @@ public class PointDataControlDerive {
      * 
      * @return
      */
-    public ArrayList<GageData> deriveOtherReports() {
-        PointDataControlManager pdcManager = PointDataControlManager.getInstance();
+    public List<GageData> deriveOtherReports() {
+        PointDataControlManager pdcManager = PointDataControlManager
+                .getInstance();
         /* This list is one of obs or latestobsvalue */
-        obsList = (ArrayList<Observation>) pdcManager.getObservationList();
+        obsList = pdcManager.getObservationList();
 
         int changeWindow = 0;
         String currentLid = null;
-        int startRecord = 0;
 
         if ((obsList == null) || (obsList.size() == 0)) {
             return null;
@@ -266,11 +269,10 @@ public class PointDataControlDerive {
             changeWindow /= 2;
         }
 
-        ArrayList<Observation> tempObsList = new ArrayList<Observation>();
+        List<Observation> tempObsList = new ArrayList<Observation>();
 
         for (int i = 0; i < obsList.size(); i++) {
             if (!currentLid.equals(obsList.get(i).getLid())) {
-//                startRecord = i;
                 processLidObs(tempObsList, changeWindow);
 
                 /*
@@ -294,12 +296,13 @@ public class PointDataControlDerive {
         return dataList;
     }
 
-    private List<GageData> processList(ArrayList<Observation> obsList, int changeWindow) {
+    private List<GageData> processList(List<Observation> obsList,
+            int changeWindow) {
         /* loop thru the list and process each lid. */
         String currentLid = obsList.get(0).getLid();
         int startRecord = 0;
-        ArrayList<Observation> tempObsList = new ArrayList<Observation>();
-        ArrayList<GageData> returnList = new ArrayList<GageData>();
+        List<Observation> tempObsList = new ArrayList<Observation>();
+        List<GageData> returnList = new ArrayList<GageData>();
 
         for (int i = 0; i < obsList.size(); i++) {
             /*
@@ -318,8 +321,8 @@ public class PointDataControlDerive {
                  * ingestfilter type source rank to determine which one to use.
                  */
 
-                returnList = processLidObsRiver(tempObsList, 0,//startRecord,
-                        changeWindow, returnList);
+                returnList = processLidObsRiver(tempObsList, 0, changeWindow,
+                        returnList);
 
                 /*
                  * set up data for next pass through the input linked list
@@ -339,7 +342,7 @@ public class PointDataControlDerive {
             returnList = processLidObsRiver(tempObsList, startRecord,
                     changeWindow, returnList);
         }
-        
+
         return returnList;
     }
 
@@ -390,15 +393,16 @@ public class PointDataControlDerive {
      * 
      * @param startRecord
      *            Starting record
-     * @param endRecord
-     *            Ending record
      * @param lidCount
      *            Number of lids
      * @param changeWindow
      *            Number of hours
+     * @param obsList
+     * @param inputList
+     * @return
      */
-    private ArrayList<GageData> processLidObsRiver(ArrayList<Observation> obsList,
-            int startRecord, int changeWindow, ArrayList<GageData> inputList) {
+    private List<GageData> processLidObsRiver(List<Observation> obsList,
+            int startRecord, int changeWindow, List<GageData> inputList) {
         Observation bestObs = null;
         GageData oneRpt = new GageData();
         List<GageData> outputList = new ArrayList<GageData>();
@@ -413,7 +417,7 @@ public class PointDataControlDerive {
         bestObs = deriveReportObsRiver(obsList, startRecord, changeWindow);
 
         if (bestObs != null) {
-            oneRpt.setLid(bestObs.getLid());;
+            oneRpt.setLid(bestObs.getLid());
             oneRpt.setPe(bestObs.getPe());
             oneRpt.setDur(bestObs.getDur());
             oneRpt.setTs(bestObs.getTs());
@@ -423,7 +427,6 @@ public class PointDataControlDerive {
             oneRpt.setQuality_code(PDCConstants.DEFAULT_QC_VALUE);
             oneRpt.setValue(bestObs.getValue());
             oneRpt.setValidtime(bestObs.getObstime());
-//            oneRpt.setBasistime(bestObs.getBasistime());
 
             /* initialize the list */
             if (inputList != null) {
@@ -436,7 +439,7 @@ public class PointDataControlDerive {
             outputList = inputList;
         }
 
-        return (ArrayList<GageData>) outputList;
+        return outputList;
     }
 
     /**
@@ -450,9 +453,15 @@ public class PointDataControlDerive {
      *            Type Source
      * @param rsList
      *            Riverstatus list
+     * @param startRecord
+     * @param inputList
+     *            GageData list
+     * @param pcOptions
+     * @return
      */
-    private ArrayList<GageData> processLidRS(String[] useTs,
-            List<Riverstatus> rsList, int startRecord, List<GageData> inputList, PDCOptions pcOptions) {
+    private List<GageData> processLidRS(String[] useTs,
+            List<Riverstatus> rsList, int startRecord,
+            List<GageData> inputList, PDCOptions pcOptions) {
         Riverstatus best = null;
         GageData oneRpt = new GageData();
         List<GageData> outputList = new ArrayList<GageData>();
@@ -496,11 +505,16 @@ public class PointDataControlDerive {
             outputList = inputList;
         }
 
-        return (ArrayList<GageData>) outputList;
+        return outputList;
     }
 
-    private void processLidObs(ArrayList<Observation> tempObsList,
-            int changeWindow) {
+    /**
+     * Process Lid Obs
+     * 
+     * @param tempObsList
+     * @param changeWindow
+     */
+    private void processLidObs(List<Observation> tempObsList, int changeWindow) {
         GageData oneRpt = new GageData();
         PDCOptionData pcOptions = PDCOptionData.getInstance();
 
@@ -509,7 +523,6 @@ public class PointDataControlDerive {
          * pointer returned is of the type Observation.
          */
         Observation best = deriveReportObs(tempObsList, changeWindow);
-//        Observation best = deriveReportObs(obsList, startRecord, changeWindow);
 
         /* copy the best report into the linked list of Reports */
         if (best != null) {
@@ -550,7 +563,7 @@ public class PointDataControlDerive {
      *            Number of hours
      * @return
      */
-    private Observation deriveReportObs(ArrayList<Observation> obsList,
+    private Observation deriveReportObs(List<Observation> obsList,
             int changeWindow) {
         PDCOptionData pcOptions = PDCOptionData.getInstance();
         PDCDataManager manager = PDCDataManager.getInstance();
@@ -558,7 +571,6 @@ public class PointDataControlDerive {
         Observation bestObs2 = null;
         String currentTS = null;
         String bestTS = null;
-        boolean recordFound = false;
         long currentDiff;
         long bestDiff;
         int firstObsFound = 0;
@@ -575,8 +587,6 @@ public class PointDataControlDerive {
          * loop thru the records and find the best type-source to use for the
          * physical element.
          */
-
-        recordFound = false;
 
         tsRankingMap = manager.getIngestFilterData();
 
@@ -596,7 +606,8 @@ public class PointDataControlDerive {
                  * best ts if it has a higher rank
                  */
                 int result = compareTSRank(obsList.get(i).getTs(), bestTS,
-                        tsRankingMap.get(obsList.get(i).getLid()), obsList.get(i).getPe());
+                        tsRankingMap.get(obsList.get(i).getLid()),
+                        obsList.get(i).getPe());
                 if (result < 0) {
                     bestTS = obsList.get(i).getTs();
                 }
@@ -734,11 +745,11 @@ public class PointDataControlDerive {
      *            Number of hours
      * @return
      */
-    private Observation deriveReportObsRiver(ArrayList<Observation> obsList,
+    private Observation deriveReportObsRiver(List<Observation> obsList,
             int startRecord, int changeWindow) {
         PDCOptionData pcOptions = PDCOptionData.getInstance();
         PDCDataManager manager = PDCDataManager.getInstance();
-        Observation obs = null;
+
         Observation bestObs = null;
         Observation bestObs2 = null;
         String currentTS = null;
@@ -749,22 +760,16 @@ public class PointDataControlDerive {
         int firstObsFound = 0;
         int lastObsFound = 0;
 
-        // if (riverStatusList.size() == 0) {
-        // return null;
-        // }
-
         /* determine which physical element to use for this location */
         if (pcOptions.getPrimary() == 1) {
             usePE = "HG";
             if (startRecord >= obsList.size()) {
                 return bestObs;
             }
-            
+
             /* try and find the pe specified for this location */
-            RiverStat rsInfo = manager.getRiverStatus(obsList.get(
-                    startRecord).getLid());
-//            RiverStat rsInfo = manager.getRiverStatus(riverStatusList.get(
-//                    startRecord).getId().getLid());
+            RiverStat rsInfo = manager.getRiverStatus(obsList.get(startRecord)
+                    .getLid());
 
             if (rsInfo != null) {
                 usePE = rsInfo.getPe();
@@ -810,7 +815,8 @@ public class PointDataControlDerive {
                      */
 
                     int result = compareTSRank(obsList.get(i).getTs(), bestTS,
-                            tsRankingMap.get(obsList.get(i).getLid()), obsList.get(i).getPe());
+                            tsRankingMap.get(obsList.get(i).getLid()), obsList
+                                    .get(i).getPe());
                     if (result < 0) {
                         bestTS = obsList.get(i).getTs();
                     }
@@ -849,8 +855,10 @@ public class PointDataControlDerive {
                     return obsList.get(i);
                 } else if (pcOptions.getTimeMode() == PDCConstants.TimeModeType.SETTIME
                         .getTimeMode()) {
-                    currentDiff = Math.abs(pcOptions.getValidTime().getTime()
-                            - SimulatedTime.getSystemTime().getTime().getTime());
+                    currentDiff = Math
+                            .abs(pcOptions.getValidTime().getTime()
+                                    - SimulatedTime.getSystemTime().getTime()
+                                            .getTime());
 
                     /*
                      * Is the observation the closest to the center time so far?
@@ -871,7 +879,8 @@ public class PointDataControlDerive {
                     if (firstObsFound == 0) {
                         currentDiff = Math.abs(pcOptions.getValidTime()
                                 .getTime()
-                                - SimulatedTime.getSystemTime().getTime().getTime());
+                                - SimulatedTime.getSystemTime().getTime()
+                                        .getTime());
 
                         /* Is the observation inside the window? */
                         if (currentDiff / (PDCConstants.MILLIS_PER_MINUTE * 60) <= changeWindow) {
@@ -912,7 +921,8 @@ public class PointDataControlDerive {
                     } else if (lastObsFound == 0) {
                         currentDiff = Math.abs(pcOptions.getValidTime()
                                 .getTime()
-                                - SimulatedTime.getSystemTime().getTime().getTime());
+                                - SimulatedTime.getSystemTime().getTime()
+                                        .getTime());
 
                         /* Find the best observation in the lower time window. */
 
@@ -935,12 +945,13 @@ public class PointDataControlDerive {
                             }
                         }
                     } else {
-                        /*
-                         * Both observations necessary to compute the change
-                         * have been found.
-                         */
-                        change = bestObs.getValue() - bestObs2.getValue();
-
+                        if (bestObs != null && bestObs2 != null) {
+                            /*
+                             * Both observations necessary to compute the change
+                             * have been found.
+                             */
+                            change = bestObs.getValue() - bestObs2.getValue();
+                        }
                         return bestObs;
                     }
                     break;
@@ -968,11 +979,13 @@ public class PointDataControlDerive {
      *            Type Source
      * @param rsList
      *            Riverstatus list
+     * @param startRecord
+     * @param pcOptions
      * @return
      */
     private Riverstatus deriveReportRS(String[] useTs,
             List<Riverstatus> rsList, int startRecord, PDCOptions pcOptions) {
-//        PDCOptionData pcOptions = pdcManager.getPCOptionData();
+
         PDCDataManager manager = PDCDataManager.getInstance();
         Riverstatus best = null;
         String usePE = null;
@@ -1037,8 +1050,9 @@ public class PointDataControlDerive {
                      */
 
                     int result = compareTSRank(rsList.get(i).getId().getTs(),
-                            bestTs, tsRankingMap.get(rsList.get(i).getId()
-                                    .getLid()), rsList.get(i).getId().getPe());
+                            bestTs,
+                            tsRankingMap.get(rsList.get(i).getId().getLid()),
+                            rsList.get(i).getId().getPe());
                     if (result < 0) {
                         bestTs = rsList.get(i).getId().getTs();
                     }
@@ -1075,9 +1089,10 @@ public class PointDataControlDerive {
         return best;
     }
 
-    public ArrayList<GageData> deriveRainReports() {
+    public List<GageData> deriveRainReports() {
         PDCOptionData pcOptions = PDCOptionData.getInstance();
-        PointDataControlManager pdcManager = PointDataControlManager.getInstance();
+        PointDataControlManager pdcManager = PointDataControlManager
+                .getInstance();
         ArrayList<GageData> reportList = new ArrayList<GageData>();
         long beginTime;
         long endTime;
@@ -1123,11 +1138,12 @@ public class PointDataControlDerive {
         } else {
             beginTime = pcOptions.getValidTime().getTime()
                     - (pcOptions.getDurHours() * PDCConstants.MILLIS_PER_HOUR);
-            endTime = pcOptions.getValidTime().getTime();
+            endTime = pcOptions.getValidTime().getTime()
+                    + (pcOptions.getDurHours() * PDCConstants.MILLIS_PER_HOUR);
         }
 
-        List<Rawpc> rawPcList = new ArrayList<Rawpc>();
-        List<Rawpp> rawPpList = new ArrayList<Rawpp>();
+        ArrayList<Rawpc> rawPcList = new ArrayList<Rawpc>();
+        ArrayList<Rawpp> rawPpList = new ArrayList<Rawpp>();
         if (pcList != null) {
             for (Curpc cp : pcList) {
                 rawPcList.add(convertCurpc2Rawpc(cp));
@@ -1146,10 +1162,8 @@ public class PointDataControlDerive {
         endDate.setTime(endTime);
 
         GetTotalPrecip gtp = new GetTotalPrecip();
-        reportList = gtp.getTotalRawPrecip((ArrayList<Rawpc>) rawPcList,
-                (ArrayList<Rawpp>) rawPpList,
-                beginDate, endDate,
-                endingTimeMatch, minPercent, precipSettings);
+        reportList = gtp.getTotalRawPrecip(rawPcList, rawPpList, beginDate,
+                endDate, endingTimeMatch, minPercent, precipSettings);
 
         return reportList;
     }
@@ -1220,7 +1234,7 @@ public class PointDataControlDerive {
     /**
      * @return the heightList
      */
-    public ArrayList<Observation> getHeightList() {
+    public List<Observation> getHeightList() {
         return heightList;
     }
 
@@ -1228,14 +1242,14 @@ public class PointDataControlDerive {
      * @param heightList
      *            the heightList to set
      */
-    public void setHeightList(ArrayList<Observation> heightList) {
+    public void setHeightList(List<Observation> heightList) {
         this.heightList = heightList;
     }
 
     /**
      * @return the qList
      */
-    public ArrayList<Observation> getQList() {
+    public List<Observation> getQList() {
         return qList;
     }
 
@@ -1243,14 +1257,14 @@ public class PointDataControlDerive {
      * @param list
      *            the qList to set
      */
-    public void setQList(ArrayList<Observation> list) {
+    public void setQList(List<Observation> list) {
         qList = list;
     }
 
     /**
      * @return the riverStatusList
      */
-    public ArrayList<Riverstatus> getRiverStatusList() {
+    public List<Riverstatus> getRiverStatusList() {
         return riverStatusList;
     }
 
@@ -1258,7 +1272,7 @@ public class PointDataControlDerive {
      * @param riverStatusList
      *            the riverStatusList to set
      */
-    public void setRiverStatusList(ArrayList<Riverstatus> riverStatusList) {
+    public void setRiverStatusList(List<Riverstatus> riverStatusList) {
         this.riverStatusList = riverStatusList;
     }
 }

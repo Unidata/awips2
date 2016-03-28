@@ -21,10 +21,9 @@ package com.raytheon.edex.plugin.gfe.isc;
 
 import jep.JepException;
 
-import com.raytheon.uf.common.python.concurrent.AbstractPythonScriptFactory;
+import com.raytheon.uf.common.python.concurrent.PythonInterpreterFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
  * Instantiates a {@link IscScript} on a separate thread.
@@ -36,6 +35,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 11, 2013            dgilling     Initial creation
+ * Dec 14, 2015  #4816     dgilling     Support refactored PythonJobCoordinator API.
  * 
  * </pre>
  * 
@@ -43,35 +43,35 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * @version 1.0
  */
 
-public class IscScriptFactory extends AbstractPythonScriptFactory<IscScript> {
+public class IscScriptFactory implements PythonInterpreterFactory<IscScript> {
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(IscScriptFactory.class);
 
     private static final String SCRIPT_EXTENSION = ".py";
 
+    private final String name;
+
     /**
+     * Construct a new script factory for the python module with the specified
+     * name.
+     * 
      * @param name
-     * @param maxThreads
+     *            The name of the python module (minus the .py extension) that
+     *            this factory will build {@code IscScript} instances for.
      */
-    public IscScriptFactory(String name, int maxThreads) {
-        super(name, maxThreads);
+    public IscScriptFactory(String name) {
+        this.name = name;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.python.concurrent.AbstractPythonScriptFactory#
-     * createPythonScript()
-     */
     @Override
     public IscScript createPythonScript() {
         try {
-            return new IscScript(getName() + SCRIPT_EXTENSION);
+            return new IscScript(name + SCRIPT_EXTENSION);
         } catch (JepException e) {
-            statusHandler.handle(Priority.ERROR,
-                    "Unable to create GFE ISC script [" + getName() + "]", e);
+            statusHandler
+                    .error(String.format(
+                            "Unable to create GFE ISC script [%s]", name), e);
         }
         return null;
     }

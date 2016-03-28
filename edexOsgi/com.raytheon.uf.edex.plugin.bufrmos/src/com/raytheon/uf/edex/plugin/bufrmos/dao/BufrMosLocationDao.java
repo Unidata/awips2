@@ -20,6 +20,9 @@
 
 package com.raytheon.uf.edex.plugin.bufrmos.dao;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.raytheon.uf.common.dataplugin.bufrmos.common.BufrMosDataLocation;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.dao.CoreDao;
@@ -35,6 +38,9 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 4/7/09       1994        bphillip    Initial Creation
+ * Jan 19, 2016 4677        tgurney     Update checkLocation to search on
+ *                                      lat/lon/stationId instead of
+ *                                      primary key
  * 
  * </pre>
  * 
@@ -60,11 +66,23 @@ public class BufrMosLocationDao extends CoreDao {
      * @throws DataAccessLayerException
      *             If problems occur while querying
      */
+    @SuppressWarnings("unchecked")
     public BufrMosDataLocation checkLocation(BufrMosDataLocation location)
             throws DataAccessLayerException {
-        if (location.getId() == null) {
-            location.generateId();
+        List<String> fields = new ArrayList<String>();
+        List<Object> values = new ArrayList<Object>();
+        fields.add("latitude");
+        values.add(location.getLatitude());
+        fields.add("longitude");
+        values.add(location.getLongitude());
+        fields.add("stationId");
+        values.add(location.getStationId());
+        List<BufrMosDataLocation> results = (List<BufrMosDataLocation>) this
+                .queryByCriteria(fields, values);
+        if (results.isEmpty()) {
+            return null;
+        } else {
+            return results.get(0);
         }
-        return (BufrMosDataLocation) this.queryById(location.getId());
     }
 }

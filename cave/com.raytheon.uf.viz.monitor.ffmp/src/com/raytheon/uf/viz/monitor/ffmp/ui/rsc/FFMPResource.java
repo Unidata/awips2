@@ -202,7 +202,9 @@ import com.vividsolutions.jts.geom.Point;
  * Feb 13, 2015   4121      mpduff      Change label caching.
  * Sep 28, 2015   4756      dhladky     Multiple guidance sources.
  * Oct 26, 2015  5056       dhladky     Simplified Guidance Interpolation.
+ * Nov 05, 2015 5070        randerso    Adjust font sizes for dpi scaling
  * Feb 02, 2016 DR 16771    arickert    Opening the FFMP dialog in initInternal
+ * 
  * </pre>
  * 
  * @author dhladky
@@ -1252,7 +1254,7 @@ public class FFMPResource extends
             public void run() {
 
                 if (font == null) {
-                    font = target.initializeFont("Dialog", 11, null);
+                    font = target.initializeFont("Dialog", 9, null);
                 }
 
                 font.setMagnification(getCapability(
@@ -1261,7 +1263,7 @@ public class FFMPResource extends
 
                 if (xfont == null) {
                     IFont.Style[] styles = new IFont.Style[] { IFont.Style.BOLD };
-                    xfont = target.initializeFont("Monospace", 12, styles);
+                    xfont = target.initializeFont("Monospace", 10, styles);
                 }
 
                 xfont.setMagnification(getCapability(
@@ -3198,7 +3200,8 @@ public class FFMPResource extends
         ITimer timer = TimeUtil.getTimer();
         timer.start();
         FfmpTableConfig tableConfig = FfmpTableConfig.getInstance();
-        String ffgGraphType = tableConfig.getTableConfigData(getSiteKey()).getFfgGraphType();
+        String ffgGraphType = tableConfig.getTableConfigData(getSiteKey())
+                .getFfgGraphType();
         Long basinPfaf = null;
         Long dataId = null;
         FFMPVirtualGageBasinMetaData fvgbmd = null;
@@ -3216,7 +3219,7 @@ public class FFMPResource extends
         }
 
         FFMPBasinMetaData mBasin = monitor.getTemplates(getSiteKey()).getBasin(
-                getSiteKey(), basinPfaf); 
+                getSiteKey(), basinPfaf);
         FFMPGraphData fgd = null;
         // VGB
         if (fvgbmd != null) {
@@ -3254,8 +3257,9 @@ public class FFMPResource extends
                 for (Date date : rateBasin.getValues().keySet()) {
 
                     if (date.before(minUriTime) || date.before(barrierTime)
-                            || date.after(mostRecentRefTime))
+                            || date.after(mostRecentRefTime)) {
                         continue;// DR 16148
+                    }
 
                     double dtime = FFMPGuiUtils.getTimeDiff(mostRecentRefTime,
                             date);
@@ -3283,8 +3287,9 @@ public class FFMPResource extends
                 for (Date date : qpeBasin.getValues().keySet()) {
 
                     if (date.before(minUriTime) || date.before(barrierTime)
-                            || date.after(mostRecentRefTime))
+                            || date.after(mostRecentRefTime)) {
                         continue;// DR 16148
+                    }
 
                     double dtime = FFMPGuiUtils.getTimeDiff(mostRecentRefTime,
                             date);
@@ -3345,8 +3350,8 @@ public class FFMPResource extends
         try {
 
             guidBasin = (FFMPGuidanceBasin) monitor.getGraphGuidanceBasin(
-                    getProduct(), ffgGraphType, getSiteKey(), getDataKey(), null,
-                    oldestRefTime, FFMPRecord.ALL, basinPfaf);
+                    getProduct(), ffgGraphType, getSiteKey(), getDataKey(),
+                    null, oldestRefTime, FFMPRecord.ALL, basinPfaf);
             ArrayList<Double> guidTimes = new ArrayList<Double>();
             for (SourceXML ffgSource : getProduct().getGuidanceSourcesByType(
                     ffgGraphType)) {
@@ -3367,8 +3372,10 @@ public class FFMPResource extends
             fgd.setGuidanceTimes(guidTimes);
             guid = true;
         } catch (Exception e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "FFMPMonitor: getGraphData(): missing GUIDANCE dataset.", e);
+            statusHandler
+                    .handle(Priority.PROBLEM,
+                            "FFMPMonitor: getGraphData(): missing GUIDANCE dataset.",
+                            e);
         }
 
         if (fvgbmd != null) {
@@ -3396,7 +3403,8 @@ public class FFMPResource extends
             } catch (Exception e) {
                 statusHandler
                         .handle(Priority.PROBLEM,
-                                "FFMPMonitor: getGraphData(): missing VIRTUAL dataset.", e);
+                                "FFMPMonitor: getGraphData(): missing VIRTUAL dataset.",
+                                e);
             }
         }
 

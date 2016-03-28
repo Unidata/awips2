@@ -22,8 +22,8 @@ package com.raytheon.edex.plugin.sfcobs.decoder;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.plugin.sfcobs.decoder.buoy.DRIBUSynopticDecoder;
 import com.raytheon.edex.plugin.sfcobs.decoder.metar.METARDecoder;
@@ -45,8 +45,9 @@ import com.raytheon.uf.common.wmo.WMOHeader;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20070925            391 jkorman     Initial Coding.
- * Sep 26, 2014       3629 mapeters    Added SPACE_CHAR constant.
+ * 20070925     391        jkorman     Initial Coding.
+ * Sep 26, 2014 3629       mapeters    Added SPACE_CHAR constant.
+ * Dec 17, 2015 5166       kbisanz     Update logging to use SLF4J
  * </pre>
  * 
  * @author jkorman
@@ -54,7 +55,8 @@ import com.raytheon.uf.common.wmo.WMOHeader;
  */
 public class SfcObsDecoderFactory {
     /** The logger */
-    private static Log logger = LogFactory.getLog(SfcObsDecoderFactory.class);
+    private static Logger logger = LoggerFactory
+            .getLogger(SfcObsDecoderFactory.class);
 
     private static final char SPACE_CHAR = ' ';
 
@@ -95,9 +97,9 @@ public class SfcObsDecoderFactory {
                     try {
                         decoder = clazz.newInstance();
                     } catch (InstantiationException e) {
-                        logger.error(e);
+                        logger.error("Error getting decoder instance", e);
                     } catch (IllegalAccessException e) {
-                        logger.error(e);
+                        logger.error("Error getting decoder instance", e);
                     }
                 }
                 if (decoder != null) {

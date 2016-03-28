@@ -42,6 +42,7 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 15, 2015  #4858     dgilling     Initial creation
+ * Nov 30, 2015  #5129     dgilling     Add DataManager instance as a field.
  * 
  * </pre>
  * 
@@ -65,16 +66,19 @@ public class ShowIscRequestReplyDialog extends AbstractHandler {
 
         if (iscRequestDlg == null || iscRequestDlg.getShell() == null
                 || iscRequestDlg.isDisposed()) {
-            iscRequestDlg = new ISCRequestReplyDlg(shell);
-            iscRequestDlg.setCloseCallback(new ICloseCallback() {
+            DataManager dm = DataManagerUIFactory.getCurrentInstance();
+            if (dm != null) {
+                iscRequestDlg = new ISCRequestReplyDlg(dm, shell);
+                iscRequestDlg.setCloseCallback(new ICloseCallback() {
 
-                @Override
-                public void dialogClosed(Object returnValue) {
-                    iscRequestDlg = null;
+                    @Override
+                    public void dialogClosed(Object returnValue) {
+                        iscRequestDlg = null;
 
-                }
-            });
-            iscRequestDlg.open();
+                    }
+                });
+                iscRequestDlg.open();
+            }
         } else {
             iscRequestDlg.bringToTop();
         }

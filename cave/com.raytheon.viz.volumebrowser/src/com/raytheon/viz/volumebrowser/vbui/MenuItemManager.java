@@ -39,12 +39,14 @@ import com.raytheon.viz.volumebrowser.xml.MenuContribution;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * May 27, 2009 #2161      lvenable     Initial creation
- * Jan 24, 2013 #1516      rferrel     Methods to change/get 
- *                                      Active Data Selection.
- * Dec 06, 2013 #2271      mpduff      Added the set of keys for the selected plane items
+ * 
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * May 27, 2009  2161     lvenable  Initial creation
+ * Jan 24, 2013  1516     rferrel   Methods to change/get Active Data Selection.
+ * Dec 06, 2013  2271     mpduff    Added the set of keys for the selected plane
+ *                                  items
+ * Feb 01, 2016  5275     bsteffen  Add getAvailableKeys
  * 
  * </pre>
  * 
@@ -609,5 +611,22 @@ public class MenuItemManager {
      */
     public Set<String> getSelectedPlaneItems() {
         return selectedPlaneItems;
+    }
+
+    /**
+     * Return the keys for all possible sources, fields, or planes that are
+     * available for selection from the currently loaded menu items.
+     */
+    public Set<String> getAvailableKeys(DataSelection data) {
+        switch (data) {
+        case SOURCES:
+            return new HashSet<>(sourcesMenuItemMap.keySet());
+        case FIELDS:
+            return new HashSet<>(fieldsMenuItemMap.keySet());
+        case PLANES:
+            return new HashSet<>(planesMenuItemMap.keySet());
+        default:
+            throw new IllegalArgumentException();
+        }
     }
 }

@@ -24,7 +24,7 @@ import javax.measure.converter.ConversionException;
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.SI;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * Converts a pixel representation of total precipitation of water to meters
@@ -39,7 +39,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
  * 
  * @author jsanchez
  */
-public class PolarPrecipPixelToLengthConverter extends UnitConverter  {
+public class PolarPrecipPixelToLengthConverter extends UnitConverter {
 
     private static final long serialVersionUID = 1L;
 
@@ -55,7 +55,7 @@ public class PolarPrecipPixelToLengthConverter extends UnitConverter  {
     public double convert(double aPixel) throws ConversionException {
 
         double result = 0.0;
-        
+
         if (aPixel < 1) {
             result = 0.0;
         } else if (aPixel <= 251) {

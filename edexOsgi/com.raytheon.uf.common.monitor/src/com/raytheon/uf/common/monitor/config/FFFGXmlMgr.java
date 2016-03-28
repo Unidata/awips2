@@ -21,36 +21,45 @@ package com.raytheon.uf.common.monitor.config;
 
 import java.util.ArrayList;
 
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.monitor.xml.FFFGDataXML;
 import com.raytheon.uf.common.monitor.xml.FFFGSourceItemXML;
 import com.raytheon.uf.common.monitor.xml.FFFGSourceXML;
 import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
- * 
+ *
  * FFFG XML manager for the master data and the user data.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 10, 2010 #4517      lvenable    Initial creation
  * Oct 02, 2013  2361      njensen     Use JAXBManager for XML
- * 
+ * Feb 15, 2016  5244      nabowle     Replace deprecated LocalizationFile methods.
+ *                                     Replace System.out calls.
+ *
  * </pre>
- * 
+ *
  * @author lvenable
  * @version 1.0
  */
 public class FFFGXmlMgr {
+
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(FFFGXmlMgr.class);
 
     private static final SingleTypeJAXBManager<FFFGDataXML> jaxb = SingleTypeJAXBManager
             .createWithoutException(FFFGDataXML.class);
@@ -89,7 +98,7 @@ public class FFFGXmlMgr {
 
     /**
      * Constructor.
-     * 
+     *
      * @param dataFileName
      *            Data file name.
      * @param dataFilePath
@@ -105,7 +114,7 @@ public class FFFGXmlMgr {
 
     /**
      * Get the data file name.
-     * 
+     *
      * @return The data file name.
      */
     public String getDataFileName() {
@@ -114,7 +123,7 @@ public class FFFGXmlMgr {
 
     /**
      * Set the data XML.
-     * 
+     *
      * @param newDataXML
      *            New data XML.
      */
@@ -124,7 +133,7 @@ public class FFFGXmlMgr {
 
     /**
      * Get the data XML.
-     * 
+     *
      * @return The data XML.
      */
     public FFFGDataXML getXMLData() {
@@ -133,7 +142,7 @@ public class FFFGXmlMgr {
 
     /**
      * Load the data file.
-     * 
+     *
      * @param dataFileName
      *            Data file name.
      */
@@ -154,20 +163,19 @@ public class FFFGXmlMgr {
             IPathManager pm = PathManagerFactory.getPathManager();
             String path = pm.getStaticFile(fullPathAndFileName)
                     .getAbsolutePath();
-            // System.out.println("*** reading XML path = " + path);
 
             dataXML = jaxb.unmarshalFromXmlFile(path);
             setForcingConfigured();
         } catch (Exception e) {
-            // e.printStackTrace();
-            System.out.println("*** FFFGMasterData.xml not available.");
+            statusHandler.handle(Priority.WARN,
+                    "*** FFFGMasterData.xml not available.", e);
             dataXML = null;
         }
     }
 
     /**
      * Save the XML to a different file name.
-     * 
+     *
      * @param newFileName
      *            New file name.
      */
@@ -186,22 +194,15 @@ public class FFFGXmlMgr {
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext context = pm.getContext(
                 LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
-        LocalizationFile locFile = pm.getLocalizationFile(context,
+        ILocalizationFile locFile = pm.getLocalizationFile(context,
                 fullPathAndFileName);
 
-        if (locFile.getFile().getParentFile().exists() == false) {
-            System.out.println("Creating new directory");
+        statusHandler.handle(Priority.INFO,
+                "--- Saving XML path = " + locFile.getPath());
 
-            if (locFile.getFile().getParentFile().mkdirs() == false) {
-                System.out.println("Could not create new directory...");
-            }
-        }
-
-        try {
-            System.out.println("--- Saving XML path = "
-                    + locFile.getFile().getAbsolutePath());
-            jaxb.marshalToXmlFile(dataXML, locFile.getFile().getAbsolutePath());
-            locFile.save();
+        try (SaveableOutputStream sos = locFile.openOutputStream()) {
+            jaxb.marshalToStream(dataXML, sos);
+            sos.save();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -214,41 +215,47 @@ public class FFFGXmlMgr {
      */
     public void printData() {
         if (xmlType == FFFGXmlType.MASTER) {
-            System.out.println("******* Master XML Data *********");
+            statusHandler.handle(Priority.INFO,
+                    "******* Master XML Data *********");
         } else {
-            System.out.println("******* User XML Data *********");
+            statusHandler.handle(Priority.INFO,
+                    "******* User XML Data *********");
         }
 
-        System.out.println("Experation Time = " + dataXML.getExpTimeInMillis());
+        statusHandler.handle(Priority.INFO,
+                "Expiration Time = " + dataXML.getExpTimeInMillis());
 
         ArrayList<FFFGSourceXML> sources = dataXML.getSources();
 
         for (FFFGSourceXML src : sources) {
             if (src.getSourceName() == null) {
-                System.out.println("+++ Source Name is null ");
+                statusHandler.handle(Priority.INFO, "+++ Source Name is null ");
             } else {
-                System.out.println("+++ Source Name = " + src.getSourceName());
+                statusHandler.handle(Priority.INFO,
+                        "+++ Source Name = " + src.getSourceName());
             }
 
             if (src.getAreaFFGValue() == null) {
-                System.out.println("+++ Area FFG is null");
+                statusHandler.handle(Priority.INFO, "+++ Area FFG is null");
             } else {
-                System.out
-                        .println("+++ Area FFG    = " + src.getAreaFFGValue());
+                statusHandler.handle(Priority.INFO,
+                        "+++ Area FFG    = " + src.getAreaFFGValue());
             }
 
             ArrayList<FFFGSourceItemXML> srcItems = src.getSourceItems();
 
             if (srcItems == null) {
-                System.out.println("Source Items are null");
+                statusHandler.handle(Priority.INFO, "Source Items are null");
                 return;
             }
 
             for (FFFGSourceItemXML si : srcItems) {
-                System.out.println("------ type = " + si.getType());
-                System.out.println("------ name = " + si.getName());
-                System.out.println("------ id   = " + si.getId());
-                System.out.println("------ val  = " + si.getValue());
+                statusHandler.handle(
+                        Priority.INFO,
+                        "------ type = " + si.getType() + "\n------ name = "
+                                + si.getName() + "\n------ id   = "
+                                + si.getId() + "\n------ val  = "
+                                + si.getValue());
             }
         }
     }
@@ -261,7 +268,7 @@ public class FFFGXmlMgr {
 
     /**
      * Are any forcings configured?
-     * 
+     *
      * @return true if forcings are configured
      */
     public boolean isForcingConfigured() {

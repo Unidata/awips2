@@ -21,8 +21,6 @@ package com.raytheon.uf.common.dataplugin.cwa;
 
 import java.util.Calendar;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -61,6 +59,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Oct 15, 2013 2361       njensen     Removed XML annotations
  * Feb 27, 2014 2638       njensen     Corrected dataURI annotation for eventId
  * Jul 23, 2015 2360       rferrel     Add name to unique constraint.
+ * Jan 25, 2016 5254       tgurney     Remove dataURI column and update unique
+ *                                     constraint.
  * 
  * </pre>
  * 
@@ -69,7 +69,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "cwaseq")
-@Table(name = "cwa", uniqueConstraints = { @UniqueConstraint(name = "uk_cwa_datauri_fields", columnNames = { "dataURI" }) })
+@Table(name = "cwa", uniqueConstraints = { @UniqueConstraint(name = "uk_cwa_datauri_fields", columnNames = {
+        "refTime", "eventId" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
@@ -96,6 +97,7 @@ public class CWARecord extends PersistablePluginDataObject implements
     private CWADimension dimension;
 
     @DataURI(position = 1)
+    @Column(nullable = false)
     @DynamicSerializeElement
     private String eventId;
 
@@ -139,17 +141,6 @@ public class CWARecord extends PersistablePluginDataObject implements
         this.eventId = eventId;
     }
 
-    /**
-     * Set the data uri for this observation.
-     * 
-     * @param dataURI
-     */
-    @Override
-    public void setDataURI(String dataURI) {
-        super.setDataURI(dataURI);
-        identifier = dataURI;
-    }
-
     public String getText() {
         return text;
     }
@@ -179,13 +170,6 @@ public class CWARecord extends PersistablePluginDataObject implements
             sb.append("CWA:YYYYMMDDHHmm");
         }
         return sb.toString();
-    }
-
-    @Override
-    @Column
-    @Access(AccessType.PROPERTY)
-    public String getDataURI() {
-        return super.getDataURI();
     }
 
     @Override

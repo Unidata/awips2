@@ -26,11 +26,11 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.measure.converter.UnitConverter;
 import javax.measure.unit.Unit;
 import javax.measure.unit.UnitFormat;
 
@@ -44,6 +44,7 @@ import com.raytheon.uf.common.colormap.image.ColorMapData;
 import com.raytheon.uf.common.colormap.image.ColorMapData.ColorMapDataType;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.pointset.PointSetRecord;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.numeric.UnsignedNumbers;
@@ -54,6 +55,9 @@ import com.raytheon.uf.common.style.StyleManager;
 import com.raytheon.uf.common.style.StyleManager.StyleType;
 import com.raytheon.uf.common.style.StyleRule;
 import com.raytheon.uf.common.style.image.ColorMapParameterFactory;
+import com.raytheon.uf.common.style.level.Level.LevelType;
+import com.raytheon.uf.common.style.level.RangeLevel;
+import com.raytheon.uf.common.style.level.SingleLevel;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.util.BufferUtil;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -66,6 +70,7 @@ import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.pointset.image.PointSetDataCallback;
+import com.raytheon.uf.viz.pointset.image.PointSetImagePreferences;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -76,8 +81,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * SOFTWARE HISTORY
  * 
  * Date          Ticket#  Engineer  Description
- * ------------- -------- --------- --------------------------
+ * ------------- -------- --------- ---------------------
  * Aug 28, 2015  4709     bsteffen  Initial creation
+ * Jan 25, 2016  5208     bsteffen  Better default style
  * 
  * </pre>
  * 
@@ -112,19 +118,16 @@ public class PointSetResource extends
     public ColorMapParameters createColorMapParameters(PointSetRecord record)
             throws VizException {
         ParamLevelMatchCriteria matchCriteria = new ParamLevelMatchCriteria();
-        matchCriteria.setParameterName(Arrays.asList(record.getParameter()
-                .getAbbreviation()));
-        // TODO convert level to a style level.
-        //matchCriteria.setLevels(new ArrayList<Level>());
-        matchCriteria.setCreatingEntityNames(Arrays.asList(record
+        matchCriteria.setParameterName(Collections.singletonList(record
+                .getParameter().getAbbreviation()));
+        matchCriteria.setLevels(Collections
+                .singletonList(convertLevelForStyle(record.getLevel())));
+        matchCriteria.setCreatingEntityNames(Collections.singletonList(record
                 .getDatasetId()));
         try {
             styleRule = StyleManager.getInstance().getStyleRule(
                     StyleType.IMAGERY, matchCriteria);
-            if (styleRule != null) {
-                return ColorMapParameterFactory.build(styleRule, record
-                        .getParameter().getUnit());
-            } else {
+            if (styleRule == null) {
                 ColorMapData data = new PointSetDataCallback(record)
                         .getColorMapData();
                 ColorMapDataType type = data.getDataType();
@@ -144,12 +147,88 @@ public class PointSetResource extends
                         max = val;
                     }
                 }
-
-                return ColorMapParameterFactory.build(min, max,
-                        data.getDataUnit(), matchCriteria);
+                styleRule = new StyleRule();
+                styleRule.setPreferences(new PointSetImagePreferences(record
+                        .getParameter()));
+                float[] factoryData = { min, max };
+                return ColorMapParameterFactory.build(styleRule, factoryData,
+                        null, data.getDataUnit());
             }
+            return ColorMapParameterFactory.build(styleRule, record
+                    .getParameter().getUnit());
+
         } catch (StyleException e) {
             throw new VizException(e);
+        }
+    }
+
+    /**
+     * Convert a com.raytheon.uf.common.dataplugin.level.Level into a
+     * com.raytheon.uf.common.style.level.Level
+     */
+    protected com.raytheon.uf.common.style.level.Level convertLevelForStyle(
+            Level level) {
+        LevelType type = LevelType.DEFAULT;
+        String master = level.getMasterLevel().getName();
+        if (master.equalsIgnoreCase("MB")) {
+            type = LevelType.PRESSURE;
+        } else if (master.equalsIgnoreCase("FHAG")) {
+            type = LevelType.HEIGHT_AGL;
+        } else if (master.equalsIgnoreCase("FH")) {
+            type = LevelType.HEIGHT_AGL;
+        } else if (master.equalsIgnoreCase("SFC")) {
+            type = LevelType.SURFACE;
+        } else if (master.equalsIgnoreCase("K")) {
+            type = LevelType.THETA;
+        } else if (master.equals("BL")) {
+            type = LevelType.MB_AGL;
+        } else {
+            /*
+             * Many masterlevels match the type so attempt valueOf, it is normal
+             * for this to fail for many obscure master levels.
+             */
+            try {
+                type = LevelType.valueOf(master);
+            } catch (IllegalArgumentException e) {
+                type = LevelType.DEFAULT;
+            }
+        }
+        Unit<?> unitsIn = level.getMasterLevel().getUnit();
+        if (level.isLevelTwoValid()) {
+            RangeLevel result = new RangeLevel(type);
+            result.setLowerValue(level.getLevelonevalue());
+            result.setUpperValue(level.getLeveltwovalue());
+            /*
+             * This is a bit roundabout but it is the only way that
+             * com.raytheon.uf.common.style.level.Level exposes units
+             */
+            Unit<?> unitsOut = result.getUpperMeasure().getUnit();
+            if (unitsIn != null && !unitsIn.equals(unitsOut)
+                    && unitsIn.isCompatible(unitsOut)) {
+                UnitConverter converter = unitsIn.getConverterTo(unitsOut);
+                double lowerValue = level.getLevelonevalue();
+                double upperValue = level.getLeveltwovalue();
+                lowerValue = converter.convert(lowerValue);
+                upperValue = converter.convert(upperValue);
+                result.setLowerValue(lowerValue);
+                result.setUpperValue(upperValue);
+            }
+            return result;
+        } else {
+            SingleLevel result = new SingleLevel(type);
+            result.setValue(level.getLevelonevalue());
+            /*
+             * This is a bit roundabout but it is the only way that
+             * com.raytheon.uf.common.style.level.Level exposes units
+             */
+            Unit<?> unitsOut = result.getMeasure().getUnit();
+            if (unitsIn != null && !unitsIn.equals(unitsOut)
+                    && unitsIn.isCompatible(unitsOut)) {
+                double value = level.getLevelonevalue();
+                value = unitsIn.getConverterTo(unitsOut).convert(value);
+                result.setValue(value);
+            }
+            return result;
         }
     }
 
@@ -255,7 +334,7 @@ public class PointSetResource extends
             AbstractStylePreferences prefs = styleRule.getPreferences();
             String prefsUnitStr = prefs.getDisplayUnitLabel();
             if (prefsUnitStr != null) {
-                unitStr = prefs.getDisplayUnitLabel();
+                unitStr = prefsUnitStr;
             }
         } else {
             ColorMapParameters parameters = getCapability(
@@ -280,8 +359,7 @@ public class PointSetResource extends
             boolean includeLevel = true;
             if (styleRule != null) {
                 AbstractStylePreferences prefs = styleRule.getPreferences();
-                includeLevel = !prefs.getDisplayFlags()
-                        .hasFlag("NoPlane");
+                includeLevel = !prefs.getDisplayFlags().hasFlag("NoPlane");
             }
             String datasetIdPart = frame.getRecord().getDatasetId();
             String levelPart = "";
@@ -289,8 +367,7 @@ public class PointSetResource extends
                 levelPart = " " + record.getLevel();
             }
             String paramPart = " " + record.getParameter().getName() + " ("
-                    + getDisplayUnitString(record)
-                    + ")";
+                    + getDisplayUnitString(record) + ")";
             return datasetIdPart + levelPart + paramPart;
         }
     }

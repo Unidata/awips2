@@ -26,6 +26,7 @@ import java.util.Map;
 import com.raytheon.uf.common.dataplugin.fog.FogRecord;
 import com.raytheon.uf.common.dataplugin.fog.FogRecord.FOG_THREAT;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
+import com.raytheon.uf.common.monitor.data.MonitorConfigConstants;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
 import com.raytheon.uf.viz.monitor.config.CommonTableConfig;
 import com.raytheon.uf.viz.monitor.config.CommonTableConfig.CellType;
@@ -35,7 +36,6 @@ import com.raytheon.uf.viz.monitor.data.TableCellData;
 import com.raytheon.uf.viz.monitor.data.TableData;
 import com.raytheon.uf.viz.monitor.data.TableRowData;
 import com.raytheon.uf.viz.monitor.fog.threshold.FogThresholdMgr;
-import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants;
 
 /**
  * Generate Data for Fog Dialogs
@@ -49,6 +49,7 @@ import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants;
  * 12/07/09                  dhladky    Initial Creation.
  * Oct.29, 2012 1297         skorolev   Changed HashMap to Map
  * Oct.31, 2012 1297         skorolev   Clean code
+ * Dec 26, 2015 5114         skorolev   Corrected imports.
  * 
  * </pre>
  * 
@@ -58,9 +59,9 @@ import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants;
 
 public class FogDataGenerator {
 
-    private CommonTableConfig ctc;
+    private final CommonTableConfig ctc;
 
-    private FogThresholdMgr ftm;
+    private final FogThresholdMgr ftm;
 
     /**
      * Generates Fog data

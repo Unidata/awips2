@@ -22,18 +22,20 @@ package com.raytheon.edex.util.grib;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.raytheon.edex.plugin.grib.exception.GribException;
 import com.raytheon.edex.plugin.grib.util.DataFieldTableLookup;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.parameter.Parameter;
 import com.raytheon.uf.common.time.DataTime;
 
@@ -48,6 +50,7 @@ import com.raytheon.uf.common.time.DataTime;
  * ------------- -------- ----------- --------------------------
  * Apr 15, 2010  4553     bphillip    Initial Creation
  * Oct 15, 2013  2473     bsteffen    Remove e.printStackTrace()
+ * Feb 16, 2016  5237     bsteffen    Replace deprecated localization API.
  * 
  * </pre>
  * 
@@ -246,9 +249,9 @@ public class GribParamTranslator {
                 .getPathManager().getTieredLocalizationFile(
                         LocalizationType.COMMON_STATIC,
                         "grid" + File.separator + "master_grib2_lookup.txt");
-        loadDefs(files.get(LocalizationLevel.BASE).getFile(), 2);
+        loadDefs(files.get(LocalizationLevel.BASE), 2);
         if (files.containsKey(LocalizationLevel.SITE)) {
-            loadDefs(files.get(LocalizationLevel.SITE).getFile(), 2);
+            loadDefs(files.get(LocalizationLevel.SITE), 2);
         }
     }
 
@@ -264,9 +267,9 @@ public class GribParamTranslator {
                 .getPathManager().getTieredLocalizationFile(
                         LocalizationType.COMMON_STATIC,
                         "grid" + File.separator + "master_grib1_lookup.txt");
-        loadDefs(files.get(LocalizationLevel.BASE).getFile(), 1);
+        loadDefs(files.get(LocalizationLevel.BASE), 1);
         if (files.containsKey(LocalizationLevel.SITE)) {
-            loadDefs(files.get(LocalizationLevel.SITE).getFile(), 1);
+            loadDefs(files.get(LocalizationLevel.SITE), 1);
         }
     }
 
@@ -276,10 +279,9 @@ public class GribParamTranslator {
                 .getPathManager().getTieredLocalizationFile(
                         LocalizationType.COMMON_STATIC,
                         "grid" + File.separator + "parameterNameAlias.txt");
-        loadParameterNameAliases(files.get(LocalizationLevel.BASE).getFile());
+        loadParameterNameAliases(files.get(LocalizationLevel.BASE));
         if (files.containsKey(LocalizationLevel.SITE)) {
-            loadParameterNameAliases(files.get(LocalizationLevel.SITE)
-                    .getFile());
+            loadParameterNameAliases(files.get(LocalizationLevel.SITE));
         }
     }
 
@@ -293,12 +295,10 @@ public class GribParamTranslator {
      * @throws GribException
      *             If errors occur while processing the file
      */
-    private void loadDefs(File lookupFile, int gribVersion)
+    private void loadDefs(ILocalizationFile lookupFile, int gribVersion)
             throws GribException {
-        BufferedReader in = null;
-        String[] tokens = null;
-        try {
-            in = new BufferedReader(new FileReader(lookupFile));
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(
+                lookupFile.openInputStream()))) {
             String str;
 
             /*
@@ -310,7 +310,7 @@ public class GribParamTranslator {
                     continue;
                 }
 
-                tokens = str.split(" ");
+                String[] tokens = str.split(" ");
                 if (tokens.length < 2) {
                     continue;
                 }
@@ -320,24 +320,17 @@ public class GribParamTranslator {
                     grib2Map.put(tokens[0], tokens[tokens.length - 1]);
                 }
             }
-        } catch (IOException e) {
+        } catch (IOException | LocalizationException e) {
             throw new GribException(
                     "Error processing master grib parameters file", e);
         }
 
-        try {
-            in.close();
-        } catch (IOException e) {
-            throw new GribException(
-                    "Error processing master grib parameters file", e);
-        }
     }
 
-    private void loadParameterNameAliases(File lookupFile) throws GribException {
-        BufferedReader in = null;
-        String[] tokens = null;
-        try {
-            in = new BufferedReader(new FileReader(lookupFile));
+    private void loadParameterNameAliases(ILocalizationFile lookupFile)
+            throws GribException {
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(
+                lookupFile.openInputStream()))) {
             String str;
 
             /*
@@ -349,7 +342,7 @@ public class GribParamTranslator {
                     continue;
                 }
 
-                tokens = str.split("::");
+                String[] tokens = str.split("::");
                 if (tokens.length < 3) {
                     continue;
                 }
@@ -364,14 +357,7 @@ public class GribParamTranslator {
                         parameterName);
 
             }
-        } catch (IOException e) {
-            throw new GribException(
-                    "Error processing master grib parameters file", e);
-        }
-
-        try {
-            in.close();
-        } catch (IOException e) {
+        } catch (IOException | LocalizationException e) {
             throw new GribException(
                     "Error processing master grib parameters file", e);
         }

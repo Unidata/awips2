@@ -38,7 +38,7 @@ import javax.measure.converter.UnitConverter;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 
 import com.raytheon.uf.common.activetable.ActiveTableRecord;
 import com.raytheon.uf.common.activetable.OperationalActiveTableRecord;
@@ -281,11 +281,15 @@ public class WatchUtil {
 
         DbQueryRequest request = new DbQueryRequest();
         request.setEntityClass(entityClass);
-        request.addConstraint(START_TIME_FIELD,
-                new RequestConstraint(TimeUtil.formatToSqlTimestamp(startConstraintTime),
+        request.addConstraint(
+                START_TIME_FIELD,
+                new RequestConstraint(TimeUtil
+                        .formatToSqlTimestamp(startConstraintTime),
                         ConstraintType.LESS_THAN_EQUALS));
-        request.addConstraint(END_TIME_FIELD,
-                new RequestConstraint(TimeUtil.formatToSqlTimestamp(simulatedTime),
+        request.addConstraint(
+                END_TIME_FIELD,
+                new RequestConstraint(TimeUtil
+                        .formatToSqlTimestamp(simulatedTime),
                         ConstraintType.GREATER_THAN_EQUALS));
         request.addConstraint("phensig",
                 new RequestConstraint(phenSig.toString(), ConstraintType.IN));

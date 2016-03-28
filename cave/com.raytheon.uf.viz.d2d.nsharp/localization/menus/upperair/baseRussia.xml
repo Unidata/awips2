@@ -20,7 +20,7 @@
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
-	                menuText="Mys Uzlen (25399)" id="raobMys Uzlen"
+	                menuText="Mys Uzlen (25399)" id="raobMysUzlen"
 	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
 	        <substitute key="stationId" value="25399"/>
 	    </contribute>
@@ -135,12 +135,12 @@
 	        <substitute key="stationId" value="21824"/>
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
-	                menuText="Anadyr' (UHMA)" id="raobnadyr'"
+	                menuText="Anadyr (UHMA)" id="raobAnadyr"
 	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
 	        <substitute key="stationId" value="25563"/>
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
-	                menuText="Bukhta Provideniya (UHMD)" id="raobBukhta Provideniya"
+	                menuText="Bukhta Provideniya (UHMD)" id="raobBukhtaProvideniya"
 	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
 	        <substitute key="stationId" value="25594"/>
 	    </contribute>

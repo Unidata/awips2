@@ -105,10 +105,6 @@
 	<alias base="MRF26">gfsLR26</alias>
 	<alias base="MRF">gfsLR</alias>
 	<alias base="mrfNH">gfsLR</alias>
-	<alias base="NGM202">NGM180</alias>
-	<alias base="NGM207">NGM95</alias>
-	<alias base="NGM213">NGM90</alias>
-	<alias base="NGM">NGM80</alias>
 	<alias base="OPCWave180">OPCWave-W-ATL</alias>
 	<alias base="OPCWave181">OPCWave-NE-PAC</alias>
 	<alias base="OPCWave182">OPCWave-TE-PAC</alias>

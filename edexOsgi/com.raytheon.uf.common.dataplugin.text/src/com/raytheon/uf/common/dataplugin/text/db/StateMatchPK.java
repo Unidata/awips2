@@ -26,9 +26,9 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -88,21 +88,25 @@ public class StateMatchPK extends PersistableDataObject {
         this.ccc = ccc;
     }
 
+    @Override
     public String toString() {
-        return new ToStringBuilder(this).append("state", getState()).append(
-                "xxx", getXxx()).append("ccc", getCcc()).toString();
+        return new ToStringBuilder(this).append("state", getState())
+                .append("xxx", getXxx()).append("ccc", getCcc()).toString();
     }
 
+    @Override
     public boolean equals(Object other) {
-        if (!(other instanceof StateMatchPK))
+        if (!(other instanceof StateMatchPK)) {
             return false;
+        }
         StateMatchPK castOther = (StateMatchPK) other;
         return new EqualsBuilder()
-                .append(this.getState(), castOther.getState()).append(
-                        this.getXxx(), castOther.getXxx()).append(
-                        this.getCcc(), castOther.getCcc()).isEquals();
+                .append(this.getState(), castOther.getState())
+                .append(this.getXxx(), castOther.getXxx())
+                .append(this.getCcc(), castOther.getCcc()).isEquals();
     }
 
+    @Override
     public int hashCode() {
         return new HashCodeBuilder().append(getState()).append(getXxx())
                 .append(getCcc()).toHashCode();

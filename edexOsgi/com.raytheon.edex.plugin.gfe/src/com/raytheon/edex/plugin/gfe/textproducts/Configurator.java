@@ -29,19 +29,20 @@ import java.util.Map;
 
 import jep.JepException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.utility.ProtectedFiles;
 import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
 import com.raytheon.uf.common.dataquery.db.QueryResult;
 import com.raytheon.uf.common.dataquery.db.QueryResultRow;
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.python.PyUtil;
 import com.raytheon.uf.common.python.PythonScript;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -74,8 +75,11 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * Oct 20, 2014 #3685       randerso    Added code to generate SiteCFG.py from GIS database
  *                                      Cleaned up how protected file updates are returned
  * Jan 23, 2015 #4027       randerso    Fixed python include path
- * Apr 27, 2015  4259       njensen     Updated for new JEP API
- * Jul 13, 2015  4500       rjpeter     Removed SqlQueryTask.
+ * Apr 27, 2015 4259        njensen     Updated for new JEP API
+ * Jul 13, 2015 4500        rjpeter     Removed SqlQueryTask.
+ * Dec 15, 2015 5166        kbisanz     Update logging to use SLF4J
+ * Jan 08, 2016 5237        tgurney     Replace calls to deprecated LocalizationFile
+ *                                      methods
  * </pre>
  * 
  * @author jelkins
@@ -96,7 +100,7 @@ public class Configurator {
 
     private String pythonDirectory;
 
-    private transient Log log = LogFactory.getLog(getClass());
+    private transient Logger log = LoggerFactory.getLogger(getClass());
 
     /**
      * The Protected Files list.
@@ -108,6 +112,8 @@ public class Configurator {
      * <p>
      * Get the siteID and determine the appropriate paths.
      * </p>
+     * 
+     * @param siteID
      */
     public Configurator(String siteID) {
 
@@ -206,14 +212,15 @@ public class Configurator {
         context.setContextName(siteID);
 
         // regenerate siteCFG.py
-        LocalizationFile lf = null;
+        ILocalizationFile lf = null;
         try {
             lf = pathMgr.getLocalizationFile(context,
                     FileUtil.join("python", "gfe", "SiteCFG.py"));
 
             CoreDao dao = new CoreDao(DaoConfig.forDatabase("maps"));
             QueryResult results = dao.executeMappedSQLQuery(CWA_QUERY);
-            try (PrintWriter out = new PrintWriter(lf.openOutputStream())) {
+            try (SaveableOutputStream lfStream = lf.openOutputStream();
+                    PrintWriter out = new PrintWriter(lfStream)) {
                 out.println("##");
                 out.println("# Contains information about products, regions, etc. for each site");
                 out.println("# in the country.");
@@ -254,9 +261,10 @@ public class Configurator {
                         "Washington DC", ""));
 
                 out.println("}");
-            } // out is closed here
+                out.close();
+                lfStream.save();
+            }
 
-            lf.save();
         } catch (Exception e) {
             statusHandler.error(e.getLocalizedMessage(), e);
         }

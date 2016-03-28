@@ -209,14 +209,14 @@ class TextProduct(GenericHazards.TextProduct):
         # Added to place line feeds in the CAP tags to keep separate from CTAs
 
         fcst = string.replace(fcst, \
-                              r"Precautionary/preparedness actions\.\.\.", \
-                              r"\nPrecautionary/preparedness actions\.\.\.\n")
+                              r"PRECAUTIONARY/PREPAREDNESS ACTIONS\.\.\.", \
+                              r"\nPRECAUTIONARY/PREPAREDNESS ACTIONS\.\.\.\n")
         fcst = string.replace(fcst, ".:", ".")
         fcst = string.replace(fcst, "\n ","\n")
         fcst = string.replace(fcst, "&&", "\n&&\n")
 
         # Prevent empty Call to Action Tags
-        fcst = re.sub(r'\nPrecautionary/preparedness actions\.\.\.\s*&&\n', \
+        fcst = re.sub(r'\nPRECAUTIONARY/PREPAREDNESS ACTIONS\.\.\.\s*&&\n', \
                       "", fcst)
         ### to remove any empty framing code
         fcst = re.sub("\|\*\s*\*\|", "", fcst)

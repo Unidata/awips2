@@ -749,10 +749,10 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 <L>${spoutTag}</L>
 #end
 #if($hailTag.length() > 0)
-<L>HAIL...${hailTag}IN</L>
+<L>HAIL...${hailTag}in</L>
 #end
 #if($windTag.length() > 0)
-<L>WIND...${windTag}KTS</L>
+<L>WIND...${windTag}kts</L>
 #end
 
 $$

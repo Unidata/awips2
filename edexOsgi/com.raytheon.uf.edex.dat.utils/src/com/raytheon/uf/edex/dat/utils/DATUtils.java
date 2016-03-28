@@ -19,8 +19,8 @@
  **/
 package com.raytheon.uf.edex.dat.utils;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
@@ -47,6 +47,7 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  * 06/22/09      2152       D. Hladky   Initial release
  * Apr 24, 2014  2060       njensen     Updates for removal of grid dataURI column
  * 09 Feb 2015   3077       dhladky     Updated cache logic
+ * 11 Dec 2015   5166       kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -56,7 +57,8 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
 
 public class DATUtils {
 
-    private transient final static Log logger = LogFactory.getLog("DATUtils");
+    private transient final static Logger logger = LoggerFactory
+            .getLogger("DATUtils");
 
     /**
      * Populate the PDO record
@@ -143,7 +145,7 @@ public class DATUtils {
                 // get the old record for comparison
                 GridRecord oldRec = cache.getModelData().getGridRecord(
                         param.getModelName(), param.getParameterName());
-                
+
                 if (newRec != null) {
                     if (newRec.getDataTime().getRefTime()
                             .after(oldRec.getDataTime().getRefTime())) {
@@ -163,29 +165,31 @@ public class DATUtils {
                     // new record is null, do not overwrite
                     rec = oldRec;
                 }
-            // if you get here this means that no grid exists in cache currently
+                // if you get here this means that no grid exists in cache
+                // currently
             } else {
                 // new record is good, insert it
                 if (newRec != null) {
                     // fully populate new record
                     populateGridRecord(newRec);
                     // insert new record
-                    cache.getModelData().setGridRecord(
-                            param.getModelName(), param.getParameterName(),
-                            newRec);
+                    cache.getModelData().setGridRecord(param.getModelName(),
+                            param.getParameterName(), newRec);
                     rec = newRec;
-                // no records for this grid exist at all
+                    // no records for this grid exist at all
                 } else {
                     logger.warn("No record(s) found matching these criteria. Model:"
-                        + param.getModelName()
-                        + " Param:"
-                        + param.getParameterName() + " Interval:" + interval);
+                            + param.getModelName()
+                            + " Param:"
+                            + param.getParameterName()
+                            + " Interval:"
+                            + interval);
                 }
             }
 
         } catch (Exception e) {
-            logger.error("Error in grid retrieval: " + param.getModelName() + ": "
-                    + param.getParameterName() + " record: " + newRec, e);
+            logger.error("Error in grid retrieval: " + param.getModelName()
+                    + ": " + param.getParameterName() + " record: " + newRec, e);
         }
 
         return rec;

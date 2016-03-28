@@ -59,6 +59,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * 05/01/2008              chammack    Added Pencil Influence
  * 04/16/2009   2262       rjpeter     Updated to handle mouse movements off the extent
+ * 01/28/2016   5295       dgilling    Fix handling of ISC grids with different
+ *                                     time constraints from Fcst grid.
  * </pre>
  * 
  * @author chammack
@@ -136,8 +138,8 @@ public class PencilTool extends AbstractFreeformTool {
 
         // isc mode, and fcst grid
         if (iscMode && fcstGrid) {
-            GridID gid = new GridID(grid.getParm(), grid.getGridTime()
-                    .getStart());
+            GridID gid = new GridID(grid.getParm(), dataManager
+                    .getSpatialDisplayManager().getSpatialEditorTime());
             return iscDataPoint(gid, new Point((int) gridCoord.x,
                     (int) gridCoord.y));
         }
