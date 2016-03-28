@@ -2484,8 +2484,8 @@ class BOIVerifyUtility(SmartScript.SmartScript):
              (stime,etime)=verPer
              totalTime=etime-stime
              recmatch=logical_and(rightRecord,
-                                 logical_and(greater(self.fncEtime,stime),
-                                          less(self.fncStime,etime)))
+                                 logical_and(greater(self.fncEtime[:],stime),
+                                          less(self.fncStime[:],etime)))
              #
              # When there are matching records...find each basetime that
              # forecast for this period
@@ -2948,8 +2948,8 @@ class BOIVerifyUtility(SmartScript.SmartScript):
              (stime,etime)=verPer
              totalTime=etime-stime
              recmatch=logical_and(rightRecord,
-                                 logical_and(greater(self.sncEtime,stime),
-                                          less(self.sncStime,etime)))
+                                 logical_and(greater(self.sncEtime[:],stime),
+                                          less(self.sncStime[:],etime)))
              #
              # When there are matching records...find each basetime that
              # forecast for this period
