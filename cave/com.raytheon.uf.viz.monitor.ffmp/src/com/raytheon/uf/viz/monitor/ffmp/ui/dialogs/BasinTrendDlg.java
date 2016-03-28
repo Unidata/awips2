@@ -70,8 +70,10 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                     Initial creation
  * Dec 6, 2012  1353       rferrel     Code clean up for non-blocking dialog.
  * Feb 10, 2013  1584      mpduff      Add performance logging.
- * Mar 14, 2016  5463      dhladky     Defaults for QPF and GUID button selections
- *  
+ * Mar 16, 2016  5463      dhladky     Fixed config loading and button matching.
+ * Mar 23, 2016  5463      tjensen     Update Guidance default to pull from 
+ *                                      config file if not already set.
+ * 
  * </pre>
  * 
  * @author rferrel
@@ -595,20 +597,14 @@ public class BasinTrendDlg extends CaveSWTDialog {
                 .getRunner(resource.getResourceData().wfo)
                 .getProduct(resource.getSiteKey());
 
-        // Default QPF selected to QPFSCAN at start up
-        String defaultQPFType = "QPFSCAN";
-        
-        if (!prodRun.getQpfTypes(prodXml).contains(defaultQPFType)) {
-            defaultQPFType = prodRun.getQpfTypes(prodXml).get(0);
-        }
+        String qpfType = FfmpTableConfig.getInstance()
+                .getTableConfigData(resource.getSiteKey()).getQpfGraphType();
 
         for (String name : prodRun.getQpfTypes(prodXml)) {
             Button qpfBtn = new Button(qpfComp, SWT.RADIO);
             qpfBtn.setBackground(getDisplay().getSystemColor(SWT.COLOR_WHITE));
             qpfBtn.setText(name);
             qpfBtn.setData(name);
-            
-            qpfRdos.add(qpfBtn);
             qpfBtn.addSelectionListener(new SelectionAdapter() {
                 @Override
                 public void widgetSelected(SelectionEvent e) {
@@ -629,13 +625,16 @@ public class BasinTrendDlg extends CaveSWTDialog {
                 }
             });
 
-            if (name.equals(defaultQPFType)) {
+            if (name.equals(qpfType)) {
                 qpfBtn.setSelection(true);
                 FfmpTableConfig.getInstance()
                         .getTableConfigData(resource.getSiteKey())
                         .setQpfGraphType((String) qpfBtn.getData());
+
                 fireSourceUpdateEvent();
             }
+
+            qpfRdos.add(qpfBtn);
         }
 
         /*
@@ -656,13 +655,8 @@ public class BasinTrendDlg extends CaveSWTDialog {
         ffgComp.setLayout(new GridLayout(1, false));
         ffgComp.setLayoutData(gd);
         ffgComp.setBackground(getDisplay().getSystemColor(SWT.COLOR_WHITE));
-
-        // Default to RFCFFG for startup
-        String defaultFFGType = "RFCFFG";
-        
-        if (!prodXml.getAvailableGuidanceTypes().contains(defaultFFGType)) {
-            defaultFFGType = prodXml.getAvailableGuidanceTypes().get(0);
-        }
+        String ffgType = FfmpTableConfig.getInstance()
+                .getTableConfigData(resource.getSiteKey()).getFfgGraphType();
 
         int j = 0;
         for (String ffgname : prodXml.getAvailableGuidanceTypes()) {
@@ -670,8 +664,7 @@ public class BasinTrendDlg extends CaveSWTDialog {
             ffgBtn.setBackground(getDisplay().getSystemColor(SWT.COLOR_WHITE));
             ffgBtn.setText(ffgname);
             ffgBtn.setData(new Integer(j));
-            ffgRdos.add(ffgBtn);
-            
+
             ffgBtn.addSelectionListener(new SelectionAdapter() {
                 @Override
                 public void widgetSelected(SelectionEvent e) {
@@ -681,8 +674,9 @@ public class BasinTrendDlg extends CaveSWTDialog {
                     }
                 }
             });
-            
-            if (defaultFFGType.equals(ffgname)) {
+
+            ffgRdos.add(ffgBtn);
+            if (ffgType.equals(ffgname)) {
                 ffgBtn.setSelection(true);
                 handleFFGSelection(ffgBtn.getText());
             }
@@ -1002,6 +996,14 @@ public class BasinTrendDlg extends CaveSWTDialog {
         if (guidSrc != null) {
             for (Button ffg : ffgRdos) {
                 if (ffg.getText().equalsIgnoreCase(guidSrc)) {
+                    ffg.setSelection(true);
+                } else {
+                    ffg.setSelection(false);
+                }
+            }
+        } else {
+            for (Button ffg : ffgRdos) {
+                if (ffmpCfg.getIncludedGuids().contains(ffg.getText())) {
                     ffg.setSelection(true);
                 } else {
                     ffg.setSelection(false);

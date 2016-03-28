@@ -121,7 +121,10 @@ import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.maps.MapManager;
 import com.raytheon.uf.viz.core.notification.jobs.NotificationManagerJob;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.core.rsc.ResourceList;
+import com.raytheon.uf.viz.core.rsc.ResourceList.RemoveListener;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
+import com.raytheon.uf.viz.core.rsc.ResourceList.AddListener;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
@@ -262,6 +265,7 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  *                                     Show preview of redrawn polygon when developer mode property is set.
  * 01/06/2016  ASM #18453  D. Friedman Cache extension areas so they are not regenerated on Restart or (limited) template changes.
  * 02/23/2016  ASM #18669  D. Friedman Improve speed and reduce memory usage of extension area generation.
+ * 03/10/2016  DCS  18509  D. Friedman Make extension area display a separate map background.
  * 03/11/2016  ASM #18720  D. Friedman Improve warning message when extension area is not available.
  * </pre>
  * 
@@ -278,6 +282,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
     /*package*/ static final UnitConverter MILES_TO_METER = NonSI.MILE
             .getConverterTo(SI.METER);
+
+    private static final String EXTENSION_AREA_MAP_NAME = "WarnGen Extension Area";
 
     static String lastSelectedBackupSite;
 
@@ -875,11 +881,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     geometryFuture.cancel(true);
                     geometryFuture = null;
                 }
-                extensionAreaVis = null;
-                if (extensionAreaShadedShape != null) {
-                    extensionAreaShadedShape.reset();
-                    issueRefresh();
-                }
+                setExtensionAreaVis(null);
                 gda = null;
                 if (isExtensionAreaDefined() && checkExtensionAreaViable()) {
                     Exception error = null;
@@ -932,7 +934,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     }
                 }, ear.geometry);
                 this.geometryFuture.run();
-                extensionAreaVis = ear.extensionAreaVis;
+                setExtensionAreaVis(ear.extensionAreaVis);
                 return true;
             }
             return false;
@@ -1087,7 +1089,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
             Geometry vis = extensionGDA.buildArea(r, false);
             perfLog.logDuration("Extension area", System.currentTimeMillis() - t0);
             extensionAreaManager.cacheArea(primaryGDA, extensionGDA, options, r, vis);
-            extensionAreaVis = vis;
+            setExtensionAreaVis(vis);
             issueRefresh();
             return r;
         }
@@ -1453,6 +1455,11 @@ public class WarngenLayer extends AbstractStormTrackResource {
     protected void disposeInternal() {
         customMaps.clearMaps();
 
+        if (loadedExtensionAreaMap) {
+            MapManager mapManager = MapManager.getInstance(getDescriptor());
+            mapManager.unloadMap(EXTENSION_AREA_MAP_NAME);
+        }
+
         GeomMetaDataUpdateNotificationObserver.removeNotificationObserver();
 
         super.disposeInternal();
@@ -1468,11 +1475,14 @@ public class WarngenLayer extends AbstractStormTrackResource {
         if (coveredAreaFrame != null) {
             coveredAreaFrame.dispose();
         }
-        if (extensionAreaShadedShape != null) {
-            extensionAreaShadedShape.dispose();
-        }
 
         manager.dispose();
+
+        if (extensionAreaLayerAddRemoveListener != null) {
+            ResourceList resourceList = getDescriptor().getResourceList();
+            resourceList.removePostAddListener(extensionAreaLayerAddRemoveListener);
+            resourceList.removePostRemoveListener(extensionAreaLayerAddRemoveListener);
+        }
     }
 
     @Override
@@ -1506,8 +1516,10 @@ public class WarngenLayer extends AbstractStormTrackResource {
         coveredAreaFrame = target.createWireframeShape(true, this.descriptor);
         shadedCoveredArea = target.createShadedShape(true,
                 this.descriptor.getGridGeometry(), true);
-        extensionAreaShadedShape = target.createShadedShape(true,
-                this.descriptor.getGridGeometry());
+        extensionAreaLayerAddRemoveListener = new ExtensionAreaLayerAddRemoveListener();
+        ResourceList resourceList = getDescriptor().getResourceList();
+        resourceList.addPostAddListener(extensionAreaLayerAddRemoveListener);
+        resourceList.addPostRemoveListener(extensionAreaLayerAddRemoveListener);
     }
 
     /**
@@ -1583,20 +1595,6 @@ public class WarngenLayer extends AbstractStormTrackResource {
             if (hasDrawnShaded && shouldDrawShaded) {
                 target.drawShadedShape(shadedCoveredArea, 1.0f);
             }
-        }
-
-        if ((Boolean) getObservableExtensionAreaVisible().getValue()) {
-            if (extensionAreaVis != null) {
-                extensionAreaShadedShape.reset();
-                JTSCompiler comp = new JTSCompiler(extensionAreaShadedShape, null, descriptor);
-                Geometry g = extensionAreaVis;
-                extensionAreaVis = null;
-                if (g != null) {
-                    comp.handle(g, extensionAreaVisualizationColor);
-                }
-            }
-            target.drawShadedShape(extensionAreaShadedShape,
-                    extensionAreaVisualizationAlpha);
         }
 
         lastMode = displayState.mode;
@@ -1776,25 +1774,18 @@ public class WarngenLayer extends AbstractStormTrackResource {
         target.drawStrings(strings);
     }
 
-    private Geometry extensionAreaVis;
+    private WritableValue observableExtensionAreaVis;
 
     private WritableValue observableExtensionAreaVisible;
 
-    private RGB extensionAreaVisualizationColor = new RGB(240, 128, 128);
+    private boolean loadedExtensionAreaMap = false;
 
-    private float extensionAreaVisualizationAlpha = 0.4f;
-
-    private IShadedShape extensionAreaShadedShape = null;
+    private ExtensionAreaLayerAddRemoveListener extensionAreaLayerAddRemoveListener;
 
     public WritableValue getObservableExtensionAreaVisible() {
         if (observableExtensionAreaVisible == null) {
-            observableExtensionAreaVisible = new WritableValue(false, null);
-            observableExtensionAreaVisible.addChangeListener(new IChangeListener() {
-                @Override
-                public void handleChange(ChangeEvent event) {
-                    issueRefresh();
-                }
-            });
+            observableExtensionAreaVisible = new WritableValue(
+                    isExtensionAreaActuallyVisible(), null);
         }
         return observableExtensionAreaVisible;
     }
@@ -1803,31 +1794,40 @@ public class WarngenLayer extends AbstractStormTrackResource {
         return (Boolean) getObservableExtensionAreaVisible().getValue();
     }
 
+    public boolean isExtensionAreaActuallyVisible() {
+        boolean actuallyVisible = false;
+        MapManager mapManager = MapManager.getInstance(getDescriptor());
+        if (mapManager.isMapLoaded(EXTENSION_AREA_MAP_NAME)) {
+            ResourcePair rp = mapManager.loadMapByName(EXTENSION_AREA_MAP_NAME);
+            actuallyVisible = rp.getResource().getProperties().isVisible();
+        }
+        return actuallyVisible;
+    }
+
     public void setExtensionAreaVisualized(boolean visible) {
         getObservableExtensionAreaVisible().setValue(visible);
-    }
-
-    public RGB getExtensionAreaVisualizationColor() {
-        return extensionAreaVisualizationColor;
-    }
-
-    public void setExtensionAreaVisualizationColor(
-            RGB extensionAreaVisualizationColor) {
-        if (extensionAreaVisualizationColor == null) {
-            throw new NullPointerException("extensionAreaVisualizationColor must be non-null");
+        MapManager mapManager = MapManager.getInstance(getDescriptor());
+        if (! mapManager.isMapLoaded(EXTENSION_AREA_MAP_NAME)) {
+            loadedExtensionAreaMap = true;
         }
-        this.extensionAreaVisualizationColor = extensionAreaVisualizationColor;
-        issueRefresh();
+        ResourcePair rp = mapManager.loadMapByName(EXTENSION_AREA_MAP_NAME);
+        if (rp != null) {
+            rp.getResource().getProperties().setVisible(visible);
+            rp.getResource().issueRefresh();
+        }
     }
 
-    public float getExtensionAreaVisualizationAlpha() {
-        return extensionAreaVisualizationAlpha;
-    }
-
-    public void setExtensionAreaVisualizationAlpha(
-            float extensionAreaVisualizationAlpha) {
-        this.extensionAreaVisualizationAlpha = extensionAreaVisualizationAlpha;
-        issueRefresh();
+    public void realizeExtensionAreaVisibility() {
+        VizApp.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                boolean actuallyVisible = isExtensionAreaActuallyVisible();
+                if (actuallyVisible != isExtensionAreaVisible()) {
+                    observableExtensionAreaVisible
+                            .setValue(isExtensionAreaActuallyVisible());
+                }
+            }
+        });
     }
 
     /**
@@ -4508,4 +4508,32 @@ public class WarngenLayer extends AbstractStormTrackResource {
         return warngenDeveloperMode;
     }
 
+    public WritableValue getObservableExtensionAreaVis() {
+        if (observableExtensionAreaVis == null) {
+            observableExtensionAreaVis = new WritableValue();
+        }
+        return observableExtensionAreaVis;
+    }
+
+    private void setExtensionAreaVis(final Geometry extensionAreaVis) {
+        VizApp.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                getObservableExtensionAreaVis().setValue(extensionAreaVis);
+            }
+        });
+    }
+
+    protected class ExtensionAreaLayerAddRemoveListener implements AddListener,
+            RemoveListener {
+        @Override
+        public void notifyRemove(ResourcePair rp) throws VizException {
+            realizeExtensionAreaVisibility();
+        }
+
+        @Override
+        public void notifyAdd(ResourcePair rp) throws VizException {
+            realizeExtensionAreaVisibility();
+        }
+    }
 }

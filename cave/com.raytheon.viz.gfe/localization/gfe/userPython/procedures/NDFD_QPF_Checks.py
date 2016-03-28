@@ -832,7 +832,7 @@ class Procedure (SmartScript.SmartScript):
                 del (rMask, rwMask, lMask, zlMask, zrMask)
                 precipMask = logical_or(snowMask, rainMask)
                 del (snowMask, rainMask)
-                wxMask = logical_not(snowMask)
+                wxMask = logical_not(precipMask)
                 # QPF6hr >= 0.01, 1; QPF6hr < 0.01, 0
                 # Wx has precip, 0; Wx doesn't have precip, 1
                 # QPF6hr >= 0.01 (1) and Wx has (0) = 0 (Good result)
