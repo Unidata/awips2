@@ -16,6 +16,7 @@ import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
  * Date         Ticket#    Engineer     Description
  * ------------ ---------- ------------ --------------------------
  * 12/21/2015   DCS 17942  D. Friedman  Initial revision
+ * 03/10/2016   DCS 18509  D. Friedman  Improve synchronization of state with display
  * </pre>
  *
  */
@@ -37,9 +38,9 @@ public class ShowExtensionAreaToggleAction extends AbstractRightClickAction {
     @Override
     public void run() {
         if (warngenLayer != null) {
-            boolean checked = ! warngenLayer.isExtensionAreaVisible();
-            warngenLayer.setExtensionAreaVisualized(checked);
-            setChecked(checked);
+            boolean visible = ! isChecked();
+            warngenLayer.setExtensionAreaVisualized(visible);
+            setChecked(visible);
         }
     }
 
@@ -51,6 +52,11 @@ public class ShowExtensionAreaToggleAction extends AbstractRightClickAction {
     @Override
     public String getText() {
         return "Show Extension Area";
+    }
+
+    @Override
+    public boolean isChecked() {
+        return warngenLayer.isExtensionAreaActuallyVisible();
     }
 
 }

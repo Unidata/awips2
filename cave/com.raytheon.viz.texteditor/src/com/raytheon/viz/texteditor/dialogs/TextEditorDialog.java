@@ -382,6 +382,7 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  *                                      and enable character set validation.
  *                                      Moved upper case conversion for QC checks into the 
  *                                      specific checks that need it.
+ * Mar 17, 2016 RM 18727    D. Friedman Fix use of verification listener when entering and exiting editor.
  * 
  * </pre>
  * 
@@ -1249,7 +1250,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * Determines if marked text is uneditable -- equates to the text coming
      * from warngen
      */
-    private boolean markedTextUndeditable = false;
+    private boolean verifyUndeditableText = false;
 
     /**
      * the script output window
@@ -4057,6 +4058,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 airportToolTip.hide();
             }
         });
+
+        textEditor.addVerifyListener(TextEditorDialog.this);
     }
 
     private void setDefaultTextColor(TextEditorCfg txtClrCfg) {
@@ -4233,8 +4236,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
         // Mark the uneditable warning text
         if (markUneditableText(textEditor)) {
-            // Add listener to monitor attempt to edit locked text
-            textEditor.addVerifyListener(TextEditorDialog.this);
+            // Enable listener to monitor attempt to edit locked text
+            verifyUndeditableText = true;
         }
 
         // Set the menu buttons to reflect the edit mode.
@@ -4373,18 +4376,11 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     .replaceAll(", {0,1}", "..."));
         }
 
-        // Mark the uneditable warning text
-        if (markUneditableText(textEditor)) {
-            // Add listener to monitor attempt to edit locked text
-            textEditor.addVerifyListener(TextEditorDialog.this);
-        }
+        markUneditableText(textEditor);
 
-        // Eliminate the lockable text listener since the application is no
+        // Disable the lockable text listener since the application is no
         // longer in edit mode for the warning product that was being edited.
-        if (markedTextUndeditable) {
-            textEditor.removeVerifyListener(TextEditorDialog.this);
-            markedTextUndeditable = false;
-        }
+        verifyUndeditableText = false;
 
         // Setting focus back to a button, which was the last window control bar
         // button pressed, seems to allow SWT to then allow listeners on text
@@ -5539,10 +5535,14 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             locks.add(lock);
         }
 
-        // remove verify listener to stop lock text checking
-        textEditor.removeVerifyListener(TextEditorDialog.this);
-        textEditor.setText(body);
-        textEditor.addVerifyListener(TextEditorDialog.this);
+        // Temporarily disable verify listener to stop lock text checking
+        boolean wasVerifying = verifyUndeditableText;
+        try {
+            verifyUndeditableText = false;
+            textEditor.setText(body);
+        } finally {
+            verifyUndeditableText = wasVerifying;
+        }
 
         for (StyleRange lock : locks) {
             if (0 <= lock.start
@@ -5671,6 +5671,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         int currentIndex = 0;
         int startIndex = 0;
         int endIndex = 0;
+        boolean markedTextUndeditable = false;
         try {
             while (sb.indexOf(BEGIN_ELEMENT_TAG, 0) >= 0) {
                 currentIndex = 0;
@@ -5737,6 +5738,9 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     @Override
     public void verifyText(VerifyEvent event) {
         // Enforces uneditability of lockable text in warning products
+        if (!verifyUndeditableText) {
+            return;
+        }
         int length = event.end - event.start;
         try {
             if (length == 0) {
@@ -6461,8 +6465,12 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     }
 
                     // Set the text editor's contents to the warning message.
-                    textEditor.removeVerifyListener(TextEditorDialog.this);
-                    textEditor.setText(w);
+                    boolean wasVerifying = verifyUndeditableText;
+                    try {
+                        textEditor.setText(w);
+                    } finally {
+                        verifyUndeditableText = wasVerifying;
+                    }
 
                     showDialog();
                     long t1 = System.currentTimeMillis();

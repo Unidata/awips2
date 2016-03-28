@@ -24,10 +24,9 @@ import java.io.File;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.layout.RowData;
-import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
@@ -59,6 +58,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                    format does not support all options.
  * Dec 04, 2014  DR16713  jgerth      Support for date/time selection
  * Jul 07, 2015  4607     bsteffen    Prompt to save as GeoTIFF
+ * Mar 15, 2016  5485     randerso    Fix GUI sizing issues
  * 
  * </pre>
  * 
@@ -140,6 +140,7 @@ public class ImageExportDialog extends CaveSWTDialog {
             }
         });
         datetimeButton = new Button(group, SWT.CHECK);
+        gridData = new GridData(SWT.DEFAULT, SWT.DEFAULT);
         datetimeButton.setLayoutData(gridData);
         datetimeButton.setText("Include date and time in file name");
         datetimeButton
@@ -166,6 +167,8 @@ public class ImageExportDialog extends CaveSWTDialog {
 
         selectedFramesButton = new Button(group, SWT.RADIO);
         selectedFramesButton.setText("Frames");
+        gridData = new GridData();
+        selectedFramesButton.setLayoutData(gridData);
 
         switch (options.getFrameSelection()) {
         case ALL:
@@ -180,8 +183,11 @@ public class ImageExportDialog extends CaveSWTDialog {
 
         new Label(group, SWT.NONE).setText("from:");
         framesFromText = new Text(group, SWT.BORDER);
+        GC gc = new GC(framesFromText);
+        int textWidth = gc.textExtent("99").x;
+        gc.dispose();
         gridData = new GridData();
-        gridData.widthHint = 24;
+        gridData.widthHint = textWidth;
         framesFromText.setLayoutData(gridData);
         framesFromText.setEnabled(selectedFramesButton.getSelection());
         framesFromText
@@ -189,7 +195,7 @@ public class ImageExportDialog extends CaveSWTDialog {
         new Label(group, SWT.NONE).setText("to:");
         framesToText = new Text(group, SWT.BORDER);
         gridData = new GridData();
-        gridData.widthHint = 24;
+        gridData.widthHint = textWidth;
         framesToText.setLayoutData(gridData);
         framesToText.setEnabled(selectedFramesButton.getSelection());
         framesToText.setText(String.valueOf(options.getLastFrameIndex() + 1));
@@ -228,22 +234,29 @@ public class ImageExportDialog extends CaveSWTDialog {
                 datetimeButton.setSelection(false);
             }
         });
-        gridData = new GridData();
-        gridData.widthHint = 36;
+
         new Label(group, SWT.NONE).setText("Frame Delay:");
         frameDelayText = new Text(group, SWT.BORDER);
+        GC gc = new GC(frameDelayText);
+        int textWidth = gc.textExtent("99.99").x;
+        gc.dispose();
+        gridData = new GridData(textWidth, SWT.DEFAULT);
         frameDelayText.setLayoutData(gridData);
         frameDelayText.setEnabled(animatedButton.getSelection());
         frameDelayText.setText(millisToText(options.getFrameDelay()));
         new Label(group, SWT.NONE).setText("seconds");
+
         new Label(group, SWT.NONE).setText("First Frame Dwell:");
         firstFrameDwellText = new Text(group, SWT.BORDER);
+        gridData = new GridData(textWidth, SWT.DEFAULT);
         firstFrameDwellText.setLayoutData(gridData);
         firstFrameDwellText.setEnabled(animatedButton.getSelection());
         firstFrameDwellText.setText(millisToText(options.getFirstFrameDwell()));
         new Label(group, SWT.NONE).setText("seconds");
+
         new Label(group, SWT.NONE).setText("Last Frame Dwell:");
         lastFrameDwellText = new Text(group, SWT.BORDER);
+        gridData = new GridData(textWidth, SWT.DEFAULT);
         lastFrameDwellText.setLayoutData(gridData);
         lastFrameDwellText.setEnabled(animatedButton.getSelection());
         lastFrameDwellText.setText(millisToText(options.getLastFrameDwell()));
@@ -251,10 +264,10 @@ public class ImageExportDialog extends CaveSWTDialog {
     }
 
     protected void initializeButtons(Composite comp) {
-        comp.setLayout(new RowLayout(SWT.HORIZONTAL));
+        comp.setLayout(new GridLayout(2, true));
         Button okButton = new Button(comp, SWT.PUSH);
         okButton.setText("OK");
-        okButton.setLayoutData(new RowData(100, SWT.DEFAULT));
+        okButton.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
         okButton.addSelectionListener(new SelectionAdapter() {
 
             @Override
@@ -266,7 +279,8 @@ public class ImageExportDialog extends CaveSWTDialog {
 
         Button cancelButton = new Button(comp, SWT.PUSH);
         cancelButton.setText("Cancel");
-        cancelButton.setLayoutData(new RowData(100, SWT.DEFAULT));
+        cancelButton.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true,
+                false));
         cancelButton.addSelectionListener(new SelectionAdapter() {
 
             @Override
@@ -285,7 +299,8 @@ public class ImageExportDialog extends CaveSWTDialog {
         FileDialog fileDialog = new FileDialog(this.shell, SWT.SAVE);
         File file = new File(locationText.getText());
         fileDialog.setFileName(file.getName());
-        if (file.getParentFile() != null && file.getParentFile().isDirectory()) {
+        if ((file.getParentFile() != null)
+                && file.getParentFile().isDirectory()) {
             fileDialog.setFilterPath(file.getParent());
         }
         int index = 0;
@@ -305,7 +320,7 @@ public class ImageExportDialog extends CaveSWTDialog {
             ext[index] = filter.toString();
             names[index] = format.getDescription();
             if (animatedButton.getSelection()
-                    && format == ImageFormat.ANIMATION) {
+                    && (format == ImageFormat.ANIMATION)) {
                 fileDialog.setFilterIndex(index);
             } else if (format != ImageFormat.ANIMATION) {
                 fileDialog.setFilterIndex(index);
@@ -403,8 +418,8 @@ public class ImageExportDialog extends CaveSWTDialog {
             if ((options.getFirstFrameIndex() < options.getMinFrameIndex())) {
                 message = "The first frame cannot be less than "
                         + (options.getMinFrameIndex() + 1);
-            } else if ((options.getLastFrameIndex() > options
-                    .getMaxFrameIndex() + 1)) {
+            } else if ((options.getLastFrameIndex() > (options
+                    .getMaxFrameIndex() + 1))) {
                 message = "The last frame cannot be greater than than "
                         + (options.getMaxFrameIndex() + 1);
             } else if ((options.getFirstFrameIndex() > options
@@ -457,7 +472,7 @@ public class ImageExportDialog extends CaveSWTDialog {
                     | SWT.YES | SWT.NO | SWT.CANCEL);
             mb.setText("Convert to GeoTIFF?");
             String image = "image";
-            if(options.getFrameSelection() != FrameSelection.CURRENT){
+            if (options.getFrameSelection() != FrameSelection.CURRENT) {
                 image = "images";
             }
             mb.setMessage("Your "

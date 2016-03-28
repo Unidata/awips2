@@ -119,6 +119,8 @@ import com.vividsolutions.jts.geom.LineString;
  *                                     if there is no storm motion.
  * Oct 10, 2014  16844    dfriedman  Prevent some errors when moving track.
  * Dec 02, 2015  5150     bsteffen   Add option to use constant end time.
+ *  03-18-2016  ASM #18751 D. Friedman Followup for #18421: Do not set StormTrackState.oneStormAngle
+ *                                     when motion is zero.
  * 
  * </pre>
  * 
@@ -994,7 +996,9 @@ public class StormTrackDisplay implements IRenderable {
         state.futurePoints = futurePoints;
 
         state.angle = angle;
-        StormTrackState.oneStormAngle = angle;
+        if (speed > 0) {
+            StormTrackState.oneStormAngle = angle;
+        }
         state.speed = speed;
 
         postData(state);
@@ -1223,7 +1227,9 @@ public class StormTrackDisplay implements IRenderable {
 
         double angle = state.angle;
         if(!state.justSwitchedToOS) {
-            if (StormTrackState.trackType != null && StormTrackState.trackType.equals("oneStorm")) {
+            if (StormTrackState.trackType != null
+                    && StormTrackState.trackType.equals("oneStorm")
+                    && state.speed > 0) {
                 StormTrackState.oneStormAngle = angle;
             }
         }
