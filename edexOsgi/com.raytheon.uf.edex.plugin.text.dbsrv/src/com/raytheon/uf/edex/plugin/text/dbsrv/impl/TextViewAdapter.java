@@ -76,7 +76,6 @@ import com.raytheon.uf.edex.plugin.text.db.TextDB;
  * Dec 09, 2015 5166       kbisanz     Update logging to use SLF4J.
  * Jan 18, 2016 4562       tjensen     Moved from edex.plugin.text to 
  *                                     edex.plugin.text.dbsrv
- * Feb 12, 2016 4716       rferrel     {@link #processGetRequest} modified to handle AWIPS commands.
  * 
  * 
  * </pre>
@@ -283,28 +282,16 @@ public class TextViewAdapter implements ICommandExecutor {
                     boolean infoFlag = TextViewGetTags.INFO.equals(subOp);
                     boolean xmlFlag = TextViewGetTags.PRODXML.equals(subOp);
 
-                    List<StdTextProduct> prods = null;
                     String afosCmd = msgHeader.getProperty(TextViewTags.AFOSCMD
                             .name());
 
-                    if (afosCmd != null) {
-                        logger.info("AFOS Command = " + afosCmd);
+                    logger.info("AFOS Command = " + afosCmd);
 
-                        prods = textDB.executeAFOSCommand(afosCmd, null,
-                                operationalMode);
-                    } else {
-                        String awipsCmd = msgHeader
-                                .getProperty(TextViewTags.AWIPSCMD.name());
-                        if (awipsCmd != null) {
-                            logger.info("AWIPS Command = " + awipsCmd);
-                        }
-                        prods = textDB.executeAWIPSCommand(awipsCmd, null,
-                                operationalMode);
-                    }
+                    List<StdTextProduct> prods = textDB.executeAFOSCommand(
+                            afosCmd, null, operationalMode);
 
-                    List<Property> prodList = new ArrayList<Property>(
+                    ArrayList<Property> prodList = new ArrayList<Property>(
                             prods.size());
-
                     if (infoFlag) {
                         String ss = "********** Product Count = "
                                 + prods.size();
@@ -382,7 +369,8 @@ public class TextViewAdapter implements ICommandExecutor {
                         intlProd, abbrId, lastHrs, hdrTime, bbbId,
                         fullDataRead, operationalMode);
 
-                List<Property> prodList = new ArrayList<Property>(prods.size());
+                ArrayList<Property> prodList = new ArrayList<Property>(
+                        prods.size());
 
                 // if not xml or last hours request, add the number of returned
                 // items

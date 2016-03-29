@@ -1,81 +1,59 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
 
 package com.raytheon.viz.texteditor.dialogs;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.SortedSet;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeMap;
 
-import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseWheelListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
-import org.eclipse.swt.graphics.FontMetrics;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.List;
-import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.ToolBar;
-import org.eclipse.swt.widgets.ToolItem;
 
 import com.raytheon.uf.common.dataplugin.text.db.StdTextProduct;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.viz.texteditor.AwipsBrowserModel;
-import com.raytheon.viz.texteditor.TextDisplayModel;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.viz.texteditor.command.CommandFactory;
+import com.raytheon.viz.texteditor.command.CommandFailedException;
 import com.raytheon.viz.texteditor.command.ICommand;
-import com.raytheon.viz.texteditor.command.IProductQueryCallback;
-import com.raytheon.viz.texteditor.command.ProductQueryJob;
-import com.raytheon.viz.texteditor.msgs.IAwipsBrowserCallback;
-import com.raytheon.viz.texteditor.msgs.ITextWorkstationCallback;
-import com.raytheon.viz.texteditor.util.AFOS_CLASS;
-import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.texteditor.msgs.IWmoBrowserCallback;
+import com.raytheon.viz.texteditor.util.ScrolledLists;
+import com.raytheon.viz.texteditor.util.TextEditorUtil;
+import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 /**
- * The AWIPS browser dialog allows the user to look through and choose text
- * products by Category, Designator and site to be displayed in the text window.
+ * The WMO browser dialog allows the user to look through and choose text
+ * products by Wmo, Site, and AWIPS ID to be displayed in the text window.
  * 
  * <pre>
  * 
@@ -83,221 +61,240 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * Feb 12, 2016  4716       rferrel     Initial creation.
+ * 08/04/2009   2191        rjpeter     Initial implementation.
+ * 04/14/2010   4734        mhuang      Corrected StdTextProduct import
+ * 09/11/2014   3580        mapeters    Removed IQueryTransport usage (no longer exists).
+ * 12/08/2014   1231        nabowle     Fix selecting an AWIPS ID.
  * </pre>
  * 
- * @author rferrel
+ * @author rjpeter
  */
-public class AwipsBrowserDlg extends CaveSWTDialog implements
-        ITextWorkstationCallback, IProductQueryCallback {
-
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(AwipsBrowserDlg.class);
-
-    private final AwipsBrowserModel browserData = AwipsBrowserModel
-            .getInstance();
-
+public class AwipsBrowserDlg extends CaveJFACEDialog {
+    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(AwipsBrowserDlg.class);
     /**
-     * The different lists displayed in the browser.
+     *
      */
-    private enum ListType {
-        CATEGORY, DESIGNATOR, SITE, HDR_TIME
-    };
+    private Composite top;
+
+    private Label ddhhmmLbl;
 
     /**
-     * Number of list types displayed.
+     * List control displaying awipsId.
      */
-    private final int LIST_CNT = ListType.values().length;
+    private List awipsIdList;
 
     /**
-     * custom mouse handling so we can do the required vertical bar
-     * non-scrolling.
+     * List control displaying TTAAii CCCC.
      */
-    private boolean leftMouse = false;
-
-    private boolean rightMouse = false;
+    private List ttaaiiCcccList;
 
     /**
-     * Class combo box.
+     * List control displaying ddhhmm.
      */
-    private Combo categoryClassCombo;
+    private List ddhhmmList;
 
     /**
-     * List control displaying categories.
+     * List control displaying bbb.
      */
-    private List categoryList;
+    private List bbbList;
 
     /**
-     * List control displaying designator (site or area for which the product
-     * applies).
-     */
-    private List designatorList;
-
-    /**
-     * List control displaying sites for selected category and designator.
-     */
-    private List siteList;
-
-    /**
-     * List control displaying header times for selected catgegory, designator
-     * and site.
-     */
-    private List hdrTimeList;
-
-    /**
-     * The category that is selected.
-     */
-    private String selectedCategory;
-
-    /**
-     * The designator that is selected.
-     */
-    private String selectedDesignator;
-
-    /**
-     * The site that is selected.
-     */
-    private String selectedSite;
-
-    /**
-     * Product's site to select after loading siteList.
-     */
-    private String prodSelectSite;
-
-    /**
-     * Mapping of products by site for the current selected category and
-     * designator.
-     */
-    private final Map<String, java.util.List<StdTextProduct>> prodMap = new HashMap<>();
-
-    /**
-     * Load the text product and keep the browser dialog open.
+     * Load and continue button.
      */
     private Button loadContinueBtn;
 
     /**
-     * Load the text product and close browser dialog.
+     * Load and close button.
      */
     private Button loadCloseBtn;
 
     /**
-     * Close the dialog.
+     * Interface variable for Wmo Browser call back.
      */
-    private Button closeBtn;
+    private IWmoBrowserCallback callbackClient = null;
 
     /**
-     * Interface variable for Awips Browser callback
+     * AWIPS Id, TTAAiiCCCC, DDHHMM, BBB
      */
-    private IAwipsBrowserCallback callbackClient = null;
+    private TreeMap<String, TreeMap<String, TreeMap<String, TreeMap<String, StdTextProduct>>>> availableProducts;
+
+    private ScrolledLists scrolledLists = null;
+
+    private StdTextProduct currentProduct = null;
 
     /**
-     * Flag that indicates whether the Browser is active or not
-     */
-    private boolean isActive = true;
-
-    private String currentAfosCommand = null;
-
-    private MenuManager menuMgr = null;
-
-    private final int NUM_ITEMS = 10;
-
-    /**
-     * Job to handle query for products off the UI thread.
-     */
-    private final ProductQueryJob productQueryJob = new ProductQueryJob(this);
-
-    /**
-     * Constructor.
-     * 
+     *
      * @param parent
-     *            Parent shell.
      * @param browserHdr
-     *            Browser name.
      * @param cbClient
-     *            Interface to callback for Afos Browser.
+     * @param products
      */
-    public AwipsBrowserDlg(Shell parent, String browserHdr,
-            IAwipsBrowserCallback cbClient, String token) {
-        super(parent, SWT.DIALOG_TRIM | SWT.MODELESS | SWT.RESIZE,
-                CAVE.PERSPECTIVE_INDEPENDENT | CAVE.DO_NOT_BLOCK);
-
-        setText(browserHdr + " AWIPS Browser");
-
-        callbackClient = cbClient;
-
-        TextDisplayModel.getInstance().setITextWorkstationCallback(token, this);
+    public AwipsBrowserDlg(Shell parent, IWmoBrowserCallback cbClient,
+            java.util.List<StdTextProduct> products) {
+        super(parent);
+        this.setShellStyle(SWT.DIALOG_TRIM | SWT.MODELESS);
+        this.callbackClient = cbClient;
+        generateProductMaps(products);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
-     */
-    @Override
-    protected Layout constructShellLayout() {
-        return new GridLayout(1, false);
-    }
+    private void generateProductMaps(java.util.List<StdTextProduct> products) {
+        TreeMap<String, TreeMap<String, TreeMap<String, TreeMap<String, StdTextProduct>>>> awipsIdMap = new TreeMap<String, TreeMap<String, TreeMap<String, TreeMap<String, StdTextProduct>>>>();
+        TreeMap<String, TreeMap<String, TreeMap<String, StdTextProduct>>> ttaaiiCcccMap = null;
+        TreeMap<String, TreeMap<String, StdTextProduct>> ddhhmmMap = null;
+        TreeMap<String, StdTextProduct> bbbMap = null;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
-     * .eclipse.swt.widgets.Shell)
-     */
-    @Override
-    protected void initializeComponents(Shell shell) {
-        initializeComponents();
+        for (StdTextProduct prod : products) {
+            String awipsId = prod.getNnnid() + prod.getXxxid();
+            ttaaiiCcccMap = awipsIdMap.get(awipsId);
 
-        shell.addShellListener(new ShellAdapter() {
-            @Override
-            public void shellClosed(ShellEvent event) {
-                // Block the disposal of this dialog.
-                AwipsBrowserDlg.this.hide();
-                isActive = false;
-                event.doit = false;
+            if (ttaaiiCcccMap == null) {
+                ttaaiiCcccMap = new TreeMap<String, TreeMap<String, TreeMap<String, StdTextProduct>>>();
+                awipsIdMap.put(awipsId, ttaaiiCcccMap);
             }
-        });
+
+            String ttaaiiCccc = prod.getWmoid() + "    " + prod.getSite();
+            ddhhmmMap = ttaaiiCcccMap.get(ttaaiiCccc);
+
+            if (ddhhmmMap == null) {
+                ddhhmmMap = new TreeMap<String, TreeMap<String, StdTextProduct>>();
+                ttaaiiCcccMap.put(ttaaiiCccc, ddhhmmMap);
+            }
+
+            String ddhhmm = prod.getHdrtime();
+            bbbMap = ddhhmmMap.get(ddhhmm);
+
+            if (bbbMap == null) {
+                bbbMap = new TreeMap<String, StdTextProduct>();
+                ddhhmmMap.put(ddhhmm, bbbMap);
+            }
+
+            String bbb = prod.getBbbid();
+            if (bbb == null || bbb.trim().length() == 0) {
+                bbb = "NOR";
+            }
+
+            bbbMap.put(bbb, prod);
+        }
+
+        availableProducts = awipsIdMap;
+    }
+
+    private void updateProductInventory(java.util.List<StdTextProduct> products) {
+
+        if (products.size() > 0) {
+            // all products must have the same awipsId, ttaaii, cccc
+            StdTextProduct tmpProd = products.get(0);
+            String awipsId = tmpProd.getNnnid() + tmpProd.getXxxid();
+            String ttaaiiCccc = tmpProd.getWmoid() + "    " + tmpProd.getSite();
+
+            TreeMap<String, TreeMap<String, StdTextProduct>> ddhhmmMap = availableProducts
+                    .get(awipsId).get(ttaaiiCccc);
+            TreeMap<String, StdTextProduct> bbbMap = null;
+
+            // clear the current time list
+            ddhhmmMap.clear();
+
+            // load new times
+            for (StdTextProduct prod : products) {
+                String ddhhmm = prod.getHdrtime();
+                bbbMap = ddhhmmMap.get(ddhhmm);
+
+                if (bbbMap == null) {
+                    bbbMap = new TreeMap<String, StdTextProduct>();
+                    ddhhmmMap.put(ddhhmm, bbbMap);
+                }
+
+                String bbb = prod.getBbbid();
+                if (bbb == null || bbb.trim().length() == 0) {
+                    bbb = "NOR";
+                }
+
+                bbbMap.put(bbb, prod);
+            }
+
+        }
+    }
+
+    /**
+     *
+     */
+    @Override
+    protected Control createDialogArea(Composite parent) {
+        top = (Composite) super.createDialogArea(parent);
+
+        GridLayout layout = new GridLayout(1, false);
+        top.setLayout(layout);
+
+        initializeComponents();
+        loadInitialLists();
+        top.layout();
+
+        return top;
     }
 
     /**
      * Initialize the components of the dialog.
      */
     private void initializeComponents() {
-        createOriginClassControls();
         createListControls();
-        createBottomButtons();
     }
 
     /**
-     * Create the Origin and Class controls.
+     *
      */
-    private void createOriginClassControls() {
+    @Override
+    protected void configureShell(Shell shell) {
+        super.configureShell(shell);
+        shell.setText("AWIPS Browser");
+    }
 
-        // Create the composite that will hold the controls.
-        Composite controlComp = new Composite(shell, SWT.NONE);
-        GridLayout gridLayout = new GridLayout(4, false);
-        controlComp.setLayout(gridLayout);
+    /**
+     *
+     */
+    @Override
+    protected void buttonPressed(int buttonId) {
+        super.buttonPressed(buttonId);
 
-        // Add the class label.
-        Label classLbl = new Label(controlComp, SWT.NONE);
-        classLbl.setText("Class: ");
+        if (buttonId == IDialogConstants.PROCEED_ID
+                || buttonId == IDialogConstants.OK_ID) {
+            if (currentProduct != null) {
+                // need to load the product
+                ICommand command = CommandFactory.getAwipsCommand(
+                        currentProduct.getNnnid() + currentProduct.getXxxid(),
+                        currentProduct.getWmoid(), currentProduct.getSite(),
+                        currentProduct.getHdrtime(), currentProduct.getBbbid());
 
-        // Populate the category class dialog
-        // Add the class combo box.
-        categoryClassCombo = new Combo(controlComp, SWT.DROP_DOWN
-                | SWT.READ_ONLY);
-        for (AFOS_CLASS c : AFOS_CLASS.values()) {
-            categoryClassCombo.add(c.value());
-        }
-        categoryClassCombo.select(0);
+                try {
+                    java.util.List<StdTextProduct> prodList = command
+                            .executeCommand();
 
-        // Use this listener to update the category list based on the class.
-        categoryClassCombo.addModifyListener(new ModifyListener() {
-            public void modifyText(ModifyEvent event) {
-                loadCategoryList();
+                    if (prodList != null && prodList.size() > 0) {
+                        StdTextProduct prod = prodList.get(0);
+                        callbackClient.setDisplayedProduct(prod);
+                        callbackClient.setCommandText(TextEditorUtil
+                                .getCommandText(command));
+                    }
+                } catch (CommandFailedException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Error retrieving product", e);
+                }
             }
-        });
+        }
+    }
+
+    /**
+     *
+     */
+    @Override
+    protected void createButtonsForButtonBar(Composite parent) {
+        loadContinueBtn = createButton(parent, IDialogConstants.PROCEED_ID,
+                "Load and Continue", false);
+        loadCloseBtn = createButton(parent, IDialogConstants.OK_ID,
+                "Load and Close", false);
+        createButton(parent, IDialogConstants.CANCEL_ID, "Close", false);
+
+        loadContinueBtn.setEnabled(false);
+        loadCloseBtn.setEnabled(false);
     }
 
     /**
@@ -305,897 +302,278 @@ public class AwipsBrowserDlg extends CaveSWTDialog implements
      */
     private void createListControls() {
         // Create the composite that will hold the controls.
-        Composite listComp = new Composite(shell, SWT.NONE);
-
+        Composite listComp = new Composite(top, SWT.NONE);
         GridLayout gridLayout = new GridLayout(4, false);
-        gridLayout.marginWidth = 0;
-        gridLayout.marginHeight = 0;
         listComp.setLayout(gridLayout);
 
-        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        listComp.setLayoutData(gd);
+        GridData gd = new GridData(SWT.LEFT, SWT.TOP, true, false);
+        Label awipsIdLbl = new Label(listComp, SWT.NONE);
+        awipsIdLbl.setText("AWIPS ID");
+        awipsIdLbl.setLayoutData(gd);
 
-        GC gc = new GC(listComp);
-        FontMetrics fm = gc.getFontMetrics();
-        int charWidth = fm.getAverageCharWidth();
-        gc.dispose();
+        gd = new GridData(SWT.LEFT, SWT.TOP, true, false);
+        Label ttaaiiLbl = new Label(listComp, SWT.NONE);
+        ttaaiiLbl.setText("TTAAii    CCCC");
+        ttaaiiLbl.setLayoutData(gd);
 
-        // ------------------------------------
-        // Create the Category component
-        // ------------------------------------
-        Group categoryGroup = new Group(listComp, SWT.NONE);
-        gridLayout = new GridLayout(1, false);
-        gridLayout.marginWidth = 0;
-        gridLayout.marginHeight = 0;
-        gridLayout.verticalSpacing = 0;
-        categoryGroup.setLayout(gridLayout);
+        gd = new GridData(SWT.LEFT, SWT.TOP, true, false);
+        gd.widthHint = 130;
+        ddhhmmLbl = new Label(listComp, SWT.NONE);
+        ddhhmmLbl.setText("DDHHMM(Latest)");
+        ddhhmmLbl.setLayoutData(gd);
 
-        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        categoryGroup.setLayoutData(gd);
-        categoryGroup.setText("Category");
+        gd = new GridData(SWT.LEFT, SWT.TOP, true, false);
+        Label bbbLbl = new Label(listComp, SWT.NONE);
+        bbbLbl.setText("BBB");
+        bbbLbl.setLayoutData(gd);
 
-        ToolBar toolBar = new ToolBar(categoryGroup, SWT.FLAT | SWT.RIGHT);
-
-        ToolItem toolItem = new ToolItem(toolBar, SWT.DROP_DOWN);
-        toolItem.setText("Help");
-        toolItem.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                displayHelpList(ListType.CATEGORY, categoryList);
-            }
-        });
-
-        categoryList = new List(categoryGroup, SWT.BORDER | SWT.MULTI
-                | SWT.V_SCROLL);
-        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        Rectangle trim = categoryList.computeTrim(0, 0, charWidth * 3,
-                categoryList.getItemHeight() * NUM_ITEMS);
-        gd.widthHint = trim.width;
-        gd.heightHint = trim.height;
-        categoryList.setLayoutData(gd);
-
-        categoryList.addMouseListener(new ListMouseHandler(ListType.CATEGORY));
-        categoryList.addSelectionListener(new ListSelectionHandler(
-                ListType.CATEGORY));
-        categoryList.setData(new boolean[0]);
-
-        // ------------------------------------
-        // Create the Designator component
-        // ------------------------------------
-        Group designatorGroup = new Group(listComp, SWT.NONE);
-        gridLayout = new GridLayout(1, false);
-        gridLayout.marginWidth = 0;
-        gridLayout.marginHeight = 0;
-        gridLayout.verticalSpacing = 0;
-        designatorGroup.setLayout(gridLayout);
-
-        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        designatorGroup.setLayoutData(gd);
-        designatorGroup.setText("Designator");
-
-        toolBar = new ToolBar(designatorGroup, SWT.FLAT | SWT.RIGHT);
-
-        toolItem = new ToolItem(toolBar, SWT.DROP_DOWN);
-        toolItem.setText("Help");
-        toolItem.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                displayHelpList(ListType.DESIGNATOR, categoryList);
-            }
-        });
-
-        designatorList = new List(designatorGroup, SWT.BORDER | SWT.MULTI
-                | SWT.V_SCROLL);
-        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        trim = designatorList.computeTrim(0, 0, charWidth * 3,
-                designatorList.getItemHeight() * NUM_ITEMS);
-        gd.widthHint = trim.width;
-        gd.heightHint = trim.height;
-        designatorList.setLayoutData(gd);
-
-        designatorList.addMouseListener(new ListMouseHandler(
-                ListType.DESIGNATOR));
-        designatorList.addSelectionListener(new ListSelectionHandler(
-                ListType.DESIGNATOR));
-        designatorList.setData(new boolean[0]);
-
-        // ------------------------------------
-        // Create the Site component
-        // ------------------------------------
-        Group siteGroup = new Group(listComp, SWT.NONE);
-        gridLayout = new GridLayout(2, false);
-        gridLayout.marginWidth = 0;
-        gridLayout.marginHeight = 0;
-        gridLayout.verticalSpacing = 0;
-        siteGroup.setLayout(gridLayout);
-
-        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        siteGroup.setLayoutData(gd);
-        siteGroup.setText("Site");
-
-        toolBar = new ToolBar(siteGroup, SWT.FLAT | SWT.RIGHT);
-        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        toolBar.setLayoutData(gd);
-
-        toolItem = new ToolItem(toolBar, SWT.DROP_DOWN);
-        toolItem.setText("Help");
-        toolItem.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                displayHelpList(ListType.SITE, siteList);
-            }
-        });
-
-        // dummy label to fill the spot in the grid
-        new Label(siteGroup, SWT.NONE);
-
-        siteList = new List(siteGroup, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL);
-        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        trim = siteList.computeTrim(0, 0, charWidth * 3,
-                siteList.getItemHeight() * NUM_ITEMS);
-        gd.widthHint = trim.width;
-        gd.heightHint = trim.height;
-        siteList.setLayoutData(gd);
-
-        siteList.addMouseListener(new ListMouseHandler(ListType.SITE));
-        siteList.addSelectionListener(new ListSelectionHandler(ListType.SITE));
-        siteList.addMouseWheelListener(new DesignatorMouseWheelHandler());
-        siteList.setData(new boolean[0]);
-
-        hdrTimeList = new List(siteGroup, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL);
-        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        trim = hdrTimeList.computeTrim(0, 0, charWidth * 12,
-                hdrTimeList.getItemHeight() * NUM_ITEMS);
-        gd.widthHint = trim.width;
-        gd.heightHint = trim.height;
-        hdrTimeList.setLayoutData(gd);
-
-        hdrTimeList.addMouseListener(new ListMouseHandler(ListType.HDR_TIME));
-        hdrTimeList.addSelectionListener(new ListSelectionHandler(
-                ListType.HDR_TIME));
-        hdrTimeList.setData(new boolean[0]);
-
-        siteList.getVerticalBar().setVisible(false);
-        scrollListsTogether(siteList, hdrTimeList);
-    }
-
-    /**
-     * Create the bottom control buttons.
-     */
-    private void createBottomButtons() {
-        GridData gd = new GridData(GridData.FILL_HORIZONTAL);
-        gd.horizontalAlignment = SWT.CENTER;
-        Composite buttonComp = new Composite(shell, SWT.NONE);
-        GridLayout gridLayout = new GridLayout(3, true);
-        buttonComp.setLayout(gridLayout);
-        buttonComp.setLayoutData(gd);
-
-        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT);
-        gd.horizontalAlignment = SWT.FILL;
-        loadContinueBtn = new Button(buttonComp, SWT.PUSH);
-        loadContinueBtn.setText("Load and Continue");
-        loadContinueBtn.setEnabled(false);
-        loadContinueBtn.setLayoutData(gd);
-        loadContinueBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                callbackClient.executeCommand(getAwipsCommand());
-                loadContinueBtn.setFocus();
-            }
-        });
-
-        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT);
-        gd.horizontalAlignment = SWT.FILL;
-        loadCloseBtn = new Button(buttonComp, SWT.PUSH);
-        loadCloseBtn.setText("Load and Close");
-        loadCloseBtn.setEnabled(false);
-        loadCloseBtn.setLayoutData(gd);
-        loadCloseBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                callbackClient.executeCommand(getAwipsCommand());
-
-                setReturnValue(false);
-                hide();
-                isActive = false;
-            }
-        });
-
-        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT);
-        gd.horizontalAlignment = SWT.FILL;
-        closeBtn = new Button(buttonComp, SWT.PUSH);
-        closeBtn.setText("Close");
-        closeBtn.setLayoutData(gd);
-        closeBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                setReturnValue(false);
-                hide();
-                isActive = false;
-            }
-        });
-    }
-
-    private ICommand getAwipsCommand() {
-        String hdrTime = hdrTimeList.getSelection()[0];
-        return CommandFactory.getAwipsCommand(selectedCategory
-                + selectedDesignator, null, selectedSite, hdrTime, null);
-    }
-
-    /**
-     * Allow parent dialog to display the hidden dialog or just force it to the
-     * top of the display.
-     */
-    public void showDialog() {
-        bringToTop();
-        isActive = true;
-    }
-
-    @Override
-    public boolean isBrowserActive() {
-        return isActive;
-    }
-
-    /**
-     * Load lists based on common elements of in the product list and select
-     * elements.
-     * 
-     * @param prodList
-     */
-    public void select(java.util.List<StdTextProduct> prodList) {
-        Iterator<StdTextProduct> prodIter = prodList.iterator();
-        StdTextProduct prod = prodIter.next();
-        String nnn = prod.getNnnid();
-        String xxx = prod.getXxxid();
-        prodSelectSite = prod.getSite();
-        while (prodIter.hasNext()) {
-            prod = prodIter.next();
-            if (xxx != null) {
-                if (!xxx.equals(prod.getXxxid())) {
-                    xxx = null;
-                }
-            }
-            if (prodSelectSite != null) {
-                if (!prodSelectSite.equals(prod.getSite())) {
-                    prodSelectSite = null;
-                }
-            }
-        }
-
-        leftMouse = true;
-        rightMouse = false;
-        categoryList.setSelection(new String[] { nnn });
-        int catIndex = categoryList.getSelectionIndex();
-        if (catIndex >= 0) {
-            selectListItem(ListType.CATEGORY, catIndex);
-            if (xxx != null) {
-                designatorList.setSelection(new String[] { xxx });
-                int xxxIndex = designatorList.getSelectionIndex();
-                if (xxxIndex >= 0) {
-                    selectListItem(ListType.DESIGNATOR, xxxIndex);
-                }
-            }
-        }
-    }
-
-    /**
-     * Scroll two lists at the same time using the vertical scroll bar from each
-     * list.
-     * 
-     * @param list1
-     *            List control 1.
-     * @param list2
-     *            List control 2.
-     */
-    private void scrollListsTogether(final List list1, final List list2) {
-        final ScrollBar vBar1 = list1.getVerticalBar();
-        final ScrollBar vBar2 = list2.getVerticalBar();
-        SelectionListener listener1 = new SelectionAdapter() {
+        gd = new GridData(SWT.LEFT, SWT.TOP, true, true);
+        gd.widthHint = 60;
+        gd.heightHint = 200;
+        awipsIdList = new List(listComp, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
+        awipsIdList.setLayoutData(gd);
+        awipsIdList.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                int y = vBar1.getSelection()
-                        * (vBar2.getMaximum() - vBar2.getThumb())
-                        / Math.max(1, vBar1.getMaximum() - vBar1.getThumb());
-                vBar2.setSelection(y);
+                loadSelectedAwipsId();
             }
-        };
-        SelectionListener listener2 = new SelectionAdapter() {
+        });
+
+        gd = new GridData(SWT.LEFT, SWT.TOP, true, true);
+        gd.widthHint = 100;
+        gd.heightHint = 200;
+        ttaaiiCcccList = new List(listComp, SWT.BORDER | SWT.SINGLE
+                | SWT.V_SCROLL);
+        ttaaiiCcccList.setLayoutData(gd);
+        ttaaiiCcccList.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                int y = vBar2.getSelection()
-                        * (vBar1.getMaximum() - vBar1.getThumb())
-                        / Math.max(1, vBar2.getMaximum() - vBar2.getThumb());
-                vBar1.setSelection(y);
+                selectTTAAiiCccc(ttaaiiCcccList.getSelectionIndex());
             }
-        };
-        vBar1.addSelectionListener(listener1);
-        vBar2.addSelectionListener(listener2);
+        });
+
+        gd = new GridData(SWT.LEFT, SWT.TOP, true, true);
+        gd.widthHint = 120;
+        gd.heightHint = 200;
+        ddhhmmList = new List(listComp, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
+        ddhhmmList.setLayoutData(gd);
+        ddhhmmList.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                selectDDHHMM(ddhhmmList.getSelectionIndex());
+            }
+        });
+
+        gd = new GridData(SWT.LEFT, SWT.TOP, true, true);
+        gd.widthHint = 60;
+        gd.heightHint = 200;
+        bbbList = new List(listComp, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
+        bbbList.setLayoutData(gd);
+        bbbList.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                selectBBB(bbbList.getSelectionIndex());
+            }
+        });
+
+        scrolledLists = new ScrolledLists(ttaaiiCcccList, ddhhmmList);
     }
 
-    /**
-     * Convince method for keeping the handling of load buttons the same.
-     * 
-     * @param flag
-     */
     private void setLoadBtnEnabled(boolean flag) {
-        loadContinueBtn.setEnabled(flag);
-        loadCloseBtn.setEnabled(flag);
+        if (!flag) {
+            currentProduct = null;
+        }
+
+        if (loadContinueBtn != null) {
+            loadContinueBtn.setEnabled(flag);
+        }
+
+        if (loadCloseBtn != null) {
+            loadCloseBtn.setEnabled(flag);
+        }
     }
 
-    /**
-     * Populate the category list. Assumes query for the list will not hang up
-     * the UI thread.
-     */
-    private void loadCategoryList() {
+    private void loadInitialLists() {
         setLoadBtnEnabled(false);
-        categoryList.removeAll();
-        designatorList.removeAll();
-        siteList.removeAll();
-        hdrTimeList.removeAll();
+        ddhhmmLbl.setText("DDHHMM(Latest)");
+        awipsIdList.removeAll();
+        ttaaiiCcccList.removeAll();
+        ddhhmmList.removeAll();
+        bbbList.removeAll();
 
-        String categoryClass = categoryClassCombo.getItem(categoryClassCombo
-                .getSelectionIndex());
+        Set<String> awipsIds = availableProducts.keySet();
 
-        for (String category : browserData
-                .getFilteredCategoryList(categoryClass)) {
-            categoryList.add(category);
-
-            if (category.equals(selectedCategory)) {
-                selectCategory(categoryList.getItemCount() - 1);
-            }
+        for (String id : awipsIds) {
+            awipsIdList.add(id);
         }
-        updateSelectionList(categoryList);
+
+        awipsIdList.select(0);
+
+        loadSelectedAwipsId();
     }
 
-    /**
-     * Load the designator list Assumes query for the list will not hang up the
-     * UI thread.
-     */
-    private void loadDesignatorList() {
+    private void loadSelectedAwipsId() {
+        ttaaiiCcccList.removeAll();
+        ddhhmmList.removeAll();
+        bbbList.removeAll();
         setLoadBtnEnabled(false);
-        designatorList.removeAll();
-        siteList.removeAll();
-        hdrTimeList.removeAll();
 
-        SortedSet<String> xxx = browserData.getDesignatorList(selectedCategory);
+        Map<String, String> timesToLoad = new HashMap<String, String>();
+        String awipsId = awipsIdList.getItem(awipsIdList.getSelectionIndex());
+        Map<String, TreeMap<String, TreeMap<String, StdTextProduct>>> selectedMap = availableProducts
+                .get(awipsId);
 
-        if (xxx != null) {
-            designatorList.add("000");
+        for (Entry<String, TreeMap<String, TreeMap<String, StdTextProduct>>> ttaaiiCCCCEntry : selectedMap
+                .entrySet()) {
+            String ttaaiiCccc = ttaaiiCCCCEntry.getKey();
+            ttaaiiCcccList.add(ttaaiiCccc);
 
-            // Get the designator list - ensure that the entries are three
-            // characters in length.
-            for (String s : xxx) {
-                if (s.length() == 1) {
-                    s = s + "  ";
-                } else if (s.length() == 2) {
-                    s = s + " ";
-                }
-                designatorList.add(s);
-            }
+            for (String ddhhmm : ttaaiiCCCCEntry.getValue().keySet()) {
+                String currentDDHHMM = timesToLoad.get(ttaaiiCccc);
 
-            // select a designator if applicable
-            String items[] = designatorList.getItems();
-            for (int i = 0; i < items.length; i++) {
-                if (items[i].equals(selectedDesignator)) {
-                    selectDesignator(i);
-                }
-            }
-
-            // add a blank entry to allow deselection
-            designatorList.add("");
-            hdrTimeList.add("");
-        }
-        updateSelectionList(designatorList);
-    }
-
-    /**
-     * Create a boolean array initialized to false that is the same size as the
-     * list and place it in the list's data object.
-     * 
-     * @param list
-     */
-    private void updateSelectionList(List list) {
-        boolean[] selectedIndexes = new boolean[list.getItemCount()];
-        Arrays.fill(selectedIndexes, false);
-        list.setData(selectedIndexes);
-    }
-
-    /**
-     * Execute command to retrieve all sites and hdr times only when theree is a
-     * selected category and designator.
-     */
-    private void loadSiteList() {
-        siteList.removeAll();
-        hdrTimeList.removeAll();
-        setLoadBtnEnabled(false);
-        if ((categoryList.getSelectionIndex() > 0)
-                && (designatorList.getSelectionIndex() > 0)) {
-            String nnn = categoryList.getItem(categoryList.getSelectionIndex());
-            String xxx = designatorList.getItem(designatorList
-                    .getSelectionIndex());
-            String awipsId = nnn + xxx;
-            ICommand command = CommandFactory.getAwipsCommand(awipsId, null,
-                    null, "000000", null);
-            executeCommand(command);
-        }
-    }
-
-    /**
-     * Update the category list selection, the AFOS command and start load the
-     * designator lists.
-     * 
-     * @param index
-     */
-    private void selectCategory(int index) {
-        selectedCategory = categoryList.getItem(index);
-        categoryList.setSelection(index);
-        setAWIPSCommand(selectedCategory);
-        loadDesignatorList();
-    }
-
-    /**
-     * Select desired site and update hdr times to its values.
-     * 
-     * @param index
-     */
-    private void selectSite(int index) {
-        selectedSite = siteList.getItem(index);
-        siteList.setSelection(index);
-        setAWIPSCommand(selectedSite + selectedCategory + selectedDesignator);
-
-        hdrTimeList.removeAll();
-        for (StdTextProduct prod : prodMap.get(selectedSite)) {
-            hdrTimeList.add(prod.getHdrtime());
-        }
-        updateSelectionList(hdrTimeList);
-        if (hdrTimeList.getItemCount() == 1) {
-            hdrTimeList.setSelection(0);
-            selectListItem(ListType.HDR_TIME, 0);
-        }
-        checkLoadBtn();
-    }
-
-    /**
-     * Update the selected designator, the AWIPS command and site list which
-     * will also update the hdr time list.
-     * 
-     * @param index
-     */
-    private void selectDesignator(int index) {
-        String tmp = designatorList.getItem(index);
-        if (tmp.length() > 0) {
-            try {
-                selectedDesignator = designatorList.getItem(index);
-                designatorList.setSelection(index);
-                setAWIPSCommand(selectedCategory + selectedDesignator);
-
-            } catch (IllegalArgumentException ex) {
-                designatorList.deselectAll();
-                hdrTimeList.deselectAll();
-                setAWIPSCommand(selectedCategory);
-            }
-        } else {
-            designatorList.deselectAll();
-            setAWIPSCommand(selectedCategory);
-        }
-
-        loadSiteList();
-    }
-
-    /**
-     * Check the selected designator and determine if the load buttons should be
-     * enabled.
-     */
-    private void checkLoadBtn() {
-        int designatorIndex = hdrTimeList.getSelectionIndex();
-        int siteIndex = siteList.getSelectionIndex();
-        int hdrTimeIndex = hdrTimeList.getSelectionIndex();
-
-        boolean enabled = (designatorIndex >= 0) && (siteIndex >= 0)
-                && (hdrTimeIndex >= 0);
-        setLoadBtnEnabled(enabled);
-    }
-
-    /**
-     * Reset the a list's selected entries based on its data boolean array.
-     * 
-     * @param type
-     */
-    private void resetSelection(ListType type) {
-        List list = null;
-
-        switch (type) {
-        case CATEGORY: {
-            list = categoryList;
-            break;
-        }
-        case DESIGNATOR: {
-            list = designatorList;
-            break;
-        }
-
-        case SITE: {
-            list = siteList;
-            break;
-        }
-        case HDR_TIME: {
-            list = hdrTimeList;
-            break;
-        }
-
-        }
-
-        if (list != null) {
-            boolean[] indexArray = (boolean[]) list.getData();
-            list.deselectAll();
-            int indexes[] = new int[list.getItemCount()];
-            Arrays.fill(indexes, -99);
-            for (int i = 0; i < indexArray.length; ++i) {
-                if (indexArray[i] == true) {
-                    indexes[i] = i;
-                }
-            }
-            list.select(indexes);
-        }
-    }
-
-    /**
-     * Display a help dialog for the visible entries of the desired list.
-     * 
-     * @param type
-     * @param list
-     */
-    private void displayHelpList(ListType type, List list) {
-        int height = list.getClientArea().height;
-        String[] items = list.getItems();
-        ArrayList<IAction> actions = new ArrayList<IAction>();
-        int startIndex = list.getTopIndex();
-
-        // list.getItemHeight() can be off by a few pixels depending on
-        // height/style, in terms of the few list entries the difference should
-        // be miniscule
-        int endIndex = startIndex + (height / list.getItemHeight());
-
-        // sanity check
-        if (endIndex >= items.length) {
-            endIndex = items.length - 1;
-        }
-
-        // dispose of current menu
-        if (menuMgr != null) {
-            menuMgr.dispose();
-            menuMgr = null;
-        }
-
-        switch (type) {
-        case CATEGORY: {
-            for (int i = startIndex; i <= endIndex; i++) {
-                final int index = i;
-                String helpText = browserData.getCategoryHelp(items[index]);
-                actions.add(new Action(items[index] + ": " + helpText) {
-                    @Override
-                    public void run() {
-                        selectCategory(index);
-                    }
-                });
-            }
-            break;
-        }
-        case DESIGNATOR: {
-            for (int i = startIndex; i < endIndex; i++) {
-                final int index = i;
-                String helpText = browserData.getDesignatorHelp(items[index]);
-                actions.add(new Action(items[index] + ": " + helpText) {
-                    @Override
-                    public void run() {
-                        selectDesignator(index);
-                    }
-                });
-            }
-            break;
-        }
-        case SITE: {
-            break;
-        }
-        case HDR_TIME: {
-            break;
-        }
-        }
-
-        // if there are actions, display pop up menu
-        if (actions.size() > 0) {
-            menuMgr = new MenuManager("#PopupMenu");
-
-            for (IAction action : actions) {
-                menuMgr.add(action);
-            }
-
-            Menu menu = menuMgr.createContextMenu(list);
-            menu.setVisible(true);
-            list.setMenu(menu);
-        }
-    }
-
-    /**
-     * Popup a help menu for the desire item in the list based on the type of
-     * the list.
-     * 
-     * @param type
-     * @param list
-     * @param index
-     */
-    private void displayHelpText(ListType type, List list, final int index) {
-        IAction action = null;
-
-        if (index < list.getItemCount()) {
-            String field = list.getItem(index);
-            String helpText = null;
-            if (field != null) {
-                switch (type) {
-                case CATEGORY: {
-                    helpText = browserData.getCategoryHelp(field);
-                    if (helpText != null && helpText.length() > 0) {
-                        action = new Action(helpText) {
-                            @Override
-                            public void run() {
-                                selectListItem(
-                                        AwipsBrowserDlg.ListType.CATEGORY,
-                                        index);
-                                selectCategory(index);
-                            }
-                        };
-                    }
-                    break;
-                }
-                case DESIGNATOR: {
-                    helpText = browserData.getDesignatorHelp(field);
-                    if (helpText != null && helpText.length() > 0) {
-                        action = new Action(helpText) {
-                            @Override
-                            public void run() {
-                                selectListItem(
-                                        AwipsBrowserDlg.ListType.DESIGNATOR,
-                                        index);
-                                selectDesignator(index);
-                            }
-                        };
-                    }
-                    break;
-                }
-                case SITE: {
-                    break;
-                }
-
-                case HDR_TIME: {
-                    break;
-                }
-                }
-
-                if (action != null) {
-                    menuMgr = new MenuManager("#PopupMenu");
-                    menuMgr.add(action);
-                    Menu menu = menuMgr.createContextMenu(list);
-                    menu.setVisible(true);
-                    list.setMenu(menu);
+                if (currentDDHHMM == null
+                        || ddhhmm.compareTo(currentDDHHMM) > 0) {
+                    timesToLoad.put(ttaaiiCccc, ddhhmm);
                 }
             }
         }
-    }
 
-    /**
-     * Based on the mouse click either select the desired item in the list
-     * populating lists impacted by the selection or display help for the item.
-     * 
-     * @param type
-     * @param index
-     */
-    private void selectListItem(ListType type, int index) {
-        List list = null;
-        switch (type) {
-        case CATEGORY: {
-            list = categoryList;
-            break;
-        }
-        case DESIGNATOR: {
-            list = designatorList;
-            break;
-        }
-        case SITE: {
-            list = siteList;
-            break;
-        }
-        case HDR_TIME: {
-            list = hdrTimeList;
-            break;
-        }
-        default: {
-            statusHandler.equals("Unsported List Type: " + type);
-            return;
-        }
-
-        }
-        if (leftMouse) {
-            if (list != null) {
-                boolean[] indexArray = (boolean[]) list.getData();
-                Arrays.fill(indexArray, false);
-                indexArray[list.getSelectionIndex()] = true;
-                int indexes[] = new int[list.getItemCount()];
-                Arrays.fill(indexes, -99);
-                for (int i = 0; i < indexArray.length; i++) {
-                    if (indexArray[i] == true) {
-                        indexes[i] = i;
-                    }
-                }
-                list.select(indexes);
-                list.setData(indexArray);
-            }
-
-            switch (type) {
-            case CATEGORY: {
-                selectCategory(index);
-                break;
-            }
-            case SITE: {
-                selectSite(index);
-                break;
-            }
-            case DESIGNATOR:
-                selectDesignator(index);
-                break;
-            case HDR_TIME: {
-                hdrTimeList.setSelection(index);
-                break;
-            }
-            }
-            list.showSelection();
-            checkLoadBtn();
-        } else if (rightMouse) {
-            displayHelpText(type, list, index);
-        }
-    }
-
-    /**
-     * Set the AFOS Cmd in the parent dialog.
-     * 
-     * @param command
-     */
-    private void setAWIPSCommand(String command) {
-        // save off command so whenever load and continue is used, the current
-        // selected command is executed
-        currentAfosCommand = command;
-        callbackClient.setAwipsCmdField(currentAfosCommand);
-    }
-
-    /*
-     * Selection handler for all lists.
-     */
-    private class ListSelectionHandler extends SelectionAdapter {
-        private final ListType type;
-
-        public ListSelectionHandler(ListType type) {
-            this.type = type;
-        }
-
-        @Override
-        public void widgetSelected(SelectionEvent e) {
-            List list = (List) e.getSource();
-            int index = list.getSelectionIndex();
-            selectListItem(type, index);
-            if (rightMouse) {
-                rightMouse = false;
-                resetSelection(type);
-            }
-        }
-    }
-
-    /*
-     * Mouse adaptor for all lists.
-     */
-    private class ListMouseHandler extends MouseAdapter {
-        final private ListType type;
-
-        public ListMouseHandler(ListType type) {
-            this.type = type;
-        }
-
-        @Override
-        public void mouseDown(MouseEvent e) {
-            if (menuMgr != null) {
-                menuMgr.dispose();
-                menuMgr = null;
-            }
-
-            // ignore button 2
-            if (e.button == 2) {
-                resetSelection(type);
+        for (String val : ttaaiiCcccList.getItems()) {
+            String ddhhmm = timesToLoad.get(val);
+            if (ddhhmm != null) {
+                ddhhmmList.add(ddhhmm);
             } else {
-                leftMouse = false;
-                rightMouse = false;
-                if (e.button == 1) {
-                    leftMouse = true;
-                } else if (e.button == 3) {
-                    rightMouse = true;
-                }
+                ddhhmmList.add("");
             }
+        }
+
+        scrolledLists.joinLists();
+    }
+
+    private void loadDDHHMMList(Set<String> set) {
+        setLoadBtnEnabled(false);
+        ddhhmmList.removeAll();
+        bbbList.removeAll();
+
+        for (String val : set) {
+            ddhhmmList.add(val);
+        }
+
+        if (ddhhmmList.getItemCount() > 0) {
+            selectDDHHMM(0);
         }
     }
 
-    /*
-     * This handles keeping the two designator lists and the their one scroll
-     * bar in sync.
-     */
-    private class DesignatorMouseWheelHandler implements MouseWheelListener {
+    private void loadBBBList(Set<String> set) {
+        setLoadBtnEnabled(false);
+        bbbList.removeAll();
 
-        @Override
-        public void mouseScrolled(MouseEvent e) {
-            ScrollBar designatorBar = siteList.getVerticalBar();
-            int selection = designatorBar.getSelection();
-
-            if (e.count > 0) {
-                selection -= designatorBar.getIncrement();
-            } else {
-                selection += designatorBar.getIncrement();
-            }
-
-            // verify bound
-            if (selection < 0) {
-                selection = 0;
-            } else if (selection > (designatorBar.getMaximum() - designatorBar
-                    .getThumb())) {
-                selection = designatorBar.getMaximum()
-                        - designatorBar.getThumb();
-            }
-
-            designatorBar.setSelection(selection);
-            hdrTimeList.getVerticalBar().setSelection(selection);
+        for (String val : set) {
+            bbbList.add(val);
         }
 
-    }
-
-    @Override
-    protected void preOpened() {
-        super.preOpened();
-        loadCategoryList();
-    }
-
-    public void executeCommand(ICommand command) {
-        if (isDisposed()) {
-            return;
+        if (bbbList.getItemCount() > 0) {
+            selectBBB(0);
         }
-        // busy here
-        productQueryJob.addRequest(command, false, false);
     }
 
-    @Override
-    public void requestDone(ICommand command,
-            java.util.List<StdTextProduct> prodList, boolean isObsUpdated) {
+    private void selectTTAAiiCccc(int index) {
+        boolean deselect = true;
 
-        siteList.removeAll();
-        hdrTimeList.removeAll();
-        prodMap.clear();
-        if ((prodList != null) && !prodList.isEmpty()) {
-            for (StdTextProduct prod : prodList) {
-                String site = prod.getSite();
-                java.util.List<StdTextProduct> pmList = prodMap.get(site);
-                if (pmList == null) {
-                    pmList = new ArrayList<>();
-                    prodMap.put(site, pmList);
-                    siteList.add(prod.getSite());
+        int awipsIdIndex = awipsIdList.getSelectionIndex();
+        if (awipsIdIndex >= 0) {
+            if (index >= 0 && index < ttaaiiCcccList.getItemCount()) {
+                scrolledLists.breakLists();
+                ttaaiiCcccList.setSelection(index);
+                ttaaiiCcccList.showSelection();
+
+                // run command to do an inventory request for the ddhhmm
+                ddhhmmLbl.setText("DDHHMM(Inventory)");
+                String awipsId = awipsIdList.getItem(awipsIdIndex);
+                String ttaaiiCccc = ttaaiiCcccList.getItem(index);
+                String[] fields = ttaaiiCccc.split(" ");
+                try {
+                    ICommand command = CommandFactory.getAwipsCommand(awipsId,
+                            fields[0], fields[1], "000000", null);
+                    java.util.List<StdTextProduct> prods = command
+                            .executeCommand();
+
+                    // Add the ddhhmm for the selected ttaaii cccc
+                    updateProductInventory(prods);
+
+                    // needs to be ordered by create time, not DDHHMM
+                    Set<String> ddhhmmSet = availableProducts.get(awipsId).get(
+                            ttaaiiCccc).descendingKeySet();
+                    loadDDHHMMList(ddhhmmSet);
+                    deselect = false;
+                } catch (CommandFailedException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Error retrieving metatdata", e);
+
                 }
-                pmList.add(prod);
             }
-            updateSelectionList(siteList);
-            if (siteList.getItemCount() == 1) {
-                siteList.select(0);
-                selectListItem(ListType.SITE, 0);
-            } else if (prodSelectSite != null) {
-                siteList.setSelection(new String[] { prodSelectSite });
-                int siteIndex = siteList.getSelectionIndex();
-                if (siteIndex >= 0) {
-                    selectListItem(ListType.SITE, siteIndex);
+        }
+
+        if (deselect) {
+            ttaaiiCcccList.deselectAll();
+        }
+    }
+
+    private void selectDDHHMM(int index) {
+        boolean deselect = true;
+
+        int awipsIdIndex = awipsIdList.getSelectionIndex();
+        if (awipsIdIndex >= 0) {
+            int ttaaiiCcccIndex = ttaaiiCcccList.getSelectionIndex();
+            if (ttaaiiCcccIndex >= 0) {
+                if (index >= 0 && index < ddhhmmList.getItemCount()) {
+                    deselect = false;
+                    ddhhmmList.setSelection(index);
+                    ddhhmmList.showSelection();
+
+                    // add the bbb for the selected ddhhmm
+                    String awipsId = awipsIdList.getItem(awipsIdIndex);
+                    String ttaaiiCccc = ttaaiiCcccList.getItem(ttaaiiCcccIndex);
+                    String ddhhmm = ddhhmmList.getItem(index);
+                    Set<String> bbbSet = availableProducts.get(awipsId).get(
+                            ttaaiiCccc).get(ddhhmm).keySet();
+                    loadBBBList(bbbSet);
                 }
-                prodSelectSite = null;
             }
+        }
+
+        if (deselect) {
+            ddhhmmList.deselectAll();
+        }
+    }
+
+    private void selectBBB(int index) {
+        boolean deselect = true;
+
+        int awipsIdIndex = awipsIdList.getSelectionIndex();
+        if (awipsIdIndex >= 0) {
+            int ttaaiiIndex = ttaaiiCcccList.getSelectionIndex();
+            if (ttaaiiIndex >= 0) {
+                int ddhhmmIndex = ddhhmmList.getSelectionIndex();
+                if (ddhhmmIndex >= 0) {
+                    if (index >= 0 && index < bbbList.getItemCount()) {
+                        deselect = false;
+                        bbbList.setSelection(index);
+                        bbbList.showSelection();
+                        String awipsId = awipsIdList.getItem(awipsIdIndex);
+                        String ttaaiiCccc = ttaaiiCcccList.getItem(ttaaiiIndex);
+                        String ddhhmm = ddhhmmList.getItem(ddhhmmIndex);
+                        String bbb = bbbList.getItem(index);
+                        currentProduct = availableProducts.get(awipsId).get(
+                                ttaaiiCccc).get(ddhhmm).get(bbb);
+                        setLoadBtnEnabled(true);
+                    }
+                }
+            }
+        }
+
+        if (deselect) {
+            bbbList.deselectAll();
         }
     }
 }

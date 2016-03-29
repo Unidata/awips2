@@ -73,7 +73,6 @@ import com.raytheon.uf.edex.database.cluster.ClusterTask;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
 import com.raytheon.uf.edex.database.purge.PurgeLogger;
-import com.raytheon.uf.edex.plugin.text.IcaoMap;
 
 /**
  * The dao implementation associated with the TextDao classes used for all
@@ -94,8 +93,8 @@ import com.raytheon.uf.edex.plugin.text.IcaoMap;
  * 28Jul2010    2187        cjeanbap    Fixed class exception in cccnnnxxxReadVersion.
  * 05Oct2010                cjeanbap    Fixed a bug introduced on #2187; return distinct rows.
  * 23May2012    14952       rferrel     Added cccnnnxxxByRefTime.
- * 03Oct2012    15244       mgamazaychikov  Added the fix to query the appropriate table
- *                                           (operational or practice)
+ * 03Oct2012	15244		mgamazaychikov	Added the fix to query the appropriate table
+ * 											(operational or practice)
  * May 20, 2014 2536       bclement    moved from edex.textdb to edex.plugin.text
  * Sep 18, 2014 3627       mapeters    Updated deprecated TimeTools usage.
  * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
@@ -104,8 +103,6 @@ import com.raytheon.uf.edex.plugin.text.IcaoMap;
  * May 05, 2015 4462        rferrel     {@link #write(StdTextProduct)} when missing set the textProduct's site.
  * Jul 06, 2015 4612        rferrel     Get all sites matching the preferredafosFirstLetter.
  * Dec 09, 2015 5166        kbisanz     Update logging to use SLF4J.
- * Feb 15, 2015 4716        rferrel     Added {@link #queryProductList(int, List)} with common transaction code.
- *                                      Use {@link IcaoMap} to determine site.
  * </pre>
  * 
  * @author garmendariz
@@ -136,8 +133,6 @@ public class StdTextProductDao extends CoreDao {
     private static final String ProdNNN_ID = "prodId.nnnid";
 
     private static final String NNN_ID = "nnnid";
-
-    private static final String SITE_ID = "site";
 
     private static final String SITES = "sites";
 
@@ -229,9 +224,14 @@ public class StdTextProductDao extends CoreDao {
         prodId.setXxxid(xxx);
         Session session = this.getSession();
         String site = textProduct.getProdId().getSite();
-        if (StringUtils.isBlank(site)) {
+        if ((site == null) || site.trim().isEmpty()) {
             // Determine product site.
-            site = IcaoMap.siteToIcaoId(xxx, prodId.getSite());
+            if (xxx.trim().length() == MAX_FIELD_LENGTH) {
+                site = SiteMap.getInstance().getSite4LetterId(xxx);
+            } else {
+                site = SiteMap.getInstance().getSite4LetterId(
+                        SiteUtil.getSite());
+            }
             if (logger.isInfoEnabled()) {
                 logger.info("Write \"" + ccc + nnn + xxx
                         + "\" setting site to " + site);
@@ -314,127 +314,82 @@ public class StdTextProductDao extends CoreDao {
             final List<Pair<String[], AFOSProductId>> siteAfosIdList = querySiteAfosId(
                     ccc, nnn, xxx);
 
-            products = queryProductList(version, siteAfosIdList);
+            products = txTemplate
+                    .execute(new TransactionCallback<List<StdTextProduct>>() {
 
-        } catch (Exception e) {
-            logger.error("Error occurred reading products", e);
-        }
+                        @Override
+                        public List<StdTextProduct> doInTransaction(
+                                TransactionStatus status) {
+                            List<StdTextProduct> products = null;
+                            Session session = getCurrentSession();
+                            /*
+                             * DR15244 - Make sure that the query is performed
+                             * on the appropriate table based on what
+                             * StdTextProduct is requested (ultimately on CAVE
+                             * mode)
+                             */
+                            Matcher m = Pattern.compile("StdTextProduct")
+                                    .matcher(AFOS_QUERY_STMT);
+                            String tableName = getStdTextProductInstance()
+                                    .getClass().getSimpleName();
+                            String tableQuery = m.replaceAll(tableName);
+                            Query query = session.createQuery(tableQuery);
 
-        if (products == null) {
-            products = new ArrayList<StdTextProduct>(0);
-        }
+                            if (version >= 0) {
+                                query.setMaxResults(version + 1);
+                            }
 
-        return products;
-    }
+                            for (Pair<String[], AFOSProductId> siteAfosId : siteAfosIdList) {
+                                String[] sites = siteAfosId.getFirst();
+                                AFOSProductId afosId = siteAfosId.getSecond();
+                                if (sites != null) {
+                                    query.setParameter(CCC_ID, afosId.getCcc());
+                                    query.setParameter(NNN_ID, afosId.getNnn());
+                                    query.setParameter(XXX_ID, afosId.getXxx());
+                                    query.setParameterList(SITES, sites);
 
-    /**
-     * This method retrieves specific versions of the specified awips product.
-     * 
-     * @param cccc
-     * @param nnn
-     * @param xxx
-     * @param version
-     *            Version to fetch: less than 0 retrieves all versions, 0
-     *            retrieves the current version, 1 retrieves the previous
-     *            version, 2 retrieves two versions ago, etc.
-     * @return products
-     */
-    public List<StdTextProduct> ccccnnnxxxReadVersion(final String cccc,
-            final String nnn, final String xxx, final int version) {
-        List<StdTextProduct> products = null;
-
-        try {
-            final List<Pair<String[], AFOSProductId>> siteAfosIdList = querySiteAfosId(
-                    null, nnn, xxx, cccc);
-
-            products = queryProductList(version, siteAfosIdList);
-        } catch (Exception e) {
-            logger.error("Error occurred reading products", e);
-        }
-
-        if (products == null) {
-            products = new ArrayList<StdTextProduct>(0);
-        }
-
-        return products;
-    }
-
-    /**
-     * Common transaction code for the various queries.
-     * 
-     * @param version
-     * @param siteAfosIdList
-     * @return products
-     */
-    private List<StdTextProduct> queryProductList(final int version,
-            final List<Pair<String[], AFOSProductId>> siteAfosIdList) {
-
-        return txTemplate
-                .execute(new TransactionCallback<List<StdTextProduct>>() {
-
-                    @Override
-                    public List<StdTextProduct> doInTransaction(
-                            TransactionStatus status) {
-                        List<StdTextProduct> products = null;
-                        Session session = getCurrentSession();
-                        /*
-                         * DR15244 - Make sure that the query is performed on
-                         * the appropriate table based on what StdTextProduct is
-                         * requested (ultimately on CAVE mode)
-                         */
-                        Matcher m = Pattern.compile("StdTextProduct").matcher(
-                                AFOS_QUERY_STMT);
-                        String tableName = getStdTextProductInstance()
-                                .getClass().getSimpleName();
-                        String tableQuery = m.replaceAll(tableName);
-                        Query query = session.createQuery(tableQuery);
-
-                        if (version >= 0) {
-                            query.setMaxResults(version + 1);
-                        }
-
-                        for (Pair<String[], AFOSProductId> siteAfosId : siteAfosIdList) {
-                            String[] sites = siteAfosId.getFirst();
-                            AFOSProductId afosId = siteAfosId.getSecond();
-                            if (sites != null) {
-                                query.setParameter(CCC_ID, afosId.getCcc());
-                                query.setParameter(NNN_ID, afosId.getNnn());
-                                query.setParameter(XXX_ID, afosId.getXxx());
-                                query.setParameterList(SITES, sites);
-
-                                List<?> results = query.list();
-                                if (results != null && results.size() > 0) {
-                                    if (version == -1) {
-                                        // want all versions
-                                        if (products == null) {
-                                            products = new ArrayList<StdTextProduct>(
-                                                    results.size()
-                                                            * siteAfosIdList
-                                                                    .size());
+                                    List<?> results = query.list();
+                                    if (results != null && results.size() > 0) {
+                                        if (version == -1) {
+                                            // want all versions
+                                            if (products == null) {
+                                                products = new ArrayList<StdTextProduct>(
+                                                        results.size()
+                                                                * siteAfosIdList
+                                                                        .size());
+                                            }
+                                            for (Object row : results) {
+                                                products.add((StdTextProduct) row);
+                                            }
+                                        } else if (results.size() > version) {
+                                            // want specific version
+                                            if (products == null) {
+                                                products = new ArrayList<StdTextProduct>(
+                                                        siteAfosIdList.size());
+                                            }
+                                            products.add((StdTextProduct) results
+                                                    .get(version));
                                         }
-                                        for (Object row : results) {
-                                            products.add((StdTextProduct) row);
-                                        }
-                                    } else if (results.size() > version) {
-                                        // want specific version
-                                        if (products == null) {
-                                            products = new ArrayList<StdTextProduct>(
-                                                    siteAfosIdList.size());
-                                        }
-                                        products.add((StdTextProduct) results
-                                                .get(version));
                                     }
                                 }
                             }
+                            return products;
                         }
-                        return products;
-                    }
-                });
+                    });
 
+        } catch (Exception e) {
+            logger.error("Error occurred reading products", e);
+        }
+
+        if (products == null) {
+            products = new ArrayList<StdTextProduct>(0);
+        }
+
+        return products;
     }
 
     /**
-     * Get desired site's afosId the pairs are order by AfosId.
+     * Get desired sites for the afosId the pairs are order by AfosId.
      * 
      * @param ccc
      * @param nnn
@@ -443,21 +398,6 @@ public class StdTextProductDao extends CoreDao {
      */
     private List<Pair<String[], AFOSProductId>> querySiteAfosId(
             final String ccc, final String nnn, final String xxx) {
-        return querySiteAfosId(ccc, nnn, xxx, null);
-    }
-
-    /**
-     * Get desired site's afosId the pairs are order by AfosId.
-     * 
-     * @param ccc
-     * @param nnn
-     * @param xxx
-     * @param site
-     * @return siteAfosIds
-     */
-    private List<Pair<String[], AFOSProductId>> querySiteAfosId(
-            final String ccc, final String nnn, final String xxx,
-            final String site) {
         boolean hasCCC = ((ccc != null) && (ccc.length() > 0) && (!ccc
                 .equals("000")));
         boolean hasNNN = ((nnn != null) && (nnn.length() > 0) && (!nnn
@@ -489,8 +429,7 @@ public class StdTextProductDao extends CoreDao {
 
                             Map<String, String> map = buildCriterions(
                                     ProdCCC_ID, paddedccc, ProdNNN_ID,
-                                    paddednnn, ProdXXX_ID, paddedxxx, ProdSITE,
-                                    site);
+                                    paddednnn, ProdXXX_ID, paddedxxx);
                             Criteria criteria = session
                                     .createCriteria(stdTextProduct.getClass());
                             ProjectionList projList = Projections
@@ -647,23 +586,6 @@ public class StdTextProductDao extends CoreDao {
      */
     public List<StdTextProduct> cccnnnxxxByRefTime(String ccc, String nnn,
             String xxx, Long refTime) {
-        return cccnnnxxxSiteByRefTime(ccc, nnn, xxx, refTime, null);
-    }
-
-    /**
-     * Use the reference/creation and site to restrict the results when
-     * obtaining a product.
-     * 
-     * @param ccc
-     * @param nnn
-     * @param xxx
-     * @param refTime
-     * @param site
-     *            - when null obtain matches for all sites
-     * @return products
-     */
-    public List<StdTextProduct> cccnnnxxxSiteByRefTime(String ccc, String nnn,
-            String xxx, Long refTime, String site) {
         ccc = StringUtils.rightPad(ccc, MAX_FIELD_LENGTH);
         nnn = StringUtils.rightPad(nnn, MAX_FIELD_LENGTH);
         xxx = StringUtils.rightPad(xxx, MAX_FIELD_LENGTH);
@@ -676,22 +598,10 @@ public class StdTextProductDao extends CoreDao {
             session = getSession();
 
             Map<String, Object> tmp = new HashMap<String, Object>();
-            if (ccc != null) {
-                tmp.put(ProdCCC_ID, ccc);
-            }
-            if (nnn != null) {
-                tmp.put(ProdNNN_ID, nnn);
-            }
-            if (xxx != null) {
-                tmp.put(ProdXXX_ID, xxx);
-            }
-            if (refTime != null) {
-                tmp.put(REFTIME, refTime);
-            }
-
-            if (site != null) {
-                tmp.put(SITE_ID, site);
-            }
+            tmp.put(ProdCCC_ID, ccc);
+            tmp.put(ProdNNN_ID, nnn);
+            tmp.put(ProdXXX_ID, xxx);
+            tmp.put(REFTIME, refTime);
 
             Criteria criteria = session
                     .createCriteria(getStdTextProductInstance().getClass());
@@ -725,26 +635,10 @@ public class StdTextProductDao extends CoreDao {
      * @param nnn
      * @param xxx
      * @param pastHours
-     * @return products
+     * @return
      */
     public List<StdTextProduct> cccnnnxxxReadPreviousHours(String ccc,
             String nnn, String xxx, int pastHours) {
-        return cccnnnxxxSiteReadPreviousHours(ccc, nnn, xxx, pastHours, null);
-    }
-
-    /**
-     * This method reads a specific past hour product for the specified site and
-     * product.
-     * 
-     * @param ccc
-     * @param nnn
-     * @param xxx
-     * @param pastHours
-     * @param site
-     * @return products
-     */
-    public List<StdTextProduct> cccnnnxxxSiteReadPreviousHours(String ccc,
-            String nnn, String xxx, int pastHours, String site) {
         ccc = StringUtils.rightPad(ccc, MAX_FIELD_LENGTH);
         nnn = StringUtils.rightPad(nnn, MAX_FIELD_LENGTH);
         xxx = StringUtils.rightPad(xxx, MAX_FIELD_LENGTH);
@@ -753,12 +647,12 @@ public class StdTextProductDao extends CoreDao {
 
         try {
             List<Pair<String[], AFOSProductId>> siteAfosIdList = querySiteAfosId(
-                    ccc, nnn, xxx, site);
+                    ccc, nnn, xxx);
 
             session = getSession();
 
             Map<String, String> tmp = buildCriterions(ProdCCC_ID, ccc,
-                    ProdNNN_ID, nnn, ProdXXX_ID, xxx, ProdSITE, site);
+                    ProdNNN_ID, nnn, ProdXXX_ID, xxx);
             long searchTime = System.currentTimeMillis() - pastHours
                     * TimeUtil.MILLIS_PER_HOUR;
 
@@ -843,7 +737,7 @@ public class StdTextProductDao extends CoreDao {
     /**
      * 
      * @param afosId
-     * @return times
+     * @return
      */
     public List<Long> getLatestTimes(AFOSProductId afosId) {
         Matcher m = Pattern.compile("table_name").matcher(TM_QUERY_FMT);
@@ -877,7 +771,7 @@ public class StdTextProductDao extends CoreDao {
     /**
      * 
      * @param afosId
-     * @return times
+     * @return
      */
     public long getLatestTime(AFOSProductId afosId) {
         long latestTime = 0L;
@@ -919,7 +813,7 @@ public class StdTextProductDao extends CoreDao {
     /**
      * 
      * @param afosId
-     * @return times
+     * @return
      */
     public List<Long> getAllTimes(String ccc, String nnn, String xxx) {
         Matcher m = Pattern.compile("table_name").matcher(TM_QUERY_FMT);
@@ -945,14 +839,6 @@ public class StdTextProductDao extends CoreDao {
         return times;
     }
 
-    /**
-     * 
-     * @param wmoId
-     * @param siteId
-     * @param hdrTime
-     * @param afosId
-     * @return
-     */
     public List<String> getSameMinuteProducts(String wmoId, String siteId,
             int hdrTime, AFOSProductId afosId) {
         List<String> products = new ArrayList<String>();
@@ -3221,7 +3107,7 @@ public class StdTextProductDao extends CoreDao {
         for (int i = 0; i < strings.length; i += 2) {
             if ((strings[i + 1] != null)
                     && (strings[i + 1].length() > 0 && !strings[i + 1]
-                            .startsWith("000"))) {
+                            .equals("000"))) {
                 map.put(strings[i], strings[i + 1]);
             }
         }

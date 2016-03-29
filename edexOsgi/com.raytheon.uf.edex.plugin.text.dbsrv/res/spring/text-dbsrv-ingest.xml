@@ -18,10 +18,6 @@
 
     <bean id="afosToAwipsListener" class="com.raytheon.uf.edex.plugin.text.dbsrv.ingest.AfosToAwipsListener" />
     <bean id="afosBrowserListener" class="com.raytheon.uf.edex.plugin.text.dbsrv.ingest.AfosBrowserModelSubscriber" />
-    
-    <bean id="icaoMapStaticDataListener" class="com.raytheon.uf.edex.plugin.text.IcaoMap" factory-method="getInstance">
-        <constructor-arg value="jms-generic:topic:AwipsFilesChanged"/>
-    </bean>
 
     <bean factory-bean="ndmProc" factory-method="registerListener">
         <constructor-arg value="afos2awips.txt" />
@@ -48,11 +44,7 @@
         <constructor-arg value="afosMasterPIL.txt" />
         <constructor-arg ref="afosBrowserListener" />
     </bean>
-    <bean factory-bean="ndmProc" factory-method="registerListener">
-        <constructor-arg value="icao_lookup_table.dat" />
-        <constructor-arg ref="icaoMapStaticDataListener" />
-    </bean>
-    
+
     <!-- textdb -->
     <bean id="textDBStaticDataListener" class="com.raytheon.uf.edex.plugin.text.dbsrv.ingest.TextDBStaticDataSubscriber">
         <constructor-arg value="jms-generic:topic:textDBFilesChanged"/>
@@ -99,15 +91,6 @@
         <route id="textDBStaticSetDirty">
             <from uri="jms-generic:topic:textDBFilesChanged"/>
             <bean ref="textDBStaticDataListener" method="setDirty"/>
-        </route>
-    </camelContext>
-    <camelContext id="clustered-awips-text-dbsrv-camel"
-        xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler">
-
-        <route id="icaoMapStaticLoad">
-            <from uri="jms-generic:topic:AwipsFilesChanged"/>
-            <bean ref="icaoMapStaticDataListener" method="readFiles"/>
         </route>
     </camelContext>
 </beans>

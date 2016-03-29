@@ -16,18 +16,6 @@
 # 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
-##############################################################################
-# Contains configuration information specific to the Subscription Manager tool
-#
-#     SOFTWARE HISTORY
-#    
-#    Date            Ticket#       Engineer       Description
-#    ------------    ----------    -----------    --------------------------
-#                                                 Initial Creation.
-#    Feb 23, 2016    4716          rferrel        Added help for AWIPS commands.
-##############################################################################
-
-##############################################################################
 ##
 # Contains configuration information specific to the textdb tool
 #
@@ -42,8 +30,6 @@ endpoint = {'textdb':'/services/textdbsrv'}
 flags = {'-r':('text_get_prod','Read data from the database'),
          'read':('text_get_prod','Read data from the database'),
          '-rd':('text_get_info','Display latest product with product count and product lengths'),
-         '-rk':('text_getAwips_prod', 'Read data from the database using AWIPS command'),
-         '-rkd':('text_getAwips_info', 'Display using AWIPS command with product count and product lengths'),
          
          '-rw':('text_get_wmoid','Read data from database using all or part of TTAAII'),
          '-rs':('text_get_site','Read data from database using all or part of CCCC'),
@@ -75,7 +61,6 @@ flags = {'-r':('text_get_prod','Read data from the database'),
          '-rl':('pil_get','Retrieve all scripts for a product ID'),
          
          '-c':('afos_cmds','Reviews AFOS commands'),
-         '-k':('awips_cmds','Reviews AWIPS commands'),
          
          '-n':('site_node', 'Display the current site')
          }
@@ -97,8 +82,7 @@ convtrig = {'pil_put':'-o add -p %s -f %s'}
 
 # list defining the commands that need to have data combined
 mergeData = ['text_get_prod',
-             'text_get_info',
-             'text_getAwips_prod']
+             'text_get_info']
 
 # list defining the commands that have multiple products.
 multiData = ['text_get_latest_def',
@@ -134,8 +118,6 @@ MSG_VALUE=1       # index into tuple for tuple value
 MSG_VAR_ARGS=-1   # argument count value indicating variable arguments
 message = {'text_get_prod':      [('ARGS',1),  ('VIEW','text'),      ('OP','GET'),    ('SUBOP','PROD'),   ('AFOSCMD',0)                     ],
            'text_get_info':      [('ARGS',1),  ('VIEW','text'),      ('OP','GET'),    ('SUBOP','INFO'),   ('AFOSCMD',0)                     ],
-           'text_getAwips_prod': [('ARGS',1),  ('VIEW','text'),      ('OP','GET'),    ('SUBOP','PROD'),   ('AWIPSCMD',0)                    ],
-           'text_getAwips_info': [('ARGS',1),  ('VIEW','text'),      ('OP','GET'),    ('SUBOP','INFO'),   ('AWIPSCMD',0)                    ],
            
            'text_get_wmoid':     [('ARGS',1),  ('VIEW','text'),      ('OP','GET'),    ('SUBOP','JOIN'),   ('WMOID',0)                       ],
            'text_get_site':      [('ARGS',1),  ('VIEW','text'),      ('OP','GET'),    ('SUBOP','JOIN'),   ('SITE',0)                        ],
@@ -163,7 +145,6 @@ message = {'text_get_prod':      [('ARGS',1),  ('VIEW','text'),      ('OP','GET'
            'state_del':          [('ARGS',3),  ('VIEW','state'),     ('OP','DELETE'), ('STATE',0),        ('XXX',1),             ('CCC',2)  ],
            
            'afos_cmds':          [('ARGS',0)                                                                                            ],
-           'awips_cmds':         [('ARGS',0)                                                                                            ],
            
            'trig_add':           [('ARGS',2), ('VIEW','warn'),       ('OP','PUT'),    ('PRODID',0),       ('SCRIPT',1)                      ],
            'trig_del':           [('ARGS',1), ('VIEW','warn'),       ('OP','DELETE'), ('PRODID',0)                                          ],
@@ -175,7 +156,6 @@ message = {'text_get_prod':      [('ARGS',1),  ('VIEW','text'),      ('OP','GET'
 USAGE_MESSAGE = \
 """
 usage: textdb -r AFOSCmd                 Does a standard afos read
-       textdb -rk AWIPSCmd               Does a standard awips read
 
        textdb -rw wmoid -rs site -ri NNNXXX -rh HH -rt ddhhmm -rb bbb
            Does AWIPS read on one or more fields
@@ -187,15 +167,13 @@ usage: textdb -r AFOSCmd                 Does a standard afos read
        textdb -A ProductID               Gets all create times (GMT) for a product
        textdb -AU ProductID              Gets all create times (UNIX) for a product
        textdb -rd AFOSCmd                Displays latest products with product count and product lengths
-       textdb -rkd AWIPSCmd              Displays latest AWIPS products with product count and product lengths
        textdb -v ProductID [N]           Read[Changes] a product versions-to-keep [to N]
        textdb -s -a SS XXX CCC           Adds XXX to state [SS] listing
        textdb -s -d SS XXX CCC           Deletes XXX from state [SS]
        textdb -s -r SS                   Displays XXX list for state [SS]
-       textdb -pil -a productID script   Adds a AWIPS or AFOS PIL watch warning product with script pathname
-       textdb -pil -d productID script   Deletes a AWIPS or AFOS PIL watch warning product with script pathname
+       textdb -pil -a productID script  Adds a PIL watch warning product with script pathname
+       textdb -pil -d productID script  Deletes a PIL watch warning product with script pathname
        textdb -c                         Reviews AFOS commands  
-       textdb -k                         Reviews AWIPS commands
        textdb -n [site]                  Gets current node (CCC) site for running edex
 """
 # AFOS commands summary. Displayed when text database CLI tool is run with
@@ -220,28 +198,5 @@ AFOSCmd: ALL:CCCNNNXXX  Read all product versions of CCCNNNXXX
          CCCNNN000      Read latest version of all products for all sites, XXXs
          NNN000         Read latest version of all products NNN for local node CCC and all sites XXXs
          CCCNNNXXX      Read latest version of product for CCCNNNXXX
-"""
-# AWIPS commands summary. Displayed when text database CLI tool is run with
-# the '-k' flag.
-AWIPS_CMDS = \
-"""
-AWIPSCmd: ALL:CCCCNNNXXX  Read all product versions of NNNXXX for site CCCC
-          ALL:NNNXXX      Read all product versions of NNNXXX for local site CCCC
-          A:HH CCCCNNNXXX Read all versions of product NNNXXX for site CCCC from last HH hours
-          A:HH 0000NNNXXX Read all versions of product NNNXXX for all sites from last HH hours
-          A:HH CCCCNNN    Read latest version of all products for site CCCC with NNN and all XXXs from last HH hours
-          A:HH NNNXXX     Read latest version of all products NNNXXX for local site CCCC from last HH hours
-          A:HH NNN        Read latest version of all products NNN for local site CCCC and all XXXs from last HH hours
-          A:CCCCNNN       Read current-hour version of all products for sote CCCC and product NNN for all XXXs
-          A:NNN           Read current-hour version of all products for local site where XXX is any value
-         -N:CCCCNNNXXX    Read Nth previous version of product for site CCCC and product NNNXXX
-         -:CCCCNNNXXX     Read previous version of latest product NNNXXX for site CCCC
-         -:NNNXXX         Read previous version of latest product NNNXXX for local site CCCC
-         -N:NNNXXX        Read Nth previous version of product NNNXXX for local site CCCC
-          SS.NNN          Read latest version of all products for NNN and state SS
-          NNNXXX          Read latest version of product NNNXXX for local site
-          CCCCNNN000      Read latest version of products for node CCCC where XXX is any value
-          NNN000          Read latest version of all products NNN for local site where XXX is any value
-          CCCCNNNXXX      Read latest version of product NNNXXX for site CCCC
 """
 

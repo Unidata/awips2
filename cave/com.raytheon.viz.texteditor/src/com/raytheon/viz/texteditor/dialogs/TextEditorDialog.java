@@ -30,6 +30,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -137,7 +138,6 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.serialization.comm.IServerRequest;
@@ -171,7 +171,6 @@ import com.raytheon.viz.texteditor.command.ProductQueryJob;
 import com.raytheon.viz.texteditor.fax.dialogs.FaxMessageDlg;
 import com.raytheon.viz.texteditor.fax.dialogs.LdadFaxSitesDlg;
 import com.raytheon.viz.texteditor.msgs.IAfosBrowserCallback;
-import com.raytheon.viz.texteditor.msgs.IAwipsBrowserCallback;
 import com.raytheon.viz.texteditor.msgs.IRecoverEditSessionCallback;
 import com.raytheon.viz.texteditor.msgs.IScriptRunnerObserver;
 import com.raytheon.viz.texteditor.msgs.ITextCharWrapCallback;
@@ -376,8 +375,6 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  *                                      copies of header to edited product after
  *                                      save/cancel cycling.
  * 16Feb2106   5391         randerso    Fixed button layouts so text is not cut off with larger fonts/higher DPI
- * 12Feb2016   4716         rferrel     Changes to use new Awips Browser Dialog.
- *                                       Localization File depreication clean up.
  * 10Mar2016   5411         randerso    Added flags to disable comma replacement 
  *                                      and enable character set validation.
  *                                      Moved upper case conversion for QC checks into the 
@@ -389,10 +386,10 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  * @author lvenable
  */
 public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
-        IAfosBrowserCallback, IAwipsBrowserCallback, IWmoBrowserCallback,
-        IRecoverEditSessionCallback, ITextCharWrapCallback,
-        IScriptRunnerObserver, IScriptEditorObserver, INotificationObserver,
-        IProductQueryCallback, ISimulatedTimeChangeListener {
+        IAfosBrowserCallback, IWmoBrowserCallback, IRecoverEditSessionCallback,
+        ITextCharWrapCallback, IScriptRunnerObserver, IScriptEditorObserver,
+        INotificationObserver, IProductQueryCallback,
+        ISimulatedTimeChangeListener {
 
     /**
      * Handler used for messges.
@@ -612,11 +609,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * Airport information tool tip.
      */
     private DefaultToolTip airportToolTip;
-
-    /**
-     * Awips browser menu item.
-     */
-    private MenuItem AwipsBrowserItem;
 
     /**
      * AFOS browser menu item.
@@ -974,9 +966,9 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     private final int OVERWRITE_TEXT = 1;
 
     /**
-     * AWIPS browser button to launch the AWIPS browser.
+     * AFOS browser button to launch the AFOS browser.
      */
-    private Button awipsBrowserBtn;
+    private Button afosBrowserBtn;
 
     /**
      * Load history button.
@@ -1205,11 +1197,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * The AFOS browser associated with this dialog.
      */
     private AfosBrowserDlg afosBrowser;
-
-    /**
-     * The AWIPS browser associated with this dialog.
-     */
-    private AwipsBrowserDlg awipsBrowser;
 
     /**
      * Flag to indicate the AFOS brower is opened.
@@ -1559,7 +1546,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                         return;
                     }
 
-                    if ((afosBrowser != null) && afosBrowser.isBrowserActive()) {
+                    if (afosBrowser != null
+                            && afosBrowser.isAfosBrowserActive()) {
                         afosBrowser.hide();
                         displayAfosBrowser = true;
                     } else {
@@ -1650,15 +1638,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         fileMenuItem.setMenu(fileMenu);
 
         // Create all the items in the File dropdown menu
-        AwipsBrowserItem = new MenuItem(fileMenu, SWT.NONE);
-        AwipsBrowserItem.setText("AWIPS Browser...");
-        AwipsBrowserItem.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                displayAwipsBrowser();
-            }
-        });
-
         AFOSBrowserItem = new MenuItem(fileMenu, SWT.NONE);
         AFOSBrowserItem.setText("AFOS Browser...");
         AFOSBrowserItem.addSelectionListener(new SelectionAdapter() {
@@ -3030,15 +3009,15 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         GridLayout layout = new GridLayout(7, false);
         topBtnRowComp.setLayout(layout);
 
-        // Add the AWIPS Browser button.
+        // Add the AFOS Browser button.
         GridData rd = new GridData(SWT.DEFAULT, SWT.DEFAULT);
-        awipsBrowserBtn = new Button(topBtnRowComp, SWT.PUSH);
-        awipsBrowserBtn.setText("AWIPS Browser");
-        awipsBrowserBtn.setLayoutData(rd);
-        awipsBrowserBtn.addSelectionListener(new SelectionAdapter() {
+        afosBrowserBtn = new Button(topBtnRowComp, SWT.PUSH);
+        afosBrowserBtn.setText("AFOS Browser");
+        afosBrowserBtn.setLayoutData(rd);
+        afosBrowserBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                displayAwipsBrowser();
+                displayAfosBrowser();
             }
         });
 
@@ -3145,28 +3124,22 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         Composite textRowComp = new Composite(shell, SWT.NONE);
         GridLayout layout = new GridLayout(7, false);
         textRowComp.setLayout(layout);
-        GC gc = new GC(textRowComp.getDisplay());
-        gc.setFont(textRowComp.getFont());
-        int charWidth = gc.textExtent("M").x;
-        gc.dispose();
 
-        createAwipsIdTf(textRowComp, charWidth);
-        createWmoTtaaiiTF(textRowComp, charWidth);
-        createCcccTF(textRowComp, charWidth);
-        createAfosCmdTf(textRowComp, charWidth);
-    }
-
-    private void createAfosCmdTf(Composite textRowComp, int charWidth) {
         // Create a AFOS command label that is vertically aligned.
         Label label = new Label(textRowComp, SWT.NONE);
         GridData layoutData = new GridData(SWT.CENTER, SWT.DEFAULT);
         label.setText("AFOS Cmd:");
 
         // Add the AFOS command text field.
+        GC gc = new GC(textRowComp.getDisplay());
+        gc.setFont(textRowComp.getFont());
+        int charWidth = gc.textExtent("M").x;
+        gc.dispose();
+
         afosCmdTF = new Text(textRowComp, SWT.BORDER);
-        afosCmdTF.setTextLimit(13);
+        afosCmdTF.setTextLimit(14);
         layoutData = new GridData(SWT.DEFAULT, SWT.DEFAULT);
-        layoutData.widthHint = 13 * charWidth;
+        layoutData.widthHint = 14 * charWidth;
         afosCmdTF.setLayoutData(layoutData);
         afosCmdTF.addFocusListener(new FocusAdapter() {
             @Override
@@ -3244,12 +3217,10 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 }
             }
         });
-    }
 
-    private void createWmoTtaaiiTF(Composite textRowComp, int charWidth) {
         // Create a WMO label that is vertically aligned.
-        Label label = new Label(textRowComp, SWT.NONE);
-        GridData layoutData = new GridData(SWT.CENTER, SWT.DEFAULT);
+        label = new Label(textRowComp, SWT.NONE);
+        layoutData = new GridData(SWT.CENTER, SWT.DEFAULT);
         label.setText("WMO TTAAii CCCC:");
 
         // Add the WMO data type and area indicator text field.
@@ -3322,13 +3293,11 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 }
             }
         });
-    }
 
-    private void createCcccTF(Composite textRowComp, int charWidth) {
         // Add the International location indicator text field.
         ccccTF = new Text(textRowComp, SWT.BORDER);
         ccccTF.setTextLimit(4);
-        GridData layoutData = new GridData(SWT.DEFAULT, SWT.DEFAULT);
+        layoutData = new GridData(SWT.DEFAULT, SWT.DEFAULT);
         layoutData.widthHint = 4 * charWidth;
         ccccTF.setLayoutData(layoutData);
         ccccTF.addFocusListener(new FocusAdapter() {
@@ -3385,19 +3354,17 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 }
             }
         });
-    }
 
-    private void createAwipsIdTf(Composite textRowComp, int charWidth) {
         // Create an AWIPS ID label that is vertically aligned.
-        Label label = new Label(textRowComp, SWT.NONE);
-        GridData layoutData = new GridData(SWT.CENTER, SWT.DEFAULT);
+        label = new Label(textRowComp, SWT.NONE);
+        layoutData = new GridData(SWT.CENTER, SWT.DEFAULT);
         label.setText("AWIPS ID:");
 
         // Add the AWIPS ID text field.
         awipsIdTF = new Text(textRowComp, SWT.BORDER);
-        awipsIdTF.setTextLimit(14);
+        awipsIdTF.setTextLimit(6);
         layoutData = new GridData(SWT.DEFAULT, SWT.DEFAULT);
-        layoutData.widthHint = 14 * charWidth;
+        layoutData.widthHint = 6 * charWidth;
         awipsIdTF.setLayoutData(layoutData);
         awipsIdTF.addFocusListener(new FocusAdapter() {
             @Override
@@ -3429,39 +3396,26 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             @Override
             public void widgetDefaultSelected(SelectionEvent event) {
                 awipsIdTF.setText(awipsIdTF.getText().trim().toUpperCase());
-                String cmd = awipsIdTF.getText();
-                String site = null;
-                if (cmd.startsWith("ALL:")) {
-                    site = "0000";
-                    cmd = cmd.substring(4);
-                }
-                int charCount = cmd.length();
-                if ((charCount < 3) || (charCount > 10)) {
-                    userInformation("Optional \"ALL:\" then a 3 to 10 character AWIPS ID");
+                int charCount = awipsIdTF.getCharCount();
+                if (charCount < 4 || charCount > 6) {
+                    userInformation("Must enter a 4 to 6 character AWIPS ID");
                     if (!awipsIdTF.isDisposed()) {
                         awipsIdTF.setFocus();
                     }
                     return;
                 } else {
-                    if (charCount >= 7) {
-                        site = cmd.substring(0, 4);
-                        cmd = cmd.substring(4);
-                    }
                     TextDisplayModel.getInstance().setProductCategory(token,
-                            cmd.substring(0, 3));
+                            awipsIdTF.getText(0, 2));
                     TextDisplayModel.getInstance().setProductDesignator(token,
-                            ((cmd.length() > 3) ? cmd.substring(3) : ""));
+                            awipsIdTF.getText(3, charCount - 1));
                 }
-
                 // Highlight the text contained in the Awips ID Field.
                 awipsIdTF.selectAll();
 
-                /*
-                 * Perform the query for all hdr times products identified by
-                 * the Awips ID and possibly restrict to a site.
-                 */
-                ICommand command = CommandFactory.getAwipsCommand(cmd, null,
-                        site, "000000", null);
+                // Perform the query of the product identified by the Awips ID.
+                // TODO Generate and AWIPSCommand
+                ICommand command = CommandFactory.getAwipsCommand(awipsIdTF
+                        .getText());
                 executeCommand(command);
             }
 
@@ -3482,6 +3436,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 }
             }
         });
+
     }
 
     /**
@@ -4507,7 +4462,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         // Top buttons on the display
         // Disabled when in editor mode
         // -----------------------------------
-        awipsBrowserBtn.setEnabled(!inEditMode);
+        afosBrowserBtn.setEnabled(!inEditMode);
         loadHistoryBtn.setEnabled(!inEditMode);
         wmoSearchBtn.setEnabled(!inEditMode);
         enterEditorBtn.setEnabled(!inEditMode);
@@ -4519,7 +4474,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         // File Menu menu items
         // Disabled when in editor mode
         // ---------------------------------
-        AwipsBrowserItem.setEnabled(!inEditMode);
         AFOSBrowserItem.setEnabled(!inEditMode);
         enterEditorItem.setEnabled(!inEditMode);
         importFromFileItem.setEnabled(!inEditMode);
@@ -4847,16 +4801,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             afosBrowser.open();
         } else {
             afosBrowser.bringToTop();
-        }
-    }
-
-    private void displayAwipsBrowser() {
-        if ((awipsBrowser == null) || awipsBrowser.isDisposed()) {
-            awipsBrowser = new AwipsBrowserDlg(shell, shell.getText(), this,
-                    token);
-            awipsBrowser.open();
-        } else {
-            awipsBrowser.bringToTop();
         }
     }
 
@@ -6125,18 +6069,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     @Override
     public void setAfosCmdField(String cmd) {
         afosCmdTF.setText(cmd);
-        clearAwipsIdTF();
-        clearWmoTF();
         TextDisplayModel.getInstance().setAfosCommand(token, cmd);
-    }
-
-    @Override
-    public void setAwipsCmdField(String cmd) {
-        awipsIdTF.setText(cmd);
-        clearAfosCmdTF();
-        clearWmoTF();
-
-        TextDisplayModel.getInstance().setAfosCommand(token, "AWIPS:" + cmd);
     }
 
     /**
@@ -6206,7 +6139,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         boolean validExecuteCommand = command != null;
 
         if (validExecuteCommand) {
-            if ((prodList != null) && !prodList.isEmpty()) {
+            if (prodList != null && prodList.size() > 0) {
                 if (prodList.size() > 1) {
                     if (CommandType.WMO.equals(command.getType())) {
                         final boolean hasAtt = hasAttachment;
@@ -6232,7 +6165,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                         final boolean enterEd = enterEditor;
                         final boolean validExecuteCmd = validExecuteCommand;
                         final String attachedFN = attachedFilename;
-                        browser = new AwipsProductBrowserDlg(getShell(), this,
+                        browser = new AwipsBrowserDlg(getShell(), this,
                                 prodList);
                         browser.addCloseCallback(new ICloseCallback() {
 
@@ -7422,7 +7355,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         private final LocalizationContext lc = pathManager.getContext(
                 LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
 
-        private LocalizationFile file = null;
+        private File file = null;
 
         public AutoSaveTask(String ttaaii, String cccc) {
             this.filenameIdentifier = ttaaii + "_" + cccc;
@@ -7440,10 +7373,14 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             setupTimer();
         }
 
-        private LocalizationFile getFile(String filename) {
+        private File getFile(String filename) {
             LocalizationFile lFile = pathManager.getLocalizationFile(lc,
                     SAVED_SESSION_DIR + filename);
-            return lFile;
+            if (lFile == null) {
+                return null;
+            }
+
+            return lFile.getFile();
         }
 
         public void saveProduct(StdTextProduct stdTextProduct) {
@@ -7469,16 +7406,16 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                             .warn("Auto save failed.  See server for details...");
                 } else {
                     synchronized (this) {
-                        try (SaveableOutputStream out = file.openOutputStream();
-                                BufferedOutputStream bufStream = new BufferedOutputStream(
-                                        out)) {
+                        try (BufferedOutputStream bufStream = new BufferedOutputStream(
+                                new FileOutputStream(file))) {
                             getJaxbManager().marshalToStream(stdTextProduct,
-                                    out);
-                            out.save();
+                                    bufStream);
                         }
                     }
                 }
 
+                // TODO Should the edit session be backed up to the server?
+                // lFile.save();
             } catch (Exception e) {
                 statusHandler.handle(Priority.PROBLEM, "Auto save failed to "
                         + filename, e);
@@ -7490,9 +7427,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
             if (file != null) {
                 synchronized (this) {
-                    try (InputStream in = file.openInputStream();
-                            BufferedInputStream bufStream = new BufferedInputStream(
-                                    in)) {
+                    try (BufferedInputStream bufStream = new BufferedInputStream(
+                            new FileInputStream(file))) {
 
                         rval = (StdTextProduct) getJaxbManager()
                                 .unmarshalFromInputStream(bufStream);
@@ -7500,7 +7436,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                         statusHandler
                                 .handle(Priority.PROBLEM,
                                         "Retrieval of product failed:"
-                                                + file.getPath(), e);
+                                                + file.getName(), e);
                     }
                 }
             }
@@ -8889,9 +8825,11 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         }
     }
 
-    /**
-     * Sets the padding: - according to padding pattern - to empty string
-     * 
+   /**
+     * Sets the padding:
+     *  - according to padding pattern
+     *  - to empty string
+     *
      * @param paragraphStart
      */
     private String getParagraphPadding(String paragraphStart) {
@@ -8912,7 +8850,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
     private List<Pattern> getPaddingPatternList() {
         // load padding pattern file
-        if (paddingPatternList.isEmpty()) {
+        if (paddingPatternList.isEmpty()){
             loadPaddingPattern();
         }
         return paddingPatternList;

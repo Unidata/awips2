@@ -41,7 +41,6 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * May 12, 2014 2536       bclement    removed IDecoderGettable
  * Oct 10, 2014 3549       njensen     Remove unnecessary Column annotations
- * Mar  4, 2016 4716       rferrel     Added AWIPS product Id.
  * 
  * </pre>
  * 
@@ -58,12 +57,6 @@ public class TextRecord extends PluginDataObject {
     @DynamicSerializeElement
     @XmlElement
     private String productId;
-
-    // Correction indicator from wmo header
-    @DataURI(position = 2)
-    @DynamicSerializeElement
-    @XmlElement
-    private String awipsProductId;
 
     /**
      * 
@@ -95,14 +88,6 @@ public class TextRecord extends PluginDataObject {
      */
     public void setProductId(String productId) {
         this.productId = productId;
-    }
-
-    public String getAwipsProductId() {
-        return this.awipsProductId;
-    }
-
-    public void setAwipsProductId(String awipsProductId) {
-        this.awipsProductId = awipsProductId;
     }
 
     @Override

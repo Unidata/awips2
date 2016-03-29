@@ -491,7 +491,7 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
             ITextWorkstationCallback cb = TextDisplayModel.getInstance()
                     .getITextWorkstationCallback(((Integer) i).toString());
             if (cb != null) {
-                if (cb.isBrowserActive()) {
+                if (cb.isAfosBrowserActive()) {
                     myShell = cb.getShell();
                     myShell.setVisible(false);
                 }

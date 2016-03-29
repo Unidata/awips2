@@ -32,7 +32,6 @@ import com.raytheon.uf.common.wmo.WMOHeader;
  * ------------ ---------- ----------- --------------------------
  * Oct 1, 2008        1538 jkorman     Initial creation
  * May 20, 2014 2536       bclement    moved from edex.textdb to edex.plugin.text
- * Mar  4, 2016 4716       rferrel     Added AWIPS product Id.
  * </pre>
  * 
  * @author jkorman
@@ -44,8 +43,6 @@ public class WMOReportData {
     private WMOHeader wmoHeader;
 
     private AFOSProductId afosProdId;
-
-    private String awipsProdId;
 
     private String reportData;
 
@@ -91,10 +88,6 @@ public class WMOReportData {
         copyAFOSProdId(afosProdId);
     }
 
-    public String getAwipsProdId() {
-        return this.awipsProdId;
-    }
-
     /**
      * @return the reportData
      */
@@ -114,15 +107,8 @@ public class WMOReportData {
         if (prodId != null) {
             afosProdId = new AFOSProductId(prodId.getCcc(), prodId.getNnn(),
                     prodId.getXxx());
-            if (wmoHeader != null) {
-                awipsProdId = wmoHeader.getCccc() + afosProdId.getNnn()
-                        + afosProdId.getXxx();
-            } else {
-                awipsProdId = null;
-            }
         } else {
             afosProdId = null;
-            awipsProdId = null;
         }
     }
 

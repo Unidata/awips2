@@ -24,7 +24,6 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,12 +35,10 @@ import com.raytheon.uf.common.dataplugin.text.db.StateMatch;
 import com.raytheon.uf.common.dataplugin.text.db.StdTextProduct;
 import com.raytheon.uf.common.dataplugin.text.db.TextProductInfo;
 import com.raytheon.uf.common.dataplugin.text.util.AFOSParser;
-import com.raytheon.uf.common.dataplugin.text.util.AWIPSParser;
 import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.common.wmo.AFOSProductId;
 import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.common.wmo.WMOTimeParser;
-import com.raytheon.uf.edex.plugin.text.IcaoMap;
 import com.raytheon.uf.edex.plugin.text.dao.StateMatchDao;
 import com.raytheon.uf.edex.plugin.text.dao.StdTextProductDao;
 import com.raytheon.uf.edex.plugin.text.dao.TextProductInfoDao;
@@ -78,7 +75,6 @@ import com.raytheon.uf.edex.plugin.text.impl.WMOReportData;
  * Jul 10, 2014 2914        garmendariz Remove EnvProperties
  * Dec 09, 2015 5166        kbisanz     Update logging to use SLF4J.
  * Feb 05, 2016 5269        skorolev    Removed WatchWarn methods.
- * Feb 12, 2016 4716        rferrel     Modified readAwips to get all hdrTimes when hdrTimes value is "ALL".
  * </pre>
  * 
  * @author jkorman
@@ -190,23 +186,23 @@ public class TextDB {
         Long startTimeMillis = null;
         boolean readAllVersions = false;
 
-        if (!StringUtils.isEmpty(abbrId)) {
-            if (abbrId.length() >= 3) {
-                nnn = abbrId.substring(0, 3);
+        if (abbrId != null) {
+            if (abbrId.length() > 0) {
+                nnn = abbrId.substring(0,
+                        (abbrId.length() >= 3 ? 3 : abbrId.length()));
             }
             if (abbrId.length() > 3) {
                 xxx = abbrId.substring(3,
                         (abbrId.length() < 6 ? abbrId.length() : 6));
             }
         }
-
-        if (!StringUtils.isEmpty(hdrTime)) {
+        if (hdrTime != null && hdrTime.length() > 0) {
             if (hdrTime.equals("000000")) {
                 readAllVersions = true;
                 hdrTime = null;
             }
         }
-        if (!StringUtils.isEmpty(lastHrs)) {
+        if (lastHrs != null && lastHrs.length() > 0) {
             int hours = 0;
 
             try {
@@ -219,10 +215,8 @@ public class TextDB {
                 hours = 1;
             }
 
-            /*
-             * getting as GMT technically not necessary since converting to
-             * millis anyway.
-             */
+            // getting as GMT technically not necessary since converting to
+            // millis anyway
             Calendar currentTime = Calendar.getInstance(TimeZone
                     .getTimeZone("GMT"));
             currentTime.add(Calendar.HOUR_OF_DAY, -hours); // subtract the hours
@@ -597,13 +591,9 @@ public class TextDB {
      * @param wmoId
      * @return sites
      */
-    @Deprecated
     public List<String> siteRead(String cccId, String nnnId, String xxxId,
             String wmoId) {
-        /*
-         * This looks like a stub method that was never completed and it appears
-         * to only be called by the siteRead method below.
-         */
+
         List<String> sites = null;
 
         return sites;
@@ -615,12 +605,7 @@ public class TextDB {
      * @param wmoId
      * @return
      */
-    @Deprecated
     public List<String> siteRead(AFOSProductId afosId, String wmoId) {
-        /*
-         * This calls the above stub method which returns a null. Is this ever
-         * called?
-         */
         return siteRead(afosId.getCcc(), afosId.getNnn(), afosId.getXxx(),
                 wmoId);
     }
@@ -661,85 +646,6 @@ public class TextDB {
     }
 
     /**
-     * Execute AWIPS command.
-     * 
-     * @param awipsCommand
-     * @param site
-     * @param operationalMode
-     * @return products
-     */
-    public List<StdTextProduct> executeAWIPSCommand(String awipsCommand,
-            String site, boolean operationalMode) {
-        return executeAWIPSCommand(awipsCommand, site, operationalMode, false,
-                null);
-    }
-
-    /**
-     * Execute AWIPS command
-     * 
-     * @param awipsCommand
-     * @param site
-     * @param operationalMode
-     * @param refTimeMode
-     * @param refTime
-     * @return products
-     */
-    public List<StdTextProduct> executeAWIPSCommand(String awipsCommand,
-            String site, boolean operationalMode, boolean refTimeMode,
-            Long refTime) {
-        logger.info(String.format(
-                "executeAWIPSCommand(\"%s\", \"%s\", %s, %s, \"%s\")",
-                awipsCommand, site, Boolean.toString(operationalMode),
-                Boolean.toString(refTimeMode), refTime));
-        List<StdTextProduct> products = null;
-        if (site == null) {
-            site = SiteMap.getInstance().getSite4LetterId(SiteUtil.getSite());
-        }
-        AWIPSParser parser = new AWIPSParser(awipsCommand, site);
-        if (parser.isValidCommand()) {
-            String cccc = parser.getCccc();
-            String nnn = parser.getNnn();
-            String xxx = parser.getXxx();
-
-            // much cleaner version
-            if (parser.isStateQuery()) {
-                products = stateNNNRead(parser.getState(), parser.getNnn(),
-                        operationalMode);
-            } else if (refTimeMode) {
-                products = (new StdTextProductDao(operationalMode))
-                        .cccnnnxxxSiteByRefTime(null, nnn, xxx, refTime, cccc);
-            } else {
-                int versionNo = 0; // default version number; read the latest
-                // version
-                if (parser.isPastVers() || parser.isAllVersions()) {
-                    if (parser.isPastVers()) {
-                        versionNo = parser.getPastVersNumber();
-                    } else {
-                        versionNo = -1;
-                    }
-                    products = (new StdTextProductDao(operationalMode))
-                            .ccccnnnxxxReadVersion(cccc, nnn, xxx, versionNo);
-                } else if (parser.isPastHours()) {
-                    versionNo = parser.getPastNumberHours();
-                    products = (new StdTextProductDao(operationalMode))
-                            .cccnnnxxxSiteReadPreviousHours(null, nnn, xxx,
-                                    versionNo, cccc);
-                } else {
-                    // read latest version
-                    StdTextProductDao dao = new StdTextProductDao(
-                            operationalMode);
-                    products = dao.ccccnnnxxxReadVersion(cccc, nnn, xxx,
-                            versionNo);
-                }
-            }
-        }
-        if (products == null) {
-            products = new ArrayList<StdTextProduct>();
-        }
-        return products;
-    }
-
-    /**
      * Execute AFOS Command.
      * 
      * @param afosCommand
@@ -768,7 +674,6 @@ public class TextDB {
     public List<StdTextProduct> executeAFOSCommand(String afosCommand,
             String locale, boolean operationalMode, boolean refTimeMode,
             Long refTime) {
-        logger.info("executeAFOSCommand: " + afosCommand);
         List<StdTextProduct> products = null;
 
         AFOSParser parser = null;
@@ -883,17 +788,17 @@ public class TextDB {
         String hdrTime = null;
         String bbbIndicator = null;
         StringBuilder product = new StringBuilder();
-        String cccc = null;
 
-        if ((header != null) && header.isValid()) {
+        if (header != null && header.isValid()) {
             product.append(header.getWmoHeader());
             product.append("\n");
             wmoid = header.getTtaaii();
+            siteid = header.getCccc();
             hdrTime = header.getYYGGgg();
             bbbIndicator = header.getBBBIndicator();
-            cccc = header.getCccc();
         } else {
             wmoid = "";
+            siteid = "";
             hdrTime = "";
         }
 
@@ -905,22 +810,18 @@ public class TextDB {
             writeTime = new Long(c.getTimeInMillis());
         }
 
-        boolean success = false;
-
         StdTextProduct textProduct = (operationalMode ? new OperationalStdTextProduct()
                 : new PracticeStdTextProduct());
         textProduct.setWmoid(wmoid);
+        textProduct.setSite(siteid);
         textProduct.setCccid(prodId.getCcc());
         textProduct.setXxxid(prodId.getXxx());
-        siteid = IcaoMap.siteToIcaoId(prodId.getXxx(), cccc);
-        textProduct.setSite(siteid);
         textProduct.setNnnid(prodId.getNnn());
         textProduct.setHdrtime(hdrTime);
         textProduct.setBbbid(bbbIndicator);
         textProduct.setRefTime(writeTime);
         textProduct.setProduct(product.toString());
-        success = writeProduct(textProduct);
-
+        boolean success = writeProduct(textProduct);
         if (success) {
             return writeTime;
         } else {

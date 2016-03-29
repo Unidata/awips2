@@ -29,7 +29,6 @@ package com.raytheon.uf.common.dataplugin.text.dbsrv;
  * Oct 14, 2008       1538 jkorman     Initial creation
  * 21May2010    2187       cjeanbap    Add OPERATIONAL code
  * May 15, 2014 2536       bclement    moved from uf.edex.textdbsrv
- * Feb 12, 2016 4716       rferrel     Add AWIPSCMD code.
  * </pre>
  * 
  * @author jkorman
@@ -37,5 +36,5 @@ package com.raytheon.uf.common.dataplugin.text.dbsrv;
  */
 
 public enum TextViewTags {
-    OP, SUBOP, PRODID, FORMAT, CLIENTFMT, PRODUCT, AFOSCMD, AWIPSCMD, WMOID, SITE, HOUR, HDRTIME, BBB, NNNXXX, FULLREAD, OPERATIONAL, TEST, PRACTICE;
+    OP, SUBOP, PRODID, FORMAT, CLIENTFMT, PRODUCT, AFOSCMD, WMOID, SITE, HOUR, HDRTIME, BBB, NNNXXX, FULLREAD, OPERATIONAL, TEST, PRACTICE;
 }

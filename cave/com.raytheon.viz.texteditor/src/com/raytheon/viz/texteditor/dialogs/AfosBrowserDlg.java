@@ -112,7 +112,6 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 09Sep2014    3580        mapeters    Removed IQueryTransport usage 
  *                                      (no longer exists).
  * 16Feb2106    5391        randerso    Fixed button layouts so text is not cut off with larger fonts/higher DPI
- * 12Feb2016    4716        rferrel     Change to indicate AFOS browser instead of AWIPS browser.
  * </pre>
  * 
  * @author lvenable
@@ -121,7 +120,7 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
         ITextWorkstationCallback {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(AfosBrowserDlg.class);
+            .getHandler(AwipsBrowserDlg.class);
 
     private static final String TIME_FORMAT = "HH:mm MMM dd";
 
@@ -244,12 +243,12 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
     private IAfosBrowserCallback callbackClient = null;
 
     /**
-     * Flag that indicates whether the Browser is active or not
+     * Flag that indicates whether the AFOS Browser is active or not
      */
-    private boolean isActive = true;
+    private boolean isAfosActive = true;
 
     private String localSite = LocalizationManager.getInstance()
-            .getCurrentSite();
+            .getCurrentSite();;
 
     private String currentAfosCommand = null;
 
@@ -272,7 +271,7 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
         super(parent, SWT.DIALOG_TRIM | SWT.MODELESS | SWT.RESIZE,
                 CAVE.PERSPECTIVE_INDEPENDENT | CAVE.DO_NOT_BLOCK);
 
-        setText(browserHdr + " AFOS Browser");
+        setText(browserHdr + " Browser");
 
         callbackClient = cbClient;
 
@@ -308,7 +307,7 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
             public void shellClosed(ShellEvent event) {
                 // Block the disposal of this dialog.
                 AfosBrowserDlg.this.hide();
-                isActive = false;
+                isAfosActive = false;
                 event.doit = false;
             }
         });
@@ -648,7 +647,7 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
 
                 setReturnValue(false);
                 hide();
-                isActive = false;
+                isAfosActive = false;
             }
         });
 
@@ -661,7 +660,7 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
             public void widgetSelected(SelectionEvent event) {
                 setReturnValue(false);
                 hide();
-                isActive = false;
+                isAfosActive = false;
             }
         });
     }
@@ -672,7 +671,7 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
      */
     public void showDialog() {
         bringToTop();
-        isActive = true;
+        isAfosActive = true;
     }
 
     /**
@@ -832,9 +831,16 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.texteditor.msgs.ITextWorkstationCallback#isAfosBrowserActive
+     * ()
+     */
     @Override
-    public boolean isBrowserActive() {
-        return isActive;
+    public boolean isAfosBrowserActive() {
+        return isAfosActive;
     }
 
     /**
