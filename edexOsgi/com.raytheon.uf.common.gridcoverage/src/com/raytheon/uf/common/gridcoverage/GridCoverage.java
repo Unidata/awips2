@@ -87,6 +87,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Sep 16, 2015  4696     nabowle     Implement cloneable and add clone().
  * Oct 01, 2015  4868     rjpeter     Reject subGrids that don't meet minimum
  *                                    coverage percent.
+ * Feb 26, 2016  5414     rjpeter      Fix subgrids along boundary.
  * </pre>
  * 
  * @author bphillip
@@ -322,7 +323,7 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
         } else {
             /* Check western boundary */
             if (sgUlx < 0) {
-                sgNx -= sgUlx;
+                sgNx += sgUlx;
                 sgUlx = 0;
             }
 
@@ -336,7 +337,7 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
 
         /* Check northern boundary */
         if (sgUly < 0) {
-            sgNy -= sgUly;
+            sgNy += sgUly;
             sgUly = 0;
         }
 

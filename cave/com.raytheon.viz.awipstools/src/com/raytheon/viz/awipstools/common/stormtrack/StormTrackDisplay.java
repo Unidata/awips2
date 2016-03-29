@@ -115,11 +115,12 @@ import com.vividsolutions.jts.geom.LineString;
  *                                   null in paintTrack().
  * Sep 09, 2014  657      qlin       handle StormTrackState.trackType is null.
  * Sep 25, 2014  16773    dfriedman  Fix NPE.
- *  02-09-2016  ASM #18421 D. Friedman Don't call ToolsDataManager.setStormTrackData
- *                                     if there is no storm motion.
  * Oct 10, 2014  16844    dfriedman  Prevent some errors when moving track.
  * Dec 02, 2015  5150     bsteffen   Add option to use constant end time.
- * 
+ * 02-09-2016  ASM #18421 D. Friedman Don't call ToolsDataManager.setStormTrackData
+ *                                     if there is no storm motion.
+ * 03-18-2016  ASM #18751 D. Friedman Followup for #18421: Do not set StormTrackState.oneStormAngle
+ *                                     when motion is zero.
  * </pre>
  * 
  * @author mschenke
@@ -994,7 +995,9 @@ public class StormTrackDisplay implements IRenderable {
         state.futurePoints = futurePoints;
 
         state.angle = angle;
-        StormTrackState.oneStormAngle = angle;
+        if (speed > 0) {
+            StormTrackState.oneStormAngle = angle;
+        }
         state.speed = speed;
 
         postData(state);
@@ -1223,7 +1226,9 @@ public class StormTrackDisplay implements IRenderable {
 
         double angle = state.angle;
         if(!state.justSwitchedToOS) {
-            if (StormTrackState.trackType != null && StormTrackState.trackType.equals("oneStorm")) {
+            if (StormTrackState.trackType != null
+                    && StormTrackState.trackType.equals("oneStorm")
+                    && state.speed > 0) {
                 StormTrackState.oneStormAngle = angle;
             }
         }

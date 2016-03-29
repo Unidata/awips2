@@ -110,7 +110,9 @@ import com.raytheon.viz.mpe.ui.dialogs.gagetable.xml.GageTableSortType;
  * Dec 02, 2015 18094      lbousaidi  added the sorting method for multi column sorting.
  * Dec 07, 2015 18137      lbousaidi  fixed sorting after editing gages.
  * Jan 13, 2016 18092      snaples    Updated to have column adjustment by drag and drop.
- *
+ * Mar 10, 2016 18707       lbousaidi  revised the sorting so it doesn't always resort using LID
+ * Mar 14, 2016 18723      snaples    Added prodContains method and updated columnselector to not allow use of any
+ *                                    product that is not in the mpe_generate_list for Diff compare.
  * </pre>
  *
  * @author mpduff
@@ -485,18 +487,36 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
         int gridSelectionIndex = 0;
         for (int i = 0; i < columnData.size(); i++) {
             if (columnData.get(i).isDataColumn()) {
-                gridCombo.addItem(columnData.get(i).getName());
-                if (selectedGrid.equalsIgnoreCase(columnData.get(i)
+                if(prodContains(columnData.get(i))){
+                    gridCombo.addItem(columnData.get(i).getName());
+                    if (selectedGrid.equalsIgnoreCase(columnData.get(i)
                         .getProductDescriptor().getProductFilenamePrefix())) {
-                    gridComboSelection = gridSelectionIndex;
+                        gridComboSelection = gridSelectionIndex;
+                    }
+                    gridSelectionIndex++;
+                } else {
+                    continue;
                 }
-                gridSelectionIndex++;
             }
         }
+        
         gridCombo.addActionListener(gridComboListener);
         gridCombo.setSelectedIndex(gridComboSelection);
     }
 
+    // Check to see if product is available for compare (Diff)
+    private boolean prodContains(GageTableColumn gageTableColumn) {
+        GageTableProductManager prodMgr = GageTableProductManager.getInstance();
+        List<GageTableColumn> availColumns = prodMgr.getAvailableGageTableColumnList();
+        for(int i = 0; i < availColumns.size(); i++){
+            if(availColumns.get(i).getProductDescriptor().getProductFilenamePrefix()
+                    .equals((gageTableColumn.getProductDescriptor().getProductFilenamePrefix()))){
+                    return true;
+            }
+        }
+        
+        return false;
+    }
     private void createButtons(Container container) {
         JButton saveButton = new JButton("Save");
         JButton cancelButton = new JButton("Cancel");
@@ -1070,12 +1090,6 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
                         }
                     }
                 }
-            }
-            // if equal use the id to make the final determination
-            if (response == 0 && colIndex != 0) {
-                ColumnSorter columnSorter = new ColumnSorter(0, true);
-                response = columnSorter.compare(v1, v2);
-
             }
             return response;
         }
