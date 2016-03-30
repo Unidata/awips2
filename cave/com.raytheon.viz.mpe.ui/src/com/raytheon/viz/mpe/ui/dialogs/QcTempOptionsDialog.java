@@ -302,8 +302,8 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
         font.dispose();
         SaveLevel2Data s2 = new SaveLevel2Data(getShell());
         s2.send_dbase_new_area();
-//        DailyQcUtils dc = new DailyQcUtils();
-        DailyQcUtils.clearData();
+        DailyQcUtils dc = new DailyQcUtils();
+        dc.clearData();
         displayMgr.displayFieldData(df);
         removePerspectiveListener();
         if (MPEDisplayManager.getCurrent() != null) {
