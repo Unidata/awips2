@@ -73,6 +73,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Mar 16, 2016  5463      dhladky     Fixed config loading and button matching.
  * Mar 23, 2016  5463      tjensen     Update Guidance default to pull from 
  *                                      config file if not already set.
+ * Mar 30, 2016  5463      tjensen     Fix selection of guid for display in table
  * 
  * </pre>
  * 
@@ -997,14 +998,16 @@ public class BasinTrendDlg extends CaveSWTDialog {
             for (Button ffg : ffgRdos) {
                 if (ffg.getText().equalsIgnoreCase(guidSrc)) {
                     ffg.setSelection(true);
+                    handleFFGSelection(ffg.getText());
                 } else {
                     ffg.setSelection(false);
                 }
             }
         } else {
             for (Button ffg : ffgRdos) {
-                if (ffmpCfg.getIncludedGuids().contains(ffg.getText())) {
+                if (ffmpCfg.getIncludedGuids().endsWith(ffg.getText())) {
                     ffg.setSelection(true);
+                    handleFFGSelection(ffg.getText());
                 } else {
                     ffg.setSelection(false);
                 }
