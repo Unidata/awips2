@@ -71,6 +71,9 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Dec 6, 2012  1353       rferrel     Code clean up for non-blocking dialog.
  * Feb 10, 2013  1584      mpduff      Add performance logging.
  * Mar 16, 2016  5463      dhladky     Fixed config loading and button matching.
+ * Mar 23, 2016  5463      tjensen     Update Guidance default to pull from 
+ *                                      config file if not already set.
+ * Mar 30, 2016  5463      tjensen     Fix selection of guid for display in table
  * 
  * </pre>
  * 
@@ -595,7 +598,8 @@ public class BasinTrendDlg extends CaveSWTDialog {
                 .getRunner(resource.getResourceData().wfo)
                 .getProduct(resource.getSiteKey());
 
-        String qpfType = FfmpTableConfig.getInstance().getTableConfigData(resource.getSiteKey()).getQpfGraphType();
+        String qpfType = FfmpTableConfig.getInstance()
+                .getTableConfigData(resource.getSiteKey()).getQpfGraphType();
 
         for (String name : prodRun.getQpfTypes(prodXml)) {
             Button qpfBtn = new Button(qpfComp, SWT.RADIO);
@@ -630,7 +634,7 @@ public class BasinTrendDlg extends CaveSWTDialog {
 
                 fireSourceUpdateEvent();
             }
-            
+
             qpfRdos.add(qpfBtn);
         }
 
@@ -652,15 +656,16 @@ public class BasinTrendDlg extends CaveSWTDialog {
         ffgComp.setLayout(new GridLayout(1, false));
         ffgComp.setLayoutData(gd);
         ffgComp.setBackground(getDisplay().getSystemColor(SWT.COLOR_WHITE));
-        String ffgType = FfmpTableConfig.getInstance().getTableConfigData(resource.getSiteKey()).getFfgGraphType();
-        
+        String ffgType = FfmpTableConfig.getInstance()
+                .getTableConfigData(resource.getSiteKey()).getFfgGraphType();
+
         int j = 0;
         for (String ffgname : prodXml.getAvailableGuidanceTypes()) {
             Button ffgBtn = new Button(ffgComp, SWT.RADIO);
             ffgBtn.setBackground(getDisplay().getSystemColor(SWT.COLOR_WHITE));
             ffgBtn.setText(ffgname);
             ffgBtn.setData(new Integer(j));
-            
+
             ffgBtn.addSelectionListener(new SelectionAdapter() {
                 @Override
                 public void widgetSelected(SelectionEvent e) {
@@ -670,7 +675,7 @@ public class BasinTrendDlg extends CaveSWTDialog {
                     }
                 }
             });
-            
+
             ffgRdos.add(ffgBtn);
             if (ffgType.equals(ffgname)) {
                 ffgBtn.setSelection(true);
@@ -993,6 +998,16 @@ public class BasinTrendDlg extends CaveSWTDialog {
             for (Button ffg : ffgRdos) {
                 if (ffg.getText().equalsIgnoreCase(guidSrc)) {
                     ffg.setSelection(true);
+                    handleFFGSelection(ffg.getText());
+                } else {
+                    ffg.setSelection(false);
+                }
+            }
+        } else {
+            for (Button ffg : ffgRdos) {
+                if (ffmpCfg.getIncludedGuids().endsWith(ffg.getText())) {
+                    ffg.setSelection(true);
+                    handleFFGSelection(ffg.getText());
                 } else {
                     ffg.setSelection(false);
                 }

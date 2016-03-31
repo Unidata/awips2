@@ -60,12 +60,14 @@ import com.raytheon.viz.grid.util.RadarAdapter;
  * SOFTWARE HISTORY
  * 
  * Date          Ticket#  Engineer   Description
- * ------------- -------- ---------- ------------------------------------------
+ * ------------- -------- ---------- -------------------------------------------
  * Dec 13, 2011           bsteffen   Initial creation
  * Feb 21, 2014  16744    dfriedman  Add radar/grid updates
  * Apr 01, 2014  17220    dfriedman  Handle uninitialized grid inventory
  * Dec 15, 2014  3923     bsteffen   Retrieve pdo for grid instead of dataURI.
  * Dec 04, 2015  5169     bsteffen   Do not send duplicate grid updates.
+ * Mar 30, 2016  5535     bsteffen   Allow radar to update normally and only
+ *                                   radar-as-grid to update specially
  * 
  * </pre>
  * 
@@ -113,9 +115,8 @@ public class ThinClientDataUpdateTree extends DataUpdateTree {
             RequestConstraint pluginConstraint = metadata
                     .get(PluginDataObject.PLUGIN_NAME_ID);
             if (pluginConstraint != null
-                    && (pluginConstraint.evaluate(GridConstants.GRID) || pluginConstraint
-                            .evaluate("radar"))) {
-                /* Grid and radar do their updates differently. */
+                    && pluginConstraint.evaluate(GridConstants.GRID)) {
+                /* Grid does updates differently. */
                 continue;
             }
             metadata = new HashMap<String, RequestConstraint>(metadata);
@@ -144,8 +145,12 @@ public class ThinClientDataUpdateTree extends DataUpdateTree {
     }
 
     /**
-     * Get radar update messages. This is needed to update the
-     * radar-as-gridded-data inventory.
+     * Get radar update messages that are needed to update the
+     * radar-as-gridded-data inventory. This will only get updates for the home
+     * radar and will add only grid dataURIs for these products(not radar
+     * dataURIs).
+     * 
+     * @see RadarUpdater#convertRadarAlertsToGridDatauris(Collection)
      */
     private void getRadarUpdates(String time, Set<AlertMessage> messages) {
         Set<AlertMessage> radarMessages = new HashSet<AlertMessage>();
@@ -167,7 +172,6 @@ public class ThinClientDataUpdateTree extends DataUpdateTree {
                         am.dataURI);
                 radarMessages.add(am);
             }
-            messages.addAll(radarMessages);
             for (String dataURI : RadarUpdater.getInstance()
                     .convertRadarAlertsToGridDatauris(radarMessages)) {
                 AlertMessage am = new AlertMessage();
