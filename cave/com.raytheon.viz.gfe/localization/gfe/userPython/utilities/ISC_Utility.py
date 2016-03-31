@@ -912,9 +912,9 @@ class ISC_Utility(SmartScript.SmartScript):
         #  setup sum/counter for average
         #
         if ((parmName=="MaxT")or(parmName=="PoP")):
-            sum=numpy.self.newGrid(-150.0)
+            sum=self.newGrid(-150.0)
         elif (parmName=="MinT"):
-            sum=numpy.self.newGrid(150.0)
+            sum=self.newGrid(150.0)
         else:
             sum=self.empty()
             if GridType.VECTOR.equals(wxType):

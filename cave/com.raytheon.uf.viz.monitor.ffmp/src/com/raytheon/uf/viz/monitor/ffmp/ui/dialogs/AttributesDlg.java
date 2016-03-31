@@ -55,7 +55,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                     Initial creation
  * Dec 6, 2012            rferrel      Change to non-blocking dialog.
  * Oct, 21 2015  4821     dhladky      Fixed bad ffgType subString and width.
- * Mar 04, 2016  5429     dhladky      Default to RFCFFG
+ * Mar 16, 2016  5463      dhladky     Fixed config loading and button matching.
  * 
  * </pre>
  * 
@@ -175,11 +175,7 @@ public class AttributesDlg extends CaveSWTDialog {
                 .getInstance();
         ProductRunXML productRun = runManager.getProduct(resource.getSiteKey());
         ArrayList<String> qpfTypes = productRun.getQpfTypes(prodXml);
-
-        String columnName = ffmpTableCfgData.getTableColumnAttr(
-                ffmpTableCfgData.getTableColumnKeys()[3])
-                .getColumnNameWithSpace();
-        String qpfType = columnName;
+        String qpfType = ffmpTableCfgData.getQpfType();
 
         for (String name : qpfTypes) {
             final Button qpfBtn = new Button(attrComp, SWT.RADIO);
@@ -217,6 +213,7 @@ public class AttributesDlg extends CaveSWTDialog {
 
             if (qpfType.startsWith(name)) {
                 qpfBtn.setSelection(true);
+                updateAction(qpfBtn);
             }
         }
         guidChk = new Button(attrComp, SWT.CHECK);
@@ -248,8 +245,6 @@ public class AttributesDlg extends CaveSWTDialog {
         gd.horizontalIndent = 15;
         gd.widthHint = 180;
 
-        // default to RFCFFG
-        String defaultGuidtype = "RFCFFG";
         ArrayList<String> guidTypes = productRun.getGuidanceTypes(prodXml);
 
         for (String name : guidTypes) {
@@ -258,23 +253,19 @@ public class AttributesDlg extends CaveSWTDialog {
             ffgBtn.setData("GUIDSrc:" + name);
             gd.horizontalIndent = 15;
             ffgBtn.setLayoutData(gd);
-            if (attrData.getGuidanceList().containsKey(name)) {
-                ffgBtn.setSelection(attrData.getGuidanceList().get(name));
-            }
-
             ffgBtn.addSelectionListener(new SelectionAdapter() {
                 @Override
                 public void widgetSelected(SelectionEvent e) {
                     updateAction(ffgBtn);
                 }
             });
-
-            // default choice
-            if (name.equals(defaultGuidtype)) {
+            
+            // default selection(s) based on config
+            if (attrData.getGuidanceList().containsKey(name)) {
                 ffgBtn.setSelection(true);
-            } else {
-                ffgBtn.setSelection(false);
+                updateAction(ffgBtn);
             }
+            
             ffgChkBtns.add(ffgBtn);
         }
     }
@@ -350,10 +341,10 @@ public class AttributesDlg extends CaveSWTDialog {
             }
 
             attrData.setGuidanceMap(guidMap);
+            updateData = true;
         }
 
         // Call the call back with the updated columns
         attributeDisplayCb.attributeDisplayAction(updateData, attrData);
-        updateData = false;
     }
 }
