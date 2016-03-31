@@ -39,6 +39,7 @@ import com.raytheon.viz.core.mode.CAVEMode;
  * Oct 13, 2009            mnash       Initial creation
  * Jun 07, 2010 5851       cjeanbap    Properly stop alarm/alert observer listener.
  * Jul 24, 2014 3423       randerso    Get afos command execution off the UI thread
+ * Mar 30, 2016 5513       randerso    Code cleanup
  * 
  * </pre>
  * 
@@ -76,13 +77,6 @@ public class AlarmAlertNotificationObserver implements INotificationObserver {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.uf.common.jms.notification.INotificationObserver#
-     * notificationArrived
-     * (com.raytheon.uf.common.jms.notification.NotificationMessage[])
-     */
     @Override
     public void notificationArrived(NotificationMessage[] messages) {
         for (NotificationMessage message : messages) {
@@ -93,8 +87,7 @@ public class AlarmAlertNotificationObserver implements INotificationObserver {
                 Object payload = message.getMessagePayload();
                 if (payload instanceof AlarmAlertProduct) {
                     // ONLY execute AlarmAlert Products when in OPERATIONAL/TEST
-                    // mode
-                    // and the payload is for the OPERATIONAL/TEST mode.
+                    // mode and the payload is for the OPERATIONAL/TEST mode.
                     AlarmAlertProduct aap = (AlarmAlertProduct) payload;
                     if ((CAVEMode.OPERATIONAL.equals(mode) || CAVEMode.TEST
                             .equals(mode)) && aap.getOperationalMode()) {
@@ -123,13 +116,11 @@ public class AlarmAlertNotificationObserver implements INotificationObserver {
         AlarmAlertProduct aap = null;
 
         public AlarmRun(String p) {
-            aap = new AlarmAlertProduct();// new AlarmAlertProduct[p.length];
+            aap = new AlarmAlertProduct();
             String[] temp;
-            // for (int i = 0; i < p.length; i++) {
             temp = p.split("_");
             aap.setDateReceived(temp[1]);
             aap.setProductId(temp[0]);
-            // }
         }
 
         public AlarmRun(AlarmAlertProduct aap) {

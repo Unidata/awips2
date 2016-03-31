@@ -22,25 +22,48 @@ package com.raytheon.uf.viz.radarapps.rps;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.handlers.HandlerUtil;
 
+/**
+ * An abstract handler for showing the RPS List Editor dialog.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * ??? ??, 20??            ????????     Initial creation
+ * Mar 28, 2016  #5511     dgilling     Code cleanup.
+ * 
+ * </pre>
+ * 
+ * @author ????????
+ * @version 1.0
+ */
 public class RPSListEditorCommandHandler extends AbstractHandler {
-	
-	static ListEditor listEditor;
-	
-	@Override
-	public Object execute(ExecutionEvent event) throws ExecutionException {
-		if (listEditor == null) {
-			listEditor = new ListEditor();
-			listEditor.getShell().addDisposeListener(new DisposeListener() {
-				public void widgetDisposed(DisposeEvent e) {
-					listEditor = null;
-				}
-			});
-		}
-		listEditor.startEditor();
-		return null;
-	}
-	
+
+    protected RpsListEditorDlg dialog;
+
+    @Override
+    public Object execute(ExecutionEvent event) throws ExecutionException {
+        if (dialog == null) {
+            Shell parent = HandlerUtil.getActiveShellChecked(event);
+            dialog = new RpsListEditorDlg(parent, new RpsListRequestContainer());
+            dialog.addListener(SWT.Dispose, new Listener() {
+
+                @Override
+                public void handleEvent(Event event) {
+                    dialog = null;
+                }
+            });
+        }
+        dialog.open();
+
+        return null;
+    }
 }

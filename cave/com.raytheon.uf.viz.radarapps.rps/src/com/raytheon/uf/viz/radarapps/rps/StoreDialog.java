@@ -65,7 +65,7 @@ import com.raytheon.uf.viz.radarapps.core.RadarApps;
  */
 public class StoreDialog extends Dialog {
 
-    ListEditor listEditor;
+    RpsListRequestContainer listEditor;
 
     ArrayList<String> selectedRadarIDs = new ArrayList<String>();
 
@@ -75,7 +75,7 @@ public class StoreDialog extends Dialog {
 
     TableViewer vcpViewer;
 
-    public StoreDialog(Shell parentShell, ListEditor listEditor) {
+    public StoreDialog(Shell parentShell, RpsListRequestContainer listEditor) {
         super(parentShell);
         this.listEditor = listEditor;
     }
