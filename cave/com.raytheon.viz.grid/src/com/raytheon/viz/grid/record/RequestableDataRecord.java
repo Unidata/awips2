@@ -38,6 +38,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.grid.data.GridRequestableData;
 import com.raytheon.viz.grid.data.TiltRequestableData.TiltCenterPoint;
 import com.raytheon.viz.grid.util.TiltRequest;
+import com.raytheon.viz.grid.data.ImportRequestableData;
 
 /**
  * A PDO that extends GridRecord and wraps a AbstractRequestableData to allow
@@ -51,6 +52,9 @@ import com.raytheon.viz.grid.util.TiltRequest;
  * Mar 18, 2010            bsteffen    Initial creation
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Nov 21, 2014 3026       mpduff      Set secondary ID if it exists.
+ * Mar 15, 2016 DR 18657   MPorricelli Do not process dependency of Import
+ *                                     data to avoid coverage mismatch with
+ *                                     base data
  * 
  * 
  * </pre>
@@ -175,7 +179,7 @@ public class RequestableDataRecord extends GridRecord {
                 results.add((GridRequestableData) current);
             } else {
                 for (AbstractRequestableData data : current.getDependencies()) {
-                    if (data != null) {
+                    if (data != null && !(data instanceof ImportRequestableData)) {
                         list.add(data);
                     }
                 }

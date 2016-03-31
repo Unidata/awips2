@@ -6,7 +6,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 
 /**
  * Describes how polygon is allowed to extend into a site's marine areas
- * (for land-based warnings) or onto land (for marine-based warnings.)
+ * (for land-based warnings) or onto land (for marine-based warnings).
  *
  * <pre>
  *
