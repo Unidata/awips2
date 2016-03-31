@@ -45,6 +45,7 @@ import com.raytheon.viz.texteditor.util.VtecUtil;
  * May 24, 2010            jsanchez    Initial creation
  * Apr 25, 2014 DR 16668   D. Friedman Only notify on NEW products.
  * Jan 26, 2016 5054       randerso    Changed to use display as parent
+ * Mar 30, 2016 5513       randerso    Fixed to return the status of the close prompt
  * 
  * </pre>
  * 
@@ -86,7 +87,7 @@ public class NotifyExpiration {
         }
 
         VtecObject vtecObject = VtecUtil.parseMessage(warning);
-        if ((vtecObject == null) || !"NEW".equals(vtecObject.getAction())) {
+        if (vtecObject == null || !"NEW".equals(vtecObject.getAction())) {
             return;
         }
         Calendar expire = vtecObject.getEndTime();
@@ -98,16 +99,19 @@ public class NotifyExpiration {
         tasks.add(notify);
     }
 
-    public void checkExpirationNotices(Shell shell) {
-        if ((shell != null) && !tasks.isEmpty()) {
-            if (MessageDialog.openQuestion(shell, EXIT_TITLE, EXIT_MSG)) {
+    public boolean checkExpirationNotices(Shell shell) {
+        boolean shouldClose = true;
+        if (shell != null && !tasks.isEmpty()) {
+            shouldClose = MessageDialog.openQuestion(shell, EXIT_TITLE,
+                    EXIT_MSG);
+            if (shouldClose) {
                 for (TimerTask t : tasks) {
                     t.cancel();
                 }
                 tasks.clear();
             }
         }
-
+        return shouldClose;
     }
 
     public static void remove(NotifyExpirationTask task) {
