@@ -11,7 +11,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
-import com.raytheon.viz.ui.dialogs.CaveSWTDialogBase.CAVE;
 
 /**
  * Produces a warning when one or more lines in the text product
