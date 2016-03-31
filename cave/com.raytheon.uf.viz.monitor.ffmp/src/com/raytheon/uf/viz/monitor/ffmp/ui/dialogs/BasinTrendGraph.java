@@ -67,6 +67,7 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.rsc.FFMPGraphData;
  * Sep 30, 2009            lvenable     Initial creation
  * Oct 10, 2015  4756      dhladky      Dynamic bounding of Y axis.
  * Feb 11, 2016  5360      tjensen      Fix scaling issues
+ * Mar 26, 2016  5493      dhladky      Removed code that prevented drawing 12/24hr FFG
  * 
  * </pre>
  * 
@@ -2441,10 +2442,6 @@ public class BasinTrendGraph {
      *            Graphics Context.
      */
     private void drawHoursGuidGraphLine(GC gc) {
-        // Do not draw the guidance if the hours are 12 or 24.
-        if (timeDur == TimeDuration.HR_12 || timeDur == TimeDuration.HR_24) {
-            return;
-        }
 
         int y = 0;
 
