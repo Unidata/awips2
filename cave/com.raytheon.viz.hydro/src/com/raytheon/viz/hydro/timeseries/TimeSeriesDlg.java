@@ -2173,36 +2173,28 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
             String pe = gageData.getPe();
             String ts = gageData.getTs();
             String ext = gageData.getExtremum();
-            StringBuilder sb = new StringBuilder();
 
-            int itemCount = bottomDataTable.getItemCount();
-            for (int i = 0; i < itemCount; i++) {
-                sb.append(bottomDataTable.getItem(i));
-                String[] parts = sb.toString().split("\\s+", 4);
-                if ((pe + ts + ext).equalsIgnoreCase(parts[0] + parts[1]
-                        + parts[2])) {
-                    bottomDataTable.setSelection(i);
+            for (TableItem item : bottomDataTable.getItems()) {
+                if (pe.equalsIgnoreCase(item.getText(0))
+                        && ts.equalsIgnoreCase(item.getText(1))
+                        && ext.equalsIgnoreCase(item.getText(2))) {
+                    bottomDataTable.setSelection(item);
                     break;
                 }
-                sb.setLength(0);
             }
         }
-        /* used for questionable and Bad Data Gui */
 
+        /* used for questionable and Bad Data Gui */
         if (currentPe != null && currentTs != null) {
             String qPe = currentPe;
             String qTs = currentTs;
-            StringBuilder stb = new StringBuilder();
 
-            int itemCount = bottomDataTable.getItemCount();
-            for (int ii = 0; ii < itemCount; ii++) {
-                stb.append(bottomDataTable.getItem(ii));
-                String[] parts = stb.toString().split("\\s+", 4);
-                if ((qPe + qTs).equalsIgnoreCase(parts[0] + parts[1])) {
-                    bottomDataTable.setSelection(ii);
+            for (TableItem item : bottomDataTable.getItems()) {
+                if (qPe.equalsIgnoreCase(item.getText(0))
+                        && qTs.equalsIgnoreCase(item.getText(1))) {
+                    bottomDataTable.setSelection(item);
                     break;
                 }
-                stb.setLength(0);
             }
         }
     }
