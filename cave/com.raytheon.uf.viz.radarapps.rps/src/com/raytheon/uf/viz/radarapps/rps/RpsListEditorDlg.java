@@ -619,11 +619,10 @@ public class RpsListEditorDlg extends CaveSWTDialog {
     private String getRequestLabel(Request req) {
         RadarProduct rp = ProductInfo.getInstance().getPoductForCode(
                 req.productCode);
-        Collection<RadarProduct> variants = ProductInfo.getInstance().select(
-                new ProductInfo.Selector(null, rp.mnemonic, null, null));
         StringBuilder sb = new StringBuilder();
         if (rp != null) {
             if (rp.name != null) {
+                Collection<RadarProduct> variants = ProductInfo.getInstance()
                     .select(new ProductInfo.Selector(null, rp.mnemonic, null,
                             null));
                 sb.append(rp.name);
