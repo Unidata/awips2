@@ -827,7 +827,7 @@ public class RpsListEditorDlg extends CaveSWTDialog {
                     userFilePath, e.getLocalizedMessage());
             statusHandler.error(msg, e);
             showError(msg);
-
+        }
         return success;
     }
 
