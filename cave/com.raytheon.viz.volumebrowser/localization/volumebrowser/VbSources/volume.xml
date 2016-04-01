@@ -39,7 +39,6 @@
     <!-- Old version being replaced by GFS229
     <vbSource key="AVN203" category="Volume" />
     -->
-    <vbSource key="GFS201" category="Volume" />
     <vbSource key="GFS217" category="Volume/GFS20" />
     <vbSource key="GFS215" category="Volume/GFS20" />
     <vbSource key="GFS20-PAC" category="Volume/GFS20" />
