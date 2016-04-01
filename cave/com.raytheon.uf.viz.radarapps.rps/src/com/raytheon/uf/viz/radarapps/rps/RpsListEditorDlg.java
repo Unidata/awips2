@@ -499,7 +499,6 @@ public class RpsListEditorDlg extends CaveSWTDialog {
     private void onClose(ShellEvent e) {
         e.doit = !isUnsaved();
         return;
-        }
     }
 
     private RadarType getRadarTypeRestriction() {
