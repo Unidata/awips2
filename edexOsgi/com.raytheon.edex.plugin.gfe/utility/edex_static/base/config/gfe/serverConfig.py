@@ -76,6 +76,7 @@
 #    11/05/2015          #18182    ryu            Change D2DDBVERSIONS value for HPCERP to 24 
 #    12/22/2015          #14152    jwatson        Added Sky, Wind to GFSLAMPGrid parms
 #    02/09/2016          #5283     nabowle        Remove NGM support.
+#    04/01/2016          18777     ryu            Replace NCF ip addresses.
 ####################################################################################################
 
 #----------------------------------------------------------------------------
@@ -2738,8 +2739,8 @@ D2DAccumulativeElements= {
 #---------------------------------------------------------------------------
 # base urls for the ISC Routing Table
 ISC_ROUTING_TABLE_ADDRESS = {
-    "ANCF" : "http://165.92.30.69:8080/irt",
-    "BNCF" : "http://165.92.180.25:8080/irt"
+    "ANCF" : "http://svcbu-ancf.er.awips.noaa.gov:8080/irt",
+    "BNCF" : "http://svcbu-bncf.er.awips.noaa.gov:8080/irt"
     }
 
 
