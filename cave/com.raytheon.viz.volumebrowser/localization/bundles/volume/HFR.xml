@@ -9,8 +9,11 @@
                         <capabilities>
                             <capability xsi:type="densityCapability" density="1.0"/>
                             <capability xsi:type="colorMapCapability">
-                                <colorMapParameters colorMapName="Grid/gridded data">
-                                    <persisted/>
+                                <colorMapParameters colorMapName="Grid/HFR Ocean Current Speed">
+                                    <persisted>
+                                        <colorMapMin>0</colorMapMin>
+                                        <colorMapMax>2</colorMapMax>
+                                    </persisted>
                                 </colorMapParameters>
                             </capability>
                             <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="DEFAULT"/>
@@ -34,7 +37,7 @@
                                 <constraint constraintType="EQUALS" constraintValue="SPC"/>
                             </mapping>
                             <mapping key="info.datasetId">
-                                <constraint constraintType="IN" constraintValue="HFR-EAST_6KM,HFR-EAST_PR_6KM,HFR-US_EAST_DELAWARE_1KM,HFR-US_EAST_FLORIDA_2KM,HFR-US_EAST_NORTH_2KM,HFR-US_EAST_SOUTH_2KM,HFR-US_EAST_VIRGINIA_1KM,HFR-US_HAWAII_1KM,HFR-US_HAWAII_2KM,HFR-US_HAWAII_6KM,HFR-US_WEST_500M,HFR-US_WEST_CENCAL_2KM,HFR-US_WEST_LOSANGELES_1KM,HFR-US_WEST_LOSOSOS_1KM,HFR-US_WEST_NORTH_2KM,HFR-US_WEST_SANFRAN_1KM,HFR-US_WEST_SOCAL_2KM,HFR-US_WEST_WASHINGTON_1KM,HFR-WEST_6KM"/>
+                                <constraint constraintType="IN" constraintValue="HFR-EAST_6KM,HFR-EAST_PR_6KM,HFR-US_HAWAII_6KM,HFR-WEST_6KM"/>
                             </mapping>
                             <mapping key="info.level.leveltwovalue">
                                 <constraint constraintType="EQUALS" constraintValue="-999999.0"/>
@@ -73,7 +76,268 @@
                                 <constraint constraintType="EQUALS" constraintValue="OGRD"/>
                             </mapping>
                             <mapping key="info.datasetId">
-                                <constraint constraintType="IN" constraintValue="HFR-EAST_6KM,HFR-EAST_PR_6KM,HFR-US_EAST_DELAWARE_1KM,HFR-US_EAST_FLORIDA_2KM,HFR-US_EAST_NORTH_2KM,HFR-US_EAST_SOUTH_2KM,HFR-US_EAST_VIRGINIA_1KM,HFR-US_HAWAII_1KM,HFR-US_HAWAII_2KM,HFR-US_HAWAII_6KM,HFR-US_WEST_500M,HFR-US_WEST_CENCAL_2KM,HFR-US_WEST_LOSANGELES_1KM,HFR-US_WEST_LOSOSOS_1KM,HFR-US_WEST_NORTH_2KM,HFR-US_WEST_SANFRAN_1KM,HFR-US_WEST_SOCAL_2KM,HFR-US_WEST_WASHINGTON_1KM,HFR-WEST_6KM"/>
+                                <constraint constraintType="IN" constraintValue="HFR-EAST_6KM,HFR-EAST_PR_6KM,HFR-US_HAWAII_6KM,HFR-WEST_6KM"/>
+                            </mapping>
+                            <mapping key="info.level.leveltwovalue">
+                                <constraint constraintType="EQUALS" constraintValue="-999999.0"/>
+                            </mapping>
+                            <mapping key="pluginName">
+                                <constraint constraintType="EQUALS" constraintValue="grid"/>
+                            </mapping>
+                        </metadataMap>
+                        <alertParser xsi:type="gribDataCubeAlertMessageParser"/>
+                    </resourceData>
+                </resource>
+				            	<resource>
+                    <loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <perspectiveProperty xsi:type="d2dLoadProperties" loadMode="VALID_TIME_SEQ" timeMatchBasis="true"/>
+                        <capabilities>
+                            <capability xsi:type="densityCapability" density="1.0"/>
+                            <capability xsi:type="colorMapCapability">
+                                <colorMapParameters colorMapName="Grid/HFR Ocean Current Speed">
+                                    <persisted>
+                                        <colorMapMin>0</colorMapMin>
+                                        <colorMapMax>2</colorMapMax>
+                                    </persisted>
+                                </colorMapParameters>
+                            </capability>
+                            <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="DEFAULT"/>
+                            <capability xsi:type="colorableCapability" colorAsString="white"/>
+							<capability xsi:type="magnificationCapability" magnification="1.0"/>
+                            <capability xsi:type="displayTypeCapability" displayType="IMAGE"/>
+                            <capability xsi:type="imagingCapability" contrast="1.0" brightness="0.8" interpolationState="true" alpha="1.0"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties isVisible="true" isHoverOn="false" isMapLayer="false" isBlinking="false" isSystemResource="false" renderingOrderId="IMAGE_WORLD">
+                        <pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                    </properties>
+                    <resourceData xsi:type="gridResourceData" sampling="false" spatial="false" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="true">
+                        <metadataMap>
+                            <mapping key="info.level.levelonevalue">
+                                <constraint constraintType="EQUALS" constraintValue="0.0"/>
+                            </mapping>
+                            <mapping key="info.level.masterLevel.name">
+                                <constraint constraintType="EQUALS" constraintValue="SFC"/>
+                            </mapping>
+                            <mapping key="info.parameter.abbreviation">
+                                <constraint constraintType="EQUALS" constraintValue="SPC"/>
+                            </mapping>
+                            <mapping key="info.datasetId">
+                                <constraint constraintType="IN" constraintValue="HFR-US_EAST_FLORIDA_2KM,HFR-US_EAST_NORTH_2KM,HFR-US_EAST_SOUTH_2KM,HFR-US_HAWAII_2KM,HFR-US_WEST_CENCAL_2KM,HFR-US_WEST_NORTH_2KM,HFR-US_WEST_SOCAL_2KM"/>
+                            </mapping>
+                            <mapping key="info.level.leveltwovalue">
+                                <constraint constraintType="EQUALS" constraintValue="-999999.0"/>
+                            </mapping>
+                            <mapping key="pluginName">
+                                <constraint constraintType="EQUALS" constraintValue="grid"/>
+                            </mapping>
+                        </metadataMap>
+                        <alertParser xsi:type="gribDataCubeAlertMessageParser"/>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties xsi:type="gridLoadProperties" displayType="ARROW" loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <perspectiveProperty xsi:type="d2dLoadProperties" loadMode="VALID_TIME_SEQ" timeMatchBasis="true"/>
+                        <capabilities>
+                            <capability xsi:type="colorableCapability" colorAsString="white"/>
+                            <capability xsi:type="magnificationCapability" magnification="0.7"/>
+                            <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="DEFAULT"/>
+                            <capability xsi:type="densityCapability" density="2.0"/>
+                            <capability xsi:type="displayTypeCapability" displayType="ARROW"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties isVisible="true" isHoverOn="false" isMapLayer="false" isBlinking="false" isSystemResource="false" renderingOrderId="CONTOUR">
+                        <pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                    </properties>
+                    <resourceData xsi:type="gridResourceData" sampling="false" spatial="false" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="true">
+                        <metadataMap>
+                            <mapping key="info.level.levelonevalue">
+                                <constraint constraintType="EQUALS" constraintValue="0.0"/>
+                            </mapping>
+                            <mapping key="info.level.masterLevel.name">
+                                <constraint constraintType="EQUALS" constraintValue="SFC"/>
+                            </mapping>
+                            <mapping key="info.parameter.abbreviation">
+                                <constraint constraintType="EQUALS" constraintValue="OGRD"/>
+                            </mapping>
+                            <mapping key="info.datasetId">
+                                <constraint constraintType="IN" constraintValue="HFR-US_EAST_FLORIDA_2KM,HFR-US_EAST_NORTH_2KM,HFR-US_EAST_SOUTH_2KM,HFR-US_HAWAII_2KM,HFR-US_WEST_CENCAL_2KM,HFR-US_WEST_NORTH_2KM,HFR-US_WEST_SOCAL_2KM"/>
+                            </mapping>
+                            <mapping key="info.level.leveltwovalue">
+                                <constraint constraintType="EQUALS" constraintValue="-999999.0"/>
+                            </mapping>
+                            <mapping key="pluginName">
+                                <constraint constraintType="EQUALS" constraintValue="grid"/>
+                            </mapping>
+                        </metadataMap>
+                        <alertParser xsi:type="gribDataCubeAlertMessageParser"/>
+                    </resourceData>
+                </resource>
+            	<resource>
+                    <loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <perspectiveProperty xsi:type="d2dLoadProperties" loadMode="VALID_TIME_SEQ" timeMatchBasis="true"/>
+                        <capabilities>
+                            <capability xsi:type="densityCapability" density="1.0"/>
+                            <capability xsi:type="colorMapCapability">
+                                <colorMapParameters colorMapName="Grid/HFR Ocean Current Speed">
+                                    <persisted>
+                                        <colorMapMin>0</colorMapMin>
+                                        <colorMapMax>2</colorMapMax>
+                                    </persisted>
+                                </colorMapParameters>
+                            </capability>
+                            <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="DEFAULT"/>
+                            <capability xsi:type="colorableCapability" colorAsString="white"/>
+							<capability xsi:type="magnificationCapability" magnification="1.0"/>
+                            <capability xsi:type="displayTypeCapability" displayType="IMAGE"/>
+                            <capability xsi:type="imagingCapability" contrast="1.0" brightness="0.8" interpolationState="true" alpha="1.0"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties isVisible="true" isHoverOn="false" isMapLayer="false" isBlinking="false" isSystemResource="false" renderingOrderId="IMAGE_WORLD">
+                        <pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                    </properties>
+                    <resourceData xsi:type="gridResourceData" sampling="false" spatial="false" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="true">
+                        <metadataMap>
+                            <mapping key="info.level.levelonevalue">
+                                <constraint constraintType="EQUALS" constraintValue="0.0"/>
+                            </mapping>
+                            <mapping key="info.level.masterLevel.name">
+                                <constraint constraintType="EQUALS" constraintValue="SFC"/>
+                            </mapping>
+                            <mapping key="info.parameter.abbreviation">
+                                <constraint constraintType="EQUALS" constraintValue="SPC"/>
+                            </mapping>
+                            <mapping key="info.datasetId">
+                                <constraint constraintType="IN" constraintValue="HFR-US_EAST_DELAWARE_1KM,HFR-US_EAST_VIRGINIA_1KM,HFR-US_HAWAII_1KM,HFR-US_WEST_LOSANGELES_1KM,HFR-US_WEST_LOSOSOS_1KM,HFR-US_WEST_SANFRAN_1KM,HFR-US_WEST_WASHINGTON_1KM"/>
+                            </mapping>
+                            <mapping key="info.level.leveltwovalue">
+                                <constraint constraintType="EQUALS" constraintValue="-999999.0"/>
+                            </mapping>
+                            <mapping key="pluginName">
+                                <constraint constraintType="EQUALS" constraintValue="grid"/>
+                            </mapping>
+                        </metadataMap>
+                        <alertParser xsi:type="gribDataCubeAlertMessageParser"/>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties xsi:type="gridLoadProperties" displayType="ARROW" loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <perspectiveProperty xsi:type="d2dLoadProperties" loadMode="VALID_TIME_SEQ" timeMatchBasis="true"/>
+                        <capabilities>
+                            <capability xsi:type="colorableCapability" colorAsString="white"/>
+                            <capability xsi:type="magnificationCapability" magnification="0.7"/>
+                            <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="DEFAULT"/>
+                            <capability xsi:type="densityCapability" density="2.0"/>
+                            <capability xsi:type="displayTypeCapability" displayType="ARROW"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties isVisible="true" isHoverOn="false" isMapLayer="false" isBlinking="false" isSystemResource="false" renderingOrderId="CONTOUR">
+                        <pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                    </properties>
+                    <resourceData xsi:type="gridResourceData" sampling="false" spatial="false" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="true">
+                        <metadataMap>
+                            <mapping key="info.level.levelonevalue">
+                                <constraint constraintType="EQUALS" constraintValue="0.0"/>
+                            </mapping>
+                            <mapping key="info.level.masterLevel.name">
+                                <constraint constraintType="EQUALS" constraintValue="SFC"/>
+                            </mapping>
+                            <mapping key="info.parameter.abbreviation">
+                                <constraint constraintType="EQUALS" constraintValue="OGRD"/>
+                            </mapping>
+                            <mapping key="info.datasetId">
+                                <constraint constraintType="IN" constraintValue="HFR-US_EAST_DELAWARE_1KM,HFR-US_EAST_VIRGINIA_1KM,HFR-US_HAWAII_1KM,HFR-US_WEST_LOSANGELES_1KM,HFR-US_WEST_LOSOSOS_1KM,HFR-US_WEST_SANFRAN_1KM,HFR-US_WEST_WASHINGTON_1KM"/>
+                            </mapping>
+                            <mapping key="info.level.leveltwovalue">
+                                <constraint constraintType="EQUALS" constraintValue="-999999.0"/>
+                            </mapping>
+                            <mapping key="pluginName">
+                                <constraint constraintType="EQUALS" constraintValue="grid"/>
+                            </mapping>
+                        </metadataMap>
+                        <alertParser xsi:type="gribDataCubeAlertMessageParser"/>
+                    </resourceData>
+                </resource>
+            	<resource>
+                    <loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <perspectiveProperty xsi:type="d2dLoadProperties" loadMode="VALID_TIME_SEQ" timeMatchBasis="true"/>
+                        <capabilities>
+                            <capability xsi:type="densityCapability" density="1.0"/>
+                            <capability xsi:type="colorMapCapability">
+                                <colorMapParameters colorMapName="Grid/HFR Ocean Current Speed">
+                                    <persisted>
+                                        <colorMapMin>0</colorMapMin>
+                                        <colorMapMax>2</colorMapMax>
+                                    </persisted>
+                                </colorMapParameters>
+                            </capability>
+                            <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="DEFAULT"/>
+                            <capability xsi:type="colorableCapability" colorAsString="white"/>
+							<capability xsi:type="magnificationCapability" magnification="1.0"/>
+                            <capability xsi:type="displayTypeCapability" displayType="IMAGE"/>
+                            <capability xsi:type="imagingCapability" contrast="1.0" brightness="0.8" interpolationState="true" alpha="1.0"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties isVisible="true" isHoverOn="false" isMapLayer="false" isBlinking="false" isSystemResource="false" renderingOrderId="IMAGE_WORLD">
+                        <pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                    </properties>
+                    <resourceData xsi:type="gridResourceData" sampling="false" spatial="false" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="true">
+                        <metadataMap>
+                            <mapping key="info.level.levelonevalue">
+                                <constraint constraintType="EQUALS" constraintValue="0.0"/>
+                            </mapping>
+                            <mapping key="info.level.masterLevel.name">
+                                <constraint constraintType="EQUALS" constraintValue="SFC"/>
+                            </mapping>
+                            <mapping key="info.parameter.abbreviation">
+                                <constraint constraintType="EQUALS" constraintValue="SPC"/>
+                            </mapping>
+                            <mapping key="info.datasetId">
+                                <constraint constraintType="IN" constraintValue="HFR-US_WEST_500M"/>
+                            </mapping>
+                            <mapping key="info.level.leveltwovalue">
+                                <constraint constraintType="EQUALS" constraintValue="-999999.0"/>
+                            </mapping>
+                            <mapping key="pluginName">
+                                <constraint constraintType="EQUALS" constraintValue="grid"/>
+                            </mapping>
+                        </metadataMap>
+                        <alertParser xsi:type="gribDataCubeAlertMessageParser"/>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties xsi:type="gridLoadProperties" displayType="ARROW" loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <perspectiveProperty xsi:type="d2dLoadProperties" loadMode="VALID_TIME_SEQ" timeMatchBasis="true"/>
+                        <capabilities>
+                            <capability xsi:type="colorableCapability" colorAsString="white"/>
+                            <capability xsi:type="magnificationCapability" magnification="0.7"/>
+                            <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="DEFAULT"/>
+                            <capability xsi:type="densityCapability" density="2.0"/>
+                            <capability xsi:type="displayTypeCapability" displayType="ARROW"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties isVisible="true" isHoverOn="false" isMapLayer="false" isBlinking="false" isSystemResource="false" renderingOrderId="CONTOUR">
+                        <pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                    </properties>
+                    <resourceData xsi:type="gridResourceData" sampling="false" spatial="false" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="true">
+                        <metadataMap>
+                            <mapping key="info.level.levelonevalue">
+                                <constraint constraintType="EQUALS" constraintValue="0.0"/>
+                            </mapping>
+                            <mapping key="info.level.masterLevel.name">
+                                <constraint constraintType="EQUALS" constraintValue="SFC"/>
+                            </mapping>
+                            <mapping key="info.parameter.abbreviation">
+                                <constraint constraintType="EQUALS" constraintValue="OGRD"/>
+                            </mapping>
+                            <mapping key="info.datasetId">
+                                <constraint constraintType="IN" constraintValue="HFR-US_WEST_500M"/>
                             </mapping>
                             <mapping key="info.level.leveltwovalue">
                                 <constraint constraintType="EQUALS" constraintValue="-999999.0"/>
