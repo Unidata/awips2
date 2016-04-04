@@ -53,7 +53,7 @@ export OS_SUFFIX=".LX"
 export geo_data=$RFCLX/geo_data
 
 export PGOPTIONS='-c standard_conforming_strings=on'
-export FXA_HOME=/awips/fxa
+export FXA_HOME=/awips2/fxa
 export FXA_BIN_DIR=$FXA_HOME/bin
 
 # The following variables provide a JDBC URL or pieces thereof for
