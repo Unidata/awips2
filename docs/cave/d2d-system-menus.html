@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html itemscope itemtype="http://schema.org/Organization">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="chrome=1" />
+<meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1">
+<meta name="google-site-verification" content="k0e8DrbD40s54xHNBqwIsRrSSAkZoprwtEYDnNY06bU" />
+<meta name="google-site-verification" content="pnjjbQFvjPwaWhEXY6nSyaS9iyghmH-M_yLHBveDX2M">
+<meta itemprop="name" content="AWIPS II - System Menus">
+<meta itemprop="description" content="Polymer is a library that uses the latest web technologies to let you create custom HTML elements. Build anything from a button to a complete application as an encapsulated, reusable element that works across desktop and mobile.">
+
+
+<meta itemprop="image" content="https://www.polymer-project.org/images/instacod.png">
+
+
+<title>
+  
+    System Menus -
+   AWIPS II
+</title>
+<link rel="publisher" href="https://plus.google.com/107187849809354688692">
+<link rel="shortcut icon" href="http://www.unidata.ucar.edu/favicon.ico">
+<link href="//fonts.googleapis.com/css?family=RobotoDraft:300,400,500|Source+Code+Pro:400,500,700" rel="stylesheet">
+<link href="/polymer-docs/css/site2.css?20160403" rel="stylesheet">
+<link href="/polymer-docs/css/site2_sd_rules.css?20160403" rel="stylesheet" shim-shadowdom>
+
+
+
+<script src="/polymer-docs/components/webcomponentsjs/webcomponents.min.js?20160403"></script>
+<!-- TODO: remove when https://github.com/Polymer/polymer/issues/391 is fixed -->
+<link rel="import" href="/polymer-docs/components/polymer/polymer.html">
+<link rel="stylesheet" href="/polymer-docs/css/elements/docs-menu.css">
+<link rel="import" href="/polymer-docs/elements/common_elements.vulcanized.html?20160403">
+
+
+</head>
+<body id="system-menus">
+
+<main id="content-container" class="polymer-content">
+  <app-drawer id="sidebar" unresolved>
+    <div layout vertical id="sidebar-content">
+      <div id="logo-container" layout horizontal center>
+        <a href="/polymer-docs/" class="logo"><img src="/polymer-docs/images/logos/awips2.png" alt="AWIPS II User Guide"></a>
+      </div>
+
+      <docs-menu unresolved flex
+		 baseurl='/polymer-docs'
+                 coreElements='{"core-header-panel":"components/core-header-panel/core-header-panel.html","core-transition-pages":"components/core-animated-pages/transitions/core-transition-pages.html","core-animated-pages":"components/core-animated-pages/core-animated-pages.html","core-overlay":"components/core-overlay/core-overlay.html","core-toolbar":"components/core-toolbar/core-toolbar.html","core-image":"components/core-image/core-image.html","core-shared-lib":"components/core-shared-lib/core-shared-lib.html","core-a11y-keys":"components/core-a11y-keys/core-a11y-keys.html","core-menu-button":"components/core-menu-button/core-menu-button.html","core-icon":"components/core-icon/core-icon.html","core-selection":"components/core-selection/core-selection.html","core-style":"components/core-style/core-style.html","core-menu":"components/core-menu/core-menu.html","core-submenu":"components/core-menu/core-submenu.html","core-list":"components/core-list/core-list.html","core-dropdown-menu":"components/core-dropdown-menu/core-dropdown-menu.html","core-input":"components/core-input/core-input.html","core-iconset-svg":"components/core-iconset-svg/core-iconset-svg.html","core-field":"components/core-field/core-field.html","core-selector":"components/core-selector/core-selector.html","core-media-query":"components/core-media-query/core-media-query.html","core-animation-group":"components/core-animation/core-animation-group.html","core-animation":"components/core-animation/core-animation.html","core-animation-keyframe":"components/core-animation/core-animation.html","core-animation-prop":"components/core-animation/core-animation.html","core-dropdown":"components/core-dropdown/core-dropdown.html","core-dropdown-base":"components/core-dropdown/core-dropdown-base.html","core-pages":"components/core-pages/core-pages.html","core-meta":"components/core-meta/core-meta.html","core-splitter":"components/core-splitter/core-splitter.html","core-scroll-header-panel":"components/core-scroll-header-panel/core-scroll-header-panel.html","core-tooltip":"components/core-tooltip/core-tooltip.html","core-localstorage":"components/core-localstorage/core-localstorage.html","core-scroll-threshold":"components/core-scroll-threshold/core-scroll-threshold.html","core-drag-drop":"components/core-drag-drop/core-drag-drop.html","core-iconset":"components/core-iconset/core-iconset.html","core-label":"components/core-label/core-label.html","core-signals":"components/core-signals/core-signals.html","core-transition":"components/core-transition/core-transition.html","core-scaffold":"components/core-scaffold/core-scaffold.html","core-drawer-panel":"components/core-drawer-panel/core-drawer-panel.html","core-range":"components/core-range/core-range.html","core-collapse":"components/core-collapse/core-collapse.html","core-xhr":"components/core-ajax/core-xhr.html","core-ajax":"components/core-ajax/core-ajax.html","core-icon-button":"components/core-icon-button/core-icon-button.html","core-item":"components/core-item/core-item.html"}'
+                 paperElements='{"paper-dropdown":"components/paper-dropdown/paper-dropdown.html","paper-dropdown-transition":"components/paper-dropdown/paper-dropdown-transition.html","paper-item":"components/paper-item/paper-item.html","paper-dropdown-menu":"components/paper-dropdown-menu/paper-dropdown-menu.html","paper-checkbox":"components/paper-checkbox/paper-checkbox.html","paper-button":"components/paper-button/paper-button.html","paper-button-base":"components/paper-button/paper-button-base.html","paper-menu-button":"components/paper-menu-button/paper-menu-button.html","paper-radio-group":"components/paper-radio-group/paper-radio-group.html","paper-toast":"components/paper-toast/paper-toast.html","paper-char-counter":"components/paper-input/paper-char-counter.html","paper-autogrow-textarea":"components/paper-input/paper-autogrow-textarea.html","paper-input":"components/paper-input/paper-input.html","paper-input-decorator":"components/paper-input/paper-input-decorator.html","paper-slider":"components/paper-slider/paper-slider.html","paper-toggle-button":"components/paper-toggle-button/paper-toggle-button.html","paper-fab":"components/paper-fab/paper-fab.html","paper-ripple":"components/paper-ripple/paper-ripple.html","paper-icon-button":"components/paper-icon-button/paper-icon-button.html","paper-tabs":"components/paper-tabs/paper-tabs.html","paper-tab":"components/paper-tabs/paper-tab.html","paper-shadow":"components/paper-shadow/paper-shadow.html","paper-radio-button":"components/paper-radio-button/paper-radio-button.html","paper-dialog":"components/paper-dialog/paper-dialog.html","paper-action-dialog":"components/paper-dialog/paper-action-dialog.html","paper-dialog-base":"components/paper-dialog/paper-dialog-base.html","paper-dialog-transition":"components/paper-dialog/paper-dialog-transition.html","paper-spinner":"components/paper-spinner/paper-spinner.html","paper-progress":"components/paper-progress/paper-progress.html"}'></docs-menu>
+    </div>
+  </app-drawer>
+
+  <scroll-area sidebar unresolved class="scrolling">
+    <site-banner type="guide" shortname="Docs" unresolved>
+      
+<app-bar theme="light" class="bar fixed">
+</app-bar>
+
+      <header class="shrink">
+        <h1>
+        
+          D2D User Guide
+        : System Menus
+        </h1>
+      </header>
+    </site-banner>
+
+    
+    
+
+    <article class="show-permalinks">
+
+      <header class="onlyonmobile">
+        <h1>
+          
+          D2D User Guide
+          : System Menus
+        </h1>
+      </header>
+
+      <h1 id="d2d-toolbar">D2D Toolbar</h1>
+
+<p>D2D (Display 2-Dimensions) is the default AWIPS II CAVE perspective, designed to mimmic the look and feel of the legacy AWIPS I system. Frame control, map projection, image properties, and a few featured applications make up the the primary D2D toolbar.</p>
+
+<p><img src="../images/iuNDS6J.png" alt="image" /></p>
+
+<ul>
+  <li>
+    <p><strong>CONUS</strong> is the default map display of the continental United States in a North Polar Stereographic projection. This menu allows you to select different projections.</p>
+  </li>
+  <li>
+    <p><strong>Clear</strong> will remove all non-system resources (meaning data) while preserving any map overlays you have added to the view.</p>
+  </li>
+  <li>
+    <p><img src="../images/qYgcjy2.png" alt="image" /> is a shortcut to <strong>Image Properties</strong> for the top-loaded image resource in the stack.</p>
+  </li>
+  <li>
+    <p><img src="../images/Fz5CTtf.png" alt="image" /> freezes and un-freezes panning (movement) of the map.</p>
+  </li>
+  <li>
+    <p><strong>Valid time seq</strong> is the default time-matching setting for loading data. Select this menu to switch to configurations such as Latest, No Backfill, Previous run, Prognosis loop, and more.</p>
+  </li>
+  <li>
+    <p><img src="../images/OZKVBSL.png" alt="image" /> controls the frame number, display, speed, etc.  You can also control the frames with the left and right keyboard keys.</p>
+  </li>
+  <li>
+    <p>Application links to <strong>Warngen</strong>, <strong>Ncdata</strong> (NCP GEMPAK-like grids), <strong>Nsharp</strong>, and the <strong>Product Browser</strong> are also available.</p>
+  </li>
+</ul>
+
+<h1 id="cave-menu">CAVE Menu</h1>
+
+<h2 id="awips-statistics">AWIPS Statistics</h2>
+
+<p>captures system performance and analyzes statistics. The captured data is viewable via a graph or .csv file.</p>
+
+<p><img src="../images/w3wBYzm.png" alt="image" /></p>
+
+<h2 id="preferences">Preferences</h2>
+
+<p>allows the user to set the Base Maps and Server Data directories; set the Database Connection String, Config Directory, and Log Directory for the Hydro applications; set the Localization Site and/or Server for the workstation; configure the Mouse operations; change the Performance Levels; set the Radar Server; set the Font Magnification; and set the Text Workstation hostname.</p>
+
+<p><img src="../images/ymFRs6S.png" alt="image" /></p>
+
+<h1 id="file">File</h1>
+
+<p><img src="../images/67Wwz3L.png" alt="image" /></p>
+
+<h2 id="new-map">New Map</h2>
+
+<p>opens a new blank map editor tab.  This can also be done by <strong>right-click</strong> on any tab and selecting <strong>New Editor</strong></p>
+
+<p><img src="../images/Sd3qL6LJ55.gif" alt="image" /></p>
+
+<h2 id="new-projection">New Projection</h2>
+
+<p>allows users to create a new map projection.</p>
+
+<p><img src="../images/VANzMW2.png" alt="image" /></p>
+
+<h2 id="load-bundle">Load Bundle</h2>
+
+<p>provides the ability to load a previously-saved bundle from within the AWIPS II system.</p>
+
+<p><img src="../images/VWiGMHp.png" alt="image" /></p>
+
+<h2 id="save-bundle">Save Bundle</h2>
+
+<p>provides the ability to save a product display within the AWIPS II system, synching the bundle between CAVE and the EDEX server.</p>
+
+<p><img src="../images/xl53gG4.png" alt="image" /></p>
+
+<h2 id="delete-bundle">Delete Bundle</h2>
+
+<p>provides the ability to select and remove a saved bundle.</p>
+
+<p><img src="../images/eRqHZpD.png" alt="image" /></p>
+
+<h2 id="load-bundle-from-disk">Load Bundle from Disk</h2>
+
+<p>provides the ability to load a previously-saved display from a path within the file directory of the workstation.</p>
+
+<h2 id="save-bundle-to-disk">Save Bundle to Disk</h2>
+
+<p>provides the ability to save a product display to a path within the file directory of the workstation.</p>
+
+<h2 id="load-map-from-disk">Load Map from Disk</h2>
+
+<p>provides the ability to load a map or product display from a path within the file directory of the workstation.</p>
+
+<h2 id="save-map-to-disk">Save Map to Disk</h2>
+
+<p>provides the ability to save a map or product display to a path within the file directory of the workstation.</p>
+
+<h2 id="import">Import</h2>
+
+<p>allows the user to import GIS Data, BCD File, GeoTIFF, LPI File, Shapefile, SPI File, or a D2D Display. The “GIS Data” option opens the GIS application, which provides the ability to import geospatial data from varying GIS data sources. The GIS application has been incorporated into CAVE for use with FX-Net.</p>
+
+<h2 id="export-gt-image">Export &gt; Image</h2>
+
+<p>which captures a screenshot of the current view</p>
+
+<p><img src="../images/UxmboZS.png" alt="image" /></p>
+
+<h2 id="export-gt-print-screen">Export &gt; Print Screen</h2>
+
+<p>will bring up the workstation print dialog.</p>
+
+<h2 id="export-gt-kml">Export &gt; KML</h2>
+
+<p>The displays can then be used in other applications or sent to other users for analysis. The “Export” submenu also includes a “KML” option, which allows users to save D2D displays in the KML (Keyhole Markup Language) file format (actually as a compressed KMZ), which can be used in applications such as Google Earth.</p>
+
+<p><img src="../images/YRP9kOM.png" alt="image" /></p>
+
+<p>The KML dialog box includes options to select frames to export, as well as the following “Other Options”:</p>
+
+<ul>
+  <li>
+    <p><strong>Export Hidden</strong>: When selected, all displayed and hidden products listed in the Product Legend section of the Main Display Pane will be exported.</p>
+  </li>
+  <li>
+    <p><strong>Export Maps</strong>: When selected, all enabled maps displayed within the Main Display Pane will be
+exported.</p>
+  </li>
+  <li>
+    <p><strong>Shade Earth</strong>: When selected, a shaded background is applied to the exported product. If loaded in Google Earth, the earth will be overlaid with a black backdrop, and data will be displayed as it would in D2D with a black background.</p>
+  </li>
+  <li>
+    <p><strong>Show Background Tiles</strong>: When selected, data (such as plot data) will display on top of black
+tiles when loaded in Google Earth.</p>
+  </li>
+</ul>
+
+<h1 id="options">Options</h1>
+
+<h2 id="clear-data">Clear Data</h2>
+
+<p>will remove all non-system resources from the current view (this will preserve any maps that you loaded).</p>
+
+<h2 id="pane--5-pane-layout">1 Pane / 5 Pane Layout</h2>
+
+<p>will switch between the single page (default) view and the 5-panel WFO view (centered on OAX by default).</p>
+
+<h2 id="time-options-ctrl--t">Time Options (Ctrl + T)</h2>
+
+<p>This check button enables/disables the ability to select the time interval between frames of real-time or model data. This feature has the added benefit of allowing you to view extended amounts of data (temporally) but stay within the limits of 64 frames. For example, METAR surface plots, which typically display every hour, can be set to display every three hours via the Select Valid Time and Time Resolution Dialog Box.</p>
+
+<p>When the Time Options check button is selected, the next product you choose to display in the Main Display Pane launches either the Select Valid Time and Time Resolution dialog box or the Select
+Offset and Tolerance dialog box.</p>
+
+<ul>
+  <li>
+    <p>When you are loading data to an empty display and the Time Options check button is enabled, the Select Valid Time and Time Resolution dialog box opens.</p>
+
+    <ul>
+      <li>
+        <p><strong>Valid Time:</strong> In this column of dates/times, you may choose the one that will be the first frame loaded onto the Large Display Pane. The Default option is the most recent data.</p>
+      </li>
+      <li>
+        <p><strong>Time Resolution:</strong> This column contains various time increments in which the data can be displayed. Once you make a selection, the Valid Time Column indents the exact times that will
+be displayed. The Default resolution displays the most recent frames available.</p>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p>With the Time Options check button enabled for a display that already contains data, when you choose the data to be overlaid in the Main Display Pane, the Select Offset and Tolerance dialog
+box appears, providing the following options:</p>
+
+    <ul>
+      <li>
+        <p><strong>Offset</strong>: This column contains various time increments at intervals before, at, or after the time you selected for the first product that is displayed in the Main Display Pane.</p>
+      </li>
+      <li>
+        <p><strong>Tolerance</strong>: The options in this column refer to how strict the time matching is. “None” means an exact match, while “Infinite” will put the closest match in each frame, regardless of how
+far off it is.</p>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="data-scale-ctrl--s">Data Scale (Ctrl + S)</h2>
+
+<p>This check button enables/disables the ability to display data on its native scale. For example, if you enable Data Scaling and select a product from an alternate radar, the data will be displayed with that radar in the center of the screen. Other data can be overlaid on this “dynamic” scale until the Main Display Pane is cleared or a non-plan-view product is loaded.</p>
+
+<h2 id="image-combination-insert">Image Combination (Insert)</h2>
+
+<p>This check button enables/disables the ability to display two images at once. You can also enable/disable the ability to combine images by using the Toggle Image Combination iconified button on the Toolbar.</p>
+
+<p>Combined-image displays have been improved by removing the valid time for non-forecast products and removing the date string (time is kept) from the left side of the legend. In particular, this
+makes All-Tilts radar legends more usable.</p>
+
+<h2 id="display-properties">Display Properties</h2>
+
+<p>This menu option opens the Display Properties dialog box. All the options available in this dialog box are also available on the Toolbar.</p>
+
+<p><img src="../images/x9uQNAI.png" alt="image" /></p>
+
+<h2 id="loop-properties-ctrl--l">Loop Properties (Ctrl + L)</h2>
+
+<p>Loop Properties is another dialog box that can be opened from the Options menu or from the Loop Properties iconified button on the D2D Toolbar, or by using the Ctrl + L keyboard shortcut. The dialog allows you to adjust the forward and backward speeds, with 0 = off and 10 = maximum speed. You can set the duration of the first and last frame dwell times to between zero and 2.5 seconds.</p>
+
+<p>You can turn looping on or off by checking the Looping check button. There is also a Looping button located on the Toolbar that enables/disables the animation in the large display pane. Finally, you can turn looping on and increase/decrease forward speed by pressing Page Up/Page Down on your keyboard, and turn looping off with the Left or Right Arrow keys. On the toolbar, you can use the button to start/stop looping.</p>
+
+<h2 id="image-properties-ctrl--i">Image Properties (Ctrl + I)</h2>
+
+<p>The Image Properties dialog box can be opened here or by using the Image Properties iconified button on the D2D Toolbar, or using using the Ctrl + I keyboard shortcut. This dialog box provides options that allow you to change the color table; adjust the brightness, contrast, and alpha of either a single image or combined images; fade between combined images; and/or interpolate the displayed data.</p>
+
+<h2 id="set-time">Set Time</h2>
+
+<p>This option allows you to set the CAVE clock, located on the bottom of the screen, to an earlier time for reviewing archived data.</p>
+
+<h2 id="set-background-color">Set Background Color</h2>
+
+<p>You can now set the background display color on your workstation. You can also set the background display color for a single pane via mouse Button 3 (B3).</p>
+
+    </article>
+
+    <footer>
+  <div>
+    <div class="links">
+      <a href="https://www.facebook.com/unidata" title="Unidata on Facebook" tabindex="-1"><paper-button><core-icon icon="social:post-facebook"></core-icon>Facebook</paper-button></a>
+      <a href="https://twitter.com/intent/follow?screen_name=unidata" data-twitter-follow title="Follow @Unidata on Twitter" tabindex="-1"><paper-button><core-icon icon="social:post-twitter"></core-icon>Twitter</paper-button></a>
+      <a href="https://github.com/Unidata/awips2"><paper-button class="github" tabindex="-1"><core-icon icon="social:post-github"></core-icon>GitHub</paper-button></a>
+      <a href="https://github.com/Unidata/awips2/issues/new" tabindex="-1"><paper-button><core-icon icon="bug-report"></core-icon>File a bug</paper-button></a>
+    </div>
+
+  </div>
+</footer>
+
+
+
+
+
+<script src="/polymer-docs/js/prettify/prettify.js"></script>
+
+<!-- <script src="/polymer-docs/js/bower_components/smoothscroll/smoothscroll.js"></script> -->
+<script src="/polymer-docs/js/app.js?20160403"></script>
+
+
+  </scroll-area>
+
+</main>
+
+</body>
+</html>

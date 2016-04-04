@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html itemscope itemtype="http://schema.org/Organization">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="chrome=1" />
+<meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1">
+<meta name="google-site-verification" content="k0e8DrbD40s54xHNBqwIsRrSSAkZoprwtEYDnNY06bU" />
+<meta name="google-site-verification" content="pnjjbQFvjPwaWhEXY6nSyaS9iyghmH-M_yLHBveDX2M">
+<meta itemprop="name" content="AWIPS II - Unidata AWIPS II">
+<meta itemprop="description" content="Polymer is a library that uses the latest web technologies to let you create custom HTML elements. Build anything from a button to a complete application as an encapsulated, reusable element that works across desktop and mobile.">
+
+
+<meta itemprop="image" content="https://www.polymer-project.org/images/instacod.png">
+
+
+<title>
+  
+    Unidata AWIPS II -
+   AWIPS II
+</title>
+<link rel="publisher" href="https://plus.google.com/107187849809354688692">
+<link rel="shortcut icon" href="http://www.unidata.ucar.edu/favicon.ico">
+<link href="//fonts.googleapis.com/css?family=RobotoDraft:300,400,500|Source+Code+Pro:400,500,700" rel="stylesheet">
+<link href="/polymer-docs/css/site2.css?20160403" rel="stylesheet">
+<link href="/polymer-docs/css/site2_sd_rules.css?20160403" rel="stylesheet" shim-shadowdom>
+
+
+
+<script src="/polymer-docs/components/webcomponentsjs/webcomponents.min.js?20160403"></script>
+<!-- TODO: remove when https://github.com/Polymer/polymer/issues/391 is fixed -->
+<link rel="import" href="/polymer-docs/components/polymer/polymer.html">
+<link rel="stylesheet" href="/polymer-docs/css/elements/docs-menu.css">
+<link rel="import" href="/polymer-docs/elements/common_elements.vulcanized.html?20160403">
+
+
+</head>
+<body id="unidata-awips-ii">
+
+<main id="content-container" class="polymer-content">
+  <app-drawer id="sidebar" unresolved>
+    <div layout vertical id="sidebar-content">
+      <div id="logo-container" layout horizontal center>
+        <a href="/polymer-docs/" class="logo"><img src="/polymer-docs/images/logos/awips2.png" alt="AWIPS II User Guide"></a>
+      </div>
+
+      <docs-menu unresolved flex
+		 baseurl='/polymer-docs'
+                 coreElements='{"core-header-panel":"components/core-header-panel/core-header-panel.html","core-transition-pages":"components/core-animated-pages/transitions/core-transition-pages.html","core-animated-pages":"components/core-animated-pages/core-animated-pages.html","core-overlay":"components/core-overlay/core-overlay.html","core-toolbar":"components/core-toolbar/core-toolbar.html","core-image":"components/core-image/core-image.html","core-shared-lib":"components/core-shared-lib/core-shared-lib.html","core-a11y-keys":"components/core-a11y-keys/core-a11y-keys.html","core-menu-button":"components/core-menu-button/core-menu-button.html","core-icon":"components/core-icon/core-icon.html","core-selection":"components/core-selection/core-selection.html","core-style":"components/core-style/core-style.html","core-menu":"components/core-menu/core-menu.html","core-submenu":"components/core-menu/core-submenu.html","core-list":"components/core-list/core-list.html","core-dropdown-menu":"components/core-dropdown-menu/core-dropdown-menu.html","core-input":"components/core-input/core-input.html","core-iconset-svg":"components/core-iconset-svg/core-iconset-svg.html","core-field":"components/core-field/core-field.html","core-selector":"components/core-selector/core-selector.html","core-media-query":"components/core-media-query/core-media-query.html","core-animation-group":"components/core-animation/core-animation-group.html","core-animation":"components/core-animation/core-animation.html","core-animation-keyframe":"components/core-animation/core-animation.html","core-animation-prop":"components/core-animation/core-animation.html","core-dropdown":"components/core-dropdown/core-dropdown.html","core-dropdown-base":"components/core-dropdown/core-dropdown-base.html","core-pages":"components/core-pages/core-pages.html","core-meta":"components/core-meta/core-meta.html","core-splitter":"components/core-splitter/core-splitter.html","core-scroll-header-panel":"components/core-scroll-header-panel/core-scroll-header-panel.html","core-tooltip":"components/core-tooltip/core-tooltip.html","core-localstorage":"components/core-localstorage/core-localstorage.html","core-scroll-threshold":"components/core-scroll-threshold/core-scroll-threshold.html","core-drag-drop":"components/core-drag-drop/core-drag-drop.html","core-iconset":"components/core-iconset/core-iconset.html","core-label":"components/core-label/core-label.html","core-signals":"components/core-signals/core-signals.html","core-transition":"components/core-transition/core-transition.html","core-scaffold":"components/core-scaffold/core-scaffold.html","core-drawer-panel":"components/core-drawer-panel/core-drawer-panel.html","core-range":"components/core-range/core-range.html","core-collapse":"components/core-collapse/core-collapse.html","core-xhr":"components/core-ajax/core-xhr.html","core-ajax":"components/core-ajax/core-ajax.html","core-icon-button":"components/core-icon-button/core-icon-button.html","core-item":"components/core-item/core-item.html"}'
+                 paperElements='{"paper-dropdown":"components/paper-dropdown/paper-dropdown.html","paper-dropdown-transition":"components/paper-dropdown/paper-dropdown-transition.html","paper-item":"components/paper-item/paper-item.html","paper-dropdown-menu":"components/paper-dropdown-menu/paper-dropdown-menu.html","paper-checkbox":"components/paper-checkbox/paper-checkbox.html","paper-button":"components/paper-button/paper-button.html","paper-button-base":"components/paper-button/paper-button-base.html","paper-menu-button":"components/paper-menu-button/paper-menu-button.html","paper-radio-group":"components/paper-radio-group/paper-radio-group.html","paper-toast":"components/paper-toast/paper-toast.html","paper-char-counter":"components/paper-input/paper-char-counter.html","paper-autogrow-textarea":"components/paper-input/paper-autogrow-textarea.html","paper-input":"components/paper-input/paper-input.html","paper-input-decorator":"components/paper-input/paper-input-decorator.html","paper-slider":"components/paper-slider/paper-slider.html","paper-toggle-button":"components/paper-toggle-button/paper-toggle-button.html","paper-fab":"components/paper-fab/paper-fab.html","paper-ripple":"components/paper-ripple/paper-ripple.html","paper-icon-button":"components/paper-icon-button/paper-icon-button.html","paper-tabs":"components/paper-tabs/paper-tabs.html","paper-tab":"components/paper-tabs/paper-tab.html","paper-shadow":"components/paper-shadow/paper-shadow.html","paper-radio-button":"components/paper-radio-button/paper-radio-button.html","paper-dialog":"components/paper-dialog/paper-dialog.html","paper-action-dialog":"components/paper-dialog/paper-action-dialog.html","paper-dialog-base":"components/paper-dialog/paper-dialog-base.html","paper-dialog-transition":"components/paper-dialog/paper-dialog-transition.html","paper-spinner":"components/paper-spinner/paper-spinner.html","paper-progress":"components/paper-progress/paper-progress.html"}'></docs-menu>
+    </div>
+  </app-drawer>
+
+  <scroll-area sidebar unresolved class="scrolling">
+    <site-banner type="guide" shortname="Appendix" unresolved>
+      
+<app-bar theme="light" class="bar fixed">
+</app-bar>
+
+      <header class="shrink">
+        <h1>
+        
+          Acronyms and Abbreviations
+        : Unidata AWIPS II
+        </h1>
+      </header>
+    </site-banner>
+
+    
+    
+
+    <article class="show-permalinks">
+
+      <header class="onlyonmobile">
+        <h1>
+          
+          Acronyms and Abbreviations
+          : Unidata AWIPS II
+        </h1>
+      </header>
+
+      <h2 id="a">A</h2>
+
+<ul>
+  <li>AEV - AFOS-Era Verification</li>
+  <li>AFOS - Automation of Field Operations and Services</li>
+  <li>AGL - above ground level</li>
+  <li>AI - AWIPS Identifier</li>
+  <li>AMSU - Advanced Microwave Sounding Unit</li>
+  <li>ARD - AWIPS Remote Display</li>
+  <li>ASL - Above Sea Level</li>
+  <li>ASOS - Automated Surface Observing System</li>
+  <li>ASR - Airport Surveillance Radar</li>
+  <li>ATMS - Advanced Technology Microwave Sounder</li>
+  <li>AvnFPS - Aviation Forecast Preparation System</li>
+  <li>AVP - AWIPS Verification Program</li>
+  <li>AWC - Aviation Weather Center</li>
+  <li>AWIPS - Advanced Weather Interactive Processing System</li>
+</ul>
+
+<h2 id="b">B</h2>
+
+<ul>
+  <li>BGAN - Broadboand Global Area Network</li>
+  <li>BUFR - Binary Universal Form for the Representation of meteorological data</li>
+</ul>
+
+<h2 id="c">C</h2>
+
+<ul>
+  <li>CAPE - Convective Available Potential Energy</li>
+  <li>CAVE - Common AWIPS Visualization Environment</li>
+  <li>CC - Correlation Coefficient</li>
+  <li>CCF - Coded Cities Forecast</li>
+  <li>CCFP - Collaborative Convective Forecast Product</li>
+  <li>CCL - Convective Condensation Level</li>
+  <li>CDP - Cell Display Parameters</li>
+  <li>CFC - Clutter Filter Control</li>
+  <li>CGI - Common Gateway Interface</li>
+  <li>CIN - Convective Inhibition</li>
+  <li>CITR - Commerce Information Technology Requirement</li>
+  <li>CONUS - Conterminous/Contiguous/Continental United States</li>
+  <li>COOP - Continuity Of Operations Planning</li>
+  <li>COTS - commercial off-the-shelf</li>
+  <li>CrIMSS - Cross-track Infrared and Microwave Sounder Suite</li>
+  <li>CrIS - Cross-track Infrared Sounder</li>
+  <li>CWA - County Warning Area</li>
+  <li>CWSU - Center Weather Service Unit</li>
+  <li>CZ - Composite Reflectivity</li>
+</ul>
+
+<h2 id="d">D</h2>
+
+<ul>
+  <li>D2D - Display 2 Dimensions</li>
+  <li>DFM - Digital Forecast Matrix</li>
+  <li>DMD - Digital Mesocyclone Display</li>
+  <li>DMS - Data Monitoring System</li>
+  <li>DOC - Department of Commerce</li>
+  <li>DPA - Digital Precipitation Array</li>
+</ul>
+
+<h2 id="e">E</h2>
+
+<ul>
+  <li>ECMWF - European Centre for Medium-Range Forecasts</li>
+  <li>EDEX - Enterprise Data EXchange</li>
+  <li>EMC - Environmental Modeling Center</li>
+  <li>EL - Equilibrium Level</li>
+  <li>ESA - Electronic Systems Analyst</li>
+  <li>ESRL - Earth System Research Laboratory</li>
+</ul>
+
+<h2 id="f">F</h2>
+
+<ul>
+  <li>FFG - Flash Flood Guidance</li>
+  <li>FFFG - Forced Flash Flood Guidance</li>
+  <li>FFMP - Flash Flood Monitoring and Prediction</li>
+  <li>FFMPA - Flash Flood Monitoring and Prediction: Advanced</li>
+  <li>FFTI - Flash Flood Threat Index</li>
+  <li>FFW - Flash Flood Warning</li>
+  <li>FSL - Forecast Systems Laboratory</li>
+</ul>
+
+<h2 id="g">G</h2>
+
+<ul>
+  <li>GFE - Graphical Forecast Editor</li>
+  <li>GFS - Global Forecasting Systems</li>
+  <li>GHG - Graphical Hazards Generator</li>
+  <li>GIS - Geographic Information Systems</li>
+  <li>GMT - Greenwich Mean Time</li>
+  <li>GOES - Geostationary Operational Environmental Satellite</li>
+  <li>GSD - Global System Division</li>
+</ul>
+
+<h2 id="h">H</h2>
+
+<ul>
+  <li>HC - Hydrometeor Classification</li>
+  <li>HI - Hail Index</li>
+  <li>HM - Hydromet</li>
+  <li>HPC - Hydrologic Precipitation Center</li>
+  <li>HWR - Hourly Weather Roundup</li>
+</ul>
+
+<h2 id="i">I</h2>
+
+<ul>
+  <li>ICAO - International Civil Aviation Organization</li>
+  <li>IFP - Interactive Forecast Program</li>
+  <li>IFPS - Interactive Forecast Preparation System</li>
+  <li>IHFS - Integrated Hydrologic Forecast System</li>
+  <li>IMET - Incident Meteorologist</li>
+  <li>IR - infrared</li>
+  <li>ISS - Incident Support Specialist IST - Interactive Skew-T</li>
+</ul>
+
+<h2 id="j">J</h2>
+
+<ul>
+  <li>JMS - Java Messaging System</li>
+</ul>
+
+<h2 id="k">K</h2>
+
+<ul>
+  <li>KDP - Specific Differential Phase</li>
+  <li>KML - Keyhole Markup Language</li>
+  <li>KMZ - KML zipped (compressed).</li>
+</ul>
+
+<h2 id="l">L</h2>
+
+<ul>
+  <li>LAC - Listening Area Code</li>
+  <li>LAMP - Localized Aviation MOS Program</li>
+  <li>LAN - Local Area Network</li>
+  <li>LAPS - Local Analysis and Prediction System</li>
+  <li>LARC - Local Automatic Remote Collector</li>
+  <li>LCL - Lifting Condensation Level</li>
+  <li>LDAD - Local Data Acquisition and Dissemination</li>
+  <li>LFC - Level of Free Convection</li>
+  <li>LSR - Local Storm Report</li>
+</ul>
+
+<h2 id="m">M</h2>
+
+<ul>
+  <li>MAPS - Mesoscale Analysis and Prediction System</li>
+  <li>mb - millibar; pressure</li>
+  <li>MDCRS - Meteorological Data Collection and Receiving System</li>
+  <li>MDL - Meteorological Development Laboratory</li>
+  <li>MDP - Mesocyclone Display Parameters</li>
+  <li>MDPI - Microburst-Day Potential Index</li>
+  <li>MEF - Manually Entered Forecast</li>
+  <li>METAR - Meteorological Aviation Report</li>
+  <li>MHS - message handling system</li>
+  <li>ML - Melting Layer</li>
+  <li>MND - Mass News Dissemination</li>
+  <li>MOS - Model Output Statistics</li>
+  <li>MPC - Marine Prediction Center</li>
+  <li>MPE - Multisensor Precipitation Estimator</li>
+  <li>MRD - Message Reference Descriptor</li>
+  <li>MRU - Meso Rapid Update</li>
+  <li>MSAS - MAPS Surface Assimilation System</li>
+  <li>MSL - Mean Sea Level</li>
+</ul>
+
+<h2 id="n">N</h2>
+
+<ul>
+  <li>NAM - North American Mesoscale model</li>
+  <li>NCEP - National Centers for Environmental Prediction</li>
+  <li>NCF - Network Control Facility</li>
+  <li>NDFD - National Digital Forecast Database</li>
+  <li>NE-PAC - Northeastern Pacific</li>
+  <li>NESDIS - National Environmental Satellite, Data and Information Service</li>
+  <li>NH - Northern Hemisphere</li>
+  <li>nMi - nautical miles</li>
+  <li>NOAA - National Oceanic and Atmospheric Administration</li>
+  <li>NPN - NOAA Profiler Network</li>
+  <li>NPP - Suomi National Polar-orbiting Partnership</li>
+  <li>NUCAPS - NOAA Unique CrIS/ATMS Processing Systems</li>
+  <li>NWP - Numerical Weather Prediction</li>
+  <li>NWR - NOAA Weather Radio</li>
+  <li>NWS - National Weather Service</li>
+  <li>NWRWAVES - NOAA Weather Radio With All-Hazards VTEC Enhanced Software</li>
+  <li>NWSRFS - National Weather Service River Forecast System</li>
+  <li>NWWS - NOAA Weather Wire Service</li>
+</ul>
+
+<h2 id="o">O</h2>
+
+<ul>
+  <li>OCP - Ocean Prediction Center</li>
+  <li>OH - Office of Hydrology</li>
+  <li>OPC - Ocean Prediction Center</li>
+  <li>ORPG - Open Radar Products Generator</li>
+  <li>OSD - One Hour Snow Depth</li>
+  <li>OSW - One Hour Snow Water</li>
+  <li>OTR - One Time Request</li>
+</ul>
+
+<h2 id="p">P</h2>
+
+<ul>
+  <li>PID - Product Identification</li>
+  <li>PIL - Product Inventory List</li>
+  <li>PIREP - Pilot Weather Report</li>
+  <li>POES - Polar Operational Environmental Satellite</li>
+  <li>POSH - Probability of Severe Hail</li>
+  <li>POH - Probability of Hail</li>
+  <li>POP - Probability of Precipitation</li>
+  <li>PQPF - Probabilistic QPF</li>
+  <li>PRF - Pulse Repetition Frequency</li>
+</ul>
+
+<h2 id="q">Q</h2>
+
+<ul>
+  <li>QC - quality control</li>
+  <li>QCMS - Quality Control and Monitoring System</li>
+  <li>QPE - Quantitative Precipitation Estimator</li>
+  <li>QPF - Quantitative Precipitation Forecast</li>
+  <li>QPS - Quantitative Precipitation Summary</li>
+</ul>
+
+<h2 id="r">R</h2>
+
+<ul>
+  <li>RAOB - Radiosonde Observation</li>
+  <li>RAP - Rapid Refresh (Replaced RUC)</li>
+  <li>RCM - Radar Coded Message</li>
+  <li>RER - Record Report</li>
+  <li>RFC - River Forecast Center</li>
+  <li>RGB - Red, Green, Blue</li>
+  <li>RHI - Range Height Indicator</li>
+  <li>RMR - Radar Multiple Request</li>
+  <li>ROSA - Remote Observing System Automation</li>
+  <li>RPG - Radar Product Generator</li>
+  <li>RPS - routine product set</li>
+  <li>RTD - Requirements Traceability Document; Routine, Delayed</li>
+  <li>RTMA - Real Time Mesoscale Analysts</li>
+  <li>RUC - Rapid Update Cycle (Replaced by RAP)</li>
+</ul>
+
+<h2 id="s">S</h2>
+
+<ul>
+  <li>SAFESEAS - System on AWIPS for Forecasting and Evaluation of Seas and Lakes</li>
+  <li>SBN - Satellite Broadcast Network</li>
+  <li>SCAN - System for Convection Analysis and Nowcasting</li>
+  <li>SCD - Supplementary Climatological Data</li>
+  <li>SCID - Storm Cell Identification Display</li>
+  <li>SCP - Satellite Cloud Product</li>
+  <li>SCTI - SCAN CWA Threat Index</li>
+  <li>SDC - State Distribution Circuit</li>
+  <li>SNOW - System for Nowcasting Of Winter Weather</li>
+  <li>SOO - Science and Operations Officer</li>
+  <li>SPC - Storm Prediction Center</li>
+  <li>SPE - Satellite Precipitation Estimate</li>
+  <li>SREF - Short Range Ensemble Forecast</li>
+  <li>SRG - Supplemental Product Generator</li>
+  <li>SRM - Storm Relative Motion</li>
+  <li>SSD - Storm-Total Snow Depth</li>
+  <li>SSM/I - Special Sensor Microwave/Imager</li>
+  <li>SSW - Storm-Total Snow Water</li>
+  <li>STI - Storm Track Information</li>
+  <li>Suomi NPP - Suomi National Polar-orbiting Partnership</li>
+  <li>SW - Spectrum Width</li>
+  <li>SWEAT Index - Severe Weather Threat Index</li>
+  <li>SWP - Severe Weather Probability</li>
+</ul>
+
+<h2 id="t">T</h2>
+
+<ul>
+  <li>TAF - Terminal Aerodrome Forecast (international code)</li>
+  <li>TAFB - Tropical Analysis and Forecast Branch</li>
+  <li>TCM - Marine/Tropical Cyclone Advisory</li>
+  <li>TCP - Public Tropical Cyclone Advisory</li>
+  <li>TDWR - Terminal Doppler Weather Radio</li>
+  <li>TE-PAC - Tropical Pacific</li>
+  <li>TMI - Text Message Intercept</li>
+  <li>TRU - TVS Rapid Update</li>
+  <li>TT - Total Totals</li>
+  <li>TVS - Tornado Vortex Signature</li>
+  <li>TWB - Transcribed Weather Broadcasts</li>
+</ul>
+
+<h2 id="u">U</h2>
+
+<ul>
+  <li>UGC - Universal Geographic Code</li>
+  <li>ULR - User Selectable Layer Reflectivity</li>
+  <li>URL - Universal Resource Locator</li>
+  <li>USD - User Selectable Snow Depth</li>
+  <li>USW - User Selectable Snow Water</li>
+  <li>UTC - Coordinated Universal Time</li>
+</ul>
+
+<h2 id="v">V</h2>
+
+<ul>
+  <li>VAD - Velocity Azimuth Display</li>
+  <li>VCP - volume coverage pattern</li>
+  <li>VIIR - Visible Infrared Imager Radiometer Suite</li>
+  <li>VIL - Vertically Integrated Liquid</li>
+  <li>VTEC - Valid Time and Event Code</li>
+  <li>VWP - VAD Wind Profile</li>
+</ul>
+
+<h2 id="w">W</h2>
+
+<ul>
+  <li>W-ATL - Western Atlantic</li>
+  <li>WFO - Weather Forecast Office</li>
+  <li>WINDEX - Wind Index</li>
+  <li>WMO - World Meteorological Organization</li>
+  <li>WSFO - Weather Service Forecast Office</li>
+  <li>WSO - Weather Service Office</li>
+  <li>WSOM - Weather Service Operations Manual</li>
+  <li>WSR-88D - Weather Surveillance Radar-1988 Doppler</li>
+  <li>WWA - Watch Warning Advisory</li>
+  <li>WV - water vapor</li>
+</ul>
+
+<h2 id="z">Z</h2>
+<ul>
+  <li>Z - Reflectivity</li>
+  <li>ZDR - Differential Reflectivity</li>
+</ul>
+
+
+    </article>
+
+    <footer>
+  <div>
+    <div class="links">
+      <a href="https://www.facebook.com/unidata" title="Unidata on Facebook" tabindex="-1"><paper-button><core-icon icon="social:post-facebook"></core-icon>Facebook</paper-button></a>
+      <a href="https://twitter.com/intent/follow?screen_name=unidata" data-twitter-follow title="Follow @Unidata on Twitter" tabindex="-1"><paper-button><core-icon icon="social:post-twitter"></core-icon>Twitter</paper-button></a>
+      <a href="https://github.com/Unidata/awips2"><paper-button class="github" tabindex="-1"><core-icon icon="social:post-github"></core-icon>GitHub</paper-button></a>
+      <a href="https://github.com/Unidata/awips2/issues/new" tabindex="-1"><paper-button><core-icon icon="bug-report"></core-icon>File a bug</paper-button></a>
+    </div>
+
+  </div>
+</footer>
+
+
+
+
+
+<script src="/polymer-docs/js/prettify/prettify.js"></script>
+
+<!-- <script src="/polymer-docs/js/bower_components/smoothscroll/smoothscroll.js"></script> -->
+<script src="/polymer-docs/js/app.js?20160403"></script>
+
+
+  </scroll-area>
+
+</main>
+
+</body>
+</html>

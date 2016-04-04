@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html itemscope itemtype="http://schema.org/Organization">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="chrome=1" />
+<meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1">
+<meta name="google-site-verification" content="k0e8DrbD40s54xHNBqwIsRrSSAkZoprwtEYDnNY06bU" />
+<meta name="google-site-verification" content="pnjjbQFvjPwaWhEXY6nSyaS9iyghmH-M_yLHBveDX2M">
+<meta itemprop="name" content="AWIPS II - Upper Air Menu">
+<meta itemprop="description" content="Polymer is a library that uses the latest web technologies to let you create custom HTML elements. Build anything from a button to a complete application as an encapsulated, reusable element that works across desktop and mobile.">
+
+
+<meta itemprop="image" content="https://www.polymer-project.org/images/instacod.png">
+
+
+<title>
+  
+    Upper Air Menu -
+   AWIPS II
+</title>
+<link rel="publisher" href="https://plus.google.com/107187849809354688692">
+<link rel="shortcut icon" href="http://www.unidata.ucar.edu/favicon.ico">
+<link href="//fonts.googleapis.com/css?family=RobotoDraft:300,400,500|Source+Code+Pro:400,500,700" rel="stylesheet">
+<link href="/polymer-docs/css/site2.css?20160403" rel="stylesheet">
+<link href="/polymer-docs/css/site2_sd_rules.css?20160403" rel="stylesheet" shim-shadowdom>
+
+
+
+<script src="/polymer-docs/components/webcomponentsjs/webcomponents.min.js?20160403"></script>
+<!-- TODO: remove when https://github.com/Polymer/polymer/issues/391 is fixed -->
+<link rel="import" href="/polymer-docs/components/polymer/polymer.html">
+<link rel="stylesheet" href="/polymer-docs/css/elements/docs-menu.css">
+<link rel="import" href="/polymer-docs/elements/common_elements.vulcanized.html?20160403">
+
+
+</head>
+<body id="upper-air-menu">
+
+<main id="content-container" class="polymer-content">
+  <app-drawer id="sidebar" unresolved>
+    <div layout vertical id="sidebar-content">
+      <div id="logo-container" layout horizontal center>
+        <a href="/polymer-docs/" class="logo"><img src="/polymer-docs/images/logos/awips2.png" alt="AWIPS II User Guide"></a>
+      </div>
+
+      <docs-menu unresolved flex
+		 baseurl='/polymer-docs'
+                 coreElements='{"core-header-panel":"components/core-header-panel/core-header-panel.html","core-transition-pages":"components/core-animated-pages/transitions/core-transition-pages.html","core-animated-pages":"components/core-animated-pages/core-animated-pages.html","core-overlay":"components/core-overlay/core-overlay.html","core-toolbar":"components/core-toolbar/core-toolbar.html","core-image":"components/core-image/core-image.html","core-shared-lib":"components/core-shared-lib/core-shared-lib.html","core-a11y-keys":"components/core-a11y-keys/core-a11y-keys.html","core-menu-button":"components/core-menu-button/core-menu-button.html","core-icon":"components/core-icon/core-icon.html","core-selection":"components/core-selection/core-selection.html","core-style":"components/core-style/core-style.html","core-menu":"components/core-menu/core-menu.html","core-submenu":"components/core-menu/core-submenu.html","core-list":"components/core-list/core-list.html","core-dropdown-menu":"components/core-dropdown-menu/core-dropdown-menu.html","core-input":"components/core-input/core-input.html","core-iconset-svg":"components/core-iconset-svg/core-iconset-svg.html","core-field":"components/core-field/core-field.html","core-selector":"components/core-selector/core-selector.html","core-media-query":"components/core-media-query/core-media-query.html","core-animation-group":"components/core-animation/core-animation-group.html","core-animation":"components/core-animation/core-animation.html","core-animation-keyframe":"components/core-animation/core-animation.html","core-animation-prop":"components/core-animation/core-animation.html","core-dropdown":"components/core-dropdown/core-dropdown.html","core-dropdown-base":"components/core-dropdown/core-dropdown-base.html","core-pages":"components/core-pages/core-pages.html","core-meta":"components/core-meta/core-meta.html","core-splitter":"components/core-splitter/core-splitter.html","core-scroll-header-panel":"components/core-scroll-header-panel/core-scroll-header-panel.html","core-tooltip":"components/core-tooltip/core-tooltip.html","core-localstorage":"components/core-localstorage/core-localstorage.html","core-scroll-threshold":"components/core-scroll-threshold/core-scroll-threshold.html","core-drag-drop":"components/core-drag-drop/core-drag-drop.html","core-iconset":"components/core-iconset/core-iconset.html","core-label":"components/core-label/core-label.html","core-signals":"components/core-signals/core-signals.html","core-transition":"components/core-transition/core-transition.html","core-scaffold":"components/core-scaffold/core-scaffold.html","core-drawer-panel":"components/core-drawer-panel/core-drawer-panel.html","core-range":"components/core-range/core-range.html","core-collapse":"components/core-collapse/core-collapse.html","core-xhr":"components/core-ajax/core-xhr.html","core-ajax":"components/core-ajax/core-ajax.html","core-icon-button":"components/core-icon-button/core-icon-button.html","core-item":"components/core-item/core-item.html"}'
+                 paperElements='{"paper-dropdown":"components/paper-dropdown/paper-dropdown.html","paper-dropdown-transition":"components/paper-dropdown/paper-dropdown-transition.html","paper-item":"components/paper-item/paper-item.html","paper-dropdown-menu":"components/paper-dropdown-menu/paper-dropdown-menu.html","paper-checkbox":"components/paper-checkbox/paper-checkbox.html","paper-button":"components/paper-button/paper-button.html","paper-button-base":"components/paper-button/paper-button-base.html","paper-menu-button":"components/paper-menu-button/paper-menu-button.html","paper-radio-group":"components/paper-radio-group/paper-radio-group.html","paper-toast":"components/paper-toast/paper-toast.html","paper-char-counter":"components/paper-input/paper-char-counter.html","paper-autogrow-textarea":"components/paper-input/paper-autogrow-textarea.html","paper-input":"components/paper-input/paper-input.html","paper-input-decorator":"components/paper-input/paper-input-decorator.html","paper-slider":"components/paper-slider/paper-slider.html","paper-toggle-button":"components/paper-toggle-button/paper-toggle-button.html","paper-fab":"components/paper-fab/paper-fab.html","paper-ripple":"components/paper-ripple/paper-ripple.html","paper-icon-button":"components/paper-icon-button/paper-icon-button.html","paper-tabs":"components/paper-tabs/paper-tabs.html","paper-tab":"components/paper-tabs/paper-tab.html","paper-shadow":"components/paper-shadow/paper-shadow.html","paper-radio-button":"components/paper-radio-button/paper-radio-button.html","paper-dialog":"components/paper-dialog/paper-dialog.html","paper-action-dialog":"components/paper-dialog/paper-action-dialog.html","paper-dialog-base":"components/paper-dialog/paper-dialog-base.html","paper-dialog-transition":"components/paper-dialog/paper-dialog-transition.html","paper-spinner":"components/paper-spinner/paper-spinner.html","paper-progress":"components/paper-progress/paper-progress.html"}'></docs-menu>
+    </div>
+  </app-drawer>
+
+  <scroll-area sidebar unresolved class="scrolling">
+    <site-banner type="guide" shortname="Docs" unresolved>
+      
+<app-bar theme="light" class="bar fixed">
+</app-bar>
+
+      <header class="shrink">
+        <h1>
+        
+          D2D User Guide
+        : Upper Air Menu
+        </h1>
+      </header>
+    </site-banner>
+
+    
+    
+
+    <article class="show-permalinks">
+
+      <header class="onlyonmobile">
+        <h1>
+          
+          D2D User Guide
+          : Upper Air Menu
+        </h1>
+      </header>
+
+      
+<!--TOC_START-->
+<ul id="markdown-toc">
+  <li><a href="#nucaps-soundings" id="markdown-toc-nucaps-soundings">NUCAPS Soundings</a></li>
+  <li><a href="#upper-air-soundings" id="markdown-toc-upper-air-soundings">Upper Air Soundings</a></li>
+  <li><a href="#raob" id="markdown-toc-raob">RAOB</a></li>
+  <li><a href="#upper-air-plots" id="markdown-toc-upper-air-plots">Upper Air Plots</a>    <ul>
+      <li><a href="#ncep-200mb-to-850mb" id="markdown-toc-ncep-200mb-to-850mb">NCEP: 200mb to 850mb</a></li>
+      <li><a href="#raob-150mb-to-925mb" id="markdown-toc-raob-150mb-to-925mb">RAOB: 150mb to 925mb</a></li>
+      <li><a href="#ukmo-500mb-height" id="markdown-toc-ukmo-500mb-height">UKMO 500mb Height</a></li>
+    </ul>
+  </li>
+  <li><a href="#cpc-charts" id="markdown-toc-cpc-charts">CPC Charts</a></li>
+  <li><a href="#npn-profiler-time-height" id="markdown-toc-npn-profiler-time-height">NPN Profiler Time-Height</a></li>
+  <li><a href="#npn-profiler-plot" id="markdown-toc-npn-profiler-plot">NPN Profiler Plot</a></li>
+  <li><a href="#radar-vwp-height-level" id="markdown-toc-radar-vwp-height-level">Radar VWP Height-Level</a></li>
+  <li><a href="#radar-vwp-pressure-level" id="markdown-toc-radar-vwp-pressure-level">Radar VWP Pressure-Level</a></li>
+  <li><a href="#aircraft-pirep-low-level-mid-level-high-level" id="markdown-toc-aircraft-pirep-low-level-mid-level-high-level">Aircraft PIREP: Low Level, Mid Level, High Level</a></li>
+  <li><a href="#icing-low-level-mid-level-high-level" id="markdown-toc-icing-low-level-mid-level-high-level">Icing: Low Level, Mid Level, High Level</a></li>
+  <li><a href="#tubulence-low-level-mid-level-high-level" id="markdown-toc-tubulence-low-level-mid-level-high-level">Tubulence: Low Level Mid Level, High Level</a></li>
+  <li><a href="#aircraft-mdcrs" id="markdown-toc-aircraft-mdcrs">Aircraft MDCRS</a></li>
+  <li><a href="#sigmet-convective-icing-turbulance--tropical-volcanic" id="markdown-toc-sigmet-convective-icing-turbulance--tropical-volcanic">SIGMET: Convective, Icing, Turbulance,  Tropical, Volcanic</a></li>
+  <li><a href="#airmet-icing-turbulence" id="markdown-toc-airmet-icing-turbulence">AIRMET: Icing, Turbulence</a></li>
+  <li><a href="#visibility-products" id="markdown-toc-visibility-products">Visibility Products</a>    <ul>
+      <li><a href="#ifr-mountain-obscn" id="markdown-toc-ifr-mountain-obscn">IFR, Mountain Obscn</a></li>
+      <li><a href="#signiciant-weather" id="markdown-toc-signiciant-weather">Signiciant Weather</a></li>
+      <li><a href="#medium-level-high-level" id="markdown-toc-medium-level-high-level">Medium Level, High Level</a></li>
+    </ul>
+  </li>
+</ul>
+<!--TOC_END-->
+
+<p>The Upper Air dropdown menu provides access to upper air plots, profiler data, radar plan-view and perspective displays of winds, and aircraft and rawinsonde data. Nearby Radiosonde Observations (RAOB) are also included on the menu to provide easy viewing of upper air data.</p>
+
+<h1 id="nucaps-soundings">NUCAPS Soundings</h1>
+
+<p>The NOAA Unique CrIS/ATMS Processing System (<a href="http://www.ospo.noaa.gov/Products/atmosphere/soundings/nucaps/">NUCAPS</a>) soundings are derived from processing of CrIS/ATMS data, provides cloud cleared radiances and trace gas that enable increased accuracy in the development of the vertical profile of temperature and water vapor retrievals. By clicking on the individual dots, the forecaster is able to render the sounding for the selected point using the <a href="">NSHARP plugin</a>.</p>
+
+<h1 id="upper-air-soundings">Upper Air Soundings</h1>
+
+<h1 id="raob">RAOB</h1>
+
+<p>RAOB data is plotted on the standard Skew-T log-p thermodynamic diagram. A small reference map indicating the location(s) of the plotted sounding(s) is provided in the upper left corner of the main display pane. If you overlay another Skew-T whose location is far from the original sounding location, the reference map updates to show both locations.</p>
+
+<p>The Interactive NsharpSkewt Program plots and derives quantities on a Skew-T log-p diagram and on a hodograph. You can edit the Skew-T and hodograph data and obtain instantaneous information on the modified data.</p>
+
+<p>Also plotted on the standard Skew-T log-p thermodynamic diagram is the lifted parcel trajectory, displayed on zoom factors greater than 1. For a 12Z sounding, the parcel trajectory is computed based on a surface parcel temperature represented by the forecast maximum temperature for that sounding. At all other observation times, the surface parcel temperature is represented by an average temperature and dewpoint through the lowest 50 mb of the sounding. For the 00Z soundings, the temperature and dewpoint are represented as a low-level (50 mb) mean. For the 12Z soundings, the forecast maximum temperature is used as the “modified” parcel temperature, with the surface dewpoint temperature as the parcel dewpoint. The parameters affected by these modified values are noted with asterisks in the second column of the parameters list on the sounding plot.</p>
+
+<p>The MDPI (Microburst-Day Potential Index) and the WINDEX (Wind Index) determine whether the
+environment is favorable for microburst development. The MDPI utilizes vertical profiles of
+environmental equivalent potential temperature, while the WINDEX predicts the maximum expected gust possible for a given environmental sounding. For a full description of these equations and the
+optimal index values, refer to <a href="http://www.wdtb.noaa.gov/workshop/psdp/Roeder/sec2.htm">http://www.wdtb.noaa.gov/workshop/psdp/Roeder/sec2.htm</a>.</p>
+
+<h1 id="upper-air-plots">Upper Air Plots</h1>
+
+<h2 id="ncep-200mb-to-850mb">NCEP: 200mb to 850mb</h2>
+
+<h2 id="raob-150mb-to-925mb">RAOB: 150mb to 925mb</h2>
+
+<p><img src="../images/H4EJfAY.png" alt="image" /></p>
+
+<h2 id="ukmo-500mb-height">UKMO 500mb Height</h2>
+
+<p>UKMET 500mb height graphic out to 144 forecast hours.</p>
+
+<p><img src="../images/xOnh51R.png" alt="image" /></p>
+
+<h1 id="cpc-charts">CPC Charts</h1>
+
+<ul>
+  <li>6-10 day mean 500mb Height</li>
+  <li>8-14 day mean 500mb Height</li>
+  <li>6-10 day 500mb Height Anomaly</li>
+  <li>8-14 day 500mb Height Anomaly</li>
+</ul>
+
+<p><img src="../images/FcG1aWx.png" alt="image" /></p>
+
+<h1 id="npn-profiler-time-height">NPN Profiler Time-Height</h1>
+
+<p>NOAA Profiler Network (<a href="http://www.profiler.noaa.gov/home/">NPN</a>) observations as a time-series plot.  This time-series plugin is also used in the <a href="">Volume Browser</a> plugin for both grids and observations.</p>
+
+<p><img src="../images/nRHf9d6.png" alt="image" /></p>
+
+<h1 id="npn-profiler-plot">NPN Profiler Plot</h1>
+
+<ul>
+  <li>200hPa-925hPa</li>
+  <li>1500m-500m AGL</li>
+  <li>Surface</li>
+</ul>
+
+<h1 id="radar-vwp-height-level">Radar VWP Height-Level</h1>
+
+<ul>
+  <li>15km AGL</li>
+  <li>14km AGL</li>
+  <li>13km AGL</li>
+  <li>…</li>
+  <li>500m AGL</li>
+  <li>250m AGL</li>
+  <li>100m AGL</li>
+</ul>
+
+<h1 id="radar-vwp-pressure-level">Radar VWP Pressure-Level</h1>
+
+<ul>
+  <li>200hPa to 925hPa</li>
+</ul>
+
+<h1 id="aircraft-pirep-low-level-mid-level-high-level">Aircraft PIREP: Low Level, Mid Level, High Level</h1>
+
+<p>The Aircraft data includes Low-, Mid-, and High-level Pilot Weather Report (PIREP) observations. The display plots the temperature, aircraft identifier, wind speed and direction, significant weather, and the flight level (in feet). Pilot reports are critical for air safety. Pilots reports on the conditions they are experiencing show up in a matter of minutes on AWIPS. Weather conditions can change quickly, and there is nothing like having a pilot report to provide a bird’s eye view of what it is really like up there. PIREPs may validate forecast conditions, or they may describe real-time weather that varies from them.</p>
+
+<h1 id="icing-low-level-mid-level-high-level">Icing: Low Level, Mid Level, High Level</h1>
+
+<h1 id="tubulence-low-level-mid-level-high-level">Tubulence: Low Level Mid Level, High Level</h1>
+
+<p><img src="../images/82OmP1O.png" alt="image" /></p>
+
+<h1 id="aircraft-mdcrs">Aircraft MDCRS</h1>
+
+<p>Meteorological Data Collection and Reporting System (MDCRS) data includes plan-view plots for various 5kft layers and ascent/descent soundings. Using the availability plots (Upper Air menu under MDCRS plots) and ACARS Airports from the Maps menu button you can locate airports that have available soundings. ACARS Airports provides an illustration of locations of airports, but it is not necessary to use it. The “+” sign means a temperature sounding and the “*” means a temperature and dewpoint sounding. To see a sounding at a location, simply press the Points menu button. Several points from letters of the alphabet will appear on the map display. To view a sounding, drag one of the points/letters to a “+” or “*” location. From the menu bar press Volume and then Browser. From the Volume Browser select MDCRS for Source, Sounding for Fields and select the letter/point on the desired location for Points. Click on your selection in the Product Selection List and then press the Load button to view the sounding.</p>
+
+<p>A zoomable inset map (NW corner) is available to show the location of the sounding. When you zoom in by clicking mouse Button 2 (B2), the flight track of the ascent/descent sounding is shown on the map. In addition, you can sample the flight track to see the time and elevation. To zoom out, click mouse Button 1 (B1). This inset map (and also those on var vs. height displays, cross sections, and cell trends) can be suppressed by setting the global density (i.e., from the tool bar) at less than 1.</p>
+
+<ul>
+  <li>000-500hft in 50ft increments</li>
+  <li>1 hour profile availability</li>
+  <li>6 hour profile availability</li>
+</ul>
+
+<p><img src="../images/LH0ojSV.png" alt="image" /></p>
+
+<h1 id="sigmet-convective-icing-turbulance--tropical-volcanic">SIGMET: Convective, Icing, Turbulance,  Tropical, Volcanic</h1>
+
+<p>SIGMET (Significant Meteorological Information) is an alphanumeric message describing specific aviation hazard conditions between the surface and 45,000 feet (FL450). A SIGMET includes information about the location of the hazard using VOR locations. SIGMETs are produced on an as-needed basis at the AWC and are distributed on the SBN.</p>
+
+<h1 id="airmet-icing-turbulence">AIRMET: Icing, Turbulence</h1>
+
+<p>AIRMET (Airmen’s Meteorological Information) is an alpha-numeric message describing specific aviation hazard conditions between the surface and 45,000 feet (FL450), but not requiring the issuance of a SIGMET. An AIRMET includes information about the location of the hazard using VOR locations. AIRMETs are produced every 6 hours at the AWC for the CONUS area, and are distributed on the SBN.</p>
+
+<p><img src="../images/dAKNWYk.png" alt="image" /></p>
+
+<h1 id="visibility-products">Visibility Products</h1>
+
+<h2 id="ifr-mountain-obscn">IFR, Mountain Obscn</h2>
+
+<p><img src="../images/wI0Jaxs.png" alt="image" /></p>
+
+<h2 id="signiciant-weather">Signiciant Weather</h2>
+
+<h2 id="medium-level-high-level">Medium Level, High Level</h2>
+
+<p><img src="../images/OFRpsZU.png" alt="image" /></p>
+
+    </article>
+
+    <footer>
+  <div>
+    <div class="links">
+      <a href="https://www.facebook.com/unidata" title="Unidata on Facebook" tabindex="-1"><paper-button><core-icon icon="social:post-facebook"></core-icon>Facebook</paper-button></a>
+      <a href="https://twitter.com/intent/follow?screen_name=unidata" data-twitter-follow title="Follow @Unidata on Twitter" tabindex="-1"><paper-button><core-icon icon="social:post-twitter"></core-icon>Twitter</paper-button></a>
+      <a href="https://github.com/Unidata/awips2"><paper-button class="github" tabindex="-1"><core-icon icon="social:post-github"></core-icon>GitHub</paper-button></a>
+      <a href="https://github.com/Unidata/awips2/issues/new" tabindex="-1"><paper-button><core-icon icon="bug-report"></core-icon>File a bug</paper-button></a>
+    </div>
+
+  </div>
+</footer>
+
+
+
+
+
+<script src="/polymer-docs/js/prettify/prettify.js"></script>
+
+<!-- <script src="/polymer-docs/js/bower_components/smoothscroll/smoothscroll.js"></script> -->
+<script src="/polymer-docs/js/app.js?20160403"></script>
+
+
+  </scroll-area>
+
+</main>
+
+</body>
+</html>

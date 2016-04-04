@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html itemscope itemtype="http://schema.org/Organization">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="chrome=1" />
+<meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1">
+<meta name="google-site-verification" content="k0e8DrbD40s54xHNBqwIsRrSSAkZoprwtEYDnNY06bU" />
+<meta name="google-site-verification" content="pnjjbQFvjPwaWhEXY6nSyaS9iyghmH-M_yLHBveDX2M">
+<meta itemprop="name" content="AWIPS II - Data binding helper elements">
+<meta itemprop="description" content="Polymer is a library that uses the latest web technologies to let you create custom HTML elements. Build anything from a button to a complete application as an encapsulated, reusable element that works across desktop and mobile.">
+
+
+<meta itemprop="image" content="https://www.polymer-project.org/images/instacod.png">
+
+
+<title>
+  
+    Data binding helper elements -
+   AWIPS II
+</title>
+<link rel="publisher" href="https://plus.google.com/107187849809354688692">
+<link rel="shortcut icon" href="http://www.unidata.ucar.edu/favicon.ico">
+<link href="//fonts.googleapis.com/css?family=RobotoDraft:300,400,500|Source+Code+Pro:400,500,700" rel="stylesheet">
+<link href="/polymer-docs/css/site2.css?20160403" rel="stylesheet">
+<link href="/polymer-docs/css/site2_sd_rules.css?20160403" rel="stylesheet" shim-shadowdom>
+
+
+
+<script src="/polymer-docs/components/webcomponentsjs/webcomponents.min.js?20160403"></script>
+<!-- TODO: remove when https://github.com/Polymer/polymer/issues/391 is fixed -->
+<link rel="import" href="/polymer-docs/components/polymer/polymer.html">
+<link rel="stylesheet" href="/polymer-docs/css/elements/docs-menu.css">
+<link rel="import" href="/polymer-docs/elements/common_elements.vulcanized.html?20160403">
+
+
+</head>
+<body id="data-binding-helper-elements">
+
+<main id="content-container" class="polymer-content">
+  <app-drawer id="sidebar" unresolved>
+    <div layout vertical id="sidebar-content">
+      <div id="logo-container" layout horizontal center>
+        <a href="/polymer-docs/" class="logo"><img src="/polymer-docs/images/logos/awips2.png" alt="AWIPS II User Guide"></a>
+      </div>
+
+      <docs-menu unresolved flex
+		 baseurl='/polymer-docs'
+                 coreElements='{"core-header-panel":"components/core-header-panel/core-header-panel.html","core-transition-pages":"components/core-animated-pages/transitions/core-transition-pages.html","core-animated-pages":"components/core-animated-pages/core-animated-pages.html","core-overlay":"components/core-overlay/core-overlay.html","core-toolbar":"components/core-toolbar/core-toolbar.html","core-image":"components/core-image/core-image.html","core-shared-lib":"components/core-shared-lib/core-shared-lib.html","core-a11y-keys":"components/core-a11y-keys/core-a11y-keys.html","core-menu-button":"components/core-menu-button/core-menu-button.html","core-icon":"components/core-icon/core-icon.html","core-selection":"components/core-selection/core-selection.html","core-style":"components/core-style/core-style.html","core-menu":"components/core-menu/core-menu.html","core-submenu":"components/core-menu/core-submenu.html","core-list":"components/core-list/core-list.html","core-dropdown-menu":"components/core-dropdown-menu/core-dropdown-menu.html","core-input":"components/core-input/core-input.html","core-iconset-svg":"components/core-iconset-svg/core-iconset-svg.html","core-field":"components/core-field/core-field.html","core-selector":"components/core-selector/core-selector.html","core-media-query":"components/core-media-query/core-media-query.html","core-animation-group":"components/core-animation/core-animation-group.html","core-animation":"components/core-animation/core-animation.html","core-animation-keyframe":"components/core-animation/core-animation.html","core-animation-prop":"components/core-animation/core-animation.html","core-dropdown":"components/core-dropdown/core-dropdown.html","core-dropdown-base":"components/core-dropdown/core-dropdown-base.html","core-pages":"components/core-pages/core-pages.html","core-meta":"components/core-meta/core-meta.html","core-splitter":"components/core-splitter/core-splitter.html","core-scroll-header-panel":"components/core-scroll-header-panel/core-scroll-header-panel.html","core-tooltip":"components/core-tooltip/core-tooltip.html","core-localstorage":"components/core-localstorage/core-localstorage.html","core-scroll-threshold":"components/core-scroll-threshold/core-scroll-threshold.html","core-drag-drop":"components/core-drag-drop/core-drag-drop.html","core-iconset":"components/core-iconset/core-iconset.html","core-label":"components/core-label/core-label.html","core-signals":"components/core-signals/core-signals.html","core-transition":"components/core-transition/core-transition.html","core-scaffold":"components/core-scaffold/core-scaffold.html","core-drawer-panel":"components/core-drawer-panel/core-drawer-panel.html","core-range":"components/core-range/core-range.html","core-collapse":"components/core-collapse/core-collapse.html","core-xhr":"components/core-ajax/core-xhr.html","core-ajax":"components/core-ajax/core-ajax.html","core-icon-button":"components/core-icon-button/core-icon-button.html","core-item":"components/core-item/core-item.html"}'
+                 paperElements='{"paper-dropdown":"components/paper-dropdown/paper-dropdown.html","paper-dropdown-transition":"components/paper-dropdown/paper-dropdown-transition.html","paper-item":"components/paper-item/paper-item.html","paper-dropdown-menu":"components/paper-dropdown-menu/paper-dropdown-menu.html","paper-checkbox":"components/paper-checkbox/paper-checkbox.html","paper-button":"components/paper-button/paper-button.html","paper-button-base":"components/paper-button/paper-button-base.html","paper-menu-button":"components/paper-menu-button/paper-menu-button.html","paper-radio-group":"components/paper-radio-group/paper-radio-group.html","paper-toast":"components/paper-toast/paper-toast.html","paper-char-counter":"components/paper-input/paper-char-counter.html","paper-autogrow-textarea":"components/paper-input/paper-autogrow-textarea.html","paper-input":"components/paper-input/paper-input.html","paper-input-decorator":"components/paper-input/paper-input-decorator.html","paper-slider":"components/paper-slider/paper-slider.html","paper-toggle-button":"components/paper-toggle-button/paper-toggle-button.html","paper-fab":"components/paper-fab/paper-fab.html","paper-ripple":"components/paper-ripple/paper-ripple.html","paper-icon-button":"components/paper-icon-button/paper-icon-button.html","paper-tabs":"components/paper-tabs/paper-tabs.html","paper-tab":"components/paper-tabs/paper-tab.html","paper-shadow":"components/paper-shadow/paper-shadow.html","paper-radio-button":"components/paper-radio-button/paper-radio-button.html","paper-dialog":"components/paper-dialog/paper-dialog.html","paper-action-dialog":"components/paper-dialog/paper-action-dialog.html","paper-dialog-base":"components/paper-dialog/paper-dialog-base.html","paper-dialog-transition":"components/paper-dialog/paper-dialog-transition.html","paper-spinner":"components/paper-spinner/paper-spinner.html","paper-progress":"components/paper-progress/paper-progress.html"}'></docs-menu>
+    </div>
+  </app-drawer>
+
+  <scroll-area sidebar unresolved class="scrolling">
+    <site-banner type="guide" shortname="Docs" unresolved>
+      
+<app-bar theme="light" class="bar fixed">
+</app-bar>
+
+      <header class="shrink">
+        <h1>
+        
+          EDEX Admin
+        : Data binding helper elements
+        </h1>
+      </header>
+    </site-banner>
+
+    
+    
+
+    <article class="show-permalinks">
+
+      <header class="onlyonmobile">
+        <h1>
+          
+          EDEX Admin
+          : Data binding helper elements
+        </h1>
+      </header>
+
+      
+<!--TOC_START-->
+<ul id="markdown-toc">
+  <li><a href="#dom-repeat" id="markdown-toc-dom-repeat">Template repeater (dom-repeat)</a>    <ul>
+      <li><a href="#handling-events" id="markdown-toc-handling-events">Handling events in <code>dom-repeat</code> templates</a></li>
+      <li><a href="#filtering-and-sorting-lists" id="markdown-toc-filtering-and-sorting-lists">Filtering and sorting lists</a></li>
+      <li><a href="#nesting-templates" id="markdown-toc-nesting-templates">Nesting dom-repeat templates</a></li>
+    </ul>
+  </li>
+  <li><a href="#array-selector" id="markdown-toc-array-selector">Array selector (array-selector)</a></li>
+  <li><a href="#dom-if" id="markdown-toc-dom-if">Conditional templates</a></li>
+  <li><a href="#dom-bind" id="markdown-toc-dom-bind">Auto-binding templates</a></li>
+  <li><a href="#dom-change" id="markdown-toc-dom-change">dom-change event</a></li>
+</ul>
+<!--TOC_END-->
+
+<p>AWIPS II provides a set of custom elements to help with common
+data binding use cases:</p>
+
+<ul>
+  <li>Template repeater. Creates an instance of the template’s contents for each item in an array.</li>
+  <li>Array selector. Manages selection state for an array of structured data.</li>
+  <li>Conditional template. Stamps its contents if a given condition is true.</li>
+  <li>Auto-binding template. Allows data binding outside of a AWIPS II element.</li>
+</ul>
+
+<h2 id="dom-repeat">Template repeater (dom-repeat)</h2>
+
+<p>The template repeater is a specialized template that binds to an array.
+It creates one instance of the template’s contents for each item in the array.
+It adds two properties to the binding scope for each instance:</p>
+
+<ul>
+  <li><code>item</code>. The array item used to create this instance.</li>
+  <li><code>index</code>. The index of <code>item</code> in the array. (The <code>index</code> value changes if 
+the array is sorted or filtered)</li>
+</ul>
+
+<p>The template repeater is a <a href="registering-elements.html#type-extension">type-extension custom element</a> 
+that extends the built-in <code>&lt;template&gt;</code> element, so it is written as <code>&lt;template is="dom-repeat"&gt;</code>.</p>
+
+<p>Example:</p>
+
+<pre><code>&lt;dom-module id="employee-list"&gt;
+  &lt;template&gt;
+
+    &lt;div&gt; Employee list: &lt;/div&gt;
+    &lt;template is="dom-repeat" items="{{employees}}"&gt;
+        &lt;div&gt;# &lt;span&gt;{{index}}&lt;/span&gt;&lt;/div&gt;
+        &lt;div&gt;First name: &lt;span&gt;{{item.first}}&lt;/span&gt;&lt;/div&gt;
+        &lt;div&gt;Last name: &lt;span&gt;{{item.last}}&lt;/span&gt;&lt;/div&gt;
+    &lt;/template&gt;
+
+  &lt;/template&gt;
+
+  &lt;script&gt;
+    Polymer({
+      is: 'employee-list',
+      ready: function() {
+        this.employees = [
+            {first: 'Bob', last: 'Smith'},
+            {first: 'Sally', last: 'Johnson'},
+            ...
+        ];
+      }
+    });
+  &lt;/script&gt;
+
+&lt;/dom-module&gt;
+</code></pre>
+
+<p>Notifications for changes to items sub-properties are forwarded to the template
+instances, which update via the normal <a href="#path-binding">structured data notification system
+</a>.</p>
+
+<p>Mutations to the <code>items</code> array itself (<code>push</code>, <code>pop</code>, <code>splice</code>, <code>shift</code>,
+<code>unshift</code>) must be performed using methods provided on Polymer elements, such
+that the changes are observable to any elements bound to the same array in the
+tree. For example:</p>
+
+<pre><code>this.push('employees', { first: 'Jack', last: 'Aubrey' });
+</code></pre>
+
+<h3 id="handling-events">Handling events in <code>dom-repeat</code> templates</h3>
+
+<p>When handling events generated by a <code>dom-repeat</code> template instance, you 
+frequently want to map the element firing the event to the model data that 
+generated that item.</p>
+
+<p>When you add a declarative event handler <strong>inside</strong> the <code>&lt;dom-repeat&gt;</code> template,
+the repeater adds a <code>model</code> property to each event sent to the listener. The <code>model</code> 
+is the scope data used to generate the template instance, so the item
+data is <code>model.item</code>:</p>
+
+<pre><code>&lt;dom-module id="simple-menu"&gt;
+
+  &lt;template&gt;
+    &lt;template is="dom-repeat" id="menu" items="{{menuItems}}"&gt;
+        &lt;div&gt;
+          &lt;span&gt;{{item.name}}&lt;/span&gt;
+          &lt;span&gt;{{item.ordered}}&lt;/span&gt; 
+          &lt;button on-click="order"&gt;Order&lt;/button&gt;
+        &lt;/div&gt;
+    &lt;/template&gt;
+  &lt;/template&gt;
+
+  &lt;script&gt;
+    Polymer({
+      is: 'simple-menu',
+      ready: function() {
+        this.menuItems = [
+            { name: "Pizza", ordered: 0 },
+            { name: "Pasta", ordered: 0 },
+            { name: "Toast", ordered: 0 }
+        ];
+      },
+      order: function(e) {
+        var model = e.model;
+        model.set('item.ordered', model.item.ordered+1);
+      }
+    });
+  &lt;/script&gt;
+
+&lt;/dom-module&gt;
+</code></pre>
+
+<p>The <code>model</code> is an instance of <code>Polymer.Base</code>, so <code>set</code>, <code>get</code> and the array
+manipulation methods are all available on the <code>model</code> object, and should be used
+to manipulate the model.</p>
+
+<p class="alert alert-info"><strong>Note:</strong> The <code>model</code> property is <strong>not</strong> added for event listeners registered 
+imperatively (using <code>addEventListener</code>), or listeners added to one of the
+<code>&lt;dom-repeat&gt;</code> template’s parent nodes. In these cases, you can use
+the <code>&lt;dom-repeat&gt;</code> <code>modelForElement</code> method to retrieve the 
+model data that generated a given element. (There are also corresponding 
+<code>itemForElement</code> and <code>indexForElement</code> methods.)</p>
+
+<h3 id="filtering-and-sorting-lists">Filtering and sorting lists</h3>
+
+<p>To filter or sort the <em>displayed</em> items in your list, specify a <code>filter</code> or 
+<code>sort</code> property on the <code>dom-repeat</code> (or both):</p>
+
+<ul>
+  <li><code>filter</code>. Specifies a filter callback function following the standard 
+<code>Array</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter"><code>filter</code></a> API.</li>
+  <li><code>sort</code>. Specifies a comparison function following the standard <code>Array</code> 
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort"><code>sort</code></a> API.</li>
+</ul>
+
+<p>In both cases, the value can be either a function object, or a string identifying a 
+function defined on the host element.</p>
+
+<p>By default, the <code>filter</code> and <code>sort</code> functions only run when the array itself
+is mutated (for example, by adding or removing items).</p>
+
+<p>To re-run the <code>filter</code> or <code>sort</code> functions when certain sub-fields
+of <code>items</code> change, set the <code>observe</code> property to a space-separated list of
+<code>item</code> sub-fields that should cause the list to be re-filtered or re-sorted.</p>
+
+<p>For example, for a <code>dom-repeat</code> with a filter of the following:</p>
+
+<pre><code>isEngineer: function(item) {
+    return item.type == 'engineer' || item.manager.type == 'engineer';
+}
+</code></pre>
+
+<p>Then the <code>observe</code> property should be configured as follows:</p>
+
+<pre><code>&lt;template is="dom-repeat" items="{{employees}}"
+    filter="isEngineer" observe="type manager.type"&gt;
+</code></pre>
+
+<p>Changing a <code>manager.type</code> field should now cause the list to be re-sorted:</p>
+
+<pre><code>this.set('employees.0.manager.type', 'engineer');
+</code></pre>
+
+<h3 id="nesting-templates">Nesting dom-repeat templates</h3>
+
+<p>When nesting multiple <code>dom-repeat</code> templates, you may want to access data
+from a parent scope. Inside a <code>dom-repeat</code>, you can access any properties available
+to the parent scope unless they’re hidden by a property in the current scope.</p>
+
+<p>For example, the default <code>item</code> and <code>index</code> properties added by <code>dom-repeat</code>
+hide any similarly-named properties in a parent scope.</p>
+
+<p>To access properties from nested <code>dom-repeat</code> templates, use the <code>as</code> attribute to 
+assign a different name for the item property. Use the <code>index-as</code> attribute to assign a 
+different name for the index property.</p>
+
+<pre><code>&lt;div&gt; Employee list: &lt;/div&gt;
+&lt;template is="dom-repeat" items="{{employees}}" as="employee"&gt;
+    &lt;div&gt;First name: &lt;span&gt;{{employee.first}}&lt;/span&gt;&lt;/div&gt;
+    &lt;div&gt;Last name: &lt;span&gt;{{employee.last}}&lt;/span&gt;&lt;/div&gt;
+
+    &lt;div&gt;Direct reports:&lt;/div&gt;
+
+    &lt;template is="dom-repeat" items="{{employee.reports}}" as="report" index-as="report_no"&gt;
+      &lt;div&gt;&lt;span&gt;{{report_no}}&lt;/span&gt;. 
+           &lt;span&gt;{{report.first}}&lt;/span&gt; &lt;span&gt;{{report.last}}&lt;/span&gt;
+      &lt;/div&gt;
+    &lt;/template&gt;
+&lt;/template&gt;
+</code></pre>
+
+<h2 id="array-selector">Array selector (array-selector)</h2>
+
+<p>Keeping structured data in sync requires that AWIPS II understand the path
+associations of data being bound.  The <code>array-selector</code> element ensures path
+linkage when selecting specific items from an array. The array selector supports
+either single or multiple selection.</p>
+
+<p>The <code>items</code> property accepts an array of user data. Call <code>select(item)</code>
+and <code>deselect(item)</code> to update the <code>selected</code> property, which may be bound to
+other parts of the application. Any changes to sub-fields of the selected 
+item(s) are kept in sync with items in the <code>items</code> array.</p>
+
+<p>When <code>multi</code> is false, <code>selected</code> is a property representing the last selected 
+item.  When <code>multi</code> is true, <code>selected</code> is an array of selected items.</p>
+
+<pre><code>&lt;dom-module id="employee-list"&gt;
+
+  &lt;template&gt;
+
+    &lt;div&gt; Employee list: &lt;/div&gt;
+    &lt;template is="dom-repeat" id="employeeList" items="{{employees}}"&gt;
+        &lt;div&gt;First name: &lt;span&gt;{{item.first}}&lt;/span&gt;&lt;/div&gt;
+        &lt;div&gt;Last name: &lt;span&gt;{{item.last}}&lt;/span&gt;&lt;/div&gt;
+        &lt;button on-click="toggleSelection"&gt;Select&lt;/button&gt;
+    &lt;/template&gt;
+
+    &lt;array-selector id="selector" items="{{employees}}" selected="{{selected}}" multi toggle&gt;&lt;/array-selector&gt;
+
+    &lt;div&gt; Selected employees: &lt;/div&gt;
+    &lt;template is="dom-repeat" items="{{selected}}"&gt;
+        &lt;div&gt;First name: &lt;span&gt;{{item.first}}&lt;/span&gt;&lt;/div&gt;
+        &lt;div&gt;Last name: &lt;span&gt;{{item.last}}&lt;/span&gt;&lt;/div&gt;
+    &lt;/template&gt;
+
+  &lt;/template&gt;
+
+  &lt;script&gt;
+    Polymer({
+      is: 'employee-list',
+      ready: function() {
+        this.employees = [
+            {first: 'Bob', last: 'Smith'},
+            {first: 'Sally', last: 'Johnson'},
+            ...
+        ];
+      },
+      toggleSelection: function(e) {
+        var item = this.$.employeeList.itemForElement(e.target);
+        this.$.selector.select(item);
+      }
+    });
+  &lt;/script&gt;
+
+&lt;/dom-module&gt;
+</code></pre>
+
+<h2 id="dom-if">Conditional templates</h2>
+
+<p>Elements can be conditionally stamped based on a boolean property by wrapping
+them in a custom <code>HTMLTemplateElement</code> type extension called <code>dom-if</code>.  The
+<code>dom-if</code> template stamps its contents into the DOM only when its <code>if</code> property becomes
+truthy.</p>
+
+<p>If the <code>if</code> property becomes falsy again, by default all stamped elements are hidden 
+(but remain in the DOM tree). This provides faster performance should the <code>if</code>
+property become truthy again.  To disable this behavior, set the
+<code>restamp</code> property to <code>true</code>. This results in slower <code>if</code> switching behavior as the
+elements are destroyed and re-stamped each time.</p>
+
+<p>The following is a simple example to show how conditional templates work. Read below for
+guidance on recommended usage of conditional templates.</p>
+
+<p>Example:</p>
+
+<pre><code>&lt;dom-module id="user-page"&gt;
+
+  &lt;template&gt;
+
+    All users will see this:
+    &lt;div&gt;{{user.name}}&lt;/div&gt;
+
+    &lt;template is="dom-if" if="{{user.isAdmin}}"&gt;
+      Only admins will see this.
+      &lt;div&gt;{{user.secretAdminStuff}}&lt;/div&gt;
+    &lt;/template&gt;
+
+  &lt;/template&gt;
+
+  &lt;script&gt;
+    Polymer({
+      is: 'user-page',
+      properties: {
+        user: Object
+      }
+    });
+  &lt;/script&gt;
+
+&lt;/dom-module&gt;
+</code></pre>
+
+<p>Since it is generally much faster to hide and show elements rather than
+destroy and recreate them, conditional templates are only useful to save initial
+creation cost when the elements being stamped are relatively heavyweight and the
+conditional may rarely (or never) be true in given usages.  Otherwise, liberal
+use of conditional templates can actually <em>add</em> significant runtime performance
+overhead.</p>
+
+<p>Consider an app with 4 screens, plus an optional admin screen.  If most users
+will use all 4 screens during normal use of the app, it is generally better to
+incur the cost of stamping those elements once at startup (where some app
+initialization time is expected) and simply hide/show the screens as the user
+navigates through the app, rather than destroy and re-create all the elements of
+each screen as the user navigates.  Using a conditional template here may be a
+poor choice, since although it may save time at startup by stamping only the
+first screen, that saved time gets shifted to runtime latency for each user
+interaction, since the time to show the second screen will be <em>slower</em> as it
+must create the second screen from scratch rather than simply showing that
+screen.  Hiding/showing elements is as simple as attribute-binding to the
+<code>hidden</code> attribute (e.g. <code>&lt;div hidden$=""&gt;</code>), and does not
+require conditional templating at all.</p>
+
+<p>However, using a conditional template may be appropriate in the case of an admin
+screen that’s only shown to admin users of an app.  Since most users
+aren’t admins, there may be performance benefits to not burdening most of
+the users with the cost of stamping the elements for the admin page, especially
+if it is relatively heavyweight.</p>
+
+<h2 id="dom-bind">Auto-binding templates</h2>
+
+<p>AWIPS II data binding is only available in templates that are managed
+by AWIPS II. So data binding works inside an element’s local DOM
+template, but not for elements placed in the main document.</p>
+
+<p>To use AWIPS II bindings <strong>without</strong> defining a new custom element, 
+use the <code>dom-bind</code> element.  This template immediately stamps its contents
+into the main document. Data bindings in an auto-binding template use the template 
+itself as the binding scope.</p>
+
+<pre><code>&lt;!doctype html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;meta charset="utf-8"&gt;
+  &lt;script src="components/webcomponentsjs/webcomponents-lite.js"&gt;&lt;/script&gt;
+  &lt;link rel="import" href="components/polymer/polymer.html"&gt;
+  &lt;link rel="import" href="components/iron-ajax/iron-ajax.html"&gt;
+
+&lt;/head&gt;
+&lt;body&gt;
+
+  &lt;!-- Wrap elements with auto-binding template to --&gt;
+  &lt;!-- allow use of Polymer bindings in main document --&gt;
+  &lt;template id="t" is="dom-bind"&gt;
+
+    &lt;iron-ajax url="http://..." last-response="{{data}}" auto&gt;&lt;/iron-ajax&gt;
+
+    &lt;template is="dom-repeat" items="{{data}}"&gt;
+        &lt;div&gt;&lt;span&gt;{{item.first}}&lt;/span&gt; &lt;span&gt;{{item.last}}&lt;/span&gt;&lt;/div&gt;
+    &lt;/template&gt;
+
+  &lt;/template&gt;
+
+&lt;/body&gt;
+&lt;script&gt;
+  var t = document.querySelector('#t');
+  
+  // The dom-change event signifies when the template has stamped its DOM.
+  t.addEventListener('dom-change', function() {
+    // auto-binding template is ready.
+  });
+&lt;/script&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p>All of the features in <code>dom-bind</code> are already available <em>inside</em> a AWIPS II
+element. <strong>Auto-binding templates should only be used <em>outside</em> of a AWIPS II element.</strong></p>
+
+<h2 id="dom-change">dom-change event</h2>
+
+<p>When one of the template helper elements updates the DOM tree, it fires a <code>dom-change</code> event.</p>
+
+<p>In most cases, you should interact with the created DOM by changing the <em>model data</em>, not by 
+interacting directly with the created nodes. For those cases where you need to access the 
+nodes directly, you can use the <code>dom-change</code> event.</p>
+
+
+    </article>
+
+    <footer>
+  <div>
+    <div class="links">
+      <a href="https://www.facebook.com/unidata" title="Unidata on Facebook" tabindex="-1"><paper-button><core-icon icon="social:post-facebook"></core-icon>Facebook</paper-button></a>
+      <a href="https://twitter.com/intent/follow?screen_name=unidata" data-twitter-follow title="Follow @Unidata on Twitter" tabindex="-1"><paper-button><core-icon icon="social:post-twitter"></core-icon>Twitter</paper-button></a>
+      <a href="https://github.com/Unidata/awips2"><paper-button class="github" tabindex="-1"><core-icon icon="social:post-github"></core-icon>GitHub</paper-button></a>
+      <a href="https://github.com/Unidata/awips2/issues/new" tabindex="-1"><paper-button><core-icon icon="bug-report"></core-icon>File a bug</paper-button></a>
+    </div>
+
+  </div>
+</footer>
+
+
+
+
+
+<script src="/polymer-docs/js/prettify/prettify.js"></script>
+
+<!-- <script src="/polymer-docs/js/bower_components/smoothscroll/smoothscroll.js"></script> -->
+<script src="/polymer-docs/js/app.js?20160403"></script>
+
+
+  </scroll-area>
+
+</main>
+
+</body>
+</html>

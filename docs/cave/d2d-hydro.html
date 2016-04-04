@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html itemscope itemtype="http://schema.org/Organization">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="chrome=1" />
+<meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1">
+<meta name="google-site-verification" content="k0e8DrbD40s54xHNBqwIsRrSSAkZoprwtEYDnNY06bU" />
+<meta name="google-site-verification" content="pnjjbQFvjPwaWhEXY6nSyaS9iyghmH-M_yLHBveDX2M">
+<meta itemprop="name" content="AWIPS II - NCEP/Hydro Menu">
+<meta itemprop="description" content="Polymer is a library that uses the latest web technologies to let you create custom HTML elements. Build anything from a button to a complete application as an encapsulated, reusable element that works across desktop and mobile.">
+
+
+<meta itemprop="image" content="https://www.polymer-project.org/images/instacod.png">
+
+
+<title>
+  
+    NCEP/Hydro Menu -
+   AWIPS II
+</title>
+<link rel="publisher" href="https://plus.google.com/107187849809354688692">
+<link rel="shortcut icon" href="http://www.unidata.ucar.edu/favicon.ico">
+<link href="//fonts.googleapis.com/css?family=RobotoDraft:300,400,500|Source+Code+Pro:400,500,700" rel="stylesheet">
+<link href="/polymer-docs/css/site2.css?20160403" rel="stylesheet">
+<link href="/polymer-docs/css/site2_sd_rules.css?20160403" rel="stylesheet" shim-shadowdom>
+
+
+
+<script src="/polymer-docs/components/webcomponentsjs/webcomponents.min.js?20160403"></script>
+<!-- TODO: remove when https://github.com/Polymer/polymer/issues/391 is fixed -->
+<link rel="import" href="/polymer-docs/components/polymer/polymer.html">
+<link rel="stylesheet" href="/polymer-docs/css/elements/docs-menu.css">
+<link rel="import" href="/polymer-docs/elements/common_elements.vulcanized.html?20160403">
+
+
+</head>
+<body id="ncep/hydro-menu">
+
+<main id="content-container" class="polymer-content">
+  <app-drawer id="sidebar" unresolved>
+    <div layout vertical id="sidebar-content">
+      <div id="logo-container" layout horizontal center>
+        <a href="/polymer-docs/" class="logo"><img src="/polymer-docs/images/logos/awips2.png" alt="AWIPS II User Guide"></a>
+      </div>
+
+      <docs-menu unresolved flex
+		 baseurl='/polymer-docs'
+                 coreElements='{"core-header-panel":"components/core-header-panel/core-header-panel.html","core-transition-pages":"components/core-animated-pages/transitions/core-transition-pages.html","core-animated-pages":"components/core-animated-pages/core-animated-pages.html","core-overlay":"components/core-overlay/core-overlay.html","core-toolbar":"components/core-toolbar/core-toolbar.html","core-image":"components/core-image/core-image.html","core-shared-lib":"components/core-shared-lib/core-shared-lib.html","core-a11y-keys":"components/core-a11y-keys/core-a11y-keys.html","core-menu-button":"components/core-menu-button/core-menu-button.html","core-icon":"components/core-icon/core-icon.html","core-selection":"components/core-selection/core-selection.html","core-style":"components/core-style/core-style.html","core-menu":"components/core-menu/core-menu.html","core-submenu":"components/core-menu/core-submenu.html","core-list":"components/core-list/core-list.html","core-dropdown-menu":"components/core-dropdown-menu/core-dropdown-menu.html","core-input":"components/core-input/core-input.html","core-iconset-svg":"components/core-iconset-svg/core-iconset-svg.html","core-field":"components/core-field/core-field.html","core-selector":"components/core-selector/core-selector.html","core-media-query":"components/core-media-query/core-media-query.html","core-animation-group":"components/core-animation/core-animation-group.html","core-animation":"components/core-animation/core-animation.html","core-animation-keyframe":"components/core-animation/core-animation.html","core-animation-prop":"components/core-animation/core-animation.html","core-dropdown":"components/core-dropdown/core-dropdown.html","core-dropdown-base":"components/core-dropdown/core-dropdown-base.html","core-pages":"components/core-pages/core-pages.html","core-meta":"components/core-meta/core-meta.html","core-splitter":"components/core-splitter/core-splitter.html","core-scroll-header-panel":"components/core-scroll-header-panel/core-scroll-header-panel.html","core-tooltip":"components/core-tooltip/core-tooltip.html","core-localstorage":"components/core-localstorage/core-localstorage.html","core-scroll-threshold":"components/core-scroll-threshold/core-scroll-threshold.html","core-drag-drop":"components/core-drag-drop/core-drag-drop.html","core-iconset":"components/core-iconset/core-iconset.html","core-label":"components/core-label/core-label.html","core-signals":"components/core-signals/core-signals.html","core-transition":"components/core-transition/core-transition.html","core-scaffold":"components/core-scaffold/core-scaffold.html","core-drawer-panel":"components/core-drawer-panel/core-drawer-panel.html","core-range":"components/core-range/core-range.html","core-collapse":"components/core-collapse/core-collapse.html","core-xhr":"components/core-ajax/core-xhr.html","core-ajax":"components/core-ajax/core-ajax.html","core-icon-button":"components/core-icon-button/core-icon-button.html","core-item":"components/core-item/core-item.html"}'
+                 paperElements='{"paper-dropdown":"components/paper-dropdown/paper-dropdown.html","paper-dropdown-transition":"components/paper-dropdown/paper-dropdown-transition.html","paper-item":"components/paper-item/paper-item.html","paper-dropdown-menu":"components/paper-dropdown-menu/paper-dropdown-menu.html","paper-checkbox":"components/paper-checkbox/paper-checkbox.html","paper-button":"components/paper-button/paper-button.html","paper-button-base":"components/paper-button/paper-button-base.html","paper-menu-button":"components/paper-menu-button/paper-menu-button.html","paper-radio-group":"components/paper-radio-group/paper-radio-group.html","paper-toast":"components/paper-toast/paper-toast.html","paper-char-counter":"components/paper-input/paper-char-counter.html","paper-autogrow-textarea":"components/paper-input/paper-autogrow-textarea.html","paper-input":"components/paper-input/paper-input.html","paper-input-decorator":"components/paper-input/paper-input-decorator.html","paper-slider":"components/paper-slider/paper-slider.html","paper-toggle-button":"components/paper-toggle-button/paper-toggle-button.html","paper-fab":"components/paper-fab/paper-fab.html","paper-ripple":"components/paper-ripple/paper-ripple.html","paper-icon-button":"components/paper-icon-button/paper-icon-button.html","paper-tabs":"components/paper-tabs/paper-tabs.html","paper-tab":"components/paper-tabs/paper-tab.html","paper-shadow":"components/paper-shadow/paper-shadow.html","paper-radio-button":"components/paper-radio-button/paper-radio-button.html","paper-dialog":"components/paper-dialog/paper-dialog.html","paper-action-dialog":"components/paper-dialog/paper-action-dialog.html","paper-dialog-base":"components/paper-dialog/paper-dialog-base.html","paper-dialog-transition":"components/paper-dialog/paper-dialog-transition.html","paper-spinner":"components/paper-spinner/paper-spinner.html","paper-progress":"components/paper-progress/paper-progress.html"}'></docs-menu>
+    </div>
+  </app-drawer>
+
+  <scroll-area sidebar unresolved class="scrolling">
+    <site-banner type="guide" shortname="Docs" unresolved>
+      
+<app-bar theme="light" class="bar fixed">
+</app-bar>
+
+      <header class="shrink">
+        <h1>
+        
+          D2D User Guide
+        : NCEP/Hydro Menu
+        </h1>
+      </header>
+    </site-banner>
+
+    
+    
+
+    <article class="show-permalinks">
+
+      <header class="onlyonmobile">
+        <h1>
+          
+          D2D User Guide
+          : NCEP/Hydro Menu
+        </h1>
+      </header>
+
+      <p>The NCEP/Hydro menu contains nine sections: SPC, TPC, NCO, HPC, MPC, CPC, AWC, Hydro, and Local Analyses/Statistical Guidance. Each section is further subdivided into related products, as described below. For more information on hydro products, refer to documentation prepared by the NWS’ Office of Hydrology.</p>
+
+<h1 id="spc">SPC</h1>
+
+<p>Storm Prediction Center (SPC) Watches, Severe Weather Plots, SPC Convective Outlooks, and Fire Weather information. Severe Weather Plots are extracted from the STADTS and STAHRY text products and plotted to time-match the current display. The Severe Weather Plots data set in the NCEP/Hydro Menu can be interrogated (sampled) for more detailed information by clicking mouse Button 1 (B1) over a site.</p>
+
+<h1 id="tpc">TPC</h1>
+
+<p>Contains the hurricane submenu, which comprises graphic products that display the Marine/Tropical Cyclone Advisory (TCM), the Public Tropical Cyclone Advisory (TCP), hourly forecasts, and model guidance.</p>
+
+<h1 id="hpc">HPC</h1>
+
+<p>Contains 6-hour QPF (Quantitative Precipitation Forecast) data plus the submenus, described
+below, for Precipitation and Temps &amp; Weather products.</p>
+
+<ul>
+  <li><strong>Precipitation</strong> Contains probabilities of daily precipitation, precipitation accumulation, and probabilities of daily snowfall. In addition, this submenu enables you to display QPF projections for 1 to 3 days in 6 hour increments, 4 to 5 days in 48 hour increments, and 1 to 5 days in 120 hour increments. The HPC Excessive Rainfall product consists of a contour graphic and image of the excessive rainfall for day 1 (with forecast times of 21, 24, 27, or 30 hours), and days 2 and 3 (both with forecast times of 48 and 72 hours). The HPC product will update the selected forecast cycle twice per day.</li>
+  <li><strong>Temps &amp; Weather</strong> Contains daily Max/Min temperature anomalies, daily heat index
+probabilities, and pressure and frontal analysis.</li>
+</ul>
+
+<h1 id="mpc">MPC</h1>
+
+<p>Contains the Marine Guidance submenu, which includes marine analyses and model guidance. Note that  the Marine Prediction Center (MPC) is now called the Ocean Prediction Center (OPC).</p>
+
+<h1 id="cpc">CPC</h1>
+
+<p>Contains threat charts and outlook grids derived from these two submenus:</p>
+
+<ul>
+  <li><strong>Threat Charts</strong> Contains drought monitoring data, daily threats assessment, and daily heat index forecasts.</li>
+  <li><strong>Outlook Grids</strong> Contains temperature and precipitation probabilities.</li>
+</ul>
+
+<h1 id="awc">AWC</h1>
+
+<p>Contains CCFP (Collaborative Convective Forecast Product), an aviation product. Formerly located under the Aviation option on the Upper Air menu, CCFP is a strategic forecast of convection to guide traffic managers in their system-wide approach to managing traffic. The forecast suite consists of 3 forecast maps with selectable lead times (4, 6, and 8 hours). The forecasts are issued by the Aviation Weather Center (AWC) between March 1 and October 30, eleven times per day.</p>
+
+<p>CCFP is alpha-numeric information suitable for the graphical depiction of forecast areas of significant thunderstorms. The CCFP message covers the CONUS area, and includes information on the location of thunderstorm areas, and associated information such as storm tops, coverage, confidence, and direction/speed of movement.</p>
+
+<h1 id="nco">NCO</h1>
+
+<p>Contains Precip &amp; Stability, Temps &amp; Weather, National Centers model, NGM MOS (NGM-based MOS system), and the following Sounding-derived plots submenus.</p>
+
+<ul>
+  <li><strong>Precip &amp; Stability</strong>: Contains precipitation, radar, and stability products.</li>
+  <li><strong>Temps &amp; Weather</strong>: Contains Max/Min temperature, freezing level, weather depiction, and surface geostrophic wind and relative vorticity plots.</li>
+  <li><strong>National Centers Models</strong>: Contains model guidance from the National Centers</li>
+  <li><strong>Sounding-derived plots</strong>: Contains options to display model soundings (sometimes called “BUFR soundings” because they are packaged in BUFR format for transmission). These are soundings extracted directly from the model, including all levels not generated from the pressure-level grids used elsewhere in the system.
+    <ul>
+      <li><strong>Sounding Availability</strong> This option displays the sounding locations (shown with asterisks) available from the latest model run; typically these locations coincide with TAF (Terminal Aerodrome Forecast) locations. The plot will update with each model run. Because the sounding data is quite voluminous, only soundings over your State(s) scale are saved.</li>
+      <li><strong>Surface</strong> The Surface Plots, which mimic the METAR Surface Plots, are taken from the model-derived soundings and provide hourly forecast surface plots. Because you cannot see all forecast projections in a 32 frame loop (e.g., displaying the entire North American Model (NAM) or Global Forecasting System (GFS) run would require 61 frames), you will probably want to use the Time Options Tool (refer to Subsection 2.2.6.4) to view a subset of the forecast – perhaps a continuous run of hours or every other hour for the whole run.</li>
+      <li><strong>Ceiling/Visibility</strong> The “Ceil/Vis Plot” shows weather (rain, frz rain, snow) on the right, a stack of three cloud layers above, and visibility below the METAR station. The cloud layers are defined as low (990mb-640mb), mid (640mb-350mb), and high (&lt;350mb). Each cloud layer shows a coverage circle with clear, sct, bkn, and ovc options. Next to one of the circles, there may be a cloud base. The cloud base is sent as a pressure, but is plotted in hft MSL based on a Standard Atmosphere conversion. Because the cloud layers and the cloud base are generated from separate algorithms at NCEP (National Centers for Environmental Prediction), it is possible to have broken or overcast clouds indicated but no base; alternatively, the base may be shown with a high overcast, while ignoring a mid broken layer. Also, a cloud base is reported if convective precipitation is indicated, even for only 10-20% cloud cover. As a result, one can see a cloud base associated with scattered clouds.</li>
+      <li><strong>1 Hr and 3 Hr Precip Amt</strong> This option shows hourly amounts for NAM and 3 hour intervals for GFS at each location.</li>
+      <li><strong>Cloud Layers</strong> This option displays the amount of low, middle, and high cloud cover, each as a standard sky coverage symbol, and weather type as a weather symbol.</li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="hydro">Hydro</h1>
+
+<p>Contains QPE, QPF, and RFC Flash Flood Guidance submenus. Hydro Applications, such as HydroView and MPE Editor, are loaded from the Perspectives dialog (Hydro and MPE, respectively) or from the HydroApps menu in the Hydro(View) Perspective (Hydrobase, RiverPro, XDAT, Forecast Service, River Monitor, Precip Monitor, SSHP, and Dam Catalog).</p>
+
+<ul>
+  <li>
+    <p><strong>QPE</strong>: Makes available mosaic images of RFC-generated Quantitative Precipitation Estimator (QPE) and the Multisensor Precipitation Estimator (MPE) grids, which are displayed using a ‘truncated’ grid color table that shows zero values in gray to let you see the limits of the site-specified domain. These mosaic images are generated by the RFCs in 1, 6, and 24 hour cycles. The MPE grids can be displayed as local contours or images.</p>
+
+    <ul>
+      <li><strong>NESDIS</strong> produces two types of Satellite Precipitation Estimates (SPE) based on GOES (Geostationary Operational Environmental Satellite) imagery series: Auto SPEs and Manual SPEs. Auto SPEs, which can be displayed directly from the QPE submenu, are produced hourly based on the most recent one-hour series of IR GOES imagery. This product is displayable on any AWIPS scale. The Auto SPE estimates are displayed in units of inches of precipitation that fell during the specified one hour period.</li>
+      <li><strong>Manual SPEs</strong> are accessible through the Manual SPE submenu. You can access the Manual SPE submenu from the QPE submenu. Generation of these products requires substantial manual intervention by NESDIS personnel; consequently, these products are generated and distributed to AWIPS at variable frequencies, as significant precipitation events warrant (i.e., their frequency is variable). The duration (or valid period) of the Manual SPEs is also variable. Whereas the duration of Auto SPEs is always one hour, the duration of the Manual SPEs ranges from 1 to 12 hours. Furthermore, although each Manual SPE product is mapped to a CONUS grid, the area of analysis is usually regional (focusing on the significant precipitation event). Apart from these important differences, the Manual SPEs are very similar to the Auto SPEs.</li>
+    </ul>
+  </li>
+  <li><strong>QPF</strong>: Displays QPF, which indicate how much precipitation will occur in a particular grid. QPFs, which are issued by the RFCs, display as contours by default. However, from the pop-up menu you can convert them to image form.</li>
+  <li><strong>RFC Flash Flood Guidance</strong>: Displays County and Zone Flash Flood Guidance (FFG) grids on any scale. The area for which the data is displayed is limited, but the site system manager may configure a larger area. In addition, 1h, 3h, and 6h mosaic RFC-generated FFG grids can be displayed for both local and other RFC locations.</li>
+</ul>
+
+<h1 id="local-analysesstatistical-guidance">Local Analyses/Statistical Guidance</h1>
+
+<p>Model Output Statistical (MOS) plots derived from the MOS BUFR and Text Bulletins display forecast data for GFS MOS, GFS-Extended MOS, Eta MOS, and NGM MOS. The plots are accessed by selecting NGM or GFS-LAMP/MOS forecasts under the Local Analyses/Statistical Guidance option.</p>
+
+
+    </article>
+
+    <footer>
+  <div>
+    <div class="links">
+      <a href="https://www.facebook.com/unidata" title="Unidata on Facebook" tabindex="-1"><paper-button><core-icon icon="social:post-facebook"></core-icon>Facebook</paper-button></a>
+      <a href="https://twitter.com/intent/follow?screen_name=unidata" data-twitter-follow title="Follow @Unidata on Twitter" tabindex="-1"><paper-button><core-icon icon="social:post-twitter"></core-icon>Twitter</paper-button></a>
+      <a href="https://github.com/Unidata/awips2"><paper-button class="github" tabindex="-1"><core-icon icon="social:post-github"></core-icon>GitHub</paper-button></a>
+      <a href="https://github.com/Unidata/awips2/issues/new" tabindex="-1"><paper-button><core-icon icon="bug-report"></core-icon>File a bug</paper-button></a>
+    </div>
+
+  </div>
+</footer>
+
+
+
+
+
+<script src="/polymer-docs/js/prettify/prettify.js"></script>
+
+<!-- <script src="/polymer-docs/js/bower_components/smoothscroll/smoothscroll.js"></script> -->
+<script src="/polymer-docs/js/app.js?20160403"></script>
+
+
+  </scroll-area>
+
+</main>
+
+</body>
+</html>

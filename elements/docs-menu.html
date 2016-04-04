@@ -1,0 +1,164 @@
+<!--
+    @license
+    Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+    This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+    The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+    The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+    Code distributed by Google as part of the polymer project is also
+    subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../components/polymer/polymer.html">
+<link rel="import" href="../components/core-menu/core-menu.html">
+<link rel="import" href="../components/core-menu/core-submenu.html">
+<link rel="import" href="../components/core-item/core-item.html">
+<link rel="import" href="../components/core-icons/hardware-icons.html">
+
+<polymer-element name="docs-menu" attributes="baseurl ajaxify coreElements paperElements" relative>
+<template>
+  <link rel="stylesheet" href="../css/elements/docs-menu.css">
+  <core-menu id="mainmenu" on-click="{{onClick}}" selectedItem="{{item}}" fit>
+
+    <core-item label="About" icon="info">
+      <a href="{{ baseurl }}/"></a>
+    </core-item>
+
+    <core-submenu label="Install" icon="settings">
+      <core-item label="Install CAVE"><a href="{{ baseurl }}/docs/install/install-cave.html"></a></core-item>
+      <core-item label="Install EDEX"><a href="{{ baseurl }}/docs/install/install-edex.html"></a></core-item>
+      <core-item label="Run EDEX"><a href="{{ baseurl }}/docs/install/start-edex.html"></a></core-item>
+      <core-item label="Start EDEX Manually"><a href="{{ baseurl }}/docs/install/starting-services.html"></a></core-item>
+    </core-submenu>
+
+    <core-submenu label="EDEX Admin" icon="subject">
+      <core-item label="Default LDM feeds"><a href="{{ baseurl }}/docs/edex/ldm.html"></a></core-item>
+      <core-item label="Linux tools"><a href="{{ baseurl }}/docs/devguide/linux-tools.html"></a></core-item>
+      <core-item label="Data flow"><a href="{{ baseurl }}/docs/devguide/data-flow.html"></a></core-item>
+      <core-item label="File system"><a href="{{ baseurl }}/docs/devguide/file-system.html"></a></core-item>
+      <core-item label="Regular expressions"><a href="{{ baseurl }}/docs/devguide/regular-expressions.html"></a></core-item>
+      <core-item label="Data distribution files"><a href="{{ baseurl }}/docs/devguide/data-distribution-files.html"></a></core-item>
+    </core-submenu>
+
+    <!--
+    <core-submenu label="Data Types" icon="hardware:desktop-windows">
+      <core-item label="Grib"><a href="{{ baseurl }}/docs/edex/data-gridded.html"></a></core-item>
+      <core-item label="Satellite"><a href="{{ baseurl }}/docs/edex/data-satellite.html"></a></core-item>
+      <core-item label="Radar"><a href="{{ baseurl }}/docs/edex/data-radar.html"></a></core-item>
+
+      <core-item label="Text"><a href="{{ baseurl }}/docs/edex/data-obs.html"></a></core-item>
+      <core-item label="Lightning"><a href="{{ baseurl }}/docs/edex/data-lightning.html"></a></core-item>
+      <core-item label="MRMS"><a href="{{ baseurl }}/docs/edex/data-mrms.html"></a></core-item>
+      <core-item label="Shapefiles"><a href="{{ baseurl }}/docs/edex/data-shp.html"></a></core-item>
+
+    </core-submenu>
+    -->
+
+    <core-submenu label="CAVE User Guide" icon="description">
+      <core-item label="D2D Introduction"><a href="{{ baseurl }}/docs/cave/d2d-intro.html"></a></core-item>
+      <!--
+      <core-item label="System Menus"><a href="{{ baseurl }}/docs/cave/d2d-system-menus.html"></a></core-item>
+      <core-submenu label="System Menus">
+        <core-item label="NCEP NCP"><a href="{{ baseurl }}/docs/cave/d2d-system-menus.html"></a></core-item>
+      </core-submenu>
+      -->
+      <core-item label="Surface Obs"><a href="{{ baseurl }}/docs/cave/d2d-surface.html"></a></core-item>
+      <core-item label="Satellite"><a href="{{ baseurl }}/docs/cave/d2d-satellite.html"></a></core-item>
+      <core-item label="Radar"><a href="{{ baseurl }}/docs/cave/d2d-radar.html"></a></core-item>
+      <!--<core-item label="Gridded models"><a href="{{ baseurl }}/docs/cave/d2d-models.html"></a></core-item>-->
+      <core-item label="Upper air"><a href="{{ baseurl }}/docs/cave/d2d-uair.html"></a></core-item>
+      <core-item label="NCEP/Hydro"><a href="{{ baseurl }}/docs/cave/d2d-hydro.html"></a></core-item>
+      <!--<core-item label="Lightning"><a href="{{ baseurl }}/docs/cave/d2d-lightning.html"></a></core-item>-->
+      <!--<core-item label="Map Overlays"><a href="{{ baseurl }}/docs/cave/d2d-maps.html"></a></core-item>-->
+      <core-item label="D2D Tools"><a href="{{ baseurl }}/docs/cave/d2d-tools.html"></a></core-item>
+      <core-item label="Unused NWS components"><a href="{{ baseurl }}/docs/cave/unused-components.html"></a></core-item>
+      <!--<core-item label="Product Browser"><a href="{{ baseurl }}/docs/cave/product-browser.html"></a></core-item>-->
+      <!--<core-item label="Localization Perspective"><a href="{{ baseurl }}/docs/cave/localization.html"></a></core-item>-->
+      <!--<core-item label="Warngen"><a href="{{ baseurl }}/docs/cave/wa  rngen.html"></a></core-item>-->
+    </core-submenu>
+
+    <!--
+    <core-submenu label="NCP User Guide" icon="description">
+      <core-item label="NCEP NCP"><a href="{{ baseurl }}/docs/cave/ncp.html"></a></core-item>
+    </core-submenu>
+    -->
+
+    <core-submenu label="Appendix" icon="list">
+      <!-- <core-item label="NWS AWIPS II System Manager's Manual "><a href="{{ baseurl }}/docs/nws-smm.html"></a></core-item> -->
+      <core-item label="Acronyms and abbreviations"><a href="{{ baseurl }}/docs/appendix-acronyms.html"></a></core-item>
+      <core-item label="COTS and FOSS"><a href="{{ baseurl }}/docs/appendix-cots.html"></a></core-item>
+      <core-item label="WSR-88D Products"><a href="{{ baseurl }}/docs/appendix-wsr88d.html"></a></core-item>
+    </core-submenu>
+
+    <core-item label="on GitHub" icon="launch">
+      <a href="https://www.github.com/Unidata/awips2" target="_blank"></a>
+    </core-item>
+
+    <core-item label="Unidata AWIPS II News" icon="link">
+      <a href="http://www.unidata.ucar.edu/software/awips2/" target="_blank"></a>
+    </core-item>
+
+  </core-menu>
+</template>
+<script>
+  Polymer({
+    ajaxify: true,
+    isReady: false,
+    coreElements: {},
+    paperElements: {},
+    created: function() {
+      this.coreElementsList = [];
+      this.paperElementsList = [];
+    },
+    domReady: function() {
+      this.isReady = true;
+      this.highlightItemWithCurrentURL();
+    },
+    coreElementsChanged: function() {
+      for (var name in this.coreElements) {
+        this.coreElementsList.push({name: name, url: this.coreElements[name]});
+      }
+    },
+    paperElementsChanged: function() {
+      for (var name in this.paperElements) {
+        this.paperElementsList.push({name: name, url: this.paperElements[name]});
+      }
+    },
+    highlightItemWithCurrentURL: function(opt_href) {
+      var href = opt_href || location.pathname + location.hash;
+
+      if (href.match(/core-elements.html$/)) {
+        this.$.mainmenu.selected = this.$.mainmenu.items.indexOf(this.$.coreelements);
+        return;
+      } else if (href.match(/paper-elements.html$/)) {
+        this.$.mainmenu.selected = this.$.mainmenu.items.indexOf(this.$.paperelements);
+        return;
+      }
+
+      // If href wasn't found, look for a corresponding data-href. This is hacky
+      // but the first querySelector will fail because the elements' urls are
+      var item = this.shadowRoot.querySelector('[href$="' + href + '"]');
+      if (!item) {
+        item = this.shadowRoot.querySelector('[data-href$="' + href + '"]');
+      }
+
+      if (item) {
+        var submenu = item.parentElement;
+
+        // Selected item is not a submenu. Keep it selected and quit early.
+        if (submenu == this.$.mainmenu) {
+          return;
+        }
+
+        if (submenu.parentElement && submenu.parentElement.localName == 'core-submenu') {
+          do {
+            submenu.parentElement.selected = submenu.parentElement.items.indexOf(submenu);
+            submenu = submenu.parentElement;
+          } while (submenu && submenu.localName == 'core-submenu');
+        } else {
+          this.$.mainmenu.selected = this.$.mainmenu.items.indexOf(submenu);
+        }
+      }
+    }
+  });
+</script>
+</polymer-element>

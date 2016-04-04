@@ -1,0 +1,1447 @@
+<!DOCTYPE html>
+<html itemscope itemtype="http://schema.org/Organization">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="chrome=1" />
+<meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1">
+<meta name="google-site-verification" content="k0e8DrbD40s54xHNBqwIsRrSSAkZoprwtEYDnNY06bU" />
+<meta name="google-site-verification" content="pnjjbQFvjPwaWhEXY6nSyaS9iyghmH-M_yLHBveDX2M">
+<meta itemprop="name" content="AWIPS II - Unidata AWIPS II">
+<meta itemprop="description" content="Polymer is a library that uses the latest web technologies to let you create custom HTML elements. Build anything from a button to a complete application as an encapsulated, reusable element that works across desktop and mobile.">
+
+
+<meta itemprop="image" content="https://www.polymer-project.org/images/instacod.png">
+
+
+<title>
+  
+    Unidata AWIPS II -
+   AWIPS II
+</title>
+<link rel="publisher" href="https://plus.google.com/107187849809354688692">
+<link rel="shortcut icon" href="http://www.unidata.ucar.edu/favicon.ico">
+<link href="//fonts.googleapis.com/css?family=RobotoDraft:300,400,500|Source+Code+Pro:400,500,700" rel="stylesheet">
+<link href="/polymer-docs/css/site2.css?20160403" rel="stylesheet">
+<link href="/polymer-docs/css/site2_sd_rules.css?20160403" rel="stylesheet" shim-shadowdom>
+
+
+
+<script src="/polymer-docs/components/webcomponentsjs/webcomponents.min.js?20160403"></script>
+<!-- TODO: remove when https://github.com/Polymer/polymer/issues/391 is fixed -->
+<link rel="import" href="/polymer-docs/components/polymer/polymer.html">
+<link rel="stylesheet" href="/polymer-docs/css/elements/docs-menu.css">
+<link rel="import" href="/polymer-docs/elements/common_elements.vulcanized.html?20160403">
+
+
+</head>
+<body id="unidata-awips-ii">
+
+<main id="content-container" class="polymer-content">
+  <app-drawer id="sidebar" unresolved>
+    <div layout vertical id="sidebar-content">
+      <div id="logo-container" layout horizontal center>
+        <a href="/polymer-docs/" class="logo"><img src="/polymer-docs/images/logos/awips2.png" alt="AWIPS II User Guide"></a>
+      </div>
+
+      <docs-menu unresolved flex
+		 baseurl='/polymer-docs'
+                 coreElements='{"core-header-panel":"components/core-header-panel/core-header-panel.html","core-transition-pages":"components/core-animated-pages/transitions/core-transition-pages.html","core-animated-pages":"components/core-animated-pages/core-animated-pages.html","core-overlay":"components/core-overlay/core-overlay.html","core-toolbar":"components/core-toolbar/core-toolbar.html","core-image":"components/core-image/core-image.html","core-shared-lib":"components/core-shared-lib/core-shared-lib.html","core-a11y-keys":"components/core-a11y-keys/core-a11y-keys.html","core-menu-button":"components/core-menu-button/core-menu-button.html","core-icon":"components/core-icon/core-icon.html","core-selection":"components/core-selection/core-selection.html","core-style":"components/core-style/core-style.html","core-menu":"components/core-menu/core-menu.html","core-submenu":"components/core-menu/core-submenu.html","core-list":"components/core-list/core-list.html","core-dropdown-menu":"components/core-dropdown-menu/core-dropdown-menu.html","core-input":"components/core-input/core-input.html","core-iconset-svg":"components/core-iconset-svg/core-iconset-svg.html","core-field":"components/core-field/core-field.html","core-selector":"components/core-selector/core-selector.html","core-media-query":"components/core-media-query/core-media-query.html","core-animation-group":"components/core-animation/core-animation-group.html","core-animation":"components/core-animation/core-animation.html","core-animation-keyframe":"components/core-animation/core-animation.html","core-animation-prop":"components/core-animation/core-animation.html","core-dropdown":"components/core-dropdown/core-dropdown.html","core-dropdown-base":"components/core-dropdown/core-dropdown-base.html","core-pages":"components/core-pages/core-pages.html","core-meta":"components/core-meta/core-meta.html","core-splitter":"components/core-splitter/core-splitter.html","core-scroll-header-panel":"components/core-scroll-header-panel/core-scroll-header-panel.html","core-tooltip":"components/core-tooltip/core-tooltip.html","core-localstorage":"components/core-localstorage/core-localstorage.html","core-scroll-threshold":"components/core-scroll-threshold/core-scroll-threshold.html","core-drag-drop":"components/core-drag-drop/core-drag-drop.html","core-iconset":"components/core-iconset/core-iconset.html","core-label":"components/core-label/core-label.html","core-signals":"components/core-signals/core-signals.html","core-transition":"components/core-transition/core-transition.html","core-scaffold":"components/core-scaffold/core-scaffold.html","core-drawer-panel":"components/core-drawer-panel/core-drawer-panel.html","core-range":"components/core-range/core-range.html","core-collapse":"components/core-collapse/core-collapse.html","core-xhr":"components/core-ajax/core-xhr.html","core-ajax":"components/core-ajax/core-ajax.html","core-icon-button":"components/core-icon-button/core-icon-button.html","core-item":"components/core-item/core-item.html"}'
+                 paperElements='{"paper-dropdown":"components/paper-dropdown/paper-dropdown.html","paper-dropdown-transition":"components/paper-dropdown/paper-dropdown-transition.html","paper-item":"components/paper-item/paper-item.html","paper-dropdown-menu":"components/paper-dropdown-menu/paper-dropdown-menu.html","paper-checkbox":"components/paper-checkbox/paper-checkbox.html","paper-button":"components/paper-button/paper-button.html","paper-button-base":"components/paper-button/paper-button-base.html","paper-menu-button":"components/paper-menu-button/paper-menu-button.html","paper-radio-group":"components/paper-radio-group/paper-radio-group.html","paper-toast":"components/paper-toast/paper-toast.html","paper-char-counter":"components/paper-input/paper-char-counter.html","paper-autogrow-textarea":"components/paper-input/paper-autogrow-textarea.html","paper-input":"components/paper-input/paper-input.html","paper-input-decorator":"components/paper-input/paper-input-decorator.html","paper-slider":"components/paper-slider/paper-slider.html","paper-toggle-button":"components/paper-toggle-button/paper-toggle-button.html","paper-fab":"components/paper-fab/paper-fab.html","paper-ripple":"components/paper-ripple/paper-ripple.html","paper-icon-button":"components/paper-icon-button/paper-icon-button.html","paper-tabs":"components/paper-tabs/paper-tabs.html","paper-tab":"components/paper-tabs/paper-tab.html","paper-shadow":"components/paper-shadow/paper-shadow.html","paper-radio-button":"components/paper-radio-button/paper-radio-button.html","paper-dialog":"components/paper-dialog/paper-dialog.html","paper-action-dialog":"components/paper-dialog/paper-action-dialog.html","paper-dialog-base":"components/paper-dialog/paper-dialog-base.html","paper-dialog-transition":"components/paper-dialog/paper-dialog-transition.html","paper-spinner":"components/paper-spinner/paper-spinner.html","paper-progress":"components/paper-progress/paper-progress.html"}'></docs-menu>
+    </div>
+  </app-drawer>
+
+  <scroll-area sidebar unresolved class="scrolling">
+    <site-banner type="guide" shortname="Appendix" unresolved>
+      
+<app-bar theme="light" class="bar fixed">
+</app-bar>
+
+      <header class="shrink">
+        <h1>
+        
+          NEXRAD WSR-88D Products
+        : Unidata AWIPS II
+        </h1>
+      </header>
+    </site-banner>
+
+    
+    
+
+    <article class="show-permalinks">
+
+      <header class="onlyonmobile">
+        <h1>
+          
+          NEXRAD WSR-88D Products
+          : Unidata AWIPS II
+        </h1>
+      </header>
+
+      <table>
+  <thead>
+    <tr>
+      <th>Prod ID</th>
+      <th style="text-align: center">Lvls</th>
+      <th style="text-align: center">Lyr</th>
+      <th style="text-align: center">Resol</th>
+      <th style="text-align: center">Range</th>
+      <th style="text-align: center">Prod ID</th>
+      <th style="text-align: center">Product Name</th>
+      <th style="text-align: right">Format</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>2</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">GSM</td>
+      <td style="text-align: center">General Status Msg (GSM)</td>
+      <td style="text-align: right">GSM</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">PRR</td>
+      <td style="text-align: center">Product Request Resp (PRR)</td>
+      <td style="text-align: right">PRR</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">AAP</td>
+      <td style="text-align: center">Alert Adaptation Parms (AAP)</td>
+      <td style="text-align: right">AAP</td>
+    </tr>
+    <tr>
+      <td>8</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">PTL</td>
+      <td style="text-align: center">Product List (PTL)</td>
+      <td style="text-align: right">PTL</td>
+    </tr>
+    <tr>
+      <td>9</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">AM</td>
+      <td style="text-align: center">Alert Message (AM)</td>
+      <td style="text-align: right">AM</td>
+    </tr>
+    <tr>
+      <td>16</td>
+      <td style="text-align: center">8</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">1</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">Z</td>
+      <td style="text-align: center">Reflectivity (Z)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>17</td>
+      <td style="text-align: center">8</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">2</td>
+      <td style="text-align: center">460</td>
+      <td style="text-align: center">Z</td>
+      <td style="text-align: center">Reflectivity (Z)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>18</td>
+      <td style="text-align: center">8</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">4</td>
+      <td style="text-align: center">460</td>
+      <td style="text-align: center">Z</td>
+      <td style="text-align: center">Reflectivity (Z)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>19</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">1</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">Z</td>
+      <td style="text-align: center">Reflectivity (Z)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>20</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">2</td>
+      <td style="text-align: center">460</td>
+      <td style="text-align: center">Z</td>
+      <td style="text-align: center">Reflectivity (Z)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>21</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">4</td>
+      <td style="text-align: center">460</td>
+      <td style="text-align: center">Z</td>
+      <td style="text-align: center">Reflectivity (Z)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>22</td>
+      <td style="text-align: center">8</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0.25</td>
+      <td style="text-align: center">60</td>
+      <td style="text-align: center">V</td>
+      <td style="text-align: center">Velocity (V)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>23</td>
+      <td style="text-align: center">8</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0.5</td>
+      <td style="text-align: center">115</td>
+      <td style="text-align: center">V</td>
+      <td style="text-align: center">Velocity (V)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>24</td>
+      <td style="text-align: center">8</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">1</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">V</td>
+      <td style="text-align: center">Velocity (V)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>25</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0.25</td>
+      <td style="text-align: center">60</td>
+      <td style="text-align: center">V</td>
+      <td style="text-align: center">Velocity (V)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>26</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0.5</td>
+      <td style="text-align: center">115</td>
+      <td style="text-align: center">V</td>
+      <td style="text-align: center">Velocity (V)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>27</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">1</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">V</td>
+      <td style="text-align: center">Velocity (V)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>28</td>
+      <td style="text-align: center">8</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0.25</td>
+      <td style="text-align: center">60</td>
+      <td style="text-align: center">SW</td>
+      <td style="text-align: center">Spectrum Width (SW)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>29</td>
+      <td style="text-align: center">8</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0.5</td>
+      <td style="text-align: center">115</td>
+      <td style="text-align: center">SW</td>
+      <td style="text-align: center">Spectrum Width (SW)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>30</td>
+      <td style="text-align: center">8</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">1</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">SW</td>
+      <td style="text-align: center">Spectrum Width (SW)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>31</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">2</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">USP</td>
+      <td style="text-align: center">User Select Precip (USP)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>32</td>
+      <td style="text-align: center">256</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">1</td>
+      <td style="text-align: center">115</td>
+      <td style="text-align: center">DHR</td>
+      <td style="text-align: center">Digital Hybrid Scan Refl (DHR)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>34</td>
+      <td style="text-align: center">8</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">1</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">CFC</td>
+      <td style="text-align: center">Clutter Filter Control (CFC)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>35</td>
+      <td style="text-align: center">8</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">1</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">CZ</td>
+      <td style="text-align: center">Composite Ref (CZ)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+    <tr>
+      <td>36</td>
+      <td style="text-align: center">8</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">4</td>
+      <td style="text-align: center">460</td>
+      <td style="text-align: center">CZ</td>
+      <td style="text-align: center">Composite Ref (CZ)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+    <tr>
+      <td>37</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">1</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">CZ</td>
+      <td style="text-align: center">Composite Ref (CZ)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+    <tr>
+      <td>38</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">4</td>
+      <td style="text-align: center">460</td>
+      <td style="text-align: center">CZ</td>
+      <td style="text-align: center">Composite Ref (CZ)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+    <tr>
+      <td>39</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">1</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">CZC</td>
+      <td style="text-align: center">Composite Ref Contour (CZC)</td>
+      <td style="text-align: right">Graphic</td>
+    </tr>
+    <tr>
+      <td>40</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">4</td>
+      <td style="text-align: center">460</td>
+      <td style="text-align: center">CZC</td>
+      <td style="text-align: center">Composite Ref Contour (CZC)</td>
+      <td style="text-align: right">Graphic</td>
+    </tr>
+    <tr>
+      <td>41</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">4</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">ET</td>
+      <td style="text-align: center">Echo Tops (ET)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+    <tr>
+      <td>42</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">4</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">ETC</td>
+      <td style="text-align: center">Echo Tops Contour (ETC)</td>
+      <td style="text-align: right">Graphic</td>
+    </tr>
+    <tr>
+      <td>43</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">1</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">SWR</td>
+      <td style="text-align: center">Svr Wx Anal - Ref (SWR)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>44</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0.25</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">SWV</td>
+      <td style="text-align: center">Svr Wx Anal - Vel (SWV)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>45</td>
+      <td style="text-align: center">8</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0.25</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">SWW</td>
+      <td style="text-align: center">Svr Wx Anal - SW (SWW)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>46</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0.5</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">SWS</td>
+      <td style="text-align: center">Svr Wx Anal - Shear (SWS)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>47</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">4</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">SWP</td>
+      <td style="text-align: center">Severe Wx Prob (SWP)</td>
+      <td style="text-align: right">Graphic</td>
+    </tr>
+    <tr>
+      <td>48</td>
+      <td style="text-align: center">8</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">VWP</td>
+      <td style="text-align: center">VAD Wind Profile (VWP)</td>
+      <td style="text-align: right">Graphic</td>
+    </tr>
+    <tr>
+      <td>49</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">26</td>
+      <td style="text-align: center">CM</td>
+      <td style="text-align: center">Combined Moment (CM)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+    <tr>
+      <td>50</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">1</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">RCS</td>
+      <td style="text-align: center">Ref X-Sect (RCS)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+    <tr>
+      <td>51</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0.5</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">VCS</td>
+      <td style="text-align: center">Vel X-Sect (VCS)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+    <tr>
+      <td>52</td>
+      <td style="text-align: center">8</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0.5</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">SCS</td>
+      <td style="text-align: center">SW X-Sect (SCS)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+    <tr>
+      <td>53</td>
+      <td style="text-align: center">8</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">1</td>
+      <td style="text-align: center">50</td>
+      <td style="text-align: center">WER</td>
+      <td style="text-align: center">Wk Echo Region (WER)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+    <tr>
+      <td>55</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0.5</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">SRR</td>
+      <td style="text-align: center">Storm Rel Vel Region (SRR)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>56</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">1</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">SRM</td>
+      <td style="text-align: center">Storm Rel Velocity (SRM)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>57</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">4</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">VIL</td>
+      <td style="text-align: center">Vert Integ Liq (VIL)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+    <tr>
+      <td>58</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">345</td>
+      <td style="text-align: center">STI</td>
+      <td style="text-align: center">Storm Track (STI)</td>
+      <td style="text-align: right">Graphic</td>
+    </tr>
+    <tr>
+      <td>59</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">HI</td>
+      <td style="text-align: center">Hail Index (HI)</td>
+      <td style="text-align: right">Graphic</td>
+    </tr>
+    <tr>
+      <td>60</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">M</td>
+      <td style="text-align: center">Mesocyclone (M)</td>
+      <td style="text-align: right">Graphic</td>
+    </tr>
+    <tr>
+      <td>61</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">TVS</td>
+      <td style="text-align: center">Tornadic Vortex Sig (TVS)</td>
+      <td style="text-align: right">Graphic</td>
+    </tr>
+    <tr>
+      <td>62</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">460</td>
+      <td style="text-align: center">SS</td>
+      <td style="text-align: center">Storm Structure (SS)</td>
+      <td style="text-align: right">Text</td>
+    </tr>
+    <tr>
+      <td>65</td>
+      <td style="text-align: center">8</td>
+      <td style="text-align: center">1</td>
+      <td style="text-align: center">4</td>
+      <td style="text-align: center">460</td>
+      <td style="text-align: center">LRM</td>
+      <td style="text-align: center">Lyr 1 Comp Ref Max (LRM)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+    <tr>
+      <td>66</td>
+      <td style="text-align: center">8</td>
+      <td style="text-align: center">2</td>
+      <td style="text-align: center">4</td>
+      <td style="text-align: center">460</td>
+      <td style="text-align: center">LRM</td>
+      <td style="text-align: center">Lyr 2 Comp Ref Max (LRM)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+    <tr>
+      <td>67</td>
+      <td style="text-align: center">8</td>
+      <td style="text-align: center">2</td>
+      <td style="text-align: center">4</td>
+      <td style="text-align: center">460</td>
+      <td style="text-align: center">APR</td>
+      <td style="text-align: center">Lyr 1 Comp Ref MAX (APR)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+    <tr>
+      <td>73</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">UAM</td>
+      <td style="text-align: center">User Alert Message (UAM)</td>
+      <td style="text-align: right">Text</td>
+    </tr>
+    <tr>
+      <td>74</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">460</td>
+      <td style="text-align: center">RCM</td>
+      <td style="text-align: center">Radar Coded Message (RCM)</td>
+      <td style="text-align: right">Text</td>
+    </tr>
+    <tr>
+      <td>75</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">FTM</td>
+      <td style="text-align: center">Free Text Message (FTM)</td>
+      <td style="text-align: right">Text</td>
+    </tr>
+    <tr>
+      <td>77</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">PTM</td>
+      <td style="text-align: center">PUP Text Message (PTM)</td>
+      <td style="text-align: right">Text</td>
+    </tr>
+    <tr>
+      <td>78</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">2</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">OHP</td>
+      <td style="text-align: center">One Hour Precip (OHP)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>79</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">2</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">THP</td>
+      <td style="text-align: center">Three Hour Precip (THP)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>80</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">2</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">STP</td>
+      <td style="text-align: center">Storm Total Precip (STP)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>81</td>
+      <td style="text-align: center">256</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">4</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">DPA</td>
+      <td style="text-align: center">Digital Precip Array (DPA)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+    <tr>
+      <td>82</td>
+      <td style="text-align: center">8</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">40</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">SPD</td>
+      <td style="text-align: center">Supplemental Precip Data (SPD)</td>
+      <td style="text-align: right">Text</td>
+    </tr>
+    <tr>
+      <td>83</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">IRM</td>
+      <td style="text-align: center">Intermediate Radar Message (IRM)</td>
+      <td style="text-align: right">Text</td>
+    </tr>
+    <tr>
+      <td>84</td>
+      <td style="text-align: center">8</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">VAD</td>
+      <td style="text-align: center">Vel Az Display (VAD)</td>
+      <td style="text-align: right">Graphic</td>
+    </tr>
+    <tr>
+      <td>85</td>
+      <td style="text-align: center">8</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">1</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">RCS</td>
+      <td style="text-align: center">Ref X-Sect (RCS)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+    <tr>
+      <td>86</td>
+      <td style="text-align: center">8</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0.5</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">VCS</td>
+      <td style="text-align: center">Vel X-Sect (VCS)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+    <tr>
+      <td>87</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">2</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">CS</td>
+      <td style="text-align: center">Combined Shear (CS)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+    <tr>
+      <td>88</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">2</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">CSC</td>
+      <td style="text-align: center">Combined Shear Contour (CSC)</td>
+      <td style="text-align: right">Graphic</td>
+    </tr>
+    <tr>
+      <td>89</td>
+      <td style="text-align: center">8</td>
+      <td style="text-align: center">3</td>
+      <td style="text-align: center">4</td>
+      <td style="text-align: center">460</td>
+      <td style="text-align: center">LRA</td>
+      <td style="text-align: center">Lyr 3 Comp Ref Avg (LRA)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+    <tr>
+      <td>90</td>
+      <td style="text-align: center">8</td>
+      <td style="text-align: center">3</td>
+      <td style="text-align: center">4</td>
+      <td style="text-align: center">460</td>
+      <td style="text-align: center">LRM</td>
+      <td style="text-align: center">Lyr 3 Comp Ref Max (LRM)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+    <tr>
+      <td>93</td>
+      <td style="text-align: center">256</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">1.00</td>
+      <td style="text-align: center">115</td>
+      <td style="text-align: center">DBV</td>
+      <td style="text-align: center">ITWS Digital Velocity (DBV)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>94</td>
+      <td style="text-align: center">256</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">1.00</td>
+      <td style="text-align: center">460</td>
+      <td style="text-align: center">DZ</td>
+      <td style="text-align: center">8-bit Refl Array (DZ)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>99</td>
+      <td style="text-align: center">256</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0.25</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">V</td>
+      <td style="text-align: center">8-bit Velocity Array (V)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>100</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">VSDT</td>
+      <td style="text-align: center">VAD Site Adapt Params (VSDT)</td>
+      <td style="text-align: right">Text</td>
+    </tr>
+    <tr>
+      <td>101</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">STIT</td>
+      <td style="text-align: center">Storm Track Alpha block (STIT)</td>
+      <td style="text-align: right">Text</td>
+    </tr>
+    <tr>
+      <td>102</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">HIT</td>
+      <td style="text-align: center">Hail Index Alpha block (HIT)</td>
+      <td style="text-align: right">Text</td>
+    </tr>
+    <tr>
+      <td>103</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">MT</td>
+      <td style="text-align: center">Mesocyclone Alpha block (MT)</td>
+      <td style="text-align: right">Text</td>
+    </tr>
+    <tr>
+      <td>104</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">TVST</td>
+      <td style="text-align: center">TVS Alpha block (TVST)</td>
+      <td style="text-align: right">Text</td>
+    </tr>
+    <tr>
+      <td>105</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">CST</td>
+      <td style="text-align: center">Combined Shear Params (CST)</td>
+      <td style="text-align: right">Text</td>
+    </tr>
+    <tr>
+      <td>106</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">CSCT</td>
+      <td style="text-align: center">Combined Shr Cntr Parms (CSCT)</td>
+      <td style="text-align: right">Text</td>
+    </tr>
+    <tr>
+      <td>107</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">OHPT</td>
+      <td style="text-align: center">1hr Rainfall Params (OHPT)</td>
+      <td style="text-align: right">Text</td>
+    </tr>
+    <tr>
+      <td>108</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">THPT</td>
+      <td style="text-align: center">3hr Rainfall Params (THPT)</td>
+      <td style="text-align: right">Text</td>
+    </tr>
+    <tr>
+      <td>109</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">STPT</td>
+      <td style="text-align: center">Storm Total Params (STPT)</td>
+      <td style="text-align: right">Text</td>
+    </tr>
+    <tr>
+      <td>136</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">4</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">CZFMP</td>
+      <td style="text-align: center">Comp Refl Mos Filt Prec(CZFMP)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+    <tr>
+      <td>137</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">8</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">CZFMP</td>
+      <td style="text-align: center">Comp Refl Mos Filt Prec(CZFMP)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+    <tr>
+      <td>139</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">4</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">CZM</td>
+      <td style="text-align: center">Composite Refl Mosaic (CZM)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+    <tr>
+      <td>144</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">8</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">CZM</td>
+      <td style="text-align: center">Composite Refl Mosaic (CZM)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+    <tr>
+      <td>153</td>
+      <td style="text-align: center">256</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0.25</td>
+      <td style="text-align: center">460</td>
+      <td style="text-align: center">HZ</td>
+      <td style="text-align: center">Super-Res Reflectivity (Z)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>154</td>
+      <td style="text-align: center">256</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0.25</td>
+      <td style="text-align: center">300</td>
+      <td style="text-align: center">HV</td>
+      <td style="text-align: center">Super-Res Velocity (V)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>155</td>
+      <td style="text-align: center">256</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0.25</td>
+      <td style="text-align: center">300</td>
+      <td style="text-align: center">HSW</td>
+      <td style="text-align: center">Super-Res Spec Width (SW)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>159</td>
+      <td style="text-align: center">8</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">4</td>
+      <td style="text-align: center">300</td>
+      <td style="text-align: center">ZDR</td>
+      <td style="text-align: center">Differential Refl (ZDR)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+    <tr>
+      <td>158</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0.25</td>
+      <td style="text-align: center">300</td>
+      <td style="text-align: center">ZDR</td>
+      <td style="text-align: center">Differential Refl (ZDR)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+    <tr>
+      <td>161</td>
+      <td style="text-align: center">256</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0.25</td>
+      <td style="text-align: center">300</td>
+      <td style="text-align: center">CC</td>
+      <td style="text-align: center">Correlation Coeff (CC)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>160</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">1.0</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">CC</td>
+      <td style="text-align: center">Correlation Coeff (CC)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>163</td>
+      <td style="text-align: center">256</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0.25</td>
+      <td style="text-align: center">300</td>
+      <td style="text-align: center">KDP</td>
+      <td style="text-align: center">Specific Diff Phase (KDP)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>162</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">1.0</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">KDP</td>
+      <td style="text-align: center">Specific Diff Phase (KDP)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>165</td>
+      <td style="text-align: center">256</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0.25</td>
+      <td style="text-align: center">300</td>
+      <td style="text-align: center">HC</td>
+      <td style="text-align: center">Hydrometer Class (HC)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>164</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">1.0</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">HC</td>
+      <td style="text-align: center">Hydrometer Class (HC)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>177</td>
+      <td style="text-align: center">256</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0.25</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">HHC</td>
+      <td style="text-align: center">Hybrid Hydrometer Class (HHC)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>176</td>
+      <td style="text-align: center">65536</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0.25</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">DPR</td>
+      <td style="text-align: center">Digital Inst Precip rate (DPR)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>169</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">2.0</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">OHA</td>
+      <td style="text-align: center">One Hour Accum (STA)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>171</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">2.0</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">STA</td>
+      <td style="text-align: center">Storm Total Accum (STA)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>172</td>
+      <td style="text-align: center">256</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0.25</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">STA</td>
+      <td style="text-align: center">Storm Total Accum (DSA)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>173</td>
+      <td style="text-align: center">256</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0.25</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">DUA</td>
+      <td style="text-align: center">User Select Accum (DUA)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>174</td>
+      <td style="text-align: center">256</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0.25</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">DOD</td>
+      <td style="text-align: center">One Hour Diff (DOD)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>175</td>
+      <td style="text-align: center">256</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0.25</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">DSD</td>
+      <td style="text-align: center">Storm Total Diff (DSD)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td style="text-align: center">256</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0.25</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">DP</td>
+      <td style="text-align: center">Differential Phase (DP)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td style="text-align: center">256</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0.25</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">PRE</td>
+      <td style="text-align: center">Inst Precip Rate (PRE)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>166</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0.0</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">ML</td>
+      <td style="text-align: center">Melting Layer (ML)</td>
+      <td style="text-align: right">Graphic</td>
+    </tr>
+    <tr>
+      <td>170</td>
+      <td style="text-align: center">256</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0.25</td>
+      <td style="text-align: center">230</td>
+      <td style="text-align: center">DAA</td>
+      <td style="text-align: center">One Hour Unbiased Accum (DAA)</td>
+      <td style="text-align: right">Radial</td>
+    </tr>
+    <tr>
+      <td>199</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">4</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">OHPM</td>
+      <td style="text-align: center">One Hour Precip Mosaic (OHPM)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+    <tr>
+      <td>200</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">8</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">OHPM</td>
+      <td style="text-align: center">One Hour Precip Mosaic (OHPM)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+    <tr>
+      <td>204</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">4</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">ETM</td>
+      <td style="text-align: center">Echo Tops Mosaic (ETM)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+    <tr>
+      <td>205</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">8</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">ETM</td>
+      <td style="text-align: center">Echo Tops Mosaic (ETM)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+    <tr>
+      <td>208</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">CSAM9</td>
+      <td style="text-align: center">Com Storms Att Mosaic B9 (CSAM9)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+    <tr>
+      <td>209</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">CSAM</td>
+      <td style="text-align: center">Comb Storms Att Mosaic (CSAM)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+    <tr>
+      <td>210</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">4</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">CPAM</td>
+      <td style="text-align: center">Cum Precip Accum Mosaic (CPAM)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+    <tr>
+      <td>211</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">4</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">ODPM</td>
+      <td style="text-align: center">24-Hr Precip Mosaic (ODPM)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+    <tr>
+      <td>212</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">4</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">CZMP</td>
+      <td style="text-align: center">Comp Refl Mosaic Precip (CZMP)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+    <tr>
+      <td>213</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">8</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">CZMP</td>
+      <td style="text-align: center">Comp Refl Mosaic Precip (CZMP)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+    <tr>
+      <td>216</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">8</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">CPAM</td>
+      <td style="text-align: center">Cum Precip Accum Mosaic (CPAM)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+    <tr>
+      <td>217</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">8</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">ODPM</td>
+      <td style="text-align: center">24-Hr Precip Mosaic (ODPM)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+    <tr>
+      <td>246</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">2</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">ZNM</td>
+      <td style="text-align: center">Refl Mos Non Filt (ZNM)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+    <tr>
+      <td>247</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">2</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">ZNMC</td>
+      <td style="text-align: center">Refl Mos Non Filt Clr (ZNMC)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+    <tr>
+      <td>249</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">2</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">ZM</td>
+      <td style="text-align: center">Base Reflectivity Mosaic (ZM)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+    <tr>
+      <td>250</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">4</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">ZM</td>
+      <td style="text-align: center">Base Reflectivity Mosaic (ZM)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+    <tr>
+      <td>251</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">8</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">ZM</td>
+      <td style="text-align: center">Base Reflectivity Mosaic (ZM)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+    <tr>
+      <td>253</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">4</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">ZMGA</td>
+      <td style="text-align: center">Base Refl Mos Griff+Alb (ZMGA)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+    <tr>
+      <td>254</td>
+      <td style="text-align: center">8</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">4</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">LRMM</td>
+      <td style="text-align: center">Layer Comp Refl Low Mos (VILM)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+    <tr>
+      <td>255</td>
+      <td style="text-align: center">8</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">8</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">LRMM</td>
+      <td style="text-align: center">Layer Comp Refl Med Mos (VILM)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+    <tr>
+      <td>256</td>
+      <td style="text-align: center">8</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">8</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">LRMM</td>
+      <td style="text-align: center">Layer Comp Refl High Mos (VILM)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+    <tr>
+      <td>257</td>
+      <td style="text-align: center">16</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">4</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">VILM</td>
+      <td style="text-align: center">Vert Int Liquid Mosaic (VILM)</td>
+      <td style="text-align: right">Raster</td>
+    </tr>
+  </tbody>
+</table>
+
+    </article>
+
+    <footer>
+  <div>
+    <div class="links">
+      <a href="https://www.facebook.com/unidata" title="Unidata on Facebook" tabindex="-1"><paper-button><core-icon icon="social:post-facebook"></core-icon>Facebook</paper-button></a>
+      <a href="https://twitter.com/intent/follow?screen_name=unidata" data-twitter-follow title="Follow @Unidata on Twitter" tabindex="-1"><paper-button><core-icon icon="social:post-twitter"></core-icon>Twitter</paper-button></a>
+      <a href="https://github.com/Unidata/awips2"><paper-button class="github" tabindex="-1"><core-icon icon="social:post-github"></core-icon>GitHub</paper-button></a>
+      <a href="https://github.com/Unidata/awips2/issues/new" tabindex="-1"><paper-button><core-icon icon="bug-report"></core-icon>File a bug</paper-button></a>
+    </div>
+
+  </div>
+</footer>
+
+
+
+
+
+<script src="/polymer-docs/js/prettify/prettify.js"></script>
+
+<!-- <script src="/polymer-docs/js/bower_components/smoothscroll/smoothscroll.js"></script> -->
+<script src="/polymer-docs/js/app.js?20160403"></script>
+
+
+  </scroll-area>
+
+</main>
+
+</body>
+</html>

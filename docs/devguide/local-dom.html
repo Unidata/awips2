@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html itemscope itemtype="http://schema.org/Organization">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="chrome=1" />
+<meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1">
+<meta name="google-site-verification" content="k0e8DrbD40s54xHNBqwIsRrSSAkZoprwtEYDnNY06bU" />
+<meta name="google-site-verification" content="pnjjbQFvjPwaWhEXY6nSyaS9iyghmH-M_yLHBveDX2M">
+<meta itemprop="name" content="AWIPS II - Local DOM Basics and API">
+<meta itemprop="description" content="Polymer is a library that uses the latest web technologies to let you create custom HTML elements. Build anything from a button to a complete application as an encapsulated, reusable element that works across desktop and mobile.">
+
+
+<meta itemprop="image" content="https://www.polymer-project.org/images/instacod.png">
+
+
+<title>
+  
+    Local DOM Basics and API -
+   AWIPS II
+</title>
+<link rel="publisher" href="https://plus.google.com/107187849809354688692">
+<link rel="shortcut icon" href="http://www.unidata.ucar.edu/favicon.ico">
+<link href="//fonts.googleapis.com/css?family=RobotoDraft:300,400,500|Source+Code+Pro:400,500,700" rel="stylesheet">
+<link href="/polymer-docs/css/site2.css?20160403" rel="stylesheet">
+<link href="/polymer-docs/css/site2_sd_rules.css?20160403" rel="stylesheet" shim-shadowdom>
+
+
+
+<script src="/polymer-docs/components/webcomponentsjs/webcomponents.min.js?20160403"></script>
+<!-- TODO: remove when https://github.com/Polymer/polymer/issues/391 is fixed -->
+<link rel="import" href="/polymer-docs/components/polymer/polymer.html">
+<link rel="stylesheet" href="/polymer-docs/css/elements/docs-menu.css">
+<link rel="import" href="/polymer-docs/elements/common_elements.vulcanized.html?20160403">
+
+
+</head>
+<body id="local-dom-basics-and-api">
+
+<main id="content-container" class="polymer-content">
+  <app-drawer id="sidebar" unresolved>
+    <div layout vertical id="sidebar-content">
+      <div id="logo-container" layout horizontal center>
+        <a href="/polymer-docs/" class="logo"><img src="/polymer-docs/images/logos/awips2.png" alt="AWIPS II User Guide"></a>
+      </div>
+
+      <docs-menu unresolved flex
+		 baseurl='/polymer-docs'
+                 coreElements='{"core-header-panel":"components/core-header-panel/core-header-panel.html","core-transition-pages":"components/core-animated-pages/transitions/core-transition-pages.html","core-animated-pages":"components/core-animated-pages/core-animated-pages.html","core-overlay":"components/core-overlay/core-overlay.html","core-toolbar":"components/core-toolbar/core-toolbar.html","core-image":"components/core-image/core-image.html","core-shared-lib":"components/core-shared-lib/core-shared-lib.html","core-a11y-keys":"components/core-a11y-keys/core-a11y-keys.html","core-menu-button":"components/core-menu-button/core-menu-button.html","core-icon":"components/core-icon/core-icon.html","core-selection":"components/core-selection/core-selection.html","core-style":"components/core-style/core-style.html","core-menu":"components/core-menu/core-menu.html","core-submenu":"components/core-menu/core-submenu.html","core-list":"components/core-list/core-list.html","core-dropdown-menu":"components/core-dropdown-menu/core-dropdown-menu.html","core-input":"components/core-input/core-input.html","core-iconset-svg":"components/core-iconset-svg/core-iconset-svg.html","core-field":"components/core-field/core-field.html","core-selector":"components/core-selector/core-selector.html","core-media-query":"components/core-media-query/core-media-query.html","core-animation-group":"components/core-animation/core-animation-group.html","core-animation":"components/core-animation/core-animation.html","core-animation-keyframe":"components/core-animation/core-animation.html","core-animation-prop":"components/core-animation/core-animation.html","core-dropdown":"components/core-dropdown/core-dropdown.html","core-dropdown-base":"components/core-dropdown/core-dropdown-base.html","core-pages":"components/core-pages/core-pages.html","core-meta":"components/core-meta/core-meta.html","core-splitter":"components/core-splitter/core-splitter.html","core-scroll-header-panel":"components/core-scroll-header-panel/core-scroll-header-panel.html","core-tooltip":"components/core-tooltip/core-tooltip.html","core-localstorage":"components/core-localstorage/core-localstorage.html","core-scroll-threshold":"components/core-scroll-threshold/core-scroll-threshold.html","core-drag-drop":"components/core-drag-drop/core-drag-drop.html","core-iconset":"components/core-iconset/core-iconset.html","core-label":"components/core-label/core-label.html","core-signals":"components/core-signals/core-signals.html","core-transition":"components/core-transition/core-transition.html","core-scaffold":"components/core-scaffold/core-scaffold.html","core-drawer-panel":"components/core-drawer-panel/core-drawer-panel.html","core-range":"components/core-range/core-range.html","core-collapse":"components/core-collapse/core-collapse.html","core-xhr":"components/core-ajax/core-xhr.html","core-ajax":"components/core-ajax/core-ajax.html","core-icon-button":"components/core-icon-button/core-icon-button.html","core-item":"components/core-item/core-item.html"}'
+                 paperElements='{"paper-dropdown":"components/paper-dropdown/paper-dropdown.html","paper-dropdown-transition":"components/paper-dropdown/paper-dropdown-transition.html","paper-item":"components/paper-item/paper-item.html","paper-dropdown-menu":"components/paper-dropdown-menu/paper-dropdown-menu.html","paper-checkbox":"components/paper-checkbox/paper-checkbox.html","paper-button":"components/paper-button/paper-button.html","paper-button-base":"components/paper-button/paper-button-base.html","paper-menu-button":"components/paper-menu-button/paper-menu-button.html","paper-radio-group":"components/paper-radio-group/paper-radio-group.html","paper-toast":"components/paper-toast/paper-toast.html","paper-char-counter":"components/paper-input/paper-char-counter.html","paper-autogrow-textarea":"components/paper-input/paper-autogrow-textarea.html","paper-input":"components/paper-input/paper-input.html","paper-input-decorator":"components/paper-input/paper-input-decorator.html","paper-slider":"components/paper-slider/paper-slider.html","paper-toggle-button":"components/paper-toggle-button/paper-toggle-button.html","paper-fab":"components/paper-fab/paper-fab.html","paper-ripple":"components/paper-ripple/paper-ripple.html","paper-icon-button":"components/paper-icon-button/paper-icon-button.html","paper-tabs":"components/paper-tabs/paper-tabs.html","paper-tab":"components/paper-tabs/paper-tab.html","paper-shadow":"components/paper-shadow/paper-shadow.html","paper-radio-button":"components/paper-radio-button/paper-radio-button.html","paper-dialog":"components/paper-dialog/paper-dialog.html","paper-action-dialog":"components/paper-dialog/paper-action-dialog.html","paper-dialog-base":"components/paper-dialog/paper-dialog-base.html","paper-dialog-transition":"components/paper-dialog/paper-dialog-transition.html","paper-spinner":"components/paper-spinner/paper-spinner.html","paper-progress":"components/paper-progress/paper-progress.html"}'></docs-menu>
+    </div>
+  </app-drawer>
+
+  <scroll-area sidebar unresolved class="scrolling">
+    <site-banner type="guide" shortname="Docs" unresolved>
+      
+<app-bar theme="light" class="bar fixed">
+</app-bar>
+
+      <header class="shrink">
+        <h1>
+        
+          EDEX Admin
+        : Local DOM Basics and API
+        </h1>
+      </header>
+    </site-banner>
+
+    
+    
+
+    <article class="show-permalinks">
+
+      <header class="onlyonmobile">
+        <h1>
+          
+          EDEX Admin
+          : Local DOM Basics and API
+        </h1>
+      </header>
+
+      
+<!--TOC_START-->
+<ul id="markdown-toc">
+  <li><a href="#template-stamping" id="markdown-toc-template-stamping">Local DOM template</a></li>
+  <li><a href="#node-finding" id="markdown-toc-node-finding">Automatic node finding</a></li>
+  <li><a href="#dom-distribution" id="markdown-toc-dom-distribution">DOM distribution</a></li>
+  <li><a href="#dom-api" id="markdown-toc-dom-api">DOM API</a>    <ul>
+      <li><a href="#work-with-local-dom" id="markdown-toc-work-with-local-dom">Work with local DOM</a></li>
+      <li><a href="#light-dom-children" id="markdown-toc-light-dom-children">Work with light DOM children</a></li>
+      <li><a href="#observe-nodes" id="markdown-toc-observe-nodes">Observe added and removed children</a></li>
+      <li><a href="#dom-api-examples" id="markdown-toc-dom-api-examples">DOM API examples</a></li>
+    </ul>
+  </li>
+</ul>
+<!--TOC_END-->
+
+<p>We call the DOM that an element is in charge of creating and managing its <em>local
+DOM</em>. This is distinct from the element’s children which are sometimes called
+its <em>light DOM</em> for clarity.</p>
+
+<p>AWIPS II supports multiple local DOM implementations. On browsers
+that support shadow DOM, shadow DOM may be used to create local DOM. On other
+supported browsers, AWIPS II provides local DOM via a custom
+implementation called <em>shady DOM</em> which is inspired by shadow DOM.</p>
+
+<p>Shady DOM requires you to use the <a href="#dom-api">AWIPS II DOM API</a> when manipulating DOM from JavaScript. This interface covers most of the common DOM methods and properties, and is compatible with both shady DOM and native shadow DOM.</p>
+
+<p class="alert alert-info"><strong>Note:</strong> 
+Currently AWIPS II uses shady DOM by default on all browsers.
+To opt-in to using shadow DOM where available, see <a href="settings.html">Global settings</a></p>
+
+<h2 id="template-stamping">Local DOM template</h2>
+
+<p>To specify DOM to use for an element’s local DOM, use the <code>&lt;dom-module&gt;</code> element.
+Give the <code>&lt;dom-module&gt;</code> an <code>id</code> attribute that matches its element’s
+<code>is</code> property and put a <code>&lt;template&gt;</code> inside the <code>&lt;dom-module&gt;</code>.
+Polymer will automatically clone this template’s contents into the element’s local DOM.</p>
+
+<p>Example:</p>
+
+<pre><code>&lt;dom-module id="x-foo"&gt;
+
+  &lt;template&gt;I am x-foo!&lt;/template&gt;
+
+  &lt;script&gt;
+    Polymer({
+      is: 'x-foo'
+    });
+  &lt;/script&gt;
+
+&lt;/dom-module&gt;
+</code></pre>
+
+<p>We say that an element definition has an imperative and declarative portion. The imperative
+portion is the call to <code>Polymer({...})</code>, and the declarative portion is the <code>&lt;dom-module&gt;</code>
+element. The imperative and declarative portions of an element’s definition may be placed
+in the same html file or in separate files.</p>
+
+<p>The <code>&lt;script&gt;</code> tag can be inside or outside of the <code>&lt;dom-module&gt;</code> element.</p>
+
+<p>The element’s template must be parsed before the call to Polymer.</p>
+
+<p class="alert alert-info"><strong>Note:</strong> Elements should generally be defined outside of the main document, except for 
+testing. For caveats about defining elements in the main document, see 
+<a href="registering-elements.html#main-document-definitions">main document definitions</a>.</p>
+
+<h2 id="node-finding">Automatic node finding</h2>
+
+<p>AWIPS II automatically builds a map of statically created instance nodes 
+in  its local DOM, to provide convenient access to frequently used nodes without
+the need to query for them manually.  Any node specified in the
+element’s template with an <code>id</code> is stored on the <code>this.$</code> hash by <code>id</code>.</p>
+
+<p class="alert alert-warning"><strong>Note:</strong> Nodes created dynamically using data binding (including those in 
+<code>dom-repeat</code> and <code>dom-if</code> templates) are <em>not</em> added to the
+<code>this.$</code> hash. The hash includes only <em>statically</em> created local DOM nodes
+(that is, the nodes defined in the element’s outermost template).</p>
+
+<p>Example:</p>
+
+<pre><code>&lt;dom-module id="x-custom"&gt;
+
+  &lt;template&gt;
+    Hello World from &lt;span id="name"&gt;&lt;/span&gt;!
+  &lt;/template&gt;
+
+  &lt;script&gt;
+
+    Polymer({
+
+      is: 'x-custom',
+
+      ready: function() {
+        this.$.name.textContent = this.tagName;
+      }
+
+    });
+
+  &lt;/script&gt;
+
+&lt;/dom-module&gt;
+</code></pre>
+
+<p>For locating dynamically-created nodes in your element’s local DOM, use the <code>$$</code> 
+method:</p>
+
+<p><code>this.$$(<var>selector</var>)</code></p>
+
+<p><code>$$</code> returns the first node in the local DOM that matches <code><var>selector</var></code>.</p>
+
+<h2 id="dom-distribution">DOM distribution</h2>
+
+<p>To support composition of an element’s light DOM with its local DOM, Polymer
+supports the <code>&lt;content&gt;</code> element. The <code>&lt;content&gt;</code> element provides an insertion
+point at which an element’s light DOM is combined with its local DOM. The
+<code>&lt;content&gt;</code> element supports a <code>select</code> attribute which filters nodes via a
+simple selector.</p>
+
+<p>Example:</p>
+
+<pre><code>&lt;template&gt;
+  &lt;header&gt;Local dom header followed by distributed dom.&lt;/header&gt;
+  &lt;content select=".content"&gt;&lt;/content&gt;
+  &lt;footer&gt;Footer after distributed dom.&lt;/footer&gt;
+&lt;/template&gt;
+</code></pre>
+
+<p>In shadow DOM, the browser maintains separate light DOM and shadow DOM trees, and creates a 
+merged view (the <em>composed tree</em>) for rendering purposes.</p>
+
+<p>In shady DOM, AWIPS II maintains its own light DOM and shady DOM trees.
+The document’s DOM tree is effectively the composed tree.</p>
+
+<h2 id="dom-api">DOM API</h2>
+
+<p>Polymer provides a custom API for manipulating DOM such that local DOM and light DOM trees are properly maintained.</p>
+
+<p class="alert alert-error"><strong>Note:</strong> All DOM manipulation must use this API, as opposed to DOM API directly on nodes.</p>
+
+<p>These methods and properties have the same signatures as their standard DOM equivalents, with the following exceptions:</p>
+
+<ul>
+  <li>
+    <p><strong><code>Array</code> not <code>NodeList</code></strong>. Properties and methods that return a list 
+of nodes return an <code>Array</code>, not a <code>NodeList</code>.</p>
+  </li>
+  <li>
+    <p><strong>Local DOM root</strong>. Use the <code>root</code> property to access a 
+AWIPS II element’s local DOM root — equivalent to 
+the shadow root in native shadow DOM.</p>
+  </li>
+  <li>
+    <p><strong>Async operations.</strong> Insert, append, and remove operations are 
+transacted lazily in certain cases for performance.  In order to 
+interrogate the DOM (for example, <code>offsetHeight</code>, <code>getComputedStyle</code>, etc.) immediately after one of these operations, call <code>Polymer.dom.flush()</code> first.</p>
+  </li>
+</ul>
+
+<p>The following methods and properties are provided.</p>
+
+<p>Adding and removing children:</p>
+
+<ul>
+  <li><code>Polymer.dom(parent).appendChild(node)</code></li>
+  <li><code>Polymer.dom(parent).insertBefore(node, beforeNode)</code></li>
+  <li><code>Polymer.dom(parent).removeChild(node)</code></li>
+  <li><code>Polymer.dom.flush()</code></li>
+</ul>
+
+<p>Calling <code>append</code>/<code>insertBefore</code> adds the node to <var>parent</var>’s <em>light DOM</em>.  In order to insert/append into the local DOM of a custom element, use a node in the local DOM as a parent (or <code>this.root</code>, which is the root of the local DOM).</p>
+
+<p>Parent and child APIs:</p>
+
+<ul>
+  <li><code>Polymer.dom(parent).childNodes</code></li>
+  <li><code>Polymer.dom(parent).children</code></li>
+  <li><code>Polymer.dom(node).parentNode</code></li>
+  <li><code>Polymer.dom(node).firstChild</code></li>
+  <li><code>Polymer.dom(node).lastChild</code></li>
+  <li><code>Polymer.dom(node).firstElementChild</code></li>
+  <li><code>Polymer.dom(node).lastElementChild</code></li>
+  <li><code>Polymer.dom(node).previousSibling</code></li>
+  <li><code>Polymer.dom(node).nextSibling</code></li>
+  <li><code>Polymer.dom(node).textContent</code></li>
+  <li><code>Polymer.dom(node).innerHTML</code></li>
+</ul>
+
+<p class="alert alert-info">**Note: When working with light DOM children, you may want to consider 
+using the distributed children or effective children APIs. 
+See <a href="#light-dom-children">Work with light DOM children</a> for details.</p>
+
+<p>Query selector:</p>
+
+<ul>
+  <li><code>Polymer.dom(parent).querySelector(selector)</code></li>
+  <li><code>Polymer.dom(parent).querySelectorAll(selector)</code></li>
+</ul>
+
+<p>Content APIs:</p>
+
+<ul>
+  <li><code>Polymer.dom(contentElement).getDistributedNodes()</code></li>
+  <li><code>Polymer.dom(node).getDestinationInsertionPoints()</code></li>
+</ul>
+
+<p>Node mutation APIs:</p>
+
+<ul>
+  <li><code>Polymer.dom(node).setAttribute(attribute, value)</code></li>
+  <li><code>Polymer.dom(node).removeAttribute(attribute)</code></li>
+  <li><code>Polymer.dom(node).classList</code></li>
+</ul>
+
+<p>Using these node mutation APIs when manipulating children ensures that shady
+DOM can distribute content elements dynamically. If you change attributes or
+classes that could affect distribution <strong>without</strong> using the <code>Polymer.dom</code>
+API, call <code>distributeContent</code> on the host element to force it to update its
+distribution.</p>
+
+<h3 id="work-with-local-dom">Work with local DOM</h3>
+
+<p>Every AWIPS II element has a <code>this.root</code> property which is the
+root of its local DOM tree. You can manipulate the tree using <code>Polymer.dom</code> methods:</p>
+
+<pre><code>// Append to local DOM
+var toLocal = document.createElement('div');
+Polymer.dom(this.root).appendChild(toLocal);
+
+// Insert to the local DOM
+var toInsert = document.createElement('div');
+var beforeNode = Polymer.dom(this.root).childNodes[0];
+Polymer.dom(this.root).insertBefore(toLocal, beforeNode);
+</code></pre>
+
+<p>You can use the <a href="#node-finding">automatic node finding</a> feature to locate local DOM nodes:</p>
+
+<pre><code>var item = document.createElement('li');
+Polymer.dom(this.$.list).appendChild(item);
+</code></pre>
+
+<p>You can also locate nodes in the local DOM using <code>querySelector</code>, <code>querySelectorAll</code>, or the <code>$$</code> utility method:</p>
+
+<pre><code>var cancelButton = Polymer.dom(this.root).querySelector('#cancelButton');
+
+// Shorthand for finding local DOM children by ID
+// (equivalent to the above):
+this.$$('cancelButton');
+</code></pre>
+
+<h3 id="light-dom-children">Work with light DOM children</h3>
+
+<p>When creating a custom element that can take light DOM children, you 
+frequently need to interact with  your child nodes imperatively.</p>
+
+<p>An element can access its light DOM children using <code>Polymer.dom(this).children</code> and similar properties and methods. However, most of the time you want to be aware of how light DOM children are distributed to insertion points.</p>
+
+<p>If your element has local DOM and contains one or more insertion points 
+(<code>&lt;content&gt;</code> tags), you can query the set of <a href="#distributed-children"><em>distributed child nodes</em></a> that are being distributed to a given insertion point.</p>
+
+<p>In some cases, distributed nodes might not be what you want. For example:</p>
+
+<ul>
+  <li>Your element has no shadow DOM.</li>
+  <li>You’re interested in elements that <strong>aren’t</strong> being distributed into 
+any insertion point.</li>
+  <li>You want to see all of your child nodes, regardless of what insertion 
+point they’ve been distributed to.</li>
+</ul>
+
+<p>In these cases, you simply want a list of the element’s children. The <a href="#effective-children"><em>effective children</em> APIs</a> are a useful way of accessing light DOM children regardless of whether they’re being distributed to insertion points in your element.</p>
+
+<h4 id="distributed-children">Distributed children</h4>
+
+<p>Sometimes it’s necessary to access the elements which have been distributed to a given <code>&lt;content&gt;</code> insertion point or to know to which <code>&lt;content&gt;</code> a given node has been distributed. The <code>getDistributedNodes</code> and <code>getDestinationInsertionPoints</code> methods, respectively, provide this information:</p>
+
+<pre><code>&lt;x-foo&gt;
+  &lt;div&gt;&lt;/div&gt;
+&lt;/x-foo&gt;
+
+&lt;!-- x-foo's template --&gt;
+&lt;template&gt;
+  &lt;content&gt;&lt;/content&gt;
+&lt;/template&gt;
+
+// script
+var lightDomDiv = Polymer.dom(xFoo).querySelector('div');
+var insertionPoint = Polymer.dom(xFoo.root).querySelector('content');
+var distributed = Polymer.dom(insertionPoint).getDistributedNodes()[0];
+var insertedTo = Polymer.dom(lightDomDiv).getDestinationInsertionPoints()[0];
+
+// the following should be true:
+console.log(distributed === lightDomDiv);
+console.log(insertedTo === insertionPoint);
+</code></pre>
+
+<p>Note that <code>getDistributedNodes</code> only returns useful results when called on a
+<code>&lt;content&gt;</code> element, and <code>getDestinationInsertionPoints</code> only returns useful
+results when called on an element that’s being distributed.</p>
+
+<p>Because retrieving the children of a given content tag is a common pattern,
+the element API includes <code>getContentChildNodes</code> and <code>getContentChildren</code>
+utility methods. Both methods take a CSS selector that identifies a
+<code>&lt;content&gt;</code> element in the element’s local DOM. (If the selector is omitted,
+both methods default to the first <code>&lt;content&gt;</code> element in the local DOM.)</p>
+
+<pre><code>&lt;dom-module id="simple-content"&gt;
+  &lt;template&gt;
+    &lt;content id="myContent"&gt;&lt;/content&gt;
+  &lt;/template&gt;
+  &lt;script&gt;
+    Polymer({
+      is: 'simple-content',
+      ready: function() {
+        var distributed = this.getContentChildren('#myContent');
+        console.log(distributed.length);
+      }
+    });
+  &lt;/script&gt;
+&lt;/dom-module&gt;
+</code></pre>
+
+<h4 id="effective-children">Effective children</h4>
+
+<p>Effective children are the  set of an element’s light DOM children, <em>with 
+any insertion points replaced by their distributed children.</em></p>
+
+<p>Consider a simple image carousel element with no local DOM. It’s used like this:</p>
+
+<pre><code>&lt;simple-carousel&gt;
+  &lt;img src="one.jpg"&gt;
+  &lt;img src="two.jpg"&gt;
+  &lt;img src="three.jpg"&gt;
+&lt;simple-carousel&gt;
+</code></pre>
+
+<p>The carousel adds dots underneath the current image that let the user select 
+a different image, so the carousel needs to know how many children it has. 
+This is simple enough: the carousel can check its children in the <code>attached</code> 
+callback:</p>
+
+<pre><code>attached: function() {
+  this.childCount = Polymer.dom(this).children.length;
+  // do something with childCount ...
+}
+</code></pre>
+
+<p>But there are a few issues here. What if you create a new element, 
+<code>&lt;popup-carousel&gt;</code>, that includes a simple carousel in its local DOM? You 
+use the new element the same way:</p>
+
+<pre><code>&lt;popup-carousel&gt;
+  &lt;img src="one.jpg"&gt;
+  &lt;img src="two.jpg"&gt;
+&lt;/popup-carousel&gt;
+</code></pre>
+
+<p>Internally, the popup-carousel does something like this:</p>
+
+<pre><code>&lt;dom-module id="popup-carousel"&gt;
+  &lt;template&gt;
+    &lt;simple-carousel&gt;
+      &lt;content&gt;&lt;/content&gt;
+    &lt;/simple-carousel&gt;
+  &lt;/template&gt;
+  ...
+&lt;/dom-module&gt;
+</code></pre>
+
+<p>The popup carousel simply passes its children on to the simple carousel by 
+including a <code>&lt;content&gt;</code> tag. But now the simple carousel’s <code>attached</code> method 
+doesn’t work: <code>Polymer.dom(this).children.length</code> will always return 1, 
+because the carousel only has a single child, the <code>&lt;content&gt;</code> tag.</p>
+
+<p>Clearly, <code>children</code> isn’t what you want here. You want a list of children, 
+with any <code>&lt;content&gt;</code> tags replaced by their distributed children. 
+Unfortunately, the platform doesn’t have a primitive for this, so Polymer 
+has added the concept of “effective children” in its DOM API.</p>
+
+<p>You can retrieve an element’s effective child nodes using:</p>
+
+<pre><code>var effectiveChildren = Polymer.dom(element).getEffectiveChildNodes();
+</code></pre>
+
+<p>For convenience, several utility methods are available on the Polymer 
+element prototype:</p>
+
+<ul>
+  <li><code>getEffeciveChildNodes()</code>. Returns a list of effective child nodes for 
+this element.</li>
+  <li><code>getEffectiveChildren()</code>. Returns a list of effective child elements for
+this element.</li>
+  <li><code>queryEffectiveChildren(selector)</code>. Returns the first effective child 
+that matches <var>selector</var>.</li>
+  <li><code>queryAllEffectiveChildren(selector)</code>. Returns a list of effective
+children that match <var>selector</var>.</li>
+</ul>
+
+<p>Replacing <code>children</code> with the <code>getEffectiveChildren</code> method gives you the 
+result you want:</p>
+
+<pre><code>this.childCount = this.getEffectiveChildren().length;
+</code></pre>
+
+<p>You can think of <code>getEffectiveChildren</code> as a composition-friendly version of 
+<code>children</code>.</p>
+
+<h3 id="observe-nodes">Observe added and removed children</h3>
+
+<p>Use the DOM API’s <code>observeNodes</code> method to track when children are added and 
+removed from
+your element:</p>
+
+<pre><code>this._observer = Polymer.dom(this.$.contentNode).observeNodes(function(info) {
+  this.processNewNodes(info.addedNodes);
+  this.processRemovedNodes(info.removedNodes);
+});
+</code></pre>
+
+<p>You pass <code>observeNodes</code> a callback to be invoked when nodes are added or 
+removed. The callback takes a single Object argument, with <code>addedNodes</code> and 
+<code>removedNodes</code> arrays.</p>
+
+<p>The method returns a handle that can be used to stop observation:</p>
+
+<pre><code>Polymer.dom(node).unobserveNodes(this._observer);
+</code></pre>
+
+<p>The <code>observeNodes</code> method behaves slightly differently depending on the 
+node being observed:</p>
+
+<ul>
+  <li>If the node being observed is a <em>content node</em>, the callback is called
+when the content node’s <em>distributed children</em> change.</li>
+  <li>For any other node, the callback is called when the node’s <a href="#effective-children"><em>effective
+children</em></a> change.</li>
+</ul>
+
+<p>A few notes on <code>observeNodes</code>:</p>
+
+<ul>
+  <li>
+    <p>Since the method is attached to the DOM API, the callback is called the 
+observed node as the <code>this</code> value. So if you do:</p>
+
+    <pre><code>this._observer = Polymer.dom(this.$.content).observeNodes(_childrenChanged);
+</code></pre>
+
+    <p>The callback is invoked with <code>this.$.content</code> as the <code>this</code> value. If you want to use the custom element as the <code>this</code> value, you need to bind the callback:</p>
+
+    <p>var boundHandler = this._childNodesChanged.bind(this);
+  this._observer = Polymer.dom(this.$.content).observeNodes(boundHandler);</p>
+  </li>
+  <li>
+    <p>The callback argument lists added and removed nodes, not just elements. 
+If you’re only interested in elements, you can filter the node list:</p>
+
+    <pre><code>info.addedNodes.filter(function(node) {
+  return (node.nodeType === Node.ELEMENT_NODE)
+});
+</code></pre>
+  </li>
+  <li>
+    <p>The first callback from <code>observeNodes</code> contains <strong>all</strong> nodes added 
+to the element, <em>not</em> the elements added since <code>observeNodes</code> was 
+called. This works well if you’re using <code>observeNodes</code> exclusively.</p>
+
+    <p>If you need to synchronously process the element’s children – for 
+example, in <code>attached</code>, and then use <code>observeNodes</code> to monitor changes 
+to the child list, you may need to be aware of this.</p>
+  </li>
+</ul>
+
+<h4 id="why-not-just-a-mutation-observer">Why not just a mutation observer?</h4>
+
+<p>If you’re familiar with mutation observers, you may wonder why you can’t just use a mutation observer to handle DOM changes.</p>
+
+<p>For the simple case, you can use a mutation observer to detect when children are added or removed from your element. However, mutation observers have the same limitation as the <code>children</code> list: they don’t reflect local DOM distributions. In the case of the <code>&lt;popup-carousel&gt;</code> example, adding a child to <code>&lt;popup-carousel&gt;</code> wouldn’t trigger a mutation observer on <code>&lt;simple-carousel&gt;</code>.</p>
+
+<p>To detect those changes, <code>&lt;simple-carousel&gt;</code> would have to check its child list for <code>&lt;content&gt;</code> nodes. If it’s got a <code>&lt;content&gt;</code> node in its <code>children</code>, it would need to add <em>another</em> mutation observer on its shadow host (in this case, <code>&lt;popup-carousel&gt;</code>). And so on. Suddenly, the <code>&lt;simple-carousel&gt;</code> isn’t so simple anymore.</p>
+
+<p>The <code>observeNodes</code> method handles this complexity for you. It uses mutation observers internally to track DOM changes, and handles the extra bookkeeping required to track local DOM distributions. 
+Unlike a mutation observer, the <code>observeNodes</code> callback is only invoked when nodes are added or removed — it doesn’t handle attribute changes or character data changes.</p>
+
+<h3 id="dom-api-examples">DOM API examples</h3>
+
+<p>Some examples of using the <code>Polymer.dom</code>.</p>
+
+<p>Add a child to the light DOM:</p>
+
+<pre><code>var toLight = document.createElement('div');
+Polymer.dom(this).appendChild(toLight);
+</code></pre>
+
+<p>Retrieve all <code>&lt;span&gt;</code> elements in the light DOM.</p>
+
+<pre><code>var allSpans = this.queryAllEffectiveChildren('span');
+</code></pre>
+
+<p>You can use <code>Polymer.dom</code> on any node, whether or not it has a local DOM tree:</p>
+
+<pre><code>&lt;template&gt;
+  &lt;div id="container"&gt;
+     &lt;div id="first"&gt;&lt;/div&gt;
+     &lt;content&gt;&lt;/content&gt;
+  &lt;/div&gt;
+&lt;/template&gt;
+
+...
+
+var insert = document.createElement('div');
+Polymer.dom(this.$.container).insertBefore(insert, this.$.first);
+</code></pre>
+
+
+    </article>
+
+    <footer>
+  <div>
+    <div class="links">
+      <a href="https://www.facebook.com/unidata" title="Unidata on Facebook" tabindex="-1"><paper-button><core-icon icon="social:post-facebook"></core-icon>Facebook</paper-button></a>
+      <a href="https://twitter.com/intent/follow?screen_name=unidata" data-twitter-follow title="Follow @Unidata on Twitter" tabindex="-1"><paper-button><core-icon icon="social:post-twitter"></core-icon>Twitter</paper-button></a>
+      <a href="https://github.com/Unidata/awips2"><paper-button class="github" tabindex="-1"><core-icon icon="social:post-github"></core-icon>GitHub</paper-button></a>
+      <a href="https://github.com/Unidata/awips2/issues/new" tabindex="-1"><paper-button><core-icon icon="bug-report"></core-icon>File a bug</paper-button></a>
+    </div>
+
+  </div>
+</footer>
+
+
+
+
+
+<script src="/polymer-docs/js/prettify/prettify.js"></script>
+
+<!-- <script src="/polymer-docs/js/bower_components/smoothscroll/smoothscroll.js"></script> -->
+<script src="/polymer-docs/js/app.js?20160403"></script>
+
+
+  </scroll-area>
+
+</main>
+
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html itemscope itemtype="http://schema.org/Organization">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="chrome=1" />
+<meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1">
+<meta name="google-site-verification" content="k0e8DrbD40s54xHNBqwIsRrSSAkZoprwtEYDnNY06bU" />
+<meta name="google-site-verification" content="pnjjbQFvjPwaWhEXY6nSyaS9iyghmH-M_yLHBveDX2M">
+<meta itemprop="name" content="AWIPS II - Satellite Menu">
+<meta itemprop="description" content="Polymer is a library that uses the latest web technologies to let you create custom HTML elements. Build anything from a button to a complete application as an encapsulated, reusable element that works across desktop and mobile.">
+
+
+<meta itemprop="image" content="https://www.polymer-project.org/images/instacod.png">
+
+
+<title>
+  
+    Satellite Menu -
+   AWIPS II
+</title>
+<link rel="publisher" href="https://plus.google.com/107187849809354688692">
+<link rel="shortcut icon" href="http://www.unidata.ucar.edu/favicon.ico">
+<link href="//fonts.googleapis.com/css?family=RobotoDraft:300,400,500|Source+Code+Pro:400,500,700" rel="stylesheet">
+<link href="/polymer-docs/css/site2.css?20160403" rel="stylesheet">
+<link href="/polymer-docs/css/site2_sd_rules.css?20160403" rel="stylesheet" shim-shadowdom>
+
+
+
+<script src="/polymer-docs/components/webcomponentsjs/webcomponents.min.js?20160403"></script>
+<!-- TODO: remove when https://github.com/Polymer/polymer/issues/391 is fixed -->
+<link rel="import" href="/polymer-docs/components/polymer/polymer.html">
+<link rel="stylesheet" href="/polymer-docs/css/elements/docs-menu.css">
+<link rel="import" href="/polymer-docs/elements/common_elements.vulcanized.html?20160403">
+
+
+</head>
+<body id="satellite-menu">
+
+<main id="content-container" class="polymer-content">
+  <app-drawer id="sidebar" unresolved>
+    <div layout vertical id="sidebar-content">
+      <div id="logo-container" layout horizontal center>
+        <a href="/polymer-docs/" class="logo"><img src="/polymer-docs/images/logos/awips2.png" alt="AWIPS II User Guide"></a>
+      </div>
+
+      <docs-menu unresolved flex
+		 baseurl='/polymer-docs'
+                 coreElements='{"core-header-panel":"components/core-header-panel/core-header-panel.html","core-transition-pages":"components/core-animated-pages/transitions/core-transition-pages.html","core-animated-pages":"components/core-animated-pages/core-animated-pages.html","core-overlay":"components/core-overlay/core-overlay.html","core-toolbar":"components/core-toolbar/core-toolbar.html","core-image":"components/core-image/core-image.html","core-shared-lib":"components/core-shared-lib/core-shared-lib.html","core-a11y-keys":"components/core-a11y-keys/core-a11y-keys.html","core-menu-button":"components/core-menu-button/core-menu-button.html","core-icon":"components/core-icon/core-icon.html","core-selection":"components/core-selection/core-selection.html","core-style":"components/core-style/core-style.html","core-menu":"components/core-menu/core-menu.html","core-submenu":"components/core-menu/core-submenu.html","core-list":"components/core-list/core-list.html","core-dropdown-menu":"components/core-dropdown-menu/core-dropdown-menu.html","core-input":"components/core-input/core-input.html","core-iconset-svg":"components/core-iconset-svg/core-iconset-svg.html","core-field":"components/core-field/core-field.html","core-selector":"components/core-selector/core-selector.html","core-media-query":"components/core-media-query/core-media-query.html","core-animation-group":"components/core-animation/core-animation-group.html","core-animation":"components/core-animation/core-animation.html","core-animation-keyframe":"components/core-animation/core-animation.html","core-animation-prop":"components/core-animation/core-animation.html","core-dropdown":"components/core-dropdown/core-dropdown.html","core-dropdown-base":"components/core-dropdown/core-dropdown-base.html","core-pages":"components/core-pages/core-pages.html","core-meta":"components/core-meta/core-meta.html","core-splitter":"components/core-splitter/core-splitter.html","core-scroll-header-panel":"components/core-scroll-header-panel/core-scroll-header-panel.html","core-tooltip":"components/core-tooltip/core-tooltip.html","core-localstorage":"components/core-localstorage/core-localstorage.html","core-scroll-threshold":"components/core-scroll-threshold/core-scroll-threshold.html","core-drag-drop":"components/core-drag-drop/core-drag-drop.html","core-iconset":"components/core-iconset/core-iconset.html","core-label":"components/core-label/core-label.html","core-signals":"components/core-signals/core-signals.html","core-transition":"components/core-transition/core-transition.html","core-scaffold":"components/core-scaffold/core-scaffold.html","core-drawer-panel":"components/core-drawer-panel/core-drawer-panel.html","core-range":"components/core-range/core-range.html","core-collapse":"components/core-collapse/core-collapse.html","core-xhr":"components/core-ajax/core-xhr.html","core-ajax":"components/core-ajax/core-ajax.html","core-icon-button":"components/core-icon-button/core-icon-button.html","core-item":"components/core-item/core-item.html"}'
+                 paperElements='{"paper-dropdown":"components/paper-dropdown/paper-dropdown.html","paper-dropdown-transition":"components/paper-dropdown/paper-dropdown-transition.html","paper-item":"components/paper-item/paper-item.html","paper-dropdown-menu":"components/paper-dropdown-menu/paper-dropdown-menu.html","paper-checkbox":"components/paper-checkbox/paper-checkbox.html","paper-button":"components/paper-button/paper-button.html","paper-button-base":"components/paper-button/paper-button-base.html","paper-menu-button":"components/paper-menu-button/paper-menu-button.html","paper-radio-group":"components/paper-radio-group/paper-radio-group.html","paper-toast":"components/paper-toast/paper-toast.html","paper-char-counter":"components/paper-input/paper-char-counter.html","paper-autogrow-textarea":"components/paper-input/paper-autogrow-textarea.html","paper-input":"components/paper-input/paper-input.html","paper-input-decorator":"components/paper-input/paper-input-decorator.html","paper-slider":"components/paper-slider/paper-slider.html","paper-toggle-button":"components/paper-toggle-button/paper-toggle-button.html","paper-fab":"components/paper-fab/paper-fab.html","paper-ripple":"components/paper-ripple/paper-ripple.html","paper-icon-button":"components/paper-icon-button/paper-icon-button.html","paper-tabs":"components/paper-tabs/paper-tabs.html","paper-tab":"components/paper-tabs/paper-tab.html","paper-shadow":"components/paper-shadow/paper-shadow.html","paper-radio-button":"components/paper-radio-button/paper-radio-button.html","paper-dialog":"components/paper-dialog/paper-dialog.html","paper-action-dialog":"components/paper-dialog/paper-action-dialog.html","paper-dialog-base":"components/paper-dialog/paper-dialog-base.html","paper-dialog-transition":"components/paper-dialog/paper-dialog-transition.html","paper-spinner":"components/paper-spinner/paper-spinner.html","paper-progress":"components/paper-progress/paper-progress.html"}'></docs-menu>
+    </div>
+  </app-drawer>
+
+  <scroll-area sidebar unresolved class="scrolling">
+    <site-banner type="guide" shortname="Docs" unresolved>
+      
+<app-bar theme="light" class="bar fixed">
+</app-bar>
+
+      <header class="shrink">
+        <h1>
+        
+          D2D User Guide
+        : Satellite Menu
+        </h1>
+      </header>
+    </site-banner>
+
+    
+    
+
+    <article class="show-permalinks">
+
+      <header class="onlyonmobile">
+        <h1>
+          
+          D2D User Guide
+          : Satellite Menu
+        </h1>
+      </header>
+
+      
+<!--TOC_START-->
+<ul id="markdown-toc">
+  <li><a href="#viirs" id="markdown-toc-viirs">VIIRS</a></li>
+  <li><a href="#goes-and-poes-sounding-data" id="markdown-toc-goes-and-poes-sounding-data">GOES and POES Sounding Data</a></li>
+  <li><a href="#poes-imagery" id="markdown-toc-poes-imagery">POES Imagery</a></li>
+  <li><a href="#sounder-imagery" id="markdown-toc-sounder-imagery">Sounder Imagery</a></li>
+  <li><a href="#derived-products-imagery" id="markdown-toc-derived-products-imagery">Derived Products Imagery</a></li>
+  <li><a href="#ssmi-point-data" id="markdown-toc-ssmi-point-data">SSM/I Point Data</a></li>
+  <li><a href="#goes-high-density-winds" id="markdown-toc-goes-high-density-winds">GOES High Density Winds</a></li>
+  <li><a href="#mtsat-high-density-winds" id="markdown-toc-mtsat-high-density-winds">MTSAT High Density Winds</a></li>
+  <li><a href="#ascat-winds-25-km" id="markdown-toc-ascat-winds-25-km">ASCAT winds (25 km)</a></li>
+</ul>
+<!--TOC_END-->
+
+<h1 id="viirs">VIIRS</h1>
+
+<p>VIIRS is one of five instruments onboard the NPP satellite. VIIRS’ mission is to collect radiometric imagery in visible and infrared wavelengths of the Earth’s surface; this includes observing fires, ice, ocean color, vegetation, clouds, and land and sea surface temperatures, and supplying high-resolution images and data used by meteorologists to assess climate change and improve short-term weather forecasting.</p>
+
+<p>The VIIRS submenu option provides VIIRS imagery and moderate band satellite displays for the
+CONUS, Alaska, and Pacific regions.  In addition to accessing the NPP Product VIIRS data via the Satellite menu, the VIIRS Imagery data can also be accessed using the <strong>Product Browser</strong>.</p>
+
+<h1 id="goes-and-poes-sounding-data">GOES and POES Sounding Data</h1>
+
+<p>GOES and POES Sounding Data Availability Plots displays the locations where GOES and POES temperature and moisture profiles are available. These soundings are displayed on a Skew-T/log P chart using the Points tool and the Volume Browser. Soundings from the GOES satellites are made only in relatively cloud-free areas, whereas POES systems produce temperature and moisture soundings in clear and cloudy atmospheres. Each hour, NESDIS provides the latest soundings from GOES East and West. Although the GOES East and West sounders yield soundings over a broad area, the default AWIPS configuration retains soundings only from within each site’s Regional CAVE scale domain. POES soundings are generated approximately every 12 hours and have more global coverage.</p>
+
+<h1 id="poes-imagery">POES Imagery</h1>
+
+<p>The POES Imagery section of the Satellite menu contains selectors for IR Window, Visible, 3.7µ, and 11-3.7µ products. These are viewable on all scales.</p>
+
+<h1 id="sounder-imagery">Sounder Imagery</h1>
+
+<p>The products available from the Sounder Imagery submenu are based purely on the imager instruments aboard the GOES East (GE) and GOES West (GW) satellites.</p>
+
+<h1 id="derived-products-imagery">Derived Products Imagery</h1>
+
+<p>A variety of precipitation products are accessible from the Derived Products submenu. These products are derived from one or more of the various satellites (e.g., DMPS, POES, GOES, and GPS). Descriptions of the products follow.</p>
+
+<p>The Blended Rain Rate (formerly Rainfall Rate) product is produced hourly to gather recent rain rate retrievals from passive microwave instruments on six polar-orbiting satellites. The blended rain rate eliminates the bias between those data sets and provides a unified, meteorologically significant rain rate field to weather forecasters.</p>
+
+<p>The GOES products derived from the GOES satellite include Lifted Index, Total Precip Water (TPW), Cloud Amount, Cloud Top Height, Skin Temperature, and Low Cloud Base. Because the imagery from these products is based on the GOES sounder instrument, several important differences exist between these products and the other (imager-based) imagery. The main differences are that the resolution is no finer than 10 km, the product update frequency is driven by the sounder instrument (AWIPS receives a set of GOES East/West composite derived product images once per hour), and the aerial coverage is based on that of the sounder scans, which is somewhat less than the aerial coverage provided by the imager. Descriptions of the products follow.</p>
+
+<ul>
+  <li><strong>Lifted Index</strong> is a common measure of instability. Its value is obtained by computing the temperature that air near the ground would have if it were lifted to some higher level (usually around 18,000 feet), and comparing that temperature to the actual temperature at that level. The more negative the value, the more instability there is.</li>
+  <li><strong>Total Precip Water</strong> is the vertically integrated water vapor content in a column extending from the earth’s surface to the top of the atmosphere.</li>
+  <li><strong>Cloud Amount</strong> provides an hourly update of cloud amounts within a geostationary satellite field of view. You can loop through the display to identify increasing/decreasing cloud conditions and trends.</li>
+  <li><strong>Cloud Top Height</strong> is the height of the cloud in thousands of feet (base - top). Skin Temperature is the sea surface temperature of the ocean surface water.</li>
+  <li><strong>Low Cloud Base</strong> provides nighttime images of fog and low stratus clouds derived from a combination of two GOES IR channels. This product identifies cloud ceilings of &lt;1000 feet and is generated hourly starting between 2042 and 2142 GMT, and ending between 1510 and 1610 GMT the next day. This product is beneficial to the warning and forecast processes specific to aviation and terminal forecasting</li>
+</ul>
+
+<p>The Total Precip Water (TPW) value can also be derived from the data sources of DMSP, SSM/I (Defense Meteorological Satellite Program Special Sensor Microwave / Imager), and POES AMSU (POES Advanced Microwave Sounding Unit) satellites, which are accessed from the DMSP SSM/I, and POES AMSU sections of the submenu.</p>
+
+<p>Variations of TPW (“Blended Total Precip Water” and “Percent of Normal TPW”) are selectable
+under the AMSU and SSM/I + GPS section.</p>
+
+<ul>
+  <li>The <strong>Blended Total Precip Water</strong> product is a blend of the various data sources of AMSU,
+SSM/I, and GPS satellites, and can be over water or land.</li>
+  <li><strong>The Percent of Normal TPW</strong> product is calculated at various times (hourly, monthly,
+seasonally, etc.) to determine departures from the normal. From the information obtained,
+forecasters can predict the chances of having a below average, normal, or above average
+precipitation in the upcoming months.</li>
+</ul>
+
+<h1 id="ssmi-point-data">SSM/I Point Data</h1>
+
+<p>SSM/I Point Data plot displays data collected over the course of a day for calculating ocean wind speeds.</p>
+
+<h1 id="goes-high-density-winds">GOES High Density Winds</h1>
+
+<p>GOES High Density Winds submenu has options to display satellite-derived multi-layer winds plots from the IR, Visible, and three Water Vapor channels. In addition, you can display individual layers that display a composite of all the satellite channels.</p>
+
+<h1 id="mtsat-high-density-winds">MTSAT High Density Winds</h1>
+
+<p>MTSAT High Density Winds cover the Western Pacific.</p>
+
+<h1 id="ascat-winds-25-km">ASCAT winds (25 km)</h1>
+
+<p>Scatterometer Winds are obtained from the ASCAT instrument on EUMETSAT’s MetOP-A polar orbiting satellite. This instrument sends pulses of radiation to the ocean surface and measures the amount of energy, called backscatter, it receives back. When you sample these observations, the time, satellite ID, wind direction, and wind speed are provided. With the polar orbiting scanning, a given region will generally be sampled about every 12 hours.</p>
+
+<p>ASCAT winds (25 km retrieval resolution but interpolated and displayed at 12.5 km resolution) are launchable from both the CAVE Satellite menu and the Upper Air menu. The ASCAT instrument generates ocean surface wind retrievals. The ASCAT Scatterometer Ocean Winds product is displayable on
+CAVE at all scales.</p>
+
+    </article>
+
+    <footer>
+  <div>
+    <div class="links">
+      <a href="https://www.facebook.com/unidata" title="Unidata on Facebook" tabindex="-1"><paper-button><core-icon icon="social:post-facebook"></core-icon>Facebook</paper-button></a>
+      <a href="https://twitter.com/intent/follow?screen_name=unidata" data-twitter-follow title="Follow @Unidata on Twitter" tabindex="-1"><paper-button><core-icon icon="social:post-twitter"></core-icon>Twitter</paper-button></a>
+      <a href="https://github.com/Unidata/awips2"><paper-button class="github" tabindex="-1"><core-icon icon="social:post-github"></core-icon>GitHub</paper-button></a>
+      <a href="https://github.com/Unidata/awips2/issues/new" tabindex="-1"><paper-button><core-icon icon="bug-report"></core-icon>File a bug</paper-button></a>
+    </div>
+
+  </div>
+</footer>
+
+
+
+
+
+<script src="/polymer-docs/js/prettify/prettify.js"></script>
+
+<!-- <script src="/polymer-docs/js/bower_components/smoothscroll/smoothscroll.js"></script> -->
+<script src="/polymer-docs/js/app.js?20160403"></script>
+
+
+  </scroll-area>
+
+</main>
+
+</body>
+</html>

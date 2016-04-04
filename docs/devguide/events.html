@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html itemscope itemtype="http://schema.org/Organization">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="chrome=1" />
+<meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1">
+<meta name="google-site-verification" content="k0e8DrbD40s54xHNBqwIsRrSSAkZoprwtEYDnNY06bU" />
+<meta name="google-site-verification" content="pnjjbQFvjPwaWhEXY6nSyaS9iyghmH-M_yLHBveDX2M">
+<meta itemprop="name" content="AWIPS II - Events">
+<meta itemprop="description" content="Polymer is a library that uses the latest web technologies to let you create custom HTML elements. Build anything from a button to a complete application as an encapsulated, reusable element that works across desktop and mobile.">
+
+
+<meta itemprop="image" content="https://www.polymer-project.org/images/instacod.png">
+
+
+<title>
+  
+    Events -
+   AWIPS II
+</title>
+<link rel="publisher" href="https://plus.google.com/107187849809354688692">
+<link rel="shortcut icon" href="http://www.unidata.ucar.edu/favicon.ico">
+<link href="//fonts.googleapis.com/css?family=RobotoDraft:300,400,500|Source+Code+Pro:400,500,700" rel="stylesheet">
+<link href="/polymer-docs/css/site2.css?20160403" rel="stylesheet">
+<link href="/polymer-docs/css/site2_sd_rules.css?20160403" rel="stylesheet" shim-shadowdom>
+
+
+
+<script src="/polymer-docs/components/webcomponentsjs/webcomponents.min.js?20160403"></script>
+<!-- TODO: remove when https://github.com/Polymer/polymer/issues/391 is fixed -->
+<link rel="import" href="/polymer-docs/components/polymer/polymer.html">
+<link rel="stylesheet" href="/polymer-docs/css/elements/docs-menu.css">
+<link rel="import" href="/polymer-docs/elements/common_elements.vulcanized.html?20160403">
+
+
+</head>
+<body id="events">
+
+<main id="content-container" class="polymer-content">
+  <app-drawer id="sidebar" unresolved>
+    <div layout vertical id="sidebar-content">
+      <div id="logo-container" layout horizontal center>
+        <a href="/polymer-docs/" class="logo"><img src="/polymer-docs/images/logos/awips2.png" alt="AWIPS II User Guide"></a>
+      </div>
+
+      <docs-menu unresolved flex
+		 baseurl='/polymer-docs'
+                 coreElements='{"core-header-panel":"components/core-header-panel/core-header-panel.html","core-transition-pages":"components/core-animated-pages/transitions/core-transition-pages.html","core-animated-pages":"components/core-animated-pages/core-animated-pages.html","core-overlay":"components/core-overlay/core-overlay.html","core-toolbar":"components/core-toolbar/core-toolbar.html","core-image":"components/core-image/core-image.html","core-shared-lib":"components/core-shared-lib/core-shared-lib.html","core-a11y-keys":"components/core-a11y-keys/core-a11y-keys.html","core-menu-button":"components/core-menu-button/core-menu-button.html","core-icon":"components/core-icon/core-icon.html","core-selection":"components/core-selection/core-selection.html","core-style":"components/core-style/core-style.html","core-menu":"components/core-menu/core-menu.html","core-submenu":"components/core-menu/core-submenu.html","core-list":"components/core-list/core-list.html","core-dropdown-menu":"components/core-dropdown-menu/core-dropdown-menu.html","core-input":"components/core-input/core-input.html","core-iconset-svg":"components/core-iconset-svg/core-iconset-svg.html","core-field":"components/core-field/core-field.html","core-selector":"components/core-selector/core-selector.html","core-media-query":"components/core-media-query/core-media-query.html","core-animation-group":"components/core-animation/core-animation-group.html","core-animation":"components/core-animation/core-animation.html","core-animation-keyframe":"components/core-animation/core-animation.html","core-animation-prop":"components/core-animation/core-animation.html","core-dropdown":"components/core-dropdown/core-dropdown.html","core-dropdown-base":"components/core-dropdown/core-dropdown-base.html","core-pages":"components/core-pages/core-pages.html","core-meta":"components/core-meta/core-meta.html","core-splitter":"components/core-splitter/core-splitter.html","core-scroll-header-panel":"components/core-scroll-header-panel/core-scroll-header-panel.html","core-tooltip":"components/core-tooltip/core-tooltip.html","core-localstorage":"components/core-localstorage/core-localstorage.html","core-scroll-threshold":"components/core-scroll-threshold/core-scroll-threshold.html","core-drag-drop":"components/core-drag-drop/core-drag-drop.html","core-iconset":"components/core-iconset/core-iconset.html","core-label":"components/core-label/core-label.html","core-signals":"components/core-signals/core-signals.html","core-transition":"components/core-transition/core-transition.html","core-scaffold":"components/core-scaffold/core-scaffold.html","core-drawer-panel":"components/core-drawer-panel/core-drawer-panel.html","core-range":"components/core-range/core-range.html","core-collapse":"components/core-collapse/core-collapse.html","core-xhr":"components/core-ajax/core-xhr.html","core-ajax":"components/core-ajax/core-ajax.html","core-icon-button":"components/core-icon-button/core-icon-button.html","core-item":"components/core-item/core-item.html"}'
+                 paperElements='{"paper-dropdown":"components/paper-dropdown/paper-dropdown.html","paper-dropdown-transition":"components/paper-dropdown/paper-dropdown-transition.html","paper-item":"components/paper-item/paper-item.html","paper-dropdown-menu":"components/paper-dropdown-menu/paper-dropdown-menu.html","paper-checkbox":"components/paper-checkbox/paper-checkbox.html","paper-button":"components/paper-button/paper-button.html","paper-button-base":"components/paper-button/paper-button-base.html","paper-menu-button":"components/paper-menu-button/paper-menu-button.html","paper-radio-group":"components/paper-radio-group/paper-radio-group.html","paper-toast":"components/paper-toast/paper-toast.html","paper-char-counter":"components/paper-input/paper-char-counter.html","paper-autogrow-textarea":"components/paper-input/paper-autogrow-textarea.html","paper-input":"components/paper-input/paper-input.html","paper-input-decorator":"components/paper-input/paper-input-decorator.html","paper-slider":"components/paper-slider/paper-slider.html","paper-toggle-button":"components/paper-toggle-button/paper-toggle-button.html","paper-fab":"components/paper-fab/paper-fab.html","paper-ripple":"components/paper-ripple/paper-ripple.html","paper-icon-button":"components/paper-icon-button/paper-icon-button.html","paper-tabs":"components/paper-tabs/paper-tabs.html","paper-tab":"components/paper-tabs/paper-tab.html","paper-shadow":"components/paper-shadow/paper-shadow.html","paper-radio-button":"components/paper-radio-button/paper-radio-button.html","paper-dialog":"components/paper-dialog/paper-dialog.html","paper-action-dialog":"components/paper-dialog/paper-action-dialog.html","paper-dialog-base":"components/paper-dialog/paper-dialog-base.html","paper-dialog-transition":"components/paper-dialog/paper-dialog-transition.html","paper-spinner":"components/paper-spinner/paper-spinner.html","paper-progress":"components/paper-progress/paper-progress.html"}'></docs-menu>
+    </div>
+  </app-drawer>
+
+  <scroll-area sidebar unresolved class="scrolling">
+    <site-banner type="guide" shortname="Docs" unresolved>
+      
+<app-bar theme="light" class="bar fixed">
+</app-bar>
+
+      <header class="shrink">
+        <h1>
+        
+          EDEX Admin
+        : Events
+        </h1>
+      </header>
+    </site-banner>
+
+    
+    
+
+    <article class="show-permalinks">
+
+      <header class="onlyonmobile">
+        <h1>
+          
+          EDEX Admin
+          : Events
+        </h1>
+      </header>
+
+      
+<!--TOC_START-->
+<ul id="markdown-toc">
+  <li><a href="#event-listeners" id="markdown-toc-event-listeners">Event listener setup</a></li>
+  <li><a href="#annotated-listeners" id="markdown-toc-annotated-listeners">Annotated event listener setup</a></li>
+  <li><a href="#custom-events" id="markdown-toc-custom-events">Custom Events</a></li>
+  <li><a href="#gestures" id="markdown-toc-gestures">Gesture events</a></li>
+  <li><a href="#retargeting" id="markdown-toc-retargeting">Event retargeting</a></li>
+</ul>
+<!--TOC_END-->
+
+<h2 id="event-listeners">Event listener setup</h2>
+
+<p>Add event listeners to the host element by providing a 
+<code>listeners</code> object that maps events to event handler function names.</p>
+
+<p>You can also add an event listener to any element in the <code>this.$</code> collection 
+using the syntax <code><var>nodeId</var>.<var>eventName</var>.</code></p>
+
+<p>Example:</p>
+
+<pre><code>&lt;dom-module id="x-custom"&gt;
+
+  &lt;template&gt;
+    &lt;div&gt;I will respond&lt;/div&gt;
+    &lt;div&gt;to a tap on&lt;/div&gt;
+    &lt;div&gt;any of my children!&lt;/div&gt;
+    
+    &lt;div id="special"&gt;I am special!&lt;/div&gt;
+  &lt;/template&gt;
+
+  &lt;script&gt;
+
+    Polymer({
+
+      is: 'x-custom',
+
+      listeners: {
+        'tap': 'regularTap',
+        'special.tap': 'specialTap'
+      },
+
+      regularTap: function(e) {
+        alert("Thank you for tapping");
+      },
+      
+      specialTap: function(e) {
+        alert("It was special tapping");
+      }
+
+    });
+
+  &lt;/script&gt;
+
+&lt;/dom-module&gt;
+</code></pre>
+
+<h2 id="annotated-listeners">Annotated event listener setup</h2>
+
+<p>To add event listeners to local-DOM children, use
+<code>on-<var>event</var></code>  annotations in your template. This often
+eliminates the need to give an element an <code>id</code> solely for  the purpose of
+binding an event listener.</p>
+
+<p>Example:</p>
+
+<pre><code>&lt;dom-module id="x-custom"&gt;
+
+  &lt;template&gt;
+    &lt;button on-click="handleClick"&gt;Kick Me&lt;/button&gt;
+  &lt;/template&gt;
+
+  &lt;script&gt;
+
+    Polymer({
+
+      is: 'x-custom',
+
+      handleClick: function() {
+        alert('Ow!');
+      }
+
+    });
+
+  &lt;/script&gt;
+
+&lt;/dom-module&gt;
+</code></pre>
+
+<p>Because the event name is specified using an HTML attribute, <strong>the event name is always
+converted to lowercase</strong>. This is because HTML attribute names are case 
+insensitive. So specifying <code>on-myEvent</code> adds a listener for <code>myevent</code>. The event handler 
+<em>name</em> (for example, <code>handleClick</code>) <strong>is</strong> case sensitive.</p>
+
+<p><strong>Compatibility note:</strong> The syntax differs from 0.5, which required curly brackets ({{}})
+around the event handler name.</p>
+
+<p class="alert alert-info"><strong>Lowercase event names.</strong> When you use a declarative handler, the event name 
+is converted to lowercase, because attributes are case-insensitive.
+So the attribute <code>on-core-signal-newData</code> sets up a listener for <code>core-signal-newdata</code>, 
+<em>not</em> <code>core-signal-newData</code>. To avoid confusion, always use lowercase event names.</p>
+
+<h2 id="custom-events">Custom Events</h2>
+
+<p>To fire a custom event from the host element use the <code>fire</code> method. You can also pass in data to event handlers as an argument to <code>fire</code>.</p>
+
+<p>Example:</p>
+
+<pre><code>&lt;dom-module id="x-custom"&gt;
+
+  &lt;template&gt;
+    &lt;button on-click="handleClick"&gt;Kick Me&lt;/button&gt;
+  &lt;/template&gt;
+
+  &lt;script&gt;
+
+    Polymer({
+
+      is: 'x-custom',
+
+      handleClick: function(e, detail) {
+        this.fire('kick', {kicked: true});
+      }
+
+    });
+
+  &lt;/script&gt;
+
+&lt;/dom-module&gt;
+
+&lt;x-custom&gt;&lt;/x-custom&gt;
+
+&lt;script&gt;
+    document.querySelector('x-custom').addEventListener('kick', function (e) {
+        console.log(e.detail.kicked); // true
+    })
+&lt;/script&gt;
+</code></pre>
+
+<h2 id="gestures">Gesture events</h2>
+
+<p>Polymer fires a custom “gesture” events for certain user
+interactions automatically when a declarative listener is added for the event
+type.  These events fire consistently on both touch and mouse environments,
+so we recommend using these events instead of their mouse- or
+touch-specific event counterparts. This provides better interoperability with both touch and
+mouse devices.  For example, <code>tap</code> should be used instead of
+<code>click</code> for the most reliable cross-platform results.</p>
+
+<p>Listening for certain gestures controls the scrolling direction for touch input.
+For example, nodes with a listener for the <code>track</code> event will prevent scrolling
+by default. Elements can override scroll direction with
+<code>this.setScrollDirection(direction, node)</code>, where <code>direction</code> is one of <code>'x'</code>,
+<code>'y'</code>, <code>'none'</code>, or <code>'all'</code>, and <code>node</code> defaults to <code>this</code>.</p>
+
+<p>The following are the gesture event types supported, with a short description
+and list of detail properties available on <code>event.detail</code> for each type:</p>
+
+<ul>
+  <li><strong>down</strong> - finger/button went down
+    <ul>
+      <li><code>x</code> - clientX coordinate for event</li>
+      <li><code>y</code> - clientY coordinate for event</li>
+      <li><code>sourceEvent</code> - the original DOM event that caused the <code>down</code> action</li>
+    </ul>
+  </li>
+  <li><strong>up</strong> - finger/button went up
+    <ul>
+      <li><code>x</code> - clientX coordinate for event</li>
+      <li><code>y</code> - clientY coordinate for event</li>
+      <li><code>sourceEvent</code> - the original DOM event that caused the <code>up</code> action</li>
+    </ul>
+  </li>
+  <li><strong>tap</strong> - down &amp; up occurred
+    <ul>
+      <li><code>x</code> - clientX coordinate for event</li>
+      <li><code>y</code> - clientY coordinate for event</li>
+      <li><code>sourceEvent</code> - the original DOM event that caused the <code>tap</code> action</li>
+    </ul>
+  </li>
+  <li><strong>track</strong> - moving while finger/button is down
+    <ul>
+      <li><code>state</code> - a string indicating the tracking state:
+        <ul>
+          <li><code>start</code> - fired when tracking is first detected (finger/button down and moved past a pre-set distance threshold)</li>
+          <li><code>track</code> - fired while tracking</li>
+          <li><code>end</code> - fired when tracking ends</li>
+        </ul>
+      </li>
+      <li><code>x</code> - clientX coordinate for event</li>
+      <li><code>y</code> - clientY coordinate for event</li>
+      <li><code>dx</code> - change in pixels horizontally since the first track event</li>
+      <li><code>dy</code> - change in pixels vertically since the first track event</li>
+      <li><code>ddx</code> - change in pixels horizontally since last track event</li>
+      <li><code>ddy</code> - change in pixels vertically since last track event</li>
+      <li><code>hover()</code> - a function that may be called to determine the element currently being hovered</li>
+    </ul>
+  </li>
+</ul>
+
+<p>Example:</p>
+
+<pre><code>&lt;dom-module id="drag-me"&gt;
+
+
+  &lt;template&gt;
+
+    &lt;style&gt;
+      #dragme {
+        width: 500px;
+        height: 500px;
+        background: gray;
+      }
+    &lt;/style&gt;
+
+    &lt;div id="dragme" on-track="handleTrack"&gt;&lt;/div&gt;
+
+  &lt;/template&gt;
+
+  &lt;script&gt;
+
+    Polymer({
+
+      is: 'drag-me',
+
+      handleTrack: function(e) {
+        switch(e.detail.state) {
+          case 'start':
+            this.message = 'Tracking started!';
+            break;
+          case 'track':
+            this.message = 'Tracking in progress... ' +
+              e.detail.x + ', ' + e.detail.y;
+            break;
+          case 'end':
+            this.message = 'Tracking ended!';
+            break;
+        }
+      }
+
+    });
+
+  &lt;/script&gt;
+
+&lt;/dom-module&gt;
+</code></pre>
+
+<p>Example with <code>listeners</code>:</p>
+
+<pre><code>&lt;dom-module id="drag-me"&gt;
+
+  &lt;template&gt;
+
+    &lt;style&gt;
+      #dragme {
+        width: 500px;
+        height: 500px;
+        background: gray;
+      }
+    &lt;/style&gt;
+
+    &lt;div id="dragme"&gt;&lt;/div&gt;
+    
+  &lt;/template&gt;
+
+  &lt;script&gt;
+
+    Polymer({
+
+      is: 'drag-me',
+
+      listeners: {
+        'dragme.track': 'handleTrack'
+      },
+
+      handleTrack: function(e) {
+        switch(e.detail.state) {
+          case 'start':
+            this.message = 'Tracking started!';
+            break;
+          case 'track':
+            this.message = 'Tracking in progress... ' +
+              e.detail.x + ', ' + e.detail.y;
+            break;
+          case 'end':
+            this.message = 'Tracking ended!';
+            break;
+        }
+      }
+
+    });
+
+  &lt;/script&gt;
+
+&lt;/dom-module&gt;
+</code></pre>
+
+<h2 id="retargeting">Event retargeting</h2>
+
+<p>Shadow DOM has a feature called “event retargeting” which changes an event’s
+target as it bubbles up, such that target is always in the receiving element’s
+light DOM. Shady DOM does not do event retargeting, so events may behave differently
+depending on which local DOM system is in use.</p>
+
+<p>Use <code>Polymer.dom(event)</code> to get a normalized event object that provides
+equivalent target data on both shady DOM and shadow DOM. Specifically, the
+normalized event has the following properties:</p>
+
+<ul>
+  <li>
+    <p><code>rootTarget</code>: The original or root target before shadow retargeting
+(equivalent to <code>event.path[0]</code> under shadow DOM or <code>event.target</code> under
+shady DOM).</p>
+  </li>
+  <li>
+    <p><code>localTarget</code>: Retargeted event target (equivalent to <code>event.target</code> under
+shadow DOM)</p>
+  </li>
+  <li>
+    <p><code>path</code>: Array of nodes through which event will pass 
+(equivalent to <code>event.path</code> under shadow DOM).</p>
+  </li>
+</ul>
+
+
+    </article>
+
+    <footer>
+  <div>
+    <div class="links">
+      <a href="https://www.facebook.com/unidata" title="Unidata on Facebook" tabindex="-1"><paper-button><core-icon icon="social:post-facebook"></core-icon>Facebook</paper-button></a>
+      <a href="https://twitter.com/intent/follow?screen_name=unidata" data-twitter-follow title="Follow @Unidata on Twitter" tabindex="-1"><paper-button><core-icon icon="social:post-twitter"></core-icon>Twitter</paper-button></a>
+      <a href="https://github.com/Unidata/awips2"><paper-button class="github" tabindex="-1"><core-icon icon="social:post-github"></core-icon>GitHub</paper-button></a>
+      <a href="https://github.com/Unidata/awips2/issues/new" tabindex="-1"><paper-button><core-icon icon="bug-report"></core-icon>File a bug</paper-button></a>
+    </div>
+
+  </div>
+</footer>
+
+
+
+
+
+<script src="/polymer-docs/js/prettify/prettify.js"></script>
+
+<!-- <script src="/polymer-docs/js/bower_components/smoothscroll/smoothscroll.js"></script> -->
+<script src="/polymer-docs/js/app.js?20160403"></script>
+
+
+  </scroll-area>
+
+</main>
+
+</body>
+</html>

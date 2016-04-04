@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html itemscope itemtype="http://schema.org/Organization">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="chrome=1" />
+<meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1">
+<meta name="google-site-verification" content="k0e8DrbD40s54xHNBqwIsRrSSAkZoprwtEYDnNY06bU" />
+<meta name="google-site-verification" content="pnjjbQFvjPwaWhEXY6nSyaS9iyghmH-M_yLHBveDX2M">
+<meta itemprop="name" content="AWIPS II - Unidata AWIPS II">
+<meta itemprop="description" content="Polymer is a library that uses the latest web technologies to let you create custom HTML elements. Build anything from a button to a complete application as an encapsulated, reusable element that works across desktop and mobile.">
+
+
+<meta itemprop="image" content="https://www.polymer-project.org/images/instacod.png">
+
+
+<title>
+  
+    Unidata AWIPS II -
+   AWIPS II
+</title>
+<link rel="publisher" href="https://plus.google.com/107187849809354688692">
+<link rel="shortcut icon" href="http://www.unidata.ucar.edu/favicon.ico">
+<link href="//fonts.googleapis.com/css?family=RobotoDraft:300,400,500|Source+Code+Pro:400,500,700" rel="stylesheet">
+<link href="/polymer-docs/css/site2.css?20160403" rel="stylesheet">
+<link href="/polymer-docs/css/site2_sd_rules.css?20160403" rel="stylesheet" shim-shadowdom>
+
+
+
+<script src="/polymer-docs/components/webcomponentsjs/webcomponents.min.js?20160403"></script>
+<!-- TODO: remove when https://github.com/Polymer/polymer/issues/391 is fixed -->
+<link rel="import" href="/polymer-docs/components/polymer/polymer.html">
+<link rel="stylesheet" href="/polymer-docs/css/elements/docs-menu.css">
+<link rel="import" href="/polymer-docs/elements/common_elements.vulcanized.html?20160403">
+
+
+</head>
+<body id="unidata-awips-ii">
+
+<main id="content-container" class="polymer-content">
+  <app-drawer id="sidebar" unresolved>
+    <div layout vertical id="sidebar-content">
+      <div id="logo-container" layout horizontal center>
+        <a href="/polymer-docs/" class="logo"><img src="/polymer-docs/images/logos/awips2.png" alt="AWIPS II User Guide"></a>
+      </div>
+
+      <docs-menu unresolved flex
+		 baseurl='/polymer-docs'
+                 coreElements='{"core-header-panel":"components/core-header-panel/core-header-panel.html","core-transition-pages":"components/core-animated-pages/transitions/core-transition-pages.html","core-animated-pages":"components/core-animated-pages/core-animated-pages.html","core-overlay":"components/core-overlay/core-overlay.html","core-toolbar":"components/core-toolbar/core-toolbar.html","core-image":"components/core-image/core-image.html","core-shared-lib":"components/core-shared-lib/core-shared-lib.html","core-a11y-keys":"components/core-a11y-keys/core-a11y-keys.html","core-menu-button":"components/core-menu-button/core-menu-button.html","core-icon":"components/core-icon/core-icon.html","core-selection":"components/core-selection/core-selection.html","core-style":"components/core-style/core-style.html","core-menu":"components/core-menu/core-menu.html","core-submenu":"components/core-menu/core-submenu.html","core-list":"components/core-list/core-list.html","core-dropdown-menu":"components/core-dropdown-menu/core-dropdown-menu.html","core-input":"components/core-input/core-input.html","core-iconset-svg":"components/core-iconset-svg/core-iconset-svg.html","core-field":"components/core-field/core-field.html","core-selector":"components/core-selector/core-selector.html","core-media-query":"components/core-media-query/core-media-query.html","core-animation-group":"components/core-animation/core-animation-group.html","core-animation":"components/core-animation/core-animation.html","core-animation-keyframe":"components/core-animation/core-animation.html","core-animation-prop":"components/core-animation/core-animation.html","core-dropdown":"components/core-dropdown/core-dropdown.html","core-dropdown-base":"components/core-dropdown/core-dropdown-base.html","core-pages":"components/core-pages/core-pages.html","core-meta":"components/core-meta/core-meta.html","core-splitter":"components/core-splitter/core-splitter.html","core-scroll-header-panel":"components/core-scroll-header-panel/core-scroll-header-panel.html","core-tooltip":"components/core-tooltip/core-tooltip.html","core-localstorage":"components/core-localstorage/core-localstorage.html","core-scroll-threshold":"components/core-scroll-threshold/core-scroll-threshold.html","core-drag-drop":"components/core-drag-drop/core-drag-drop.html","core-iconset":"components/core-iconset/core-iconset.html","core-label":"components/core-label/core-label.html","core-signals":"components/core-signals/core-signals.html","core-transition":"components/core-transition/core-transition.html","core-scaffold":"components/core-scaffold/core-scaffold.html","core-drawer-panel":"components/core-drawer-panel/core-drawer-panel.html","core-range":"components/core-range/core-range.html","core-collapse":"components/core-collapse/core-collapse.html","core-xhr":"components/core-ajax/core-xhr.html","core-ajax":"components/core-ajax/core-ajax.html","core-icon-button":"components/core-icon-button/core-icon-button.html","core-item":"components/core-item/core-item.html"}'
+                 paperElements='{"paper-dropdown":"components/paper-dropdown/paper-dropdown.html","paper-dropdown-transition":"components/paper-dropdown/paper-dropdown-transition.html","paper-item":"components/paper-item/paper-item.html","paper-dropdown-menu":"components/paper-dropdown-menu/paper-dropdown-menu.html","paper-checkbox":"components/paper-checkbox/paper-checkbox.html","paper-button":"components/paper-button/paper-button.html","paper-button-base":"components/paper-button/paper-button-base.html","paper-menu-button":"components/paper-menu-button/paper-menu-button.html","paper-radio-group":"components/paper-radio-group/paper-radio-group.html","paper-toast":"components/paper-toast/paper-toast.html","paper-char-counter":"components/paper-input/paper-char-counter.html","paper-autogrow-textarea":"components/paper-input/paper-autogrow-textarea.html","paper-input":"components/paper-input/paper-input.html","paper-input-decorator":"components/paper-input/paper-input-decorator.html","paper-slider":"components/paper-slider/paper-slider.html","paper-toggle-button":"components/paper-toggle-button/paper-toggle-button.html","paper-fab":"components/paper-fab/paper-fab.html","paper-ripple":"components/paper-ripple/paper-ripple.html","paper-icon-button":"components/paper-icon-button/paper-icon-button.html","paper-tabs":"components/paper-tabs/paper-tabs.html","paper-tab":"components/paper-tabs/paper-tab.html","paper-shadow":"components/paper-shadow/paper-shadow.html","paper-radio-button":"components/paper-radio-button/paper-radio-button.html","paper-dialog":"components/paper-dialog/paper-dialog.html","paper-action-dialog":"components/paper-dialog/paper-action-dialog.html","paper-dialog-base":"components/paper-dialog/paper-dialog-base.html","paper-dialog-transition":"components/paper-dialog/paper-dialog-transition.html","paper-spinner":"components/paper-spinner/paper-spinner.html","paper-progress":"components/paper-progress/paper-progress.html"}'></docs-menu>
+    </div>
+  </app-drawer>
+
+  <scroll-area sidebar unresolved class="scrolling">
+    <site-banner type="guide" shortname="Appendix" unresolved>
+      
+<app-bar theme="light" class="bar fixed">
+</app-bar>
+
+      <header class="shrink">
+        <h1>
+        
+          COTS and FOSS
+        : Unidata AWIPS II
+        </h1>
+      </header>
+    </site-banner>
+
+    
+    
+
+    <article class="show-permalinks">
+
+      <header class="onlyonmobile">
+        <h1>
+          
+          COTS and FOSS
+          : Unidata AWIPS II
+        </h1>
+      </header>
+
+      <p>COTS and FOSS used in AWIPS II</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Component</th>
+      <th style="text-align: center">Version</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>ActiveMQ</td>
+      <td style="text-align: center">5.3.0</td>
+      <td>JMS (still used by AlertViz and internally in parts of Camel)</td>
+    </tr>
+    <tr>
+      <td>Apache Batik</td>
+      <td style="text-align: center">1.6</td>
+      <td>Batik is a Java-based toolkit for applications or applets that want to use images in the Scalable Vector Graphics (SVG) format for various purposes, such as display, generation or manipulation.</td>
+    </tr>
+    <tr>
+      <td>Apache MINA</td>
+      <td style="text-align: center">1.1.7</td>
+      <td>Network application framework</td>
+    </tr>
+    <tr>
+      <td>Apache WSS4J</td>
+      <td style="text-align: center">1.6.5</td>
+      <td>Web Services Security</td>
+    </tr>
+    <tr>
+      <td>Ant</td>
+      <td style="text-align: center">1.7.1</td>
+      <td>Java Build Tool</td>
+    </tr>
+    <tr>
+      <td>Ant-Contrib</td>
+      <td style="text-align: center">1.0b3</td>
+      <td>Additional useful tasks and types for Ant</td>
+    </tr>
+    <tr>
+      <td>Antlr</td>
+      <td style="text-align: center">2.7.6</td>
+      <td>Parser generator</td>
+    </tr>
+    <tr>
+      <td>Atomikos TransactionEssentials</td>
+      <td style="text-align: center">3.6.2</td>
+      <td>Transaction management system</td>
+    </tr>
+    <tr>
+      <td>Bitstream Vera Fonts</td>
+      <td style="text-align: center">1.10</td>
+      <td>Font library from Gnome</td>
+    </tr>
+    <tr>
+      <td>bzip2</td>
+      <td style="text-align: center">none</td>
+      <td>Stream compression algorithm</td>
+    </tr>
+    <tr>
+      <td>C3p0</td>
+      <td style="text-align: center">0.9.1</td>
+      <td>c3p0 is an easy-to-use library for making traditional JDBC drivers “enterprise-ready” by augmenting them with functionality defined by the jdbc3 spec and the optional extensions to jdbc2.</td>
+    </tr>
+    <tr>
+      <td>Camel</td>
+      <td style="text-align: center">2.4</td>
+      <td>Enterprise Service Bus</td>
+    </tr>
+    <tr>
+      <td>cglib</td>
+      <td style="text-align: center">2.2</td>
+      <td>Byte Code Generation Library is high level API to generate and transform JAVA byte code.</td>
+    </tr>
+    <tr>
+      <td>CherryPy</td>
+      <td style="text-align: center">3.1.2</td>
+      <td>Object-oriented HTTP framework</td>
+    </tr>
+    <tr>
+      <td>commons-beanutils</td>
+      <td style="text-align: center">1.8.3</td>
+      <td>Apache Common Libraries</td>
+    </tr>
+    <tr>
+      <td>commons-codec</td>
+      <td style="text-align: center">1.4.1</td>
+      <td>Apache Common Libraries</td>
+    </tr>
+    <tr>
+      <td>commons-collection</td>
+      <td style="text-align: center">3.2</td>
+      <td>Apache Common Libraries</td>
+    </tr>
+    <tr>
+      <td>commons-configuration</td>
+      <td style="text-align: center">1.6</td>
+      <td>Apache Common Libraries</td>
+    </tr>
+    <tr>
+      <td>Commons-cli</td>
+      <td style="text-align: center">1.2</td>
+      <td>Apache Common Libraries</td>
+    </tr>
+    <tr>
+      <td>commons-digester</td>
+      <td style="text-align: center">1.8.1</td>
+      <td>Apache Common Libraries</td>
+    </tr>
+    <tr>
+      <td>commons-cxf</td>
+      <td style="text-align: center">2.5</td>
+      <td>Apache Common Libraries</td>
+    </tr>
+    <tr>
+      <td>commons-httpclient</td>
+      <td style="text-align: center">3.1</td>
+      <td>Apache Common Libraries</td>
+    </tr>
+    <tr>
+      <td>commons-lang</td>
+      <td style="text-align: center">2.3</td>
+      <td>Apache Common Libraries</td>
+    </tr>
+    <tr>
+      <td>commons-logging</td>
+      <td style="text-align: center">1.1.1</td>
+      <td>Apache Common Libraries</td>
+    </tr>
+    <tr>
+      <td>commons-management</td>
+      <td style="text-align: center">1.0</td>
+      <td>Apache Common Libraries</td>
+    </tr>
+    <tr>
+      <td>commons-pool</td>
+      <td style="text-align: center">1.3</td>
+      <td>Apache Common Libraries</td>
+    </tr>
+    <tr>
+      <td>commons-validator</td>
+      <td style="text-align: center">1.2</td>
+      <td>Apache Common Libraries</td>
+    </tr>
+    <tr>
+      <td>dom4j</td>
+      <td style="text-align: center">1.6.1</td>
+      <td>An open source library for working with XML, XPath, and XSLT on the Java platform using the Java Collections Framework</td>
+    </tr>
+    <tr>
+      <td>dwr (direct web remoting) Getahead</td>
+      <td style="text-align: center">1.1.3</td>
+      <td>Java open source library</td>
+    </tr>
+    <tr>
+      <td>Eclipse</td>
+      <td style="text-align: center">3.6.1</td>
+      <td>Java IDE</td>
+    </tr>
+    <tr>
+      <td>Eclipse CDT</td>
+      <td style="text-align: center">5.0.2</td>
+      <td>C/C++ IDE for Eclipse</td>
+    </tr>
+    <tr>
+      <td>ehcache</td>
+      <td style="text-align: center">1.3.0</td>
+      <td>Caching Support</td>
+    </tr>
+    <tr>
+      <td>GEOS</td>
+      <td style="text-align: center">3.0.2</td>
+      <td>Geometry Engine, Required for PostGIS</td>
+    </tr>
+    <tr>
+      <td>GeoTools Java API</td>
+      <td style="text-align: center">2.6.4</td>
+      <td>Java API for Manipulation of Geospatial Data</td>
+    </tr>
+    <tr>
+      <td>Geronimo-jms</td>
+      <td style="text-align: center">1.1 spec 1.1.1</td>
+      <td>Server runtime framework</td>
+    </tr>
+    <tr>
+      <td>GRIBJava</td>
+      <td style="text-align: center">8.0</td>
+      <td>Grib Java Decoder</td>
+    </tr>
+    <tr>
+      <td>h5py</td>
+      <td style="text-align: center">1.3.0</td>
+      <td>HDF5 for Python</td>
+    </tr>
+    <tr>
+      <td>hdf5</td>
+      <td style="text-align: center">1.8.4-patch1</td>
+      <td>Core HDF5 APIs</td>
+    </tr>
+    <tr>
+      <td>hdf5</td>
+      <td style="text-align: center">2.5</td>
+      <td>Core HDF5 APIs</td>
+    </tr>
+    <tr>
+      <td>Hibernate</td>
+      <td style="text-align: center">3.5.0</td>
+      <td>Data Access Layer</td>
+    </tr>
+    <tr>
+      <td>IzPack</td>
+      <td style="text-align: center">4.2.0</td>
+      <td>Installer creator for EDEX</td>
+    </tr>
+    <tr>
+      <td>JAI</td>
+      <td style="text-align: center">1.1.3</td>
+      <td>Java API for Image Manipulation</td>
+    </tr>
+    <tr>
+      <td>JAI – Image I/O</td>
+      <td style="text-align: center">1.1</td>
+      <td>Plug-ins for JAI</td>
+    </tr>
+    <tr>
+      <td>Jasper</td>
+      <td style="text-align: center">1.900.1</td>
+      <td>JPEG-2000 codec</td>
+    </tr>
+    <tr>
+      <td>Java</td>
+      <td style="text-align: center">1.6u46</td>
+      <td>Kit for both 32-bit and 64-bit</td>
+    </tr>
+    <tr>
+      <td>javax.mail</td>
+      <td style="text-align: center">1.4.3</td>
+      <td>mail modeling classes</td>
+    </tr>
+    <tr>
+      <td>javax.measure</td>
+      <td style="text-align: center">1.0-beta-2</td>
+      <td>Strong types for measurements</td>
+    </tr>
+    <tr>
+      <td>javax.persistence</td>
+      <td style="text-align: center">1.0.0</td>
+      <td>persistence classes and interfaces</td>
+    </tr>
+    <tr>
+      <td>javax.vecmath</td>
+      <td style="text-align: center">1.3.1</td>
+      <td>Coordinates and vectors</td>
+    </tr>
+    <tr>
+      <td>Jep</td>
+      <td style="text-align: center">2.3+</td>
+      <td>Java Python interface</td>
+    </tr>
+    <tr>
+      <td>jetty</td>
+      <td style="text-align: center">7.2.2</td>
+      <td>Jetty provides an HTTP server, HTTP client, and javax.servlet container</td>
+    </tr>
+    <tr>
+      <td>jGrapht</td>
+      <td style="text-align: center">0.6.0</td>
+      <td>JGraphT is a free Java graph library that provides mathematical graphtheory objects and algorithms</td>
+    </tr>
+    <tr>
+      <td>JMock</td>
+      <td style="text-align: center">2.0.0</td>
+      <td>Java Mock Object Framework</td>
+    </tr>
+    <tr>
+      <td>jna (java native access)</td>
+      <td style="text-align: center">3.09</td>
+      <td>JNA provides Java programs easy access to native shared libraries (DLLs on Windows) without writing anything but Java code—no JNI or native code is required. This functionality is comparable to Windows’ Platform/Invoke and Python’s ctypes. Access is dynamic at runtime without code generation.</td>
+    </tr>
+    <tr>
+      <td>jogl</td>
+      <td style="text-align: center">1.1.1-rc8</td>
+      <td>Provides hardware-supported 3D graphics</td>
+    </tr>
+    <tr>
+      <td>Jscience</td>
+      <td style="text-align: center">4.3.1</td>
+      <td>Library for Scientific Calculations and Visualizations</td>
+    </tr>
+    <tr>
+      <td>JTS Topology Suite</td>
+      <td style="text-align: center">1.10</td>
+      <td>Java API for 2D spatial data</td>
+    </tr>
+    <tr>
+      <td>JUnit</td>
+      <td style="text-align: center">4.10</td>
+      <td>Java Unit Test Framework</td>
+    </tr>
+    <tr>
+      <td>lapack</td>
+      <td style="text-align: center">3.0.0</td>
+      <td>Linear Algebra Package for python</td>
+    </tr>
+    <tr>
+      <td>ldm</td>
+      <td style="text-align: center">6.11.2, 6.11.6</td>
+      <td>Local Data Manager</td>
+    </tr>
+    <tr>
+      <td>Log4J</td>
+      <td style="text-align: center">1.2.16</td>
+      <td>Logging Component used by Commons Logging</td>
+    </tr>
+    <tr>
+      <td>libgfortran</td>
+      <td style="text-align: center">4.1.2</td>
+      <td>Fortran Library</td>
+    </tr>
+    <tr>
+      <td>matplotlib</td>
+      <td style="text-align: center">0.99.1.1-r7813</td>
+      <td>Python 2D Plotting Library</td>
+    </tr>
+    <tr>
+      <td>Mozilla Rhino</td>
+      <td style="text-align: center">1.6R7</td>
+      <td>Implementation of JavaScript embedded in Java</td>
+    </tr>
+    <tr>
+      <td>NCEP Grib2 Libraries</td>
+      <td style="text-align: center"> </td>
+      <td>Libraries for decoding &amp; encoding data in GRIB2 format</td>
+    </tr>
+    <tr>
+      <td>    cnvgrib</td>
+      <td style="text-align: center">1.1.8 and 11.9</td>
+      <td>Fortran GRIB1 &lt;–&gt; GRIB2 conversion utility</td>
+    </tr>
+    <tr>
+      <td>    g2clib</td>
+      <td style="text-align: center">1.1.8</td>
+      <td>“C” grib2 encoder/decoder</td>
+    </tr>
+    <tr>
+      <td>    g2lib</td>
+      <td style="text-align: center">1.1.8 and 1.1.9</td>
+      <td>Fortran grib2 encoder/decoder and search/indexing routines</td>
+    </tr>
+    <tr>
+      <td>    w3lib</td>
+      <td style="text-align: center">1.6 and 1.7.1</td>
+      <td>Fortran grib1 encoder/decoder and utilities</td>
+    </tr>
+    <tr>
+      <td>nose</td>
+      <td style="text-align: center">0.11.1</td>
+      <td>Python unittest extension</td>
+    </tr>
+    <tr>
+      <td>NumPy</td>
+      <td style="text-align: center">1.3.0</td>
+      <td>Numerical Python Scientific package for Python</td>
+    </tr>
+    <tr>
+      <td>objectweb asm</td>
+      <td style="text-align: center">2.1</td>
+      <td>ASM is an all-purpose Java bytecode manipulation and analysis framework. It can be used to modify existing classes or dynamically generate classes, directly in binary form</td>
+    </tr>
+    <tr>
+      <td>Openfire</td>
+      <td style="text-align: center">3.7.1</td>
+      <td>Collaboration Server – Not used but eventually will replace Wildfire. Only 3.7 approved.</td>
+    </tr>
+    <tr>
+      <td>pil</td>
+      <td style="text-align: center">1.1.6</td>
+      <td>Python Imaging Library</td>
+    </tr>
+    <tr>
+      <td>PostGIS</td>
+      <td style="text-align: center">1.3.5</td>
+      <td>Geographic Object Support for PostgreSQL</td>
+    </tr>
+    <tr>
+      <td>PostgreSQL</td>
+      <td style="text-align: center">9.2.3, 9.2.4</td>
+      <td>Database</td>
+    </tr>
+    <tr>
+      <td>Proj</td>
+      <td style="text-align: center">4.6.1</td>
+      <td>Cartographic Projections library</td>
+    </tr>
+    <tr>
+      <td>pupynere</td>
+      <td style="text-align: center">1.0.13</td>
+      <td>Python module for reading and writing NetCDF files</td>
+    </tr>
+    <tr>
+      <td>pydev</td>
+      <td style="text-align: center">1.5</td>
+      <td>Python Development Environment</td>
+    </tr>
+    <tr>
+      <td>PyTables</td>
+      <td style="text-align: center">2.1.2</td>
+      <td>Python package for managing hierarchical datasets</td>
+    </tr>
+    <tr>
+      <td>Python</td>
+      <td style="text-align: center">2.7.1</td>
+      <td>Dynamic programming language</td>
+    </tr>
+    <tr>
+      <td>Python megawidgets</td>
+      <td style="text-align: center">1.3.2</td>
+      <td>Toolkit for building high-level compound widgets in Python using the Tkinter module</td>
+    </tr>
+    <tr>
+      <td>Qpid</td>
+      <td style="text-align: center">0.18</td>
+      <td>Open Source AMQP (Advanced Message Queuing Protocol) Messaging</td>
+    </tr>
+    <tr>
+      <td>SciPy</td>
+      <td style="text-align: center">0.7.0</td>
+      <td>Python Library of Scientific Tools</td>
+    </tr>
+    <tr>
+      <td>ScientificPython</td>
+      <td style="text-align: center">2.8</td>
+      <td>Python library for common tasks in scientific computing</td>
+    </tr>
+    <tr>
+      <td>slf4j</td>
+      <td style="text-align: center">1.6.1</td>
+      <td>The Simple Logging Facade for Java or (SLF4J) serves as a simple facade or abstraction for various logging frameworks</td>
+    </tr>
+    <tr>
+      <td>smack</td>
+      <td style="text-align: center">2.2.1</td>
+      <td>Smack is an Open Source XMPP (Jabber) client library for instant messaging and presence.</td>
+    </tr>
+    <tr>
+      <td>stomp.py</td>
+      <td style="text-align: center">revision 18</td>
+      <td>Python client library for accessing messaging servers</td>
+    </tr>
+    <tr>
+      <td>Spring Framework OSGI</td>
+      <td style="text-align: center">1.2.0</td>
+      <td>dynamic modules</td>
+    </tr>
+    <tr>
+      <td>Spring Framework</td>
+      <td style="text-align: center">2.5.6</td>
+      <td>Layered Java/J2EE application platform</td>
+    </tr>
+    <tr>
+      <td>stomp.py</td>
+      <td style="text-align: center">revision 18</td>
+      <td>Python client libarary for accessing messaging servers</td>
+    </tr>
+    <tr>
+      <td>Subclipse</td>
+      <td style="text-align: center">1.4.8</td>
+      <td>Eclipse plugin for Subversion support</td>
+    </tr>
+    <tr>
+      <td>SWT Add-ons</td>
+      <td style="text-align: center">0.1.1</td>
+      <td>Add-ons for Eclipse SWT widgets</td>
+    </tr>
+    <tr>
+      <td>Symphony OGNL</td>
+      <td style="text-align: center">2.7.3</td>
+      <td>Object-Graph Navigation Language; an expression language for getting/setting properties of Java objects.</td>
+    </tr>
+    <tr>
+      <td>Thrift</td>
+      <td style="text-align: center">20080411p1-3</td>
+      <td>Binary Serialization Framework</td>
+    </tr>
+    <tr>
+      <td>Tomcat Native</td>
+      <td style="text-align: center">1.1.17</td>
+      <td>Library for native memory control</td>
+    </tr>
+    <tr>
+      <td>TPG</td>
+      <td style="text-align: center">3.1.2</td>
+      <td>Parser generator for Python</td>
+    </tr>
+    <tr>
+      <td>utilconcurrent</td>
+      <td style="text-align: center">1.3.2</td>
+      <td>Utility classes</td>
+    </tr>
+    <tr>
+      <td>Velocity</td>
+      <td style="text-align: center">1.5.0</td>
+      <td>Templating Engine</td>
+    </tr>
+    <tr>
+      <td>werkzeug</td>
+      <td style="text-align: center">0.6.2</td>
+      <td>Python WSGI utility library</td>
+    </tr>
+    <tr>
+      <td>Wildfire</td>
+      <td style="text-align: center">3.1.1</td>
+      <td>Collaboration Server</td>
+    </tr>
+    <tr>
+      <td>xmltask</td>
+      <td style="text-align: center">1.15.1</td>
+      <td>Facility for automatically editing XML files as part of an Ant build</td>
+    </tr>
+  </tbody>
+</table>
+
+    </article>
+
+    <footer>
+  <div>
+    <div class="links">
+      <a href="https://www.facebook.com/unidata" title="Unidata on Facebook" tabindex="-1"><paper-button><core-icon icon="social:post-facebook"></core-icon>Facebook</paper-button></a>
+      <a href="https://twitter.com/intent/follow?screen_name=unidata" data-twitter-follow title="Follow @Unidata on Twitter" tabindex="-1"><paper-button><core-icon icon="social:post-twitter"></core-icon>Twitter</paper-button></a>
+      <a href="https://github.com/Unidata/awips2"><paper-button class="github" tabindex="-1"><core-icon icon="social:post-github"></core-icon>GitHub</paper-button></a>
+      <a href="https://github.com/Unidata/awips2/issues/new" tabindex="-1"><paper-button><core-icon icon="bug-report"></core-icon>File a bug</paper-button></a>
+    </div>
+
+  </div>
+</footer>
+
+
+
+
+
+<script src="/polymer-docs/js/prettify/prettify.js"></script>
+
+<!-- <script src="/polymer-docs/js/bower_components/smoothscroll/smoothscroll.js"></script> -->
+<script src="/polymer-docs/js/app.js?20160403"></script>
+
+
+  </scroll-area>
+
+</main>
+
+</body>
+</html>
