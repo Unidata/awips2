@@ -31,7 +31,6 @@ import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.LocalizationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.procedures.Procedure;
 import com.raytheon.uf.viz.d2d.ui.dialogs.procedures.ProcedureDlg;
 import com.raytheon.viz.ui.VizWorkbenchManager;
@@ -57,9 +56,6 @@ import com.raytheon.viz.ui.dialogs.localization.VizOpenLocalizationFileListDlg;
  *    Jun 02, 2015 #4401       bkowal      Updated to use {@link VizOpenLocalizationFileListDlg}.
  *    Jun 30, 2015 #4401       bkowal      Specify the localization type when constructing a
  *                                         {@link VizOpenLocalizationFileListDlg}.
- *    Apr 19, 2015             mjames	   Call loadProcedureToScreen instead of ProcedureDlg.displayDialog
- *    									   when procedure file selected, no longer using procedure element 
- *    									   loader... too cumbersome for users.
  * </pre>
  * 
  * @author chammack
@@ -82,7 +78,7 @@ public class OpenAWIPSProcedure extends AbstractHandler {
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
         if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
-            dialog = new VizOpenLocalizationFileListDlg("Open Procedure",
+            dialog = new VizOpenLocalizationFileListDlg("Load Bundle",
                     HandlerUtil.getActiveShell(event),
                     ProcedureDlg.PROCEDURES_DIR, "procedures",
                     LocalizationType.CAVE_STATIC);
@@ -98,12 +94,10 @@ public class OpenAWIPSProcedure extends AbstractHandler {
                         if (p != null) {
                             log.info("Loading display file: "
                                     + f.getAbsolutePath());
-                            try {
-                            	LoadPerspectiveHandler.loadProcedureToScreen( p, false);
-							} catch (VizException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
+                            ProcedureDlg.displayDialog(LocalizationUtil
+                                    .extractName(selectedFile.getName()), p,
+                                    VizWorkbenchManager.getInstance()
+                                            .getCurrentWindow().getShell());
                         }
                     }
                     dialog = null;

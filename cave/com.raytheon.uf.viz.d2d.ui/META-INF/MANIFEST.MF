@@ -27,5 +27,6 @@ Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.uf.viz.core.maps;bundle-version="1.12.1174",
  com.raytheon.viz.ui;bundle-version="1.12.1174",
  com.raytheon.uf.viz.xy;bundle-version="1.12.1174"
-Import-Package: com.raytheon.viz.core.imagery
+Import-Package: com.raytheon.uf.viz.d2d.ui.dialogs.procedures,
+ com.raytheon.viz.core.imagery
 Bundle-ClassPath: com.raytheon.uf.viz.d2d.ui.jar

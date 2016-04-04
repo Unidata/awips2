@@ -304,10 +304,10 @@ if [ "${1}" = "-postgres" ]; then
    #buildRPM "awips2-pypies"
    #buildRPM "awips2-postgres"
    #buildRPM "awips2-edex-upc"
-   buildRPM "awips2-database"
-   buildRPM "awips2-database-standalone-configuration"
+   #buildRPM "awips2-database"
+   #buildRPM "awips2-database-standalone-configuration"
    buildRPM "awips2-maps-database"
-   buildRPM "awips2-ncep-database"
+   #buildRPM "awips2-ncep-database"
 
    exit 0
 fi

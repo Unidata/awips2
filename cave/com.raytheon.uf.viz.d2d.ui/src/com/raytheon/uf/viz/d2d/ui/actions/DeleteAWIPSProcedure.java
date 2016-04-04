@@ -75,7 +75,7 @@ public class DeleteAWIPSProcedure extends AbstractHandler {
     public Object execute(ExecutionEvent event) throws ExecutionException {
         if (listDlg == null || listDlg.getShell() == null
                 || listDlg.isDisposed()) {
-            listDlg = new VizLocalizationFileListDlg("Delete Procedure",
+            listDlg = new VizLocalizationFileListDlg("Manage Bundles",
                     HandlerUtil.getActiveShell(event), Mode.DELETE,
                     ProcedureDlg.PROCEDURES_DIR, "procedures",
                     LocalizationType.CAVE_STATIC);

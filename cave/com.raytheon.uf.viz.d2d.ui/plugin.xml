@@ -84,24 +84,64 @@
                    name="bundleSeparator"
                    visible="true">
              </separator>
-             <command
-                   commandId="com.raytheon.viz.ui.openAWIPSProcedure"
-                   label="Load Bundle"
+             
+			 
+			 
+			 
+			 <command
+                   commandId="com.raytheon.uf.viz.ui.loadbundle"
+                   label="LoadBundleHandler"
+                   style="push">
+             </command>
+			 <command
+                   commandId="com.raytheon.viz.ui.loadSerialized"
+                   label="LoadPerspectiveHandler"
+                   style="push">
+             </command>
+			 <command
+                   commandId="org.eclipse.ui.window.newEditor"
+                   label="NewAbstractEditor"
+                   style="push">
+             </command>
+			 <command
+                   commandId="com.raytheon.viz.ui.window.new4Editor"
+                   label="NewFourPanelEditor"
                    style="push">
              </command>
              <command
-                   commandId="com.raytheon.viz.ui.saveAWIPSProcedure"
-                   label="Save Bundle"
+                   commandId="com.raytheon.viz.ui.newPage"
+                   label="NewPageAction"
+                   style="push">
+             </command>
+			 <command
+                   commandId="com.raytheon.viz.ui.actions.printScreenReverseAction"
+                   label="PrintScreenReverseAction"
                    style="push">
              </command>
              <command
-                   commandId="com.raytheon.viz.ui.saveProcedure"
+                   commandId="com.raytheon.viz.ui.saveBundle"
                    label="Save Bundle Locally"
                    style="push">
              </command>
              <command
+                   commandId="com.raytheon.viz.ui.saveProcedure"
+                   label="SavePerspectiveHandler"
+                   style="push">
+             </command>
+			
+
+			 <separator
+                   name="saveSeparator"
+                   visible="true">
+             </separator>
+			 <command
+                   commandId="com.raytheon.viz.ui.openAWIPSProcedure"
+                   label="Load Procedure"
+                   style="push">
+             </command>
+             <command
                    commandId="com.raytheon.viz.ui.deleteAWIPSProcedure"
-                   label="Manage Bundles"
+                   label="Manage Procedures"
                    style="push">
              </command>
              <separator
@@ -110,12 +150,12 @@
              </separator>
              <command
                    commandId="com.raytheon.viz.ui.loadSerialized"
-                   label="Load Map"
+                   label="Load Bundle"
                    style="push">
              </command>
              <command
                    commandId="com.raytheon.viz.ui.saveBundle"
-                   label="Save Map"
+                   label="Save Bundle Locally"
                    style="push">
              </command>
              <separator
