@@ -938,8 +938,8 @@ class ISC_Utility(SmartScript.SmartScript):
                     sum[bits] = numpy.maximum(isc,sum)[bits]
                     cnt[bits] = 1
                 elif parmName=="MinT":
-                    sum=[bits] = numpy.minimum(isc,sum)[bits]
-                    cnt=[bits] = 1
+                    sum[bits] = numpy.minimum(isc,sum)[bits]
+                    cnt[bits] = 1
                 else:
                     sum[bits] += isc[bits]
                     cnt[bits] += 1
