@@ -13,7 +13,7 @@
                                         </colorMapParameters>
                                     </capability>
                                     <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="DEFAULT"/>
-                                    <capability xsi:type="imagingCapability" contrast="1.0" brightness="0.7" interpolationState="true" alpha="1.0"/>
+                                    <capability xsi:type="imagingCapability" contrast="1.0" brightness="0.8" interpolationState="true" alpha="1.0"/>
                                     <capability xsi:type="densityCapability" density="1.0"/>
                                     <capability xsi:type="magnificationCapability" magnification="1.0"/>
                                     <capability xsi:type="colorableCapability" colorAsString="green"/>

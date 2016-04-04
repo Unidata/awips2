@@ -42,7 +42,7 @@
                         <resourceType>PLAN_VIEW</resourceType>
                         <perspectiveProperty xsi:type="d2dLoadProperties" timeMatchBasis="false" loadMode="VALID_TIME_SEQ"/>
                         <capabilities>
-                            <capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="0.71" contrast="1.0"/>
+                            <capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="0.8" contrast="1.0"/>
                             <capability xsi:type="colorableCapability" colorAsString="yellow"/>
                             <capability xsi:type="displayTypeCapability" displayType="IMAGE"/>
                             <capability xsi:type="colorMapCapability">

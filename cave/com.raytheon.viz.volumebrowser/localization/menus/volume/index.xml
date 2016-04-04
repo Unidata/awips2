@@ -144,10 +144,17 @@
              <substitute key="frameCount" value="39" />
              <substitute key="TP" value="TP"/>
     </include>
-     <include installTo="menu:models" 
+    <include installTo="menu:models" 
              fileName="menus/volume/WaveWatch.xml">
              <substitute key="modelName" value="WaveWatch" />
              <substitute key="menuName" value="NOAA WW3" />
+             <substitute key="frameCount" value="32" />
+             <substitute key="TP" value="TP"/>
+    </include>
+	<include installTo="menu:models" 
+             fileName="menus/volume/WaveWatch.xml">
+             <substitute key="modelName" value="GlobalWave" />
+             <substitute key="menuName" value="NCEP WW3 Global" />
              <substitute key="frameCount" value="32" />
              <substitute key="TP" value="TP"/>
     </include>
