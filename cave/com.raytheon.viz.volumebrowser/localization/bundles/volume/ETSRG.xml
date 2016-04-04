@@ -8,7 +8,7 @@
                                 <perspectiveProperty xsi:type="d2dLoadProperties" loadMode="VALID_TIME_SEQ" timeMatchBasis="true"/>
                                 <capabilities>
                                     <capability xsi:type="colorableCapability" colorAsString="green"/>
-                                    <capability xsi:type="imagingCapability" contrast="1.0" brightness="0.5" interpolationState="true" alpha="1.0"/>
+                                    <capability xsi:type="imagingCapability" contrast="1.0" brightness="0.8" interpolationState="true" alpha="1.0"/>
                                     <capability xsi:type="colorMapCapability">
                                         <colorMapParameters colorMapName="Grid/gridded data">
                                             <persisted/>
