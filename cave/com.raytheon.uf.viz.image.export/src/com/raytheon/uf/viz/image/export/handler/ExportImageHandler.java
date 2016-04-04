@@ -81,12 +81,14 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * Jan 20, 2014  2312     bsteffen    Move to image export plugin, animation.
  * Dec 4, 2014   DR16713  jgerth      Support for date and time in file name
  * Jan 18, 2016  ----     mjames@ucar Append yyyy.MM.dd.HH.mm.ss to image filename
+ * Apr 04, 2016  ----     mjames@ucar Reconfig Animate/Current button, add 
+ *                                    timestamp to animation GIFs
  * 
  * </pre>
  * 
  * @author chammack
  * @version 1
- */
+ */	
 public class ExportImageHandler extends AbstractImageCaptureHandler {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ExportImageHandler.class);
@@ -214,22 +216,21 @@ public class ExportImageHandler extends AbstractImageCaptureHandler {
                 for (Map.Entry<DataTime, BufferedImage> entry : dtbiHash.entrySet()) {
                     i++;
                     BufferedImage bi = entry.getValue();
-                    String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date()); 
                     if (options.getDateTimeSelection() == DateTimeSelection.DATETIME) {
                         DataTime key = entry.getKey();
                         Date validTime = key.getValidTimeAsDate();
                         if (validTime != null && !isFakeTime(key)) {
-                            path = basePath + "-" + sdf.format(validTime) + "-" + timeStamp + "." + suffix;
+                            path = basePath + "-" + sdf.format(validTime) + "." + suffix;
                             if (path.equals(ppath)) {
-                                path = basePath + "-" + sdf.format(validTime) + "-" + twoDigit.format(i).toString() + "-" + timeStamp + "." + suffix;
+                                path = basePath + "-" + sdf.format(validTime) + "-" + twoDigit.format(i).toString() + "." + suffix;
                             }
                         } else {
-                            path = basePath + "-" + twoDigit.format(i).toString() + "-" + timeStamp + "." + suffix;
+                            path = basePath + "-" + twoDigit.format(i).toString() + "." + suffix;
                         }
                     } else if (dtbiHash.size() > 1) {
-                        path = basePath + "-" + twoDigit.format(i).toString() + "-" + timeStamp + "." + suffix;
+                        path = basePath + "-" + twoDigit.format(i).toString() + "." + suffix;
                     } else {
-                        path = basePath + "-" + timeStamp + "." + suffix;
+                        path = basePath + "." + suffix;
                     }
                     ppath = path;
                     stream = new FileImageOutputStream(new File(path));
@@ -245,7 +246,9 @@ public class ExportImageHandler extends AbstractImageCaptureHandler {
                 }
                 dtbiHash.clear();
             } else if (options.getImageFormat() == ImageFormat.ANIMATION) {
-                stream = new FileImageOutputStream(options.getFileLocation());
+            	String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date()); 
+            	path = basePath + "-" + timeStamp + "." + suffix;
+                stream = new FileImageOutputStream(new File(path));
                 writer.setOutput(stream);
                 writer.prepareWriteSequence(null);
                 List<BufferedImage> images = new ArrayList<BufferedImage>();

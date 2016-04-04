@@ -20,6 +20,8 @@
 package com.raytheon.uf.viz.image.export.options;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.imageio.ImageIO;
 
@@ -41,6 +43,8 @@ import com.raytheon.uf.viz.core.datastructure.LoopProperties;
  * Dec 4, 2014   DR16713  jgerth      Support for date/time selection
  * Jan 18, 2016  ----     mjames@ucar Save images to /awips2/export/<username> rather than
  *                                    /awips2/eclipse (and avoid guessing that /home/awips exists)
+ * Apr 04, 2016  ----     mjames@ucar Reconfig Animate/Current button, add 
+ *                                    timestamp to all image filenames.
  * 
  * </pre>
  * 
@@ -86,8 +90,10 @@ public class ImageExportOptions {
         public abstract String[] getExtensions();
 
     }
+    
+    String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date()); 
 
-    private File fileLocation = new File("/awips2/export/" + System.getProperty("user.name") + "/screenCapture.png");
+    private File fileLocation = new File("/awips2/export/" + System.getProperty("user.name") + "/screenCapture-" + timeStamp +  ".png");
 
     private ImageFormat imageFormat = ImageFormat.SEQUENCE;
 
