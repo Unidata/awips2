@@ -78,7 +78,7 @@ public class OpenAWIPSProcedure extends AbstractHandler {
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
         if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
-            dialog = new VizOpenLocalizationFileListDlg("Load Bundle",
+            dialog = new VizOpenLocalizationFileListDlg("Open Procedure",
                     HandlerUtil.getActiveShell(event),
                     ProcedureDlg.PROCEDURES_DIR, "procedures",
                     LocalizationType.CAVE_STATIC);

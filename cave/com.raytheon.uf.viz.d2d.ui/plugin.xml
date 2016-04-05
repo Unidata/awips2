@@ -80,77 +80,25 @@
                    label="New Projection"
                    style="push">
              </command>
+			 <command
+                   commandId="com.raytheon.viz.ui.newPage"
+                   label="New Window"
+                   style="push">
+             </command>
+			 
              <separator
-                   name="bundleSeparator"
+                   name="saveSeparator"
                    visible="true">
              </separator>
-             
-			 
-			 
-			 
-			 <command
-                   commandId="com.raytheon.uf.viz.ui.loadbundle"
-                   label="LoadBundleHandler"
-                   style="push">
-             </command>
+             		
 			 <command
                    commandId="com.raytheon.viz.ui.loadSerialized"
-                   label="LoadPerspectiveHandler"
-                   style="push">
-             </command>
-			 <command
-                   commandId="org.eclipse.ui.window.newEditor"
-                   label="NewAbstractEditor"
-                   style="push">
-             </command>
-			 <command
-                   commandId="com.raytheon.viz.ui.window.new4Editor"
-                   label="NewFourPanelEditor"
-                   style="push">
-             </command>
-             <command
-                   commandId="com.raytheon.viz.ui.newPage"
-                   label="NewPageAction"
-                   style="push">
-             </command>
-			 <command
-                   commandId="com.raytheon.viz.ui.actions.printScreenReverseAction"
-                   label="PrintScreenReverseAction"
-                   style="push">
-             </command>
-             <command
-                   commandId="com.raytheon.viz.ui.saveBundle"
-                   label="Save Bundle Locally"
+                   label="Open Bundle"
                    style="push">
              </command>
              <command
                    commandId="com.raytheon.viz.ui.saveProcedure"
-                   label="SavePerspectiveHandler"
-                   style="push">
-             </command>
-			
-
-			 <separator
-                   name="saveSeparator"
-                   visible="true">
-             </separator>
-			 <command
-                   commandId="com.raytheon.viz.ui.openAWIPSProcedure"
-                   label="Load Procedure"
-                   style="push">
-             </command>
-             <command
-                   commandId="com.raytheon.viz.ui.deleteAWIPSProcedure"
-                   label="Manage Procedures"
-                   style="push">
-             </command>
-             <separator
-                   name="saveSeparator"
-                   visible="true">
-             </separator>
-             <command
-                   commandId="com.raytheon.viz.ui.loadSerialized"
-                   label="Load Bundle"
+                   label="Save Bundle"
                    style="push">
              </command>
              <command
@@ -158,6 +106,7 @@
                    label="Save Bundle Locally"
                    style="push">
              </command>
+
              <separator
                    name="importExportSeparator"
                    visible="true">
@@ -1015,6 +964,18 @@
          point="org.eclipse.ui.bindings">
       <key
       		contextId="com.raytheon.uf.viz.d2d.ui"
+            commandId="com.raytheon.viz.ui.saveBundle"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="M1+SHIFT+S">
+      </key>
+	  <key
+      		contextId="com.raytheon.uf.viz.d2d.ui"
+            commandId="com.raytheon.viz.ui.saveProcedure"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="M1+S">
+      </key>
+      <key
+      		contextId="com.raytheon.uf.viz.d2d.ui"
             commandId="com.raytheon.uf.viz.d2d.ui.actions.changeLegendMode"
             schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="NUMPAD_ENTER">
@@ -1027,21 +988,21 @@
       </key>
       <key
       		contextId="com.raytheon.uf.viz.d2d.ui"
-            commandId="com.raytheon.viz.ui.saveAWIPSProcedure"
-            schemeId="com.raytheon.viz.ui.cave.scheme"
-            sequence="M1+S">
-      </key>
-      <key
-      		contextId="com.raytheon.uf.viz.d2d.ui"
-            commandId="com.raytheon.viz.ui.openAWIPSProcedure"
+            commandId="com.raytheon.viz.ui.loadSerialized"
             schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="M1+O">
       </key>
       <key
-            commandId="com.raytheon.viz.ui.deleteAWIPSProcedure"
+            commandId="org.eclipse.ui.window.newEditor"
             contextId="com.raytheon.uf.viz.d2d.ui"
             schemeId="com.raytheon.viz.ui.cave.scheme"
-            sequence="M1+D">
+            sequence="M1+N">
+      </key>
+	  <key
+            commandId="com.raytheon.viz.ui.newPage"
+            contextId="com.raytheon.uf.viz.d2d.ui"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="M1+T">
       </key>
       <key
       		contextId="com.raytheon.uf.viz.d2d.ui"
@@ -1452,7 +1413,7 @@
             id="com.raytheon.viz.ui.openAWIPSProcedure"
             categoryId="com.raytheon.uf.viz.d2d.ui"
             description="Open an existing bundle"
-            name="Load Bundle">
+            name="Open Bundle">
       </command>
       <command
             id="com.raytheon.viz.ui.saveAWIPSProcedure"
