@@ -104,7 +104,6 @@
       <feature id="com.raytheon.viz.hydro.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.uf.viz.dat.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.uf.viz.d2d.gfe.feature" version="1.0.0.qualifier"/>
-      <feature id="com.raytheon.uf.viz.collaboration.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.uf.viz.d2d.damagepath.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.uf.viz.gisdatastore.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.uf.viz.d2d.ui.awips.feature" version="1.0.0.qualifier"/>

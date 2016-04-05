@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="CAVE" id="com.raytheon.viz.product.awips.CAVE" application="com.raytheon.uf.viz.application.application" useFeatures="true" includeLaunchers="true">
+<product name="CAVE" id="com.raytheon.viz.product.awips.CAVE" application="com.raytheon.uf.viz.application.application" useFeatures="true" includeLaunchers="false">
 
    <aboutInfo>
       <image path="/com.raytheon.viz.product.awips/icons/ipr.gif"/>
@@ -72,11 +72,11 @@
       <feature id="com.raytheon.viz.feature.awips" version="1.9.0.qualifier"/>
    </features>
 
-   <configurations>      
+   <configurations>
+      <plugin id="com.raytheon.uf.viz.spring.dm" autoStart="true" startLevel="4" />
+      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
       <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="2" />
-      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
-      <plugin id="com.raytheon.uf.viz.spring.dm" autoStart="true" startLevel="4" />
    </configurations>
 
 </product>
