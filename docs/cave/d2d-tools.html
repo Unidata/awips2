@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1">
 <meta name="google-site-verification" content="k0e8DrbD40s54xHNBqwIsRrSSAkZoprwtEYDnNY06bU" />
 <meta name="google-site-verification" content="pnjjbQFvjPwaWhEXY6nSyaS9iyghmH-M_yLHBveDX2M">
-<meta itemprop="name" content="AWIPS II - Tools">
+<meta itemprop="name" content="AWIPS II - Display Tools">
 <meta itemprop="description" content="Polymer is a library that uses the latest web technologies to let you create custom HTML elements. Build anything from a button to a complete application as an encapsulated, reusable element that works across desktop and mobile.">
 
 
@@ -15,26 +15,26 @@
 
 <title>
   
-    Tools -
+    Display Tools -
    AWIPS II
 </title>
 <link rel="publisher" href="https://plus.google.com/107187849809354688692">
 <link rel="shortcut icon" href="http://www.unidata.ucar.edu/favicon.ico">
 <link href="//fonts.googleapis.com/css?family=RobotoDraft:300,400,500|Source+Code+Pro:400,500,700" rel="stylesheet">
-<link href="/awips2/css/site2.css?20160403" rel="stylesheet">
-<link href="/awips2/css/site2_sd_rules.css?20160403" rel="stylesheet" shim-shadowdom>
+<link href="/awips2/css/site2.css?20160405" rel="stylesheet">
+<link href="/awips2/css/site2_sd_rules.css?20160405" rel="stylesheet" shim-shadowdom>
 
 
 
-<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20160403"></script>
+<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20160405"></script>
 <!-- TODO: remove when https://github.com/Polymer/polymer/issues/391 is fixed -->
 <link rel="import" href="/awips2/components/polymer/polymer.html">
 <link rel="stylesheet" href="/awips2/css/elements/docs-menu.css">
-<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20160403">
+<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20160405">
 
 
 </head>
-<body id="tools">
+<body id="display-tools">
 
 <main id="content-container" class="polymer-content">
   <app-drawer id="sidebar" unresolved>
@@ -58,9 +58,7 @@
 
       <header class="shrink">
         <h1>
-        
-          D2D User Guide
-        : Tools
+         Display Tools
         </h1>
       </header>
     </site-banner>
@@ -72,13 +70,12 @@
 
       <header class="onlyonmobile">
         <h1>
-          
-          D2D User Guide
-          : Tools
+          : Display Tools
         </h1>
       </header>
 
-      
+      <p>These programs are accessible though the <strong>Tools</strong> dropdown menu.</p>
+
 <!--TOC_START-->
 <ul id="markdown-toc">
   <li><a href="#azran-overlay" id="markdown-toc-azran-overlay">Az/Ran Overlay</a></li>
@@ -95,22 +92,9 @@
   <li><a href="#range-rings" id="markdown-toc-range-rings">Range Rings</a></li>
   <li><a href="#sunsetsunrise" id="markdown-toc-sunsetsunrise">Sunset/Sunrise</a></li>
   <li><a href="#text-window" id="markdown-toc-text-window">Text Window</a></li>
-  <li><a href="#units-calculator" id="markdown-toc-units-calculator">Units Calculator</a>    <ul>
-      <li><a href="#text-workstation" id="markdown-toc-text-workstation">Text Workstation</a></li>
-    </ul>
-  </li>
+  <li><a href="#units-calculator" id="markdown-toc-units-calculator">Units Calculator</a></li>
+  <li><a href="#text-workstation" id="markdown-toc-text-workstation">Text Workstation</a></li>
   <li><a href="#warngen" id="markdown-toc-warngen">Warngen</a></li>
-  <li><a href="#radar-tools" id="markdown-toc-radar-tools">Radar Tools</a>    <ul>
-      <li><a href="#estimated-actual-velocity-eav" id="markdown-toc-estimated-actual-velocity-eav">Estimated Actual Velocity (EAV)</a></li>
-      <li><a href="#d-storm-investigator-fsi" id="markdown-toc-d-storm-investigator-fsi">4-D Storm Investigator (FSI)</a></li>
-      <li><a href="#v-r-shear" id="markdown-toc-v-r-shear">V-R Shear</a></li>
-      <li><a href="#radar-display-controls" id="markdown-toc-radar-display-controls">Radar Display Controls</a></li>
-      <li><a href="#sti-storm-track-information" id="markdown-toc-sti-storm-track-information">STI (Storm Track Information)</a></li>
-      <li><a href="#hi-hail-index" id="markdown-toc-hi-hail-index">HI (Hail Index)</a></li>
-      <li><a href="#tvs-tornado-vortex-signature" id="markdown-toc-tvs-tornado-vortex-signature">TVS (Tornado Vortex Signature)</a></li>
-      <li><a href="#dmd-md-tvs" id="markdown-toc-dmd-md-tvs">DMD, MD, TVS</a></li>
-    </ul>
-  </li>
 </ul>
 <!--TOC_END-->
 
@@ -310,91 +294,9 @@ Station, City/State, or Lat/Lon radio button, an Entry Box is activated next to 
 
 <p><img src="../images/pdSH69h.png" alt="image" /></p>
 
-<h2 id="text-workstation">Text Workstation</h2>
+<h1 id="text-workstation">Text Workstation</h1>
 
 <h1 id="warngen">Warngen</h1>
-
-<h1 id="radar-tools">Radar Tools</h1>
-
-<h2 id="estimated-actual-velocity-eav">Estimated Actual Velocity (EAV)</h2>
-
-<p>A velocity (V) display from the radar shows only the radial component of the wind, so the indicated
-speed depends on the direction of the wind and the azimuth (direction) from the radar. Consider, for example, a north wind. Straight north of the radar, the full speed of the wind will be seen on the V product. As one moves around to the east of the radar, the radial component gets smaller, eventually reaching zero straight east of the radar. If the wind direction is known, then the actual wind speed can be computed by dividing the observed radial speed by the cosine of the angle between the radar radial and the actual direction. The EAV tool allows you to provide that angle and use the sampling function of the display to show the actual wind speed.</p>
-
-<p><img src="../images/qLuJnK2aVF.gif" alt="image" /></p>
-
-<h2 id="d-storm-investigator-fsi">4-D Storm Investigator (FSI)</h2>
-
-<p>The <a href="http://www.nws.noaa.gov/mdl/fsi/">Four-dimensional Stormcell Investigator (FSI)</a> was developed by the National Severe Storms Laboratory for its Warning Decision Support System Integrated Information.  This technology allows users to create and manipulate dynamic cross-sections (both vertical and at constant altitude), such that one can “slice and dice” storms and view these data in three-dimensions and across time.</p>
-
-<h2 id="v-r-shear">V-R Shear</h2>
-
-<p>This tool is used in conjunction with Doppler velocity data to calculate the velocity difference (or “shear”) of the data directly under the end points. As with the Baselines, this feature comes up editable and the end points can be dragged to specific gates of velocity data. When in place, the speed difference (kts), distance between end points (nautical miles), shear (s-1), and distance from radar (Nmi) are automatically plotted next to the end points and in the upper left corner of the Main Display Pane. A positive shear value indicates cyclonic shear, while a negative value indicates anticyclonic shear. If either end point is not directly over velocity data, the phrase “no data” is reported for the shear value. This tool is also useful in determining gate-to-gate shear. Simply place the two end points directly over adjacent gates of velocity data.</p>
-
-<ul>
-  <li><strong>“Snapping” VR Shear</strong>: If you are zoomed in over an area when you load VR - Shear, and the VR - Shear Baseline does not appear, click the right mouse button to “snap” the Baseline to where the mouse cursor is located.</li>
-  <li><strong>VR - Shear in 4 Panel</strong>: You can use the VR - Shear Tool when the large display is in 4 panel
-mode. The VR - Shear overlay is loaded in different colors for each panel. There are actually
-four copies of the program running, and each behaves independently. This means that you can
-get accurate readings in any one of the four panels — one VR - Shear panel is editable at a time. To activate, click the center mouse button on the VR - Shear legend in the desired panel and position the query line to the echoes of interest.</li>
-</ul>
-
-<h2 id="radar-display-controls">Radar Display Controls</h2>
-
-<p><span style="float:right;">
-<img src="../images/44N8kJq.png" alt="image" />
-</span></p>
-
-<p>The Radar Display Controls dialog box is derived from the Radar Tools submenu provides options that control the appearance of the Storm Track Information (STI), the Hail Index (HI), the Tornado Vortex Signature (TVS), and the Digital Mesocyclone Display (DMD) products, along with Storm
-Relative Motion (SRM) options. The Radar Display Controls dialog box options are described below.</p>
-
-<p>The Radar Display Controls dialog box is divided into six sections: STI, HI, TVS, DMD/MD/TVS, DMD, and SRM. Each section has the following options:</p>
-
-<h2 id="sti-storm-track-information">STI (Storm Track Information)</h2>
-
-<p>This section has options to adjust the appearance of the STI graphic product.</p>
-
-<ul>
-  <li>
-    <p><strong>Number of storms to show</strong>: This slider bar lets you choose the maximum number of storms (0 to 100) you wish to display on the STI product. The default value is 20 storms.</p>
-  </li>
-  <li>
-    <p><strong>Type of track to show</strong>: This options menu allows you to choose the type of storm track that you want displayed.</p>
-  </li>
-</ul>
-
-<h2 id="hi-hail-index">HI (Hail Index)</h2>
-
-<p>This portion of the Radar Display Controls dialog box contains options that alter the appearance of the HI radar graphic product. You can set the low and high algorithm thresholds of the Probability of Hail (POH) and the Probability of Severe Hail (POSH). Storms that meet the low POH threshold are indicated by small open triangles, while small solid triangles mark those that meet the high POH threshold. Similarly, large open triangles or solid triangles are plotted for the POSH low and high thresholds, respectively.</p>
-
-<ul>
-  <li>
-    <p><strong>Low hail probability (POH)</strong>: The storms that meet or exceed the threshold are indicated by small open triangles. The default setting is 30.</p>
-  </li>
-  <li>
-    <p><strong>Low severe hail probability (POSH)</strong>: The storms that meet or exceed the threshold are indicated by large open triangles. The default setting is 30.</p>
-  </li>
-  <li>
-    <p><strong>High hail probability</strong>: The storms that meet or exceed the threshold are indicated by small solid triangles. The default setting is 50.</p>
-  </li>
-  <li>
-    <p><strong>High severe hail probability</strong>: The storms that meet or exceed the threshold are indicated by small solid triangles. The default setting is 50.</p>
-  </li>
-</ul>
-
-<h2 id="tvs-tornado-vortex-signature">TVS (Tornado Vortex Signature)</h2>
-
-<p>There is one option in this section of the Radar Display Controls dialog box.</p>
-
-<ul>
-  <li><strong>Show elevated TVS</strong>: This toggle button lets you control the appearance of the elevated TVS radar graphic product.</li>
-</ul>
-
-<h2 id="dmd-md-tvs">DMD, MD, TVS</h2>
-<p>There is one option in this section of the Radar Display Controls dialog box.
-Show extrapolated Features: With this option, you can choose whether to show the time-extrapolated
-features using DMD, MD, or TVS.</p>
-
 
     </article>
 
@@ -417,7 +319,7 @@ features using DMD, MD, or TVS.</p>
 <script src="/awips2/js/prettify/prettify.js"></script>
 
 <!-- <script src="/awips2/js/bower_components/smoothscroll/smoothscroll.js"></script> -->
-<script src="/awips2/js/app.js?20160403"></script>
+<script src="/awips2/js/app.js?20160405"></script>
 
 
   </scroll-area>
