@@ -1,9 +1,5 @@
 # DO NOT EDIT LINES BEGINNING WITH '#'
 # LOCAL_RADARS (including terminal) - MUST HAVE THIS LINE
-koax
-tmsp
-ktlx
-tjua
 
 # DIAL_RADARS - MUST HAVE THIS LINE
 kabr
