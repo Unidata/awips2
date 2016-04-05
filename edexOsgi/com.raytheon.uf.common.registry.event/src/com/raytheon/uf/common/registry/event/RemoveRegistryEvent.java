@@ -23,10 +23,11 @@ package com.raytheon.uf.common.registry.event;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
  * 
- * TODO Add Description
+ * Registry Event for removing objects
  * 
  * <pre>
  * 
@@ -37,7 +38,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Mar 16, 2012            jsanchez     Initial creation
  * Nov 08, 2013 2506       bgonzale     Added constructors.  Added object deleted field.
  *                                      Added RegistryObjectType field.
- * Mar 31, 2014 2889      dhladky      Added username for notification center tracking.
+ * Mar 31, 2014 2889       dhladky      Added username for notification center tracking.
+ * Apr 05, 2016 5488       tjensen      Added DynamicSerializeElement to removedObject
  * 
  * </pre>
  * 
@@ -49,6 +51,7 @@ public class RemoveRegistryEvent extends RegistryEvent {
 
     private static final long serialVersionUID = -5854149256576746509L;
 
+    @DynamicSerializeElement
     private RegistryObjectType removedObject;
 
     public RemoveRegistryEvent() {
