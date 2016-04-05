@@ -26,7 +26,7 @@
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 4, 2008             jelkins     Initial creation
- * Apr 3, 2009			   jelkins     portland fortran support
+ * Apr 3, 2009	           jelkins     portland fortran support
  *
  * @author: jelkins
  */
