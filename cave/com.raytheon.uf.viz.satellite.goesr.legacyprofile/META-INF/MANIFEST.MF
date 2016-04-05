@@ -1,0 +1,23 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: GOES-R Legacy Profile Displays
+Bundle-SymbolicName: com.raytheon.uf.viz.satellite.goesr.legacyprofile;singleton:=true
+Bundle-Version: 1.15.0.qualifier
+Bundle-Vendor: Raytheon
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: com.raytheon.uf.viz.d2d.nsharp;bundle-version="1.14.1",
+ com.raytheon.uf.viz.core;bundle-version="1.14.6",
+ gov.noaa.nws.ncep.edex.common,
+ gov.noaa.nws.ncep.ui.nsharp,
+ com.raytheon.uf.common.dataplugin;bundle-version="1.14.0",
+ com.raytheon.uf.common.dataplugin.satellite;bundle-version="1.14.0",
+ javax.measure;bundle-version="1.0.0",
+ com.raytheon.uf.common.datastorage;bundle-version="1.14.0",
+ com.raytheon.viz.satellite;bundle-version="1.14.0",
+ com.raytheon.uf.viz.points;bundle-version="1.0.0",
+ com.raytheon.uf.viz.sounding;bundle-version="1.14.0",
+ org.eclipse.core.runtime;bundle-version="3.8.0",
+ org.eclipse.ui;bundle-version="3.8.2",
+ com.raytheon.viz.ui;bundle-version="1.14.1",
+ com.raytheon.uf.common.geospatial;bundle-version="1.14.2",
+ com.raytheon.uf.viz.core.grid;bundle-version="1.15.0"

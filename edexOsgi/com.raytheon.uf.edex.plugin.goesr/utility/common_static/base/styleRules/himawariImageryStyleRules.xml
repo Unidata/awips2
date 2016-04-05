@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<styleRuleset>
+  <!-- Style rules for the Himawari Satellite when the data is ingested in 
+    goesr format. -->
+  <!-- Where himawari channel/wavelengths match goesr they are commented 
+    out to avoid double definitions for the same thing. -->
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>CH-07-3.89um</parameter>
+      <parameter>CH-11-8.59um</parameter>
+      <parameter>CH-12-9.64um</parameter>
+      <parameter>CH-13-10.41um</parameter>
+      <parameter>CH-14-11.24um</parameter>
+      <parameter>CH-15-12.38um</parameter>
+      <parameter>CH-16-13.28um</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayUnits>C</displayUnits>
+      <colorMapUnits>IRPixel</colorMapUnits>
+      <range scale="LINEAR">
+        <minValue>55</minValue>
+        <maxValue>-109</maxValue>
+      </range>
+      <defaultColormap>Sat/IR/CIMSS_IR</defaultColormap>
+      <colorbarLabeling>
+        <values>40 20 0 -20 -40 -60 -80</values>
+      </colorbarLabeling>
+    </imageStyle>
+  </styleRule>
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>CH-08-6.24um</parameter>
+      <parameter>CH-09-6.94um</parameter>
+      <parameter>CH-10-7.35um</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayUnits>C</displayUnits>
+      <colorMapUnits>IRPixel</colorMapUnits>
+      <range scale="LINEAR">
+        <minValue>55</minValue>
+        <maxValue>-109</maxValue>
+      </range>
+      <defaultColormap>Sat/WV/CIMSS_WV</defaultColormap>
+      <colorbarLabeling>
+        <values>40 20 0 -20 -40 -60 -80</values>
+      </colorbarLabeling>
+    </imageStyle>
+  </styleRule>
+  <styleRule>
+    <paramLevelMatches>
+      <!-- Same as GOESR: <parameter>CH-01-0.47um</parameter> -->
+      <parameter>CH-02-0.51um</parameter>
+      <parameter>CH-03-0.64um</parameter>
+      <parameter>CH-04-0.86um</parameter>
+      <parameter>CH-05-1.61um</parameter>
+      <parameter>CH-06-2.26um</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>4096</maxValue>
+      </range>
+      <defaultColormap>Sat/VIS/ZA (Vis Default)</defaultColormap>
+    </imageStyle>
+  </styleRule>
+</styleRuleset>
