@@ -75,6 +75,8 @@ import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
  * Mar 01, 2016  5281     tjensen     Update dataRefreshMethod when automatically 
  *                                     enabling/disabling push
  * Mar 15, 2016  5281     tjensen     Fix validation prior to prompt
+ * Apr 06, 2016  5281     tjensen     Fix validation of JMS when prompt disabled 
+ *                                     and using poll method.
  * </pre>
  * 
  * @author bsteffen
@@ -405,11 +407,12 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
                 dataRefreshGroup.setToolTipText(dataRefreshTooltip
                         + unableConnectJMS);
             }
-
-            if (!jmsGood && !autoPullBtn.isEnabled()) {
-                // Since JMS is now disabled, we're in a good state.
-                jmsGood = true;
-            }
+        }
+        if (!jmsGood
+                && (dataRefreshMethod
+                        .equals(ThinClientPreferenceConstants.P_DATA_REFRESH_METHOD_POLL))) {
+            // Since JMS is now disabled, we're in a good state.
+            jmsGood = true;
         }
     }
 
