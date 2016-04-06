@@ -6398,12 +6398,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     }
 
                     // Set the text editor's contents to the warning message.
-                    boolean wasVerifying = verifyUndeditableText;
-                    try {
-                        textEditor.setText(w);
-                    } finally {
-                        verifyUndeditableText = wasVerifying;
-                    }
+                    verifyUndeditableText = false;
+                    textEditor.setText(w);
 
                     showDialog();
                     long t1 = System.currentTimeMillis();

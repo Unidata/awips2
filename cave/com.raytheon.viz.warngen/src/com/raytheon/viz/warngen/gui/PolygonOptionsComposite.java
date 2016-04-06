@@ -30,6 +30,7 @@ import com.raytheon.viz.warngen.gui.WarngenLayer.ExtensionAreaOptions;
  * ------------ ---------- ------------ --------------------------
  * 12/21/2015   DCS 17942  D. Friedman  Initial revision
  * 03/10/2016   DCS 18509  D. Friedman  Make extension area display a separate map background.
+ * 03/22/2016   DCS 18719  D. Friedman  Add dynamic extension area option.
  * </pre>
  *
  */
@@ -40,6 +41,7 @@ public class PolygonOptionsComposite extends Composite {
     private Text extensionDistanceText;
     private Text extensionSimplificationToleranceText;
     private Button visualizeExtensionButton;
+    private Button dynamicExtensionButton;
 
     private WritableValue observableOptions;
     private boolean ignoreControls;
@@ -111,6 +113,22 @@ public class PolygonOptionsComposite extends Composite {
             }
         });
 
+        dynamicExtensionButton = new Button(this, SWT.CHECK);
+        dynamicExtensionButton.setText("Dynamic extension area");
+        dynamicExtensionButton.setLayoutData(fillGD);
+        dynamicExtensionButton.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                if (ignoreControls) {
+                    return;
+                }
+
+                ExtensionAreaOptions options = getExtensionAreaOptions().clone();
+                options.setDynamicArea(dynamicExtensionButton.getSelection());
+                setOptions(options);
+            }
+        });
+
         label = new Label(this, SWT.LEFT);
         label.setText("Extension distance (mi)");
         extensionDistanceText = new Text(this, SWT.LEFT | SWT.SINGLE | SWT.BORDER);
@@ -177,6 +195,7 @@ public class PolygonOptionsComposite extends Composite {
         ignoreControls = true;
         try {
             allowExtendedPolygonButton.setSelection(options.isEnabled());
+            dynamicExtensionButton.setSelection(options.isDynamicArea());
             extensionDistanceText.setText(Double.toString(
                     metersToMile.convert(options.getDistance())));
             extensionSimplificationToleranceText.setText(Double.toString(

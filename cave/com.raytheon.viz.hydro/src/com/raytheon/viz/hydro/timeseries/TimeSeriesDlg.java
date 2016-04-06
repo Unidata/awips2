@@ -31,7 +31,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
@@ -878,23 +877,22 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
             public void keyReleased(KeyEvent event) {
                 String search = searchTF.getText();
                 if (!search.equals("") && !search.equals(" ")) {
-                    /* Iterate over the location Ids in the list */
-                    ListIterator<String> iter = lidList.listIterator();
-                    while (iter.hasNext()) {
+                    for (TableItem item : topDataTable.getItems()) {
                         if (idRdo.getSelection()) {
-                            if (iter.next().startsWith(
-                                    searchTF.getText().toUpperCase())) {
-                                topDataTable.setSelection(iter.previousIndex());
-                                break;
-                            }
-                        } else {
-                            String lid = iter.next();
-                            if (stationData
-                                    .get(lid)
+                            if (item.getText(0)
                                     .toUpperCase()
                                     .startsWith(
                                             searchTF.getText().toUpperCase())) {
-                                topDataTable.setSelection(iter.previousIndex());
+                                topDataTable.setSelection(item);
+                                break;
+                            }
+                        } else {
+
+                            if (item.getText(1)
+                                    .toUpperCase()
+                                    .startsWith(
+                                            searchTF.getText().toUpperCase())) {
+                                topDataTable.setSelection(item);
                                 break;
                             }
                         }
@@ -1191,23 +1189,18 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
         }
 
         if (currentLid != null) {
-            ListIterator<String> iter2 = lidList.listIterator();
-            while (iter2.hasNext()) {
-                if (idRdo.getSelection()) {
-                    if (iter2.next().equalsIgnoreCase(currentLid)) {
-                        // Bug with show selection requires the select(0) first.
-                        topDataTable.select(0);
-                        topDataTable.select(iter2.previousIndex());
-                        topDataTable.showSelection();
+            for (TableItem item : topDataTable.getItems()) {
+                if (currentLid.equalsIgnoreCase(item.getText(0))) {
+                    topDataTable.setSelection(item);
+                    topDataTable.showSelection();
 
-                        /* set to null so we don't enter this block again */
-                        populateBottomList(currentLid,
-                                tsOrderCbo.getSelectionIndex());
-                        currentLid = null;
-                        break;
-                    }
+                    populateBottomList(currentLid,
+                            tsOrderCbo.getSelectionIndex());
+
+                    /* set to null so we don't enter this block again */
+                    currentLid = null;
+                    break;
                 }
-
             }
         }
     }
@@ -2173,36 +2166,28 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
             String pe = gageData.getPe();
             String ts = gageData.getTs();
             String ext = gageData.getExtremum();
-            StringBuilder sb = new StringBuilder();
 
-            int itemCount = bottomDataTable.getItemCount();
-            for (int i = 0; i < itemCount; i++) {
-                sb.append(bottomDataTable.getItem(i));
-                String[] parts = sb.toString().split("\\s+", 4);
-                if ((pe + ts + ext).equalsIgnoreCase(parts[0] + parts[1]
-                        + parts[2])) {
-                    bottomDataTable.setSelection(i);
+            for (TableItem item : bottomDataTable.getItems()) {
+                if (pe.equalsIgnoreCase(item.getText(0))
+                        && ts.equalsIgnoreCase(item.getText(1))
+                        && ext.equalsIgnoreCase(item.getText(2))) {
+                    bottomDataTable.setSelection(item);
                     break;
                 }
-                sb.setLength(0);
             }
         }
-        /* used for questionable and Bad Data Gui */
 
+        /* used for questionable and Bad Data Gui */
         if (currentPe != null && currentTs != null) {
             String qPe = currentPe;
             String qTs = currentTs;
-            StringBuilder stb = new StringBuilder();
 
-            int itemCount = bottomDataTable.getItemCount();
-            for (int ii = 0; ii < itemCount; ii++) {
-                stb.append(bottomDataTable.getItem(ii));
-                String[] parts = stb.toString().split("\\s+", 4);
-                if ((qPe + qTs).equalsIgnoreCase(parts[0] + parts[1])) {
-                    bottomDataTable.setSelection(ii);
+            for (TableItem item : bottomDataTable.getItems()) {
+                if (qPe.equalsIgnoreCase(item.getText(0))
+                        && qTs.equalsIgnoreCase(item.getText(1))) {
+                    bottomDataTable.setSelection(item);
                     break;
                 }
-                stb.setLength(0);
             }
         }
     }

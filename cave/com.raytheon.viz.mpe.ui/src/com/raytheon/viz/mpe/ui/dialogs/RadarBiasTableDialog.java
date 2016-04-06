@@ -19,7 +19,6 @@
  **/
 package com.raytheon.viz.mpe.ui.dialogs;
 
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -51,7 +50,6 @@ import org.eclipse.swt.widgets.Text;
 import com.raytheon.uf.common.dataplugin.shef.tables.Rwbiasstat;
 import com.raytheon.uf.common.dataplugin.shef.tables.Rwradarresult;
 import com.raytheon.uf.common.dataplugin.shef.tables.DAARadarResult;
-// com.raytheon.uf.common.dataplugin.shef.tables.DAARadarResultId;
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.whfslib.IHFSDbGenerated;
@@ -98,8 +96,11 @@ public class RadarBiasTableDialog extends Dialog {
     private final Zerocoef_Data abzerocoef = new Zerocoef_Data();
 
     private Shell shell;
+
     private Font font;
+
     private Button applyBtn;
+
     private Button closeBtn;
 
     Composite bcLblComp;
@@ -107,25 +108,30 @@ public class RadarBiasTableDialog extends Dialog {
     private final int retval = 0;
 
     String[] radIds;
+
     String rid = "";
 
-    private static String[] biasLabelStrings = { " Radar", "SP Bias", "DP Bias",
-            "Man. SP Bias", "Man. DP Bias",  "A", "B", "Bias", "Other Office" };
+    private static String[] biasLabelStrings = { "Radar", "SP Bias", "DP Bias",
+            "Man. SP Bias", "Man. DP Bias", "A", "B", "Bias", "Other Office" };
 
     private final Label[] colHdr = new Label[biasLabelStrings.length];
 
     private String abias = "";
+
     private String bbias = "";
 
     private String obias = "";
+
     private String ooffice = "";
 
     private String biasSP = "";
+
     private String mbiasSP = "";
 
     private String biasDP = "";
+
     private String mbiasDP = "";
-    
+
     public static int default_bias = 0;
 
     private ArrayList<Rwbiasstat> bList = new ArrayList<Rwbiasstat>();
@@ -133,11 +139,13 @@ public class RadarBiasTableDialog extends Dialog {
     public static Rwbiasstat rwBias = new Rwbiasstat();
 
     private Map<String, MPERadarData> radarIdToSPDataMap;
+
     private Map<String, MPERadarData> radarIdToDPDataMap;
 
-    private MPERadarData radarresultdata    = new MPERadarData();
+    private MPERadarData radarresultdata = new MPERadarData();
+
     private MPERadarData daaradarresultdata = new MPERadarData();
-    
+
     public static String dt = "";
 
     private static final AppsDefaults appsDefaults = AppsDefaults.getInstance();
@@ -151,46 +159,46 @@ public class RadarBiasTableDialog extends Dialog {
     private static final SimpleDateFormat st3sdf;
 
     private Button[] spManEditButtonArray = null;
+
     private Button[] dpManEditButtonArray = null;
-    
-    private Text[] spBiasValueTextArray = null; 
+
+    private Text[] spBiasValueTextArray = null;
+
     private final Map<String, Integer> spBiasChangeMap = new HashMap<String, Integer>();
 
     private Text[] dpBiasValueTextArray = null;
+
     private final Map<String, Integer> dpBiasChangeMap = new HashMap<String, Integer>();
 
-   
-    static
-    {
+    static {
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
         pgsdf.setTimeZone(TimeZone.getTimeZone("GMT"));
 
         String date_form = appsDefaults.getToken("st3_date_form");
         if ((date_form == null) || date_form.isEmpty()
-                || date_form.equals("mdY"))
-        {
+                || date_form.equals("mdY")) {
             st3sdf = new SimpleDateFormat("MMM dd yyyy HH");
             st3sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-        }
-        else
-        {
+        } else {
             st3sdf = sdf;
         }
     }
 
     float[] oldSPBiasValue = new float[60];
+
     float[] editedSPBiasValue = new float[60];
 
-    
     float[] oldDPBiasValue = new float[60];
+
     float[] editedDPBiasValue = new float[60];
-    
+
     public RadarBiasTableDialog(Shell parentShell) {
         super(parentShell);
     }
 
     /**
-     * Open method used to display the Radar Bias Table dialog == Edit Bias Table Dialog in A1.
+     * Open method used to display the Radar Bias Table dialog == Edit Bias
+     * Table Dialog in A1.
      * 
      * @return Null.
      */
@@ -301,8 +309,7 @@ public class RadarBiasTableDialog extends Dialog {
         });
     }
 
-    private void createDateComp()
-    {
+    private void createDateComp() {
 
         GridData bd = new GridData(SWT.LEFT, SWT.CENTER, true, true);
         Composite dtLblComp = new Composite(shell, SWT.NONE);
@@ -341,63 +348,58 @@ public class RadarBiasTableDialog extends Dialog {
      */
     private void createBiasListComp() {
 
-    	final ScrolledComposite biasListScrollComp = new ScrolledComposite(
+        final ScrolledComposite biasListScrollComp = new ScrolledComposite(
                 shell, SWT.BORDER | SWT.V_SCROLL);
-        GridLayout gl = new GridLayout(1, false);        
+        GridLayout gl = new GridLayout(1, false);
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, true);
         gd.heightHint = 300;
         biasListScrollComp.setLayout(gl);
         biasListScrollComp.setLayoutData(gd);
-      // Create a container to hold the label and the combo box.
+        // Create a container to hold the label and the combo box.
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, true);
         final Composite biasListComp = new Composite(biasListScrollComp,
                 SWT.BORDER);
-     
-        // dual pol version of table has 9 columns;  previous table had 7 columns
+
+        // dual pol version of table has 9 columns; previous table had 7 columns
         GridLayout biasListCompLayout = new GridLayout(9, true);
         biasListComp.setLayout(biasListCompLayout);
         gd.horizontalSpan = 9;
         biasListComp.setLayoutData(gd);
-        biasListComp.setSize(biasListComp.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+        biasListComp
+                .setSize(biasListComp.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 
         Date dt3 = MPEDisplayManager.getCurrent().getCurrentEditDate();
-      
-        
+
         dt = pgsdf.format(dt3);
-        // This lets us know what date is being requested from radar result tables
+        // This lets us know what date is being requested from radar result
+        // tables
         System.out.println("Radar Bias table query using time: " + dt3);
-        
+
         radarIdToSPDataMap = MPEDataManager.getInstance().readSPRadarData(dt3);
         radarIdToDPDataMap = MPEDataManager.getInstance().readDPRadarData(dt3);
-        
+
         spBiasValueTextArray = new Text[radIds.length];
         dpBiasValueTextArray = new Text[radIds.length];
-        
+
         spManEditButtonArray = new Button[radIds.length];
         dpManEditButtonArray = new Button[radIds.length];
 
-      
-        for (int i = 0; i < radIds.length; i++)
-        {
-        	   	
-       	    // get A and B coefficients from SP radar (does not apply to DP )
+        for (int i = 0; i < radIds.length; i++) {
+
+            // get A and B coefficients from SP radar (does not apply to DP )
 
             abzerocoef.mlt_zrcoef = 0.0f;
             abzerocoef.pwr_zrcoef = 0.0f;
-            
-            rid = radIds[i];
-            
-            if (radarIdToDPDataMap.size() != 0)
-            {
-                daaradarresultdata = radarIdToDPDataMap.get(rid);
-            } 
 
-            if (radarIdToSPDataMap.size() != 0)
-            {
-                radarresultdata = radarIdToSPDataMap.get(rid);
+            rid = radIds[i];
+
+            if (radarIdToDPDataMap.size() != 0) {
+                daaradarresultdata = radarIdToDPDataMap.get(rid);
             }
-            else 
-            {
+
+            if (radarIdToSPDataMap.size() != 0) {
+                radarresultdata = radarIdToSPDataMap.get(rid);
+            } else {
                 continue;
             }
 
@@ -417,19 +419,18 @@ public class RadarBiasTableDialog extends Dialog {
                     abzerocoef.pwr_zrcoef = dpaz[1];
                 }
             }
-            
-            //-----------------------------------------------------
-            
+
+            // -----------------------------------------------------
+
             gd = new GridData(SWT.FILL, SWT.DEFAULT, true, true);
-            
-            //radar id button
+
+            // radar id button
             final Button ridBtn = new Button(biasListComp, SWT.PUSH);
             ridBtn.setText(rid);
             ridBtn.setData(rid);
             ridBtn.setLayoutData(gd);
-            
-            ridBtn.addSelectionListener(new SelectionAdapter()
-            {
+
+            ridBtn.addSelectionListener(new SelectionAdapter() {
 
                 /*
                  * (non-Javadoc)
@@ -447,22 +448,24 @@ public class RadarBiasTableDialog extends Dialog {
 
             });
 
-            biasSP = String.format("%-1.2f", radarresultdata.getRwBiasValUsed());
+            biasSP = String
+                    .format("%-1.2f", radarresultdata.getRwBiasValUsed());
             oldSPBiasValue[i] = (float) radarresultdata.getRwBiasValUsed();
             editedSPBiasValue[i] = 1.0f;
 
-            biasDP = String.format("%-1.2f", daaradarresultdata.getRwBiasValUsed());
+            biasDP = String.format("%-1.2f",
+                    daaradarresultdata.getRwBiasValUsed());
             oldDPBiasValue[i] = (float) daaradarresultdata.getRwBiasValUsed();
             editedDPBiasValue[i] = 1.0f;
-            
+
             ridBtn.setEnabled(true);
-            
+
             gd = new GridData(SWT.FILL, SWT.CENTER, true, true);
-            
-            //single pol
+
+            // single pol
             final Text lbiasSPTxt = new Text(biasListComp, SWT.SINGLE
                     | SWT.CENTER | SWT.BORDER);
-            
+
             if (radarresultdata.getEditBias() != null) {
                 lbiasSPTxt.setText(biasSP.trim());
             } else {
@@ -473,16 +476,16 @@ public class RadarBiasTableDialog extends Dialog {
             lbiasSPTxt.setLayoutData(gd);
             lbiasSPTxt.setData(i);
 
-            lbiasSPTxt.addModifyListener(new ModifyListener()
-            {
+            lbiasSPTxt.addModifyListener(new ModifyListener() {
 
                 @Override
                 public void modifyText(ModifyEvent e) {
                     final int ei = (Integer) lbiasSPTxt.getData();
                     try {
-                        float parsedFloat = Float.parseFloat(lbiasSPTxt.getText());
+                        float parsedFloat = Float.parseFloat(lbiasSPTxt
+                                .getText());
                         editedSPBiasValue[ei] = parsedFloat;
-                      //  spManEditButtonArray[ei].setSelection(!mbiasSPBtn.getSelection());
+                        // spManEditButtonArray[ei].setSelection(!mbiasSPBtn.getSelection());
                         spManEditButtonArray[ei].setText("YES");
                         lbiasSPTxt.setBackground(getParent().getDisplay()
                                 .getSystemColor(SWT.COLOR_WHITE));
@@ -496,46 +499,45 @@ public class RadarBiasTableDialog extends Dialog {
                     }
                 }
             });
-            
-            //dual pol
+
+            // dual pol
             final Text lbiasDPTxt = new Text(biasListComp, SWT.SINGLE
                     | SWT.CENTER | SWT.BORDER);
-            
+
             if (daaradarresultdata.getEditBias() != null) {
-            	lbiasDPTxt.setText(biasDP.trim());
+                lbiasDPTxt.setText(biasDP.trim());
             } else {
-            	lbiasDPTxt.setText("DATA MISSING");
-            	lbiasDPTxt.setEnabled(false);
+                lbiasDPTxt.setText("DATA MISSING");
+                lbiasDPTxt.setEnabled(false);
             }
             lbiasDPTxt.setLayoutData(gd);
             lbiasDPTxt.setData(i);
-   
-            //-------------------------------------------------------------
-            
-            lbiasDPTxt.addModifyListener(new ModifyListener()
-            {
+
+            // -------------------------------------------------------------
+
+            lbiasDPTxt.addModifyListener(new ModifyListener() {
 
                 @Override
                 public void modifyText(ModifyEvent e) {
                     final int ei = (Integer) lbiasDPTxt.getData();
                     try {
-                        float parsedFloat = Float.parseFloat(lbiasDPTxt.getText());
+                        float parsedFloat = Float.parseFloat(lbiasDPTxt
+                                .getText());
                         editedDPBiasValue[ei] = parsedFloat;
-                      //  dpManEditButtonArray[ei].setSelection(!mbiasDPBtn.getSelection());
+                        // dpManEditButtonArray[ei].setSelection(!mbiasDPBtn.getSelection());
                         dpManEditButtonArray[ei].setText("YES");
                         lbiasDPTxt.setBackground(getParent().getDisplay()
                                 .getSystemColor(SWT.COLOR_WHITE));
                         dpBiasChangeMap.put(radIds[ei], ei);
                         applyBtn.setEnabled(true);
                     } catch (NumberFormatException e1) {
-                    	lbiasDPTxt.setBackground(getParent().getDisplay()
+                        lbiasDPTxt.setBackground(getParent().getDisplay()
                                 .getSystemColor(SWT.COLOR_RED));
                         applyBtn.setEnabled(false);
 
                     }
                 }
             });
-
 
             // single pol
             spBiasValueTextArray[i] = lbiasSPTxt;
@@ -549,27 +551,27 @@ public class RadarBiasTableDialog extends Dialog {
             spManEditButtonArray[i] = mbiasSPBtn;
 
             mbiasSPBtn.addSelectionListener(new SelectionAdapter() {
-            	/**
-            	 * (non-Javadoc)
-            	 * 
-            	 * @see
-            	 * org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.eclipse
-            	 * .swt.events.SelectionEvent)
-            	 */	
-            	@Override
-            	public void widgetSelected(SelectionEvent e) {
-            		final int ai = (Integer) mbiasSPBtn.getData();
-            		if ("YES".equalsIgnoreCase(mbiasSPBtn.getText())) {
-            			spManEditButtonArray[ai].setSelection(false);
-            			editedSPBiasValue[ai] = oldSPBiasValue[ai];
-            			spBiasValueTextArray[ai].setText(String.format("%-1.2f", editedSPBiasValue[ai]));
-            			spBiasChangeMap.put(radIds[ai], ai);
-            			spManEditButtonArray[ai].setText("NO");
-            			}
-            		}
-            	});
+                /**
+                 * (non-Javadoc)
+                 * 
+                 * @see org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.eclipse
+                 *      .swt.events.SelectionEvent)
+                 */
+                @Override
+                public void widgetSelected(SelectionEvent e) {
+                    final int ai = (Integer) mbiasSPBtn.getData();
+                    if ("YES".equalsIgnoreCase(mbiasSPBtn.getText())) {
+                        spManEditButtonArray[ai].setSelection(false);
+                        editedSPBiasValue[ai] = oldSPBiasValue[ai];
+                        spBiasValueTextArray[ai].setText(String.format(
+                                "%-1.2f", editedSPBiasValue[ai]));
+                        spBiasChangeMap.put(radIds[ai], ai);
+                        spManEditButtonArray[ai].setText("NO");
+                    }
+                }
+            });
 
-            //dual pol
+            // dual pol
             dpBiasValueTextArray[i] = lbiasDPTxt;
             gd = new GridData(SWT.FILL, SWT.CENTER, true, true);
             final Button mbiasDPBtn = new Button(biasListComp, SWT.TOGGLE);
@@ -581,29 +583,30 @@ public class RadarBiasTableDialog extends Dialog {
             dpManEditButtonArray[i] = mbiasDPBtn;
 
             mbiasDPBtn.addSelectionListener(new SelectionAdapter() {
-            	/**
-            	 * (non-Javadoc)
-            	 * 
-            	 * @see
-            	 * org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.eclipse
-            	 * .swt.events.SelectionEvent)
-            	 */	
-            	@Override
-            	public void widgetSelected(SelectionEvent e) {
-            		final int ai = (Integer) mbiasDPBtn.getData();
-            		if ("YES".equalsIgnoreCase(mbiasDPBtn.getText())) {
-            			dpManEditButtonArray[ai].setSelection(false);
-            			editedDPBiasValue[ai] = oldDPBiasValue[ai];
-            			dpBiasValueTextArray[ai].setText(String.format("%-1.2f", editedDPBiasValue[ai]));
-            			//consider replacing the value in the map instead of using put()
-            			dpBiasChangeMap.put(radIds[ai], ai);
-            			applyBtn.setEnabled(false);
-            			dpManEditButtonArray[ai].setText("NO");
-            			}
-            		}
-            	});
+                /**
+                 * (non-Javadoc)
+                 * 
+                 * @see org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.eclipse
+                 *      .swt.events.SelectionEvent)
+                 */
+                @Override
+                public void widgetSelected(SelectionEvent e) {
+                    final int ai = (Integer) mbiasDPBtn.getData();
+                    if ("YES".equalsIgnoreCase(mbiasDPBtn.getText())) {
+                        dpManEditButtonArray[ai].setSelection(false);
+                        editedDPBiasValue[ai] = oldDPBiasValue[ai];
+                        dpBiasValueTextArray[ai].setText(String.format(
+                                "%-1.2f", editedDPBiasValue[ai]));
+                        // consider replacing the value in the map instead of
+                        // using put()
+                        dpBiasChangeMap.put(radIds[ai], ai);
+                        applyBtn.setEnabled(false);
+                        dpManEditButtonArray[ai].setText("NO");
+                    }
+                }
+            });
 
-            //---------------------------------------------------------
+            // ---------------------------------------------------------
 
             gd = new GridData(SWT.FILL, SWT.CENTER, true, true);
             Label acoefLbl = new Label(biasListComp, SWT.CENTER);
@@ -631,8 +634,8 @@ public class RadarBiasTableDialog extends Dialog {
             Float[] obias_value = new Float[1];
             Float other_bias_value = 0.00f;
             obias_value[0] = other_bias_value;
-            int bias_found = ReadBiasTableParam.get_rfc_bias_value(rid,
-                    oid, obias_value);
+            int bias_found = ReadBiasTableParam.get_rfc_bias_value(rid, oid,
+                    obias_value);
 
             if (bias_found == 0) {
                 obias = "N/A";
@@ -663,72 +666,77 @@ public class RadarBiasTableDialog extends Dialog {
         });
     }
 
-    private void  applyBiasUpdate(String obstime)
-    {
-    	applySPBiasUpdate(obstime);
-    	applyDPBiasUpdate(obstime);
+    private void applyBiasUpdate(String obstime) {
+        applySPBiasUpdate(obstime);
+        applyDPBiasUpdate(obstime);
     }
 
-    private void applySPBiasUpdate(String obstime)
-    {
+    private void applySPBiasUpdate(String obstime) {
         String where = "";
         final float memspan = -99.0f;
         ArrayList<Rwradarresult> rwRadarResultList = new ArrayList<Rwradarresult>();
         Rwradarresult rwRadarResult = new Rwradarresult();
         Iterator<String> bi = spBiasChangeMap.keySet().iterator();
         while (bi.hasNext()) {
-        	String rid = bi.next();
-            where = String.format("WHERE radid='%s' AND obstime='%s'",rid, obstime);
-        	rwRadarResultList = (ArrayList<Rwradarresult>) IHFSDbGenerated.GetRWRadarResult(where);
-        	if (rwRadarResultList.size() != 0) {
-        		rwRadarResult = rwRadarResultList.get(0);
-        		} else {
-        			continue;
-        		}
-        	int indexval = spBiasChangeMap.get(rid);
-        	if("YES".equalsIgnoreCase(spManEditButtonArray[indexval].getText())){
-        		rwRadarResult.setEditBias("y");
-        		rwRadarResult.setMemSpanUsed((double) memspan);
-        	} else {
-        		rwRadarResult.setEditBias("n");
-        	}
-        	rwRadarResult.setRwBiasValUsed((double) editedSPBiasValue[indexval]);
-        	IHFSDbGenerated.UpdateRWRadarResult(rwRadarResult);
+            String rid = bi.next();
+            where = String.format("WHERE radid='%s' AND obstime='%s'", rid,
+                    obstime);
+            rwRadarResultList = (ArrayList<Rwradarresult>) IHFSDbGenerated
+                    .GetRWRadarResult(where);
+            if (rwRadarResultList.size() != 0) {
+                rwRadarResult = rwRadarResultList.get(0);
+            } else {
+                continue;
+            }
+            int indexval = spBiasChangeMap.get(rid);
+            if ("YES"
+                    .equalsIgnoreCase(spManEditButtonArray[indexval].getText())) {
+                rwRadarResult.setEditBias("y");
+                rwRadarResult.setMemSpanUsed((double) memspan);
+            } else {
+                rwRadarResult.setEditBias("n");
+            }
+            rwRadarResult
+                    .setRwBiasValUsed((double) editedSPBiasValue[indexval]);
+            IHFSDbGenerated.UpdateRWRadarResult(rwRadarResult);
         }
         spBiasChangeMap.clear();
         return;
     }
-    
-	// ---------------------------------------------------------------------
 
-    private void applyDPBiasUpdate(String obstime)
-    {
+    // ---------------------------------------------------------------------
+
+    private void applyDPBiasUpdate(String obstime) {
         String where = "";
         final float memspan = -99.0f;
         ArrayList<DAARadarResult> daaRadarResultList = new ArrayList<DAARadarResult>();
         DAARadarResult daaRadarResult = new DAARadarResult();
         Iterator<String> bi = dpBiasChangeMap.keySet().iterator();
         while (bi.hasNext()) {
-        	String rid = bi.next();
-            where = String.format("WHERE radid='%s' AND obstime='%s'",rid, obstime);
-        	daaRadarResultList = (ArrayList<DAARadarResult>) IHFSDbGenerated.GetDAARadarResult(where);
-        	if (daaRadarResultList.size() != 0) {
-        		daaRadarResult = daaRadarResultList.get(0);
-        		} else {
-        			continue;
-        		}
-        	int indexval = dpBiasChangeMap.get(rid);
-        	if("YES".equalsIgnoreCase(dpManEditButtonArray[indexval].getText())){
-        		daaRadarResult.setEditBias("y");
-        		daaRadarResult.setMemSpanUsed((double) memspan);
-        	} else {
-        		daaRadarResult.setEditBias("n");
-        	}
-        	daaRadarResult.setRwBiasValUsed((double) editedDPBiasValue[indexval]);
-        	IHFSDbGenerated.UpdateDAARadarResult(daaRadarResult);
+            String rid = bi.next();
+            where = String.format("WHERE radid='%s' AND obstime='%s'", rid,
+                    obstime);
+            daaRadarResultList = (ArrayList<DAARadarResult>) IHFSDbGenerated
+                    .GetDAARadarResult(where);
+            if (daaRadarResultList.size() != 0) {
+                daaRadarResult = daaRadarResultList.get(0);
+            } else {
+                continue;
+            }
+            int indexval = dpBiasChangeMap.get(rid);
+            if ("YES"
+                    .equalsIgnoreCase(dpManEditButtonArray[indexval].getText())) {
+                daaRadarResult.setEditBias("y");
+                daaRadarResult.setMemSpanUsed((double) memspan);
+            } else {
+                daaRadarResult.setEditBias("n");
+            }
+            daaRadarResult
+                    .setRwBiasValUsed((double) editedDPBiasValue[indexval]);
+            IHFSDbGenerated.UpdateDAARadarResult(daaRadarResult);
         }
         dpBiasChangeMap.clear();
         return;
     }
-    
+
 }
