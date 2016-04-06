@@ -64,7 +64,7 @@ edex_status() { # report back edex server on/off status
 	echo ''
 	echo '[edex status]'
 	# CHECK POSTGRES
-	postgres_prc=`ps aux | grep postgresql | grep -v grep | awk '{ print $11 }'`
+	postgres_prc=`ps aux | grep postgresql | grep -v grep | grep -v java |awk '{ print $11 }'`
 	if [ -z $postgres_prc ]; then
 		echo ' postgres    :: not running'
 	else
