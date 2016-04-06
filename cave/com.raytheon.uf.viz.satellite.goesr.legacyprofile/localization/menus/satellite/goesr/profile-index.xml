@@ -19,7 +19,7 @@
         further_licensing_information.
     -->
 <menuContributionFile>
-    <include installTo="menu:goesr"
+    <include installTo="menu:satellite?before=GROUP2"
         fileName="menus/satellite/goesr/profileMenu.xml">
     </include>
 </menuContributionFile>

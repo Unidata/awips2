@@ -13,11 +13,11 @@
 	
 
 	<target name="main" depends="init, setup">
-		<property name="esb.directory" value="${repo.dir}/build/deploy.edex.awips2/esb" />
+		<property name="esb.directory" value="${basedir}/build/deploy.edex.awips2/esb" />
 		<!-- deploy esb {optionally: data, web} -->
-		<ant antfile="${repo.dir}/build/deploy.edex.awips2/deploy/deploy-esb.xml" />
+		<ant antfile="${basedir}/build/deploy.edex.awips2/deploy/deploy-esb.xml" />
 		<!-- deploy esb configuration -->
-		<ant antfile="${repo.dir}/build/deploy.edex.awips2/deploy/deploy-esb-configuration.xml" />
+		<ant antfile="${basedir}/build/deploy.edex.awips2/deploy/deploy-esb-configuration.xml" />
 		<!-- optionally: deploy gfesuite -->
 		<if>
 			<equals arg1="${deploy.gfesuite}" arg2="true" />

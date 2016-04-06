@@ -94,6 +94,7 @@ class DeployInstall
       // never deploy these features
       blacklistedEdexFeatures.add("com.raytheon.edex.wa.feature")
       blacklistedEdexFeatures.add("com.raytheon.edex.feature.uframe")
+      blacklistedEdexFeatures.add("com.raytheon.uf.edex.hydro.feature")
        
       this.init(workspaceDirectory.trim())
       if (localizationSites.trim() != "")

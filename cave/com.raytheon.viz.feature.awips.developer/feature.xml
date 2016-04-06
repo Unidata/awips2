@@ -192,6 +192,10 @@
    <includes
          id="gov.noaa.gsd.viz.ensemble.feature"
          version="0.0.0"/>
+		 
+   <includes
+         id="com.raytheon.uf.viz.satellite.goesr.feature"
+         version="0.0.0"/>
 
    <includes
          id="com.raytheon.uf.viz.d2d.damagepath.feature"
