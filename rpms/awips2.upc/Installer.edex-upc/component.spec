@@ -16,9 +16,12 @@ Packager: Michael James
 
 AutoReq: no
 Requires: awips2-tools, awips2-edex-configuration, awips2-database-standalone-configuration
-Requires: awips2-qpid-java-broker, awips2-postgresql, awips2-httpd-pypies, awips2-ldm
+Requires: awips2-postgresql, awips2-ldm
 Requires: ksh, libstdc++(x86-32), libgfortran(x86-32)
 
+obsoletes: awips2-hydroapps-shared < 15.1.4
+obsoletes: awips2-edex-hydro < 15.1.4
+obsoletes: awips2-edex-dat < 15.1.4
 provides: awips2-edex-upc
 
 %description
