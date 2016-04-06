@@ -212,7 +212,6 @@ if [ "${1}" = "-rh6" ]; then
    if [ $? -ne 0 ]; then
       exit 1
    fi
-   buildRPM "awips2-hydroapps-shared"
    buildJava
    buildRPM "awips2-python"
    buildRPM "awips2-python-cherrypy"
@@ -363,7 +362,6 @@ if [ "${1}" = "-full" ]; then
    buildRPM "awips2-python"
    buildRPM "awips2-aviation-shared"
    buildRPM "awips2-pypies"
-   buildRPM "awips2-hydroapps-shared"
    buildRPM "awips2-adapt-native"
    buildRPM "awips2-tools"
    buildRPM "awips2-common-base"
@@ -576,7 +574,6 @@ if [ "${1}" = "-custom" ]; then
    #   exit 1
    #fi
    #buildRPM "awips2-adapt-native"
-   #buildRPM "awips2-hydroapps-shared"
    #buildRPM "awips2-common-base"
    #buildRPM "awips2-gfesuite-client"
    #buildRPM "awips2-gfesuite-server"
