@@ -13,7 +13,7 @@ export BUILD_WORKSPACE=${BUILD_DIR}/workspace
 # baseline is...
 export BASELINE="${JENKINS_WORKSPACE}"
 export AWIPSII_VERSION="16.1.4"
-export AWIPSII_RELEASE="1"
+export AWIPSII_RELEASE="2"
 
 export AWIPSII_TOP_DIR="${BUILD_WORKSPACE}/tmp/rpms_built_dir"
 

@@ -157,10 +157,10 @@ buildRPM "Installer.edex"
 buildRPM "Installer.edex-configuration"
 
 # build the edex-hazards component
-export COMPONENT_NAME="edex-hazards"
-patchSpecification
-buildRPM "Installer.edex-hazards"
-unset COMPONENT_NAME
+#export COMPONENT_NAME="edex-hazards"
+#patchSpecification
+#buildRPM "Installer.edex-hazards"
+#unset COMPONENT_NAME
 
 DIST="${WORKSPACE}/build.edex/edex/dist"
 for edex_zip in `cd ${DIST}; ls -1;`;
@@ -177,10 +177,10 @@ do
 done
 
 # build the edex-datadelivery rpm
-export COMPONENT_NAME="edex-datadelivery"
-patchSpecification
-buildRPM "Installer.edex-datadelivery"
-unset COMPONENT_NAME
+#export COMPONENT_NAME="edex-datadelivery"
+#patchSpecification
+#buildRPM "Installer.edex-datadelivery"
+#unset COMPONENT_NAME
 
 #build shapefiles RPM last
-buildRPM "Installer.edex-shapefiles"
+#buildRPM "Installer.edex-shapefiles"
