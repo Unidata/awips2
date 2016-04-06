@@ -30,7 +30,6 @@ import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager;
-import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager.SOURCE_TYPE;
 import com.raytheon.uf.common.monitor.config.FFMPTemplateConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FFTIDataManager;
 import com.raytheon.uf.common.monitor.processing.IMonitorProcessing;
@@ -63,6 +62,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * Sep.09, 2015  4756      dhladky     Further simplified configuration.
  * Mar 04, 2016  5429      dhladky     Special case for RFCFFG multi-RFC mosaics.
  * Mar 29, 2016  5491      tjensen     Special case for QPFSCAN
+ * Apr 02, 2016  5491      tjensen     Fixed special case for QPFSCAN to be strict
  * </pre>
  * 
  * @author dhladky
@@ -482,7 +482,7 @@ public class FFMPConfig {
                  * RFC mosaic piece. Use existing sourceKey that designates that
                  * mosaic piece.
                  */
-            } else if (source.getSourceType().equals(SOURCE_TYPE.QPF.name())) {
+            } else if (source.getSourceName().equals("QPFSCAN")) {
                 /*
                  * The special case of QPFSCAN. Use existing sourceKey that
                  * designates that mosaic piece.

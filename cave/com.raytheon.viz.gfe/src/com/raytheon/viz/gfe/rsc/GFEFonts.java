@@ -138,7 +138,8 @@ public class GFEFonts {
      */
     private static Font getFont(Device device, int size, int style) {
         FontData fd = getFontData(size);
-        return new Font(device, new FontData(fd.name, (int) fd.height, style));
+        return new Font(device, new FontData(fd.getName(), fd.getHeight(),
+                style));
     }
 
     /**
@@ -170,7 +171,7 @@ public class GFEFonts {
             style = new IFont.Style[0];
         }
 
-        IFont font = target.initializeFont(fd.getName(), fd.height, style);
+        IFont font = target.initializeFont(fd.getName(), fd.getHeight(), style);
         font.setSmoothing(false);
         font.setScaleFont(false);
         return font;
