@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.regex.Matcher;
@@ -267,6 +268,7 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  * 02/23/2016  ASM #18669  D. Friedman Improve speed and reduce memory usage of extension area generation.
  * 03/10/2016  DCS  18509  D. Friedman Make extension area display a separate map background.
  * 03/11/2016  ASM #18720  D. Friedman Improve warning message when extension area is not available.
+ * 03/22/2016  DCS  18719  D. Friedman Add dynamic extension area option.
  * </pre>
  * 
  * @author mschenke
@@ -524,9 +526,13 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
         private boolean cwaStretch;
 
-        private Future<Geometry> extensionAreaFuture;
+        private Future<ExtensionAreaRecord> extensionAreaFuture;
 
-        private GeospatialDataAccessor extensionAreaGDA;
+        private ExtensionAreaOptions extensionAreaOptions;
+
+        private ExtensionAreaRecord lastExtensionAreaRecord;
+        private HashSet<String> lastDynamicGIDs;
+        private Geometry lastDynamicExtensionArea;
 
         public AreaHatcher(PolygonUtil polygonUtil) {
             super("Hatching Warning Area");
@@ -544,15 +550,15 @@ public class WarngenLayer extends AbstractStormTrackResource {
         protected IStatus run(IProgressMonitor monitor) {
             Geometry warningArea;
             Polygon warningPolygon;
-            GeospatialDataAccessor extensionAreaGDA;
-            Future<Geometry> extensionAreaFuture;
+            Future<ExtensionAreaRecord> extensionAreaFuture;
+            ExtensionAreaOptions extensionAreaOptions;
 
             synchronized (polygonUtil) {
                 warningArea = this.warningArea;
                 warningPolygon = this.warningPolygon;
                 this.warningArea = this.warningPolygon = null;
-                extensionAreaGDA = this.extensionAreaGDA;
                 extensionAreaFuture = this.extensionAreaFuture;
+                extensionAreaOptions = this.extensionAreaOptions;
             }
 
             if ((warningArea != null) && (warningPolygon != null)) {
@@ -563,11 +569,55 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 String adjustmentMessage = null;
                 Geometry extensionArea = null;
                 try {
-                    if (extensionAreaGDA != null && extensionAreaFuture != null) {
-                        Geometry staticExtensionArea = extensionAreaFuture.get();
-                        extensionArea = extensionAreaGDA.buildArea(warningPolygon, false); // never uses cwaStretch
-                        if (extensionArea != null && staticExtensionArea != null)
-                            extensionArea = GeometryUtil.intersection(extensionArea, staticExtensionArea);
+                    if (extensionAreaFuture != null) {
+                        try {
+                            ExtensionAreaRecord ear = extensionAreaFuture.get();
+                            GeospatialDataAccessor extensionAreaGDA = ear.gda;
+                            if (extensionAreaOptions.isDynamicArea()) {
+                                Geometry g;
+                                HashSet<String> gids = new HashSet<String>();
+                                gids.addAll(Arrays.asList(GeometryUtil.getGID(warningArea)));
+                                if (ear != lastExtensionAreaRecord ||
+                                        !gids.equals(lastDynamicGIDs)) {
+                                    ExtensionAreaGeometryTask task = new ExtensionAreaGeometryTask(extensionAreaOptions, geoAccessor, extensionAreaGDA);
+                                    g = task.buildExtensionArea(ear.extendedFeatures, gids);
+                                    lastExtensionAreaRecord = ear;
+                                    lastDynamicGIDs = gids;
+                                    lastDynamicExtensionArea = g;
+                                } else {
+                                    g = lastDynamicExtensionArea;
+                                }
+                                extensionArea = extensionAreaGDA.buildArea(warningPolygon, false); // never uses cwaStretch
+                                if (extensionArea != null && g != null) {
+                                    extensionArea = GeometryUtil.intersection(extensionArea, g);
+                                }
+                                Geometry vis = extensionAreaGDA.buildArea(g, false);
+                                setExtensionAreaVis(vis, extensionAreaOptions);
+                                issueRefresh();
+                            } else {
+                                Geometry staticExtensionArea = ear.staticExtensionArea;
+                                extensionArea = extensionAreaGDA.buildArea(warningPolygon, false); // never uses cwaStretch
+                                if (extensionArea != null && staticExtensionArea != null)
+                                    extensionArea = GeometryUtil.intersection(extensionArea, staticExtensionArea);
+                            }
+                        } catch (Exception e) {
+                            /*
+                             * This is DEBUG so as to not distract the user when the
+                             * result may not even be used. If there is an an attempt to
+                             * use the result, the error is reported with a higher
+                             * priority in getHatchedAreas().
+                             *
+                             * Also, use of the extension area may not be critical, so we
+                             * will attempt to continue without it.
+                             */
+                            extensionArea = null;
+                            String baseMsg = "Could not use extension area to redraw the polygon";
+                            this.hatchException = new VizException(baseMsg + ". ", e);
+                            statusHandler.handle(Priority.DEBUG, String.format(
+                                    "%s: %s\n Input: %s\n Ext: %s\n", baseMsg,
+                                    e.getLocalizedMessage(), inputWarningPolygon,
+                                    extensionAreaOptions), e);
+                        }
                     }
 
                     warningPolygon = PolygonUtil
@@ -670,8 +720,9 @@ public class WarngenLayer extends AbstractStormTrackResource {
                      * priority in getHatchedAreas().
                      */
                     statusHandler.handle(Priority.DEBUG, String.format(
-                            "Error redrawing polygon: %s\n Input: %s\nAdjustments: %s\n",
-                            e.getLocalizedMessage(), inputWarningPolygon, adjustmentMessage), e);
+                            "Error redrawing polygon: %s\n Input: %s\n Ext: %s\n Adjustments: %s\n",
+                            e.getLocalizedMessage(), inputWarningPolygon,
+                            extensionAreaOptions, adjustmentMessage), e);
                     setOutputPolygon(null);
                 }
                 perfLog.logDuration("AreaHatcher total", System.currentTimeMillis() - t0);
@@ -690,10 +741,10 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
                 if (extensionAreaManager.isExtensionAreaActive()) {
                     this.extensionAreaFuture = extensionAreaManager.getGeometryFuture();
-                    this.extensionAreaGDA = extensionAreaManager.getGDA();
+                    this.extensionAreaOptions = ((ExtensionAreaOptions) extensionAreaManager
+                            .getObservableExtensionAreaOptions().getValue()).clone();
                 } else {
                     this.extensionAreaFuture = null;
-                    this.extensionAreaGDA = null;
                 }
 
                 this.hatchedArea = null;
@@ -719,17 +770,18 @@ public class WarngenLayer extends AbstractStormTrackResource {
             if (getResult() == null) {
                 return null;
             }
-            if (this.hatchException == null) {
+            if (this.hatchException != null) {
+                Priority priority = hatchedArea == null ? Priority.ERROR
+                        : Priority.WARN;
+                String message = hatchException.getLocalizedMessage();
+                if (!(hatchException instanceof VizException)) {
+                    message = "Could not redraw box from warned area: " + message;
+                }
+                statusHandler.handle(priority, message, hatchException);
+            }
+            if (hatchedArea != null) {
                 return new Geometry[] { hatchedArea, hatchedWarningArea };
             } else {
-                String message;
-                if (hatchException instanceof VizException) {
-                    message = hatchException.getLocalizedMessage();
-                } else {
-                    message = "Could not redraw box from warned area: "
-                            + hatchException.getLocalizedMessage();
-                }
-                statusHandler.handle(Priority.PROBLEM, message, hatchException);
                 return new Geometry[] { null, null };
             }
         }
@@ -750,6 +802,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
         private boolean enabled;
         private double distance = 0.0;
         private double simplificationTolerance = DEFAULT_SIMPLIFICATION_TOLERANCE;
+        private boolean dynamicArea = false;
 
         public ExtensionAreaOptions() {
 
@@ -770,9 +823,11 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 }
                 this.simplificationTolerance = v;
                 this.enabled = this.distance > 0.0;
+                this.dynamicArea = ea.isDynamicArea();
             } else {
                 this.distance = 0.0;
                 this.simplificationTolerance = DEFAULT_SIMPLIFICATION_TOLERANCE;
+                this.dynamicArea = false;
             }
         }
 
@@ -794,6 +849,18 @@ public class WarngenLayer extends AbstractStormTrackResource {
         public void setSimplificationTolerance(double simplificationTolerance) {
             this.simplificationTolerance = simplificationTolerance;
         }
+        public boolean isDynamicArea() {
+            return dynamicArea;
+        }
+        public void setDynamicArea(boolean dynamicArea) {
+            this.dynamicArea = dynamicArea;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("{ enb=%s dist=%s simp=%s dyn=%s }",
+                    enabled, distance, simplificationTolerance, dynamicArea);
+        }
 
         public ExtensionAreaOptions clone() {
             try {
@@ -802,23 +869,25 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 throw new RuntimeException(e);
             }
         }
-
     }
 
     private static class ExtensionAreaRecord {
         private GeospatialDataAccessor primaryGDA;
         private GeospatialDataAccessor gda;
         private ExtensionAreaOptions options;
-        private Geometry geometry;
-        private Geometry extensionAreaVis;
+        private Geometry[] extendedFeatures; // in local coordintes
+        private Geometry staticExtensionArea;
+        private Geometry staticExtensionAreaVis;
         public ExtensionAreaRecord(GeospatialDataAccessor primaryGDA,
                 GeospatialDataAccessor gda, ExtensionAreaOptions options,
-                Geometry geometry, Geometry extensionAreaVis) {
+                Geometry[] extendedFeatures, Geometry staticExtensionArea,
+                Geometry staticExtensionAreaVis) {
             this.primaryGDA = primaryGDA;
             this.gda = gda;
             this.options = options;
-            this.geometry = geometry;
-            this.extensionAreaVis = extensionAreaVis;
+            this.extendedFeatures = extendedFeatures;
+            this.staticExtensionArea = staticExtensionArea;
+            this.staticExtensionAreaVis = staticExtensionAreaVis;
         }
     }
 
@@ -829,7 +898,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
         private GeospatialDataAccessor primaryGDA;
         private GeospatialDataAccessor gda;
 
-        private FutureTask<Geometry> geometryFuture;
+        private FutureTask<ExtensionAreaRecord> geometryFuture;
 
         private Map<String, ExtensionAreaRecord> cache = new HashMap<String, ExtensionAreaRecord>(3);
 
@@ -837,11 +906,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
             super("Generate extension area");
         }
 
-        public GeospatialDataAccessor getGDA() {
-            return gda;
-        }
-
-        public Future<Geometry> getGeometryFuture() {
+        public Future<ExtensionAreaRecord> getGeometryFuture() {
             return geometryFuture;
         }
 
@@ -873,6 +938,17 @@ public class WarngenLayer extends AbstractStormTrackResource {
                         && oldOptions.getSimplificationTolerance() ==
                                 options.getSimplificationTolerance()) {
                     recreateArea = false;
+                    if (oldOptions.isDynamicArea() && !options.isDynamicArea()) {
+                        // Restore static area visualization if already built
+                        if (this.geometryFuture.isDone()) {
+                            try {
+                                setExtensionAreaVis(this.geometryFuture.get().staticExtensionAreaVis);
+                            } catch (InterruptedException | ExecutionException e) {
+                                statusHandler.handle(Priority.WARN,
+                                        "Error showing static extension area", e);
+                            }
+                        }
+                    }
                 }
             }
             this.options = options.clone();
@@ -893,7 +969,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     }
                     if (gda != null) {
                         if (! useCachedArea(primaryGDA, gda, options)) {
-                            geometryFuture = new FutureTask<Geometry>(
+                            geometryFuture = new FutureTask<ExtensionAreaRecord>(
                                     new ExtensionAreaGeometryTask(options,
                                             primaryGDA, gda));
                             schedule();
@@ -907,11 +983,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
             }
             Polygon polygon = getWarngenState().getWarningPolygon();
             if (polygon != null) {
-                try {
-                    updateWarnedAreas(true);
-                } catch (VizException e) {
-                    statusHandler.error("Error re-hatching", e);
-                }
+                warningAreaChanged();
                 issueRefresh();
             }
         }
@@ -927,32 +999,34 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     ear.gda.isEquivalentTo(gda) &&
                     ear.options.getDistance() == options.getDistance() &&
                     ear.options.getSimplificationTolerance() == options.getSimplificationTolerance()) {
-                this.geometryFuture = new FutureTask<Geometry>(new Runnable() {
+                this.geometryFuture = new FutureTask<ExtensionAreaRecord>(new Runnable() {
                     @Override
                     public void run() {
                         // do nothing
                     }
-                }, ear.geometry);
+                }, ear);
                 this.geometryFuture.run();
-                setExtensionAreaVis(ear.extensionAreaVis);
+                setExtensionAreaVis(ear.staticExtensionAreaVis);
                 return true;
             }
             return false;
         }
 
-        private void cacheArea(GeospatialDataAccessor primaryGDA,
-                GeospatialDataAccessor gda, ExtensionAreaOptions options,
-                Geometry area, Geometry vis) {
+        private ExtensionAreaRecord cacheArea(
+                GeospatialDataAccessor primaryGDA, GeospatialDataAccessor gda,
+                ExtensionAreaOptions options, Geometry[] extendedFeatures,
+                Geometry staticArea, Geometry vis) {
+            ExtensionAreaRecord r = new ExtensionAreaRecord(primaryGDA, gda,
+                    options, extendedFeatures, staticArea, vis);
             synchronized (cache) {
-                cache.put(primaryGDA.areaConfig.getAreaSource(),
-                        new ExtensionAreaRecord(primaryGDA, gda, options, area,
-                                vis));
+                cache.put(primaryGDA.areaConfig.getAreaSource(), r);
             }
+            return r;
         }
 
         @Override
         protected IStatus run(IProgressMonitor monitor) {
-            FutureTask<Geometry> future = geometryFuture;
+            FutureTask<?> future = geometryFuture;
             if (future != null) {
                 future.run();
             }
@@ -1052,7 +1126,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
         return extensionAreaManager.getObservableExtensionAreaOptions();
     }
 
-    private class ExtensionAreaGeometryTask implements Callable<Geometry> {
+    private class ExtensionAreaGeometryTask implements Callable<ExtensionAreaRecord> {
         ExtensionAreaOptions options;
         GeospatialDataAccessor primaryGDA;
         GeospatialDataAccessor extensionGDA;
@@ -1068,29 +1142,61 @@ public class WarngenLayer extends AbstractStormTrackResource {
         }
 
         @Override
-        public Geometry call() throws Exception {
-            return createExtensionArea();
+        public ExtensionAreaRecord call() throws Exception {
+            return createExtensionAreaRecord();
         }
 
-        private Geometry createExtensionArea() throws Exception {
+        private ExtensionAreaRecord createExtensionAreaRecord() throws Exception {
             long t0 = System.currentTimeMillis();
-            GeospatialData[] features = primaryGDA.geoData.getFeatures(false); // Never uses cwaStretch feactures.
+            Geometry[] extendedFeatures = buildExtendedFeatures();
+            Geometry staticArea = buildExtensionArea(extendedFeatures, null);
+            Geometry vis = extensionGDA.buildArea(staticArea, false);
+            perfLog.logDuration("Extension area", System.currentTimeMillis() - t0);
+            ExtensionAreaRecord r = extensionAreaManager.cacheArea(primaryGDA,
+                    extensionGDA, options, extendedFeatures, staticArea, vis);
+            setExtensionAreaVis(vis);
+            issueRefresh();
+            return r;
+        }
+
+        private Geometry[] buildExtendedFeatures() {
+            long t0 = System.currentTimeMillis();
+            // Never uses cwaStretch feactures.
+            GeospatialData[] features = primaryGDA.geoData.getFeatures(false);
             Geometry[] g = new Geometry[features.length];
-            for (int i = 0; i < g.length; ++i) {
-                // Pre-simplify and extend each feature.
+            // Pre-simplify and extend each feature.
+            for (int i = 0; i < features.length; ++i) {
+                GeospatialData feature = features[i];
                 g[i] = simplifyAndExtendFeature(
-                        convertGeom(features[i].geometry,
+                        convertGeom(feature.geometry,
                                 primaryGDA.geoData.latLonToLocal),
                         options.getSimplificationTolerance(),
                         options.getDistance());
+                g[i].setUserData(features[i].geometry.getUserData());
             }
-            Geometry r = GeometryUtil.union(g);
+            perfLog.logDuration("Build component extension areas",
+                    System.currentTimeMillis() - t0);
+            return g;
+        }
+
+        public Geometry buildExtensionArea(Geometry[] sourceFeatureGeometries, Set<String> gidFilter) {
+            long t0 = System.currentTimeMillis();
+            Geometry[] geomsToUse;
+            if (gidFilter != null) {
+                ArrayList<Geometry> geoms = new ArrayList<Geometry>(sourceFeatureGeometries.length);
+                for (Geometry g : sourceFeatureGeometries) {
+                        if (gidFilter.contains(GeometryUtil.getPrefix(g.getUserData()))) {
+                            geoms.add(g);
+                        }
+                    }
+                geomsToUse = geoms.toArray(new Geometry[geoms.size()]);
+            } else {
+                geomsToUse = sourceFeatureGeometries;
+            }
+            Geometry r = GeometryUtil.union(geomsToUse);
             r = createExtensionAreaFromLocal(r);
-            Geometry vis = extensionGDA.buildArea(r, false);
-            perfLog.logDuration("Extension area", System.currentTimeMillis() - t0);
-            extensionAreaManager.cacheArea(primaryGDA, extensionGDA, options, r, vis);
-            setExtensionAreaVis(vis);
-            issueRefresh();
+            perfLog.logDuration("Build extension area",
+                    System.currentTimeMillis() - t0);
             return r;
         }
 
@@ -1156,7 +1262,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
             return r;
         }
 
-        private Geometry extensionSimplify(Geometry geom, double tolerance) {
+        public Geometry extensionSimplify(Geometry geom, double tolerance) {
             if (tolerance >= 0) {
                 geom = TopologyPreservingSimplifier.simplify(geom, tolerance);
             }
@@ -1223,7 +1329,12 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 }
             }
             if (initWarngen) {
-                warngenLayer.init(warngenLayer.configuration);
+                VizApp.runAsync(new Runnable() {
+                    @Override
+                    public void run() {
+                        warngenLayer.init(warngenLayer.configuration);
+                    }
+                });
             }
         }
     }
@@ -4515,11 +4626,20 @@ public class WarngenLayer extends AbstractStormTrackResource {
         return observableExtensionAreaVis;
     }
 
-    private void setExtensionAreaVis(final Geometry extensionAreaVis) {
+    private void setExtensionAreaVis(Geometry extensionAreaVis) {
+        setExtensionAreaVis(extensionAreaVis, null);
+    }
+
+    private void setExtensionAreaVis(final Geometry extensionAreaVis,
+            final ExtensionAreaOptions referenceOptions) {
         VizApp.runAsync(new Runnable() {
             @Override
             public void run() {
-                getObservableExtensionAreaVis().setValue(extensionAreaVis);
+                if (referenceOptions == null
+                        || (referenceOptions.isDynamicArea() &&
+                                extensionAreaManager.options.isDynamicArea())) {
+                    getObservableExtensionAreaVis().setValue(extensionAreaVis);
+                }
             }
         });
     }
