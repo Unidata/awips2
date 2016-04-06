@@ -24,7 +24,7 @@
  * SOFTWARE HISTORY
  *
  * Date          Ticket#               Engineer     Description
- * ------------  ----------            -----------  ---------------------------------
+ *
  * 12/26/2011    DR14236 (trac 11710)  Xiaochuan    request to fix SCAN Alert Visualization BASE 
  *                                                  configuring file. Changed true or false setting on popup, text,  
  *                                                  blink and color items followed the A1 configuring master.gcf file.
