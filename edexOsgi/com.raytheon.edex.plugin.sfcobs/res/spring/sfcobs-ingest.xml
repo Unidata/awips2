@@ -62,7 +62,6 @@
                     <bean ref="sfcobsPointData" method="toPointData" />
                     <multicast>
                         <to uri="direct-vm:persistIndexAlert" />
-                        <to uri="direct-vm:synopticToShef" />
                     </multicast>
                 </pipeline>
                 <doCatch>

@@ -50,7 +50,6 @@
                             <bean ref="bufrobsProcessor" />
                             <multicast>
                                 <to uri="direct-vm:persistIndexAlert" />
-                                <to uri="direct-vm:bufrObsShef" />
                             </multicast>
                         </pipeline>
                         <doCatch>
@@ -69,10 +68,5 @@
             </doTry>
         </route>
 
-        <route id="bufrObsShefRoute">
-            <from uri="direct-vm:bufrObsShef" />
-            <bean ref="bufrObsRecordPopulator" method="populate" />
-            <to uri="direct-vm:synopticToShef" />
-        </route>
     </camelContext>
 </beans>
