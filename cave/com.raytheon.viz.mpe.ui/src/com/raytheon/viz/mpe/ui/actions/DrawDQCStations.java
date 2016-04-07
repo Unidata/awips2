@@ -77,6 +77,7 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Zdata;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 7, 2009            snaples     Initial creation
+ * Apr 05, 2016  18350     snaples     Fixed issue with resources not being removed.
  * 
  * </pre>
  * 
@@ -277,11 +278,29 @@ public class DrawDQCStations {
             if (md.getResourceList().containsRsc(mpq)) {
                 md.getResourceList().removeRsc(mpq);
             }
+            if (md.getResourceList().containsRsc(pgp)) {
+                md.getResourceList().removeRsc(pgp);
+            }
+            if (md.getResourceList().containsRsc(pmp)) {
+                md.getResourceList().removeRsc(pmp);
+            }
             if (md.getResourceList().containsRsc(tpq)) {
                 md.getResourceList().removeRsc(tpq);
             }
+            if (md.getResourceList().containsRsc(tgp)) {
+                md.getResourceList().removeRsc(tgp);
+            }
+            if (md.getResourceList().containsRsc(tmp)) {
+                md.getResourceList().removeRsc(tmp);
+            }
             if (md.getResourceList().containsRsc(zpq)) {
                 md.getResourceList().removeRsc(zpq);
+            }
+            if (md.getResourceList().containsRsc(zgp)) {
+                md.getResourceList().removeRsc(zgp);
+            }
+            if (md.getResourceList().containsRsc(zmp)) {
+                md.getResourceList().removeRsc(zmp);
             }
             mpd.setQpf(false);
             mpd.setMaxmin(false);

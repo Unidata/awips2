@@ -36,6 +36,7 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 23, 2009            snaples     Initial creation
+ * Apr 5, 2016  18350      snaples     Changed DailtQCUtils to getInstance.
  * 
  * </pre>
  * 
@@ -55,7 +56,7 @@ public class InitTempClimo {
         String pathName = station_climo_file;
         int stationCount = 0;
         int rec_num = 1;
-        DailyQcUtils dc = new DailyQcUtils();
+        DailyQcUtils dc = DailyQcUtils.getInstance();
         System.out.println("Starting init temp climo: ");
         try {
             File infile = new File(pathName);

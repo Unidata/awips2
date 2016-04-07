@@ -44,6 +44,7 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Zdata;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 9, 2009            snaples     Initial creation
+ * Apr 05, 2016  18350     snaples     Changed call to DailyQC Utils getInstance.
  * 
  * </pre>
  * 
@@ -58,7 +59,7 @@ public class ReadZlevelB {
 
     BufferedReader in = null;
 
-    DailyQcUtils qc = new DailyQcUtils();
+    DailyQcUtils qc = DailyQcUtils.getInstance();
 
     boolean auto_dailyqc_flag = qc.isAuto_dailyqc_flag();
 
@@ -261,6 +262,7 @@ public class ReadZlevelB {
                     qq = 0;
                     a.close();
                 }
+                s.close();
 
             }// while
             in.close();

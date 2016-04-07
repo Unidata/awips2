@@ -63,11 +63,9 @@ import com.raytheon.viz.mpe.util.DailyQcUtils;
  * Nov 12, 2008            snaples     Initial creation
  * Sep 11, 2013 #2353      lvenable    Fixed cursor memory leak.
  * Mar 10, 2015 14575      snaples     Added status flag.
-<<<<<<< HEAD
- * Feb 22, 2016 18599      snaples     Fixed static calls to DailyQCUtils.
-=======
  * Jan 15, 2016 5054       randerso    Use proper parent shell
->>>>>>> origin/master_16.2.2
+ * Feb 22, 2016 18599      snaples     Fixed static calls to DailyQCUtils.
+ * Apr 05, 2016 18350      snaples     Added method call to dqc.destroy to close instance of DQC Utils when exiting.
  * 
  * </pre>
  * 
@@ -283,12 +281,14 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
                 isOpen = false;
                 ddq.destroy();
                 shell.dispose();
+                dqc.destroy();
             }
             if (isOpen == false) {
                 displayMgr.setMaxmin(false);
                 DailyQcUtils.maxmin_flag = false;
                 ddq.destroy();
                 shell.dispose();
+                dqc.destroy();
             }
             if (!display.readAndDispatch()) {
                 display.sleep();
@@ -302,8 +302,7 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
         font.dispose();
         SaveLevel2Data s2 = new SaveLevel2Data(getShell());
         s2.send_dbase_new_area();
-        DailyQcUtils dc = new DailyQcUtils();
-        dc.clearData();
+        dqc.destroy();
         displayMgr.displayFieldData(df);
         removePerspectiveListener();
         if (MPEDisplayManager.getCurrent() != null) {

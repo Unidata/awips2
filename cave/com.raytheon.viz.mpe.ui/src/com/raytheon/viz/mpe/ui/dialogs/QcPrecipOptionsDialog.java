@@ -71,6 +71,7 @@ import com.raytheon.viz.mpe.util.DailyQcUtils;
  * Nov 18, 2015 18093      snaples     Fixed problem with arrows being disabled when new
  *                                     day rollover >18Z occurs.
  * Jan 15, 2016 5054       randerso    Use proper parent shell
+ * Apr 05, 2016 18350      snaples     Added method call to dqc.destroy to close instance of DQC Utils when exiting.
  * 
  * </pre>
  * 
@@ -298,12 +299,14 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
                 isOpen = false;
                 ddq.destroy();
                 shell.dispose();
+                dqc.destroy();
             }
             if (isOpen == false) {
                 displayMgr.setQpf(false);
                 DailyQcUtils.qpf_flag = false;
                 ddq.destroy();
                 shell.dispose();
+                dqc.destroy();
             }
             if (!display.readAndDispatch()) {
                 display.sleep();
@@ -317,8 +320,7 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
         font.dispose();
         SaveLevel2Data s2 = new SaveLevel2Data(getShell());
         s2.send_dbase_new_area();
-        // DailyQcUtils dc = new DailyQcUtils();
-        dqc.clearData();
+        dqc.destroy();
         displayMgr.displayFieldData(df);
         removePerspectiveListener();
         if (MPEDisplayManager.getCurrent() != null) {
