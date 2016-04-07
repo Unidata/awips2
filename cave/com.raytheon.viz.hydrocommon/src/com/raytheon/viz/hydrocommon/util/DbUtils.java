@@ -19,27 +19,28 @@
  **/
 package com.raytheon.viz.hydrocommon.util;
 
-import java.util.HashMap;
+import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.lang.reflect.Field;
 
 import com.raytheon.uf.common.ohd.AppsDefaults;
-import com.raytheon.viz.hydrocommon.data.HydroDBData;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
  * Hydro Database Utilities
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Jul 9, 2008	1194			mpduff	Initial creation.
+ * Date         Ticket#      Engineer   Description
+ * -----------------------------------------------------------
+ * Jul 9, 2008  1194          mpduff    Initial creation.
  * Mar 7, 2014  16692                   lbousaidi Any Forecast source other than
  *                                      H*,P*,Q*,T* should be handled by fcstother.
  * Oct 10, 2015 17935                   special char (e.g apostrophe) can not be saved/updated in Hyrobase
- *  *
+ * Jan 15, 2016 DCS18180     JingtaoD   code improvement based on code review for DR17935
  * </pre>
  * 
  * @author mpduff
@@ -52,6 +53,10 @@ public class DbUtils {
     private static ConcurrentHashMap<String, String> tableMap = null;
 
     private static ConcurrentHashMap<String, String> fcstTableMap = null;
+
+    /** The logger */
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(DbUtils.class);
 
     public static String getTableName(String pe, String ts) {
         populateMaps();
@@ -195,9 +200,14 @@ public class DbUtils {
      * replace string fields in table class which contains apostrophe
      * 
      * @param curData
+     *            , retData
      */
-    public static <T> void escapeSpecialCharforData(T curData) {
-        Class<?> c = curData.getClass();
+    public static <T extends Object> void escapeSpecialCharforData(T curData,
+            T retData) {
+
+        copyFields(curData, retData);
+
+        Class<?> c = retData.getClass();
 
         Field fields[] = c.getDeclaredFields();
 
@@ -206,18 +216,21 @@ public class DbUtils {
                 if (f.getType().isAssignableFrom(String.class)) {
 
                     f.setAccessible(true);
-                    if (f.get(curData) != null) {
-                        String value = (String) f.get(curData).toString();
+                    if (f.get(retData) != null) {
+                        String value = (String) f.get(retData).toString();
+
                         if (value != null) {
                             if (value.contains("'")) {
                                 value = value.replace("'", "''");
-                                f.set(curData, value);
+                                f.set(retData, value);
                             }
                         }
                     }
                 }
             } catch (IllegalAccessException e) {
-                e.printStackTrace();
+                statusHandler.handle(Priority.ERROR,
+                        "Error to escape special characters for object "
+                                + curData.toString(), e);
             }
         }
 
@@ -227,17 +240,53 @@ public class DbUtils {
      * replace apostrophe for string
      * 
      * @param strValue
-     * @return
+     * @return strValue
      */
     public static String escapeSpecialCharforStr(String strValue) {
-        String rVal;
 
         if (strValue != null) {
             if (strValue.contains("'")) {
                 strValue = strValue.replace("'", "''");
             }
         }
-        rVal = strValue;
-        return rVal;
+        return strValue;
     }
+
+    /**
+     * Copy the fields in origData to copiedData, later replace special char in
+     * copiedData object
+     * 
+     * @param origData
+     * @param copiedData
+     */
+    public static <T extends Object> void copyFields(T origData, T copiedData) {
+
+        Class<? extends Object> fromCopy = origData.getClass();
+        Class<? extends Object> toCopy = copiedData.getClass();
+
+        Field origFields[] = fromCopy.getDeclaredFields();
+
+        Object value = null;
+
+        for (Field f : origFields) {
+
+            try {
+
+                Field copiedField = toCopy.getDeclaredField(f.getName());
+
+                f.setAccessible(true);
+                copiedField.setAccessible(true);
+
+                value = f.get(origData);
+                copiedField.set(copiedData, value);
+
+            } catch (Exception e) {
+                statusHandler.handle(Priority.ERROR,
+                        "Error to copy object from " + origData.toString()
+                                + "to" + copiedData.toString(), e);
+            }
+
+        }
+    }
+
 }
