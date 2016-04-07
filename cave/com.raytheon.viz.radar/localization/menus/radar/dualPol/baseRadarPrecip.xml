@@ -140,7 +140,7 @@
 		<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"  
 						menuText="Storm Total Accum (DSD)" id="${icao}StormTotalAccumDSD">
 			       	<substitute key="icao" value="${icao}"/>
-			       	<substitute key="product" value="1.5--1.5"/>
+			       	<substitute key="product" value="175"/>
 					<substitute key="elevation" value="0.0--0.0"/>
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"  

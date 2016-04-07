@@ -9058,4 +9058,224 @@
 		<grib2Value>1</grib2Value>
 	</grib1Parameter>
 <!-- end CMC -->
+
+<!-- navgem -->
+    <grib1Parameter>
+	    <center>58</center>
+		<grib1TableVersion>2</grib1TableVersion>
+		<grib1Value>1</grib1Value>
+		<grib2discipline>0</grib2discipline>
+		<grib2category>3</grib2category>
+		<grib2Value>0</grib2Value>
+    </grib1Parameter>
+
+    <grib1Parameter>
+	    <center>58</center>
+		<grib1TableVersion>2</grib1TableVersion>
+		<grib1Value>2</grib1Value>
+		<grib2discipline>0</grib2discipline>
+		<grib2category>3</grib2category>
+		<grib2Value>1</grib2Value>
+    </grib1Parameter>
+
+    <grib1Parameter>
+	    <center>58</center>
+		<grib1TableVersion>2</grib1TableVersion>
+		<grib1Value>7</grib1Value>
+		<grib2discipline>0</grib2discipline>
+		<grib2category>3</grib2category>
+		<grib2Value>5</grib2Value>
+    </grib1Parameter>
+
+    <grib1Parameter>
+	    <center>58</center>
+		<grib1TableVersion>2</grib1TableVersion>
+		<grib1Value>11</grib1Value>
+		<grib2discipline>0</grib2discipline>
+		<grib2category>0</grib2category>
+		<grib2Value>0</grib2Value>
+    </grib1Parameter>
+
+    <grib1Parameter>
+	    <center>58</center>
+		<grib1TableVersion>2</grib1TableVersion>
+		<grib1Value>32</grib1Value>
+		<grib2discipline>0</grib2discipline>
+		<grib2category>2</grib2category>
+		<grib2Value>1</grib2Value>
+    </grib1Parameter>
+
+    <grib1Parameter>
+	    <center>58</center>
+		<grib1TableVersion>2</grib1TableVersion>
+		<grib1Value>33</grib1Value>
+		<grib2discipline>0</grib2discipline>
+		<grib2category>2</grib2category>
+		<grib2Value>2</grib2Value>
+    </grib1Parameter>
+
+    <grib1Parameter>
+	    <center>58</center>
+		<grib1TableVersion>2</grib1TableVersion>
+		<grib1Value>34</grib1Value>
+		<grib2discipline>0</grib2discipline>
+		<grib2category>2</grib2category>
+		<grib2Value>3</grib2Value>
+    </grib1Parameter>
+
+    <grib1Parameter>
+	    <center>58</center>
+		<grib1TableVersion>2</grib1TableVersion>
+		<grib1Value>39</grib1Value>
+		<grib2discipline>0</grib2discipline>
+		<grib2category>2</grib2category>
+		<grib2Value>8</grib2Value>
+    </grib1Parameter>
+
+    <grib1Parameter>
+	    <center>58</center>
+		<grib1TableVersion>2</grib1TableVersion>
+		<grib1Value>41</grib1Value>
+		<grib2discipline>0</grib2discipline>
+		<grib2category>2</grib2category>
+		<grib2Value>10</grib2Value>
+    </grib1Parameter>
+
+    <grib1Parameter>
+	    <center>58</center>
+		<grib1TableVersion>2</grib1TableVersion>
+		<grib1Value>52</grib1Value>
+		<grib2discipline>0</grib2discipline>
+		<grib2category>1</grib2category>
+		<grib2Value>1</grib2Value>
+    </grib1Parameter>
+
+    <grib1Parameter>
+	    <center>58</center>
+		<grib1TableVersion>2</grib1TableVersion>
+		<grib1Value>61</grib1Value>
+		<grib2discipline>0</grib2discipline>
+		<grib2category>1</grib2category>
+		<grib2Value>8</grib2Value>
+    </grib1Parameter>
+
+    <grib1Parameter>
+	    <center>58</center>
+		<grib1TableVersion>2</grib1TableVersion>
+		<grib1Value>63</grib1Value>
+		<grib2discipline>0</grib2discipline>
+		<grib2category>1</grib2category>
+		<grib2Value>10</grib2Value>
+    </grib1Parameter>
+
+    <grib1Parameter>
+	    <center>58</center>
+		<grib1TableVersion>3</grib1TableVersion>
+		<grib1Value>1</grib1Value>
+		<grib2discipline>0</grib2discipline>
+		<grib2category>3</grib2category>
+		<grib2Value>0</grib2Value>
+    </grib1Parameter>
+
+    <grib1Parameter>
+	    <center>58</center>
+		<grib1TableVersion>3</grib1TableVersion>
+		<grib1Value>2</grib1Value>
+		<grib2discipline>0</grib2discipline>
+		<grib2category>3</grib2category>
+		<grib2Value>1</grib2Value>
+    </grib1Parameter>
+
+    <grib1Parameter>
+	    <center>58</center>
+		<grib1TableVersion>3</grib1TableVersion>
+		<grib1Value>7</grib1Value>
+		<grib2discipline>0</grib2discipline>
+		<grib2category>3</grib2category>
+		<grib2Value>5</grib2Value>
+    </grib1Parameter>
+
+    <grib1Parameter>
+	    <center>58</center>
+		<grib1TableVersion>3</grib1TableVersion>
+		<grib1Value>11</grib1Value>
+		<grib2discipline>0</grib2discipline>
+		<grib2category>0</grib2category>
+		<grib2Value>0</grib2Value>
+    </grib1Parameter>
+
+    <grib1Parameter>
+	    <center>58</center>
+		<grib1TableVersion>3</grib1TableVersion>
+		<grib1Value>32</grib1Value>
+		<grib2discipline>0</grib2discipline>
+		<grib2category>2</grib2category>
+		<grib2Value>1</grib2Value>
+    </grib1Parameter>
+
+    <grib1Parameter>
+	    <center>58</center>
+		<grib1TableVersion>3</grib1TableVersion>
+		<grib1Value>33</grib1Value>
+		<grib2discipline>0</grib2discipline>
+		<grib2category>2</grib2category>
+		<grib2Value>2</grib2Value>
+    </grib1Parameter>
+
+    <grib1Parameter>
+	    <center>58</center>
+		<grib1TableVersion>3</grib1TableVersion>
+		<grib1Value>34</grib1Value>
+		<grib2discipline>0</grib2discipline>
+		<grib2category>2</grib2category>
+		<grib2Value>3</grib2Value>
+    </grib1Parameter>
+
+    <grib1Parameter>
+	    <center>58</center>
+		<grib1TableVersion>3</grib1TableVersion>
+		<grib1Value>39</grib1Value>
+		<grib2discipline>0</grib2discipline>
+		<grib2category>2</grib2category>
+		<grib2Value>8</grib2Value>
+    </grib1Parameter>
+
+    <grib1Parameter>
+	    <center>58</center>
+		<grib1TableVersion>3</grib1TableVersion>
+		<grib1Value>41</grib1Value>
+		<grib2discipline>0</grib2discipline>
+		<grib2category>2</grib2category>
+		<grib2Value>10</grib2Value>
+    </grib1Parameter>
+
+    <grib1Parameter>
+	    <center>58</center>
+		<grib1TableVersion>3</grib1TableVersion>
+		<grib1Value>52</grib1Value>
+		<grib2discipline>0</grib2discipline>
+		<grib2category>1</grib2category>
+		<grib2Value>1</grib2Value>
+    </grib1Parameter>
+
+    <grib1Parameter>
+	    <center>58</center>
+		<grib1TableVersion>3</grib1TableVersion>
+		<grib1Value>61</grib1Value>
+		<grib2discipline>0</grib2discipline>
+		<grib2category>1</grib2category>
+		<grib2Value>8</grib2Value>
+    </grib1Parameter>
+
+    <grib1Parameter>
+	    <center>58</center>
+		<grib1TableVersion>3</grib1TableVersion>
+		<grib1Value>63</grib1Value>
+		<grib2discipline>0</grib2discipline>
+		<grib2category>1</grib2category>
+		<grib2Value>10</grib2Value>
+    </grib1Parameter>
+
+
+<!-- end navgem -->
 </grib1ParameterSet>

@@ -387,6 +387,11 @@
         <dt>3</dt>
     </info>
     <info>
+        <title>namdng25</title>
+        <datasetId>namdng25</datasetId>
+        <dt>3</dt>
+    </info>
+    <info>
         <title>RaobOA</title>
         <datasetId>RaobOA</datasetId>
         <dt>12</dt>
@@ -454,6 +459,11 @@
     <info>
         <title>AK-NamDNG5</title>
         <datasetId>AK-NamDNG5</datasetId>
+        <dt>3</dt>
+    </info>
+    <info>
+        <title>AK-NamDNG3</title>
+        <datasetId>AK-NamDNG3</datasetId>
         <dt>3</dt>
     </info>
     <info>

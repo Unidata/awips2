@@ -20,11 +20,11 @@
 from Init import *
 
 ##--------------------------------------------------------------------------
-## Smart Init to transform NAM DNG5 D2D grids into corresponding GFE grids
+## Smart Init to transform NAM DNG D2D grids into corresponding GFE grids
 ##--------------------------------------------------------------------------
-class NamDNG5Forecaster(Forecaster):
+class NamDNGForecaster(Forecaster):
     def __init__(self):
-        Forecaster.__init__(self, "NamDNG5", "NamDNG5")
+        Forecaster.__init__(self, "NamDNG", "NamDNG")
 
 ##--------------------------------------------------------------------------
 ##  Wind - change m/s to kts
@@ -164,4 +164,4 @@ class NamDNG5Forecaster(Forecaster):
 
 
 def main():
-    NamDNG5Forecaster().run()
+    NamDNGForecaster().run()

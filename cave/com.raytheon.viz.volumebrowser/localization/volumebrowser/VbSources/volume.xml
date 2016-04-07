@@ -81,7 +81,7 @@
     <vbSource key="mesoEta212" category="Volume" />
     <vbSource key="ETA" category="Volume" />
     <vbSource key="ETA207" category="Volume" />
-    <vbSource key="NOGAPS" category="Volume" />
+    <vbSource key="nogaps" name="NAVGEM" category="Volume" />
     <vbSource key="RUC130" category="Volume" />
     <vbSource key="RAP200" category="Volume" />
     <vbSource key="RUC236" category="Volume" />
