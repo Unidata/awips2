@@ -41,6 +41,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * Dec 18, 2015    5217    mpduff      Initial creation
  * Mar 08, 2016    5217    mpduff      Fixed column values to be full hrap columns rather
  *                                        than relative to the subgrid.
+ * Apr 07, 2016    5217    mpduff      Fixed an issue calculating hrap column.
  * 
  * </pre>
  * 
@@ -122,11 +123,11 @@ public class HydroGeoProcessor {
                             .getGridCellPolygon(coord);
                 }
                 if (poly.intersects(hrapGeometries[rowNum][colNum])) {
-                    endCol = c + cols;
+                    endCol = c;
                     binCtr++;
                     if (startCol == -1) {
                         // First cell in the row
-                        startCol = c + cols;
+                        startCol = c;
                         rowCtr++;
                     }
                     area += HrapUtil.getHrapBinArea(coord);
@@ -208,6 +209,8 @@ public class HydroGeoProcessor {
          * for each input point from the database, starting with the second
          * point
          */
+        // Add the first point every time.
+        points.add(new Coordinate(lon[0], lat[0]));
         for (int i = 1; i < data.getNumberPoints(); i++) {
 
             /* if input points are different */
