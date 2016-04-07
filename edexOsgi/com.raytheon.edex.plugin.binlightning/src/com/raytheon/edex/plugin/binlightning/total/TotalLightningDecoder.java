@@ -61,6 +61,7 @@ import com.raytheon.uf.common.wmo.WMOTimeParser;
  * Jun 10, 2014 3226       bclement    added filter support
  * Jun 19, 2014 3226       bclement    added validator callback
  * Jul 07, 2015 4581       skorolev    Corrected decodeStrikes to avoid BufferUnderflowException.
+ * Apr 07, 2016 DR18763 mgamazaychikov Switched to using LightningWMOHeader.
  * 
  * </pre>
  * 
@@ -122,7 +123,7 @@ public class TotalLightningDecoder {
      */
     public PluginDataObject[] decode(byte[] data, Headers headers) {
         PluginDataObject[] rval;
-        WMOHeader wmoHdr = new WMOHeader(data);
+        LightningWMOHeader wmoHdr = new LightningWMOHeader(data);
         String fileName = (String) headers.get(WMOHeader.INGEST_FILE_NAME);
         if (wmoHdr.isValid()) {
             byte[] pdata = BinLightningDecoder.extractPData(wmoHdr, data);
@@ -172,7 +173,7 @@ public class TotalLightningDecoder {
      * @param fileName
      * @param wmoHdr
      */
-    private void warn(String msg, String fileName, WMOHeader wmoHdr) {
+    private void warn(String msg, String fileName, LightningWMOHeader wmoHdr) {
         log.warn(msg + ". File: " + fileName + ", WMO Header: " + wmoHdr);
     }
 
@@ -183,7 +184,7 @@ public class TotalLightningDecoder {
      * @param headers
      * @param wmoHdr
      */
-    private void error(Exception e, Headers headers, WMOHeader wmoHdr) {
+    private void error(Exception e, Headers headers, LightningWMOHeader wmoHdr) {
         String fileName = (String) headers.get(WMOHeader.INGEST_FILE_NAME);
         log.error(e.getLocalizedMessage() + ". File: " + fileName
                 + ", WMO Header: " + wmoHdr, e);
@@ -197,7 +198,7 @@ public class TotalLightningDecoder {
      * @return
      * @throws DecoderException
      */
-    private PluginDataObject[] decodeInternal(WMOHeader wmoHdr,
+    private PluginDataObject[] decodeInternal(LightningWMOHeader wmoHdr,
             String fileName, byte[] pdata) throws DecoderException {
         if (!validFlashPacket(pdata, COMBINATION_PACKET_HEADER_SIZE)) {
             /* assume data is encrypted if we can't understand it */
@@ -220,7 +221,7 @@ public class TotalLightningDecoder {
      * @return
      * @throws DecoderException
      */
-    private byte[] decrypt(WMOHeader wmoHdr, String fileName, byte[] pdata)
+    private byte[] decrypt(LightningWMOHeader wmoHdr, String fileName, byte[] pdata)
             throws DecoderException {
         Calendar baseTime = WMOTimeParser.findDataTime(wmoHdr.getYYGGgg(),
                 fileName);
