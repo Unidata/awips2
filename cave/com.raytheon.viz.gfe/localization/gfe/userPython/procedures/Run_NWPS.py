@@ -19,6 +19,7 @@
 # Last Modified: 10/30/15 by Joe Maloney, added -q flags to scp/ssh at end.
 # Last Modified: 11/25/15 by Tom LeFebvre, added switch to run tool from a cron or interactively.
 # Last Modified: 11/29/15 by P. Santos, completed adding code to enable running Run_NWPS interactively or from a cron.
+# Last modified: 03/18/16 by Joe Maloney, a minor tweak to runManualNWPS_OutsideAWIPS call.
 # ----------------------------------------------------------------------------
 
 # The MenuItems list defines the GFE menu item(s) under which the
@@ -113,15 +114,15 @@ class Procedure (SmartScript.SmartScript):
                                     ("Waterlevels:", "ESTOFS", "radio", ["ESTOFS","PSURGE", "No"]),
                                     ("If PSURGE\n% Exceedance Hgt:", "10", "radio", ["10", "20", "30", "40", "50"]),
                     ]
-
+                
                     varDict = {}
                     processVarList = ProcessVariableList.ProcessVariableList("Run_NWPS", variableList, varDict, None)
                     status = processVarList.status()
                     if status != "OK":
                         return
-
-                    fcst_length = processVarList.varDict()["How Long Do You Want To Run NWPS:"]
-                    fcstlength = str(fcst_length)
+                         
+                    fcst_length = processVarList.varDict()["How Long Do You Want To Run NWPS:"]  
+                    fcstlength = str(fcst_length)              
                     wind="ForecastWindGrids"
                     modelstarttime = processVarList.varDict()["Model Start Time:"]
                     wheretorun = processVarList.varDict()["Local, NCEP, or Both:"]
@@ -137,7 +138,7 @@ class Procedure (SmartScript.SmartScript):
                     excd = processVarList.varDict()["If PSURGE\n% Exceedance Hgt:"]
                     cron = False
                     # end interactive GUI portion
-
+                
                 else: 
 
 # This part of if else statement assumes procedure is being run from command 
@@ -161,14 +162,14 @@ class Procedure (SmartScript.SmartScript):
                     gstream = varDict['gstream']
                     tstep = varDict['tstep']
                     hotstart = varDict['hotstart']
-                    waterlevels = varDict['waterlevels']
-                    excd = varDict['excd']
-
+                    waterlevels = varDict['waterlevels']   
+                    excd = varDict['excd']   
+                                                                                                                                    
                 modelTR = self.getModelTimeRange("Fcst", "Wind")
                 startHour = modelTR[1]
                 endHour = modelTR[2]
                 timeRange = modelTR[0]
-
+    
                 if (modelstarttime == buttonList[0]):
                     starttime=timeList[0]  
                 elif (modelstarttime == buttonList[1]):
@@ -185,21 +186,21 @@ class Procedure (SmartScript.SmartScript):
                     starttime=timeList[6]
                 else:
                     starttime=startHour # Model start Hour if all others empty
-  
+                       
                 if (startHour > starttime):
                     starttime = startHour
-
+                       
                 timeRange1 = TimeRange.TimeRange(AbsTime.AbsTime(starttime - 7*24*3600), AbsTime.AbsTime(starttime + 8*24*3600))
                 timeRange2 = TimeRange.TimeRange(AbsTime.AbsTime(starttime), AbsTime.AbsTime(starttime + 8*24*3600))             
-
+                                  
                 self.deleteCmd(['NWPSwind'], timeRange1)
                 databaseID = self.findDatabase("Fcst")
                 self.copyToCmd([('Wind', 'NWPSwind')], databaseID, timeRange2) 
                 self.fragmentCmd(['NWPSwind'], timeRange2)                
                 self.saveElements(["NWPSwind"])
-
+                   
                 inp_args = fcstlength + ":" + wna + ":" + nest + ":" + gstream + ":" + wind + ":" + web + ":" + plot + ":" + tstep + ":" + hotstart + ":" + waterlevels + ":" + model + ":" + excd + ":" + wheretorun
-
+                                   
                 try:
                     os.stat('/tmp/nwps/'+GFEDomainname)
                 except:
@@ -216,5 +217,5 @@ class Procedure (SmartScript.SmartScript):
                 if cron:
                     os.system('ssh -q px2f /awips2/GFESuite/nwps/bin/runManualNWPS_OutsideAWIPS.sh '+GFEDomainname)                   
                 else:
-                    os.system('xterm -e ssh -q px2f /awips2/GFESuite/nwps/bin/runManualNWPS_OutsideAWIPS.sh '+GFEDomainname)
+                    os.system('nohup xterm -iconic -e ssh -q px2f /awips2/GFESuite/nwps/bin/runManualNWPS_OutsideAWIPS.sh '+GFEDomainname+' &')
                 shutil.rmtree('/tmp/nwps/'+GFEDomainname)                
