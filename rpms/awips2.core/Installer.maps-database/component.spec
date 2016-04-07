@@ -19,7 +19,6 @@ Packager: Bryan Kowal
 AutoReq: no
 provides: awips2-maps-database
 requires: awips2-database
-requires: awips2-edex-shapefiles
 
 %description
 AWIPS II Maps Database - includes the
