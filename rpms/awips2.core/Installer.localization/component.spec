@@ -180,8 +180,7 @@ function importShapefiles()
       return 0
    fi
    
-   # shapefiles exist
-   
+   # Start postgres
    prepare
    
    # verify the both the basins and streams shapefile are present.
