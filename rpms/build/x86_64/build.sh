@@ -121,8 +121,8 @@ if [ "${1}" = "-topo" ]; then
 fi
 if [ "${1}" = "-pydev" ]; then
    #buildRPM "awips2-python"
-   buildRPM "awips2-python-awips"
-   #buildRPM "awips2-python-jep"
+   #buildRPM "awips2-python-awips"
+   buildRPM "awips2-python-jep"
    #buildRPM "awips2-python-numpy"
    #buildRPM "awips2-python-pyparsing"
    #buildRPM "awips2-python-six"
@@ -301,17 +301,19 @@ if [ "${1}" = "-httpd" ]; then
    exit 0
 fi
 if [ "${1}" = "-postgres" ]; then
-   #buildRPM "awips2-pypies"
-   #buildRPM "awips2-postgres"
-   #buildRPM "awips2-edex-upc"
-   #buildRPM "awips2-database"
-   #buildRPM "awips2-database-standalone-configuration"
-   buildRPM "awips2-maps-database"
-   #buildRPM "awips2-ncep-database"
-
+   buildRPM "awips2-postgres"
    exit 0
 fi
 
+if [ "${1}" = "-database" ]; then
+   buildRPM "awips2-pypies"
+   buildRPM "awips2-database"
+   buildRPM "awips2-database-standalone-configuration"
+   buildRPM "awips2-maps-database"
+   buildRPM "awips2-ncep-database"
+
+   exit 0
+fi
 if [ "${1}" = "-delta" ]; then
    buildRPM "awips2"
    buildRPM "awips2-common-base"
