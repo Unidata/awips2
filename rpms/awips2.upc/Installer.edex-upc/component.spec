@@ -21,7 +21,6 @@ Requires: ksh, libstdc++(x86-32), libgfortran(x86-32)
 
 obsoletes: awips2-hydroapps-shared < 15.1.4
 obsoletes: awips2-edex-hydro < 15.1.4
-obsoletes: awips2-edex-dat < 15.1.4
 provides: awips2-edex-upc
 
 %description
