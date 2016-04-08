@@ -25,6 +25,8 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
+
 /**
  * Action to display the Get Apps Defaults or SHEF Apps Defaults dialog.
  * 
@@ -38,6 +40,7 @@ import org.eclipse.ui.PlatformUI;
  * Dec 06, 2012 1353       rferrel     Changes for non blocking GetAppsDefaults.
  *                                      Changes for non blocking SHEFAppsDefaultsDlg.
  * Mar 27, 2013 1790       rferrel     Bug fix for non-blocking dialogs.
+ * Apr 08, 2016 5483       dgilling    Bug fixes for SHEFAppsDefaultsDlg.
  * 
  * </pre>
  * 
@@ -50,13 +53,6 @@ public class AppsDefaultsAction extends AbstractHandler {
 
     private SHEFAppsDefaultsDlg dlg;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.core.commands.IHandler#execute(org.eclipse.core.commands.
-     * ExecutionEvent)
-     */
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
         Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
@@ -70,8 +66,15 @@ public class AppsDefaultsAction extends AbstractHandler {
                 gad.bringToTop();
             }
         } else {
-            if (dlg == null || dlg.isDisposed()) {
+            if ((dlg == null) || (dlg.isDisposed())) {
                 dlg = new SHEFAppsDefaultsDlg(shell);
+                dlg.addCloseCallback(new ICloseCallback() {
+
+                    @Override
+                    public void dialogClosed(Object returnValue) {
+                        dlg = null;
+                    }
+                });
                 dlg.open();
             } else {
                 dlg.bringToTop();
