@@ -121,9 +121,9 @@ if [ "${1}" = "-topo" ]; then
 fi
 if [ "${1}" = "-pydev" ]; then
    #buildRPM "awips2-python"
-   buildRPM "awips2-python-awips"
+   #buildRPM "awips2-python-awips"
    #buildRPM "awips2-python-jep"
-   #buildRPM "awips2-python-numpy"
+   buildRPM "awips2-python-numpy"
    #buildRPM "awips2-python-pyparsing"
    #buildRPM "awips2-python-six"
    #buildRPM "awips2-python-nose"
