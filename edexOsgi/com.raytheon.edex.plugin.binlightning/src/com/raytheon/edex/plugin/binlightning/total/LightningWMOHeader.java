@@ -24,7 +24,7 @@ import com.raytheon.uf.common.wmo.WMOTimeParser;
  * @version 1
  */
 public class LightningWMOHeader {
-public static final String LIGHTNING_WMO_HEADER = "[A-Z]{3}[A-Z0-9](?:\\d{0,2}|[A-Z]{0,2}) [A-Z0-9]{4} \\d{6}(?: [A-Z]{3})?[\\r]{2}[\\n]";
+public static final String LIGHTNING_WMO_HEADER = "[A-Z]{3}[A-Z0-9](?:\\d{0,2}|[A-Z]{0,2}) [A-Z0-9]{4} \\d{6}(?: [A-Z]{3})?[^\\r\\n]*[\\r]*[\\n]";
     
     private static Pattern LIGHTNING_WMO_HEADER_PATTERN = Pattern
             .compile(LIGHTNING_WMO_HEADER);
