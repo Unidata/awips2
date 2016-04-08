@@ -78,7 +78,7 @@ cd $DB_DRIVER_DIR
 files=$(find . | grep postgresql | grep jar)
 for i in $files
 do
-   echo $i
+   #echo $i
    PGSQL_DRIVER_JAR=$i
 done
 export DB_DRIVER_PATH=${DB_DRIVER_DIR}/${PGSQL_DRIVER_JAR}

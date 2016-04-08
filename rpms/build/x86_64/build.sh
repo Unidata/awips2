@@ -304,6 +304,10 @@ if [ "${1}" = "-postgres" ]; then
    buildRPM "awips2-postgres"
    exit 0
 fi
+if [ "${1}" = "-maps" ]; then
+   buildRPM "awips2-maps-database"
+   exit 0
+fi
 
 if [ "${1}" = "-database" ]; then
    #buildRPM "awips2-pypies"

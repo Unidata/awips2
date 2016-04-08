@@ -245,6 +245,8 @@ RainCheck=0
     # check to see if the SUPL info in the DHR data indicates rain
 
       result=`runso rary.ohd.pproc get_dhrpsm_main $pname`
+
+      echo "result is $result"
       Get_DHRPsm=`expr $result`
 
     # debug statement to log file  
