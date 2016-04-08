@@ -19,8 +19,6 @@ Requires: awips2-tools, awips2-edex-configuration, awips2-database-standalone-co
 Requires: awips2-postgresql, awips2-ldm
 Requires: ksh, libstdc++(x86-32), libgfortran(x86-32)
 
-obsoletes: awips2-hydroapps-shared < 15.1.4
-obsoletes: awips2-edex-hydro < 15.1.4
 provides: awips2-edex-upc
 
 %description

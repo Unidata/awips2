@@ -32,7 +32,6 @@ function clean_ldm() {
 		echo
 	fi
         echo -ne "\nCreating the ldm queue:\t"
-	su ${LDM_USER} -lc "regutil -s '1500M' /queue/size"
         su ${LDM_USER} -lc "ldmadmin mkqueue" > /dev/null 2>&1 && success || failure
 	myRetVal=$?
         echo

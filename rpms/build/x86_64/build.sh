@@ -121,8 +121,8 @@ if [ "${1}" = "-topo" ]; then
 fi
 if [ "${1}" = "-pydev" ]; then
    #buildRPM "awips2-python"
-   #buildRPM "awips2-python-awips"
-   buildRPM "awips2-python-jep"
+   buildRPM "awips2-python-awips"
+   #buildRPM "awips2-python-jep"
    #buildRPM "awips2-python-numpy"
    #buildRPM "awips2-python-pyparsing"
    #buildRPM "awips2-python-six"
@@ -306,11 +306,11 @@ if [ "${1}" = "-postgres" ]; then
 fi
 
 if [ "${1}" = "-database" ]; then
-   buildRPM "awips2-pypies"
-   buildRPM "awips2-database"
-   buildRPM "awips2-database-standalone-configuration"
+   #buildRPM "awips2-pypies"
+   #buildRPM "awips2-database"
+   #buildRPM "awips2-database-standalone-configuration"
    buildRPM "awips2-maps-database"
-   buildRPM "awips2-ncep-database"
+   #buildRPM "awips2-ncep-database"
 
    exit 0
 fi
@@ -537,11 +537,13 @@ fi
 if [ "${1}" = "-cave" ]; then
    buildCAVE
 fi
+if [ "${1}" = "-hydro" ]; then
+   buildRPM "awips2-hydroapps-shared"
+fi
 
 if [ "${1}" = "-other" ]; then
    buildRPM "awips2"
    #buildRPM "awips2-cli"
-   #buildRPM "awips2-hydroapps-shared"
    #buildRPM "awips2-gfesuite-client"
    #buildRPM "awips2-gfesuite-server"
    #buildRPM "awips2-yajsw"
