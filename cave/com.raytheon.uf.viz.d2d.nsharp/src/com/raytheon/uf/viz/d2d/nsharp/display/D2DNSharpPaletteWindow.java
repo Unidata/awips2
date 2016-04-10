@@ -19,14 +19,16 @@
  **/
 package com.raytheon.uf.viz.d2d.nsharp.display;
 
-import gov.noaa.nws.ncep.ui.nsharp.view.NsharpPaletteWindow;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IViewSite;
+import org.eclipse.ui.PlatformUI;
 
+import gov.noaa.nws.ncep.ui.nsharp.view.NsharpPaletteWindow;
 import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
 import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
 import com.raytheon.viz.ui.tools.AbstractModalTool;
@@ -56,7 +58,7 @@ public class D2DNSharpPaletteWindow extends NsharpPaletteWindow {
     private static final String EDIT_TOOL_CATEGY = "com.raytheon.viz.ui.modalTool.nav";
 
     private AbstractModalTool lastTool = null;
-
+    
     @Override
     public void init(IViewSite site) {
         super.init(site);
@@ -101,8 +103,14 @@ public class D2DNSharpPaletteWindow extends NsharpPaletteWindow {
 
             @Override
             public void handleEvent(Event event) {
-                D2DNsharpHandleArchiveFile.openArchiveFile(getViewSite()
-                        .getShell());
+                Shell shell = PlatformUI.getWorkbench()
+                        .getActiveWorkbenchWindow().getShell();
+
+                D2DNsharpLoadDialog loadDia = D2DNsharpLoadDialog.getInstance(shell);
+
+                if (loadDia != null) {
+                    loadDia.open();
+                }
             }
         });
 
