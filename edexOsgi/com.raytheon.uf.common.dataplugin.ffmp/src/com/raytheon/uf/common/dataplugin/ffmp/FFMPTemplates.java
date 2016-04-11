@@ -93,6 +93,7 @@ import com.vividsolutions.jts.io.WKBReader;
  * 07/15/13      2184       dhladky     Remove all HUC's for storage except ALL
  * Nov 18, 2014  3831       dhladky     StatusHandler logging. Proper list sizing. Geometry chunk sizing.
  * Aug 08, 2015  4722       dhladky     Improved Grid support.
+ * Apr 07, 2016  5491       tjensen     Fix NullPointerException from getRawGeometries
  * </pre>
  * 
  * @author dhladky
@@ -163,7 +164,7 @@ public class FFMPTemplates {
             .getHandler(FFMPTemplates.class);
 
     private final IPathManager pathManager;
-    
+
     /**
      * Single constructor
      * 
@@ -362,11 +363,12 @@ public class FFMPTemplates {
      */
     private LinkedHashMap<String, FFMPVirtualGageBasinMetaData> readVGBFile(
             String name, String cwa, String dataKey) {
-        
+
         HashMap<String, FFMPVirtualGageBasinMetaData> protoMap = readVGBDomainMap(
                 dataKey, cwa);
         String[] list = readVGBDomainList(dataKey, cwa);
-        LinkedHashMap<String, FFMPVirtualGageBasinMetaData> map = new LinkedHashMap<String, FFMPVirtualGageBasinMetaData>(list.length, 1.0f);
+        LinkedHashMap<String, FFMPVirtualGageBasinMetaData> map = new LinkedHashMap<>(
+                list.length, 1.0f);
 
         // construct ordered map
         for (String lid : list) {
@@ -416,13 +418,17 @@ public class FFMPTemplates {
             list = null;
 
         } catch (SerializationException se) {
-            statusHandler.error("Serialization Exception: Write VGB: cwa: "+cwa+" dataKey: "+dataKey, se);
+            statusHandler.error("Serialization Exception: Write VGB: cwa: "
+                    + cwa + " dataKey: " + dataKey, se);
         } catch (FileNotFoundException fnfe) {
-            statusHandler.error("File Not found Exception: Write VGB: cwa: "+cwa+" dataKey: "+dataKey, fnfe);
+            statusHandler.error("File Not found Exception: Write VGB: cwa: "
+                    + cwa + " dataKey: " + dataKey, fnfe);
         } catch (IOException ioe) {
-            statusHandler.error("IO Exception: Write VGB: cwa: "+cwa+" dataKey: "+dataKey, ioe);
+            statusHandler.error("IO Exception: Write VGB: cwa: " + cwa
+                    + " dataKey: " + dataKey, ioe);
         } catch (LocalizationOpFailedException e) {
-            statusHandler.error("Localization Exception: Write VGB: cwa: "+cwa+" dataKey: "+dataKey, e);
+            statusHandler.error("Localization Exception: Write VGB: cwa: "
+                    + cwa + " dataKey: " + dataKey, e);
         }
     }
 
@@ -489,13 +495,19 @@ public class FFMPTemplates {
             list = null;
 
         } catch (SerializationException se) {
-            statusHandler.error("Serialization Exception: Write Template: cwa: "+cwa+" dataKey:"+dataKey+" huc: "+huc, se);
+            statusHandler.error(
+                    "Serialization Exception: Write Template: cwa: " + cwa
+                            + " dataKey:" + dataKey + " huc: " + huc, se);
         } catch (FileNotFoundException fnfe) {
-            statusHandler.error("File Not found Exception: Write Template: cwa: "+cwa+" dataKey:"+dataKey+" huc: "+huc, fnfe);
+            statusHandler.error(
+                    "File Not found Exception: Write Template: cwa: " + cwa
+                            + " dataKey:" + dataKey + " huc: " + huc, fnfe);
         } catch (IOException ioe) {
-            statusHandler.error("IO Exception: Write Template: cwa: "+cwa+" dataKey:"+dataKey+" huc: "+huc, ioe);
+            statusHandler.error("IO Exception: Write Template: cwa: " + cwa
+                    + " dataKey:" + dataKey + " huc: " + huc, ioe);
         } catch (LocalizationOpFailedException e) {
-            statusHandler.error("Localization Exception: Write Template: cwa: "+cwa+" dataKey:"+dataKey+" huc: "+huc, e);
+            statusHandler.error("Localization Exception: Write Template: cwa: "
+                    + cwa + " dataKey:" + dataKey + " huc: " + huc, e);
         }
     }
 
@@ -846,7 +858,8 @@ public class FFMPTemplates {
                 }
             }
         } catch (Exception e) {
-            statusHandler.error("Find Basin by lon lat failed: dataKey: "+dataKey+ " coor:"+coor.toString(), e);
+            statusHandler.error("Find Basin by lon lat failed: dataKey: "
+                    + dataKey + " coor:" + coor.toString(), e);
         }
 
         return null;
@@ -1010,7 +1023,8 @@ public class FFMPTemplates {
             }
 
         } catch (Exception e) {
-            statusHandler.error("Failed to lookup County: dataKey: "+dataKey, e);
+            statusHandler.error("Failed to lookup County: dataKey: " + dataKey,
+                    e);
         }
 
         FFMPCounties counties = new FFMPCounties(countyList);
@@ -1085,16 +1099,16 @@ public class FFMPTemplates {
 
             Rectangle rect = null;
 
-                rect = HRAPCoordinates.getHRAPCoordinates();
-                rect.setBounds(rect.x * primeSource.getHrapGridFactor(), rect.y
-                        * primeSource.getHrapGridFactor(), rect.width
-                        * primeSource.getHrapGridFactor(), rect.height
-                        * primeSource.getHrapGridFactor());
+            rect = HRAPCoordinates.getHRAPCoordinates();
+            rect.setBounds(rect.x * primeSource.getHrapGridFactor(), rect.y
+                    * primeSource.getHrapGridFactor(),
+                    rect.width * primeSource.getHrapGridFactor(), rect.height
+                            * primeSource.getHrapGridFactor());
 
-                HRAPSubGrid hrapgrid = new HRAPSubGrid(rect,
-                        primeSource.getHrapGridFactor());
-                Geometry geo = hrapgrid.getGeometry();
-                siteExtents = FFMPUtils.getGeometryText(geo);
+            HRAPSubGrid hrapgrid = new HRAPSubGrid(rect,
+                    primeSource.getHrapGridFactor());
+            Geometry geo = hrapgrid.getGeometry();
+            siteExtents = FFMPUtils.getGeometryText(geo);
 
         } else if (primeSource.getDataType().equals(
                 FFMPSourceConfigurationManager.DATA_TYPE.RADAR.getDataType())) {
@@ -1108,7 +1122,8 @@ public class FFMPTemplates {
         } else if (primeSource.getDataType().equals(
                 FFMPSourceConfigurationManager.DATA_TYPE.GRID.getDataType())) {
             // extract the Grid Coverage for use in site extents creation
-            GridCoverage coverage = FFMPUtils.getGridCoverageRecord(primeSource.getDataPath());
+            GridCoverage coverage = FFMPUtils.getGridCoverageRecord(primeSource
+                    .getDataPath());
             siteExtents = FFMPUtils.getGeometryText(coverage.getGeometry());
         } else if (primeSource.getDataType().equals(
                 FFMPSourceConfigurationManager.DATA_TYPE.PDO.getDataType())) {
@@ -1170,7 +1185,9 @@ public class FFMPTemplates {
                                 getMaxExtent(), getSiteExtents(dataKey),
                                 mode.getMode()));
                     } catch (Exception e) {
-                        statusHandler.handle(Priority.PROBLEM, "Unable to create FFMP Template for this dataKey: "+dataKey, e);
+                        statusHandler.handle(Priority.PROBLEM,
+                                "Unable to create FFMP Template for this dataKey: "
+                                        + dataKey, e);
                     }
                 } else if (huc.equals(FFMPRecord.COUNTY)) {
                     list = getCountyFips(cwa, dataKey);
@@ -1243,7 +1260,8 @@ public class FFMPTemplates {
                                 primary = true;
                             }
 
-                            if (rawGeometries == null) {
+                            if (rawGeometries == null
+                                    || rawGeometries.isEmpty()) {
                                 rawGeometries = getRawGeometries(dataKey, cwa);
                             }
 
@@ -1745,19 +1763,19 @@ public class FFMPTemplates {
         SoftReference<Map<Long, Geometry>> rawGeomRef = cwaRawGeometries
                 .get(compositeKey);
         Map<Long, Geometry> pfafGeometries = null;
-        
+
         if (rawGeomRef != null) {
             pfafGeometries = rawGeomRef.get();
         }
 
         if (results != null && results.length > 0) {
-                       
+
             if (pfafGeometries == null) {
-                pfafGeometries = new HashMap<Long, Geometry>(results.length, 1.0f);
+                pfafGeometries = new HashMap<>(results.length, 1.0f);
                 cwaRawGeometries.put(compositeKey,
                         new SoftReference<Map<Long, Geometry>>(pfafGeometries));
             }
-            
+
             for (int i = 0; i < results.length; i++) {
                 Object[] row = (Object[]) results[i];
                 basin = FFMPUtils.getMetaDataBasin(row, mode.getMode());
@@ -1772,12 +1790,14 @@ public class FFMPTemplates {
                 if ((row.length >= (upstreamDepth + 9))
                         && (row[upstreamDepth + 9] != null)) {
                     try {
-                        pfafGeometries.put(basin.getPfaf(), reader
-                                .read((byte[]) row[upstreamDepth + 9])
-                                .buffer(0));
-                   
+                        pfafGeometries.put(basin.getPfaf(),
+                                reader.read((byte[]) row[upstreamDepth + 9])
+                                        .buffer(0));
+
                     } catch (Exception e) {
-                        statusHandler.error("Failure to add rawGeometry in loadBasins: "+siteKey, e);
+                        statusHandler.error(
+                                "Failure to add rawGeometry in loadBasins: "
+                                        + siteKey, e);
                     }
                 }
             }
@@ -1995,9 +2015,11 @@ public class FFMPTemplates {
             list = SerializationUtil.transformFromThrift(long[].class,
                     FileUtil.file2bytes(f.getFile(), true));
         } catch (SerializationException se) {
-            statusHandler.error("Serialization Exception: Read Domain: cwa: "+cwa+" dataKey: "+dataKey+" huc: "+huc, se);
+            statusHandler.error("Serialization Exception: Read Domain: cwa: "
+                    + cwa + " dataKey: " + dataKey + " huc: " + huc, se);
         } catch (IOException e) {
-            statusHandler.error("IO Exception: Read Domain: cwa: "+cwa+" dataKey: "+dataKey+" huc: "+huc, e);
+            statusHandler.error("IO Exception: Read Domain: cwa: " + cwa
+                    + " dataKey: " + dataKey + " huc: " + huc, e);
         }
 
         return list;
@@ -2032,9 +2054,11 @@ public class FFMPTemplates {
                                 FileUtil.file2bytes(f.getFile(), true));
             }
         } catch (SerializationException se) {
-            statusHandler.error("Serialization Exception: Domain Map: "+dataKey+" cwa:"+cwa+" huc: "+huc, se);
+            statusHandler.error("Serialization Exception: Domain Map: "
+                    + dataKey + " cwa:" + cwa + " huc: " + huc, se);
         } catch (IOException e) {
-            statusHandler.error("IO Exception: Domain Map: "+dataKey+" cwa:"+cwa+" huc: "+huc, e);
+            statusHandler.error("IO Exception: Domain Map: " + dataKey
+                    + " cwa:" + cwa + " huc: " + huc, e);
         }
 
         return map;
@@ -2063,9 +2087,11 @@ public class FFMPTemplates {
                     .transformFromThrift(HashMap.class,
                             FileUtil.file2bytes(f.getFile(), true));
         } catch (SerializationException se) {
-            statusHandler.error("Serialization Exception: Virtual Basins: "+dataKey+" cwa: "+cwa, se);
+            statusHandler.error("Serialization Exception: Virtual Basins: "
+                    + dataKey + " cwa: " + cwa, se);
         } catch (IOException e) {
-            statusHandler.error("IO Exception: Virtual Basins: "+dataKey+" cwa: "+cwa, e);
+            statusHandler.error("IO Exception: Virtual Basins: " + dataKey
+                    + " cwa: " + cwa, e);
         }
 
         return map;
@@ -2091,9 +2117,12 @@ public class FFMPTemplates {
             list = SerializationUtil.transformFromThrift(String[].class,
                     FileUtil.file2bytes(f.getFile(), true));
         } catch (SerializationException se) {
-            statusHandler.error("Serialization Exception: : Read Virtual Domain: cwa: "+cwa+" dataKey: "+dataKey, se);
+            statusHandler.error(
+                    "Serialization Exception: : Read Virtual Domain: cwa: "
+                            + cwa + " dataKey: " + dataKey, se);
         } catch (IOException e) {
-            statusHandler.error("IO Exception: : Read Virtual Domain: cwa: "+cwa+" dataKey: "+dataKey, e);
+            statusHandler.error("IO Exception: : Read Virtual Domain: cwa: "
+                    + cwa + " dataKey: " + dataKey, e);
         }
 
         return list;
@@ -2151,14 +2180,15 @@ public class FFMPTemplates {
         if (rawGeomRef != null) {
             pfafGeometries = rawGeomRef.get();
         }
-        if (pfafGeometries == null) {
+        if (pfafGeometries == null || pfafGeometries.isEmpty()) {
             // TODO: add sync locking per cwa
             long t0 = System.currentTimeMillis();
             pfafGeometries = FFMPUtils.getRawGeometries(getMap(siteKey, cwa,
                     FFMPRecord.ALL).keySet());
             long t1 = System.currentTimeMillis();
-            System.out.println("Retrieval of raw geometries for site "
-                    + siteKey + " cwa " + cwa + " took " + (t1 - t0) + " ms.");
+            statusHandler.handle(Priority.INFO,
+                    "Retrieval of raw geometries for site " + siteKey + " cwa "
+                            + cwa + " took " + (t1 - t0) + " ms.");
             cwaRawGeometries.put(compositeKey,
                     new SoftReference<Map<Long, Geometry>>(pfafGeometries));
         }
@@ -2362,10 +2392,14 @@ public class FFMPTemplates {
             if (res >= 0.004) {
 
                 try {
-                    list = FFMPUtils.getUniqueCountyFips(cwa, getMaxExtent(),
-                            getSiteExtents(dataKey), mode.getMode(), resolution);
+                    list = FFMPUtils
+                            .getUniqueCountyFips(cwa, getMaxExtent(),
+                                    getSiteExtents(dataKey), mode.getMode(),
+                                    resolution);
                 } catch (Exception e) {
-                    statusHandler.handle(Priority.PROBLEM, "Unable to create FFMP Template for this dataKey: "+dataKey, e);
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Unable to create FFMP Template for this dataKey: "
+                                    + dataKey, e);
                 }
 
                 if (list.size() > 0) {
