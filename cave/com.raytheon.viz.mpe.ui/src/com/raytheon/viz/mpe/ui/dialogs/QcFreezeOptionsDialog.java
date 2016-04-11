@@ -65,8 +65,9 @@ import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
  * ------------ ---------- ----------- --------------------------
  * Jul, 7 2009             snaples     Initial creation
  * Sep 11, 2013 #2353      lvenable    Fixed cursor memory leak.
- * Mar 10, 2015  14575     snaples     Added addtional status flag.
+ * Mar 10, 2015  14575     snaples     Added additional status flag.
  * Jan 15, 2016 5054       randerso    Use proper parent shell
+ * Apr 11, 2016 5512       bkowal      Fix GUI sizing issues. Cleanup.
  * 
  * </pre>
  * 
@@ -125,10 +126,6 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
 
     OtherFreezeOptions ozo = new OtherFreezeOptions();
 
-    // Zdata[] zdata = new Zdata[0];
-
-    // Ts[] ts;
-
     private int time_pos;
 
     public static Button[] tsbuttons = null;
@@ -157,29 +154,33 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
 
     private int getOpts() {
         int ik = 0;
-        if (dqc.points_flag == 1 && dqc.pcp_in_use[time_pos] == -1) {
+        if (DailyQcUtils.points_flag == 1
+                && DailyQcUtils.pcp_in_use[time_pos] == -1) {
             ik = 0;
-        } else if (dqc.points_flag == 1 && dqc.grids_flag == -1
-                && dqc.map_flag == -1 && dqc.contour_flag == -1) {
+        } else if (DailyQcUtils.points_flag == 1
+                && DailyQcUtils.grids_flag == -1 && DailyQcUtils.map_flag == -1
+                && DailyQcUtils.contour_flag == -1) {
             ik = 0;
-        } else if (dqc.points_flag == -1 && dqc.grids_flag == 1
-                && dqc.map_flag == -1) {
+        } else if (DailyQcUtils.points_flag == -1
+                && DailyQcUtils.grids_flag == 1 && DailyQcUtils.map_flag == -1) {
             ik = 1;
-        } else if (dqc.points_flag == -1 && dqc.grids_flag == -1
-                && dqc.map_flag == 1) {
+        } else if (DailyQcUtils.points_flag == -1
+                && DailyQcUtils.grids_flag == -1 && DailyQcUtils.map_flag == 1) {
             ik = 2;
-        } else if (dqc.points_flag == 1 && dqc.grids_flag == 1
-                && dqc.map_flag == -1) {
+        } else if (DailyQcUtils.points_flag == 1
+                && DailyQcUtils.grids_flag == 1 && DailyQcUtils.map_flag == -1) {
             ik = 3;
-        } else if (dqc.points_flag == 1 && dqc.grids_flag == -1
-                && dqc.map_flag == 1) {
+        } else if (DailyQcUtils.points_flag == 1
+                && DailyQcUtils.grids_flag == -1 && DailyQcUtils.map_flag == 1) {
             ik = 4;
-        } else if (dqc.points_flag == -1 && dqc.contour_flag == 1) {
+        } else if (DailyQcUtils.points_flag == -1
+                && DailyQcUtils.contour_flag == 1) {
             ik = 5;
-        } else if (dqc.points_flag == 1 && dqc.contour_flag == 1) {
+        } else if (DailyQcUtils.points_flag == 1
+                && DailyQcUtils.contour_flag == 1) {
             ik = 6;
-        } else if (dqc.points_flag == -1 && dqc.grids_flag == -1
-                && dqc.map_flag == -1) {
+        } else if (DailyQcUtils.points_flag == -1
+                && DailyQcUtils.grids_flag == -1 && DailyQcUtils.map_flag == -1) {
             ik = 7;
         }
         return ik;
@@ -265,8 +266,8 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
         font = new Font(shell.getDisplay(), "Courier", 10, SWT.NORMAL);
         if (MPEDisplayManager.pcpn_time_step != 0) {
             MPEDisplayManager.pcpn_time_step = 0;
-            dqc.pcpn_time = 0;
-            dqc.pcp_flag = 3 + dqc.pcpn_day * 4;
+            DailyQcUtils.pcpn_time = 0;
+            DailyQcUtils.pcp_flag = 3 + DailyQcUtils.pcpn_day * 4;
         }
         // Initialize all of the controls and layouts
         this.initializeComponents();
@@ -329,42 +330,39 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
      */
     private void initializeComponents() {
         // zdata = DailyQcUtils.zdata;
-        dqc.points_flag = 1;
-        dqc.grids_flag = -1;
-        dqc.map_flag = -1;
-        dqc.contour_flag = -1;
-        if (dqc.zdata == null || (dqc.zdata.length <= 0)) {
+        DailyQcUtils.points_flag = 1;
+        DailyQcUtils.grids_flag = -1;
+        DailyQcUtils.map_flag = -1;
+        DailyQcUtils.contour_flag = -1;
+        if (DailyQcUtils.zdata == null || (DailyQcUtils.zdata.length <= 0)) {
             Date currDate = ChooseDataPeriodDialog.prevDate;
             String QcArea = ChooseDataPeriodDialog.prevArea;
             int qcDays = MPEDisplayManager.getCurrent().getDqcDays();
             // checks to see if area or date has changed since last data load
             DailyQcUtils dqcu = new DailyQcUtils();
             dqc_good = dqcu.qcDataReload(currDate, QcArea, qcDays, false);
-            // dqc.zdata = DailyQcUtils.zdata;
             if (MPEDisplayManager.pcpn_time_step != 0) {
                 MPEDisplayManager.pcpn_time_step = 0;
-                dqc.pcpn_time = 0;
-                dqc.pcp_flag = 3 + dqc.pcpn_day * 4;
+                DailyQcUtils.pcpn_time = 0;
+                DailyQcUtils.pcp_flag = 3 + DailyQcUtils.pcpn_day * 4;
             }
 
         }
         dataSet.clear();
         dataSet.addAll(dataType);
 
-        dqc.pcp_flag = 3;
-        dqc.pcpn_day = 0;
-        dqc.pcpn_time = 0;
+        DailyQcUtils.pcp_flag = 3;
+        DailyQcUtils.pcpn_day = 0;
+        DailyQcUtils.pcpn_time = 0;
 
         for (i = 0; i < 8; i++) {
+            time_pos = 100 + DailyQcUtils.pcp_flag;
 
-            time_pos = 100 + dqc.pcp_flag;
-
-            if ((i != 0 && i != 7) && dqc.pcp_in_use[time_pos] == -1) {
+            if ((i != 0 && i != 7) && DailyQcUtils.pcp_in_use[time_pos] == -1) {
                 dataSet.remove(dataSet.indexOf(dataType.get(i)));
             }
         }
 
-        // ts = DailyQcUtils.ts;
         this.createDataOptionsGroup();
         this.createPointSetComp();
         this.createPointControlComp();
@@ -377,7 +375,7 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
     private void createDataOptionsGroup() {
         int i = 0;
         Group dataOptionsGroup = new Group(shell, SWT.NONE);
-        dataOptionsGroup.setText(" Data Options ");
+        dataOptionsGroup.setText("Data Options");
         GridLayout groupLayout = new GridLayout(1, false);
         dataOptionsGroup.setLayout(groupLayout);
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
@@ -393,16 +391,18 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
         freezeTimeCompLayout.marginHeight = 0;
         freezeTimeCompLayout.marginWidth = 0;
         freezeTimeComp.setLayout(freezeTimeCompLayout);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        freezeTimeComp.setLayoutData(gd);
 
         Label freezeTimeLbl = new Label(freezeTimeComp, SWT.CENTER);
-        freezeTimeLbl.setText(" 6 Hour ");
+        freezeTimeLbl.setText("6 Hour");
 
         // Add the time arrow buttons
         Composite timeArrowsComp = new Composite(freezeTimeComp, SWT.NONE);
         RowLayout timeArrowRl = new RowLayout(SWT.HORIZONTAL);
         timeArrowsComp.setLayout(timeArrowRl);
 
-        RowData rd = new RowData(25, 25);
+        RowData rd = new RowData(SWT.DEFAULT, SWT.DEFAULT);
         upTimeBtn = new Button(timeArrowsComp, SWT.ARROW | SWT.UP);
         upTimeBtn.setLayoutData(rd);
         upTimeBtn.setEnabled(false);
@@ -413,7 +413,7 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
             }
         });
 
-        rd = new RowData(25, 25);
+        rd = new RowData(SWT.DEFAULT, SWT.DEFAULT);
         dnTimeBtn = new Button(timeArrowsComp, SWT.ARROW | SWT.DOWN);
         dnTimeBtn.setLayoutData(rd);
         dnTimeBtn.setEnabled(false);
@@ -424,7 +424,7 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
             }
         });
 
-        GridData dd = new GridData(208, SWT.DEFAULT);
+        GridData dd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
 
         String[] a = new String[dataSet.size()];
         dataDispCbo = new Combo(dataOptionsGroup, SWT.DROP_DOWN | SWT.READ_ONLY);
@@ -435,7 +435,7 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
 
         i = getOpts();
 
-        time_pos = 100 + dqc.pcp_flag;
+        time_pos = 100 + DailyQcUtils.pcp_flag;
         int ii = dataSet.indexOf((dataType.get(i)));
         dataDispCbo.select(ii);
         dataDispCbo.addSelectionListener(new SelectionAdapter() {
@@ -450,13 +450,15 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
         renderCompLayout.marginHeight = 0;
         renderCompLayout.marginWidth = 0;
         renderComp.setLayout(renderCompLayout);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        renderComp.setLayoutData(gd);
 
-        gd = new GridData(153, 25);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, true, false);
         renderGridsBtn = new Button(renderComp, SWT.PUSH);
         renderGridsBtn.setText("Render Grids+MAZs");
         renderGridsBtn.setLayoutData(gd);
-        if (dqc.pcp_in_use[time_pos] == -1
-                && dqc.zdata[i].used[dqc.pcpn_time] != 0) {
+        if (DailyQcUtils.pcp_in_use[time_pos] == -1
+                && DailyQcUtils.zdata[i].used[DailyQcUtils.pcpn_time] != 0) {
             renderGridsBtn.setEnabled(true);
         } else {
             renderGridsBtn.setEnabled(false);
@@ -476,11 +478,13 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
         filterTypeCompLayout.marginHeight = 0;
         filterTypeCompLayout.marginWidth = 0;
         filterTypeComp.setLayout(filterTypeCompLayout);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        filterTypeComp.setLayoutData(gd);
 
         Label pcpLbl = new Label(filterTypeComp, SWT.CENTER);
         pcpLbl.setText("Filter Z:");
 
-        gd = new GridData(190, SWT.DEFAULT);
+        gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
         filterZTypeCbo = new Combo(filterTypeComp, SWT.DROP_DOWN
                 | SWT.READ_ONLY);
         filterZTypeCbo.setTextLimit(30);
@@ -500,7 +504,7 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
 
     private void createPointSetComp() {
         Composite pntSetComp = new Composite(shell, SWT.NONE);
-        GridLayout pntSetCompGl = new GridLayout(2, false);
+        GridLayout pntSetCompGl = new GridLayout(2, true);
         pntSetComp.setLayout(pntSetCompGl);
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         pntSetComp.setLayoutData(gd);
@@ -508,7 +512,7 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
         Label pntDispLbl = new Label(pntSetComp, SWT.CENTER);
         pntDispLbl.setText("Point display:");
 
-        dqc.plot_view = 4;
+        DailyQcUtils.plot_view = 4;
 
         pntDispCbo = new Combo(pntSetComp, SWT.DROP_DOWN | SWT.READ_ONLY);
         pntDispCbo.setTextLimit(30);
@@ -654,7 +658,6 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
         OtherPrecipOptions.change_maxmin_flag = -1;
 
         // initialize the gage filter values
-        // DailyQcUtils.elevation_filter_value = pntElFilter.getSelection();
         pntFilter.setSelection(0);
         pntRevFilter.setSelection(0);
         dqc.pxtemp = (pxTempFilter.getSelection() - 100) / 100;
