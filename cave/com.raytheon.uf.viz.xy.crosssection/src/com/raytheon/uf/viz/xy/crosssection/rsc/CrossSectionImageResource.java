@@ -84,6 +84,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                    plugin.
  * Oct 02, 2015  4914     bsteffen    Create custom style type for rules that
  *                                    apply only to cross section.
+ * Apr 12, 2016  5567     bsteffen    Fix conversion in inspect
  * 
  * </pre>
  * 
@@ -312,7 +313,7 @@ public class CrossSectionImageResource extends AbstractCrossSectionResource {
             ColorMapParameters colorMapParams = getCapability(
                     ColorMapCapability.class).getColorMapParameters();
             if (colorMapParams != null) {
-                Unit<?> dataUnit = adapter.getUnit();
+                Unit<?> dataUnit = getUnit();
                 Unit<?> displayUnit = colorMapParams.getDisplayUnit();
                 if (displayUnit != null && dataUnit != null
                         && dataUnit.isCompatible(displayUnit)) {
