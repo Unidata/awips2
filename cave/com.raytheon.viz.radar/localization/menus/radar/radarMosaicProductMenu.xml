@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- # This software was developed and / or modified by Raytheon Company, 
+	# pursuant to Contract DG133W-05-CQ-1067 with the US Government. # # U.S. 
+	EXPORT CONTROLLED TECHNICAL DATA # This software product contains export-restricted 
+	data whose # export/transfer/disclosure is restricted by U.S. law. Dissemination 
+	# to non-U.S. persons whether in the United States or abroad requires # an 
+	export license or other authorization. # # Contractor Name: Raytheon Company 
+	# # See the AWIPS II Master Rights File ("Master Rights File.pdf") ## ##THIS 
+	FILE GENERATED AUTOMATICALLY BY config_common_menus IN THE AWIPS II AUTOMATION 
+	TOOL -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
+			menuText="0.5 Reflectivity" id="Radar05Reflectivity">
+			<substitute key="product" value="153,94,19,20" />
+			<substitute key="elevation" value="0.5" />
+			<substitute key="name" value="0.5 Reflectivity" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
+			menuText="0.5 Differential Refl (ZDR)" id="Radar05ZDR">
+			<substitute key="product" value="159,158" />
+			<substitute key="elevation" value="0.5" />
+			<substitute key="name" value="0.5 Diff Reflectivity" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
+			menuText="0.5 Specific Diff Phase (KDP)" id="Radar05KDP">
+			<substitute key="product" value="163,162" />
+			<substitute key="elevation" value="0.5" />
+			<substitute key="name" value="0.5 Specific Diff Phase" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
+			menuText="0.5 Correlation Coeff (CC)" id="Radar05CC">
+			<substitute key="product" value="161,160" />
+			<substitute key="elevation" value="0.5" />
+			<substitute key="name" value="0.5 Correlation Coefficient" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
+			menuText="Hybrid Scan Refl" id="RadarHybridScanRefl">
+			<substitute key="product" value="32,33" />
+			<substitute key="elevation" value="0.0" />
+			<substitute key="name" value="Hybrid Scan Refl" />
+ 		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
+			menuText="Composite Refl" id="RadarCompositeRefl">
+			<substitute key="product" value="37" />
+			<substitute key="elevation" value="0.0" />
+			<substitute key="name" value="Composite Refl" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaicVILCompRefl.xml" 
+			menuText="VIL/Comp Ref" id="RadarVILCompRef" />
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
+			menuText="Vert integrated Liquid" id="RadarVertIntegratedLiquid">
+			<substitute key="product" value="57" />
+			<substitute key="elevation" value="0.0" />
+			<substitute key="name" value="Vert integrated Liquid" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
+			menuText="Digital Vert integrated Liquid" id="RadarDigitalVertIntegratedLiquid">
+			<substitute key="product" value="134" />
+			<substitute key="elevation" value="0.0" />
+			<substitute key="name" value="Digital Vert integrated Liquid" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
+			menuText="Storm Total Precip" id="RadarStormTotalPrecip">
+			<substitute key="product" value="80" />
+			<substitute key="elevation" value="0.0" />
+			<substitute key="name" value="Storm Total Precip" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
+			menuText="Digital Storm Total Precip (DSP)" id="RadarDigitalStormTotalPrecip">
+			<substitute key="product" value="138" />
+			<substitute key="elevation" value="0.0" />
+			<substitute key="name" value="Digital Storm Total Precip (DSP)" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
+			menuText="One Hour Precip" id="RadarOneHourPrecip">
+			<substitute key="product" value="78" />
+			<substitute key="elevation" value="0.0" />
+			<substitute key="name" value="One Hour Precip" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
+			menuText="Echo Tops" id="RadarEchoTops">
+			<substitute key="product" value="41" />
+			<substitute key="elevation" value="0.0" />
+			<substitute key="name" value="Echo Tops" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
+			menuText="Hybrid Hydro Class" id="RadarHybridHydroClass">
+			<substitute key="product" value="177" />
+			<substitute key="elevation" value="0.0" />
+			<substitute key="name" value="Hybrid Hydro Class" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
+			menuText="Dual Pol Inst Precip Rate (DPR)" id="InstPrecipRateDPR">
+			<substitute key="product" value="176" />
+			<substitute key="elevation" value="0.0" />
+			<substitute key="name" value="Dual Pol Inst Precip Rate (in/hr)" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
+			menuText="Dual Pol Storm Total Accum (STA)" id="RadarDualPolStormTotal">
+			<substitute key="product" value="172" />
+			<substitute key="elevation" value="0.0" />
+			<substitute key="name" value="Dual Pol Storm Total Accum" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
+			menuText="Dual Pol Storm Total Accum Diff (DSD)" id="RadarDualPolStormTotal">
+			<substitute key="product" value="175" />
+			<substitute key="elevation" value="0.0" />
+			<substitute key="name" value="Dual Pol Storm Total Accum Diff" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
+			menuText="Dual Pol 1hr Accum (OHA)" id="RadarDualPol1hrAccum">
+			<substitute key="product" value="169" />
+			<substitute key="elevation" value="0.0" />
+			<substitute key="name" value="Dual Pol 1hr Accum (OHA)" />
+		</contribute>
+		<contribute xsi:type="bundleItem"
+			file="bundles/DefaultRadarMosaicDPprecip.xml" menuText="Dual Pol User 3hr Accum /hrly (DUA)"
+			id="RadarUserSelectablePrecip3hr">
+			<substitute key="product" value="173" />
+			<substitute key="elevation" value="0.0" />
+			<substitute key="layer" value="3.0" />
+			<substitute key="name" value="Dual Pol User 3hr Accum /hrly (DUA)" />
+		</contribute>
+		<contribute xsi:type="bundleItem"
+			file="bundles/DefaultRadarMosaicDPprecip.xml" menuText="Dual Pol User 24hr Accum @12Z (DUA)"
+			id="RadarUserSelectablePrecip24hr">
+			<substitute key="product" value="173" />
+			<substitute key="elevation" value="0.0" />
+			<substitute key="layer" value="6.0" />
+			<substitute key="name" value="Dual Pol User 24hr Accum @12Z (DUA)" />
+		</contribute>
+</menuTemplate>

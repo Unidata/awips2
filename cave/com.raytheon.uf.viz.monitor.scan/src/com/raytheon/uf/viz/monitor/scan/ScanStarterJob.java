@@ -42,6 +42,7 @@ import com.raytheon.uf.viz.monitor.scan.config.SCANConfig;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 23, 2013            njensen     Initial creation
+ * Jan 28, 2015 DR 16771   arickert    Moved opening the Scan dialog to initInternal of ScanResource.java
  * 
  * </pre>
  * 
@@ -77,18 +78,14 @@ public class ScanStarterJob extends Job {
             scan.setup(icao);
         }
 
+        // The ScanMonitor dialog was opened here previously but this led
+        // to an issue where if the user pressed the clear button before the
+        // ScanResource was properly initialized the dialog would not close.
+        // Opening the dialog is now the responsibility of the ScanResource
+        
+        
         SCANConfig.getInstance();
 
-        VizApp.runAsync(new Runnable() {
-
-            @Override
-            public void run() {
-                Shell shell = PlatformUI.getWorkbench()
-                        .getActiveWorkbenchWindow().getShell();
-                scan.launchDialog(shell, icao, table);
-            }
-
-        });
         return Status.OK_STATUS;
     }
 

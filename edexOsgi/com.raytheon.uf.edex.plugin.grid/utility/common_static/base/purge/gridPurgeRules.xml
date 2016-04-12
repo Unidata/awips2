@@ -176,12 +176,32 @@
 		<versionsToKeep>24</versionsToKeep>
 		<modTimeToWait>00-00:15:00</modTimeToWait>
 	</rule>
+    <rule>
+        <keyValue>AK-RTMA</keyValue>
+        <versionsToKeep>24</versionsToKeep>
+        <modTimeToWait>00-00:15:00</modTimeToWait>
+    </rule>
 	<!-- Purge rule for AK-RTMA-3KM analysis -->
 	<rule>
 		<keyValue>AK-RTMA3</keyValue>
 		<versionsToKeep>24</versionsToKeep>
 		<modTimeToWait>00-00:15:00</modTimeToWait>
 	</rule>
+    <rule>
+        <keyValue>HI-RTMA</keyValue>
+        <versionsToKeep>24</versionsToKeep>
+        <modTimeToWait>00-00:15:00</modTimeToWait>
+    </rule>
+    <rule>
+        <keyValue>PR-RTMA</keyValue>
+        <versionsToKeep>24</versionsToKeep>
+        <modTimeToWait>00-00:15:00</modTimeToWait>
+    </rule>
+    <rule>
+        <keyValue>Guam-RTMA</keyValue>
+        <versionsToKeep>8</versionsToKeep>
+        <modTimeToWait>00-00:15:00</modTimeToWait>
+    </rule>
 	<!-- Purge rule for the SREF (SREF212) model -->
 	<rule>
 		<keyValue>SREF212</keyValue>
@@ -237,11 +257,6 @@
 		<versionsToKeep>2</versionsToKeep>
 		<modTimeToWait>00-00:15:00</modTimeToWait>
 	</rule>	
-    <!-- Purge rule for the HI-RTMA (HI-RTMA) model -->
-    <rule>
-        <keyValue>HI_RTMA</keyValue>
-        <versionsToKeep>24</versionsToKeep>
-    </rule>
     <!-- Purge rule for the HiResW-ARW-East (HiResW-ARW-East) model -->
     <rule>
         <keyValue>HiRes-ARW-East</keyValue>
@@ -302,6 +317,11 @@
     <!-- Purge rules for MRMS -->
     <rule regex="true">
         <keyValue>MRMS_(?:05|10)00</keyValue>
+        <versionsToKeep>120</versionsToKeep>
+        <period>03-00:00:00</period>
+    </rule>
+    <rule>
+        <keyValue>MRMS_5000</keyValue>
         <versionsToKeep>120</versionsToKeep>
         <period>03-00:00:00</period>
     </rule>

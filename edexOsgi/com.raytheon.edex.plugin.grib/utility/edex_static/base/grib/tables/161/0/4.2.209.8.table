@@ -1,3 +1,11 @@
 #Product Discipline 209 - Multi-Radar/Multi-Sensor, Parameter Category 8: Radar/Precipitation Products 
 0:0:Radar Quality Index (RQI)::RadarQualityIndex
+1:1:1 hour QPE Gauge Influence Index::GaugeInfIndex01H
+2:2:3 hour QPE Gauge Influence Index::GaugeInfIndex03H
+3:3:6 hour QPE Gauge Influence Index::GaugeInfIndex06H
+4:4:12 hour QPE Gauge Influence Index::GaugeInfIndex12H
+5:5:24 hour QPE Gauge Influence Index::GaugeInfIndex24H
+6:6:48 hour QPE Gauge Influence Index::GaugeInfIndex48H
+7:7:72 hour QPE Gauge Influence Index::GaugeInfIndex72H
 8:8:Seamless Hybrid Scan Reflectivity (SHSR):dBZ:SeamlessHSR
+9:9:Seamless Hybrid Scan Reflectivity (SHSR) Height:km:SeamlessHSRHeight

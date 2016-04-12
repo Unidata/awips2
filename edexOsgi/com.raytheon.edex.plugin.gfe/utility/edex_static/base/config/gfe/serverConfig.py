@@ -73,9 +73,14 @@
 #    10/07/2015          #4958     dgilling       Added support for NationalBlend D2D data.
 #    10/13/2015          #4961     randerso       Updated NewTerrain/BaseTerrain database definitions
 #    10/30/2015          #17940    jendrowski     Responded to Code Review.  Mostly syntactical changes.
-#    11/05/2015          #18182    ryu            Change D2DDBVERSIONS value for HPCERP to 24 
+#    11/05/2015          #18182    ryu            Change D2DDBVERSIONS value for HPCERP to 24
 #    12/22/2015          #14152    jwatson        Added Sky, Wind to GFSLAMPGrid parms
 #    02/09/2016          #5283     nabowle        Remove NGM support.
+#    02/23/2016          #14845    jwatson        Changed NamDNG5 to NamDNG for all sources and params. 
+#                                                 Changed D2DModels for CONUS and Alaska to 
+#                                                 namdng25 and AK-NamDNG3
+#    04/01/2016          18777     ryu            Replace NCF ip addresses.
+#
 ####################################################################################################
 
 #----------------------------------------------------------------------------
@@ -400,13 +405,13 @@ def getParmNames(parmsDef):
     run in localConfig:
 
     parmsToRemove=[]
-    for p in getParmNames(serverConfig.modelDict['Fcst']):
+    for p in getParmNames(modelDict['Fcst']):
         pl=p.lower()
         for t in ['period','swell','wave','surf', 'surge']:
             if t in pl:
                 parmsToRemove.append(p)
                 break
-    removeParms(serverConfig.modelDict,'Fcst',parmsToRemove)
+    removeParms(modelDict,'Fcst',parmsToRemove)
     """
     result=[]
     for pList,tc in parmsDef:
@@ -438,6 +443,7 @@ def printServerConfig(moduleObj,localsDict, logFile="/awips2/edex/logs/localConf
                     "HazardKeys",
                     "MAX_USER_BACKGROUND_PROCESSES",
                     "AdditionalISCRouting",
+                    "ignoreDatabases",
                    ]
 
             for item in scvars:
@@ -582,6 +588,73 @@ def _dumpParms(parms):
         result += "    %s\n" % repr(pDict[k])
     return result
 
+def addOptionalParms(defaultTC,tcParmDict,parmDict,modelDict):
+    """Adds parms from optionalParmsDict to the Fcst database.
+    This is a convience function if most parms use the default time constraint.
+    Otherwise, its just as easy to hard code what needs to be added for a
+    optionalParmsDict entry.
+
+    defaultTC: Default time constraint to if a parameter specific TC is not
+               defined in tcParmDict.
+    tcParmDict: Dictionary with keys of time constraints. Value is a list of
+                parameter names to be added with that time constraint. Empty
+                dictionary ok if everything should use the default. Example:
+                tcParmDict={TC6NG:['IceLineAcc','IceFlatAcc',]}
+    parmDict: Parameter dictionary with keys of parameter name and value is
+              the parameter definition tuple. Keys must match keys in tcParmDict.
+    modelDict: The serverConfig modelDict dictionary. Must already have Fcst
+               defined. Changed in place.
+    Returns: The parameter definition added to Fcst
+    """
+
+    tcParms={defaultTC:[]}
+    for tc in tcParmDict:
+        tcParms[tc]=[]
+    if len(tcParmDict) == 0:
+        tcParmDict['dummyTC']=['dummyParm']
+    for pname,value in parmDict.iteritems():
+        # Find the time constrait to use for this parm
+        for tc in tcParmDict:
+            if pname in tcParmDict[tc]:
+                tcParms[tc].append(value)
+                break
+            else:
+                tcParms[defaultTC].append(value)
+
+    theParms=[]
+    for tc in tcParms:
+        theParms.append((tcParms[tc],tc))
+    modelDict['Fcst']['Parms'] += theParms
+    return theParms
+
+def addPowt(modelDict):
+    """This sets up PoWT parameters for in Fcst database.
+    """
+    defaultTC=TC1
+    # Use value of time constraint and string name of parm in tcParmDict
+    tcParmDict={TC6NG:['IceLineAcc','IceFlatAcc',]
+               }
+    return addOptionalParms(defaultTC,tcParmDict,
+                            optionalParmsDict['powt'],modelDict)
+
+def addWinterWeatherProbs(modelDict):
+    """This sets up ER Winter Weather Probability parameters in the Fcst database.
+    """
+    defaultTC=TC1
+    # Use value of time constraint and string name of parm in tcParmDict
+    tcParmDict={}
+    return addOptionalParms(defaultTC,tcParmDict,
+                            optionalParmsDict['winterProb'],modelDict)
+
+def addRainfallProbs(modelDict):
+    """This sets up WPC rainfall probability parameters in the Fcst database.
+    """
+    defaultTC=TC1
+    # Use value of time constraint and string name of parm in tcParmDict
+    tcParmDict={}
+    return addOptionalParms(defaultTC,tcParmDict,
+                            optionalParmsDict['rainfallProb'],modelDict)
+
 # imports the named module.  If the module
 # does not exist, it is just ignored.  But
 # if it exists and has an error, the exception
@@ -655,10 +728,21 @@ for r in siteRegion:
         break
 
 groups['powt']=list(siteRegion['CR'])
-groups['marineSites']=["CAR","GYX","BOX","OKX","PHI","LWX","AKQ","MHX","ILM","CHS",
+groups['marineSites']=[
+                       # CONUS WFOs
+                       "CAR","GYX","BOX","OKX","PHI","LWX","AKQ","MHX","ILM","CHS",
                        "BRO","CRP","HGX","LCH","LIX","MOB","TAE","TBW","KEY","MFL",
                        "MLB","JAX","SJU",
-                       "SEW","PQR","MFR","EKA","MTR","LOX","SGX"]
+                       "SEW","PQR","MFR","EKA","MTR","LOX","SGX",
+                       # AR sites
+                       'AFC','AFG','AJK', 'AER', 'ALU',
+                       # OPC Atlantic and Pacific
+                       'ONA', 'ONP',
+                       # NHC/TAFB Pacific and Atlantic, Storm Surge
+                       'NH1', 'NH2', 'NHA',
+                       # HFO Marine, GUM
+                       'HFO', 'HPA', 'GUM',
+                      ]
 # Override due to DR 17496 fix forcing TC3NG
 # These are coastal sites that need TC1
 groups['marineTC1']=["CAR","GYX","BOX","OKX","PHI","LWX","AKQ","ILM","CHS","MHX",
@@ -692,14 +776,15 @@ NO = 0
 
 # Standard Public Weather Elements
 SID = GFESUITE_SITEID
-Temp =    ("T", SCALAR, "F", "Surface Temperature", 120.0, -80.0, 0, NO)
+Temp =    ("T", SCALAR, "F", "Surface Temperature", 140.0, -100.0, 0, NO)
 Td =      ("Td", SCALAR, "F", "Dewpoint", 120.0, -80.0, 0, NO)
-MaxT =    ("MaxT", SCALAR, "F", "Maximum Temperature", 120.0, -80.0, 0, NO)
-MinT =    ("MinT", SCALAR, "F", "Minimum Temperature", 120.0, -80.0, 0, NO)
+MaxT =    ("MaxT", SCALAR, "F", "Maximum Temperature", 140.0, -100.0, 0, NO)
+MinT =    ("MinT", SCALAR, "F", "Minimum Temperature", 140.0, -100.0, 0, NO)
 HeatIndex = ("HeatIndex", SCALAR, "F", "Heat Index", 130.0, -80.0, 0, NO)
 WindChill = ("WindChill", SCALAR, "F", "Wind Chill", 120.0, -120.0, 0, NO)
 QPF =     ("QPF", SCALAR, "in", "QPF", 5.0, 0.0, 2, YES)
 Wind =    ("Wind", VECTOR, "kts", "Surface Wind", 125.0, 0.0, 0, NO)
+WindGust = ("WindGust", SCALAR, "kts", "Wind Gust", 125.0, 0.0, 0, NO)
 # special for TPC hurricane winds
 HiWind =    ("Wind", VECTOR, "kts", "Surface Wind", 200.0, 0.0, 0, NO)
 Weather = ("Wx", WEATHER, "wx", "Weather")
@@ -723,85 +808,14 @@ QPF6hr = ("QPF6hr", SCALAR, "in", "6 hr Precipitation (in)", 5.0, 0.0, 2, YES)
 SnowAmt6hr = ("SnowAmt6hr", SCALAR, "in", "6 hr Snowfall", 30.0, 0.0, 1, YES)
 
 # Cobb SnowTool included.
-SnowRatio = ('SnowRatio', SCALAR, 'none', 'Snow Ratio', 40.0, 0.0, 0, NO)
+SnowRatio = ('SnowRatio', SCALAR, 'none', 'Snow Ratio', 40.0, 0.0, 1, NO)
 #totalVV = ('totalVV', SCALAR, 'ubar/s', 'Total VV', 400.0, 0.0, 0, YES)
 cape = ("cape", SCALAR, "1unit", "CAPE", 8000.0, 0.0, 1, NO)
 ApparentT = ("ApparentT", SCALAR, "F", "Apparent Temperature", 130.0, -120.0, 0, NO)
-UWaveDir = ("UWaveDir", SCALAR, "m/s", "U WaveDir Comp", 0.50, -0.50, 3, NO)
-VWaveDir = ("VWaveDir", SCALAR, "m/s", "V WaveDir Comp", 0.50, -0.50, 3, NO)
 LkSfcT = ("LkSfcT", SCALAR, "C", "Lake Surface T", 40.0, -2.0, 1, NO)
 SnowMap = ("SnowMap", SCALAR, "in", "Snowfall Map", 20.0, 0.0, 1, NO)
-WaveDir = ("WaveDir", VECTOR, "m/s", "Wave Direction", 5.0, 0.0, 2, NO)
 StormTotalQPF = ('StormTotalQPF', SCALAR, 'in', 'Storm Total QPF (in)', 36.0, 0.0, 2, NO)
 SeasonTotalSnow = ('SeasonTotalSnow', SCALAR, 'in', 'Season Total Snow (in)', 150.0, 0.0, 2, NO)
-
-# Marine Weather Elements
-WindWaveHeight = ("WindWaveHgt", SCALAR, "ft", "Wind Wave Height", 100.0, 0.0, 0, NO)
-WaveHeight = ("WaveHeight", SCALAR, "ft", "Total Wave Height", 100.0, 0.0, 0, NO)
-Swell = ("Swell", VECTOR, "ft", "Primary Swell", 100.0, 0.0, 0, NO)
-Swell2 = ("Swell2", VECTOR, "ft", "Secondary Swell", 100.0, 0.0, 0, NO)
-Period = ("Period", SCALAR, "sec", "Primary Period", 20.0, 0.0, 0, NO)
-WindGust = ("WindGust", SCALAR, "kts", "Wind Gust", 125.0, 0.0, 0, NO)
-IceCoverage = ("IceCoverage", SCALAR, "%", "Ice Coverage Amount", 100.0, 0.0, 0, NO)
-SurfHeight = ("SurfHeight", SCALAR, "ft", "Total Wave Height", 100.0, 0.0, 0, NO)
-##########DCS3499
-SigWaveHgt = ("SigWaveHgt", SCALAR, "ft",
-              "Significant wave height of combined wind waves and swells",
-              30.0, 0.0, 0, NO)
-WindWaveHgt = ("WindWaveHgt", SCALAR, "ft", "Significant wave height of wind waves", 30.0, 0.0, 0, NO)
-WindWavePeriod = ("WindWavePeriod", SCALAR, "sec.", "Wind wave peak period", 20.0, 0.0, 0, NO)
-WindWaveDir = ("WindWaveDir", VECTOR, "degree", "Direction of wind waves", 100.0, 0.0, 0, NO)
-
-NWPSwind = ("NWPSwind", VECTOR, "kts", "NWPSwind", 150.0, 0.0, 0, NO)
-SwanSwell = ("SwanSwell", SCALAR, "ft", "Total Significant Swell Height", 40.0, 0.0, 2, NO)
-
-#Smart Init Grids - for partitioned wave groups
-Wave_1 = ("Wave_1", VECTOR, "ft", "Wave_1", 50.0, 0.0, 2, NO)
-Wave_2 = ("Wave_2", VECTOR, "ft", "Wave_2", 50.0, 0.0, 2, NO)
-Wave_3 = ("Wave_3", VECTOR, "ft", "Wave_3", 50.0, 0.0, 2, NO)
-Wave_4 = ("Wave_4", VECTOR, "ft", "Wave_4", 50.0, 0.0, 2, NO)
-Wave_5 = ("Wave_5", VECTOR, "ft", "Wave_5", 50.0, 0.0, 2, NO)
-Wave_6 = ("Wave_6", VECTOR, "ft", "Wave_6", 50.0, 0.0, 2, NO)
-Wave_7 = ("Wave_7", VECTOR, "ft", "Wave_7", 50.0, 0.0, 2, NO)
-Wave_8 = ("Wave_8", VECTOR, "ft", "Wave_8", 50.0, 0.0, 2, NO)
-Wave_9 = ("Wave_9", VECTOR, "ft", "Wave_9", 50.0, 0.0, 2, NO)
-Wave_10 = ("Wave_10", VECTOR, "ft", "Wave_10", 50.0, 0.0, 2, NO)
-
-#Fcst Grids - for partitioned wave groups
-Wave1 = ("Wave1", VECTOR, "ft", "WAVE1", 50.0, 0.0, 0, NO)
-Wave2 = ("Wave2", VECTOR, "ft", "WAVE2", 50.0, 0.0, 0, NO)
-Wave3 = ("Wave3", VECTOR, "ft", "WAVE3", 50.0, 0.0, 0, NO)
-Wave4 = ("Wave4", VECTOR, "ft", "WAVE4", 50.0, 0.0, 0, NO)
-Wave5 = ("Wave5", VECTOR, "ft", "WAVE5", 50.0, 0.0, 0, NO)
-Wave6 = ("Wave6", VECTOR, "ft", "WAVE6", 50.0, 0.0, 0, NO)
-Wave7 = ("Wave7", VECTOR, "ft", "Wave7", 50.0, 0.0, 0, NO)
-Wave8 = ("Wave8", VECTOR, "ft", "Wave8", 50.0, 0.0, 0, NO)
-Wave9 = ("Wave9", VECTOR, "ft", "Wave9", 50.0, 0.0, 0, NO)
-Wave10 = ("Wave10", VECTOR, "ft", "Wave10", 50.0, 0.0, 0, NO)
-
-#Smart Init Grids - for partitioned wave groups
-Period_1 = ("Period_1", SCALAR, "sec", "Period_1", 30.0, 1.0, 0, NO)
-Period_2 = ("Period_2", SCALAR, "sec", "Period_2", 30.0, 1.0, 0, NO)
-Period_3 = ("Period_3", SCALAR, "sec", "Period_3", 30.0, 1.0, 0, NO)
-Period_4 = ("Period_4", SCALAR, "sec", "Period_4", 30.0, 1.0, 0, NO)
-Period_5 = ("Period_5", SCALAR, "sec", "Period_5", 30.0, 0.0, 0, NO)
-Period_6 = ("Period_6", SCALAR, "sec", "Period_6", 30.0, 0.0, 0, NO)
-Period_7 = ("Period_7", SCALAR, "sec", "Period_7", 30.0, 0.0, 0, NO)
-Period_8 = ("Period_8", SCALAR, "sec", "Period_8", 30.0, 0.0, 0, NO)
-Period_9 = ("Period_9", SCALAR, "sec", "Period_9", 30.0, 0.0, 0, NO)
-Period_10 = ("Period_10", SCALAR, "sec", "Period_10", 30.0, 0.0, 0, NO)
-
-#Fcst Grids - for partitioned wave groups
-Period1 = ("Period1", SCALAR, "sec", "Period1", 30.0, 0.0, 0, NO)
-Period2 = ("Period2", SCALAR, "sec", "Period2", 30.0, 0.0, 0, NO)
-Period3 = ("Period3", SCALAR, "sec", "Period3", 30.0, 0.0, 0, NO)
-Period4 = ("Period4", SCALAR, "sec", "Period4", 30.0, 0.0, 0, NO)
-Period5 = ("Period5", SCALAR, "sec", "Period5", 30.0, 0.0, 0, NO)
-Period6 = ("Period6", SCALAR, "sec", "Period6", 30.0, 0.0, 0, NO)
-Period7 = ("Period7", SCALAR, "sec", "Period7", 30.0, 0.0, 0, NO)
-Period8 = ("Period8", SCALAR, "sec", "Period8", 30.0, 0.0, 0, NO)
-Period9 = ("Period9", SCALAR, "sec", "Period9", 30.0, 0.0, 0, NO)
-Period10 = ("Period10", SCALAR, "sec", "Period10", 30.0, 0.0, 0, NO)
 
 # Fire Weather Weather Elements
 LAL = ("LAL", SCALAR, "cat", "Lightning Activity Level", 6.0, 1.0, 0, NO)
@@ -852,15 +866,15 @@ PressUnc = ("PressUnc", SCALAR, "Pa", "Press Anl Uncertainty", 110000.0, 0.0, 2,
 Pressure = ("Pressure", SCALAR, "Pa", "Pressure", 110000.0, 0.0, 2, NO)
 WGustUnc =  ("WGustUnc", SCALAR, "kts", "WGust Anl Uncertainty", 12.0, 0.0, 0, NO)
 
-# NamDNG5 parms
+# NamDNG parms
 QPF3 =     ("QPF3", SCALAR, "in", "3HR QPF", 5.0, 0.0, 2, YES)
 QPF6 =     ("QPF6", SCALAR, "in", "6HR QPF", 5.0, 0.0, 2, YES)
 QPF12 =    ("QPF12", SCALAR, "in", "12HR QPF", 10.0, 0.0, 2, YES)
 Vis =      ("Vis", SCALAR, "SM", "Visibility", 10.0, 0.0, 2, NO)
 SnowAmt6 = ("SnowAmt6", SCALAR, "in", "Snowfall amount (6hr)", 20.0, 0.0, 1, YES)
 
-MaxT3 =  ("MaxT3", SCALAR, "F", "3hr Maximum Temperature", 120.0, -80.0, 0, NO)
-MinT3 =  ("MinT3", SCALAR, "F", "3hr Minimum Temperature", 120.0, -80.0, 0, NO)
+MaxT3 =  ("MaxT3", SCALAR, "F", "3hr Maximum Temperature", 140.0, -100.0, 0, NO)
+MinT3 =  ("MinT3", SCALAR, "F", "3hr Minimum Temperature", 140.0, -100.0, 0, NO)
 MaxRH3 = ("MaxRH3", SCALAR, "%", "3hr Maximum Relative Humidity", 100.0, 0.0, 0, NO)
 
 # Parms for Satellite
@@ -1218,37 +1232,37 @@ LTG = ('LTG', SCALAR, 'CNT', 'LTG', 100.0, 0.0, 0, NO)
 LTG12 = ('LTG12', SCALAR, 'CNT', 'LTG12', 100.0, 0.0, 0, NO)
 LTG24 = ('LTG24', SCALAR, 'CNT', 'LTG24', 100.0, 0.0, 0, NO)
 Lightning = ('Lightning', DISCRETE, 'cat', 'Lightning', 0, ThreatKeys)
-Max3 = ('Max3', SCALAR, 'F', '3hr Maximum Temperature', 120.0, -80.0, 0, NO)
-Max6 = ('Max6', SCALAR, 'F', '6hr Maximum Temperature', 120.0, -80.0, 0, NO)
+Max3 = ('Max3', SCALAR, 'F', '3hr Maximum Temperature', 140.0, -100.0, 0, NO)
+Max6 = ('Max6', SCALAR, 'F', '6hr Maximum Temperature', 140.0, -100.0, 0, NO)
 MaxApT = ('MaxApT', SCALAR, 'F', 'Max Apparent Temperature', 130.0, -120.0, 0, NO)
 MaxRHError = ('MaxRHError', SCALAR, '%', 'Maximum Relative Humidity Error', 100.0, -100.0, 0, NO)
 MaxRHFcst = ('MaxRHFcst', SCALAR, '%', 'Forecast Maximum Relative Humidity', 100.0, 0.0, 0, NO)
 MaxRHOb = ('MaxRHOb', SCALAR, '%', 'Observed Maximum Relative Humidity', 100.0, 0.0, 0, NO)
 MaxRHObs = ('MaxRHObs', SCALAR, '%', 'Maximum Observed RH', 100.0, 0.0, 0, NO)
-MaxT10 = ('MaxT10', SCALAR, 'F', '10th Percentile for MaxT', 110.0, 10.0, 0, NO)
-MaxT50 = ('MaxT50', SCALAR, 'F', '50th Percentile for MaxT', 110.0, 10.0, 0, NO)
-MaxT90 = ('MaxT90', SCALAR, 'F', '90th Percentile for MaxT', 110.0, 10.0, 0, NO)
+MaxT10 = ('MaxT10', SCALAR, 'F', '10th Percentile for MaxT', 140.0, -100.0, 0, NO)
+MaxT50 = ('MaxT50', SCALAR, 'F', '50th Percentile for MaxT', 140.0, -100.0, 0, NO)
+MaxT90 = ('MaxT90', SCALAR, 'F', '90th Percentile for MaxT', 140.0, -100.0, 0, NO)
 MaxTAloft = ('MaxTAloft', SCALAR, 'C', 'Max Temp in Warm Nose', 40.0, -20.0, 1, NO)
 MaxTError = ('MaxTError', SCALAR, 'F', 'Maximum Temperature Error', 120.0, -120.0, 0, NO)
-MaxTFcst = ('MaxTFcst', SCALAR, 'F', 'Observed Maximum Temperature', 120.0, -80.0, 0, NO)
-MaxTOb = ('MaxTOb', SCALAR, 'F', 'Observed Maximum Temperature', 120.0, -80.0, 0, NO)
+MaxTFcst = ('MaxTFcst', SCALAR, 'F', 'Observed Maximum Temperature', 140.0, -100.0, 0, NO)
+MaxTOb = ('MaxTOb', SCALAR, 'F', 'Observed Maximum Temperature', 140.0, -100.0, 0, NO)
 MaxTObs = ('MaxTObs', SCALAR, 'F', 'Maximum Temperature Obs', 130.0, -80.0, 0, NO)
-Min3 = ('Min3', SCALAR, 'F', '3hr Minimum Temperature', 120.0, -80.0, 0, NO)
-Min6 = ('Min6', SCALAR, 'F', '6hr Minimum Temperature', 120.0, -80.0, 0, NO)
+Min3 = ('Min3', SCALAR, 'F', '3hr Minimum Temperature', 140.0, -100.0, 0, NO)
+Min6 = ('Min6', SCALAR, 'F', '6hr Minimum Temperature', 140.0, -100.0, 0, NO)
 MinApT = ('MinApT', SCALAR, 'F', 'Min Apparent Temperature', 130.0, -120.0, 0, NO)
 MinRH3 = ('MinRH3', SCALAR, '%', '3hr Minimum Relative Humidity', 100.0, 0.0, 0, NO)
 MinRHError = ('MinRHError', SCALAR, '%', 'Minimum Relative Humidity Error', 100.0, -100.0, 0, NO)
 MinRHFcst = ('MinRHFcst', SCALAR, '%', 'Forecast Minimum Relative Humidity', 100.0, 0.0, 0, NO)
 MinRHOb = ('MinRHOb', SCALAR, '%', 'Observed Minimum Relative Humidity', 100.0, 0.0, 0, NO)
 MinRHObs = ('MinRHObs', SCALAR, '%', 'Minimum Observed RH', 100.0, 0.0, 0, NO)
-MinT10 = ('MinT10', SCALAR, 'F', '10th Percentile for MinT', 110.0, 10.0, 0, NO)
-MinT50 = ('MinT50', SCALAR, 'F', '50th Percentile for MinT', 110.0, 10.0, 0, NO)
-MinT6 = ('MinT6', SCALAR, 'F', 'Minimum Temperature 6Hr', 120.0, -80.0, 0, NO)
-MinT90 = ('MinT90', SCALAR, 'F', '90th Percentile for MinT', 110.0, 10.0, 0, NO)
+MinT10 = ('MinT10', SCALAR, 'F', '10th Percentile for MinT', 140.0, -100.0, 0, NO)
+MinT50 = ('MinT50', SCALAR, 'F', '50th Percentile for MinT', 140.0, -100.0, 0, NO)
+MinT6 = ('MinT6', SCALAR, 'F', 'Minimum Temperature 6Hr', 140.0, -100.0, 0, NO)
+MinT90 = ('MinT90', SCALAR, 'F', '90th Percentile for MinT', 140.0, -100.0, 0, NO)
 MinTError = ('MinTError', SCALAR, 'F', 'Minimum Temperature Error', 120.0, -120.0, 0, NO)
-MinTFcst = ('MinTFcst', SCALAR, 'F', 'Forecast Minimum Temperature', 120.0, -80.0, 0, NO)
-MinTOb = ('MinTOb', SCALAR, 'F', 'Observed Minimum Temperature', 120.0, -80.0, 0, NO)
-MinTObs = ('MinTObs', SCALAR, 'F', 'Minimum Temperature Obs', 120.0, -80.0, 0, NO)
+MinTFcst = ('MinTFcst', SCALAR, 'F', 'Forecast Minimum Temperature', 140.0, -100.0, 0, NO)
+MinTOb = ('MinTOb', SCALAR, 'F', 'Observed Minimum Temperature', 140.0, -100.0, 0, NO)
+MinTObs = ('MinTObs', SCALAR, 'F', 'Minimum Temperature Obs', 140.0, -100.0, 0, NO)
 MixHgtAve = ('MixHgtAve', SCALAR, 'ft', 'Mixing Hgt Average', 20000.0, 0.0, 0, NO)
 MixHgtMSL = ('MixHgtMSL', SCALAR, 'ft', 'Mixing Height above sea level', 30000.0, 0.0, 0, NO)
 MixT1700 = ('MixT1700', SCALAR, 'F', '1700Foot MixingTemp', 110.0, -10.0, 0, NO)
@@ -1365,11 +1379,9 @@ SnowRatioCLIMO = ('SnowRatioCLIMO', SCALAR, '%', 'Snow Ratio Climatology SON-DJF
 SnowRatioGFS = ('SnowRatioGFS', SCALAR, '%', 'Snow Ratio from GFS40', 40.0, 0.0, 1, YES)
 SnowRatioHPCMEAN = ('SnowRatioHPCMEAN', SCALAR, '%', 'Snow Ratio from HPC MEAN', 40.0, 0.0, 1, YES)
 SnowRatioNAM = ('SnowRatioNAM', SCALAR, '%', 'Snow Ratio from NAM40', 40.0, 0.0, 1, YES)
-SST = ("SST", SCALAR, "F", "Sea Sfc Temp", 100.0, 25.0, 0, NO)
-StormTide = ('StormTide', SCALAR, 'ft', 'Storm Tide', 30.0, -8.0, 1, NO)
-T10 = ('T10', SCALAR, 'F', '10th Percentile for T', 110.0, 10.0, 0, NO)
-T50 = ('T50', SCALAR, 'F', '50th Percentile for T', 110.0, 10.0, 0, NO)
-T90 = ('T90', SCALAR, 'F', '90th Percentile for T', 110.0, 10.0, 0, NO)
+T10 = ('T10', SCALAR, 'F', '10th Percentile for T', 140.0, -100.0, 0, NO)
+T50 = ('T50', SCALAR, 'F', '50th Percentile for T', 140.0, -100.0, 0, NO)
+T90 = ('T90', SCALAR, 'F', '90th Percentile for T', 140.0, -100.0, 0, NO)
 TAloft = ('TAloft', SCALAR, 'F', 'Temperature Aloft', 120.0, -50.0, 1, NO)
 Td10 = ('Td10', SCALAR, 'F', '10th Percentile for DpT', 100.0, -20.0, 0, NO)
 Td50 = ('Td50', SCALAR, 'F', '50th Percentile for DpT', 100.0, -20.0, 0, NO)
@@ -1394,48 +1406,113 @@ Vsby = ('Vsby', SCALAR, 'mi', 'Visibility', 10.0, 0.0, 2, NO)
 WG1 = ('WG1', SCALAR, 'none', 'WorkGrid1', 100.0, -100.0, 0, NO)
 WinterWx = ('WinterWx', DISCRETE, 'cat', 'Winter Weather', 0, ThreatKeys)
 
-# Parameter set for Probability of weather type, Optional for sites.
-PoTBD = ('PotBlowingDust', SCALAR, '%', 'Prob of Blowing Dust', 100.0, 0.0, 0, NO)
-PoTBN = ('PotBlowingSand', SCALAR, '%', 'Prob of Blowing Sand', 100.0, 0.0, 0, NO)
-PoTBS = ('PotBlowingSnow', SCALAR, '%', 'Prob of Blowing Snow', 100.0, 0.0, 0, NO)
-PoTF = ('PotFog', SCALAR, '%', 'Prob of Fog', 100.0, 0.0, 0, NO)
-PoTFR = ('PotFrost', SCALAR, '%', 'Prob of Frost', 100.0, 0.0, 0, NO)
-PoTFl = ('PotFlurries', SCALAR, '%', 'Prob of Flurries', 100.0, 0.0, 0, NO)
-PoTH = ('PotHaze', SCALAR, '%', 'Prob of Haze', 100.0, 0.0, 0, NO)
-PoTIC = ('PotIceCrystals', SCALAR, '%', 'Prob of Ice Crystals', 100.0, 0.0, 0, NO)
-PoTIF = ('PotIceFog', SCALAR, '%', 'Prob of Ice Fog', 100.0, 0.0, 0, NO)
-PoTIP = ('PotSleet', SCALAR, '%', 'Prob of Sleet', 100.0, 0.0, 0, NO)
-PoTK = ('PotSmoke', SCALAR, '%', 'Prob of Smoke', 100.0, 0.0, 0, NO)
-PoTL = ('PotDrizzle', SCALAR, '%', 'Prob of Drizzle', 100.0, 0.0, 0, NO)
-PoTLWrk = ('PotDrizzleWork', SCALAR, '%', 'Prob of Drizzle Work', 100.0, 0.0, 0, NO)
-PoTR = ('PotRain', SCALAR, '%', 'Prob of Rain', 100.0, 0.0, 0, NO)
-PoTRW = ('PotRainShowers', SCALAR, '%', 'Prob of Rain Showers', 100.0, 0.0, 0, NO)
-PoTRWrk = ('PotRainWork', SCALAR, '%', 'Prob of Rain Work', 100.0, 0.0, 0, NO)
-PoTS = ('PotSnow', SCALAR, '%', 'Prob of Snow', 100.0, 0.0, 0, NO)
-PoTSW = ('PotSnowShowers', SCALAR, '%', 'Prob of Snow Showers', 100.0, 0.0, 0, NO)
-PoTSp = ('PotSprinkles', SCALAR, '%', 'Prob of Sprinkles', 100.0, 0.0, 0, NO)
-PoTT = ('PotThunder', SCALAR, '%', 'Prob of Thunder', 100.0, 0.0, 0, NO)
-PoTVA = ('PotVolcanicAsh', SCALAR, '%', 'Prob of Volcanic Ash', 100.0, 0.0, 0, NO)
-PoTWP = ('PotWaterspout', SCALAR, '%', 'Prob of Waterspout', 100.0, 0.0, 0, NO)
-PoTZF = ('PotFreezingFog', SCALAR, '%', 'Prob of Freezing Fog', 100.0, 0.0, 0, NO)
-PoTZL = ('PotFreezingDrizzle', SCALAR, '%', 'Prob of Freezing Drizzle', 100.0, 0.0, 0, NO)
-PoTZLWrk = ('PotFreezingDrizzleWork', SCALAR, '%', 'Prob of Freezing Drizzle Work', 100.0, 0.0, 0, NO)
-PoTZR = ('PotFreezingRain', SCALAR, '%', 'Prob of Freezing Rain', 100.0, 0.0, 0, NO)
-PoTZRWrk = ('PotFreezingRainWork', SCALAR, '%', 'Prob of Freezing Rain Work', 100.0, 0.0, 0, NO)
-PoTZY = ('PotFreezingSpray', SCALAR, '%', 'Prob of Freezing Spray', 100.0, 0.0, 0, NO)
-RoadTemp = ("RoadTemp", SCALAR, "F", "Road Temperature", 120.0, -50.0, 0, NO)
-SleetAmt = ("SleetAmt", SCALAR, "in", "Sleet Accumulation", 5.0, 0.0, 1, YES),
-IceLineAcc = ("IceLineAccum", SCALAR, "in", "Line Ice Accumulation", 3.00, 0.00, 2, YES)
-IceFlatAcc = ("IceFlatAccum", SCALAR, "in", "Flat Ice Accumulation", 3.00, 0.00, 2, YES)
-ProbIcePresent = ("ProbIcePresent", SCALAR, "%", "Prob of Ice Present", 100.0, 0.0, 0, NO)
-ProbRefreezeSleet = ("ProbRefreezeSleet", SCALAR, "%", "Prob of Refreeze into Sleet", 100.0, 0.0, 0, NO)
-PoWTpList=[PoTBD, PoTBN, PoTBS, PoTF, PoTFR, PoTFl, PoTH, PoTIC, PoTIF, PoTIP,
-           PoTK, PoTL, PoTLWrk, PoTR, PoTRW, PoTRWrk, PoTS, PoTSW, PoTSp, PoTT,
-           PoTVA, PoTWP, PoTZF, PoTZL, PoTZLWrk, PoTZR, PoTZRWrk, PoTZY,
-           RoadTemp, SleetAmt, IceLineAcc, IceFlatAcc, ProbIcePresent, ProbRefreezeSleet,
-          ]
+#** Parameter sets for specific functionality
+optionalParmsDict = {}
 
-# Parameter set for Winter Weather probabilities, optional for sites.
+# Marine Weather Elements
+optionalParmsDict['marine']={
+    'WaveDir' : ("WaveDir", VECTOR, "m/s", "Wave Direction", 5.0, 0.0, 2, NO),
+    'WindWaveHeight' : ("WindWaveHgt", SCALAR, "ft", "Wind Wave Height", 100.0, 0.0, 0, NO),
+    'WaveHeight' : ("WaveHeight", SCALAR, "ft", "Total Wave Height", 100.0, 0.0, 0, NO),
+    'Swell' : ("Swell", VECTOR, "ft", "Primary Swell", 100.0, 0.0, 0, NO),
+    'Swell2' : ("Swell2", VECTOR, "ft", "Secondary Swell", 100.0, 0.0, 0, NO),
+    'Period' : ("Period", SCALAR, "sec", "Primary Period", 20.0, 0.0, 0, NO),
+    'IceCoverage' : ("IceCoverage", SCALAR, "%", "Ice Coverage Amount", 100.0, 0.0, 0, NO),
+    'SurfHeight' : ("SurfHeight", SCALAR, "ft", "Total Wave Height", 100.0, 0.0, 0, NO),
+    ##########DCS3499
+    'SigWaveHgt' : ("SigWaveHgt", SCALAR, "ft",
+                    "Significant wave height of combined wind waves and swells",
+                    30.0, 0.0, 0, NO),
+    'WindWaveHgt' : ("WindWaveHgt", SCALAR, "ft", "Significant wave height of wind waves", 30.0, 0.0, 0, NO),
+    'WindWavePeriod' : ("WindWavePeriod", SCALAR, "sec.", "Wind wave peak period", 20.0, 0.0, 0, NO),
+    'WindWaveDir' : ("WindWaveDir", VECTOR, "degree", "Direction of wind waves", 100.0, 0.0, 0, NO),
+    'NWPSwind' : ("NWPSwind", VECTOR, "kts", "NWPSwind", 150.0, 0.0, 0, NO),
+    'UWaveDir' : ("UWaveDir", SCALAR, "m/s", "U WaveDir Comp", 0.50, -0.50, 3, NO),
+    'VWaveDir' : ("VWaveDir", SCALAR, "m/s", "V WaveDir Comp", 0.50, -0.50, 3, NO),
+    'SwanSwell' : ("SwanSwell", SCALAR, "ft", "Total Significant Swell Height", 40.0, 0.0, 2, NO),
+    'SST' : ("SST", SCALAR, "F", "Sea Sfc Temp", 100.0, 25.0, 0, NO),
+    'StormTide' : ('StormTide', SCALAR, 'ft', 'Storm Tide', 30.0, -8.0, 1, NO),
+    #Smart Init Grids - for partitioned wave groups
+    'Wave_1' : ("Wave_1", VECTOR, "ft", "Wave_1", 50.0, 0.0, 2, NO),
+    'Wave_2' : ("Wave_2", VECTOR, "ft", "Wave_2", 50.0, 0.0, 2, NO),
+    'Wave_3' : ("Wave_3", VECTOR, "ft", "Wave_3", 50.0, 0.0, 2, NO),
+    'Wave_4' : ("Wave_4", VECTOR, "ft", "Wave_4", 50.0, 0.0, 2, NO),
+    'Wave_5' : ("Wave_5", VECTOR, "ft", "Wave_5", 50.0, 0.0, 2, NO),
+    'Wave_6' : ("Wave_6", VECTOR, "ft", "Wave_6", 50.0, 0.0, 2, NO),
+    'Wave_7' : ("Wave_7", VECTOR, "ft", "Wave_7", 50.0, 0.0, 2, NO),
+    'Wave_8' : ("Wave_8", VECTOR, "ft", "Wave_8", 50.0, 0.0, 2, NO),
+    'Wave_9' : ("Wave_9", VECTOR, "ft", "Wave_9", 50.0, 0.0, 2, NO),
+    'Wave_10' : ("Wave_10", VECTOR, "ft", "Wave_10", 50.0, 0.0, 2, NO),
+    #Fcst Grids - for partitioned wave groups
+    'Wave1' : ("Wave1", VECTOR, "ft", "WAVE1", 50.0, 0.0, 0, NO),
+    'Wave2' : ("Wave2", VECTOR, "ft", "WAVE2", 50.0, 0.0, 0, NO),
+    'Wave3' : ("Wave3", VECTOR, "ft", "WAVE3", 50.0, 0.0, 0, NO),
+    'Wave4' : ("Wave4", VECTOR, "ft", "WAVE4", 50.0, 0.0, 0, NO),
+    'Wave5' : ("Wave5", VECTOR, "ft", "WAVE5", 50.0, 0.0, 0, NO),
+    'Wave6' : ("Wave6", VECTOR, "ft", "WAVE6", 50.0, 0.0, 0, NO),
+    'Wave7' : ("Wave7", VECTOR, "ft", "Wave7", 50.0, 0.0, 0, NO),
+    'Wave8' : ("Wave8", VECTOR, "ft", "Wave8", 50.0, 0.0, 0, NO),
+    'Wave9' : ("Wave9", VECTOR, "ft", "Wave9", 50.0, 0.0, 0, NO),
+    'Wave10' : ("Wave10", VECTOR, "ft", "Wave10", 50.0, 0.0, 0, NO),
+    #Smart Init Grids - for partitioned wave groups
+    'Period_1' : ("Period_1", SCALAR, "sec", "Period_1", 30.0, 1.0, 0, NO),
+    'Period_2' : ("Period_2", SCALAR, "sec", "Period_2", 30.0, 1.0, 0, NO),
+    'Period_3' : ("Period_3", SCALAR, "sec", "Period_3", 30.0, 1.0, 0, NO),
+    'Period_4' : ("Period_4", SCALAR, "sec", "Period_4", 30.0, 1.0, 0, NO),
+    'Period_5' : ("Period_5", SCALAR, "sec", "Period_5", 30.0, 0.0, 0, NO),
+    'Period_6' : ("Period_6", SCALAR, "sec", "Period_6", 30.0, 0.0, 0, NO),
+    'Period_7' : ("Period_7", SCALAR, "sec", "Period_7", 30.0, 0.0, 0, NO),
+    'Period_8' : ("Period_8", SCALAR, "sec", "Period_8", 30.0, 0.0, 0, NO),
+    'Period_9' : ("Period_9", SCALAR, "sec", "Period_9", 30.0, 0.0, 0, NO),
+    'Period_10' : ("Period_10", SCALAR, "sec", "Period_10", 30.0, 0.0, 0, NO),
+    #Fcst Grids - for partitioned wave groups
+    'Period1' : ("Period1", SCALAR, "sec", "Period1", 30.0, 0.0, 0, NO),
+    'Period2' : ("Period2", SCALAR, "sec", "Period2", 30.0, 0.0, 0, NO),
+    'Period3' : ("Period3", SCALAR, "sec", "Period3", 30.0, 0.0, 0, NO),
+    'Period4' : ("Period4", SCALAR, "sec", "Period4", 30.0, 0.0, 0, NO),
+    'Period5' : ("Period5", SCALAR, "sec", "Period5", 30.0, 0.0, 0, NO),
+    'Period6' : ("Period6", SCALAR, "sec", "Period6", 30.0, 0.0, 0, NO),
+    'Period7' : ("Period7", SCALAR, "sec", "Period7", 30.0, 0.0, 0, NO),
+    'Period8' : ("Period8", SCALAR, "sec", "Period8", 30.0, 0.0, 0, NO),
+    'Period9' : ("Period9", SCALAR, "sec", "Period9", 30.0, 0.0, 0, NO),
+    'Period10' : ("Period10", SCALAR, "sec", "Period10", 30.0, 0.0, 0, NO),
+}
+
+# Parameter set for Probability of weather type, Optional for sites.
+optionalParmsDict['powt']={
+     'PoTBD': ('PotBlowingDust', SCALAR, '%', 'Prob of Blowing Dust', 100.0, 0.0, 0, NO),
+     'PoTBN': ('PotBlowingSand', SCALAR, '%', 'Prob of Blowing Sand', 100.0, 0.0, 0, NO),
+     'PoTBS': ('PotBlowingSnow', SCALAR, '%', 'Prob of Blowing Snow', 100.0, 0.0, 0, NO),
+     'PoTF': ('PotFog', SCALAR, '%', 'Prob of Fog', 100.0, 0.0, 0, NO),
+     'PoTFR': ('PotFrost', SCALAR, '%', 'Prob of Frost', 100.0, 0.0, 0, NO),
+     'PoTFl': ('PotFlurries', SCALAR, '%', 'Prob of Flurries', 100.0, 0.0, 0, NO),
+     'PoTH': ('PotHaze', SCALAR, '%', 'Prob of Haze', 100.0, 0.0, 0, NO),
+     'PoTIC': ('PotIceCrystals', SCALAR, '%', 'Prob of Ice Crystals', 100.0, 0.0, 0, NO),
+     'PoTIF': ('PotIceFog', SCALAR, '%', 'Prob of Ice Fog', 100.0, 0.0, 0, NO),
+     'PoTIP': ('PotSleet', SCALAR, '%', 'Prob of Sleet', 100.0, 0.0, 0, NO),
+     'PoTK': ('PotSmoke', SCALAR, '%', 'Prob of Smoke', 100.0, 0.0, 0, NO),
+     'PoTL': ('PotDrizzle', SCALAR, '%', 'Prob of Drizzle', 100.0, 0.0, 0, NO),
+     'PoTR': ('PotRain', SCALAR, '%', 'Prob of Rain', 100.0, 0.0, 0, NO),
+     'PoTRW': ('PotRainShowers', SCALAR, '%', 'Prob of Rain Showers', 100.0, 0.0, 0, NO),
+     'PoTS': ('PotSnow', SCALAR, '%', 'Prob of Snow', 100.0, 0.0, 0, NO),
+     'PoTSW': ('PotSnowShowers', SCALAR, '%', 'Prob of Snow Showers', 100.0, 0.0, 0, NO),
+     'PoTSp': ('PotSprinkles', SCALAR, '%', 'Prob of Sprinkles', 100.0, 0.0, 0, NO),
+     'PoTT': ('PotThunder', SCALAR, '%', 'Prob of Thunder', 100.0, 0.0, 0, NO),
+     'PoTVA': ('PotVolcanicAsh', SCALAR, '%', 'Prob of Volcanic Ash', 100.0, 0.0, 0, NO),
+     'PoTWP': ('PotWaterspout', SCALAR, '%', 'Prob of Waterspout', 100.0, 0.0, 0, NO),
+     'PoTZF': ('PotFreezingFog', SCALAR, '%', 'Prob of Freezing Fog', 100.0, 0.0, 0, NO),
+     'PoTZL': ('PotFreezingDrizzle', SCALAR, '%', 'Prob of Freezing Drizzle', 100.0, 0.0, 0, NO),
+     'PoTZR': ('PotFreezingRain', SCALAR, '%', 'Prob of Freezing Rain', 100.0, 0.0, 0, NO),
+     'PoTZY': ('PotFreezingSpray', SCALAR, '%', 'Prob of Freezing Spray', 100.0, 0.0, 0, NO),
+     'RoadTemp' : ("RoadTemp", SCALAR, "F", "Road Temperature", 120.0, -50.0, 0, NO),
+     'ProbIcePresent': ("ProbIcePresent", SCALAR, "%", "Prob of Ice Present", 100.0, 0.0, 0, NO),
+     'ProbRefreezeSleet': ("ProbRefreezeSleet", SCALAR, "%", "Prob of Refreeze into Sleet", 100.0, 0.0, 0, NO),
+     'SleetAmt': ("SleetAmt", SCALAR, "in", "Sleet Accumulation", 5.0, 0.0, 1, YES),
+     'IceFlatAcc': ('IceFlatAccum', SCALAR, 'in', 'Flat Ice Accumulation', 3.0, 0.0, 2, YES),
+     'IceLineAcc': ('IceLineAccum', SCALAR, 'in', 'Line Ice Accumulation', 3.0, 0.0, 2, YES),
+}
+
+# Parameter set for Winter Weather probabilities, Optional for sites.
 
 #  Define keys for total snow graphic - we'll need these in a bit
 StormTotalSnowWeb1Keys=[("0","0"),("<1","<1"),("1", "1"), ("2", "2"), ("3", "3"),
@@ -1449,85 +1526,78 @@ StormTotalSnowWeb1Keys=[("0","0"),("<1","<1"),("1", "1"), ("2", "2"), ("3", "3")
              ("40", "40"), ("41", "41"), ("42", "42"), ("43", "43"),("44","44"),
              ("45", "45"), ("46", "46"), ("47", "47"), ("48", "48"),(">48",">48"),]
 
-# Storm Total Snow related
-StormTotalSnowWPC = ("StormTotalSnowWPC", SCALAR, "in","WPC Storm Total Snow", 50.0, 0.0, 1, NO)
-StormTotalSnowWeb1 = ("StormTotalSnowWeb1", DISCRETE, "Cat", "Storm Total Snow Web1", NO, StormTotalSnowWeb1Keys)
-MinSnowWeb = ("MinSnowWeb", DISCRETE, "Cat", "Min Snow Web", NO, StormTotalSnowWeb1Keys)
-MaxSnowWeb = ("MaxSnowWeb", DISCRETE, "Cat", "Min Snow Web", NO, StormTotalSnowWeb1Keys)
 
-# Snow Percentiles
-SnowAmt5Prcntl = ("SnowAmt5Prcntl", SCALAR, "in","5 percentile", 50.0, -40.0, 1, NO)
-SnowAmt10Prcntl = ("SnowAmt10Prcntl", SCALAR, "in","10 percentile", 50.0, -40.0, 1, NO)
-SnowAmt25Prcntl = ("SnowAmt25Prcntl", SCALAR, "in","25 percentile", 50.0, -40.0, 1, NO)
-SnowAmt50Prcntl = ("SnowAmt50Prcntl", SCALAR, "in","50 percentile", 50.0, -40.0, 1, NO)
-SnowAmt75Prcntl = ("SnowAmt75Prcntl", SCALAR, "in","75 percentile", 50.0, -40.0, 1, NO)
-SnowAmt90Prcntl = ("SnowAmt90Prcntl", SCALAR, "in","90 percentile", 50.0, -40.0, 1, NO)
-SnowAmt95Prcntl = ("SnowAmt95Prcntl", SCALAR, "in","95 percentile", 50.0, -40.0, 1, NO)
+optionalParmsDict['winterProb']={
+    # Storm Total Snow related
+    'StormTotalSnowWPC' : ("StormTotalSnowWPC", SCALAR, "in","WPC Storm Total Snow", 50.0, 0.0, 1, NO),
+    'StormTotalSnowWeb1' : ("StormTotalSnowWeb1", DISCRETE, "Cat", "Storm Total Snow Web1", NO, StormTotalSnowWeb1Keys),
+    'MinSnowWeb' : ("MinSnowWeb", DISCRETE, "Cat", "Min Snow Web", NO, StormTotalSnowWeb1Keys),
+    'MaxSnowWeb' : ("MaxSnowWeb", DISCRETE, "Cat", "Min Snow Web", NO, StormTotalSnowWeb1Keys),
 
-# Snow Exceedance Probabilities (Add others as needed)
-ProbSnowGET = ("ProbSnowGET", SCALAR, "%", "Prob. snow >= trace", 100.0, 0.0, 0, NO)
-ProbSnowGE1 = ("ProbSnowGE1", SCALAR, "%", "Prob. snow >= 1 inch", 100.0, 0.0, 0, NO)
-ProbSnowGE2 = ("ProbSnowGE2", SCALAR, "%", "Prob. snow >= 2 inches", 100.0, 0.0, 0, NO)
-ProbSnowGE4 = ("ProbSnowGE4", SCALAR, "%", "Prob. snow >= 4 inches", 100.0, 0.0, 0, NO)
-ProbSnowGE6 = ("ProbSnowGE6", SCALAR, "%", "Prob. snow >= 6 inches", 100.0, 0.0, 0, NO)
-ProbSnowGE8 = ("ProbSnowGE8", SCALAR, "%", "Prob. snow >= 8 inches", 100.0, 0.0, 0, NO)
-ProbSnowGE12 = ("ProbSnowGE12", SCALAR, "%", "Prob. snow >= 12 inches", 100.0, 0.0, 0, NO)
-ProbSnowGE18 = ("ProbSnowGE18", SCALAR, "%", "Prob. snow >= 18 inches", 100.0, 0.0, 0, NO)
+    # Snow Percentiles
+    'SnowAmt5Prcntl' : ("SnowAmt5Prcntl", SCALAR, "in","5 percentile", 50.0, -40.0, 1, NO),
+    'SnowAmt10Prcntl' : ("SnowAmt10Prcntl", SCALAR, "in","10 percentile", 50.0, -40.0, 1, NO),
+    'SnowAmt25Prcntl' : ("SnowAmt25Prcntl", SCALAR, "in","25 percentile", 50.0, -40.0, 1, NO),
+    'SnowAmt50Prcntl' : ("SnowAmt50Prcntl", SCALAR, "in","50 percentile", 50.0, -40.0, 1, NO),
+    'SnowAmt75Prcntl' : ("SnowAmt75Prcntl", SCALAR, "in","75 percentile", 50.0, -40.0, 1, NO),
+    'SnowAmt90Prcntl' : ("SnowAmt90Prcntl", SCALAR, "in","90 percentile", 50.0, -40.0, 1, NO),
+    'SnowAmt95Prcntl' : ("SnowAmt95Prcntl", SCALAR, "in","95 percentile", 50.0, -40.0, 1, NO),
 
-# Freezing Rain Percentiles
-IceAccum5Prcntl = ("IceAccum5Prcntl", SCALAR, "in","5 percentile", 5.0, -4.0, 2, NO)
-IceAccum10Prcntl = ("IceAccum10Prcntl", SCALAR, "in","10 percentile", 5.0, -4.0, 2, NO)
-IceAccum25Prcntl = ("IceAccum25Prcntl", SCALAR, "in","25 percentile", 5.0, -4.0, 2, NO)
-IceAccum50Prcntl = ("IceAccum50Prcntl", SCALAR, "in","50 percentile", 5.0, -4.0, 2, NO)
-IceAccum75Prcntl = ("IceAccum75Prcntl", SCALAR, "in","75 percentile", 5.0, -4.0, 2, NO)
-IceAccum90Prcntl = ("IceAccum90Prcntl", SCALAR, "in","90 percentile", 5.0, -4.0, 2, NO)
-IceAccum95Prcntl = ("IceAccum95Prcntl", SCALAR, "in","95 percentile", 5.0, -4.0, 2, NO)
+    # Snow Exceedance Probabilities (Add others as needed)
+    'ProbSnowGET' : ("ProbSnowGET", SCALAR, "%", "Prob. snow >= trace", 100.0, 0.0, 0, NO),
+    'ProbSnowGE1' : ("ProbSnowGE1", SCALAR, "%", "Prob. snow >= 1 inch", 100.0, 0.0, 0, NO),
+    'ProbSnowGE2' : ("ProbSnowGE2", SCALAR, "%", "Prob. snow >= 2 inches", 100.0, 0.0, 0, NO),
+    'ProbSnowGE4' : ("ProbSnowGE4", SCALAR, "%", "Prob. snow >= 4 inches", 100.0, 0.0, 0, NO),
+    'ProbSnowGE6' : ("ProbSnowGE6", SCALAR, "%", "Prob. snow >= 6 inches", 100.0, 0.0, 0, NO),
+    'ProbSnowGE8' : ("ProbSnowGE8", SCALAR, "%", "Prob. snow >= 8 inches", 100.0, 0.0, 0, NO),
+    'ProbSnowGE12' : ("ProbSnowGE12", SCALAR, "%", "Prob. snow >= 12 inches", 100.0, 0.0, 0, NO),
+    'ProbSnowGE18' : ("ProbSnowGE18", SCALAR, "%", "Prob. snow >= 18 inches", 100.0, 0.0, 0, NO),
 
-# Freezing rain accretion probabilities
-ProbIceGE001 = ("ProbIceGE001", SCALAR, "%", "Prob. ice >= 0.01", 100.0, 0.0, 0, NO)
-ProbIceGE010 = ("ProbIceGE010", SCALAR, "%", "Prob. ice >= 0.10", 100.0, 0.0, 0, NO)
-ProbIceGE025 = ("ProbIceGE025", SCALAR, "%", "Prob. ice >= 0.25", 100.0, 0.0, 0, NO)
-ProbIceGE050 = ("ProbIceGE050", SCALAR, "%", "Prob. ice >= 0.50", 100.0, 0.0, 0, NO)
+    # Freezing Rain Percentiles
+    'IceAccum5Prcntl' : ("IceAccum5Prcntl", SCALAR, "in","5 percentile", 5.0, -4.0, 2, NO),
+    'IceAccum10Prcntl' : ("IceAccum10Prcntl", SCALAR, "in","10 percentile", 5.0, -4.0, 2, NO),
+    'IceAccum25Prcntl' : ("IceAccum25Prcntl", SCALAR, "in","25 percentile", 5.0, -4.0, 2, NO),
+    'IceAccum50Prcntl' : ("IceAccum50Prcntl", SCALAR, "in","50 percentile", 5.0, -4.0, 2, NO),
+    'IceAccum75Prcntl' : ("IceAccum75Prcntl", SCALAR, "in","75 percentile", 5.0, -4.0, 2, NO),
+    'IceAccum90Prcntl' : ("IceAccum90Prcntl", SCALAR, "in","90 percentile", 5.0, -4.0, 2, NO),
+    'IceAccum95Prcntl' : ("IceAccum95Prcntl", SCALAR, "in","95 percentile", 5.0, -4.0, 2, NO),
 
-winterProbsParmList = [
-    StormTotalSnowWPC, StormTotalSnowWeb1, MinSnowWeb, MaxSnowWeb,
-    SnowAmt5Prcntl, SnowAmt10Prcntl, SnowAmt25Prcntl, SnowAmt50Prcntl,
-    SnowAmt75Prcntl, SnowAmt90Prcntl, SnowAmt95Prcntl, ProbSnowGET,
-    ProbSnowGE1, ProbSnowGE2, ProbSnowGE4, ProbSnowGE6, ProbSnowGE8,
-    ProbSnowGE12, ProbSnowGE18, IceAccum5Prcntl, IceAccum10Prcntl,
-    IceAccum25Prcntl, IceAccum50Prcntl, IceAccum75Prcntl, IceAccum90Prcntl,
-    IceAccum95Prcntl, ProbIceGE001, ProbIceGE010, ProbIceGE025, ProbIceGE050
-]
+    # Freezing rain accretion probabilities
+    'ProbIceGE001' : ("ProbIceGE001", SCALAR, "%", "Prob. ice >= 0.01", 100.0, 0.0, 0, NO),
+    'ProbIceGE010' : ("ProbIceGE010", SCALAR, "%", "Prob. ice >= 0.10", 100.0, 0.0, 0, NO),
+    'ProbIceGE025' : ("ProbIceGE025", SCALAR, "%", "Prob. ice >= 0.25", 100.0, 0.0, 0, NO),
+    'ProbIceGE050' : ("ProbIceGE050", SCALAR, "%", "Prob. ice >= 0.50", 100.0, 0.0, 0, NO),
+}
 
 # Add rainfall probability definitions
+optionalParmsDict['rainfallProb']={
+    # Rain Percentiles
+    'QPF5Prcntl' : ("QPF5Prcntl", SCALAR, "in","5 percentile", 36.0, -24.0, 2, NO),
+    'QPF10Prcntl' : ("QPF10Prcntl", SCALAR, "in","10 percentile", 36.0, -24.0, 2, NO),
+    'QPF25Prcntl' : ("QPF25Prcntl", SCALAR, "in","25 percentile", 36.0, -24.0, 2, NO),
+    'QPF50Prcntl' : ("QPF50Prcntl", SCALAR, "in","50 percentile", 36.0, -24.0, 2, NO),
+    'QPF75Prcntl' : ("QPF75Prcntl", SCALAR, "in","75 percentile", 36.0, -24.0, 2, NO),
+    'QPF90Prcntl' : ("QPF90Prcntl", SCALAR, "in","90 percentile", 36.0, -24.0, 2, NO),
+    'QPF95Prcntl' : ("QPF95Prcntl", SCALAR, "in","95 percentile", 36.0, -24.0, 2, NO),
 
-# Rain Percentiles 
-QPF5Prcntl = ("QPF5Prcntl", SCALAR, "in","5 percentile", 36.0, -24.0, 2, NO)
-QPF10Prcntl = ("QPF10Prcntl", SCALAR, "in","10 percentile", 36.0, -24.0, 2, NO)
-QPF25Prcntl = ("QPF25Prcntl", SCALAR, "in","25 percentile", 36.0, -24.0, 2, NO)
-QPF50Prcntl = ("QPF50Prcntl", SCALAR, "in","50 percentile", 36.0, -24.0, 2, NO)
-QPF75Prcntl = ("QPF75Prcntl", SCALAR, "in","75 percentile", 36.0, -24.0, 2, NO)
-QPF90Prcntl = ("QPF90Prcntl", SCALAR, "in","90 percentile", 36.0, -24.0, 2, NO)
-QPF95Prcntl = ("QPF95Prcntl", SCALAR, "in","95 percentile", 36.0, -24.0, 2, NO)
+    # Rain Exceedance Probabilities (Add others as needed)
+    'ProbRainGE001' : ("ProbRainGE001", SCALAR, "%", "Prob. Rain >= 0.01 in", 100.0, 0.0, 0, NO),
+    'ProbRainGE010' : ("ProbRainGE010", SCALAR, "%", "Prob. Rain >= 0.10 in", 100.0, 0.0, 0, NO),
+    'ProbRainGE025' : ("ProbRainGE025", SCALAR, "%", "Prob. Rain >= 0.25 in", 100.0, 0.0, 0, NO),
+    'ProbRainGE050' : ("ProbRainGE050", SCALAR, "%", "Prob. Rain >= 0.50 in", 100.0, 0.0, 0, NO),
+    'ProbRainGE075' : ("ProbRainGE075", SCALAR, "%", "Prob. Rain >= 0.75 in", 100.0, 0.0, 0, NO),
+    'ProbRainGE100' : ("ProbRainGE100", SCALAR, "%", "Prob. Rain >= 1.00 in", 100.0, 0.0, 0, NO),
+    'ProbRainGE150' : ("ProbRainGE150", SCALAR, "%", "Prob. Rain >= 1.50 in", 100.0, 0.0, 0, NO),
+    'ProbRainGE200' : ("ProbRainGE200", SCALAR, "%", "Prob. Rain >= 2.00 in", 100.0, 0.0, 0, NO),
+    'ProbRainGE250' : ("ProbRainGE250", SCALAR, "%", "Prob. Rain >= 2.50 in", 100.0, 0.0, 0, NO),
+    'ProbRainGE300' : ("ProbRainGE300", SCALAR, "%", "Prob. Rain >= 3.00 in", 100.0, 0.0, 0, NO),
+}
 
-# Rain Exceedance Probabilities (Add others as needed)
-ProbRainGE001 = ("ProbRainGET", SCALAR, "%", "Prob. Rain >= 0.01 in", 100.0, 0.0, 0, NO)
-ProbRainGE010 = ("ProbRainGE1", SCALAR, "%", "Prob. Rain >= 0.10 in", 100.0, 0.0, 0, NO)
-ProbRainGE025 = ("ProbRainGE2", SCALAR, "%", "Prob. Rain >= 0.25 in", 100.0, 0.0, 0, NO)
-ProbRainGE050 = ("ProbRainGE4", SCALAR, "%", "Prob. Rain >= 0.50 in", 100.0, 0.0, 0, NO)
-ProbRainGE075 = ("ProbRainGE6", SCALAR, "%", "Prob. Rain >= 0.75 in", 100.0, 0.0, 0, NO)
-ProbRainGE100 = ("ProbRainGE8", SCALAR, "%", "Prob. Rain >= 1.00 in", 100.0, 0.0, 0, NO)
-ProbRainGE150 = ("ProbRainGE12", SCALAR, "%", "Prob. Rain >= 1.50 in", 100.0, 0.0, 0, NO)
-ProbRainGE200 = ("ProbRainGE18", SCALAR, "%", "Prob. Rain >= 2.00 in", 100.0, 0.0, 0, NO)
-ProbRainGE250 = ("ProbRainGE12", SCALAR, "%", "Prob. Rain >= 2.50 in", 100.0, 0.0, 0, NO)
-ProbRainGE300 = ("ProbRainGE18", SCALAR, "%", "Prob. Rain >= 3.00 in", 100.0, 0.0, 0, NO)
 
-rainfallProbsParmList = [
-    QPF5Prcntl, QPF10Prcntl, QPF25Prcntl, QPF50Prcntl, QPF75Prcntl, QPF90Prcntl,
-    QPF95Prcntl, ProbRainGE001, ProbRainGE010, ProbRainGE025, ProbRainGE050,
-    ProbRainGE075, ProbRainGE100, ProbRainGE150, ProbRainGE200, ProbRainGE250,
-    ProbRainGE300
-]
+# Make all optional parms available as variables.
+for optionalParmKey in optionalParmsDict:
+    for pname,parm in optionalParmsDict[optionalParmKey].iteritems():
+        setattr(sys.modules[__name__],pname,parm)
 
 #-----------------------------------
 # DO NOT CHANGE THE FOLLOWING SECTION
@@ -2084,7 +2154,7 @@ OPCTAFBSW   = ('OPCTAFBSW',    GRID,   '', NO,   NO,  2, 0)
 MOSGuide    = ('MOSGuide',     GRID,   '', NO,   NO,  2, 0)
 RTMA        = ('RTMA',         GRID,   '', YES,  NO,  1, 36)
 URMA25      = ('URMA25',       GRID,   '', YES,  NO,  1, 36) ####DR17144
-NamDNG5     = ('NamDNG5',      GRID,   '', NO,   NO,  2, 0)
+NamDNG      = ('NamDNG',       GRID,   '', NO,   NO,  2, 0)   
 TPCProb     = ('TPCProb',      GRID,   '', NO,   NO, 30, 0)
 SREF        = ('SREF',         GRID,   '', NO,   NO,  3, 0)
 ENPwave     = ('ENPwave',      GRID,   '', NO,   NO,  2, 0)
@@ -2137,7 +2207,7 @@ if SID in groups['ALASKA_SITES']:
                  ('nwpsTrkngCG0', 'nwpsTrkngCG0'),
 #                 ('AK-RTMA','RTMA'),
                  ('AK-RTMA3','RTMA'),  # Only have one RTMA
-                 ('AK-NamDNG5','NamDNG5'),
+                 ('AK-NamDNG3','NamDNG'),
                  ('MOSGuide-AK', 'MOSGuide'),
                  ('HiResW-ARW-AK', 'HIRESWarw'),
                  ('HiResW-NMM-AK', 'HIRESWnmm'),
@@ -2169,7 +2239,7 @@ elif SID == "HFO":
                  'EPwave10',
                  'EPwave4',
                  ('HI-RTMA','RTMA'),
-                 ('HI-NamDNG5','NamDNG5'),
+                 ('HI-NamDNG5','NamDNG'),
                  ('HiResW-ARW-HI', 'HIRESWarw'),
                  ('HiResW-NMM-HI', 'HIRESWnmm'),
                  ('SPCGuide', 'SPC'),
@@ -2203,7 +2273,7 @@ elif SID == "SJU":
                  'WNAwave10',
                  'WNAwave4',
                  ('PR-RTMA','RTMA'),
-                 ('PR-NamDNG5','NamDNG5'),
+                 ('PR-NamDNG5','NamDNG'),
                  ('HiResW-ARW-SJU', 'HIRESWarw'),
                  ('HiResW-NMM-SJU', 'HIRESWnmm'),
                  ('SPCGuide', 'SPC'),
@@ -2281,7 +2351,7 @@ elif SID in groups['CONUS_EAST_SITES']:
                  'MOSGuide',
             ##############DR17144
                  ('RTMA25', 'RTMA'),
-                 'NamDNG5',
+                 ('namdng25','NamDNG'),
                  ('TPCWindProb','TPCProb'),
                  ('SREF212', 'SREF'),
                #############DCS3501
@@ -2366,7 +2436,7 @@ else:   #######DCS3501 WEST_CONUS
                  'MOSGuide',
               #######DR17144
                  ('RTMA25', 'RTMA'),
-                 'NamDNG5',
+                 ('namdng25','NamDNG'),
                  ('TPCWindProb','TPCProb'),
                  ('SREF212', 'SREF'),
                #############DCS3501
@@ -2560,7 +2630,7 @@ elif SID in groups['ALASKA_SITES']:
         "nwpsCG1" : ['nwpsCG1'],
         "nwpsTrkngCG0" : ['nwpsTrkngCG0'],
         "RTMA" : ['RTMA'],
-        "NamDNG5" : ["NamDNG5"],
+        "NamDNG" : ["NamDNG"],
         "AKMOSGuide" : ['MOSGuide'],
         "ESTOFS" : ["ESTOFS"],
         "ETSS" : ["ETSS"],
@@ -2579,7 +2649,7 @@ elif SID == "HFO":
 #        "GWW" : ["GWW"],
 #        "gfsLR" : ["gfsLR"],
         "RTMA" : ['RTMA'],
-        "NamDNG5" : ["NamDNG5"],
+        "NamDNG" : ["NamDNG"],
         "MOSGuide" : ['MOSGuide'],
         "ESTOFS" : ["ESTOFS"],
         "nwpsCG1" : ['nwpsCG1'],
@@ -2613,7 +2683,7 @@ elif SID == "SJU":
 #        "GlobalWave" : ["GlobalWave"],
 #        "EPwave10" : ["EPwEave10"],
         "RTMA" : ['RTMA'],
-        "NamDNG5" : ["NamDNG5"],
+        "NamDNG" : ["NamDNG"],
         "ESTOFS" : ["ESTOFS"],
         "nwpsCG1" : ['nwpsCG1'],
         "nwpsTrkngCG0" : ['nwpsTrkngCG0'],
@@ -2651,7 +2721,7 @@ else:
         "RTMA" : ['RTMA'],
    #######DR17144
         "URMA25" : ['URMA25'],
-        "NamDNG5" : ["NamDNG5"],
+        "NamDNG" : ["NamDNG"],
         "SREF" : ["SREF"],
         "HRRR" : ['HRRR'],
         "HRWF" : ['HRWF'],
@@ -2738,8 +2808,8 @@ D2DAccumulativeElements= {
 #---------------------------------------------------------------------------
 # base urls for the ISC Routing Table
 ISC_ROUTING_TABLE_ADDRESS = {
-    "ANCF" : "http://165.92.30.69:8080/irt",
-    "BNCF" : "http://165.92.180.25:8080/irt"
+    "ANCF" : "http://svcbu-ancf.er.awips.noaa.gov:8080/irt",
+    "BNCF" : "http://svcbu-bncf.er.awips.noaa.gov:8080/irt"
     }
 
 
@@ -2868,13 +2938,11 @@ MOS_MODEL = [([Temp, Td, Wind, Weather, Sky], TC1),
              ([SnowAmt, PoP], LTMOS), ([QPF], TC6NG)]
 
 # Fcst and official database parameter groupings
-OFFICIALDBS = [([Temp, Td, Wind, NWPSwind, Weather, Sky, FzLevel, SnowLevel], TC1),
+OFFICIALDBS = [([Temp, Td, Wind, Weather, Sky, FzLevel, SnowLevel], TC1),
           ([HeatIndex, WindChill, RH, SnowAmt, CWR, QPF], TC1),
           ([PoP, Ttrend, RHtrend, Wind20ft, WindGust], TC1),
           ([MinT], MinTTC), ([MaxT], MaxTTC),
           ([MinRH], MinRHTC), ([MaxRH], MaxRHTC),
-#          ([WaveHeight, SurfHeight, Swell, Swell2, Period], TC3NG), DR 17496 - this is appended below
-          ([SwanSwell, Wave1, Wave2, Wave3, Wave4, Wave5, Wave6, Wave7, Wave8, Wave9, Wave10, Period1, Period3, Period4, Period5, Period6, Period7, Period8, Period9, Period10], TC3NG),
           ([VentRate, LAL, Haines, MixHgt, FreeWind, TransWind], TC1),
           ([DSI, Stability, MarineLayer], TC1),
           ([HrsOfSun, InvBurnOffTemp], LT24),
@@ -2893,15 +2961,19 @@ OFFICIALDBS = [([Temp, Td, Wind, NWPSwind, Weather, Sky, FzLevel, SnowLevel], TC
           ([PoP12hr], TC12NG),
           ([QPF6hr, SnowAmt6hr], TC6NG),
           ([cape], LT6NG),
-          ([ApparentT, HeatIndex, WindChill, UWaveDir, VWaveDir, LkSfcT, SnowMap, WaveDir, SnowRatio, StormTotalQPF], TC1),
+          ([ApparentT, HeatIndex, WindChill, LkSfcT, SnowMap, SnowRatio, StormTotalQPF], TC1),
           ]
 
 # Add wind/wave paramters based of site ID - DR 17496
 if SID in groups['GreatLake_SITES'] or SID in groups['marineTC1']:
     OFFICIALDBS.append(([WaveHeight, WindWaveHeight, SurfHeight, Swell, Swell2, Period, Period2], TC1))
-else:
+elif SID in groups['marineSites']:
     OFFICIALDBS.append(([WaveHeight, WindWaveHeight, SurfHeight, Swell, Swell2, Period, Period2], TC3NG))
 # End addition for DR 17496
+if SID in groups['marineSites'] or SID in groups['GreatLake_SITES']:
+    OFFICIALDBS.append(([SwanSwell, Wave1, Wave2, Wave3, Wave4, Wave5, Wave6, Wave7, Wave8, Wave9, Wave10,
+                         Period1, Period3, Period4, Period5, Period6, Period7, Period8, Period9, Period10], TC3NG))
+    OFFICIALDBS.append(([NWPSwind, UWaveDir, VWaveDir, WaveDir,],TC1))
 
 # NWPS
 nwpsCG1_MODEL = [([SwanSwell, Period, WaveHeight, WindWaveHeight, Wind], TC3NG)]
@@ -2981,8 +3053,8 @@ URMA25PARMS = [([Temp,Td,RH,Wind,QPE,Sky,Vis,Pressure,WindGust],TC1),
              ([MinRH],MinRHTC), ([MaxRH],MaxRHTC),
              ([TUnc,TdUnc,WSpdUnc,WDirUnc,VisUnc,PressUnc,WGustUnc,SkyUnc],TC1)]
 
-# NamDNG5 database parameter groupings
-NamDNG5PARMS = [([Temp, Td, RH, Wind, Sky, WindGust, Vis], TC3),
+# NamDNG database parameter groupings
+NamDNGPARMS = [([Temp, Td, RH, Wind, Sky, WindGust, Vis], TC3),
                 ([MixHgt, TransWind, SnowLevel], TC3),
                 ([MinT], MinTTC), ([MaxT], MaxTTC),
                 ([MinRH], MinRHTC), ([MaxRH], MaxRHTC),
@@ -3063,7 +3135,7 @@ DATABASES = [
              (GLERL, GLERLPARMS),
              (RTMA, RTMAPARMS),
              (URMA25, URMA25PARMS),
-             (NamDNG5, NamDNG5PARMS),
+             (NamDNG, NamDNGPARMS),
              (TPCProb, TPCProbPARMS),
              (ENPwave, ENPwave_parms),
              (GFSLAMPGrid, GFSLAMPGridPARMS),
@@ -3193,6 +3265,16 @@ def doIt():
 
 modelDict=createModelDict(locals(),DATABASES,D2DMODELS,D2DDBVERSIONS,D2DAccumulativeElements,
                   INITMODULES,INITSKIPS)
+
+# Add in optional parms to Fcst parm def
+if SID in groups['powt']:
+    addPowt(modelDict)
+
+if SID in groups['winterProbs']:
+    addWinterWeatherProbs(modelDict)
+
+if SID in groups['rainfallProbs']:
+    addRainfallProbs(modelDict)
 
 D2DMODELS=[]
 D2DDBVERSIONS={}

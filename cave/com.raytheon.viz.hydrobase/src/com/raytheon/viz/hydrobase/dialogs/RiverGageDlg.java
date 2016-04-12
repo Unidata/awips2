@@ -53,6 +53,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrobase.FcstPointGroupDlg;
 import com.raytheon.viz.hydrobase.listeners.IForecastGroupAssignmentListener;
 import com.raytheon.viz.hydrocommon.HydroConstants;
+import com.raytheon.viz.hydrocommon.data.LocationData;
 import com.raytheon.viz.hydrocommon.data.RPFFcstGroupData;
 import com.raytheon.viz.hydrocommon.data.RPFFcstPointData;
 import com.raytheon.viz.hydrocommon.data.RiverStatData;
@@ -81,6 +82,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Feb.02, 2015 #13372      djingtao    Change from GMT time to local time for "Revise" field
  * May 15, 2015 4380        skorolev    Added issuanceStage and issuanceFlow text fields.
  * Jul 06, 2015 #14104      lbousaidi   increased textlimit to 15 
+ * Jan 13, 2016 #17652      jingtaoD    use location lat/lon for 1st guess for new River Gage
  * 
  * </pre>
  * 
@@ -301,6 +303,11 @@ public class RiverGageDlg extends CaveSWTDialog implements
      * Data for the current river gage
      */
     private RiverStatData riverGageData;
+
+    /**
+     * Data for the current location
+     */
+    private LocationData locData;
 
     /**
      * Value for no Forecast Group assignment
@@ -995,6 +1002,24 @@ public class RiverGageDlg extends CaveSWTDialog implements
                     + "'s data ", e);
         }
 
+        // get locData
+        locData = new LocationData();
+        locData.setLid(lid);
+
+        java.util.List<LocationData> locDataList = null;
+
+        try {
+            locDataList = HydroDBDataManager.getInstance().getData(locData);
+        } catch (VizException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to load location data for " + lid, e);
+        }
+
+        if ((locDataList != null) && (locDataList.size() > 0)) {
+            locData = locDataList.get(0);
+        } else
+            locData = null;
+
         if ((data != null) && (data.size() > 0)) {
             // There will only be one record per lid
             riverGageData = data.get(0);
@@ -1012,20 +1037,23 @@ public class RiverGageDlg extends CaveSWTDialog implements
      * Populate te display.
      */
     private void updateDisplay() {
-        if (riverGageData != null) {
-            // Stream
-            streamTF.setText(riverGageData.getStream());
-
+        if (locData != null) {
             // Lat/Lon
+
             latitudeTF
-                    .setText((riverGageData.getLatitude() != HydroConstants.MISSING_VALUE) ? String
-                            .valueOf(riverGageData.getLatitude()) : "");
+                    .setText((locData.getLatitude() != HydroConstants.MISSING_VALUE) ? String
+                            .valueOf(locData.getLatitude()) : "");
             origLat = latitudeTF.getText();
 
             longitudeTF
-                    .setText((riverGageData.getLongitude() != HydroConstants.MISSING_VALUE) ? String
-                            .valueOf(riverGageData.getLongitude()) : "");
+                    .setText((locData.getLongitude() != HydroConstants.MISSING_VALUE) ? String
+                            .valueOf(locData.getLongitude()) : "");
             origLon = longitudeTF.getText();
+
+        }
+        if (riverGageData != null) {
+            // Stream
+            streamTF.setText(riverGageData.getStream());
 
             // Drainage Area
             drainageAreaTF.setText(HydroDataUtils

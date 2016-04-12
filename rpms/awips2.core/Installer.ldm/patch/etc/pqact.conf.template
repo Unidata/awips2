@@ -46,6 +46,7 @@
 #20151008            4958 dgilling    Add pattern for NationalBlend
 #20151030        DR 17683 jwatson     Add pattern for Day 8-11 Alaska 3km gridded MOS
 #20160128            5183 nabowle     Add pattern for PWPF.
+#20160223        DR 14845 jwatson     Add pattern for 2.5/3km Nam DNG CONUS/AK
 
 #***************************************************************
 # AWIPS 1 PATTERN GRAPHIC	^[PQ].*				/redbook/Raw
@@ -879,6 +880,11 @@ NGRID	^(L[ABCDEFGHRTW]AZ9[0-9]) (KWEA) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/
 NGRID	^(L[ABCDEFGHRTW]AZ9[0-9]) (KWEA) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/grib2/(\3:yyyy)(\3:mm)\3/\4/NationalBlend/\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
 	
+#  NamDNG 2.5k/3km 16.2.2 CONUS/AK pattern added by Josh Watson
+#  DR 14845 
+NGRID	^([LM][ADEHKRSTUVZ][IK][A-Z][0-9][0-9]) (KWBE) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/\7/GRID\8/\(10)Z_\(11)_\(12)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
+
 # === Encrypted ECMWF station-based MOS text bulletins
 # FOUS39 KWNO 050000 /pMETWC1
 # FEAK48 KWNO 041200 /pMEXAFC

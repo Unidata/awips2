@@ -168,6 +168,7 @@ import com.raytheon.viz.texteditor.command.CommandType;
 import com.raytheon.viz.texteditor.command.ICommand;
 import com.raytheon.viz.texteditor.command.IProductQueryCallback;
 import com.raytheon.viz.texteditor.command.ProductQueryJob;
+import com.raytheon.viz.texteditor.dialogs.LineWrapCheckConfirmationMsg.AnswerChoices;
 import com.raytheon.viz.texteditor.fax.dialogs.FaxMessageDlg;
 import com.raytheon.viz.texteditor.fax.dialogs.LdadFaxSitesDlg;
 import com.raytheon.viz.texteditor.msgs.IAfosBrowserCallback;
@@ -375,6 +376,10 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  *                                      copies of header to edited product after
  *                                      save/cancel cycling.
  * 16Feb2106   5391         randerso    Fixed button layouts so text is not cut off with larger fonts/higher DPI
+ * 01Mar2016   DR 17614     arickert    Updated MND, WMO, and VTEC should be reflected in text editor
+ *                                      after warngen is submitted
+ * 01Mar2016   RM13214   mgamazaychikov Added verifyLineWidth method.
+ * 01Mar2016   RM14803   mgamazaychikov Added code to handle products without WMO header.
  * 10Mar2016   5411         randerso    Added flags to disable comma replacement 
  *                                      and enable character set validation.
  *                                      Moved upper case conversion for QC checks into the 
@@ -4417,6 +4422,21 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                                 : currentDateId, "\n", nnnxxx);
             }
 
+            // Special case to handle the products with no WMO header -
+            // remove NNNXXX from product body
+            if (textEditor.getLine(0).trim().equals(nnnxxx)) {
+                int nnnxxxOffset = nnnxxx.length();
+                if (textEditor.getLineCount() > 1) {
+                    nnnxxxOffset = nnnxxxOffset + 1;
+                    // skip the empty line if it follows NNNXXX
+                    if (textEditor.getLine(1).trim().isEmpty()) {
+                        nnnxxxOffset = nnnxxxOffset + 1;
+                    }
+                }
+                String replaceText = textEditor.getText().substring(nnnxxxOffset);
+                textEditor.setText(replaceText);
+            }
+
             // Update the "now editing" title of the text editor window.
             updateNowEditingTitle();
 
@@ -4940,6 +4960,15 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             return;
         }
 
+        // verify wrapping
+        if (!verifyLineWidth(resend)) {
+            return;
+        }
+
+        concludeSendProduct(resend);
+    }
+
+    private void concludeSendProduct(final boolean resend) {
         StdTextProduct prod = getStdTextProduct();
         if (TextEditorCfg.getTextEditorCfg().getValidateCharacterSet()
                 && !validateCharacterSet(prod.getNnnid())) {
@@ -5065,15 +5094,13 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                                 "Will NOT increment ETN for this product.");
                     }
                     /*
-                     * This silly bit of code updates the ETN of a VTEC in the
-                     * text pane to reflect the ETN that was actually used, but
-                     * not update any other parts of the text even though they
-                     * may have also been changed just before the product was
-                     * sent.
                      * 
-                     * A1 works similarly.
+                     * The text product may have had it's VTEC, WMO, and MND time
+                     * modified in saveEditedProduct as well as having it's ETN
+                     * updated. Make sure these changes are reflected in the
+                     * text editor. DR17614
                      */
-                    updateTextEditor(copyEtn(prod.getProduct(), body));
+                    updateTextEditor(copyUpdatedProduct(prod.getProduct(), body));
                 }
 
                 String product = prod.getProduct();
@@ -5209,17 +5236,28 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         return req;
     }
 
-    private static String copyEtn(String from, String to) {
-        VtecObject fromVtec = VtecUtil.parseMessage(from);
+    private static String copyUpdatedProduct(String productString, String bodyString) {
 
-        if (fromVtec != null && "NEW".equals(fromVtec.getAction())) {
-            VtecObject toVtec = VtecUtil.parseMessage(to);
-            if (toVtec != null) {
-                toVtec.setSequence(fromVtec.getSequence());
-                return VtecUtil.replaceFirstVtecString(to, fromVtec);
-            }
+        /* The productString has already been updated before this function was
+         * called, the purpose here is to remove an extraneous header that is
+         * added. In the future, this function may need to perform updates on the
+         * text added to the text editor but currently it only needs to remove
+         * the header.
+         */
+        String[] bodyStrings = bodyString.split("\n");
+        String[] productStrings = productString.split("\n");
+
+        /* The difference between the bodyStrings and the productStrings
+         * is a header. We begin by coping from the end of the header so
+         * that it is effectively removed from the final String
+         */
+        int textLinesDifference = productStrings.length - bodyStrings.length;
+        StringBuilder updatedBody = new StringBuilder();
+        for (int i = textLinesDifference; i < productStrings.length; ++i) {
+            updatedBody.append(productStrings[i]).append("\n");
         }
-        return to;
+
+        return updatedBody.toString();
     }
 
     /**
@@ -8851,4 +8889,48 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         }
         return paddingPatternList;
     }
+
+    private boolean verifyLineWidth(final boolean resend) {
+        int lineToWrap = findLineToWrap();
+        if (lineToWrap == -1) {
+            return true;
+        }
+        LineWrapCheckConfirmationMsg lineWrapCheckConfirmationMsg = new LineWrapCheckConfirmationMsg(
+                shell);
+        lineWrapCheckConfirmationMsg.setCloseCallback(new ICloseCallback() {
+
+            @Override
+            public void dialogClosed(Object returnValue) {
+                if (AnswerChoices.EDIT.equals(returnValue)) {
+                    // do nothing
+                } else if (AnswerChoices.FIX.equals(returnValue)) {
+                    while (findLineToWrap() > -1) {
+                        int lineToWrap = findLineToWrap();
+                        // recompileRegex might not have been called
+                        if (standardWrapRegex == null) {
+                            recompileRegex();
+                        }
+                        rewrapInternal(lineToWrap);
+                    }
+                    concludeSendProduct(resend);
+                } else if (AnswerChoices.SEND.equals(returnValue)) {
+                    concludeSendProduct(resend);
+                }
+            }
+        });
+        lineWrapCheckConfirmationMsg.open();
+        return false;
+    }
+
+    private int findLineToWrap() {
+        int rval = -1;
+        for (int i = 0; i < textEditor.getLineCount(); ++i) {
+            String line = textEditor.getLine(i).trim();
+            if (line.length() > charWrapCol) {
+                return i;
+            }
+        }
+        return rval;
+    }
+
 }

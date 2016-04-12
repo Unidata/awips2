@@ -137,10 +137,9 @@ public class LocationAreaManager extends HydroDataManager {
      */
     public void insertLocationAreaData(LocationAreaData data)
             throws VizException {
-        DbUtils.escapeSpecialCharforData(data);
+        String areaStr = DbUtils.escapeSpecialCharforStr(data.getArea());
 
-        String query = String.format(INSERT_STATEMENT, data.getLid(),
-                data.getArea());
+        String query = String.format(INSERT_STATEMENT, data.getLid(), areaStr);
 
         runStatement(query);
     }
@@ -155,10 +154,9 @@ public class LocationAreaManager extends HydroDataManager {
      */
     public void updateLocationAreaData(LocationAreaData data)
             throws VizException {
-        DbUtils.escapeSpecialCharforData(data);
+        String areaStr = DbUtils.escapeSpecialCharforStr(data.getArea());
 
-        String query = String.format(UPDATE_STATEMENT, data.getArea(),
-                data.getLid());
+        String query = String.format(UPDATE_STATEMENT, areaStr, data.getLid());
 
         runStatement(query);
     }

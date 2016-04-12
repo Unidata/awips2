@@ -40,6 +40,7 @@ import com.raytheon.uf.viz.monitor.safeseas.SafeSeasMonitor;
  * Dec 30, 2009 3424       zhao        Launch SS monitor and SS zone/station table dialog separately here 
  * Feb 26, 2010 4282       zhao        Changed to follow the same dialog launch mechanism as in FOG
  * Nov 15, 2012 1297       skorolev    Cleaned code
+ * Jan 28, 2015 DR 16771   arickert    Moved code to open dialog to SafeSeasResource. See execute method for explanation
  * 
  * </pre>
  * 
@@ -52,13 +53,11 @@ public class SafeSeasAction extends AbstractHandler {
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
 
-        SafeSeasMonitor monitor = SafeSeasMonitor.getInstance();
-        if (monitor.getZoneDialog() == null
-                || monitor.getZoneDialog().isDisposed()) {
-            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                    .getShell();
-            monitor.launchDialog("zone", shell);
-        }
+        // The SafeSeasMonitor dialog was opened here previously but this led
+        // to an issue where if the user pressed the clear button before the
+        // SafeSeasResource was properly initialized the dialog would not close.
+        // Opening the dialog is now the responsibility of the SafeSeasResource
+        
         return null;
     }
 

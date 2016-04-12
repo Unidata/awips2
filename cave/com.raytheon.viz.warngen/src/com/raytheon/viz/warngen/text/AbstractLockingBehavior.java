@@ -62,6 +62,7 @@ import com.raytheon.viz.warngen.gis.AffectedAreas;
  * Jul 15, 2015 DR17716 mgamazaychikov  Remove all nulls from the affectedAreas to avoid TimSort NPE in initialize.
  * Jul 17, 2015  DR 17314  D. Friedman  Fix string replacement in firstBullet().
  * Aug  5, 2015  DR 17865  Qinglu Lin   Updated firstBullet() for issue brought in by mixed case DCS.
+ * Dec 24, 2015  DR 17311  Qinglu Lin   Added findIndexNextToUGC() and updated lockListOfNames().
  * 
  * </pre>
  * 
@@ -408,6 +409,17 @@ abstract public class AbstractLockingBehavior {
     }
 
     /**
+     * Return the index of character right after UGC.
+     */
+    protected int findIndexNextToUGC(Matcher m) {
+        if (m.find()) {
+            String group = m.group();
+            return this.text.indexOf(group) + group.length();
+        }
+        return -1;
+    }
+
+    /**
      * This method locks the entire MND Header block.
      */
     private void mnd() {
@@ -568,10 +580,12 @@ abstract public class AbstractLockingBehavior {
      * are not included.
      */
     private void lockListOfNames() {
+        int index = findIndexNextToUGC(ugcPtrn.matcher(text));
+        if (index == -1)
+            return;
         String[] timePattern = { " AM ", " PM ", "NOON", "MIDNIGHT" };
         String text1 = "";
-        int indexOfDash = text.indexOf('-');
-        String text2 = text.substring(indexOfDash, text.length() - 1);
+        String text2 = text.substring(index, text.length() - 1);
         int indexOfTimePattern;
         for (String s : timePattern) {
             indexOfTimePattern = text2.indexOf(s);
@@ -584,6 +598,8 @@ abstract public class AbstractLockingBehavior {
         if (text1.length() > 0) {
             index1 = text1.indexOf(WarnGenPatterns.LOCK_END);
             index2 = text1.lastIndexOf("-");
+            if (index1 == -1 || index2 == -1 || (index2 + 1 < index1 + 4))
+                return;
             text2 = text1.substring(index1 + 4, index2 + 1);
             index1 = text.indexOf(text2);
             text = text.substring(0, index1)

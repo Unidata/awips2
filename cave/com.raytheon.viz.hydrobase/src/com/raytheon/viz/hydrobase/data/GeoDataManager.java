@@ -170,8 +170,6 @@ public class GeoDataManager extends HydroDataManager {
             return status;
         }
 
-        DbUtils.escapeSpecialCharforData(data);
-
         /*
          * if the interior lat, lon were provided from the input file, then use
          * them. otherwise compute them.
@@ -206,11 +204,13 @@ public class GeoDataManager extends HydroDataManager {
             data.setInteriorLon(intLon);
         }
 
+        String dataName = DbUtils.escapeSpecialCharforStr(data.getName());
+
         StringBuilder query = new StringBuilder();
         query.append("insert into geoarea (area_id,");
         query.append(" name, boundary_type, interior_lat, interior_lon)");
         query.append(" values ('" + data.getAreaId() + "', '");
-        query.append(data.getName() + "', '");
+        query.append(dataName + "', '");
         query.append(data.getBoundaryType() + "', ");
         query.append(data.getInteriorLat() + ", ");
         query.append(data.getInteriorLon() + ")");

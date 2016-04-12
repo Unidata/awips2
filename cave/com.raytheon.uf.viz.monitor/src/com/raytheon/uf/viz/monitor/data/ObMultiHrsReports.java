@@ -62,7 +62,8 @@ import com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr;
  * Dec 02  2015  3873      dhladky    Pulled 3841 changes to 16.1.1.
  * Jan 04, 2016  5115      skorolev    Replaced Mon.Name with App.Name.
  * Jan 11  2016  5219      dhladky     Fixed damage done to cache management by recent updates.
- * 
+ * Feb 18, 2016  12085      zhao       Modified/added Wind Chill & Frostbite calculation for SNOW
+ *
  * </pre>
  * 
  * @author zhao
@@ -146,8 +147,11 @@ public class ObMultiHrsReports {
                     && report.getWindSpeed() != ObConst.MISSING) {
                 report.setWindChill(calcWindChill(report.getTemperature(),
                         report.getWindSpeed()));
+                report.setFrostbiteTime(calcFrostbiteTime(
+                        report.getTemperature(), report.getWindSpeed()));
             }
         }
+        
         ObHourReports obHourReports;
         // new nominal time; create a new ObHourReports object
         if (multiHrsReports.isEmpty()
@@ -174,23 +178,61 @@ public class ObMultiHrsReports {
     }
 
     /**
+     * Frostbite time calculation formula is based on section 3.4.3 of
+     * FCM-R19-2003; the equation is only valid when the frostbite time is less
+     * than or equal to 30 min and the wind speed is greater than 16 mph and
+     * less than or equal to 50 mph. The referenced document is available at
+     * http://www.ofcm.gov/jagti/r19-ti-plan/pdf/entire_r19_ti.pdf
+     * 
+     * @param temperature
+     *            in degree F
+     * @param windSpeed
+     *            in knots
+     * @return frostbite time in minutes
+     */
+    private float calcFrostbiteTime(float temp, float windSpd) {
+        /**
+         * 1 knots = 1.15078 mph
+         */
+        float windSpd_mph = 1.15078f * windSpd;
+        if (windSpd_mph <= 16 || windSpd_mph > 50) {
+            return ObConst.MISSING;
+        }
+        float xFt = -4.8f - (temp - 32f) * 5f / 9f;
+        if (xFt <= 0) {
+            return ObConst.MISSING;
+        }
+        xFt = (float) Math.pow(xFt, -1.668);
+        float Ft = ((-24.5f * ((0.667f * (windSpd_mph * 8f / 5f)) + 4.8f)) + 2111f)
+                * xFt;
+        if (Ft < 0 || Ft > 30f) {
+            return ObConst.MISSING;
+        }
+        return Ft;
+    }
+
+    /**
      * DR 15654: Wind Chill calculation formula based on
      * http://www.nws.noaa.gov/om/windchill/ as of Jan. 29, 2013
      * 
-     * @param temp
+     * @param temperature
      *            in degree F
-     * @param windSpd
+     * @param windSpeed
      *            in knots
      * @return wind chill in degree F
      */
     private float calcWindChill(float temp, float windSpd) {
-        if (temp > 50.0 || windSpd < 3.0) {
+        if (temp > 50.0) {
             return ObConst.MISSING;
         }
         /**
          * 1 knots = 1.15078 mph
          */
-        float spd = (float) Math.pow(1.15078 * windSpd, 0.16);
+        float windSpd_mph = 1.15078f * windSpd;
+        if (windSpd_mph < 3.0) {
+            return temp;
+        }
+        float spd = (float) Math.pow(windSpd_mph, 0.16);
         return 35.74f + 0.6215f * temp - 35.75f * spd + 0.4275f * temp * spd;
     }
 

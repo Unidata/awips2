@@ -187,6 +187,8 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  * 02/10/2016   5337       dgilling    Prevent CAN products past VTEC end time 
  *                                     from being transmitted.
  * 02/24/2016   5411       randerso    Leave issue times in mixed case.
+ * 03/01/2016  14775       ryu         Initialize product definition for product correction; 
+ *                                     modified saveFile() and getDir().
  * </pre>
  * 
  * @author lvenable
@@ -454,7 +456,11 @@ public class ProductEditorComp extends Composite implements
         super(parent, SWT.BORDER);
 
         this.parent = parent;
-        this.productDefinition = productDefinition;
+        if (productDefinition != null) {
+            this.productDefinition = productDefinition;
+        } else {
+            this.productDefinition = new ProductDefinition();
+        }
         this.productName = productName;
         this.editorCorrectionMode = editorCorrectionMode;
         this.transmissionCB = transmissionCB;
@@ -2283,21 +2289,11 @@ public class ProductEditorComp extends Composite implements
      */
     private void saveFile() {
 
-        String fname = null;
-        if (productDefinition.get("outputFile") != null) {
-            fname = getDefString("outputFile");
-            if (fname.equals(EMPTY)) {
-                return;
-            }
-        } else {
-            return;
-        }
-        fname = fixfname(fname);
+        String fname = getDir();
 
         FileDialog fd = new FileDialog(parent.getShell(), SWT.SAVE);
         fd.setText("Save As");
-        String filePath = (new File(fname)).getParentFile().getPath();
-        fd.setFilterPath(filePath);
+        fd.setFilterPath(fname);
         fd.setFileName(guessFilename());
         fname = fd.open();
 
@@ -2401,10 +2397,18 @@ public class ProductEditorComp extends Composite implements
         if (testVTEC) {
             fname = prdDir + "/PRACTICE";
         } else {
-            fname = prodEditorDirectory;
-            File f = new File(fname);
-            if (f.isDirectory()) {
-                fname.concat("/");
+            if (productDefinition.get("outputFile") != null) {
+                fname = getDefString("outputFile");
+                if (fname != null) {
+                    fname = fixfname(fname);
+                    if (!(new File(fname)).isDirectory()) {
+                        fname = new File(fname).getParent();
+                    }
+                }
+            }
+            
+            if (fname == null) {
+                fname = prodEditorDirectory;
             }
         }
 

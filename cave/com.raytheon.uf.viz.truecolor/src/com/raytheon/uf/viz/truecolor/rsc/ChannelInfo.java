@@ -43,6 +43,7 @@ import com.raytheon.uf.viz.truecolor.extension.ITrueColorImagingExtension.Channe
  * Aug 20, 2012           mschenke    Initial creation
  * Apr 18, 2014  2947     bsteffen    Support unitless data.
  * Sep 9, 2014   DR 17313 jgerth      Support for ColorMapParameters
+ * Jan 27, 2016  DR 17997 jgerth      Support for gamma control
  * 
  * </pre>
  * 
@@ -60,6 +61,9 @@ public class ChannelInfo {
 
     @XmlElement
     private double rangeMax = 1.0;
+
+    @XmlElement
+    private double gamma = 1.0;
 
     private Unit<?> unit;
 
@@ -111,6 +115,26 @@ public class ChannelInfo {
     }
 
     /**
+     * @return the gamma
+     */
+    public double getGamma() {
+        return gamma;
+    }
+
+    /**
+     * @param gamma
+     *            the gamma to set
+     */
+    public void setGamma(double gamma) {
+        this.gamma = gamma;
+        if (gamma != 1.0) {
+            parameters.setDirty(true);
+        } else {
+            parameters.setDirty(false);
+        }
+    }
+
+    /**
      * @return the unit
      */
     public Unit<?> getUnit() {
@@ -147,13 +171,13 @@ public class ChannelInfo {
                 : null;
     }
 
-	public ColorMapParameters getParameters() {
-		return parameters;
-	}
+    public ColorMapParameters getParameters() {
+        return parameters;
+    }
 
-	public void setParameters(ColorMapParameters parameters) {
-		this.parameters = parameters;
-	}
+    public void setParameters(ColorMapParameters parameters) {
+        this.parameters = parameters;
+    }
 
     /*
      * (non-Javadoc)
@@ -169,6 +193,8 @@ public class ChannelInfo {
         temp = Double.doubleToLongBits(rangeMax);
         result = prime * result + (int) (temp ^ (temp >>> 32));
         temp = Double.doubleToLongBits(rangeMin);
+        result = prime * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(gamma);
         result = prime * result + (int) (temp ^ (temp >>> 32));
         result = prime * result + ((unit == null) ? 0 : unit.hashCode());
         return result;
@@ -195,6 +221,9 @@ public class ChannelInfo {
             return false;
         if (Double.doubleToLongBits(rangeMin) != Double
                 .doubleToLongBits(other.rangeMin))
+            return false;
+        if (Double.doubleToLongBits(gamma) != Double
+                .doubleToLongBits(other.gamma))
             return false;
         if (unit == null) {
             if (other.unit != null)

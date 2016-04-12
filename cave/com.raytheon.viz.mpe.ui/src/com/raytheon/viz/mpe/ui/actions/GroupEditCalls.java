@@ -45,6 +45,7 @@ import com.raytheon.viz.mpe.util.QCTStations;
  * Jun 25, 2015 17397      snaples     Removed send_expose in apply_group method to prevent screen from blanking.
  * Jan 07, 2015 5235       bkowal      Do not clear the QC grid after applying a temperature group update.
  *                                     Eliminated all warnings.
+ * Feb 22, 2016 18599      snaples     Removed unused class declaration.
  * 
  * </pre>
  * 
@@ -59,8 +60,6 @@ public class GroupEditCalls {
     int group_edit = 0;
 
     int pcpn_day = DailyQcUtils.pcpn_day;
-
-    OtherPrecipOptions opo = new OtherPrecipOptions();
 
     int pcpn_time_step = MPEDisplayManager.pcpn_time_step;
 

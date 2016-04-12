@@ -28,6 +28,9 @@ import java.util.Map;
 
 import com.raytheon.uf.common.dataquery.db.QueryResult;
 import com.raytheon.uf.common.dataquery.db.QueryResultRow;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.data.HydroDBData;
 import com.raytheon.viz.hydrocommon.util.DbUtils;
@@ -43,6 +46,7 @@ import com.raytheon.viz.hydrocommon.util.DbUtils;
  * Nov 21, 2008 1697       askripsky   Changed to use reflection and filter generic methods
  * Nov 03, 2011 11273      lbousaidi   added updateNewData and putNewData.
  * Apr 18, 2013 1790       rferrel     Code cleanup part of non-blocking dialogs.
+ * Jan 15, 2016 DCS18180     JingtaoD   code improvement based on code review for DR17935
  * </pre>
  * 
  * @author askripsky
@@ -67,6 +71,10 @@ public class HydroDBDataManager extends HydroDataManager {
         return manager;
     }
 
+    /** The logger */
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(HydroDBDataManager.class);
+
     /**
      * Deletes each record passed in from the respective table.
      * 
@@ -89,16 +97,25 @@ public class HydroDBDataManager extends HydroDataManager {
      */
     public <T extends HydroDBData> void deleteRecord(T recordToDelete)
             throws VizException {
+
         try {
 
-            DbUtils.escapeSpecialCharforData(recordToDelete);
+            @SuppressWarnings("unchecked")
+            T recordToDeleteForQuery = (T) recordToDelete.getClass()
+                    .newInstance();
+
+            DbUtils.escapeSpecialCharforData(recordToDelete,
+                    recordToDeleteForQuery);
 
             String deleteQuery = (String) recordToDelete.getClass()
-                    .getMethod("getDeleteStatement").invoke(recordToDelete);
+                    .getMethod("getDeleteStatement")
+                    .invoke(recordToDeleteForQuery);
 
             runStatement(deleteQuery);
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.ERROR,
+                    "Unable to delete record with getDeleteStatement method.",
+                    e);
         }
     }
 
@@ -131,7 +148,8 @@ public class HydroDBDataManager extends HydroDataManager {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.ERROR,
+                    "Unable to get data with getSelectStatement method.", e);
         }
 
         return rval;
@@ -179,7 +197,10 @@ public class HydroDBDataManager extends HydroDataManager {
                         result.getColumnNames()));
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler
+                    .handle(Priority.ERROR,
+                            "Unable to get data with getConstrainedSelectStatement method.",
+                            e);
         }
 
         return rval;
@@ -204,7 +225,10 @@ public class HydroDBDataManager extends HydroDataManager {
                 rval = runMappedQuery(dataQuery).getResultCount();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler
+                    .handle(Priority.ERROR,
+                            "Error in checking data with getExistsStatement method.",
+                            e);
         }
 
         return rval;
@@ -220,8 +244,6 @@ public class HydroDBDataManager extends HydroDataManager {
     public <T extends HydroDBData> void updateData(T data) throws VizException {
         try {
 
-            DbUtils.escapeSpecialCharforData(data);
-
             // Get the update statement with the values filled in
             String updateQuery = (String) data.getClass()
                     .getMethod("getUpdateStatement").invoke(data);
@@ -230,7 +252,8 @@ public class HydroDBDataManager extends HydroDataManager {
                 runStatement(updateQuery);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.ERROR,
+                    "Unable to update data with getUpdateStatement method.", e);
         }
     }
 
@@ -246,11 +269,9 @@ public class HydroDBDataManager extends HydroDataManager {
             throws VizException {
         try {
 
-            DbUtils.escapeSpecialCharforData(newData);
             String updateQuery = (String) newData.getClass()
                     .getMethod("getUpdateStatement").invoke(newData);
 
-            DbUtils.escapeSpecialCharforData(updateData);
             String pkquery = (String) updateData.getClass()
                     .getMethod("getPKStatement").invoke(updateData);
 
@@ -260,7 +281,8 @@ public class HydroDBDataManager extends HydroDataManager {
                 runStatement(updateQueryToRun);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.ERROR, "Unable to update new data.",
+                    e);
         }
 
     }
@@ -277,34 +299,44 @@ public class HydroDBDataManager extends HydroDataManager {
         String insertQuery = null;
 
         try {
-            DbUtils.escapeSpecialCharforData(currData);
-            // if (currData.getClass() == LocationAgencyOfficeData.class) {
             Method getSQLMethod = currData.getClass().getMethod(
                     "getInsertStatement");
 
             insertQuery = (String) getSQLMethod.invoke(currData);
-            // }
 
             if (insertQuery != null) {
                 runStatement(insertQuery);
             }
         } catch (SecurityException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler.handle(Priority.ERROR,
+                    "Unable to insert data due to security exception.", e);
+
         } catch (NoSuchMethodException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler
+                    .handle(Priority.ERROR,
+                            "Unable to insert data due to no method existing exception.",
+                            e);
+
         } catch (IllegalArgumentException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler.handle(Priority.ERROR,
+                    "Unable to insert data due to illegal argument exception.",
+                    e);
+
         } catch (IllegalAccessException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler
+                    .handle(Priority.ERROR,
+                            "Unable to insert data due to illegal access exception.",
+                            e);
+
         } catch (InvocationTargetException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler
+                    .handle(Priority.ERROR,
+                            "Unable to insert data due to invocation target exception.",
+                            e);
+
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.ERROR,
+                    "Unable to insert data with getInsertStatement method.", e);
         }
     }
 
@@ -319,13 +351,26 @@ public class HydroDBDataManager extends HydroDataManager {
      * @throws VizException
      */
     public <T extends HydroDBData> void putData(T newData) throws VizException {
-        // Check if it's going to be an update or insert
-        if (checkData(newData) > 0) {
-            // Do an update
-            updateData(newData);
-        } else {
-            // Do an insert
-            insertData(newData);
+
+        try {
+            @SuppressWarnings("unchecked")
+            T newDataForQuery = (T) newData.getClass().newInstance();
+            DbUtils.escapeSpecialCharforData(newData, newDataForQuery);
+
+            // Check if it's going to be an update or insert
+            if (checkData(newDataForQuery) > 0) {
+                // Do an update
+                updateData(newDataForQuery);
+            } else {
+                // Do an insert
+                insertData(newDataForQuery);
+            }
+
+        } catch (InstantiationException | IllegalAccessException e) {
+            statusHandler
+                    .handle(Priority.ERROR,
+                            "Error to update/insert data due to instantiation or illegalAccess exception for "
+                                    + newData.getClass().getName(), e);
         }
     }
 
@@ -342,16 +387,31 @@ public class HydroDBDataManager extends HydroDataManager {
      */
     public <T extends HydroDBData> void putNewData(T newData, T updateData,
             boolean insert) throws VizException {
-        // Check if it's going to be an update
 
-        if ((insert) && (checkData(newData) == 0)) {
-            // Do an insert
-            insertData(newData);
+        try {
+            @SuppressWarnings("unchecked")
+            T newDataForQuery = (T) newData.getClass().newInstance();
+            DbUtils.escapeSpecialCharforData(newData, newDataForQuery);
 
-        } else if (checkData(updateData) > 0) {
-            // Do an update
-            updateNewData(newData, updateData);
+            @SuppressWarnings("unchecked")
+            T updateDataForQuery = (T) updateData.getClass().newInstance();
+            DbUtils.escapeSpecialCharforData(updateData, updateDataForQuery);
+
+            // Check if it's going to be an update
+            if ((insert) && (checkData(newDataForQuery) == 0)) {
+                // Do an insert
+                insertData(newDataForQuery);
+
+            } else if (checkData(updateDataForQuery) > 0) {
+                // Do an update
+                updateNewData(newDataForQuery, updateDataForQuery);
+            }
+        } catch (InstantiationException | IllegalAccessException e) {
+            statusHandler
+                    .handle(Priority.ERROR,
+                            "Error to update/insert data due to instantiation or illegal access exception for "
+                                    + newData.getClass().getName(), e);
         }
-    }
 
+    }
 }

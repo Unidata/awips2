@@ -57,6 +57,7 @@ import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
  * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools
  * Dec 14, 2015 5166       kbisanz     Update logging to use SLF4J and
  *                                     make logger protected
+ * Mar 11, 2016 13302      kshrestha   Removed adjustment of valid time hour
  * 
  * </pre>
  * 
@@ -64,11 +65,6 @@ import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
  * @version 1.0
  */
 public abstract class AbstractBUFRUAAdapter extends BUFRPointDataAdapter<UAObs> {
-
-    private static final int[] HOUR_MAP = {
-            // 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23
-            0, -1, -2, -3, 2, 1, 0, -1, -2, -3, 2, 1, 0, -1, -2, -3, 2, 1, 0,
-            -1, -2, -3, 2, 1 };
 
     private static final int YEAR_POS = 4;
 
@@ -118,9 +114,6 @@ public abstract class AbstractBUFRUAAdapter extends BUFRPointDataAdapter<UAObs> 
                 Calendar validTime = obsData.getDataTime()
                         .getRefTimeAsCalendar();
 
-                // Now offset the "record" validTime using the hour mapping.
-                int hour = validTime.get(Calendar.HOUR_OF_DAY);
-                validTime.add(Calendar.HOUR_OF_DAY, HOUR_MAP[hour]);
                 // Set the new validTime back into the UAObs record.
 
                 Calendar maxFutureTime = Calendar.getInstance();
