@@ -12,11 +12,11 @@ URL: N/A
 License: N/A
 Distribution: N/A
 Vendor: Raytheon
-Packager: Bryan Kowal
+Packager: %{_build_site}
 
 AutoReq: no
-provides: awips2-aviation-shared
-requires: awips2-edex-base
+Provides: awips2-aviation-shared
+Requires: awips2-edex-base
 
 %description
 AWIPS II Aviation Distribution - includes *-ish files required by AvnFPS.
@@ -55,7 +55,7 @@ fi
 rm -rf ${RPM_BUILD_ROOT}
 
 %files
-%defattr(644,awips,fxalpha,755)
+%defattr(644,awips,fxalpha,775)
 %dir /awips2
 %dir /awips2/edex
 %dir /awips2/edex/data

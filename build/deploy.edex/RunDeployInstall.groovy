@@ -44,6 +44,7 @@ import IPluginCustomDeployer
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 4, 2014  3836       bkowal      Initial Commit
+ * Dec 9, 2015  4216       dhladky     Fix multi WA deploy
  *
  * </pre>
  *
@@ -124,7 +125,7 @@ class DeployInstall
       // complete the esb deployment
 
       // we need to determine the location of the build.edex project
-      ProjectInformation projectInformation = this.projectInformationMap["build.edex"]
+      ProjectInformation projectInformation = this.projectInformationMap["deploy.edex.awips2"]
       if (projectInformation == null)
       {
          log.log(java.util.logging.Level.SEVERE,

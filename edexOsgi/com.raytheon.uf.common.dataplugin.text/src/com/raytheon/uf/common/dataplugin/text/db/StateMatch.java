@@ -39,8 +39,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ---------- ----------- --------------------------
  *                                     Initial Implementation
  * 15 Oct 2008  1538       jkorman     Core functions added.
- * 31 Aub 2010  2103       cjeanbap    Initialize member variable
- *                                      in constructor.    
+ * 31 Aug 2010  2103       cjeanbap    Initialize member variable
+ *                                      in constructor.
+ * 09 Dec 2015  5166       kbisanz     Override toString()
  * 
  * </pre>
  * 
@@ -77,5 +78,10 @@ public class StateMatch extends PersistableDataObject implements
 
     public void setPk(StateMatchPK pk) {
         this.pk = pk;
+    }
+
+    @Override
+    public String toString() {
+        return "StateMatch[pk=" + pk + "]";
     }
 }

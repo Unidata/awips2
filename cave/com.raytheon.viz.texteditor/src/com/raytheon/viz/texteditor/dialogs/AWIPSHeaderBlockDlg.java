@@ -101,6 +101,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 08May2014    16041       kshrestha   Save unofficial text products from text editor.
  * 05Mar2015   RM 15025     kshrestha   Fix to maintain the headers that they are saved with
  * Aug 31, 2015 4749        njensen     Changed setCloseCallback to addCloseCallback
+ * 03/01/2016  RM14803  mgamazaychikov  Added code to handle products without WMO header.
  * 
  * </pre>
  * 
@@ -456,6 +457,11 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
             }
             prodCatTF.setText(textProd.getNnnid());
             prodDesignatorTF.setText(textProd.getXxxid());
+
+            // Special case when a product does not have WMO header
+            if (textProd.getWmoid().equals("")) {
+                lookupWmoIDs();
+            }
         }
     }
 

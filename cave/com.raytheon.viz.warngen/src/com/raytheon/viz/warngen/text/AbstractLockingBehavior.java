@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
 import com.raytheon.uf.common.dataplugin.warning.util.WarnFileUtil;
@@ -62,6 +62,7 @@ import com.raytheon.viz.warngen.gis.AffectedAreas;
  * Jul 15, 2015 DR17716 mgamazaychikov  Remove all nulls from the affectedAreas to avoid TimSort NPE in initialize.
  * Jul 17, 2015  DR 17314  D. Friedman  Fix string replacement in firstBullet().
  * Aug  5, 2015  DR 17865  Qinglu Lin   Updated firstBullet() for issue brought in by mixed case DCS.
+ * Dec 24, 2015  DR 17311  Qinglu Lin   Added findIndexNextToUGC() and updated lockListOfNames().
  * 
  * </pre>
  * 
@@ -217,7 +218,8 @@ abstract public class AbstractLockingBehavior {
         // should not be locked. For some reason, this differs from followups as
         // stated in DR 15110. Need verification from NWS. This is a variance?
         if (!isMarineProduct()) {
-            StringBuilder newText = new StringBuilder(firstBulletText.length() + 1024);
+            StringBuilder newText = new StringBuilder(
+                    firstBulletText.length() + 1024);
             Matcher m = null;
             boolean first = true;
             for (String line : firstBulletText.split("\\n", -1)) {
@@ -240,10 +242,11 @@ abstract public class AbstractLockingBehavior {
 
                 int endIndex = line.toUpperCase().indexOf(" IN ");
                 String textForSearch = null;
-                if (endIndex == -1)
+                if (endIndex == -1) {
                     textForSearch = line;
-                else
+                } else {
                     textForSearch = line.substring(0, endIndex);
+                }
                 for (AffectedAreas affectedArea : affectedAreas) {
                     String name = affectedArea.getName();
                     String areaNotation = affectedArea.getAreaNotation();
@@ -290,7 +293,8 @@ abstract public class AbstractLockingBehavior {
         Matcher m = WarnGenPatterns.firstBulletPtrn.matcher(firstBulletText);
         firstBulletText = m.replaceAll(WarnGenPatterns.REPLACEMENT);
 
-        this.text = new StringBuffer(text).replace(start, end, firstBulletText).toString();
+        this.text = new StringBuffer(text).replace(start, end, firstBulletText)
+                .toString();
     }
 
     /**
@@ -402,6 +406,17 @@ abstract public class AbstractLockingBehavior {
                 this.text = m.replaceAll(WarnGenPatterns.REPLACEMENT);
             }
         }
+    }
+
+    /**
+     * Return the index of character right after UGC.
+     */
+    protected int findIndexNextToUGC(Matcher m) {
+        if (m.find()) {
+            String group = m.group();
+            return this.text.indexOf(group) + group.length();
+        }
+        return -1;
     }
 
     /**
@@ -565,10 +580,12 @@ abstract public class AbstractLockingBehavior {
      * are not included.
      */
     private void lockListOfNames() {
+        int index = findIndexNextToUGC(ugcPtrn.matcher(text));
+        if (index == -1)
+            return;
         String[] timePattern = { " AM ", " PM ", "NOON", "MIDNIGHT" };
         String text1 = "";
-        int indexOfDash = text.indexOf('-');
-        String text2 = text.substring(indexOfDash, text.length() - 1);
+        String text2 = text.substring(index, text.length() - 1);
         int indexOfTimePattern;
         for (String s : timePattern) {
             indexOfTimePattern = text2.indexOf(s);
@@ -581,6 +598,8 @@ abstract public class AbstractLockingBehavior {
         if (text1.length() > 0) {
             index1 = text1.indexOf(WarnGenPatterns.LOCK_END);
             index2 = text1.lastIndexOf("-");
+            if (index1 == -1 || index2 == -1 || (index2 + 1 < index1 + 4))
+                return;
             text2 = text1.substring(index1 + 4, index2 + 1);
             index1 = text.indexOf(text2);
             text = text.substring(0, index1)

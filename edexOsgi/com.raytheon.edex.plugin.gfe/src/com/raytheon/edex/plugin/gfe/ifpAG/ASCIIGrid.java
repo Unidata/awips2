@@ -22,7 +22,10 @@ package com.raytheon.edex.plugin.gfe.ifpAG;
 import java.awt.Point;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -73,9 +76,11 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 13, 2011  #8393     dgilling     Initial creation
- * 02/19/13     #1637      randerso    Added exception handling for Discrete and Weather
- * 10/31/2013   #2508      randerso    Change to use DiscreteGridSlice.getKeys()
- * 04/22/2014   #3050      randerso    Allow exceptions to propagate to caller from readASCIIGridData
+ * 02/19/13      #1637     randerso     Added exception handling for Discrete and Weather
+ * 10/31/2013    #2508     randerso     Change to use DiscreteGridSlice.getKeys()
+ * 04/22/2014    #3050     randerso     Allow exceptions to propagate to caller from readASCIIGridData
+ * Jan 14, 2016  #5237     tgurney      Allow outputAsciiGridData to take
+ *                                      OutputStream as well as File
  * 
  * </pre>
  * 
@@ -186,73 +191,78 @@ public class ASCIIGrid {
     }
 
     public void outputAsciiGridData(File outputFile) throws IOException {
-        PrintWriter outputStream = null;
+        try (FileOutputStream outputStream = new FileOutputStream(outputFile)) {
+            outputAsciiGridData(outputFile);
+        }
+    }
 
-        try {
-            outputStream = new PrintWriter(outputFile, "US-ASCII");
+    public void outputAsciiGridData(OutputStream outputStream)
+            throws IOException {
+        try (PrintWriter printStream = new PrintWriter(new OutputStreamWriter(
+                outputStream, "US-ASCII"))) {
 
             // output for each IGridSlice
             for (IGridSlice gs : gridSlices) {
                 // keyword identifying new ASCIIGrid
-                outputStream.println("ASCIIGRID");
+                printStream.println("ASCIIGRID");
 
                 // data type
                 if (gs.getGridInfo().getGridType().equals(GridType.SCALAR)) {
-                    outputStream.println("SCALAR");
+                    printStream.println("SCALAR");
                 } else if (gs.getGridInfo().getGridType()
                         .equals(GridType.VECTOR)) {
-                    outputStream.println("VECTOR");
+                    printStream.println("VECTOR");
                 } else if (gs.getGridInfo().getGridType()
                         .equals(GridType.WEATHER)) {
-                    outputStream.println("WEATHER");
+                    printStream.println("WEATHER");
                 } else if (gs.getGridInfo().getGridType()
                         .equals(GridType.DISCRETE)) {
-                    outputStream.println("DISCRETE");
+                    printStream.println("DISCRETE");
                 } else {
-                    outputStream.println("NONE");
+                    printStream.println("NONE");
                 }
 
                 // parameter name and level
                 if (!gs.getGridInfo().getParmID().getParmLevel()
                         .equals(ParmID.defaultLevel())) {
-                    outputStream
+                    printStream
                             .println(gs.getGridInfo().getParmID().getParmName()
                                     + "_"
                                     + gs.getGridInfo().getParmID()
                                             .getParmLevel());
                 } else {
-                    outputStream.println(gs.getGridInfo().getParmID()
+                    printStream.println(gs.getGridInfo().getParmID()
                             .getParmName());
                 }
 
                 // database site identifier
-                outputStream.println(gs.getGridInfo().getParmID().getDbId()
+                printStream.println(gs.getGridInfo().getParmID().getDbId()
                         .getSiteId());
 
                 // database optional type
                 if (gs.getGridInfo().getParmID().getDbId().getDbType()
                         .equals("")) {
-                    outputStream.println("<notype>");
+                    printStream.println("<notype>");
                 } else {
-                    outputStream.println(gs.getGridInfo().getParmID().getDbId()
+                    printStream.println(gs.getGridInfo().getParmID().getDbId()
                             .getDbType());
                 }
 
                 // database model name
-                outputStream.println(gs.getGridInfo().getParmID().getDbId()
+                printStream.println(gs.getGridInfo().getParmID().getDbId()
                         .getModelName());
 
                 // database time
-                outputStream.println(gs.getGridInfo().getParmID().getDbId()
+                printStream.println(gs.getGridInfo().getParmID().getDbId()
                         .getModelTime());
 
                 // projection identifier
-                outputStream.println(gs.getGridInfo().getGridLoc()
+                printStream.println(gs.getGridInfo().getGridLoc()
                         .getProjection().getProjectionID());
 
                 // grid size (x y), minimum world coordinates (x y),
                 // domain extent (x y)
-                outputStream.println(gs.getGridInfo().getGridLoc().getNx()
+                printStream.println(gs.getGridInfo().getGridLoc().getNx()
                         .toString()
                         + " "
                         + gs.getGridInfo().getGridLoc().getNy().toString()
@@ -265,26 +275,26 @@ public class ASCIIGrid {
                         + " " + gs.getGridInfo().getGridLoc().getExtent().y);
 
                 // units
-                outputStream.println(gs.getGridInfo().getUnitString());
+                printStream.println(gs.getGridInfo().getUnitString());
 
                 // descriptive name
-                outputStream.println(gs.getGridInfo().getDescriptiveName());
+                printStream.println(gs.getGridInfo().getDescriptiveName());
 
                 // minimum possible value, maximum possible value, data
                 // precision,
                 // time independent parameter
-                outputStream.print(gs.getGridInfo().getMinValue() + " "
+                printStream.print(gs.getGridInfo().getMinValue() + " "
                         + gs.getGridInfo().getMaxValue() + " "
                         + gs.getGridInfo().getPrecision() + " ");
                 if (gs.getGridInfo().isTimeIndependentParm()) {
-                    outputStream.print(1);
+                    printStream.print(1);
                 } else {
-                    outputStream.print(0);
+                    printStream.print(0);
                 }
-                outputStream.println();
+                printStream.println();
 
                 // time constraints (startTime, duration, repeatInterval)
-                outputStream.println(gs.getGridInfo().getTimeConstraints()
+                printStream.println(gs.getGridInfo().getTimeConstraints()
                         .getStartTime()
                         + " "
                         + gs.getGridInfo().getTimeConstraints().getDuration()
@@ -293,9 +303,9 @@ public class ASCIIGrid {
                                 .getRepeatInterval());
 
                 // valid time range for grid
-                outputStream.print(validTimeFormat.format(gs.getValidTime()
+                printStream.print(validTimeFormat.format(gs.getValidTime()
                         .getStart()) + " ");
-                outputStream.println(validTimeFormat.format(gs.getValidTime()
+                printStream.println(validTimeFormat.format(gs.getValidTime()
                         .getEnd()));
 
                 // output the grid points
@@ -305,7 +315,7 @@ public class ASCIIGrid {
                     ScalarGridSlice scalar = (ScalarGridSlice) gs;
                     for (int i = scalar.getScalarGrid().getYdim() - 1; i >= 0; i--) {
                         for (int j = 0; j < scalar.getScalarGrid().getXdim(); j++) {
-                            outputStream
+                            printStream
                                     .println(round(
                                             scalar.getScalarGrid().get(j, i),
                                             gs.getGridInfo().getPrecision()));
@@ -316,14 +326,14 @@ public class ASCIIGrid {
                     VectorGridSlice vector = (VectorGridSlice) gs;
                     for (int i = vector.getMagGrid().getYdim() - 1; i >= 0; i--) {
                         for (int j = 0; j < vector.getMagGrid().getXdim(); j++) {
-                            outputStream.print(round(
+                            printStream.print(round(
                                     vector.getMagGrid().get(j, i), gs
                                             .getGridInfo().getPrecision()));
-                            outputStream.print(' ');
-                            outputStream.print(round(
+                            printStream.print(' ');
+                            printStream.print(round(
                                     vector.getDirGrid().get(j, i), gs
                                             .getGridInfo().getPrecision()));
-                            outputStream.println();
+                            printStream.println();
                         }
                     }
                 } else if (gs.getGridInfo().getGridType()
@@ -333,7 +343,7 @@ public class ASCIIGrid {
                         for (int j = 0; j < weather.getWeatherGrid().getXdim(); j++) {
                             String key = weather.getKeys()[weather
                                     .getWeatherGrid().get(j, i)].toString();
-                            outputStream.println(key);
+                            printStream.println(key);
                         }
                     }
                 } else if (gs.getGridInfo().getGridType()
@@ -344,14 +354,10 @@ public class ASCIIGrid {
                                 .getXdim(); j++) {
                             String key = discrete.getKeys()[discrete
                                     .getDiscreteGrid().get(j, i)].toString();
-                            outputStream.println(key);
+                            printStream.println(key);
                         }
                     }
                 }
-            }
-        } finally {
-            if (outputStream != null) {
-                outputStream.close();
             }
         }
     }

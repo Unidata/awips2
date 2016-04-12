@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 
 import com.raytheon.uf.common.dataplugin.warning.config.AreaSourceConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.config.AreaSourceConfiguration.AreaType;
@@ -35,6 +35,7 @@ import com.raytheon.uf.common.dataplugin.warning.config.GeospatialConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.config.WarngenConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.gis.GeospatialData;
 import com.raytheon.uf.common.dataplugin.warning.portions.GisUtil;
+import com.raytheon.uf.common.dataplugin.warning.portions.GisUtil.Direction;
 import com.raytheon.uf.common.dataplugin.warning.portions.PortionsUtil;
 import com.raytheon.uf.common.dataplugin.warning.util.CountyUserData;
 import com.raytheon.uf.common.dataplugin.warning.util.GeometryUtil;
@@ -50,12 +51,11 @@ import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
-//import com.raytheon.viz.warngen.gis.GisUtil.Direction;
-import com.raytheon.uf.common.dataplugin.warning.portions.GisUtil.Direction;
 import com.raytheon.viz.warngen.gui.WarngenLayer;
 import com.raytheon.viz.warngen.util.Abbreviation;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.prep.PreparedGeometry;
+//import com.raytheon.viz.warngen.gis.GisUtil.Direction;
 
 /**
  * Area
@@ -90,6 +90,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometry;
  *                                         refactored WarngenLayer::filterArea.
  *    Mar  9, 2014 ASM #17190  D. Friedman Use fipsField and areaField for unique area ID.
  *    May  7, 2015 ASM #17438  D. Friedman Clean up debug and performance logging.
+ *    Dec 15, 2015 ASM #17933 mgamazaychikov Update calculation of partOfParentRegion.
  * </pre>
  * 
  * @author chammack
@@ -267,7 +268,7 @@ public class Area {
                         .get(parentAreaField));
                 String feArea = (String) regionFeature.attributes
                         .get("FE_AREA");
-                area.partOfParentRegion = converFeAreaToPartList(feArea);
+                area.partOfParentRegion = Arrays.asList(feArea);
             }
 
             // Search against point matches

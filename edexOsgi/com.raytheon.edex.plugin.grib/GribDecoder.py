@@ -26,6 +26,7 @@
 # Jul 07, 2014 3344       rferrel     Change GRID_FILL_VALUE to new plugin location.
 # Mar 05, 2015 3959       rjpeter     Fix subgrid across seam of world wide grid.
 # Oct 01, 2015 4868       rjpeter     Discard invalid subgrids.
+# Dec 16, 2015 5182       tjensen     Updated GribModelLookup calls to pass in filepath.
 # 
 
 import grib2
@@ -1223,7 +1224,7 @@ class GribDecoder():
 
         process = gribDict['genprocess']
         processType = gribDict['processType']
-        gridModel = GribModelLookup.getInstance().getModel(center, subcenter, grid, process, processType)
+        gridModel = GribModelLookup.getInstance().getModel(center, subcenter, grid, process, processType, self.fileName)
         return gridModel
     
     def _createModelName(self, gribDict, grid):
@@ -1232,7 +1233,7 @@ class GribDecoder():
 
         process = gribDict['genprocess']
         processType = gribDict['processType']
-        return GribModelLookup.getInstance().getModelName(center, subcenter, grid, process, processType)
+        return GribModelLookup.getInstance().getModelName(center, subcenter, grid, process, processType, self.fileName)
         
     def _checkForecastFlag(self, gribDict, grid, dataTime):
         gridModel = self._getGridModel(gribDict, grid)

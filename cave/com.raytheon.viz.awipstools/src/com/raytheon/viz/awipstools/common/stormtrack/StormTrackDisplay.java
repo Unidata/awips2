@@ -71,53 +71,60 @@ import com.vividsolutions.jts.geom.LineString;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 05-28-2010   #6042      bkowal      When an Impossible Track Exception
- *                                     Is Encountered, The Track Will Now
- *                                     Be Reverted Back To Its Previous
- *                                     State. Replaced Impossible Storm
- *                                     Exception With Impossible Track
- *                                     Exception.
- *  06-23-2010  #6468      bkowal      The Tool Will No Longer Generate
- *                                     An Exception When It Is Initially
- *                                     Added To The Map While Looping
- *                                     Is Running.
- *  06-23-2010  #5925      bkowal      The Tool Will No Longer Generate An
- *                                     Exception When The Polyline Mode
- *                                     Is Enabled Even When A Track
- *                                     Has Not Been Generated.
- *  07-14-2010  #6558      bkowal      The tool will no longer generate an
- *                                     exception when it is moved from a
- *                                     pane with a larger frame count to a
- *                                     pane with a smaller frame count. 
- *                                     The track will now always be centered around
- *                                     the initial location of the drag-me point
- *                                     when the track was created.
- *  10-27-2010  #6964      bkowal      The LineStyle is now passed as a parameter to
- *                                     the IGraphicsTarget drawWireframeShape method.
- *  15Mar2013	15693	mgamazaychikov Made sure that magnification capability works.
- *  06-11-2013  DR 16234   D. Friedman Fix pivot index when frames count is reduced.
- *  06-24-2013  DR 16317   D. Friedman Handle "motionless" track.
- *  01-28-2014  DR16465 mgamazaychikov Fixed the problem with anchor point when frame 
- *                                     count changes; made line width configurable.
- *  04-07-2014  DR 17232   D. Friedman Make sure pivot indexes are valid.
- *  04-24-2014  DR 16356   Qinglu Lin  Updated generateTrackInfo(), generateNewTrackInfo(),
- *                                     and createTrack().
- *  06-03-14    3191       njensen     Fix postData to not retrieve
- *  06-17-2014  DR17409 mgamazaychikov Fix futurePoints calculation in generateNewTrackInfo()
- *                                     and generateExistingTrackInfo()
- *  07-24-2014  3429       mapeters    Updated deprecated drawLine() calls.
- *  08-21-2014  DR 15700   Qinglu Lin  handle the situation where frameTime is null in paintTrack().
- *  09-09-2014  RM #657    Qinglu Lin  handle StormTrackState.trackType is null.
- *  09-25-2014  ASM #16773 D. Friedman Fix NPE.
- *  10-10-2014  ASM #16844 D. Friedman Prevent some errors when moving track.
+ * 
+ * Date          Ticket#  Engineer   Description
+ * ------------- -------- ---------- -------------------------------------------
+ * May 28, 2010  6042     bkowal     When an Impossible Track Exception Is
+ *                                   Encountered, The Track Will Now Be Reverted
+ *                                   Back To Its Previous State. Replaced
+ *                                   Impossible Storm Exception With Impossible
+ *                                   Track Exception.
+ * Jun 23, 2010  6468     bkowal     The Tool Will No Longer Generate An
+ *                                   Exception When It Is Initially Added To The
+ *                                   Map While Looping Is Running.
+ * Jun 23, 2010  5925     bkowal     The Tool Will No Longer Generate An
+ *                                   Exception When The Polyline Mode Is Enabled
+ *                                   Even When A Track Has Not Been Generated.
+ * Jul 14, 2010  6558     bkowal     The tool will no longer generate an
+ *                                   exception when it is moved from a pane with
+ *                                   a larger frame count to a pane with a
+ *                                   smaller frame count. The track will now
+ *                                   always be centered around the initial
+ *                                   location of the drag-me point when the
+ *                                   track was created.
+ * Oct 27, 2010  6964     bkowal     The LineStyle is now passed as a parameter
+ *                                   to the IGraphicsTarget drawWireframeShape
+ *                                   method.
+ * Mar 15, 2013  15693    mgamazay   Made sure that magnification capability
+ *                                   works.
+ * Jun 11, 2013  16234    dfriedman  Fix pivot index when frames count is
+ *                                   reduced.
+ * Jun 24, 2013  16317    dfriedman  Handle "motionless" track.
+ * Jan 28, 2014  16465    mgamazay   Fixed the problem with anchor point when
+ *                                   frame count changes; made line width
+ *                                   configurable.
+ * Apr 07, 2014  17232    dfriedman  Make sure pivot indexes are valid.
+ * Apr 24, 2014  16356    qlin       Updated generateTrackInfo(),
+ *                                   generateNewTrackInfo(), and createTrack().
+ * Jun 03, 2014  3191     njensen    Fix postData to not retrieve
+ * Jun 17, 2014  17409    mgamazay   Fix futurePoints calculation in
+ *                                   generateNewTrackInfo() and
+ *                                   generateExistingTrackInfo()
+ * Jul 24, 2014  3429     mapeters   Updated deprecated drawLine() calls.
+ * Aug 21, 2014  15700    qlin       handle the situation where frameTime is
+ *                                   null in paintTrack().
+ * Sep 09, 2014  657      qlin       handle StormTrackState.trackType is null.
+ * Sep 25, 2014  16773    dfriedman  Fix NPE.
+ * Oct 10, 2014  16844    dfriedman  Prevent some errors when moving track.
+ * Dec 02, 2015  5150     bsteffen   Add option to use constant end time.
+ * 02-09-2016  ASM #18421 D. Friedman Don't call ToolsDataManager.setStormTrackData
+ *                                     if there is no storm motion.
+ * 03-18-2016  ASM #18751 D. Friedman Followup for #18421: Do not set StormTrackState.oneStormAngle
+ *                                     when motion is zero.
  * </pre>
  * 
  * @author mschenke
- * @version 1.0
  */
-
 public class StormTrackDisplay implements IRenderable {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(StormTrackDisplay.class);
@@ -408,7 +415,7 @@ public class StormTrackDisplay implements IRenderable {
                 coords = new Coordinate[] { c1,
                         new Coordinate(worldPixel[0], worldPixel[1]), c3 };
             }
-            line = new GeometryFactory().createLineString(coords);
+            line = gf.createLineString(coords);
 
             if (state.dragMePoint != null) {
                 state.dragMeLine = manager.figureLineFromPoint(line,
@@ -518,7 +525,7 @@ public class StormTrackDisplay implements IRenderable {
                 double[] p = descriptor.pixelToWorld(paintProps.getView()
                         .getExtent().getCenter());
                 point = new Coordinate(p[0], p[1]);
-                state.dragMePoint = new GeometryFactory().createPoint(point);
+                state.dragMePoint = gf.createPoint(point);
             }
         }
 
@@ -777,7 +784,7 @@ public class StormTrackDisplay implements IRenderable {
                     if (currentState.dragMePoint == null) {
                         double[] p = descriptor.pixelToWorld(paintProps
                                 .getView().getExtent().getCenter());
-                        currentState.dragMePoint = new GeometryFactory()
+                        currentState.dragMePoint = gf
                                 .createPoint(new Coordinate(p[0], p[1]));
                     }
                     theAnchorPoint = currentState.dragMePoint.getCoordinate();
@@ -837,7 +844,7 @@ public class StormTrackDisplay implements IRenderable {
     }
 
     private void generateExistingTrackInfo(StormTrackState state,
-            PaintProperties paintProps) throws ImpossibleTrackException {
+            PaintProperties paintProps) {
         int moveIndex = this.trackUtil.getCurrentFrame(paintProps
                 .getFramesInfo());
         moveIndex = Math.min(moveIndex, state.timePoints.length - 1);
@@ -988,14 +995,16 @@ public class StormTrackDisplay implements IRenderable {
         state.futurePoints = futurePoints;
 
         state.angle = angle;
-        StormTrackState.oneStormAngle = angle;
+        if (speed > 0) {
+            StormTrackState.oneStormAngle = angle;
+        }
         state.speed = speed;
 
         postData(state);
     }
 
     private void generateNewTrackInfo(StormTrackState state, int anchorIndex,
-            PaintProperties paintProps) throws ImpossibleTrackException {
+            PaintProperties paintProps) {
         double speed, angle, oppositeAngle;
         int frameCount = trackUtil.getFrameCount(paintProps.getFramesInfo());
         if (state.timePoints != null) {
@@ -1194,7 +1203,7 @@ public class StormTrackDisplay implements IRenderable {
         int shortestDistance = (int) Math.round(minIntervalInSeconds
                 * state.speed);
 
-        int tickLengthInMeters = (int) Math.round(shortestDistance) / 2;
+        int tickLengthInMeters = Math.round(shortestDistance) / 2;
 
         // Create track
         Coordinate[] coords = new Coordinate[state.timePoints.length
@@ -1217,7 +1226,9 @@ public class StormTrackDisplay implements IRenderable {
 
         double angle = state.angle;
         if(!state.justSwitchedToOS) {
-            if (StormTrackState.trackType != null && StormTrackState.trackType.equals("oneStorm")) {
+            if (StormTrackState.trackType != null
+                    && StormTrackState.trackType.equals("oneStorm")
+                    && state.speed > 0) {
                 StormTrackState.oneStormAngle = angle;
             }
         }
@@ -1412,13 +1423,16 @@ public class StormTrackDisplay implements IRenderable {
                     state.color, radius, 180 + screenAngle, hMid, vMid, magnification);
 
             // End time:
-            Calendar currentTime = Calendar.getInstance();
-            currentTime.setTime(SimulatedTime.getSystemTime().getTime());
-            long delta = state.futurePoints[state.futurePoints.length - 1].time
-                    .getMatchValid()
-                    - state.futurePoints[0].time.getMatchValid();
-            time = this.timeFormat.format(new Date(currentTime
-                    .getTimeInMillis() + delta));
+            long endTime = state.futurePoints[state.futurePoints.length - 1].time
+                    .getMatchValid();
+            if (state.liveOffsetEndTime) {
+                Calendar currentTime = Calendar.getInstance();
+                currentTime.setTime(SimulatedTime.getSystemTime().getTime());
+                long delta = endTime
+                        - state.futurePoints[0].time.getMatchValid();
+                endTime = currentTime.getTimeInMillis() + delta;
+            }
+            time = this.timeFormat.format(new Date(endTime));
             paintTextAtPoint(target, time,
                     state.futurePoints[state.futurePoints.length - 1].coord,
                     state.color, radius, -90 + screenAngle, hEnd, vEnd, magnification);
@@ -1454,6 +1468,9 @@ public class StormTrackDisplay implements IRenderable {
     }
 
     private void postData(StormTrackState state) {
+        if (!(state.speed > 0)) {
+            return;
+        }
         StormTrackData data = new StormTrackData();
         Coordinate[] coords = new Coordinate[state.timePoints.length];
         for (int i = 0; i < coords.length; ++i) {

@@ -19,8 +19,8 @@
  **/
 package com.raytheon.uf.edex.metartohmdb;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.uf.edex.metartohmdb.dao.HMDBRptDao;
 
@@ -28,22 +28,23 @@ import com.raytheon.uf.edex.metartohmdb.dao.HMDBRptDao;
  * Created to extract purge method from MetarToHMDBSrv.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 17, 2009            jkorman     Initial creation
- *
+ * Dec 11, 2015 5166       kbisanz     Update logging to use SLF4J
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public class HMDBPurger {
 
-    private Log logger = LogFactory.getLog(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     private HMDBRptDao dao = null;
 
@@ -52,7 +53,7 @@ public class HMDBPurger {
     private boolean failSafe = false;
 
     private int purgeHours = 8;
-    
+
     /**
      * Construct an instance of this transformer.
      */
@@ -77,7 +78,7 @@ public class HMDBPurger {
             logger.info("In failsafe mode. No purge performed.");
             return;
         }
-        if(dao != null) {
+        if (dao != null) {
             dao.purgeTable(purgeHours);
         }
     }
@@ -90,11 +91,11 @@ public class HMDBPurger {
     }
 
     /**
-     * @param purgeHours the purgeHours to set
+     * @param purgeHours
+     *            the purgeHours to set
      */
     public void setPurgeHours(int purgeHours) {
         this.purgeHours = purgeHours;
     }
 
-    
 }

@@ -2,15 +2,14 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Decoder Plug-in
 Bundle-SymbolicName: com.raytheon.uf.edex.python.decoder
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.15.0.qualifier
 Bundle-Vendor: RAYTHEON
 Require-Bundle: com.raytheon.edex.common,
  org.jep,
  org.geotools,
  com.raytheon.uf.common.localization,
- org.apache.commons.pool;bundle-version="1.0.0"
+ org.slf4j;bundle-version="1.7.12",
+ com.raytheon.uf.common.python;bundle-version="1.12.1174"
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.edex.python.decoder
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: com.raytheon.uf.common.python,
- org.apache.commons.logging
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7

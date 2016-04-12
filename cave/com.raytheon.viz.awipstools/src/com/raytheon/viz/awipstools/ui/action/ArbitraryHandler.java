@@ -16,6 +16,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.handlers.HandlerUtil;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -23,6 +24,22 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.RunProcess;
 import com.raytheon.uf.viz.core.VizApp;
 
+/**
+ * Arbitrary handler
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Jan 15, 2015 5054       randerso    Remove unnecessary new Shell
+ * 
+ * </pre>
+ * 
+ * @author unknown
+ * @version 1.0
+ */
 public class ArbitraryHandler extends AbstractHandler {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -94,6 +111,7 @@ public class ArbitraryHandler extends AbstractHandler {
 
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
+        final Shell shell = HandlerUtil.getActiveShell(event);
         final String command = event.getParameter("commandAction");
         final String captureOutput = event.getParameter("captureOutput");
         final String showStdOut = event.getParameter("showStdOut");
@@ -135,7 +153,7 @@ public class ArbitraryHandler extends AbstractHandler {
                                     @Override
                                     public void run() {
                                         final ScrollableDialog dialog = new ScrollableDialog(
-                                                new Shell(), "\'" + command
+                                                shell, "\'" + command
                                                         + "\' Output",
                                                 "Output from execution:",
                                                 stringOutput);

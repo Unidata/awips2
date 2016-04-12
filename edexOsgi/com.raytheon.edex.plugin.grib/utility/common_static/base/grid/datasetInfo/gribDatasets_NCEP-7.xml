@@ -16,11 +16,6 @@
         <dt>6</dt>
     </info>
     <info>
-        <title>NGM80</title>
-        <datasetId>NGM</datasetId>
-        <dt>6</dt>
-    </info>
-    <info>
         <title>gfsLR</title>
         <datasetId>MRF</datasetId>
         <dt>12</dt>
@@ -96,16 +91,6 @@
         <dt>6</dt>
     </info>
     <info>
-        <title>NGM90</title>
-        <datasetId>NGM213</datasetId>
-        <dt>6</dt>
-    </info>
-    <info>
-        <title>NGM180</title>
-        <datasetId>NGM202</datasetId>
-        <dt>6</dt>
-    </info>
-    <info>
         <title>GFS80</title>
         <datasetId>AVN211</datasetId>
         <dt>6</dt>
@@ -150,11 +135,6 @@
         <title>GFS150</title>
         <datasetId>MRF205</datasetId>
         <dt>12</dt>
-    </info>
-    <info>
-        <title>NGM95</title>
-        <datasetId>NGM207</datasetId>
-        <dt>6</dt>
     </info>
     <info>
         <title>NAM95</title>
@@ -407,6 +387,11 @@
         <dt>3</dt>
     </info>
     <info>
+        <title>namdng25</title>
+        <datasetId>namdng25</datasetId>
+        <dt>3</dt>
+    </info>
+    <info>
         <title>RaobOA</title>
         <datasetId>RaobOA</datasetId>
         <dt>12</dt>
@@ -474,6 +459,11 @@
     <info>
         <title>AK-NamDNG5</title>
         <datasetId>AK-NamDNG5</datasetId>
+        <dt>3</dt>
+    </info>
+    <info>
+        <title>AK-NamDNG3</title>
+        <datasetId>AK-NamDNG3</datasetId>
         <dt>3</dt>
     </info>
     <info>
@@ -719,7 +709,7 @@
     <info>
         <title>Guam-RTMA</title>
         <datasetId>Guam-RTMA</datasetId>
-        <dt>1</dt>
+        <dt>3</dt>
     </info>
     <info>
         <title>RTG-SST-HR-Analysis</title>

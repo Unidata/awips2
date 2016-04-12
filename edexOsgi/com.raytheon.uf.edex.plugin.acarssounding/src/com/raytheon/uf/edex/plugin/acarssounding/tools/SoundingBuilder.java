@@ -28,8 +28,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.uf.common.dataplugin.acars.ACARSRecord;
 import com.raytheon.uf.common.dataplugin.acarssounding.ACARSSoundingConstants;
@@ -60,6 +60,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  *                                      to determine which airport
  *                                      to use
  * Aug 18, 2014 3530       bclement    removed dead code
+ * Dec 10, 2015 5166       kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -69,7 +70,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 
 public class SoundingBuilder {
 
-    private final Log logger = LogFactory.getLog(getClass());
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     File dataDir = null;
 
@@ -225,7 +226,7 @@ public class SoundingBuilder {
                     }
                 }
             }
- // If we have an airport we'll use that to create the sounding
+            // If we have an airport we'll use that to create the sounding
             if (airport != null) {
                 sounding = new ACARSSoundingRecord();
                 Calendar soundingTime = recObs.getTimeObs();

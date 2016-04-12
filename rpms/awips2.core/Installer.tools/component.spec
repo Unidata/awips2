@@ -10,18 +10,19 @@ Summary: AWIPS II Tools Distribution
 Version: 1.8.5
 Release: %{_component_version}.%{_component_release}%{?dist}
 Group: AWIPSII
-BuildRequires: awips2-python-h5py
-BuildRoot: /tmp
 BuildRoot: %{_build_root}
 BuildArch: %{_build_arch}
 URL: N/A
 License: N/A
 Distribution: N/A
 Vendor: Raytheon
-Packager: Bryan Kowal
+Packager: %{_build_site}
 
 AutoReq: no
-provides: awips2-tools
+Provides: awips2-tools
+
+BuildRequires: awips2-python
+BuildRequires: awips2-python-h5py
 
 %description
 AWIPS II Python Distribution - Contains the AWIPS II Tool-Set. Presently,
@@ -45,14 +46,6 @@ fi
 mkdir -p %{_tools_build_loc}
 
 %build
-# Ensure that awips2-python has been installed
-COMMAND=`rpm -q awips2-python`
-if [ $? -ne 0 ]; then
-   echo "ERROR: awips2-python Must Be Installed."
-   echo "Unable To Continue ... Terminating."
-   exit 1
-fi
-
 # Update LD_LIBRARY_PATH
 export LD_LIBRARY_PATH=/awips2/python/lib:$LD_LIBRARY_PATH
 

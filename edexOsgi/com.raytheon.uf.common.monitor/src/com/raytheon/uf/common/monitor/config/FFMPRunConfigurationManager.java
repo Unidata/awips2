@@ -1,37 +1,39 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
 package com.raytheon.uf.common.monitor.config;
 
-import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import com.raytheon.uf.common.localization.FileUpdatedMessage;
-import com.raytheon.uf.common.localization.ILocalizationFileObserver;
+import com.raytheon.uf.common.localization.ILocalizationFile;
+import com.raytheon.uf.common.localization.ILocalizationPathObserver;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.monitor.events.MonitorConfigEvent;
 import com.raytheon.uf.common.monitor.events.MonitorConfigListener;
 import com.raytheon.uf.common.monitor.xml.DomainXML;
@@ -48,9 +50,9 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
  * FFMPRunConfigurationManager
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
@@ -58,12 +60,13 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Apr 26, 2013 1954       bsteffen    Minor code cleanup throughout FFMP.
  * Aug 13, 2013 1742       dhladky     Concurrent mod exception on update fixed
  * Oct 02, 2013 2361       njensen     Use JAXBManager for XML
- * 
+ * Feb 15, 2016 5244       nabowle     Replace deprecated LocalizationFile methods.
+ *
  * </pre>
- * 
+ *
  */
 
-public class FFMPRunConfigurationManager implements ILocalizationFileObserver {
+public class FFMPRunConfigurationManager implements ILocalizationPathObserver {
 
     /** Path to FFMP Source config. */
     private static final String CONFIG_FILE_NAME = "ffmp"
@@ -82,14 +85,12 @@ public class FFMPRunConfigurationManager implements ILocalizationFileObserver {
 
     protected boolean isPopulated;
 
-    private LocalizationFile lf = null;
-
     private CopyOnWriteArrayList<MonitorConfigListener> listeners = new CopyOnWriteArrayList<MonitorConfigListener>();
 
     /** Singleton instance of this class */
     private static FFMPRunConfigurationManager instance = new FFMPRunConfigurationManager();
 
-    /* Private Constructor */
+    /** Private Constructor */
     private FFMPRunConfigurationManager() {
         isPopulated = false;
 
@@ -103,7 +104,7 @@ public class FFMPRunConfigurationManager implements ILocalizationFileObserver {
 
     /**
      * Get an instance of this singleton.
-     * 
+     *
      * @return Instance of this class
      * @throws FileNotFoundException
      */
@@ -136,19 +137,23 @@ public class FFMPRunConfigurationManager implements ILocalizationFileObserver {
         LocalizationContext lc = pm.getContext(LocalizationType.COMMON_STATIC,
                 LocalizationLevel.SITE);
 
-        lf = pm.getLocalizationFile(lc, CONFIG_FILE_NAME);
-        lf.addFileUpdatedObserver(this);
-        File file = lf.getFile();
+        ILocalizationFile lf = pm.getLocalizationFile(lc, CONFIG_FILE_NAME);
+        pm.addLocalizationPathObserver(CONFIG_FILE_NAME, this);
         // System.out.println("Reading -- " + file.getAbsolutePath());
-        if (!file.exists()) {
-            System.out.println("WARNING [FFMP] FFMPRunConfigurationManager: "
-                    + file.getAbsolutePath() + " does not exist.");
+        if (!lf.exists()) {
+            statusHandler.handle(Priority.WARN, lf.getPath()
+                    + " does not exist.");
             return;
         }
 
         FFMPRunConfigXML configXmltmp = null;
 
-        configXmltmp = jaxb.unmarshalFromXmlFile(file.getAbsolutePath());
+        try (InputStream is = lf.openInputStream()) {
+            configXmltmp = jaxb.unmarshalFromInputStream(is);
+        } catch (IOException | LocalizationException e) {
+            throw new SerializationException("Error unmarshalling "
+                    + lf.getPath(), e);
+        }
 
         configXml = configXmltmp;
         isPopulated = true;
@@ -164,25 +169,12 @@ public class FFMPRunConfigurationManager implements ILocalizationFileObserver {
         LocalizationContext lc = pm.getContext(LocalizationType.COMMON_STATIC,
                 LocalizationLevel.SITE);
 
-        LocalizationFile newXmlFile = pm.getLocalizationFile(lc,
+        ILocalizationFile newXmlFile = pm.getLocalizationFile(lc,
                 CONFIG_FILE_NAME);
 
-        if (newXmlFile.getFile().getParentFile().exists() == false) {
-            // System.out.println("Creating new directory");
-
-            if (newXmlFile.getFile().getParentFile().mkdirs() == false) {
-                // System.out.println("Could not create new directory...");
-            }
-        }
-
-        try {
-            // System.out.println("Saving -- "
-            // + newXmlFile.getFile().getAbsolutePath());
-            jaxb.marshalToXmlFile(configXml, newXmlFile.getFile()
-                    .getAbsolutePath());
-            newXmlFile.save();
-
-            lf = newXmlFile;
+        try (SaveableOutputStream sos = newXmlFile.openOutputStream()) {
+            jaxb.marshalToStream(configXml, sos);
+            sos.save();
         } catch (Exception e) {
             statusHandler.handle(Priority.ERROR, "Couldn't save config file.",
                     e);
@@ -191,7 +183,7 @@ public class FFMPRunConfigurationManager implements ILocalizationFileObserver {
 
     /**
      * Get the FFMP runners
-     * 
+     *
      * @return
      */
     public ArrayList<FFMPRunXML> getFFMPRunners() {
@@ -204,7 +196,7 @@ public class FFMPRunConfigurationManager implements ILocalizationFileObserver {
 
     /**
      * Sets the run configuration for FFMP
-     * 
+     *
      * @param runners
      */
     public void setFFMPRunners(ArrayList<FFMPRunXML> runners) {
@@ -272,9 +264,8 @@ public class FFMPRunConfigurationManager implements ILocalizationFileObserver {
     }
 
     @Override
-    public void fileUpdated(FileUpdatedMessage message) {
-
-        if (message.getFileName().equals(CONFIG_FILE_NAME)) {
+    public void fileChanged(ILocalizationFile file) {
+        if (file.getPath().equals(CONFIG_FILE_NAME)) {
             try {
                 readConfigXml();
 
@@ -285,7 +276,7 @@ public class FFMPRunConfigurationManager implements ILocalizationFileObserver {
 
             } catch (SerializationException e) {
                 statusHandler.handle(Priority.WARN,
-                        "FFMPRunConfigurationManager: " + message.getFileName()
+                        "FFMPRunConfigurationManager: " + file.getPath()
                                 + " couldn't be updated.", e);
             }
         }

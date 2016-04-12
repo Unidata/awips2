@@ -43,6 +43,8 @@ import com.vividsolutions.jts.io.WKTReader;
  * 09/11/2012   DR 15366    D. Friedman Set SRID on radar stations.
  * Mar 06, 2014 2876        mpduff      Moved NationalDatasetSubscriber.
  * Jul 09, 2015 4500        rjpeter     Fix SQL Injection concern.
+ * Jan 27, 2016 5237        tgurney     Replace deprecated LocalizationFile
+ *                                      method call
  * </pre>
  */
 public class Import88DLocationsUtil implements INationalDatasetSubscriber {
@@ -166,7 +168,7 @@ public class Import88DLocationsUtil implements INationalDatasetSubscriber {
                     statusHandler.handle(
                             Priority.PROBLEM,
                             "Could not create output file: "
-                                    + outFile.getName(), e);
+                                    + outFile.getPath(), e);
                 }
             } finally {
                 if (fis != null) {

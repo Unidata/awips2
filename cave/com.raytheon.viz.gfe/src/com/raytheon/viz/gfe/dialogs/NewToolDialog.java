@@ -39,7 +39,8 @@ import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.localization.LocalizationFile;
-import com.raytheon.viz.gfe.core.DataManager;
+import com.raytheon.viz.gfe.core.DataManagerUIFactory;
+import com.raytheon.viz.gfe.core.IParmManager;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.smarttool.SmartToolEdit;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
@@ -53,6 +54,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * ------------ ---------- ----------- --------------------------
  * Feb 20, 2008            njensen     Initial creation
  * Nov 12, 2012 1298       rferrel     Changes for non-blocking dialog.
+ * Jan 19, 2016 4834       njensen     Cleaned up warnings
  * 
  * </pre>
  * 
@@ -77,13 +79,6 @@ public class NewToolDialog extends CaveJFACEDialog {
         setShellStyle(SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.window.Window#configureShell(org.eclipse.swt.widgets
-     * .Shell)
-     */
     @Override
     protected void configureShell(Shell shell) {
         super.configureShell(shell);
@@ -92,11 +87,6 @@ public class NewToolDialog extends CaveJFACEDialog {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.dialogs.Dialog#buttonPressed(int)
-     */
     @Override
     protected void buttonPressed(int buttonId) {
         if (buttonId == IDialogConstants.OK_ID) {
@@ -124,30 +114,14 @@ public class NewToolDialog extends CaveJFACEDialog {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.dialogs.Dialog#createButtonsForButtonBar(org.eclipse
-     * .swt.widgets.Composite)
-     */
     @Override
     protected void createButtonsForButtonBar(Composite parent) {
-
         createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL,
                 true);
-
         createButton(parent, IDialogConstants.CANCEL_ID,
                 IDialogConstants.CANCEL_LABEL, false);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.dialogs.Dialog#createDialogArea(org.eclipse.swt.widgets
-     * .Composite)
-     */
     @Override
     protected Control createDialogArea(final Composite parent) {
         Composite composite = (Composite) super.createDialogArea(parent);
@@ -180,8 +154,8 @@ public class NewToolDialog extends CaveJFACEDialog {
 
         // select the active parm if not null otherwise select the first parm in
         // the list
-        Parm parm = DataManager.getCurrentInstance().getSpatialDisplayManager()
-                .getActivatedParm();
+        Parm parm = DataManagerUIFactory.getCurrentInstance()
+                .getSpatialDisplayManager().getActivatedParm();
         if (parm != null) {
             parms.setSelection(new String[] { parm.getParmID().getParmName() });
         } else {
@@ -195,12 +169,9 @@ public class NewToolDialog extends CaveJFACEDialog {
     public String[] getParms() {
         IWorkbenchWindow window = PlatformUI.getWorkbench()
                 .getActiveWorkbenchWindow();
-        ParmID[] parms = DataManager
-                .getInstance(window)
-                .getParmManager()
-                .getAvailableParms(
-                        DataManager.getInstance(window).getParmManager()
-                                .getMutableDatabase());
+        IParmManager pm = DataManagerUIFactory.getInstance(window)
+                .getParmManager();
+        ParmID[] parms = pm.getAvailableParms(pm.getMutableDatabase());
         java.util.List<String> parmNames = new ArrayList<String>(
                 parms.length + 2);
         for (ParmID p : parms) {

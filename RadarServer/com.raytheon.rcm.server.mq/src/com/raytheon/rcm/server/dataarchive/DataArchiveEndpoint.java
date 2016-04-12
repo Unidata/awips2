@@ -20,6 +20,7 @@
 package com.raytheon.rcm.server.dataarchive;
 
 import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -682,14 +683,14 @@ public class DataArchiveEndpoint extends RadarEventAdapter {
                 if (pdb.isBzip2Compressed()) {
                     int uncompressedSize = pdb.getUncompressedSize();
                     byte[] uncompressed;
-                    try {
-                        InputStream ins = new ByteArrayInputStream(msg, 120,
-                                msg.length - 120);
-                        ins = new BZip2InputStream(ins, false);
+                    try (DataInputStream di = new DataInputStream(
+                            new BZip2InputStream(
+                                    new ByteArrayInputStream(msg,
+                                    120, msg.length - 120), false))) {
                         // ByteArrayOutputStream outs = new
                         // ByteArrayOutputStream(uncompressedSize);
                         uncompressed = new byte[uncompressedSize];
-                        ins.read(uncompressed);
+                        di.readFully(uncompressed);
                     } catch (IOException e) {
                         Log.errorf("Error decompressing product: %s", e);
                         return msg;

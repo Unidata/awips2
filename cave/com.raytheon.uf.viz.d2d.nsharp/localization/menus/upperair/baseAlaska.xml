@@ -31,7 +31,7 @@
 	    </contribute>
 
 	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
-	                menuText="Bethel, AK (PABE)" id="raobRarotonga"
+	                menuText="Bethel, AK (PABE)" id="raobBethel_AK"
 	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
 	        <substitute key="stationId" value="70219"/>
 	    </contribute>
@@ -86,7 +86,7 @@
 	        <substitute key="stationId" value="70133"/>
 	    </contribute>
 	    	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
-	                menuText="St. Paul Island, AK (PASN)" id="raobSTPaulIsland_AK"
+	                menuText="St. Paul Island, AK (PASN)" id="raobStPaulIsland_AK"
 	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
 	        <substitute key="stationId" value="70308"/>
 	    </contribute>

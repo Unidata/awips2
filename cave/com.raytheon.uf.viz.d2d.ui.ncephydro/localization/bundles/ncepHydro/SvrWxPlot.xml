@@ -45,6 +45,11 @@
 								<constraint constraintValue="A" constraintType="EQUALS" />
 							</mapping>
 						</metadataMap>
+                        <timeQueryMetadataMap>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="svrwx" constraintType="EQUALS" />
+                            </mapping>
+                        </timeQueryMetadataMap>
 					</resourceData>
 				</resource>
 				<resource>
@@ -69,6 +74,11 @@
 								<constraint constraintValue="W" constraintType="EQUALS" />
 							</mapping>
 						</metadataMap>
+                        <timeQueryMetadataMap>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="svrwx" constraintType="EQUALS" />
+                            </mapping>
+                        </timeQueryMetadataMap>
 					</resourceData>
 				</resource>
 				<resource>
@@ -93,6 +103,11 @@
 								<constraint constraintValue="T" constraintType="EQUALS" />
 							</mapping>
 						</metadataMap>
+                        <timeQueryMetadataMap>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="svrwx" constraintType="EQUALS" />
+                            </mapping>
+                        </timeQueryMetadataMap>
 					</resourceData>
 				</resource>
 			</descriptor>

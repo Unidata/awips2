@@ -44,7 +44,9 @@
 #20150827            4687 skorolev    Add pattern for ECMWF station-based MOS text bulletins
 #20150930            4930 rferrel     Corrected patterns for intlsigmets.
 #20151008            4958 dgilling    Add pattern for NationalBlend
-#20151030        DR 17683 jwatson     Add pattern for Day 8-11 Alaska 3km gridded MOS    
+#20151030        DR 17683 jwatson     Add pattern for Day 8-11 Alaska 3km gridded MOS
+#20160128            5183 nabowle     Add pattern for PWPF.
+#20160223        DR 14845 jwatson     Add pattern for 2.5/3km Nam DNG CONUS/AK
 
 #***************************************************************
 # AWIPS 1 PATTERN GRAPHIC	^[PQ].*				/redbook/Raw
@@ -73,6 +75,9 @@ HDS	^(YEI.[89]8) KWNH (..)(..)(..)[^!]*!(grib|grib2)/ncep/([^/]*)/#([^/]*)/([0-9
 # ZETA98 KWNE 311200 /mRFC_QPE !grib/ncep/RFC_QPE/#240/201101311200/F006/APCP/sfc/
 HDS	^(ZETA98) (K[NW][EN][ES]) (..)(..)(..)([^!]*)!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})/([^/]*)/([^/]*)
 	FILE	-overwrite -log -close -edex	/data_store/\7/(\3:yyyy)(\3:mm)\3/\4/\8/GRID\9/\(11)Z_\(12)_\(13)-\1_\2_\3\4\5_(seq).\7.%Y%m%d%H
+# DR 18644 - Pattern to account for change to grib2
+ANY	^(ZETA98) (K[NW][EN][ES]) (..)(..)(..)([^!]*)!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+	FILE	-overwrite -log -close -edex	/data_store/\7/(\3:yyyy)(\3:mm)\3/\4/\8/GRID\9/\(11)Z_\(12)_\(13)-\1_\2_\3\4\5_(seq).\7.%Y%m%d%H
 
 # AWIPS 1 GRID    ^ZEGA98.*KNES                   /img/SBN/Raw
 #
@@ -89,7 +94,10 @@ HDS	^(ZEGZ98) (K.{3}) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-
 # YSQA88 KMSR 011220 /mNWS_185 !grib/nws/NWS_185/#255/201102010600/F000/MSTAV/sfc/
 # YEQA88 KMSR 011210 !grib2/nws/NWS_255/#255/201102010600F000/WEASD/0
 
-HDS	^([YZ][ES]QA88) KMSR (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})/(F[0-9]{3})/([^/]*)
+HDS	^([YZ][ES]QA88) KMSR (..)(..)(..)[^!]*!(grib)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})/(F[0-9]{3})/([^/]*)
+	FILE	-overwrite -log -close -edex	/data_store/\5/(\2:yyyy)(\2:mm)\2/\3/\6/GRID\7/\9Z_\(10)_\(11)-\1_KMSR_\2\3\4_(seq).\5.%Y%m%d%H
+
+HDS	^([YZ][ES]QA88) KMSR (..)(..)(..)[^!]*!(grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
 	FILE	-overwrite -log -close -edex	/data_store/\5/(\2:yyyy)(\2:mm)\2/\3/\6/GRID\7/\9Z_\(10)_\(11)-\1_KMSR_\2\3\4_(seq).\5.%Y%m%d%H
 
 # AWIPS 1: GRID    ^HAXA00.*KWBC                   /img/SBN/Raw
@@ -210,11 +218,18 @@ HDS	^(Y[IJL]XA[0-9][0-9]) KKCI (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^
 HDS	^(YAW[BCDGJM][0-9][0-9]) KKCI (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})/(F[0-9]{3})/([^/]*)
 	FILE	-overwrite -log -close -edex	/data_store/\5/(\2:yyyy)(\2:mm)\2/\3/\6/GRID\7/\9Z_\(10)_\(11)-\1_KKCI_\2\3\4_(seq).\5.%Y%m%d%H
 
-# AWIPS1:	GRID    ^YVW[ABCDGJM][0-9][0-9].*KKCI   /Grid/SBN/Raw
-# YVWA41 KKCI 012200 /mRUC2 !grib/ncep/RUC2/#255/201102012200/F000/TURB/7010 m above MSL/
+# Aviation Clear Air Turbulence (CAT) 
+# YVWA41 KKCI 012200 /mRUC2 !grib/ncep/RUC2/#255/201102012200F000/CAT/7010 m HGHT
 
-HDS	^(YVW[ABCDGJM][0-9][0-9]) KKCI (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})/(F[0-9]{3})/([^/]*)
-	FILE	-overwrite -log -close -edex	/data_store/\5/(\2:yyyy)(\2:mm)\2/\3/\6/GRID\7/\9Z_\(10)_\(11)-\1_KKCI_\2\3\4_(seq).\5.%Y%m%d%H
+NGRID	^([YZ]VW[ABCDGJMPS][0-9][0-9]) (KKCI) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/\7/GRID\8/\(10)Z_\(11)_\(12)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
+
+# Aviation composite clear air turbulence (TPFI)
+# ZVWS50 KKCI 160300 !grib2/ncep/RUC2/#130/FHRS//LVL
+# 16.1.1: DR 18194 - This entry may need modification when LDM upgrade allows this product to match gempak grib2 tables
+
+NGRID	^(ZV)(W)([ABCDGJMPS]..) (KKCI) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)
+	FILE	-overwrite -log -close -edex	/data_store/\8/(\5:yyyy)(\5:mm)\5/\6/\9/GRID\(10)/\1\2\3_\4_\5\6\7_(seq).\8.%Y%m%d%H
 
 # AWIPS1:	GRID    ^[LM].[ABDHMNRSTU].*KWB.*       /Grid/SBN/rawGrib2
 # AWIPS1 OCONUS:	GRID    ^[LM].[ABCDGHMNORSTUVX].*KWB.*       /Grid/SBN/rawGrib2
@@ -410,9 +425,6 @@ ANY	^(ZDIA98) (....) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9
 HRS	^(YA)([WX])(A..) (KKCI) (..)(..)(..).*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})/(F[0-9]{3})
 	FILE	-overwrite -log -close -edex	/data_store/\8/(\5:yyyy)(\5:mm)\5/\6/\9/GRID\(10)/\(12)Z_\(13)-\1\2\3_\4_\5\6\7_(seq).\8.%Y%m%d%H
 
-HRS	^(ZV)(W)([ADGJM]..) (KKCI) (..)(..)(..).*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})/(F[0-9]{3})
-	FILE	-overwrite -log -close -edex	/data_store/\8/(\5:yyyy)(\5:mm)\5/\6/\9/GRID\(10)/\(12)Z_\(13)-\1\2\3_\4_\5\6\7_(seq).\8.%Y%m%d%H
-#
 # Addition for 3KM Alaska RTMA
 #
 NGRID	^(L[HKNPRTUV]KA98) (KWBR) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
@@ -864,7 +876,15 @@ EXP	(.*wcl_decrypted.*)
 # DR 4958: NationalBlend model
 NGRID	^(L[ABCDEFGHRTW]AZ9[0-9]) (KWEA) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
 	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/\7/GRID\8/\(10)Z_\(11)_\(12)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
+
+NGRID	^(L[ABCDEFGHRTW]AZ9[0-9]) (KWEA) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/grib2/(\3:yyyy)(\3:mm)\3/\4/NationalBlend/\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
 	
+#  NamDNG 2.5k/3km 16.2.2 CONUS/AK pattern added by Josh Watson
+#  DR 14845 
+NGRID	^([LM][ADEHKRSTUVZ][IK][A-Z][0-9][0-9]) (KWBE) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/\7/GRID\8/\(10)Z_\(11)_\(12)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
+
 # === Encrypted ECMWF station-based MOS text bulletins
 # FOUS39 KWNO 050000 /pMETWC1
 # FEAK48 KWNO 041200 /pMEXAFC
@@ -877,7 +897,14 @@ ANY	^(FEAK[45][7-9]|FOAK5[7-9]|FECN[35]0|FOCN30|FEPA[45]0|FOPA50|FEUS5[1-6]|F[EO
 EXP	(.*ecmwf_mos_decrypted.*)
 	FILE	-overwrite -log -close -edex	\1
 
+# DR 18637: PQPF data
+NGRID	^(HEN[A-KXY][0-9][0-9]) (KWNH) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/\7/GRID\8/\(10)Z_\(11)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
 
+# This separate pattern necessary because some pqpf data cause ldm grib2 errors and it doesn't parse entire grib record
+NGRID	^(HEN[A-KXY][0-9][0-9]) (KWNH) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/FHRS/([^/]*)
+	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/\7/GRID\8/\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
 
-
-
+# 2.5km CONUS PWPF
+NGRID	^(HIN[B-X][0-9][0-9]) (KWNH) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/grib2/(\3:yyyy)(\3:mm)\3/\4/PWPF/GRID184/\1_\2_\3\4\5_(seq).grib2.%Y%m%d%H

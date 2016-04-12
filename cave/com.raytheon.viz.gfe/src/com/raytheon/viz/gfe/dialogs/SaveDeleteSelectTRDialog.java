@@ -48,8 +48,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
-import com.raytheon.viz.gfe.GFEServerException;
-import com.raytheon.viz.gfe.core.DataManager;
+import com.raytheon.viz.gfe.core.ISelectTimeRangeManager;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 import com.raytheon.viz.ui.widgets.SpinScale;
 
@@ -64,6 +63,7 @@ import com.raytheon.viz.ui.widgets.SpinScale;
  * Dec 7, 2009            randerso     Initial creation
  * Aug 1, 2012   #965     dgilling     Change location of SelectTimeRange.
  * Oct 25, 2012  #1287     rferrel     Code cleanup part of non-blocking dialogs.
+ * Nov 18, 2015  #5129    dgilling     Support new IFPClient.
  * 
  * </pre>
  * 
@@ -75,11 +75,11 @@ public class SaveDeleteSelectTRDialog extends CaveJFACEDialog {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(SaveDeleteSelectTRDialog.class);
 
-    private DataManager dataManager;
+    private final ISelectTimeRangeManager selectTRMgr;
+
+    private final TimeZone timeZone;
 
     private String optionStr;
-
-    private TimeZone timeZone;
 
     private List<String> ids = new ArrayList<String>();
 
@@ -101,30 +101,23 @@ public class SaveDeleteSelectTRDialog extends CaveJFACEDialog {
 
     private boolean first = true;
 
-    public SaveDeleteSelectTRDialog(Shell parent, DataManager dataManager,
-            String optionStr) {
+    public SaveDeleteSelectTRDialog(Shell parent,
+            ISelectTimeRangeManager selectTRMgr, String optionStr) {
         super(parent);
-        this.dataManager = dataManager;
+        this.selectTRMgr = selectTRMgr;
         this.optionStr = optionStr;
 
         // Need to get them listed in order by time range
-        String[] names = dataManager.getSelectTimeRangeManager().inventory();
+        String[] names = this.selectTRMgr.inventory();
 
-        try {
-            timeZone = TimeZone.getTimeZone(dataManager.getClient()
-                    .getDBGridLocation().getTimeZone());
-        } catch (GFEServerException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error retrieving GFE time zone", e);
-            timeZone = TimeZone.getDefault();
-        }
+        this.timeZone = this.selectTRMgr.getTimeZone();
 
         if (optionStr.equals("Save")) {
             ids.addAll(Arrays.asList(names));
         } else {
             for (String name : names) {
-                if (dataManager.getSelectTimeRangeManager().getRange(name)
-                        .getLevel().equals(LocalizationLevel.USER)) {
+                if (this.selectTRMgr.getRange(name).getLevel()
+                        .equals(LocalizationLevel.USER)) {
                     ids.add(name);
                 } else {
                     protectedIds.add(name);
@@ -317,8 +310,7 @@ public class SaveDeleteSelectTRDialog extends CaveJFACEDialog {
         String[] items = timeRangeList.getSelection();
         for (String id : items) {
             if (optionStr.equals("Save")) {
-                SelectTimeRange range = dataManager.getSelectTimeRangeManager()
-                        .getRange(id);
+                SelectTimeRange range = selectTRMgr.getRange(id);
                 identifierField.setText(id);
                 stopScale.setSelection(range.getEnd());
                 startScale.setSelection(range.getStart());
@@ -339,9 +331,8 @@ public class SaveDeleteSelectTRDialog extends CaveJFACEDialog {
                 } else {
                     mode = Mode.ZULU;
                 }
-                dataManager.getSelectTimeRangeManager().save(id,
-                        startScale.getSelection(), stopScale.getSelection(),
-                        mode);
+                selectTRMgr.save(id, startScale.getSelection(),
+                        stopScale.getSelection(), mode);
                 super.okPressed();
             } else {
                 String message = "TimeRange " + id
@@ -365,7 +356,7 @@ public class SaveDeleteSelectTRDialog extends CaveJFACEDialog {
                 return;
             }
 
-            dataManager.getSelectTimeRangeManager().remove(id[0]);
+            selectTRMgr.remove(id[0]);
             super.okPressed();
         } else {
             String message = "TimeRange " + id[0]

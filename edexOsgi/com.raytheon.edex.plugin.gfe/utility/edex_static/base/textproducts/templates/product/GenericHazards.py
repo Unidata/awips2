@@ -27,6 +27,7 @@
 #    06/17/2015      4027          dgilling       Perform case-insensitive 
 #                                                 comparisons in foundCTAs.
 #    07/13/2015      4648          randerso       Fix bullets in follow up products
+#    02/24/2016      5411          randerso       Make bullet headers upper case
 #
 #-------------------------------------------------------------------------
 # Description: This product is a template for creating Hazard Products.
@@ -348,13 +349,13 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
         # Added to place line feeds in the CAP tags to keep separate from CTAs
 
         fcst = string.replace(fcst, \
-                              r"Precautionary/preparedness actions\.\.\.", \
-                              r"\nPrecautionary/preparedness actions\.\.\.\n")
+                              r"PRECAUTIONARY/PREPAREDNESS ACTIONS\.\.\.", \
+                              r"\nPRECAUTIONARY/PREPAREDNESS ACTIONS\.\.\.\n")
         fcst = string.replace(fcst, "\n ","\n")
         fcst = string.replace(fcst, "&&", "\n&&\n")
 
         # Prevent empty Call to Action Tags
-        fcst = re.sub(r'\nPrecautionary/preparedness actions\.\.\.\s*&&\n', \
+        fcst = re.sub(r'\nPRECAUTIONARY/PREPAREDNESS ACTIONS\.\.\.\s*&&\n', \
                       "", fcst)
         
         fcst = self._indentBulletText(fcst)
@@ -717,14 +718,14 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
                                 if (re.search("\* " + self._bulletOrder()[i] + "\.\.\.", segmentText, flags=re.IGNORECASE) is not None) and bulletFlag:
                                     print "* " + self._bulletOrder()[i] + "... found!"
                                     segmentTextSplit = re.split("\* " + self._bulletOrder()[i] + "\.\.\.", segmentText, flags=re.IGNORECASE)
-                                    segmentText = string.join(segmentTextSplit,"* " + bullet + \
+                                    segmentText = string.join(segmentTextSplit,"* " + bullet.upper() + \
                                                               "...|* Enter bullet text *|\n\n* " + self._bulletOrder()[i] + "...")
                                     bulletFlag = 0
                             if bulletFlag:
                                 print "appending to bottom list of bullets!"
-                                segmentTextSplit = re.split("Precautionary/preparedness actions\.\.\.", segmentText, flags=re.IGNORECASE)
-                                segmentText = "\n" + string.join(segmentTextSplit,"* " + bullet + \
-                                                                   "...|* Enter bullet text *|\n\nPrecautionary/preparedness actions...")
+                                segmentTextSplit = re.split("PRECAUTIONARY/PREPAREDNESS ACTIONS\.\.\.", segmentText, flags=re.IGNORECASE)
+                                segmentText = "\n" + string.join(segmentTextSplit,"* " + bullet.upper() + \
+                                                                   "...|* Enter bullet text *|\n\nPRECAUTIONARY/PREPAREDNESS ACTIONS...")
                                 bulletFlag = 0
         #
         # Now if there is a can/exp hazard and previous segment Text, then
@@ -759,9 +760,9 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
                     if len(segmentTextSplit2) == 2:
                         segmentTextSplit[1] = "*" + segmentTextSplit2[1]
                     else:
-                        segmentTextSplit2 = re.split("Precautionary/preparedness actions\.\.\.", segmentTextSplit[1], 1, flags=re.IGNORECASE)
+                        segmentTextSplit2 = re.split("PRECAUTIONARY/PREPAREDNESS ACTIONS\.\.\.", segmentTextSplit[1], 1, flags=re.IGNORECASE)
                         if len(segmentTextSplit2) == 2:
-                            segmentTextSplit[1] = "Precautionary/preparedness actions..." + segmentTextSplit2[1]
+                            segmentTextSplit[1] = "PRECAUTIONARY/PREPAREDNESS ACTIONS..." + segmentTextSplit2[1]
                     segmentText = string.join(segmentTextSplit,"")
             if removeBulletList != []:
                 segmentText = "|*\n" + segmentText + "*|"
@@ -807,7 +808,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
                         bulletOrder.remove(bullet)
                 print "reordered bullets are: ", bulletOrder
                 for b in bulletOrder:
-                    bullets = bullets + "* " + b + "...|* Enter bullet text *|\n\n"
+                    bullets = bullets + "* " + b.upper() + "...|* Enter bullet text *|\n\n"
 
                 hazardBodyPhrase = hazardBodyPhrase + "\n\n" + bullets
 
@@ -844,13 +845,13 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
 
         if len(ctas) > 0:
             hazardBodyPhrase = hazardBodyPhrase + \
-                               'Precautionary/preparedness actions...\n\n'
+                               'PRECAUTIONARY/PREPAREDNESS ACTIONS...\n\n'
             for c in ctas:
                 hazardBodyPhrase = hazardBodyPhrase +  c + '\n\n'
             hazardBodyPhrase = hazardBodyPhrase + '&&\n\n'
 
         # Make sure there is only one CAP tag pairs
-        hazardBodyPhrase = re.sub(r'&&\s*Precautionary/preparedness actions\.\.\.\n', \
+        hazardBodyPhrase = re.sub(r'&&\s*PRECAUTIONARY/PREPAREDNESS ACTIONS\.\.\.\n', \
                                   "", hazardBodyPhrase)
 
         return hazardBodyPhrase 

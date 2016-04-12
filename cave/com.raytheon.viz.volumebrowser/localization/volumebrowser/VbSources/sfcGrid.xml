@@ -22,6 +22,7 @@
     <vbSource key="MOSGuide-AK" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="HPCGuide-AK" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="AK-NamDNG5" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+    <vbSource key="AK-NamDNG3" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="AK-NICICE" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="AK-RTMA" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="AK-RTMA3" category="SfcGrid" views="PLANVIEW TIMESERIES" />
@@ -69,6 +70,7 @@
     <vbSource key="MPE-Local" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="MSAS" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="NamDNG5" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+    <vbSource key="namdng25" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="ETA212" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="NAHwave15" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="NAHwave10" category="SfcGrid" views="PLANVIEW TIMESERIES" />
@@ -165,4 +167,5 @@
     <vbSource key="WPHwave10" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="PGBlended" category="SfcGrid/NOS" views="PLANVIEW TIMESERIES" />
     <vbSource key="PGBlended-Night" category="SfcGrid/NOS" views="PLANVIEW TIMESERIES" />
+    <vbSource key="PWPF" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 </vbSourceList>

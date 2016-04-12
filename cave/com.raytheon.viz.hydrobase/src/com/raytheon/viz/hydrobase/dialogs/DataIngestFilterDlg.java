@@ -60,6 +60,7 @@ import com.raytheon.viz.hydrocommon.data.DataIngestFilterData;
 import com.raytheon.viz.hydrocommon.datamanager.DataIngestFilterDataManager;
 import com.raytheon.viz.hydrocommon.datamanager.DataTrashCanDataManager;
 import com.raytheon.viz.hydrocommon.datamanager.HydroDBDataManager;
+import com.raytheon.viz.hydrocommon.datamanager.LocationDataManager;
 import com.raytheon.viz.hydrocommon.util.StnClassSyncUtil;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
@@ -77,6 +78,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Mar 31, 2014 #2970       lvenable    Put dispose checks in the runAsync calls.
  * May 1,  2014 17096       xwei        By default the first item of the data 
  *                                      list is selected
+ * Feb 16, 2016 5354        bkowal      Only update the stnclass table after an ingest
+ *                                      filter removal if there is an associated location.                                     
  * Feb 17, 2016 14607       amoore      Add WFO filter
  * 
  * 
@@ -1490,8 +1493,28 @@ public class DataIngestFilterDlg extends CaveSWTDialog {
                 try {
                     HydroDBDataManager.getInstance().deleteRecord(selectedData);
 
-                    // Synchronize StnClass table
-                    StnClassSyncUtil.setStnClass(selectedData.getLid());
+                    /*
+                     * If there is not a location associated with the lid of the
+                     * ingest filter record that was just deleted, there is no
+                     * reason to sync the changes to the stnclass table because
+                     * the stnclass table defines a foreign key in which the lid
+                     * must map to a location in the location table. The ingest
+                     * filter table does not define a similar foreign key. So,
+                     * if there is not a location associated with the lid, an
+                     * associated record could never exist in the stnclass table
+                     * and any attempt to insert a record into the stnclass
+                     * table will fail.
+                     */
+
+                    if (!LocationDataManager.getInstance()
+                            .getLocationName(selectedData.getLid()).isEmpty()) {
+                        /*
+                         * an associated location exists, so the stnclass table
+                         * can be updated.
+                         */
+                        // Synchronize StnClass table
+                        StnClassSyncUtil.setStnClass(selectedData.getLid());
+                    }
                 } catch (VizException e) {
                     statusHandler.handle(Priority.PROBLEM,
                             "Problem deleting record ", e);

@@ -38,7 +38,7 @@ import javax.measure.converter.UnitConverter;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 
 import com.raytheon.uf.common.activetable.ActiveTableRecord;
 import com.raytheon.uf.common.activetable.OperationalActiveTableRecord;
@@ -91,6 +91,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * May  7, 2015 ASM #17438 D. Friedman  Clean up debug and performance logging.
  * Jun 04, 2015 RODO #4522 randerso     Added proper primary key to ActiveTableRecord
  * Jul 16, 2015 ASM #17741 D. Friedman  Use acceptable timestamp format in query
+ * Dec 15, 2015 ASM #17933 mgamazaychikov Return feAreas from determineAffectedPortions.
  * </pre>
  * 
  * @author jsanchez
@@ -280,11 +281,15 @@ public class WatchUtil {
 
         DbQueryRequest request = new DbQueryRequest();
         request.setEntityClass(entityClass);
-        request.addConstraint(START_TIME_FIELD,
-                new RequestConstraint(TimeUtil.formatToSqlTimestamp(startConstraintTime),
+        request.addConstraint(
+                START_TIME_FIELD,
+                new RequestConstraint(TimeUtil
+                        .formatToSqlTimestamp(startConstraintTime),
                         ConstraintType.LESS_THAN_EQUALS));
-        request.addConstraint(END_TIME_FIELD,
-                new RequestConstraint(TimeUtil.formatToSqlTimestamp(simulatedTime),
+        request.addConstraint(
+                END_TIME_FIELD,
+                new RequestConstraint(TimeUtil
+                        .formatToSqlTimestamp(simulatedTime),
                         ConstraintType.GREATER_THAN_EQUALS));
         request.addConstraint("phensig",
                 new RequestConstraint(phenSig.toString(), ConstraintType.IN));
@@ -556,9 +561,7 @@ public class WatchUtil {
             }
         }
 
-        Set<String> affectedPortions = new HashSet(
-                Area.converFeAreaToPartList(mungeFeAreas(feAreas)));
-        return affectedPortions;
+        return feAreas;
     }
 
     private List<Watch> generateMarineWatchItems(Watch template,

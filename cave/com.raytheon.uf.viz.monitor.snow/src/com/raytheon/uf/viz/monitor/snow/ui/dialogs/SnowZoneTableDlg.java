@@ -26,8 +26,8 @@ import java.util.List;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
+import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
 import com.raytheon.uf.common.monitor.data.ObConst.DisplayVarName;
 import com.raytheon.uf.viz.monitor.IMonitor;
@@ -56,6 +56,8 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg;
  * Apr 28, 2014 3086       skorolev    Updated getConfigMgr method.
  * Sep 04, 2014 3220       skorolev    Removed "site". Added check on dispose.
  * Sep 18, 2015 3873       skorolev    Adjusted to AppName and MonName.
+ * Dec 17, 2015 3873       dhladky     Abstracted handling of dialogTime and Zone dialog events.
+ * Jan 04, 2016 5115       skorolev    Corrected imports and replaced AppName with MonName.
  * 
  * </pre>
  * 
@@ -145,9 +147,6 @@ public class SnowZoneTableDlg extends ZoneTableDlg {
             SnowMonitor monitor = (SnowMonitor) me.getSource();
             Date date = monitor.getDialogTime();
             if (date != null) {
-                if (!isLinkedToFrame()) {
-                    date = monitor.getObData().getLatestNominalTime();
-                }
                 this.updateTableDlg(monitor.getObData().getObHourReports(date));
             }
         }
@@ -266,7 +265,7 @@ public class SnowZoneTableDlg extends ZoneTableDlg {
     protected FSSObsMonitorConfigurationManager getMonitorAreaConfigInstance() {
         if (configMgr == null || configMgr.isPopulated()) {
             configMgr = FSSObsMonitorConfigurationManager
-                    .getInstance(MonName.snow);
+                    .getInstance(AppName.SNOW);
         }
         return configMgr;
     }

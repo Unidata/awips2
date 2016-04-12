@@ -39,7 +39,6 @@
     <!-- Old version being replaced by GFS229
     <vbSource key="AVN203" category="Volume" />
     -->
-    <vbSource key="GFS201" category="Volume" />
     <vbSource key="GFS217" category="Volume/GFS20" />
     <vbSource key="GFS215" category="Volume/GFS20" />
     <vbSource key="GFS20-PAC" category="Volume/GFS20" />
@@ -82,7 +81,7 @@
     <vbSource key="mesoEta212" category="Volume" />
     <vbSource key="ETA" category="Volume" />
     <vbSource key="ETA207" category="Volume" />
-    <vbSource key="NOGAPS" category="Volume" />
+    <vbSource key="nogaps" name="NAVGEM" category="Volume" />
     <vbSource key="RUC130" category="Volume" />
     <vbSource key="RAP200" category="Volume" />
     <vbSource key="RUC236" category="Volume" />
@@ -99,4 +98,6 @@
     <vbSource key="NCOM-HAWAII" category="Volume/NCOM" views="PLANVIEW TIMESERIES" />
     <vbSource key="NCOM-SOCAL" category="Volume/NCOM" views="PLANVIEW TIMESERIES" />
     <vbSource key="NCOM-USEAST" category="Volume/NCOM" views="PLANVIEW TIMESERIES" />
+    <vbSource key="GEFS" name="GEFS" category="Ensemble" views="PLANVIEW TIMESERIES" />
+    <vbSource key="SREF212" name="SREF" category="Ensemble" views="PLANVIEW TIMESERIES"/>
 </vbSourceList>

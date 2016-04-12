@@ -22,6 +22,8 @@
 #                     - added "-type f" to all find commands
 # revised  1/15/08    - added purging of PrecipMonitor log files by changing RiverMonitor.* to
 #                        *Monitor.*
+# revised: 3/18/16    - modified the purging of DPA decoder log files by changing the match 
+#                       string from "process_dpa_log*" to "*dpa_log_*"
 # This allows you to run this script from outside of ./standard/bin
 RUN_FROM_DIR=`dirname $0`
 
@@ -127,7 +129,7 @@ find  $DPA_ERROR_DIR -name '*[A-Z]*' -type f -mtime +0 -print | xargs rm -f >> $
 # Purge DPA Decoder daily log files older than 2 days
 #
 echo "   Purging DPA Decoder daily log files..." >> $fnm
-find  $DPA_LOG_DIR -name 'process_dpa_log_*' -type f -mtime +1 -print | xargs rm -f >> $fnm
+find  $DPA_LOG_DIR -name '*dpa_log_*' -type f -mtime +1 -print | xargs rm -f >> $fnm
 
  
 # Purge DPA Archive files older than 1 day

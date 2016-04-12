@@ -30,7 +30,7 @@ import ucar.nc2.NetcdfFile;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.pointset.PointSetRecord;
-import com.raytheon.uf.common.parameter.lookup.ParameterLookup;
+import com.raytheon.uf.common.parameter.Parameter;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.edex.netcdf.description.AbstractFieldDescription;
 import com.raytheon.uf.edex.netcdf.description.AttributeDescription;
@@ -52,8 +52,10 @@ import com.raytheon.uf.edex.plugin.pointset.netcdf.PointSetNetcdfDecoder;
  * SOFTWARE HISTORY
  * 
  * Date          Ticket#  Engineer  Description
- * ------------- -------- --------- --------------------------
+ * ------------- -------- --------- --------------------------------------------
  * Aug 11, 2015  4709     bsteffen  Initial creation
+ * Jan 21, 2016  5208     bsteffen  Move parameter persistence to dao and
+ *                                  validate
  * 
  * </pre>
  * 
@@ -183,15 +185,14 @@ public class ProductDescription {
      * Extract the the datasetId, parameter, level and datatime from the file
      * using the attributes contained in this description.
      */
-    public PointSetRecord getRecord(NetcdfFile file,
-            ParameterLookup parameterLookup, LevelFactory levelFactory)
+    public PointSetRecord getRecord(NetcdfFile file, LevelFactory levelFactory)
             throws InvalidDescriptionException {
         String datasetId = this.datasetId.getString(file);
         if (datasetId == null) {
             return null;
         }
-        String parameter = this.parameter.getString(file);
-        if (parameter == null) {
+        String parameterAbbrev = this.parameter.getString(file);
+        if (parameterAbbrev == null) {
             return null;
         }
         Level level = this.level.getLevel(file, levelFactory);
@@ -204,7 +205,7 @@ public class ProductDescription {
         }
         PointSetRecord record = new PointSetRecord();
         record.setDatasetId(datasetId);
-        record.setParameter(parameterLookup.getParameter(parameter));
+        record.setParameter(new Parameter(parameterAbbrev));
         record.setLevel(level);
         record.setDataTime(dataTime);
         return record;
@@ -229,6 +230,59 @@ public class ProductDescription {
             return null;
         }
         return latitude.getName();
+    }
+
+    public void validate() throws InvalidDescriptionException {
+        if (data == null) {
+            throw new InvalidDescriptionException(
+                    "A data element is not present.");
+        }
+        try {
+            data.validate();
+        } catch (InvalidDescriptionException e) {
+            throw new InvalidDescriptionException("Invalid data: "
+                    + e.getMessage(), e);
+        }
+        if (datasetId == null) {
+            throw new InvalidDescriptionException(
+                    "A dataset id element is not present.");
+        }
+        try {
+            datasetId.validate();
+        } catch (InvalidDescriptionException e) {
+            throw new InvalidDescriptionException("Invalid dataset id: "
+                    + e.getMessage(), e);
+        }
+        if (parameter == null) {
+            throw new InvalidDescriptionException(
+                    "A parameter element is not present.");
+        }
+        try {
+            parameter.validate();
+        } catch (InvalidDescriptionException e) {
+            throw new InvalidDescriptionException("Invalid parameter: "
+                    + e.getMessage(), e);
+        }
+        if (level == null) {
+            throw new InvalidDescriptionException(
+                    "A level element is not present.");
+        }
+        try {
+            level.validate();
+        } catch (InvalidDescriptionException e) {
+            throw new InvalidDescriptionException("Invalid level: "
+                    + e.getMessage(), e);
+        }
+        if (dataTime == null) {
+            throw new InvalidDescriptionException(
+                    "A data time element is not present.");
+        }
+        try {
+            dataTime.validate();
+        } catch (InvalidDescriptionException e) {
+            throw new InvalidDescriptionException("Invalid data time: "
+                    + e.getMessage(), e);
+        }
     }
 
 

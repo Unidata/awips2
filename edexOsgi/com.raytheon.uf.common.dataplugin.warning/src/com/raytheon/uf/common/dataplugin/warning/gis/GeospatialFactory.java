@@ -22,6 +22,7 @@ package com.raytheon.uf.common.dataplugin.warning.gis;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,11 +32,11 @@ import com.raytheon.uf.common.dataplugin.warning.config.AreaSourceConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.config.GeospatialConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.config.WarngenConfiguration;
 import com.raytheon.uf.common.geospatial.SpatialException;
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.serialization.SerializationException;
@@ -68,6 +69,8 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  * Jun 17, 2014  DR 17390  Qinglu Lin  Updated getMetaDataMap() for lonField and latField.
  * Aug 21, 2014   3353     rferrel     Generating Geo Spatial data set no longer on the UI thread.
  * Feb 24, 2015   3978     njensen     Use openInputStream() for reading file contents
+ * Dec  9, 2015 ASM #18209 D. Friedman Support cwaStretch.
+ * Jan 12, 2016 5244       njensen     Replaced calls to deprecated LocalizationFile methods
  * 
  * </pre>
  * 
@@ -149,16 +152,27 @@ public class GeospatialFactory {
     }
 
     /**
-     * Convert the geospatial data set into array of geospatial data.
+     * Convert the geospatial data set into arrays of geospatial data.
+     * <p>The first array contains the primary features (i.e., those inside
+     * the CWA.)  The second array, if not null, contains the extra
+     * (outside the CWA) features.
      * 
      * @param dataSet
      * @param metaData
      * @return areas
      */
-    public static GeospatialData[] getGeoSpatialList(GeospatialDataSet dataSet,
+    public static GeospatialData[][] getGeoSpatialList(GeospatialDataSet dataSet,
             GeospatialMetadata metaData) {
 
-        GeospatialData[] areas = dataSet.getAreas();
+        GeospatialData[] primaryAreas = dataSet.getAreas();
+        GeospatialData[] stretchAreas = dataSet.getCwaStretchAreas();
+        GeospatialData[] areas;
+        if (stretchAreas == null) {
+            areas = primaryAreas;
+        } else {
+            areas = Arrays.copyOf(primaryAreas, primaryAreas.length + stretchAreas.length);
+            System.arraycopy(stretchAreas, 0, areas, primaryAreas.length, stretchAreas.length);
+        }
         GeospatialData[] parentAreas = dataSet.getParentAreas();
         GeospatialData[] myTimeZones = dataSet.getTimezones();
         if (myTimeZones != null && myTimeZones.length > 0) {
@@ -193,7 +207,7 @@ public class GeospatialFactory {
             data.prepGeom = PreparedGeometryFactory.prepare(data.geometry);
         }
 
-        return areas;
+        return new GeospatialData[][] { primaryAreas, stretchAreas };
     }
 
     public static GeospatialData[] getTimezones() {
@@ -227,11 +241,11 @@ public class GeospatialFactory {
                 LocalizationType.COMMON_STATIC, LocalizationLevel.CONFIGURED);
         context.setContextName(site);
 
-        LocalizationFile lf = pathMgr.getLocalizationFile(context,
+        ILocalizationFile lf = pathMgr.getLocalizationFile(context,
                 METADATA_FILE);
         if (lf.exists()) {
-            try {
-                return jaxb.unmarshalFromXmlFile(lf.getFile());
+            try (InputStream is = lf.openInputStream()) {
+                return jaxb.unmarshalFromInputStream(is);
             } catch (Exception e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);
@@ -274,6 +288,7 @@ public class GeospatialFactory {
             gmd.setParentAreaSource(geoConfig.getParentAreaSource());
             gmd.setAreaNotationField(asc.getAreaNotationField());
             gmd.setParentAreaField(asc.getParentAreaField());
+            gmd.setCwaStretch(asc.getCwaStretch());
 
             rval.put(asc.getAreaSource(), gmd);
         }
@@ -291,7 +306,7 @@ public class GeospatialFactory {
                 LocalizationType.COMMON_STATIC, LocalizationLevel.CONFIGURED);
         context.setContextName(site);
 
-        LocalizationFile lf = pathMgr.getLocalizationFile(context, GEO_DIR
+        ILocalizationFile lf = pathMgr.getLocalizationFile(context, GEO_DIR
                 + fileName);
 
         if (lf.exists()) {
@@ -300,10 +315,10 @@ public class GeospatialFactory {
                         GeospatialDataSet.class, is);
             } catch (IOException e) {
                 throw new SerializationException("Error reading file "
-                        + lf.getName(), e);
+                        + lf.getPath(), e);
             }
         } else {
-            System.out.println("Attempted to load: " + lf.getName()
+            statusHandler.info("Attempted to load: " + lf.getPath()
                     + " for site " + site + ", but file does not exist.");
         }
 

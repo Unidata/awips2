@@ -35,6 +35,8 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
+import org.eclipse.swt.events.ControlAdapter;
+import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.MouseAdapter;
@@ -90,6 +92,8 @@ import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
  * Feb 12, 2015  4105     rferrel   Remove duplicate update of table item in
  *                                  addProduct.
  * Aug 03, 2015  3861     bsteffen  Move product loading to ProductLoader
+ * Jan 12, 2016  5055     randerso  Moved resize listener into this class.
+ *                                  Set column widths at creation
  * 
  * </pre>
  * 
@@ -282,6 +286,14 @@ public class ProductTableComp extends Composite {
         prodSelTable.setHeaderVisible(true);
         prodSelTable.setLinesVisible(true);
 
+        prodSelTable.addControlListener(new ControlAdapter() {
+            @Override
+            public void controlResized(ControlEvent e) {
+                resizeTableColumns();
+            }
+
+        });
+
         // Add a selection listener so the indexes can be updated.
         prodSelTable.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -395,12 +407,16 @@ public class ProductTableComp extends Composite {
     private void addTableColumns() {
         TableColumn column1 = new TableColumn(prodSelTable, SWT.NONE);
         column1.setText("Times");
+        column1.setWidth(timesColWidth);
+        column1.setResizable(false);
 
         TableColumn column2 = new TableColumn(prodSelTable, SWT.NONE);
         column2.setText("Product Selection List");
 
         TableColumn column3 = new TableColumn(prodSelTable, SWT.NONE);
         column3.setText("Inventory");
+        column3.setWidth(inventoryColWidth);
+        column3.setResizable(false);
 
         // Pack the columns
         for (int i = 0; i < prodSelTableColumnCount; i++) {
@@ -872,7 +888,7 @@ public class ProductTableComp extends Composite {
      * Resize the table columns. This will maintain sizes for the Times and
      * Inventory columns. The products column will adjust in size.
      */
-    public void resizeTableColumns() {
+    private void resizeTableColumns() {
         Rectangle tableBounds = prodSelTable.getBounds();
 
         prodSelTable.getColumn(0).setWidth(timesColWidth);
@@ -955,7 +971,7 @@ public class ProductTableComp extends Composite {
         if (!hasProductCreator(tblData.getCatalogEntry())) {
             return;
         }
-        
+
         synchronized (productKeySet) {
             String uniqueKey = tblData.getSelectedData().getUniqueKey();
             if (!productKeySet.contains(uniqueKey)) {

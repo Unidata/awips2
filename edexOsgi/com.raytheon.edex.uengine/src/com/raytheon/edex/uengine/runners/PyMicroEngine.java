@@ -26,9 +26,11 @@ import java.util.regex.Pattern;
 
 import jep.Jep;
 
+import org.apache.commons.pool2.KeyedObjectPool;
+import org.apache.commons.pool2.impl.GenericKeyedObjectPool;
+
 import com.raytheon.edex.uengine.exception.MicroEngineException;
 import com.raytheon.edex.uengine.jep.JepFactory;
-import com.raytheon.edex.uengine.jep.JepPool;
 import com.raytheon.uf.common.message.response.AbstractResponseMessage;
 import com.raytheon.uf.common.message.response.ResponseMessageError;
 
@@ -41,6 +43,7 @@ import com.raytheon.uf.common.message.response.ResponseMessageError;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 13Nov2008    1709       MW Fegan    Initial creation.
+ * 22Oct2015    5004       dgilling    Use new commons-pool2 API.
  * 
  * </pre>
  * 
@@ -52,10 +55,8 @@ public class PyMicroEngine extends AMicroEngine {
     /**
      * The JEPP pool used to obtain JEPP instances.
      */
-    private static JepPool pool;
-    static {
-        pool = new JepPool(new JepFactory());
-    }
+    private static KeyedObjectPool<Long, Jep> pool = new GenericKeyedObjectPool<>(
+            new JepFactory());
 
     /**
      * The JEPP instance used to execute the script.
@@ -99,12 +100,13 @@ public class PyMicroEngine extends AMicroEngine {
      */
     @Override
     public void initialize() throws MicroEngineException {
-        this.id = Thread.currentThread().getId();
-        this.jep = (Jep) pool.borrowObject(id);
-        if (this.jep == null) {
+        try {
+            this.id = Thread.currentThread().getId();
+            this.jep = pool.borrowObject(id);
+        } catch (Exception e) {
             throw new MicroEngineException(
                     "Unable to initialize uEngine script runner, "
-                            + "unable to obtain JEPP object from pool");
+                            + "unable to obtain JEPP object from pool", e);
         }
     }
 
@@ -115,13 +117,18 @@ public class PyMicroEngine extends AMicroEngine {
      */
     @Override
     public void release() throws MicroEngineException {
-        pool.returnObject(this.id, this.jep);
+        try {
+            pool.returnObject(this.id, this.jep);
+        } catch (Exception e) {
+            throw new MicroEngineException(
+                    "Unable to release uEngine script runner.", e);
+        }
     }
 
     /**
      * Converts the result of executing the script into a <code>
-     * List<AbstractResponseMessage></code>
-     * . Ensures that unexpected results are wrapped correctly.
+     * List<AbstractResponseMessage></code> . Ensures that unexpected results
+     * are wrapped correctly.
      * 
      * @param result
      *            the script result to convert.
@@ -174,8 +181,8 @@ public class PyMicroEngine extends AMicroEngine {
             if (matcher.find()) {
                 wrapper = wrapper.substring(0, wrapper.indexOf("'''"))
                         + matcher.group().replaceAll("\n    ", "\n")
-                        + wrapper.substring(wrapper.indexOf("'''", wrapper
-                                .indexOf("'''") + 3) + 3);
+                        + wrapper.substring(wrapper.indexOf("'''",
+                                wrapper.indexOf("'''") + 3) + 3);
             }
         }
         return wrapper;

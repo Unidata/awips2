@@ -19,7 +19,7 @@
  **/
 package com.raytheon.viz.gfe.core.parm;
 
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 import org.eclipse.core.runtime.ListenerList;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;

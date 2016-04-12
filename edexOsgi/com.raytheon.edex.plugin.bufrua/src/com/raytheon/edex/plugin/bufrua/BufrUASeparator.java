@@ -22,8 +22,8 @@ package com.raytheon.edex.plugin.bufrua;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.plugin.AbstractRecordSeparator;
@@ -58,6 +58,7 @@ import com.raytheon.uf.edex.decodertools.core.DecoderTools;
  * 20080107            382 jkorman     Fixed NullPointerEx in hasNext.
  * 20080214            862 jkorman     Refactored data separation into BUFRFile.
  * May 14, 2014 2536       bclement    moved WMO Header to common
+ * Dec 14, 2015 5166       kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -67,7 +68,7 @@ import com.raytheon.uf.edex.decodertools.core.DecoderTools;
 public class BufrUASeparator extends AbstractRecordSeparator implements
         IDescriptorFactorySelector {
     /** The logger */
-    private Log logger = LogFactory.getLog(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     // WMO header of the message containing the BUFR data.
     private WMOHeader wmoHeader = null;

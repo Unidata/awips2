@@ -26,8 +26,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -43,7 +43,8 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 04/18/2008   387        M. Duff     Initial Version.	
+ * Apr 18, 2008 387        M. Duff     Initial Version.
+ * Dec 16, 2015 5166       kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -52,8 +53,9 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
  */
 
 public class ShefParm {
-	static {
-        log = LogFactory.getLog(com.raytheon.edex.plugin.shef.util.ShefParm.class);
+    static {
+        log = LoggerFactory
+                .getLogger(com.raytheon.edex.plugin.shef.util.ShefParm.class);
         physicalElementConversion = new HashMap<String, Double>();
         durationCodeValues = new HashMap<String, Short>();
         typeSourceCodes = new HashMap<String, Integer>();
@@ -62,110 +64,128 @@ public class ShefParm {
         sendCodesDuration = new HashMap<String, String>();
         dataQualifierCodes = new HashMap<String, Integer>();
         MAX_ERRORS = 0;
-		populate();
-	}
-	
-	private static Map<String, Double> physicalElementConversion;
-	private static Map<String, Short> durationCodeValues;
-	private static Map<String, Integer> typeSourceCodes;
-	private static Map<String, Integer> extremumCodes;
-	private static Map<String, Float> probabilityCodeValues;
-	private static Map<String, String> sendCodesDuration;
-	private static Map<String, Integer> dataQualifierCodes;
-	private static int MAX_ERRORS;
-    private static final Log log;
+        populate();
+    }
+
+    private static Map<String, Double> physicalElementConversion;
+
+    private static Map<String, Short> durationCodeValues;
+
+    private static Map<String, Integer> typeSourceCodes;
+
+    private static Map<String, Integer> extremumCodes;
+
+    private static Map<String, Float> probabilityCodeValues;
+
+    private static Map<String, String> sendCodesDuration;
+
+    private static Map<String, Integer> dataQualifierCodes;
+
+    private static int MAX_ERRORS;
+
+    private static final Logger log;
+
     private static final String PLUGIN_NAME = "shef";
+
     private static final String PROPFILE_NAME = "SHEFPARM";
-    
+
     private static int fileSection = 0;
 
     /**
-	 * Get a Physical Element conversion factor
-	 * 
-	 * @param key - Physical Element
-	 * @return - the conversion factor
-	 */
-	public static Double getPhysicalElementConversionFactor(String key) {
-		return physicalElementConversion.get(key);
-	}
+     * Get a Physical Element conversion factor
+     * 
+     * @param key
+     *            - Physical Element
+     * @return - the conversion factor
+     */
+    public static Double getPhysicalElementConversionFactor(String key) {
+        return physicalElementConversion.get(key);
+    }
 
-	/**
-	 * Get a Duration Code value
-	 * 
-	 * @param key - Duration Code
-	 * @return - the Duration Code value
-	 */
-	public static Short getDurationCodeValue(String key) {
-		return durationCodeValues.get(key);
-	}
-	
-	/**
-	 * Check the Type Source Code
-	 * 
-	 * @param key - Type Source
-	 * @return - 1 if valid code, null if invalid
-	 */
-	public static Integer getTypeSourceCode(String key) {
-		return typeSourceCodes.get(key);
-	}
-	
-	/**
-	 * Check the Extremum Code
-	 * 
-	 * @param key - Extremum Code
-	 * @return - 1 if valid code, null if invalid
-	 */
-	public static Integer getExtremumCode(String key) {
-		return extremumCodes.get(key);
-	}
-	
-	/**
-	 * Get the Probability Code Value
-	 * 
-	 * @param key - Probability Code
-	 * @return - Probability Code's value
-	 */
-	public static Float getProbabilityCodeValue(String key) {
-		return probabilityCodeValues.get(key);
-	}
-	
-	/**
-	 * Get a Send Code or Duration default value for these special cases
-	 * 
-	 * @param key - Code
-	 * @return - Default Values
-	 */
-	public static String getSendCodeDurationDefaults(String key) {
-		return sendCodesDuration.get(key);
-	}
-	
-	/**
-	 * Check the Data Qualifier Code
-	 * 
-	 * @param key - Extremum Code
-	 * @return - 1 if valid code, null if invalid
-	 */
-	public static Integer getDataQualifierCodes(String key) {
-		return dataQualifierCodes.get(key);
-	}
-	
-	/**
-	 * Get the maximum number of errors defined
-	 * 
-	 * @return - the maximum number of errors
-	 */
-	public static Integer getMaxErrors() {
-		return MAX_ERRORS;
-	}
-	
-	/**
-	 * Populate the values from the file.
-	 */
-	private static void populate() {
-	    
+    /**
+     * Get a Duration Code value
+     * 
+     * @param key
+     *            - Duration Code
+     * @return - the Duration Code value
+     */
+    public static Short getDurationCodeValue(String key) {
+        return durationCodeValues.get(key);
+    }
+
+    /**
+     * Check the Type Source Code
+     * 
+     * @param key
+     *            - Type Source
+     * @return - 1 if valid code, null if invalid
+     */
+    public static Integer getTypeSourceCode(String key) {
+        return typeSourceCodes.get(key);
+    }
+
+    /**
+     * Check the Extremum Code
+     * 
+     * @param key
+     *            - Extremum Code
+     * @return - 1 if valid code, null if invalid
+     */
+    public static Integer getExtremumCode(String key) {
+        return extremumCodes.get(key);
+    }
+
+    /**
+     * Get the Probability Code Value
+     * 
+     * @param key
+     *            - Probability Code
+     * @return - Probability Code's value
+     */
+    public static Float getProbabilityCodeValue(String key) {
+        return probabilityCodeValues.get(key);
+    }
+
+    /**
+     * Get a Send Code or Duration default value for these special cases
+     * 
+     * @param key
+     *            - Code
+     * @return - Default Values
+     */
+    public static String getSendCodeDurationDefaults(String key) {
+        return sendCodesDuration.get(key);
+    }
+
+    /**
+     * Check the Data Qualifier Code
+     * 
+     * @param key
+     *            - Extremum Code
+     * @return - 1 if valid code, null if invalid
+     */
+    public static Integer getDataQualifierCodes(String key) {
+        return dataQualifierCodes.get(key);
+    }
+
+    /**
+     * Get the maximum number of errors defined
+     * 
+     * @return - the maximum number of errors
+     */
+    public static Integer getMaxErrors() {
+        return MAX_ERRORS;
+    }
+
+    /**
+     * Populate the values from the file.
+     */
+    private static void populate() {
+
         PathManager pathMgr = (PathManager) PathManagerFactory.getPathManager();
 
-        LocalizationContext ctx = pathMgr.getContext(LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
+        LocalizationContext ctx = pathMgr.getContext(
+                LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
         File baseDir = pathMgr.getFile(ctx, PLUGIN_NAME);
         File srcFile = new File(baseDir, PROPFILE_NAME);
 
@@ -181,31 +201,31 @@ public class ShefParm {
             ioe.printStackTrace();
             log.error("Error loading " + PROPFILE_NAME);
         }
-	}
-	
-	private static String expandPE(String pe) {
-	    // 0123456
-	    // ADZZZZZ
-	    StringBuilder peCode = new StringBuilder("--IRZZ");
-	    if((pe != null)&&(pe.length() >= 2)) {
-	        for(int i = 0;i < pe.length() && (i < peCode.length());i++) {
-	            peCode.setCharAt(i,pe.charAt(i));
-	        }
-	    }
-	    char z4 = peCode.charAt(3);
+    }
+
+    private static String expandPE(String pe) {
+        // 0123456
+        // ADZZZZZ
+        StringBuilder peCode = new StringBuilder("--IRZZ");
+        if ((pe != null) && (pe.length() >= 2)) {
+            for (int i = 0; i < pe.length() && (i < peCode.length()); i++) {
+                peCode.setCharAt(i, pe.charAt(i));
+            }
+        }
+        char z4 = peCode.charAt(3);
         char z5 = peCode.charAt(5);
-	    if('Z' == z4) {
-	        if('Z' == z5) {
-	            peCode.setCharAt(3, 'R');
-	        } else {
-	            // FIXME: This is an error
-	        }
-	    }
-	    
-	    return peCode.toString();
-	}
-	
-	private static void processLine(String line) {
+        if ('Z' == z4) {
+            if ('Z' == z5) {
+                peCode.setCharAt(3, 'R');
+            } else {
+                // FIXME: This is an error
+            }
+        }
+
+        return peCode.toString();
+    }
+
+    private static void processLine(String line) {
         String[] pair = null;
         if (line.startsWith("$")) {
             return;
@@ -223,28 +243,24 @@ public class ShefParm {
             switch (fileSection) {
             case 1:
                 pair = line.split("\\s+");
-                physicalElementConversion.put(pair[0], Double
-                        .parseDouble(pair[1]));
+                physicalElementConversion.put(pair[0],
+                        Double.parseDouble(pair[1]));
                 break;
             case 2:
                 pair = line.split("\\s+");
-                durationCodeValues.put(pair[0], Short
-                        .parseShort(pair[1]));
+                durationCodeValues.put(pair[0], Short.parseShort(pair[1]));
                 break;
             case 3:
                 pair = line.split("\\s+");
-                typeSourceCodes.put(pair[0], Integer
-                        .parseInt(pair[1]));
+                typeSourceCodes.put(pair[0], Integer.parseInt(pair[1]));
                 break;
             case 4:
                 pair = line.split("\\s+");
-                extremumCodes.put(pair[0], Integer
-                        .parseInt(pair[1]));
+                extremumCodes.put(pair[0], Integer.parseInt(pair[1]));
                 break;
             case 5:
                 pair = line.split("\\s+");
-                probabilityCodeValues.put(pair[0], Float
-                        .parseFloat(pair[1]));
+                probabilityCodeValues.put(pair[0], Float.parseFloat(pair[1]));
                 break;
             case 6:
                 pair = line.split("\\s+");
@@ -261,10 +277,9 @@ public class ShefParm {
         }
     }
 
-	public static final void main(String [] args) {
-	    
-	    
-	    String s = expandPE("ADZZZZZ");
-	    System.out.println(s);
-	}
+    public static final void main(String[] args) {
+
+        String s = expandPE("ADZZZZZ");
+        System.out.println(s);
+    }
 }

@@ -26,8 +26,8 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ValueType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.VersionInfoType;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.serialization.SerializationException;
@@ -67,7 +67,7 @@ abstract class ContentSlotBasedEncoder<SLOT_VALUE_TYPE extends ValueType, CONTEN
      * The type of encoder it is.
      */
     private final RegistryEncoders.Type type;
-    
+
     /**
      * Constructor. Intentionally package-private.
      */
@@ -85,7 +85,8 @@ abstract class ContentSlotBasedEncoder<SLOT_VALUE_TYPE extends ValueType, CONTEN
         List<SlotType> returnedSlots = registryObjectType.getSlot();
         // Figure out which version we have and it's class
         VersionInfoType vit = registryObjectType.getVersionInfo();
-        String className = registryObjectType.getSlotValue(RegistryUtil.registryObjectClassName);
+        String className = registryObjectType
+                .getSlotValue(RegistryUtil.registryObjectClassName);
 
         // Walk the returned slots looking for the "content" slot
         for (SlotType s : returnedSlots) {
@@ -93,7 +94,8 @@ abstract class ContentSlotBasedEncoder<SLOT_VALUE_TYPE extends ValueType, CONTEN
                 SLOT_VALUE_TYPE sv = getSlotValueTypeClass().cast(
                         s.getSlotValue());
                 CONTENT_TYPE content = getContent(sv);
-                object = decodeContent(content, className, vit.getUserVersionName());
+                object = decodeContent(content, className,
+                        vit.getUserVersionName());
                 break;
             }
         }
@@ -173,14 +175,16 @@ abstract class ContentSlotBasedEncoder<SLOT_VALUE_TYPE extends ValueType, CONTEN
      * 
      * @param content
      *            the content
-     * @param the className
-     * @param the version for serialization
+     * @param the
+     *            className
+     * @param the
+     *            version for serialization
      * @return the decoded object
      * @throws SerializationException
      *             on error decoding the string into an object
      */
-    abstract Object decodeContent(CONTENT_TYPE content, String className, String version)
-            throws SerializationException;
+    abstract Object decodeContent(CONTENT_TYPE content, String className,
+            String version) throws SerializationException;
 
     /**
      * Encodes the object into the type specified by the implementation.

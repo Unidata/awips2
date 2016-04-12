@@ -55,6 +55,7 @@ import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
  *                                     into ihfs database
  * Oct 28, 2015 4783       bkowal      Allow {@link SynopticToShefRun}s to override the
  *                                     default configuration.
+ * Dec 16, 2015 5166       kbisanz     Update logging to use SLF4J
  * </pre>
  * 
  * @author jkorman
@@ -194,7 +195,8 @@ public class SMToShefTransformer extends AbstractShefTransformer<ObsCommon> {
 
             }
         } catch (Exception e) {
-            logger.error(e);
+            logger.error(
+                    "Error transforming input report to SHEF encoded report", e);
         } finally {
             if (result == null) {
                 result = new byte[0];

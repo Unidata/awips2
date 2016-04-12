@@ -29,8 +29,13 @@
         post processor. These models may have some parameters which are incorrectly 
         labeled Celsius vs. Kelvin. The list of parameters to correct is in temperatureCorrectionParameters.xml -->
     <postProcessedModel id="TempCorrection">
-        <modelName>ETA218|GFS212|GFS213|ETA242|RTOFS-.*</modelName>
+        <modelName>RTOFS-.*</modelName>
         <processorName>TemperatureCorrectionPostProcessor</processorName>
+    </postProcessedModel>
+
+    <postProcessedModel id="LiftedIndex">
+        <modelName>GFS.*|ETA.*|DGEX.*|HiResW.*</modelName>
+        <processorName>LiftedIndexPostProcessor</processorName>
     </postProcessedModel>
 
     <!-- Post processor definition for the RTMA model -->

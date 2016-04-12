@@ -43,8 +43,9 @@ import com.raytheon.uf.viz.pointset.image.PointSetLocationCallback;
  * SOFTWARE HISTORY
  * 
  * Date          Ticket#  Engineer  Description
- * ------------- -------- --------- --------------------------
+ * ------------- -------- --------- --------------------------------------------
  * Aug 28, 2015  4709     bsteffen  Initial creation
+ * Jan 25, 2016  5208     bsteffen  Ensure correct units are used for conversion
  * 
  * </pre>
  * 
@@ -61,6 +62,8 @@ public class PointSetFrame {
     private final PointSetResource resource;
 
     private ITriangulatedImage image;
+
+    private PointSetDataCallback dataCallback;
 
     private volatile boolean staged = false;
 
@@ -98,7 +101,7 @@ public class PointSetFrame {
 
         double dataValue = image.getDataValue(x, y);
         if (displayUnit != null) {
-            UnitConverter converter = record.getParameter().getUnit()
+            UnitConverter converter = dataCallback.getDataUnit()
                     .getConverterTo(displayUnit);
             dataValue = converter.convert(dataValue);
         }
@@ -113,9 +116,10 @@ public class PointSetFrame {
                     ColorMapCapability.class).getColorMapParameters();
             ITriangulatedImageExtension triangleExt = target
                     .getExtension(ITriangulatedImageExtension.class);
+            this.dataCallback = new PointSetDataCallback(record);
             this.image = triangleExt.initializeImage(colorMapParameters,
                     new PointSetLocationCallback(resource.getDescriptor(),
-                            record), new PointSetDataCallback(record));
+                            record), dataCallback);
             return false;
         } else if (staged) {
             ITriangulatedImageExtension triangleExt = target

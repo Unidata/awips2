@@ -39,6 +39,7 @@ import com.raytheon.uf.edex.registry.federation.ReplicationEvent;
  * 2/19/2014    2769       bphillip    Initial Creation
  * 8/27/2014    3560       bphillip    Added query by event time method
  * 5/11/2015    4448        bphillip    Separated EBXML Registry from Data Delivery
+ * 8 Feb, 2016  5198        dhladky     Class cast for String expecting Long fixed
  * </pre>
  * 
  * @author bphillip
@@ -67,7 +68,7 @@ public class ReplicationEventDao extends
                         + "%");
     }
 
-    public List<ReplicationEvent> getEventsBeforeTime(String time) {
+    public List<ReplicationEvent> getEventsBeforeTime(Long time) {
         return this.executeHQLQuery(GET_EVENTS_BY_TIME, "eventTime", time);
     }
 }

@@ -76,6 +76,10 @@
 #    Sep 16, 2015    4871          randerso       Return modified varDict from called Tool/Procedure
 #
 #    Sep 11, 2015    4858          dgilling       Remove notification processing from publishElements.
+#    Jan 20, 2016    4751          randerso       Fix type of mask returned from getComposite() to work with numpy 1.9.2
+#    Jan 28, 2016    5129          dgilling       Support changes to IFPClient.
+#    02/22/2016      5374          randerso       Added support for sendWFOMessage
+#
 ########################################################################
 import types, string, time, sys
 from math import *
@@ -344,8 +348,11 @@ class SmartScript(BaseTool.BaseTool):
     def vtecActiveTable(self):
         #returns the VTEC active table (or specified table)
         import ActiveTableVtec
-        entries = self.__dataMgr.getClient().getVTECActiveTable(self.__dataMgr.getSiteID())
-        return ActiveTableVtec.transformActiveTableToPython(entries)
+        entries = self.__dataMgr.getActiveTable()
+        try:
+            return ActiveTableVtec.transformActiveTableToPython(entries)
+        except:
+            raise TypeError("SmartScript vtecActiveTable: could not convert to python objects.")
 
 
     def gfeOperatingMode(self):
@@ -682,17 +689,17 @@ class SmartScript(BaseTool.BaseTool):
         from com.raytheon.viz.gfe.edittool import GridID
         gid = GridID(parm, gridTime.javaDate())
 
-        wxType = self.__dataMgr.getClient().getGridParmInfo(parm.getParmID()).getGridType()
+        wxType = self.__dataMgr.getClient().getPythonClient().getGridParmInfo(parm.getParmID()).getGridType()
         if GridType.SCALAR.equals(wxType):
             from com.raytheon.uf.common.dataplugin.gfe.slice import ScalarGridSlice
             slice = ScalarGridSlice()
             bits = self.__dataMgr.getIscDataAccess().getCompositeGrid(gid, exactMatch, slice)
-            args = (bits.getNDArray(), slice.getScalarGrid().getNDArray())
+            args = (bits.getNDArray().astype(bool), slice.getScalarGrid().getNDArray())
         elif GridType.VECTOR.equals(wxType):
             from com.raytheon.uf.common.dataplugin.gfe.slice import VectorGridSlice
             slice = VectorGridSlice()
             bits = self.__dataMgr.getIscDataAccess().getVectorCompositeGrid(gid, exactMatch, slice)
-            args = (bits.getNDArray(), slice.getMagGrid().getNDArray(), slice.getDirGrid().getNDArray())
+            args = (bits.getNDArray().astype(bool), slice.getMagGrid().getNDArray(), slice.getDirGrid().getNDArray())
         elif GridType.WEATHER.equals(wxType):
             from com.raytheon.uf.common.dataplugin.gfe.slice import WeatherGridSlice
             slice = WeatherGridSlice()
@@ -700,7 +707,7 @@ class SmartScript(BaseTool.BaseTool):
             keys = []
             for k in slice.getKeys():
                 keys.append(str(k))
-            args = (bits.getNDArray(), slice.getWeatherGrid().getNDArray(), keys)
+            args = (bits.getNDArray().astype(bool), slice.getWeatherGrid().getNDArray(), keys)
         elif GridType.DISCRETE.equals(wxType):
             from com.raytheon.uf.common.dataplugin.gfe.slice import DiscreteGridSlice
             slice = DiscreteGridSlice()
@@ -708,7 +715,7 @@ class SmartScript(BaseTool.BaseTool):
             keys = []
             for k in slice.getKeys():
                 keys.append(str(k))
-            args = (bits.getNDArray(), slice.getDiscreteGrid().getNDArray(), keys)
+            args = (bits.getNDArray().astype(bool), slice.getDiscreteGrid().getNDArray(), keys)
         return args
 
     ##
@@ -1944,7 +1951,7 @@ class SmartScript(BaseTool.BaseTool):
         for element in elementList:
             # get the inventory for this element from the server
             parm = self.getParm("Fcst", element, "SFC")
-            recList = self.__dataMgr.getClient().getGridInventory(parm.getParmID())
+            recList = self.__dataMgr.getClient().getPythonClient().getGridInventory(parm.getParmID())
             publishTimeRange = timeRange
             if recList is not None:
                 recSize = recList.size()
@@ -2219,7 +2226,12 @@ class SmartScript(BaseTool.BaseTool):
         gridLoc = self.getGridLoc()
         nx = gridLoc.getNx().intValue()
         ny = gridLoc.getNy().intValue()
-        bytes = NumpyJavaEnforcer.checkdTypes(mask, int8)
+        
+        # force mask to boolean if it's not
+        mask = NumpyJavaEnforcer.checkdTypes(mask, bool)
+        
+        # convert boolean mask to bytes for Grid2DBit        
+        bytes = mask.astype(int8)
         grid = Grid2DBit.createBitGrid(nx, ny, bytes)
         return ReferenceData(gridLoc, ReferenceID("test"), grid)
 
@@ -2696,3 +2708,34 @@ class SmartScript(BaseTool.BaseTool):
         status = transmitter.transmitProduct(practice)
         return status
 
+    def sendWFOMessage(self, wfos, message):
+        '''
+        Sends a message to a list of wfos
+        
+        Args:
+            wfos: string or list, set or tuple of strings containing the destination wfo(s)
+            
+            message: string containing the message to be sent
+
+        Returns:
+            string: empty if successful or error message
+        
+        Raises:
+            TypeError: if wfos is not a string, list, tuple or set
+        '''
+        
+        if not wfos:
+            # called with empty wfo list, nothing to do
+            return ""
+        
+        javaWfos = ArrayList()
+        if type(wfos) in [list, tuple, set]:
+            for wfo in wfos:
+                javaWfos.add(wfo)
+        elif type(wfos) is str:
+            javaWfos.add(wfos)
+        else:
+            raise TypeError("Invalid type received for wfos: " + type(wfos))
+            
+        response = self.__dataMgr.getClient().sendWFOMessage(javaWfos, message)
+        return response.message()

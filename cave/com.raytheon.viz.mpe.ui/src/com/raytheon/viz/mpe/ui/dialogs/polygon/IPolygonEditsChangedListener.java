@@ -34,6 +34,8 @@ import com.raytheon.viz.mpe.ui.DisplayFieldData;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 2, 2013            mschenke     Initial creation
+ * Feb 15, 2016 5338      bkowal       Updated to provide information about which
+ *                                     persistent polygons remain after the edit.
  * 
  * </pre>
  * 
@@ -44,6 +46,7 @@ import com.raytheon.viz.mpe.ui.DisplayFieldData;
 public interface IPolygonEditsChangedListener {
 
     public void polygonEditsChanged(DisplayFieldData field, Date date,
-            List<RubberPolyData> polygonEdits);
+            List<RubberPolyData> polygonEdits,
+            List<RubberPolyData> persistentRemaining);
 
 }

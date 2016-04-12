@@ -327,7 +327,15 @@
 #       	Relationship Type: In Response to
 #       	Status:           TEST
 #       	Title:             AvnFPS: Allow WFOs to update HDF5 climate files
-#       
+#
+# ----------------------------------------------------------------------------
+#
+#     SOFTWARE HISTORY
+#
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    02/09/2016      5283          nabowle        Remove NGM support.
+#
 #
 import cPickle, logging, os, time
 import numpy
@@ -640,7 +648,7 @@ class _NetCDFFile:
             self._validTimeList.append(self.issuetime + (f * 3600))
         
         #
-        # NGMMOS.  The internal ID should be four characters long.
+        # The internal ID should be four characters long.
         if len(ident) == 3:
             ident = 'K'+ident
             
@@ -772,19 +780,6 @@ class _AvnNetCDFFile(_NetCDFFile):
     CigValues = {1: 100, 2: 400, 3: 700, 4: 2000, 5: 5000, 6: 10000, 7: 25000}
     Header = 'AVN MOS Guidance'
     Model = 'AVN'    
-
-###############################################################################
-class _NgmNetCDFFile(_NetCDFFile):
-    """NGM MOS NetCDF file"""
-    NumData = 15    # 42 hours
-    NumVsbyCat = 5
-    NumCigCat = 7
-    POP6hr = 'POP6hr'   # to avoid repeating code
-    SEVERE6hr='severe6hr'
-    VsbyValues = {1: 0.25, 2: 0.75, 3: 2.0, 4: 4.0, 5: 99.0}
-    CigValues = {1: 100, 2: 400, 3: 700, 4: 2000, 5: 5000, 6: 10000, 7: 25000}
-    Header = 'NGM MOS Guidance'
-    Model = 'NGM'    
 
 ###############################################################################
 class _GfsNetCDFFile(_NetCDFFile):
@@ -1210,8 +1205,6 @@ def _cleanup(path, nhours):
 def retrieve(model, idlist, includeReport, refTime=None):
     if model == 'avnmos':
         nc = _AvnNetCDFFile()
-    elif model == 'ngmmos':
-        nc = _NgmNetCDFFile()
     elif model == 'gfsmos':
         nc = _GfsNetCDFFile()
     elif model == 'etamos':

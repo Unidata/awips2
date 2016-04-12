@@ -964,10 +964,10 @@ class ISC_Utility(SmartScript.SmartScript):
             cnt[numpy.less(cnt, 1)] = 1
             if GridType.VECTOR.equals(wxType):
                 sum /= cnt
-                sum[noISC]= minLimit
+                sum[noISC]= minlimit
                 
                 sumv /= cnt
-                sumv[noISC] = minLimit
+                sumv[noISC] = minlimit
 
                 (mag,direc)=self.UVToMagDir(sum,sumv)
                 (baseMag,baseDir)=baseGrid
@@ -1043,9 +1043,9 @@ class ISC_Utility(SmartScript.SmartScript):
     # 
     def _convertTimeRange(self, trName):
         if trName == "All Grids":
-            curTime = time.gmtime()
+            curTime = self.gmtime()
             startHour = curTime[3]
-            timeRange = self.createTimeRange(startHour, 204) 
+            timeRange = self.createTimeRange(startHour, 204, mode="Zulu") 
            #timeRange = TimeRange.allTimes()
            # timeRange = AFPS.TimeRange(AFPS.AbsTime(0),
            #      AFPS.AbsTime_maxFutureTime())

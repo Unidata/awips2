@@ -33,8 +33,8 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.plugin.shef.data.ShefData;
 import com.raytheon.edex.plugin.shef.data.ShefRecord;
@@ -132,6 +132,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * 09/18/2014   3627       mapeters    Updated deprecated {@link TimeTools} usage.
  * 06/26/2015   17420      xwei        Fix for : Application fails to act on defined locdatalimit range for parameter element SW
  * Aug 05, 2015 4486       rjpeter     Changed Timestamp to Date.
+ * Dec 16, 2015 5166       kbisanz     Update logging to use SLF4J
  * </pre>
  * 
  * @author mduff
@@ -1098,7 +1099,7 @@ public class PostShef {
      */
     public void logStats(String traceId, long totalTime) {
         if (this.perfLog) {
-            Log perfLog = LogFactory.getLog("ShefPerfLog");
+            Logger perfLog = LoggerFactory.getLogger("ShefPerfLog");
             perfLog.info("********************************");
             perfLog.info("Performance Stats:  " + traceId);
             perfLog.info("Total Elapsed Time (ms): " + totalTime);
@@ -1158,7 +1159,7 @@ public class PostShef {
         }
     }
 
-    private void logIt(Log log, long value, String label) {
+    private void logIt(Logger log, long value, String label) {
         if (value > 0) {
             log.info(value + label);
         }

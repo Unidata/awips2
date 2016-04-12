@@ -28,29 +28,34 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceID;
+import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.dataplugin.gfe.slice.IGridSlice;
+import com.raytheon.uf.common.dataplugin.gfe.slice.ScalarGridSlice;
+import com.raytheon.uf.common.gfe.ifpclient.IFPClient;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
-import com.raytheon.viz.gfe.GFEServerException;
-import com.raytheon.viz.gfe.core.DataManager;
-import com.raytheon.viz.gfe.core.internal.IFPClient;
 
 /**
  * Samples grid data and creates histogram
  * 
  * <pre>
+ * 
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	
- * ------------	----------	-----------	--------------------------
- * Jun 5, 2008	1167		mnash	     Initial creation
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Jun 05, 2008 1167        mnash        Initial creation
  * Jul 11, 2008 1167        mnash        Fixed responses from IFPClient
- * Sep 3, 2008  1283        njensen      Fixed issues
+ * Sep 03, 2008 1283        njensen      Fixed issues
  * Aug 19, 2009 2899        njensen      Maps for performance boost on getParmHisto()
+ * Dec 09, 2015 5129        dgilling     Support new IFPClient.
+ * 
  * </pre>
  * 
  * @author mnash
@@ -98,10 +103,8 @@ public class HistoSampler {
      * 
      * @param client
      * @param requests
-     * @throws GFEServerException
      */
-    public HistoSampler(IFPClient client, ArrayList<SamplerRequest> requests)
-            throws GFEServerException {
+    public HistoSampler(IFPClient client, ArrayList<SamplerRequest> requests) {
         _valid = true;
         statusHandler.handle(Priority.DEBUG, "Requests " + requests);
         // convert ids to reference data objects
@@ -270,27 +273,26 @@ public class HistoSampler {
     private List<SamplerRequest> getReferenceData(IFPClient client,
             final List<SamplerRequest> requests) {
         // determine list of edit areas to retrieve
-        ArrayList<ReferenceID> need = new ArrayList<ReferenceID>(
-                requests.size());
-        for (int i = 0; i < requests.size(); i++) {
-            if (requests.get(i).isRefID()
-                    && (need.contains(requests.get(i).areaID()) == false)) {
-                need.add(requests.get(i).areaID());
+        List<ReferenceID> need = new ArrayList<ReferenceID>(requests.size());
+        for (SamplerRequest request : requests) {
+            if (request.isRefID() && (!need.contains(request.areaID()))) {
+                need.add(request.areaID());
             }
         }
+
         // retrieve them
-        List<ReferenceData> refAreas = client.getReferenceData(need);
-        for (int i = 0; i < refAreas.size(); i++) {
-            if (refAreas.get(i) == null) {
-                statusHandler.handle(Priority.PROBLEM, "Edit area : " + i
-                        + " not available in server");
-                _valid = false;
-            } else {
-                refAreas.get(i).getGrid();
-            }
-            if ((i == refAreas.size()) && (_valid == false)) {
-                return new ArrayList<SamplerRequest>(0);
-            }
+        ServerResponse<List<ReferenceData>> sr = client.getReferenceData(need);
+        if (!sr.isOkay()) {
+            statusHandler
+                    .error(String.format(
+                            "Some edit areas not available in server: %s",
+                            sr.message()));
+            _valid = false;
+            return Collections.emptyList();
+        }
+        List<ReferenceData> refAreas = sr.getPayload();
+        for (ReferenceData area : refAreas) {
+            area.getGrid();
         }
 
         // put in the reference data objects in place of the reference ids in
@@ -354,9 +356,17 @@ public class HistoSampler {
     }
 
     private List<TimeRange> requestedGrids(IFPClient client, ParmID parmID,
-            List<TimeRange> sampleTR) throws GFEServerException {
+            List<TimeRange> sampleTR) {
         // get the inventory for this parm
-        List<TimeRange> gridTimes = client.getGridInventory(parmID);
+        ServerResponse<List<TimeRange>> sr = client.getGridInventory(parmID);
+        if (!sr.isOkay()) {
+            _valid = false;
+            statusHandler.error(String.format(
+                    "Unable to get grid inventory for: %s %s", parmID,
+                    sr.message()));
+            return Collections.emptyList();
+        }
+        List<TimeRange> gridTimes = sr.getPayload();
 
         // create the needed grid list and return it
         List<TimeRange> ret = new ArrayList<TimeRange>(gridTimes.size());
@@ -396,18 +406,17 @@ public class HistoSampler {
 
     private List<IGridSlice> getGrids(IFPClient client, ParmID parmID,
             List<TimeRange> gridTimes) {
-
-        List<IGridSlice> data;
-        try {
-            data = SamplerGridSliceCache.getData(client, parmID, gridTimes);
-            // data = client.getGridData(parmID, gridTimes);
-        } catch (GFEServerException e) {
+        ServerResponse<List<IGridSlice>> sr = SamplerGridSliceCache.getData(
+                client, parmID, gridTimes);
+        if (!sr.isOkay()) {
             _valid = false;
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-            data = new ArrayList<IGridSlice>(0);
+            statusHandler.error(String.format(
+                    "Getting Grid Data problem for: %s %s", parmID,
+                    sr.message()));
+            return Collections.emptyList();
         }
 
-        return data;
+        return sr.getPayload();
     }
 
     /**
@@ -438,8 +447,26 @@ public class HistoSampler {
      * @return
      */
     private IGridSlice getTopoGrid(IFPClient client) {
-        return DataManager.getCurrentInstance().getTopoManager()
-                .getCompositeTopo();
+        // get the grid location
+        ServerResponse<GridLocation> sr = client.getDBGridLocation();
+        if (!sr.isOkay()) {
+            _valid = false;
+            statusHandler.error(String.format(
+                    "Problem obtaining dbGridLocation: %s", sr.message()));
+            return null;
+        }
+        GridLocation gloc = sr.getPayload();
+
+        // get the topography grid
+        ServerResponse<ScalarGridSlice> sr2 = client.getTopoData(gloc);
+        if (!sr.isOkay()) {
+            _valid = false;
+            statusHandler.error(String.format(
+                    "Problem obtaining topography grid: %s", sr2.message()));
+            return null;
+        }
+
+        return sr2.getPayload();
     }
 
     /**
@@ -449,20 +476,19 @@ public class HistoSampler {
      * @return the ISC ref data
      */
     public List<ReferenceData> getISCReferenceData(IFPClient client) {
-        ArrayList<ReferenceID> idsISC = new ArrayList<ReferenceID>();
-
-        List<ReferenceID> idsAll = client.getReferenceInventory();
-
-        if (idsAll.isEmpty()) {
+        ServerResponse<List<ReferenceID>> sr = client.getReferenceInventory();
+        if (!sr.isOkay()) {
             _valid = false;
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error getting ISC Edit Areas");
+            statusHandler.error(String.format(
+                    "Error getting ISC Edit Areas: %s", sr.message()));
         }
+        List<ReferenceID> idsAll = sr.getPayload();
 
         // Get the ISC ids
+        List<ReferenceID> idsISC = new ArrayList<ReferenceID>();
         for (ReferenceID id : idsAll) {
             String name = id.getName();
-            if ((name.length() > 4) && name.startsWith("ISC_")) {
+            if ((name.length() > 4) && (name.startsWith("ISC_"))) {
                 idsISC.add(id);
             }
         }
@@ -471,22 +497,20 @@ public class HistoSampler {
         // "ISC edit areas: " + idsISC.toString());
 
         // get the ReferenceData objects
-        List<ReferenceData> refAreas = client.getReferenceData(idsISC);
-        for (int i = 0; i < refAreas.size(); i++) {
-            if (refAreas.get(i) == null) {
-                statusHandler.handle(Priority.PROBLEM, "ISC edit area " + i
-                        + " not available in server");
-                _valid = false;
-                continue;
-            }
-
-            refAreas.get(i).getGrid();
-
-            if ((i == refAreas.size()) && (_valid == false)) {
-                return Collections.emptyList();
-            }
+        ServerResponse<List<ReferenceData>> sr2 = client
+                .getReferenceData(idsISC);
+        if (!sr2.isOkay()) {
+            statusHandler.error(String.format(
+                    "Some ISC edit areas not available in server: %s",
+                    sr.message()));
+            _valid = false;
+            return Collections.emptyList();
         }
 
+        List<ReferenceData> refAreas = sr2.getPayload();
+        for (ReferenceData refArea : refAreas) {
+            refArea.getGrid();
+        }
         return refAreas;
     }
 

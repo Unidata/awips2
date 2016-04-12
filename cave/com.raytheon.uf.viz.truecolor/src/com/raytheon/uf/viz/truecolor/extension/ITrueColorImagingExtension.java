@@ -37,8 +37,8 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 6, 2012            mschenke     Initial creation
- * 
+ * Aug 6, 2012             mschenke    Initial creation
+ * Jan 27, 2016 DR 17997   jgerth      Support for gamma control
  * </pre>
  * 
  * @author mschenke
@@ -53,7 +53,7 @@ public interface ITrueColorImagingExtension extends IImagingExtension {
 
     public static interface ITrueColorImage extends IImage {
 
-        public void setImages(Channel channel, DrawableImage... images);
+        public void setImages(Channel channel, double gamma, DrawableImage... images);
 
         public DrawableImage[] getImages(Channel channel);
 

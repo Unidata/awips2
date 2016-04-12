@@ -41,12 +41,12 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.datum.PixelInCell;
-import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.hydro.spatial.HRAP;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.app.launcher.handlers.AppLauncherHandler;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.mpe.ui.actions.GetClimateSource;
@@ -68,6 +68,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 13, 2009            snaples     Initial creation
+ * Dec 08, 2015 5179       bkowal      Ensure the grid remains displayed when this dialog
+ *                                     is closed. Eliminate warnings and e print stack trace.
+ * Feb 22, 2016 18599      snaples     Removed send_expose call in changeCustomFile.
  * 
  * </pre>
  * 
@@ -77,8 +80,11 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 public class EditTempStationsDialog extends AbstractMPEDialog {
 
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(EditTempStationsDialog.class);
+
     private DailyQcUtils dqc = DailyQcUtils.getInstance();
-    
+
     private Font font;
 
     private String[] eval = new String[6];
@@ -95,7 +101,7 @@ public class EditTempStationsDialog extends AbstractMPEDialog {
 
     private int pcpn_time_step = MPEDisplayManager.pcpn_time_step;
 
-    private int pcpn_time = dqc.pcpn_time;
+    private int pcpn_time = DailyQcUtils.pcpn_time;
 
     private StringBuilder tstnData = new StringBuilder();
 
@@ -135,33 +141,21 @@ public class EditTempStationsDialog extends AbstractMPEDialog {
 
     String tClimateSource = null;
 
-//    Ts ts[] = DailyQcUtils.ts;
+    int tsmax = DailyQcUtils.tsmax;
 
-    int tsmax = dqc.tsmax;
-
-    int isom = dqc.isom;
+    int isom = DailyQcUtils.isom;
 
     int win_x;
 
     int win_y;
 
-//    int gage_char[] = DailyQcUtils.gage_char;
-
     int method = dqc.method;
-
-//    int qflag[] = DailyQcUtils.qflag;
-
-//    int dflag[] = DailyQcUtils.dflag;
 
     String mbuf;
 
     int naflag;
 
-//    ArrayList<Station> station = DailyQcUtils.temperature_stations;
-
-//    ReadTemperatureStationList rt = new ReadTemperatureStationList();
-
-    int max_stations = dqc.temperature_stations.size();
+    int max_stations = DailyQcUtils.temperature_stations.size();
 
     int i, m, x, y;
 
@@ -169,9 +163,7 @@ public class EditTempStationsDialog extends AbstractMPEDialog {
 
     int initial_pos;
 
-//    int[] func = DailyQcUtils.func;
-
-    int pcpn_day = dqc.pcpn_day;
+    int pcpn_day = DailyQcUtils.pcpn_day;
 
     Coordinate coord = new Coordinate();
 
@@ -187,11 +179,11 @@ public class EditTempStationsDialog extends AbstractMPEDialog {
             try {
                 coord = rcoord.asLatLon();
             } catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                statusHandler
+                        .error("Failed to convert ReferencedCoordinate to Coordinate.",
+                                e);
             }
         }
-        // Envelope env = new Envelope(coord);
 
         AbstractVizPerspectiveManager mgr = VizPerspectiveListener
                 .getCurrentPerspectiveManager();
@@ -271,31 +263,32 @@ public class EditTempStationsDialog extends AbstractMPEDialog {
 
         for (i = 0; i < max_stations; i++) {
 
-            if (dqc.tdata[pcpn_day].tstn[i].tlevel2[time_pos].data == -999) {
+            if (DailyQcUtils.tdata[pcpn_day].tstn[i].tlevel2[time_pos].data == -999) {
                 continue;
             }
 
-            if ((dqc.tdata[pcpn_day].tstn[i].tlevel2[time_pos].data > QcTempOptionsDialog
+            if ((DailyQcUtils.tdata[pcpn_day].tstn[i].tlevel2[time_pos].data > QcTempOptionsDialog
                     .getPointFilterReverseValue())
-                    && (dqc.tdata[pcpn_day].tstn[i].tlevel2[time_pos].data < 110.0)) {
+                    && (DailyQcUtils.tdata[pcpn_day].tstn[i].tlevel2[time_pos].data < 110.0)) {
                 continue;
             }
 
-            if ((dqc.temperature_stations.get(i).elev > 0)
-                    && (dqc.temperature_stations.get(i).elev < dqc.elevation_filter_value)) {
+            if ((DailyQcUtils.temperature_stations.get(i).elev > 0)
+                    && (DailyQcUtils.temperature_stations.get(i).elev < DailyQcUtils.elevation_filter_value)) {
                 continue;
             }
-            if (dqc.tdata[pcpn_day].tstn[i].tlevel2[time_pos].data < QcTempOptionsDialog
+            if (DailyQcUtils.tdata[pcpn_day].tstn[i].tlevel2[time_pos].data < QcTempOptionsDialog
                     .getPointFilterValue()) {
                 continue;
             }
 
-            lat = dqc.temperature_stations.get(i).lat;
-            lon = dqc.temperature_stations.get(i).lon;
+            lat = DailyQcUtils.temperature_stations.get(i).lat;
+            lon = DailyQcUtils.temperature_stations.get(i).lon;
 
             for (m = 0; m < tsmax; m++) {
-                char kd = dqc.temperature_stations.get(i).parm.charAt(4);
-                if ((kd == dqc.ts[m].abr.charAt(1) && dqc.dflag[m + 1] == 1)) {
+                char kd = DailyQcUtils.temperature_stations.get(i).parm
+                        .charAt(4);
+                if ((kd == DailyQcUtils.ts[m].abr.charAt(1) && DailyQcUtils.dflag[m + 1] == 1)) {
                     break;
                 }
             }
@@ -305,8 +298,8 @@ public class EditTempStationsDialog extends AbstractMPEDialog {
             }
 
             for (m = 0; m < 9; m++) {
-                if (m == dqc.tdata[pcpn_day].tstn[i].tlevel2[time_pos].qual
-                        && dqc.qflag[m] == 1) {
+                if (m == DailyQcUtils.tdata[pcpn_day].tstn[i].tlevel2[time_pos].qual
+                        && DailyQcUtils.qflag[m] == 1) {
                     break;
                 }
             }
@@ -325,8 +318,9 @@ public class EditTempStationsDialog extends AbstractMPEDialog {
                 gridCell = rc.asGridCell(HRAP.getInstance().getGridGeometry(),
                         PixelInCell.CELL_CORNER);
             } catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                statusHandler
+                        .error("Failed to convert ReferencedCoordinate to Coordinate.",
+                                e);
             }
             int x1 = (short) gridCell.x;
             int y1 = (short) gridCell.y;
@@ -334,16 +328,12 @@ public class EditTempStationsDialog extends AbstractMPEDialog {
             rc = new ReferencedCoordinate(coord);
             Coordinate hw = null;
             try {
-                try {
-                    hw = rc.asGridCell(HRAP.getInstance().getGridGeometry(),
-                            PixelInCell.CELL_CORNER);
-                } catch (TransformException e) {
-                    e.printStackTrace();
-                } catch (FactoryException e) {
-                    e.printStackTrace();
-                }
+                hw = rc.asGridCell(HRAP.getInstance().getGridGeometry(),
+                        PixelInCell.CELL_CORNER);
             } catch (Exception e) {
-                e.printStackTrace();
+                statusHandler
+                        .error("Failed to convert ReferencedCoordinate to Coordinate.",
+                                e);
             }
             win_x = (int) hw.x;
             win_y = (int) hw.y;
@@ -362,42 +352,39 @@ public class EditTempStationsDialog extends AbstractMPEDialog {
         }
 
         reset_value = 0;
-        initial_qual = dqc.tdata[pcpn_day].tstn[isave].tlevel2[time_pos].qual;
+        initial_qual = DailyQcUtils.tdata[pcpn_day].tstn[isave].tlevel2[time_pos].qual;
         new_qual = initial_qual;
 
-        // Updated to allow editing of time distributed station as in OB 9.x
-        // if (initial_qual == 6) {
-        //
-        // MessageDialog.openError(shell, "Error Time Distributed Station",
-        // "You cannot quality control a time distributed station");
-        // return;
-        // }
-
-        tstnData.append(dqc.temperature_stations.get(isave).hb5);
+        tstnData.append(DailyQcUtils.temperature_stations.get(isave).hb5);
         tstnData.append(" ");
-        tstnData.append(dqc.temperature_stations.get(isave).parm);
+        tstnData.append(DailyQcUtils.temperature_stations.get(isave).parm);
         tstnData.append("\n");
-        tstnData.append(dqc.temperature_stations.get(isave).name);
+        tstnData.append(DailyQcUtils.temperature_stations.get(isave).name);
         tstnData.append("\n");
-        tstnData.append(String.format("%d", dqc.temperature_stations.get(isave).elev));
+        tstnData.append(String.format("%d",
+                DailyQcUtils.temperature_stations.get(isave).elev));
         tstnData.append(" ft    ");
         tstnData.append("\n");
         tstnData.append(String.format("Lat: %5.2f Lon: %5.2f",
-                dqc.temperature_stations.get(isave).lat, dqc.temperature_stations.get(isave).lon));
+                DailyQcUtils.temperature_stations.get(isave).lat,
+                DailyQcUtils.temperature_stations.get(isave).lon));
         tstnData.append("\n");
-        if (dqc.temperature_stations.get(isave).max[isom] > -99) {
+        if (DailyQcUtils.temperature_stations.get(isave).max[isom] > -99) {
             GetClimateSource gc = new GetClimateSource();
-            tClimateSource = gc.getClimateSource(dqc.temperature_stations.get(isave).cparm);
+            tClimateSource = gc
+                    .getClimateSource(DailyQcUtils.temperature_stations
+                            .get(isave).cparm);
 
             tstnData.append(String.format(
                     "monthly average high %5.1f low %5.1f source: %s\n",
-                    dqc.temperature_stations.get(isave).max[isom], dqc.temperature_stations.get(isave).min[isom],
+                    DailyQcUtils.temperature_stations.get(isave).max[isom],
+                    DailyQcUtils.temperature_stations.get(isave).min[isom],
                     tClimateSource));
         }
-        if (dqc.tdata[pcpn_day].tstn[isave].tlevel2[time_pos].data > -50) {
+        if (DailyQcUtils.tdata[pcpn_day].tstn[isave].tlevel2[time_pos].data > -50) {
             tstnData.append(String
                     .format("estimate %d ",
-                            dqc.tdata[pcpn_day].tstn[isave].tlevel2[time_pos].estimate));
+                            DailyQcUtils.tdata[pcpn_day].tstn[isave].tlevel2[time_pos].estimate));
         }
 
         createTstationDataComp();
@@ -424,13 +411,13 @@ public class EditTempStationsDialog extends AbstractMPEDialog {
         hb5Lbl.setLayoutData(gd);
 
         editVal = new Text(dataComp, SWT.LEFT | SWT.SINGLE | SWT.BORDER);
-        if (dqc.tdata[pcpn_day].tstn[isave].tlevel2[time_pos].data < -50) {
+        if (DailyQcUtils.tdata[pcpn_day].tstn[isave].tlevel2[time_pos].data < -50) {
             mbuf = "M";
             editVal.setText(mbuf);
         } else {
             mbuf = String
                     .format("%d",
-                            (int) dqc.tdata[pcpn_day].tstn[isave].tlevel2[time_pos].data);
+                            (int) DailyQcUtils.tdata[pcpn_day].tstn[isave].tlevel2[time_pos].data);
             editVal.setText(mbuf.trim());
 
         }
@@ -457,7 +444,6 @@ public class EditTempStationsDialog extends AbstractMPEDialog {
         stnQualGroup.setLayoutData(gd);
 
         // Create a container to hold the label and the combo box.
-        // GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Composite stnQualComp = new Composite(stnQualGroup, SWT.NONE);
         GridLayout stnQualCompLayout = new GridLayout(2, true);
         stnQualCompLayout.marginWidth = 0;
@@ -466,7 +452,7 @@ public class EditTempStationsDialog extends AbstractMPEDialog {
         stnQualComp.setLayoutData(gd);
 
         if (initial_qual < 0
-                || dqc.tdata[pcpn_day].tstn[isave].tlevel2[time_pos].data < -500) {
+                || DailyQcUtils.tdata[pcpn_day].tstn[isave].tlevel2[time_pos].data < -500) {
             naflag = 1;
         } else {
             naflag = 0;
@@ -524,15 +510,17 @@ public class EditTempStationsDialog extends AbstractMPEDialog {
      */
     private void createStnLocComp() {
 
-        if (dqc.temperature_stations.get(isave).xadd == -1 && dqc.temperature_stations.get(isave).yadd == -1) {
+        if (DailyQcUtils.temperature_stations.get(isave).xadd == -1
+                && DailyQcUtils.temperature_stations.get(isave).yadd == -1) {
             initial_pos = 0;
-        } else if (dqc.temperature_stations.get(isave).xadd == 0
-                && dqc.temperature_stations.get(isave).yadd == -1) {
+        } else if (DailyQcUtils.temperature_stations.get(isave).xadd == 0
+                && DailyQcUtils.temperature_stations.get(isave).yadd == -1) {
             initial_pos = 2;
-        } else if (dqc.temperature_stations.get(isave).xadd == -1
-                && dqc.temperature_stations.get(isave).yadd == 0) {
+        } else if (DailyQcUtils.temperature_stations.get(isave).xadd == -1
+                && DailyQcUtils.temperature_stations.get(isave).yadd == 0) {
             initial_pos = 1;
-        } else if (dqc.temperature_stations.get(isave).xadd == 0 && dqc.temperature_stations.get(isave).yadd == 0) {
+        } else if (DailyQcUtils.temperature_stations.get(isave).xadd == 0
+                && DailyQcUtils.temperature_stations.get(isave).yadd == 0) {
             initial_pos = 3;
         }
         Group stnLocGroup = new Group(shell, SWT.NONE);
@@ -543,7 +531,6 @@ public class EditTempStationsDialog extends AbstractMPEDialog {
         stnLocGroup.setLayoutData(gd);
 
         // Create a container to hold the label and the combo box.
-        // GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Composite stnLocComp = new Composite(stnLocGroup, SWT.NONE);
         GridLayout stnLocCompLayout = new GridLayout(2, true);
         stnLocCompLayout.marginWidth = 0;
@@ -585,7 +572,6 @@ public class EditTempStationsDialog extends AbstractMPEDialog {
         stnConGroup.setLayoutData(gd);
 
         // Create a container to hold the label and the combo box.
-        // GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Composite stnConComp = new Composite(stnConGroup, SWT.NONE);
         GridLayout stnConCompLayout = new GridLayout(2, true);
         stnConCompLayout.marginWidth = 5;
@@ -600,13 +586,13 @@ public class EditTempStationsDialog extends AbstractMPEDialog {
             sc[i] = new Label(stnConComp, SWT.LEFT);
             sc[i].setText(dqc.ttimefile[dqc.dqcTimeStringIndex][i]);
             sv[i] = new Text(stnConComp, SWT.LEFT | SWT.BORDER);
-            if (dqc.tdata[pcpn_day].tstn[isave].tlevel2[i].data < -99) {
+            if (DailyQcUtils.tdata[pcpn_day].tstn[isave].tlevel2[i].data < -99) {
                 muf = "M";
                 sv[i].setText(muf);
             } else {
                 muf = String
                         .format("%d",
-                                (int) dqc.tdata[pcpn_day].tstn[isave].tlevel2[i].data);
+                                (int) DailyQcUtils.tdata[pcpn_day].tstn[isave].tlevel2[i].data);
                 sv[i].setText(muf.trim());
             }
             eval[i] = sv[i].getText();
@@ -683,8 +669,9 @@ public class EditTempStationsDialog extends AbstractMPEDialog {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 AppLauncherHandler alh = new AppLauncherHandler();
-                String lid = dqc.temperature_stations.get(isave).hb5;
-                char[] dataType = dqc.temperature_stations.get(isave).parm.toCharArray();
+                String lid = DailyQcUtils.temperature_stations.get(isave).hb5;
+                char[] dataType = DailyQcUtils.temperature_stations.get(isave).parm
+                        .toCharArray();
                 /*
                  * For temperature, use the shef extremum code 'X' for the daily
                  * maximum temperature, 'N' for the daily minimum temperature
@@ -705,12 +692,12 @@ public class EditTempStationsDialog extends AbstractMPEDialog {
 
                 final String TSL_BUNDLE_LOC = "bundles/run-TimeSeriesLite.xml";
                 try {
-                    System.out.println("Launching TSL " + lid + ", "
-                            + dataType.toString());
+                    statusHandler.info("Launching TSL " + lid + ", "
+                            + dataType.toString() + " ...");
                     alh.execute(TSL_BUNDLE_LOC, lid, dataType.toString());
-                } catch (ExecutionException ee) {
-                    // TODO Auto-generated catch block
-                    ee.printStackTrace();
+                } catch (ExecutionException e1) {
+                    statusHandler.error("Failed to launch TSL " + lid + ", "
+                            + dataType.toString() + ".", e1);
                 }
                 retval = 2;
             }
@@ -733,14 +720,14 @@ public class EditTempStationsDialog extends AbstractMPEDialog {
 
             for (k = 0; k < 6; k++) {
 
-                dqc.tdata[pcpn_day].tstn[isave].tlevel2[k].qual = dqc.tdata[pcpn_day].tstn[isave].tlevel1[k].qual;
+                DailyQcUtils.tdata[pcpn_day].tstn[isave].tlevel2[k].qual = DailyQcUtils.tdata[pcpn_day].tstn[isave].tlevel1[k].qual;
 
-                dqc.tdata[pcpn_day].tstn[isave].tlevel2[k].data = dqc.tdata[pcpn_day].tstn[isave].tlevel1[k].data;
+                DailyQcUtils.tdata[pcpn_day].tstn[isave].tlevel2[k].data = DailyQcUtils.tdata[pcpn_day].tstn[isave].tlevel1[k].data;
 
             }
 
             reset_value = 1;
-            new_qual = dqc.tdata[pcpn_day].tstn[isave].tlevel1[time_pos].qual;
+            new_qual = DailyQcUtils.tdata[pcpn_day].tstn[isave].tlevel1[time_pos].qual;
 
         } else {
             reset_value = 0;
@@ -749,7 +736,6 @@ public class EditTempStationsDialog extends AbstractMPEDialog {
     }
 
     protected void changeStationQuality(Integer data) {
-        // logMessage ("thru station_quality %d\n", (int) data);
         if (pcpn_time_step == 0) {
             time_pos = pcpn_time;
         } else {
@@ -761,23 +747,23 @@ public class EditTempStationsDialog extends AbstractMPEDialog {
 
     protected void changeStationLocation(Integer data) {
         if (data == 0) {
-            dqc.temperature_stations.get(isave).xadd = -1;
-            dqc.temperature_stations.get(isave).yadd = -1;
+            DailyQcUtils.temperature_stations.get(isave).xadd = -1;
+            DailyQcUtils.temperature_stations.get(isave).yadd = -1;
         }
 
         else if (data == 2) {
-            dqc.temperature_stations.get(isave).xadd = 0;
-            dqc.temperature_stations.get(isave).yadd = -1;
+            DailyQcUtils.temperature_stations.get(isave).xadd = 0;
+            DailyQcUtils.temperature_stations.get(isave).yadd = -1;
         }
 
         else if (data == 1) {
-            dqc.temperature_stations.get(isave).xadd = -1;
-            dqc.temperature_stations.get(isave).yadd = 0;
+            DailyQcUtils.temperature_stations.get(isave).xadd = -1;
+            DailyQcUtils.temperature_stations.get(isave).yadd = 0;
         }
 
         else if (data == 3) {
-            dqc.temperature_stations.get(isave).xadd = 0;
-            dqc.temperature_stations.get(isave).yadd = 0;
+            DailyQcUtils.temperature_stations.get(isave).xadd = 0;
+            DailyQcUtils.temperature_stations.get(isave).yadd = 0;
         }
 
         return;
@@ -785,7 +771,7 @@ public class EditTempStationsDialog extends AbstractMPEDialog {
 
     protected void changeCustomFile(int data) {
 
-        String pathName = getStationListPath(dqc.currentQcArea);
+        String pathName = getStationListPath(DailyQcUtils.currentQcArea);
         String tstation_list_custom_file = pathName + "_label_position";
         int i;
         int time_pos = 0;
@@ -793,13 +779,12 @@ public class EditTempStationsDialog extends AbstractMPEDialog {
         int idif;
         String cstr;
         int k, p;
-//        int[] pcp_in_use = DailyQcUtils.pcp_in_use;
         Button rpbutton = QcTempOptionsDialog.renderGridsBtn;
         BufferedWriter out = null;
-        int pcp_flag = dqc.pcp_flag;
-        int grids_flag = dqc.grids_flag;
-        int points_flag = dqc.points_flag;
-        int map_flag = dqc.map_flag;
+        int pcp_flag = DailyQcUtils.pcp_flag;
+        int grids_flag = DailyQcUtils.grids_flag;
+        int points_flag = DailyQcUtils.points_flag;
+        int map_flag = DailyQcUtils.map_flag;
 
         if (pcpn_time_step == 0) {
             time_pos = pcpn_time;
@@ -813,16 +798,17 @@ public class EditTempStationsDialog extends AbstractMPEDialog {
             out = new BufferedWriter(new FileWriter(tstation_list_custom_file));
 
             for (i = 0; i < max_stations; i++) {
-                String rec = String.format("%s %s %d %d\n", dqc.temperature_stations.get(i).hb5,
-                        dqc.temperature_stations.get(i).parm, dqc.temperature_stations.get(i).xadd,
-                        dqc.temperature_stations.get(i).yadd);
+                String rec = String.format("%s %s %d %d\n",
+                        DailyQcUtils.temperature_stations.get(i).hb5,
+                        DailyQcUtils.temperature_stations.get(i).parm,
+                        DailyQcUtils.temperature_stations.get(i).xadd,
+                        DailyQcUtils.temperature_stations.get(i).yadd);
                 out.write(rec);
             }
             out.close();
         } catch (IOException e) {
-            System.out.println(String.format("Could not open file: %s\n",
-                    tstation_list_custom_file));
-            e.printStackTrace();
+            statusHandler.error("Failed to write file: "
+                    + tstation_list_custom_file + ".", e);
             return;
         } finally {
             try {
@@ -830,7 +816,8 @@ public class EditTempStationsDialog extends AbstractMPEDialog {
                     out.close();
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                statusHandler.error("Failed to close file: "
+                        + tstation_list_custom_file + ".", e);
             }
         }
 
@@ -845,18 +832,18 @@ public class EditTempStationsDialog extends AbstractMPEDialog {
 
         idif = (int) Math
                 .abs(val
-                        - dqc.tdata[pcpn_day].tstn[isave].tlevel2[time_pos].data);
+                        - DailyQcUtils.tdata[pcpn_day].tstn[isave].tlevel2[time_pos].data);
 
         if (idif > 1 && p == -1 && reset_value == 0) {
 
-            dqc.tdata[pcpn_day].tstn[isave].tlevel2[time_pos].data = val;
-            dqc.tdata[pcpn_day].tstn[isave].tlevel2[time_pos].qual = 2;
+            DailyQcUtils.tdata[pcpn_day].tstn[isave].tlevel2[time_pos].data = val;
+            DailyQcUtils.tdata[pcpn_day].tstn[isave].tlevel2[time_pos].qual = 2;
 
         }
 
         else {
 
-            dqc.tdata[pcpn_day].tstn[isave].tlevel2[time_pos].qual = (short) new_qual;
+            DailyQcUtils.tdata[pcpn_day].tstn[isave].tlevel2[time_pos].qual = (short) new_qual;
 
         }
 
@@ -876,22 +863,22 @@ public class EditTempStationsDialog extends AbstractMPEDialog {
 
                 idif = (int) Math
                         .abs(val
-                                - dqc.tdata[pcpn_day].tstn[isave].tlevel2[k].data);
+                                - DailyQcUtils.tdata[pcpn_day].tstn[isave].tlevel2[k].data);
 
                 if (p != -1) {
-                    dqc.tdata[pcpn_day].tstn[isave].tlevel2[k].data = -99;
-                    dqc.tdata[pcpn_day].tstn[isave].tlevel2[k].qual = -99;
+                    DailyQcUtils.tdata[pcpn_day].tstn[isave].tlevel2[k].data = -99;
+                    DailyQcUtils.tdata[pcpn_day].tstn[isave].tlevel2[k].qual = -99;
                 } else {
                     if (idif > 1) {
-                        dqc.tdata[pcpn_day].tstn[isave].tlevel2[k].data = val;
-                        dqc.tdata[pcpn_day].tstn[isave].tlevel2[k].qual = 2;
+                        DailyQcUtils.tdata[pcpn_day].tstn[isave].tlevel2[k].data = val;
+                        DailyQcUtils.tdata[pcpn_day].tstn[isave].tlevel2[k].qual = 2;
                     }
                 }
                 cstr = null;
             }
         }
-        if (dqc.tdata[pcpn_day].used[time_pos] != 0) {
-            dqc.tdata[pcpn_day].used[time_pos] = 2;
+        if (DailyQcUtils.tdata[pcpn_day].used[time_pos] != 0) {
+            DailyQcUtils.tdata[pcpn_day].used[time_pos] = 2;
         }
 
         if (pcpn_time_step == 0) {
@@ -902,16 +889,14 @@ public class EditTempStationsDialog extends AbstractMPEDialog {
             time_pos = 200 + pcpn_day;
         }
 
-        dqc.pcp_in_use[time_pos] = -1;
-
         for (k = 0; k < 4; k++) {
 
             time_pos = 150 + pcpn_day * 4 + k;
 
-            dqc.pcp_in_use[time_pos] = -1;
+            DailyQcUtils.pcp_in_use[time_pos] = -1;
 
-            if (dqc.tdata[pcpn_day].used[k] != 0) {
-                dqc.tdata[pcpn_day].used[k] = 2;
+            if (DailyQcUtils.tdata[pcpn_day].used[k] != 0) {
+                DailyQcUtils.tdata[pcpn_day].used[k] = 2;
             }
         }
 
@@ -930,7 +915,7 @@ public class EditTempStationsDialog extends AbstractMPEDialog {
             time_pos = 200 + pcpn_day;
         }
 
-        if (points_flag == 1 && dqc.pcp_in_use[time_pos] == -1) {
+        if (points_flag == 1 && DailyQcUtils.pcp_in_use[time_pos] == -1) {
             k = 0;
         } else if (points_flag == 1 && grids_flag == -1 && map_flag == -1) {
             k = 0;
@@ -953,28 +938,23 @@ public class EditTempStationsDialog extends AbstractMPEDialog {
         BadTValues bv = new BadTValues();
         bv.update_bad_tvalues(pcpn_day);
 
-        // logMessage("estimate\n");
-
         EstDailyTStations eds = new EstDailyTStations();
-        eds.estimate_daily_tstations(pcpn_day, dqc.temperature_stations, max_stations);
-
-        // logMessage("qc\n");
+        eds.estimate_daily_tstations(pcpn_day,
+                DailyQcUtils.temperature_stations, max_stations);
 
         QCTStations qcs = new QCTStations();
-        qcs.quality_control_tstations(pcpn_day, dqc.temperature_stations, max_stations);
+        qcs.quality_control_tstations(pcpn_day,
+                DailyQcUtils.temperature_stations, max_stations);
 
-        // logMessage("restore\n");
+        bv.restore_bad_tvalues(pcpn_day, DailyQcUtils.temperature_stations,
+                max_stations);
 
-        bv.restore_bad_tvalues(pcpn_day, dqc.temperature_stations, max_stations);
-
-        OtherPrecipOptions op = new OtherPrecipOptions();
-        op.send_expose();
         return;
 
     }
 
     private String getStationListPath(String qcArea) {
-        String station_dir = dqc.mpe_station_list_dir;
+        String station_dir = DailyQcUtils.mpe_station_list_dir;
         String dir;
 
         if (qcArea != null) {

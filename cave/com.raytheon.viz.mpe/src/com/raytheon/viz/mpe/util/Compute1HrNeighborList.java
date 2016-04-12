@@ -61,6 +61,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * Apr 20, 2009            snaples     Initial creation
  * Mar  2, 2015  15660     snaples     Fixed issues with the file writing and creating the new files.
+ * Apr 05, 2016  18350     snaples     Changed call to DailyQC Utils getInstance.
  * 
  * </pre>
  * 
@@ -267,7 +268,8 @@ public class Compute1HrNeighborList {
                 lon = s.nextFloat();
 
                 // ier=sscanf(kbuf,"%s %s %f %f ",hb5, temp_str, &lat, &lon);
-                disagg_station_1hr[i] = new DailyQcUtils().new Station();
+                DailyQcUtils dqc = DailyQcUtils.getInstance();
+                disagg_station_1hr[i] = dqc.new Station();
                 disagg_station_1hr[i].isoh = new float[24];
                 disagg_station_1hr[i].hb5 = "";
                 disagg_station_1hr[i].index = new short[DailyQcUtils.mpe_dqc_max_precip_neighbors];

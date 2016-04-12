@@ -17,23 +17,22 @@ URL: N/A
 License: N/A
 Distribution: N/A
 Vendor: Raytheon
-Packager: Bryan Kowal
+Packager: %{_build_site}
 
 AutoReq: no
-BuildRequires: awips2-postgresql = 9.2.3-1.el6
-BuildRequires: postgresql >= 8.4.13-1.el6_3
-BuildRequires: postgresql-devel >= 8.4.13-1.el6_3
-BuildRequires: postgresql-libs >= 8.4.13-1.el6_3
+BuildRequires: awips2-postgresql = 9.3.9
 BuildRequires: wxGTK >= 2.8.12-1
 BuildRequires: wxGTK-devel >= 2.8.12-1
+BuildRequires: libxml2
+BuildRequires: libxslt
 
-provides: awips2-pgadmin3
-requires: awips2-psql = 9.2.3-1
-requires: wxGTK >= 2.8.12-1
+Provides: awips2-pgadmin3
+Requires: awips2-psql >= 9.2.3
+Requires: wxGTK >= 2.8.12-1
 
 %description
 AWIPS II pgadmin3 Distribution - A custom compilation of the pgadmin3 client compatible with
-CentOS / Redhat 5.5.
+CentOS / Redhat 6.4.
 
 %prep
 # Ensure that a "buildroot" has been specified.
@@ -75,7 +74,7 @@ cd %{_pgadmin3_build_loc}/pgadmin3-%{_pgadmin3_version}
 export CPPFLAGS="-I/awips2/postgresql/include -I/awips2/postgresql/include/server"
 export LDFLAGS="-L/awips2/postgresql/lib"
 
-./configure --prefix=/awips2/pgadmin3
+./configure --prefix=/awips2/pgadmin3 --with-pgsql=/awips2/postgresql
 if [ $? -ne 0 ]; then
    exit 1
 fi

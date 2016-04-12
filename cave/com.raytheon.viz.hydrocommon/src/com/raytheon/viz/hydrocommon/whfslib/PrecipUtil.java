@@ -31,9 +31,13 @@ import java.util.List;
 import java.util.TimeZone;
 
 import com.raytheon.uf.common.dataplugin.shef.tables.Hourlypc;
+import com.raytheon.uf.common.dataplugin.shef.tables.HourlypcId;
 import com.raytheon.uf.common.dataplugin.shef.tables.Hourlypp;
+import com.raytheon.uf.common.dataplugin.shef.tables.HourlyppId;
 import com.raytheon.uf.common.dataplugin.shef.tables.IHourlyTS;
 import com.raytheon.uf.common.dataplugin.shef.tables.Ingestfilter;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -51,6 +55,10 @@ import com.raytheon.viz.hydrocommon.HydroConstants;
  * 11/19/2008   1662      grichard     Updated loadPeRaw.
  * 11/24/2008   1662      grichard     Added utility methods for raw precip.
  * 09/26/2012   15385     lbousaidi    fixed duplicate entries in gage table.
+ * 11/04/2015   5100      bkowal       Fixes to handle records that spanned
+ *                                     hour 24 to hour 1.
+ * 11/16/2015   5100      bkowal       Generated a better query to handle the case when
+ *                                     the requested data spans two days.
  * </pre>
  * 
  * @author grichard
@@ -111,6 +119,9 @@ public final class PrecipUtil {
             largediff = false;
         }
     }
+
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(PrecipUtil.class);
 
     public static enum PrecipPEmode {
         PrecipPEbest, PrecipPEPP, PrecipPEPC
@@ -189,8 +200,8 @@ public final class PrecipUtil {
      */
     public static final String SUM_PC_REPORTS = "sum_pc_reports";
 
-    static {       
-    	sdf = new SimpleDateFormat("yyyy-MM-dd");
+    static {
+        sdf = new SimpleDateFormat("yyyy-MM-dd");
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
     }
 
@@ -235,7 +246,7 @@ public final class PrecipUtil {
         String dur = "";
 
         if ((typeSource != null) && !typeSource.isEmpty()) {
-            ts_clause = build_ts_clause(typeSource);
+            ts_clause = build_ts_clause(typeSource, "id.ts");
             if (ts_clause == null) {
                 return null;
             }
@@ -350,14 +361,12 @@ public final class PrecipUtil {
         }
 
         query.append(where.toString());
-        // Echo the query string to the console.
-        System.out.println("Query = " + query.toString());
 
         try {
             retVal = (ArrayList<Object[]>) DirectDbQuery.executeQuery(
                     query.toString(), HydroConstants.IHFS, QueryLanguage.SQL);
         } catch (VizException e) {
-            e.printStackTrace();
+            statusHandler.error("Failed to retrieve the PE raw data.", e);
         }
 
         return retVal;
@@ -864,11 +873,11 @@ public final class PrecipUtil {
      * @param ts
      * @return
      */
-    public String build_ts_clause(List<String> ts) {
+    public String build_ts_clause(List<String> ts, String tsField) {
         if ((ts == null) || ts.isEmpty()) {
             return "";
         }
-        StringBuilder tsClause = new StringBuilder("id.ts ");
+        StringBuilder tsClause = new StringBuilder(tsField.trim() + " ");
 
         if (ts.get(0).startsWith("!")) {
             tsClause.append("not in ('");
@@ -1121,7 +1130,7 @@ public final class PrecipUtil {
             return MISSING_PRECIP;
         }
 
-        if (pc_timet.after(start_date)) {
+        if (pc_timet.after(start_date) && end_hour != 1) {
             /*
              * An exact match for the start date could not be found. Set the
              * starting hour to 1.
@@ -1183,7 +1192,7 @@ public final class PrecipUtil {
         start_value = (short) MISSING_PRECIP;
 
         while ((pStartPCIdx < hourlyPCList.size())
-                && ((pStartPCIdx != pEndPCIdx) || (start_hour < end_hour))) {
+                && ((pStartPCIdx != pEndPCIdx) || (start_hour < end_hour) || (start_hour == 24 && end_hour == 1))) {
             Hourlypc pStartPC = hourlyPCList.get(pStartPCIdx);
             start_value = get_hour_slot_value(pStartPC, start_hour);
 
@@ -1218,7 +1227,7 @@ public final class PrecipUtil {
         end_value = (short) MISSING_PRECIP;
 
         while ((pEndPCIdx > pStartPCIdx)
-                || ((pEndPCIdx == pStartPCIdx) && (end_hour > start_hour))) {
+                || ((pEndPCIdx == pStartPCIdx) && (end_hour > start_hour) || (start_hour == 24 && end_hour == 1))) {
             Hourlypc pEndPC = hourlyPCList.get(pEndPCIdx);
             hour_index = end_hour - 1;
             end_value = get_hour_slot_value(pEndPC, end_hour);
@@ -1534,60 +1543,80 @@ public final class PrecipUtil {
         return ts_group_count;
     }
 
-    /**
-     * buildWhereClause
-     * 
-     * @param query_begin_time
-     * @param query_end_time
-     * @param lid
-     * @param ts
-     * @return
-     */
-    private String buildWhereClause(Date query_begin_time, Date query_end_time,
-            String lid, List<String> ts) {
-        /*
-         * Need special logic to account for accumulation intervals which start
-         * at 00Z. This is because the 00Z PC value is actually placed in the 24
-         * hour slot of the previous day.
-         */
+    private String buildHourlyHQL(Date query_begin_time, Date query_end_time,
+            String lid, List<String> ts, final String entityName,
+            String selectAdditional) {
+
+        final String orderBy = " ORDER BY b.id.lid ASC, b.id.ts ASC, b.id.obsdate ASC";
+
+        StringBuilder fromList = new StringBuilder(
+                " b.id.lid, b.id.ts, b.id.obsdate, %s, %s, b.hour1, ");
+        fromList.append("b.hour2, b.hour3, b.hour4, b.hour5, b.hour6, b.hour7, b.hour8, b.hour9, b.hour10, ");
+        fromList.append("b.hour11, b.hour12, b.hour13, b.hour14, b.hour15, b.hour16, b.hour17, b.hour18, ");
+        fromList.append("b.hour19, b.hour20, b.hour21, b.hour22, b.hour23, ");
+        if (selectAdditional != null
+                && selectAdditional.trim().startsWith(", ") == false) {
+            selectAdditional = ", " + selectAdditional;
+        }
 
         Calendar pTm = null;
         pTm = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         pTm.setTime(query_begin_time);
-        if (pTm.get(Calendar.HOUR_OF_DAY) == 0) {
+        if (pTm.get(Calendar.HOUR_OF_DAY) == 0
+                || pTm.get(Calendar.HOUR_OF_DAY) == 1) {
             pTm.add(Calendar.DAY_OF_MONTH, -1);
         }
         /* Need to convert the query begin and end times into dates. */
-        String beginstr = sdf.format(pTm.getTime());  
-        
-        pTm.setTime(query_end_time);        
+        String beginstr = sdf.format(pTm.getTime());
+
+        pTm.setTime(query_end_time);
         if (pTm.get(Calendar.HOUR_OF_DAY) == 0) {
             pTm.add(Calendar.DAY_OF_MONTH, -1);
         }
-        
+
         String endstr = sdf.format(pTm.getTime());
 
-        /* consider according to whether type-source specified. */
-        /* load data which is not missing value (-9999.0) */
-        StringBuilder where = new StringBuilder("WHERE ");
+        String where = null;
+        String minuteOffsetStr = null;
+        String hourlyQCStr = null;
+        if (endstr.equals(beginstr)) {
+            fromList.append("b.hour24 ");
+            if (selectAdditional != null) {
+                fromList.append(selectAdditional);
+            }
+            fromList.append(" FROM ").append(entityName).append(" b ");
+            where = " b.id.obsdate = '" + beginstr + "'";
+            minuteOffsetStr = "b.minuteOffset";
+            hourlyQCStr = "b.hourlyQc";
+        } else {
+            fromList.append("a.hour24 ");
+            if (selectAdditional != null) {
+                fromList.append(selectAdditional);
+            }
+            fromList.append(" FROM ").append(entityName).append(" a, ")
+                    .append(entityName).append(" b ");
+            where = " a.id.lid = b.id.lid AND a.id.ts = b.id.ts AND a.id.obsdate = '"
+                    + beginstr + "' AND b.id.obsdate = '" + endstr + "'";
+            minuteOffsetStr = "substring(b.minuteOffset, 1, 23) || substring(a.minuteOffset, 24, 24)";
+            hourlyQCStr = "substring(b.hourlyQc, 1, 23) || substring(a.hourlyQc, 24, 24)";
+        }
+
+        StringBuilder whereStr = new StringBuilder(where);
         if (lid != null) {
-            where.append("id.lid = '");
-            where.append(lid);
-            where.append("' AND ");
+            whereStr.append(" AND ");
+            whereStr.append("id.lid = '");
+            whereStr.append(lid);
         }
 
         if ((ts != null) && (ts.size() > 0)) {
-            where.append(build_ts_clause(ts));
-            where.append(" AND ");
+            whereStr.append(" AND ");
+            whereStr.append(build_ts_clause(ts, "b.id.ts"));
         }
 
-        
-        where.append("id.obsdate between '");
-        where.append(beginstr);
-        where.append("' AND '");
-        where.append(endstr);
-        where.append("' ORDER BY id.lid ASC, id.ts ASC, id.obsdate ASC");       
-        return where.toString();
+        return new StringBuilder("SELECT")
+                .append(String.format(fromList.toString(), minuteOffsetStr,
+                        hourlyQCStr)).append("WHERE")
+                .append(whereStr.toString()).append(orderBy).toString();
     }
 
     /**
@@ -1721,7 +1750,7 @@ public final class PrecipUtil {
             break;
 
         case 24:
-
+        case 0:
             precip_value = pHourlyPP.getHour24();
             break;
 
@@ -1765,17 +1794,49 @@ public final class PrecipUtil {
     public ArrayList<Hourlypc> load_PC_hourly(Date query_begin_time,
             Date query_end_time, String lid, List<String> ts) {
 
-        ArrayList<Hourlypc> pHourlyPC = null;
+        final String fullQuery = this.buildHourlyHQL(query_begin_time,
+                query_end_time, lid, ts, Hourlypc.class.getName(), null);
+        List<Object[]> results = null;
+        try {
+            results = DirectDbQuery.executeQuery(fullQuery, "ihfs",
+                    QueryLanguage.HQL);
+        } catch (VizException e) {
+            statusHandler.error("Failed to retrieve the Hourly PC data.", e);
+            // will return an empty list by the next if statement due to the
+            // null results.
+        }
 
-        String where = buildWhereClause(query_begin_time, query_end_time, lid,
-                ts);
+        if (results == null || results.isEmpty()) {
+            return new ArrayList<>(1);
+        }
 
-        /* get the data */
-        pHourlyPC = IHFSDbGenerated.GetHourlyPC(where);
-        System.out.println("SELECT * FROM HourlyPC " + where);
-        System.out.println(pHourlyPC.size()
-                + " records retrieved from HourlyPC. ");
-        return pHourlyPC;
+        ArrayList<Hourlypc> hourlyPcRecords = new ArrayList<>(results.size());
+        for (Object object : results) {
+            Object[] dataValues = (Object[]) object;
+
+            /*
+             * First few fields are needed to build an {@link HourlypcId}.
+             */
+            HourlypcId id = new HourlypcId((String) dataValues[0],
+                    (String) dataValues[1], (Date) dataValues[2]);
+            Hourlypc record = new Hourlypc(id, (String) dataValues[3],
+                    (String) dataValues[4], (Short) dataValues[5],
+                    (Short) dataValues[6], (Short) dataValues[7],
+                    (Short) dataValues[8], (Short) dataValues[9],
+                    (Short) dataValues[10], (Short) dataValues[11],
+                    (Short) dataValues[12], (Short) dataValues[13],
+                    (Short) dataValues[14], (Short) dataValues[15],
+                    (Short) dataValues[16], (Short) dataValues[17],
+                    (Short) dataValues[18], (Short) dataValues[19],
+                    (Short) dataValues[20], (Short) dataValues[21],
+                    (Short) dataValues[22], (Short) dataValues[23],
+                    (Short) dataValues[24], (Short) dataValues[25],
+                    (Short) dataValues[26], (Short) dataValues[27],
+                    (Short) dataValues[28]);
+            hourlyPcRecords.add(record);
+        }
+
+        return hourlyPcRecords;
     }
 
     /**
@@ -1790,14 +1851,53 @@ public final class PrecipUtil {
     public ArrayList<Hourlypp> load_PP_hourly(Date query_begin_time,
             Date query_end_time, String lid, List<String> ts) {
 
-        ArrayList<Hourlypp> pHourlyPP = null;
+        final String selectAdditional = ", b.sixhr06, b.sixhr12, b.sixhr18, b.sixhr24, b.sixhrqc, b.sixhroffset ";
+        final String fullQuery = this.buildHourlyHQL(query_begin_time,
+                query_end_time, lid, ts, Hourlypp.class.getName(),
+                selectAdditional);
+        List<Object[]> results = null;
+        try {
+            results = DirectDbQuery.executeQuery(fullQuery, "ihfs",
+                    QueryLanguage.HQL);
+        } catch (VizException e) {
+            statusHandler.error("Failed to retrieve the Hourly PP data.", e);
+            // will return an empty list by the next if statement due to the
+            // null results.
+        }
 
-        String where = buildWhereClause(query_begin_time, query_end_time, lid,
-                ts);
+        if (results == null || results.isEmpty()) {
+            return new ArrayList<>(1);
+        }
 
-        /* get the data */
-        pHourlyPP = IHFSDbGenerated.GetHourlyPP(where);
+        ArrayList<Hourlypp> hourlyPpRecords = new ArrayList<>(results.size());
+        for (Object object : results) {
+            Object[] dataValues = (Object[]) object;
 
-        return pHourlyPP;
+            /*
+             * First few fields are needed to build an {@link HourlypcId}.
+             */
+            HourlyppId id = new HourlyppId((String) dataValues[0],
+                    (String) dataValues[1], (Date) dataValues[2]);
+            Hourlypp record = new Hourlypp(id, (String) dataValues[3],
+                    (String) dataValues[4], (Short) dataValues[5],
+                    (Short) dataValues[6], (Short) dataValues[7],
+                    (Short) dataValues[8], (Short) dataValues[9],
+                    (Short) dataValues[10], (Short) dataValues[11],
+                    (Short) dataValues[12], (Short) dataValues[13],
+                    (Short) dataValues[14], (Short) dataValues[15],
+                    (Short) dataValues[16], (Short) dataValues[17],
+                    (Short) dataValues[18], (Short) dataValues[19],
+                    (Short) dataValues[20], (Short) dataValues[21],
+                    (Short) dataValues[22], (Short) dataValues[23],
+                    (Short) dataValues[24], (Short) dataValues[25],
+                    (Short) dataValues[26], (Short) dataValues[27],
+                    (Short) dataValues[28], (Short) dataValues[29],
+                    (Short) dataValues[30], (Short) dataValues[31],
+                    (Short) dataValues[32], (String) dataValues[33],
+                    (String) dataValues[34]);
+            hourlyPpRecords.add(record);
+        }
+
+        return hourlyPpRecords;
     }
 }

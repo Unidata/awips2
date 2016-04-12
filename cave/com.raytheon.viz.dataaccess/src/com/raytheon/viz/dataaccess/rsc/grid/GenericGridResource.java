@@ -26,7 +26,7 @@ import java.util.Map;
 
 import javax.measure.unit.UnitFormat;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 

@@ -139,6 +139,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Nov 06, 2014  16776    zwang       Handle AMDA product
  * Mar 25, 2015  4319     bsteffen    Add volume scan number.
  * Sep 09, 2015  17568    wkwock      Fix incorrect 8-bit SW display
+ * Mar 04, 2016  18731    wkwock      Fix the TDWR 8-bit SW issues
  * 
  * </pre>
  * 
@@ -913,7 +914,7 @@ public class RadarRecord extends PersistablePluginDataObject implements
                 nLevels = 255;
             }
             double[] pix = { 256 - nLevels, 255 };
-            if (getProductCode() == 155) {
+            if ((getProductCode() == 155) || (getProductCode() == 184)) {
                 pix = new double[] { 129, 171 };
             } else if(getProductCode() == 32) {
                 pix = new double[]{ 2, 256 };

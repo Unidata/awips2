@@ -25,8 +25,8 @@ import java.util.HashMap;
 
 import jep.JepException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.uf.common.localization.IPathManager;
@@ -48,6 +48,7 @@ import com.raytheon.uf.edex.core.EDEXUtil;
  * Apr 2, 2009             njensen     Initial creation
  * Jul 10, 2014 2914       garmendariz Remove EnvProperties
  * Aug 04, 2014 3427       bclement    decoder interface now takes full path to jar
+ * Dec 17, 2015 5166       kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -57,8 +58,8 @@ import com.raytheon.uf.edex.core.EDEXUtil;
 
 public class PythonDecoderFactory {
 
-    protected static transient Log logger = LogFactory
-            .getLog(PythonDecoderFactory.class);
+    protected static transient Logger logger = LoggerFactory
+            .getLogger(PythonDecoderFactory.class);
 
     /** number of times to retry instantiating the decoder if it fails */
     private static final int MAX_RETRIES = 3;
@@ -123,7 +124,7 @@ public class PythonDecoderFactory {
         if (py == null) {
             String msg = "Cannot instantiate " + pluginFQN + " decoder, "
                     + moduleName + " products will not be decoded!";
-            logger.fatal(msg);
+            logger.error(msg);
             throw new DecoderException(msg);
         }
         return py;

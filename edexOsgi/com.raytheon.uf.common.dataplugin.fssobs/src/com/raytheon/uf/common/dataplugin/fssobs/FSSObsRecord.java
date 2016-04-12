@@ -61,7 +61,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------- -------- ----------- --------------------------
  * Jun 11, 2014  2061     bsteffen    Remove IDecoderGettable
  * Sep 04, 2014  3220     skorolev    Removed cwa and monitorUse from record.
- * Jul 23, 2015  2360     rferrel     Add name to unique constraint.
+ * Dec 02, 2015  3873     dhladky     Method naming fixes.
  * 
  * </pre>
  */
@@ -120,7 +120,7 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     @Transient
     @DynamicSerializeElement
     @XmlElement
-    private boolean isStationary;
+    private boolean stationary;
 
     // Actual time of the observation
     @Transient
@@ -144,61 +144,61 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     @Transient
     @DynamicSerializeElement
     @XmlElement
-    private float windSpeed = -9999;
+    private float windSpeed = -9999f;
 
     // Wind gust in knots
     @Transient
     @DynamicSerializeElement
     @XmlElement
-    private float windGust = -9999;
+    private float windGust = -9999f;
 
     // Observed maximum wind speed in knots
     @Transient
     @DynamicSerializeElement
     @XmlElement
-    private float maxWindSpeed = -9999;
+    private float maxWindSpeed = -9999f;
 
     // Observed wind direction in azimuth degrees
     @Transient
     @DynamicSerializeElement
     @XmlElement
-    private float windDir;
+    private float windDir = -9999f;
 
     // Observed wind chill in Fahrenheit
     @Transient
     @DynamicSerializeElement
     @XmlElement
-    private float windChill = -9999;
+    private float windChill = -9999f;
 
     // Observed high resolution wave height in
     @Transient
     @DynamicSerializeElement
     @XmlElement
-    private float highResWaveHeight = -9999;
+    private float highResWaveHeight = -9999f;
 
     // Observed wave steepness in seconds ??? None
     @Transient
     @DynamicSerializeElement
     @XmlElement
-    private float waveSteepness = -9999;
+    private float waveSteepness = -9999f;
 
     // Observed visibility in Statute miles
     @Transient
     @DynamicSerializeElement
     @XmlElement
-    private float visibility = -9999;
+    private float visibility = -9999f;
 
     // Observed visibility in meters for Maritime obs.
     @Transient
     @DynamicSerializeElement
     @XmlElement
-    private float horzVisibility = -9999;
+    private float horzVisibility = -9999f;
 
     // Observed temperature in degrees in Farenheit
     @Transient
     @DynamicSerializeElement
     @XmlElement
-    private float temperature = -9999;
+    private float temperature = -9999f;
 
     // in feet
     @Transient
@@ -438,13 +438,6 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
      */
     public Integer getElevation() {
         return location.getElevation();
-    }
-
-    /**
-     * @return the isStationary
-     */
-    public boolean isStationary() {
-        return isStationary;
     }
 
     /**
@@ -717,18 +710,6 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
      */
     public void setLocation(SurfaceObsLocation location) {
         this.location = location;
-    }
-
-    /**
-     * @param isStationary
-     *            the isStationary to set
-     */
-    public void setIsStationary(boolean isStationary) {
-        this.isStationary = isStationary;
-    }
-
-    public boolean getIsStationary() {
-        return isStationary;
     }
 
     /**
@@ -1115,4 +1096,21 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     public String getPluginName() {
         return PLUGIN_NAME;
     }
+
+    /**
+     * Is this a moving or stationary platform
+     * @return
+     */
+    public boolean isStationary() {
+        return stationary;
+    }
+
+    /**
+     * Set moving or stationary platform
+     * @param stationary
+     */
+    public void setStationary(boolean stationary) {
+        this.stationary = stationary;
+    }
+
 }

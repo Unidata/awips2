@@ -299,6 +299,18 @@ rfc.name = "RFC"
 rfc.editAreaName = ['ISC','site_id']
 rfc.groupName = 'ISC'
 
+#  NHA ISC area
+domain = ShapeTable('nhadomain')
+domain.name = "TropicalISC"
+domain.groupName = "ISC"
+domain.editAreaName = "ISC_NHA"
+
+#    Storm Surge Watch/Warning Area
+stormsurgeww = ShapeTable('stormsurgeww')
+stormsurgeww.name = "StormSurgeWW"
+stormsurgeww.groupName = "SurgeCollab"
+stormsurgeww.editAreaName = "StormSurgeWW_EditArea"
+
 # Offshore Marine Zones - unfiltered
 offshore = ShapeTable('offshore')
 offshore.name = "Offshore_Marine_Zones"
@@ -313,8 +325,8 @@ offshoreCWA.editAreaName = offshoreZ
 offshoreCWA.groupName = 'OffShoreMZones_' + CWA
 
 # this is a complete listing of all maps
-maps = [ CWAcounties, FIPS, Counties, CWAzones, Zones, FWCWAzones, FWZones,
-         cwas, isc, fwaor, CWAmzones, Mzones, States, rfc, offshore, offshoreCWA ]
+maps = [ CWAcounties, FIPS, Counties, CWAzones, Zones, FWCWAzones, FWZones, cwas, isc, 
+         fwaor, CWAmzones, Mzones, States, rfc, domain, stormsurgeww, offshore, offshoreCWA ]
 
 # import the local maps file
 if not BASELINE:

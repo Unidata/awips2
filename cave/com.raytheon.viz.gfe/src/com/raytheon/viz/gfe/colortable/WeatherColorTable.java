@@ -42,7 +42,9 @@ import com.raytheon.viz.gfe.core.wxvalue.WxValue;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 18, 2010            randerso     Initial creation
- * 
+ * Jan 27, 2016 14453      yteng        Make color for same weather type
+ *                                      consistent in different grids
+ *
  * </pre>
  * 
  * @author randerso
@@ -62,6 +64,8 @@ public class WeatherColorTable extends ColorTable {
     private Map<String, String> typeNamesToColors;
 
     private Map<String, String> typeIntenNamesToColors;
+
+    private Map<String, String> genericNamesToColors = new HashMap<String, String>();
 
     public WeatherColorTable() {
         super();
@@ -147,7 +151,12 @@ public class WeatherColorTable extends ColorTable {
                 }
 
                 if (color == null) {
+                    color = genericNamesToColors.get(comp.types());
+                }
+
+                if (color == null) {
                     color = getUniqueColor();
+                    genericNamesToColors.put(comp.types(), color);
                 }
 
                 imageAttr.add(new ImageAttr(color, fillName));

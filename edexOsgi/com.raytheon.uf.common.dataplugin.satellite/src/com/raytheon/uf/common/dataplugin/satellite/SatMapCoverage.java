@@ -36,7 +36,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.Envelope2D;
@@ -401,42 +401,56 @@ public class SatMapCoverage extends PersistableDataObject<Object> implements
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         SatMapCoverage other = (SatMapCoverage) obj;
-        if (projection != other.projection)
+        if (projection != other.projection) {
             return false;
+        }
         String crsWKT = getCrsWKT();
         String otherCrsWKT = other.getCrsWKT();
         if (crsWKT == null) {
-            if (otherCrsWKT != null)
+            if (otherCrsWKT != null) {
                 return false;
-        } else if (!crsWKT.equals(otherCrsWKT))
+            }
+        } else if (!crsWKT.equals(otherCrsWKT)) {
             return false;
-        if (Double.doubleToLongBits(dx) != Double.doubleToLongBits(other.dx))
+        }
+        if (Double.doubleToLongBits(dx) != Double.doubleToLongBits(other.dx)) {
             return false;
-        if (Double.doubleToLongBits(dy) != Double.doubleToLongBits(other.dy))
+        }
+        if (Double.doubleToLongBits(dy) != Double.doubleToLongBits(other.dy)) {
             return false;
+        }
         if (Double.doubleToLongBits(minX) != Double
-                .doubleToLongBits(other.minX))
+                .doubleToLongBits(other.minX)) {
             return false;
+        }
         if (Double.doubleToLongBits(minY) != Double
-                .doubleToLongBits(other.minY))
+                .doubleToLongBits(other.minY)) {
             return false;
+        }
         if (nx == null) {
-            if (other.nx != null)
+            if (other.nx != null) {
                 return false;
-        } else if (!nx.equals(other.nx))
+            }
+        } else if (!nx.equals(other.nx)) {
             return false;
+        }
         if (ny == null) {
-            if (other.ny != null)
+            if (other.ny != null) {
                 return false;
-        } else if (!ny.equals(other.ny))
+            }
+        } else if (!ny.equals(other.ny)) {
             return false;
+        }
         return true;
     }
 

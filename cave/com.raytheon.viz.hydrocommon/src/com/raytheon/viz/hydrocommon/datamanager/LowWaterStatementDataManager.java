@@ -36,6 +36,7 @@ import com.raytheon.viz.hydrocommon.util.HydroDataUtils;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 14, 2008 1697       askripsky   Initial Creation
+ * Jan 15, 2016 DCS18180     JingtaoD   code improvement based on code review for DR17935
  * 
  * </pre>
  * 
@@ -139,8 +140,6 @@ public class LowWaterStatementDataManager extends HydroDataManager {
     private void updateLowWaterStatementData(LowWaterStatementData data)
             throws VizException {
 
-        DbUtils.escapeSpecialCharforData(data);
-
         runStatement(String.format(UPDATE_STATEMENT,
                 data.getUpperValueDBString(), data.getStatement(),
                 data.getLowWaterCriteria(), data.getLowWaterSource(),
@@ -149,8 +148,6 @@ public class LowWaterStatementDataManager extends HydroDataManager {
 
     private void insertLowWaterData(LowWaterStatementData currData)
             throws VizException {
-
-        DbUtils.escapeSpecialCharforData(currData);
 
         runStatement(String.format(INSERT_STATEMENT, currData.getLid(),
                 currData.getPe(), currData.getLowerValue(),
@@ -161,13 +158,17 @@ public class LowWaterStatementDataManager extends HydroDataManager {
 
     public void putLowWaterStatementData(LowWaterStatementData dataToPut)
             throws VizException {
+
+        LowWaterStatementData dataToPutForQuery = new LowWaterStatementData();
+        DbUtils.escapeSpecialCharforData(dataToPut, dataToPutForQuery);
+
         // Check if it's going to be an update or insert
-        if (checkLowWaterStatementData(dataToPut) > 0) {
+        if (checkLowWaterStatementData(dataToPutForQuery) > 0) {
             // Do an update
-            updateLowWaterStatementData(dataToPut);
+            updateLowWaterStatementData(dataToPutForQuery);
         } else {
             // Do an insert
-            insertLowWaterData(dataToPut);
+            insertLowWaterData(dataToPutForQuery);
         }
     }
 }

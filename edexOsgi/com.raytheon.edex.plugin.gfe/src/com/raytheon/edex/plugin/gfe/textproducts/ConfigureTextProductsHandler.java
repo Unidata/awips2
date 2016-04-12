@@ -19,8 +19,8 @@
  **/
 package com.raytheon.edex.plugin.gfe.textproducts;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.uf.common.dataplugin.gfe.request.ConfigureTextProductsRequest;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
@@ -38,6 +38,7 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * May  4, 2011            wldougher   Add script file creation
  * Sep 18, 2011      #1091 randerso    Removed combo file and area dictionary creation
  *                                     since they were not in A1
+ * Dec 15, 2015      #5166 kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -48,14 +49,14 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 public class ConfigureTextProductsHandler implements
         IRequestHandler<ConfigureTextProductsRequest> {
 
-    private transient Log log;
+    private transient Logger log;
 
     protected CombinationsFileMaker combinationsFileMaker;
 
     protected AreaDictionaryMaker areaDictionaryMaker;
 
     public ConfigureTextProductsHandler() {
-        log = LogFactory.getLog(getClass());
+        log = LoggerFactory.getLogger(getClass());
         combinationsFileMaker = new CombinationsFileMaker();
         areaDictionaryMaker = new AreaDictionaryMaker();
     }

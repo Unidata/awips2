@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <nwsRoleData xmlns:ns2="group">
-   <application>Localization</application>
+  <application>Localization</application>
 
    <permission id="com.raytheon.localization.site/common_static/purge">
    </permission>
@@ -9,6 +9,9 @@
    </permission>
 
    <permission id="com.raytheon.localization.site/cave_static/ffmp">
+   </permission>
+
+   <permission id="com.raytheon.localization.site/cave_static/awipsTools">
    </permission>
 
    <permission id="com.raytheon.localization.site/cave_static/fog">
@@ -103,14 +106,9 @@
    
    <permission id="com.raytheon.localization.site/common_static/mixedCase"/>
    
-   <permission id="com.raytheon.localization.site/common_static/hazardServices"/>
-   <permission id="com.raytheon.localization.site/common_static/hazardServices/settings"/>
-   <permission id="com.raytheon.localization.site/common_static/hazardServices/hazardMetaData"/>
+   <permission id="com.raytheon.localization.site/common_static/HazardServices"/>
 
-   <permission id="com.raytheon.localization.site/common_static/python/events/productgen/products"/>
-   <permission id="com.raytheon.localization.site/common_static/python/events/productgen/formats"/>
-   <permission id="com.raytheon.localization.site/common_static/python/events/recommenders"/>
-   <permission id="com.raytheon.localization.site/common_static/python/textUtilities"/>
+   <permission id="com.raytheon.localization.site/common_static/warngen"/>
 
    <!-- TODO Localization permissions should be able to be plugin contributed.
         Improve code in the generically [poorly] named FileManager to support
@@ -121,6 +119,7 @@
       <userPermission>com.raytheon.localization.site/common_static/purge</userPermission>
       <userPermission>com.raytheon.localization.site/common_static/colormaps</userPermission>
       <userPermission>com.raytheon.localization.site/cave_static/ffmp</userPermission>
+      <userPermission>com.raytheon.localization.site/cave_static/awipsTools</userPermission>
       <userPermission>com.raytheon.localization.site/cave_static/fog</userPermission>
       <userPermission>com.raytheon.localization.site/common_static/fog</userPermission>
       <userPermission>com.raytheon.localization.site/cave_static/safeseas</userPermission>
@@ -153,13 +152,7 @@
       <userPermission>com.raytheon.localization.site/common_static/archiver/purger/retention</userPermission>
       <userPermission>com.raytheon.localization.site/common_static/archiver/purger/case</userPermission>
       <userPermission>com.raytheon.localization.site/common_static/damagepath</userPermission>
-      <userPermission>com.raytheon.localization.site/common_static/hazardServices</userPermission>
-      <userPermission>com.raytheon.localization.site/common_static/hazardServices/settings</userPermission>
-      <userPermission>com.raytheon.localization.site/common_static/hazardServices/hazardMetaData</userPermission>
-      <userPermission>com.raytheon.localization.site/common_static/python/events/productgen/products</userPermission>
-      <userPermission>com.raytheon.localization.site/common_static/python/events/productgen/formats</userPermission>
-      <userPermission>com.raytheon.localization.site/common_static/python/events/recommenders</userPermission>
-      <userPermission>com.raytheon.localization.site/common_static/python/textUtilities</userPermission>
+      <userPermission>com.raytheon.localization.site/common_static/HazardServices</userPermission>
       <userPermission>com.raytheon.localization.site/cave_static/spellchecker</userPermission>
    </user>
 </nwsRoleData>

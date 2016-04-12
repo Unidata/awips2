@@ -64,6 +64,7 @@ import com.raytheon.uf.viz.thinclient.ui.ThinClientConnectivityDialog;
  * Sep 05, 2014  3570       bclement    HTTP client API changes
  * Jan 26, 2015  3952       njensen     gzip handled by default
  * Jul 06, 2015  4614       njensen     explicitly enable gzip
+ * Feb 08, 2016  5281       tjensen     Replaced disableJms with dataRefreshMethod
  * 
  * </pre>
  * 
@@ -100,8 +101,8 @@ public class ThinClientLocalizationInitializer extends LocalizationInitializer {
         }
 
         IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-        boolean disableJMS = store
-                .getBoolean(ThinClientPreferenceConstants.P_DISABLE_JMS);
+        String dataRefreshMethod = store
+                .getString(ThinClientPreferenceConstants.P_DATA_REFRESH_METHOD);
 
         if (store.getBoolean(ThinClientPreferenceConstants.P_USE_PROXIES)) {
             String proxyAddr = store
@@ -129,12 +130,11 @@ public class ThinClientLocalizationInitializer extends LocalizationInitializer {
                     false);
             VizApp.setHttpServer(servicesProxy);
 
-            if (!disableJMS) {
+            if (ThinClientPreferenceConstants.P_DATA_REFRESH_METHOD_PUSH
+                    .equals(dataRefreshMethod)) {
                 GetServersResponse resp = ConnectivityManager
                         .checkLocalizationServer(servicesProxy, false);
-                if (!disableJMS) {
-                    VizApp.setJmsConnectionString(resp.getJmsConnectionString());
-                }
+                VizApp.setJmsConnectionString(resp.getJmsConnectionString());
             }
 
             String pypiesProxy = ThinClientUriUtil.getPypiesAddress(proxyAddr);
@@ -146,7 +146,8 @@ public class ThinClientLocalizationInitializer extends LocalizationInitializer {
             VizServers.getInstance().setServerLocations(serversMap);
         } else {
             processGetServers();
-            if (disableJMS) {
+            if (ThinClientPreferenceConstants.P_DATA_REFRESH_METHOD_POLL
+                    .equals(dataRefreshMethod)) {
                 VizApp.setJmsConnectionString(null);
             }
         }

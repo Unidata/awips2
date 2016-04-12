@@ -26,8 +26,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.exception.DecoderException;
@@ -62,6 +62,7 @@ import com.raytheon.uf.edex.bufrtools.packets.IBUFRDataPacket;
  * Nov 25, 2008 1684       chammack    Camel Refactor
  * May 15, 2013 1869       bsteffen    Remove DataURI from goes/poes soundings.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Dec 15, 2015 5166       kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -75,7 +76,7 @@ public class GOESSoundingDecoder extends AbstractDecoder implements
     public static final String PLUGIN_NAME = "goessounding";
 
     /** The logger */
-    private final Log logger = LogFactory.getLog(getClass());
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private PointDataDescription pdd;
 

@@ -1,7 +1,7 @@
 # RPM Metadata
 %define _component_name           awips2-cave-wrapper
 %define _component_project_dir    awips2.cave/Installer.cave-wrapper
-%define _component_zip_file_name  CAVE-linux.gtk.%{_build_arch}.zip
+%define _component_zip_file_name  CAVE-linux.gtk.x86_64.zip
 #
 # awips2-cave-wrapper Spec File
 #
@@ -21,6 +21,7 @@ URL: N/A
 License: N/A
 Distribution: N/A
 Vendor: Raytheon
+Packager: %{_build_site}
 
 AutoReq: no
 Provides: %{_component_name}
@@ -158,6 +159,12 @@ if [ ! "`hostname | cut -b 1-2`" = "xt" ]; then
    rm -f /etc/xdg/autostart/awips2-textws.desktop
 fi
 
+# relocate any localization files installed by awips2-cave
+/bin/bash /awips2/cave/relocateLocalization.sh
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
 %preun
 %postun
 
@@ -182,7 +189,7 @@ rm -rf ${RPM_BUILD_ROOT}
 /awips2/cave/*.sh
 /awips2/cave/VizUpdater.jar
 # not a noarch RPM due to the presence of the architecture-specific libraries.
-%dir /awips2/cave/lib%{_build_bits}
-/awips2/cave/lib%{_build_bits}/*
+%dir /awips2/cave/lib64
+/awips2/cave/lib64/*
 
 %attr(644,root,root) /etc/xdg/autostart/awips2-textws.desktop

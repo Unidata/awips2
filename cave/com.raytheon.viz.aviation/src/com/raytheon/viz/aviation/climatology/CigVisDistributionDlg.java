@@ -45,6 +45,7 @@ import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
@@ -81,14 +82,16 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 4/10/2008    934        grichard    Populated site lists with icaos. 
  * 8/28/2008    1506       grichard    Added resizeability to dialog shell.
  * 9/12/2008    1444       grichard    Accommodate separate message logs.
- * 1/18/2010    3823       njensen    retrieveData() and objReceived()
+ * 1/18/2010    3823       njensen     retrieveData() and objReceived()
  * 3/31/2011    8774       rferrel     killProcess when doing a disposed
  * 4/4/2011     8896       rferrel     Made timeout configurable
  * 4/14/2011    8861       rferrel     Use SaveImageDlg class
  * 04/08/2012   1229       rferrel     Made dialog non-blocking.
- * 10/15/2012   1229       rferrel      Changes for non-blocking HelpUsageDlg.
+ * 10/15/2012   1229       rferrel     Changes for non-blocking HelpUsageDlg.
  * 16 Aug 2013  #2256      lvenable    Fixed image and cursor memory leaks.
- * 19Mar2014    #2925       lvenable    Added dispose checks for runAsync.
+ * 19Mar2014    #2925      lvenable    Added dispose checks for runAsync.
+ * 12/22/2015   18342      zhao        Modified code for 'jnt' in objReceived()
+ * 01/26/2016   5054       randerso    Allow dialog to be parented by display
  * 
  * </pre>
  * 
@@ -221,6 +224,29 @@ public class CigVisDistributionDlg extends CaveSWTDialog implements
     public CigVisDistributionDlg(Shell parent, java.util.List<String> icaos,
             StatusMessageType msgType, RGB statusCompRGB) {
         super(parent, SWT.DIALOG_TRIM | SWT.RESIZE,
+                CAVE.PERSPECTIVE_INDEPENDENT | CAVE.DO_NOT_BLOCK);
+        setText("AvnFPS - Ceiling/Visibility Distribution");
+
+        this.icaos = icaos;
+        this.msgType = msgType;
+        this.statusCompRGB = statusCompRGB;
+    }
+
+    /**
+     * Constructor.
+     * 
+     * @param display
+     * 
+     * @param icaos
+     *            Array of ICAOs
+     * @param msgType
+     *            Status message type.
+     * @param statusCompRGB
+     *            Message status comp background color.
+     */
+    public CigVisDistributionDlg(Display display, java.util.List<String> icaos,
+            StatusMessageType msgType, RGB statusCompRGB) {
+        super(display, SWT.DIALOG_TRIM | SWT.RESIZE,
                 CAVE.PERSPECTIVE_INDEPENDENT | CAVE.DO_NOT_BLOCK);
         setText("AvnFPS - Ceiling/Visibility Distribution");
 
@@ -503,7 +529,7 @@ public class CigVisDistributionDlg extends CaveSWTDialog implements
         yAxisScale.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (yAxisScale.getSelection() % 5 != 0) {
+                if ((yAxisScale.getSelection() % 5) != 0) {
                     updateDisplayedGraph();
                     return;
                 }
@@ -529,7 +555,7 @@ public class CigVisDistributionDlg extends CaveSWTDialog implements
         drawBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (siteList != null && siteList.getItemCount() != 0) {
+                if ((siteList != null) && (siteList.getItemCount() != 0)) {
                     String site = siteList.getItem(siteList.getSelectionIndex());
                     if (!site.equals(dataSite)) {
                         retrieveData(site);
@@ -558,21 +584,21 @@ public class CigVisDistributionDlg extends CaveSWTDialog implements
         cigVisTabFolder = new TabFolder(tabComp, SWT.NONE);
         cigVisTabFolder.setLayoutData(gd);
 
-        if (siteList != null && siteList.getItemCount() != 0) {
+        if ((siteList != null) && (siteList.getItemCount() != 0)) {
             data.setSite(siteList.getItem(siteList.getSelectionIndex()));
         }
         byMonthTab = new TabItem(cigVisTabFolder, SWT.NONE);
         byMonthTab.setText("By Month");
         byMonthTab.setControl(new CigVisByMonthTabComp(cigVisTabFolder, data,
                 this));
-        if (siteList != null && siteList.getItemCount() != 0) {
+        if ((siteList != null) && (siteList.getItemCount() != 0)) {
             data.setSite(siteList.getItem(siteList.getSelectionIndex()));
         }
         byHourTab = new TabItem(cigVisTabFolder, SWT.NONE);
         byHourTab.setText("By Hour");
         byHourTab.setControl(new CigVisByHourTabComp(cigVisTabFolder, data,
                 this));
-        if (siteList != null && siteList.getItemCount() != 0) {
+        if ((siteList != null) && (siteList.getItemCount() != 0)) {
             data.setSite(siteList.getItem(siteList.getSelectionIndex()));
         }
         byWindDirTab = new TabItem(cigVisTabFolder, SWT.NONE);
@@ -886,7 +912,7 @@ public class CigVisDistributionDlg extends CaveSWTDialog implements
                 int flightCat = (Integer) list.get(3);
                 float cig = (Float) list.get(4);
                 float vis = (Float) list.get(5);
-                float jnt = Math.min(cig, vis);
+                float jnt = (Float) list.get(6);
 
                 data.set(month, hour, windDir, flightCat, vis, cig, jnt);
             } else {

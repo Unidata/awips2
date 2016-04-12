@@ -1,28 +1,25 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
 
 package com.raytheon.edex.plugin.obs.metar;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -32,8 +29,8 @@ import java.util.NoSuchElementException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.exception.DecoderException;
@@ -42,38 +39,31 @@ import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.common.wmo.WMOHeader;
 
 /**
- * 
- * 
- * Separator implementation for metar record
- * 
+ * Separator implementation for METAR/SPECI files.
+ *
  * <pre>
- * 
- * 
+ *
+ *
  * SOFTWARE HISTORY
- * 
- * Date       	Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * July2006		3 &amp; 14		Phillippe	Initial Creation
- * 14Nov2006	71			Rockwood	Implemented filter for NIL observations	
- * 20080418           1093  jkorman     Added filter for Alaskan &quot;Airways&quot;
+ *
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * Jul ??, 2006 3 &amp; 14  Phillippe   Initial Creation
+ * Nov 14, 2006 71          Rockwood    Implemented filter for NIL observations
+ * Apr 14, 2008 1093        jkorman     Added filter for Alaskan &quot;Airways&quot;
  *                                      observations.
- * May 14, 2014 2536       bclement    moved WMO Header to common, removed unused HEADERREGEX
- * Oct 02, 2014 3693       mapeters    Changed pattern String constants to Pattern constants.
+ * May 14, 2014 2536        bclement    moved WMO Header to common, removed unused HEADERREGEX
+ * Oct 02, 2014 3693        mapeters    Changed pattern String constants to Pattern constants.
+ * Dec 15, 2015 5166        kbisanz     Update logging to use SLF4J
+ * Jan 29, 2016 5265        nabowle     Update type replaceAll. General cleanup.
  * </pre>
- * 
+ *
  * @author bphillip
  * @version 1
  */
-
-/**
- * Implementation of file separator for METAR/SPECI files
- * 
- * @author bphillip
- * 
- */
 public class MetarSeparator extends AbstractRecordSeparator {
 
-    private final Log theLogger = LogFactory.getLog(getClass());
+    private final Logger theLogger = LoggerFactory.getLogger(getClass());
 
     /** Regex used for separating multi-record files */
     private static final Pattern ICAODATEPAIR = Pattern
@@ -82,6 +72,7 @@ public class MetarSeparator extends AbstractRecordSeparator {
     /** Regex used for determining metar type */
     private static final Pattern METARTYPE = Pattern.compile("METAR|SPECI");
 
+    /** Regex to check for Alaskan Airways observations. */
     private static final Pattern AIRWAYS = Pattern
             .compile("[A-Z][A-Z,0-9]{3} (SP|SA) \\d{4} AWOS");
 
@@ -97,6 +88,7 @@ public class MetarSeparator extends AbstractRecordSeparator {
     /** List of record bodies contained in file */
     private List<String> records;
 
+    /** Iterator over the records. */
     private Iterator<String> iterator = null;
 
     public MetarSeparator() {
@@ -112,28 +104,19 @@ public class MetarSeparator extends AbstractRecordSeparator {
 
     /**
      * Get the WMO Header found within this data.
+     *
      * @return The message WMO Header.
      */
     public WMOHeader getWMOHeader() {
         return header;
     }
-    
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.edex.plugin.AbstractRecordSeparator#setData(byte[])
-     */
+
     @Override
     public void setData(byte[] data, Headers headers) {
         this.doSeparate(new String(data));
         iterator = records.iterator();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.edex.plugin.AbstractRecordSeparator#nextRecord()
-     */
     public boolean hasNext() {
         if (iterator == null) {
             return false;
@@ -142,11 +125,6 @@ public class MetarSeparator extends AbstractRecordSeparator {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.util.Iterator#next()
-     */
     public byte[] next() {
         try {
             String temp = iterator.next();
@@ -161,8 +139,10 @@ public class MetarSeparator extends AbstractRecordSeparator {
     }
 
     /**
-     * 
+     * Separates the composite message into the individual records.
+     *
      * @param message
+     *            The message.
      */
     private void doSeparate(String message) {
 
@@ -171,32 +151,27 @@ public class MetarSeparator extends AbstractRecordSeparator {
         try {
             // Extracts the header
             WMOHeader wmoHeader = new WMOHeader(message.getBytes());
-            if(wmoHeader.isValid()) {
+            if (wmoHeader.isValid()) {
                 header = wmoHeader;
             }
-            
-//            Pattern pattern = Pattern.compile(HEADERREGEX);
-//            Matcher matcher = pattern.matcher(message);
-//
-//            if (matcher.find()) {
-//                header = matcher.group();
-//            }
+
             // Determines the type
             Matcher matcher = METARTYPE.matcher(message);
-
             if (matcher.find()) {
                 type = matcher.group();
+                message = matcher.replaceAll("");
             } else {
                 type = "METAR";
             }
-            message = message.replaceAll(type, "");
 
             matcher = ICAODATEPAIR.matcher(message);
 
             List<Integer> bodyIndex = new ArrayList<Integer>();
             Map<String, String> bodyMap = new HashMap<String, String>();
-            // Extracts all the matches out of the message. Looks for ICAO/date
-            // pairs. Does not allow duplicate entries.
+            /*
+             * Extracts all the matches out of the message. Looks for ICAO/date
+             * pairs. Does not allow duplicate entries.
+             */
             if (matcher.find()) {
                 bodyIndex.add(matcher.start());
                 String obsKey = matcher.group();
@@ -226,9 +201,11 @@ public class MetarSeparator extends AbstractRecordSeparator {
                     // If it exists in the map then keep this observation.
                     if (bodyMap.containsKey(obsKey)) {
                         bodyRecords.add(observation);
-                        // now that we have data for this key,
-                        // remove it from the map so we skip any
-                        // subsequent observations with the same key.
+                        /*
+                         * now that we have data for this key, remove it from
+                         * the map so we skip any subsequent observations with
+                         * the same key.
+                         */
                         bodyMap.remove(obsKey);
                     }
                 }
@@ -237,10 +214,11 @@ public class MetarSeparator extends AbstractRecordSeparator {
             // Perform a some more checks on the data.
             for (int i = 0; i < bodyRecords.size(); i++) {
                 String observation = bodyRecords.get(i);
-                // 20080418 - 1093
-                // Check for old style AIRWAYS data from Alaskan stations. This
-                // data will be at the end of valid METAR/SPECI data so just
-                // remove it.
+                /*
+                 * 20080418 - 1093 Check for old style AIRWAYS data from Alaskan
+                 * stations. This data will be at the end of valid METAR/SPECI
+                 * data so just remove it.
+                 */
                 matcher = AIRWAYS.matcher(observation);
                 if (matcher.find()) {
                     observation = observation.substring(0, matcher.start());
@@ -249,51 +227,14 @@ public class MetarSeparator extends AbstractRecordSeparator {
                 // Check for NIL observations and, if found, throw out
                 matcher = NILREGEX.matcher(observation);
                 if (!matcher.find()) {
-                    String record = header.getWmoHeader() + "\n" + type + " " + observation;
+                    String record = header.getWmoHeader() + "\n" + type + " "
+                            + observation;
                     records.add(record);
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            theLogger.warn("No valid METAR records found.");
+            theLogger.warn("Invalid METAR message received.", e);
         }
         return;
-    }
-
-    /**
-     * Test function
-     * 
-     * @param args
-     */
-    public static void main(String[] args) {
-
-        String CRCRLF = "\r\r\n";
-
-        String fileName = "/common/jkorman/data_store/obs/"
-                + "SAUS70_KWBC_241218.obs";
-        String str;
-        MetarSeparator ben = new MetarSeparator();
-        System.out.println(fileName);
-
-        StringBuilder sb = new StringBuilder();
-        try {
-            BufferedReader in = new BufferedReader(new FileReader(fileName));
-            while ((str = in.readLine()) != null) {
-                sb.append(CRCRLF);
-                sb.append(str);
-            }
-            in.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        ben.setData(sb.toString().getBytes(), null);
-        int i = 0;
-        while (ben.hasNext()) {
-
-            byte[] tData = ben.next();
-
-            System.out.println("Record # " + (++i) + " [" + tData.length
-                    + "]: \n{" + new String(tData) + "}");
-        }
     }
 }

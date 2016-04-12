@@ -36,8 +36,8 @@ import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -59,6 +59,7 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
  * AWIPS2 DR Work
  * 20120918           1185 jkorman     Added save to archive capability.  
  * Aug 08, 2013      16408 wkwock      Added get configuration file name function
+ * Dec 16, 2015 5166       kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -176,8 +177,9 @@ public class ObsToSHEFOptions {
     public static final String OPT_CENTURY = "optCentury";
 
     public static final String OPT_NO_HR_TRACE = "optNoHourTrace";
-    
-    private String cfgFileName=null;
+
+    private String cfgFileName = null;
+
     // private static class PCReset {
     //
     // private final String stationId;
@@ -336,8 +338,8 @@ public class ObsToSHEFOptions {
                 Boolean.class));
         // -sw
         // switch source of PEDTSEP from 'Z' to 'V' for testing METAR
-        CMDS.put("-sw", new CmdLineData("-sw", OPT_TYPE_SRC_V, 0,
-                Boolean.class));
+        CMDS.put("-sw",
+                new CmdLineData("-sw", OPT_TYPE_SRC_V, 0, Boolean.class));
         // -strip
         // convert bad ascii values to blanks
         CMDS.put("-strip", new CmdLineData("-strip", OPT_STRIP, 0,
@@ -359,13 +361,14 @@ public class ObsToSHEFOptions {
         // -y2k
         // output century in SHEF output
         CMDS.put("-y2k", new CmdLineData("-y2k", OPT_CENTURY, 0, Boolean.class));
-        
+
         // -notrace
         // turn off trace precip for 1 hour data.
-        CMDS.put("-notrace", new CmdLineData("-notrace", OPT_NO_HR_TRACE, 0, Boolean.class));
+        CMDS.put("-notrace", new CmdLineData("-notrace", OPT_NO_HR_TRACE, 0,
+                Boolean.class));
     }
 
-    private Log logger = LogFactory.getLog(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     private Map<String, Object> options = new HashMap<String, Object>();
 
@@ -405,25 +408,26 @@ public class ObsToSHEFOptions {
         initOptions();
         parseCommandLine(cmdLine);
         if (useLocalized) {
-        	if (cfgFileName==null){
-        		readConfig(METAR_CFG, optConfigContext);
-        	} else {
-        		readConfig(cfgFileName, optConfigContext);
-        	}
+            if (cfgFileName == null) {
+                readConfig(METAR_CFG, optConfigContext);
+            } else {
+                readConfig(cfgFileName, optConfigContext);
+            }
         }
         localized = useLocalized;
     }
-    
+
     /**
      * 
      * @param cmdLine
      */
-    public ObsToSHEFOptions(String configFileName, String cmdLine, boolean useLocalized) {
-    	cfgFileName = configFileName;
+    public ObsToSHEFOptions(String configFileName, String cmdLine,
+            boolean useLocalized) {
+        cfgFileName = configFileName;
         initOptions();
         parseCommandLine(cmdLine);
         if (useLocalized) {
-      	    readConfig(cfgFileName, optConfigContext);
+            readConfig(cfgFileName, optConfigContext);
         }
         localized = useLocalized;
     }
@@ -552,12 +556,13 @@ public class ObsToSHEFOptions {
 
     /**
      * -l SHEF TS for ASOS stations = RO, TS for all other sites = RV
+     * 
      * @return
      */
     public boolean isOptASOS_TS() {
         return (Boolean) options.get(OPT_ASOS_TS);
     }
-    
+
     /**
      * -log turn on log for current product and observation
      * 
@@ -644,25 +649,25 @@ public class ObsToSHEFOptions {
     public boolean isOptDecodePrecipAt12Z() {
         return (Boolean) options.get(OPT_DECODE_12Z_PRECIP);
     }
-    
+
     /**
      * -sw
+     * 
      * @return
      */
     public boolean isOptTypeSrcV() {
         return (Boolean) options.get(OPT_TYPE_SRC_V);
     }
-    
 
     /**
-     * -pct 
+     * -pct
      * 
      * @return
      */
     public Integer getOptPCT() {
         return (Integer) options.get(OPT_PCT);
     }
-    
+
     /**
      * -q1 output wind direction in hundreds & not tens
      * 
@@ -729,14 +734,14 @@ public class ObsToSHEFOptions {
     }
 
     /**
-     * -notrace 
+     * -notrace
      * 
      * @return Should trace precip not be reported for hourly metars.
      */
     public boolean isOptNoTrace() {
         return (Boolean) options.get(OPT_NO_HR_TRACE);
     }
-    
+
     // *****************************************************
 
     /**
@@ -855,10 +860,10 @@ public class ObsToSHEFOptions {
      */
     public void updateOptions() {
         if (loaded && localized) {
-           	if (cfgFileName==null) {
+            if (cfgFileName == null) {
                 readConfig(METAR_CFG, optConfigContext);
             } else {
-               readConfig(cfgFileName, optConfigContext);
+                readConfig(cfgFileName, optConfigContext);
             }
         }
     }
@@ -888,13 +893,14 @@ public class ObsToSHEFOptions {
                             if (SITE_CONTEXT.equals(optConfigContext)) {
                                 // Retry from a base context.
                                 optConfigContext = BASE_CONTEXT;
-                                if (cfgFileName==null) {
-                                	readConfig(METAR_CFG, optConfigContext);
-                                }else{
-                                	readConfig(cfgFileName, optConfigContext);
+                                if (cfgFileName == null) {
+                                    readConfig(METAR_CFG, optConfigContext);
+                                } else {
+                                    readConfig(cfgFileName, optConfigContext);
                                 }
                             } else {
-                            	logger.warn("Uanble to read file "+cfgFileName);
+                                logger.warn("Uanble to read file "
+                                        + cfgFileName);
                             }
                         }
                     } else {
@@ -994,13 +1000,13 @@ public class ObsToSHEFOptions {
     }
 
     public void setCfgFileName(String fileName) {
-    	cfgFileName=fileName;
+        cfgFileName = fileName;
     }
-    
-    public String getCfgFileName () {
-    	return cfgFileName;
+
+    public String getCfgFileName() {
+        return cfgFileName;
     }
-    
+
     public String toString() {
 
         StringBuilder sb = new StringBuilder();

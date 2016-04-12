@@ -45,6 +45,7 @@ import com.raytheon.uf.edex.plugin.cwa.util.TableLoader;
  * Apr 19, 2012  #457      dgilling     Minor code cleanup.
  * Mar 25, 2014  2930      skorolev     Fixed error in distance.
  * Apr 02, 2014  2930      skorolev     Corrected log message.
+ * Jan 26, 2016  5254      tgurney      Discard reports where eventId is null.
  * 
  * </pre>
  * 
@@ -119,7 +120,12 @@ public class CWADecoder {
             while (parser.hasNext()) {
                 report = parser.next();
                 if (report != null) {
-                    obsList.add(report);
+                    if (report.getEventId() == null) {
+                        logger.warn("Discarding report with eventId = null: "
+                                + report.toString());
+                    } else {
+                        obsList.add(report);
+                    }
                 }
                 if (!obsList.isEmpty()) {
                     decodedData = obsList.toArray(new PluginDataObject[obsList

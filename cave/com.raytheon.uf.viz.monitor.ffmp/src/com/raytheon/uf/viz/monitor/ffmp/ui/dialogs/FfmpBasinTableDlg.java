@@ -101,29 +101,31 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 30, 2009            lvenable     Initial creation
- * Jul 31, 2012 14517      mpduff       Fix map blanking on updates and table updates
- *                                      for rapid slider changes.
- * Aug 01, 2012 14168      mpduff       Only allow items into the Thresholds menu if 
- *                                      ColorCell is true.
- * Dec 06, 2012 1353       rferrel      Code clean up.
- *                                       Changes for non-blocking AttributesDlg.
- *                                       Changes for non-blocking AttributeThresholdDlg.
- *                                       Changes for non-blocking LoadSaveConfigDlg.
- * Jan 23, 2013 14907      gzhang		GUID not in Thresholds menu even ColorCell true  
- * Feb 10, 2013  1584      mpduff       Add performance logging.
- * Feb 28, 2013  1729      dhladky      Adjusted the way in which the dialog load thread rejoins the main GUI thread.
- * Mar 01, 2013 13228      gzhang       Adding field rowName for VGB in County
- * Mar 24, 2013  1818      mpduff       Fixed Attributes dialog on multiple opens, needed an isDisposed check.
+ * Sep 30, 2009            lvenable    Initial creation
+ * Jul 31, 2012 14517      mpduff      Fix map blanking on updates and table updates
+ *                                     for rapid slider changes.
+ * Aug 01, 2012 14168      mpduff      Only allow items into the Thresholds menu if 
+ *                                     ColorCell is true.
+ * Dec 06, 2012 1353       rferrel     Code clean up.
+ *                                      Changes for non-blocking AttributesDlg.
+ *                                      Changes for non-blocking AttributeThresholdDlg.
+ *                                      Changes for non-blocking LoadSaveConfigDlg.
+ * Jan 23, 2013 14907      gzhang      GUID not in Thresholds menu even ColorCell true  
+ * Feb 10, 2013  1584      mpduff      Add performance logging.
+ * Feb 28, 2013  1729      dhladky     Adjusted the way in which the dialog load thread rejoins the main GUI thread.
+ * Mar 01, 2013 13228      gzhang      Adding field rowName for VGB in County
+ * Mar 24, 2013  1818      mpduff      Fixed Attributes dialog on multiple opens, needed an isDisposed check.
  * Mar 29, 2013  1790      rferrel     Bug fix for non-blocking dialogs.
- * Apr 15, 2013  1904      mpduff       Remove calls to reset FFMPConfig.
- * Apr 25, 2013  1902      mpduff       Fixed Thresholds dialog on multiple opens, needed an isDisposed check.
- * Jun 04, 2013  1984      lvenable     removed unnecessary code.
- * Jun 06, 2013  2075      njensen      Removed loading labels
- * Jul 09, 2013  2152      njensen      Fix potential widget disposed error
- * Jun 20, 2013  14907     gzhang       Thresholds menu ColorCell check fix.
- * Jan 09, 2014  DR16096   gzhang	    Fix QPFSCAN not showing M issue for different radar source.
+ * Apr 15, 2013  1904      mpduff      Remove calls to reset FFMPConfig.
+ * Apr 25, 2013  1902      mpduff      Fixed Thresholds dialog on multiple opens, needed an isDisposed check.
+ * Jun 04, 2013  1984      lvenable    removed unnecessary code.
+ * Jun 06, 2013  2075      njensen     Removed loading labels
+ * Jul 09, 2013  2152      njensen     Fix potential widget disposed error
+ * Jun 20, 2013  14907     gzhang      Thresholds menu ColorCell check fix.
+ * Jan 09, 2014  DR16096   gzhang      Fix QPFSCAN not showing M issue for different radar source.
+ * Feb 15, 2016  5378      randerso    Fix label spacing in TimeDurScale
  * </pre>
+ * 
  * @author lvenable
  * @version 1.0
  */
@@ -193,7 +195,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
 
     private Label dataLoadingLbl;
 
-    private TimeDurScaleComp timeDurScale;
+    private TimeDurScale timeDurScale;
 
     private Label groupLbl;
 
@@ -979,8 +981,12 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
          */
         gl = new GridLayout(1, false);
         gl.verticalSpacing = 2;
+        gl.marginHeight = 0;
+        gl.marginWidth = 0;
         Composite timeDurComp = new Composite(controlComp, SWT.NONE);
         timeDurComp.setLayout(gl);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        timeDurComp.setLayoutData(gd);
 
         /*
          * Create a composite for the time label and the update label.
@@ -995,7 +1001,6 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         timeLableDataUpdateComp.setLayoutData(gd);
 
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        // gd.widthHint = 325;
         timeDurLbl = new Label(timeLableDataUpdateComp, SWT.NONE);
         timeDurLbl.setText(timeDurationStr);
         timeDurLbl.setFont(timeDurFont);
@@ -1004,7 +1009,9 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         /*
          * Add the time duration scale to the display
          */
-        timeDurScale = new TimeDurScaleComp(timeDurComp, this);
+        timeDurScale = new TimeDurScale(timeDurComp, this);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        timeDurScale.setLayoutData(gd);
     }
 
     private void createTableControls() {
@@ -1346,7 +1353,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         if( ! updateData)    this.ffmpTable.showHideTableColumns(); // DR 16096
         boolean changeSplit = false;
 
-        if (timeDurScale.split != ffmpConfig.isSplit()) {
+        if (timeDurScale.isSplit() != ffmpConfig.isSplit()) {
             changeSplit = true;
         }
 

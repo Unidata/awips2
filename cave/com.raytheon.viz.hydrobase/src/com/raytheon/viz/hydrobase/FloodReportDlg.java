@@ -70,7 +70,6 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.hydrobase.addEditFloodTS.AddEditFloodEventDlg;
 import com.raytheon.viz.hydrocommon.HydroConstants;
-import com.raytheon.viz.hydrocommon.util.DbUtils;
 import com.raytheon.viz.hydrocommon.util.RatingUtils;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
@@ -90,6 +89,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Jun 18, 2012 14377       wkwock      Correct insert data into crest table.
  * Jun 27, 2013 2088        rferrel     Made dialog non-blocking.
  * Jun 10, 2015 DCS15095    wkwock      Added edit/insert flood event feature.
+ * Jan 15, 2016 DCS18180    JingtaoD    code improvement based on code review for DR17935
  * 
  * </pre>
  * 
@@ -220,7 +220,7 @@ public class FloodReportDlg extends CaveSWTDialog {
     private SimpleDateFormat dbFormat = null;
 
     private SimpleDateFormat fr = null;
-    
+
     private AddEditFloodEventDlg efeDlg = null;
 
     /**
@@ -349,7 +349,7 @@ public class FloodReportDlg extends CaveSWTDialog {
      * Create the middle list and canvas controls.
      */
     private void createMiddleControls() {
-        final int BUTTON_WIDTH=165;
+        final int BUTTON_WIDTH = 165;
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Composite mainComp = new Composite(shell, SWT.NONE);
         mainComp.setLayout(new GridLayout(2, false));
@@ -1026,22 +1026,22 @@ public class FloodReportDlg extends CaveSWTDialog {
      */
     private void editEvent(boolean newEventFlg) {
         String key = null;
-    
+
         if (!newEventFlg && locationList.getSelectionIndex() < 0) {
             MessageBox mb = new MessageBox(shell, SWT.OK);
             mb.setText("Make a Selection");
             mb.setMessage("You must select a river observation!");
             mb.open();
         } else {
-           if (!newEventFlg) {
-               key=selectedKey;
+            if (!newEventFlg) {
+                key = selectedKey;
             }
-           if (efeDlg==null || efeDlg.isDisposed()) {
-               efeDlg = new AddEditFloodEventDlg(this.getParent(), key, this);
-               efeDlg.open();
-           } else {
-               efeDlg.bringToTop();
-           }
+            if (efeDlg == null || efeDlg.isDisposed()) {
+                efeDlg = new AddEditFloodEventDlg(this.getParent(), key, this);
+                efeDlg.open();
+            } else {
+                efeDlg.bringToTop();
+            }
         }
     }
 
@@ -1267,8 +1267,6 @@ public class FloodReportDlg extends CaveSWTDialog {
         if (discharge != HydroConstants.RATING_CONVERT_FAILED) {
             sql.append(", q");
         }
-
-        cremark = DbUtils.escapeSpecialCharforStr(cremark);
 
         sql.append(") values('" + data.getLid() + "', ");
         sql.append("'" + dateFormat.format(eventDate) + "', ");

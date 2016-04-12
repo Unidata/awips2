@@ -1,0 +1,15 @@
+#Product Discipline 209 - Multi-Radar/Multi-Sensor, Parameter Category 12: FLASH Products
+0:0:CREST Maximum Unit Streamflow:(m^3)*(s^-1)*(km^-2):CrestMaxUStreamflow
+1:1:CREST Maximum Streamflow:(m^3)*(s^-1):CrestMaxStreamflow
+2:2:CREST Soil Moisture:%:CrestSoilMoisture
+14:14:30 min Precipitation Accumulation Return Period:PRP30min
+15:15:1 hour Precipitation Accumulation Return Period:PRP01H
+16:16:3 hour Precipitation Accumulation Return Period:PRP03H
+17:17:6 hour Precipitation Accumulation Return Period:PRP06H
+18:18:12 hour Precipitation Accumulation Return Period:PRP12H
+19:19:24 hour Precipitation Accumulation Return Period:PRP24H
+20:20:Maximum Precipitation Return Period:year:PRPMax
+26:26:1 hour QPE-to-FFG Ratio:%:QPEFFG01H
+27:27:3 hour QPE-to-FFG Ratio:%:QPEFFG03H
+28:28:6 hour QPE-to-FFG Ratio:%:QPEFFG06H
+29:29:Maximum QPE-to-FFG Ratio:%:QPEFFGMax

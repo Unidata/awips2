@@ -28,8 +28,8 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
+import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
 import com.raytheon.uf.common.monitor.data.ObConst.DisplayVarName;
 import com.raytheon.uf.viz.monitor.IMonitor;
@@ -61,6 +61,8 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg;
  * Apr 28, 2014 3086       skorolev    Updated getConfigMgr method.
  * Sep 04, 2014 3220       skorolev    Removed "site". Added check on dispose.
  * Sep 18, 2015 3873       skorolev    Adjusted to AppName and MonName.
+ * Dec 17, 2015 3873       dhladky     Abstracted handling of dialogTime and Zone dialog events.
+ * Jan 04, 2015 5115       skorolev    Corrected imports and replaced AppName with MonName.
  * 
  * </pre>
  * 
@@ -148,13 +150,10 @@ public class FogZoneTableDlg extends ZoneTableDlg {
         if (me.getSource() instanceof FogMonitor) {
 
             FogMonitor fog = (FogMonitor) me.getSource();
-            Date date = fog.getDialogDate();
+            Date date = fog.getDialogTime();
             if (date != null) {
                 Date nominalTime = date;
                 ObMultiHrsReports obData = fog.getObData();
-                if (!isLinkedToFrame()) {
-                    nominalTime = obData.getLatestNominalTime();
-                }
                 FogDataGenerator fdg = new FogDataGenerator();
                 Map<String, CellType> fogAlgCellType = fdg.getAlgCellTypes(fog
                         .getAlgorithmData(nominalTime));
@@ -197,6 +196,7 @@ public class FogZoneTableDlg extends ZoneTableDlg {
     @Override
     public void fireDialogShutdown(IMonitorListener iml) {
         Display.getDefault().asyncExec(new Runnable() {
+            @Override
             public void run() {
                 Iterator<IMonitor> iter = getMonitorControlListeners()
                         .iterator();
@@ -217,6 +217,7 @@ public class FogZoneTableDlg extends ZoneTableDlg {
     @Override
     public void fireKillMonitor() {
         Display.getDefault().asyncExec(new Runnable() {
+            @Override
             public void run() {
                 Iterator<IMonitor> iter = getMonitorControlListeners()
                         .iterator();
@@ -283,7 +284,7 @@ public class FogZoneTableDlg extends ZoneTableDlg {
     protected FSSObsMonitorConfigurationManager getMonitorAreaConfigInstance() {
         if (configMgr == null || configMgr.isPopulated()) {
             configMgr = FSSObsMonitorConfigurationManager
-                    .getInstance(MonName.fog);
+                    .getInstance(AppName.FOG);
         }
         return configMgr;
     }

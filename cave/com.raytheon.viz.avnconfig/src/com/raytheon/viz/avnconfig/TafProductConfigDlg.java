@@ -47,7 +47,7 @@ import org.eclipse.swt.widgets.Text;
 import com.raytheon.uf.common.dataplugin.text.AfosWmoIdDataContainer;
 import com.raytheon.uf.common.dataplugin.text.db.AfosToAwips;
 import com.raytheon.uf.common.dataplugin.text.request.GetPartialAfosIdRequest;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -69,6 +69,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 12 Oct 2012  1229       rferrel     Convert to CaveSWTDialog subclass
  *                                      and make non-blocking.
  * 15 OCT 2012  1229       rferrel     Changes for non-blocking HelpUsageDlg.
+ * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
  * 
  * </pre>
  * 
@@ -328,7 +329,7 @@ public class TafProductConfigDlg extends CaveSWTDialog {
                                 .setMessageText(
                                         "An error occured while attempting to delete a product.",
                                         new RGB(255, 0, 0));
-                    } catch (LocalizationOpFailedException e) {
+                    } catch (LocalizationException e) {
                         msgStatusComp
                                 .setMessageText(
                                         "An error occured while attempting to delete a product.",
@@ -457,11 +458,7 @@ public class TafProductConfigDlg extends CaveSWTDialog {
                     } catch (FileNotFoundException e) {
                         msgStatusComp.setMessageText(e.getMessage(), new RGB(
                                 255, 0, 0));
-                    } catch (ConfigurationException e) {
-                        msgStatusComp.setMessageText(
-                                "An error occured while saving product "
-                                        + product + ".", new RGB(255, 0, 0));
-                    } catch (LocalizationOpFailedException e) {
+                    } catch (ConfigurationException | LocalizationException e) {
                         msgStatusComp.setMessageText(
                                 "An error occured while saving product "
                                         + product + ".", new RGB(255, 0, 0));
@@ -513,7 +510,7 @@ public class TafProductConfigDlg extends CaveSWTDialog {
                             .setMessageText(
                                     "An error occured when attempting to set default product.",
                                     new RGB(255, 0, 0));
-                } catch (LocalizationOpFailedException e) {
+                } catch (LocalizationException e) {
                     msgStatusComp
                             .setMessageText(
                                     "An error occured when attempting to set default product.",
@@ -546,8 +543,7 @@ public class TafProductConfigDlg extends CaveSWTDialog {
                     String description = "TAF Product Configuration Help";
 
                     String helpText = "This dialog is used to define TAF/TWEB product (list of\nforecasts).\n\nThee products should be defined AFTER relevant site/route\nconfiguration files have been created.\n\nTo add a new product, enter product label in the \"Products\"\nentry field and press <Enter>. Then enter all TAF ids or\nTWEB routes in the \"Idents\" entry field, press <Enter>\nafter typing one item. Press \"Save\" button to save\nconfiguration file.\n\nTo remove a product, press \"Delede\" below \"Products\" list.\n\nTo remove an ident from the product definition, use\n\"Delete\" button in the \"Idents\" column. You must then save\nthe product. This will NOT delete TAF/TWEB configuration\nfiles, this can only be done from the command line.\n\nThe \"Verify\" button can be used to check for existence and\nproper syntax of all relevant files.";
-                    usageDlg = new HelpUsageDlg(shell, description,
-                            helpText);
+                    usageDlg = new HelpUsageDlg(shell, description, helpText);
                     usageDlg.open();
                 } else {
                     usageDlg.bringToTop();
@@ -606,12 +602,8 @@ public class TafProductConfigDlg extends CaveSWTDialog {
                 productsList.add(product);
             }
 
-        } catch (IOException ex) {
-            // TODO handle this
-            ex.printStackTrace();
         } catch (Exception ex) {
-            // TODO handle this
-            ex.printStackTrace();
+            statusHandler.error(ex.getLocalizedMessage(), ex);
         }
     }
 

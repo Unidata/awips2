@@ -12,6 +12,8 @@
 ## Phil Kurimski 06-24-2014 rewrote code for storm position to account for non-thunderstorm events
 ## Evan Bookbinder 9-5-2014 corrected first bullet wording if hycType and urban/small stream were selected
 ## Mike Dangelo 3-26-2015  Mixed Case changes 
+## Evan Bookbinder 9-4-2015 fixed line of storms grammar
+## Mike Dangelo 10-20-2015 Standard CTAs 
 #################################### SET SOME VARIABLES ###################################
 #parse("config.vm")
 ##
@@ -90,7 +92,7 @@ ${ugcline}
 /${productClass}.${action}.${vtecOffice}.FA.W.${etn}.${starttime}-${dateUtil.format(${expire}, ${timeFormat.ymdthmz}, 15)}/
 /00000.0.${ic}.000000T0000Z.000000T0000Z.000000T0000Z.OO/
 #foreach (${area} in ${areas})
-#capitalize(${area.name} "ALL")
+#capitalize(${area.name} "FIRST")
 #if(${includeStateAbbreviation}==true)
  ${area.stateabbr}##
 #end
@@ -139,7 +141,7 @@ THIS IS A TEST MESSAGE. ##
 #end
 #secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone})
 
-#set($report = "!**YOU DID NOT SELECT EITHER A /REPORT/ BULLET OR AN /EVENT/ BULLET.  PLEASE CLOSE THIS WINDOW AND REGENERATE YOUR WARNING**!") 
+#set($report = "!**YOU DID NOT SELECT EITHER A /SOURCE/ BULLET OR AN /EVENT/ BULLET.  PLEASE CLOSE THIS WINDOW AND REGENERATE YOUR WARNING**!") 
 #set($rainAmount = "") 
 #if(${list.contains(${bullets}, "doppler")})
   #set($report = "Doppler radar indicated heavy rain that will cause flooding.")   
@@ -163,22 +165,22 @@ THIS IS A TEST MESSAGE. ##
   #set($report = "trained weather spotters reported heavy rain in !** LOCATION **! that will cause flooding.")   
 #end
 #if(${list.contains(${bullets}, "lawEnforcement")} && ${list.contains(${bullets}, "thunder")})
-  #set($report = "local law enforcement reported thunderstorms with heavy rain over !** LOCATION **! that will cause flooding.")   
+  #set($report = "local law enforcement officials reported thunderstorms with heavy rain over !** LOCATION **! that will cause flooding.")   
 #end
 #if(${list.contains(${bullets}, "lawEnforcement")} && ${list.contains(${bullets}, "floodOccurring")})
-  #set($report = "local law enforcement reported flooding in !** LOCATION **!.")   
+  #set($report = "local law enforcement officials reported flooding in !** LOCATION **!.")   
 #end
 #if(${list.contains(${bullets}, "lawEnforcement")} && ${list.contains(${bullets}, "plainRain")})
-  #set($report = "local law enforcement reported heavy rain in !** LOCATION **! that will cause flooding.")   
+  #set($report = "local law enforcement officials reported heavy rain in !** LOCATION **! that will cause flooding.")   
 #end
 #if(${list.contains(${bullets}, "emergencyManagement")} && ${list.contains(${bullets}, "thunder")})
-  #set($report = "emergency management reported thunderstorms with heavy rain in !** LOCATION **!. The heavy rain will cause flooding.")   
+  #set($report = "emergency management officials reported thunderstorms with heavy rain in !** LOCATION **!. The heavy rain will cause flooding.")   
 #end
 #if(${list.contains(${bullets}, "emergencyManagement")} && ${list.contains(${bullets}, "floodOccurring")})
-  #set($report = "emergency management reported flooding in !** LOCATION **!.")   
+  #set($report = "emergency management officials reported flooding in !** LOCATION **!.")   
 #end
 #if(${list.contains(${bullets}, "emergencyManagement")} && ${list.contains(${bullets}, "plainRain")})
-  #set($report = "emergency management reported heavy rain in !** LOCATION **!. The heavy rain will cause flooding.")   
+  #set($report = "emergency management officials reported heavy rain in !** LOCATION **!. The heavy rain will cause flooding.")   
 #end
 #if(${list.contains(${bullets}, "public")} && ${list.contains(${bullets}, "thunder")})
   #set($report = "the public reported thunderstorms with heavy rain in !** LOCATION **!. The heavy rain will cause flooding.")   
@@ -225,22 +227,24 @@ THIS IS A TEST MESSAGE. ##
 #if(${list.contains(${bullets},"stormPosition")})
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
 #set($phenom="")
+#set($waswere="was")
 #if(${stormType} == "line" && ${list.contains(${bullets}, "thunder")})
-  #set($phenom="A LINE OF THUNDERSTORMS PRODUCING ")
+  #set($phenom="thunderstorms producing ")
+  #set($waswere="were")
 #elseif(${list.contains(${bullets}, "thunder")})
-  #set($phenom="A THUNDERSTORM PRODUCING ")
+  #set($phenom="a thunderstorm producing ")
 #end
-, ${phenom}HEAVY RAIN WAS LOCATED ##
+, ${phenom}heavy rain ${waswere} located ##
 #handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceLine})
 #if(${movementSpeed} < ${landStationary} || ${stationary})
-, AND IS STATIONARY. ##
+. Movement is stationary. ##
 #else
 #if(${stormType} == "line")
-, AND MOVING ## 
+, and moving ## 
 #else
-, MOVING ##
+, moving ##
 #end
-#direction(${movementDirectionRounded}) AT ${mathUtil.roundTo5(${movementSpeed})} MPH. ##
+#direction(${movementDirectionRounded}) at ${mathUtil.roundTo5(${movementSpeed})} mph. ##
 #end
 ${rainAmount}
 #else
@@ -318,48 +322,56 @@ PRECAUTIONARY/PREPAREDNESS ACTIONS...
 
 #end
 ##
-#if(${list.contains(${bullets}, "warningMeansCTA")})
-A Flood Warning means that flooding is imminent or has been reported. Stream rises will be slow and flash flooding is not expected. However, all interested parties should take necessary precautions immediately.
+#if(${list.contains(${bullets}, "TADD_CTA")})
+Turn around, don't drown when encountering flooded roads. Most flood deaths occur in vehicles.
 
 #end
-#if(${list.contains(${bullets}, "dontdrownCTA")})
-Most flood deaths occur in automobiles. Never drive your vehicle into areas where the water covers the roadway. Flood waters are usually deeper than they appear. Just one foot of flowing water is powerful enough to sweep vehicles off the road. When encountering flooded roads make the smart choice, Turn Around, Don't Drown!
+#if(${list.contains(${bullets}, "actQuicklyCTA")})
+Move to higher ground now. Act quickly to protect your life.
+
+#end
+#if(${list.contains(${bullets}, "childSafetyCTA")})
+Keep children away from storm drains, culverts, creeks and streams. Water levels can rise rapidly and sweep children away.
+
+#end
+#if(${list.contains(${bullets}, "nighttimeCTA")})
+Be especially cautious at night when it is harder to recognize the dangers of flooding. 
 
 #end
 #if(${list.contains(${bullets}, "urbanCTA")})
-Excessive runoff from heavy rainfall will cause ponding of water in urban areas, highways, streets and underpasses as well as other poor drainage areas and low lying spots. do not attempt to travel across flooded roads. Find alternate routes. It takes only a few inches of swiftly flowing water to carry vehicles away.
+Excessive runoff from heavy rainfall will cause flooding of small creeks and streams, urban areas, highways, streets and underpasses as well as other drainage areas and low lying spots. 
 
 #end
 #if(${list.contains(${bullets}, "ruralCTA")})
-Excessive runoff from heavy rainfall will cause flooding of small creeks and streams, as well as farm and country roads. Do not attempt to travel across flooded roads. Find alternate routes.
+Excessive runoff from heavy rainfall will cause flooding of small creeks and streams, country roads, farmland, and other low lying spots.
 
 #end
-#if(${list.contains(${bullets}, "USS_CTA")})
-Excessive runoff from heavy rainfall will cause flooding of small creeks and streams, highways and underpasses in urban areas. Additionally, country roads and farmlands along the banks of creeks, streams and other low lying areas are subject to flooding.
+#if(${list.contains(${bullets}, "stayAwayCTA")})
+Stay away or be swept away. River banks and culverts can become unstable and unsafe. 
 
 #end
-#if(${list.contains(${bullets}, "nightCTA")})
-Be especially cautious at night when it is harder to recognize the dangers of flooding. If flooding is observed act quickly. Move up to higher ground to escape flood waters. Do not stay in areas subject to flooding when water begins rising.
+#if(${list.contains(${bullets}, "lowSpotsCTA")})
+In hilly terrain there are hundreds of low water crossings which are potentially dangerous in heavy rain. Do not attempt to cross flooded roads. Find an alternate route.
 
 #end
-#if(${list.contains(${bullets}, "donotdriveCTA")})
-Do not drive your vehicle into areas where the water covers the roadway. The water depth may be too great to allow your car to cross safely. Move to higher ground.
+#if(${list.contains(${bullets}, "arroyosCTA")})
+Remain alert for flooding even in locations not receiving rain. Arroyos, streams, and rivers can become raging killer currents in a matter of minutes, even from distant rainfall.
 
 #end
-#if(${list.contains(${bullets}, "camperCTA")})
+#if(${list.contains(${bullets}, "burnAreasCTA")})
+Move away from recently burned areas. Life threatening flooding of creeks, roads and normally dry arroyos is likely. The heavy rains will likely trigger rockslides, mudslides and debris flows in steep terrain, especially in and around these areas.
+
+#end
+#if(${list.contains(${bullets}, "camperSafetyCTA")})
 Flooding is occurring or is imminent. It is important to know where you are relative to streams, rivers, or creeks which can become killers in heavy rains. Campers and hikers should avoid streams or creeks.
 
 #end
-#if(${list.contains(${bullets}, "lowspotsCTA")})
-In hilly terrain there are hundreds of low water crossings which are potentially dangerous in heavy rain. Do not attempt to travel across flooded roads. Find alternate routes. It takes only a few inches of swiftly flowing water to carry vehicles away.
-
-#end
-#if(${list.contains(${bullets}, "powerCTA")})
-Do not underestimate the power of flood waters. Only a few inches of rapidly flowing water can quickly carry away your vehicle.
-
-#end
 #if(${list.contains(${bullets}, "reportFloodingCTA")})
-To report flooding, have the nearest law enforcement agency relay your report to the National Weather Service forecast office.
+Please report flooding to your local law enforcement agency when you can do so safely. 
+
+#end
+#if(${list.contains(${bullets}, "warningMeansCTA")})
+A Flood Warning means that flooding is imminent or occurring. All interested parties should take necessary precautions immediately. 
 
 #end
 #if(${ctaSelected} == "YES") 

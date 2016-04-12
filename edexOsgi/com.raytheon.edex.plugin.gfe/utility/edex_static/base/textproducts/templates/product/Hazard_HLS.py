@@ -39,6 +39,10 @@ import string, time, re, os, glob, types, copy, LogStream
 import ModuleAccessor, SampleAnalysis
 from math import *
 import AbsTime, DatabaseID, StartupDialog
+from com.raytheon.uf.viz.core import VizApp
+from com.raytheon.uf.common.gfe.ifpclient import PyFPClient
+
+
 DEG_TO_RAD = 0.017453292
 
 from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData, ReferenceID
@@ -408,8 +412,8 @@ class TextProduct(GenericHazards.TextProduct):
           },
           {
               "name": "Overview_PrecautionaryPreparednessActions",
-              "label": "Precautionary/Preparedness Actions",
-              "title": ".Precautionary/Preparedness Actions...\nPrecautionary/Preparedness Actions...\n\n",
+              "label": "PRECAUTIONARY/PREPAREDNESS ACTIONS",
+              "title": ".PRECAUTIONARY/PREPAREDNESS ACTIONS...\nPRECAUTIONARY/PREPAREDNESS ACTIONS...\n\n",
               "endStr": "\n&&"
           },
           {
@@ -622,14 +626,14 @@ class TextProduct(GenericHazards.TextProduct):
           },
           {
               "name": "PrecautionaryPreparednessActions",
-              "label": "Precautionary/Preparedness Actions",
+              "label": "PRECAUTIONARY/PREPAREDNESS ACTIONS",
               "defaultOn": True,
               "includeFor": self._allAreas(),
               "usePrev": True,
               "inSegments": "optional",
               "importMethod": None,
               "importPIL": None,
-              "title": "...Precautionary/preparedness actions...\nprecautionary/preparedness actions...\n\n",
+              "title": "...PRECAUTIONARY/PREPAREDNESS ACTIONS...\nPRECAUTIONARY/PREPAREDNESS ACTIONS...\n\n",
               "endStr":"\n&&",
           },
           {
@@ -1383,7 +1387,7 @@ class TextProduct(GenericHazards.TextProduct):
         fcst = fcst.replace("&&", "\n&&\n")
 
         # Prevent empty Call to Action Tags
-        fcst = re.sub(r'\nPrecautionary/preparedness actions\.\.\.\s*&&\n', \
+        fcst = re.sub(r'\nPRECAUTIONARY/PREPAREDNESS ACTIONS\.\.\.\s*&&\n', \
                       "", fcst)
         #
         # Clean up multiple line feeds
@@ -5857,7 +5861,7 @@ TTAA00 KNHC DDHHMM
 BULLETIN
 HURRICANE KATRINA ADVISORY NUMBER  10
 NWS TPC/NATIONAL HURRICANE CENTER Miami FL
-11 PM EDT THU AUG 25 2005
+11 PM EDT Thu Aug 25 2005
 
 ...Eye of Katrina moving southwestward across Miami-Dade county...
 
@@ -5960,7 +5964,7 @@ NNNN
 ##BULLETIN
 ##HURRICANE LINDA ADVISORY NUMBER  12
 ##NWS TPC/NATIONAL HURRICANE CENTER MIAMI FL   EP152009
-##800 PM PDT WED SEP 09 2009
+##800 PM PDT Wed Sep 09 2009
 ##
 ##...Linda becomes a hurricane...the sixth hurricane of the eastern
 ##Pacific season...
@@ -6061,7 +6065,7 @@ NNNN
         dataMgr = parent
         argDict['dataMgr'] = dataMgr
         argDict["databaseID"] = self._getDbId(dataMgr, definition['database'])
-        argDict["ifpClient"] = dataMgr.getClient()
+        argDict["ifpClient"] = PyFPClient(VizApp.getWsId(), dataMgr.getSiteID())
         import VTECMessageType
         vtecMode = VTECMessageType.getVTECMessageType(self._pil)
         argDict["vtecMode"] = vtecMode

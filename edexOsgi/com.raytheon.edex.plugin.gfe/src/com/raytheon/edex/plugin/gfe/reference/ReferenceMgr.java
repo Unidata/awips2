@@ -57,6 +57,8 @@ import com.raytheon.uf.common.util.FileUtil;
  * Feb 19, 2015       4125 rjpeter     Fix jaxb performance issue
  * Apr 10, 2015       4383 dgilling    Fix getData so it searches correct localization
  *                                     directories for secondary sites.
+ * Jan 27, 2016       5237 tgurney     Remove deprecated LocalizationFile
+ *                                     method call
  * 
  * </pre>
  * 
@@ -93,7 +95,7 @@ public class ReferenceMgr {
                 new String[] { ".xml" }, false, true);
         if (contents != null) {
             for (LocalizationFile lf : contents) {
-                String s = LocalizationUtil.extractName(lf.getName());
+                String s = LocalizationUtil.extractName(lf.getPath());
                 String area = s.replace(".xml", "");
                 refIDs.add(new ReferenceID(area, lf.isProtected(), lf
                         .getContext().getLocalizationLevel()));
@@ -163,11 +165,6 @@ public class ReferenceMgr {
         return sr;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString() {
         return "ReferenceMgr [" + dbGridLocation.getSiteId() + "]";

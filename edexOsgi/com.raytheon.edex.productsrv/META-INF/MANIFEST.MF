@@ -14,4 +14,4 @@ Import-Package: com.raytheon.uf.common.message,
  com.raytheon.uf.common.message.response,
  com.raytheon.uf.common.python,
  com.raytheon.uf.common.status,
- org.apache.commons.logging
+ org.slf4j

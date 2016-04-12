@@ -29,8 +29,6 @@ import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.dataplugin.bufrncwf.BUFRncwf;
 import com.raytheon.uf.common.dataplugin.bufrncwf.NCWFFeature;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.time.DataTime;
@@ -54,8 +52,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 16, 2009            bsteffen     Initial creation
- * Jul 24, 2014 3429       mapeters     Updated deprecated drawLine() calls.
+ * Sep 16, 2009            bsteffen    Initial creation
+ * Jul 24, 2014 3429       mapeters    Updated deprecated drawLine() calls.
+ * Feb 04, 2016 5310       tgurney     Remove dependency on dataURI
  * 
  * </pre>
  * 
@@ -168,7 +167,8 @@ public class NcwfMovementResource extends
             // Draw the body of the arrow
             DrawableLine line = new DrawableLine();
             line.setCoordinates(centerPixel[0], centerPixel[1], centerPixel[2]);
-            line.addPoint(or_centerPixel[0], or_centerPixel[1], or_centerPixel[2]);
+            line.addPoint(or_centerPixel[0], or_centerPixel[1],
+                    or_centerPixel[2]);
             line.basics.color = color;
             line.width = 1.5f;
             lines.add(line);
@@ -181,8 +181,8 @@ public class NcwfMovementResource extends
     }
 
     private DrawableLine createArrowHead(IGraphicsTarget target,
-            double[] center,
-            Double length, Double dir, RGB color) throws VizException {
+            double[] center, Double length, Double dir, RGB color)
+            throws VizException {
         double[] pointPixel = target.getPointOnCircle(center[0], center[1],
                 center[2], length, dir + 210);
 
@@ -191,8 +191,7 @@ public class NcwfMovementResource extends
         line.setCoordinates(pointPixel[0], pointPixel[1], pointPixel[2]);
         line.addPoint(center[0], center[1], center[2]);
         double[] pointPixel2 = target.getPointOnCircle(center[0], center[1],
-                center[2],
-                length, dir + 150);
+                center[2], length, dir + 150);
         line.addPoint(pointPixel2[0], pointPixel2[1], pointPixel2[2]);
         line.basics.color = color;
         line.width = 1.5f;
@@ -209,21 +208,13 @@ public class NcwfMovementResource extends
         if (!recordsMap.containsKey(displayedDataTime)) {
             recordsMap.put(displayedDataTime, new ArrayList<BUFRncwf>());
         }
-        RequestConstraint constraint = new RequestConstraint();
 
-        constraint.setConstraintType(ConstraintType.IN);
-
-        for (BUFRncwf r : records) {
-
-            constraint.addToConstraintValueList(r.getDataURI());
-        }
-        Map<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>();
-        constraints.put("dataURI", constraint);
         // Request the point data
         PointDataContainer pdc = PointDataRequest.requestPointDataAllLevels(
                 displayedDataTime,
                 resourceData.getMetadataMap().get("pluginName")
-                        .getConstraintValue(), parameters, null, constraints);
+                        .getConstraintValue(), parameters, null,
+                resourceData.getMetadataMap());
 
         for (int uriCounter = 0; uriCounter < pdc.getAllocatedSz(); uriCounter++) {
             PointDataView pdv = pdc.readRandom(uriCounter);
@@ -253,6 +244,7 @@ public class NcwfMovementResource extends
         this.recordsToParse.get(displayedDataTime).clear();
     }
 
+    @Override
     protected void addRecord(BUFRncwf obj) {
         if (!recordsToParse.containsKey(obj.getDataTime())) {
             recordsToParse.put(obj.getDataTime(), new ArrayList<BUFRncwf>());

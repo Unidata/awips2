@@ -84,6 +84,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                     around for better logical separation
  * Aug 14, 2014 3523       mapeters    Updated deprecated {@link DrawableString#textStyle} 
  *                                     assignments.
+ * Nov 05, 2015 5070       randerso    Adjust font sizes for dpi scaling
+ * 
  * </pre>
  * 
  * @author mnash
@@ -138,7 +140,7 @@ public class RadarMLResource extends RadarGraphicsResource {
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         // initialize the font
-        textFont = target.initializeFont(java.awt.Font.DIALOG, 11.0f,
+        textFont = target.initializeFont(java.awt.Font.DIALOG, 9,
                 new IFont.Style[] {});
     }
 

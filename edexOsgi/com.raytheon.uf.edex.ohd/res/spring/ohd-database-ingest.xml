@@ -1,0 +1,34 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+  
+    <bean id="ihfsBloatMonitor" class="com.raytheon.uf.edex.database.health.DatabaseBloatMonitor">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.database.health.PostgresBloatDao">
+                <constructor-arg value="ihfs"/>
+            </bean>
+        </constructor-arg>
+        <constructor-arg ref="warningThresholds"/>
+        <constructor-arg ref="criticalThresholds"/>
+    </bean>
+
+    <bean id="damBloatMonitor" class="com.raytheon.uf.edex.database.health.DatabaseBloatMonitor">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.database.health.PostgresBloatDao">
+                <constructor-arg value="dam"/>
+            </bean>
+        </constructor-arg>
+        <constructor-arg ref="warningThresholds"/>
+        <constructor-arg ref="criticalThresholds"/>
+    </bean>
+
+    <bean factory-bean="dbMonitorRegistry" factory-method="registerMonitor">
+        <constructor-arg value="ihfsBloatMonitor" />
+        <constructor-arg ref="ihfsBloatMonitor" />
+    </bean>
+
+    <bean factory-bean="dbMonitorRegistry" factory-method="registerMonitor">
+        <constructor-arg value="damBloatMonitor" />
+        <constructor-arg ref="damBloatMonitor" />
+    </bean>
+</beans>

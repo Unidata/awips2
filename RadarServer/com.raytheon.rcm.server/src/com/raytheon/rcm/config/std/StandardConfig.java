@@ -67,6 +67,7 @@ import com.raytheon.uf.common.serialization.SerializationException;
  *                                     Send configuration events.
  * 2015-06-10   4498       nabowle     Switch to JAXBManager. Rename Util->RcmUtil.
  * 2015-09-08   DR 17944   D. Friedman Handle elevation list file updates.
+ * 2016-01-28   DCS18133   J. Dynina   Added new VCP's 35 and 215
  * </pre>
  *
  */
@@ -353,7 +354,8 @@ public class StandardConfig implements Configuration, MutableConfiguration {
         vcpToOpMode = new HashMap<Integer, Integer>();
         vcpToOpMode.put(31, GSM.OP_MODE_CLEAR_AIR);
         vcpToOpMode.put(32, GSM.OP_MODE_CLEAR_AIR);
-        final int[] stormVcps = { 11, 12, 21, 121, 211, 212, 221, 80, 90 };
+        vcpToOpMode.put(35, GSM.OP_MODE_CLEAR_AIR);
+        final int[] stormVcps = { 11, 12, 21, 121, 211, 212, 215, 221, 80, 90 };
         for (int vcp : stormVcps)
             vcpToOpMode.put(vcp, GSM.OP_MODE_STORM);
     }

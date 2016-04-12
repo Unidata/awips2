@@ -6,6 +6,7 @@
      Phil Kurimski   09-19-2013 added geospatialConfig.xml
      Phil Kurimski   06-26-2014 added DSS Events
      Phil Kurimski   02-18-2015 Updated CTA section
+     Evan Bookbinder 12/07/15 Updated CTA to remove ellipses in parseString to match product. 
 -->
 
 <!-- INCLUDE ALL GEOSPTATIAL INFORMATION FOR THIS PRODUCT
@@ -180,18 +181,18 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="*********** Optional Pathcast Section **********" bulletType="title"/>
   <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="pcast" parseString="WILL BE NEAR..."/>
-  <bullet bulletName="listoflocations" bulletText="Select for a list of locations" bulletGroup="pcast" parseString="&quot;LOCATIONS&quot;,&quot;INCLUDE...&quot;"/>
+  <bullet bulletName="listoflocations" bulletText="Select for a list of locations" bulletGroup="pcast" parseString="&quot;LOCATIONS&quot;,&quot;INCLUDE...&quot;" showString="LOCATIONS IMPACTED INCLUDE"/>
   <bullet bulletName="listoflocations" bulletText="Select for a list of locations" bulletGroup="pcast" parseString="WILL REMAIN OVER" showString="WILL REMAIN OVER"/>  
   <bullet bulletName="specialEvent" bulletText="Special heads-up for large event/venue" parseString="THOSE ATTENDING"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText=" ****** CALLS TO ACTION (CHOOSE 1 OR MORE) ****** " bulletType="title"/>
   <bullet bulletName="genericCTA" bulletText="Generic CTA" parseString="MOVE TO SAFE HARBOR UNTIL HAZARDOUS WEATHER PASSES"/>
   <bullet bulletName="gustyWindsCTA" bulletText="Gusty Winds CTA" parseString="MOVE TO SAFE HARBOR IMMEDIATELY AS GUSTY WINDS AND HIGH WAVES ARE EXPECTED"/>
-  <bullet bulletName="hailWindsCTA" bulletText="Wind/Hail cta with hail/wind speeds" parseString="DANGEROUS LIGHTNING...AND HEAVY RAIN ARE POSSIBLE"/>
+  <bullet bulletName="hailWindsCTA" bulletText="Wind/Hail cta with hail/wind speeds" parseString="DANGEROUS LIGHTNING, AND HEAVY RAIN ARE POSSIBLE"/>
   <bullet bulletName="nonThunderstormCTA" bulletText="Non thunderstorm winds - mariners can expect gusty winds.." parseString="MARINERS CAN EXPECT GUSTY WINDS AND INCREASING WAVES"/>
   <bullet bulletName="waterspoutCTA" bulletText="Waterspout CTA" parseString="CREATE LOCALLY HAZARDOUS SEAS. SEEK SAFE HARBOR IMMEDIATELY"/>
   <bullet bulletName="lightningCTA" bulletText="Frequent lightning CTA" parseString="FREQUENT LIGHTNING IS OCCURRING WITH"/>
-  <bullet bulletName="reportCTA" bulletText="Report severe wx" parseString="REPORT SEVERE WEATHER TO THE NATIONAL WEATHER SERVICE"/>
+  <bullet bulletName="reportCTA" bulletText="Report severe wx" parseString="REPORT SEVERE WEATHER TO THE"/>
  </bullets>
 </bulletActionGroup>
 <bulletActionGroup action="COR" phen="MA" sig="W">
@@ -239,18 +240,18 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="*********** Optional Pathcast Section **********" bulletType="title"/>
   <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="pcast" parseString="WILL BE NEAR..."/>
-  <bullet bulletName="listoflocations" bulletText="Select for a list of locations" bulletGroup="pcast" parseString="&quot;LOCATIONS&quot;,&quot;INCLUDE...&quot;"/>
+  <bullet bulletName="listoflocations" bulletText="Select for a list of locations" bulletGroup="pcast" parseString="&quot;LOCATIONS&quot;,&quot;INCLUDE...&quot;" showString="LOCATIONS IMPACTED INCLUDE"/>
   <bullet bulletName="listoflocations" bulletText="Select for a list of locations" bulletGroup="pcast" parseString="WILL REMAIN OVER" showString="WILL REMAIN OVER"/>  
   <bullet bulletName="specialEvent" bulletText="Special heads-up for large event/venue" parseString="THOSE ATTENDING"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText=" ****** CALLS TO ACTION (CHOOSE 1 OR MORE) ****** " bulletType="title"/>
   <bullet bulletName="genericCTA" bulletText="Generic CTA" parseString="MOVE TO SAFE HARBOR UNTIL HAZARDOUS WEATHER PASSES"/>
   <bullet bulletName="gustyWindsCTA" bulletText="Gusty Winds CTA" parseString="MOVE TO SAFE HARBOR IMMEDIATELY AS GUSTY WINDS AND HIGH WAVES ARE EXPECTED"/>
-  <bullet bulletName="hailWindsCTA" bulletText="Wind/Hail cta with hail/wind speeds" parseString="DANGEROUS LIGHTNING...AND HEAVY RAIN ARE POSSIBLE"/>
+  <bullet bulletName="hailWindsCTA" bulletText="Wind/Hail cta with hail/wind speeds" parseString="DANGEROUS LIGHTNING, AND HEAVY RAIN ARE POSSIBLE"/>
   <bullet bulletName="nonThunderstormCTA" bulletText="Non thunderstorm winds - mariners can expect gusty winds.." parseString="MARINERS CAN EXPECT GUSTY WINDS AND INCREASING WAVES"/>
   <bullet bulletName="waterspoutCTA" bulletText="Waterspout CTA" parseString="CREATE LOCALLY HAZARDOUS SEAS. SEEK SAFE HARBOR IMMEDIATELY"/>
   <bullet bulletName="lightningCTA" bulletText="Frequent lightning CTA" parseString="FREQUENT LIGHTNING IS OCCURRING WITH"/>
-  <bullet bulletName="reportCTA" bulletText="Report severe wx" parseString="REPORT SEVERE WEATHER TO THE NATIONAL WEATHER SERVICE"/>
+  <bullet bulletName="reportCTA" bulletText="Report severe wx" parseString="REPORT SEVERE WEATHER TO THE"/>
  </bullets>
 </bulletActionGroup>
 </bulletActionGroups>

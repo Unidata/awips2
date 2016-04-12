@@ -35,21 +35,22 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.viz.core.mode.CAVEMode;
 
 /**
- * TODO Add Description
+ * Constants for the text workstation
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 11, 2009            mschenke     Initial creation
+ * Nov 11, 2009            mschenke    Initial creation
+ * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
  * 
  * </pre>
  * 
@@ -158,7 +159,7 @@ public class TextWorkstationConstants {
                     super.save();
                     try {
                         file.save();
-                    } catch (LocalizationOpFailedException e) {
+                    } catch (LocalizationException e) {
                         statusHandler.handle(Priority.PROBLEM,
                                 "Error saving text workstation preferences", e);
                     }

@@ -20,6 +20,8 @@
 package com.raytheon.uf.edex.metartohmdb.dao;
 
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -28,7 +30,6 @@ import javax.xml.bind.annotation.XmlAttribute;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
  * Data record class for HMDB
@@ -41,6 +42,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * ------------ ---------- ----------- --------------------------
  * Jun 29, 2009            jkorman     Initial creation
  * May 14, 2014 2536       bclement    removed TimeTools usage and ISerializableObject
+ * Oct 30, 2015 5035       bclement    replaced toInsertSQL with getColumnValues
  * 
  * </pre>
  * 
@@ -52,73 +54,71 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 public class HMDBReport extends PersistableDataObject<String> {
 
     private static final long serialVersionUID = 1L;
-    
-    public static final String DTFMT = "'%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS'";
 
     @DynamicSerializeElement
     @XmlAttribute
-    private String report_type;   // not null
-    
+    private String report_type; // not null
+
     @DynamicSerializeElement
     @XmlAttribute
     private Integer mode;
-    
+
     @DynamicSerializeElement
     @XmlAttribute
-    private String icao_loc_id;   // not null
-    
+    private String icao_loc_id; // not null
+
     @DynamicSerializeElement
     @XmlAttribute
-    private String wmo_dd;        // not null
-    
+    private String wmo_dd; // not null
+
     @DynamicSerializeElement
     @XmlAttribute
     private String afos_dd;
-    
+
     @DynamicSerializeElement
     @XmlAttribute
     private Calendar origin;
-    
+
     @DynamicSerializeElement
     @XmlAttribute
-    private Calendar date;       // not null
-    
+    private Calendar date; // not null
+
     @DynamicSerializeElement
     @XmlAttribute
-    private Calendar nominal;    // not null
-    
+    private Calendar nominal; // not null
+
     @DynamicSerializeElement
     @XmlAttribute
     private String report;
-    
+
     @DynamicSerializeElement
     @XmlAttribute
     private Integer prior;
-    
+
     @DynamicSerializeElement
     @XmlAttribute
     private Double lat;
-    
+
     @DynamicSerializeElement
     @XmlAttribute
     private Double lon;
-    
+
     @DynamicSerializeElement
     @XmlAttribute
     private Double elev;
-    
+
     @DynamicSerializeElement
     @XmlAttribute
     private String state;
-    
+
     @DynamicSerializeElement
     @XmlAttribute
     private String country;
-    
+
     @DynamicSerializeElement
     @XmlAttribute
     private String name;
-    
+
     @DynamicSerializeElement
     @XmlAttribute
     private Integer sequence_num;
@@ -126,9 +126,9 @@ public class HMDBReport extends PersistableDataObject<String> {
     @DynamicSerializeElement
     @XmlAttribute
     private Integer status;
-    
+
     public HMDBReport() {
-        
+
     }
 
     /**
@@ -139,7 +139,8 @@ public class HMDBReport extends PersistableDataObject<String> {
     }
 
     /**
-     * @param report_type the report_type to set
+     * @param report_type
+     *            the report_type to set
      */
     public void setReport_type(String report_type) {
         this.report_type = report_type;
@@ -153,7 +154,8 @@ public class HMDBReport extends PersistableDataObject<String> {
     }
 
     /**
-     * @param mode the mode to set
+     * @param mode
+     *            the mode to set
      */
     public void setMode(Integer mode) {
         this.mode = mode;
@@ -167,7 +169,8 @@ public class HMDBReport extends PersistableDataObject<String> {
     }
 
     /**
-     * @param icao_loc_id the icao_loc_id to set
+     * @param icao_loc_id
+     *            the icao_loc_id to set
      */
     public void setIcao_loc_id(String icao_loc_id) {
         this.icao_loc_id = icao_loc_id;
@@ -181,7 +184,8 @@ public class HMDBReport extends PersistableDataObject<String> {
     }
 
     /**
-     * @param wmo_dd the wmo_dd to set
+     * @param wmo_dd
+     *            the wmo_dd to set
      */
     public void setWmo_dd(String wmo_dd) {
         this.wmo_dd = wmo_dd;
@@ -195,7 +199,8 @@ public class HMDBReport extends PersistableDataObject<String> {
     }
 
     /**
-     * @param afos_dd the afos_dd to set
+     * @param afos_dd
+     *            the afos_dd to set
      */
     public void setAfos_dd(String afos_dd) {
         this.afos_dd = afos_dd;
@@ -209,7 +214,8 @@ public class HMDBReport extends PersistableDataObject<String> {
     }
 
     /**
-     * @param origin the origin to set
+     * @param origin
+     *            the origin to set
      */
     public void setOrigin(Calendar origin) {
         this.origin = origin;
@@ -223,7 +229,8 @@ public class HMDBReport extends PersistableDataObject<String> {
     }
 
     /**
-     * @param date the date to set
+     * @param date
+     *            the date to set
      */
     public void setDate(Calendar date) {
         this.date = date;
@@ -237,7 +244,8 @@ public class HMDBReport extends PersistableDataObject<String> {
     }
 
     /**
-     * @param nominal the nominal to set
+     * @param nominal
+     *            the nominal to set
      */
     public void setNominal(Calendar nominal) {
         this.nominal = nominal;
@@ -251,12 +259,13 @@ public class HMDBReport extends PersistableDataObject<String> {
     }
 
     /**
-     * @param report the report to set
+     * @param report
+     *            the report to set
      */
     public void setReport(String report) {
-        if(report != null) {
-            if(report.length() > 255) {
-                report = report.substring(0,255);
+        if (report != null) {
+            if (report.length() > 255) {
+                report = report.substring(0, 255);
             }
         }
         this.report = report;
@@ -270,7 +279,8 @@ public class HMDBReport extends PersistableDataObject<String> {
     }
 
     /**
-     * @param prior the prior to set
+     * @param prior
+     *            the prior to set
      */
     public void setPrior(Integer prior) {
         this.prior = prior;
@@ -284,7 +294,8 @@ public class HMDBReport extends PersistableDataObject<String> {
     }
 
     /**
-     * @param lat the lat to set
+     * @param lat
+     *            the lat to set
      */
     public void setLat(Double lat) {
         this.lat = lat;
@@ -298,7 +309,8 @@ public class HMDBReport extends PersistableDataObject<String> {
     }
 
     /**
-     * @param lon the lon to set
+     * @param lon
+     *            the lon to set
      */
     public void setLon(Double lon) {
         this.lon = lon;
@@ -312,7 +324,8 @@ public class HMDBReport extends PersistableDataObject<String> {
     }
 
     /**
-     * @param elev the elev to set
+     * @param elev
+     *            the elev to set
      */
     public void setElev(Double elev) {
         this.elev = elev;
@@ -326,7 +339,8 @@ public class HMDBReport extends PersistableDataObject<String> {
     }
 
     /**
-     * @param state the state to set
+     * @param state
+     *            the state to set
      */
     public void setState(String state) {
         this.state = state;
@@ -340,7 +354,8 @@ public class HMDBReport extends PersistableDataObject<String> {
     }
 
     /**
-     * @param country the country to set
+     * @param country
+     *            the country to set
      */
     public void setCountry(String country) {
         this.country = country;
@@ -354,7 +369,8 @@ public class HMDBReport extends PersistableDataObject<String> {
     }
 
     /**
-     * @param name the name to set
+     * @param name
+     *            the name to set
      */
     public void setName(String name) {
         this.name = name;
@@ -368,7 +384,8 @@ public class HMDBReport extends PersistableDataObject<String> {
     }
 
     /**
-     * @param sequence_num the sequence_num to set
+     * @param sequence_num
+     *            the sequence_num to set
      */
     public void setSequence_num(Integer sequence_num) {
         this.sequence_num = sequence_num;
@@ -382,156 +399,92 @@ public class HMDBReport extends PersistableDataObject<String> {
     }
 
     /**
-     * @param status the status to set
+     * @param status
+     *            the status to set
      */
     public void setStatus(Integer status) {
         this.status = status;
     }
-    
-    /**
-     * 
-     * @return
-     */
-    public String toInsertSQL() {
-
-        
-        String retValue = null;
-        
-        StringBuilder sb = new StringBuilder("insert into rpt values(");
-        if(report_type != null) {
-            sb.append("'");
-            sb.append(report_type);
-            sb.append("',0");
-        } else {
-            return retValue;
-        }
-        if(icao_loc_id != null) { // not null
-            sb.append(",'");
-            sb.append(icao_loc_id);
-            sb.append("'");
-        } else {
-            return retValue;
-        }
-        if(wmo_dd != null) { // not null
-            sb.append(",'");
-            sb.append(wmo_dd);
-            sb.append("'");
-        } else {
-            return retValue;
-        }
-        if(afos_dd != null) {
-            sb.append(",'");
-            sb.append(afos_dd);
-            sb.append("'");
-        } else {
-            sb.append(",''");
-        }
-        if(origin != null) {
-            sb.append(",");
-            sb.append(String.format(DTFMT, date));
-        } else {
-            sb.append(",");
-        }
-        if(date != null) { // not null
-            sb.append(",");
-            sb.append(String.format(DTFMT, date));
-        } else {
-            return retValue;
-        }
-        if(nominal != null) { // not null
-            sb.append(",");
-            sb.append(String.format(DTFMT, date));
-        } else {
-            return retValue;
-        }
-        if(report != null) { // not null
-            sb.append(",'");
-            sb.append(report);
-            sb.append("',0");
-        } else {
-            sb.append(",,0");
-        }
-
-        if(lat != null) {
-            sb.append(String.format(",%f",lat));
-        } else {
-            sb.append(",");
-        }
-        if(lon != null) {
-            sb.append(String.format(",%f",lon));
-        } else {
-            sb.append(",");
-        }
-        if(elev != null) {
-            sb.append(String.format(",%f",elev));
-        } else {
-            sb.append(",0");
-        }
-        if(state != null) {
-            sb.append(String.format(",'%s'",state));
-        } else {
-            sb.append(",''");
-        }
-        if(country != null) {
-            sb.append(String.format(",'%s'",country));
-        } else {
-            sb.append(",''");
-        }
-        if(name != null) {
-            sb.append(String.format(",'%s'",name));
-        } else {
-            sb.append(",''");
-        }
-        if(sequence_num != null) {
-            sb.append(String.format(",%d",sequence_num));
-        } else {
-            sb.append(",0");
-        }
-        if(status != null) {
-            sb.append(String.format(",%d",status));
-        } else {
-            sb.append(",0");
-        }
-        sb.append(");");
-        return sb.toString();
-    }
 
     /**
-     * Use to test the toInsertSQL method.
-     * @param args
+     * @return a mapping of report column names to their values
      */
-    public static final void main(String [] args) {
-        
-        HMDBReport rpt = new HMDBReport();
-        rpt.setDate(TimeUtil.newGmtCalendar(2009, 06, 30));
-        rpt.date.set(Calendar.HOUR_OF_DAY, 14);
-        rpt.date.set(Calendar.MINUTE, 56);
-        
-        rpt.setOrigin(TimeUtil.newGmtCalendar(2009, 06, 30));
-        rpt.origin.set(Calendar.HOUR_OF_DAY, 14);
-        rpt.date.set(Calendar.MINUTE, 54);
+    public Map<String, Object> getColumnValues() {
+        Map<String, Object> rval = new HashMap<>();
 
-        rpt.setNominal(TimeUtil.newGmtCalendar(2009, 06, 30));
-        rpt.nominal.set(Calendar.HOUR_OF_DAY, 15);
-        rpt.nominal.set(Calendar.MINUTE,0);
-        rpt.nominal.set(Calendar.SECOND,0);
-        
-        rpt.setReport_type("METAR");
-        rpt.setIcao_loc_id("KOMA");
-        rpt.setWmo_dd("SAUS70");
-        
-        rpt.setLat(45.123);
-        rpt.setLon(-95.321);
-        rpt.setElev(391d);
-
-        //rpt.setCountry("US");
-        //rpt.setState("NE");
-        //rpt.setName("OMAHA");
-        
-        rpt.setReport("METAR KOFF 301454 xxxxxxxxxx");
-        
-        System.out.println(rpt.toInsertSQL());
-        
+        if (report_type != null) {
+            rval.put("report_type", report_type);
+        }
+        if (mode != null) {
+            rval.put("mode", mode);
+        }else {
+            rval.put("mode", 0);
+        }
+        if (icao_loc_id != null) {
+            rval.put("icao_loc_id", icao_loc_id);
+        }
+        if (wmo_dd != null) {
+            rval.put("wmo_dd", wmo_dd);
+        }
+        if (afos_dd != null) {
+            rval.put("afos_dd", afos_dd);
+        } else {
+            rval.put("afos_dd", "");
+        }
+        if (origin != null) {
+            rval.put("origin", origin);
+        }
+        if (date != null) {
+            rval.put("date", date);
+        }
+        if (nominal != null) {
+            rval.put("nominal", nominal);
+        }
+        if (report != null) {
+            rval.put("report", report);
+        }
+        if (prior != null) {
+            rval.put("prior", prior);
+        } else {
+            rval.put("prior", 0);
+        }
+        if (lat != null) {
+            rval.put("lat", lat);
+        }
+        if (lon != null) {
+            rval.put("lon", lon);
+        }
+        if (elev != null) {
+            rval.put("elev", elev);
+        } else {
+            rval.put("elev", 0.0);
+        }
+        if (state != null) {
+            rval.put("state", state);
+        } else {
+            rval.put("state", "");
+        }
+        if (country != null) {
+            rval.put("country", country);
+        } else {
+            rval.put("country", "");
+        }
+        if (name != null) {
+            rval.put("name", name);
+        } else {
+            rval.put("name", "");
+        }
+        if (sequence_num != null) {
+            rval.put("sequence_num", sequence_num);
+        } else {
+            rval.put("sequence_num", 0);
+        }
+        if (status != null) {
+            rval.put("status", status);
+        } else {
+            rval.put("status", 0);
+        }
+        return rval;
     }
-    
+
 }

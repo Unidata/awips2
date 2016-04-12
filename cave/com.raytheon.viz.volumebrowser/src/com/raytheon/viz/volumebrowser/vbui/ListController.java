@@ -46,7 +46,8 @@ import com.raytheon.viz.volumebrowser.xml.MenuContribution;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 27, 2009 #2161      lvenable     Initial creation
+ * May 27, 2009 #2161      lvenable    Initial creation
+ * Jan 12, 2016 #5055      randerso    Removed width hint to improve layout when dialog resized
  * 
  * </pre>
  * 
@@ -115,7 +116,6 @@ public class ListController {
         dataArray = new ArrayList<SelectionListData>();
 
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        gd.widthHint = 200;
         gd.heightHint = 125;
 
         dataItemList = new List(parentComp, SWT.BORDER | SWT.MULTI

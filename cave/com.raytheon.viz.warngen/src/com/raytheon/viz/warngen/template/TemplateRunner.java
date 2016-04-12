@@ -152,6 +152,8 @@ import com.vividsolutions.jts.io.WKTReader;
  * May 29, 2015   4440     randerso    Fix resource leak (file not closed)
  * Jul 15, 2015 DR17716 mgamazaychikov Change to Geometry class in total intersection calculations.
  * Oct 21, 2105   5021     randerso    Fix issue with CORs for mixed case
+ * Feb  9, 2016 DR18421    D. Friedman Don't call ToolsDataManager.setStormTrackData if there is no storm motion.
+ * Feb 17, 2016 DR 17531   Qinglu Lin  Added calStormVelocityAndEventLocation(), updated runTemplate().
  * </pre>
  * 
  * @author njensen
@@ -453,12 +455,25 @@ public class TemplateRunner {
                 }
             }
 
+            wx = new Wx(config, stormTrackState,
+                    warngenLayer.getStormLocations(stormTrackState),
+                    startTime.getTime(), DateUtil.roundDateTo15(endTime)
+                            .getTime(), warnPolygon);
+
+            // duration: convert millisecond to minute
+            long duration = (wx.getEndTime().getTime() - wx.getStartTime()
+                    .getTime()) / (1000 * 60);
+            context.put("duration", duration);
+
+            context.put("event", eventTime);
+
+            StormTrackData std = ToolsDataManager.getInstance()
+                    .getStormTrackData();
+            std.setDate(simulatedTime);
+
             // CAN and EXP products follow different rules as followups
-            if (!((selectedAction == WarningAction.CAN) || (selectedAction == WarningAction.EXP))) {
-                wx = new Wx(config, stormTrackState,
-                        warngenLayer.getStormLocations(stormTrackState),
-                        startTime.getTime(), DateUtil.roundDateTo15(endTime)
-                                .getTime(), warnPolygon);
+            if (!((selectedAction == WarningAction.CAN) ||
+                    (selectedAction == WarningAction.EXP))) {
                 if (selectedAction == WarningAction.COR) {
                     wwaMNDTime = wx.getStartTime().getTime();
                 } else {
@@ -470,12 +485,6 @@ public class TemplateRunner {
                         DateUtil.roundDateTo15(selectedAction == WarningAction.EXT ? endTime
                                 : wx.getEndTime()));
 
-                // duration: convert millisecond to minute
-                long duration = (wx.getEndTime().getTime() - wx.getStartTime()
-                        .getTime()) / (1000 * 60);
-                context.put("duration", duration);
-
-                context.put("event", eventTime);
                 if (selectedAction == WarningAction.COR) {
                     context.put("TMLtime", eventTime);
                 } else {
@@ -511,62 +520,22 @@ public class TemplateRunner {
                     }
                 }
 
-                // Now create the "other areas
+                calStormVelocityAndEventLocation(std, simulatedTime, wx, context,
+                        warngenLayer, stormTrackState, selectedAction, wkt,
+                        threeLetterSiteId, etn, phenSig);
 
-                StormTrackData std = ToolsDataManager.getInstance()
-                        .getStormTrackData();
-                std.setDate(simulatedTime);
-                std.setMotionDirection((int) wx.getMovementDirection());
-                std.setMotionSpeed((int) Math.round(wx.getMovementSpeed("kn")));
-
-                context.put("movementSpeed", wx.getMovementSpeed());
-                context.put("movementInKnots", wx.getMovementSpeed("kn"));
-                double movementDirectionRounded = wx
-                        .getMovementDirectionRounded() + 180;
-                while (movementDirectionRounded >= 360) {
-                    movementDirectionRounded -= 360;
+                if (std.getMotionSpeed() > 0) {
+                    t0 = System.currentTimeMillis();
+                    ToolsDataManager.getInstance().setStormTrackData(std);
+                    perfLog.logDuration("Save storm track data",
+                            System.currentTimeMillis() - t0);
                 }
-                context.put("movementDirectionRounded",
-                        movementDirectionRounded);
-                double motionDirection = std.getMotionDirection() + 180;
-                while (motionDirection >= 360) {
-                    motionDirection -= 360;
-                }
-                context.put("movementDirection", motionDirection);
-                Coordinate[] stormLocs = warngenLayer
-                        .getStormLocations(stormTrackState);
-                // Convert to Point2D representation as Velocity requires
-                // getX() and getY() methods which Coordinate does not have
-                if (selectedAction == WarningAction.COR) {
-                    AbstractWarningRecord oldWarn = CurrentWarnings
-                            .getInstance(threeLetterSiteId)
-                            .getNewestByTracking(etn, phenSig);
-                    String loc = oldWarn.getLoc();
-                    if (loc != null) {
-                        Geometry locGeom = wkt.read(loc);
-                        stormLocs = locGeom.getCoordinates();
-                    }
-                } else {
-                    stormLocs = GisUtil.d2dCoordinates(stormLocs);
-                }
-                Point2D.Double[] coords = new Point2D.Double[stormLocs.length];
-                for (int i = 0; i < stormLocs.length; i++) {
-                    coords[i] = new Point2D.Double(stormLocs[i].x,
-                            stormLocs[i].y);
-                }
-                context.put("eventLocation", coords);
-                t0 = System.currentTimeMillis();
-                ToolsDataManager.getInstance().setStormTrackData(std);
-                perfLog.logDuration("Save storm track data",
-                        System.currentTimeMillis() - t0);
             } else {
                 // Retrieve the old Warning
                 // Example: s[0-5] = T.CON-KLWX.SV.W.0123
                 AbstractWarningRecord oldWarn = CurrentWarnings.getInstance(
                         threeLetterSiteId).getNewestByTracking(etn, phenSig);
                 context.put("now", simulatedTime);
-                context.put("event", eventTime);
-                context.put("TMLtime", eventTime);
                 context.put("start", oldWarn.getStartTime().getTime());
                 context.put("expire", oldWarn.getEndTime().getTime());
                 Calendar canOrExpCal = Calendar.getInstance();
@@ -584,38 +553,44 @@ public class TemplateRunner {
                 if (oldWarn.getLoc() != null) {
                     // Convert to Point2D representation as Velocity requires
                     // getX() and getY() methods which Coordinate does not have
-                    Point2D.Double[] coords;
-                    Coordinate[] locs;
                     if (selectedAction == WarningAction.CAN) {
+                        context.put("TMLtime", eventTime);
+                        Point2D.Double[] coords;
+                        Coordinate[] locs;
                         locs = warngenLayer.getStormLocations(stormTrackState);
                         locs = GisUtil.d2dCoordinates(locs);
                         coords = new Point2D.Double[locs.length];
-                    } else {
-                        Geometry locGeom = wkt.read(oldWarn.getLoc());
-                        locs = locGeom.getCoordinates();
-                        coords = new Point2D.Double[locs.length];
-                    }
-                    for (int i = 0; i < locs.length; i++) {
-                        coords[i] = new Point2D.Double(locs[i].x, locs[i].y);
-                    }
-                    context.put("eventLocation", coords);
-                    context.put("movementDirection", oldWarn.getMotdir());
-                    context.put("movementInKnots", oldWarn.getMotspd());
+                        for (int i = 0; i < locs.length; i++) {
+                            coords[i] = new Point2D.Double(locs[i].x, locs[i].y);
+                        }
+                        context.put("eventLocation", coords);
+                        context.put("movementDirection", oldWarn.getMotdir());
+                        context.put("movementInKnots", oldWarn.getMotspd());
 
-                    // StormTrackData motion direction is between -180/180,
-                    // whereas a WarningRecord motion direction is between
-                    // -360/360
-                    double motionDirection = AdjustAngle.to180Degrees(oldWarn
-                            .getMotdir() - 180);
-                    StormTrackData std = ToolsDataManager.getInstance()
-                            .getStormTrackData();
-                    std.setDate(simulatedTime);
-                    std.setMotionDirection(motionDirection);
-                    std.setMotionSpeed(oldWarn.getMotspd());
-                    t0 = System.currentTimeMillis();
-                    ToolsDataManager.getInstance().setStormTrackData(std);
-                    perfLog.logDuration("Save storm track data",
-                            System.currentTimeMillis() - t0);
+                        // StormTrackData motion direction is between -180/180,
+                        // whereas a WarningRecord motion direction is between
+                        // -360/360
+                        double motionDirection = AdjustAngle.to180Degrees(oldWarn
+                                .getMotdir() - 180);
+                        std.setMotionDirection(motionDirection);
+                        std.setMotionSpeed(oldWarn.getMotspd());
+                    } else {
+                        context.put("TMLtime", simulatedTime);
+                        wx = new Wx(config, stormTrackState, warngenLayer
+                                .getStormLocations(stormTrackState),
+                                startTime.getTime(), DateUtil.
+                                roundDateTo15(endTime).getTime(), warnPolygon);
+                        calStormVelocityAndEventLocation(std, simulatedTime, wx,
+                                context, warngenLayer, stormTrackState,
+                                selectedAction, wkt, threeLetterSiteId, etn,
+                                phenSig);
+                    }
+                    if (std.getMotionSpeed() > 0) {
+                        t0 = System.currentTimeMillis();
+                        ToolsDataManager.getInstance().setStormTrackData(std);
+                        perfLog.logDuration("Save storm track data",
+                                System.currentTimeMillis() - t0);
+                    }
                 }
             }
 
@@ -740,10 +715,15 @@ public class TemplateRunner {
                         if (atIndex > 0) {
                             int hhmmStart = atIndex + 3;
                             hhmmEnd = message.indexOf(", ", hhmmStart);
-                            if (hhmmEnd > 0) {
-                                context.put("corToNewMarker", "cortonewmarker");
-                                context.put("corEventtime",
-                                        message.substring(hhmmStart, hhmmEnd));
+                            if (hhmmEnd < 0) {
+                                // check for ellipsis
+                                hhmmEnd = message.indexOf("...", hhmmStart);
+                            } else {
+                                if (hhmmEnd > 0) {
+                                    context.put("corToNewMarker", "cortonewmarker");
+                                    context.put("corEventtime",
+                                            message.substring(hhmmStart, hhmmEnd));
+                                }
                             }
                         }
                     }
@@ -970,6 +950,56 @@ public class TemplateRunner {
                     FipsUtil.getUgcLine(areas, endTime, 0));
         }
         return rval;
+    }
+
+    /*
+     * Calculate storm speed, direction, and event coordinates, and
+     * add name/value pairs to context.
+     */
+    private static void calStormVelocityAndEventLocation(StormTrackData std,
+            Date simulatedTime, Wx wx, VelocityContext context,
+            WarngenLayer warngenLayer, StormTrackState stormTrackState,
+            WarningAction selectedAction, WKTReader wkt, String threeLetterSiteId,
+            String etn, String phenSig) throws Exception {
+        std.setMotionDirection((int) wx.getMovementDirection());
+        std.setMotionSpeed((int) Math.round(wx.getMovementSpeed("kn")));
+
+        context.put("movementSpeed", wx.getMovementSpeed());
+        context.put("movementInKnots", wx.getMovementSpeed("kn"));
+        double movementDirectionRounded = wx
+                .getMovementDirectionRounded() + 180;
+        while (movementDirectionRounded >= 360) {
+            movementDirectionRounded -= 360;
+        }
+        context.put("movementDirectionRounded",
+                movementDirectionRounded);
+        double motionDirection = std.getMotionDirection() + 180;
+        while (motionDirection >= 360) {
+            motionDirection -= 360;
+        }
+        context.put("movementDirection", motionDirection);
+        Coordinate[] stormLocs = warngenLayer
+                .getStormLocations(stormTrackState);
+        // Convert to Point2D representation as Velocity requires
+        // getX() and getY() methods which Coordinate does not have
+        if (selectedAction == WarningAction.COR) {
+            AbstractWarningRecord oldWarn = CurrentWarnings
+                    .getInstance(threeLetterSiteId)
+                    .getNewestByTracking(etn, phenSig);
+            String loc = oldWarn.getLoc();
+            if (loc != null) {
+                Geometry locGeom = wkt.read(loc);
+                stormLocs = locGeom.getCoordinates();
+            }
+        } else {
+            stormLocs = GisUtil.d2dCoordinates(stormLocs);
+        }
+        Point2D.Double[] coords = new Point2D.Double[stormLocs.length];
+        for (int i = 0; i < stormLocs.length; i++) {
+            coords[i] = new Point2D.Double(stormLocs[i].x,
+                    stormLocs[i].y);
+        }
+        context.put("eventLocation", coords);
     }
 
 }

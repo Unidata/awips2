@@ -66,15 +66,18 @@ import com.raytheon.viz.ui.personalities.awips.CAVE;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Aug  4, 2011            njensen     Initial creation
- * Apr 23, 2013 1939       randerso    Return null from initializeSerialization
- * Nov 14, 2013 2361       njensen     Remove initializeSerialization()
- * Nov 06, 2014  3356      njensen     Always initialize ILocalizationAdapter   
- *                                      in case cache preference is not enabled
- * Feb 23, 2015  4164      dlovely     Call AlertViz initialize.
- * Jun 26, 2015 4474       bsteffen    Register the PathManager as an OSGi service.
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Aug 04, 2011  10477    njensen   Initial creation
+ * Apr 23, 2013  1939     randerso  Return null from initializeSerialization
+ * Nov 14, 2013  2361     njensen   Remove initializeSerialization()
+ * Nov 06, 2014  3356     njensen   Always initialize ILocalizationAdapter in
+ *                                  case cache preference is not enabled
+ * Feb 23, 2015  4164     dlovely   Call AlertViz initialize.
+ * Jun 26, 2015  4474     bsteffen  Register the PathManager as an OSGi service.
+ * Dec 04, 2015  5169     bsteffen  Allow ProductAlertObserver to send messages
+ *                                  to the AutoUpdater
+ * Feb 08, 2016, 5281     tjensen   Combined Data and Menu Refresh Intervals
  * 
  * </pre>
  * 
@@ -91,13 +94,6 @@ public class ThinClientComponent extends CAVE implements IThinClientComponent {
 
     private StatsJob statsJob;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent#startInternal
-     * (java.lang.String)
-     */
     @Override
     protected void startInternal(String componentName) throws Exception {
         IPreferenceStore store = Activator.getDefault().getPreferenceStore();
@@ -109,7 +105,7 @@ public class ThinClientComponent extends CAVE implements IThinClientComponent {
         // Initialize the timed menu time refresher
         store.addPropertyChangeListener(new TimedRefresher(
                 new MenuTimeRefreshTask(),
-                ThinClientPreferenceConstants.P_MENU_TIME_REFRESH_INTERVAL));
+                ThinClientPreferenceConstants.P_DATA_REFRESH_INTERVAL));
 
         // Start network statistics
         statsJob = new StatsJob("HTTP Network Statistics", HttpClient
@@ -161,12 +157,6 @@ public class ThinClientComponent extends CAVE implements IThinClientComponent {
                         .getUnderlyingFactory()));
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent#
-     * initializeLocalization()
-     */
     @Override
     protected void initializeLocalization() throws Exception {
         /*
@@ -195,31 +185,15 @@ public class ThinClientComponent extends CAVE implements IThinClientComponent {
                         PathManagerFactory.getPathManager(), null);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.personalities.awips.AbstractAWIPSComponent#
-     * createAWIPSWorkbenchAdvisor()
-     */
     @Override
     protected AWIPSWorkbenchAdvisor createAWIPSWorkbenchAdvisor() {
         return new ThinClientWorkbenchAdvisor();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent#
-     * initializeObservers()
-     */
     @Override
     protected void initializeObservers() {
         ThinClientNotificationManagerJob.getInstance();
-        IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-        if (store.getBoolean(ThinClientPreferenceConstants.P_DISABLE_JMS) == false) {
-            // JMS Enabled, register product alerts
-            registerProductAlerts();
-        }
+        registerProductAlerts();
         initializeAlertViz();
     }
 

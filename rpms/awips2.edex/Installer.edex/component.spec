@@ -11,7 +11,7 @@ URL: N/A
 License: N/A
 Distribution: N/A
 Vendor: Raytheon
-Packager: Bryan Kowal
+Packager: %{_build_site}
 
 provides: awips2-edex
 provides: awips2-base-component
@@ -54,11 +54,6 @@ fi
 mkdir -p %{_build_root}/etc/init.d
 if [ $? -ne 0 ]; then
    exit 1
-fi
-
-BUILD_ARCH="%{_build_arch}"
-if [ "${BUILD_ARCH}" = "i386" ]; then
-   BUILD_ARCH="x86"
 fi
 
 # remove any .gitignore files
@@ -114,11 +109,6 @@ if [ ! -f /etc/init.d/edexServiceList-datadelivery ]; then
    if [ $? -ne 0 ]; then
       exit 1
    fi
-fi
-MACHINE_BIT=`uname -i`
-if [ "${MACHINE_BIT}" = "i386" ]
-then
-    rm -Rf /awips2/edex/lib/lib64
 fi
 
 # We need to create a link to the python shared library if it does not exist.

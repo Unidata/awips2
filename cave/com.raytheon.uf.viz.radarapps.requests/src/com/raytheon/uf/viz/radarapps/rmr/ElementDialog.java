@@ -179,9 +179,6 @@ public class ElementDialog extends Dialog {
         dedViewer.setContentProvider(new ObservableListContentProvider());
         dedViewer.setLabelProvider(new LabelProvider());
         dedViewer.setInput(dedList);
-        if (dedViewer.getTable().getItemCount() > 0) {
-            dedViewer.getTable().setSelection(0);
-        }
     }
 
     public void refresh() {

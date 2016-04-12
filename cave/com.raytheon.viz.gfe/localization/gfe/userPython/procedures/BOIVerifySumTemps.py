@@ -22,6 +22,7 @@
 #    11/21/13        16770         ryu            Change name of temporary files
 #                                                 for dual domain.
 #    11/26/2014      #649          zhao           changed "dbName" to "dbid"  
+#    02/10/2016      5283          nabowle        Remove NGM support.
 #=====================================================================
 #
 #  S T A R T   C O N F I G U R A T I O N   S E C T I O N
@@ -57,7 +58,7 @@ BADTHRESHOLD=10
 MODLIST=["Official","MOSGuideBC","MOSGuide","GFS40","GFS40BC",
          "ADJMAV","ADJMAVBC","NAM12","NAM12BC","DGEX","DGEXBC",
          "ADJMEX","ADJMEXBC","ADJMET","ADJMETBC","SREF","SREFBC",
-         "NGM80","NGM80BC","ADJFWC","ADJFWCBC","ADJDGX","ADJDGXBC",]
+         "ADJFWC","ADJFWCBC","ADJDGX","ADJDGXBC",]
 #
 #  The e-mail address to be 'From' when e-mails are sent
 #     an example:  EMAIL_FROM_ADDRES="timothy.barker@noaa.gov"

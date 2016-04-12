@@ -20,13 +20,11 @@
 
 package com.raytheon.edex.plugin.gfe.server.handler;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
-import com.raytheon.edex.plugin.gfe.exception.GfeConfigurationException;
+import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
 import com.raytheon.uf.common.dataplugin.gfe.request.GetKnownOfficeTypesRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
@@ -42,30 +40,28 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * ------------ ----------  ----------- --------------------------
  * 07/15/09      1995       bphillip    Initial release
  * 09/22/09      3058       rjpeter     Converted to IRequestHandler
+ * 11/18/15      5129       dgilling    Rewritten to better match A1.
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
-public class GetKnownOfficeTypesHandler implements
+public class GetKnownOfficeTypesHandler extends BaseGfeRequestHandler implements
         IRequestHandler<GetKnownOfficeTypesRequest> {
-    protected final transient Log logger = LogFactory.getLog(getClass());
 
     @Override
-    public ServerResponse<List<String>> handleRequest(
+    public ServerResponse<Map<String, String>> handleRequest(
             GetKnownOfficeTypesRequest request) throws Exception {
-        ServerResponse<List<String>> sr = null;
-        try {
-            sr = new ServerResponse<List<String>>();
-            List<String> officeTypes = IFPServerConfigManager.getServerConfig(
-                    request.getSiteID()).officeTypes();
-            sr.setPayload(officeTypes);
-        } catch (GfeConfigurationException e) {
-            logger.error("Error getting known sites", e);
-            sr = new ServerResponse<List<String>>();
-            sr.addMessage("Error getting known sites");
+        IFPServerConfig config = getIfpServer(request).getConfig();
+        List<String> ids = config.allSites();
+        List<String> officeTypes = config.officeTypes();
+        Map<String, String> sitesWithOfficeType = new HashMap<>();
+        for (int i = 0; i < ids.size(); i++) {
+            sitesWithOfficeType.put(ids.get(i), officeTypes.get(i));
         }
+
+        ServerResponse<Map<String, String>> sr = new ServerResponse<>();
+        sr.setPayload(sitesWithOfficeType);
         return sr;
     }
-
 }

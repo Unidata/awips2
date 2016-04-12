@@ -25,6 +25,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.viz.texteditor.TextDisplayModel;
@@ -41,8 +42,9 @@ import com.raytheon.viz.texteditor.util.VtecUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 24, 2010            jsanchez     Initial creation
+ * May 24, 2010            jsanchez    Initial creation
  * Apr 25, 2014 DR 16668   D. Friedman Only notify on NEW products.
+ * Jan 26, 2016 5054       randerso    Changed to use display as parent
  * 
  * </pre>
  * 
@@ -60,7 +62,7 @@ public class NotifyExpiration {
 
     private static ArrayList<String> ALLOWED_TYPES = new ArrayList<String>(5);
 
-    private Shell parent;
+    private Display display;
 
     static {
         ALLOWED_TYPES.add("SMW");
@@ -70,8 +72,8 @@ public class NotifyExpiration {
         ALLOWED_TYPES.add("FLW");
     }
 
-    public NotifyExpiration(Shell parent) {
-        this.parent = parent;
+    public NotifyExpiration(Display display) {
+        this.display = display;
     }
 
     public void add(String warning) {
@@ -84,11 +86,11 @@ public class NotifyExpiration {
         }
 
         VtecObject vtecObject = VtecUtil.parseMessage(warning);
-        if (vtecObject == null || !"NEW".equals(vtecObject.getAction())) {
+        if ((vtecObject == null) || !"NEW".equals(vtecObject.getAction())) {
             return;
         }
         Calendar expire = vtecObject.getEndTime();
-        TimerTask notify = new NotifyExpirationTask(parent, productId,
+        TimerTask notify = new NotifyExpirationTask(display, productId,
                 vtecObject);
         Timer timer = new Timer();
         expire.add(Calendar.MINUTE, -10);
@@ -97,7 +99,7 @@ public class NotifyExpiration {
     }
 
     public void checkExpirationNotices(Shell shell) {
-        if (shell != null && !tasks.isEmpty()) {
+        if ((shell != null) && !tasks.isEmpty()) {
             if (MessageDialog.openQuestion(shell, EXIT_TITLE, EXIT_MSG)) {
                 for (TimerTask t : tasks) {
                     t.cancel();

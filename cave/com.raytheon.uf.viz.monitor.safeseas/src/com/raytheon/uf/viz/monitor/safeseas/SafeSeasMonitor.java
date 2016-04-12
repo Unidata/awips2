@@ -35,8 +35,8 @@ import com.raytheon.uf.common.dataplugin.fog.FogRecord.FOG_THREAT;
 import com.raytheon.uf.common.jms.notification.NotificationMessage;
 import com.raytheon.uf.common.monitor.MonitorAreaUtils;
 import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
+import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -84,8 +84,9 @@ import com.vividsolutions.jts.geom.Geometry;
  * Apr 28, 2014 3086       skorolev    Removed local getMonitorAreaConfig method.
  * Sep 04, 2014 3220       skorolev    Updated configUpdate method and added updateMonitoringArea.
  * Sep 18, 2015 3873       skorolev    Removed common definitions. Replaced deprecated NotificationMessage.
- * Oct 19, 2015 3841       skorolev    Corrected constructor.
  * Oct 21, 2015 3873       dhladky     Get Obs load off UI thread.
+ * Dec 17, 2015 3873       dhladky     Abstracted handling of dialogTime and Zone dialog events.
+ * Jan 04, 2016 5115       skorolev    Corrected imports and replaced AppName with MonName.
  * 
  * </pre>
  * 
@@ -128,9 +129,6 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
     /** List of SAFESEAS resource listeners **/
     private final List<ISSResourceListener> safeSeasResources = new ArrayList<ISSResourceListener>();
 
-    /** Time which Zone/County dialog shows. **/
-    private Date dialogTime = null;
-
     /** list of coordinates for each zone **/
     private Map<String, Geometry> zoneGeometries = null;
 
@@ -146,12 +144,11 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
     private SafeSeasMonitor() {
         pluginPatterns.add(fssPattern);
         ssAreaConfig = FSSObsMonitorConfigurationManager
-                .getInstance(MonName.ss);
+                .getInstance(AppName.SAFESEAS);
         updateMonitoringArea();
         initObserver(OBS, this);
         createDataStructures();
         processProductAtStartup();
-        obData.getZoneTableData();
         readTableConfig(MonitorThresholdConfiguration.SAFESEAS_THRESHOLD_CONFIG);
     }
 
@@ -185,6 +182,7 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
     private void createDataStructures() {
         obData = new ObMultiHrsReports(CommonConfig.AppName.SAFESEAS);
         obData.setThresholdMgr(SSThresholdMgr.getInstance());
+        obData.getZoneTableData();
         algorithmData = new HashMap<Date, Map<String, FOG_THREAT>>();
     }
 
@@ -400,35 +398,6 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
     }
 
     /**
-     * SSResource updates the dialogTime
-     * 
-     * @param dialogTime
-     */
-    @Override
-    public void updateDialogTime(Date dialogTime) {
-        this.dialogTime = dialogTime;
-        fireMonitorEvent(zoneDialog.getClass().getName());
-    }
-
-    /**
-     * Gets Dialog Time.
-     * 
-     * @return dialogTime
-     */
-    public Date getDialogTime() {
-        return dialogTime;
-    }
-
-    /**
-     * Sets the dialogTime
-     * 
-     * @param dialogTime
-     */
-    public void setDialogTime(Date dialogTime) {
-        this.dialogTime = dialogTime;
-    }
-
-    /**
      * Adds recourse listener
      * 
      * @param issr
@@ -638,5 +607,5 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
         }
         MonitoringArea.setPlatformMap(zones);
     }
-    
+
 }

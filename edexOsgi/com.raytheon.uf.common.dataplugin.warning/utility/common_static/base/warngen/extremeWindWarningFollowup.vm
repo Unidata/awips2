@@ -6,6 +6,7 @@
 ##          Evan Bookbinder 06-07-2013 Fixed CTAs/&&
 ##          Evan Bookbinder 09-18-2013 Implemented config.vm
 ##          Dave Tomalak 3-25/26-2015 Mixed Case
+##          Mike Dangelo 10-22-2015 checked for mixed case = passed
 ################################################
 ##
 #parse("config.vm")
@@ -46,7 +47,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 ${ugcline}
 /${productClass}.${action}.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz})}/
 #foreach (${area} in ${areas}) 
-#capitalize(${area.name} "ALL")
+#capitalize(${area.name} "FIRST")
 #if(${includeStateAbbreviation}==true)
  ${area.stateabbr}##
 #end
@@ -153,7 +154,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 ${ugcline}
 /${productClass}.${action}.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz})}/
 #foreach (${area} in ${areas}) 
-#capitalize(${area.name} "ALL")
+#capitalize(${area.name} "FIRST")
 #if(${includeStateAbbreviation}==true)
  ${area.stateabbr}##
 #end
@@ -231,11 +232,11 @@ Widespread destructive winds of !** **! to !** **! mph will spread across ##
 
 #end
 #if(${list.contains(${bullets}, "cta2")})
-Take cover now! Treat these imminent extreme winds as if a tornado was approaching and move immediately to the safe room in your shelter. Take action now to protect your life!
+TAKE COVER NOW! Treat these imminent extreme winds as if a tornado was approaching and move immediately to the safe room in your shelter. Take action now to protect your life!
 
 #end
 #if(${list.contains(${bullets}, "cta3")})
-The safest place to be during a major landfalling hurricane is in a reinforced interior room away from windows. Get under a table or other piece of sturdy furniture. Use mattresses, blankets or pillows to cover your head and body. Remain in place through the passage of these life threatening conditions.
+The safest place to be during a major landfalling hurricane is in a reinforced interior room away from windows. Get under a table or other piece of sturdy furniture. Use mattresses, blankets or pillows to cover your head and body. Remain in place through the passage of these life-threatening conditions.
 
 #end
 #############
@@ -323,7 +324,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 ${ugclinecan}
 /${productClass}.CAN.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz})}/
 #foreach (${area} in ${cancelareas})
-#capitalize(${area.name} "ALL")
+#capitalize(${area.name} "FIRST")
 #if(${includeStateAbbreviation}==true)
  ${area.stateabbr}##
 #end
@@ -371,7 +372,7 @@ $$
 ${ugcline}
 /${productClass}.CON.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz})}/
 #foreach (${area} in ${areas}) 
-#capitalize(${area.name} "ALL")
+#capitalize(${area.name} "FIRST")
 #if(${includeStateAbbreviation}==true)
  ${area.stateabbr}##
 #end
@@ -458,11 +459,11 @@ producing swaths of tornado-like damage.
 
 #end
 #if(${list.contains(${bullets}, "takeCoverCTA")})
-Take cover now! Treat these imminent extreme winds as if a tornado was approaching and move immediately to the safe room in your shelter. Take action now to protect your life!
+TAKE COVER NOW! Treat these imminent extreme winds as if a tornado was approaching and move immediately to the safe room in your shelter. Take action now to protect your life!
 
 #end
 #if(${list.contains(${bullets}, "safePlacesCTA")})
-The safest place to be during a major landfalling hurricane is in a reinforced interior room away from windows. Get under a table or other piece of sturdy furniture. Use mattresses, blankets or pillows to cover your head and body. Remain in place through the passage of these life threatening conditions.
+The safest place to be during a major landfalling hurricane is in a reinforced interior room away from windows. Get under a table or other piece of sturdy furniture. Use mattresses, blankets or pillows to cover your head and body. Remain in place through the passage of these life-threatening conditions.
 
 #end
 ##
@@ -497,7 +498,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 ${ugcline}
 /${productClass}.${action}.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz})}/
 #foreach (${area} in ${areas}) 
-#capitalize(${area.name} "ALL")
+#capitalize(${area.name} "FIRST")
 #if(${includeStateAbbreviation}==true)
  ${area.stateabbr}##
 #end

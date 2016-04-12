@@ -75,7 +75,7 @@ class Interfaces(TextUtils.TextUtils):
         if sampleFromServer:
             sampler = ifpClient.sampleRequest(samplerRequests)
         else:
-            sampler = HistoSampler(ifpClient, samplerRequests)        
+            sampler = HistoSampler(ifpClient.getJavaClient(), samplerRequests)        
         if sampler.isValid() != 1:
             print "Cannot Sample: Check for invalid Weather Elements, ",\
               "Invalid Areas", str(samplerRequests)

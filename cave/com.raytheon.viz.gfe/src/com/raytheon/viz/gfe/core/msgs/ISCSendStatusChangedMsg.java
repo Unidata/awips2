@@ -22,6 +22,8 @@ package com.raytheon.viz.gfe.core.msgs;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
 
+import com.raytheon.uf.viz.core.VizApp;
+
 /**
  * Message indicate ISC Send Status has changed
  * 
@@ -31,6 +33,7 @@ import org.eclipse.ui.commands.ICommandService;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 25, 2010            randerso     Initial creation
+ * Nov 17, 2015  #4888     dgilling     Ensure UI updates happen on UI thread.
  * 
  * </pre>
  * 
@@ -60,11 +63,17 @@ public class ISCSendStatusChangedMsg extends Message {
         super.send();
 
         if (PlatformUI.isWorkbenchRunning()) {
-            ICommandService service = (ICommandService) PlatformUI
-                    .getWorkbench().getActiveWorkbenchWindow().getService(
-                            ICommandService.class);
+            VizApp.runAsync(new Runnable() {
 
-            service.refreshElements(COMMAND_ID, null);
+                @Override
+                public void run() {
+                    ICommandService service = (ICommandService) PlatformUI
+                            .getWorkbench().getActiveWorkbenchWindow()
+                            .getService(ICommandService.class);
+
+                    service.refreshElements(COMMAND_ID, null);
+                }
+            });
         }
     }
 }

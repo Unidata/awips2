@@ -74,6 +74,7 @@ import com.raytheon.viz.ui.actions.DummyAction;
  * Aug 2, 2013 DR 16427    Qinglu Lin   (David's approach) Changing InputPriority.SYSTEM_RESOURCE to 
  *                                      InputPriority.SYSTEM_RESOURCE_LOW in initInternal().
  * Jun 30, 2015 RM14663    kshresth     Font size increased for Contour labels.
+ * Nov 05, 2015 5070       randerso     Removed incorrect magnification limits
  * 
  * </pre>
  * 
@@ -508,7 +509,8 @@ public class D2DLegendResource extends
              * by being added later, runs before the changeModelHandler. See
              * InputManager.handeMouseXxx.
              */
-            rc.registerMouseHandler(changeModeHandler, InputPriority.SYSTEM_RESOURCE_LOW);
+            rc.registerMouseHandler(changeModeHandler,
+                    InputPriority.SYSTEM_RESOURCE_LOW);
             rc.registerMouseHandler(legendHandler,
                     InputPriority.SYSTEM_RESOURCE_LOW);
         }
@@ -572,8 +574,8 @@ public class D2DLegendResource extends
     private float getScaledMagnification() {
         float magnification = getCapability(MagnificationCapability.class)
                 .getMagnification().floatValue();
-        if (magnification < 0.9f) {
-            magnification = 1.0f;
+        if (magnification < 0.6f) {
+            magnification = 0.6f;
         } else if (magnification > 1.0f) {
             magnification = 1 + (magnification / 4.0f);
         }

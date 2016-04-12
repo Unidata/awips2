@@ -25,11 +25,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
 
-import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
@@ -42,7 +41,6 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
-import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.GFEOperationFailedException;
 import com.raytheon.viz.gfe.actions.ShowISCMarkersAction;
@@ -164,6 +162,7 @@ public abstract class AbstractSpatialDisplayManager implements
      * 
      * @see com.raytheon.viz.gfe.core.ISpatialDisplayManager#getActivatedParm()
      */
+    @Override
     public Parm getActivatedParm() {
         return activeParm;
     }
@@ -186,6 +185,7 @@ public abstract class AbstractSpatialDisplayManager implements
      * addActivatedParmChangedListener
      * (com.raytheon.viz.gfe.core.msgs.IActivatedParmChangedListener)
      */
+    @Override
     public void addActivatedParmChangedListener(
             IActivatedParmChangedListener listener) {
         Validate.notNull(listener, "Attempting to add null listener");
@@ -199,6 +199,7 @@ public abstract class AbstractSpatialDisplayManager implements
      * removeActivatedParmChangedListener
      * (com.raytheon.viz.gfe.core.msgs.IActivatedParmChangedListener)
      */
+    @Override
     public void removeActivatedParmChangedListener(
             IActivatedParmChangedListener parmChangeListener) {
         this.activatedParmChangedListeners.remove(parmChangeListener);
@@ -238,6 +239,7 @@ public abstract class AbstractSpatialDisplayManager implements
      * addGridVisibilityChangedListener
      * (com.raytheon.viz.gfe.core.msgs.IGridVisibilityChangedListener)
      */
+    @Override
     public void addGridVisibilityChangedListener(
             IGridVisibilityChangedListener listener) {
         Validate.notNull(listener, "Attempting to add null listener");
@@ -251,6 +253,7 @@ public abstract class AbstractSpatialDisplayManager implements
      * removeGridVisibilityChangedListener
      * (com.raytheon.viz.gfe.core.msgs.IGridVisibilityChangedListener)
      */
+    @Override
     public void removeGridVisibilityChangedListener(
             IGridVisibilityChangedListener parmChangeListener) {
         this.gridVisibilityChangedListeners.remove(parmChangeListener);
@@ -491,6 +494,7 @@ public abstract class AbstractSpatialDisplayManager implements
      * com.raytheon.viz.gfe.core.ISpatialDisplayManager#activateParm(com.raytheon
      * .viz.gfe.core.parm.Parm)
      */
+    @Override
     public void activateParm(Parm parmToActivate)
             throws GFEOperationFailedException {
         // Keep any resources on descriptors in sync
@@ -504,11 +508,11 @@ public abstract class AbstractSpatialDisplayManager implements
                 if (props.isSystemResource()) {
                     continue;
                 }
-                Parm parm = ((GFEResource) rsc).getParm();
+                Parm parm = rsc.getParm();
                 if (parm.equals(parmToActivate)) {
                     props.setVisible(true);
                 }
-                ((GFEResource) rsc).reset();
+                rsc.reset();
             }
         }
 

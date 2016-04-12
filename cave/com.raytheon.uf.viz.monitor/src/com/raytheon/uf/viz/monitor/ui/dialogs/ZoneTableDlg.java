@@ -101,6 +101,8 @@ import com.vividsolutions.jts.io.ParseException;
  * Nov 03, 2014 3741      skorolev     Updated zoom procedures.
  * Sep 25, 2015 3873      skorolev     Added center definition for moving platforms.
  * Nov 09, 2015 3841      dhladky      Update all tables when zones/stations are updated.
+ * Dec 02, 2015 3873      dhladky      Pulled 3841 to 16.1.1.
+ * Dec 17, 2015 3873      dhladky      Set link to Frame to true by default.
  * 
  * </pre>
  * 
@@ -175,7 +177,7 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
     protected Button linkToFrameChk;
 
     /** Link-to-frame flag. **/
-    public boolean linkedToFrame = false;
+    public boolean linkedToFrame = true;
 
     /** Vertical check box. **/
     private Button vertChk;
@@ -232,7 +234,7 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
     protected abstract void shellDisposeAction();
 
     /** List of opened plots. **/
-    private Map<String, CaveSWTDialog> openedDlgs = new HashMap<String, CaveSWTDialog>();
+    private final Map<String, CaveSWTDialog> openedDlgs = new HashMap<String, CaveSWTDialog>();
 
     /** row index in the station table. **/
     public int rowIndex;
@@ -383,6 +385,7 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
         GridData gd = new GridData(SWT.DEFAULT, SWT.CENTER, false, true);
         linkToFrameChk = new Button(controlComp, SWT.CHECK);
         linkToFrameChk.setText("Link to Frame");
+        linkToFrameChk.setSelection(linkedToFrame);
         linkToFrameChk.setLayoutData(gd);
         linkToFrameChk.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -793,8 +796,8 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
     private void zoomToZone(String zone) throws Exception {
         Coordinate zoneCenter = MonitorAreaUtils.getZoneCenter(zone);
         if (zoneCenter == null) { // Test a newly added zone.
-            AreaIdXML zoneXML = configMgr.getAreaXml(zone);
-            if (zoneXML != null // Coordinates do not the null values.
+            AreaIdXML zoneXML = getMonitorAreaConfigInstance().getAreaXml(zone);
+            if (zoneXML != null
                     && (zoneXML.getCLon() != null || zoneXML.getCLat() != null)) {
                 zoneCenter = new Coordinate(zoneXML.getCLon(),
                         zoneXML.getCLat());
@@ -1011,6 +1014,7 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
      */
     public void refreshZoneTableData(ObMultiHrsReports obData) {
         obData.getObHourReports().updateZones();
+        obData.updateTableCache();
         this.updateTableDlg(obData.getObHourReports());
     }
 }

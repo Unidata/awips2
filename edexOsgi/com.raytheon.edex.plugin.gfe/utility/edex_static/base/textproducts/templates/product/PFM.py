@@ -418,8 +418,8 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
                 except:
                     zoneTZ = localTZ
                     tzid = localTZid
-                    LogStream.logProblem("WARNING: Entry " + area +  
-                      " missing from AreaDictionary. Using default time zone.", LogStream.exc())
+                    LogStream.logEvent("WARNING: Entry " + area +  
+                      " does not have time zone info in AreaDictionary. Using default time zone.", LogStream.exc())
 
                 if (zoneTZ, tzid) not in tzs:
                     tzs.append((zoneTZ, tzid))

@@ -20,9 +20,7 @@
 
 package com.raytheon.uf.viz.thinclient.cave.preferences;
 
-import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
-import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -55,6 +53,7 @@ import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
  * Feb 04, 2014 2704       njensen     Only one field for proxy server
  * Jun 26, 2014 3236       njensen     Proxy server can now be text or combo field
  * Oct 08, 2015 4891       njensen     Added tooltip to useProxies
+ * Feb 09, 2016 5281       tjensen     Remove option for Use Proxy Server
  * 
  * </pre>
  * 
@@ -62,8 +61,6 @@ import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
  * @version 1.0
  */
 public class ThinClientServerPreferences extends FieldEditorPreferencePage {
-
-    private BooleanFieldEditor useProxies;
 
     private TextOrComboEditor proxyServer;
 
@@ -79,23 +76,8 @@ public class ThinClientServerPreferences extends FieldEditorPreferencePage {
         setDescription("Thin Client Servers (changes require a restart)");
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.preference.FieldEditorPreferencePage#createFieldEditors
-     * ()
-     */
     @Override
     protected void createFieldEditors() {
-        useProxies = new BooleanFieldEditor(
-                ThinClientPreferenceConstants.P_USE_PROXIES,
-                "&Use Proxy Servers", getFieldEditorParent());
-        useProxies
-                .getDescriptionControl(getFieldEditorParent())
-                .setToolTipText(
-                        "Connect to a remote proxy server configured to support thin clients");
-        addField(useProxies);
 
         proxyServer = new TextOrComboEditor(getFieldEditorParent(),
                 this.getPreferenceStore(),
@@ -180,24 +162,6 @@ public class ThinClientServerPreferences extends FieldEditorPreferencePage {
         if (serverError) {
             this.setErrorMessage(errorMessage);
         }
-    }
-
-    @Override
-    public void propertyChange(PropertyChangeEvent event) {
-        super.propertyChange(event);
-        this.updateEnabledFields();
-    }
-
-    @Override
-    protected void checkState() {
-        super.checkState();
-        this.updateEnabledFields();
-    }
-
-    private void updateEnabledFields() {
-        boolean useProxies = this.useProxies.getBooleanValue();
-        proxyServer.setEnabled(useProxies, connectivityButton.getParent());
-        connectivityButton.setEnabled(useProxies);
     }
 
 }

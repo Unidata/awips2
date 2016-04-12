@@ -24,7 +24,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.bufrsigwx.SigWxData;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.wmo.WMOHeader;
@@ -43,6 +42,9 @@ import com.raytheon.uf.edex.plugin.bufrsigwx.decoder.SigWxDataAdapter;
  * ------------ ---------- ----------- --------------------------
  * Jan 21, 2009 1939       jkorman     Initial creation
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Feb 04, 2016 5309       tgurney     Remove call to constructDataURI and
+ *                                     check for null on dataURI component
+ *                                     fields
  * 
  * </pre>
  * 
@@ -87,13 +89,18 @@ public class SigWxDecoder extends AbstractBUFRDecoder {
                 if (sigwx != null) {
                     for (SigWxData d : sigwx) {
                         d.setTraceId(traceId);
-                        try {
-                            d.constructDataURI();
-                        } catch (PluginException e) {
-                            logger.error(traceId
-                                    + "- Unable to construct dataURI", e);
+                        if (d.getWxLayer() == null) {
+                            logger.warn("Discarding record with wxLayer == null: "
+                                    + d.toString());
+                        } else if (d.getWxType() == null) {
+                            logger.warn("Discarding record with wxType == null: "
+                                    + d.toString());
+                        } else if (d.getKey() == null) {
+                            logger.warn("Discarding record with key == null: "
+                                    + d.toString());
+                        } else {
+                            decodedData.add(d);
                         }
-                        decodedData.add(d);
                     }
                 } else {
                     logger.info("No data returned from createDataList");

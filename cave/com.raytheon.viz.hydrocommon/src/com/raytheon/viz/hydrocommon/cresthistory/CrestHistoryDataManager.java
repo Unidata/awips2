@@ -42,13 +42,13 @@ package com.raytheon.viz.hydrocommon.cresthistory;
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.HydroConstants;
 import com.raytheon.viz.hydrocommon.data.RiverDataPoint;
 import com.raytheon.viz.hydrocommon.datamanager.RiverDataManager;
-import com.raytheon.viz.hydrocommon.datamanager.HydroDBDataManager;
 import com.raytheon.viz.hydrocommon.util.DbUtils;
 
 public class CrestHistoryDataManager {
@@ -136,8 +136,6 @@ public class CrestHistoryDataManager {
             CrestData selectedCrest, int mode) {
         String errMsg = null;
 
-        DbUtils.escapeSpecialCharforData(cd);
-
         if (mode == 3) {
 
             // Did the primary key change?
@@ -166,7 +164,9 @@ public class CrestHistoryDataManager {
                     DirectDbQuery.executeStatement(query, HydroConstants.IHFS,
                             QueryLanguage.SQL);
                 } catch (VizException e) {
-                    e.printStackTrace();
+                    statusHandler.handle(Priority.ERROR,
+                            "Error to insert crest data with query: " + query,
+                            e);
                 }
             }
         }
@@ -179,9 +179,9 @@ public class CrestHistoryDataManager {
         if (cd.getRemarks() != null) {
             String remarks = cd.getRemarks();
             remarks = remarks.replaceAll("\n", "\\n");
+            remarks = DbUtils.escapeSpecialCharforStr(remarks);
             back.append("'" + remarks + "', ");
             front.append("cremark, ");
-            // back.append("'" + cd.getRemarks() + "', ");
         }
         if (cd.isHighWater()) {
             front.append("hw, ");
@@ -224,8 +224,8 @@ public class CrestHistoryDataManager {
             DirectDbQuery.executeStatement(insertCrest, HydroConstants.IHFS,
                     QueryLanguage.SQL);
         } catch (VizException e) {
-
-            e.printStackTrace();
+            statusHandler.handle(Priority.ERROR,
+                    "Error to insert crest data with query: " + insertCrest, e);
 
             // exception with duplicate key value is throwed in the 2nd cause
 
@@ -240,14 +240,11 @@ public class CrestHistoryDataManager {
             /* execute an update */
             StringBuilder query = new StringBuilder("update crest set ");
 
-            // query.append("lid = '" + lid + "', ");
-            // query.append("datcrst = '" + cd.getDateString() + "', ");
-
             if (cd.getRemarks() != null) {
                 String remarks = cd.getRemarks();
                 remarks = remarks.replace("\n", "\\n");
+                remarks = DbUtils.escapeSpecialCharforStr(remarks);
                 query.append("cremark = E'" + remarks + "', ");
-                // query.append("cremark = '" + cd.getRemarks() + "', ");
             }
 
             if (cd.isHighWater()) {

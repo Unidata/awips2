@@ -6,6 +6,8 @@
 ##      Phil Kurimski   -- SEP 10 2012  OB12.9.1-12           ##
 ##      Evan Bookbinder    SEP 18 2013  Implemented config.vm ##
 ## UPDATED PHIL KURIMSKI -- MAR 24 2015 Mixed Case ##
+##          Richard Barnhill -- Dec 30 2015 Per conversation with##
+##                              Evan, made default hailCTA ""    ##
 ################################################################
 #parse("config.vm")
 ################################################
@@ -132,6 +134,7 @@ THIS IS A TEST MESSAGE. ##
 #######################################################################
 #set($windTag = "<34")
 #set($windCTA = "gusty winds")
+#set($hailCTA = "")
 #if(${list.contains(${bullets}, "34ktWind")})
 	#set($windTag = ">34")
 	#set($windType = "winds 34 knots or greater")
@@ -204,7 +207,7 @@ THIS IS A TEST MESSAGE. ##
 #######################################################################
 ## Logic to create the Wind/Hail Tags used by CR.
 #######################################################################
-#set($windhailTag = "WIND...HAIL ${windTag}KTS ${hailTag}IN")
+#set($windhailTag = "WIND...HAIL ${windTag}kts ${hailTag}in")
 #######################################################################
 ## Logic to put together the threats based on Wind...Hail and Waterspout sections.
 #######################################################################
@@ -256,7 +259,7 @@ THIS IS A TEST MESSAGE. ##
 #set($specialEvent = "This ${eventType}")
 #set($reportType2 = "The ${eventType} was")
 #if(${stormType} == "line")
-	#set($stormline = "a line of ${eventType}s")
+	#set($stormline = "${eventType}s")
 	#set($secondStorm = "These ${eventType2}s were")
 	#set($pathheader = "${eventType}S")
 	#set($specialEvent = "these ${eventType}s")
@@ -431,7 +434,7 @@ Frequent lightning is occurring with this storm. If caught on the open water sta
 
 #end
 #if(${list.contains(${bullets}, "reportCTA")})
-Report severe weather to the coast guard or nearest law enforcement agency. They will relay your report to the National Weather Service office.
+Report severe weather to the Coast Guard or nearest law enforcement agency. They will relay your report to the National Weather Service office.
 
 #end
 #if(${ctaSelected} == "YES")

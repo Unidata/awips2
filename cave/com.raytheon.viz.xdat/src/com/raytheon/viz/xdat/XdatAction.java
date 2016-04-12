@@ -25,8 +25,7 @@ package com.raytheon.viz.xdat;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
+import org.eclipse.swt.widgets.Display;
 
 /**
  * Action for unimplemented features. To be used temporarily until final
@@ -36,12 +35,12 @@ import org.eclipse.ui.PlatformUI;
  * 
  * SOFTWARE HISTORY
  * 
- * Date       	Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * 6/27/06                  lvenable    Initial Creation.
- * 3/9/09                   wkwock      eliminate the DB name argument in calling XdatDlg.
- *                                      XdatDlg extracts the DB name from the URL.
- * 3/31/09      
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 6/27/06                 lvenable    Initial Creation.
+ * 3/9/09                  wkwock      eliminate the DB name argument in calling XdatDlg.
+ *                                     XdatDlg extracts the DB name from the URL.
+ * 01/26/2016   5054       randerso    Made XdatDlg parented to display
  * 
  * </pre>
  * 
@@ -49,14 +48,11 @@ import org.eclipse.ui.PlatformUI;
  * 
  */
 public class XdatAction extends AbstractHandler {
-//    private static final String JDBC_URL = "jdbcUrl";
-    
-    @Override
-    public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
 
-        XdatDlg xdatDlg = new XdatDlg(shell);
+    @Override
+    public Object execute(ExecutionEvent event) throws ExecutionException {
+
+        XdatDlg xdatDlg = new XdatDlg(Display.getCurrent());
         xdatDlg.open();
 
         return null;

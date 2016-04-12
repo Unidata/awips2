@@ -40,12 +40,18 @@ import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.common.dataplugin.gfe.reference.GroupID;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceID;
+import com.raytheon.uf.common.localization.ILocalizationFile;
+import com.raytheon.uf.common.localization.IPathManager;
+import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.viz.gfe.core.IReferenceSetManager;
+import com.raytheon.viz.gfe.core.IReferenceSetManager.RefSetMode;
+import com.raytheon.viz.gfe.core.internal.ReferenceSetManager;
 import com.raytheon.viz.gfe.ui.AccessMgr;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 import com.raytheon.viz.ui.widgets.ToggleSelectList;
@@ -57,8 +63,10 @@ import com.raytheon.viz.ui.widgets.ToggleSelectList;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 	Mar 11, 2008					Eric Babin Initial Creation
+ * Mar 11, 2008            Eric Babin  Initial Creation
  * Oct 24, 2012 1287       rferrel     Code clean part of non-blocking dialog.
+ * Nov 18, 2015 5129       dgilling    Code cleanup to support ReferenceSetManager changes.
+ * Feb 05, 2016 5242       dgilling    Remove calls to deprecated Localization APIs.
  * 
  * </pre>
  * 
@@ -344,13 +352,39 @@ public class SaveDeleteEditAreaGroupDialog extends CaveJFACEDialog {
      * @param withVerify
      */
     private void deleteArea(String areaName, boolean withVerify) {
-        // Note: Area will be deleted from all groups by
-        // UIReferenceSetMgr which processes deletions for
-        // incoming ReferenceSetInventoryChanged messages
+        /*
+         * Note: Area will be deleted from all groups by UIReferenceSetMgr which
+         * processes deletions for incoming ReferenceSetInventoryChanged
+         * messages
+         */
 
         ReferenceID id = new ReferenceID(areaName);
         if (id.isValid()) {
-            refSetManager.deleteRefSet(id, withVerify);
+            if (withVerify) {
+                IPathManager pm = PathManagerFactory.getPathManager();
+                LocalizationContext ctx = pm.getContext(
+                        LocalizationType.COMMON_STATIC, LocalizationLevel.USER);
+                ILocalizationFile lf = pm.getLocalizationFile(ctx,
+                        ReferenceSetManager.EDIT_AREAS_DIR
+                                + IPathManager.SEPARATOR + id.getName()
+                                + ".xml");
+                boolean verify = AccessMgr.verifyDelete(lf.getPath(), lf
+                        .getContext().getLocalizationType(), false);
+                if (!verify) {
+                    return;
+                }
+            }
+
+            /*
+             * Check to see if deleting active reference set. If so, clear the
+             * active reference set
+             */
+            ReferenceID activeId = refSetManager.getActiveRefSet().getId();
+            if (id.equals(activeId)) {
+                refSetManager.incomingRefSet(refSetManager.emptyRefSet(),
+                        RefSetMode.REPLACE);
+            }
+            refSetManager.deleteRefSet(id);
         }
     }
 }

@@ -24,7 +24,7 @@ import javax.measure.converter.ConversionException;
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.SI;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * Converts a skin temperature pixel to a temperature in Kelvin
@@ -41,65 +41,65 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
  */
 public class SkinTempPixelToTempConverter extends UnitConverter {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private static UnitConverter celsiusToKelvin = SI.CELSIUS
-			.getConverterTo(SI.KELVIN);
+    private static UnitConverter celsiusToKelvin = SI.CELSIUS
+            .getConverterTo(SI.KELVIN);
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.measure.converter.UnitConverter#convert(double)
-	 */
-	@Override
-	public double convert(double aPixel) throws ConversionException {
-		double result = 63.0 - (aPixel / 2.0);
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.measure.converter.UnitConverter#convert(double)
+     */
+    @Override
+    public double convert(double aPixel) throws ConversionException {
+        double result = 63.0 - (aPixel / 2.0);
 
-		// above converts pixel to Celsius, but we need to change it to
-		// Kelvin
-		result = celsiusToKelvin.convert(result);
+        // above converts pixel to Celsius, but we need to change it to
+        // Kelvin
+        result = celsiusToKelvin.convert(result);
 
-		return result;
-	}
+        return result;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.measure.converter.UnitConverter#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object aConverter) {
-		return (aConverter instanceof SkinTempPixelToTempConverter);
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.measure.converter.UnitConverter#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object aConverter) {
+        return (aConverter instanceof SkinTempPixelToTempConverter);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.measure.converter.UnitConverter#hashCode()
-	 */
-	@Override
-	public int hashCode() {
-		return HashCodeBuilder.reflectionHashCode(this);
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.measure.converter.UnitConverter#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.measure.converter.UnitConverter#inverse()
-	 */
-	@Override
-	public UnitConverter inverse() {
-		return new SkinTempTempToPixelConverter();
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.measure.converter.UnitConverter#inverse()
+     */
+    @Override
+    public UnitConverter inverse() {
+        return new SkinTempTempToPixelConverter();
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.measure.converter.UnitConverter#isLinear()
-	 */
-	@Override
-	public boolean isLinear() {
-		return true;
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.measure.converter.UnitConverter#isLinear()
+     */
+    @Override
+    public boolean isLinear() {
+        return true;
+    }
 
 }

@@ -15,11 +15,14 @@ URL: N/A
 License: N/A
 Distribution: N/A
 Vendor: Raytheon
-Packager: Bryan Kowal
+Packager: %{_build_site}
 
 AutoReq: no
-provides: awips2-rcm
-requires: awips2-java
+Provides: awips2-rcm
+Requires: awips2-java
+
+BuildRequires: awips2-ant
+BuildRequires: awips2-java
 
 %description
 AWIPS II Radar Server Installation - Sets Up AWIPS II Radar Server.
@@ -129,9 +132,9 @@ rm -rf ${RPM_BUILD_ROOT}
 %dir /awips2/rcm
 %dir /awips2/rcm/data
 /awips2/rcm/data/*
-%config(noreplace) /awips2/rcm/data/config/drop-ins/elevationLists.txt
+%config /awips2/rcm/data/config/drop-ins/elevationLists.txt
 %config(noreplace) /awips2/rcm/data/config/drop-ins/tdwrElevations.txt
-%config(noreplace) /awips2/rcm/data/config/drop-ins/ssssElevationLists.txt
+%config /awips2/rcm/data/config/drop-ins/ssssElevationLists.txt
 
 %docdir /awips2/rcm/licenses
 %dir /awips2/rcm/licenses

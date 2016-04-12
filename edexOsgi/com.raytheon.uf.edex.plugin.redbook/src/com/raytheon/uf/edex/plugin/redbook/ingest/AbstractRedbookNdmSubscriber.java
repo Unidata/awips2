@@ -35,6 +35,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -51,6 +52,8 @@ import com.raytheon.uf.edex.ndm.ingest.INationalDatasetSubscriber;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 25, 2015 4512       mapeters    Initial creation.
+ * Jan 08, 2016 5237       tgurney     Replace call to deprecated
+ *                                     LocalizationFile.write()
  * 
  * </pre>
  * 
@@ -96,7 +99,7 @@ public abstract class AbstractRedbookNdmSubscriber implements
         for (String line : dataKeys) {
             line = line.trim();
             // Skip comment/empty lines
-            if (line.startsWith("#") || line.length() == 0) {
+            if (line.startsWith("#") || (line.length() == 0)) {
                 continue;
             }
             String[] parts = line.split("\\|");
@@ -125,12 +128,13 @@ public abstract class AbstractRedbookNdmSubscriber implements
             locFile.getFile().getParentFile().mkdirs();
         }
 
-        try {
-            locFile.write(Files.readAllBytes(file.toPath()));
+        try (SaveableOutputStream locFileStream = locFile.openOutputStream()) {
+            locFileStream.write(Files.readAllBytes(file.toPath()));
+            locFileStream.save();
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Failed to write contents of " + file.getPath() + " to "
-                            + locFile.getFile().getPath(), e);
+                            + locFile.getPath(), e);
         }
     }
 

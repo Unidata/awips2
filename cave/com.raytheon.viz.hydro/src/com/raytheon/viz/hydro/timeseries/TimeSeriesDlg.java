@@ -53,6 +53,7 @@ import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
@@ -61,7 +62,6 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
@@ -129,6 +129,7 @@ import com.raytheon.viz.hydrocommon.util.StnClassSyncUtil;
  *                                      Fixed formatter resource leaks.
  * 30 Oct, 2015 15102      wkwock      Implements preferred order for PE-D-TS-EXT list
  * 26 Oct, 2015 14217      jwu         Removed DAYS_MAX & MAX_TRACES limitations
+ * Jan 26, 2016 5054       randerso    Allow dialog to be parented to display
  * 
  * </pre>
  * 
@@ -498,9 +499,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
     public final static TimeSeriesDlg getInstance() {
         // Independent shell must be recreated after closing.
         if ((instance == null) || !instance.isOpen()) {
-            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                    .getShell();
-            instance = new TimeSeriesDlg(shell);
+            instance = new TimeSeriesDlg(Display.getCurrent());
         }
         return instance;
     }
@@ -508,11 +507,10 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
     /**
      * Constructor.
      * 
-     * @param parent
-     *            Parent shell.
+     * @param display
      */
-    private TimeSeriesDlg(Shell parent) {
-        super(parent, CAVE.INDEPENDENT_SHELL);
+    private TimeSeriesDlg(Display display) {
+        super(display, CAVE.INDEPENDENT_SHELL);
         setText("Time Series Control");
 
         displayManager = HydroDisplayManager.getInstance();
@@ -524,14 +522,13 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
     /**
      * Constructor for stand alone dialog.
      * 
-     * @param parent
-     *            the Parent shell.
+     * @param display
      * 
      * @param groupConfigFile
      *            the user-specified file with group configuration information.
      */
-    public TimeSeriesDlg(Shell parent, File groupConfigFile) {
-        this(parent);
+    public TimeSeriesDlg(Display display, File groupConfigFile) {
+        this(display);
 
         this.standaloneMode = true;
         // Ensure That The Group Configuration File Exists.
@@ -1542,12 +1539,12 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                 si.setDur(((Number) row[4]).intValue());
 
                 boolean preferredLstFlg = false;
-                if (peMap!=null){
+                if (peMap != null) {
                     String[] typeSrcLst = peMap.get(si.getPe());
 
                     if (typeSrcLst != null) {
                         for (String typesrc : typeSrcLst) {
-                            
+
                             if (typesrc.equalsIgnoreCase(si.getTs())) {
                                 preferredLstFlg = true;
                                 break;
@@ -1622,7 +1619,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                 tsSelected = false;
             }
 
-            populatePreferredDataInOrder(preferredMap,peMap);
+            populatePreferredDataInOrder(preferredMap, peMap);
             processDataList(hMap, tsSelected);
             processDataList(qMap, tsSelected);
             processDataList(pMap, tsSelected);
@@ -1633,33 +1630,37 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
             selectedDataLbl.setText(selectedLid);
             bottomDataList.setSelection(0);
         } catch (VizException e) {
-            statusHandler.error("Failed to populate time series list",e);
+            statusHandler.error("Failed to populate time series list", e);
         }
     }
 
     /**
      * populate data to bottomDataList base on preferred predefined order
+     * 
      * @param preferredMap
      * @param peMap
      */
-    private void populatePreferredDataInOrder (LinkedHashMap<String, ArrayList<SiteInfo>>preferredMap, Map<String, String[]> peMap) {
-        if (peMap!=null && preferredMap!=null ){
-            for (String pe:peMap.keySet()){
+    private void populatePreferredDataInOrder(
+            LinkedHashMap<String, ArrayList<SiteInfo>> preferredMap,
+            Map<String, String[]> peMap) {
+        if ((peMap != null) && (preferredMap != null)) {
+            for (String pe : peMap.keySet()) {
                 java.util.List<SiteInfo> siList = preferredMap.get(pe);
-                
+
                 if (siList == null) {
                     continue;
                 }
-                
-                String[] tsList =  peMap.get(pe);
-                if (tsList==null) { //There's PE but no TS in preffered_order.txt
-                    for(SiteInfo si : siList) {
+
+                String[] tsList = peMap.get(pe);
+                if (tsList == null) { // There's PE but no TS in
+                                      // preffered_order.txt
+                    for (SiteInfo si : siList) {
                         bottomDataList.add(formatDataLine(si));
                         siteInfoList.add(si);
                     }
-                } else { //There's both PE and TS in preferred_order.txt
-                    for (String ts: tsList){
-                        for(SiteInfo si : siList) {
+                } else { // There's both PE and TS in preferred_order.txt
+                    for (String ts : tsList) {
+                        for (SiteInfo si : siList) {
                             if (ts.equalsIgnoreCase(si.getTs())) {
                                 bottomDataList.add(formatDataLine(si));
                                 siteInfoList.add(si);

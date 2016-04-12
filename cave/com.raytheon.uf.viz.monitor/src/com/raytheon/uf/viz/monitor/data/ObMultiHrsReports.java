@@ -32,12 +32,9 @@ import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.monitor.data.ObConst;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.monitor.config.CommonTableConfig.CellType;
@@ -61,7 +58,12 @@ import com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr;
  * Jan 29, 2013 15654      zhao        add Wind Chill calculation for SNOW 
  * Sep 04, 2014  3220      skorolev    Updated getStationTableData method.
  * Sep 25, 2015  3873      skorolev    Added multiHrsTabData.
- * 
+ * Nov 12, 2015  3841      dhladky     Augmented Slav's update fix.
+ * Dec 02  2015  3873      dhladky    Pulled 3841 changes to 16.1.1.
+ * Jan 04, 2016  5115      skorolev    Replaced Mon.Name with App.Name.
+ * Jan 11  2016  5219      dhladky     Fixed damage done to cache management by recent updates.
+ * Feb 18, 2016  12085      zhao       Modified/added Wind Chill & Frostbite calculation for SNOW
+ *
  * </pre>
  * 
  * @author zhao
@@ -69,8 +71,6 @@ import com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr;
  */
 
 public class ObMultiHrsReports {
-    private final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(ObMultiHrsReports.class);
 
     /**
      * Thresholds manager
@@ -85,7 +85,7 @@ public class ObMultiHrsReports {
     /**
      * application name (snow, fog, safeseas, etc)
      */
-    private CommonConfig.AppName appName;
+    private final CommonConfig.AppName appName;
 
     /**
      * FSSObs records cache. Key is nominal time, value is ObHourReports object
@@ -97,7 +97,7 @@ public class ObMultiHrsReports {
      */
     private ConcurrentHashMap<Date, TableData> multiHrsTabData = new ConcurrentHashMap<Date, TableData>();
 
-    private int maxFrames = ObConst.MAX_FRAMES;
+    private final int maxFrames = ObConst.MAX_FRAMES;
 
     private FSSObsMonitorConfigurationManager cfgMgr = null;
 
@@ -108,15 +108,8 @@ public class ObMultiHrsReports {
      */
     public ObMultiHrsReports(CommonConfig.AppName appName) {
         this.appName = appName;
-
         if (appName.equals(AppName.FOG) || appName.equals(AppName.SAFESEAS)) {
-            if (appName.equals(AppName.FOG)) {
-                cfgMgr = FSSObsMonitorConfigurationManager
-                        .getInstance(MonName.fog);
-            } else if (appName.equals(AppName.SAFESEAS)) {
-                cfgMgr = FSSObsMonitorConfigurationManager
-                        .getInstance(MonName.ss);
-            }
+            cfgMgr = FSSObsMonitorConfigurationManager.getInstance(appName);
             initFogAlgCellType();
         }
     }
@@ -129,6 +122,7 @@ public class ObMultiHrsReports {
      */
     public void addReport(ObReport report) {
         Date nominalTime = report.getRefHour();
+
         /**
          * DR #8723: if wind speed is zero, wind direction should be N/A, not 0
          */
@@ -153,8 +147,11 @@ public class ObMultiHrsReports {
                     && report.getWindSpeed() != ObConst.MISSING) {
                 report.setWindChill(calcWindChill(report.getTemperature(),
                         report.getWindSpeed()));
+                report.setFrostbiteTime(calcFrostbiteTime(
+                        report.getTemperature(), report.getWindSpeed()));
             }
         }
+        
         ObHourReports obHourReports;
         // new nominal time; create a new ObHourReports object
         if (multiHrsReports.isEmpty()
@@ -169,31 +166,73 @@ public class ObMultiHrsReports {
             // update multiHrsReports with new data
             obHourReports = multiHrsReports.get(nominalTime);
         }
-        obHourReports.addReport(report);
-        // update data cache
-        multiHrsReports.put(nominalTime, obHourReports);
-        TableData tblData = obHourReports.getZoneTableData();
-        multiHrsTabData.put(nominalTime, tblData);
+
+        if (report != null && obHourReports != null) {
+            obHourReports.addReport(report);
+            // update data cache
+            multiHrsReports.put(nominalTime, obHourReports);
+            TableData tblData = obHourReports.getZoneTableData();
+            multiHrsTabData.put(nominalTime, tblData);
+        }
+
+    }
+
+    /**
+     * Frostbite time calculation formula is based on section 3.4.3 of
+     * FCM-R19-2003; the equation is only valid when the frostbite time is less
+     * than or equal to 30 min and the wind speed is greater than 16 mph and
+     * less than or equal to 50 mph. The referenced document is available at
+     * http://www.ofcm.gov/jagti/r19-ti-plan/pdf/entire_r19_ti.pdf
+     * 
+     * @param temperature
+     *            in degree F
+     * @param windSpeed
+     *            in knots
+     * @return frostbite time in minutes
+     */
+    private float calcFrostbiteTime(float temp, float windSpd) {
+        /**
+         * 1 knots = 1.15078 mph
+         */
+        float windSpd_mph = 1.15078f * windSpd;
+        if (windSpd_mph <= 16 || windSpd_mph > 50) {
+            return ObConst.MISSING;
+        }
+        float xFt = -4.8f - (temp - 32f) * 5f / 9f;
+        if (xFt <= 0) {
+            return ObConst.MISSING;
+        }
+        xFt = (float) Math.pow(xFt, -1.668);
+        float Ft = ((-24.5f * ((0.667f * (windSpd_mph * 8f / 5f)) + 4.8f)) + 2111f)
+                * xFt;
+        if (Ft < 0 || Ft > 30f) {
+            return ObConst.MISSING;
+        }
+        return Ft;
     }
 
     /**
      * DR 15654: Wind Chill calculation formula based on
      * http://www.nws.noaa.gov/om/windchill/ as of Jan. 29, 2013
      * 
-     * @param temp
+     * @param temperature
      *            in degree F
-     * @param windSpd
+     * @param windSpeed
      *            in knots
      * @return wind chill in degree F
      */
     private float calcWindChill(float temp, float windSpd) {
-        if (temp > 50.0 || windSpd < 3.0) {
+        if (temp > 50.0) {
             return ObConst.MISSING;
         }
         /**
          * 1 knots = 1.15078 mph
          */
-        float spd = (float) Math.pow(1.15078 * windSpd, 0.16);
+        float windSpd_mph = 1.15078f * windSpd;
+        if (windSpd_mph < 3.0) {
+            return temp;
+        }
+        float spd = (float) Math.pow(windSpd_mph, 0.16);
         return 35.74f + 0.6215f * temp - 35.75f * spd + 0.4275f * temp * spd;
     }
 
@@ -257,12 +296,7 @@ public class ObMultiHrsReports {
         } else {
             tabData = hourReports.getZoneTableData();
         }
-        // update data cache
-        multiHrsReports.put(nominalTime, hourReports);
-        // update cache with empty table data
-        if (multiHrsTabData.replace(nominalTime, tabData) == null) {
-            multiHrsTabData.put(nominalTime, tabData);
-        }
+
         return tabData;
     }
 
@@ -522,7 +556,7 @@ public class ObMultiHrsReports {
      * @return
      */
     public ObHourReports getObHourReports() {
-        if (multiHrsReports.isEmpty()) {
+        if (multiHrsReports.isEmpty() || multiHrsTabData.isEmpty()) {
             ObHourReports obHrsReps = new ObHourReports(
                     TableUtil.getNominalTime(SimulatedTime.getSystemTime()
                             .getTime()), appName, thresholdMgr);
@@ -545,12 +579,14 @@ public class ObMultiHrsReports {
      * @return
      */
     public ObHourReports getObHourReports(Date nominalTime) {
-        if (nominalTime == null || !multiHrsReports.containsKey(nominalTime)) {
+        if (nominalTime != null && !multiHrsReports.containsKey(nominalTime)) {
+            return new ObHourReports(nominalTime, appName, thresholdMgr);
+        } else if (nominalTime == null) {
             return new ObHourReports(TableUtil.getNominalTime(SimulatedTime
                     .getSystemTime().getTime()), appName, thresholdMgr);
+        } else {
+            return multiHrsReports.get(nominalTime);
         }
-
-        return multiHrsReports.get(nominalTime);
     }
 
     /**
@@ -615,6 +651,8 @@ public class ObMultiHrsReports {
      * Updates table cache
      */
     public void updateTableCache() {
+        // clear and rebuild table data on config changes
+        multiHrsTabData.clear();
         for (Date time : multiHrsReports.keySet()) {
             getZoneTableData(time);
         }

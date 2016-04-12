@@ -31,7 +31,7 @@ import collections
 
 from ufpy import ThriftClient
 from dynamicserialize.dstypes.com.raytheon.uf.common.message import Message, Header, Property
-from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.text.request import SubscriptionRequest
+from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.text.subscription.request import SubscriptionRequest
 ##############################################################################
 # Class providing a command line interface to the EDEX Subscription Service
 # (SubscribeSrv) end-point. The package design, is to allow this class to run

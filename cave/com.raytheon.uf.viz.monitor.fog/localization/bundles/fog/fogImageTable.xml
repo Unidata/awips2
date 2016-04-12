@@ -185,17 +185,13 @@
                         isTopOfTheHour="false">
                         <binOffset posOffset="1800" negOffset="1800"
                             virtualOffset="0" />
-                        <metadataMap>
+                         <metadataMap>
                             <mapping key="pluginName">
                                 <constraint constraintValue="fssobs"
                                     constraintType="EQUALS" />
                             </mapping>
                             <mapping key="reportType">
                                 <constraint constraintValue="1006,1003"
-                                    constraintType="IN" />
-                            </mapping>
-                            <mapping key="location.stationId">
-                                <constraint constraintValue="${stations}"
                                     constraintType="IN" />
                             </mapping>
                         </metadataMap>
@@ -256,14 +252,9 @@
                                 <constraint constraintValue="fssobs"
                                     constraintType="EQUALS" />
                             </mapping>
-
                             <mapping key="reportType">
                                 <constraint constraintValue="1007"
                                     constraintType="EQUALS" />
-                            </mapping>
-                            <mapping key="location.stationId">
-                                <constraint constraintValue="${stations}"
-                                    constraintType="IN" />
                             </mapping>
                         </metadataMap>
                         <binOffset virtualOffset="0"

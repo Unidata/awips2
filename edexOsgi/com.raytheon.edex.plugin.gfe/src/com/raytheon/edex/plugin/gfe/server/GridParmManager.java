@@ -62,6 +62,7 @@ import com.raytheon.uf.common.dataplugin.gfe.server.request.CommitGridRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.request.GetGridRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.request.SaveGridRequest;
 import com.raytheon.uf.common.dataplugin.gfe.slice.IGridSlice;
+import com.raytheon.uf.common.dataplugin.grid.GridPathProvider;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
 import com.raytheon.uf.common.message.WsId;
@@ -137,6 +138,9 @@ import com.raytheon.uf.edex.database.purge.PurgeLogger;
  *                                     ingested while deactivated gets recognized
  * 10/27/2014   #3766      randerso    Fixed return type and javadoc for createNewDb
  * 03/05/2015   #4169      randerso    Fix error handling in getDatabase
+ * 11/17/2015   #5129      dgilling    Ensure ServerResponse payload is always
+ *                                     populated when calling getGridHistory.
+ * 12/03/2015   #5168      randerso    Added check to skip running smartInit for static data at non-zero fcsthr
  * 
  * </pre>
  * 
@@ -300,11 +304,17 @@ public class GridParmManager {
     public ServerResponse<Map<TimeRange, List<GridDataHistory>>> getGridHistory(
             ParmID parmId, List<TimeRange> trs) {
         ServerResponse<Map<TimeRange, List<GridDataHistory>>> sr = new ServerResponse<Map<TimeRange, List<GridDataHistory>>>();
+        Map<TimeRange, List<GridDataHistory>> history = Collections.emptyMap();
 
         try {
             GridParm gp = gridParm(parmId);
             if (gp.isValid()) {
-                sr = gp.getGridHistory(trs);
+                ServerResponse<Map<TimeRange, List<GridDataHistory>>> ssr = gp
+                        .getGridHistory(trs);
+                sr.addMessages(ssr);
+                if (ssr.getPayload() != null) {
+                    history = ssr.getPayload();
+                }
             } else {
                 sr.addMessage("Unknown Parm: " + parmId
                         + " in getGridInventory()");
@@ -315,6 +325,7 @@ public class GridParmManager {
                     + " in getGridInventory()", e);
         }
 
+        sr.setPayload(history);
         return sr;
     }
 
@@ -1285,6 +1296,13 @@ public class GridParmManager {
         List<GridUpdateNotification> guns = new LinkedList<GridUpdateNotification>();
         for (GridRecord record : gridRecords) {
 
+            // ignore static parameters for non-zero forecast hours
+            if ((record.getDataTime().getFcstTime() > 0)
+                    && GridPathProvider.STATIC_PARAMETERS.contains(record
+                            .getParameter().getAbbreviation())) {
+                continue;
+            }
+
             String d2dModelName = record.getDatasetId();
             Date refTime = record.getDataTime().getRefTime();
             DatabaseID dbId = D2DGridDatabase.getDbId(d2dModelName, refTime,
@@ -1308,6 +1326,25 @@ public class GridParmManager {
                 SmartInitQueue queue = SmartInitQueue.getQueue();
                 if (queue != null) {
                     Date validTime = gun.getReplacementTimeRange().getStart();
+                    TimeRange validPeriod = record.getDataTime()
+                            .getValidPeriod();
+
+                    statusHandler
+                            .info("D2D grid received for "
+                                    + record.getParameter().getAbbreviation()
+                                    + "_"
+                                    + record.getLevel()
+                                    + " at "
+                                    + (validPeriod.isValid() ? validPeriod
+                                            : record.getDataTime()
+                                                    .getValidTimeAsDate())
+                                    + "\nFiring smartInit for "
+                                    + dbId
+                                    + " at "
+                                    + validTime
+                                    + "\nGridUpdateNotification.replacementTimeRange = "
+                                    + gun.getReplacementTimeRange());
+
                     queue.queue(siteID, config, dbId, validTime, false,
                             SmartInitRecord.LIVE_SMART_INIT_PRIORITY);
                 }

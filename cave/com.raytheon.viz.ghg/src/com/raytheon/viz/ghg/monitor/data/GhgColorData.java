@@ -7,6 +7,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.eclipse.swt.graphics.RGB;
 
+import com.raytheon.uf.viz.core.RGBColors;
+
 /**
  * This class containing RGB foreground and background colors.
  * 
@@ -14,7 +16,9 @@ import org.eclipse.swt.graphics.RGB;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 25 MAR 2008  1033       lvenable    Initial creation
+ * Mar 25, 2008 1033       lvenable    Initial creation
+ * Feb 05, 2016 5316       randerso    Changed to use RGBColors to allow use of 
+ *                                     color names not just hex representations
  * 
  * </pre>
  * 
@@ -96,27 +100,19 @@ public class GhgColorData {
 
     @XmlAttribute
     public String getForegroundRgbAsString() {
-        String result = String.format("#%02x%02x%02x", foregroundRgb.red,
-                foregroundRgb.green, foregroundRgb.blue);
-        return result;
+        return RGBColors.getColorName(foregroundRgb);
     }
 
-    public void setForegroundRgbAsString(String stringRep) {
-        foregroundRgb.red = Integer.parseInt(stringRep.substring(1, 3), 16);
-        foregroundRgb.green = Integer.parseInt(stringRep.substring(3, 5), 16);
-        foregroundRgb.blue = Integer.parseInt(stringRep.substring(5), 16);
+    public void setForegroundRgbAsString(String colorName) {
+        foregroundRgb = RGBColors.getRGBColor(colorName);
     }
 
     @XmlAttribute
     public String getBackgroundRgbAsString() {
-        String result = String.format("#%02x%02x%02x", backgroundRgb.red,
-                backgroundRgb.green, backgroundRgb.blue);
-        return result;
+        return RGBColors.getColorName(backgroundRgb);
     }
 
-    public void setBackgroundRgbAsString(String stringRep) {
-        backgroundRgb.red = Integer.parseInt(stringRep.substring(1, 3), 16);
-        backgroundRgb.green = Integer.parseInt(stringRep.substring(3, 5), 16);
-        backgroundRgb.blue = Integer.parseInt(stringRep.substring(5), 16);
+    public void setBackgroundRgbAsString(String colorName) {
+        backgroundRgb = RGBColors.getRGBColor(colorName);
     }
 }

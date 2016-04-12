@@ -20,13 +20,14 @@
 
 package com.raytheon.viz.texteditor.dialogs;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.SortedSet;
+import java.util.TimeZone;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -47,24 +48,29 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.graphics.FontMetrics;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
 
 import com.raytheon.uf.common.message.Message;
 import com.raytheon.uf.common.message.Property;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.viz.core.mode.CAVEMode;
@@ -105,6 +111,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 19May2014    2536        bclement    removed TimeTools usage
  * 09Sep2014    3580        mapeters    Removed IQueryTransport usage 
  *                                      (no longer exists).
+ * 16Feb2106    5391        randerso    Fixed button layouts so text is not cut off with larger fonts/higher DPI
  * </pre>
  * 
  * @author lvenable
@@ -115,13 +122,15 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(AwipsBrowserDlg.class);
 
-    private static final String TIME_FORMAT = "%1$tH:%1$tM %1$tb %1$td";
+    private static final String TIME_FORMAT = "HH:mm MMM dd";
 
     private final AfosBrowserModel browserData = AfosBrowserModel.getInstance();
 
     private enum ListType {
         NODE, CATEGORY, DESIGNATOR, DESIGNATOR_TIME, DISPLAY
     };
+
+    private final int NUM_ITEMS = 10;
 
     /**
      * Designator time display error for getting data for designator.
@@ -309,7 +318,6 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
      */
     private void initializeComponents() {
         createOriginClassControls();
-        createListHelpMenus();
         createListControls();
         createBottomButtons();
     }
@@ -322,16 +330,25 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
 
         // Create the composite that will hold the controls.
         Composite controlComp = new Composite(shell, SWT.NONE);
-        GridLayout gridLayout = new GridLayout(4, false);
-        // gridLayout.marginLeft = 5;
+        GridLayout gridLayout = new GridLayout(5, false);
+        gridLayout.marginWidth = 0;
+        gridLayout.marginHeight = 0;
         controlComp.setLayout(gridLayout);
+
+        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        controlComp.setLayoutData(gd);
 
         // Add the origin label.
         Label originLbl = new Label(controlComp, SWT.NONE);
         originLbl.setText("Origin: ");
+        gd = new GridData(SWT.DEFAULT, SWT.CENTER, false, false);
+        originLbl.setLayoutData(gd);
 
         // Add the origin combo box.
         originCombo = new Combo(controlComp, SWT.DROP_DOWN | SWT.READ_ONLY);
+        gd = new GridData(SWT.DEFAULT, SWT.CENTER, false, false);
+        originCombo.setLayoutData(gd);
+
         for (AFOS_ORIGIN origin : AFOS_ORIGIN.values()) {
             originCombo.add(origin.name());
         }
@@ -341,19 +358,29 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
 
         // Use this listener to update the node list based on the origin.
         originCombo.addModifyListener(new ModifyListener() {
+            @Override
             public void modifyText(ModifyEvent event) {
                 loadNodeList();
             }
         });
 
+        Label fill = new Label(controlComp, SWT.NONE);
+        gd = new GridData(SWT.RIGHT, SWT.CENTER, true, false);
+        fill.setLayoutData(gd);
+
         // Add the class label.
         Label classLbl = new Label(controlComp, SWT.NONE);
         classLbl.setText("Class: ");
+        gd = new GridData(SWT.RIGHT, SWT.CENTER, false, false);
+        classLbl.setLayoutData(gd);
 
         // Populate the category class dialog
         // Add the class combo box.
         categoryClassCombo = new Combo(controlComp, SWT.DROP_DOWN
                 | SWT.READ_ONLY);
+        gd = new GridData(SWT.RIGHT, SWT.CENTER, false, false);
+        categoryClassCombo.setLayoutData(gd);
+
         for (AFOS_CLASS c : AFOS_CLASS.values()) {
             categoryClassCombo.add(c.value());
         }
@@ -362,6 +389,7 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
         // Use this listener to update the category list based on the origin
         // plus the class.
         categoryClassCombo.addModifyListener(new ModifyListener() {
+            @Override
             public void modifyText(ModifyEvent event) {
                 if (nodeList.getSelectionCount() > 0) {
                     loadCategoryList();
@@ -371,159 +399,148 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
     }
 
     /**
-     * Create the List help buttons.
+     * Create the list help buttons and list box controls.
      * 
      * NOTE: The help buttons may change. The original dialog has embedded menus
      * that SWT does not support. We may go with a button/pop-up menu
      * combination or a coolbar with a drop-down. This will be decided later.
      */
-    private void createListHelpMenus() {
+    private void createListControls() {
         // Create the composite that will hold the controls.
-        GridData gd = new GridData(GridData.FILL_HORIZONTAL);
-        Composite helpComp = new Composite(shell, SWT.NONE);
+        Composite listComp = new Composite(shell, SWT.NONE);
+
         GridLayout gridLayout = new GridLayout(4, false);
-        // gridLayout.marginLeft = 3;
-        helpComp.setLayout(gridLayout);
-        helpComp.setLayoutData(gd);
+        gridLayout.marginWidth = 0;
+        gridLayout.marginHeight = 0;
+        listComp.setLayout(gridLayout);
+
+        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        listComp.setLayoutData(gd);
+
+        GC gc = new GC(listComp);
+        FontMetrics fm = gc.getFontMetrics();
+        int charWidth = fm.getAverageCharWidth();
+        gc.dispose();
 
         // ------------------------------------
         // Create the Node component
         // ------------------------------------
-        gd = new GridData(100, SWT.DEFAULT);
-        Composite nodeComp = new Composite(helpComp, SWT.NONE);
-        gridLayout = new GridLayout(2, false);
-        gridLayout.marginLeft = 3;
-        nodeComp.setLayout(gridLayout);
-        nodeComp.setLayoutData(gd);
+        Group nodeGroup = new Group(listComp, SWT.NONE);
+        gridLayout = new GridLayout(1, false);
+        gridLayout.marginWidth = 0;
+        gridLayout.marginHeight = 0;
+        gridLayout.verticalSpacing = 0;
+        nodeGroup.setLayout(gridLayout);
 
-        Label nodeLbl = new Label(nodeComp, SWT.NONE);
-        nodeLbl.setText("Node");
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        nodeGroup.setLayoutData(gd);
+        nodeGroup.setText("Node");
 
-        gd = new GridData(SWT.END, SWT.DEFAULT, true, false);
-        Button nodeHelpButton = new Button(nodeComp, SWT.PUSH);
-        nodeHelpButton.setText("Help");
-        nodeHelpButton.setLayoutData(gd);
+        ToolBar toolBar = new ToolBar(nodeGroup, SWT.FLAT | SWT.RIGHT);
+        gd = new GridData(SWT.RIGHT, SWT.DEFAULT, true, false);
+        toolBar.setLayoutData(gd);
 
-        nodeHelpButton.addSelectionListener(new SelectionAdapter() {
+        ToolItem toolItem = new ToolItem(toolBar, SWT.DROP_DOWN);
+        toolItem.setText("Help");
+        toolItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 displayHelpList(ListType.NODE, nodeList);
             }
         });
 
+        nodeList = new List(nodeGroup, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL);
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        Rectangle trim = nodeList.computeTrim(0, 0, charWidth * 3,
+                nodeList.getItemHeight() * NUM_ITEMS);
+        gd.widthHint = trim.width;
+        gd.heightHint = trim.height;
+        nodeList.setLayoutData(gd);
+
+        nodeList.addMouseListener(new ListMouseHandler(ListType.NODE));
+        nodeList.addSelectionListener(new ListSelectionHandler(ListType.NODE));
+        nodeList.setData(new boolean[0]);
+
         // ------------------------------------
         // Create the Category component
         // ------------------------------------
-        gd = new GridData(100, SWT.DEFAULT);
-        Composite categoryComp = new Composite(helpComp, SWT.NONE);
-        gridLayout = new GridLayout(2, false);
-        gridLayout.marginLeft = 3;
-        categoryComp.setLayout(gridLayout);
-        categoryComp.setLayoutData(gd);
+        Group categoryGroup = new Group(listComp, SWT.NONE);
+        gridLayout = new GridLayout(1, false);
+        gridLayout.marginWidth = 0;
+        gridLayout.marginHeight = 0;
+        gridLayout.verticalSpacing = 0;
+        categoryGroup.setLayout(gridLayout);
 
-        Label categoryLbl = new Label(categoryComp, SWT.NONE);
-        categoryLbl.setText("Ctgry");
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        categoryGroup.setLayoutData(gd);
+        categoryGroup.setText("Category");
 
-        gd = new GridData(SWT.END, SWT.DEFAULT, true, false);
-        Button ctgryHelpButton = new Button(categoryComp, SWT.PUSH);
-        ctgryHelpButton.setText("Help");
-        ctgryHelpButton.setLayoutData(gd);
+        toolBar = new ToolBar(categoryGroup, SWT.FLAT | SWT.RIGHT);
+        gd = new GridData(SWT.RIGHT, SWT.DEFAULT, true, false);
+        toolBar.setLayoutData(gd);
 
-        ctgryHelpButton.addSelectionListener(new SelectionAdapter() {
+        toolItem = new ToolItem(toolBar, SWT.DROP_DOWN);
+        toolItem.setText("Help");
+        toolItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 displayHelpList(ListType.CATEGORY, categoryList);
             }
         });
 
+        categoryList = new List(categoryGroup, SWT.BORDER | SWT.MULTI
+                | SWT.V_SCROLL);
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        trim = categoryList.computeTrim(0, 0, charWidth * 3,
+                categoryList.getItemHeight() * NUM_ITEMS);
+        gd.widthHint = trim.width;
+        gd.heightHint = trim.height;
+        categoryList.setLayoutData(gd);
+
+        categoryList.addMouseListener(new ListMouseHandler(ListType.CATEGORY));
+        categoryList.addSelectionListener(new ListSelectionHandler(
+                ListType.CATEGORY));
+        categoryList.setData(new boolean[0]);
+
         // ------------------------------------
         // Create the Designator component
         // ------------------------------------
-        gd = new GridData(225, SWT.DEFAULT);
-        Composite designatorComp = new Composite(helpComp, SWT.NONE);
+        Group designatorGroup = new Group(listComp, SWT.NONE);
         gridLayout = new GridLayout(2, false);
-        gridLayout.marginLeft = 3;
-        designatorComp.setLayout(gridLayout);
-        designatorComp.setLayoutData(gd);
+        gridLayout.marginWidth = 0;
+        gridLayout.marginHeight = 0;
+        gridLayout.verticalSpacing = 0;
+        designatorGroup.setLayout(gridLayout);
 
-        Label designatorLbl = new Label(designatorComp, SWT.NONE);
-        designatorLbl.setText("Designator");
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        designatorGroup.setLayoutData(gd);
+        designatorGroup.setText("Designator");
 
-        gd = new GridData(SWT.END, SWT.DEFAULT, true, false);
-        Button designatorHelpButton = new Button(designatorComp, SWT.PUSH);
-        designatorHelpButton.setText("Help");
-        designatorHelpButton.setLayoutData(gd);
+        toolBar = new ToolBar(designatorGroup, SWT.FLAT | SWT.RIGHT);
+        gd = new GridData(SWT.RIGHT, SWT.DEFAULT, true, false);
+        toolBar.setLayoutData(gd);
 
-        designatorHelpButton.addSelectionListener(new SelectionAdapter() {
+        toolItem = new ToolItem(toolBar, SWT.DROP_DOWN);
+        toolItem.setText("Help");
+        toolItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 displayHelpList(ListType.DESIGNATOR, designatorList);
             }
         });
 
-        // ------------------------------------
-        // Create the Display component
-        // ------------------------------------
-        gd = new GridData(140, SWT.DEFAULT);
-        Composite displayComp = new Composite(helpComp, SWT.NONE);
-        gridLayout = new GridLayout(2, false);
-        gridLayout.marginLeft = 3;
-        displayComp.setLayout(gridLayout);
-        displayComp.setLayoutData(gd);
+        // dummy label to fill the spot in the grid
+        new Label(designatorGroup, SWT.NONE);
 
-        Label displayLbl = new Label(displayComp, SWT.NONE);
-        displayLbl.setText("Display");
-
-        gd = new GridData(SWT.END, SWT.DEFAULT, true, false);
-        Button displayHelpButton = new Button(displayComp, SWT.PUSH);
-        displayHelpButton.setText("Help");
-        displayHelpButton.setLayoutData(gd);
-
-        displayHelpButton.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                // nothing to do, no help available for display
-            }
-        });
-    }
-
-    /**
-     * Create the List box controls.
-     */
-    private void createListControls() {
-        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        // Create the composite that will hold the controls.
-        Composite listComp = new Composite(shell, SWT.NONE);
-
-        GridLayout gridLayout = new GridLayout(5, false);
-        listComp.setLayout(gridLayout);
-        listComp.setLayoutData(gd);
-
-        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        gd.widthHint = 80;
-        gd.heightHint = 200;
-        nodeList = new List(listComp, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL);
-        nodeList.setLayoutData(gd);
-        nodeList.addMouseListener(new ListMouseHandler(ListType.NODE));
-        nodeList.addSelectionListener(new ListSelectionHandler(ListType.NODE));
-        nodeList.setData(new boolean[0]);
-
-        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        gd.widthHint = 80;
-        gd.heightHint = 200;
-        categoryList = new List(listComp, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL);
-        categoryList.setLayoutData(gd);
-        categoryList.addMouseListener(new ListMouseHandler(ListType.CATEGORY));
-        categoryList.addSelectionListener(new ListSelectionHandler(
-                ListType.CATEGORY));
-        categoryList.setData(new boolean[0]);
-
-        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        gd.widthHint = 80;
-        gd.heightHint = 200;
-        designatorList = new List(listComp, SWT.BORDER | SWT.MULTI
+        designatorList = new List(designatorGroup, SWT.BORDER | SWT.MULTI
                 | SWT.V_SCROLL);
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        trim = designatorList.computeTrim(0, 0, charWidth * 3,
+                designatorList.getItemHeight() * NUM_ITEMS);
+        gd.widthHint = trim.width;
+        gd.heightHint = trim.height;
         designatorList.setLayoutData(gd);
+
         designatorList.addMouseListener(new ListMouseHandler(
                 ListType.DESIGNATOR));
         designatorList.addSelectionListener(new ListSelectionHandler(
@@ -531,12 +548,15 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
         designatorList.addMouseWheelListener(new DesignatorMouseWheelHandler());
         designatorList.setData(new boolean[0]);
 
-        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        gd.widthHint = 100;
-        gd.heightHint = 200;
-        designatorTimeList = new List(listComp, SWT.BORDER | SWT.MULTI
+        designatorTimeList = new List(designatorGroup, SWT.BORDER | SWT.MULTI
                 | SWT.V_SCROLL);
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        trim = designatorTimeList.computeTrim(0, 0, charWidth * 12,
+                designatorTimeList.getItemHeight() * NUM_ITEMS);
+        gd.widthHint = trim.width;
+        gd.heightHint = trim.height;
         designatorTimeList.setLayoutData(gd);
+
         designatorTimeList.addMouseListener(new ListMouseHandler(
                 ListType.DESIGNATOR_TIME));
         designatorTimeList.addSelectionListener(new ListSelectionHandler(
@@ -546,33 +566,65 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
         designatorList.getVerticalBar().setVisible(false);
         scrollListsTogether(designatorList, designatorTimeList);
 
+        // ------------------------------------
+        // Create the Display component
+        // ------------------------------------
+        Group displayGroup = new Group(listComp, SWT.NONE);
+        gridLayout = new GridLayout(1, false);
+        gridLayout.marginWidth = 0;
+        gridLayout.marginHeight = 0;
+        gridLayout.verticalSpacing = 0;
+        displayGroup.setLayout(gridLayout);
+
         gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        gd.widthHint = 100;
-        gd.heightHint = 200;
-        displayList = new List(listComp, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
+        displayGroup.setLayoutData(gd);
+        displayGroup.setText("Display");
+
+        toolBar = new ToolBar(displayGroup, SWT.FLAT | SWT.RIGHT);
+        gd = new GridData(SWT.RIGHT, SWT.DEFAULT, true, false);
+        toolBar.setLayoutData(gd);
+
+        toolItem = new ToolItem(toolBar, SWT.DROP_DOWN);
+        toolItem.setText("Help");
+        toolItem.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                displayHelpList(ListType.DISPLAY, displayList);
+            }
+        });
+
+        displayList = new List(displayGroup, SWT.BORDER | SWT.SINGLE
+                | SWT.V_SCROLL);
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        trim = displayList.computeTrim(0, 0, charWidth * 4,
+                displayList.getItemHeight() * NUM_ITEMS);
+        gd.widthHint = trim.width;
+        gd.heightHint = trim.height;
         displayList.setLayoutData(gd);
+
         displayList.addMouseListener(new ListMouseHandler(ListType.DISPLAY));
         displayList.addSelectionListener(new ListSelectionHandler(
                 ListType.DISPLAY));
+        displayList.setData(new boolean[0]);
     }
 
     /**
      * Create the bottom control buttons.
      */
     private void createBottomButtons() {
-        GridData gd = new GridData(GridData.FILL_HORIZONTAL);
         Composite buttonComp = new Composite(shell, SWT.NONE);
         GridLayout gridLayout = new GridLayout(3, true);
+        gridLayout.marginWidth = 0;
+        gridLayout.marginHeight = 0;
         buttonComp.setLayout(gridLayout);
+        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         buttonComp.setLayoutData(gd);
 
-        gd = new GridData(GridData.FILL_HORIZONTAL);
-        gd.heightHint = 27;
-        gd.grabExcessHorizontalSpace = true;
         loadContinueBtn = new Button(buttonComp, SWT.PUSH);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        loadContinueBtn.setLayoutData(gd);
         loadContinueBtn.setText("Load and Continue");
         loadContinueBtn.setEnabled(false);
-        loadContinueBtn.setLayoutData(gd);
         loadContinueBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
@@ -582,12 +634,11 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
             }
         });
 
-        gd = new GridData(GridData.FILL_HORIZONTAL);
-        gd.heightHint = 27;
         loadCloseBtn = new Button(buttonComp, SWT.PUSH);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        loadCloseBtn.setLayoutData(gd);
         loadCloseBtn.setText("Load and Close");
         loadCloseBtn.setEnabled(false);
-        loadCloseBtn.setLayoutData(gd);
         loadCloseBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
@@ -600,11 +651,10 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
             }
         });
 
-        gd = new GridData(GridData.FILL_HORIZONTAL);
-        gd.heightHint = 27;
         closeBtn = new Button(buttonComp, SWT.PUSH);
-        closeBtn.setText("Close");
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         closeBtn.setLayoutData(gd);
+        closeBtn.setText("Close");
         closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
@@ -708,10 +758,12 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
      * Finish setup of designator time list after all times have been retrieved.
      */
     private void finishDesignatorTimeList() {
+        SimpleDateFormat sdf = new SimpleDateFormat(TIME_FORMAT);
+        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+
         String value = null;
         if (newestTime > 0L) {
-            Calendar c = TimeUtil.newGmtCalendar(new Date(newestTime));
-            value = String.format(TIME_FORMAT, c);
+            value = sdf.format(new Date(newestTime));
         } else if (newestTime == -1) {
             value = DATA_ERROR;
         } else {
@@ -752,14 +804,15 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
             }
         }
 
+        SimpleDateFormat sdf = new SimpleDateFormat(TIME_FORMAT);
+        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
         String value = null;
         try {
             int index = startIndex;
             int selectIndex = designatorList.getSelectionIndex();
             for (Long time : times) {
                 if (time > 0) {
-                    Calendar c = TimeUtil.newGmtCalendar(new Date(time));
-                    value = String.format(TIME_FORMAT, c);
+                    value = sdf.format(new Date(time));
                 } else if (time == -1) {
                     value = DATA_ERROR;
                 } else {
@@ -969,6 +1022,7 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
         if (displayList.getItemCount() > 0) {
             displayList.add("");
         }
+        updateSelectionList(displayList);
     }
 
     /**
@@ -1046,6 +1100,7 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
         }
 
         if (index < displayList.getItemCount()) {
+            displayList.select(index);
             display = displayList.getItem(index);
             if (display.length() == 0) {
                 displayList.deselectAll();
@@ -1107,6 +1162,10 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
             break;
         }
 
+        case DISPLAY: {
+            list = displayList;
+            break;
+        }
         }
 
         if (list != null) {
@@ -1138,7 +1197,7 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
         // list.getItemHeight() can be off by a few pixels depending on
         // height/style, in terms of the few list entries the difference should
         // be miniscule
-        int endIndex = startIndex + (height / list.getItemHeight());
+        int endIndex = startIndex + height / list.getItemHeight();
 
         // sanity check
         if (endIndex >= items.length) {
@@ -1179,6 +1238,7 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
             break;
         }
         case DESIGNATOR: {
+            // Don't display help for empty item at end of list
             for (int i = startIndex; i < endIndex; i++) {
                 final int index = i;
                 String helpText = browserData.getDesignatorHelp(items[index]);
@@ -1189,6 +1249,20 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
                     }
                 });
             }
+            break;
+        }
+        case DISPLAY: {
+            for (int i = startIndex; i < endIndex; i++) {
+                final int index = i;
+                String helpText = browserData.getDisplayHelp(items[index]);
+                actions.add(new Action(items[index] + ": " + helpText) {
+                    @Override
+                    public void run() {
+                        selectDisplay(index);
+                    }
+                });
+            }
+            break;
         }
         }
 
@@ -1201,6 +1275,7 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
             }
 
             Menu menu = menuMgr.createContextMenu(list);
+            menu.setLocation(list.toDisplay(0, 0));
             menu.setVisible(true);
             list.setMenu(menu);
         }
@@ -1265,6 +1340,21 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
                     }
                     break;
                 }
+                case DISPLAY: {
+                    helpText = browserData.getDisplayHelp(field);
+                    if (helpText != null && helpText.length() > 0) {
+                        action = new Action(helpText) {
+                            @Override
+                            public void run() {
+                                selectListItem(AfosBrowserDlg.ListType.DISPLAY,
+                                        index);
+                                selectDisplay(index);
+                            }
+                        };
+                    }
+                    break;
+                }
+                default:
                 }
 
                 if (action != null) {
@@ -1304,7 +1394,10 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
             list = designatorTimeList;
             break;
         }
-
+        case DISPLAY: {
+            list = displayList;
+            break;
+        }
         }
         if (leftMouse) {
             if (list != null) {
@@ -1397,12 +1490,13 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
                 menuMgr = null;
             }
 
+            leftMouse = false;
+            rightMouse = false;
+
             // ignore button 2
             if (e.button == 2) {
                 resetSelection(type);
             } else {
-                leftMouse = false;
-                rightMouse = false;
                 if (e.button == 1) {
                     leftMouse = true;
                 } else if (e.button == 3) {
@@ -1432,8 +1526,8 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
             // verify bound
             if (selection < 0) {
                 selection = 0;
-            } else if (selection > (designatorBar.getMaximum() - designatorBar
-                    .getThumb())) {
+            } else if (selection > designatorBar.getMaximum()
+                    - designatorBar.getThumb()) {
                 selection = designatorBar.getMaximum()
                         - designatorBar.getThumb();
             }

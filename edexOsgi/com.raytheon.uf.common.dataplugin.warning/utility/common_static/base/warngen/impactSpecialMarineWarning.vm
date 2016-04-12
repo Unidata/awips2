@@ -1,15 +1,14 @@
-#####################################################
-## SPECIAL MARINE WARNING TEMPLATE                 ##
-## FOR CR IMPACT BASED WARNING INITIATIVE          ## 
-## CREATED BY PHIL KURIMSKI - WFO DTX              ##
-## UPDATED PHIL KURIMSKI -- SEP 17 2013 OB13.5.2-4 ##
-##         EVAN BOOKBINDER -- SEP 18 2013 Implemented config.vm
-##         PHIL KURIMSKI -- JUN 26 2014 OB14.2.2-9 ##
-##                          ADDED DSS EVENTS       ##
-## UPDATED PHIL KURIMSKI -- FEB 18 2015 Implemented##
-##                          updated CTAs           ##
-## UPDATED PHIL KURIMSKI -- MAR 23 2015 Mixed Case ##
-#####################################################
+######################################################################
+## SPECIAL MARINE WARNING TEMPLATE                                  ##
+## FOR CR IMPACT BASED WARNING INITIATIVE                           ##   
+## CREATED BY PHIL KURIMSKI - WFO GRB                               ##
+## UPDATED PHIL KURIMSKI -- SEP 17 2013 OB13.5.2-4                  ##
+##         EVAN BOOKBINDER -- SEP 18 2013 Implemented config.vm     ##
+##         PHIL KURIMSKI -- JUN 26 2014 OB14.2.2-9 ADDED DSS EVENTS ##
+##         PHIL KURIMSKI -- FEB 18 2015 Implemented updated CTAs    ##
+## UPDATED PHIL KURIMSKI -- MAR 23 2015 Mixed Case                  ##
+##         Evan Bookbinder - 9/4/2015 Fixed line of storms grammar  ##
+######################################################################
 #parse("config.vm")
 ################################################
 ## Set null variables used in the template
@@ -258,12 +257,14 @@ THIS IS A TEST MESSAGE. ##
 #######################################################################
 ## Section to create line wording based on track type.
 #######################################################################
+#set($waswere="was")
 #set($stormline = "a ${eventType}")
 #set($pathheader = "The ${eventType}")
 #set($specialEvent = "This ${eventType}")
 #set($reportType2 = "The ${eventType} was")
 #if(${stormType} == "line")
-	#set($stormline = "A line of ${eventType}S")
+	#set($waswere="were")
+	#set($stormline = "${eventType}s")
 	#set($pathheader = "${eventType}s")
 	#set($specialEvent = "These ${eventType}s")
 	#set($reportType2 = "The ${eventType}s were")
@@ -272,6 +273,7 @@ THIS IS A TEST MESSAGE. ##
 ## Corrective coding to prevent the use of "Line of Fronts" in the Product.
 ###########################################################################
 #if(${eventType} == "front")
+	#set($waswere="was")
 	#set($stormline = "a ${eventType}")
 	#set($pathheader = "The ${eventType}")
 	#set($specialEvent = "This ${eventType}")
@@ -283,6 +285,7 @@ THIS IS A TEST MESSAGE. ##
 #######################################################################
 #set($impacted = "Locations impacted include...")
 #if(${eventType} == "volcano")
+	#set($waswere="was")
 	#set($stormline = "an eruption of !** NAME OF VOLCANO**! volcano")
 	#set($pathheader = "The ${volcanoPath}")
 	#set($reportType2 = "The ${volcanoPath} was")
@@ -335,7 +338,6 @@ THIS IS A TEST MESSAGE. ##
 #if($spoutTag.length() > 0)
 	#set($spoutThreat = " ${capable}producing ${spoutType}")
 #end
-#set($report = "${stormline}${spoutThreat} ")
 
 ## Storm current location description
 
@@ -344,7 +346,7 @@ THIS IS A TEST MESSAGE. ##
 THIS IS A TEST MESSAGE. ##
 #end
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
-, ${report}was located ##
+, ${stormline}${spoutThreat} ${waswere} located ##
 #if(${stormType} == "line")
 #handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxMarineNearDistance}, ${overPhrase}, ${maxMarineOverDistance}, ${marineDistanceUnits}, ${useSecondReferenceLine})
 #else
@@ -478,7 +480,7 @@ Frequent lightning is occurring with this storm. If caught on the open water sta
 #end
 #end
 #if(${list.contains(${bullets}, "reportCTA")})
-Report severe weather to the National Weather Service office.
+Report severe weather to the Coast Guard or the National Weather Service.
 
 #end
 #if(${ctaSelected} == "YES")
@@ -509,8 +511,8 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 #if($spoutTag.length() > 0)
 <L>${spoutTag}</L>
 #end
-<L>HAIL...${hailTag}IN</L>
-<L>WIND...${windTag}KTS</L>
+<L>HAIL...${hailTag}in</L>
+<L>WIND...${windTag}kts</L>
 
 $$
 

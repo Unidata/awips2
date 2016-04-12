@@ -54,11 +54,11 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * The County Warning Area (CWA) text Parser.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 01, 2010            jsanchez    Initial creation
@@ -70,9 +70,10 @@ import com.vividsolutions.jts.geom.Coordinate;
  * May 04, 2015 4379       nabowle     Set valid period. Support future end dates.
  *                                     Drop bad dates. Extract patterns. eventId
  *                                     is now only in the db.
- *
+ * Jan 25, 2016 5254       tgurney     Remove reference to dataURI column
+ * 
  * </pre>
- *
+ * 
  * @author jsanchez
  * @version 1.0
  */
@@ -148,7 +149,6 @@ public class CWAParser {
     private static Pattern DIR_DIST_PTRN = Pattern
             .compile(InternalReport.DIRDIST);
 
-
     static {
         dirToDeg.put("N", 0f);
         dirToDeg.put("NNE", 22.5f);
@@ -184,7 +184,7 @@ public class CWAParser {
 
     /**
      * Does this parser contain any more reports.
-     *
+     * 
      * @return Does this parser contain any more reports.
      */
     public boolean hasNext() {
@@ -202,7 +202,7 @@ public class CWAParser {
     /**
      * Get the next available report. Returns a null reference if no more
      * reports are available.
-     *
+     * 
      * @return The next available report.
      */
     public CWARecord next() {
@@ -230,7 +230,6 @@ public class CWAParser {
                 // Populate the point data.
                 PointDataView view = pdc.append();
                 view.setString("wmoHeader", report.getWmoHeader());
-                view.setString("dataURI", report.getDataURI());
                 view.setString("dimension", report.getDimension().toString());
                 view.setString("text", report.getText());
 
@@ -250,7 +249,7 @@ public class CWAParser {
     }
 
     /**
-     *
+     * 
      * @param obsData
      * @return
      */
@@ -324,7 +323,7 @@ public class CWAParser {
 
     /**
      * Validates the current report and adds valid reports to the list.
-     *
+     * 
      * @param reports
      *            The list to add valid reports to.
      */
@@ -340,7 +339,7 @@ public class CWAParser {
 
     /**
      * Set the message data and decode all message reports.
-     *
+     * 
      * @param message
      *            Raw message data.
      * @param traceId
@@ -528,7 +527,7 @@ public class CWAParser {
 
     /**
      * Get the issuance data time.
-     *
+     * 
      * @param timeStr
      *            The datatime string.
      * @return DataTime from header
@@ -545,7 +544,7 @@ public class CWAParser {
 
     /**
      * Get the Valid To data time.
-     *
+     * 
      * @param timeStr
      *            The datatime string.
      * @return The valid to DataTime.

@@ -20,6 +20,7 @@
 package com.raytheon.edex.plugin.gfe.server.database;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -62,6 +63,8 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * Oct 10  2012  #1260     randerso    Added code to set valid flag
  * May 02  2013  #1969     randerso    Removed unnecessary updateDbs method
  * Jun 13  2013  #2044     randerso    Added getDbId and update methods
+ * Nov 17  2015  #5129     dgilling    Ensure ServerResponse payload is always
+ *                                     populated when calling getGridHistory.
  * 
  * </pre>
  * 
@@ -175,6 +178,8 @@ public class D2DSatDatabase extends VGridDatabase {
             return p.getGridHistory(trs);
         }
         ServerResponse<Map<TimeRange, List<GridDataHistory>>> sr = new ServerResponse<Map<TimeRange, List<GridDataHistory>>>();
+        Map<TimeRange, List<GridDataHistory>> history = Collections.emptyMap();
+        sr.setPayload(history);
         sr.addMessage("Parm not found: " + id);
         return sr;
     }
@@ -256,7 +261,8 @@ public class D2DSatDatabase extends VGridDatabase {
     public GridUpdateNotification update(SatelliteRecord record) {
         GridUpdateNotification notify = null;
 
-        String productId = record.getSectorID() + "/" + record.getPhysicalElement();
+        String productId = record.getSectorID() + "/"
+                + record.getPhysicalElement();
         D2DSatParm satParm = idToParm.get(productId);
         if (satParm != null) {
             notify = satParm.update(record);

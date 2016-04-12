@@ -44,8 +44,8 @@ import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.parameter.Parameter;
 import com.raytheon.uf.common.serialization.SerializationException;
@@ -61,18 +61,20 @@ import com.raytheon.uf.edex.plugin.grid.netcdf.description.product.NetcdfGridPro
 
 /**
  * Base class for decoding NetCDF Grid files.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 03, 2015 4696       nabowle     Initial creation
  * Sep 10, 2015 4696       nabowle     Refactored. Renamed. No longer abstract.
- *
+ * Jan 27, 2016 5237       tgurney     Replace LocalizationFile with
+ *                                     ILocalizationFile
+ * 
  * </pre>
- *
+ * 
  * @author nabowle
  * @version 1.0
  */
@@ -96,10 +98,10 @@ public class NetcdfGridDecoder {
      * Decodes the provided file. Note: This will like be memory intensive. If
      * the files are expected to create many records, it's better to split the
      * file, and decode and store records individually.
-     *
+     * 
      * This method will decode all the records together and return them for
      * batch storage.
-     *
+     * 
      * @param f
      *            The data file.
      * @return The decoded grid records, or an empty array if no records could
@@ -150,8 +152,8 @@ public class NetcdfGridDecoder {
             Variable dataVar = file.findVariable(product.getData().getName());
             if (dataVar == null) {
                 logger.error("No {} {} data in file: {}", descriptions
-                        .getDatasetId(), product.getData().getName(),
-                        f.getName());
+                        .getDatasetId(), product.getData().getName(), f
+                        .getName());
                 return EMPTY_RECORDS;
             }
 
@@ -268,7 +270,7 @@ public class NetcdfGridDecoder {
     /**
      * Does some preliminary decoding of common values and combines those with
      * the level index and a product description to specify individual records.
-     *
+     * 
      * @param f
      *            The file to split.
      * @return An iterator over the record descriptions.
@@ -299,8 +301,7 @@ public class NetcdfGridDecoder {
 
             DataTime dataTime = descriptions.getDataTime().getDataTime(file);
             if (dataTime == null) {
-                throw new NetcdfDecoderException(
-                        "Cannot decode the data time.");
+                throw new NetcdfDecoderException("Cannot decode the data time.");
             }
 
             GridCoverage location = getCoverage(file, descriptions);
@@ -323,7 +324,8 @@ public class NetcdfGridDecoder {
             }
 
             NetcdfGridRecordInfo info;
-            for (NetcdfGridProductDescription prod : descriptions.getDescriptions()) {
+            for (NetcdfGridProductDescription prod : descriptions
+                    .getDescriptions()) {
                 for (int i = 0; i < numLevels; i++) {
                     info = new NetcdfGridRecordInfo();
                     info.setDataTime(dataTime);
@@ -399,25 +401,25 @@ public class NetcdfGridDecoder {
     /**
      * The {@link IPathManager} is used to look up the configured description
      * file.
-     *
+     * 
      * @throws JAXBException
      * @throws SerializationException
      */
     public void setPathManager(IPathManager pathManager) {
-        LocalizationFile[] files = pathManager.listStaticFiles("grid/netcdf",
+        ILocalizationFile[] files = pathManager.listStaticFiles("grid/netcdf",
                 new String[] { ".xml" }, true, true);
 
         NetcdfGridProductDescriptions descriptions;
-        for (LocalizationFile file : files) {
+        for (ILocalizationFile file : files) {
             logger.info("Loading Netcdf Grid description from "
-                    + file.getName());
+                    + file.getPath());
             try (InputStream inputStream = file.openInputStream()) {
                 descriptions = JAXB.unmarshal(inputStream,
                         NetcdfGridProductDescriptions.class);
                 this.descriptionsList.add(descriptions);
             } catch (LocalizationException | IOException e) {
                 logger.error("Unable to load product descriptions from {}",
-                        file.getName(), e);
+                        file.getPath(), e);
             }
         }
 

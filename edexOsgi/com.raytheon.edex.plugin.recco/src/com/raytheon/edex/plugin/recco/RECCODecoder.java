@@ -21,9 +21,11 @@ package com.raytheon.edex.plugin.recco;
 
 import java.util.Calendar;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.exception.DecoderException;
-import com.raytheon.edex.plugin.AbstractDecoder;
 import com.raytheon.edex.plugin.recco.common.RECCORecord;
 import com.raytheon.edex.plugin.recco.decoder.ReccoParser;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
@@ -58,12 +60,17 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * May 14, 2014 2536       bclement    moved WMO Header to common, removed PLUGIN_NAME
  * Jul 23, 2014 3410       bclement    location changed to floats
  * Sep 26, 2014 3629       mapeters    Added RECCO_MANOBS, RECCO_INTEROBS constants.
+ * Dec 16, 2015 5166       kbisanz     Update logging to use SLF4J
+ *                                     by adding private logger and stop
+ *                                     extending AbstractDecoder
  * </pre>
  * 
  * @author jkorman
  * @version 1.0
  */
-public class RECCODecoder extends AbstractDecoder {
+public class RECCODecoder {
+
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     private static final int RECCO_MANOBS = 4500;
 

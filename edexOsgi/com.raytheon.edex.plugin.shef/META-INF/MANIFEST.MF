@@ -30,5 +30,5 @@ Import-Package: com.raytheon.edex.plugin.obs,
  com.raytheon.uf.common.dataplugin.text.request,
  com.raytheon.uf.common.ohd,
  com.raytheon.uf.common.wmo,
- org.apache.commons.logging
+ org.slf4j
 

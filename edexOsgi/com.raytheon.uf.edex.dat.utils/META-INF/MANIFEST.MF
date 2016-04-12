@@ -10,7 +10,7 @@ Import-Package: com.raytheon.uf.common.dataplugin.grid,
  com.raytheon.uf.common.localization,
  com.raytheon.uf.common.monitor.xml,
  com.raytheon.uf.common.status,
- org.apache.commons.logging
+ org.slf4j
 Export-Package: com.raytheon.uf.edex.dat.utils
 Require-Bundle: com.raytheon.edex.common;bundle-version="1.12.2",
  com.raytheon.uf.common.monitor;bundle-version="1.12.2",

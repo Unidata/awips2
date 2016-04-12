@@ -30,7 +30,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
 
 /**
- * TODO Add Description
+ * This routine will estimate 6 hourly periods when 24 hour rain exists. Based on:
+ * ohd/pproc_lib/src/GageQCEngine/TEXT/estimate_daily_stations.c in AWIPS I.
  * 
  * <pre>
  * 
@@ -38,6 +39,8 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 10, 2009            snaples     Initial creation
+ * Jan 11, 2016 5173       bkowal      Do not estimate a station that has been forced
+ *                                     good. Eliminated warnings.
  * 
  * </pre>
  * 
@@ -55,8 +58,8 @@ public class EstDailyStations {
     public void estimate_daily_stations(int j,
             ArrayList<Station> precip_stations, int numPstations) {
 
-        int dqc_neig = dqc.mpe_dqc_max_precip_neighbors;
-        int isom = dqc.isom;
+        int dqc_neig = DailyQcUtils.mpe_dqc_max_precip_neighbors;
+        int isom = DailyQcUtils.isom;
         int isohyets_used = dqc.isohyets_used;
         int method = dqc.method;
         int m, k, i, l, ii;
@@ -83,18 +86,18 @@ public class EstDailyStations {
         int details = dqc.mpe_td_details_set;
         int mpe_td_new_algorithm_set = dqc.mpe_td_new_algorithm_set;
 
-        if (dqc.pdata[j].data_time == null) {
+        if (DailyQcUtils.pdata[j].data_time == null) {
             return;
         }
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        cal.setTime(dqc.pdata[j].data_time);
+        cal.setTime(DailyQcUtils.pdata[j].data_time);
 
         /* this routine will estimate 6 hourly periods when 24 hour rain exists */
 
         for (m = 0; m < max_stations; m++) {
             /* dont estimate missing 24 hour stations */
-            if (dqc.pdata[j].stn[m].frain[4].data < 0
-                    || dqc.pdata[j].stn[m].frain[4].qual == 4) {
+            if (DailyQcUtils.pdata[j].stn[m].frain[4].data < 0
+                    || DailyQcUtils.pdata[j].stn[m].frain[4].qual == 4) {
                 continue;
             }
 
@@ -102,17 +105,17 @@ public class EstDailyStations {
 
             for (k = 0; k < 4; k++) {
 
-                if (dqc.pdata[j].stn[m].frain[k].data >= 0
-                        && dqc.pdata[j].stn[m].frain[k].qual == 2) {
+                if (DailyQcUtils.pdata[j].stn[m].frain[k].data >= 0
+                        && DailyQcUtils.pdata[j].stn[m].frain[k].qual == 2) {
                     continue;
                 }
 
-                if (dqc.pdata[j].stn[m].frain[k].qual == 1) {
+                if (DailyQcUtils.pdata[j].stn[m].frain[k].qual == 1) {
                     break;
                 }
 
-                if (dqc.pdata[j].stn[m].rrain[k].data < 0
-                        && dqc.pdata[j].stn[m].frain[k].qual != 2) {
+                if (DailyQcUtils.pdata[j].stn[m].rrain[k].data < 0
+                        && DailyQcUtils.pdata[j].stn[m].frain[k].qual != 2) {
                     break;
                 }
 
@@ -124,8 +127,9 @@ public class EstDailyStations {
 
             /* dont estimate stations forced good, bad or estimated */
 
-            if (dqc.pdata[j].stn[m].frain[4].qual == 1
-                    || dqc.pdata[j].stn[m].frain[4].qual == 5) {
+            if (DailyQcUtils.pdata[j].stn[m].frain[4].qual == 0 
+                    || DailyQcUtils.pdata[j].stn[m].frain[4].qual == 1
+                    || DailyQcUtils.pdata[j].stn[m].frain[4].qual == 5) {
                 continue;
             }
 
@@ -154,16 +158,16 @@ public class EstDailyStations {
 
                     /* dont estimate unless good or forced good */
 
-                    if (dqc.pdata[j].stn[i].frain[k].qual != 0
-                            && dqc.pdata[j].stn[i].frain[k].qual != 8
-                            && dqc.pdata[j].stn[i].frain[k].qual != 3
-                            && dqc.pdata[j].stn[i].frain[k].qual != 2) {
+                    if (DailyQcUtils.pdata[j].stn[i].frain[k].qual != 0
+                            && DailyQcUtils.pdata[j].stn[i].frain[k].qual != 8
+                            && DailyQcUtils.pdata[j].stn[i].frain[k].qual != 3
+                            && DailyQcUtils.pdata[j].stn[i].frain[k].qual != 2) {
                         continue;
                     }
 
                     /* dont use missing stations */
 
-                    if (dqc.pdata[j].stn[i].frain[k].data < 0) {
+                    if (DailyQcUtils.pdata[j].stn[i].frain[k].data < 0) {
                         continue;
                     }
 
@@ -186,10 +190,10 @@ public class EstDailyStations {
                     testdist = 1 / testdist;
 
                     if (method == 2 && isoh > 0 && isoh1 > 0) {
-                        padj = dqc.pdata[j].stn[i].frain[k].data
+                        padj = DailyQcUtils.pdata[j].stn[i].frain[k].data
                                 * isoh1 / isoh;
                     } else {
-                        padj = dqc.pdata[j].stn[i].frain[k].data;
+                        padj = DailyQcUtils.pdata[j].stn[i].frain[k].data;
                     }
 
                     fdist = testdist + fdist;
@@ -229,14 +233,14 @@ public class EstDailyStations {
                             continue;
                         }
 
-                        if (dqc.pdata[j].stn[i].frain[k].qual != 0
-                                && dqc.pdata[j].stn[i].frain[k].qual != 8
-                                && dqc.pdata[j].stn[i].frain[k].qual != 3
-                                && dqc.pdata[j].stn[i].frain[k].qual != 2) {
+                        if (DailyQcUtils.pdata[j].stn[i].frain[k].qual != 0
+                                && DailyQcUtils.pdata[j].stn[i].frain[k].qual != 8
+                                && DailyQcUtils.pdata[j].stn[i].frain[k].qual != 3
+                                && DailyQcUtils.pdata[j].stn[i].frain[k].qual != 2) {
                             continue;
                         }
 
-                        if (dqc.pdata[j].stn[i].frain[k].data < 0) {
+                        if (DailyQcUtils.pdata[j].stn[i].frain[k].data < 0) {
                             continue;
                         }
 
@@ -257,10 +261,10 @@ public class EstDailyStations {
                         testdist = 1 / testdist;
 
                         if (method == 2 && isoh > 0 && isoh1 > 0) {
-                            padj = dqc.pdata[j].stn[i].frain[k].data
+                            padj = DailyQcUtils.pdata[j].stn[i].frain[k].data
                                     * isoh1 / isoh;
                         } else {
-                            padj = dqc.pdata[j].stn[i].frain[k].data;
+                            padj = DailyQcUtils.pdata[j].stn[i].frain[k].data;
                         }
 
                         fdist = testdist + fdist;
@@ -293,27 +297,26 @@ public class EstDailyStations {
                                 if (i == m) {
                                     continue;
                                 }
-                                if (dqc.pdata[j].stn[i].frain[k].qual != 0
-                                        && dqc.pdata[j].stn[i].frain[k].qual != 8
-                                        && dqc.pdata[j].stn[i].frain[k].qual != 3
-                                        && dqc.pdata[j].stn[i].frain[k].qual != 2) {
+                                if (DailyQcUtils.pdata[j].stn[i].frain[k].qual != 0
+                                        && DailyQcUtils.pdata[j].stn[i].frain[k].qual != 8
+                                        && DailyQcUtils.pdata[j].stn[i].frain[k].qual != 3
+                                        && DailyQcUtils.pdata[j].stn[i].frain[k].qual != 2) {
                                     continue;
                                 }
 
-                                if (dqc.pdata[j].stn[i].frain[k].data < 0) {
+                                if (DailyQcUtils.pdata[j].stn[i].frain[k].data < 0) {
                                     continue;
                                 }
 
                                 buf = String
                                         .format("  %s(%f,%f)",
                                                 precip_stations.get(i).hb5,
-                                                dqc.pdata[j].stn[i].frain[k].data,
+                                                DailyQcUtils.pdata[j].stn[i].frain[k].data,
                                                 precip_stations.get(i).isoh[isom]);
 
                                 dqc.td_fpwr.write(buf);
                                 dqc.td_fpwr.newLine();
                             }
-                            // fvalue[k] = fdata / fdist;
 
                         } catch (IOException e) {
                             statusHandler.handle(Priority.PROBLEM,
@@ -340,8 +343,8 @@ public class EstDailyStations {
                             dqc.td_fpwr.write(buf);
                             dqc.td_fpwr.newLine();
                         } catch (IOException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
+                            statusHandler.handle(Priority.PROBLEM, 
+                                    e.getLocalizedMessage(), e);
                         }
                     }
 
@@ -352,14 +355,14 @@ public class EstDailyStations {
                             continue;
                         }
 
-                        if (dqc.pdata[j].stn[i].frain[k].qual != 0
-                                && dqc.pdata[j].stn[i].frain[k].qual != 8
-                                && dqc.pdata[j].stn[i].frain[k].qual != 3
-                                && dqc.pdata[j].stn[i].frain[k].qual != 2) {
+                        if (DailyQcUtils.pdata[j].stn[i].frain[k].qual != 0
+                                && DailyQcUtils.pdata[j].stn[i].frain[k].qual != 8
+                                && DailyQcUtils.pdata[j].stn[i].frain[k].qual != 3
+                                && DailyQcUtils.pdata[j].stn[i].frain[k].qual != 2) {
                             continue;
                         }
 
-                        if (dqc.pdata[j].stn[i].frain[k].data < 0) {
+                        if (DailyQcUtils.pdata[j].stn[i].frain[k].data < 0) {
                             continue;
                         }
 
@@ -385,7 +388,7 @@ public class EstDailyStations {
                                 .format("  %s(%f,%f)",
                                         precip_stations
                                                 .get(closest_good_gage_index).hb5,
-                                        dqc.pdata[j].stn[closest_good_gage_index].frain[k].data,
+                                                DailyQcUtils.pdata[j].stn[closest_good_gage_index].frain[k].data,
                                         precip_stations
                                                 .get(closest_good_gage_index).isoh[isom]);
 
@@ -393,8 +396,8 @@ public class EstDailyStations {
                             dqc.td_fpwr.write(buf);
                             dqc.td_fpwr.newLine();
                         } catch (IOException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
+                            statusHandler.handle(Priority.PROBLEM, 
+                                    e.getLocalizedMessage(), e);
                         }
                     }
                 }
@@ -405,7 +408,7 @@ public class EstDailyStations {
                         fvalue[k] = -9999;
                     } else {
                         if (closest_good_gage_index != -9999) {
-                            fvalue[k] = dqc.pdata[j].stn[closest_good_gage_index].frain[k].data;
+                            fvalue[k] = DailyQcUtils.pdata[j].stn[closest_good_gage_index].frain[k].data;
                         } else {
                             fvalue[k] = -9999;
                         }
@@ -418,8 +421,8 @@ public class EstDailyStations {
 
                 for (k = 0; k < 4; k++) {
 
-                    dqc.pdata[j].stn[m].frain[k].qual = 6;
-                    dqc.pdata[j].stn[m].frain[k].data = dqc.pdata[j].stn[m].frain[4].data / 4;
+                    DailyQcUtils.pdata[j].stn[m].frain[k].qual = 6;
+                    DailyQcUtils.pdata[j].stn[m].frain[k].data = DailyQcUtils.pdata[j].stn[m].frain[4].data / 4;
 
                 }
 
@@ -433,10 +436,10 @@ public class EstDailyStations {
 
             for (k = 0; k < 4; k++) {
 
-                if ((dqc.pdata[j].stn[m].rrain[k].data >= 0 && dqc.pdata[j].stn[m].frain[k].qual != 1)
-                        || (dqc.pdata[j].stn[m].frain[k].qual == 2)) {
+                if ((DailyQcUtils.pdata[j].stn[m].rrain[k].data >= 0 && DailyQcUtils.pdata[j].stn[m].frain[k].qual != 1)
+                        || (DailyQcUtils.pdata[j].stn[m].frain[k].qual == 2)) {
                     stotal = stotal
-                            + dqc.pdata[j].stn[m].frain[k].data;
+                            + DailyQcUtils.pdata[j].stn[m].frain[k].data;
                 } else {
 
                     num_missing++;
@@ -447,7 +450,7 @@ public class EstDailyStations {
 
             }
 
-            stotal = dqc.pdata[j].stn[m].frain[4].data - stotal;
+            stotal = DailyQcUtils.pdata[j].stn[m].frain[4].data - stotal;
 
             if (stotal < 0) {
                 stotal = 0;
@@ -461,22 +464,22 @@ public class EstDailyStations {
 
             for (k = 0; k < 4; k++) {
 
-                if ((dqc.pdata[j].stn[m].rrain[k].data >= 0 && dqc.pdata[j].stn[m].frain[k].qual != 1)
-                        || (dqc.pdata[j].stn[m].frain[k].qual == 2)) {
+                if ((DailyQcUtils.pdata[j].stn[m].rrain[k].data >= 0 && DailyQcUtils.pdata[j].stn[m].frain[k].qual != 1)
+                        || (DailyQcUtils.pdata[j].stn[m].frain[k].qual == 2)) {
                     continue;
                 }
 
                 if (ftotal != 0) {
 
-                    dqc.pdata[j].stn[m].frain[k].data = (float) (fvalue[k] * fmult);
-                    dqc.pdata[j].stn[m].frain[k].qual = 6;
+                    DailyQcUtils.pdata[j].stn[m].frain[k].data = (float) (fvalue[k] * fmult);
+                    DailyQcUtils.pdata[j].stn[m].frain[k].qual = 6;
 
                 }
 
                 else {
 
-                    dqc.pdata[j].stn[m].frain[k].data = (float) (stotal / num_missing);
-                    dqc.pdata[j].stn[m].frain[k].qual = 6;
+                    DailyQcUtils.pdata[j].stn[m].frain[k].data = (float) (stotal / num_missing);
+                    DailyQcUtils.pdata[j].stn[m].frain[k].qual = 6;
 
                 }
 

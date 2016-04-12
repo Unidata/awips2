@@ -37,6 +37,7 @@ import org.eclipse.swt.widgets.Composite;
  * ------------ ---------- ----------- --------------------------
  * 28 FEB 2008  938        lvenable    Initial creation
  * 12 Aug 2013  #2256      lvenable    Moved getCigVisDistImage() to parent class.
+ * 29 JAN 2016  18439      zhao        Modified hourStr() to return a two-digit hour string
  * 
  * </pre>
  * 
@@ -229,9 +230,9 @@ public class CigVisByWindDirCanvasComp extends CigVisCanvasComp {
         }
 
         if (numHours == 1) {
-            return Integer.toString(startHour);
+            return String.format("%02d", startHour);
         } else {
-            return String.format("%d-%d", startHour, endHour);
+            return String.format("%02d-%02d", startHour, endHour);
         }
     }
 

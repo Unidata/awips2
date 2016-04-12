@@ -20,23 +20,13 @@
 
 package com.raytheon.viz.radar.rsc.graphic;
 
-import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.awt.image.IndexColorModel;
 import java.awt.image.RenderedImage;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
-import org.apache.batik.bridge.BridgeContext;
-import org.apache.batik.bridge.GVTBuilder;
-import org.apache.batik.bridge.UserAgentAdapter;
-import org.apache.batik.dom.svg.SAXSVGDocumentFactory;
-import org.apache.batik.gvt.GraphicsNode;
-import org.apache.batik.util.XMLResourceDescriptor;
 import org.eclipse.swt.graphics.RGB;
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.opengis.referencing.FactoryException;
@@ -47,26 +37,22 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.raytheon.uf.common.dataplugin.radar.level3.HdaHailPacket.HdaHailPoint;
-import com.raytheon.uf.common.dataplugin.radar.level3.MesocyclonePacket.MesocyclonePoint;
 import com.raytheon.uf.common.dataplugin.radar.level3.SCITDataPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.SCITDataPacket.SCITDataCell;
-import com.raytheon.uf.common.dataplugin.radar.level3.STICirclePacket.STICirclePoint;
 import com.raytheon.uf.common.dataplugin.radar.level3.SpecialGraphicSymbolPacket.SpecialGraphicPoint;
 import com.raytheon.uf.common.dataplugin.radar.level3.SymbologyPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.TVSPacket.TVSPoint;
 import com.raytheon.uf.common.dataplugin.radar.level3.TextSymbolPacket;
-import com.raytheon.uf.common.dataplugin.radar.level3.WindBarbPacket.WindBarbPoint;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.geospatial.ReferencedObject.Type;
-import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.point.display.PointWindDisplay;
-import com.raytheon.uf.viz.core.point.display.PointWindDisplay.DisplayType;
+import com.raytheon.uf.viz.core.point.svg.SVGImageFactory;
 import com.raytheon.viz.radar.RadarHelper;
 import com.raytheon.viz.radar.ui.RadarDisplayControls;
 import com.raytheon.viz.radar.ui.RadarDisplayManager;
@@ -80,14 +66,15 @@ import com.vividsolutions.jts.geom.Coordinate;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 13, 2009            chammack     Initial creation
- * Jan 20, 2010 DR 4059    Zihou Wang   Display more GSM status and
- *                                      correct display features.
- * Aug 11, 2014  3504      mapeters     Replaced deprecated IODataPreparer
- *                                      instances with IRenderedImageCallback.
- * Feb 16, 2016  12021     wkwock       Fix mesocyclone zooming issue
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jan 13, 2009            chammack   Initial creation
+ * Jan 20, 2010  4059      Zihou Wang Display more GSM status and
+ *                                    correct display features.
+ * Aug 11, 2014  3504      mapeters   Replaced deprecated IODataPreparer
+ *                                    instances with IRenderedImageCallback.
+ * Oct 37, 2015  4798      bsteffen   Use SVGImageFactory
+ * Feb 16, 2016  12021     wkwock     Fix mesocyclone zooming issue
  * 
  * </pre>
  * 
@@ -106,9 +93,6 @@ public class RadarGraphicFunctions {
 
     /** ID in the svg for sti forecast symbols */
     private static final String STI_FORE_SYMBOL = "STIForecastSymbol";
-
-    /** ID in the svg for sti hexagon symbols */
-    private static final String STI_HEX_SYMBOL = "STIHexagonSymbol";
 
     /** Index of the font for the past symbol */
     private static final String PAST_SYM = "056";
@@ -154,16 +138,7 @@ public class RadarGraphicFunctions {
     /** ID in the svg for tvs */
     private static final String TVS_ATTRIB = "tvs";
 
-    static BufferedImage colorMapImage = null;
-
-    private static UserAgentAdapter userAgentAdapter = new UserAgentAdapter();
-
-    private static BridgeContext bridgeContext = new BridgeContext(
-            userAgentAdapter);
-
-    private static GVTBuilder builder = new GVTBuilder();
-
-    private static Map<String, Document> docMap = new HashMap<String, Document>();
+    private static Map<String, RadarSVGImageFactory> imageFactoryMap = new HashMap<>();
 
     public static enum MesocycloneType {
         CORRELATED_SHEAR, CORRELATED_SHEAR_EXTRAPOLATED, MESOCYCLONE, MESOCYCLONE_WITH_SPIKES
@@ -187,7 +162,7 @@ public class RadarGraphicFunctions {
         public int[] pixelOffset;
 
         public String label;
-
+        
         public MesocycloneType type;
         
         public double mesoRadius = -999;
@@ -195,7 +170,6 @@ public class RadarGraphicFunctions {
         public double lon;
         public LineStyle lineStyle;
         public RGB color;
-        
     }
 
     /**
@@ -282,8 +256,7 @@ public class RadarGraphicFunctions {
             objArr.put(HAIL_SIZE, size);
 
             BufferedImage img = createImage(objArr, "HailIndex.svg", color);
-            IImage image = convertBufferedImage(target, img, UUID.randomUUID()
-                    .toString());
+            IImage image = convertBufferedImage(target, img);
             PlotObject po = new PlotObject();
             po.image = image;
             ReferencedCoordinate rc = new ReferencedCoordinate(
@@ -302,31 +275,6 @@ public class RadarGraphicFunctions {
         }
 
         return null;
-    }
-
-    /**
-     * Create a set of plot objects from the TVSPacket and ETVSPacket
-     * 
-     * @param packet
-     * @param target
-     * @param gridGeometry
-     * @param descriptor
-     * @return
-     * @throws VizException
-     */
-    public static List<PlotObject> createTVS(SymbologyPacket packet,
-            IGraphicsTarget target, GeneralGridGeometry gridGeometry,
-            IDescriptor descriptor, RGB color) throws VizException {
-        List<PlotObject> images = new ArrayList<PlotObject>();
-        TVSPoint[] points = (TVSPoint[]) RadarHelper.getItems(packet).toArray();
-        if (points == null)
-            return images;
-
-        for (TVSPoint point : points) {
-            images.add(createTVS(point, target, gridGeometry, descriptor, color));
-        }
-
-        return images;
     }
 
     public static List<PlotObject> createTVS(SpecialGraphicPoint currPt,
@@ -348,7 +296,7 @@ public class RadarGraphicFunctions {
                 target, gridGeometry, descriptor, color);
     }
 
-    public static PlotObject createTVS(int i, int j, boolean isElevated,
+    protected static PlotObject createTVS(int i, int j, boolean isElevated,
             boolean isExtrapolated, IGraphicsTarget target,
             GeneralGridGeometry gridGeometry, IDescriptor descriptor, RGB color)
             throws VizException {
@@ -365,8 +313,7 @@ public class RadarGraphicFunctions {
         }
 
         BufferedImage img = createImage(objArr, "TVS.svg", color);
-        IImage image = convertBufferedImage(target, img, UUID.randomUUID()
-                .toString());
+        IImage image = convertBufferedImage(target, img);
         PlotObject po = new PlotObject();
         po.image = image;
         ReferencedCoordinate rc = new ReferencedCoordinate(
@@ -437,7 +384,6 @@ public class RadarGraphicFunctions {
             MesocycloneType type, RGB color, LineStyle lineStyle) throws VizException,
             TransformException, FactoryException {
         PlotObject po = new PlotObject();
-
         try {
             po.coord = rc.asPixel(descriptor.getGridGeometry());
             // adjust y coord per original code
@@ -466,148 +412,8 @@ public class RadarGraphicFunctions {
         if (point != null) {
             PlotObject po = setMesocycloneInfo(point.getI(), point.getJ(),
                     point.getPointFeatureAttr()/4.0, target, gridGeometry, //MD radius /4
-                    descriptor, type, color,LineStyle.SOLID);
-            images.add(po);
-        }
-
-        return images;
-    }
-
-    public static List<PlotObject> createMesocycloneImage(
-            SymbologyPacket packet, IGraphicsTarget target,
-            GeneralGridGeometry gridGeometry, IDescriptor descriptor,
-            MesocycloneType type, RGB color) throws VizException,
-            TransformException, FactoryException {
-        List<PlotObject> images = new ArrayList<PlotObject>();
-        MesocyclonePoint[] points = (MesocyclonePoint[]) RadarHelper.getItems(
-                packet).toArray();
-
-        if (points == null)
-            return images;
-
-        for (MesocyclonePoint point : points) {
-            PlotObject po = setMesocycloneInfo(point.getI(), point.getJ(),
-                    point.getMesoCycloneRadius(), target, gridGeometry,
                     descriptor, type, color, LineStyle.SOLID);
-
             images.add(po);
-        }
-
-        return images;
-    }
-
-    public static List<PlotObject> createMesocycloneImage(
-            SymbologyPacket packet, IGraphicsTarget target,
-            GeneralGridGeometry gridGeometry, IDescriptor descriptor, RGB color)
-            throws VizException, TransformException, FactoryException {
-        return createMesocycloneImage(packet, target, gridGeometry, descriptor,
-                MesocycloneType.MESOCYCLONE, color);
-    }
-
-    /**
-     * Create a set of plot objects from a WindBarbPacket, making a table
-     * 
-     * @param packet
-     * @param target
-     * @param gridGeometry
-     * @param descriptor
-     * @return
-     * @throws VizException
-     */
-    public static List<PlotObject> createWindBarb(SymbologyPacket packet,
-            IGraphicsTarget target, IDescriptor descriptor) throws VizException {
-
-        List<PlotObject> images = new ArrayList<PlotObject>();
-        WindBarbPoint[] points = (WindBarbPoint[]) RadarHelper.getItems(packet)
-                .toArray();
-        if (points == null)
-            return images;
-
-        int imgSize = 64;
-        for (WindBarbPoint point : points) {
-            PointWindDisplay barb = new PointWindDisplay(imgSize * 0.4, 1, 0, 0);
-            RGB color;
-            barb.setImageParameters(imgSize, imgSize, 255, 255, 255, 1);
-
-            switch (point.getColorValue()) {
-            case 1:
-                color = RadarHelper.GREEN;
-                break;
-            case 2:
-                color = RadarHelper.YELLOW;
-                break;
-            case 3:
-                color = RadarHelper.BRIGHT_RED;
-                break;
-            case 4:
-                color = RadarHelper.LIGHT_BLUE;
-                break;
-            case 5:
-                color = RadarHelper.MED_PURPLE;
-                break;
-            default:
-                color = RadarHelper.WHITE;
-                break;
-            }
-            barb.setColor(color);
-            barb.setWind(point.getWindBarbDir(), point.getWindBarbSpd(), true);
-            BufferedImage img = barb.getWindImage(false, DisplayType.BARB, 1);
-            IImage image = convertBufferedImage(target, img, UUID.randomUUID()
-                    .toString());
-            PlotObject po = new PlotObject();
-            po.image = image;
-            ReferencedCoordinate rc = new ReferencedCoordinate(
-                    RadarGraphicsPage.rectifyCoordinate(new Coordinate(point
-                            .getI(), point.getJ())),
-                    descriptor.getGridGeometry(), Type.GRID_CENTER);
-            try {
-                // po.coord = rc.asPixel(descriptor);
-                po.coord = new Coordinate(point.i, point.j);
-                // adjust y coord per original code
-                // po.pixelOffset = new int[] { 0, 8 };
-                po.pixelOffset = new int[] { 0, 0 };
-            } catch (Exception e) {
-                throw new VizException("Unable to transform coordinates", e);
-            }
-            images.add(po);
-        }
-
-        return images;
-    }
-
-    public static List<PlotObject> createStormTrackIndexCircle(
-            SymbologyPacket packet, IGraphicsTarget target,
-            GeneralGridGeometry gridGeometry, IDescriptor descriptor,
-            int hexOrCircle, RGB color) throws VizException {
-        List<PlotObject> images = new ArrayList<PlotObject>();
-        STICirclePoint[] points = (STICirclePoint[]) RadarHelper.getItems(
-                packet).toArray();
-        if (points == null)
-            return images;
-
-        for (STICirclePoint point : points) {
-            Map<String, Object> objArr = new HashMap<String, Object>();
-
-            // TODO no type of product used as of 2/17/09
-            BufferedImage img = createImage(objArr, "TVS.svg", color);
-            IImage image = convertBufferedImage(target, img, UUID.randomUUID()
-                    .toString());
-            PlotObject po = new PlotObject();
-            po.image = image;
-            ReferencedCoordinate rc = new ReferencedCoordinate(
-                    RadarGraphicsPage.rectifyCoordinate(new Coordinate(point
-                            .getI(), point.getJ())), gridGeometry,
-                    Type.GRID_CENTER);
-            try {
-                po.coord = rc.asPixel(descriptor.getGridGeometry());
-                // adjust y coord per original code
-                po.pixelOffset = new int[] { 0, 8 };
-            } catch (Exception e) {
-                throw new VizException("Unable to transform coordinates", e);
-            }
-
-            images.add(po);
-
         }
 
         return images;
@@ -659,8 +465,7 @@ public class RadarGraphicFunctions {
                 break;
             }
             BufferedImage img = createImage(objArr, "STI.svg", color);
-            IImage image = convertBufferedImage(target, img, UUID.randomUUID()
-                    .toString());
+            IImage image = convertBufferedImage(target, img);
             PlotObject po = new PlotObject();
             po.image = image;
             ReferencedCoordinate rc = new ReferencedCoordinate(
@@ -681,7 +486,7 @@ public class RadarGraphicFunctions {
         return images;
     }
 
-    public static PlotObject createDMDSTIImage(ReferencedCoordinate rc,
+    protected static PlotObject createDMDSTIImage(ReferencedCoordinate rc,
             String type, IGraphicsTarget target,
             GeneralGridGeometry gridGeometry, IDescriptor descriptor, RGB color)
             throws VizException {
@@ -703,8 +508,7 @@ public class RadarGraphicFunctions {
         }
 
         BufferedImage img = createImage(objArr, "STI.svg", color);
-        IImage image = convertBufferedImage(target, img, UUID.randomUUID()
-                .toString());
+        IImage image = convertBufferedImage(target, img);
 
         po.image = image;
 
@@ -734,115 +538,70 @@ public class RadarGraphicFunctions {
     private static synchronized BufferedImage createImage(
             Map<String, Object> objs, String plotModelFile, RGB rgb)
             throws VizException {
-        // Get the SVG
-        Document document = loadSVG(plotModelFile);
-        // Load the values into the SVG
-        setSVGValues(objs, document);
-
-        // Get the buffered image from SVG
-        BufferedImage bufferedImage = getBufferedImage(document, rgb);
-
-        return bufferedImage;
+        RadarSVGImageFactory imageFactory = getImageFactory(plotModelFile);
+        imageFactory.setSVGValues(objs);
+        return imageFactory.createSingleColorImage(rgb);
     }
 
-    private static BufferedImage getBufferedImage(Document document, RGB rgb) {
-        Element svgRoot = document.getDocumentElement();
-        int originalPlotModelWidth = Integer.parseInt(svgRoot.getAttributeNS(
-                null, "width"));
-        int originalPlotModelHeight = Integer.parseInt(svgRoot.getAttributeNS(
-                null, "height"));
-
-        byte[] red = new byte[] { 0, (byte) rgb.red };
-        byte[] green = new byte[] { 0, (byte) rgb.green };
-        byte[] blue = new byte[] { 0, (byte) rgb.blue };
-
-        IndexColorModel tm = new IndexColorModel(8, 2, red, green, blue, 0);
-
-        BufferedImage bufferedImage = new BufferedImage(originalPlotModelWidth,
-                originalPlotModelHeight, BufferedImage.TYPE_BYTE_INDEXED, tm);
-        Graphics2D g2d = bufferedImage.createGraphics();
-
-        GraphicsNode theGraphicsNode = builder.build(bridgeContext, document);
-        theGraphicsNode.primitivePaint(g2d);
-        theGraphicsNode.paint(g2d);
-        // Cleanup and return image
-        g2d.dispose();
-
-        return bufferedImage;
+    private static RadarSVGImageFactory getImageFactory(String plotModelFile)
+            throws VizException {
+        RadarSVGImageFactory imageFactory = imageFactoryMap.get(plotModelFile);
+        if(imageFactory == null){
+            imageFactory = new RadarSVGImageFactory(plotModelFile);
+        }
+        return imageFactory;
     }
 
-    private static void setSVGValues(Map<String, Object> objs, Document document) {
-        Element plot = document.getElementById("plotData");
-        NodeList plotElements = plot.getChildNodes();
-        for (int i = 0; i < plotElements.getLength(); i++) {
-            if (Node.ELEMENT_NODE == plotElements.item(i).getNodeType()) {
-                Element plotElement = (Element) plotElements.item(i);
-                String id = plotElement.getAttribute("id");
+    /**
+     * Converting the buffered image to a IGraphicsTarget API.
+     */
+    protected static IImage convertBufferedImage(IGraphicsTarget target,
+            final BufferedImage img) {
+        return target.initializeRaster(new IRenderedImageCallback() {
+            @Override
+            public RenderedImage getImage() throws VizException {
+                return img;
+            }
+        });
+    }
 
-                if (id != null && objs.containsKey(id)) {
-                    Object value = objs.get(id);
-                    plotElement.getChildNodes().item(0)
-                            .setNodeValue(value.toString());
+    private static class RadarSVGImageFactory extends SVGImageFactory {
+
+        public RadarSVGImageFactory(String localizationPath)
+                throws VizException {
+            super(RADAR_PLOTMODEL_DIR + IPathManager.SEPARATOR
+                    + localizationPath);
+        }
+
+        public BufferedImage createSingleColorImage(RGB color) {
+            Element svgRoot = document.getDocumentElement();
+            int width = Integer.parseInt(svgRoot.getAttributeNS(null, "width"));
+            int height = Integer.parseInt(svgRoot
+                    .getAttributeNS(null, "height"));
+            return super.createSingleColorImage(color, width, height);
+        }
+
+        public Document getDocument() {
+            return document;
+        }
+
+        public void setSVGValues(Map<String, Object> objs) {
+            Element plot = document.getElementById("plotData");
+            NodeList plotElements = plot.getChildNodes();
+            for (int i = 0; i < plotElements.getLength(); i++) {
+                if (Node.ELEMENT_NODE == plotElements.item(i).getNodeType()) {
+                    Element plotElement = (Element) plotElements.item(i);
+                    String id = plotElement.getAttribute("id");
+
+                    if (id != null && objs.containsKey(id)) {
+                        Object value = objs.get(id);
+                        plotElement.getChildNodes().item(0)
+                                .setNodeValue(value.toString());
+                    }
                 }
             }
         }
 
     }
 
-    private static Document loadSVG(String plotModelFile) throws VizException {
-        Document document = docMap.get(plotModelFile);
-        if (document == null) {
-
-            String parser = XMLResourceDescriptor.getXMLParserClassName();
-            SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);
-
-            try {
-                document = f.createDocument(PathManagerFactory
-                        .getPathManager()
-                        .getStaticFile(
-                                RADAR_PLOTMODEL_DIR + File.separator
-                                        + plotModelFile).toURI().toString());
-            } catch (Exception e1) {
-                throw new VizException("Unable to set up radar graphics model",
-                        e1);
-            }
-            docMap.put(plotModelFile, document);
-        }
-
-        return document;
-    }
-
-    /**
-     * Converting the buffered image to a graphics card image
-     * 
-     * @param target
-     * @param img
-     * @param name
-     * @return
-     */
-    public static IImage convertBufferedImage(IGraphicsTarget target,
-            BufferedImage img, String name) throws VizException {
-        final BufferedImage image = img;
-        return target.initializeRaster(new IRenderedImageCallback() {
-            @Override
-            public RenderedImage getImage() throws VizException {
-                return image;
-            }
-        });
-    }
-
-    /**
-     * Drawing the legend for the color bars on the top left
-     * 
-     * @param colors
-     * @return
-     */
-    public static BufferedImage drawColorLegend(IGraphicsTarget target,
-            IDescriptor descriptor, RGB[] colors, int startNum, int endNum,
-            int offset) {
-        BufferedImage img = new BufferedImage(15, 15,
-                BufferedImage.TYPE_BYTE_INDEXED);
-
-        return img;
-    }
 }

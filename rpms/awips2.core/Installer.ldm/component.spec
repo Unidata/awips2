@@ -17,14 +17,13 @@ URL: N/A
 License: N/A
 Distribution: N/A
 Vendor: Raytheon
-Packager: Bryan Kowal
+Packager: %{_build_site}
 
 AutoReq: no
 Requires: awips2-qpid-lib
-requires: awips2-python
-requires: awips2-python
-provides: awips2-ldm
-provides: awips2-base-component
+Requires: awips2-python
+Provides: awips2-ldm
+Provides: awips2-base-component
 
 %description
 AWIPS II LDM Distribution - Contains AWIPS II LDM.
@@ -170,6 +169,7 @@ cp ${_ldm_dir}/SOURCES/%{_ldm_src_tar} ${_ldm_dir}
 #/bin/tar -xf %{_ldm_src_tar} \
 #   -C ${_ldm_dir}
 cd ${_ldm_dir}
+mkdir -p ${_ldm_root_dir}/src
 gunzip -c %{_ldm_src_tar} | pax -r '-s:/:/src/:'
 if [ $? -ne 0 ]; then
    exit 1

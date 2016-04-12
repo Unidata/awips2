@@ -1,10 +1,9 @@
 package com.raytheon.uf.common.dataplugin.warning.util;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
 import com.raytheon.uf.common.dataplugin.warning.WarningConstants;
 import com.raytheon.uf.common.localization.IPathManager;
@@ -13,6 +12,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 
 /**
  * Utility class to retrieve the appropriate file in localization and in backup
@@ -26,6 +26,7 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
  * ------------ ---------- ----------- --------------------------
  * Apr 28, 2014 3033       jsanchez    Searches the backup site directory before the localized site directory.
  * Jul 02, 2014 DR 17450   D. Friedman Support using list of templates from backup site.
+ * Feb 15, 2016 5244       nabowle     Replace deprecated LocalizationFile methods.
  * </pre>
  * 
  * @author jsanchez
@@ -45,7 +46,7 @@ public class WarnFileUtil {
      * the issuingSiteID is applied. For example, if a file exists in the
      * issuingSiteID directory then that the file with the returned. Otherwise,
      * the base level version of the file will be returned.
-     * 
+     *
      * @param filename
      * @param issuingSiteID
      *            (optional)
@@ -115,7 +116,7 @@ public class WarnFileUtil {
      * Locates the appropriate file in the localization hierarchy including the
      * backupSite directory (if provided) and converts the content of the file
      * into a string.
-     * 
+     *
      * @param filename
      * @param localizedSite
      * @param backupSite
@@ -126,38 +127,29 @@ public class WarnFileUtil {
     public static String convertFileContentsToString(String filename,
             String localizedSite, String backupSite)
             throws FileNotFoundException, IOException {
-        File file = findFileInLocalizationIncludingBackupSite(filename, localizedSite, backupSite)
-                .getFile();
+        LocalizationFile file = findFileInLocalizationIncludingBackupSite(
+                filename, localizedSite, backupSite);
         return convertFileContentsToString(file);
     }
 
     public static String convertFileContentsToStringNoUser(String filename,
             String site) throws FileNotFoundException {
-        File file = findFileInLocalizationIncludingBackupSite(filename, site, null, false).getFile();
+        LocalizationFile file = findFileInLocalizationIncludingBackupSite(
+                filename, site, null, false);
         return convertFileContentsToString(file);
     }
 
-    private static String convertFileContentsToString(File file) {
+    private static String convertFileContentsToString(LocalizationFile file) {
         StringBuffer sb = new StringBuffer();
-        BufferedReader input = null;
-        try {
-            input = new BufferedReader(new FileReader(file));
+        try (BufferedReader input = new BufferedReader(new InputStreamReader(
+                file.openInputStream()))) {
 
             String line = null;
             while ((line = input.readLine()) != null) {
                 sb.append(line + "\n");
             }
-        } catch (IOException e) {
+        } catch (IOException | LocalizationException e) {
 
-        } finally {
-            if (input != null) {
-                try {
-                    input.close();
-                    input = null;
-                } catch (Exception e) {
-                    input = null;
-                }
-            }
         }
         return sb.toString();
     }

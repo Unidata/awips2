@@ -80,6 +80,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * Aug 14, 2014 3523      mapeters     Updated deprecated {@link DrawableString#textStyle} 
  *                                     assignments.
  * Jul 7, 2015  10352     byin         Added SymbolLoader to plot symbols
+ * Nov 05, 2015 5070      randerso     Adjust font sizes for dpi scaling
  * </pre>
  * 
  * @author bsteffen
@@ -194,7 +195,7 @@ public class AdvisoryResource extends
         if (font != null) {
             font.dispose();
         }
-        this.font = target.initializeFont("Monospace", 10, new Style[] {});
+        this.font = target.initializeFont("Monospace", 8, new Style[] {});
         this.symbolLoader = new SymbolLoader();
     }
 

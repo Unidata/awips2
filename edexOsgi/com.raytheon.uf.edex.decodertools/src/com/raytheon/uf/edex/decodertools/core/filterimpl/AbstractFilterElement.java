@@ -31,17 +31,19 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 25, 2009            jkorman     Initial creation
- *
+ * Dec 14, 2015 5166       kbisanz     Update logging to use SLF4J
+ *                                     and implement toString()
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
@@ -54,11 +56,12 @@ public abstract class AbstractFilterElement {
     @XmlElement
     @DynamicSerializeElement
     private String filterType;
-    
+
     /**
      * Executes this filter element against the supplied report data. The
      * supplied report is returned if it matches the filter criteria. A null
      * report reference is returned if the report fails.
+     * 
      * @param report
      * @return
      */
@@ -72,7 +75,8 @@ public abstract class AbstractFilterElement {
     }
 
     /**
-     * @param filterElementName the filterElementName to set
+     * @param filterElementName
+     *            the filterElementName to set
      */
     public void setFilterElementName(String filterElementName) {
         this.filterElementName = filterElementName;
@@ -86,10 +90,16 @@ public abstract class AbstractFilterElement {
     }
 
     /**
-     * @param filterType the filterType to set
+     * @param filterType
+     *            the filterType to set
      */
     public void setFilterType(String filterType) {
         this.filterType = filterType;
     }
 
+    @Override
+    public String toString() {
+        return "AbstractFilterElement[filterElementName=" + filterElementName
+                + ", filterType=" + filterType + "]";
+    }
 }

@@ -54,6 +54,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 02 Sep 2008             lvenable    Initial creation.
  * 14 Nov 2008  1697       askripsky   Connect to DB
  * 16 Apr 2013  1790       rferrel     Made dialog non-blocking.
+ * 15 Jan 2015  5054       randerso    Remove unnecessary new Shell
  * 
  * </pre>
  * 
@@ -322,6 +323,7 @@ public class AdministrationDlg extends CaveSWTDialog {
         applyBtn.setText("Apply");
         applyBtn.setLayoutData(gd);
         applyBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 saveRecord();
             }
@@ -333,6 +335,7 @@ public class AdministrationDlg extends CaveSWTDialog {
         closeBtn.setText("Close");
         closeBtn.setLayoutData(gd);
         closeBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 close();
             }
@@ -404,8 +407,8 @@ public class AdministrationDlg extends CaveSWTDialog {
         // Make sure the LID, aka Station ID, is set since it is the primary key
         // for the DB
         if (stationIdTF.getText().compareTo("") == 0) {
-            MessageBox messageBox = new MessageBox(new Shell(),
-                    SWT.ICON_WARNING | SWT.OK);
+            MessageBox messageBox = new MessageBox(getShell(), SWT.ICON_WARNING
+                    | SWT.OK);
             messageBox.setText("Station ID Missing");
             messageBox.setMessage("Please enter a Station ID");
             messageBox.open();
@@ -418,7 +421,7 @@ public class AdministrationDlg extends CaveSWTDialog {
                     .parseInt(hsaNoTF.getText()) : HydroConstants.MISSING_VALUE;
 
             if (noTF.getText().length() > 1) {
-                MessageBox messageBox = new MessageBox(new Shell(),
+                MessageBox messageBox = new MessageBox(getShell(),
                         SWT.ICON_WARNING | SWT.OK);
                 messageBox.setText("Invalid Region Number");
                 messageBox
@@ -444,7 +447,7 @@ public class AdministrationDlg extends CaveSWTDialog {
                 currData.setOneYearDate((oneYearTF.getText().compareTo("") == 0) ? (Date) null
                         : adminFormat.parse(oneYearTF.getText()));
             } catch (ParseException e) {
-                MessageBox messageBox = new MessageBox(new Shell(),
+                MessageBox messageBox = new MessageBox(getShell(),
                         SWT.ICON_WARNING | SWT.OK);
                 messageBox.setText("Invalid One Year Date");
                 messageBox
@@ -457,7 +460,7 @@ public class AdministrationDlg extends CaveSWTDialog {
                 currData.setTenYearDate((tenYearTF.getText().compareTo("") == 0) ? (Date) null
                         : adminFormat.parse(tenYearTF.getText()));
             } catch (ParseException e) {
-                MessageBox messageBox = new MessageBox(new Shell(),
+                MessageBox messageBox = new MessageBox(getShell(),
                         SWT.ICON_WARNING | SWT.OK);
                 messageBox.setText("Invalid Ten Year Date");
                 messageBox
@@ -467,8 +470,8 @@ public class AdministrationDlg extends CaveSWTDialog {
                 return currData;
             }
         } catch (NumberFormatException e) {
-            MessageBox messageBox = new MessageBox(new Shell(),
-                    SWT.ICON_WARNING | SWT.OK);
+            MessageBox messageBox = new MessageBox(getShell(), SWT.ICON_WARNING
+                    | SWT.OK);
             messageBox.setText("Invalid HSA Number");
             messageBox
                     .setMessage("Please enter a numeric value for HSA Number");

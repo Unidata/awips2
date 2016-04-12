@@ -72,6 +72,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Aug 06, 2012           mschenke    Initial creation
  * Apr 18, 2014  2947     bsteffen    Support unitless data.
  * Sep 10, 2014  DR 17313 jgerth      Add inspect method
+ * Jan 27, 2016  DR 17997 jgerth      Support for gamma control
  * 
  * </pre>
  * 
@@ -196,6 +197,7 @@ public class TrueColorResourceGroup extends
 
         FramesInfo fi = paintProps.getFramesInfo();
         for (Channel c : Channel.values()) {
+            Double gamma = getGamma(c);
             DrawableImage[] images = null;
             DisplayedChannelResource dcr = displayedResources.get(c);
             if (dcr != null) {
@@ -211,7 +213,7 @@ public class TrueColorResourceGroup extends
                     }
                 }
             }
-            image.setImages(c, images);
+            image.setImages(c, gamma, images);
         }
 
         Coordinate ul = new Coordinate(extent.getMinX(), extent.getMaxY());
@@ -510,4 +512,13 @@ public class TrueColorResourceGroup extends
     public Collection<DisplayedChannelResource> getChannelResources() {
         return displayedResources.values();
     }
+
+    public double getGamma(Channel c) {
+        return resourceData.getChannelInfo(c).getGamma();
+    }
+
+    public void setGamma(Channel c, double gamma) {
+        resourceData.getChannelInfo(c).setGamma(gamma);
+    }
+
 }

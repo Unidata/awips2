@@ -1,0 +1,26 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Text Util Plug-in
+Bundle-SymbolicName: com.raytheon.uf.edex.plugin.text.dbsrv
+Bundle-Version: 1.16.0.qualifier
+Bundle-Vendor: RAYTHEON
+Require-Bundle: org.apache.commons.lang3;bundle-version="3.4.0",
+ org.slf4j;bundle-version="1.7.12",
+ com.raytheon.edex.common,
+ javax.persistence,
+ com.raytheon.uf.common.serialization.comm,
+ com.raytheon.uf.edex.decodertools,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.common.site,
+ com.raytheon.uf.edex.archive,
+ com.raytheon.uf.edex.ndm,
+ com.raytheon.uf.common.localization;bundle-version="1.14.0",
+ com.raytheon.uf.edex.plugin.text,
+ com.raytheon.uf.common.dataplugin.text
+Export-Package: com.raytheon.uf.edex.plugin.text.dbsrv,
+ com.raytheon.uf.edex.plugin.text.dbsrv.impl,
+ com.raytheon.uf.edex.plugin.text.dbsrv.security
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package:  com.raytheon.uf.common.message,
+ com.raytheon.uf.common.wmo,
+ org.apache.commons.lang3

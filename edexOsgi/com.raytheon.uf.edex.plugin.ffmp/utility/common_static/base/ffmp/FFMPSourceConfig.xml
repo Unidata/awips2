@@ -147,6 +147,7 @@
         <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
         <conversion>0.03937</conversion>
         <mosaic>true</mosaic>
+        <guidanceType>RFC</guidanceType>
         <sourceFamily>RFCFFG</sourceFamily>
     </source>
     <!-- ARI sources -->
@@ -168,10 +169,10 @@
         <sourceFamily>ARIFFG</sourceFamily>
     </source>
     <source>
-        <SourceName>ARI1H3YR</SourceName>
+        <SourceName>ARI3H1YR</SourceName>
         <DisplayName>ARIFFG1</DisplayName>
         <DurationHour>3.0</DurationHour>
-        <dataPath>/grid/%/ARI/.*/.*/.*/ARI1H3YR/SFC/0.0/-999999.0/</dataPath>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI3H1YR/SFC/0.0/-999999.0/</dataPath>
         <plugin>grid</plugin>
         <dataType>GRID</dataType>
         <sourceType>GUIDANCE</sourceType>
@@ -179,16 +180,16 @@
         <expirationMinutes>2080</expirationMinutes>
         <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
         <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
-         <conversion>0.001</conversion>
+        <conversion>0.001</conversion>
         <mosaic>true</mosaic>
         <guidanceType>ARCHIVE</guidanceType>
         <sourceFamily>ARIFFG</sourceFamily>
     </source>
     <source>
-        <SourceName>ARI1H6YR</SourceName>
+        <SourceName>ARI6H1YR</SourceName>
         <DisplayName>ARIFFG1</DisplayName>
         <DurationHour>6.0</DurationHour>
-        <dataPath>/grid/%/ARI/.*/.*/.*/ARI1H6YR/SFC/0.0/-999999.0/</dataPath>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI6H1YR/SFC/0.0/-999999.0/</dataPath>
         <plugin>grid</plugin>
         <dataType>GRID</dataType>
         <sourceType>GUIDANCE</sourceType>
@@ -236,10 +237,10 @@
         <sourceFamily>ARIFFG</sourceFamily>
     </source>
     <source>
-        <SourceName>ARI3OM1YR</SourceName>
+        <SourceName>ARI30M1YR</SourceName>
         <DisplayName>ARIFFG1</DisplayName>
         <DurationHour>0.5</DurationHour>
-        <dataPath>/grid/%/ARI/.*/.*/.*/ARI3OM1YR/SFC/0.0/-999999.0/</dataPath>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI30M1YR/SFC/0.0/-999999.0/</dataPath>
         <plugin>grid</plugin>
         <dataType>GRID</dataType>
         <sourceType>GUIDANCE</sourceType>
@@ -252,11 +253,11 @@
         <guidanceType>ARCHIVE</guidanceType>
         <sourceFamily>ARIFFG</sourceFamily>
     </source>
-   <source>
-        <SourceName>ARI2YR1</SourceName>
+    <source>
+        <SourceName>ARI1H2YR</SourceName>
         <DisplayName>ARIFFG2</DisplayName>
         <DurationHour>1.0</DurationHour>
-        <dataPath>/grid/%/ARI/.*/.*/.*/ARI2YR1/SFC/0.0/-999999.0/</dataPath>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI1H2YR/SFC/0.0/-999999.0/</dataPath>
         <plugin>grid</plugin>
         <dataType>GRID</dataType>
         <sourceType>GUIDANCE</sourceType>
@@ -355,10 +356,10 @@
         <sourceFamily>ARIFFG</sourceFamily>
     </source>
     <source>
-        <SourceName>ARI12H5YR</SourceName>
+        <SourceName>ARI1H5YR</SourceName>
         <DisplayName>ARIFFG5</DisplayName>
         <DurationHour>1.0</DurationHour>
-        <dataPath>/grid/%/ARI/.*/.*/.*/ARI12H5YR/SFC/0.0/-999999.0/</dataPath>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI1H5YR/SFC/0.0/-999999.0/</dataPath>
         <plugin>grid</plugin>
         <dataType>GRID</dataType>
         <sourceType>GUIDANCE</sourceType>
@@ -1282,9 +1283,9 @@
         <qpf>MRMSQPF</qpf>
                 -->
         <guidance>FFG0124hr, FFG0324hr, FFG0624hr</guidance>
-        <guidance>ARI3OM1YR, ARI1H1YR, ARI1H3YR, ARI1H6YR, ARI12H1YR, ARI24H1YR</guidance>
-        <guidance>ARI30M2YR, ARI1H1YR, ARI3H2YR, ARI6H2YR, ARI12H2YR, ARI24H2YR</guidance>
-        <guidance>ARI30M5YR, ARI1H5YR, ARI1H5YR, ARI6H5YR, ARI12H5YR, ARI24H5YR</guidance>
+        <guidance>ARI30M1YR, ARI1H1YR, ARI3H1YR, ARI6H1YR, ARI12H1YR, ARI24H1YR</guidance>
+        <guidance>ARI30M2YR, ARI1H2YR, ARI3H2YR, ARI6H2YR, ARI12H2YR, ARI24H2YR</guidance>
+        <guidance>ARI30M5YR, ARI1H5YR, ARI3H5YR, ARI6H5YR, ARI12H5YR, ARI24H5YR</guidance>
         <guidance>ARI30M10YR, ARI1H10YR, ARI3H10YR, ARI6H10YR, ARI12H10YR, ARI24H10YR</guidance>
         <guidance>ARI30M25YR, ARI1H25YR, ARI3H25YR, ARI6H25YR, ARI12H25YR, ARI24H25YR</guidance>
         <guidance>ARI30M50YR, ARI1H50YR, ARI3H50YR, ARI6H50YR, ARI12H50YR, ARI24H50YR</guidance>
@@ -1305,9 +1306,9 @@
         <qpf>MRMSQPF</qpf>
         -->
         <guidance>FFG0124hr, FFG0324hr, FFG0624hr</guidance>
-        <guidance>ARI3OM1YR, ARI1H1YR, ARI1H3YR, ARI1H6YR, ARI12H1YR, ARI24H1YR</guidance>
-        <guidance>ARI30M2YR, ARI1H1YR, ARI3H2YR, ARI6H2YR, ARI12H2YR, ARI24H2YR</guidance>
-        <guidance>ARI30M5YR, ARI1H5YR, ARI1H5YR, ARI6H5YR, ARI12H5YR, ARI24H5YR</guidance>
+        <guidance>ARI30M1YR, ARI1H1YR, ARI3H1YR, ARI6H1YR, ARI12H1YR, ARI24H1YR</guidance>
+        <guidance>ARI30M2YR, ARI1H2YR, ARI3H2YR, ARI6H2YR, ARI12H2YR, ARI24H2YR</guidance>
+        <guidance>ARI30M5YR, ARI1H5YR, ARI3H5YR, ARI6H5YR, ARI12H5YR, ARI24H5YR</guidance>
         <guidance>ARI30M10YR, ARI1H10YR, ARI3H10YR, ARI6H10YR, ARI12H10YR, ARI24H10YR</guidance>
         <guidance>ARI30M25YR, ARI1H25YR, ARI3H25YR, ARI6H25YR, ARI12H25YR, ARI24H25YR</guidance>
         <guidance>ARI30M50YR, ARI1H50YR, ARI3H50YR, ARI6H50YR, ARI12H50YR, ARI24H50YR</guidance>
@@ -1326,9 +1327,9 @@
         <qpf>HRRRQPF</qpf>
         <qpf>MRMSQPF</qpf>
         <guidance>FFG0124hr, FFG0324hr, FFG0624hr</guidance>
-        <guidance>ARI3OM1YR, ARI1H1YR, ARI1H3YR, ARI1H6YR, ARI12H1YR, ARI24H1YR</guidance>
-        <guidance>ARI30M2YR, ARI1H1YR, ARI3H2YR, ARI6H2YR, ARI12H2YR, ARI24H2YR</guidance>
-        <guidance>ARI30M5YR, ARI1H5YR, ARI1H5YR, ARI6H5YR, ARI12H5YR, ARI24H5YR</guidance>
+        <guidance>ARI30M1YR, ARI1H1YR, ARI3H1YR, ARI6H1YR, ARI12H1YR, ARI24H1YR</guidance>
+        <guidance>ARI30M2YR, ARI1H2YR, ARI3H2YR, ARI6H2YR, ARI12H2YR, ARI24H2YR</guidance>
+        <guidance>ARI30M5YR, ARI1H5YR, ARI3H5YR, ARI6H5YR, ARI12H5YR, ARI24H5YR</guidance>
         <guidance>ARI30M10YR, ARI1H10YR, ARI3H10YR, ARI6H10YR, ARI12H10YR, ARI24H10YR</guidance>
         <guidance>ARI30M25YR, ARI1H25YR, ARI3H25YR, ARI6H25YR, ARI12H25YR, ARI24H25YR</guidance>
         <guidance>ARI30M50YR, ARI1H50YR, ARI3H50YR, ARI6H50YR, ARI12H50YR, ARI24H50YR</guidance>
@@ -1347,9 +1348,9 @@
         <qpf>HRRRQPF</qpf>
         <qpf>MRMSQPF</qpf>
         <guidance>FFG0124hr, FFG0324hr, FFG0624hr</guidance>
-        <guidance>ARI3OM1YR, ARI1H1YR, ARI1H3YR, ARI1H6YR, ARI12H1YR, ARI24H1YR</guidance>
-        <guidance>ARI30M2YR, ARI1H1YR, ARI3H2YR, ARI6H2YR, ARI12H2YR, ARI24H2YR</guidance>
-        <guidance>ARI30M5YR, ARI1H5YR, ARI1H5YR, ARI6H5YR, ARI12H5YR, ARI24H5YR</guidance>
+        <guidance>ARI30M1YR, ARI1H1YR, ARI3H1YR, ARI6H1YR, ARI12H1YR, ARI24H1YR</guidance>
+        <guidance>ARI30M2YR, ARI1H2YR, ARI3H2YR, ARI6H2YR, ARI12H2YR, ARI24H2YR</guidance>
+        <guidance>ARI30M5YR, ARI1H5YR, ARI3H5YR, ARI6H5YR, ARI12H5YR, ARI24H5YR</guidance>
         <guidance>ARI30M10YR, ARI1H10YR, ARI3H10YR, ARI6H10YR, ARI12H10YR, ARI24H10YR</guidance>
         <guidance>ARI30M25YR, ARI1H25YR, ARI3H25YR, ARI6H25YR, ARI12H25YR, ARI24H25YR</guidance>
         <guidance>ARI30M50YR, ARI1H50YR, ARI3H50YR, ARI6H50YR, ARI12H50YR, ARI24H50YR</guidance>
@@ -1368,9 +1369,9 @@
         <qpf>MRMSQPF</qpf>
         <qpf>HRRRQPF</qpf>
         <guidance>FFG0124hr, FFG0324hr, FFG0624hr</guidance>
-        <guidance>ARI3OM1YR, ARI1H1YR, ARI1H3YR, ARI1H6YR, ARI12H1YR, ARI24H1YR</guidance>
-        <guidance>ARI30M2YR, ARI1H1YR, ARI3H2YR, ARI6H2YR, ARI12H2YR, ARI24H2YR</guidance>
-        <guidance>ARI30M5YR, ARI1H5YR, ARI1H5YR, ARI6H5YR, ARI12H5YR, ARI24H5YR</guidance>
+        <guidance>ARI30M1YR, ARI1H1YR, ARI3H1YR, ARI6H1YR, ARI12H1YR, ARI24H1YR</guidance>
+        <guidance>ARI30M2YR, ARI1H2YR, ARI3H2YR, ARI6H2YR, ARI12H2YR, ARI24H2YR</guidance>
+        <guidance>ARI30M5YR, ARI1H5YR, ARI3H5YR, ARI6H5YR, ARI12H5YR, ARI24H5YR</guidance>
         <guidance>ARI30M10YR, ARI1H10YR, ARI3H10YR, ARI6H10YR, ARI12H10YR, ARI24H10YR</guidance>
         <guidance>ARI30M25YR, ARI1H25YR, ARI3H25YR, ARI6H25YR, ARI12H25YR, ARI24H25YR</guidance>
         <guidance>ARI30M50YR, ARI1H50YR, ARI3H50YR, ARI6H50YR, ARI12H50YR, ARI24H50YR</guidance>
@@ -1382,3 +1383,4 @@
     </product>
 
 </FFMPSourceConfig>
+

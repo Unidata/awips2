@@ -61,6 +61,7 @@ import com.raytheon.viz.gfe.core.IAsyncStartupObjectListener;
  *                                     in a non-GUI environment like GFE formatter auto-tests
  * Jul 30, 2015  4263      dgilling    Major refactor so this object can be initialized off
  *                                     UI thread.
+ * Dec 14, 2015  4816      dgilling    Support refactored PythonJobCoordinator API.
  * 
  * </pre>
  * 
@@ -72,6 +73,10 @@ public class TextProductManager implements ILocalizationFileObserver {
 
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(getClass());
+
+    private static final String METADATA_THREAD_POOL_NAME = "text-product-metadata";
+
+    private static final int NUM_METADATA_THREADS = 1;
 
     private String issuedBy;
 
@@ -95,8 +100,8 @@ public class TextProductManager implements ILocalizationFileObserver {
     public TextProductManager() {
         this.issuedBy = "";
 
-        FormatterScriptFactory factory = new FormatterScriptFactory();
-        this.jobCoordinator = PythonJobCoordinator.newInstance(factory);
+        this.jobCoordinator = new PythonJobCoordinator<>(NUM_METADATA_THREADS,
+                METADATA_THREAD_POOL_NAME, new FormatterScriptFactory());
 
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext baseContext = pm.getContext(
@@ -129,7 +134,7 @@ public class TextProductManager implements ILocalizationFileObserver {
             }
         };
         try {
-            jobCoordinator.submitAsyncJob(executor, listener);
+            jobCoordinator.submitJobWithCallback(executor, listener);
         } catch (Exception e) {
             statusHandler.error("Error building text product inventory.", e);
         }
@@ -270,9 +275,9 @@ public class TextProductManager implements ILocalizationFileObserver {
             String officeTimeZone) {
         Collection<String> timeZones = Collections.emptyList();
         try {
-            timeZones = jobCoordinator
-                    .submitSyncJob(new TextProductTimeZonesExecutor(zones,
-                            officeTimeZone));
+            timeZones = jobCoordinator.submitJob(
+                    new TextProductTimeZonesExecutor(zones, officeTimeZone))
+                    .get();
         } catch (Exception e) {
             statusHandler.error("Exception getting time zones.", e);
         }
@@ -338,7 +343,7 @@ public class TextProductManager implements ILocalizationFileObserver {
             }
         };
         try {
-            jobCoordinator.submitAsyncJob(executor, listener);
+            jobCoordinator.submitJobWithCallback(executor, listener);
         } catch (Exception e) {
             statusHandler.error("Error updating text product inventory.", e);
         }

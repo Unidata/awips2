@@ -8,7 +8,12 @@
         <constructor-arg ref="iscProvider" />
     </bean>
     
-    <bean id="gfeSitesActiveRequest" factory-bean="siteAwareRegistry" factory-method="register">
+    <bean id="gfeSitesActiveRequest" factory-bean="siteAwareRegistry" factory-method="register"
+        depends-on="gfeActivationAsyncRequest">
+        <constructor-arg ref="gfeSiteActivation"/>
+    </bean>
+    
+    <bean id="gfeActivationAsyncRequest" factory-bean="contextManager" factory-method="registerAsyncStartupBean">
         <constructor-arg ref="gfeSiteActivation"/>
     </bean>
 
@@ -180,6 +185,11 @@
     <bean factory-bean="handlerRegistry" factory-method="register">
         <constructor-arg value="com.raytheon.uf.common.dataplugin.gfe.request.SendIscGridRequest"/>
         <constructor-arg ref="sendIscGridHandler"/>
+    </bean>
+    <bean id="sendWFOMessageHandler" class="com.raytheon.edex.plugin.gfe.server.handler.SendWFOMessageHandler"/>
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.common.dataplugin.gfe.request.SendWFOMessageRequest"/>
+        <constructor-arg ref="sendWFOMessageHandler"/>
     </bean>
     <bean id="singletonDbIdsHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetSingletonDbIdsRequestHandler"/>
     <bean factory-bean="handlerRegistry" factory-method="register">
@@ -370,41 +380,29 @@
 
     <bean id="ifpnetCDFFactory" class="com.raytheon.edex.plugin.gfe.isc.IscScriptFactory">
         <constructor-arg value="ifpnetCDF"/>
-        <constructor-arg value="2"/>
     </bean>
-    <bean name="ifpnetCDFPythonThreadPool" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-        <property name="staticMethod" value="com.raytheon.uf.common.python.concurrent.PythonJobCoordinator.newInstance"/>
-        <property name="arguments">
-            <list>
-                <ref bean="ifpnetCDFFactory"/>
-            </list>
-        </property>
+    <bean id="ifpnetCDFPythonThreadPool" class="com.raytheon.uf.common.python.concurrent.PythonJobCoordinator">
+        <constructor-arg value="2" />
+        <constructor-arg value="ifpnetCDF" />
+        <constructor-arg ref="ifpnetCDFFactory"/>
     </bean>
 
     <bean id="iscMosaicFactory" class="com.raytheon.edex.plugin.gfe.isc.IscScriptFactory">
         <constructor-arg value="iscMosaic"/>
-        <constructor-arg value="2"/>
     </bean>
-    <bean name="iscMosaicPythonThreadPool" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-        <property name="staticMethod" value="com.raytheon.uf.common.python.concurrent.PythonJobCoordinator.newInstance"/>
-        <property name="arguments">
-            <list>
-                <ref bean="iscMosaicFactory"/>
-            </list>
-        </property>
+    <bean id="iscMosaicPythonThreadPool" class="com.raytheon.uf.common.python.concurrent.PythonJobCoordinator">
+        <constructor-arg value="2" />
+        <constructor-arg value="iscMosaic" />
+        <constructor-arg ref="iscMosaicFactory" />
     </bean>
 
     <bean id="iscDataRecFactory" class="com.raytheon.edex.plugin.gfe.isc.IscScriptFactory">
         <constructor-arg value="iscDataRec"/>
-        <constructor-arg value="2"/>
     </bean>
-    <bean name="iscDataRecPythonThreadPool" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-        <property name="staticMethod" value="com.raytheon.uf.common.python.concurrent.PythonJobCoordinator.newInstance"/>
-        <property name="arguments">
-            <list>
-                <ref bean="iscDataRecFactory"/>
-            </list>
-        </property>
+    <bean id="iscDataRecPythonThreadPool" class="com.raytheon.uf.common.python.concurrent.PythonJobCoordinator">
+        <constructor-arg value="2" />
+        <constructor-arg value="iscDataRec" />
+        <constructor-arg ref="iscDataRecFactory" />
     </bean>
 
     <!-- End Additional ISC Beans -->

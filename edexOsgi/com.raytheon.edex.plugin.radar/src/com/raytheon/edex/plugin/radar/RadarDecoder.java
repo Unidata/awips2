@@ -28,16 +28,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.exception.DecoderException;
-import com.raytheon.edex.plugin.AbstractDecoder;
 import com.raytheon.edex.plugin.radar.dao.RadarStationDao;
 import com.raytheon.edex.plugin.radar.level2.Level2BaseRadar;
 import com.raytheon.edex.plugin.radar.level3.Level3BaseRadar;
 import com.raytheon.edex.plugin.radar.util.RadarEdexTextProductUtil;
 import com.raytheon.edex.plugin.radar.util.RadarSpatialUtil;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataplugin.radar.RadarStation;
 import com.raytheon.uf.common.dataplugin.radar.level3.AlertMessage;
@@ -102,6 +103,11 @@ import com.raytheon.uf.edex.database.cluster.ClusterTask;
  * Dec 26, 2014  ASM#632  dhuffman    Added AlertMessageSanityCheck() for this DR.
  * Feb 27, 2015  17086    zwang       Corrected the elevation of volume based TDWR products
  * Mar 25, 2015  4319     bsteffen    Save the volume scan number.
+ * Dec 16, 2015  5166     kbisanz     Update logging to use SLF4J
+ *                                    by adding private logger and stop
+ *                                    extending AbstractDecoder.
+ *                                    finalizeRecord(..) does not throw
+ *                                    PluginException.
  * 
  * </pre>
  * 
@@ -109,7 +115,9 @@ import com.raytheon.uf.edex.database.cluster.ClusterTask;
  * @version 1
  */
 
-public class RadarDecoder extends AbstractDecoder {
+public class RadarDecoder {
+
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     private static final IUFStatusHandler theHandler = UFStatus
             .getHandler(RadarDecoder.class);
@@ -324,7 +332,8 @@ public class RadarDecoder extends AbstractDecoder {
                             record.getIcao() + ": Alert Message Received",
                             details, null);
                 } else {
-                    details += "Alert Category # : " + msg.getAlertCategory() + "\n";
+                    details += "Alert Category # : " + msg.getAlertCategory()
+                            + "\n";
                     EDEXUtil.sendMessageAlertViz(Priority.DEBUG,
                             RadarConstants.PLUGIN_ID, EDEX, RADAR,
                             record.getIcao() + ": Alert Received & Obviated",
@@ -352,7 +361,7 @@ public class RadarDecoder extends AbstractDecoder {
                 // determine to use the primary elevations or the elevation
                 // in the terminal radar configuration file
                 if (TerminalRadarUtils.isTerminalRadar(record.getIcao())
-                    && info.isElevation()) {
+                        && info.isElevation()) {
                     Double elevation = TerminalRadarUtils.getPrimarysMap(
                             record.getIcao()).get(
                             TiltAngleBin.getPrimaryElevationAngle(record
@@ -444,12 +453,7 @@ public class RadarDecoder extends AbstractDecoder {
                 }
             }
 
-            try {
-                finalizeRecord(record);
-            } catch (PluginException e) {
-                logger.error(e);
-                return new PluginDataObject[0];
-            }
+            finalizeRecord(record);
 
             timer.stop();
             perfLog.logDuration("Time to Decode", timer.getElapsedTime());
@@ -514,12 +518,7 @@ public class RadarDecoder extends AbstractDecoder {
             record.setDisplayModes(info.getDisplayModes());
             record.setUnit(info.getUnit());
             record.setLocation(radarStation);
-            try {
-                finalizeRecord(record);
-            } catch (PluginException e) {
-                logger.error(e);
-                continue;
-            }
+            finalizeRecord(record);
             recordList.add(record);
         }
     }
@@ -554,7 +553,7 @@ public class RadarDecoder extends AbstractDecoder {
                 "Free text message received", temp, null);
     }
 
-    private void finalizeRecord(RadarRecord record) throws PluginException {
+    private void finalizeRecord(RadarRecord record) {
         record.setTraceId(traceId);
         record.setInsertTime(TimeUtil.newGmtCalendar());
         // for GSM, we want all the messages as they have the possibility of
@@ -780,7 +779,8 @@ public class RadarDecoder extends AbstractDecoder {
      * @param AlertMessage
      * @return boolean
      */
-    private static boolean AlertMessageSanityCheck(final AlertMessage alertMessage) {
+    private static boolean AlertMessageSanityCheck(
+            final AlertMessage alertMessage) {
         if (alertMessage.getExceedingValue() < alertMessage.getThresholdValue())
             return false;
 

@@ -54,6 +54,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Apr 23, 2014 3054      skorolev     Fixed issue with deleting a new station.
  * Apr 28, 2014 3086      skorolev     Removed local getAreaConfigMgr method.
  * Aug 17, 2015 3841      skorolev     Corrected deleteSelected method.
+ * Nov 12, 2015 3841      dhladky      Augmented Slav's work.
+ * Dec 02, 2015 3873      dhladky      Pulled 3841 to 16.1.1.
  * 
  * </pre>
  * 
@@ -206,7 +208,7 @@ public class DeleteStationDlg extends CaveSWTDialog {
                 cfgMgr.removeStation(selection.split("#")[0], areaXmlList);
                 newAddedStns.remove(selection);
                 populate();
-                macDlg.maStationsRemoved = true;
+                macDlg.maStationsChanged = true;
             } else {
                 MessageBox messageBox = new MessageBox(shell,
                         SWT.ICON_INFORMATION | SWT.NONE);

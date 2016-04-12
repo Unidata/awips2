@@ -51,6 +51,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Nov 12, 2009 3039       lvenable     Initial creation.
  * 24 Jul 2013 #2143       skorolev     Changes for non-blocking dialog.
  * Aug 15, 2013  2143      mpduff       Remove resize.
+ * Nov 05, 2015 #5070      randerso     Changed to use system font name (not AWT)
+ * 
  * </pre>
  * 
  * @author lvenable
@@ -153,7 +155,7 @@ public class DmdDisplayFilterDlg extends CaveSWTDialog implements
      */
     private void initData() {
         scanCfg = SCANConfig.getInstance();
-        lrgLabelFont = new Font(getDisplay(), "Monospaced", 12, SWT.BOLD);
+        lrgLabelFont = new Font(getDisplay(), "Monospace", 12, SWT.BOLD);
         smLabelFont = new Font(getDisplay(), "Sans", 10, SWT.BOLD);
     }
 

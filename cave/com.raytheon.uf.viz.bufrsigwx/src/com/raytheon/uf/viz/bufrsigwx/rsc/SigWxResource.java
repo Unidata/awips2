@@ -29,8 +29,6 @@ import org.eclipse.swt.graphics.Rectangle;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.bufrsigwx.SigWxData;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataView;
@@ -56,6 +54,8 @@ import com.raytheon.viz.pointdata.PointDataRequest;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 28, 2009 3099       bsteffen     Initial creation
+ * Nov 05, 2015 5070       randerso     Adjust font sizes for dpi scaling
+ * Feb 04, 2015 5309       tgurney      Remove dependency on dataURI
  * 
  * </pre>
  * 
@@ -155,7 +155,7 @@ public abstract class SigWxResource extends
         if (font != null) {
             font.dispose();
         }
-        this.font = target.initializeFont("Monospace", 10,
+        this.font = target.initializeFont("Monospace", 8,
                 new Style[] { Style.BOLD });
     }
 
@@ -167,21 +167,11 @@ public abstract class SigWxResource extends
      * @throws VizException
      */
     protected void updateRecords(DataTime dataTime) throws VizException {
-
-        RequestConstraint constraint = new RequestConstraint();
-
-        constraint.setConstraintType(ConstraintType.IN);
-
-        for (SigWxData record : recordsToParse.get(dataTime)) {
-            constraint.addToConstraintValueList(record.getDataURI());
-        }
-        Map<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>();
-        constraints.put("dataURI", constraint);
         // Request the point data
         PointDataContainer pdc = PointDataRequest.requestPointDataAllLevels(
                 dataTime, resourceData.getMetadataMap().get("pluginName")
                         .getConstraintValue(), getParameters(), null,
-                constraints);
+                resourceData.getMetadataMap());
         if (recordsToDisplay.containsKey(dataTime)) {
             recordsToDisplay.get(dataTime).combine(pdc);
         } else {

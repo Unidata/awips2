@@ -24,7 +24,7 @@ import javax.measure.converter.ConversionException;
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.SI;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * Converts a Lifted Index in temperature Kelvin to a pixel value
@@ -41,71 +41,71 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
  */
 public class LiftedIndexTempToPixelConverter extends UnitConverter {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private static UnitConverter kelvinToCelsius = SI.KELVIN
-			.getConverterTo(SI.CELSIUS);
+    private static UnitConverter kelvinToCelsius = SI.KELVIN
+            .getConverterTo(SI.CELSIUS);
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.measure.converter.UnitConverter#convert(double)
-	 */
-	@Override
-	public double convert(double aTemp) throws ConversionException {
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.measure.converter.UnitConverter#convert(double)
+     */
+    @Override
+    public double convert(double aTemp) throws ConversionException {
 
-		// value is in kelvin, but below calculates pixel based on value being
-		// celsius
-		aTemp = kelvinToCelsius.convert(aTemp);
+        // value is in kelvin, but below calculates pixel based on value being
+        // celsius
+        aTemp = kelvinToCelsius.convert(aTemp);
 
-		double result = -5 * (aTemp - 25);
-		if (result < 0) {
-			result = 0.0;
-		} else if (result > 255) {
-			result = 255;
-		}
+        double result = -5 * (aTemp - 25);
+        if (result < 0) {
+            result = 0.0;
+        } else if (result > 255) {
+            result = 255;
+        }
 
-		return result;
-	}
+        return result;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.measure.converter.UnitConverter#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object aConverter) {
-		return (aConverter instanceof LiftedIndexTempToPixelConverter);
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.measure.converter.UnitConverter#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object aConverter) {
+        return (aConverter instanceof LiftedIndexTempToPixelConverter);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.measure.converter.UnitConverter#hashCode()
-	 */
-	@Override
-	public int hashCode() {
-		return HashCodeBuilder.reflectionHashCode(this);
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.measure.converter.UnitConverter#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.measure.converter.UnitConverter#inverse()
-	 */
-	@Override
-	public UnitConverter inverse() {
-		return new LiftedIndexPixelToTempConverter();
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.measure.converter.UnitConverter#inverse()
+     */
+    @Override
+    public UnitConverter inverse() {
+        return new LiftedIndexPixelToTempConverter();
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.measure.converter.UnitConverter#isLinear()
-	 */
-	@Override
-	public boolean isLinear() {
-		return true;
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.measure.converter.UnitConverter#isLinear()
+     */
+    @Override
+    public boolean isLinear() {
+        return true;
+    }
 
 }

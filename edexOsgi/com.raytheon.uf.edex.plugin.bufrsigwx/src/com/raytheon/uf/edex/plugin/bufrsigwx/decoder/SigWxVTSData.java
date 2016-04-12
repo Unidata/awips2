@@ -22,8 +22,8 @@ package com.raytheon.uf.edex.plugin.bufrsigwx.decoder;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.uf.common.dataplugin.bufrsigwx.SigWxData;
 import com.raytheon.uf.common.dataplugin.bufrsigwx.common.SigWxType;
@@ -43,6 +43,7 @@ import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 14, 2009            jkorman     Initial creation
+ * Dec 14, 2015 5166       kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -51,182 +52,182 @@ import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
  */
 
 public class SigWxVTSData extends SigWxDataAdapter {
-	private Log logger = LogFactory.getLog(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
-	private static final int POINT = 0;
+    private static final int POINT = 0;
 
-	SigWxType wxType;
+    SigWxType wxType;
 
-	private int key;
+    private int key;
 
-	/**
-	 * 
-	 * @param container
-	 */
-	public SigWxVTSData(PointDataDescription pdd,
-			PointDataPluginDao<SigWxData> dao, String pluginName) {
-		super(pdd, dao, pluginName);
-	}
+    /**
+     * 
+     * @param container
+     */
+    public SigWxVTSData(PointDataDescription pdd,
+            PointDataPluginDao<SigWxData> dao, String pluginName) {
+        super(pdd, dao, pluginName);
+    }
 
-	/**
-	 * 
-	 * @param pointData
-	 * @param locPoint
-	 * @param dataPoint
-	 * @param index
-	 */
-	List<SigWxData> getSigWxData(SigWxData sigWx, List<IBUFRDataPacket> dataList) {
-		List<SigWxData> sList = new ArrayList<SigWxData>();
+    /**
+     * 
+     * @param pointData
+     * @param locPoint
+     * @param dataPoint
+     * @param index
+     */
+    List<SigWxData> getSigWxData(SigWxData sigWx, List<IBUFRDataPacket> dataList) {
+        List<SigWxData> sList = new ArrayList<SigWxData>();
 
-		key = 0;
-		sList.addAll(getStormReports(dataList.get(15), sigWx));
+        key = 0;
+        sList.addAll(getStormReports(dataList.get(15), sigWx));
 
-		sList.addAll(getVolcanoReports(dataList.get(16), sigWx));
+        sList.addAll(getVolcanoReports(dataList.get(16), sigWx));
 
-		sList.addAll(getIncidentReports(dataList.get(17), sigWx));
+        sList.addAll(getIncidentReports(dataList.get(17), sigWx));
 
-		return sList;
-	}
+        return sList;
+    }
 
-	/**
-	 * 
-	 * @param packet
-	 * @param sigWx
-	 * @return
-	 */
-	private List<SigWxData> getStormReports(IBUFRDataPacket packet,
-			SigWxData sigWx) {
+    /**
+     * 
+     * @param packet
+     * @param sigWx
+     * @return
+     */
+    private List<SigWxData> getStormReports(IBUFRDataPacket packet,
+            SigWxData sigWx) {
 
-		List<SigWxData> wxList = new ArrayList<SigWxData>();
+        List<SigWxData> wxList = new ArrayList<SigWxData>();
 
-		if (packet != null) {
-			// get a copy
-			List<IBUFRDataPacket> stormData = getPacketSubList(packet);
-			for (IBUFRDataPacket s : stormData) {
-				List<IBUFRDataPacket> ss = getPacketSubList(s);
+        if (packet != null) {
+            // get a copy
+            List<IBUFRDataPacket> stormData = getPacketSubList(packet);
+            for (IBUFRDataPacket s : stormData) {
+                List<IBUFRDataPacket> ss = getPacketSubList(s);
 
-				SigWxData currWx = sigWx.copyObs();
+                SigWxData currWx = sigWx.copyObs();
 
-				PointDataContainer container = getContainer(currWx, 1);
-				if (container != null) {
-					PointDataView view = container.append();
+                PointDataContainer container = getContainer(currWx, 1);
+                if (container != null) {
+                    PointDataView view = container.append();
 
-					long vt = currWx.getDataTime().getValidTime()
-							.getTimeInMillis();
-					view.setLong("validTime", vt);
+                    long vt = currWx.getDataTime().getValidTime()
+                            .getTimeInMillis();
+                    view.setLong("validTime", vt);
 
-					setViewData("attribSig", view, ss.get(0));
-					setViewData("featureName", view, ss.get(2));
-					setViewData("latitude", view, ss.get(3));
-					setViewData("longitude", view, ss.get(4));
-					setViewData("synopticFeature", view, ss.get(5));
+                    setViewData("attribSig", view, ss.get(0));
+                    setViewData("featureName", view, ss.get(2));
+                    setViewData("latitude", view, ss.get(3));
+                    setViewData("longitude", view, ss.get(4));
+                    setViewData("synopticFeature", view, ss.get(5));
 
-					currWx.setKey(key++);
-					currWx.setPointDataView(view);
-					wxList.add(currWx);
-				}
-			}
-		}
+                    currWx.setKey(key++);
+                    currWx.setPointDataView(view);
+                    wxList.add(currWx);
+                }
+            }
+        }
 
-		return wxList;
-	}
+        return wxList;
+    }
 
-	/**
-	 * 
-	 * @param packet
-	 * @param sigWx
-	 * @return
-	 */
-	private List<SigWxData> getVolcanoReports(IBUFRDataPacket packet,
-			SigWxData sigWx) {
+    /**
+     * 
+     * @param packet
+     * @param sigWx
+     * @return
+     */
+    private List<SigWxData> getVolcanoReports(IBUFRDataPacket packet,
+            SigWxData sigWx) {
 
-		List<SigWxData> wxList = new ArrayList<SigWxData>();
+        List<SigWxData> wxList = new ArrayList<SigWxData>();
 
-		if (packet != null) {
-			List<IBUFRDataPacket> volcanoData = getPacketSubList(packet);
-			for (IBUFRDataPacket v : volcanoData) {
-				List<IBUFRDataPacket> vv = getPacketSubList(v);
+        if (packet != null) {
+            List<IBUFRDataPacket> volcanoData = getPacketSubList(packet);
+            for (IBUFRDataPacket v : volcanoData) {
+                List<IBUFRDataPacket> vv = getPacketSubList(v);
 
-				SigWxData currWx = sigWx.copyObs();
+                SigWxData currWx = sigWx.copyObs();
 
-				PointDataContainer container = getContainer(currWx, 1);
-				if (container != null) {
-					PointDataView view = container.append();
+                PointDataContainer container = getContainer(currWx, 1);
+                if (container != null) {
+                    PointDataView view = container.append();
 
-					long vt = currWx.getDataTime().getValidTime()
-							.getTimeInMillis();
-					view.setLong("validTime", vt);
+                    long vt = currWx.getDataTime().getValidTime()
+                            .getTimeInMillis();
+                    view.setLong("validTime", vt);
 
-					setViewData("metFeature", view, vv.get(0));
-					setViewData("featureName", view, vv.get(1));
-					int dim = getInt(vv.get(2), MISSING);
-					if (dim == POINT) {
-						List<IBUFRDataPacket> dList = getPacketSubList(vv
-								.get(3));
-						List<IBUFRDataPacket> locData = getPacketSubList(dList
-								.get(0));
-						setViewData("latitude", view, locData.get(0));
-						setViewData("longitude", view, locData.get(1));
+                    setViewData("metFeature", view, vv.get(0));
+                    setViewData("featureName", view, vv.get(1));
+                    int dim = getInt(vv.get(2), MISSING);
+                    if (dim == POINT) {
+                        List<IBUFRDataPacket> dList = getPacketSubList(vv
+                                .get(3));
+                        List<IBUFRDataPacket> locData = getPacketSubList(dList
+                                .get(0));
+                        setViewData("latitude", view, locData.get(0));
+                        setViewData("longitude", view, locData.get(1));
 
-						setViewData("specialClouds", view, vv.get(10));
+                        setViewData("specialClouds", view, vv.get(10));
 
-						currWx.setKey(key++);
-						currWx.setPointDataView(view);
-						wxList.add(currWx);
-					} else {
+                        currWx.setKey(key++);
+                        currWx.setPointDataView(view);
+                        wxList.add(currWx);
+                    } else {
 
-					}
-				}
-			}
-		}
-		return wxList;
-	}
+                    }
+                }
+            }
+        }
+        return wxList;
+    }
 
-	/**
-	 * No implementation for now.
-	 * 
-	 * @param packet
-	 * @param sigWx
-	 * @return
-	 */
-	private List<SigWxData> getIncidentReports(IBUFRDataPacket packet,
-			SigWxData sigWx) {
+    /**
+     * No implementation for now.
+     * 
+     * @param packet
+     * @param sigWx
+     * @return
+     */
+    private List<SigWxData> getIncidentReports(IBUFRDataPacket packet,
+            SigWxData sigWx) {
 
-		List<SigWxData> wxList = new ArrayList<SigWxData>();
+        List<SigWxData> wxList = new ArrayList<SigWxData>();
 
-		if (packet != null) {
-			// get a copy
-			List<IBUFRDataPacket> incidentData = getPacketSubList(packet);
-			if ((incidentData != null) && (incidentData.size() == 13)) {
-				// SigWxData currWx = sigWx.copyObs();
-				//
-				// PointDataContainer container = getContainer(currWx, 1);
-				// if (container != null) {
-				// PointDataView view = container.append();
-				//
-				// long vt = currWx.getDataTime().getValidTime()
-				// .getTimeInMillis();
-				// view.setLong("validTime", vt);
-				// }
-			}
-		}
-		return wxList;
-	}
+        if (packet != null) {
+            // get a copy
+            List<IBUFRDataPacket> incidentData = getPacketSubList(packet);
+            if ((incidentData != null) && (incidentData.size() == 13)) {
+                // SigWxData currWx = sigWx.copyObs();
+                //
+                // PointDataContainer container = getContainer(currWx, 1);
+                // if (container != null) {
+                // PointDataView view = container.append();
+                //
+                // long vt = currWx.getDataTime().getValidTime()
+                // .getTimeInMillis();
+                // view.setLong("validTime", vt);
+                // }
+            }
+        }
+        return wxList;
+    }
 
-	/**
-	 * @see com.raytheon.uf.edex.plugin.bufrsigwx.decoder.SigWxDataAdapter#getType()
-	 */
-	@Override
-	SigWxType getType() {
-		return wxType;
-	}
+    /**
+     * @see com.raytheon.uf.edex.plugin.bufrsigwx.decoder.SigWxDataAdapter#getType()
+     */
+    @Override
+    SigWxType getType() {
+        return wxType;
+    }
 
-	/**
-	 * @see com.raytheon.uf.edex.plugin.bufrsigwx.decoder.SigWxDataAdapter#getType()
-	 */
-	@Override
-	void setType(SigWxType type) {
-		wxType = type;
-	}
+    /**
+     * @see com.raytheon.uf.edex.plugin.bufrsigwx.decoder.SigWxDataAdapter#getType()
+     */
+    @Override
+    void setType(SigWxType type) {
+        wxType = type;
+    }
 
 }

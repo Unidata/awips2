@@ -34,7 +34,6 @@ import org.eclipse.jface.util.PropertyChangeEvent;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.viz.core.localization.BundleScanner;
 import com.raytheon.uf.viz.core.localization.CAVELocalizationAdapter;
 import com.raytheon.uf.viz.thinclient.Activator;
@@ -51,10 +50,11 @@ import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 9, 2011             njensen     Initial creation
+ * Aug 09, 2011            njensen     Initial creation
  * Aug 13, 2013       2033 mschenke    Changed to search all plugins when 
  *                                     CAVE_STATIC BASE context searched
  * May 29, 2015       4532 bsteffen    Always use super when sync job is running.
+ * Nov 30, 2015       4834 njensen     Remove LocalizationOpFailedException
  * 
  * </pre>
  * 
@@ -81,52 +81,23 @@ public class ThinClientLocalizationAdapter extends CAVELocalizationAdapter
         store.addPropertyChangeListener(this);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.localization.CAVELocalizationAdapter#retrieve
-     * (com.raytheon.uf.common.localization.LocalizationFile)
-     */
     @Override
-    public void retrieve(LocalizationFile file)
-            throws LocalizationOpFailedException {
+    public void retrieve(LocalizationFile file) throws LocalizationException {
         if (syncJobsRunning.get() > 0) {
             super.retrieve(file);
             return;
         }
-        try {
-            File localFile = file.getFile(false);
-            if (localFile.exists() == false || localFile.length() == 0) {
-                super.retrieve(file);
-            }
-        } catch (LocalizationOpFailedException e) {
-            throw e;
-        } catch (LocalizationException e) {
-            /*
-             * At the time of this writing, nothing will actually throw any
-             * LocalizationException other than LocalizationOpFailedException.
-             * However since LocalizationFile.getFile(boolean) has a method
-             * signature indicating it could throw any LocalizationException
-             * this code should be able to handle any LocalizationException in
-             * case the implementation of getFile changes in the future.
-             */
-            throw new LocalizationOpFailedException(e);
+
+        File localFile = file.getFile(false);
+        if (localFile.exists() == false || localFile.length() == 0) {
+            super.retrieve(file);
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.localization.CAVELocalizationAdapter#listDirectory
-     * (com.raytheon.uf.common.localization.LocalizationContext[],
-     * java.lang.String, boolean, boolean)
-     */
     @Override
     public ListResponse[] listDirectory(LocalizationContext[] contexts,
             String path, boolean recursive, boolean filesOnly)
-            throws LocalizationOpFailedException {
+            throws LocalizationException {
         if (shouldUseRemoteFiles()) {
             return super.listDirectory(contexts, path, recursive, filesOnly);
         } else {
@@ -171,18 +142,10 @@ public class ThinClientLocalizationAdapter extends CAVELocalizationAdapter
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.localization.CAVELocalizationAdapter#
-     * getLocalizationMetadata
-     * (com.raytheon.uf.common.localization.LocalizationContext[],
-     * java.lang.String)
-     */
     @Override
     public ListResponse[] getLocalizationMetadata(
             LocalizationContext[] context, String fileName)
-            throws LocalizationOpFailedException {
+            throws LocalizationException {
         if (shouldUseRemoteFiles()) {
             return super.getLocalizationMetadata(context, fileName);
         } else {
@@ -229,7 +192,8 @@ public class ThinClientLocalizationAdapter extends CAVELocalizationAdapter
                 .equals(event.getProperty())) {
             useRemoteFiles = !Boolean.valueOf(String.valueOf(event
                     .getNewValue()));
-        } else if (ThinClientPreferenceConstants.P_SYNC_REMOTE_LOCALIZATION.equals(event.getProperty())) {
+        } else if (ThinClientPreferenceConstants.P_SYNC_REMOTE_LOCALIZATION
+                .equals(event.getProperty())) {
             boolean sync = Boolean.valueOf(String.valueOf(event.getNewValue()));
             if (sync) {
                 syncJobsRunning.incrementAndGet();

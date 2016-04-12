@@ -27,6 +27,11 @@
 #
 # Author: hansen
 # ----------------------------------------------------------------------------
+# History
+# Time          Ticket Number   Developer   Comments
+# -----------------------------------------------------------------------------
+# 01/08/2016    5129            dgilling    Fix signatures to calls in WeatherSubKey.
+# ----------------------------------------------------------------------------
 
 from math import *
 import types, string
@@ -94,7 +99,7 @@ class CommonUtils:
         #   DmgW, GW will be collapsed to DmgW
         wxType = subkey1.wxType() # Assumed to be similar, so we'll take the first one
         if wxType == "<NoWx>":
-            WeatherSubKey.weatherSubKey(self._argDict['dataMgr'], "<NoCov>", "<NoWx>", "<NoInten>", "<NoVis>", [])
+            WeatherSubKey.weatherSubKey(self._argDict['site'], "<NoCov>", "<NoWx>", "<NoInten>", "<NoVis>", [])
             
         rankFuzzFactor = self.rankFuzzFactor()
         #print "rank1, rank2", rank1, rank2
@@ -118,7 +123,7 @@ class CommonUtils:
         if vis is None:
             vis = "<NoVis>"
         #print coverage, wxType, intensity, vis, attrList
-        return WeatherSubKey.weatherSubKey(self._argDict['dataMgr'], coverage, wxType, intensity, vis, attrList)
+        return WeatherSubKey.weatherSubKey(self._argDict['site'], coverage, wxType, intensity, vis, attrList)
     
     def removeSimilarAttrs(self, attrList):
         similarAttrLists = self.similarAttributeLists()

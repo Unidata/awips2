@@ -19,11 +19,8 @@
  **/
 package com.raytheon.uf.edex.plugin.svrwx;
 
-import java.util.List;
-
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.svrwx.SvrWxRecord;
-import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
 
 /**
@@ -37,6 +34,7 @@ import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
  * ------------  ---------- ----------- --------------------------
  * Jan  4, 2010            jsanchez     Initial creation
  * Apr 10, 2014  2971      skorolev     Cleaned code.
+ * Jan 19, 2016  5253      tgurney      Remove dead code
  * 
  * </pre>
  * 
@@ -46,7 +44,7 @@ import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
 
 public class SvrWxRecordDao extends PointDataPluginDao<SvrWxRecord> {
     /**
-     * Creates a new TropicalCycloneGuidance Dao
+     * Creates a new SvrWxRecord Dao
      * 
      * @param pluginName
      * @throws PluginException
@@ -55,74 +53,16 @@ public class SvrWxRecordDao extends PointDataPluginDao<SvrWxRecord> {
         super(pluginName);
     }
 
-    /**
-     * Retrieves an tcg report using the datauri .
-     * 
-     * @param dataURI
-     *            The dataURI to match against.
-     * @return The report record if it exists.
-     */
-    public SvrWxRecord queryByDataURI(String dataURI) {
-        SvrWxRecord report = null;
-        List<?> obs = null;
-        try {
-            obs = queryBySingleCriteria("dataURI", dataURI);
-        } catch (DataAccessLayerException e) {
-            e.printStackTrace();
-        }
-        if ((obs != null) && (obs.size() > 0)) {
-            report = (SvrWxRecord) obs.get(0);
-        }
-        return report;
-    }
-
-    /**
-     * Queries for to determine if a given data uri exists on the tcg table.
-     * 
-     * @param dataUri
-     *            The DataURI to find.
-     * @return An array of objects. If not null, there should only be a single
-     *         element.
-     */
-    public Object[] queryDataUriColumn(final String dataUri) {
-
-        String sql = "select datauri from awips.svrwx where datauri='"
-                + dataUri + "';";
-
-        Object[] results = executeSQLQuery(sql);
-
-        return results;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.edex.pointdata.PointDataPluginDao#getKeysRequiredForFileName
-     * ()
-     */
     @Override
     public String[] getKeysRequiredForFileName() {
         return new String[] { "dataTime.refTime" };
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.edex.pointdata.PointDataPluginDao#getPointDataFileName
-     * (com.raytheon.uf.common.dataplugin.PluginDataObject)
-     */
     @Override
     public String getPointDataFileName(SvrWxRecord p) {
         return "svrwx.h5";
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.edex.pointdata.PointDataPluginDao#newObject()
-     */
     @Override
     public SvrWxRecord newObject() {
         return new SvrWxRecord();

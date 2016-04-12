@@ -66,6 +66,7 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.rsc.FFMPGraphData;
  * ------------ ---------- ----------- --------------------------
  * Sep 30, 2009            lvenable     Initial creation
  * Oct 10, 2015  4756      dhladky      Dynamic bounding of Y axis.
+ * Feb 11, 2016  5360      tjensen      Fix scaling issues
  * 
  * </pre>
  * 
@@ -136,7 +137,7 @@ public class BasinTrendGraph {
     /**
      * Graph canvas height.
      */
-    private final int graphCanvasHeight = 1200;
+    private final int graphCanvasHeight = 400;
 
     /**
      * Graph image width
@@ -273,8 +274,7 @@ public class BasinTrendGraph {
      * Time duration.
      */
     private TimeDuration timeDur = TimeDuration.ALL;
-    
-    
+
     /**
      * Basin Trend Graph Bounds.
      */
@@ -823,7 +823,7 @@ public class BasinTrendGraph {
         while (yCoord < graphImageHeight) {
 
             // When counter == skip, allow graph to draw a label.
-            if (count == skip) {
+            if (count == skip || yCoord == 0.0) {
                 // resets the counter
                 if (yCoord > 1.0) {
                     count = 0;
@@ -853,7 +853,7 @@ public class BasinTrendGraph {
                             doubleToInt(yCoord - aveFontHeight), true);
                 }
             }
-               
+
             yCoord += pixPerInc_YCoord;
             inchDbl -= 1.0;
             count++;
@@ -905,7 +905,7 @@ public class BasinTrendGraph {
         while (yCoord < graphImageHeight) {
 
             // When counter == skip, allow graph to draw a label.
-            if (count == skip) {
+            if (count == skip || yCoord == 0.0) {
                 // resets the counter
                 if (yCoord > 1.0) {
                     count = 0;
@@ -2632,7 +2632,8 @@ public class BasinTrendGraph {
         }
 
         pixPerInc_XCoord = graphImageWidth / (double) graphBounds.getHours();
-        pixPerInc_YCoord = graphImageHeight / (double) graphBounds.getYCoordValues();
+        pixPerInc_YCoord = graphImageHeight
+                / (double) graphBounds.getYCoordValues();
     }
 
     /**
@@ -2743,9 +2744,7 @@ public class BasinTrendGraph {
             vScale.setEnabled(false);
         }
 
-        recalcPixelsIncrements();
-        regenerateImages();
-        redrawAllCanvases();
+        refreshGraph();
     }
 
     /**
@@ -2757,6 +2756,10 @@ public class BasinTrendGraph {
     public void setGraphData(FFMPGraphData graphData) {
 
         this.graphData = graphData;
+        refreshGraph();
+    }
+
+    private void refreshGraph() {
         determineGraphBounds();
         recalcPixelsIncrements();
         regenerateImages();
@@ -2805,19 +2808,19 @@ public class BasinTrendGraph {
         redrawGraphCanvas();
         redrawBottomIncCanvas();
     }
-    
+
     /**
      * Set the X and Y bounds of the graph.
      */
     private void determineGraphBounds() {
-        
+
         graphBounds = new BasinTrendGraphBounds();
         // maximum data value
         double max = graphData.getMaximumValue();
-        int yMaxHeight = (int) Math.round(max+1);
+        int yMaxHeight = (int) Math.round(max + 1);
         graphBounds.setYCoordValues(yMaxHeight);
         graphBounds.setHours(this.timeDur.getHours());
         graphBounds.setTimeDurName(this.timeDur.getTimeDurName());
-        
+
     }
 }

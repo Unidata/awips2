@@ -39,35 +39,11 @@
 		<name>ecmwf</name>
 		<center>98</center>
 		<subcenter>0</subcenter>
-		<grid>3</grid>
-		<process>
-			<id>141</id>
-			<id>142</id>
-			<id>143</id>
-			<id>144</id>
-			<id>145</id>
-		</process>
-	</model>
-
-	<model>
-		<name>ecmwf</name>
-		<center>98</center>
-		<subcenter>0</subcenter>
-		<grid>361181001</grid>
-		<process>
-			<id>141</id>
-			<id>142</id>
-			<id>143</id>
-			<id>144</id>
-			<id>145</id>
-		</process>
-	</model>
-
-	<model>
-		<name>ecmwf</name>
-		<center>98</center>
-		<subcenter>0</subcenter>
-		<grid>229</grid>
+		<grids>
+            <id>3</id>
+            <id>361181001</id>
+            <id>229</id>
+        </grids>
 		<process>
 			<id>141</id>
 			<id>142</id>
@@ -81,21 +57,12 @@
 		<name>ecmwfg</name>
 		<center>98</center>
 		<subcenter>0</subcenter>
-		<grid>228</grid>
-		<process>
-			<id>141</id>
-			<id>142</id>
-			<id>143</id>
-			<id>144</id>
-			<id>145</id>
-		</process>
-	</model>
-
-	<model>
-		<name>ecmwfg</name>
-		<center>98</center>
-		<subcenter>0</subcenter>
-		<grid>145073001</grid>
+		<grids>
+            <id>228</id>
+            <id>145073001</id>
+            <id>145029001</id>
+            <id>145029002</id>
+        </grids>
 		<process>
 			<id>141</id>
 			<id>142</id>
@@ -109,49 +76,10 @@
 		<name>ecmwft</name>
 		<center>98</center>
 		<subcenter>0</subcenter>
-		<grid>22829</grid>
-		<process>
-			<id>141</id>
-			<id>142</id>
-			<id>143</id>
-			<id>144</id>
-			<id>145</id>
-		</process>
-	</model>
-
-	<model>
-		<name>ecmwfg</name>
-		<center>98</center>
-		<subcenter>0</subcenter>
-		<grid>145029001</grid>
-		<process>
-			<id>141</id>
-			<id>142</id>
-			<id>143</id>
-			<id>144</id>
-			<id>145</id>
-		</process>
-	</model>
-
-	<model>
-		<name>ecmwfg</name>
-		<center>98</center>
-		<subcenter>0</subcenter>
-		<grid>145029002</grid>
-		<process>
-			<id>141</id>
-			<id>142</id>
-			<id>143</id>
-			<id>144</id>
-			<id>145</id>
-		</process>
-	</model>
-
-	<model>
-		<name>ecmwft</name>
-		<center>98</center>
-		<subcenter>0</subcenter>
-		<grid>14529</grid>
+		<grids>
+            <id>22829</id>
+            <id>14529</id>
+        </grids>
 		<process>
 			<id>141</id>
 			<id>142</id>
@@ -165,37 +93,12 @@
 		<name>narr</name>
 		<center>98</center>
 		<subcenter>0</subcenter>
-		<grid>14529</grid>
-		<process>
-			<id>140</id>
-		</process>
-	</model>
-
-	<model>
-		<name>narr</name>
-		<center>98</center>
-		<subcenter>0</subcenter>
-		<grid>2</grid>
-		<process>
-			<id>140</id>
-		</process>
-	</model>
-
-	<model>
-		<name>narr</name>
-		<center>98</center>
-		<subcenter>0</subcenter>
-		<grid>228</grid>
-		<process>
-			<id>140</id>
-		</process>
-	</model>
-
-	<model>
-		<name>narr</name>
-		<center>98</center>
-		<subcenter>0</subcenter>
-		<grid>145073001</grid>
+		<grids>
+            <id>14529</id>
+            <id>2</id>
+            <id>228</id>
+            <id>145073001</id>
+        </grids>
 		<process>
 			<id>140</id>
 		</process>
@@ -205,7 +108,11 @@
 		<name>ecmwfWave</name>
 		<center>98</center>
 		<subcenter>0</subcenter>
-		<grid>403</grid>
+		<grids>
+            <id>403</id>
+            <id>361181001</id>
+            <id>360181001</id>
+        </grids>
 		<process>
 			<id>108</id>
 			<id>109</id>
@@ -222,82 +129,13 @@
 		<name>ecmwfWave</name>
 		<center>98</center>
 		<subcenter>0</subcenter>
-		<grid>361181001</grid>
-		<process>
-			<id>108</id>
-			<id>109</id>
-			<id>110</id>
-			<id>111</id>
-			<id>112</id>
-			<id>113</id>
-			<id>114</id>
-			<id>115</id>
-		</process>
-	</model>
-
-	<model>
-		<name>ecmwfWave</name>
-		<center>98</center>
-		<subcenter>0</subcenter>
-		<grid>360181001</grid>
-		<process>
-			<id>108</id>
-			<id>109</id>
-			<id>110</id>
-			<id>111</id>
-			<id>112</id>
-			<id>113</id>
-			<id>114</id>
-			<id>115</id>
-		</process>
-	</model>
-
-
-	<model>
-		<name>ecmwfWave</name>
-		<center>98</center>
-		<subcenter>0</subcenter>
-		<grid>361181002</grid>
-		<process>
-			<id>109</id>
-		</process>
-	</model>
-
-	<model>
-		<name>ecmwfWave</name>
-		<center>98</center>
-		<subcenter>0</subcenter>
-		<grid>362181001</grid>
-		<process>
-			<id>109</id>
-		</process>
-	</model>
-
-	<model>
-		<name>ecmwfWave</name>
-		<center>98</center>
-		<subcenter>0</subcenter>
-		<grid>362181002</grid>
-		<process>
-			<id>109</id>
-		</process>
-	</model>
-
-	<model>
-		<name>ecmwfWave</name>
-		<center>98</center>
-		<subcenter>0</subcenter>
-		<grid>363181001</grid>
-		<process>
-			<id>109</id>
-		</process>
-	</model>
-
-	<model>
-		<name>ecmwfWave</name>
-		<center>98</center>
-		<subcenter>0</subcenter>
-		<grid>363181002</grid>
+		<grids>
+            <id>361181002</id>
+            <id>362181001</id>
+            <id>362181002</id>
+            <id>363181001</id>
+            <id>363181002</id>
+        </grids>
 		<process>
 			<id>109</id>
 		</process>

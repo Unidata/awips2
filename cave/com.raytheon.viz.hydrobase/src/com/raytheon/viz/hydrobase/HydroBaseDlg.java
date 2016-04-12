@@ -167,6 +167,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                      Changes for non-blocking LowWaterStatementDlg.
  *                                      Changes for non-blocking RatingCurveDlg.
  *                                      Changes for non-blocking TextReportDlg.
+ * 02/16/2016    5354       bkowal      Prevent the closure of the password dialog from
+ *                                      closing all of CAVE.
  * 
  * </pre>
  * 
@@ -1494,17 +1496,6 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
             }
         });
 
-        /* Removed per Mr. Glaudemans at 16-17 April TIM in Omaha */
-        // Cities menu item
-        // MenuItem citiesMI = new MenuItem(setupMenu, SWT.NONE);
-        // citiesMI.setText("&Cities...");
-        // citiesMI.addSelectionListener(new SelectionAdapter() {
-        // @Override
-        // public void widgetSelected(SelectionEvent event) {
-        // CitiesDlg citiesDlg = new CitiesDlg(shell);
-        // citiesDlg.open();
-        // }
-        // });
         // Reference Fields menu item
         MenuItem referenceFieldsMI = new MenuItem(setupMenu, SWT.NONE);
         referenceFieldsMI.setText("R&eference Fields...");
@@ -1698,21 +1689,16 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
 
             @Override
             public void mouseDoubleClick(MouseEvent e) {
-                // TODO Auto-generated method stub
                 // open Modify Location window on double click
                 openModifyDlg();
             }
 
             @Override
             public void mouseDown(MouseEvent e) {
-                // TODO Auto-generated method stub
-
             }
 
             @Override
             public void mouseUp(MouseEvent e) {
-                // TODO Auto-generated method stub
-
             }
         });
 
@@ -1780,11 +1766,6 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         stationCountLbl.setText("( " + size + " Stations )");
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.hydrocommon.IGetSortType#getSortType()
-     */
     @Override
     public String getSortType() {
         return sortByCbo.getItem(sortByCbo.getSelectionIndex());
@@ -1907,12 +1888,6 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         sortAndUpdateListControl();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.hydrobase.listeners.IPreferencesListener#notifyUpdate()
-     */
     @Override
     public void notifyUpdate() {
         applyPreferences();
@@ -1954,24 +1929,10 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         sortAndUpdateListControl();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.swt.events.KeyListener#keyPressed(org.eclipse.swt.events.
-     * KeyEvent)
-     */
     @Override
     public void keyPressed(KeyEvent e) {
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.swt.events.KeyListener#keyReleased(org.eclipse.swt.events
-     * .KeyEvent)
-     */
     @Override
     public void keyReleased(KeyEvent e) {
         String stationSearch = stationSearchTF.getText().toUpperCase();
@@ -1992,12 +1953,6 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.hydrobase.listeners.IStationFilterListener#
-     * notifyFilterChange()
-     */
     @Override
     public void notifyFilterChange() {
         populateListControl();
@@ -2023,13 +1978,6 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.hydrobase.listeners.IStationListener#notifyStationUpdate
-     * (java.lang.String)
-     */
     @Override
     public void notifyStationUpdate(String lid) {
         populateListControl();
@@ -2204,8 +2152,9 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
             cancel.addSelectionListener(new SelectionAdapter() {
                 @Override
                 public void widgetSelected(SelectionEvent e) {
-                    // Close password dialog
-                    dialog.close();
+                    // Dispose the dialog instead of closing it. Otherwise, all
+                    // of CAVE is closed.
+                    dialog.dispose();
                 }
             });
 

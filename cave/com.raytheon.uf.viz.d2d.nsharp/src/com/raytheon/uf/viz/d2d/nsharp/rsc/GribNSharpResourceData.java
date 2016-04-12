@@ -58,6 +58,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 04/27/2015   RM#6674&7787 Chin Chen   support model sounding query data interpolation and nearest point option                       
  * Aug 03, 2015  3861     bsteffen  Automatically determine sounding type from
  *                                  request constraints.
+ * Mar 01, 2016 RM14647 mgamazayhikov  Added constructor.
  * 
  * </pre>
  * 
@@ -78,6 +79,10 @@ public class GribNSharpResourceData extends D2DNSharpResourceData {
 
     public GribNSharpResourceData(String soundingType) {
         super(soundingType);
+    }
+
+    public GribNSharpResourceData(String soundingType, String soundingTitle) {
+        super(soundingType,soundingTitle);
     }
 
     @Override

@@ -21,6 +21,7 @@
 package com.raytheon.edex.plugin.grib.spatial;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -43,10 +44,10 @@ import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.gridcoverage.exception.GridCoverageException;
 import com.raytheon.uf.common.gridcoverage.lookup.GridCoverageLookup;
 import com.raytheon.uf.common.gridcoverage.subgrid.SubGrid;
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
@@ -82,6 +83,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jul 21, 2014  3373     bclement     JAXB managers only live during initializeGrids()
  * Mar 04, 2015  3959     rjpeter      Update for grid based subgridding.
  * Sep 28, 2015  4868     rjpeter      Allow subgrids to be defined per coverage.
+ * Feb 16, 2016  5237     bsteffen     Replace deprecated localization API.
+ * 
+ * Feb 26, 2016  5414     rjpeter      Fix subgrids along boundary and add check for disabled subgrid.
  * </pre>
  * 
  * @author bphillip
@@ -299,7 +303,8 @@ public class GribSpatialCache {
                 .getSubGridDef(modelName, coverage);
 
         try {
-            if (subGridDef != null) {
+            if ((subGridDef != null)
+                    && (subGridDef.isSubGridDisabled() == false)) {
                 String referenceGrid = subGridDef.getReferenceGrid();
                 GridCoverage referenceCoverage = getGridByName(referenceGrid);
                 if (referenceCoverage == null) {
@@ -348,7 +353,14 @@ public class GribSpatialCache {
                  */
                 SubGrid subGrid = new SubGrid(leftX, upperY, nx, ny);
                 GridCoverage subGridCoverage = referenceCoverage.trim(subGrid);
-                if (((subGrid.getNX() * subGrid.getNY()) / (nx * ny)) < MIN_SUBGRID_COVERAGE) {
+                double coveragePercent = ((double) subGrid.getNX() * subGrid
+                        .getNY()) / (nx * ny);
+                if (coveragePercent < MIN_SUBGRID_COVERAGE) {
+                    statusHandler
+                            .warn(String
+                                    .format("Rejecting data from model [%s]. SubGrid only covers %.2f%%, minimum coverage is %.2f%%",
+                                            modelName, coveragePercent * 100,
+                                            MIN_SUBGRID_COVERAGE * 100));
                     /* minimum subGrid coverage not available, set nx/ny to 0 */
                     subGrid.setNX(0);
                     subGrid.setNY(0);
@@ -499,7 +511,7 @@ public class GribSpatialCache {
 
     /**
      * scan the grib grid definition for changes, when force is false this will
-     * only scan if we have not scanne din the last 60 seconds.
+     * only scan if we have not scanned in the last 60 seconds.
      * 
      * @param force
      * @return
@@ -633,16 +645,15 @@ public class GribSpatialCache {
     private Coordinate getDefaultSubGridCenterPoint() throws Exception {
         Coordinate defaultCenterPoint = null;
         IPathManager pm = PathManagerFactory.getPathManager();
-        LocalizationFile defaultSubGridLocationFile = pm
+        ILocalizationFile defaultSubGridLocationFile = pm
                 .getStaticLocalizationFile("/grib/defaultSubGridCenterPoint.xml");
         SingleTypeJAXBManager<DefaultSubGridCenterPoint> subGridCenterJaxb = new SingleTypeJAXBManager<DefaultSubGridCenterPoint>(
                 DefaultSubGridCenterPoint.class);
         if ((defaultSubGridLocationFile != null)
                 && defaultSubGridLocationFile.exists()) {
-            try {
-                DefaultSubGridCenterPoint defaultSubGridLocation = defaultSubGridLocationFile
-                        .jaxbUnmarshal(DefaultSubGridCenterPoint.class,
-                                subGridCenterJaxb);
+            try (InputStream is = defaultSubGridLocationFile.openInputStream()) {
+                DefaultSubGridCenterPoint defaultSubGridLocation = subGridCenterJaxb
+                        .unmarshalFromInputStream(is);
                 if ((defaultSubGridLocation != null)
                         && (defaultSubGridLocation.getCenterLatitude() != null)
                         && (defaultSubGridLocation.getCenterLongitude() != null)) {
@@ -657,8 +668,7 @@ public class GribSpatialCache {
             } catch (Exception e) {
                 statusHandler.error(
                         "Unable to load default sub grid location from file: "
-                                + defaultSubGridLocationFile.getFile()
-                                        .getAbsolutePath(), e);
+                                + defaultSubGridLocationFile.getPath(), e);
             }
         }
 

@@ -31,22 +31,23 @@ import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.edex.netcdf.description.exception.InvalidDescriptionException;
 
 /**
- *
+ * 
  * Contains the information necessary to extract a {@link Level} from the global
  * attributes of a {@link NetcdfFile}.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date          Ticket#  Engineer  Description
- * ------------- -------- --------- --------------------------
+ * ------------- -------- --------- --------------------------------------------
  * Aug 11, 2015  4709     bsteffen  Initial creation
  * Aug 25, 2015  4699     nabowle   Extracted from Pointset netcdf plugin and
  *                                  refactored.
- *
+ * Jan 25, 2016  5208     bsteffen  Add validation.
+ * 
  * </pre>
- *
+ * 
  * @author bsteffen
  */
 @XmlAccessorType(XmlAccessType.NONE)
@@ -139,5 +140,28 @@ public class LevelDescription {
         }
         return factory.getLevel(masterLevel, levelOneValue.doubleValue(),
                 levelTwoValue.doubleValue());
+    }
+
+    public void validate() throws InvalidDescriptionException {
+        if (masterLevel == null) {
+            throw new InvalidDescriptionException(
+                    "A maseter level element is not present.");
+        }
+        if (levelOneValue == null) {
+            throw new InvalidDescriptionException(
+                    "A level one value element is not present.");
+        }
+        try {
+            masterLevel.validate();
+        } catch (InvalidDescriptionException e) {
+            throw new InvalidDescriptionException("Invalid master level: "
+                    + e.getMessage(), e);
+        }
+        try {
+            levelOneValue.validate();
+        } catch (InvalidDescriptionException e) {
+            throw new InvalidDescriptionException("Invalid level one value: "
+                    + e.getMessage(), e);
+        }
     }
 }

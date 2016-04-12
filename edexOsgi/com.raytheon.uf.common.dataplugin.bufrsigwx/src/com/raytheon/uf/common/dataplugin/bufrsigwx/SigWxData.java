@@ -19,8 +19,6 @@
  **/
 package com.raytheon.uf.common.dataplugin.bufrsigwx;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -60,6 +58,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Oct 14, 2013 2361       njensen     Removed XML annotations and IDecoderGettable
  * Jul 23, 2015 2360       rferrel     Add name to unique constraint.
+ * Feb 04, 2015 5309       tgurney     Drop dataURI column and update unique constraint.
  * 
  * </pre>
  * 
@@ -68,7 +67,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "bufrsigwxseq")
-@Table(name = "bufrsigwx", uniqueConstraints = { @UniqueConstraint(name = "uk_bufrsigwx_datauri_fields", columnNames = { "dataURI" }) })
+@Table(name = "bufrsigwx", uniqueConstraints = { @UniqueConstraint(name = "uk_bufrsigwx_datauri_fields", columnNames = {
+        "refTime", "wxLayer", "wxType", "key" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
@@ -81,17 +81,17 @@ public class SigWxData extends PersistablePluginDataObject implements
 
     private static final long serialVersionUID = 1L;
 
-    @Column
+    @Column(nullable = false)
     @DataURI(position = 1)
     @DynamicSerializeElement
     private SigWxLayer wxLayer;
 
-    @Column
+    @Column(nullable = false)
     @DataURI(position = 2)
     @DynamicSerializeElement
     private SigWxType wxType;
 
-    @Column
+    @Column(nullable = false)
     @DataURI(position = 3)
     @DynamicSerializeElement
     private Integer key;
@@ -273,13 +273,6 @@ public class SigWxData extends PersistablePluginDataObject implements
         obs.wmoHeader = wmoHeader;
 
         return obs;
-    }
-
-    @Override
-    @Column
-    @Access(AccessType.PROPERTY)
-    public String getDataURI() {
-        return super.getDataURI();
     }
 
     @Override

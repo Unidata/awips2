@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: GHG Plug-in
 Bundle-SymbolicName: com.raytheon.viz.ghg;singleton:=true
-Bundle-Version: 1.14.0.qualifier
+Bundle-Version: 1.16.0.qualifier
 Bundle-Activator: com.raytheon.viz.ghg.Activator
 Bundle-Vendor: Raytheon
 Require-Bundle: org.eclipse.ui,
@@ -10,19 +10,17 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.viz.ui,
  com.raytheon.viz.core,
  org.geotools,
- com.raytheon.viz.gfe,
  com.raytheon.viz.alerts,
  org.jep,
- com.raytheon.uf.common.message;bundle-version="1.11.31",
+ com.raytheon.uf.common.message,
  com.raytheon.uf.common.dataplugin.gfe,
+ com.raytheon.uf.common.gfe.ifpclient,
  com.raytheon.uf.common.site,
- com.raytheon.uf.viz.core.maps;bundle-version="1.12.1174"
+ com.raytheon.uf.viz.core.maps,
+ com.raytheon.uf.viz.zoneselector,
+ org.apache.commons.lang3;bundle-version="3.4.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.raytheon.uf.common.activetable,
- com.raytheon.uf.common.dataplugin.gfe,
- com.raytheon.uf.common.dataplugin.gfe.db.objects,
- com.raytheon.uf.common.dataplugin.gfe.reference,
- com.raytheon.uf.common.dataplugin.gfe.slice,
  com.raytheon.uf.common.python
 Bundle-ClassPath: com.raytheon.viz.ghg.jar

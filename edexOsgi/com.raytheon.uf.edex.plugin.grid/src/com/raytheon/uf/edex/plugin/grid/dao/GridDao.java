@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -65,21 +65,22 @@ import com.raytheon.uf.edex.plugin.grid.PartialGrid;
 
 /**
  * Data access object for accessing Grid records from the database
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Apr 07, 2009  1994     bphillip    Initial Creation
  * Mar 14, 2013  1587     bsteffen    Fix static data persisting to datastore.
- * Mar 27, 2013  1821     bsteffen    Speed up GridInfoCache.   
+ * Mar 27, 2013  1821     bsteffen    Speed up GridInfoCache.
  * Mar 20, 2013  2910     bsteffen    Clear dataURI after loading cached info.
  * Jul 09, 2015  4500     rjpeter     Fix SQL Injection concern.
  * Sep 15, 2015  4819     rferrel     Made {@link #validateDataset(GridRecord)} public.
+ * Nov 24, 2015  5154     nabowle     Handle id=0 when validating the level.
  * </pre>
- * 
+ *
  * @author bphillip
  * @version 1
  */
@@ -364,6 +365,14 @@ public class GridDao extends PluginDao {
             if ((ml != null)
                     && !LevelFactory.UNKNOWN_LEVEL.equals(ml.getName())) {
                 result = true;
+                if (level.getId() == 0) {
+                    level = LevelFactory.getInstance().getLevel(ml.getName(),
+                            level.getLevelonevalue(), level.getLeveltwovalue(),
+                            ml.getUnitString());
+                    if (level != null) {
+                        record.setLevel(level);
+                    }
+                }
             }
         }
 

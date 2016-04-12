@@ -175,7 +175,7 @@ class TextProduct(GenericReport.TextProduct):
     def _makeCallToAction(self, fcst, editArea, areaLabel, argDict):
         ctaBodyPhrase = ""
         if self._callToAction:
-            ctaBodyPhrase = "\n\nPrecautionary/preparedness actions...\n\n" + \
+            ctaBodyPhrase = "\n\nPRECAUTIONARY/PREPAREDNESS ACTIONS...\n\n" + \
                         ctaBodyPhrase + \
                         "|* Call to action goes here *|\n\n" + \
                         "\n\n&&\n\n"

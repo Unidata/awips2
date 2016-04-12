@@ -8,8 +8,10 @@
 		<vcp num="112" mode="storm" dur="300" />
 		<vcp num="211" mode="storm" dur="300" />
 		<vcp num="212" mode="storm" dur="288" />
+		<vcp num="215" mode="storm" dur="300" />
 		<vcp num="221" mode="storm" dur="360" />
 		<vcp num="31" mode="storm" dur="600" />
 		<vcp num="32" mode="storm" dur="600" />
+		<vcp num="35" mode="storm" dur="600" />
 	</vcpList>
 </scanRunConfig>

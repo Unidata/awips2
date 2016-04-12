@@ -20,6 +20,7 @@
 package com.raytheon.viz.ghg.monitor.data;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -31,7 +32,6 @@ import java.util.Set;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
 import jep.JepException;
@@ -44,25 +44,29 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.python.PyUtil;
 import com.raytheon.uf.common.python.PythonScript;
+import com.raytheon.uf.common.serialization.SerializationException;
+import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.viz.gfe.constants.StatusConstants;
-import com.raytheon.viz.gfe.core.DataManager;
-import com.raytheon.viz.ghg.monitor.GhgDisplayManager;
+import com.raytheon.uf.viz.core.localization.LocalizationManager;
+import com.raytheon.viz.ghg.constants.StatusConstants;
 import com.raytheon.viz.ghg.monitor.config.GhgConfigXml;
+import com.raytheon.viz.ghg.monitor.event.AbstractGhgMonitorEvent.GhgEventListener;
+import com.raytheon.viz.ghg.monitor.event.GhgMonitorFilterChangeEvent;
 import com.raytheon.viz.ui.statusline.StatusMessage;
 import com.raytheon.viz.ui.statusline.StatusStore;
 
@@ -84,7 +88,11 @@ import com.raytheon.viz.ui.statusline.StatusStore;
  * 28Nov2012    1353       rferrel     Sort the list of filter names for dialog display.
  * 10Apr2014    15769      ryu         Modified default config and GUI items to match A1.
  *                                     Default config changed to hard coding instead of reading
- *                                     from config file. 
+ *                                     from config file.
+ * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
+ * Dec 16, 2015 5184       dgilling    Remove viz.gfe dependencies.
+ * Feb 05, 2016 5316       randerso    Moved notification of filter change into this class
+ * Feb 05, 2016 #5242      dgilling    Remove calls to deprecated Localization APIs.
  * </pre>
  * 
  * @author lvenable
@@ -106,8 +114,8 @@ public final class GhgConfigData {
     /**
      * The VTEC Action Names
      */
-    public static final String[] vtecActionNames = { "CAN", "CON", 
-            "EXA", "EXB", "EXP", "EXT", "NEW", "UPG"};
+    public static final String[] vtecActionNames = { "CAN", "CON", "EXA",
+            "EXB", "EXP", "EXT", "NEW", "UPG" };
 
     /**
      * The VTEC Afos Product (PIL) Names
@@ -202,6 +210,11 @@ public final class GhgConfigData {
     private boolean descending;
 
     private boolean identifyTestEvents;
+
+    /**
+     * Filter change listener list
+     */
+    private List<GhgEventListener> filterChangeListenerList = new ArrayList<>();
 
     /**
      * Alerts enumeration. Contains the available alerts. {@code display}
@@ -340,6 +353,7 @@ public final class GhgConfigData {
                 // Fonts are system resources. We have to dispose of them
                 // properly.
                 display.addListener(SWT.Dispose, new Listener() {
+                    @Override
                     public void handleEvent(Event e) {
                         Font font = fontMap.get(e.display);
                         font.dispose();
@@ -362,17 +376,21 @@ public final class GhgConfigData {
 
     /**
      * Private constructor.
+     * 
+     * @param displayMgr
      */
     private GhgConfigData() {
         init();
     }
 
     /**
-     * Get an instance of the GHG configuration data.
+     * Constructs an instance of the GHG configuration data. Used to build the
+     * initial instance and should only ever be called from the top-level GHG
+     * Monitor dialog.
      * 
      * @return An instance of the GHG configuration data.
      */
-    public static synchronized GhgConfigData getInstance() {
+    public static synchronized GhgConfigData buildInstance() {
         // If the GHG configuration data has not been created
         // then create a new instance.
         if (classInstance == null) {
@@ -383,15 +401,26 @@ public final class GhgConfigData {
     }
 
     /**
+     * Returns the instance of the GHG configuration data. Should be used to
+     * retrieve the config data instance by all other parts of the GHG Monitor
+     * code.
+     * 
+     * @return An instance of the GHG configuration data.
+     */
+    public static synchronized GhgConfigData getInstance() {
+        return classInstance;
+    }
+
+    /**
      * Initialize the configuration data.
      */
     private void init() {
         loadDefault();
-        
+
         defaultFilter = currentFilter.clone();
         defaultAlerts = currentAlerts.clone();
         defaultColumns = new ArrayList<DataEnum>(visibleColumns);
-        
+
         // Get the VTECTable
         initializePython();
     }
@@ -600,7 +629,8 @@ public final class GhgConfigData {
      */
     public void setCurrentFilter(GhgDataFilter filter) {
         currentFilter = filter;
-        GhgDisplayManager.getInstance().setFilterChanged(true);
+        GhgMonitorFilterChangeEvent evt = new GhgMonitorFilterChangeEvent();
+        fireFilterChangeEvent(evt);
     }
 
     /**
@@ -757,24 +787,19 @@ public final class GhgConfigData {
         IPathManager pathMgr = PathManagerFactory.getPathManager();
         LocalizationContext locCtx = pathMgr.getContext(
                 LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
-        LocalizationFile localizationFile = pathMgr.getLocalizationFile(locCtx,
-                CONFIG_PATH);
-        File configFile = localizationFile.getFile();
+        ILocalizationFile localizationFile = pathMgr.getLocalizationFile(
+                locCtx, CONFIG_PATH);
 
-        try {
-            JAXBContext ctx = JAXBContext.newInstance(GhgConfigXml.class);
-            Marshaller marshaller = ctx.createMarshaller();
-            marshaller.marshal(config, configFile);
-            localizationFile.save();
-            StatusStore.updateStatus(StatusConstants.SUBCATEGORY_GHG,
+        try (SaveableOutputStream outStream = localizationFile
+                .openOutputStream()) {
+            SingleTypeJAXBManager<GhgConfigXml> jaxb = SingleTypeJAXBManager
+                    .createWithoutException(GhgConfigXml.class);
+            jaxb.marshalToStream(config, outStream);
+            outStream.save();
+            StatusStore.updateStatus(StatusConstants.CATEGORY_GHG,
                     "Saved configuration", StatusMessage.Importance.REGULAR);
-
-        } catch (JAXBException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error saving GHG Monitor configuration", e);
-        } catch (LocalizationOpFailedException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error saving GHG Monitor configuration", e);
+        } catch (IOException | LocalizationException | SerializationException e) {
+            statusHandler.error("Error saving GHG Monitor configuration", e);
         }
     }
 
@@ -798,20 +823,17 @@ public final class GhgConfigData {
         GhgAlertsConfigData alerts = new GhgAlertsConfigData();
         alerts.setLocal(true);
         alerts.setTest(true);
-        alerts.addAlert(new GhgAlertData(true, true, 30,
-                AlertsEnum.AlertLvl1));
-        alerts.addAlert(new GhgAlertData(true, true, 10,
-                AlertsEnum.AlertLvl2));
-        alerts.addAlert(new GhgAlertData(true, true, 0,
-                AlertsEnum.ExpiredAlert));
-        alerts.setActions(new String[] { "NEW", "CON", "COR", "EXT",
-                "EXA", "EXB" });
+        alerts.addAlert(new GhgAlertData(true, true, 30, AlertsEnum.AlertLvl1));
+        alerts.addAlert(new GhgAlertData(true, true, 10, AlertsEnum.AlertLvl2));
+        alerts.addAlert(new GhgAlertData(true, true, 0, AlertsEnum.ExpiredAlert));
+        alerts.setActions(new String[] { "NEW", "CON", "COR", "EXT", "EXA",
+                "EXB" });
         alerts.setPhenSigs(new String[] {});
         alerts.setPils(new String[] {});
         currentAlerts = alerts;
 
         final String siteId = SiteMap.getInstance().getSite4LetterId(
-                DataManager.getCurrentInstance().getSiteID());
+                LocalizationManager.getInstance().getSite());
 
         /* generate some hardcoded default filter data */
         currentFilter = new GhgDataFilter() {
@@ -844,16 +866,16 @@ public final class GhgConfigData {
         visibleColumns = new ArrayList<DataEnum>(DataEnum.values().length);
         // The initial columns visible. These need to match the ones set up by
         // GhgMonitorDlg.
-        visibleColumns.addAll(Arrays.asList(DataEnum.ACTION, DataEnum.ETN,
-                DataEnum.PHEN_SIG, DataEnum.START, DataEnum.END,
-                DataEnum.PURGE, DataEnum.ISSUE_TIME, DataEnum.PIL,
-                DataEnum.WFO));
+        visibleColumns.addAll(Arrays
+                .asList(DataEnum.ACTION, DataEnum.ETN, DataEnum.PHEN_SIG,
+                        DataEnum.START, DataEnum.END, DataEnum.PURGE,
+                        DataEnum.ISSUE_TIME, DataEnum.PIL, DataEnum.WFO));
         sortColumn = DataEnum.PURGE;
-        
+
         descending = false;
         identifyTestEvents = true;
-        
-        //loadFrom(DEFAULT_PATH, true);
+
+        // loadFrom(DEFAULT_PATH, true);
     }
 
     public void load(boolean reportMissing) {
@@ -1044,4 +1066,37 @@ public final class GhgConfigData {
             }
         }
     }
+
+    /**
+     * Add a listener to the list.
+     * 
+     * @param listener
+     */
+    public void addFilterChangeListener(GhgEventListener listener) {
+        filterChangeListenerList.add(listener);
+    }
+
+    /**
+     * Remove a listener from the list.
+     * 
+     * @param listener
+     */
+    public void removeFilterChangeListener(GhgEventListener listener) {
+        if (filterChangeListenerList.contains(listener)) {
+            filterChangeListenerList.remove(listener);
+        }
+    }
+
+    /**
+     * Fire event so listeners are aware of change.
+     * 
+     * @param event
+     *            The GhgMonitorFilterChangeEvent
+     */
+    private void fireFilterChangeEvent(GhgMonitorFilterChangeEvent event) {
+        for (GhgEventListener listener : filterChangeListenerList) {
+            listener.notifyUpdate(event);
+        }
+    }
+
 }

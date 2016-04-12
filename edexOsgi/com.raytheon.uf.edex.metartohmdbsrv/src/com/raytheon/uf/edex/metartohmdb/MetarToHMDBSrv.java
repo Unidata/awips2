@@ -19,8 +19,8 @@
  **/
 package com.raytheon.uf.edex.metartohmdb;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
@@ -40,6 +40,7 @@ import com.raytheon.uf.edex.metartohmdb.dao.HMDBRptDao;
  * ------------ ---------- ----------- --------------------------
  * ????                                Initial creation
  * May 14, 2014 2536       bclement    moved WMO Header to common
+ * Dec 11, 2015 5166       kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -47,7 +48,7 @@ import com.raytheon.uf.edex.metartohmdb.dao.HMDBRptDao;
  */
 public class MetarToHMDBSrv {
 
-    private Log logger = LogFactory.getLog(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     private HMDBRptDao dao = null;
 

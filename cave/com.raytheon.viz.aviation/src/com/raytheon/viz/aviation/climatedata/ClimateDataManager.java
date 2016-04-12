@@ -45,6 +45,8 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * May 10, 2011 9059       rferrel     Extended times outs on executes
  * Jun 01, 2011 7878       rferrel     Adjusted time out when creating nc files
  * Jul 10, 2015 16907      zhao        Changed time limit from 600 to 6000 for processData() & assessData()
+ * Jan 21, 2016 18395      zhao        Modified processData()
+ * Jan 29, 2016 18396      zhao        Modified objReceived()
  * 
  * </pre>
  * 
@@ -197,7 +199,7 @@ public class ClimateDataManager implements PyProcessListener {
         t.start();
     }
 
-    public void processData(final boolean append, final ClimateDataMenuDlg win) {
+    public void processData(final boolean append, final List<String> items, final ClimateDataMenuDlg win) {
         this.win = win;
 
         Runnable run = new Runnable() {
@@ -207,9 +209,14 @@ public class ClimateDataManager implements PyProcessListener {
                 PythonClimateDataProcess pythonScript = null;
                 try {
                     long t0 = System.currentTimeMillis();
+                    String ishDir = ClimateDataPython.getIshFilePath();
                     pythonScript = ClimateDataPython.getClimateInterpreter();
                     Map<String, Object> args = new HashMap<String, Object>();
                     args.put("stnPickle", stnPickle);
+                    args.put("append", append);
+                    args.put("sites", items);
+                    args.put("climateDir", ishDir);
+                    numSites = items.size();
                     pythonScript.execute("process", args,
                             ClimateDataManager.this, 6000 * numSites);
                     long t1 = System.currentTimeMillis();
@@ -218,6 +225,9 @@ public class ClimateDataManager implements PyProcessListener {
                 } catch (JepException e) {
                     statusHandler.handle(Priority.PROBLEM,
                             "Error retrieving climate data", e);
+                } catch (VizException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Error retrieving climate data", e); 
                 } finally {
                     if (pythonScript != null) {
                         pythonScript.dispose();
@@ -437,6 +447,7 @@ public class ClimateDataManager implements PyProcessListener {
                         .get("results");
                 win.populateSiteInfoList(ident, list);
                 win.assessBtn(true);
+                win.validateBtn(false);
             } else if (method.equals("updateMonitor")) {
                 String msg = (String) returnMap.get("msg");
                 win.updateMonitor(msg);

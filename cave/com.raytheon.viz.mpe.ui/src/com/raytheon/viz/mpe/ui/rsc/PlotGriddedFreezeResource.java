@@ -32,7 +32,7 @@ import javax.measure.converter.UnitConverter;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.Unit;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.swt.graphics.RGB;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -97,9 +97,9 @@ public class PlotGriddedFreezeResource extends
         IMpeResource {
 
     MPEDisplayManager displayMgr = null;
-    
+
     private DailyQcUtils dqc = DailyQcUtils.getInstance();
-    
+
     private DrawDQCStations ddq = DrawDQCStations.getInstance();
 
     private GriddedImageDisplay gridDisplay;
@@ -130,9 +130,9 @@ public class PlotGriddedFreezeResource extends
 
     private List<Colorvalue> colorSet;
 
-//    Hrap_Grid hrap_grid = DailyQcUtils.getHrap_grid();
+    // Hrap_Grid hrap_grid = DailyQcUtils.getHrap_grid();
 
-//    Pcp pcp = DailyQcUtils.pcp;
+    // Pcp pcp = DailyQcUtils.pcp;
 
     public PlotGriddedFreezeResource(MPEDisplayManager displayMgr,
             LoadProperties loadProperties, List<Colorvalue> colorSet) {
@@ -213,7 +213,8 @@ public class PlotGriddedFreezeResource extends
 
         cm.read_file(file, num, dqc.pcp);
 
-        buf = FloatBuffer.allocate(dqc.getHrap_grid().maxi * dqc.getHrap_grid().maxj);
+        buf = FloatBuffer.allocate(dqc.getHrap_grid().maxi
+                * dqc.getHrap_grid().maxj);
 
         /* Get value in the HRAP grid bins. */
         for (j = dqc.getHrap_grid().maxj - 1; j >= 0; j--) {
@@ -264,7 +265,8 @@ public class PlotGriddedFreezeResource extends
         buf.rewind();
 
         Rectangle extent = new Rectangle(dqc.getHrap_grid().hrap_minx,
-                dqc.getHrap_grid().hrap_miny, dqc.getHrap_grid().maxi, dqc.getHrap_grid().maxj);
+                dqc.getHrap_grid().hrap_miny, dqc.getHrap_grid().maxi,
+                dqc.getHrap_grid().maxj);
 
         if (extent.x == 0 && extent.y == 0) {
             Rectangle coord = null;
@@ -433,8 +435,7 @@ public class PlotGriddedFreezeResource extends
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
-        if (buf == null || dqc.grids_flag != 1
-                || displayMgr.isZflag() != true) {
+        if (buf == null || dqc.grids_flag != 1 || displayMgr.isZflag() != true) {
             return;
         }
 
