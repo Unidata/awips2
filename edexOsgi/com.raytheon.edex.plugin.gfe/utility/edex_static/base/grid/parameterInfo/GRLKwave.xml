@@ -269,6 +269,21 @@
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>wstp</short_name>
+    <long_name>Wave steepness</long_name>
+    <units>1</units>
+    <udunits>one</udunits>
+    <uiname>waveSteepness</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>htsgw</short_name>
     <long_name>Sig height combined wind waves and swell</long_name>
     <units>m</units>

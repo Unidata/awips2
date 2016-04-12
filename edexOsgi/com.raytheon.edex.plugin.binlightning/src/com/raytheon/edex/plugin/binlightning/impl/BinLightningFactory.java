@@ -22,6 +22,13 @@ package com.raytheon.edex.plugin.binlightning.impl;
 
 import static com.raytheon.edex.plugin.binlightning.impl.IBinLightningDecoder.*;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+
+import com.raytheon.edex.plugin.binlightning.BinLightningDecoder;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+
 /**
  * Read from the message data source, isolate and create a decoder for the
  * current sub-message. In the event that the message decoder can not be
@@ -34,6 +41,8 @@ import static com.raytheon.edex.plugin.binlightning.impl.IBinLightningDecoder.*;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 20070810            379 jkorman     Initial Coding from prototype.
+ * 20160116          18408 Wufeng Zhou  Remove direct dependency on bit shifting decoder
+ * 
  * 
  * </pre>
  *
@@ -42,6 +51,8 @@ import static com.raytheon.edex.plugin.binlightning.impl.IBinLightningDecoder.*;
  */
 public class BinLightningFactory
 {
+    private static final IUFStatusHandler logger = UFStatus.getHandler(BinLightningDecoder.class);
+
     /**
      * Read from the message data source, isolate and create a decoder for the
      * current sub-message. In the event that the message decoder can not be
@@ -60,12 +71,14 @@ public class BinLightningFactory
         {
             case FLASH_RPT :
             {
-                decoder = new FlashLightningDecoder(msgData,count);
+                String className = "com.raytheon.edex.plugin.binlightning.impl.FlashLightningDecoder";
+                decoder = loadDecoderInstance(className, msgData, count);
                 break;
             }
             case RT_FLASH_RPT :
             {
-                decoder = new RTLightningDecoder(msgData,count);
+                String className = "com.raytheon.edex.plugin.binlightning.impl.RTLightningDecoder";
+                decoder = loadDecoderInstance(className, msgData, count);
                 break;
             }
             case OTHER_RPT :
@@ -87,6 +100,22 @@ public class BinLightningFactory
             }
         }
         
+        return decoder;
+    }
+    
+    private static IBinLightningDecoder loadDecoderInstance(String className, IBinDataSource msgData, int count) {
+        IBinLightningDecoder decoder = null;
+        try {
+            Class<?> clazz = BinLightningFactory.class.getClassLoader().loadClass(className);
+            Class<?>[] types = {IBinDataSource.class, Integer.TYPE};
+            Constructor<?> constructor = clazz.getConstructor(types);
+            Object[] parameters = {msgData, count};
+            decoder = (IBinLightningDecoder)constructor.newInstance(parameters);
+            logger.info("Loaded legacy binlightning decoder class " + className);
+        } catch (ClassNotFoundException | InstantiationException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            logger.error("Fail to load binlightning decoder class " + className + ". FYI, this is error only if you are authorized: " + e.getMessage());
+            decoder = new LightningErrorDecoder(UNIMPLEMENTED_DECODER);
+        }
         return decoder;
     }
     

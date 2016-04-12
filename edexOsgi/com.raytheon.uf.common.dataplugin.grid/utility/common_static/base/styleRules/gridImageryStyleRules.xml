@@ -9446,7 +9446,6 @@
     <styleRule>
 
         <paramLevelMatches>
-            <parameter>SPC</parameter>
             <parameter>OGRD</parameter>
             <parameter>BARO</parameter>
             <parameter>SPBARO</parameter>
@@ -9456,6 +9455,15 @@
         </imageStyle>
     </styleRule>
 
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>SPC</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits>m/s</displayUnits>
+        </imageStyle>
+    </styleRule>
+  
     <!-- 15.1 additions below -->
     <styleRule>
         <paramLevelMatches>

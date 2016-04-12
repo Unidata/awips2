@@ -57,6 +57,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 02 Sep 2008             lvenable    Initial creation.
  * 17 Dec 2008  1787       askripsk    Connect to database.
  * 17 Apr 2013  1790       rferrel     Make dialog non-blocking.
+ * 30 Nov 2015  14228      wkwock      Update remark limit to 510.
  * 
  * </pre>
  * 
@@ -122,7 +123,9 @@ public class BenchmarkDlg extends CaveSWTDialog {
      * Benchmark data for the current location.
      */
     private java.util.List<BenchmarkData> benchData;
-
+    
+    private final int MAX_REMARK_CHAR = 510;
+    
     /**
      * Dialog states.
      */
@@ -256,7 +259,7 @@ public class BenchmarkDlg extends CaveSWTDialog {
         gd.horizontalSpan = 2;
         descriptionTF = new Text(infoGroup, SWT.BORDER | SWT.MULTI | SWT.WRAP);
         descriptionTF.setLayoutData(gd);
-        descriptionTF.setTextLimit(255);
+        descriptionTF.setTextLimit(MAX_REMARK_CHAR);
     }
 
     /**

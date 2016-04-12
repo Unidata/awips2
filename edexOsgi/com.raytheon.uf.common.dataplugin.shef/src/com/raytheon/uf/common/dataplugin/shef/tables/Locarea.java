@@ -1,23 +1,24 @@
 /**
-* This software was developed and / or modified by Raytheon Company,
-* pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-* 
-* U.S. EXPORT CONTROLLED TECHNICAL DATA
-* This software product contains export-restricted data whose
-* export/transfer/disclosure is restricted by U.S. law. Dissemination
-* to non-U.S. persons whether in the United States or abroad requires
-* an export license or other authorization.
-* 
-* Contractor Name:        Raytheon Company
-* Contractor Address:     6825 Pine Street, Suite 340
-*                         Mail Stop B8
-*                         Omaha, NE 68106
-*                         402.291.0100
-* 
-* See the AWIPS II Master Rights File ("Master Rights File.pdf") for
-* further licensing information.
-**/
+ * This software was developed and / or modified by Raytheon Company,
+ * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+ * 
+ * U.S. EXPORT CONTROLLED TECHNICAL DATA
+ * This software product contains export-restricted data whose
+ * export/transfer/disclosure is restricted by U.S. law. Dissemination
+ * to non-U.S. persons whether in the United States or abroad requires
+ * an export license or other authorization.
+ * 
+ * Contractor Name:        Raytheon Company
+ * Contractor Address:     6825 Pine Street, Suite 340
+ *                         Mail Stop B8
+ *                         Omaha, NE 68106
+ *                         402.291.0100
+ * 
+ * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+ * further licensing information.
+ **/
 package com.raytheon.uf.common.dataplugin.shef.tables;
+
 // default package
 // Generated Oct 17, 2008 2:22:17 PM by Hibernate Tools 3.2.2.GA
 
@@ -38,6 +39,7 @@ import javax.persistence.Table;
  * Oct 17, 2008                        Initial generation by hbm2java
  * Aug 19, 2011      10672     jkorman Move refactor to new project
  * Oct 07, 2013       2361     njensen Removed XML annotations
+ * Feb 08, 2016      14232     amoore  Expand area column to 500 characters.
  * 
  * </pre>
  * 
@@ -47,9 +49,16 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "locarea")
 @com.raytheon.uf.common.serialization.annotations.DynamicSerialize
-public class Locarea extends com.raytheon.uf.common.dataplugin.persist.PersistableDataObject implements java.io.Serializable {
+public class Locarea extends
+        com.raytheon.uf.common.dataplugin.persist.PersistableDataObject
+        implements java.io.Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    /**
+     * Maximum characters of affected area.
+     */
+    private static final int MAX_AFFECTED_AREA_SIZE = 500;
 
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private String lid;
@@ -79,7 +88,7 @@ public class Locarea extends com.raytheon.uf.common.dataplugin.persist.Persistab
         this.lid = lid;
     }
 
-    @Column(name = "area", length = 80)
+    @Column(name = "area", length = MAX_AFFECTED_AREA_SIZE)
     public String getArea() {
         return this.area;
     }

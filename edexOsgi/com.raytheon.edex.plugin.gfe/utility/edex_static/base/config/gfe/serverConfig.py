@@ -75,7 +75,9 @@
 #    10/30/2015          #17940    jendrowski     Responded to Code Review.  Mostly syntactical changes.
 #    11/05/2015          #18182    ryu            Change D2DDBVERSIONS value for HPCERP to 24
 #    12/22/2015          #14152    jwatson        Added Sky, Wind to GFSLAMPGrid parms
+#    1/28/2016           #13910    amoore         Wave model data should be available in 3-hrly timesteps 
 #    02/09/2016          #5283     nabowle        Remove NGM support.
+#    02/22/2016          #18161    wkwock         Add NationalBlend model for AK, PR, HW
 #    02/23/2016          #14845    jwatson        Changed NamDNG5 to NamDNG for all sources and params. 
 #                                                 Changed D2DModels for CONUS and Alaska to 
 #                                                 namdng25 and AK-NamDNG3
@@ -2228,6 +2230,7 @@ if SID in groups['ALASKA_SITES']:
                  'PGBlended',
                  'PGBlended-Night',
                  ('NCOM-ALASKA', 'NCOM'),
+                 ('NationalBlend-AK','NationalBlend'),
                ]
 
 # Hawaii OCONUS
@@ -2258,6 +2261,7 @@ elif SID == "HFO":
                  'PGBlended',
                  'PGBlended-Night',
                  ('NCOM-HAWAII', 'NCOM'),
+                 ('NationalBlend-HI','NationalBlend'),
                ]
 
 # San Juan OCONUS
@@ -2291,6 +2295,7 @@ elif SID == "SJU":
                  'PGBlended',
                  'PGBlended-Night',
                  ('NCOM-AMSEAS', 'NCOMAMSEAS'),
+                 ('NationalBlend-PR','NationalBlend'),
                ]
 
 # Guam OCONUS
@@ -2981,8 +2986,12 @@ nwpsCG1_MODEL = [([SwanSwell, Period, WaveHeight, WindWaveHeight, Wind], TC3NG)]
 nwpsTrkngCG0_MODEL = [([Wave1, Wave2, Wave3, Wave4, Wave5, Wave6, Wave7, Wave8, Wave9, Wave10, Period1, Period2, Period3, Period4, Period5, Period6,Period7, Period8, Period9, Period10 ], TC3NG)]
 
 # Global Wave Watch III, WNAWAVE, AKWAVE Model database parameter groupings
+# 6-hour resolution
 WAVEPARMS = [([WindWaveHeight, WaveHeight, SurfHeight, Wind], TC6),
             ([Swell, Swell2, Period, Period2], TC6)]
+# 3-hour resolution
+WAVEPARMS3 = [([WindWaveHeight, WaveHeight, SurfHeight, Wind], TC3),
+            ([Swell, Swell2, Period, Period2], TC3)]
 
 # GLWM Model database parameter groupings
 GLWMPARMS = [([SigWaveHgt, WindWaveHgt, WindWaveDir, WindWavePeriod], TC1)]
@@ -3100,23 +3109,23 @@ DATABASES = [
              (GWW, WAVEPARMS),
              (WNAWAVE, WAVEPARMS),
              (AKWAVE, WAVEPARMS),
-             (AKwave10, WAVEPARMS),
-             (AKwave4, WAVEPARMS),
-             (EPwave10, WAVEPARMS),
+             (AKwave10, WAVEPARMS3),
+             (AKwave4, WAVEPARMS3),
+             (EPwave10, WAVEPARMS3),
              (ESTOFS, ESTOFSPARMS),
              (ETSS, ETSSPARMS),
              (nwpsCG1, nwpsCG1_MODEL),
              (nwpsTrkngCG0, nwpsTrkngCG0_MODEL),
-             (GlobalWave, WAVEPARMS),
+             (GlobalWave, WAVEPARMS3),
              (GLWM, GLWMPARMS),
              (HIRESWarw, STD3_MODEL),
              (HIRESWnmm, STD3_MODEL),
              (HRRR, HRRRPARMS),
 #DR20634             (SPC, SPCPARMS),
-             (WCwave10, WAVEPARMS),
-             (WCwave4, WAVEPARMS),
-             (WNAwave10, WAVEPARMS),
-             (WNAwave4, WAVEPARMS),
+             (WCwave10, WAVEPARMS3),
+             (WCwave4, WAVEPARMS3),
+             (WNAwave10, WAVEPARMS3),
+             (WNAwave4, WAVEPARMS3),
              (HPCGrid, MOS_MODEL),
              (HPCQPF, HPCQPF_MODEL),
              (RFCQPF, RFCQPF_MODEL),
@@ -3144,7 +3153,17 @@ DATABASES = [
 # Intersite coordination database parameter groupings, based on
 # OFFICIALDBS, but time constraint is always TC1
 ISCPARMS = []
+<<<<<<< HEAD
+if type(officeType) != str:
+    raise TypeError, "Office type not a str: " + `officeType`
+else:
+    if officeType not in VALID_OFFICE_TYPES:
+        raise ValueError, "Office type: " + str(officeType) + " does not match any of the following: [" + (', '.join(VALID_OFFICE_TYPES)) + "]"
+    
+        
+=======
 
+>>>>>>> master_16.2.2
 #
 # new parameters for NewTerrain
 #
