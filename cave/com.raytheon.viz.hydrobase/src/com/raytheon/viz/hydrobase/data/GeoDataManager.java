@@ -44,6 +44,7 @@ import com.raytheon.viz.hydrocommon.util.DbUtils;
  * Sep 12, 2009 2772       mpduff      Initial creation
  * 30 June 2015 17360      xwei        Fixed : basins.dat import failed if the first line does not have Lat Lon
  * Aug 18, 2015 4763       rjpeter     Use Number in blind cast.
+ * Mar 22, 2016 5217       mduff       Must ensure longitude values are > 0.
  * </pre>
  * 
  * @author mpduff
@@ -195,8 +196,9 @@ public class GeoDataManager extends HydroDataManager {
                 lonTotal += posWeight * lon[i];
             }
 
+            // In Hydro Longitude must be > 0
+            intLon = Math.abs(lonTotal / weightTotal);
             intLat = latTotal / weightTotal;
-            intLon = lonTotal / weightTotal;
 
             data.setInteriorLat(intLat);
             data.setInteriorLon(intLon);

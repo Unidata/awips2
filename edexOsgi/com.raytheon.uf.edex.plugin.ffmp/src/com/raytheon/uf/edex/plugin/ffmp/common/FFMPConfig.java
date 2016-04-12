@@ -30,6 +30,7 @@ import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager;
+import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager.SOURCE_TYPE;
 import com.raytheon.uf.common.monitor.config.FFMPTemplateConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FFTIDataManager;
 import com.raytheon.uf.common.monitor.processing.IMonitorProcessing;
@@ -61,7 +62,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * Aug 08, 2015  4722      dhladky     Simplified source map additions, config.
  * Sep.09, 2015  4756      dhladky     Further simplified configuration.
  * Mar 04, 2016  5429      dhladky     Special case for RFCFFG multi-RFC mosaics.
- * 
+ * Mar 29, 2016  5491      tjensen     Special case for QPFSCAN
  * </pre>
  * 
  * @author dhladky
@@ -333,23 +334,23 @@ public class FFMPConfig {
                     String[] keys = dataKey.split(":");
                     String checkSourceName = null;
                     String sourceKey = null;
-                    
+
                     if (keys != null && keys.length > 1) {
                         checkSourceName = keys[0];
                         sourceKey = keys[1];
                     } else {
                         checkSourceName = dataKey;
-                    }  
+                    }
 
                     if (checkSourceName.equals(sourceName)) {
 
                         String dataUri = sourceMap.get(dataKey);
                         Object dataObject = null;
-        
+
                         if (source.getDataType().equals(
                                 FFMPSourceConfigurationManager.DATA_TYPE.XMRG
                                         .getDataType())) {
-                             dataObject = getXMRGFile(dataUri);
+                            dataObject = getXMRGFile(dataUri);
                         } else if (source.getDataType().equals(
                                 FFMPSourceConfigurationManager.DATA_TYPE.PDO
                                         .getDataType())) {
@@ -363,8 +364,9 @@ public class FFMPConfig {
                                         .getDataType())) {
                             dataObject = getGrib(dataUri);
                         }
-                        
-                        sourceHash = processSource(sourceHash, dataObject, source, sourceKey);
+
+                        sourceHash = processSource(sourceHash, dataObject,
+                                source, sourceKey);
                     }
                 }
 
@@ -380,7 +382,6 @@ public class FFMPConfig {
                             e);
         }
     }
-  
 
     /**
      * Grab the XMRG file for use
@@ -433,17 +434,20 @@ public class FFMPConfig {
     public HashMap<String, Object> getSourceData(String sourceName) {
         return sources.get(sourceName);
     }
-    
+
     /**
      * Process the sources from the URIfilter and ready them for processing.
+     * 
      * @param sourceHash
      * @param dataObject
      * @param source
      * @param sourceKey
      * @return sourceHash
      */
-    private HashMap<String, Object> processSource(HashMap<String, Object> sourceHash, Object dataObject, SourceXML source, String sourceKey) {
-        
+    private HashMap<String, Object> processSource(
+            HashMap<String, Object> sourceHash, Object dataObject,
+            SourceXML source, String sourceKey) {
+
         if (dataObject != null) {
             // Is this a primary source?
             ProductXML product = ffmpgen.getSourceConfig().getProduct(
@@ -472,22 +476,26 @@ public class FFMPConfig {
                 HashMap<String, Object> virtSourceHash = new HashMap<String, Object>();
                 virtSourceHash.put(sourceKey, dataObject);
                 sources.put(product.getVirtual(), virtSourceHash);
-            } else if (source.isRfc()){
-                // The special case of RFCFFG, must have separate URI's for each RFC mosaic piece
-                // Use existing sourceKey that designates that mosaic piece.
+            } else if (source.isRfc()) {
+                /*
+                 * The special case of RFCFFG, must have separate URI's for each
+                 * RFC mosaic piece. Use existing sourceKey that designates that
+                 * mosaic piece.
+                 */
+            } else if (source.getSourceType().equals(SOURCE_TYPE.QPF.name())) {
+                /*
+                 * The special case of QPFSCAN. Use existing sourceKey that
+                 * designates that mosaic piece.
+                 */
             } else {
-               // NON Primary sources, find the primary.
-                String primarySource = ffmpgen
-                        .getSourceConfig()
+                // NON Primary sources, find the primary.
+                String primarySource = ffmpgen.getSourceConfig()
                         .getPrimarySource(source);
                 // Find the sourceKey to run against.
-                for (ProductRunXML productRun : ffmpgen
-                        .getRunConfig().getRunner(getCWA())
-                        .getProducts()) {
-                    if (productRun.getProductName().equals(
-                            primarySource)) {
-                        sourceKey = productRun
-                                .getProductKey();
+                for (ProductRunXML productRun : ffmpgen.getRunConfig()
+                        .getRunner(getCWA()).getProducts()) {
+                    if (productRun.getProductName().equals(primarySource)) {
+                        sourceKey = productRun.getProductKey();
                         break;
                     }
                 }
@@ -495,7 +503,7 @@ public class FFMPConfig {
             // Add to hash of sources to be processed.
             sourceHash.put(sourceKey, dataObject);
         }
-        
+
         return sourceHash;
     }
 
