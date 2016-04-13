@@ -24,9 +24,10 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.handlers.HandlerUtil;
 
 import com.raytheon.viz.hydrocommon.HydroDisplayManager;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * Action for Product Viewer Dialog.
@@ -41,6 +42,7 @@ import com.raytheon.viz.hydrocommon.HydroDisplayManager;
  * 02/07/2013   1578        rferrel     Changes for non-blocking ProductViewerDlg.
  * 03/27/2013   1790        rferrel     Bug fix for non-blocking dialogs.
  * 06/19/2013   2119        rferrel     Changed check for no selected lid.
+ * 04/12/2016   5483        dgilling    Fixes to support changes to ProductViewerDlg.
  * 
  * </pre>
  * 
@@ -51,22 +53,21 @@ public class ProductViewerAction extends AbstractHandler {
     /** Instance of the dialog. */
     ProductViewerDlg dialog;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.core.commands.AbstractHandler#execute(org.eclipse.core.commands
-     * .ExecutionEvent)
-     */
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
         HydroDisplayManager manager = HydroDisplayManager.getInstance();
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
+        Shell shell = HandlerUtil.getActiveShellChecked(arg0);
 
         if (manager.isCurrentLidSelected(shell)) {
             if (dialog == null || dialog.isDisposed()) {
                 dialog = new ProductViewerDlg(shell);
+                dialog.addCloseCallback(new ICloseCallback() {
+
+                    @Override
+                    public void dialogClosed(Object returnValue) {
+                        dialog = null;
+                    }
+                });
                 dialog.open();
             } else {
                 dialog.setLid(manager.getCurrentLid());
@@ -75,5 +76,4 @@ public class ProductViewerAction extends AbstractHandler {
         }
         return null;
     }
-
 }
