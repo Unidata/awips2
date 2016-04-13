@@ -51,7 +51,7 @@
 	        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
 	        <substitute key="entity" value="COMP" /> 
 	        <substitute key="sector" value="Arctic" />     
-	        <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
+	        <substitute key="colormap" value="Sat/WV/wv_tpc"/>
 	    </contribute>
 		
 		<contribute xsi:type="separator" id="MySeparatorId"/>
@@ -75,7 +75,7 @@
 	        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
 	        <substitute key="entity" value="COMP" /> 
 	        <substitute key="sector" value="Antarctica" />     
-	        <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
+	        <substitute key="colormap" value="Sat/WV/wv_tpc"/>
 	    </contribute>
 	</contribute>
 </menuTemplate>

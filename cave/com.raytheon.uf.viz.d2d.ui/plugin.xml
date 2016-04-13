@@ -519,6 +519,21 @@
          </toolbar>
          <toolbar
                id="NC-1">
+               	<command
+                  commandId="com.raytheon.uf.viz.d2d.nsharp.dialog"
+                  icon="icons/nsharp.png"
+                  id="com.raytheon.uf.viz.d2d.nsharp.dialog"
+                  label="Nsharp"
+                  mode="FORCE_TEXT"
+                  style="push"
+                  tooltip="Nsharp">
+               <visibleWhen>
+                  <reference
+                        definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+                  </reference>
+               </visibleWhen>
+            </command>
+			<!--
             <command
                   commandId="gov.noaa.nws.ncep.ui.nsharp.palette"
                   icon="icons/nsharp.png"
@@ -533,6 +548,7 @@
                   </reference>
                </visibleWhen>
             </command>
+			-->
             <command
                   commandId="gov.noaa.nws.ncep.viz.actions.resourceManager"
                   icon="icons/plus.png"
@@ -886,10 +902,6 @@
 	     <handler
 	           class="com.raytheon.uf.viz.d2d.ui.actions.OpenAWIPSProcedure"
 	           commandId="com.raytheon.viz.ui.openAWIPSProcedure">
-	     </handler>
-	     <handler
-	           class="com.raytheon.uf.viz.d2d.ui.actions.SaveAWIPSProcedure"
-	           commandId="com.raytheon.viz.ui.saveAWIPSProcedure">
 	     </handler>
 	     <handler
 	           class="com.raytheon.uf.viz.d2d.ui.actions.DeleteAWIPSProcedure"

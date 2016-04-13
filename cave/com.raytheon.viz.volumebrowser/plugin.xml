@@ -73,7 +73,7 @@
                    label="Volume Browser">
              </command>
              <separator name="afterVB" visible="false"/>
-             <separator name="afterENS" visible="false"/>
+             <separator name="ensemble" visible="false"/>
              <separator name="VolumeBundles" visible="true"/>
              <separator name="ComparisonFamilies" visible="true"/>
              <separator name="SurfaceFamilies" visible="false"/>

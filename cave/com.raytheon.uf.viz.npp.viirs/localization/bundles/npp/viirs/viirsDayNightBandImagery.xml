@@ -36,9 +36,6 @@ The viirs day night band can be displayed with either channelType=DNB or channel
                             <mapping key="parameter">
                                 <constraint constraintValue="0.7Ref" constraintType="EQUALS"/>
                             </mapping>
-                            <mapping key="region">
-                                <constraint constraintValue="${region}" constraintType="EQUALS"/>
-                            </mapping>
                             <mapping key="pluginName">
                                 <constraint constraintValue="viirs" constraintType="EQUALS"/>
                             </mapping>

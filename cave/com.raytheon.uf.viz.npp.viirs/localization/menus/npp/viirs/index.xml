@@ -19,5 +19,5 @@
         further_licensing_information.
     -->
 <menuContributionFile>
-    <include installTo="menu:NPPProducts?after=Imagery" fileName="menus/npp/viirs/viirsMenuItems.xml"/>
+    <include installTo="menu:satellite" fileName="menus/npp/viirs/viirsMenuItems.xml"/>
 </menuContributionFile>

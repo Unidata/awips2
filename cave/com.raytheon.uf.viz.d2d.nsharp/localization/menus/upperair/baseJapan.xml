@@ -158,7 +158,7 @@
 	    </contribute>
 
 	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
-	                menuText="Ishigakijima (ROIG)" id="raobIshigakijima "
+	                menuText="Ishigakijima (ROIG)" id="raobIshigakijima"
 	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
 	        <substitute key="stationId" value="47918"/>
 	    </contribute>
@@ -168,7 +168,7 @@
 	        <substitute key="stationId" value="47945"/>
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
-	                menuText="Clark AFB (RPMK)" id="raobClearkAFB"
+	                menuText="Clark AFB (RPMK)" id="raobClarkAFB"
 	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
 	        <substitute key="stationId" value="98327"/>
 	    </contribute>

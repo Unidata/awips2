@@ -32,15 +32,6 @@
                 </separator>
                 <separator name="EndOfInitial" visible="true">
                 </separator>
-                <separator name="METAR" visible="false">
-                </separator>
-                <separator name="EndOfMetar" visible="true">
-                </separator>
-                <separator name="SYNOPTIC" visible="false">
-                </separator>
-                <separator name="EndOfSynoptic" visible="true">
-                </separator>
-
                 <separator
                       name="WATCHWARN"
                       visible="false">
@@ -48,7 +39,10 @@
 				
 				<separator name="EndOfMos" visible="true">
                 </separator>
-                
+                <command commandId="com.raytheon.viz.ui.actions.titleAction"
+                    label="------ Hazards ------">
+                </command>
+                <separator name="HAZARDS" visible="false" />
                 <command
                       commandId="com.raytheon.viz.ui.actions.titleAction"
                       label="------ Lightning ------">
@@ -64,10 +58,6 @@
                 </command>
                 <separator name="EndOfMaritime" visible="true">
                 </separator>
-                <command commandId="com.raytheon.viz.ui.actions.titleAction"
-                    label="------ Hazards ------">
-                </command>
-                <separator name="HAZARDS" visible="false" />
                 <separator name="LIGHTNINGPLACEHOLDER"
                     visible="false" />
                 <separator name="FOGPLACEHOLDER" visible="false" />

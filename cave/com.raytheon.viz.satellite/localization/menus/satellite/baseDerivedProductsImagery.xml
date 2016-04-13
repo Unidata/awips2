@@ -93,4 +93,17 @@
 		        <substitute key="entity" value="Miscellaneous"/>
 		        <substitute key="colormap" value="Sat/Precip Water/Percent of Normal TPW"/>
 		    </contribute>
+	<contribute xsi:type="separator" id="MySeparatorId"/>
+	<contribute xsi:type="bundleItem" file="bundles/SoundingAvailability.xml" 
+               menuText="GOES Sounding Availability" id="goesSoundingAvailability">
+        <substitute key="pluginName" value="goessounding"/>
+        <substitute key="plotSource" value="GOES Sounding Availability"/>
+        <substitute key="offset" value="1800"/>
+    </contribute>
+	<contribute xsi:type="bundleItem" file="bundles/SoundingAvailability.xml" 
+               menuText="POES Sounding Availability" id="poesSoundingAvailability">
+        <substitute key="pluginName" value="poessounding"/>
+        <substitute key="plotSource" value="POES Sounding Availability"/>
+        <substitute key="offset" value="1800"/>
+    </contribute>
 </menuTemplate>
