@@ -182,8 +182,8 @@ public class D2DNSharpResource extends
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         getHandler().setSoundingType(resourceData.getSoundingType());
-        partListener = new D2DNSharpPartListener(this);
-        partListener.enable();
+        //partListener = new D2DNSharpPartListener(this);
+        //partListener.enable();
     }
 
     @Override

@@ -51,7 +51,7 @@ public class D2DNsharpObservedSoundingDialogContents {
 
     private org.eclipse.swt.widgets.List sndTimeList;
 
-    private Group btnGp, sndTimeListGp, topGp, midGp;
+    private Group sndTimeListGp, topGp;
 
     private boolean timeLimit = false;
 
@@ -189,8 +189,6 @@ public class D2DNsharpObservedSoundingDialogContents {
             for (int i = 0; i < sndTimeList.getSelectionCount(); i++) {
                 selectedSndTime = sndTimeList.getSelection()[i];
                 selectedTimeList.add(selectedSndTime);
-                // System.out.println("selected sounding time is " +
-                // selectedSndTime);
                 int endIndex = selectedSndTime.indexOf(" ");
                 String queryingSndTime = selectedSndTime.substring(0, endIndex);
                 queryAndMarkStn(queryingSndTime);
@@ -207,20 +205,12 @@ public class D2DNsharpObservedSoundingDialogContents {
         rawData = false;
         topGp = new Group(parent, SWT.SHADOW_ETCHED_IN);
         topGp.setLayout(new GridLayout(2, false));
-
-        // ldDia.setShellSize(false);
-        ldDia.createSndTypeList(topGp);
-
-        btnGp = new Group(topGp, SWT.SHADOW_ETCHED_IN);
-        btnGp.setText("File Type");
-        btnGp.setFont(newFont);
         
-        
-        bufruaBtn = new Button(btnGp, SWT.RADIO | SWT.BORDER);
+        bufruaBtn = new Button(topGp, SWT.RADIO | SWT.BORDER);
         bufruaBtn.setText(FILE_BUFRUA);
         bufruaBtn.setEnabled(true);
-        bufruaBtn.setBounds(btnGp.getBounds().x + NsharpConstants.btnGapX,
-                btnGp.getBounds().y + NsharpConstants.labelGap,
+        bufruaBtn.setBounds(topGp.getBounds().x + NsharpConstants.btnGapX,
+        		topGp.getBounds().y + NsharpConstants.labelGap,
                 NsharpConstants.btnWidth, NsharpConstants.btnHeight);
         bufruaBtn.setFont(newFont);
         bufruaBtn.addListener(SWT.MouseUp, new Listener() {
@@ -232,12 +222,10 @@ public class D2DNsharpObservedSoundingDialogContents {
             }
         });
 
-        
-        
-        uairBtn = new Button(btnGp, SWT.RADIO | SWT.BORDER);
+        uairBtn = new Button(topGp, SWT.RADIO | SWT.BORDER);
         uairBtn.setText(FILE_UAIR);
         uairBtn.setEnabled(true);
-        uairBtn.setBounds(btnGp.getBounds().x + NsharpConstants.btnGapX,
+        uairBtn.setBounds(topGp.getBounds().x + NsharpConstants.btnGapX,
         		bufruaBtn.getBounds().y + bufruaBtn.getBounds().height
                 + NsharpConstants.btnGapY, NsharpConstants.btnWidth,
                 NsharpConstants.btnHeight);
@@ -248,19 +236,12 @@ public class D2DNsharpObservedSoundingDialogContents {
                 currentSndType = NcSoundingProfile.ObsSndType.NCUAIR;
                 ldDia.setActiveObsSndType(currentSndType);
                 createObsvdSndUairList();
-                // System.out.println("new obvSnd dialog uair btn");
             }
         });
 
-        midGp = new Group(parent, SWT.SHADOW_ETCHED_IN);
-        midGp.setLayout(new GridLayout(2, false));
-        timeBtn = new Button(midGp, SWT.CHECK | SWT.BORDER);
+        timeBtn = new Button(topGp, SWT.CHECK | SWT.BORDER);
         timeBtn.setText("00Z and 12Z only");
         timeBtn.setEnabled(true);
-        // timeBtn.setBounds(btnGp.getBounds().x+ NsharpConstants.btnGapX,
-        // browseBtn.getBounds().y + browseBtn.getBounds().height+
-        // NsharpConstants.btnGapY,
-        // NsharpConstants.btnWidth,NsharpConstants.btnHeight);
         timeBtn.setFont(newFont);
         timeBtn.addListener(SWT.MouseUp, new Listener() {
             public void handleEvent(Event event) {
@@ -268,7 +249,6 @@ public class D2DNsharpObservedSoundingDialogContents {
                     timeLimit = true;
                 else
                     timeLimit = false;
-
                 // refresh sounding list if file type is selected already
                 if (currentSndType == NcSoundingProfile.ObsSndType.NCUAIR
                         || currentSndType == NcSoundingProfile.ObsSndType.BUFRUA) {
@@ -277,7 +257,7 @@ public class D2DNsharpObservedSoundingDialogContents {
 
             }
         });
-        rawBtn = new Button(midGp, SWT.CHECK | SWT.BORDER);
+        rawBtn = new Button(topGp, SWT.CHECK | SWT.BORDER);
         rawBtn.setText("raw data");
         rawBtn.setEnabled(true);
         rawBtn.setBounds(timeBtn.getBounds().x + timeBtn.getBounds().width,
@@ -294,14 +274,14 @@ public class D2DNsharpObservedSoundingDialogContents {
             }
         });
         // create file widget list
-        sndTimeListGp = new Group(parent, SWT.SHADOW_ETCHED_IN);
-        sndTimeListGp.setText("Sounding Times:");
+        sndTimeListGp = new Group(parent, SWT.SHADOW_NONE);
+
         sndTimeListGp.setFont(newFont);
         sndTimeList = new org.eclipse.swt.widgets.List(sndTimeListGp,
                 SWT.BORDER | SWT.MULTI | SWT.V_SCROLL);
-        sndTimeList.setBounds(btnGp.getBounds().x + NsharpConstants.btnGapX,
+        sndTimeList.setBounds(topGp.getBounds().x + NsharpConstants.btnGapX,
                 sndTimeListGp.getBounds().y + NsharpConstants.labelGap,
-                NsharpConstants.listWidth, NsharpConstants.listHeight * 7);
+                D2DNsharpLoadDialog.getDialogWidth()-40, NsharpConstants.listHeight * 6);
         sndTimeList.setFont(newFont);
 
         // create a selection listener to handle user's selection on list
@@ -352,10 +332,6 @@ public class D2DNsharpObservedSoundingDialogContents {
             rawBtn.dispose();
             rawBtn = null;
         }
-        if (midGp != null) {
-            midGp.dispose();
-            midGp = null;
-        }
         /*
          * if(browseBtn != null){ browseBtn.removeListener(SWT.MouseUp,
          * browseBtn.getListeners(SWT.MouseUp)[0]); browseBtn.dispose();
@@ -378,17 +354,12 @@ public class D2DNsharpObservedSoundingDialogContents {
             uairBtn.dispose();
             uairBtn = null;
         }
-        if (btnGp != null) {
-            btnGp.dispose();
-            btnGp = null;
-        }
         /*
          * if(newTabBtn != null){ newTabBtn.removeListener(SWT.MouseUp,
          * newTabBtn.getListeners(SWT.MouseUp)[0]); newTabBtn.dispose();
          * newTabBtn = null; }
          */
         D2DNsharpLoadDialog ldDia = D2DNsharpLoadDialog.getAccess();
-        ldDia.cleanSndTypeList();
         if (topGp != null) {
             topGp.dispose();
             topGp = null;

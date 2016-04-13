@@ -14,7 +14,7 @@
          point="org.eclipse.ui.views">
            <view 
             category="com.raytheon.viz.ui"
-            allowMultiple="false"
+            allowMultiple="true"
             restorable="false"
             class="com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpPaletteWindow"
             id="com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpPaletteWindow"
