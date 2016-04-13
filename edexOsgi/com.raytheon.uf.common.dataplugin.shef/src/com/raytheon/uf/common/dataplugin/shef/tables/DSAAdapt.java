@@ -261,7 +261,7 @@ public class DSAAdapt extends
         this.reset_bias = reset_bias;
         this.longst_lag = longst_lag;
 
-        // * new for Build 17 *
+        // *new for Build 17 *
 
         this.min_early_term_angle = min_early_term_angle;
         this.max_volume_per_hour = max_volume_per_hour;

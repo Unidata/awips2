@@ -1,8 +1,8 @@
--- Change name of column "ml_overide_flag" to "melt_layer_src"
+--Change name of column "ml_overide_flag" to "melt_layer_src"
 
 ALTER TABLE DSAAdapt RENAME COLUMN ml_overide_flag TO melt_layer_src;
 
--- Add new columns for Build 17 parameters
+--Add new columns for Build 17 parameters
 
 ALTER TABLE DSAAdapt ADD COLUMN min_early_term_angle   float4;
 ALTER TABLE DSAAdapt ADD COLUMN max_volume_per_hour    float4;
