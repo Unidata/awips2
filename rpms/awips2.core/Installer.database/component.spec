@@ -26,6 +26,7 @@ requires: libpng
 requires: awips2-postgresql
 requires: awips2-psql
 requires: awips2-database-configuration
+requires: netcdf
 
 %description
 AWIPS II Database Installation - Sets Up The Basic AWIPS II Database, Creating The
