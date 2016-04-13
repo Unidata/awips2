@@ -20,7 +20,7 @@
     -->
 <bundle>
     <displayList>
-        <displays xsi:type="d2DMapRenderableDisplay" scale="State(s)" density="1.0" magnification="1.0" zoomLevel="1.0" mapCenter="-97.789726 41.42981700000001 0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <displays xsi:type="d2DMapRenderableDisplay" scale="Regional" density="1.0" magnification="1.0" zoomLevel="1.0" mapCenter="-84.0711862646497 28.11741010865077 0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <descriptor xsi:type="mapDescriptor">
                 <resource>
                     <loadProperties loadWithoutData="false">
@@ -124,7 +124,7 @@
                 </resource>
                 <timeMatcher xsi:type="d2DTimeMatcher" loadMode="VALID_TIME_SEQ" deltaFilter="0" forecastFilter="0"/>
                 <numberOfFrames>12</numberOfFrames>
-                <gridGeometry envelopeMaxY="2326285.6581640337" envelopeMinY="1385720.9480978746" envelopeMaxX="227291.16585449004" envelopeMinX="-713274.3299231358" rangeY="0 9999" rangeX="0 9999">
+                <gridGeometry envelopeMaxY="1391702.5388074853" envelopeMinY="-611369.8521818633" envelopeMaxX="2073721.8846427167" envelopeMinX="70648.7815051839" rangeY="0 9999" rangeX="0 9999">
                     <CRS>PROJCS["Lambert_Conformal_Conic_1SP", 
   GEOGCS["WGS84(DD)", 
     DATUM["WGS84", 
