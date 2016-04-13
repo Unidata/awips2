@@ -53,6 +53,12 @@ if [ $? -ne 0 ]; then
 fi
 
 # Copy the localization files
+cp -rv %{_baseline_workspace}/com.raytheon.uf.viz.core.maps/localization/bundles/scales/* \
+   %{_baseline_workspace}/%{_localization_directory}/utility/cave_static/site/OAX/bundles/scales/
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
 cp -rv %{_baseline_workspace}/%{_localization_directory}/utility/* \
    ${RPM_BUILD_ROOT}/awips2/edex/data/utility
 if [ $? -ne 0 ]; then
@@ -60,7 +66,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # Copy the shapefiles (too large to include in git repo)
-cp -rv %{_awipscm_share}/awips2-static/shapefiles/ \
+cp -rv ${AWIPSCM_SHARE}/awips2-static/shapefiles/ \
    ${RPM_BUILD_ROOT}/awips2/edex/data/utility/edex_static/site/%{_localization_site}/
 if [ $? -ne 0 ]; then
    exit 1
