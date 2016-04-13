@@ -38,7 +38,6 @@ mkdir -p ${AWIPSII_TOP_DIR}/RPMS
 mkdir -p ${AWIPSII_TOP_DIR}/SOURCES
 mkdir -p ${AWIPSII_TOP_DIR}/SPECS
 mkdir -p ${AWIPSII_TOP_DIR}/SRPMS
-
 echo BASELINE is ${BASELINE}
 echo WORKSPACE is ${WORKSPACE}
 
@@ -46,17 +45,9 @@ echo WORKSPACE is ${WORKSPACE}
 pushd . > /dev/null 2>&1
 cd ${BASELINE}
 RSYNC_DIRS=`cat $dir/rsync.dirs`
-
 rsync -ruql --delete --exclude-from=${dir}/excludes ${RSYNC_DIRS} ${WORKSPACE}
 
-#cp ${dir}/p2-build.xml.local ${WORKSPACE}/build/p2-build.xml
-#cp ${dir}/edex_build.xml ${WORKSPACE}/build.edex/build.xml
-
-#mkdir -p ${WORKSPACE}/build.edex/esb/logs
-#mkdir -p ${WORKSPACE}/build.edex/esb/data/manual
-#mkdir -p ${WORKSPACE}/build.edex/esb/data/uEngine
 popd > /dev/null 2>&1
-
 
 # execute the build for the appropriate architecture
 _rpms_build_directory=${WORKSPACE}/rpms/build
@@ -66,7 +57,6 @@ pushd . > /dev/null 2>&1
 
 cd ${_build_sh_directory}
 cp -v ${dir}/buildEnvironment.sh .
-
 
 #Usage: build.sh OPTION [-nobinlightning]
 #   -delta    perform a build of only the rpms that are likely to change.
@@ -81,32 +71,12 @@ cp -v ${dir}/buildEnvironment.sh .
 #
 # check rpms/build/x86_64/build.sh for these groups
 #
+
 /bin/bash build.sh ${1} > ${dir}/build${1}-${timestamp}.log
-#/bin/bash build.sh -edex > ${dir}/build-EDEX-${timestamp}.log
-#/bin/bash build.sh -local > ${dir}/build-LOCAL-${timestamp}.log
-#/bin/bash build.sh -viz > ${dir}/build-VIZ-${timestamp}.log
-#/bin/bash build.sh -ldm > ${dir}/build-LDM-${timestamp}.log
-#/bin/bash build.sh -httpd > ${dir}/build-LDM-${timestamp}.log
-#/bin/bash build.sh -postgres > ${dir}/build-${timestamp}.log
-#/bin/bash build.sh -qpid > ${dir}/build-QPID-${timestamp}.log
-#/bin/bash build.sh -python-qpid > ${dir}/build-${timestamp}.log
-#/bin/bash build.sh -python > ${dir}/build-${timestamp}.log
-#/bin/bash build.sh -psql > ${dir}/build-${timestamp}.log
-#/bin/bash build.sh -java > ${dir}/build-${timestamp}.log
-# remain untried / redundant
-#/bin/bash build.sh -notification > ${dir}/build-notification-${timestamp}.log
-#/bin/bash build.sh -ade > ${dir}/build-ade-${timestamp}.log
-#/bin/bash build.sh -64bit > ${dir}/build-${timestamp}.log
-#/bin/bash build.sh -ncep-database > ${dir}/build-${timestamp}.log
-#/bin/bash build.sh -delta > ${dir}/build-${timestamp}.log
-#/bin/bash build.sh -rh6 > ${dir}/build-rh6-${timestamp}.log
-#/bin/bash build.sh -custom >> ${dir}/build-CUSTOM-${timestamp}.log
+
 popd > /dev/null 2>&1
 
 export rpm_end_dir="${AWIPSII_VERSION}-${AWIPSII_RELEASE}"
-
-#mkdir -p /awips2/jenkins/build/rpms/${rpm_end_dir}
-
 
 if [ "$(ls -A ${AWIPSII_TOP_DIR}/RPMS/x86_64/)" ]; then
    mv ${AWIPSII_TOP_DIR}/RPMS/x86_64/* /awips2/jenkins/build/rpms/awips2_${AWIPSII_VERSION}/x86_64/
