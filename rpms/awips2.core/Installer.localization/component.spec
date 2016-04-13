@@ -53,13 +53,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # Copy the localization files
-cp -rv %{_baseline_workspace}/com.raytheon.uf.viz.core.maps/localization/bundles/scales/* \
-   %{_baseline_workspace}/%{_localization_directory}/utility/cave_static/site/OAX/bundles/scales/
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-
-cp -rv %{_baseline_workspace}/%{_localization_directory}/utility/* \
+cp -rv %{_baseline_workspace}/localization/utility/* \
    ${RPM_BUILD_ROOT}/awips2/edex/data/utility
 if [ $? -ne 0 ]; then
    exit 1
@@ -67,14 +61,7 @@ fi
 
 # Copy the shapefiles (too large to include in git repo)
 cp -rv ${AWIPSCM_SHARE}/awips2-static/shapefiles/ \
-   ${RPM_BUILD_ROOT}/awips2/edex/data/utility/edex_static/site/%{_localization_site}/
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-
-# Copy the GFE files
-cp -rv %{_baseline_workspace}/%{_localization_directory}/utility/edex_static/site/%{_localization_site}/config/gfe/ \
-   ${RPM_BUILD_ROOT}/awips2/edex/data/utility/edex_static/site/%{_localization_site}/config/
+   ${RPM_BUILD_ROOT}/awips2/edex/data/utility/edex_static/site/OAX/
 if [ $? -ne 0 ]; then
    exit 1
 fi
@@ -101,7 +88,7 @@ if [ ! -d /awips2/data/maps ] ||
    exit 0
 fi
 
-localization_db_log="localization_db-%{_localization_site}.log"
+localization_db_log="localization_db.log"
 log_file="/awips2/database/sqlScripts/share/sql/${localization_db_log}"
 if [ -f ${log_file} ]; then
    /bin/rm -f ${log_file}
@@ -174,7 +161,7 @@ function restartPostgreSQL()
 
 function importShapefiles()
 {   
-   local site_directory="${edex_utility}/edex_static/site/%{_localization_site}"
+   local site_directory="${edex_utility}/edex_static/site/OAX"
    
    # determine if we include shapefiles
    local ffmp_shp_directory="${site_directory}/shapefiles/FFMP"
@@ -262,8 +249,7 @@ function removeHydroDbDirectory()
    # remove the hydro db directory since it is not officially part
    # of the localization.
 
-   local site_directory="${edex_utility}/common_static/site/%{_localization_site}"
-   local hydro_db_directory="${site_directory}/hydro/db"
+   local hydro_db_directory="${edex_utility}/common_static/site/OAX/hydro/db"
    
    if [ -d ${hydro_db_directory} ]; then
       rm -rf ${hydro_db_directory}
@@ -278,12 +264,8 @@ function removeHydroDbDirectory()
 
 function restoreHydroDb()
 {
-   local site_directory="${edex_utility}/common_static/site/%{_localization_site}"
+   local hydro_db_directory="${edex_utility}/common_static/site/OAX/hydro/db"
    
-   # determine if we include the hydro databases
-   local hydro_db_directory="${site_directory}/hydro/db"
-   
-   # if we do not, halt
    if [ ! -d ${hydro_db_directory} ]; then
       return 0
    fi
