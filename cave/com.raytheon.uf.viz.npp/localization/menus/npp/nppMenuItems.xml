@@ -19,10 +19,6 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<contribute xsi:type="subMenu" id="NPPProducts" menuText="NPP Products">
-		<contribute xsi:type="titleItem" id="SoundingsTitle" titleText="------ Soundings ------"/>
-		<contribute xsi:type="separator" id="Soundings" visible="false"/>
-	</contribute>
 	<contribute xsi:type="bundleItem" file="bundles/npp/soundingAvailability.xml"
 		menuText="CrIMSS Sounding Availability" id="CrIMSSAvailability">
 		<substitute key="name" value="CrIMSS"/>
