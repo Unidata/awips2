@@ -1,7 +1,7 @@
 <project default="main" basedir=".">
 
 	<!-- TODO: Verify These Properties References An Actual Directory. -->
-	<property name="eclipse.dir" value="/opt/uframe-eclipse" />
+	<property name="eclipse.dir" value="/awips2/eclipse" />
 	<property name="build.version" value="1.0.0" />
 	<property name="build.os" value="linux" />
 	<property name="build.ws" value="gtk" />

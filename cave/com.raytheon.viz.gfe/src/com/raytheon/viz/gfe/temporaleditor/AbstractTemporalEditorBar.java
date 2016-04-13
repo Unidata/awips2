@@ -33,7 +33,6 @@ import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Cursor;
-import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
@@ -75,8 +74,10 @@ import com.raytheon.viz.gfe.temporaleditor.mousehandler.TitleBarMouseHandler;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 30, 2009 2159       rjpeter     Initial creation.
- * Oct 29, 2014  #3776     randerso    Renamed static variables to match AWIPS standards
+ * Apr 30, 2009  2159      rjpeter     Initial creation.
+ * Oct 29, 2014 #3776      randerso    Renamed static variables to match AWIPS standards
+ * Mar 10, 2016 #5479      randerso    Use improved GFEFonts API
+ * 
  * </pre>
  * 
  * @author rjpeter
@@ -432,7 +433,8 @@ public abstract class AbstractTemporalEditorBar implements
         GC gc = event.gc;
         Font oldFont = gc.getFont();
         if (labelFont == null) {
-            labelFont = makeLabelFont(gc, "TEDataSelector_font", 1);
+            labelFont = GFEFonts.makeGFEFont(gc.getDevice(),
+                    "TEDataSelector_font", SWT.NORMAL, 1);
         }
 
         try {
@@ -851,28 +853,5 @@ public abstract class AbstractTemporalEditorBar implements
         public void timeSeriesChanged(TimeSeries ts) {
             editorCanvas.redraw();
         }
-    }
-
-    /**
-     * Make a font for temporal editor labels.
-     * 
-     * @param gc
-     *            The current graphics context
-     * @param prefName
-     *            The preference name that may override fontNum
-     * @param fontNum
-     *            The default GFE font number
-     * @return The font created, or null the Font constructor failed.
-     */
-    protected Font makeLabelFont(GC gc, String prefName, int fontNum) {
-
-        // Get the font number from user preferences, if present.
-        if (GFEPreference.contains(prefName)) {
-            fontNum = GFEPreference.getIntPreference(prefName);
-        }
-
-        Device device = gc.getDevice();
-        Font newFont = GFEFonts.getFont(device, fontNum);
-        return newFont;
     }
 }

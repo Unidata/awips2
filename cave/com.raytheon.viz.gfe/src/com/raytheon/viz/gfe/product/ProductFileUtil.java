@@ -57,6 +57,7 @@ import com.raytheon.viz.core.mode.CAVEMode;
  * 11 Feb 2010  4132       ryu         Initial creation
  * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
  * Feb 05, 2016 5242       dgilling    Remove calls to deprecated Localization APIs.
+ * Apr 07, 2016 5559       dgilling    Fix directory creation bug in writeFile.
  * 
  * </pre>
  * 
@@ -141,7 +142,7 @@ public class ProductFileUtil {
 
     static public void writeFile(String text, File file) throws IOException {
         Path filePath = file.toPath();
-        Files.createDirectories(filePath);
+        Files.createDirectories(filePath.getParent());
 
         try (Writer out = Files.newBufferedWriter(filePath,
                 StandardCharsets.UTF_8)) {

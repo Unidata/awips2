@@ -421,23 +421,23 @@ class TextProduct(GenericHazards.TextProduct):
         
         if hazard['act'] == 'NEW' and len(hazard['hdln']):
             attribution = nwsPhrase + "issued a"
-            headPhrase =  "* " + hazName + " for " + areaPhrase + "."
+            headPhrase =  self.substituteBulletedText(hazName + " for " + areaPhrase + ".", None, "Never")
 
         elif hazard['act'] == 'CON' and len(hazard['hdln']):
             attribution = "The " + hazName + " continues for"
-            headPhrase =  "* " + areaPhrase + "."
+            headPhrase = self.substituteBulletedText(areaPhrase + ".", None, "Never")
 
         elif hazard['act'] == 'EXA' and len(hazard['hdln']):
             attribution = nwsPhrase + "expanded the"
-            headPhrase =  "* " + hazName + " to include " + areaPhrase + "."
+            headPhrase = self.substituteBulletedText(hazName + " to include " + areaPhrase + ".", None, "Never")
 
         elif hazard['act'] == 'EXT' and len(hazard['hdln']):
             attribution = 'The ' + hazName + " is now in effect for" 
-            headPhrase = "* " + areaPhrase + "."
+            headPhrase = self.substituteBulletedText(areaPhrase + ".", None, "Never")
                 
         elif hazard['act'] == 'EXB' and len(hazard['hdln']):
             attribution = nwsPhrase + "expanded the"
-            headPhrase =  "* " + hazName + " to include " + areaPhrase + "."
+            headPhrase = self.substituteBulletedText(hazName + " to include " + areaPhrase + ".", None, "Never")
 
         elif hazard['act'] == 'CAN' and len(hazard['hdln']):
             attribution = "The " + hazName + \
@@ -459,9 +459,9 @@ class TextProduct(GenericHazards.TextProduct):
           
         #wrap it, if headPhrase, then we have bullets
         if headPhrase is not None:
-            headPhrase = self.indentText(headPhrase, indentFirstString = '',
-              indentNextString = '  ', maxWidth=self._lineLength,
-              breakStrings=[" ", "-", "..."])
+#             headPhrase = self.indentText(headPhrase, indentFirstString = '',
+#               indentNextString = '  ', maxWidth=self._lineLength,
+#               breakStrings=[" ", "-", "..."])
 
             endTimePhrase = self.hazardTimePhrases(hazard, argDict, 
               prefixSpace=False)

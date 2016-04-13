@@ -121,6 +121,7 @@ import com.vividsolutions.jts.geom.LineString;
  *                                     if there is no storm motion.
  * 03-18-2016  ASM #18751 D. Friedman Followup for #18421: Do not set StormTrackState.oneStormAngle
  *                                     when motion is zero.
+ * 
  * </pre>
  * 
  * @author mschenke

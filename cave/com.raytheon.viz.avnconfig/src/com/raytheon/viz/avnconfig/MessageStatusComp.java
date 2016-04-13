@@ -59,18 +59,19 @@ import com.raytheon.viz.avncommon.AvnMessageMgr.StatusMessageType;
  * 
  * <pre>
  * 
- *    SOFTWARE HISTORY
+ * SOFTWARE HISTORY
  *   
- *    Date         Ticket#     Engineer    Description
- *    ------------ ----------  ----------- --------------------------
- *    2/6/2008     817         lvenable    Initial creation.
- *    4/7/2008     934         grichard    Added IStatusSettable implementation.
- *    8/11/2008    1314        grichard    Used PathManager for pathnames.
- *    10/04/2012   1229        rferrel     Added dispose check needed for 
- *                                          non-blocking dialogs.
- *    10/12/2012   1229        rferrel     Changes for non-blocking MessageViewerDlg.
- *    08/09/2013   2033        mschenke    Switched File.separator to IPathManager.SEPARATOR
- *    12 Aug 2013  #2256      lvenable     Cleanup to remove deprecated code.
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 02/06/2008     817       lvenable    Initial creation.
+ * 04/07/2008     934       grichard    Added IStatusSettable implementation.
+ * 08/11/2008    1314       grichard    Used PathManager for pathnames.
+ * 10/04/2012    1229       rferrel     Added dispose check needed for 
+ *                                       non-blocking dialogs.
+ * 10/12/2012    1229       rferrel     Changes for non-blocking MessageViewerDlg.
+ * 08/09/2013    2033       mschenke    Switched File.separator to IPathManager.SEPARATOR
+ * 12 Aug 2013   2256       lvenable    Cleanup to remove deprecated code.
+ * 15 Mar 2016   5481       randerso    Fix GUI sizing problems
  * 
  * </pre>
  * 
@@ -218,14 +219,14 @@ public class MessageStatusComp extends Composite implements IStatusSettable {
         this.setBackground(newBgColor);
 
         GridLayout gl = new GridLayout(1, false);
-        gl.verticalSpacing = 1;
-        gl.marginHeight = 1;
-        gl.marginWidth = 1;
+        gl.marginHeight = 0;
+        gl.marginWidth = 0;
         this.setLayout(gl);
 
         initializeComponents();
 
         this.addDisposeListener(new DisposeListener() {
+            @Override
             public void widgetDisposed(DisposeEvent arg0) {
                 msgLogImg.dispose();
 
@@ -258,9 +259,8 @@ public class MessageStatusComp extends Composite implements IStatusSettable {
 
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         GridLayout gl = new GridLayout(3, false);
-        gl.verticalSpacing = 1;
-        gl.marginWidth = 2;
-        gl.marginHeight = 1;
+        gl.marginWidth = 0;
+        gl.marginHeight = 0;
         Composite msgComp = new Composite(parent, SWT.NONE);
         msgComp.setLayout(gl);
         msgComp.setLayoutData(gd);
@@ -281,6 +281,7 @@ public class MessageStatusComp extends Composite implements IStatusSettable {
         // Check if the message viewer dialog button needs
         // to be displayed.
         if (msgType != null) {
+
             // Message viewer button.
             gd = new GridData(30, 30);
             msgViewerBtn = new Button(msgComp, SWT.PUSH);
@@ -294,6 +295,8 @@ public class MessageStatusComp extends Composite implements IStatusSettable {
                     createMessageViewerDialog();
                 }
             });
+        } else {
+            gd.horizontalSpan = 2;
         }
     }
 
@@ -356,11 +359,13 @@ public class MessageStatusComp extends Composite implements IStatusSettable {
         timerDone = false;
 
         timerTask = new TimerTask() {
+            @Override
             public void run() {
                 if (parent.isDisposed() == true) {
                     return;
                 }
                 parent.getDisplay().syncExec(new Runnable() {
+                    @Override
                     public void run() {
                         if (msgSeverityLbl.isDisposed() == true) {
                             timerDone = true;
@@ -406,7 +411,7 @@ public class MessageStatusComp extends Composite implements IStatusSettable {
      * Create the message viewer dialog.
      */
     private void createMessageViewerDialog() {
-        if (msgViewerDlg == null || msgViewerDlg.getShell() == null
+        if ((msgViewerDlg == null) || (msgViewerDlg.getShell() == null)
                 || msgViewerDlg.isDisposed()) {
             msgViewerDlg = new MessageViewerDlg(this, msgType);
             msgViewerDlg.open();

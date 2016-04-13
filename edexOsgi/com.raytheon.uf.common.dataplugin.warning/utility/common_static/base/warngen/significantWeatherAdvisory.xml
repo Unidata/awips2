@@ -41,6 +41,9 @@ turned on unless the corresponding .vm file is turned on in a given template's .
  <followups>
  </followups>
  
+ <!-- Product ID: nnn id of the product -->
+ <productId>SPS</productId>
+
  <!-- Phensigs: The list of phenomena and significance combinations that this template applies to -->
  <phensigs>
  </phensigs>

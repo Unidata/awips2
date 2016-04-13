@@ -95,6 +95,7 @@ import com.raytheon.viz.gfe.textformatter.TextFmtParserUtil;
  * 12/22/2015  18428       lshi        Issuing a Correction of a corrected product via an existing
  *                                     Product Editor in GFE throws and error and unlocks text,
  *                                     wordWrap
+ * Mar 10, 2016 #5479      randerso    Use improved GFEFonts API
  * 
  * </pre>
  * 
@@ -237,13 +238,12 @@ public class StyledTextComp extends Composite {
     private void init() {
         String fontSetting = Activator.getDefault().getPreferenceStore()
                 .getString("ProductOutputDialog_font");
-        FontData fontData;
         if (fontSetting.isEmpty()) {
-            fontData = GFEFonts.getFontData(2);
+            textFont = GFEFonts.getFont(parent.getDisplay(), 2);
         } else {
-            fontData = StringConverter.asFontData(fontSetting);
+            FontData fontData = StringConverter.asFontData(fontSetting);
+            textFont = new Font(parent.getDisplay(), fontData);
         }
-        textFont = new Font(parent.getDisplay(), fontData);
 
         createMouseListner();
 

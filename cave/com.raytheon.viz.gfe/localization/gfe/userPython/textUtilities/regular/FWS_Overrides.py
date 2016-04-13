@@ -124,14 +124,14 @@ Definition["stqWmoID"] = "BMBB91 K"
 # wind20ftHeader:  This definition set to "1" allows offices to
 # format winds in this format...
 #
-# WIND (20 FT)........
-#  SLOPE/VALLEY.......WEST 10-20 MPH
-#  RIDGETOP...........NORTHWEST 20 MPH
+# Wind (20 ft)........
+#  Slope/valley.......WEST 10-20 MPH
+#  Ridgetop...........NORTHWEST 20 MPH
 #
 # By setting this definition to "0", you will get...
 #
-# WIND (20 FT)........WEST 10-20 MPH
-# RIDGETOP WIND.......NORTHWEST 20 MPH
+# Wind (20 ft)........WEST 10-20 MPH
+# Ridgetop wind.......NORTHWEST 20 MPH
 Definition["wind20ftHeader"] = 1  # Use 1 for yes, 0 for no
 
 # typeList - This is a list of project types and are formatted in the "REASON FOR
@@ -194,14 +194,14 @@ Definition["stqPil"] = "STQ<site>"   # STQ pil
 # wind20ftHeader:  This definition set to "1" allows offices to
 # format winds in this format...
 #
-# WIND (20 FT)........
-#  SLOPE/VALLEY.......WEST 10-20 MPH
-#  RIDGETOP...........NORTHWEST 20 MPH
+# Wind (20 ft)........
+#  Slope/valley.......WEST 10-20 MPH
+#  Ridgetop...........NORTHWEST 20 MPH
 #
 # By setting this definition to "0", you will get...
 #
-# WIND (20 FT)........WEST 10-20 MPH
-# RIDGETOP WIND.......NORTHWEST 20 MPH
+# Wind (20 ft)........WEST 10-20 MPH
+# Ridgetop wind.......NORTHWEST 20 MPH
 #Definition["wind20ftHeader"] = 0  # Use 1 for yes (default), 0 for no
 
 # Definitions to insert the FWF discussion from a separate file.
@@ -413,7 +413,7 @@ Definition["ignitionForecastTypeList"] = []
 #       Sky Cover or use numeric values. Examples are as follows...
 # alpha 1hr  :  SKY.............MC  MC  MC  MC  MC  MC  MC  MC  MC  MC  MC  MC  PC
 # alpha 2hr  :  SKY.............MCLDY  MCLDY  MCLDY  MCLDY  MCLDY  MCLDY  PCLDY
-# numeric 2hr:  SKY (%).........90     90     90     83     83     83     69
+# numeric 2hr:  Sky (%).........90     90     90     83     83     83     69
 
 # Tabular Wind Format Definitions
 # "alpha" will cause the direction to be formatted in the alphabetic characters
@@ -457,8 +457,8 @@ Definition["bothAlphaNumericDict"] = {
 #                            three character space, so mixing height will always be
 #                            expressed in kft when the 1 hour resolution is selected
 #                            regardless to what this definition is set to. Examples...
-# KFT 2hr:  MIX HGT (KFT)...0.3    0.3    0.3    0.3    0.3    7.9    11
-# FT 2hr :  MIX HGT (FT)....300    300    300    300    300    7900   11100
+# KFT 2hr:  Mix hgt (kft)...0.3    0.3    0.3    0.3    0.3    7.9    11
+# FT 2hr :  Mix hgt (ft)....300    300    300    300    300    7900   11100
 
 #Definition["tabularMixingHeightUnits"] = "kft"      # So we can fit a number in a 3 character space.
 Definition["tabularMixingHeightUnits"] = "ft"       # Will only be used for 2,3, or 4 time resolutions.
@@ -488,14 +488,14 @@ Definition["20ftWindParm"] = "Wind"
 # wind20ftHeader:  This definition set to "1" allows offices to
 # format winds in this format...
 #
-# WIND (20 FT)........
-#  SLOPE/VALLEY.......WEST 10-20 MPH
-#  RIDGETOP...........NORTHWEST 20 MPH
+# Wind (20 ft)........
+#  Slope/valley.......WEST 10-20 MPH
+#  Ridgetop...........NORTHWEST 20 MPH
 #
 # By setting this definition to "0", you will get...
 #
-# WIND (20 FT)........WEST 10-20 MPH
-# RIDGETOP WIND.......NORTHWEST 20 MPH
+# Wind (20 ft)........WEST 10-20 MPH
+# Ridgetop wind.......NORTHWEST 20 MPH
 Definition["wind20ftHeader"] = 0  # Use 1 for yes, 0 for no
 #Definition["wind20ftHeader"] = 1  # Use 1 for yes, 0 for no
 
@@ -511,18 +511,18 @@ Definition["wind20ftHeader"] = 0  # Use 1 for yes, 0 for no
 #                         resolution, direction, speed, and gusts will be
 #                         combined. Examples follow...
 
-# yes 2hr:  20 FT WIND DIR..SW     W      W      W      W      W      W
-#        :  20 FT WIND SPD..26     26     18     18     18     14     14
-#        :  20 FT WIND GUST.40     40
+# yes 2hr:  20 ft wind dir..SW     W      W      W      W      W      W
+#        :  20 ft wind spd..26     26     18     18     18     14     14
+#        :  20 ft wind gust.40     40
 
-# no 2 hr:  20 FT WIND......W 26   W 26   W 18   W 18   W 18   W 14   W 14
-#        :  20 FT WIND GUST.40     40
+# no 2 hr:  20 ft wind......W 26   W 26   W 18   W 18   W 18   W 14   W 14
+#        :  20 ft wind gust.40     40
 
-# yes 3hr:  20 FT WIND DIR..W         W         W         W         W
-#        :  20 FT WIND SPD..26        25        13        14        13
-#        :  20 FT WIND GUST.40        40
+# yes 3hr:  20 ft wind dir..W         W         W         W         W
+#        :  20 ft wind spd..26        25        13        14        13
+#        :  20 ft wind gust.40        40
 
-# no 3 hr:  20 FT WIND......W 26G40   W 25G40   W 13      W 14      W 13
+# no 3 hr:  20 ft wind......W 26G40   W 25G40   W 13      W 14      W 13
 
 #Definition["tableWindElementSplit"] = "yes"
 Definition["tableWindElementSplit"] = "no"
@@ -539,18 +539,18 @@ Definition["tableWindElementSplit"] = "no"
 #                            resolution, direction, speed, and gusts will be
 #                            combined. Examples follow...
 
-# yes 2hr:  EYE LVL WND DIR.SW     W      W      W      W      W      W
-#        :  EYE LVL WND SPD.26     26     18     18     18     14     14
-#        :  EYE LVL WND GST.40     40
+# yes 2hr:  Eye lvl wnd dir.SW     W      W      W      W      W      W
+#        :  Eye lvl wnd spd.26     26     18     18     18     14     14
+#        :  Eye lvl wnd gst.40     40
 
-# no 2 hr:  EYE LEVEL WIND..W 26   W 26   W 18   W 18   W 18   W 14   W 14
-#        :  EYE LVL WND GST.40     40
+# no 2 hr:  Eye level wind..W 26   W 26   W 18   W 18   W 18   W 14   W 14
+#        :  Eye lvl wnd gst.40     40
 
-# yes 3hr:  EYE LVL WND DIR.W         W         W         W         W
-#        :  EYE LVL WND SPD.26        25        13        14        13
-#        :  EYE LVL WND GST.40        40
+# yes 3hr:  Eye lvl wnd dir.W         W         W         W         W
+#        :  Eye lvl wnd spd.26        25        13        14        13
+#        :  Eye lvl wnd gst.40        40
 
-# no 3 hr:  EYE LEVEL WIND..W 26G40   W 25G40   W 13      W 14      W 13
+# no 3 hr:  Eye level wind..W 26G40   W 25G40   W 13      W 14      W 13
 
 #Definition["tableEyeWindElementSplit"] = "yes"
 Definition["tableEyeWindElementSplit"] = "no"
@@ -565,10 +565,10 @@ Definition["tableEyeWindElementSplit"] = "no"
 #                          direction and speed will be combined into one line.
 #                          Examples follow...
 
-# yes 2hr:  RIDGE WIND DIR..W      W      W      W      W      W      W
-#        :  RIDGE WIND SPD..36     36     36     36     36     36     16
+# yes 2hr:  Ridge wnd dir..W      W      W      W      W      W      W
+#        :  Ridge wnd spd..36     36     36     36     36     36     16
 
-# no 2 hr:  RIDGETOP WIND...W 36   W 36   W 36   W 36   W 36   W 36   W 16
+# no 2 hr:  Ridgetop wind...W 36   W 36   W 36   W 36   W 36   W 36   W 16
 
 #Definition["tableRidgeElementSplit"] = "yes"
 Definition["tableRidgeElementSplit"] = "no"
@@ -583,10 +583,10 @@ Definition["tableRidgeElementSplit"] = "no"
 #                          direction and speed will be combined into one line.
 #                          Examples follow...
 
-# yes 2hr:  TRANSP WIND DIR.W      W      W      W      W      W      W
-#        :  TRANSP WIND SPD.8      8      8      8      8      8      20
+# yes 2hr:  Transp wind dir.W      W      W      W      W      W      W
+#        :  Transp wind spd.8      8      8      8      8      8      20
 
-# no 2 hr:  TRANSPORT WIND..W 8    W 8    W 8    W 8    W 8    W 8    W 20
+# no 2 hr:  Transport wind..W 8    W 8    W 8    W 8    W 8    W 8    W 20
 
 #Definition["tableTransElementSplit"] = "yes"
 Definition["tableTransElementSplit"] = "no"
@@ -601,10 +601,10 @@ Definition["tableTransElementSplit"] = "no"
 #                          direction and height will be combined into one line.
 #                          Examples follow...
 
-# yes 2hr:  SWELL DIRECTION.W      W      W      W      W      W      W
-#        :  SWELL HGT (FT)..36     36     36     36     36     36     16
+# yes 2hr:  Swell direction.W      W      W      W      W      W      W
+#        :  Swell hgt (ft)..36     36     36     36     36     36     16
 
-# no 2 hr:  SWELL HGT (FT)..W 36   W 36   W 36   W 36   W 36   W 36   W 16
+# no 2 hr:  Swell hgt (ft)..W 36   W 36   W 36   W 36   W 36   W 36   W 16
 
 #Definition["tableSwellElementSplit"] = "yes"
 Definition["tableSwellElementSplit"] = "no"
@@ -621,18 +621,18 @@ Definition["tableSwellElementSplit"] = "no"
 #                            resolution, direction, speed, and gusts will be
 #                            combined. Examples follow...
 
-# yes 2hr:  SURFACE WND DIR.SW     W      W      W      W      W      W
-#        :  SURFACE WND SPD.26     26     18     18     18     14     14
-#        :  SURFACE WND GST.40     40
+# yes 2hr:  Surface wnd dir.SW     W      W      W      W      W      W
+#        :  Surface wnd spd.26     26     18     18     18     14     14
+#        :  Surface wnd gst.40     40
 
-# no 2 hr:  SURFACE WIND....W 26   W 26   W 18   W 18   W 18   W 14   W 14
-#        :  SURFACE WND GST.40     40
+# no 2 hr:  Surface wind....W 26   W 26   W 18   W 18   W 18   W 14   W 14
+#        :  Surface wnd gst.40     40
 
-# yes 3hr:  SURFACE WND DIR.W         W         W         W         W
-#        :  SURFACE WND SPD.26        25        13        14        13
-#        :  SURFACE WND GST.40        40
+# yes 3hr:  Surface wnd dir.W         W         W         W         W
+#        :  Surface wnd spd.26        25        13        14        13
+#        :  Surface wnd gst.40        40
 
-# no 3 hr:  SURFACE WIND....W 26G40   W 25G40   W 13      W 14      W 13
+# no 3 hr:  Surface wind....W 26G40   W 25G40   W 13      W 14      W 13
 
 #Definition["tableSfcWindElementSplit"] = "yes"
 Definition["tableSfcWindElementSplit"] = "no"
@@ -1017,134 +1017,134 @@ class FWS_Overrides:
         
         if self._tableWindElementSplit == "no" and colWidth == 7: # 2 hourly
             if self._bothAlphaNumericDict.get(self._20ftWindParm, "No") == "No":
-                wind = [("20 FT WIND......", self._wind_value),
-                        ("20 FT WIND GUST.", self._windGust_value)]
+                wind = [("20 ft wind......", self._wind_value),
+                        ("20 ft wind gust.", self._windGust_value)]
             else:
-                wind = [("20 FT WIND......", self._wind_value),
-                        ("20 FT WIND GUST.", self._windGust_value),
-                        ("20 FT WIND DIR..", self._windNumDir_value)]
+                wind = [("20 ft wind......", self._wind_value),
+                        ("20 ft wind gust.", self._windGust_value),
+                        ("20 ft wind dir..", self._windNumDir_value)]
         elif self._tableWindElementSplit == "no" and colWidth > 7: # 3-4 hourly
             if self._bothAlphaNumericDict.get(self._20ftWindParm, "No") == "No":
-                wind = [("20 FT WIND......", self._windWithGust_value)]
+                wind = [("20 ft wind......", self._windWithGust_value)]
             else:
-                wind = [("20 FT WIND......", self._windWithGust_value),
-                        ("20 FT WIND DIR..", self._windNumDir_value)]
+                wind = [("20 ft wind......", self._windWithGust_value),
+                        ("20 ft wind dir..", self._windNumDir_value)]
         else:
             if self._bothAlphaNumericDict.get(self._20ftWindParm, "No") == "No":
-                wind = [("20 FT WIND DIR..", self._windDir_value),  # 1 hourly
-                        ("20 FT WIND SPD..", self._windSpd_value),
-                        ("20 FT WIND GUST.", self._windGust_value)]
+                wind = [("20 ft wind dir..", self._windDir_value),  # 1 hourly
+                        ("20 ft wind spd..", self._windSpd_value),
+                        ("20 ft wind gust.", self._windGust_value)]
             else:
-                wind = [("20 FT WIND DIR..", self._windDir_value),  # 1 hourly
-                        ("20 FT WIND DIR..", self._windNumDir_value),
-                        ("20 FT WIND SPD..", self._windSpd_value),
-                        ("20 FT WIND GUST.", self._windGust_value)]
+                wind = [("20 ft wind dir..", self._windDir_value),  # 1 hourly
+                        ("20 ft wind dir..", self._windNumDir_value),
+                        ("20 ft wind spd..", self._windSpd_value),
+                        ("20 ft wind gust.", self._windGust_value)]
 
         ### eye level wind tabular phrase configuration ###
                 
         if self._tableEyeWindElementSplit =="no" and colWidth == 7:
             if self._bothAlphaNumericDict.get("EyeWind", "No") == "No":
-                eyewind = [("EYE LEVEL WIND..", self._eyewind_value),
-                           ("EYE LVL WND GST.", self._eyewindGust_value)]
+                eyewind = [("Eye level wind..", self._eyewind_value),
+                           ("Eye lvl wnd gst.", self._eyewindGust_value)]
             else:
-                eyewind = [("EYE LEVEL WIND..", self._eyewind_value),
-                           ("EYE LVL WND GST.", self._eyewindGust_value),
-                           ("EYE LVL WND DIR.", self._eyewindNumDir_value)]
+                eyewind = [("Eye level wind..", self._eyewind_value),
+                           ("Eye lvl wnd gst.", self._eyewindGust_value),
+                           ("Eye lvl wnd dir.", self._eyewindNumDir_value)]
         elif self._tableEyeWindElementSplit == "no" and colWidth > 7:
             if self._bothAlphaNumericDict.get("EyeWind", "No") == "No":
-                eyewind = [("EYE LEVEL WIND..", self._eyewindWithGust_value)]
+                eyewind = [("Eye level wind..", self._eyewindWithGust_value)]
             else:
-                eyewind = [("EYE LEVEL WIND..", self._eyewindWithGust_value),
-                           ("EYE LVL WND DIR.", self._eyewindNumDir_value)]
+                eyewind = [("Eye level wind..", self._eyewindWithGust_value),
+                           ("Eye lvl wnd dir.", self._eyewindNumDir_value)]
         else:
             if self._bothAlphaNumericDict.get("EyeWind", "No") == "No":
-                eyewind = [("EYE LVL WND DIR.", self._eyewindDir_value),
-                           ("EYE LVL WND SPD.", self._eyewindSpd_value),
-                           ("EYE LVL WND GST.", self._eyewindGust_value)]
+                eyewind = [("Eye lvl wnd dir.", self._eyewindDir_value),
+                           ("Eye lvl wnd spd.", self._eyewindSpd_value),
+                           ("Eye lvl wnd gst.", self._eyewindGust_value)]
             else:
-                eyewind = [("EYE LVL WND DIR.", self._eyewindDir_value),
-                           ("EYE LVL WND DIR.", self._eyewindNumDir_value),
-                           ("EYE LVL WND SPD.", self._eyewindSpd_value),
-                           ("EYE LVL WND GST.", self._eyewindGust_value)]
+                eyewind = [("Eye lvl wnd dir.", self._eyewindDir_value),
+                           ("Eye lvl wnd dir.", self._eyewindNumDir_value),
+                           ("Eye lvl wnd spd.", self._eyewindSpd_value),
+                           ("Eye lvl wnd gst.", self._eyewindGust_value)]
                 
         ### surface wind (10m) tabular phrase configuration ###
                 
         if self._tableSfcWindElementSplit =="no" and colWidth == 7:
 
             if self._bothAlphaNumericDict.get("SfcWind", "No") == "No":
-                sfcwind = [("SURFACE WIND....", self._sfcwind_value),
-                           ("SURFACE WND GST.", self._sfcwindGust_value)]
+                sfcwind = [("Surface wind....", self._sfcwind_value),
+                           ("Surface wnd gst.", self._sfcwindGust_value)]
             else:
-                sfcwind = [("SURFACE WIND....", self._sfcwind_value),
-                           ("SURFACE WND GST.", self._sfcwindGust_value),
-                           ("SURFACE WND DIR.", self._sfcwindNumDir_value)]
+                sfcwind = [("Surface wind....", self._sfcwind_value),
+                           ("Surface wnd gst.", self._sfcwindGust_value),
+                           ("Surface wnd dir.", self._sfcwindNumDir_value)]
             
         elif self._tableSfcWindElementSplit == "no" and colWidth > 7:
 
             if self._bothAlphaNumericDict.get("SfcWind", "No") == "No":
-                sfcwind = [("SURFACE WIND....", self._sfcwindWithGust_value)]
+                sfcwind = [("Surface wind....", self._sfcwindWithGust_value)]
             else:
-                sfcwind = [("SURFACE WIND....", self._sfcwindWithGust_value),
-                           ("SURFACE WND DIR.", self._sfcwindNumDir_value)]
+                sfcwind = [("Surface wind....", self._sfcwindWithGust_value),
+                           ("Surface wnd dir.", self._sfcwindNumDir_value)]
             
         else:
 
             if self._bothAlphaNumericDict.get("SfcWind", "No") == "No":
-                sfcwind = [("SURFACE WND DIR.", self._sfcwindDir_value),
-                           ("SURFACE WND SPD.", self._sfcwindSpd_value),
-                           ("SURFACE WND GST.", self._sfcwindGust_value)]
+                sfcwind = [("Surface wnd dir.", self._sfcwindDir_value),
+                           ("Surface wnd spd.", self._sfcwindSpd_value),
+                           ("Surface wnd gst.", self._sfcwindGust_value)]
             else:
-                sfcwind = [("SURFACE WND DIR.", self._sfcwindDir_value),
-                           ("SURFACE WND DIR.", self._sfcwindNumDir_value),
-                           ("SURFACE WND SPD.", self._sfcwindSpd_value),
-                           ("SURFACE WND GST.", self._sfcwindGust_value)]
+                sfcwind = [("Surface wnd dir.", self._sfcwindDir_value),
+                           ("Surface wnd dir.", self._sfcwindNumDir_value),
+                           ("Surface wnd spd.", self._sfcwindSpd_value),
+                           ("Surface wnd gst.", self._sfcwindGust_value)]
                 
         ### ridge top wind tabular phrase configuration ###
                 
         if self._tableRidgeElementSplit == "no" and colWidth >=7:
             if self._bothAlphaNumericDict.get("RidgeWind", "No") == "No":
-                ridge = [("RIDGETOP WIND...", self._ridge_value)]
+                ridge = [("Ridgetop wind...", self._ridge_value)]
             else:
-                ridge = [("RIDGETOP WIND...", self._ridge_value),
-                         ("RIDGE WIND DIR..", self._ridgeNumDir_value)]
+                ridge = [("Ridgetop wind...", self._ridge_value),
+                         ("Ridge wnd dir..", self._ridgeNumDir_value)]
         else:
             if self._bothAlphaNumericDict.get("RidgeWind", "No") == "No":
-                ridge = [("RIDGE WIND DIR..", self._ridgeDir_value),
-                         ("RIDGE WIND SPD..", self._ridgeSpd_value)]
+                ridge = [("Ridge wnd dir..", self._ridgeDir_value),
+                         ("Ridge wnd spd..", self._ridgeSpd_value)]
             else:
-                ridge = [("RIDGE WIND DIR..", self._ridgeDir_value),
-                         ("RIDGE WIND DIR..", self._ridgeNumDir_value),
-                         ("RIDGE WIND SPD..", self._ridgeSpd_value)]
+                ridge = [("Ridge wnd dir..", self._ridgeDir_value),
+                         ("Ridge wnd dir..", self._ridgeNumDir_value),
+                         ("Ridge wnd spd..", self._ridgeSpd_value)]
 
         ### swell tabular phrase configuration ###
             
         if self._tableSwellElementSplit == "no" and colWidth >=7:
-            swell = [("SWELL HGT (FT)..", self._swell_value)]
+            swell = [("Swell hgt (ft)..", self._swell_value)]
         else:
-            swell = [("SWELL DIRECTION.", self._swellDir_value),
-                     ("SWELL HGT (FT)..", self._swellHgt_value)]
+            swell = [("Swell direction.", self._swellDir_value),
+                     ("Swell hgt (ft)..", self._swellHgt_value)]
             
         ### Mixing Height and Transport wind label configuration ###
 
         if self._tabularMixingHeightUnits == "ft" and colWidth > 4:
-            mixLabel = "MIX HGT (FT)...."
-            mixMetricLabel = "MIX HGT (M)....."                
+            mixLabel = "Mix hgt (ft)...."
+            mixMetricLabel = "Mix hgt (m)....."                
         else:
-            mixLabel = "MIX HGT (KFT)..."
-            mixMetricLabel = "MIX HGT (KM)...."
+            mixLabel = "Mix hgt (kft)..."
+            mixMetricLabel = "Mix hgt (km)...."
             
         if self._transportWindLabel == "mix":
-            transLabel = "MIXNG WIND......"
-            transMetricLabel = "MIX WIND (M/S).."
-            transDirLabel = "MIXNG WIND DIR.."
-            transSpdLabel = "MIXNG WIND SPD.."
-            transSpdMetricLabel = "MIX WND SPD M/S."
+            transLabel = "Mixing wind......"
+            transMetricLabel = "Mix wind (m/s).."
+            transDirLabel = "Mixng wind dir.."
+            transSpdLabel = "Mixng wind spd.."
+            transSpdMetricLabel = "Mix wnd spd m/s."
         else:
-            transLabel = "TRANSPORT WIND.."
-            transMetricLabel = "TRAN WIND (M/S)."
-            transDirLabel = "TRANSP WIND DIR."
-            transSpdLabel = "TRANSP WIND SPD."
-            transSpdMetricLabel = "TRANS SPD (M/S)."
+            transLabel = "Transport wind.."
+            transMetricLabel = "Tran wind (m/s)."
+            transDirLabel = "Transp wind dir."
+            transSpdLabel = "Transp wind spd."
+            transSpdMetricLabel = "Trans spd (m/s)."
                             
         if self._tableTransElementSplit == "no" and colWidth >=7:
             # Baseline
@@ -1224,25 +1224,25 @@ class FWS_Overrides:
 
         if self._elementFormatDict.get("Sky", "alpha") == "alpha":
             if self._bothAlphaNumericDict.get("Sky", "No") == "No":
-                skywx = [("SKY COVER.......", self._sky_value),
-                         ("WEATHER COV.....", self._weatherCov_value),
-                         ("WEATHER TYPE....", self._weatherType_value),
-                         ("TSTM COV........", self._tstmCov_value)]
+                skywx = [("Sky cover.......", self._sky_value),
+                         ("Weather cov.....", self._weatherCov_value),
+                         ("Weather type....", self._weatherType_value),
+                         ("Tstm cov........", self._tstmCov_value)]
             else:
-                skywx = [("SKY COVER.......", self._sky_value),
-                         ("SKY (%).........", self._numSky_value),
-                         ("WEATHER COV.....", self._weatherCov_value),
-                         ("WEATHER TYPE....", self._weatherType_value),
-                         ("TSTM COV........", self._tstmCov_value)]
+                skywx = [("Sky cover.......", self._sky_value),
+                         ("Sky (%).........", self._numSky_value),
+                         ("Weather cov.....", self._weatherCov_value),
+                         ("Weather type....", self._weatherType_value),
+                         ("Tstm cov........", self._tstmCov_value)]
         else:
-            skywx = [("SKY (%).........", self._sky_value),
-                     ("WEATHER COV.....", self._weatherCov_value),
-                     ("WEATHER TYPE....", self._weatherType_value),
-                     ("TSTM COV........", self._tstmCov_value)]
+            skywx = [("Sky (%).........", self._sky_value),
+                     ("Weather cov.....", self._weatherCov_value),
+                     ("Weather type....", self._weatherType_value),
+                     ("Tstm cov........", self._tstmCov_value)]
             
-        hazard = [("HAZARD VTEC 1...", self._wwa_value),
-                  ("HAZARD VTEC 2...", self._wwa2_value),
-                  ("HAZARD VTEC 3...", self._wwa3_value)]
+        hazard = [("Hazard VTEC 1..", self._wwa_value),
+                  ("Hazard VTEC 2..", self._wwa2_value),
+                  ("Hazard VTEC 3..", self._wwa3_value)]
         
         return [
             # Set to Directive requirements
@@ -1254,8 +1254,8 @@ class FWS_Overrides:
             #  tableRows is a list of (label:method) pairs.
             #
             ("SKY/WEATHER"             , 1, skywx),
-            ("TEMPERATURE"             , 1,[("TEMP............", self._temp_value)]),
-            ("DEWPOINT"                , 1,[("DEWPOINT........", self._td_value)]),
+            ("TEMPERATURE"             , 1,[("Temp............", self._temp_value)]),
+            ("DEWPOINT"                , 1,[("Dewpoint........", self._td_value)]),
             ("HUMIDITY"                , 1,[("RH..............", self._rh_value)]),
             ("20 FOOT WINDS"           , 1, wind),
             ("EYE LEVEL WINDS"         , 1, eyewind),
@@ -1264,25 +1264,25 @@ class FWS_Overrides:
             #("SMOKE DISPERSION"        , 1, smoke),
             #("MIXING HEIGHT"           , 1, mix),
             #("TRANSPORT WINDS"         , 1, trans),
-            ("DISPERSION INDEX"        , 1,[("DISPERSION......", self._dsi_value)]),
-            ("LDSI"                    , 1,[("DISPERSION IDX..", self._ldsi_value)]),
+            ("DISPERSION INDEX"        , 1,[("Dispersion......", self._dsi_value)]),
+            ("LDSI"                    , 1,[("Dispersion idx..", self._ldsi_value)]),
             ("LVORI"                   , 1,[("LVORI...........", self._lvori_value)]),
             ("ADI"                     , 1,[("ADI.............", self._adi_value)]),
             #("CWR"                     , 1,[("CWR.............", self._cwr_value)]),
-            ("POP"                     , 1,[("CHC OF PCPN (%).", self._pop_value)]),
+            ("POP"                     , 1,[("Chc of pcpn (%).", self._pop_value)]),
             #("LIGHTNING ACTIVITY LEVEL", 1,[("LAL.............", self._lal_value)]),
-            ("HAINES INDEX"            , 1,[("HAINES INDEX....", self._haines_value)]),
-            ("VENTILATION RATE"        , 1,[("VRATE KT-FT/1000", self._ventrate_value)]),
+            ("HAINES INDEX"            , 1,[("Haines Index....", self._haines_value)]),
+            ("VENTILATION RATE"        , 1,[("Vrate kt-ft/1000", self._ventrate_value)]),
             ("SWELL HEIGHT"            , 1, swell),
-            ("SWELL PERIOD"            , 1,[("SWELL PERIOD (S)", self._swellPeriod_value)]),
-            ("WIND WAVE"               , 1,[("WIND WAVE (FT)..", self._windWave_value)]),
-            ("WAVE HEIGHT"             , 1,[("WAVE HEIGHT (FT)", self._waveHeight_value)]),
-            ("FREEZING LEVEL"          , 1,[("FZ LEVEL (KFT)..", self._freezingLevel_value)]),
-            ("CEILING"                 , 1,[("CEILING (KFT)...", self._ceiling_value)]),
-            ("VISIBILITY"              , 1,[("VISIBILITY (SM).", self._visibility_value)]),
-            ("ICING"                   , 1,[("ICING...........", self._ceiling_value)]),
+            ("SWELL PERIOD"            , 1,[("Swell period (s)", self._swellPeriod_value)]),
+            ("WIND WAVE"               , 1,[("Wind wave (ft)..", self._windWave_value)]),
+            ("WAVE HEIGHT"             , 1,[("Wave height (ft)", self._waveHeight_value)]),
+            ("FREEZING LEVEL"          , 1,[("Fz level (kft)..", self._freezingLevel_value)]),
+            ("CEILING"                 , 1,[("Ceiling (kft)...", self._ceiling_value)]),
+            ("VISIBILITY"              , 1,[("Visibility (sm).", self._visibility_value)]),
+            ("ICING"                   , 1,[("Icing...........", self._ceiling_value)]),
             ("HAZARDS"                 , 0, hazard),
-            ("HEAT INDEX"              , 1,[("HEAT INDEX (F)..", self._heatIndex_value)]),
+            ("HEAT INDEX"              , 1,[("Heat index (F)..", self._heatIndex_value)]),
             ]
     
     def _getProductInfo(self, product, issuance, forecasters):
@@ -2879,44 +2879,44 @@ in the future. *|''' % self._timeLabel
     def phrase_descriptor_dict(self, tree, node):
         dict = TextRules.TextRules.phrase_descriptor_dict(self, tree, node)
         if self._wind20ftHeader:
-            dict["WIND.(20 FT)........"]="WIND (20 FT)........"
-            dict["20-FOOT WINDS......."]=" SLOPE/VALLEY......."
-            dict["FREE WINDS.........."]=" RIDGETOP..........."
-            dict["SURROUNDING RIDGE..."]=" SURROUNDING RIDGE.."
+            dict["WIND.(20 FT)........"]="Wind (20 ft)........"
+            dict["20-foot winds......."]=" Slope/valley......."
+            dict["Free winds.........."]=" Ridgetop..........."
+            dict["Surrounding ridge..."]=" Surrounding ridge.."
         else:
-            dict["20-FOOT WINDS......."]="WIND (20 FT)........"
-            dict["FREE WINDS.........."]="RIDGETOP WIND......."
-            dict["SURROUNDING RIDGE..."]="SURROUNDING RIDGE..."
-        dict["EYE LEVEL WINDS....."]="EYE LEVEL WINDS....."
-        dict["SURFACE WINDS......."]="SURFACE WINDS......."
-        dict["WIND SHIFT.........."]="WIND SHIFT.........."
+            dict["20-foot winds......."]="Wind (20 ft)........"
+            dict["Free winds.........."]="Ridgetop wind......."
+            dict["Surrounding ridge..."]="Surrounding ridge..."
+        dict["Eye level winds....."]="Eye level winds....."
+        dict["Surface winds......."]="Surface winds......."
+        dict["Wind shift.........."]="Wind shift.........."
         if self._transportWindLabel == "mix":
-            dict["TRANSPORT WINDS....."]="MIXING WINDS........"
+            dict["Transport winds....."]="Mixing winds........"
         else:
-            dict["TRANSPORT WINDS....."]="TRANSPORT WINDS....."
+            dict["Transport winds....."]="Transport winds....."
         dict["CWR................."]="CWR................."
-        dict["DSI................."]="DISPERSION.........."
-        dict["LDSI................"]="DISPERSION INDEX...."
+        dict["DSI................."]="Dispersion.........."
+        dict["LDSI................"]="Dispersion index...."
         dict["LVORI..............."]="LVORI..............."
         dict["ADI................."]="ADI................."
-        dict["POP................."]="CHANCE OF PCPN......"
-        dict["DEWPOINT............"]="DEWPOINT............"
-        dict["BEGIN/END OF PCPN..."]="BEGIN/END OF PCPN..."
-        dict["STABILITY CLASS....."]="STABILITY CLASS....."
-        dict["WIND WAVE..........."]="WIND WAVE..........."
-        dict["RAINFALL AMOUNT....."]="RAINFALL AMOUNT....."
-        dict["SNOWFALL AMOUNT....."]="SNOWFALL AMOUNT....."
-        dict["SWELL PERIOD........"]="SWELL PERIOD........"
-        dict["SWELL HEIGHT........"]="SWELL HEIGHT........"
-        dict["FREEZING LEVEL......"]="FREEZING LEVEL......"
-        dict["CEILING............."]="CEILING............."
-        dict["VISIBILITY.........."]="VISIBILITY.........."
-        dict["ICING..............."]="ICING..............."
-        dict["HEAT INDEX.........."]="HEAT INDEX.........."
+        dict["POP................."]="Chance of pcpn......"
+        dict["Dewpoint............"]="Dewpoint............"
+        dict["Begin/end of pcpn..."]="Begin/end of pcpn..."
+        dict["Stability class....."]="Stability class....."
+        dict["Wind wave..........."]="Wind wave..........."
+        dict["Rainfall amount....."]="Rainfall amount....."
+        dict["Snowfall amount....."]="Snowfall amount....."
+        dict["Swell period........"]="Swell period........"
+        dict["Swell height........"]="Swell height........"
+        dict["Freezing level......"]="Freezing level......"
+        dict["Ceiling............."]="Ceiling............."
+        dict["Visibility.........."]="Visibility.........."
+        dict["Icing..............."]="Icing..............."
+        dict["Heat index.........."]="Heat index.........."
         dict["erraticWind"]="gusty and erratic winds expected near thunderstorms"
         if self._withIgnitionTimes == "yes":
-            dict["MinT_FireWx"]="TEMPERATURE........."
-            dict["MaxT_FireWx"]="TEMPERATURE........."
+            dict["MinT_FireWx"]="Temperature........."
+            dict["MaxT_FireWx"]="Temperature........."
             dict["MinRH_FireWx"]="RH.................."
             dict["MaxRH_FireWx"]="RH.................."
         return dict 
@@ -3033,7 +3033,7 @@ in the future. *|''' % self._timeLabel
             
         words = igWords + words
         node.set("descriptor", "")
-        node.set("indentLabel", "20-FOOT WINDS.......")
+        node.set("indentLabel", "20-foot winds.......")
         node.set("compound", 1)
         return self.setWords(node, words)
     
@@ -3062,7 +3062,7 @@ in the future. *|''' % self._timeLabel
         if words == "":
             words = "MISSING"
         node.set("descriptor", "")
-        node.set("indentLabel", "SURFACE WINDS.......")
+        node.set("indentLabel", "Surface winds.......")
         node.set("compound", 1)
         return self.setWords(node, words)
 
@@ -3309,7 +3309,7 @@ in the future. *|''' % self._timeLabel
         elementInfoList = [self.ElementInfo("WindWaveHgt", "List")]
         self.subPhraseSetUp(tree, node, elementInfoList, self.scalarConnector) 
         node.set("descriptor", "")
-        node.set("indentLabel", "WIND WAVE...........")
+        node.set("indentLabel", "Wind wave...........")
         return self.DONE()
     
     def windWave_words(self, tree, node):
@@ -3355,7 +3355,7 @@ in the future. *|''' % self._timeLabel
         elementInfoList = [self.ElementInfo("QPF", "List")]
         self.subPhraseSetUp(tree, node, elementInfoList, self.scalarConnector) 
         node.set("descriptor", "")
-        node.set("indentLabel", "RAINFALL AMOUNT.....")
+        node.set("indentLabel", "Rainfall amount.....")
         return self.DONE()
     
     def qpf_words(self, tree, node):
@@ -3383,7 +3383,7 @@ in the future. *|''' % self._timeLabel
         elementInfoList = [self.ElementInfo("Period", "List")]
         self.subPhraseSetUp(tree, node, elementInfoList, self.scalarConnector) 
         node.set("descriptor", "")
-        node.set("indentLabel", "SWELL PERIOD........")
+        node.set("indentLabel", "Swell period........")
         return self.DONE()
     
     def period_words(self, tree, node):
@@ -3406,7 +3406,7 @@ in the future. *|''' % self._timeLabel
         elementInfoList = [self.ElementInfo("Swell", self.VECTOR())]
         self.subPhraseSetUp(tree, node, elementInfoList, self.vectorConnector) 
         node.set("descriptor", "")
-        node.set("indentLabel", "SWELL HEIGHT........")
+        node.set("indentLabel", "Swell height........")
         return self.DONE()
     
     def swell_words(self, tree, node):
@@ -3449,7 +3449,7 @@ in the future. *|''' % self._timeLabel
         elementInfoList = [self.ElementInfo("PredHgt", "List")]
         self.subPhraseSetUp(tree, node, elementInfoList, self.scalarConnector) 
         node.set("descriptor", "")
-        node.set("indentLabel", "CEILING (KFT).......")
+        node.set("indentLabel", "Ceiling (kft).......")
         return self.DONE()
     
     def ceiling_words(self, tree, node):
@@ -3480,7 +3480,7 @@ in the future. *|''' % self._timeLabel
         elementInfoList = [self.ElementInfo("Vsby", "List")]
         self.subPhraseSetUp(tree, node, elementInfoList, self.scalarConnector) 
         node.set("descriptor", "")
-        node.set("indentLabel", "VISIBILITY (SM).....")
+        node.set("indentLabel", "Visibility (sm).....")
         return self.DONE()
     
     def visibility_words(self, tree, node):
@@ -3508,7 +3508,7 @@ in the future. *|''' % self._timeLabel
     def icing_setUp(self, tree, node):
         self.setWords(node, "")
         node.set("descriptor", "")
-        node.set("indentLabel", "ICING...............")
+        node.set("indentLabel", "Icing...............")
         return self.DONE()
     
     def freezingLevel_phrase(self):
@@ -3522,7 +3522,7 @@ in the future. *|''' % self._timeLabel
         elementInfoList = [self.ElementInfo("FzLevel", "List")]
         self.subPhraseSetUp(tree, node, elementInfoList, self.scalarConnector) 
         node.set("descriptor", "")
-        node.set("indentLabel", "FREEZING LEVEL......")
+        node.set("indentLabel", "Freezing level......")
         return self.DONE()
     
     def freezingLevel_words(self, tree, node):
@@ -3570,7 +3570,7 @@ in the future. *|''' % self._timeLabel
         elementInfoList = [self.ElementInfo("SnowAmt", "List")]
         self.subPhraseSetUp(tree, node, elementInfoList, self.scalarConnector) 
         node.set("descriptor", "")
-        node.set("indentLabel", "SNOWFALL AMOUNT.....")
+        node.set("indentLabel", "Snowfall amount.....")
         return self.DONE()
     
     def snow_words(self, tree, node):
@@ -3598,7 +3598,7 @@ in the future. *|''' % self._timeLabel
         elementInfoList = [self.ElementInfo("HeatIndex", "List")]
         self.subPhraseSetUp(tree, node, elementInfoList, self.scalarConnector) 
         node.set("descriptor", "")
-        node.set("indentLabel", "HEAT INDEX..........")
+        node.set("indentLabel", "Heat index..........")
         return self.DONE()
     
     def heatIndex_words(self, tree, node):
@@ -3694,7 +3694,7 @@ in the future. *|''' % self._timeLabel
         timeRangeList = self.getPeriods(timeRange, period, 1, None)
         
         # Make header
-        header = "TIME ("+fireTimeZone+")      "
+        header = "Time ("+fireTimeZone+")      "
         for tr, label in timeRangeList:
             label = self._makeTableLabel(tree, tr, colWidth)
             header += string.ljust(label, colWidth)
@@ -3806,10 +3806,10 @@ in the future. *|''' % self._timeLabel
 
     def _tableLabels(self):
         return [
-            (0,0, "MID", "MIDNGT"),
+            (0,0, "Mid", "Midngt"),
             (1,9, "hourAM", "hour AM"),
             (10,11, "hourA", "hour AM"),
-            (12,12, "12P", "NOON"),
+            (12,12, "12P", "Noon"),
             (13,21, "hourPM", "hour PM"),
             (22,23, "hourP", "hour PM"),
             ]
@@ -4873,11 +4873,11 @@ in the future. *|''' % self._timeLabel
         if words == "":
             words = "MISSING"
         node.set("descriptor", "")
-        node.set("indentLabel", "EYE LEVEL WINDS.....")
+        node.set("indentLabel", "Eye level winds.....")
         node.set("compound", 1)
         return self.setWords(node, words)
 
-    # For WIND SHIFT. Just need the label since there is not phrase.
+    # For Wind shift. Just need the label since there is not phrase.
     def fireWindShift_label_phrase(self):
         return {
             "setUpMethod": self.fireWindShift_label_setUp,
@@ -4887,7 +4887,7 @@ in the future. *|''' % self._timeLabel
     def fireWindShift_label_setUp(self, tree, node):
         self.setWords(node, "")
         node.set("descriptor", "")
-        node.set("indentLabel", "WIND SHIFT..........")
+        node.set("indentLabel", "Wind shift..........")
         return self.DONE()
 
     # For Surrounding Ridge Wind.
@@ -4900,7 +4900,7 @@ in the future. *|''' % self._timeLabel
     def surroundingRidgeWind_setUp(self, tree, node):
         self.wind_setUp(tree, node, gustFlag=0, element="FreeWind")
         node.set("descriptor", "")
-        node.set("indentLabel","SURROUNDING RIDGE...")  
+        node.set("indentLabel","Surrounding ridge...")  
         return self.DONE()
 
     # For Chance of Preciptiation.
@@ -4944,7 +4944,7 @@ in the future. *|''' % self._timeLabel
         elementInfoList = [self.ElementInfo("Stability", "List")]
         self.subPhraseSetUp(tree, node, elementInfoList, self.scalarConnector) 
         node.set("descriptor", "")
-        node.set("indentLabel", "STABILITY CLASS.....")
+        node.set("indentLabel", "Stability class.....")
         return self.DONE()
 
     def stabilityClass_words(self, tree, node) :
@@ -4968,7 +4968,7 @@ in the future. *|''' % self._timeLabel
         elementInfoList = [self.ElementInfo("MarineLayer", "List")]
         self.subPhraseSetUp(tree, node, elementInfoList, self.scalarConnector) 
         node.set("descriptor", "")
-        node.set("indentLabel", "MARINE LAYER........")
+        node.set("indentLabel", "Marine layer........")
         return self.DONE()
 
     def marineLayer_words(self, tree, node) :
@@ -4991,7 +4991,7 @@ in the future. *|''' % self._timeLabel
         elementInfoList = [self.ElementInfo("Td", "List")]
         self.subPhraseSetUp(tree, node, elementInfoList, self.scalarConnector) 
         node.set("descriptor", "")
-        node.set("indentLabel", "DEWPOINT............")
+        node.set("indentLabel", "Dewpoint............")
         return self.DONE()
     
     def td_words(self, tree, node):
@@ -5013,7 +5013,7 @@ in the future. *|''' % self._timeLabel
     def pcpnTiming_setUp(self, tree, node):
         self.setWords(node, "    ")
         node.set("descriptor", "")
-        node.set("indentLabel", "BEGIN/END OF PCPN...")
+        node.set("indentLabel", "Begin/end of pcpn...")
         return self.DONE()
 
     def _checkStrs(self, checkStrings, inputStr, orderStrings=0, checkMode=1):

@@ -23,39 +23,41 @@ package com.raytheon.viz.hydro.timeseries.util;
  * Bean to store Physical Element and Duration value.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 5, 2008            mpduff     Initial creation
- *
+ * Aug 05, 2008            mpduff      Initial creation
+ * Mar 17, 2016  #5483     randerso    Updated for use in reworked TimeSeriesDlg
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
- * @version 1.0	
+ * @version 1.0
  */
 
 public class LIDData {
     private String pe = null;
+
     private String dur = null;
-    
+
     /**
      * Default constructor
      */
     public LIDData() {
-        
+
     }
-    
+
+    /**
+     * Constructor
+     * 
+     * @param pe
+     * @param dur
+     */
     public LIDData(String pe, String dur) {
         this.pe = pe;
         this.dur = dur;
-    }
-    
-    public void setData(String dataString) {
-        String[] data = dataString.split("\\s+");
-        pe = data[0];
-        dur = data[3];
     }
 
     /**
@@ -66,23 +68,39 @@ public class LIDData {
     }
 
     /**
-     * @param pe the pe to set
-     */
-    public void setPe(String pe) {
-        this.pe = pe;
-    }
-
-    /**
      * @return the dur
      */
     public String getDur() {
         return dur;
     }
 
-    /**
-     * @param dur the dur to set
-     */
-    public void setDur(String dur) {
-        this.dur = dur;
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        LIDData other = (LIDData) obj;
+        if (dur == null) {
+            if (other.dur != null) {
+                return false;
+            }
+        } else if (!dur.equalsIgnoreCase(other.dur)) {
+            return false;
+        }
+        if (pe == null) {
+            if (other.pe != null) {
+                return false;
+            }
+        } else if (!pe.equalsIgnoreCase(other.pe)) {
+            return false;
+        }
+        return true;
     }
+
 }

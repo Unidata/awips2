@@ -84,8 +84,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Mar 04, 2015  3959     rjpeter      Update for grid based subgridding.
  * Sep 28, 2015  4868     rjpeter      Allow subgrids to be defined per coverage.
  * Feb 16, 2016  5237     bsteffen     Replace deprecated localization API.
- * 
+
  * Feb 26, 2016  5414     rjpeter      Fix subgrids along boundary and add check for disabled subgrid.
+ * 
  * </pre>
  * 
  * @author bphillip

@@ -29,7 +29,6 @@ import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IRenderable;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.ISpatialDisplayManager;
 import com.raytheon.viz.gfe.core.parm.Parm;
@@ -48,6 +47,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 04/08/2008              chammack    Initial Creation.
+ * Mar 10, 2016 #5479      randerso    Use improved GFEFonts API
  * 
  * </pre>
  * 
@@ -115,11 +115,7 @@ public class TransitorySampleRenderable implements IRenderable {
 
     protected void initFont(IGraphicsTarget target) {
         if (font == null) {
-            int fontNum = 2;
-            if (GFEPreference.contains("SESample_font")) {
-                fontNum = GFEPreference.getIntPreference("SESample_font");
-            }
-            font = GFEFonts.getFont(target, fontNum);
+            font = GFEFonts.makeGFEIFont(target, "SESample_font", 2);
         }
     }
 

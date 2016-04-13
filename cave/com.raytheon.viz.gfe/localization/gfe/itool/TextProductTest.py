@@ -184,10 +184,12 @@
 ##             (for NGIT testing)
 
 
-import sys, time, os, types, copy, inspect
+import sys, time, os, types, copy, inspect, errno
 import LogStream
 import AbsTime, TimeRange
 import numpy, cPickle
+
+OUTPUT_DIR = "/tmp/products/autoTest"
 
 # Triggers can be:
 #   Message enums and executeMsg will have the message as its argument
@@ -456,6 +458,13 @@ class ITool (ISmartScript.ISmartScript):
 #         except:
 #             fcst = ''
 #             LogStream.logProblem("Error generating product: " + LogStream.exc())
+
+        # write product to OUTPUT_DIR
+        
+        fname = name + ".txt"
+        path = os.path.join(OUTPUT_DIR, fname)
+        with open(path, 'w') as out:
+            out.write(fcst)
 
         self._doExecuteMsg(name, fcst, entry, drtTime, state)        
                     
@@ -1024,7 +1033,7 @@ class ITool (ISmartScript.ISmartScript):
             file.write(fcst)
         
         url = urlparse.urlparse(VizApp.getHttpServer())
-        commandString = "VTECDecoder -f " + file.name + " -a practice -h " + url.hostname
+        commandString = "VTECDecoder -f " + file.name + " -d -a practice -h " + url.hostname
         if drtString is not None:
             commandString += " -z " + drtString
         os.system(commandString)
@@ -1073,6 +1082,13 @@ def main():
     
     for s in str(GfePyIncludeUtil.getCombinationsIncludePath()).split(':'):
         sys.path.append(s)
+    
+    # create output directory for products
+    try:
+        os.makedirs(OUTPUT_DIR)
+    except OSError, e:
+        if e.errno != errno.EEXIST:
+            self.output("%s: '%s'" % (e.strerror,e.filename))
     
     scriptDir = GfePyIncludeUtil.getIToolIncludePath()
     runner = IToolInterface.IToolInterface(scriptDir)

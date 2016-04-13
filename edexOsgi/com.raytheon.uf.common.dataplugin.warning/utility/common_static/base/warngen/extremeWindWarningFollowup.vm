@@ -28,7 +28,7 @@
 #############
 #if(${action}=="CAN")
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
-SVS${siteId}
+${productId}${siteId}
 
 #if(${productClass}=="T")
 TEST...Severe Weather Statement...TEST
@@ -85,24 +85,24 @@ THIS IS A TEST MESSAGE. ##
 #############
 #if(${action}=="CON" || (${action}=="COR" && ${CORCAN}=="false"))
 ##
-#set($reportType1 = "associated with the eyewall of hurricane !**name**!, were moving onshore")
+#set($reportType1 = "associated with the eyewall of hurricane !**name**!#commaOrEllipsis()were moving onshore")
 #set($reportType = "extreme winds")
 #set($reportType2 = "the hurricane eyewall was")
 ##
 #if(${list.contains(${bullets}, "var1")})
-#set($reportType1 = "associated with a broad area of intense thunderstorms, located")
+#set($reportType1 = "associated with a broad area of intense thunderstorms#commaOrEllipsis()located")
 #set($reportType = "extreme winds were occuring")
 #set($reportType2 = "this area of thunderstorm winds was")
 #end
 ##
 #if(${list.contains(${bullets}, "var2")})
-#set($reportType1 = "associated with an intense low pressure area, located")
+#set($reportType1 = "associated with an intense low pressure area#commaOrEllipsis()located")
 #set($reportType = "extreme winds were occuring")
 #set($reportType2 = "this intense low pressure system was")
 #end
 ##
 #if(${list.contains(${bullets}, "var3")})
-#set($reportType1 = "associated with a downslope windstorm, located")
+#set($reportType1 = "associated with a downslope windstorm#commaOrEllipsis()located")
 #set($reportType = "extreme winds were occuring")
 #set($reportType2 = "this area of downslope winds was")
 #end
@@ -136,7 +136,7 @@ THIS IS A TEST MESSAGE. ##
 #end
 ##
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
-SVS${siteId}
+${productId}${siteId}
 
 #if(${productClass}=="T")
 TEST...Severe Weather Statement...TEST
@@ -178,11 +178,11 @@ THIS IS A TEST MESSAGE. ##
 
 THIS IS A TEST MESSAGE. ##
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
-, ${reportType}, ${reportType1} ##
+#commaOrEllipsis()${reportType}#commaOrEllipsis()${reportType1} ##
 #else
 
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
-, ${reportType}, ${reportType1} ##
+#commaOrEllipsis()${reportType}#commaOrEllipsis()${reportType1} ##
 #end
 ##Many of the variables passed below are controlled by config.vm
 #if(${stormType} == "line")
@@ -193,7 +193,7 @@ THIS IS A TEST MESSAGE. ##
 #if(${movementSpeed} < ${landStationary} || ${stationary})
 . ${reportType2} nearly stationary.##
 #else
-, moving #direction(${movementDirectionRounded}) at ${mathUtil.roundTo5(${movementSpeed})} mph.##
+#commaOrEllipsis()moving #direction(${movementDirectionRounded}) at ${mathUtil.roundTo5(${movementSpeed})} mph.##
 #end
   This is an extremely dangerous and life-threatening situation!
   
@@ -228,7 +228,7 @@ PRECAUTIONARY/PREPAREDNESS ACTIONS...
 #end
 #if(${list.contains(${bullets}, "cta1")})
 Widespread destructive winds of !** **! to !** **! mph will spread across ##
-#headlineLocList(${areas} true true true false), Producing swaths of tornado-like damage.
+#headlineLocList(${areas} true true true false)#commaOrEllipsis()Producing swaths of tornado-like damage.
 
 #end
 #if(${list.contains(${bullets}, "cta2")})
@@ -236,7 +236,7 @@ TAKE COVER NOW! Treat these imminent extreme winds as if a tornado was approachi
 
 #end
 #if(${list.contains(${bullets}, "cta3")})
-The safest place to be during a major landfalling hurricane is in a reinforced interior room away from windows. Get under a table or other piece of sturdy furniture. Use mattresses, blankets or pillows to cover your head and body. Remain in place through the passage of these life-threatening conditions.
+The safest place to be during a major landfalling hurricane is in a reinforced interior room away from windows. Get under a table or other piece of sturdy furniture. Use mattresses#commaOrEllipsis()blankets or pillows to cover your head and body. Remain in place through the passage of these life-threatening conditions.
 
 #end
 #############
@@ -254,24 +254,24 @@ The safest place to be during a major landfalling hurricane is in a reinforced i
 #################
 #if(${action}=="CANCON" || ${CORCAN}=="true")
 ##
-#set($reportType1 = "associated with the eyewall of hurricane !**name**!, were moving onshore")
+#set($reportType1 = "associated with the eyewall of hurricane !**name**!#commaOrEllipsis()were moving onshore")
 #set($reportType = "extreme winds")
 #set($reportType2 = "the hurricane eyewall was")
 ##
 #if(${list.contains(${bullets}, "var1")})
-#set($reportType1 = "associated with a broad area of intense thunderstorms, located")
+#set($reportType1 = "associated with a broad area of intense thunderstorms#commaOrEllipsis()located")
 #set($reportType = "extreme winds were occurinG")
 #set($reportType2 = "this area of thunderstorm winds was")
 #end
 ##
 #if(${list.contains(${bullets}, "var2")})
-#set($reportType1 = "associated with an intense low pressure area, located")
+#set($reportType1 = "associated with an intense low pressure area#commaOrEllipsis()located")
 #set($reportType = "extreme winds were occuring")
 #set($reportType2 = "this intense low pressure system was")
 #end
 ##
 #if(${list.contains(${bullets}, "var3")})
-#set($reportType1 = "associated with a downslope windstorm, located")
+#set($reportType1 = "associated with a downslope windstorm#commaOrEllipsis()located")
 #set($reportType = "extreme winds were occuring")
 #set($reportType2 = "this area of downslope winds was")
 #end
@@ -305,7 +305,7 @@ The safest place to be during a major landfalling hurricane is in a reinforced i
 #end
 ##
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
-SVS${siteId}
+${productId}${siteId}
 
 #if(${productClass}=="T")
 TEST...Severe Weather Statement...TEST
@@ -394,10 +394,10 @@ THIS IS A TEST MESSAGE.##
 
 #if(${productClass}=="T")
 
-THIS IS A TEST MESSAGE. At ${dateUtil.format(${event}, ${timeFormat.clock}, ${localtimezone})}, ${reportType}, ${reportType1} ##
+THIS IS A TEST MESSAGE. At ${dateUtil.format(${event}, ${timeFormat.clock}, ${localtimezone})}#commaOrEllipsis()${reportType}#commaOrEllipsis()${reportType1} ##
 #else
 
-At ${dateUtil.format(${event}, ${timeFormat.clock}, ${localtimezone})}, ${reportType}, ${reportType1} ##
+At ${dateUtil.format(${event}, ${timeFormat.clock}, ${localtimezone})}#commaOrEllipsis()${reportType}#commaOrEllipsis()${reportType1} ##
 #end
 ##Many of the variables passed below are controlled by config.vm
 #if(${stormType} == "line")
@@ -408,7 +408,7 @@ At ${dateUtil.format(${event}, ${timeFormat.clock}, ${localtimezone})}, ${report
 #if(${movementSpeed} < ${landStationary} || ${stationary})
 . ${reportType2} nearly stationary.##
 #else
-, moving #direction(${movementDirectionRounded}) AT ${mathUtil.roundTo5(${movementSpeed})} mph.##
+#commaOrEllipsis()moving #direction(${movementDirectionRounded}) AT ${mathUtil.roundTo5(${movementSpeed})} mph.##
 #end
  This is an extremely dangerous and life-threatening situation!
  
@@ -453,7 +453,7 @@ PRECAUTIONARY/PREPAREDNESS ACTIONS...
 #if(${list.contains(${bullets}, "destructiveWindsCTA")})
 Widespread destructive winds of !** **! to !** **! mph will spread across ##
 #foreach (${area} in ${areas})
- ${area.name} ${area.areaNotation}, ##
+ ${area.name} ${area.areaNotation}#commaOrEllipsis()##
 #end
 producing swaths of tornado-like damage.
 
@@ -463,7 +463,7 @@ TAKE COVER NOW! Treat these imminent extreme winds as if a tornado was approachi
 
 #end
 #if(${list.contains(${bullets}, "safePlacesCTA")})
-The safest place to be during a major landfalling hurricane is in a reinforced interior room away from windows. Get under a table or other piece of sturdy furniture. Use mattresses, blankets or pillows to cover your head and body. Remain in place through the passage of these life-threatening conditions.
+The safest place to be during a major landfalling hurricane is in a reinforced interior room away from windows. Get under a table or other piece of sturdy furniture. Use mattresses#commaOrEllipsis()blankets or pillows to cover your head and body. Remain in place through the passage of these life-threatening conditions.
 
 #end
 ##
@@ -487,7 +487,7 @@ The safest place to be during a major landfalling hurricane is in a reinforced i
 #################
 #if(${action}=="EXP")
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
-SVS${siteId}
+${productId}${siteId}
 
 Severe Weather Statement
 National Weather Service ${officeShort}

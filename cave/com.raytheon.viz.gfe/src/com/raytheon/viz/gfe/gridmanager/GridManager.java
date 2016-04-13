@@ -49,6 +49,7 @@ import org.eclipse.ui.progress.UIJob;
 import com.raytheon.uf.common.time.ISimulatedTimeChangeListener;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.core.DataManager;
@@ -72,8 +73,9 @@ import com.raytheon.viz.gfe.temporaleditor.TemporalEditor;
  * Jan 14, 2013 1442       rferrel     Add SimulatedTimeChangeListener.
  * Jan 15, 2014 16072      ryu         Modify syncSelectTR() to skip the original code when 
  *                                     called back from setSelectedTime().
- * Aug 13, 2015  4749      njensen     Implemented dispose()                                    
- *
+ * Aug 13, 2015  4749      njensen     Implemented dispose()
+ * Mar 10, 2016  5479      randerso    Moved widthIncrement into GridManagerUtil
+ * 
  * </pre>
  * 
  * @author randerso
@@ -125,7 +127,7 @@ public class GridManager implements IGridManager,
                         if (p < timeScroller.getMinimum()) {
                             timeScroller.setMinimum(p);
                         }
-                        if (p + timeScroller.getThumb() > timeScroller
+                        if ((p + timeScroller.getThumb()) > timeScroller
                                 .getMaximum()) {
                             timeScroller.setMaximum(p + timeScroller.getThumb());
                         }
@@ -214,7 +216,7 @@ public class GridManager implements IGridManager,
 
         @Override
         protected IStatus run(IProgressMonitor monitor) {
-            if (temporalEditor != null && temporalEditor.checkDeactive()) {
+            if ((temporalEditor != null) && temporalEditor.checkDeactive()) {
                 Display.getDefault().syncExec(new Runnable() {
                     @Override
                     public void run() {
@@ -263,8 +265,6 @@ public class GridManager implements IGridManager,
     private ScrolledComposite teScrolledComp;
 
     private DataManager dataManager;
-
-    private int widthIncrement;
 
     private int selectionStart;
 
@@ -363,17 +363,9 @@ public class GridManager implements IGridManager,
         return util;
     }
 
-    /**
-     * @return the widthIncrement
-     */
-    public int getWidthIncrement() {
-        return widthIncrement;
-    }
-
     @Override
     public void expandTimeScale() {
-        if (widthIncrement < GridManagerUtil.SECONDS_PER_PIXEL.length - 1) {
-            widthIncrement++;
+        if (this.util.expandTimeScale()) {
             adjustScroller();
             redraw();
         }
@@ -381,8 +373,7 @@ public class GridManager implements IGridManager,
 
     @Override
     public void contractTimeScale() {
-        if (widthIncrement > 0) {
-            widthIncrement--;
+        if (this.util.contractTimeScale()) {
             adjustScroller();
             redraw();
         }
@@ -432,8 +423,8 @@ public class GridManager implements IGridManager,
         updateTimeRange(getDataManager().getParmManager().getSystemTimeRange());
         timeScroller
                 .setSelection((int) ((SimulatedTime.getSystemTime().getTime()
-                        .getTime() - GridManagerUtil.MILLIS_PER_HOUR) / GridManagerUtil.MILLIS_PER_SECOND));
-        timeScroller.setIncrement((int) GridManagerUtil.SECONDS_PER_HOUR);
+                        .getTime() - TimeUtil.MILLIS_PER_HOUR) / TimeUtil.MILLIS_PER_SECOND));
+        timeScroller.setIncrement(TimeUtil.SECONDS_PER_HOUR);
 
         timeScroller.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -518,10 +509,10 @@ public class GridManager implements IGridManager,
                 super.dragMove(e);
 
                 Rectangle r = gridCanvas.getClientArea();
-                if (e.x <= r.x + 50) {
+                if (e.x <= (r.x + 50)) {
                     int offset = e.x - (r.x + 50);
                     startScrolling(offset / 4);
-                } else if (e.x >= r.width - 50) {
+                } else if (e.x >= (r.width - 50)) {
                     int offset = e.x - (r.width - 50);
                     startScrolling(offset / 4);
                 } else {
@@ -559,8 +550,8 @@ public class GridManager implements IGridManager,
              */
             @Override
             public void mouseClick(MouseEvent e) {
-                if (e.stateMask == (SWT.BUTTON1 | SWT.SHIFT)
-                        || e.stateMask == (SWT.BUTTON2 | SWT.SHIFT)) {
+                if ((e.stateMask == (SWT.BUTTON1 | SWT.SHIFT))
+                        || (e.stateMask == (SWT.BUTTON2 | SWT.SHIFT))) {
 
                     // Shift clicking to extend the highlighted area.
                     TimeRange timeRange = getDataManager()
@@ -594,7 +585,7 @@ public class GridManager implements IGridManager,
                     timeScale.getClientArea().width);
             this.visibleTimeRange = new TimeRange(
                     new Date(
-                            (timeScroller.getSelection() * GridManagerUtil.MILLIS_PER_SECOND)),
+                            (timeScroller.getSelection() * TimeUtil.MILLIS_PER_SECOND)),
                     duration);
         }
 
@@ -611,14 +602,14 @@ public class GridManager implements IGridManager,
      *         computed
      */
     public boolean checkVisibility(TimeRange tr) {
-        if (this.visibleTimeRange != null && !visibleTimeRange.overlaps(tr)) {
+        if ((this.visibleTimeRange != null) && !visibleTimeRange.overlaps(tr)) {
             return false;
         }
         return true;
     }
 
     public TimeRange getTemporalEditorVisibleTimeRange() {
-        if (this.teVisibleTimeRange == null && temporalEditor != null) {
+        if ((this.teVisibleTimeRange == null) && (temporalEditor != null)) {
             TimeRange tr = getVisibleTimeRange().clone();
             int horizOffset = temporalEditor.getHorizOffset();
             long millis = getUtil().pixelsToDuration(horizOffset);
@@ -645,10 +636,8 @@ public class GridManager implements IGridManager,
     }
 
     private void updateTimeRange(TimeRange timeRange) {
-        long max = timeRange.getEnd().getTime()
-                / GridManagerUtil.MILLIS_PER_SECOND;
-        long min = timeRange.getStart().getTime()
-                / GridManagerUtil.MILLIS_PER_SECOND;
+        long max = timeRange.getEnd().getTime() / TimeUtil.MILLIS_PER_SECOND;
+        long min = timeRange.getStart().getTime() / TimeUtil.MILLIS_PER_SECOND;
 
         if (max > Integer.MAX_VALUE) {
             max = Integer.MAX_VALUE;
@@ -793,9 +782,9 @@ public class GridManager implements IGridManager,
 
                 if (parm == null) {
                     Date tbase = new Date(
-                            (t.getTime() / GridManagerUtil.MILLIS_PER_HOUR)
-                                    * GridManagerUtil.MILLIS_PER_HOUR);
-                    tr = new TimeRange(tbase, GridManagerUtil.MILLIS_PER_HOUR);
+                            (t.getTime() / TimeUtil.MILLIS_PER_HOUR)
+                                    * TimeUtil.MILLIS_PER_HOUR);
+                    tr = new TimeRange(tbase, TimeUtil.MILLIS_PER_HOUR);
                 } else {
                     GridID gridid = new GridID(parm, t);
                     if (gridid.grid() != null) {

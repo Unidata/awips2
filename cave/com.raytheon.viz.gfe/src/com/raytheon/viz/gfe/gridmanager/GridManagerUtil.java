@@ -27,16 +27,19 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Pattern;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Display;
 
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.drawables.FillPatterns;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.PreferenceInitializer;
+import com.raytheon.viz.gfe.rsc.GFEFonts;
 import com.raytheon.viz.gfe.rsc.GFELinePatterns;
 
 /**
@@ -58,34 +61,30 @@ import com.raytheon.viz.gfe.rsc.GFELinePatterns;
  */
 
 public class GridManagerUtil {
-    public static final long MILLIS_PER_SECOND = 1000;
 
-    public static final long SECONDS_PER_HOUR = 3600;
+    private static final int QUANTUM = TimeUtil.SECONDS_PER_HOUR;
 
-    public static final long MILLIS_PER_HOUR = SECONDS_PER_HOUR
-            * MILLIS_PER_SECOND;
+    private static final int MAX_PIXELS_PER_QUANTUM = 450;
 
-    public static final int SECONDS_PER_PIXEL[] = { 400, 300, 240, 180, 144,
-            100, 80, 60, 48, 36, 25, 20, 16, 12, 8, 4 };
+    private static final int MIN_SCALING = QUANTUM / MAX_PIXELS_PER_QUANTUM;
 
-    public final int HOUR_INCREMENT[] = { 6, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1,
-            1, 1, 1, 1 };
+    private static final double TIME_SCALING_FACTOR = 0.8;
 
-    public static Pattern Selected_pattern;
+    private static Pattern Selected_pattern;
 
-    public static Color TimeScaleLines_color;
+    private static Color TimeScaleLines_color;
 
-    public static int TimeScaleLines_pattern;
+    private static int TimeScaleLines_pattern;
 
-    public static boolean showTimeScaleLines;
+    private static boolean showTimeScaleLines;
 
-    public static Color EditorTimeLine_color;
+    private static Color EditorTimeLine_color;
 
-    public static int EditorTimeLine_width;
+    private static int EditorTimeLine_width;
 
-    public static int EditorTimeLine_pattern;
+    private static int EditorTimeLine_pattern;
 
-    public static Color EditorBackground_color;
+    private static Color EditorBackground_color;
 
     static {
         new PreferenceInitializer() {
@@ -162,47 +161,112 @@ public class GridManagerUtil {
 
     protected GridManager gridManager;
 
+    private int secondsPerPixel;
+
+    private int maxScaling;
+
+    private int hourIncrement;
+
+    private int hourLabelWidth;
+
+    /**
+     * Constructor
+     * 
+     * @param gridManager
+     */
     public GridManagerUtil(GridManager gridManager) {
         this.gridManager = gridManager;
+
+        // compute minimumBlockWidth based on TimeBlockSource_font width
+        Display display = Display.getCurrent();
+        GC gc = new GC(display);
+        Font font = GFEFonts.makeGFEFont(display, "TimeBlockSource_font",
+                SWT.NORMAL, 1);
+        gc.setFont(font);
+        int minBlockWidth = (gc.textExtent("W").x + (GridBar.DATA_BLOCK_HORIZONTAL_MARGIN * 2)) - 1;
+        font.dispose();
+
+        int fontNum = Math.max(GFEFonts.getFontNum("TimeScale_font", 2) - 1, 0);
+        font = GFEFonts.getFont(display, Math.max(fontNum - 1, 0));
+        hourLabelWidth = gc.textExtent("00").x;
+        gc.dispose();
+
+        // compute initial time scaling for minimumBlockWidth
+        maxScaling = adjustScaling(QUANTUM / minBlockWidth, -1);
+        secondsPerPixel = maxScaling;
+
+        computeHourIncrement();
     }
 
     /**
-     * Returns the pixel that represents the Date's value.
+     * Returns the pixel offset that represents the Date's value.
      * 
      * @param date
-     * @return
+     * @return pixel offset of date
      */
     public int dateToPixel(Date date) {
         Date startTime = getVisibleTimeRange().getStart();
 
-        int retVal = (int) ((date.getTime() - startTime.getTime()) / MILLIS_PER_SECOND)
-                / SECONDS_PER_PIXEL[gridManager.getWidthIncrement()];
+        int retVal = (int) ((date.getTime() - startTime.getTime()) / TimeUtil.MILLIS_PER_SECOND)
+                / secondsPerPixel;
         return retVal;
     }
 
+    /**
+     * Determine hour containing date
+     * 
+     * @param date
+     * @return the one hour time range containing date
+     */
     public TimeRange dateToHour(Date date) {
-        long l = (date.getTime() / MILLIS_PER_HOUR) * MILLIS_PER_HOUR;
-        return new TimeRange(l, l + MILLIS_PER_HOUR);
+        long l = (date.getTime() / TimeUtil.MILLIS_PER_HOUR)
+                * TimeUtil.MILLIS_PER_HOUR;
+        return new TimeRange(l, l + TimeUtil.MILLIS_PER_HOUR);
     }
 
+    /**
+     * Compute date/time corresponding to time scale pixel offset
+     * 
+     * @param pixel
+     *            pixel offset
+     * @return date corresponding to pixel offset
+     */
     public Date pixelToDate(int pixel) {
         long duration = pixelsToDuration(pixel);
         return new Date(getVisibleTimeRange().getStart().getTime() + duration);
     }
 
+    /**
+     * Determine hour containing pixel offset
+     * 
+     * @param pixel
+     *            pixel offset
+     * @return one hour time range containing pixel offset
+     */
     public TimeRange pixelToHour(int pixel) {
         return dateToHour(pixelToDate(pixel));
     }
 
+    /**
+     * Convert duration in seconds to width in pixels
+     * 
+     * @param duration
+     *            in seconds
+     * @return width in pixels
+     */
     public int durationToPixels(long duration) {
-        return (int) (duration / MILLIS_PER_SECOND / SECONDS_PER_PIXEL[gridManager
-                .getWidthIncrement()]);
+        return (int) (duration / TimeUtil.MILLIS_PER_SECOND / secondsPerPixel);
     }
 
+    /**
+     * Convert width in pixels to duration in seconds
+     * 
+     * @param pixels
+     *            width in pixels
+     * @return duration in seconds
+     */
     public long pixelsToDuration(int pixels) {
-        return (long) pixels
-                * SECONDS_PER_PIXEL[gridManager.getWidthIncrement()]
-                * MILLIS_PER_SECOND;
+        return (long) pixels * secondsPerPixel * TimeUtil.MILLIS_PER_SECOND;
     }
 
     /**
@@ -210,8 +274,10 @@ public class GridManagerUtil {
      * will be rounded to the next hour.
      * 
      * @param x0
+     *            start of pixel range
      * @param x1
-     * @return
+     *            end of pixel range
+     * @return TimeRange corresponding to pixel range
      */
     public TimeRange pixelsToSelection(int x0, int x1) {
         return pixelToHour(x0).span(pixelToHour(x1));
@@ -236,15 +302,23 @@ public class GridManagerUtil {
                 Integer.MAX_VALUE);
     }
 
+    /**
+     * Paint the background of a grid bar
+     * 
+     * @param event
+     * @param bounds
+     */
     public void paintBackground(PaintEvent event, Rectangle bounds) {
         event.gc.setBackground(EditorBackground_color);
         event.gc.fillRectangle(bounds);
-
-        // if (showTimeScaleLines) {
-        // paintTimeScaleLines(event, bounds);
-        // }
     }
 
+    /**
+     * Paint the selected time range of a grid bar
+     * 
+     * @param event
+     * @param selection
+     */
     public void paintSelectionTimeRange(PaintEvent event, Rectangle selection) {
         event.gc.setBackgroundPattern(Selected_pattern);
         event.gc.fillRectangle(selection);
@@ -254,8 +328,10 @@ public class GridManagerUtil {
     /**
      * Paints the blue lines
      * 
-     * @param gc
+     * @param event
+     *            PaintEvent
      * @param bounds
+     *            area needing repainting
      */
     public void paintTimeScaleLines(PaintEvent event, Rectangle bounds) {
         if (showTimeScaleLines) {
@@ -275,7 +351,7 @@ public class GridManagerUtil {
             GC gc = event.gc;
             gc.setLineWidth(0);
             gc.setForeground(TimeScaleLines_color);
-            int y = bounds.y + bounds.height - 1;
+            int y = (bounds.y + bounds.height) - 1;
             while (currentTickDate.before(stopTime)) {
                 int x = dateToPixel(currentTickDate);
 
@@ -294,15 +370,24 @@ public class GridManagerUtil {
         }
     }
 
+    /**
+     * Get number of hours between hour labels
+     * 
+     * @return hour increment
+     */
     public int getHourIncrement() {
-        return HOUR_INCREMENT[gridManager.getWidthIncrement()];
+        return hourIncrement;
     }
 
     /**
      * Paints the selected line in yellow from the time bar through all the
      * GridBars.
      * 
-     * @param gc
+     * @param event
+     *            PaintEvent
+     * @param rect
+     *            area needing repainting
+     * 
      */
     public void paintSelected(PaintEvent event, Rectangle rect) {
         GC gc = event.gc;
@@ -321,5 +406,72 @@ public class GridManagerUtil {
      */
     protected TimeRange getVisibleTimeRange() {
         return gridManager.getVisibleTimeRange();
+    }
+
+    private int adjustScaling(int scaling, int increment) {
+        while ((QUANTUM % scaling) != 0) {
+            scaling += increment;
+        }
+
+        return scaling;
+    }
+
+    /**
+     * Expand the Grid Manager time scale
+     * 
+     * @return true if time scale expanded, false if scaling limit would be
+     *         exceeded.
+     */
+    public boolean expandTimeScale() {
+        int currentScaling = secondsPerPixel;
+        int newScaling = (int) (currentScaling * TIME_SCALING_FACTOR);
+
+        newScaling = adjustScaling(newScaling, -1);
+        newScaling = Math.max(newScaling, MIN_SCALING);
+
+        secondsPerPixel = newScaling;
+
+        if (newScaling != currentScaling) {
+            computeHourIncrement();
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Contract the Grid Manager time scale
+     * 
+     * @return true if time scale expanded, false if scaling limit would be
+     *         exceeded.
+     */
+    public boolean contractTimeScale() {
+        int currentScaling = secondsPerPixel;
+        int newScaling = (int) (currentScaling / TIME_SCALING_FACTOR);
+
+        // Need to insure that there will be an increase
+        if (newScaling == currentScaling) {
+            newScaling = currentScaling + 1;
+        }
+
+        newScaling = adjustScaling(newScaling, 1);
+        newScaling = Math.min(newScaling, maxScaling);
+
+        secondsPerPixel = newScaling;
+
+        if (newScaling != currentScaling) {
+            computeHourIncrement();
+            return true;
+        }
+        return false;
+    }
+
+    private void computeHourIncrement() {
+        int pixelsPerHour = TimeUtil.SECONDS_PER_HOUR / secondsPerPixel;
+
+        int h = 12;
+        while ((h > 2) && ((h * pixelsPerHour) > (hourLabelWidth * 7))) {
+            h /= 2;
+        }
+        hourIncrement = h;
     }
 }
