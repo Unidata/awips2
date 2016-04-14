@@ -320,4 +320,9 @@
         <versionsToKeep>120</versionsToKeep>
         <period>03-00:00:00</period>
     </rule>
+    <rule>
+        <keyValue>MRMS_5000</keyValue>
+        <versionsToKeep>120</versionsToKeep>
+        <period>03-00:00:00</period>
+    </rule>
 </purgeRuleSet>

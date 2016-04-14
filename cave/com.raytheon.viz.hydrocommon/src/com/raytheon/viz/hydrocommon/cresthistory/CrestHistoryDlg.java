@@ -75,6 +75,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Dec 10, 2014   16061     lbousaidi   set the crest time to the correct value for a
  *                                      new record,also fixed the sorting to match the correct 
  *                                      timecrest.
+ * Nov 30, 2015   14228     wkwock      Update remark limit to 160.
  * 
  * </pre>
  * 
@@ -239,7 +240,7 @@ public class CrestHistoryDlg extends CaveSWTDialog implements
     /**
      * maximum number of character allowed in the remark text box
      */
-    private final int MAX_REMARK_CHAR = 80;
+    private final int MAX_REMARK_CHAR = 160;
 
     /**
      * The valid time set by the last call to verifiedTime().

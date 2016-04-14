@@ -36,6 +36,7 @@ import com.raytheon.viz.hydrocommon.util.HydroDataUtils;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 10, 2008 1661       askripsky   Initial Creation
+ * Jan 15, 2016 DCS18180     JingtaoD   code improvement based on code review for DR17935
  * 
  * </pre>
  * 
@@ -162,17 +163,14 @@ public class FloodDataManager extends HydroDataManager {
 
     private void updateFloodData(FloodData data) throws VizException {
 
-        DbUtils.escapeSpecialCharforData(data);
-
         runStatement(String
                 .format(UPDATE_STATEMENT, data.getDamage(),
                         data.getDisplayStatement(),
                         HydroDataUtils.getPKStatement(data)));
+
     }
 
     private void insertFloodData(FloodData currData) throws VizException {
-
-        DbUtils.escapeSpecialCharforData(currData);
 
         runStatement(String.format(INSERT_STATEMENT, currData.getLid(),
                 String.format("%8.2f", currData.getStage()),
@@ -189,13 +187,16 @@ public class FloodDataManager extends HydroDataManager {
         newData.setDisplayStatement(displayStatement);
         newData.setStage(stage);
 
+        FloodData newDataForQuery = new FloodData();
+        DbUtils.escapeSpecialCharforData(newData, newDataForQuery);
+
         // Check if it's going to be an update or insert
-        if (checkFloodData(newData) > 0) {
+        if (checkFloodData(newDataForQuery) > 0) {
             // Do an update
-            updateFloodData(newData);
+            updateFloodData(newDataForQuery);
         } else {
             // Do an insert
-            insertFloodData(newData);
+            insertFloodData(newDataForQuery);
         }
     }
 }

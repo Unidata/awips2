@@ -15,6 +15,7 @@ import javax.xml.bind.annotation.XmlAttribute;
  * Date         Ticket#    Engineer     Description
  * ------------ ---------- ------------ --------------------------
  * 12/21/2015   DCS 17942  D. Friedman  Initial revision
+ * 03/22/2016   DCS 18719  D. Friedman  Add dynamicArea option
  * </pre>
  *
  */
@@ -22,6 +23,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 public class ExtensionArea implements Cloneable {
     private double distance = Double.NaN;
     private double simplificationTolerance = Double.NaN;
+    private boolean dynamicArea = false;
 
     @XmlAttribute
     public double getDistance() {
@@ -39,6 +41,15 @@ public class ExtensionArea implements Cloneable {
 
     public void setSimplificationTolerance(double simplificationTolerance) {
         this.simplificationTolerance = simplificationTolerance;
+    }
+
+    @XmlAttribute
+    public boolean isDynamicArea() {
+        return dynamicArea;
+    }
+
+    public void setDynamicArea(boolean dynamicArea) {
+        this.dynamicArea = dynamicArea;
     }
 
     public ExtensionArea clone() {

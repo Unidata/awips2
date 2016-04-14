@@ -44,6 +44,7 @@ import com.raytheon.viz.hydrocommon.util.DbUtils;
  * Sep 12, 2009 2772       mpduff      Initial creation
  * 30 June 2015 17360      xwei        Fixed : basins.dat import failed if the first line does not have Lat Lon
  * Aug 18, 2015 4763       rjpeter     Use Number in blind cast.
+ * Mar 22, 2016 5217       mduff       Must ensure longitude values are > 0.
  * </pre>
  * 
  * @author mpduff
@@ -53,6 +54,7 @@ import com.raytheon.viz.hydrocommon.util.DbUtils;
 public class GeoDataManager extends HydroDataManager {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GeoDataManager.class);
+
     private static GeoDataManager instance = null;
 
     private GeoDataManager() {
@@ -168,8 +170,6 @@ public class GeoDataManager extends HydroDataManager {
             return status;
         }
 
-        DbUtils.escapeSpecialCharforData(data);
-
         /*
          * if the interior lat, lon were provided from the input file, then use
          * them. otherwise compute them.
@@ -196,18 +196,21 @@ public class GeoDataManager extends HydroDataManager {
                 lonTotal += posWeight * lon[i];
             }
 
+            // In Hydro Longitude must be > 0
+            intLon = Math.abs(lonTotal / weightTotal);
             intLat = latTotal / weightTotal;
-            intLon = lonTotal / weightTotal;
 
             data.setInteriorLat(intLat);
             data.setInteriorLon(intLon);
         }
 
+        String dataName = DbUtils.escapeSpecialCharforStr(data.getName());
+
         StringBuilder query = new StringBuilder();
         query.append("insert into geoarea (area_id,");
         query.append(" name, boundary_type, interior_lat, interior_lon)");
         query.append(" values ('" + data.getAreaId() + "', '");
-        query.append(data.getName() + "', '");
+        query.append(dataName + "', '");
         query.append(data.getBoundaryType() + "', ");
         query.append(data.getInteriorLat() + ", ");
         query.append(data.getInteriorLon() + ")");

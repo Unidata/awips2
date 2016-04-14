@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<contribute xsi:type="subMenu" menuText="Regional and National Mosaics"	 id="otherRegMosiacMenu" >
+		<contribute xsi:type="subinclude" subMenu="Northeast Region" id="neRegMosiacMenu"
+            fileName="menus/radar/radarMosaicProductMenu.xml">
+			<substitute key="mosaicIcaoList" value="kcbw,kcxx,kgyx,ktyx,kenx,kbox,kbuf,kbgm,kokx,kcle,kpbz,kccx,kdix,krlx,kfcx,kakq,kdox,klwx" />
+		</contribute>
+		<contribute xsi:type="subinclude" subMenu="Mid-Atlantic Region" id="mid-atlRegMosiacMenu"
+            fileName="menus/radar/radarMosaicProductMenu.xml">
+			<substitute key="mosaicIcaoList" value="kcle,kpbz,kccx,kokx,kdix,kiln,krlx,klwx,kdox,kjkl,kfcx,kakq,kmrx,krax,kgsp,kmhx,kltx,kcae,kffc,kjgx,kclx,keox,kvax,kjax" />
+		</contribute>
+		<contribute xsi:type="subinclude" subMenu="Southeast Region" id="seRegMosiacMenu"
+            fileName="menus/radar/radarMosaicProductMenu.xml">
+			<substitute key="mosaicIcaoList" value="kohx,kmrx,krax,knqa,khtx,kgsp,kcae,kltx,kgwx,kdgx,kmhx,kffc,klix,kbix,kmob,kbmx,kmxx,keox,kjgx,kclx,kevx,ktlh,kvax,kjax,ktbw,kmlb,kamx,kbyx" />
+		</contribute>
+		<contribute xsi:type="subinclude" subMenu="Gulf Coast Region" id="gulfRegMosiacMenu"
+            fileName="menus/radar/radarMosaicProductMenu.xml">
+			<substitute key="mosaicIcaoList" value="kbro,kcrp,kdfx,kewx,kgrk,khgx,kfws,kshv,kpoe,klch,klix,klzk,kdgx,kbix,kgwx,kmob,kbmx,kmxx,keox,kevx,ktlh,kffc,kjgx,kvax,kjax,ktbw,kmlb,kamx,kbyx" />
+		</contribute>
+		<contribute xsi:type="subinclude" subMenu="Great Lakes Region" id="lakesRegMosiacMenu"
+            fileName="menus/radar/radarMosaicProductMenu.xml">
+			<substitute key="mosaicIcaoList" value="kdlh,kmpx,krlx,kccx,kjkl,krlx,karx,kmqt,kgrb,kmkx,kdmx,kdvn,klot,kilx,klsx,kapx,kgrr,kdtx,kiwx,kind,kvwx,klvx,kiln,kcle,kpbz,kbuf,kccf,kbgm,ktyx" />
+		</contribute>
+		<contribute xsi:type="subinclude" subMenu="Ozarks/Tenn Valley Region" id="oztennRegMosiacMenu"
+            fileName="menus/radar/radarMosaicProductMenu.xml">
+			<substitute key="mosaicIcaoList" value="keax,ksgf,klsx,kilx,kind,kvwx,kiln,kpah,khpx,klvx,kjkl,krlx,ksrx,klzk,knqa,kohx,kmrx,kshv,kdgx,kgwx,kbmx,khtx,kffc,kgsp" />
+		</contribute>
+		<contribute xsi:type="subinclude" subMenu="Northern Plains Region" id="nrnplainsRegMosiacMenu"
+            fileName="menus/radar/radarMosaicProductMenu.xml">
+			<substitute key="mosaicIcaoList" value="kggw,kmbx,kbis,kmvx,kudx,kabr,kdlh,kmpx,karx,kfsd,kcys,klnx,kuex,koax,kdmx,kdvn,kftg,kpux,kgld,kddc,kict,ktwx,keax,ksgf,klsx,kilx,kvnx" />
+		</contribute>
+		<contribute xsi:type="subinclude" subMenu="Southern Plains Region" id="srnplainsRegMosiacMenu"
+            fileName="menus/radar/radarMosaicProductMenu.xml">
+			<substitute key="mosaicIcaoList" value="kpux,kgld,kddc,kict,ktwx,keax,ksgf,klsx,kpah,kfdx,khdx,kepz,kama,klbb,kmaf,ksjt,kdfx,kdyx,kfws,kgrk,kewx,kcrp,kbro,khgx,kfdr,ktlx,kvnx,kinx,ksrx,klzk,kshv,kpoe,klch,knqa,kdgx,klix,kpah" />
+		</contribute>
+		<contribute xsi:type="subinclude" subMenu="Northwest Region" id="nwRegMosiacMenu"
+            fileName="menus/radar/radarMosaicProductMenu.xml">
+			<substitute key="mosaicIcaoList" value="katx,krtx,kotx,kpdt,kmax,kcbx,ksfx,kmsx,ktfx,kblx,kggw,kriw,kcys,kbhx,kbbx,kdax,kmux,khnx,krgx,klgx,klrx,kmtx,kicx,kgjx,kftg,kpux" />
+		</contribute>
+		<contribute xsi:type="subinclude" subMenu="Southwest Region" id="swRegMosiacMenu"
+            fileName="menus/radar/radarMosaicProductMenu.xml">
+			<substitute key="mosaicIcaoList" value="kmax,kcbx,ksfx,kriw,kcys,kbbx,kdax,kmux,khnx,kvbx,kvtx,keyx,ksox,knkx,krgx,klrx,kesx,kmtx,kicx,kfsx,kiwa,kyux,kemx,kgjx,kftg,kpux,kabx,khdx,kepz,kfdx" />
+		</contribute>
+		<contribute xsi:type="subinclude" subMenu="National Mosaic" id="natMosiacMenu"
+            fileName="menus/radar/radarMosaicProductMenu.xml">
+			<substitute key="mosaicIcaoList" value="kabr,kabx,kakq,kama,kamx,kapx,karx,katx,kbbx,kbgm,kbhx,kbis,kblx,kbmx,kbox,kbro,kbuf,kbyx,kcae,kcbw,kcbx,kccx,kcle,kclx,kcrp,kcxx,kcys,kdax,kddc,kdfx,kdgx,kdix,kdlh,kdmx,kdox,kdtx,kdvn,kdyx,keax,kemx,kenx,keox,kepz,kesx,kevx,kewx,keyx,kfcx,kfdr,kfdx,kffc,kfsd,kfsx,kftg,kfws,kggw,kgjx,kgld,kgrb,kgrk,kgrr,kgsp,kgwx,kgyx,khdx,khgx,khnx,khpx,khtx,kict,kicx,kiln,kilx,kind,kinx,kiwa,kiwx,kjan,kjax,kjgx,kjkl,klbb,klch,klgx,klix,klnx,klot,klrx,klsx,kltx,klvx,klwx,klzk,kmaf,kmax,kmbx,kmhx,kmkx,kmlb,kmob,kmpx,kmqt,kmrx,kmsx,kmtx,kmux,kmvx,kmxx,knkx,knqa,koax,kohx,kokx,kotx,kpah,kpbz,kpdt,kpoe,kpux,krax,krgx,kriw,krlx,krtx,ksfx,ksgf,kshv,ksjt,ksox,ksrx,ktbw,ktfx,ktlh,ktlx,ktwx,ktyx,kudx,kuex,kvax,kvbx,kvnx,kvtx,kvwx,kyux,pabc,pacg,paec,pahg,paih,pakc,papd,pgua,phki,phkm,phmo,phwa,tjua,tadw,tatl,tbna,tbos,tbwi,tclt,tcmh,tcvg,tdal,tday,tdca,tden,tdfw,tdtw,tewr,tfll,thou,tiad,tiah,tich,tids,tjfk,tlas,tlve,tmci,tmco,tmdw,tmem,tmia,tmke,tmsp,tmsy,tokc,tord,tpbi,tphl,tphx,tpit,trdu,tsdf,tsju,tslc,tstl,ttpa,ttul" />
+		</contribute>
+		<contribute xsi:type="subinclude" subMenu="TDWR Mosaic" id="tdwrMosaicMenu"
+		    fileName="menus/radar/tdwrMosaicProductMenu.xml">
+		    <substitute key="mosaicIcaoList" value="tjua,tadw,tatl,tbna,tbos,tbwi,tclt,tcmh,tcvg,tdal,tday,tdca,tden,tdfw,tdtw,tewr,tfll,thou,tiad,tiah,tich,tids,tjfk,tlas,tlve,tmci,tmco,tmdw,tmem,tmia,tmke,tmsp,tmsy,tokc,tord,tpbi,tphl,tphx,tpit,trdu,tsdf,tsju,tslc,tstl,ttpa,ttul" /> 
+		</contribute>
+	</contribute>
+</menuTemplate>

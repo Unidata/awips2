@@ -32,6 +32,7 @@ import javax.measure.unit.SI;
 
 import org.eclipse.swt.graphics.RGB;
 import org.geotools.coverage.grid.GeneralGridGeometry;
+import org.geotools.referencing.GeodeticCalculator;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 
@@ -62,6 +63,7 @@ import com.raytheon.uf.common.geospatial.ReferencedGeometry;
 import com.raytheon.uf.common.geospatial.ReferencedObject.Type;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.viz.core.DrawableCircle;
 import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -111,6 +113,7 @@ import com.vividsolutions.jts.geom.LineString;
  * Nov 06, 2014  16776    zwang       Handle AMDA product MBA
  * Feb 08, 2016  5318     randerso    Font should not be preference based because the
  *                                    size must match the table outline
+ * Feb 16, 2016  12021    wkwock      Fix mesocyclone zooming issue
  * 
  * </pre>
  * 
@@ -182,6 +185,10 @@ public class RadarGraphicsPage implements IRenderable {
     private boolean drawBorder = false;
 
     private int recordsPerPage = 5;
+
+    private static final int MIN_RADIUS_IN_PIXEL = 7;
+
+    private static final int SPIKE_SIZE = 8;
 
     // for GFM product, add gfmFcstWireframeShape
     public RadarGraphicsPage(IDescriptor descriptor, GeneralGridGeometry gg,
@@ -332,7 +339,7 @@ public class RadarGraphicsPage implements IRenderable {
                         MesocyclonePoint mp = (MesocyclonePoint) currPoint;
                         try {
                             pObject = RadarGraphicFunctions
-                                    .createMesocycloneImage(
+                                    .setMesocycloneInfo(
                                             mp.i,
                                             mp.j,
                                             mp.getMesoCycloneRadius(),
@@ -340,7 +347,7 @@ public class RadarGraphicsPage implements IRenderable {
                                             this.gridGeometry,
                                             this.descriptor,
                                             RadarGraphicFunctions.MesocycloneType.MESOCYCLONE,
-                                            color);
+                                            color, LineStyle.SOLID);
                         } catch (TransformException e) {
                             statusHandler.error(e.getLocalizedMessage(), e);
                         } catch (FactoryException e) {
@@ -832,9 +839,13 @@ public class RadarGraphicsPage implements IRenderable {
                     double radius = currFeature
                             .getValueAsDouble(DMDAttributeIDs.BASE_DIAMETER
                                     .toString()) / 2;
+                    LineStyle lineStyle = LineStyle.SOLID;
+                    if (currFeature.getValue(DMDAttributeIDs.DETECTION_STATUS.toString()).equals("EXT")) {
+                        lineStyle = LineStyle.DASHED;
+                    }
 
-                    image = RadarGraphicFunctions.createMesocycloneImage(rc,
-                            radius, target, this.descriptor, iconType, color);
+                    image = RadarGraphicFunctions.setMesocycloneInfo(rc,
+                            radius, descriptor, iconType, color, lineStyle);
                     double radiusInPixels = RadarGraphicFunctions
                             .getRadiusInPixels(radius, rc.asLatLon().x,
                                     rc.asLatLon().y, descriptor, target);
@@ -1353,11 +1364,120 @@ public class RadarGraphicsPage implements IRenderable {
                 target.drawStrings(string);
 
             }
-            target.getExtension(IPointImageExtension.class).drawPointImages(
-                    paintProps, image);
 
+            if (po.image != null) {
+                target.getExtension(IPointImageExtension.class)
+                        .drawPointImages(paintProps, image);
+            } else {
+                drawMesocyclone(target, paintProps, po);
+            }
+        }
+    }
+
+    /**
+     * Convert the radius from kilometer to radius relative to pixel
+     * @param lat The latitude in decimal degrees between -90 and +90°
+     * @param lon The longitude in decimal degrees between -180 and +180°
+     * @param radius in kilometer
+     * @return radius relative to pixel
+     */
+    private double convertRadius(double lat, double lon, double radius){
+        GeodeticCalculator gc = new GeodeticCalculator(descriptor.getCRS());
+        gc.setStartingGeographicPoint(lat, lon);
+        gc.setDirection(90, radius * 1000); //convert to meter
+
+        
+        double[] p1 = descriptor.worldToPixel(new double[] {
+                gc.getStartingGeographicPoint().getX(),
+                gc.getStartingGeographicPoint().getY() });
+        double[] p2 = descriptor.worldToPixel(new double[] {
+                gc.getDestinationGeographicPoint().getX(),
+                gc.getDestinationGeographicPoint().getY() });
+        return Math.abs(p1[0] - p2[0]);
+    }
+
+    /**
+     * Draw mesocyclone symbols
+     * @param target
+     * @param paintProps
+     * @param po
+     * @throws VizException
+     */
+    private void drawMesocyclone(IGraphicsTarget target,
+            PaintProperties paintProps, PlotObject po) throws VizException {
+        float width = 4;
+        if (po.type.equals(MesocycloneType.CORRELATED_SHEAR)
+                || po.type
+                        .equals(MesocycloneType.CORRELATED_SHEAR_EXTRAPOLATED)) {
+            width = 1;
         }
 
+        double radius = Math.abs(po.mesoRadius);
+        if (radius==0) {//In case, it's 0 for line radius=MIN_RADIUS_IN_PIXEL/radiusInPixel*radius;
+            radius = 0.01;
+        }
+            
+        radius=convertRadius(po.lat,po.lon,radius);
+
+        double[] centerXy = this.descriptor.getRenderableDisplay()
+                .gridToScreen(new double[] { po.coord.x, po.coord.y, 0.0 },
+                        target);
+        double[] rightXy = this.descriptor.getRenderableDisplay().gridToScreen(
+                new double[] { po.coord.x + radius, po.coord.y, 0.0 }, target);
+        double radiusInPixel = rightXy[0] - centerXy[0];
+
+        if (radiusInPixel<MIN_RADIUS_IN_PIXEL){
+            radius=MIN_RADIUS_IN_PIXEL/radiusInPixel*radius;
+            radiusInPixel=MIN_RADIUS_IN_PIXEL;
+        }
+
+        DrawableCircle circle = new DrawableCircle();
+        circle = new DrawableCircle();
+        circle.setCoordinates(po.coord.x,po.coord.y);
+        circle.radius = radius;
+        circle.basics.color = po.color;
+        circle.lineWidth = width;
+        circle.lineStyle=po.lineStyle;
+        target.drawCircle(circle);
+        
+        if (po.type.equals(MesocycloneType.MESOCYCLONE_WITH_SPIKES)) {
+            List<DrawableLine> lines = new ArrayList<DrawableLine>();
+
+            DrawableLine topSpike = new DrawableLine();
+            topSpike.addPoint(centerXy[0], centerXy[1] - radiusInPixel);
+            topSpike.addPoint(centerXy[0], centerXy[1] - radiusInPixel
+                    - SPIKE_SIZE);
+            topSpike.basics.color = po.color;
+            topSpike.width = width;
+            lines.add(topSpike);
+
+            DrawableLine bottomSpike = new DrawableLine();
+            bottomSpike.addPoint(centerXy[0], centerXy[1] + radiusInPixel);
+            bottomSpike.addPoint(centerXy[0], centerXy[1] + radiusInPixel
+                    + SPIKE_SIZE);
+            bottomSpike.basics.color = po.color;
+            bottomSpike.width = width;
+            lines.add(bottomSpike);
+
+            DrawableLine leftSpike = new DrawableLine();
+            leftSpike.addPoint(centerXy[0] - radiusInPixel, centerXy[1]);
+            leftSpike.addPoint(centerXy[0] - radiusInPixel - SPIKE_SIZE,
+                    centerXy[1]);
+            leftSpike.basics.color = po.color;
+            leftSpike.width = width;
+            lines.add(leftSpike);
+
+            DrawableLine rightSpike = new DrawableLine();
+            rightSpike.addPoint(centerXy[0] + radiusInPixel, centerXy[1]);
+            rightSpike.addPoint(centerXy[0] + radiusInPixel + SPIKE_SIZE,
+                    centerXy[1]);
+            rightSpike.basics.color = po.color;
+            rightSpike.width = width;
+            lines.add(rightSpike);
+            target.getExtension(ICanvasRenderingExtension.class).drawLines(
+                    paintProps, lines.toArray(new DrawableLine[0]));
+            
+        }
     }
 
     /**
@@ -1481,7 +1601,7 @@ public class RadarGraphicsPage implements IRenderable {
 
         if (plotObjects != null) {
             for (PlotObject po : plotObjects) {
-                if (po != null) {
+                if (po != null && po.image != null) {
                     po.image.dispose();
                     po.image = null;
                 }

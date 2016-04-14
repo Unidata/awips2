@@ -163,25 +163,25 @@ public class LowWaterDataManager extends HydroDataManager {
 
     private void updateLowWaterData(LowWaterData data) throws VizException {
 
-        DbUtils.escapeSpecialCharforData(data);
+        String noteStr = DbUtils.escapeSpecialCharforStr(data.getRemark());
 
         runStatement(String.format(
                 UPDATE_STATEMENT,
                 (data.getFlow() == LowWaterData.MISSING_VALUE) ? "null" : data
-                        .getFlow(), data.getRemark(),
+                        .getFlow(), noteStr,
                 (data.getStage() == LowWaterData.MISSING_VALUE_D) ? "null"
                         : data.getStage(), HydroDataUtils.getPKStatement(data)));
     }
 
     private void insertLowWaterData(LowWaterData currData) throws VizException {
 
-        DbUtils.escapeSpecialCharforData(currData);
+        String noteStr = DbUtils.escapeSpecialCharforStr(currData.getRemark());
 
         runStatement(String.format(INSERT_STATEMENT, currData.getLid(),
                 dateFormat.format(currData.getDate()),
                 (currData.getFlow() == LowWaterData.MISSING_VALUE) ? "null"
-                        : currData.getFlow(), currData.getRemark(), (currData
-                        .getStage() == LowWaterData.MISSING_VALUE_D) ? "null"
+                        : currData.getFlow(), noteStr,
+                (currData.getStage() == LowWaterData.MISSING_VALUE_D) ? "null"
                         : String.format("%8.2f", currData.getStage())));
     }
 

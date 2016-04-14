@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <nwsRoleData xmlns:ns2="group">
-   <application>Localization</application>
+  <application>Localization</application>
 
    <permission id="com.raytheon.localization.site/common_static/purge">
    </permission>
@@ -9,6 +9,9 @@
    </permission>
 
    <permission id="com.raytheon.localization.site/cave_static/ffmp">
+   </permission>
+
+   <permission id="com.raytheon.localization.site/cave_static/awipsTools">
    </permission>
 
    <permission id="com.raytheon.localization.site/cave_static/fog">
@@ -116,6 +119,7 @@
       <userPermission>com.raytheon.localization.site/common_static/purge</userPermission>
       <userPermission>com.raytheon.localization.site/common_static/colormaps</userPermission>
       <userPermission>com.raytheon.localization.site/cave_static/ffmp</userPermission>
+      <userPermission>com.raytheon.localization.site/cave_static/awipsTools</userPermission>
       <userPermission>com.raytheon.localization.site/cave_static/fog</userPermission>
       <userPermission>com.raytheon.localization.site/common_static/fog</userPermission>
       <userPermission>com.raytheon.localization.site/cave_static/safeseas</userPermission>

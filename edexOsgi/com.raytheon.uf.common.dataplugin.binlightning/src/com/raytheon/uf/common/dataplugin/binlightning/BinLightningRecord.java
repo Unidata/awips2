@@ -93,11 +93,11 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  *  Jun 19, 2014 3214       bclement    populated pulse index array with -1 when missing pulse data
  *  Jan 22, 2014 3949       nabowle     refactor out default and unknown source constants.
  *  Jul 23, 2015 2360       rferrel     Add name to unique constraint.
+ *  Mar 08, 2016 18336      amoore      Keep-alive messages should update the legend.
  * 
  * </pre>
  * 
  * @author jkorman
- * @version 1
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "binlightningseq")
@@ -162,6 +162,29 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
      */
     public BinLightningRecord(String uri) {
         super(uri);
+    }
+
+    /**
+     * Constructs a zero-strike, keep-alive lightning record based on given
+     * date.
+     * 
+     * Record will contain datetime data only.
+     * 
+     * @param dateTime
+     *            WMO header base date.
+     */
+    public BinLightningRecord(final Calendar dateTime) {
+        source = LightningConstants.DEFAULT_SOURCE;
+
+        // only data shall be datetime for keep-alive
+        strikeDataArrays.put(LightningConstants.TIME_DATASET,
+                new long[] { dateTime.getTimeInMillis() });
+
+        startTime = dateTime;
+        stopTime = dateTime;
+
+        TimeRange range = new TimeRange(startTime, stopTime);
+        setDataTime(new DataTime(startTime, range));
     }
 
     /**

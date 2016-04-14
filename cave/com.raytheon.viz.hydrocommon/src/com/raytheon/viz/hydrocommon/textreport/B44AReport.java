@@ -55,14 +55,14 @@ public class B44AReport extends TextReport {
     private int b44aLastPage = B44A_COOPERATIVE;
 
     protected String lid = null;
-    
+
     TextReportData locB44AData;
 
     /**
      * Constructor.
      * 
      * @param lid
-     *      The location id
+     *            The location id
      */
     public B44AReport(String lid) {
         this.lid = lid;
@@ -72,7 +72,7 @@ public class B44AReport extends TextReport {
      * Get the text of the report.
      * 
      * @param page
-     *      The page number to generate
+     *            The page number to generate
      */
     @Override
     public String getText(int page) {
@@ -100,25 +100,22 @@ public class B44AReport extends TextReport {
     /**
      * Build the text for the report.
      * 
-     * @return
-     *      The report text
+     * @return The report text
      */
     private String b44ACooperative() {
         StringBuilder buffer = new StringBuilder();
 
         buffer.append(b44aHdrCooperative + "\n");
-        buffer
-                .append("                 NATIONAL OCEANIC AND ATMOSPHERIC ADMINISTRATION\n");
-        buffer
-                .append("                            NATIONAL WEATHER SERVICE\n\n");
-        buffer
-                .append("                      UNOFFICIAL COOPERATIVE STATION REPORT\n\n");
-        buffer
-                .append("----------------------------  IDENTIFICATION SECTION  --------------------------\n\n");
+        buffer.append("                 NATIONAL OCEANIC AND ATMOSPHERIC ADMINISTRATION\n");
+        buffer.append("                            NATIONAL WEATHER SERVICE\n\n");
+        buffer.append("                      UNOFFICIAL COOPERATIVE STATION REPORT\n\n");
+        buffer.append("----------------------------  IDENTIFICATION SECTION  --------------------------\n\n");
 
-        TextReportData data = TextReportDataManager.getInstance().getDataForReports(lid, 7);
-        TextReportData dataRiverStat = TextReportDataManager.getInstance().getDataForReports(lid, 0);
-        
+        TextReportData data = TextReportDataManager.getInstance()
+                .getDataForReports(lid, 7);
+        TextReportData dataRiverStat = TextReportDataManager.getInstance()
+                .getDataForReports(lid, 0);
+
         GeoUtil util = GeoUtil.getInstance();
         String lat;
         String lon;
@@ -127,17 +124,21 @@ public class B44AReport extends TextReport {
         Date now = Calendar.getInstance(TimeZone.getTimeZone("GMT")).getTime();
 
         buffer.append(String.format("%12s: %-37s  %3s: %s\n", "Station Name",
-        		locB44AData.getLocation().getName(), "LID", lid));
-        buffer.append(String.format("%12s: %-20s    %18s: %s\n", "State", locB44AData
-                .getLocation().getState(), "County",locB44AData.getLocation()
-                .getCounty()));
+                locB44AData.getLocation().getName(), "LID", lid));
+        buffer.append(String.format("%12s: %-20s    %18s: %s\n", "State",
+                locB44AData.getLocation().getState(), "County", locB44AData
+                        .getLocation().getCounty()));
 
         if (dataRiverStat.getRiverstat().getLat() > 0) {
-            lat = util.cvt_latlon_from_double(dataRiverStat.getRiverstat().getLat());
-            lon = util.cvt_latlon_from_double(dataRiverStat.getRiverstat().getLon());
-        } else if (dataRiverStat.getLocation().getLat() > 0) {
-            lat = util.cvt_latlon_from_double(locB44AData.getLocation().getLat());
-            lon = util.cvt_latlon_from_double(locB44AData.getLocation().getLon());
+            lat = util.cvt_latlon_from_double(dataRiverStat.getRiverstat()
+                    .getLat());
+            lon = util.cvt_latlon_from_double(dataRiverStat.getRiverstat()
+                    .getLon());
+        } else if (locB44AData.getLocation().getLat() > 0) {
+            lat = util.cvt_latlon_from_double(locB44AData.getLocation()
+                    .getLat());
+            lon = util.cvt_latlon_from_double(locB44AData.getLocation()
+                    .getLon());
         } else {
             lat = "MISSING";
             lon = "MISSING";
@@ -156,8 +157,7 @@ public class B44AReport extends TextReport {
                 "Station Begin Date: %s\n       River Basin: %s\n\n", date,
                 locB44AData.getLocation().getRb()));
 
-        buffer
-                .append("-------------------------------  OBSERVER SECTION  -----------------------------\n\n");
+        buffer.append("-------------------------------  OBSERVER SECTION  -----------------------------\n\n");
 
         name = "";
         if ((data.getObserver().getFirstname() != null)
@@ -176,10 +176,10 @@ public class B44AReport extends TextReport {
         } else {
             dos = " ";
         }
-        
+
         buffer.append(String.format(
-                "Observer: %-41s  DOS: %-10s  Gender: %s\n", name, dos,
-                        data.getObserver().getGn()));
+                "Observer: %-41s  DOS: %-10s  Gender: %s\n", name, dos, data
+                        .getObserver().getGn()));
 
         buffer.append(String.format(" Address: %-30s\n", data.getObserver()
                 .getA1()));
@@ -198,21 +198,20 @@ public class B44AReport extends TextReport {
         buffer.append(String.format("  Duties: %s\n\n", data.getObserver()
                 .getRprt()));
 
-        buffer
-                .append("--------------------------  STATION MANAGEMENT SECTION  ------------------------\n\n");
+        buffer.append("--------------------------  STATION MANAGEMENT SECTION  ------------------------\n\n");
 
         buffer.append(String.format(
-                "HSA: %-3s          WFO: %-3s           RFC: %s\n\n", locB44AData
-                        .getLocation().getHsa(), locB44AData.getLocation().getWfo(),
-                        locB44AData.getLocation().getRfc()));
-        buffer
-                .append("-----------------------------------  REMARKS  ----------------------------------\n\n");
+                "HSA: %-3s          WFO: %-3s           RFC: %s\n\n",
+                locB44AData.getLocation().getHsa(), locB44AData.getLocation()
+                        .getWfo(), locB44AData.getLocation().getRfc()));
+        buffer.append("-----------------------------------  REMARKS  ----------------------------------\n\n");
         if ((locB44AData.getLocation().getLremark() != null)
                 && (locB44AData.getLocation().getLremark().length() > 0)) {
-            String[] wrappedLines = TextUtil.wordWrap(locB44AData.getLocation().getLremark() + "\n", 80, 0);
-            for (String s: wrappedLines) {
+            String[] wrappedLines = TextUtil.wordWrap(locB44AData.getLocation()
+                    .getLremark() + "\n", 80, 0);
+            for (String s : wrappedLines) {
                 buffer.append(s + "\n");
-            }            
+            }
         }
 
         /* try to place FOOTER at the bottom */
@@ -233,8 +232,7 @@ public class B44AReport extends TextReport {
     /**
      * Generate all pages of the report.
      * 
-     * @return
-     *      The full text
+     * @return The full text
      */
     private String getAllPages() {
         StringBuffer buffer = new StringBuffer();

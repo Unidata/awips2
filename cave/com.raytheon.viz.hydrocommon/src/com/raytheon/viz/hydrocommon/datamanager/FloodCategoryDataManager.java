@@ -29,7 +29,6 @@ import com.raytheon.uf.common.dataquery.db.QueryResult;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.HydroConstants;
 import com.raytheon.viz.hydrocommon.data.FloodCategoryData;
-import com.raytheon.viz.hydrocommon.util.DbUtils;
 import com.raytheon.viz.hydrocommon.util.HydroDataUtils;
 
 /**
@@ -151,8 +150,6 @@ public class FloodCategoryDataManager extends HydroDataManager {
             throws VizException {
         Double majorS = null, minorS = null, moderateS = null, majorD = null, minorD = null, moderateD = null;
 
-        DbUtils.escapeSpecialCharforData(data);
-
         if (data.getMajorStage() != HydroConstants.MISSING_VALUE)
             majorS = data.getMajorStage();
         if (data.getModerateStage() != HydroConstants.MISSING_VALUE)
@@ -178,8 +175,6 @@ public class FloodCategoryDataManager extends HydroDataManager {
             throws VizException {
 
         Double majorS = null, minorS = null, moderateS = null, majorD = null, minorD = null, moderateD = null;
-
-        DbUtils.escapeSpecialCharforData(currData);
 
         if (currData.getMajorStage() != HydroConstants.MISSING_VALUE)
             majorS = currData.getMajorStage();

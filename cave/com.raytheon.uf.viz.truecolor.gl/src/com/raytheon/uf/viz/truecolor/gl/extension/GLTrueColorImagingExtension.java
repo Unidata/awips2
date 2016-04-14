@@ -54,6 +54,7 @@ import com.raytheon.viz.core.gl.images.AbstractGLImage;
  * ------------ ---------- ----------- --------------------------
  * Aug  6, 2012            mschenke    Initial creation
  * Nov  4, 2013 2492       mschenke    Reworked to use GLSL Data mapping
+ * Jan 27, 2016 DR 17997   jgerth      Support for gamma control
  * 
  * </pre>
  * 
@@ -67,6 +68,8 @@ public class GLTrueColorImagingExtension extends AbstractGLSLImagingExtension
     private AbstractGLImage writeToImage;
 
     private Channel renderingChannel;
+
+    private double renderingGamma = 1.0;
 
     private Map<ColorMapParameters, Object> parameters = new IdentityHashMap<ColorMapParameters, Object>();
 
@@ -122,6 +125,7 @@ public class GLTrueColorImagingExtension extends AbstractGLSLImagingExtension
                     boolean allPainted = true;
                     for (Channel channel : Channel.values()) {
                         renderingChannel = channel;
+                        renderingGamma = trueColorImage.getGamma(channel);
                         DrawableImage[] imagesToDraw = trueColorImage
                                 .getImages(channel);
                         if (imagesToDraw != null && imagesToDraw.length > 0) {
@@ -147,6 +151,7 @@ public class GLTrueColorImagingExtension extends AbstractGLSLImagingExtension
                     throw e;
                 }
                 renderingChannel = null;
+                renderingGamma = 1.0;
                 writeToImage = null;
                 trueColorImage.setImageParameters(parameters.keySet());
                 trueColorImage.bind(target.getGl());
@@ -244,6 +249,8 @@ public class GLTrueColorImagingExtension extends AbstractGLSLImagingExtension
 
             GLSLStructFactory.createColorMapping(program, "colorMapping", -1,
                     -1, colorMapParameters);
+
+            program.setUniform("gamma", renderingGamma);
 
             // Set the composite image data
             program.setUniform("trueColorTexture", 1);
