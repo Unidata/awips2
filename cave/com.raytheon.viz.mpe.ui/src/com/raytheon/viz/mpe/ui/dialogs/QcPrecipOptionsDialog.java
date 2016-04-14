@@ -21,6 +21,7 @@ package com.raytheon.viz.mpe.ui.dialogs;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyAdapter;
@@ -29,7 +30,6 @@ import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Cursor;
-import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowData;
@@ -71,7 +71,7 @@ import com.raytheon.viz.mpe.util.DailyQcUtils;
  * Nov 18, 2015 18093      snaples     Fixed problem with arrows being disabled when new
  *                                     day rollover >18Z occurs.
  * Jan 15, 2016 5054       randerso    Use proper parent shell
- * 
+ * Apr 11, 2016 5512       bkowal      Fix GUI sizing issues. Cleanup.
  * </pre>
  * 
  * @author snaples
@@ -83,11 +83,6 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
     public static Combo selsix24Cbo;
 
     private static Combo dataDispCbo;
-
-    /**
-     * Font used for controls.
-     */
-    private Font font;
 
     public static Button upTimeBtn;
 
@@ -139,17 +134,11 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
 
     private DailyQcUtils dqc;
 
-    public static ArrayList<String> dataType = new ArrayList<String>();
+    public static List<String> dataType = new ArrayList<>();
 
-    public static ArrayList<String> dataSet = new ArrayList<String>();
+    public static List<String> dataSet = new ArrayList<>();
 
     OtherPrecipOptions opo = new OtherPrecipOptions();
-
-    // int[] pcp_in_use;
-
-    // Pdata[] pdata = new Pdata[0];
-
-    // Ts[] ts;
 
     private int time_pos;
 
@@ -271,12 +260,10 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
         shell.setText("QC Precipitation Options");
 
         // Create the main layout for the shell.
-        GridLayout mainLayout = new GridLayout(1, true);
-        mainLayout.marginHeight = 1;
-        mainLayout.marginWidth = 1;
+        GridLayout mainLayout = new GridLayout(1, false);
+        mainLayout.marginHeight = 0;
+        mainLayout.marginWidth = 0;
         shell.setLayout(mainLayout);
-
-        font = new Font(shell.getDisplay(), "Courier", 10, SWT.NORMAL);
 
         // Initialize all of the controls and layouts
         this.initializeComponents();
@@ -314,10 +301,8 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
         DailyQcUtils.qpf_flag = false;
         isfinished = true;
         isOpen = false;
-        font.dispose();
         SaveLevel2Data s2 = new SaveLevel2Data(getShell());
         s2.send_dbase_new_area();
-        // DailyQcUtils dc = new DailyQcUtils();
         dqc.clearData();
         displayMgr.displayFieldData(df);
         removePerspectiveListener();
@@ -357,7 +342,6 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
         DailyQcUtils.pcpn_time = 0;
 
         for (i = 0; i < 8; i++) {
-
             if (MPEDisplayManager.pcpn_time_step == 0) {
                 time_pos = DailyQcUtils.pcp_flag;
             } else {
@@ -369,7 +353,6 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
             }
         }
 
-        // ts = DailyQcUtils.ts;
         this.createDataOptionsGroup();
         this.createPointTypeGroup();
         this.createPointQualityGroup();
@@ -384,7 +367,7 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
     private void createDataOptionsGroup() {
         int i = 0;
         Group dataOptionsGroup = new Group(shell, SWT.NONE);
-        dataOptionsGroup.setText(" Data Options ");
+        dataOptionsGroup.setText("Data Options");
         GridLayout groupLayout = new GridLayout(1, false);
         dataOptionsGroup.setLayout(groupLayout);
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
@@ -404,11 +387,13 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
         six24CompLayout.marginHeight = 0;
         six24CompLayout.marginWidth = 0;
         six24Comp.setLayout(six24CompLayout);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        six24Comp.setLayoutData(gd);
 
         Label six24Lbl = new Label(six24Comp, SWT.CENTER);
         six24Lbl.setText("6/24 Hour:");
 
-        GridData sd = new GridData(140, SWT.DEFAULT);
+        GridData sd = new GridData(SWT.FILL, SWT.CENTER, true, false);
         selsix24Cbo = new Combo(six24Comp, SWT.DROP_DOWN | SWT.READ_ONLY);
         selsix24Cbo.setTextLimit(30);
         selsix24Cbo.setLayoutData(sd);
@@ -433,7 +418,7 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
         RowLayout timeArrowRl = new RowLayout(SWT.HORIZONTAL);
         timeArrowsComp.setLayout(timeArrowRl);
 
-        RowData rd = new RowData(25, 25);
+        RowData rd = new RowData(SWT.DEFAULT, SWT.DEFAULT);
         upTimeBtn = new Button(timeArrowsComp, SWT.ARROW | SWT.UP);
         upTimeBtn.setLayoutData(rd);
         upTimeBtn.setEnabled(false);
@@ -444,7 +429,7 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
             }
         });
 
-        rd = new RowData(25, 25);
+        rd = new RowData(SWT.DEFAULT, SWT.DEFAULT);
         dnTimeBtn = new Button(timeArrowsComp, SWT.ARROW | SWT.DOWN);
         dnTimeBtn.setLayoutData(rd);
         dnTimeBtn.setEnabled(false);
@@ -455,25 +440,7 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
             }
         });
 
-        GridData dd = new GridData(208, SWT.DEFAULT);
-
-        // int pd = DailyQcUtils.hrgt12z == 1 ? 1 : 0;
-        // if (pcp_flag == -1) {
-        // /*
-        // * Define the pcp_flag based on whether or not there is a partial
-        // * DQC day. This also depends on whether the time step is 6 or 24
-        // * hours. Initially this will be 24.
-        // */
-        // if (pd == 1) {
-        // pcp_flag = 4;
-        // pcpn_day = 1;
-        // } else {
-        // pcp_flag = 0;
-        // pcpn_day = 0;
-        // }
-        //
-        // }
-
+        GridData dd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         String[] a = new String[dataSet.size()];
         dataDispCbo = new Combo(dataOptionsGroup, SWT.DROP_DOWN | SWT.READ_ONLY);
         dataDispCbo.setTextLimit(30);
@@ -497,8 +464,10 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
         renderCompLayout.marginHeight = 0;
         renderCompLayout.marginWidth = 0;
         renderComp.setLayout(renderCompLayout);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        renderComp.setLayoutData(gd);
 
-        gd = new GridData(153, 25);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         renderGridsBtn = new Button(renderComp, SWT.PUSH);
         renderGridsBtn.setText("Render Grids+MAPs");
         renderGridsBtn.setLayoutData(gd);
@@ -518,18 +487,11 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
             }
         });
 
-        GridData bd = new GridData(110, 25);
+        GridData bd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         groupEditBtn = new Button(renderComp, SWT.PUSH);
         groupEditBtn.setText("Group Edit");
         groupEditBtn.setLayoutData(bd);
         groupEditBtn.addSelectionListener(new SelectionAdapter() {
-            /*
-             * (non-Javadoc)
-             * 
-             * @see
-             * org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.eclipse
-             * .swt.events.SelectionEvent)
-             */
             @Override
             public void widgetSelected(SelectionEvent e) {
                 GroupEditStationsDialog groupDialog = new GroupEditStationsDialog(
@@ -543,11 +505,13 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
         pcpTypeCompLayout.marginHeight = 0;
         pcpTypeCompLayout.marginWidth = 0;
         pcpTypeComp.setLayout(pcpTypeCompLayout);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        pcpTypeComp.setLayoutData(gd);
 
         Label pcpLbl = new Label(pcpTypeComp, SWT.CENTER);
         pcpLbl.setText("Precip Type:");
 
-        gd = new GridData(190, SWT.DEFAULT);
+        gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
         pcpTypeCbo = new Combo(pcpTypeComp, SWT.DROP_DOWN | SWT.READ_ONLY);
         pcpTypeCbo.setTextLimit(30);
         pcpTypeCbo.setLayoutData(gd);
@@ -568,7 +532,7 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
      */
     private void createPointTypeGroup() {
         Group pointTypeGroup = new Group(shell, SWT.NONE);
-        pointTypeGroup.setText(" Point Type ");
+        pointTypeGroup.setText("Point Type");
         GridLayout gl = new GridLayout(1, false);
         pointTypeGroup.setLayout(gl);
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
@@ -654,7 +618,7 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
      */
     private void createPointQualityGroup() {
         Group pointQualGroup = new Group(shell, SWT.NONE);
-        pointQualGroup.setText(" Point Quality ");
+        pointQualGroup.setText("Point Quality");
         GridLayout gl = new GridLayout(1, false);
         gl.marginWidth = 0;
         pointQualGroup.setLayout(gl);
@@ -750,7 +714,7 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
 
     private void createPointSetComp() {
         Composite pntSetComp = new Composite(shell, SWT.NONE);
-        GridLayout pntSetCompGl = new GridLayout(2, false);
+        GridLayout pntSetCompGl = new GridLayout(2, true);
         pntSetComp.setLayout(pntSetCompGl);
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         pntSetComp.setLayoutData(gd);
@@ -760,7 +724,7 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
         DailyQcUtils.gage_char[0] = 1;
         DailyQcUtils.gage_char[1] = 1;
 
-        gd = new GridData(160, SWT.DEFAULT);
+        gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
         pntCharCbo = new Combo(pntSetComp, SWT.DROP_DOWN | SWT.READ_ONLY);
         pntCharCbo.setTextLimit(30);
         pntCharCbo.setLayoutData(gd);
@@ -780,6 +744,7 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
 
         DailyQcUtils.plot_view = 4;
 
+        gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
         pntDispCbo = new Combo(pntSetComp, SWT.DROP_DOWN | SWT.READ_ONLY);
         pntDispCbo.setTextLimit(30);
         pntDispCbo.setLayoutData(gd);
@@ -809,6 +774,7 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
             i = 2;
         }
 
+        gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
         pntScnCbo = new Combo(pntSetComp, SWT.DROP_DOWN | SWT.READ_ONLY);
         pntScnCbo.setTextLimit(30);
         pntScnCbo.setLayoutData(gd);
@@ -834,6 +800,7 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
             i = 2;
         }
 
+        gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
         pntTConCbo = new Combo(pntSetComp, SWT.DROP_DOWN | SWT.READ_ONLY);
         pntTConCbo.setTextLimit(30);
         pntTConCbo.setLayoutData(gd);
@@ -859,6 +826,7 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
             i = 2;
         }
 
+        gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
         pntSConCbo = new Combo(pntSetComp, SWT.DROP_DOWN | SWT.READ_ONLY);
         pntSConCbo.setTextLimit(30);
         pntSConCbo.setLayoutData(gd);
