@@ -22,6 +22,9 @@
 	<contribute xsi:type="bundleItem" file="bundles/SurfacePlotMetar.xml"
 			menuText="METAR Plot" id="MetarPlot">
     </contribute> 
+	<contribute xsi:type="bundleItem" file="bundles/SurfacePlotWinds.xml"
+			menuText="METAR Winds" id="MetarPlot">
+    </contribute> 
 	<contribute xsi:type="bundleItem" file="bundles/SynSurfacePlot.xml" 
 			menuText="Synoptic Plot" id="SynSurfacePlot">
 		<substitute key="svg" value="stdSynDesign.svg"/>

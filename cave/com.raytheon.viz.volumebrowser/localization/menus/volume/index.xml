@@ -66,21 +66,21 @@
              fileName="menus/volume/allFamilies.xml">
              <substitute key="modelName" value="NAM12" />
              <substitute key="menuName" value="NAM 12km" />
-             <substitute key="frameCount" value="29" />
+             <substitute key="frameCount" value="41" />
              <substitute key="TP" value="TP3hr"/>
     </include>
 	<include installTo="menu:models" 
              fileName="menus/volume/allFamilies.xml">
              <substitute key="modelName" value="NAM40" />
              <substitute key="menuName" value="NAM 40km" />
-             <substitute key="frameCount" value="29" />
+             <substitute key="frameCount" value="41" />
              <substitute key="TP" value="TP3hr"/>
     </include>
 	<include installTo="menu:models" 
              fileName="menus/volume/allFamilies.xml">
              <substitute key="modelName" value="NamDNG" />
              <substitute key="menuName" value="NamDNG 2.5km" />
-             <substitute key="frameCount" value="29" />
+             <substitute key="frameCount" value="41" />
              <substitute key="TP" value="TP3hr"/>
     </include>
     <include installTo="menu:models" 
