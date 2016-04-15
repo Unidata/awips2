@@ -20,7 +20,6 @@
 
 -->
 <menuContributionFile>
-	<!--
 	<include installTo="menu:models" 
              fileName="menus/volume/allFamilies.xml">
              <substitute key="modelName" value="CMC" />
@@ -185,7 +184,6 @@
              <substitute key="frameCount" value="41" />
              <substitute key="TP" value="TP"/>
     </include>
-	-->
 	<include installTo="menu:models" 
              fileName="menus/volume/baseComparisonFamilies.xml">
     </include>
