@@ -21,16 +21,16 @@
 <link rel="publisher" href="https://plus.google.com/107187849809354688692">
 <link rel="shortcut icon" href="http://www.unidata.ucar.edu/favicon.ico">
 <link href="//fonts.googleapis.com/css?family=RobotoDraft:300,400,500|Source+Code+Pro:400,500,700" rel="stylesheet">
-<link href="/awips2/css/site2.css?20160405" rel="stylesheet">
-<link href="/awips2/css/site2_sd_rules.css?20160405" rel="stylesheet" shim-shadowdom>
+<link href="/awips2/css/site2.css?20160415" rel="stylesheet">
+<link href="/awips2/css/site2_sd_rules.css?20160415" rel="stylesheet" shim-shadowdom>
 
 
 
-<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20160405"></script>
+<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20160415"></script>
 <!-- TODO: remove when https://github.com/Polymer/polymer/issues/391 is fixed -->
 <link rel="import" href="/awips2/components/polymer/polymer.html">
 <link rel="stylesheet" href="/awips2/css/elements/docs-menu.css">
-<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20160405">
+<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20160415">
 
 
 </head>
@@ -78,15 +78,7 @@
         </h1>
       </header>
 
-      
-<!--TOC_START-->
-<ul id="markdown-toc">
-  <li><a href="#default-feed-types" id="markdown-toc-default-feed-types">Default feed types</a></li>
-  <li><a href="#optional-feed-types" id="markdown-toc-optional-feed-types">Optional feed types</a></li>
-</ul>
-<!--TOC_END-->
-
-<p><code>/awips2/ldm/etc/ldmd.conf</code> is the main configuration file for the LDM server, where the EDEX server and default feed types are defined.</p>
+      <p><code>/awips2/ldm/etc/ldmd.conf</code> is the main configuration file for the LDM server, where the EDEX server and default feed types are defined.</p>
 
 <p>At the top of <code>ldmd.conf</code>, you can see the <strong>EXEC</strong> lines</p>
 
@@ -96,7 +88,7 @@ EXEC    "edexBridge -s EDEX_HOSTNAME"
 
 <p>where <code>EDEX_HOSTNAME</code> is set to your local EDEX server with the command <code>edex setup</code>.</p>
 
-<h2 id="default-feed-types">Default feed types</h2>
+<h1 id="default-feed-types">Default feed types</h1>
 
 <p>Remember than LDM commands such as these require <strong>TAB SEPARATION</strong> between items.</p>
 
@@ -117,7 +109,7 @@ REQUEST CONDUIT ".(awip3d|0p50).[8]$"   idd.unidata.ucar.edu
 REQUEST CONDUIT ".(awip3d|0p50).[9]$"   idd.unidata.ucar.edu
 </code></pre>
 
-<h2 id="optional-feed-types">Optional feed types</h2>
+<h1 id="optional-feed-types">Optional feed types</h1>
 
 <p>FNMOC and CMC models</p>
 
@@ -158,7 +150,7 @@ REQUEST        LIGHTNING       ".*"    idd.unidata.ucar.edu
 <script src="/awips2/js/prettify/prettify.js"></script>
 
 <!-- <script src="/awips2/js/bower_components/smoothscroll/smoothscroll.js"></script> -->
-<script src="/awips2/js/app.js?20160405"></script>
+<script src="/awips2/js/app.js?20160415"></script>
 
 
   </scroll-area>

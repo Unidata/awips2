@@ -21,16 +21,16 @@
 <link rel="publisher" href="https://plus.google.com/107187849809354688692">
 <link rel="shortcut icon" href="http://www.unidata.ucar.edu/favicon.ico">
 <link href="//fonts.googleapis.com/css?family=RobotoDraft:300,400,500|Source+Code+Pro:400,500,700" rel="stylesheet">
-<link href="/awips2/css/site2.css?20160405" rel="stylesheet">
-<link href="/awips2/css/site2_sd_rules.css?20160405" rel="stylesheet" shim-shadowdom>
+<link href="/awips2/css/site2.css?20160415" rel="stylesheet">
+<link href="/awips2/css/site2_sd_rules.css?20160415" rel="stylesheet" shim-shadowdom>
 
 
 
-<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20160405"></script>
+<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20160415"></script>
 <!-- TODO: remove when https://github.com/Polymer/polymer/issues/391 is fixed -->
 <link rel="import" href="/awips2/components/polymer/polymer.html">
 <link rel="stylesheet" href="/awips2/css/elements/docs-menu.css">
-<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20160405">
+<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20160415">
 
 
 </head>
@@ -74,11 +74,11 @@
         </h1>
       </header>
 
-      <h2 id="os-x">OS X</h2>
+      <h1 id="os-x-client">OS X client</h1>
 
 <p>Download <a href="http://www.unidata.ucar.edu/downloads/awips2/awips2-cave.dmg">awips2-cave.dmg</a> (263 MB)</p>
 
-<h2 id="linux">Linux</h2>
+<h1 id="linux-client">Linux client</h1>
 
 <p>Download and run the script <a href="http://www.unidata.ucar.edu/software/awips2/installCAVE.sh">installCAVE.sh</a>.</p>
 
@@ -89,9 +89,7 @@ chmod 755 ./installCAVE.sh
 
 <p>This will install to <code>/awips2/cave</code> and <code>/awips2/alertviz</code> (as well as awips2 system directories like <code>/awips2/java</code> and <code>/awips2/python</code>).</p>
 
-<h2 id="run-cave">Run CAVE</h2>
-
-<p>Run cave with the command</p>
+<h1 id="how-to-run-cave">How to run CAVE</h1>
 
 <pre><code>/awips2/cave/cave.sh
 </code></pre>
@@ -102,7 +100,7 @@ chmod 755 ./installCAVE.sh
 
 <h1 id="awips-ii-data-in-the-cloud">AWIPS II Data in the Cloud</h1>
 
-<p>Unidata and Microsoft have partnered to offer a EDEX data server in the Azure cloud, open to the Unidata university community and the public.  Select the server in the Connectivity Preferences dialog, or enter <strong><code>edex-cloud.unidata.ucar.edu</code></strong></p>
+<p>Unidata and Microsoft have partnered to offer a EDEX data server in the Azure cloud, open to the Unidata university community and the public.  Select the server in the Connectivity Preferences dialog, or enter <strong><code>edex-cloud.unidata.ucar.edu</code></strong> (without adding http:// before, or :9581/services after).</p>
 
 <p><img src="../images/boEbFSf28t.gif" alt="EDEX in the cloud" /></p>
 
@@ -128,7 +126,7 @@ chmod 755 ./installCAVE.sh
 <script src="/awips2/js/prettify/prettify.js"></script>
 
 <!-- <script src="/awips2/js/bower_components/smoothscroll/smoothscroll.js"></script> -->
-<script src="/awips2/js/app.js?20160405"></script>
+<script src="/awips2/js/app.js?20160415"></script>
 
 
   </scroll-area>
