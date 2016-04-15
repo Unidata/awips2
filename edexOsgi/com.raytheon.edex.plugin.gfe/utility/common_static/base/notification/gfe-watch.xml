@@ -21,7 +21,7 @@
                 <constraint constraintValue="warning,practicewarning" constraintType="IN"/>
             </mapping>
             <mapping key="pil">
-                <constraint constraintValue="TCV,HLS" constraintType="IN"/>
+                <constraint constraintValue="TCV,HLS,PTC" constraintType="IN"/>
             </mapping>
         </metadataMap>
     </pluginNotification>
