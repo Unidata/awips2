@@ -122,7 +122,7 @@ fi
 if [ "${1}" = "-pydev" ]; then
    #buildRPM "awips2-python"
    #buildRPM "awips2-python-awips"
-   #buildRPM "awips2-python-jep"
+   buildRPM "awips2-python-jep"
    #buildRPM "awips2-python-numpy"
    #buildRPM "awips2-python-pyparsing"
    #buildRPM "awips2-python-six"
@@ -131,7 +131,7 @@ if [ "${1}" = "-pydev" ]; then
    #buildRPM "awips2-pypies"
 
    #buildRPM "awips2-python-cycler"
-   buildRPM "awips2-python-shapely"
+   #buildRPM "awips2-python-shapely"
    #buildRPM "awips2-python-cython"
 
    #buildRPM "awips2-python-metpy"

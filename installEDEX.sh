@@ -5,12 +5,30 @@
 #
 # 10/15         mjames@ucar.edu         Creation
 #
+
+#
+# Download yum repo file from Unidata
+#
 if [ ! -f /etc/yum.repos.d/awips2.repo ]; then
   echo ''
   echo 'Downloading awips2repo yum file to /etc/yum.repos.d/awips2.repo'
   echo ''
   wget -O /etc/yum.repos.d/awips2.repo http://www.unidata.ucar.edu/software/awips2/doc/awips2.repo
 fi
+
+#
+# Check for and add to limits.conf
+#
+if [[ $(grep awips /etc/security/limits.conf) ]]; then
+  echo "/etc/security/limits.conf OK"
+else
+  echo "adding awips user entries to /etc/security/limits.conf ..."
+  printf "awips soft nproc 65536\nawips soft nofile 65536\n" >> /etc/security/limits.conf
+  echo "done with /etc/security/limits.conf"
+fi
+#
+# Clean yum cache
+#
 echo ''
 echo "Running 'yum clean all'"
 echo ''
