@@ -20,6 +20,7 @@
 
 -->
 <menuContributionFile>
+	<!--
 	<include installTo="menu:models" 
              fileName="menus/volume/allFamilies.xml">
              <substitute key="modelName" value="CMC" />
@@ -64,8 +65,22 @@
     </include>
 	<include installTo="menu:models" 
              fileName="menus/volume/allFamilies.xml">
+             <substitute key="modelName" value="NAM4" />
+             <substitute key="menuName" value="NAM 4km" />
+             <substitute key="frameCount" value="41" />
+             <substitute key="TP" value="TP3hr"/>
+    </include>
+	<include installTo="menu:models" 
+             fileName="menus/volume/allFamilies.xml">
              <substitute key="modelName" value="NAM12" />
              <substitute key="menuName" value="NAM 12km" />
+             <substitute key="frameCount" value="41" />
+             <substitute key="TP" value="TP3hr"/>
+    </include>
+	<include installTo="menu:models" 
+             fileName="menus/volume/allFamilies.xml">
+             <substitute key="modelName" value="NAM20" />
+             <substitute key="menuName" value="NAM 20km" />
              <substitute key="frameCount" value="41" />
              <substitute key="TP" value="TP3hr"/>
     </include>
@@ -134,9 +149,7 @@
              <substitute key="frameCount" value="2" />
              <substitute key="TP" value="TP"/>
     </include>
-	<include installTo="menu:models" 
-             fileName="menus/volume/baseComparisonFamilies.xml">
-    </include>
+
     <include installTo="menu:models" 
              fileName="menus/volume/ww3.xml">
              <substitute key="modelName" value="FNMOC-WW3" />
@@ -171,5 +184,9 @@
              <substitute key="menuName" value="ETSS Storm Surge" />
              <substitute key="frameCount" value="41" />
              <substitute key="TP" value="TP"/>
+    </include>
+	-->
+	<include installTo="menu:models" 
+             fileName="menus/volume/baseComparisonFamilies.xml">
     </include>
 </menuContributionFile>
