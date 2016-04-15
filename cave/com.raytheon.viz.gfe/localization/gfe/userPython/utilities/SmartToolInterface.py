@@ -34,6 +34,8 @@
 #                                                 RollbackMasterInterface.
 #    07/23/15         4263         dgilling       Support refactored Java
 #                                                 SmartToolControllers.
+#    04/13/16         5568         dgilling       More lenient handling of 
+#                                                 ScreenList.
 #    
 # 
 #
@@ -76,7 +78,18 @@ class SmartToolInterface(RollbackMasterInterface.RollbackMasterInterface):
         return getattr(sys.modules[name], "WeatherElementEdited", "None")
 
     def getScreenList(self, name):
-        return getattr(sys.modules[name], "ScreenList", None)
+        screenList = getattr(sys.modules[name], "ScreenList", None)
+        if screenList is not None:
+            try:
+                iter(screenList)
+            except TypeError:
+                screenList = [str(screenList)]
+            else:
+                if isinstance(screenList, basestring):
+                    screenList = [str(screenList)]
+                else:
+                    screenList = [str(i) for i in screenList]
+        return screenList
 
     def getVariableList(self, name):
         return getattr(sys.modules[name], "VariableList", [])
