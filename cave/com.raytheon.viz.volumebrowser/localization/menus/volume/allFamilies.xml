@@ -23,6 +23,12 @@
 		<contribute xsi:type="bundleItem" file="bundles/volume/PrecipMSLP.xml"
 			    menuText="MSLP and Precipitation" id="" useReferenceTime="true">
 		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/Precip.xml"
+			    menuText="Precip Accumulation" id="" useReferenceTime="true">
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/Snow.xml"
+			    menuText="Snow Accumulation" id="" useReferenceTime="true">
+		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/SurfaceTempWind.xml"
 			    menuText="Sfc Temperature and Wind" id="" useReferenceTime="true">
 		</contribute>
