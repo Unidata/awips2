@@ -75,12 +75,13 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 13, 2011  #8393     dgilling     Initial creation
- * 02/19/13      #1637     randerso     Added exception handling for Discrete and Weather
- * 10/31/2013    #2508     randerso     Change to use DiscreteGridSlice.getKeys()
- * 04/22/2014    #3050     randerso     Allow exceptions to propagate to caller from readASCIIGridData
- * Jan 14, 2016  #5237     tgurney      Allow outputAsciiGridData to take
- *                                      OutputStream as well as File
+ * Apr 13, 2011  #8393     dgilling    Initial creation
+ * 02/19/13      #1637     randerso    Added exception handling for Discrete and Weather
+ * 10/31/2013    #2508     randerso    Change to use DiscreteGridSlice.getKeys()
+ * 04/22/2014    #3050     randerso    Allow exceptions to propagate to caller from readASCIIGridData
+ * 01/14/2016    #5237     tgurney     Allow outputAsciiGridData to take
+ *                                     OutputStream as well as File
+ * 04/04/2016    #5539     randerso    Fixed unsigned byte issues
  * 
  * </pre>
  * 
@@ -341,7 +342,7 @@ public class ASCIIGrid {
                     WeatherGridSlice weather = (WeatherGridSlice) gs;
                     for (int i = weather.getWeatherGrid().getYdim() - 1; i >= 0; i--) {
                         for (int j = 0; j < weather.getWeatherGrid().getXdim(); j++) {
-                            String key = weather.getKeys()[weather
+                            String key = weather.getKeys()[0xFF & weather
                                     .getWeatherGrid().get(j, i)].toString();
                             printStream.println(key);
                         }
@@ -352,7 +353,7 @@ public class ASCIIGrid {
                     for (int i = discrete.getDiscreteGrid().getYdim() - 1; i >= 0; i--) {
                         for (int j = 0; j < discrete.getDiscreteGrid()
                                 .getXdim(); j++) {
-                            String key = discrete.getKeys()[discrete
+                            String key = discrete.getKeys()[0xFF & discrete
                                     .getDiscreteGrid().get(j, i)].toString();
                             printStream.println(key);
                         }

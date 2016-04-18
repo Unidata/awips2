@@ -121,10 +121,11 @@ import com.raytheon.viz.gfe.Activator;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Jun 2, 2008		#1161	randerso	Initial creation
- * Oct 31, 2013     #2508   randerso    Change to use DiscreteGridSlice.getKeys()
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Jun  2, 2008  #1161     randerso    Initial creation
+ * Oct 31, 2013  #2508     randerso    Change to use DiscreteGridSlice.getKeys()
+ * Apr 04, 2016  #5539     randerso    Fix unsigned byte issues
  * 
  * </pre>
  * 
@@ -479,7 +480,7 @@ public class DiscreteInterp extends Interp {
         // input byte index grids, but with values for the weatherKeys
         // in _allKeys.
 
-        byte index;
+        int index;
         DiscreteKey key;
 
         // For every grid point in the grids, load the new working grids
@@ -488,7 +489,7 @@ public class DiscreteInterp extends Interp {
         for (i = 0; i < _xDim; i++) {
             for (j = 0; j < _yDim; j++) {
                 // get the index value from the actual first input grid of bytes
-                index = grid1.get(i, j);
+                index = 0xFF & grid1.get(i, j);
 
                 // Can save a lot of processing here if index=0
                 // ALWAYS means "no weather": the workGrid1 and 2 values
@@ -508,7 +509,7 @@ public class DiscreteInterp extends Interp {
 
                 // get the index value from the actual second input grid of
                 // bytes
-                index = grid2.get(i, j);
+                index = 0xFF & grid2.get(i, j);
                 // get its key
                 key = keys2[index];
                 // find this key in the new list, and save the corresponding

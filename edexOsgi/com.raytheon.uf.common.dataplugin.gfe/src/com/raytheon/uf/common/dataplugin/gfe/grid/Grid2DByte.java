@@ -42,6 +42,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Oct 22, 2008 1624       wdougherty  Speed up translate method
  * Sep 01, 2014 3572       randerso    Changed getNumpy to use getBytes()
  * Apr 23, 2015 4259       njensen     Updated for new JEP API
+ * Apr 04, 2016 5539       randerso    Fixed toString method to handle unsigned bytes
  * 
  * </pre>
  * 
@@ -103,7 +104,7 @@ public class Grid2DByte implements IGrid2D, Cloneable {
      */
     public Grid2DByte(int xDim, int yDim, byte[] data) {
         this(xDim, yDim);
-        if (xDim * yDim != data.length) {
+        if ((xDim * yDim) != data.length) {
             throw new IllegalArgumentException(
                     "Dimensions do not match data length (" + xDim + "," + yDim
                             + ") " + data.length);
@@ -122,7 +123,7 @@ public class Grid2DByte implements IGrid2D, Cloneable {
      *            ByteBuffer of initialization data
      */
     public Grid2DByte(int xDim, int yDim, ByteBuffer data) {
-        if (xDim * yDim != data.limit()) {
+        if ((xDim * yDim) != data.limit()) {
             throw new IllegalArgumentException(
                     "Dimensions do not match data length (" + xDim + "," + yDim
                             + ") " + data.limit());
@@ -165,7 +166,7 @@ public class Grid2DByte implements IGrid2D, Cloneable {
         if (!isValid(xDim, yDim)) {
             throw new IllegalArgumentException("Dimensions not valid");
         }
-        return buffer.get(yDim * this.xdim + xDim);
+        return buffer.get((yDim * this.xdim) + xDim);
     }
 
     /**
@@ -180,7 +181,7 @@ public class Grid2DByte implements IGrid2D, Cloneable {
         if (!isValid(xDim, yDim)) {
             throw new IllegalArgumentException("Dimensions not valid");
         }
-        buffer.put(yDim * this.xdim + xDim, aValue);
+        buffer.put((yDim * this.xdim) + xDim, aValue);
     }
 
     public void set(int xDim, int yDim, int aValue) {
@@ -205,7 +206,7 @@ public class Grid2DByte implements IGrid2D, Cloneable {
 
     @Override
     public boolean isValid(int x, int y) {
-        return (x < xdim && y < ydim && x >= 0 && y >= 0);
+        return ((x < xdim) && (y < ydim) && (x >= 0) && (y >= 0));
     }
 
     /**
@@ -224,7 +225,7 @@ public class Grid2DByte implements IGrid2D, Cloneable {
      *            y coordinate to clear
      */
     public void clear(int x, int y) {
-        buffer.put(y * xdim + x, (byte) 0);
+        buffer.put((y * xdim) + x, (byte) 0);
     }
 
     /**
@@ -241,7 +242,7 @@ public class Grid2DByte implements IGrid2D, Cloneable {
         // make another Grid2DByte
         Grid2DByte rVal = new Grid2DByte(this.xdim, this.ydim, (byte) 0);
 
-        if (Math.abs(deltaCoord.x) < xdim && Math.abs(deltaCoord.y) < ydim) {
+        if ((Math.abs(deltaCoord.x) < xdim) && (Math.abs(deltaCoord.y) < ydim)) {
             // Find iteration limits for X
             int fromXStart;
             int toXStart;
@@ -275,8 +276,8 @@ public class Grid2DByte implements IGrid2D, Cloneable {
             byte[] toA = rVal.getBuffer().array();
 
             // Calculate from/to array offsets of the first point.
-            int fromOffset = fromYStart * xdim + fromXStart;
-            int toOffset = toYStart * xdim + toXStart;
+            int fromOffset = (fromYStart * xdim) + fromXStart;
+            int toOffset = (toYStart * xdim) + toXStart;
 
             // For each row, copy cols bytes of data.
             // Then update offsets for next row.
@@ -328,9 +329,9 @@ public class Grid2DByte implements IGrid2D, Cloneable {
 
     @Override
     public Grid2DByte subGrid(int minX, int minY, int maxX, int maxY) {
-        Grid2DByte rVal = new Grid2DByte(maxX + 1 - minX, maxY + 1 - minY);
-        for (int y = minY; y < maxY + 1; y++) {
-            for (int x = minX; x < maxX + 1; x++) {
+        Grid2DByte rVal = new Grid2DByte((maxX + 1) - minX, (maxY + 1) - minY);
+        for (int y = minY; y < (maxY + 1); y++) {
+            for (int x = minX; x < (maxX + 1); x++) {
                 rVal.buffer.put(this.get(x, y));
             }
         }
@@ -345,7 +346,8 @@ public class Grid2DByte implements IGrid2D, Cloneable {
 
         Grid2DByte rhsGrid2DByte = (Grid2DByte) rhs;
 
-        if (this.xdim != rhsGrid2DByte.xdim || this.ydim != rhsGrid2DByte.ydim) {
+        if ((this.xdim != rhsGrid2DByte.xdim)
+                || (this.ydim != rhsGrid2DByte.ydim)) {
             return false;
         }
 
@@ -374,9 +376,10 @@ public class Grid2DByte implements IGrid2D, Cloneable {
 
         Grid2DByte sourceGrid2DByte = (Grid2DByte) sourceGrid;
 
-        if (this.xdim != sourceGrid2DByte.xdim || this.xdim != maskGrid.xdim
-                || this.ydim != sourceGrid2DByte.ydim
-                || this.ydim != maskGrid.ydim) {
+        if ((this.xdim != sourceGrid2DByte.xdim)
+                || (this.xdim != maskGrid.xdim)
+                || (this.ydim != sourceGrid2DByte.ydim)
+                || (this.ydim != maskGrid.ydim)) {
             throw new IllegalArgumentException(
                     "This grid, the input grid, and the input mask grid must have equal dimensions");
         }
@@ -407,7 +410,7 @@ public class Grid2DByte implements IGrid2D, Cloneable {
         rVal += xdim + "X" + ydim + "\n[\n";
         for (int y = 0; y < ydim; y++) {
             for (int x = 0; x < xdim; x++) {
-                rVal += this.get(x, y) + (x + 1 == xdim ? "" : ",");
+                rVal += (0xFF & this.get(x, y)) + ((x + 1) == xdim ? "" : ",");
             }
             rVal += "\n";
         }
