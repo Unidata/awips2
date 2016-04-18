@@ -48,6 +48,7 @@ import com.raytheon.edex.plugin.binlightning.impl.BinLightningFactory;
 import com.raytheon.edex.plugin.binlightning.impl.IBinDataSource;
 import com.raytheon.edex.plugin.binlightning.impl.IBinLightningDecoder;
 import com.raytheon.edex.plugin.binlightning.impl.LightningDataSource;
+import com.raytheon.edex.plugin.binlightning.total.LightningWMOHeader;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
 import com.raytheon.uf.common.dataplugin.binlightning.impl.LightningStrikePoint;
@@ -99,6 +100,7 @@ import com.raytheon.uf.edex.decodertools.core.DecoderTools;
  * Jun 19, 2014 3226       bclement    added validator callback
  * Aug 04, 2014 3488       bclement    added checkBinRange(), rebin() and finalizeRecords()
  * Mar 08, 2016 18336      amoore      Keep-alive messages should update the legend.
+ * Apr 07, 2016 DR18763 mgamazaychikov Switched to using LightningWMOHeader.
  * 
  * </pre>
  * 
@@ -164,7 +166,7 @@ public class BinLightningDecoder {
         if (data != null) {
             traceId = (String) headers.get(DecoderTools.INGEST_FILE_NAME);
 
-            WMOHeader wmoHdr = new WMOHeader(data);
+            LightningWMOHeader wmoHdr = new LightningWMOHeader(data);
             if (wmoHdr.isValid()) {
                 String fileName = (String) headers
                         .get(WMOHeader.INGEST_FILE_NAME);
@@ -355,7 +357,7 @@ public class BinLightningDecoder {
      * @param data
      * @return null if data is invalid
      */
-    public static byte[] extractPData(WMOHeader wmoHdr, byte[] data) {
+    public static byte[] extractPData(LightningWMOHeader wmoHdr, byte[] data) {
         byte[] pdata = null;
         if (wmoHdr.isValid() && wmoHdr.getMessageDataStart() > 0) {
             pdata = new byte[data.length - wmoHdr.getMessageDataStart()];
@@ -393,11 +395,11 @@ public class BinLightningDecoder {
      *         LightningStrikePoint
      */
     public static List<LightningStrikePoint> decodeBinLightningData(
-            byte[] data, byte[] pdata, String traceId, WMOHeader wmoHdr,
+            byte[] data, byte[] pdata, String traceId, LightningWMOHeader wmoHdr,
             Date dataDate) {
         if (pdata == null) { // if data without header not passed, we'll strip
                              // the WMO header here
-            WMOHeader header = new WMOHeader(data);
+            LightningWMOHeader header = new LightningWMOHeader(data);
             if (header.isValid() && header.getMessageDataStart() > 0) {
                 pdata = new byte[data.length - header.getMessageDataStart()];
                 System.arraycopy(data, header.getMessageDataStart(), pdata, 0,
@@ -548,7 +550,7 @@ public class BinLightningDecoder {
      * @return
      */
     public static List<LightningStrikePoint> decodeBitShiftedBinLightningData(
-            byte[] pdata, WMOHeader wmoHdr) {
+            byte[] pdata, LightningWMOHeader wmoHdr) {
         List<LightningStrikePoint> strikes = new ArrayList<>();
 
         IBinDataSource msgData = new LightningDataSource(pdata);
