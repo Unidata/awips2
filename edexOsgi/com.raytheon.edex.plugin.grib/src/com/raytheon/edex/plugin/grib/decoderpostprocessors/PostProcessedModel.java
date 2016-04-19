@@ -21,6 +21,7 @@ package com.raytheon.edex.plugin.grib.decoderpostprocessors;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -30,20 +31,21 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * A container class to hold which post processors apply to a grib model
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Jul 24, 2012  949      bphillip    Initial Creation
  * Oct 15, 2013  2473     bsteffen    Remove deprecated ISerializableObject.
  * Oct 14, 2015  4627     nabowle     Add id attribute.
- *
- *
+ * Apr 18, 2016  5182     tjensen     Optimized to store modelNamePattern
+ * 
+ * 
  * </pre>
- *
+ * 
  * @author bphillip
  * @version 1
  */
@@ -70,6 +72,11 @@ public class PostProcessedModel {
     @XmlElement(name = "processorName")
     private List<String> processors;
 
+    /**
+     * Stores the regex pattern so it only needs to be calculated once.
+     */
+    private Pattern modelNamePattern;
+
     public PostProcessedModel() {
 
     }
@@ -80,6 +87,7 @@ public class PostProcessedModel {
 
     public void setModelName(String modelName) {
         this.modelName = modelName;
+        this.modelNamePattern = Pattern.compile(modelName);
     }
 
     /**
@@ -122,4 +130,10 @@ public class PostProcessedModel {
         return buf.toString();
     }
 
+    public Pattern getModelNamePattern() {
+        if (modelName != null && modelNamePattern == null) {
+            modelNamePattern = Pattern.compile(modelName);
+        }
+        return modelNamePattern;
+    }
 }
