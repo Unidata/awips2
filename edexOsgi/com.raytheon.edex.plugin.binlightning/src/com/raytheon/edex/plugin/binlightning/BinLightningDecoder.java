@@ -49,6 +49,7 @@ import com.raytheon.edex.plugin.binlightning.impl.BinLightningFactory;
 import com.raytheon.edex.plugin.binlightning.impl.IBinDataSource;
 import com.raytheon.edex.plugin.binlightning.impl.IBinLightningDecoder;
 import com.raytheon.edex.plugin.binlightning.impl.LightningDataSource;
+import com.raytheon.edex.plugin.binlightning.total.LightningWMOHeader;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
 import com.raytheon.uf.common.dataplugin.binlightning.impl.LightningStrikePoint;
@@ -99,6 +100,7 @@ import com.raytheon.uf.edex.decodertools.core.DecoderTools;
  * Jun 10, 2014 3226       bclement    added filter support
  * Jun 19, 2014 3226       bclement    added validator callback
  * Aug 04, 2014 3488       bclement    added checkBinRange(), rebin() and finalizeRecords()
+ * Apr 07, 2016 DR18763 mgamazaychikov Switched to using LightningWMOHeader.
  * 
  * </pre>
  * 
@@ -170,7 +172,7 @@ public class BinLightningDecoder extends AbstractDecoder {
         if (data != null) {
             traceId = (String) headers.get(DecoderTools.INGEST_FILE_NAME);
 
-            WMOHeader wmoHdr = new WMOHeader(data);
+            LightningWMOHeader wmoHdr = new LightningWMOHeader(data);
             if (wmoHdr.isValid()) {
                 String fileName = (String) headers
                         .get(WMOHeader.INGEST_FILE_NAME);
@@ -360,7 +362,7 @@ public class BinLightningDecoder extends AbstractDecoder {
      * @param data
      * @return null if data is invalid
      */
-    public static byte[] extractPData(WMOHeader wmoHdr, byte[] data) {
+    public static byte[] extractPData(LightningWMOHeader wmoHdr, byte[] data) {
         byte[] pdata = null;
         if (wmoHdr.isValid() && wmoHdr.getMessageDataStart() > 0) {
             pdata = new byte[data.length - wmoHdr.getMessageDataStart()];
@@ -398,11 +400,11 @@ public class BinLightningDecoder extends AbstractDecoder {
      *         LightningStrikePoint
      */
     public static List<LightningStrikePoint> decodeBinLightningData(
-            byte[] data, byte[] pdata, String traceId, WMOHeader wmoHdr,
+            byte[] data, byte[] pdata, String traceId, LightningWMOHeader wmoHdr,
             Date dataDate) {
         if (pdata == null) { // if data without header not passed, we'll strip
                              // the WMO header here
-            WMOHeader header = new WMOHeader(data);
+            LightningWMOHeader header = new LightningWMOHeader(data);
             if (header.isValid() && header.getMessageDataStart() > 0) {
                 pdata = new byte[data.length - header.getMessageDataStart()];
                 System.arraycopy(data, header.getMessageDataStart(), pdata, 0,
@@ -562,7 +564,7 @@ public class BinLightningDecoder extends AbstractDecoder {
      * @return
      */
     public static List<LightningStrikePoint> decodeBitShiftedBinLightningData(
-            byte[] pdata, WMOHeader wmoHdr) {
+            byte[] pdata, LightningWMOHeader wmoHdr) {
         List<LightningStrikePoint> strikes = new ArrayList<LightningStrikePoint>();
 
         IBinDataSource msgData = new LightningDataSource(pdata);

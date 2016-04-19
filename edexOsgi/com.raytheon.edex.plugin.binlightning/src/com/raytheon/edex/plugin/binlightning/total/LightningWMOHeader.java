@@ -1,62 +1,33 @@
-/**
- * This software was developed and / or modified by Raytheon Company,
- * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
- * U.S. EXPORT CONTROLLED TECHNICAL DATA
- * This software product contains export-restricted data whose
- * export/transfer/disclosure is restricted by U.S. law. Dissemination
- * to non-U.S. persons whether in the United States or abroad requires
- * an export license or other authorization.
- * 
- * Contractor Name:        Raytheon Company
- * Contractor Address:     6825 Pine Street, Suite 340
- *                         Mail Stop B8
- *                         Omaha, NE 68106
- *                         402.291.0100
- * 
- * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
- * further licensing information.
- **/
-package com.raytheon.uf.common.wmo;
+package com.raytheon.edex.plugin.binlightning.total;
 
 import java.util.Calendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.raytheon.uf.common.wmo.WMOTimeParser;
+
 /**
- * The WMOHeader extracts and parses the relevant wmo header information (listed
- * below) from a wmo weather message. TTAAii CCCC YYGGgg (BBB) TT = Data type
- * and subtype AA = Regional origin ii = Numeric identifier 00-99 CCCC = Message
- * originator. (ICAO) YYGGgg = message time (GMT) (BBB) = (Optional) AA[Z-Z]
- * Amendment part A through Z CC[A-Z] Correction part A through Z RR[A-Z]
- * Routine delayed part A through Z P[A-Z][A-Z] Message Part AA through ZZ The
- * pattern used to match a WMO header is not strict as it allows zero to two
- * digits in the Regional origin, ii, field. The standard requires 2 digits,
- * however some bulletins are not compliant.
+ * The LightningWMOHeader extracts and parses the relevant WMO Header
+ * information for lightning data. This class is based on the WMOHeader class
+ * and has been created because the regular expression string for the WMO Header
+ * for lightning data and other data types are mutually exclusive.
  * 
  * <pre>
  * SOFTWARE HISTORY
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20071001            391 jkorman     Initial Development
- * 20071130            410 jkorman     Changed bad copyright symbol.
- * 20071203            410 jkorman     JavaDoc complaints.
- * Jul 10, 2009 2191       rjpeter     Added getTtaaii.
- * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
+ * Apr 07, 2016 DR18763 mgamazaychikov Initial creation.
  * </pre>
  * 
- * @author jkorman
+ * @author mgamazaychikov
  * @version 1
  */
-public class WMOHeader {
-
-    public static final String INGEST_FILE_NAME = "ingestfilename";
-
-    public static final String WMO_HEADER = "[A-Z]{3}[A-Z0-9](?:\\d{0,2}|[A-Z]{0,2}) [A-Z0-9]{4} \\d{6}(?: [A-Z]{3})?[^\\r\\n]*[\\r\\n]+";
-
-    private static final Pattern WMO_HEADER_PATTERN = Pattern
-            .compile(WMO_HEADER);
+public class LightningWMOHeader {
+public static final String LIGHTNING_WMO_HEADER = "[A-Z]{3}[A-Z0-9](?:\\d{0,2}|[A-Z]{0,2}) [A-Z0-9]{4} \\d{6}(?: [A-Z]{3})?[^\\r\\n]*[\\r]*[\\n]";
+    
+    private static Pattern LIGHTNING_WMO_HEADER_PATTERN = Pattern
+            .compile(LIGHTNING_WMO_HEADER);
 
     private static final int CCCCGROUP_SIZE = 4;
 
@@ -102,7 +73,7 @@ public class WMOHeader {
 
     private String originalMessage = null;
 
-    public WMOHeader(byte[] bytes) {
+    public LightningWMOHeader(byte[] bytes) {
         this(bytes, null);
     }
 
@@ -112,12 +83,12 @@ public class WMOHeader {
      * @param messageData
      * @param fileName
      */
-    public WMOHeader(byte[] messageData, String fileName) {
+    public LightningWMOHeader(byte[] messageData, String fileName) {
         // Assume not valid until proven otherwise!
         isValid = false;
         if (messageData != null) {
             originalMessage = new String(messageData);
-            Matcher m = WMO_HEADER_PATTERN.matcher(originalMessage); // handles
+            Matcher m = LIGHTNING_WMO_HEADER_PATTERN.matcher(originalMessage); // handles
             // the skip
             // ccb
             if (m.find()) {
@@ -403,53 +374,4 @@ public class WMOHeader {
         }
     }
 
-//    /**
-//     * Use the parsed date/time elements to create the Calendar date time info
-//     * for this WMO header. The logic in this method allows the WMO header time
-//     * to be set to the current day, the next day, or up to 25 days in the past.
-//     * 
-//     * @return A Calendar instance based on the current system date time.
-//     */
-//    private Calendar createCalendarDate() {
-//        Calendar msgDate = null;
-//        // check the internal data first
-//        if ((headerDay > -1) && (headerHour > -1) && (headerMinute > -1)) {
-//            Calendar currentClock = TimeTools.getSystemCalendar(headerYear,
-//                    headerMonth, headerDay);
-//
-//            Calendar obsDate = null;
-//            Calendar tTime = TimeTools.copyToNearestHour(currentClock);
-//            // Set to the next day.
-//            TimeTools.rollByDays(tTime, 1);
-//
-//            if (headerDay == currentClock.get(Calendar.DAY_OF_MONTH)) {
-//                obsDate = TimeTools.copyToNearestHour(currentClock);
-//                obsDate.set(Calendar.HOUR_OF_DAY, headerHour);
-//                obsDate.set(Calendar.MINUTE, headerMinute);
-//            } else if (headerDay == tTime.get(Calendar.DAY_OF_MONTH)) {
-//                // Observation time is in the next day
-//                obsDate = TimeTools.copyToNearestHour(tTime);
-//                obsDate.set(Calendar.HOUR_OF_DAY, headerHour);
-//                obsDate.set(Calendar.MINUTE, headerMinute);
-//            } else {
-//                tTime = TimeTools.copyToNearestHour(currentClock);
-//                int i = 0;
-//                while (i++ < 25) {
-//                    // Go back a day
-//                    TimeTools.rollByDays(tTime, -1);
-//                    if (headerDay == tTime.get(Calendar.DAY_OF_MONTH)) {
-//                        // Day values are equal, so this is it.
-//                        obsDate = TimeTools.copyToNearestHour(tTime);
-//                        obsDate.set(Calendar.HOUR_OF_DAY, headerHour);
-//                        obsDate.set(Calendar.MINUTE, headerMinute);
-//                        break;
-//                    }
-//                }
-//            }
-//            if (obsDate != null) {
-//                msgDate = obsDate;
-//            }
-//        }
-//        return msgDate;
-//    }
 }
