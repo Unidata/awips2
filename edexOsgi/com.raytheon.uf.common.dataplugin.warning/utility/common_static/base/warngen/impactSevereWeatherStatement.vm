@@ -20,6 +20,9 @@
 ##     Phil Kurimski   10-20-2015 Added waterspout option to TOR basis     ##
 ##     Evan Bookbinder 10-20-2015 fixed extraSource variable usage         ##
 ##     Phil Kurimski   10-21-2015 Fixed Tornado Preamble for mixed case    ##
+##     Evan Bookbinder  4-04-2016 "therefore", "and" case/grammar fix in CAN/EXP  ##
+##     Evan Bookbinder  4-14-2016 Added exception case if forecaster             ## 
+##                                inadvertantly doesn't have a source selected   ##
 #############################################################################
 ## Impact Statements for IBW templates are contained in impactStatements.vm
 ################################################################
@@ -48,6 +51,7 @@
 ##PATHCAST LEAD VARIABLE ADD LATER????? 
 #if(${phenomena}=="SV")
   #set($eventType = "SEVERE THUNDERSTORM")
+  #set($source = "!** YOU FAILED TO SELECT A SOURCE. PLEASE TYPE ONE OR REGENERATE THIS WARNING **!")
     #if(${stormType} == "line")
       #set($reportType1 = "severe thunderstorms were")
       #set($reportType2 = "these storms were")
@@ -189,44 +193,44 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #if(${action}=="EXP" || ${action}=="CAN" || ${action}=="CANCON" || ${CORCAN}=="true")
 #### SET A DEFAULT STATEMENT IN CASE NO BULLET WAS SELECTED OR AVAILABLE
 #if(${stormType} == "line")
-  #set($expcanPhrase = "The storms which prompted the warning have !** weakened. moved out of the warned area.**! therefore the warning ${expcanBODYTag}.")
+  #set($expcanPhrase = "The storms which prompted the warning have !** weakened. moved out of the warned area.**! Therefore, the warning ${expcanBODYTag}.")
 #else
   #if(${phenomena}=="SV")
-    #set($expcanPhrase = "The severe thunderstorm which prompted the warning has !** weakened. moved out of the warned area. **! therefore the warning ${expcanBODYTag}.")
+    #set($expcanPhrase = "The severe thunderstorm which prompted the warning has !** weakened. moved out of the warned area. **! Therefore, the warning ${expcanBODYTag}.")
   #else
-    #set($expcanPhrase = "The tornadic thunderstorm which prompted the warning has !** weakened. moved out of the warned area. **! therefore the warning ${expcanBODYTag}.")
+    #set($expcanPhrase = "The tornadic thunderstorm which prompted the warning has !** weakened. moved out of the warned area. **! Therefore, the warning ${expcanBODYTag}.")
   #end
 #end
 #### WEAKENED BELOW SEVERE LIMITS
 #if(${list.contains(${bullets}, "weakened")})
   #if(${stormType} == "line")
     #if(${phenomena}=="SV")
-      #set($expcanPhrase = "The storms which prompted the warning have weakened below severe limits, and no longer pose an immediate threat to life or property. Therefore the warning ${expcanBODYTag}.")
+      #set($expcanPhrase = "The storms which prompted the warning have weakened below severe limits, and no longer pose an immediate threat to life or property. Therefore, the warning ${expcanBODYTag}.")
     #else
-      #set($expcanPhrase = "The storms which prompted the warning have weakened below severe limits, and no longer appear capable of producing a tornado. Therefore the warning ${expcanBODYTag}.")
+      #set($expcanPhrase = "The storms which prompted the warning have weakened below severe limits, and no longer appear capable of producing a tornado. Therefore, the warning ${expcanBODYTag}.")
     #end
   #else
     #if(${phenomena}=="SV")
-      #set($expcanPhrase = "The storm which prompted the warning has weakened below severe limits, and no longer pose an immediate threat to life or property. Therefore the warning ${expcanBODYTag}.")
+      #set($expcanPhrase = "The storm which prompted the warning has weakened below severe limits, and no longer pose an immediate threat to life or property. Therefore, the warning ${expcanBODYTag}.")
     #else
-      #set($expcanPhrase = "The storm which prompted the warning has weakened below severe limits, and no longer appears capable of producing a tornado. Therefore the warning ${expcanBODYTag}.")
+      #set($expcanPhrase = "The storm which prompted the warning has weakened below severe limits, and no longer appears capable of producing a tornado. Therefore, the warning ${expcanBODYTag}.")
     #end
   #end
 #end
 #### MOVED OUT OF THE WARNED AREA
 #if(${list.contains(${bullets}, "movedout")})
   #if(${stormType} == "line")
-      #set($expcanPhrase = "The storms which prompted the warning have moved out of the area. Therefore the warning ${expcanBODYTag}.")
+      #set($expcanPhrase = "The storms which prompted the warning have moved out of the area. Therefore, the warning ${expcanBODYTag}.")
   #else
-      #set($expcanPhrase = "The storm which prompted the warning has moved out of the area. Therefore the warning ${expcanBODYTag}.")
+      #set($expcanPhrase = "The storm which prompted the warning has moved out of the area. Therefore, the warning ${expcanBODYTag}.")
   #end
 #end
 #### WEAKENED AND MOVED OUT OF THE AREA
 #if(${list.contains(${bullets}, "wkndandmoved")})
   #if(${stormType} == "line")
-      #set($expcanPhrase = "The storms which prompted the warning have weakened below severe limits, and have exited the warned area. Therefore the warning ${expcanBODYTag}.")
+      #set($expcanPhrase = "The storms which prompted the warning have weakened below severe limits, and have exited the warned area. Therefore, the warning ${expcanBODYTag}.")
   #else
-      #set($expcanPhrase = "The storm which prompted the warning has weakened below severe limits, and have exited the warned area. Therefore the warning ${expcanBODYTag}.")
+      #set($expcanPhrase = "The storm which prompted the warning has weakened below severe limits, and have exited the warned area. Therefore, the warning ${expcanBODYTag}.")
   #end
 #end
 #### SVR UPGRADED TO TOR
@@ -287,9 +291,9 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #elseif(${addhailcheck} == "1" && ${addwindcheck} == "1" && ${addraincheck} == "0" )
  #set($addthreat = " However ${addhail} and ${addwind} are still possible with ${stormTypePhrase}.")
 #elseif(${addhailcheck} == "1" && ${addwindcheck} == "0" && ${addraincheck} == "1" )
- #set($addthreat = " However ${addhail} AND ${addrain} are still possible with ${stormTypePhrase}.")
+ #set($addthreat = " However ${addhail} and ${addrain} are still possible with ${stormTypePhrase}.")
 #elseif(${addhailcheck} == "0" && ${addwindcheck} == "1" && ${addraincheck} == "1" )
- #set($addthreat = " However ${addwind} AND ${addrain} are still possible with ${stormTypePhrase}.")
+ #set($addthreat = " However ${addwind} and ${addrain} are still possible with ${stormTypePhrase}.")
 #elseif(${addhailcheck} == "1" && ${addwindcheck} == "1" && ${addraincheck} == "1" )
  #set($addthreat = " However ${addhail}, ${addwind} and ${addrain} are still possible with ${stormTypePhrase}.")
 #end
@@ -979,7 +983,7 @@ Those attending the !**EVENT/VENUE NAME OR LOCATION**! are in the path of this s
 #end
 #end
 
-## parse file command here is to pull in mile marker info
+## parse file command here is to pull in DSS info
 ## #parse("dssEvents.vm")
 ## parse file command here is to pull in extra locations (venues) info
 ## #parse("pointMarkers.vm")
@@ -1108,7 +1112,7 @@ This storm is producing large hail. Seek shelter now inside a sturdy structure a
 This is a dangerous situation. These storms are producing widespread wind damage across !** ENTER LOCATION **!. Seek shelter now inside a sturdy structure and stay away from windows.
  
 #else
-This is a dangerous situation. This storm is producing widespread wind damage across !** ENTER LOCATION **!. sSek shelter now inside a sturdy structure and stay away from windows.
+This is a dangerous situation. This storm is producing widespread wind damage across !** ENTER LOCATION **!. Seek shelter now inside a sturdy structure and stay away from windows.
 
 #end
 #end
