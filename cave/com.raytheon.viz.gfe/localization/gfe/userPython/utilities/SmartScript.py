@@ -78,7 +78,8 @@
 #    Sep 11, 2015    4858          dgilling       Remove notification processing from publishElements.
 #    Jan 20, 2016    4751          randerso       Fix type of mask returned from getComposite() to work with numpy 1.9.2
 #    Jan 28, 2016    5129          dgilling       Support changes to IFPClient.
-#    02/22/2016      5374          randerso       Added support for sendWFOMessage
+#    Feb 22, 2016    5374          randerso       Added support for sendWFOMessage
+#    Apr 05, 2016    5539          randerso       Added exception when attempting create more than 256 Wx keys
 #
 ########################################################################
 import types, string, time, sys
@@ -2198,6 +2199,10 @@ class SmartScript(BaseTool.BaseTool):
         for str in keys:
             if sortedUglyStr == self.sortUglyStr(str):
                 return keys.index(str)
+        
+        if len(keys) >= 256:
+            raise IndexError("Attempt to create more than 256 Wx keys")
+        
         keys.append(uglyStr)
         return len(keys) - 1
 

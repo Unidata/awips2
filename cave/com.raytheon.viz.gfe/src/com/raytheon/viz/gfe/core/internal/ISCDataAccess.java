@@ -76,6 +76,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 10/31/2013    2508       randerso    Change to use DiscreteGridSlice.getKeys()
  * 09/01/2014    3572       randerso    Removed ourSiteMap as it was unused and the only 
  *                                      thing that used Grid2DBoolean
+ * 04/04/2016    5539       randerso    Fix unsigned byte issues
  * 
  * </pre>
  * 
@@ -462,7 +463,7 @@ public class ISCDataAccess implements IISCDataAccess {
             for (int i = 0; i < siteMask.getXdim(); i++) {
                 if (siteMask.getAsBoolean(i, j)) {
                     byte index = lookupKeyValue(keyIndexMap,
-                            iscKey[iscGrid.get(i, j)]);
+                            iscKey[0xFF & iscGrid.get(i, j)]);
                     slice.getWeatherGrid().set(i, j, index);
                 }
             }
@@ -551,7 +552,7 @@ public class ISCDataAccess implements IISCDataAccess {
             for (int i = 0; i < siteMask.getXdim(); i++) {
                 if (siteMask.getAsBoolean(i, j)) {
                     byte index = lookupKeyValue(keyIndexMap,
-                            iscKey[iscGrid.get(i, j)]);
+                            iscKey[0xFF & iscGrid.get(i, j)]);
                     slice.getDiscreteGrid().set(i, j, index);
                 }
             }
