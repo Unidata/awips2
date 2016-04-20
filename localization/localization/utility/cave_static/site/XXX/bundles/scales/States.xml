@@ -128,7 +128,8 @@
                 </resource>
                 <timeMatcher xsi:type="d2DTimeMatcher" loadMode="VALID_TIME_SEQ" deltaFilter="0" forecastFilter="0"/>
                 <numberOfFrames>12</numberOfFrames>
-                <gridGeometry envelopeMaxY="2326285.6581640337" envelopeMinY="1385720.9480978746" envelopeMaxX="227291.16585449004" envelopeMinX="-713274.3299231358" rangeY="0 9999" rangeX="0 9999">
+		<gridGeometry envelopeMaxY="826285.6581640337" envelopeMinY="-826285.9480978746" envelopeMaxX="713274.16585449004" envelopeMinX="-713274.3299231358" rangeY="0 9999" rangeX="0 9999">
+
                     <CRS>PROJCS["Lambert_Conformal_Conic_1SP", 
   GEOGCS["WGS84(DD)", 
     DATUM["WGS84", 

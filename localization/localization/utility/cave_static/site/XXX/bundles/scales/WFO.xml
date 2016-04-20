@@ -134,7 +134,7 @@
                 </resource>
                 <timeMatcher xsi:type="d2DTimeMatcher" loadMode="VALID_TIME_SEQ" deltaFilter="0" forecastFilter="0"/>
                 <numberOfFrames>12</numberOfFrames>
-                <gridGeometry envelopeMaxY="300048.65549884734" envelopeMinY="-300041.72068797084" envelopeMaxX="300042.41692510553" envelopeMinX="-300048.3123174316" rangeY="0 9999" rangeX="0 9999">
+                <gridGeometry envelopeMaxY="330048.65549884734" envelopeMinY="-330041.72068797084" envelopeMaxX="330042.41692510553" envelopeMinX="-330048.3123174316" rangeY="0 9999" rangeX="0 9999">
                     <CRS>PROJCS["Stereographic", 
   GEOGCS["WGS84(DD)", 
     DATUM["WGS84", 

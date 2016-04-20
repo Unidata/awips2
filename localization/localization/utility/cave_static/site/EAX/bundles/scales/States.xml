@@ -20,7 +20,7 @@
     -->
 <bundle>
     <displayList>
-        <displays xsi:type="d2DMapRenderableDisplay" scale="Regional" density="1.0" magnification="1.0" zoomLevel="1.0" mapCenter="LONGITUDE LATITUDE 0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <displays xsi:type="d2DMapRenderableDisplay" scale="State(s)" density="1.0" magnification="1.0" zoomLevel="1.0" mapCenter="-94.263890000000004 38.810000000000002 0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <descriptor xsi:type="mapDescriptor">
                 <resource>
                     <loadProperties loadWithoutData="false">
@@ -37,6 +37,7 @@
                         <resource>
                             <loadProperties loadWithoutData="false">
                                 <capabilities>
+                                    <capability xsi:type="shadeableCapability" shaded="false"/>
                                     <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
                                     <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
                                 </capabilities>
@@ -55,6 +56,7 @@
                         <resource>
                             <loadProperties loadWithoutData="false">
                                 <capabilities>
+                                    <capability xsi:type="shadeableCapability" shaded="false"/>
                                     <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
                                     <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
                                 </capabilities>
@@ -72,6 +74,7 @@
                         <resource>
                             <loadProperties loadWithoutData="false">
                                 <capabilities>
+                                    <capability xsi:type="shadeableCapability" shaded="false"/>
                                     <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
                                     <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
                                 </capabilities>
@@ -89,6 +92,7 @@
                         <resource>
                             <loadProperties loadWithoutData="false">
                                 <capabilities>
+                                    <capability xsi:type="shadeableCapability" shaded="false"/>
                                     <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
                                     <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
                                 </capabilities>
@@ -124,7 +128,8 @@
                 </resource>
                 <timeMatcher xsi:type="d2DTimeMatcher" loadMode="VALID_TIME_SEQ" deltaFilter="0" forecastFilter="0"/>
                 <numberOfFrames>12</numberOfFrames>
-                <gridGeometry envelopeMaxY="2901076.347219158" envelopeMinY="810930.3906458529" envelopeMaxX="697573.8190745931" envelopeMinX="-1392571.7793350497" rangeY="0 9999" rangeX="0 9999">
+		<gridGeometry envelopeMaxY="826285.6581640337" envelopeMinY="-826285.9480978746" envelopeMaxX="713274.16585449004" envelopeMinX="-713274.3299231358" rangeY="0 9999" rangeX="0 9999">
+
                     <CRS>PROJCS["Lambert_Conformal_Conic_1SP", 
   GEOGCS["WGS84(DD)", 
     DATUM["WGS84", 
@@ -136,8 +141,8 @@
   PROJECTION["Lambert_Conformal_Conic_1SP"], 
   PARAMETER["semi_major", 6371200.0], 
   PARAMETER["semi_minor", 6371200.0], 
-  PARAMETER["central_meridian", LONGITUDE], 
-  PARAMETER["latitude_of_origin", LATITUDE], 
+  PARAMETER["central_meridian", -94.263890000000004], 
+  PARAMETER["latitude_of_origin", 38.810000000000002], 
   PARAMETER["false_easting", 0.0], 
   PARAMETER["false_northing", 0.0], 
   UNIT["m", 1.0], 
