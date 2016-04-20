@@ -21,11 +21,5 @@
 <menuContributionFile>
 	<include installTo="menu:obs?after=WATCHWARN" 
              fileName="menus/warnings/baseWarnings.xml">
-        <!-- Defaults to OAX, if there is a warnings index.xml file for the site
-        you are localized to, that file will be used instead of the one here -->
-		<substitute key="site" value="KOAX"/>
-		<!--
-        <substitute key="sites" value="KABR, KFSD,  KUNR, KBIS, KFGF, KBOU, KGJT, KPUB, KCYS, KRIW, KGID, KLBF, KOAX, KDDC, KGLD, KICT, KTOP,  KEAX, KLSX, KSGF, KDMX, KDVN, KDLH, KMPX, KARX, KGRB, KMKX, KILX, KLOT, KJKL, KLMK, KPAH, KIND, KIWX, KAPX, KDTX, KGRR, KMQT"/>
-    	-->
     </include>
 </menuContributionFile>

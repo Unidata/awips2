@@ -50,6 +50,14 @@
 		<substitute key="name2" value="DSP Storm Total Precipitation" />
 	</contribute>
 	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaicTwoPanel.xml"
+		menuText="DHR and EET" id="RadarHybridScanRefl">
+		<substitute key="elevation" value="0" />
+		<substitute key="product1" value="32" />
+		<substitute key="product2" value="135" />
+		<substitute key="name1" value="DHR Digital Hybrid Reflectivity" />
+		<substitute key="name2" value="EET Enhanced Echo Tops" />
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaicTwoPanel.xml"
 		menuText="DHR and HHC" id="RadarHybridScanRefl">
 		<substitute key="elevation" value="0" />
 		<substitute key="product1" value="32" />
@@ -58,13 +66,14 @@
 		<substitute key="name2" value="HHC Hybrid Hydrometeor Classification" />
 	</contribute>
 	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaicTwoPanel.xml"
-		menuText="N0Q and N0U" id="RadarHybridScanRefl">
-		<substitute key="elevation" value="0.5" />
-		<substitute key="product1" value="94" />
-		<substitute key="product2" value="99" />
-		<substitute key="name1" value="N0Q 0.5 deg Reflectivity" />
-		<substitute key="name2" value="N0U 0.5 deg Velocity" />
+		menuText="DVL and DPR" id="RadarHybridScanRefl">
+		<substitute key="elevation" value="0" />
+		<substitute key="product1" value="134" />
+		<substitute key="product2" value="176" />
+		<substitute key="name1" value="DVL Digital Vert Integ Liq" />
+		<substitute key="name2" value="DPR Digital Inst Precip Rate" />
 	</contribute>
+	
 	
 	<contribute xsi:type="titleItem" titleText="------ Mosaic ------"
 		id="RadarMosaic" />
