@@ -19,20 +19,29 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <contribute xsi:type="bundleItem" file="bundles/TotalLightningPlot60Min.xml" 
+    <contribute xsi:type="bundleItem" file="bundles/TotalLightningPlot.xml" 
                 menuText="1hr plot" id="1HrLightningFlashPlot">
+                <substitute key="negOffset" value="3600"/>
     </contribute>
-    <contribute xsi:type="bundleItem" file="bundles/TotalLightningPlot15Min.xml" 
+    <contribute xsi:type="bundleItem" file="bundles/TotalLightningPlot.xml" 
                 menuText="15min plot" id="15MinLightningFlashPlot">
+                <substitute key="negOffset" value="900"/>
     </contribute>
     <contribute xsi:type="bundleItem" file="bundles/TotalLightningPlot15MinPN.xml" 
                 menuText="15min Pos/Neg plot" id="15MinPNLightningFlashPlot">
     </contribute> 
-    <contribute xsi:type="bundleItem" file="bundles/TotalLightningPlot5Min.xml" 
+    <contribute xsi:type="bundleItem" file="bundles/TotalLightningPlot.xml" 
                 menuText="5min plot" id="5MinLightningFlashPlot">
+                <substitute key="negOffset" value="300"/>
     </contribute>
-    <contribute xsi:type="bundleItem" file="bundles/TotalLightningPlot1Min.xml"
+    <contribute xsi:type="bundleItem" file="bundles/TotalLightningPlot.xml" 
+                menuText="5min plot (1min update)" id="5Min1MinLightningFlashPlot">
+                <substitute key="negOffset" value="60"/>
+                <substitute key="binRepeatCount" value="5"/>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/TotalLightningPlot.xml"
                 menuText="1min plot" id="1MinLightningFlashPlot">
+                <substitute key="negOffset" value="60"/>
     </contribute>
     <contribute xsi:type="bundleItem" file="bundles/LightningSeq.xml" 
                 menuText="1min Lgtng Seq Plot" id="1MinLightningFlashSeq">
