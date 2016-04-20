@@ -104,6 +104,7 @@ import com.raytheon.uf.viz.alertviz.ui.audio.IAudioAction;
  * 14 Jan 2016  5054       randerso    Fix the Tips window to display on the correct monitor
  *                                     Removed duplicate parent shell
  * 25 Jan 2016  5054       randerso    Converted to stand alone window
+ * 19 Apr 2016  5517       randerso    Fixed saving/restoring location of AlertViz bar
  * 
  * </pre>
  * 
@@ -271,7 +272,6 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
      */
     public Object open() {
         shell = new Shell(display, SWT.ON_TOP | SWT.NO_TRIM);
-        shell.setBounds(restoreDialogPosition());
 
         shell.addDisposeListener(new DisposeListener() {
             @Override
@@ -292,11 +292,17 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
         // Initialize all of the controls and layouts
         initializeComponents();
         shell.pack();
-        shell.open();
+
+        // Restore the previous dialog position
+        Rectangle rect = restoreDialogPosition();
+        Point shellLoc = new Point(rect.x, rect.y);
+
+        if (rect.width > 0 && rect.height > 0) {
+            shell.setSize(rect.width, rect.height);
+        }
+        Point shellSize = shell.getSize();
 
         // force bar location to be within the display.
-        Point shellLoc = shell.getLocation();
-        Point shellSize = shell.getSize();
         Display d = shell.getDisplay();
         Rectangle dBounds = d.getBounds();
         if (shellLoc.x < dBounds.x) {
@@ -310,6 +316,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
             shellLoc.y = (dBounds.y + dBounds.height) - shellSize.y;
         }
         shell.setLocation(shellLoc);
+        shell.open();
 
         if (Boolean.getBoolean("SystemTray")
                 && !Boolean.getBoolean("ShowAlertVizBar")) {
@@ -1224,7 +1231,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
         return alertAudioMgr;
     }
 
-    public static Rectangle restoreDialogPosition() {
+    private static Rectangle restoreDialogPosition() {
         return new Rectangle(
                 dialogPrefs.getInt(P_ALERT_MSG_DLG_POSITION + ".x"),
                 dialogPrefs.getInt(P_ALERT_MSG_DLG_POSITION + ".y"),
@@ -1232,7 +1239,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
                 dialogPrefs.getInt(P_ALERT_MSG_DLG_POSITION + ".height"));
     }
 
-    public static void saveDialogPosition(Rectangle r) {
+    private static void saveDialogPosition(Rectangle r) {
         dialogPrefs.setValue(P_ALERT_MSG_DLG_POSITION + ".x", r.x);
         dialogPrefs.setValue(P_ALERT_MSG_DLG_POSITION + ".y", r.y);
         dialogPrefs.setValue(P_ALERT_MSG_DLG_POSITION + ".width", r.width);

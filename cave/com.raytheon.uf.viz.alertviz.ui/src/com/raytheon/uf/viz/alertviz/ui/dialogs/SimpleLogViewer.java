@@ -30,6 +30,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
@@ -71,6 +72,7 @@ import com.raytheon.uf.viz.alertviz.config.TrayConfiguration;
  * Jul 01, 2015 4473       njensen     Fix update of table on alert arrival
  * Jun 29, 2015 4311       randerso    Reworking AlertViz dialogs to be resizable.
  * Jan 25, 2016 5054       randerso    Converted to stand alone window
+ * Mar 31, 2016 5517       randerso    Fix GUI sizing issues
  * 
  * </pre>
  * 
@@ -79,6 +81,9 @@ import com.raytheon.uf.viz.alertviz.config.TrayConfiguration;
  */
 
 public class SimpleLogViewer implements IAlertArrivedCallback {
+
+    private static final String[] columnLabels = new String[] { "Time",
+            "Priority", "Source", "Category", "Message" };
 
     private Display display;
 
@@ -110,13 +115,6 @@ public class SimpleLogViewer implements IAlertArrivedCallback {
         first = true;
 
         this.display = display;
-
-        // Create a new shell object and set the text for the dialog.
-        shell = new Shell(display, SWT.DIALOG_TRIM | SWT.MIN | SWT.TITLE
-                | SWT.RESIZE);
-        shell.setText("System Log");
-
-        initializeComponents();
     }
 
     /**
@@ -147,29 +145,22 @@ public class SimpleLogViewer implements IAlertArrivedCallback {
         shell.setLayoutData(gd);
 
         table = new Table(shell, SWT.BORDER | SWT.VIRTUAL);
-        final TableColumn[] columns = new TableColumn[] {
-                new TableColumn(table, SWT.NONE),
-                new TableColumn(table, SWT.NONE),
-                new TableColumn(table, SWT.NONE),
-                new TableColumn(table, SWT.NONE),
-                new TableColumn(table, SWT.NONE) };
+        table.setHeaderVisible(true);
+
+        for (String label : columnLabels) {
+            TableColumn column = new TableColumn(table, SWT.NONE);
+            column.setText(label);
+        }
+
+        GC gc = new GC(table);
+        int textWidth = gc.getFontMetrics().getAverageCharWidth() * 130;
+        gc.dispose();
 
         gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        gd.widthHint = 800;
-        gd.heightHint = 400;
+        gd.widthHint = textWidth;
+        gd.heightHint = table.getItemHeight() * 20;
         table.setLayoutData(gd);
 
-        table.setHeaderVisible(true);
-        columns[0].setText("Time");
-        columns[0].setWidth(200);
-        columns[1].setText("Priority");
-        columns[1].setWidth(60);
-        columns[2].setText("Source");
-        columns[2].setWidth(100);
-        columns[3].setText("Category");
-        columns[3].setWidth(100);
-        columns[4].setText("Message");
-        columns[4].setWidth(100);
         int sz = 0;
         try {
             range = SystemStatusHandler.getCurrentRange();
@@ -187,7 +178,7 @@ public class SimpleLogViewer implements IAlertArrivedCallback {
                             e2);
         }
 
-        table.setSortColumn(columns[0]);
+        table.setSortColumn(table.getColumn(0));
         table.setSortDirection(SWT.UP);
 
         red = new Color(display, new RGB(255, 0, 0));
@@ -262,12 +253,19 @@ public class SimpleLogViewer implements IAlertArrivedCallback {
         Composite buttons = new Composite(shell, SWT.NONE);
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         buttons.setLayoutData(gd);
-        buttons.setLayout(new GridLayout(3, false));
+        buttons.setLayout(new GridLayout(2, false));
+
+        int buttonWidth = buttons.getDisplay().getDPI().x;
+
+        Composite buttonsLeft = new Composite(buttons, SWT.NONE);
+        gd = new GridData(SWT.LEFT, SWT.DEFAULT, true, false);
+        buttonsLeft.setLayoutData(gd);
+        buttonsLeft.setLayout(new GridLayout(2, false));
 
         // Open the shell to display the dialog.
-        Button button = new Button(buttons, SWT.NONE);
-        gd = new GridData(SWT.LEFT, SWT.DEFAULT, false, false);
-        gd.widthHint = 100;
+        Button button = new Button(buttonsLeft, SWT.NONE);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, true, false);
+        gd.minimumWidth = buttonWidth;
         button.setText("Export Log...");
         button.setLayoutData(gd);
         button.addSelectionListener(new SelectionAdapter() {
@@ -290,9 +288,9 @@ public class SimpleLogViewer implements IAlertArrivedCallback {
 
         });
 
-        Button close = new Button(buttons, SWT.NONE);
-        gd = new GridData(SWT.LEFT, SWT.DEFAULT, false, false);
-        gd.widthHint = 100;
+        Button close = new Button(buttonsLeft, SWT.NONE);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, true, false);
+        gd.minimumWidth = buttonWidth;
         close.setText("Close");
         close.setLayoutData(gd);
         close.addSelectionListener(new SelectionListener() {
@@ -309,9 +307,14 @@ public class SimpleLogViewer implements IAlertArrivedCallback {
 
         });
 
+        Composite buttonsRight = new Composite(buttons, SWT.NONE);
         gd = new GridData(SWT.RIGHT, SWT.DEFAULT, true, false);
-        gd.widthHint = 100;
-        showLog = new Button(buttons, SWT.NONE);
+        buttonsRight.setLayoutData(gd);
+        buttonsRight.setLayout(new GridLayout(1, false));
+
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, true, false);
+        gd.minimumWidth = buttonWidth;
+        showLog = new Button(buttonsRight, SWT.NONE);
         showLog.setText("Show Log...");
         showLog.setLayoutData(gd);
         showLog.addSelectionListener(new SelectionAdapter() {
@@ -344,19 +347,30 @@ public class SimpleLogViewer implements IAlertArrivedCallback {
      * @return null
      */
     public Object open() {
+
+        // Create a new shell object and set the text for the dialog.
+        shell = new Shell(display, SWT.DIALOG_TRIM | SWT.MIN | SWT.TITLE
+                | SWT.RESIZE);
+        shell.setText("System Log");
+
+        initializeComponents();
+
         Point minSize = shell.computeSize(SWT.DEFAULT, SWT.DEFAULT);
         shell.setMinimumSize(minSize);
 
-        Point size = minSize;
-        shell.setSize(size);
+        shell.pack();
 
         showHideLog();
 
         AlertvizJob.getInstance().addAlertArrivedCallback(this);
 
-        shell.open();
-        table.showItem(table.getItem(table.getItemCount() - 1));
         table.select(table.getItemCount() - 1);
+        table.showSelection();
+        for (TableColumn column : table.getColumns()) {
+            column.pack();
+        }
+
+        shell.open();
 
         // Wait until the shell is disposed.
         Display display = shell.getDisplay();
