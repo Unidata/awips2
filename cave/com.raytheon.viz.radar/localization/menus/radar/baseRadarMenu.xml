@@ -38,6 +38,34 @@
         <substitute key="element" value="HHC"/>
         <substitute key="colormap" value="Radar/HHC NEXRCOMP"/>
     </contribute>	
+	<contribute xsi:type="titleItem" titleText="------ 2 Panel Mosaic ------"
+		id="RadarMosaic" />
+	
+	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaicTwoPanel.xml"
+		menuText="DHR and DSP" id="RadarHybridScanRefl">
+		<substitute key="elevation" value="0" />
+		<substitute key="product1" value="32" />
+		<substitute key="product2" value="138" />
+		<substitute key="name1" value="DHR Digital Hybrid Reflectivity" />
+		<substitute key="name2" value="DSP Storm Total Precipitation" />
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaicTwoPanel.xml"
+		menuText="DHR and HHC" id="RadarHybridScanRefl">
+		<substitute key="elevation" value="0" />
+		<substitute key="product1" value="32" />
+		<substitute key="product2" value="177" />
+		<substitute key="name1" value="DHR Digital Hybrid Reflectivity" />
+		<substitute key="name2" value="HHC Hybrid Hydrometeor Classification" />
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaicTwoPanel.xml"
+		menuText="N0Q and N0U" id="RadarHybridScanRefl">
+		<substitute key="elevation" value="0.5" />
+		<substitute key="product1" value="94" />
+		<substitute key="product2" value="99" />
+		<substitute key="name1" value="N0Q 0.5 deg Reflectivity" />
+		<substitute key="name2" value="N0U 0.5 deg Velocity" />
+	</contribute>
+	
 	<contribute xsi:type="titleItem" titleText="------ Mosaic ------"
 		id="RadarMosaic" />
 	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"

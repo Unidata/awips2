@@ -777,10 +777,28 @@
                         value="300">
                   </parameter>
                </command>
+			   <command commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="350">
+                  </parameter>
+               </command>
                <command commandId="com.raytheon.viz.ui.actions.setframes">
                   <parameter
                         name="frameCount"
                         value="400">
+                  </parameter>
+               </command>
+			   <command commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="450">
+                  </parameter>
+               </command>
+			   <command commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="500">
                   </parameter>
                </command>
          </menuContribution>
@@ -882,6 +900,10 @@
                      definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
                </reference>
             </activeWhen>
+         </handler>
+		 <handler
+               class="com.raytheon.uf.viz.d2d.ui.map.actions.TwoPanelLayoutHandler"
+               commandId="com.raytheon.uf.viz.d2d.ui.map.actions.twoPanelLayout">
          </handler>
          <handler
                class="com.raytheon.uf.viz.d2d.ui.map.actions.FourPanelLayoutHandler"
@@ -1389,6 +1411,12 @@
             categoryId="com.raytheon.uf.viz.d2d.ui"
             description="Opens the display properties dialog"
             name="Display Properties">
+      </command>
+	  <command
+            id="com.raytheon.uf.viz.d2d.ui.map.actions.twoPanelLayout"
+            categoryId="com.raytheon.uf.viz.d2d.ui"
+            description="Switches editor to a two panel layout"
+            name="Two Panel Layout">
       </command>
       <command
             id="com.raytheon.uf.viz.d2d.ui.map.actions.fourPanelLayout"
