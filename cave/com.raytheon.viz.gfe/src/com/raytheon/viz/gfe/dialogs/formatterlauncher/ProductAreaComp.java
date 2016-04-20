@@ -35,9 +35,9 @@ import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.TabFolder;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
-import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.dialogs.FormatterLauncherDialog;
@@ -47,7 +47,6 @@ import com.raytheon.viz.gfe.tasks.TaskManager;
 import com.raytheon.viz.gfe.textformatter.FormatterUtil;
 import com.raytheon.viz.gfe.textformatter.TextProductFinishListener;
 import com.raytheon.viz.gfe.textformatter.TextProductManager;
-import com.raytheon.viz.ui.simulatedtime.SimulatedTimeProhibitedOpException;
 
 /**
  * Composite containing the product area and its controls.
@@ -62,7 +61,7 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeProhibitedOpException;
  *  2 SEP 2011 10654       gzhou       Delete running/pending task and close tab.
  * 23 MAY 2012 14859       ryu         Select VTEC formatting in practice mode
  *                                     based on VTECMessageType setting.
- * 10 AUG 2012 15178  	   mli		   Add autoWrite and autoStore capability
+ * 10 AUG 2012 15178       mli         Add autoWrite and autoStore capability
  * 26 SEP 2012 15423       ryu         Fix product correction in practice mode
  * 15 MAY 2013  1842       dgilling    Change constructor signature to accept a
  *                                     DataManager instance.
@@ -79,7 +78,8 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeProhibitedOpException;
  *                                     based on the pil of the product rather than the disply name.
  * 18 FEB 2016 13033       yteng       Improve error message for bad characters in text formatter
  *                                     definitions.
- *
+ * 14 APR 2016  5578       dgilling    Support changes to FormatterUtil.runFormatterScript.
+ * 
  * </pre>
  * 
  * @author lvenable
@@ -399,28 +399,29 @@ public class ProductAreaComp extends Composite implements
                                 String pil = "";
                                 try {
                                     pil = (String) textProductMgr
-                                            .getDefinitionValue(productName, "pil");
+                                            .getDefinitionValue(productName,
+                                                    "pil");
                                 } catch (ClassCastException e) {
-                                    statusHandler.error("Invalid pil value: "
-                                            + textProductMgr
-                                            .getDefinitionValue(productName, "pil"), e);
+                                    statusHandler.error(
+                                            "Invalid pil value: "
+                                                    + textProductMgr
+                                                            .getDefinitionValue(
+                                                                    productName,
+                                                                    "pil"), e);
                                 }
                                 if (pil != null) {
                                     pil = pil.substring(0, 3);
-                                    vtecMode = textProductMgr.getVtecMessageType(pil);
+                                    vtecMode = textProductMgr
+                                            .getVtecMessageType(pil);
                                 }
                             }
 
                             // Get the source database
                             zoneCombiner.applyZoneCombo();
-                            try {
-                                FormatterUtil.runFormatterScript(dataMgr,
-                                        textProductMgr, productName,
-                                        dbId.toString(), vtecMode,
-                                        ProductAreaComp.this);
-                            } catch (SimulatedTimeProhibitedOpException e) {
-                                statusHandler.error(e.getLocalizedMessage(), e);
-                            }
+                            FormatterUtil.runFormatterScript(dataMgr,
+                                    textProductMgr, productName,
+                                    dbId.toString(), vtecMode,
+                                    ProductAreaComp.this);
                         }
                     }
                 }
@@ -663,8 +664,18 @@ public class ProductAreaComp extends Composite implements
     }
 
     @Override
-    public void textProductQueued(ConfigData.ProductStateEnum state) {
-        productTabCB.setTabState(state, productName);
+    public void textProductQueued(final ConfigData.ProductStateEnum state) {
+        if (isTabClosed) {
+            return;
+        }
+
+        VizApp.runSyncIfWorkbench(new Runnable() {
+
+            @Override
+            public void run() {
+                productTabCB.setTabState(state, productName);
+            }
+        });
     }
 
     @Override
