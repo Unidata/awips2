@@ -38,6 +38,43 @@
         <substitute key="element" value="HHC"/>
         <substitute key="colormap" value="Radar/HHC NEXRCOMP"/>
     </contribute>	
+	<contribute xsi:type="titleItem" titleText="------ 2 Panel Mosaic ------"
+		id="RadarMosaic" />
+	
+	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaicTwoPanel.xml"
+		menuText="DHR and DSP" id="RadarHybridScanRefl">
+		<substitute key="elevation" value="0" />
+		<substitute key="product1" value="32" />
+		<substitute key="product2" value="138" />
+		<substitute key="name1" value="DHR Digital Hybrid Reflectivity" />
+		<substitute key="name2" value="DSP Storm Total Precipitation" />
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaicTwoPanel.xml"
+		menuText="DHR and EET" id="RadarHybridScanRefl">
+		<substitute key="elevation" value="0" />
+		<substitute key="product1" value="32" />
+		<substitute key="product2" value="135" />
+		<substitute key="name1" value="DHR Digital Hybrid Reflectivity" />
+		<substitute key="name2" value="EET Enhanced Echo Tops" />
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaicTwoPanel.xml"
+		menuText="DHR and HHC" id="RadarHybridScanRefl">
+		<substitute key="elevation" value="0" />
+		<substitute key="product1" value="32" />
+		<substitute key="product2" value="177" />
+		<substitute key="name1" value="DHR Digital Hybrid Reflectivity" />
+		<substitute key="name2" value="HHC Hybrid Hydrometeor Classification" />
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaicTwoPanel.xml"
+		menuText="DVL and DPR" id="RadarHybridScanRefl">
+		<substitute key="elevation" value="0" />
+		<substitute key="product1" value="134" />
+		<substitute key="product2" value="176" />
+		<substitute key="name1" value="DVL Digital Vert Integ Liq" />
+		<substitute key="name2" value="DPR Digital Inst Precip Rate" />
+	</contribute>
+	
+	
 	<contribute xsi:type="titleItem" titleText="------ Mosaic ------"
 		id="RadarMosaic" />
 	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
