@@ -42,6 +42,7 @@ import com.raytheon.uf.common.python.concurrent.PythonJobCoordinator;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
+import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.IAsyncStartupObjectListener;
 
 /**
@@ -62,6 +63,7 @@ import com.raytheon.viz.gfe.core.IAsyncStartupObjectListener;
  * Jul 30, 2015  4263      dgilling    Major refactor so this object can be initialized off
  *                                     UI thread.
  * Dec 14, 2015  4816      dgilling    Support refactored PythonJobCoordinator API.
+ * Apr 14, 2016  5578      dgilling    Add getVarDict.
  * 
  * </pre>
  * 
@@ -261,6 +263,39 @@ public class TextProductManager implements ILocalizationFileObserver {
         ProductDefinition productDef = (productMetadata != null) ? productMetadata
                 .getProductDefinition() : null;
         return productDef;
+    }
+
+    /**
+     * Returns the varDict for the given text formatter. In GFE, the varDict is
+     * a Map (or dict) containing the user's selections from an optional popup
+     * dialog that can appear before executing a formatter.
+     * <p>
+     * To retrieve the varDict this will require a call into Jep (specifically
+     * FormatterRunner.py's getVarDict method) to retrieve the varDict.
+     * Depending on whether or not the formatter script defines the global
+     * variable variableList, this may cause an instance of ValuesDialog to
+     * display.
+     * <p>
+     * Do NOT call this function from the UI thread of CAVE or it will deadlock
+     * the application.
+     * 
+     * @param productName
+     * @param dataManager
+     * @param dbId
+     * @return
+     */
+    public String obtainVarDictSelections(String productName, DataManager dataManager,
+            String dbId) {
+        String varDict = null;
+        try {
+            varDict = jobCoordinator.submitJob(
+                    new TextProductVarDictExecutor(getDisplayName(productName),
+                            dataManager, issuedBy, dbId)).get();
+        } catch (Exception e) {
+            statusHandler.error(String.format(
+                    "Error retrieving varDict for product %s", productName), e);
+        }
+        return varDict;
     }
 
     public String getVtecMessageType(String productCategory) {

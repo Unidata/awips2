@@ -53,13 +53,14 @@ import com.raytheon.uf.common.time.TimeRange;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 15, 2011            randerso     Initial creation
- * Jan 30, 2013 15719      jdynina      Allowed more than 128 char wx string
- * Aug 13, 2013  1571      randerso     Removed toString to stop it from hanging the 
- *                                      debugger when trying to display the grid
- * Oct 29, 2013 2476       njensen      Updated getNumpy() and added getKeyList()
- * Apr 23, 2015 4259       njensen      Updated for new JEP API
- * Nov 03, 2015 5061       randerso     Fixed null pointer in equals()
+ * Mar 15, 2011            randerso    Initial creation
+ * Jan 30, 2013 15719      jdynina     Allowed more than 128 char wx string
+ * Aug 13, 2013  1571      randerso    Removed toString to stop it from hanging the 
+ *                                     debugger when trying to display the grid
+ * Oct 29, 2013 2476       njensen     Updated getNumpy() and added getKeyList()
+ * Apr 23, 2015 4259       njensen     Updated for new JEP API
+ * Nov 03, 2015 5061       randerso    Fixed null pointer in equals()
+ * Apr 05, 2016 5539       randerso    Cleaned up collapse method
  * 
  * </pre>
  * 
@@ -645,63 +646,81 @@ public class WeatherGridSlice extends AbstractGridSlice {
             return;
         }
 
-        // make a histogram, indicating what is and what isn't
-        // used in the weather keys
-        boolean[] used = new boolean[keys.length];
-        int[] invMapping = new int[keys.length];
-        for (int i = 0; i < used.length; i++) {
-            invMapping[i] = i;
-            used[i] = false;
-        }
-
-        // process the grid
-        for (int i = 0; i < weatherGrid.getXdim(); i++) {
-            for (int j = 0; j < weatherGrid.getYdim(); j++) {
-                used[0xFF & weatherGrid.get(i, j)] = true;
-            }
-        } // indicate used
-
-        // clear the invmapping if not used
-        for (int i = 0; i < used.length; i++) {
-            if (!used[i]) {
-                invMapping[i] = -1;
-            }
-        }
-
-        // eliminate duplicate keys
-        int nk = 0;
-        List<WeatherKey> tmpKeys = new ArrayList<WeatherKey>();
-        for (int i = 0; i < used.length; i++) {
-            if (used[i]) {
-                tmpKeys.add(keys[i]);
-                invMapping[i] = nk;
-                for (int j = i + 1; j < used.length; j++) {
-                    if (keys[i].equals(keys[j])) {
-                        invMapping[j] = nk; // key index
-                        used[j] = false; // to prevent reprocessing
-                    }
+        try {
+            int max = 0;
+            for (byte b : weatherGrid.getBytes()) {
+                int unsigned = 0xFF & b;
+                if (unsigned > max) {
+                    max = unsigned;
                 }
-                nk++;
             }
-        }
-        WeatherKey[] newKeys = tmpKeys.toArray(new WeatherKey[tmpKeys.size()]);
 
-        // anything to do?
-        if (Arrays.equals(newKeys, keys)) {
-            return;
-        }
-
-        // now remap the data
-        for (int i = 0; i < weatherGrid.getXdim(); i++) {
-            for (int j = 0; j < weatherGrid.getYdim(); j++) {
-                weatherGrid.set(i, j,
-                        (byte) invMapping[0xFF & weatherGrid.get(i, j)]);
+            if (max >= keys.length) {
+                throw new IndexOutOfBoundsException("Grid contains index ("
+                        + max + ") > keys.length (" + keys.length + ")");
             }
-        }
 
-        // store the grid
-        setWeatherGrid(weatherGrid);
-        keys = newKeys;
+            // make a histogram, indicating what is and what isn't
+            // used in the weather keys
+            boolean[] used = new boolean[keys.length];
+            int[] invMapping = new int[keys.length];
+            for (int i = 0; i < used.length; i++) {
+                invMapping[i] = i;
+                used[i] = false;
+            }
+
+            // process the grid
+            for (int i = 0; i < weatherGrid.getXdim(); i++) {
+                for (int j = 0; j < weatherGrid.getYdim(); j++) {
+                    used[0xFF & weatherGrid.get(i, j)] = true; // indicate used
+                }
+            }
+
+            // clear the invmapping if not used
+            for (int i = 0; i < used.length; i++) {
+                if (!used[i]) {
+                    invMapping[i] = -1;
+                }
+            }
+
+            // eliminate duplicate keys
+            int nk = 0;
+            List<WeatherKey> tmpKeys = new ArrayList<WeatherKey>();
+            for (int i = 0; i < used.length; i++) {
+                if (used[i]) {
+                    tmpKeys.add(keys[i]);
+                    invMapping[i] = nk;
+                    for (int j = i + 1; j < used.length; j++) {
+                        if (keys[i].equals(keys[j])) {
+                            invMapping[j] = nk; // key index
+                            used[j] = false; // to prevent reprocessing
+                        }
+                    }
+                    nk++;
+                }
+            }
+            WeatherKey[] newKeys = tmpKeys.toArray(new WeatherKey[tmpKeys
+                    .size()]);
+
+            // anything to do?
+            if (Arrays.equals(newKeys, keys)) {
+                return;
+            }
+
+            // now remap the data
+            for (int i = 0; i < weatherGrid.getXdim(); i++) {
+                for (int j = 0; j < weatherGrid.getYdim(); j++) {
+                    weatherGrid.set(i, j,
+                            (byte) invMapping[0xFF & weatherGrid.get(i, j)]);
+                }
+            }
+            // store the grid
+            setWeatherGrid(weatherGrid);
+            keys = newKeys;
+        } catch (IndexOutOfBoundsException e) {
+            statusHandler.error(e.getLocalizedMessage(), e);
+            throw e;
+        }
     }
 
     @Override
