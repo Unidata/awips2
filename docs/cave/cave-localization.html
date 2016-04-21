@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1">
 <meta name="google-site-verification" content="k0e8DrbD40s54xHNBqwIsRrSSAkZoprwtEYDnNY06bU" />
 <meta name="google-site-verification" content="pnjjbQFvjPwaWhEXY6nSyaS9iyghmH-M_yLHBveDX2M">
-<meta itemprop="name" content="AWIPS II - Data flow">
+<meta itemprop="name" content="AWIPS II - Changing Localization Site">
 <meta itemprop="description" content="Polymer is a library that uses the latest web technologies to let you create custom HTML elements. Build anything from a button to a complete application as an encapsulated, reusable element that works across desktop and mobile.">
 
 
@@ -15,7 +15,7 @@
 
 <title>
   
-    Data flow -
+    Changing Localization Site -
    AWIPS II
 </title>
 <link rel="publisher" href="https://plus.google.com/107187849809354688692">
@@ -34,7 +34,7 @@
 
 
 </head>
-<body id="data-flow">
+<body id="changing-localization-site">
 
 <main id="content-container" class="polymer-content">
   <app-drawer id="sidebar" unresolved>
@@ -51,16 +51,14 @@
   </app-drawer>
 
   <scroll-area sidebar unresolved class="scrolling">
-    <site-banner type="guide" shortname="Docs" unresolved>
+    <site-banner type="" shortname="" unresolved>
       
 <app-bar theme="light" class="bar fixed">
 </app-bar>
 
       <header class="shrink">
         <h1>
-        
-          EDEX Admin
-        : Data flow
+         Changing Localization Site
         </h1>
       </header>
     </site-banner>
@@ -72,104 +70,99 @@
 
       <header class="onlyonmobile">
         <h1>
-          
-          EDEX Admin
-          : Data flow
+          : Changing Localization Site
         </h1>
       </header>
 
-      <h2 id="data-receipt">Data Receipt</h2>
+      <h1 id="five-pane-layout">Five Pane Layout</h1>
 
-<ol>
-  <li>The LDM obtains a data product from an upstream LDM site on the IDD.
-    <ul>
-      <li>The LDM writes the data to file in Raw Data Storage.</li>
-      <li>The LDM uses edexBridge to post a “data available” message to the Qpid message broker.</li>
-      <li>The EDEX Ingest process obtains the “data available” message from Qpid and removes the message from the message queue.</li>
-      <li>The EDEX Ingest process obtains the data files from Raw Data Storage.</li>
-    </ul>
-  </li>
-</ol>
+<p>The default localization site is OAX (a large contingent of Raytheon AWIPS developers work in Omaha and the OAX WFO was the first to integrate and test AWIPS II).   Unidata AWIPS II 16.1.4 (and later) allow switching the localization site to any NWS WFO ID.  Releases before 16.1.4 are stuck on OAX unless the server administrator manually changes or adds other localization sites (just update to the latest…).</p>
 
-<p>This architecture provides separation between data sources and ingest processing.  Any data source, not just the LDM/IDD, can follow this architecture to provide data for EDEX to process.</p>
+<p>In the menubar, seelct <strong>View &gt; 5 Pane Layout</strong> to make visible a left sidebar containing hemispheric, regional, state, and WFO-level maps.  These maps can be toggled/selected/swapped with a right click.</p>
 
-<h2 id="data-decoding">Data Decoding</h2>
+<p><img src="../images/cave-localization-2.png" alt="" /></p>
 
-<p>Data decoding is defined as the process of converting data from a raw format into a decoded format that is usable by CAVE.  In AWIPS II, data decoding is performed by the EDEX Ingest proessing (<strong>ingest</strong> and <strong>ingestGrib</strong>).</p>
+<h1 id="change-localization-site-for-cave">Change Localization Site for CAVE</h1>
 
-<ol>
-  <li>EDEX Ingest obtains the “data available” message from the Qpid message broker, and determines the appropriate data decoder based on the message contents. EDEX Ingest then forwards the message to the chosen decoder.  Finally, the message is removed from the message queue.</li>
-  <li>EDEX Ingest reads the data from Raw Data Storage.</li>
-  <li>EDEX Ingest decodes the data.</li>
-  <li>EDEX Ingest forwards the decoded data to Processed Data Storage.</li>
-  <li>EDEX Ingest sends a message to the CAVE client indicating that newly-decoded data is available.</li>
-</ol>
+<p>Under <strong>CAVE &gt; Preferences &gt; Localization</strong> you will see controls both for site and EDEX server name.</p>
 
-<p>It is important to note that in AWIPS II all data types are processed by either the standard <strong>ingest</strong> process, or by the <strong>ingestGrib</strong> process, which handles all grib message ingestion. Once this data decoding process is complete, clients may obtain and perform additional processing on the data, including displaying data in CAVE.</p>
+<p><img src="../images/cave-localization-3.png" alt="" /></p>
 
-<h3 id="processed-data-storage-architecture">Processed Data Storage Architecture</h3>
+<p>Change the site (example shows TBW Tampa Bay) and click <strong>Okay</strong> or <strong>Apply</strong> and confirm the popup dialog, which informs you that you must <em>restart</em> CAVE for the changes to take effect.</p>
 
-<p>Processed Data Storage refers to the persistence of decoded data and occurs in two separate forms: 1) metadata and some decoded data, which is stored in Postgres database tables; and 2) imagery data, gridded forecast data, and certain point data, which is stored in HDF5 files, and is managed by PyPIES.</p>
+<p><img src="../images/cave-localization-4.png" alt="" /></p>
 
-<p>Writing to Processed Data Storage involves the following:</p>
+<p>On restart you will see the sidebar maps positioned for your selected site.</p>
 
-<ul>
-  <li>1) The <strong>EDEX Process</strong> sends serialized data, area data, and certain point data to PyPIES.</li>
-  <li>2) <strong>PyPIES</strong> writes the data to the HDF5 data store.</li>
-  <li>3) <strong>EDEX</strong> send the metadata to the Postgres DBMS</li>
-  <li>4) <strong>Postgres</strong> writes the metadata to the AWIPS II database.</li>
-</ul>
+<p><img src="../images/cave-localization-5.png" alt="" /></p>
 
-<p>For data not stored in HDF5, Steps 1 and 2 are skipped.</p>
+<h1 id="grid-levels-and-parameters">Grid Levels and Parameters</h1>
 
-<p>For processed data retrieval, the process is revered:</p>
+<p><a href="http://nbviewer.ipython.org/github/Unidata/python-awips/blob/master/examples/notebooks/Grid_Levels_and_Parameters.ipynb">Notebook</a></p>
 
-<ul>
-  <li>3) <strong>EDEX</strong> requests the metadata from Postgres.</li>
-  <li>4) <strong>Postgres</strong> reads the AWIPS II database and returns the requested metadata to EDEX.</li>
-  <li>1) <strong>EDEX</strong> sends a data request to PyPIES.</li>
-  <li>2) <strong>PyPIES</strong> reads the data from the HDF5 data store and returns it to EDEX.</li>
-</ul>
+<h2 id="list-available-parameters-for-a-grid-name">List Available Parameters for a Grid Name</h2>
 
-<p>In this case, if the data is not stored in HDF5, then Steps 3 and 4 are skipped.</p>
+<pre><code>from awips.dataaccess import DataAccessLayer
 
-<h3 id="data-retrieval-architecture">Data Retrieval Architecture</h3>
+# Select HRRR
+DataAccessLayer.changeEDEXHost("edex-cloud.unidata.ucar.edu")
+request = DataAccessLayer.newDataRequest()
+request.setDatatype("grid")
+request.setLocationNames("GFS40")
 
-<p>Data retrieval is the process by which the CAVE client obtains data using the EDEX Request server; the Request server obtains the data from processed data storage (Postgres and HDF5) and returns it to CAVE.</p>
+# Print parm list
+available_parms = DataAccessLayer.getAvailableParameters(request)
+available_parms.sort()
+for parm in available_parms:
+    print parm
+</code></pre>
 
-<ol>
-  <li><strong>CAVE</strong> sends a request via TCP to the EDEX Request server.</li>
-  <li><strong>EDEX Request</strong> server obtains the requested metadata via Postgres and stored data via PyPIES.</li>
-  <li><strong>EDEX Request</strong> forwards the requested data directly back to the CAVE client.</li>
-</ol>
+<h2 id="list-available-levels-for-parameter">List Available Levels for Parameter</h2>
 
-<p>For clustered EDEX servers using IPVS, this architecture allows CAVE clients to access any available EDEX Request process, providing an improvement in system reliability and speed.  Data retrieval from processed data storage follows the same pattern as data storage: retrieval of HDF5 is handled by PyPIES; retrieval of database data is handled by Postgres.</p>
+<pre><code># Set parm to u-wind
+request.setParameters("uW")
 
-<h2 id="data-purge-architecture">Data Purge Architecture</h2>
+# Print level list
+available_levels = DataAccessLayer.getAvailableLevels(request)
+available_levels.sort()
+for level in available_levels:
+    print level
+</code></pre>
 
-<p>Raw data storage and processed data storage use two different purge mechanisms.  For processed data storage, AWIPS II implements a plugin based purge strategy, where the user has the option to change the purge frequency for each plugin individually.</p>
+<h2 id="construct-wind-field-from-u-and-v-components">Construct Wind Field from U and V Components</h2>
 
-<h3 id="raw-data-purge">Raw Data Purge</h3>
+<pre><code>import numpy
+from metpy.units import units
 
-<p>Purging of Raw Data Storage is managed by the LDM user account cron, which executes the ldmadmin scour process, removing data files using an age-based strategy.  The directories and retention times for raw data storage are controlled by <em>scour.conf</em>, which is located in the ldm user’s <em>~/etc/</em> directory.  Each entry in scour.conf contains the directory to manage, the retention time and an optional file name pattern for data files.</p>
+# Set level for u-wind
+request.setLevels("10.0FHAG")
+t = DataAccessLayer.getAvailableTimes(request)
+# Select last time for u-wind
+response = DataAccessLayer.getGridData(request, [t[-1]])
+data_uw = response[-1]
+lons,lats = data_uw.getLatLonCoords()
 
-<ol>
-  <li>An <strong>ldm</strong> user cron job executes ldmadmin.</li>
-  <li><strong>ldmadmin</strong> executes the LDM scour program.</li>
-  <li>The <strong>LDM scour program</strong> deletes outdated data from AWIPS II Raw Data Storage.</li>
-</ol>
+# Select v-wind
+request.setParameters("vW")
+# Select last time for v-wind
+response = DataAccessLayer.getGridData(request, [t[-1]])
+data_uv = response[-1]
 
-<h3 id="processed-data-purge">Processed Data Purge</h3>
+# Print 
+print 'Time :', t[-1]
+print 'Model:', data_uv.getLocationName()
+print 'Unit :', data_uv.getUnit()
+print 'Parms :', data_uw.getParameter(), data_uv.getParameter()
+print data_uv.getRawData().shape
 
-<p>Rules for this version-based purge are contained in XML files located in <strong>/awips2/edex/data/utility/</strong>.  The purge is triggered by a quartz timer event that fires at 30 minutes after each hour.</p>
+# Calculate total wind speed
+spd = numpy.sqrt( data_uw.getRawData()**2 + data_uv.getRawData()**2 )
+spd = spd * units.knot
+print "windArray =", spd
 
-<ol>
-  <li>A <strong>Quartz</strong> event is triggered in the EDEX Ingest process causing the Purge Service to obtain a purge lock.  If the lock is already taken, the Purge Service will exit, ensuring that only a single EDEX Ingest process performs the purge.</li>
-  <li>The <strong>EDEX Purge Service</strong> sends a delete message to Postgres.</li>
-  <li><strong>Postgres</strong> deletes the specified data from the database.</li>
-  <li>If HDF5 data is to be purged, the <strong>Purge Service</strong> messages PyPIES.</li>
-  <li><strong>PyPIES</strong> deletes the specified HDF5 files.</li>
-</ol>
+data = data_uw
+</code></pre>
+
 
     </article>
 

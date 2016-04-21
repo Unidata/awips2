@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1">
 <meta name="google-site-verification" content="k0e8DrbD40s54xHNBqwIsRrSSAkZoprwtEYDnNY06bU" />
 <meta name="google-site-verification" content="pnjjbQFvjPwaWhEXY6nSyaS9iyghmH-M_yLHBveDX2M">
-<meta itemprop="name" content="AWIPS II - Data flow">
+<meta itemprop="name" content="AWIPS II - Gridded Data">
 <meta itemprop="description" content="Polymer is a library that uses the latest web technologies to let you create custom HTML elements. Build anything from a button to a complete application as an encapsulated, reusable element that works across desktop and mobile.">
 
 
@@ -15,7 +15,7 @@
 
 <title>
   
-    Data flow -
+    Gridded Data -
    AWIPS II
 </title>
 <link rel="publisher" href="https://plus.google.com/107187849809354688692">
@@ -34,7 +34,7 @@
 
 
 </head>
-<body id="data-flow">
+<body id="gridded-data">
 
 <main id="content-container" class="polymer-content">
   <app-drawer id="sidebar" unresolved>
@@ -59,8 +59,8 @@
       <header class="shrink">
         <h1>
         
-          EDEX Admin
-        : Data flow
+          Data Types
+        : Gridded Data
         </h1>
       </header>
     </site-banner>
@@ -73,103 +73,172 @@
       <header class="onlyonmobile">
         <h1>
           
-          EDEX Admin
-          : Data flow
+          Data Types
+          : Gridded Data
         </h1>
       </header>
 
-      <h2 id="data-receipt">Data Receipt</h2>
-
-<ol>
-  <li>The LDM obtains a data product from an upstream LDM site on the IDD.
-    <ul>
-      <li>The LDM writes the data to file in Raw Data Storage.</li>
-      <li>The LDM uses edexBridge to post a “data available” message to the Qpid message broker.</li>
-      <li>The EDEX Ingest process obtains the “data available” message from Qpid and removes the message from the message queue.</li>
-      <li>The EDEX Ingest process obtains the data files from Raw Data Storage.</li>
+      
+<!--TOC_START-->
+<ul id="markdown-toc">
+  <li><a href="#ingesting-grib-files" id="markdown-toc-ingesting-grib-files">Ingesting Grib Files</a>    <ul>
+      <li><a href="#data-distribution-file" id="markdown-toc-data-distribution-file">Data distribution file</a></li>
+      <li><a href="#important-files-and-directories" id="markdown-toc-important-files-and-directories">Important files and directories</a></li>
+      <li><a href="#default-feed-types-in-awips2ldmetcldmdconf" id="markdown-toc-default-feed-types-in-awips2ldmetcldmdconf">Default feed types in /awips2/ldm/etc/ldmd.conf</a></li>
+      <li><a href="#default-pattern-actions-in-awips2ldmetcpqactconf" id="markdown-toc-default-pattern-actions-in-awips2ldmetcpqactconf">Default pattern actions in /awips2/ldm/etc/pqact.conf</a>        <ul>
+          <li><a href="#gfs-05-degree" id="markdown-toc-gfs-05-degree">GFS 0.5 degree</a></li>
+          <li><a href="#nam-40km" id="markdown-toc-nam-40km">NAM-40km</a></li>
+          <li><a href="#dgex" id="markdown-toc-dgex">DGEX</a></li>
+          <li><a href="#noaaport-hrrr" id="markdown-toc-noaaport-hrrr">NOAAport HRRR</a></li>
+          <li><a href="#gfs212-40km" id="markdown-toc-gfs212-40km">GFS212 40km</a></li>
+          <li><a href="#rap-13km" id="markdown-toc-rap-13km">RAP-13km</a></li>
+          <li><a href="#rtma-197-5km" id="markdown-toc-rtma-197-5km">RTMA 197 (5km)</a></li>
+          <li><a href="#rtma-mosaic-25km" id="markdown-toc-rtma-mosaic-25km">RTMA-Mosaic (2.5km)</a></li>
+          <li><a href="#namdng-25-and-5km" id="markdown-toc-namdng-25-and-5km">NamDNG 2.5 and 5km</a></li>
+          <li><a href="#nam12-218" id="markdown-toc-nam12-218">NAM12 (#218)</a></li>
+          <li><a href="#cmc" id="markdown-toc-cmc">CMC</a></li>
+          <li><a href="#fnmoc" id="markdown-toc-fnmoc">FNMOC</a></li>
+        </ul>
+      </li>
     </ul>
   </li>
-</ol>
-
-<p>This architecture provides separation between data sources and ingest processing.  Any data source, not just the LDM/IDD, can follow this architecture to provide data for EDEX to process.</p>
-
-<h2 id="data-decoding">Data Decoding</h2>
-
-<p>Data decoding is defined as the process of converting data from a raw format into a decoded format that is usable by CAVE.  In AWIPS II, data decoding is performed by the EDEX Ingest proessing (<strong>ingest</strong> and <strong>ingestGrib</strong>).</p>
-
-<ol>
-  <li>EDEX Ingest obtains the “data available” message from the Qpid message broker, and determines the appropriate data decoder based on the message contents. EDEX Ingest then forwards the message to the chosen decoder.  Finally, the message is removed from the message queue.</li>
-  <li>EDEX Ingest reads the data from Raw Data Storage.</li>
-  <li>EDEX Ingest decodes the data.</li>
-  <li>EDEX Ingest forwards the decoded data to Processed Data Storage.</li>
-  <li>EDEX Ingest sends a message to the CAVE client indicating that newly-decoded data is available.</li>
-</ol>
-
-<p>It is important to note that in AWIPS II all data types are processed by either the standard <strong>ingest</strong> process, or by the <strong>ingestGrib</strong> process, which handles all grib message ingestion. Once this data decoding process is complete, clients may obtain and perform additional processing on the data, including displaying data in CAVE.</p>
-
-<h3 id="processed-data-storage-architecture">Processed Data Storage Architecture</h3>
-
-<p>Processed Data Storage refers to the persistence of decoded data and occurs in two separate forms: 1) metadata and some decoded data, which is stored in Postgres database tables; and 2) imagery data, gridded forecast data, and certain point data, which is stored in HDF5 files, and is managed by PyPIES.</p>
-
-<p>Writing to Processed Data Storage involves the following:</p>
-
-<ul>
-  <li>1) The <strong>EDEX Process</strong> sends serialized data, area data, and certain point data to PyPIES.</li>
-  <li>2) <strong>PyPIES</strong> writes the data to the HDF5 data store.</li>
-  <li>3) <strong>EDEX</strong> send the metadata to the Postgres DBMS</li>
-  <li>4) <strong>Postgres</strong> writes the metadata to the AWIPS II database.</li>
 </ul>
+<!--TOC_END-->
 
-<p>For data not stored in HDF5, Steps 1 and 2 are skipped.</p>
+<h1 id="ingesting-grib-files">Ingesting Grib Files</h1>
 
-<p>For processed data retrieval, the process is revered:</p>
+<p>You can ingest entire Grib file archives from a tarball with a single command:</p>
 
-<ul>
-  <li>3) <strong>EDEX</strong> requests the metadata from Postgres.</li>
-  <li>4) <strong>Postgres</strong> reads the AWIPS II database and returns the requested metadata to EDEX.</li>
-  <li>1) <strong>EDEX</strong> sends a data request to PyPIES.</li>
-  <li>2) <strong>PyPIES</strong> reads the data from the HDF5 data store and returns it to EDEX.</li>
-</ul>
+<pre><code>tar -xvzf ARCHIVE.tar.gz -C /awips2/edex/data/manual/
+</code></pre>
 
-<p>In this case, if the data is not stored in HDF5, then Steps 3 and 4 are skipped.</p>
+<p>or copy any inidividual file to <code>/awips2/edex/data/manual</code> and watch the appropriate log file (grib, radar, satellite, etc.) for the ingest message.</p>
 
-<h3 id="data-retrieval-architecture">Data Retrieval Architecture</h3>
+<h2 id="data-distribution-file">Data distribution file</h2>
 
-<p>Data retrieval is the process by which the CAVE client obtains data using the EDEX Request server; the Request server obtains the data from processed data storage (Postgres and HDF5) and returns it to CAVE.</p>
+<p><strong>/awips2/edex/data/utility/edex_static/base/distribution/grib.xml</strong></p>
 
-<ol>
-  <li><strong>CAVE</strong> sends a request via TCP to the EDEX Request server.</li>
-  <li><strong>EDEX Request</strong> server obtains the requested metadata via Postgres and stored data via PyPIES.</li>
-  <li><strong>EDEX Request</strong> forwards the requested data directly back to the CAVE client.</li>
-</ol>
+<pre><code>&lt;requestPatterns&gt;
+    &lt;!-- Super Set of all possible WMO grib patterns --&gt;
+    &lt;regex&gt;^[EHLMOYZ][A-Z]{3}\d{2}&lt;/regex&gt;
+    &lt;!-- This to match Unidata CONDUIT products w/o standard headers --&gt;
+    &lt;regex&gt;.*grib.*&lt;/regex&gt;
+    &lt;regex&gt;^US058.*&lt;/regex&gt;
+    &lt;regex&gt;^CMC_reg.*&lt;/regex&gt;
+&lt;/requestPatterns&gt;
+</code></pre>
 
-<p>For clustered EDEX servers using IPVS, this architecture allows CAVE clients to access any available EDEX Request process, providing an improvement in system reliability and speed.  Data retrieval from processed data storage follows the same pattern as data storage: retrieval of HDF5 is handled by PyPIES; retrieval of database data is handled by Postgres.</p>
+<h2 id="important-files-and-directories">Important files and directories</h2>
 
-<h2 id="data-purge-architecture">Data Purge Architecture</h2>
+<table>
+  <tbody>
+    <tr>
+      <td>location on disk</td>
+      <td><strong>/awips2/edex/data/hdf5/grid</strong></td>
+    </tr>
+    <tr>
+      <td>definition files</td>
+      <td><strong>/awips2/edex/data/utility/edex_static/base/grib/models</strong></td>
+    </tr>
+    <tr>
+      <td>navigation files</td>
+      <td><strong>/awips2/edex/data/utility/edex_static/base/grib/grids</strong></td>
+    </tr>
+    <tr>
+      <td>grib1 definitions</td>
+      <td><strong>/awips2/edex/data/utility/common_static/base/grid</strong></td>
+    </tr>
+    <tr>
+      <td>D2D files</td>
+      <td><strong>/awips2/edex/data/utility/edex_static/base/grib/grids</strong></td>
+    </tr>
+    <tr>
+      <td>metadata tables</td>
+      <td><strong>grid</strong></td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td><strong>grid_info</strong></td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td><strong>gridcoverage</strong></td>
+    </tr>
+  </tbody>
+</table>
 
-<p>Raw data storage and processed data storage use two different purge mechanisms.  For processed data storage, AWIPS II implements a plugin based purge strategy, where the user has the option to change the purge frequency for each plugin individually.</p>
+<h2 id="default-feed-types-in-awips2ldmetcldmdconf">Default feed types in /awips2/ldm/etc/ldmd.conf</h2>
 
-<h3 id="raw-data-purge">Raw Data Purge</h3>
+<h2 id="default-pattern-actions-in-awips2ldmetcpqactconf">Default pattern actions in /awips2/ldm/etc/pqact.conf</h2>
 
-<p>Purging of Raw Data Storage is managed by the LDM user account cron, which executes the ldmadmin scour process, removing data files using an age-based strategy.  The directories and retention times for raw data storage are controlled by <em>scour.conf</em>, which is located in the ldm user’s <em>~/etc/</em> directory.  Each entry in scour.conf contains the directory to manage, the retention time and an optional file name pattern for data files.</p>
+<h3 id="gfs-05-degree">GFS 0.5 degree</h3>
 
-<ol>
-  <li>An <strong>ldm</strong> user cron job executes ldmadmin.</li>
-  <li><strong>ldmadmin</strong> executes the LDM scour program.</li>
-  <li>The <strong>LDM scour program</strong> deletes outdated data from AWIPS II Raw Data Storage.</li>
-</ol>
+<pre><code>  CONDUIT ^data/nccf/com/.*gfs.t[0-9][0-9]z.(pgrb2.0p50).*!(grib2)/[^/]*/(SSIGFS|GFS)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]..)/([^/]*)/.*! (......)
+          FILE    -overwrite -log -close -edex    /awips2/data_store/grib2/conduit/GFS/\5_\6Z_\7_\8-(seq).\1.grib2
+</code></pre>
 
-<h3 id="processed-data-purge">Processed Data Purge</h3>
+<h3 id="nam-40km">NAM-40km</h3>
+<pre><code>  CONDUIT ^data/nccf/com/nam/.*nam.*(awip3d).*!(grib2)/ncep/(NAM_84)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-1]..)/([^/]*)/.*! (......)
+          FILE    -overwrite -log -close -edex    /awips2/data_store/grib2/conduit/\3/\5_\6Z_\7_\8-(seq).\1.grib2
+</code></pre>
 
-<p>Rules for this version-based purge are contained in XML files located in <strong>/awips2/edex/data/utility/</strong>.  The purge is triggered by a quartz timer event that fires at 30 minutes after each hour.</p>
+<h3 id="dgex">DGEX</h3>
 
-<ol>
-  <li>A <strong>Quartz</strong> event is triggered in the EDEX Ingest process causing the Purge Service to obtain a purge lock.  If the lock is already taken, the Purge Service will exit, ensuring that only a single EDEX Ingest process performs the purge.</li>
-  <li>The <strong>EDEX Purge Service</strong> sends a delete message to Postgres.</li>
-  <li><strong>Postgres</strong> deletes the specified data from the database.</li>
-  <li>If HDF5 data is to be purged, the <strong>Purge Service</strong> messages PyPIES.</li>
-  <li><strong>PyPIES</strong> deletes the specified HDF5 files.</li>
-</ol>
+<pre><code>  NGRID   ^[LM].E... KWBD ...... !grib2/[^/]*/([^/]*)/#[^/]*/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+          FILE    -overwrite -log -close -edex    /awips2/data_store/grib2/noaaport/DGEX/\1_\2_\3Z_\4_\5-(seq).grib2
+</code></pre>
+
+<h3 id="noaaport-hrrr">NOAAport HRRR</h3>
+
+<pre><code>  NGRID   Y.C.[0-9][0-9] KWBY ...... !grib2/[^/]*/[^/]*/#[^/]*/([0-9]{12})F(...)/(.*)/.*
+          FILE    -overwrite -log -close -edex    /awips2/data_store/grib2/noaaport/HRRR/\1_F\2_\3_(seq).grib2
+</code></pre>
+
+<h3 id="gfs212-40km">GFS212 40km</h3>
+<pre><code>  NGRID   ^[LM].R... KWBC ...... !grib2/[^/]*/([^/]*)/#(212)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+          FILE    -overwrite -log -close -edex    /awips2/data_store/grib2/noaaport/GRID\2/\1_\3_\4Z_\5_\6-(seq).grib2
+</code></pre>
+
+<h3 id="rap-13km">RAP-13km</h3>
+
+<pre><code>  NGRID   ^[LM].D... KWBG ...... !grib2/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+          FILE    -overwrite -log -close -edex    /awips2/data_store/grib2/noaaport/GRID\2/\1_\3_\4Z_\5_\6-(seq).grib2
+</code></pre>
+
+<h3 id="rtma-197-5km">RTMA 197 (5km)</h3>
+
+<pre><code>  NGRID   ^[LM].M... KWBR ...... !grib2/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+          FILE    -overwrite -log -close -edex    /awips2/data_store/grib2/noaaport/GRID\2/\1_\3_\4Z_\5_\6-(seq).grib2
+</code></pre>
+
+<h3 id="rtma-mosaic-25km">RTMA-Mosaic (2.5km)</h3>
+
+<pre><code>  NGRID   ^[LM].[IQ]... KWBR ...... !grib2/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+          FILE    -overwrite -log -close -edex    /awips2/data_store/grib2/noaaport/GRID\2/\1_\3_\4Z_\5_\6-(seq).grib2
+</code></pre>
+
+<h3 id="namdng-25-and-5km">NamDNG 2.5 and 5km</h3>
+<pre><code>  NGRID   ^[LM].[IM]... KWBE ...... !grib2/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+          FILE    -overwrite -log -close -edex    /awips2/data_store/grib2/noaaport/GRID\2/\1_\3_\4Z_\5_\6-(seq).grib2
+</code></pre>
+
+<h3 id="nam12-218">NAM12 (#218)</h3>
+<pre><code>  NGRID   ^[LM].B... KWBE ...... !grib2/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+          FILE    -overwrite -log -close -edex    /awips2/data_store/grib2/noaaport/GRID\2/\1_\3_\4Z_\5_\6-(seq).grib2
+</code></pre>
+
+<h3 id="cmc">CMC</h3>
+
+<pre><code>  CMC     CMC_reg_(.*)km_(..........)_P(...).grib2
+          FILE    -overwrite -log -close -edex    /awips2/data_store/grib2/cmc/cmc_reg_\1km_\2_P\3.grib2
+</code></pre>
+
+<h3 id="fnmoc">FNMOC</h3>
+
+<pre><code>  FNMOC   ^US058.*(0018_0056|0022_0179|0027_0186|0060_0188|0063_0187|0110_0240|0111_0179|0135_0240|0078_0200)_(.*)_(.*)_(.*)-.*
+          FILE    -log -overwrite -close -edex /awips2/data_store/grib2/fnmoc/US_058_\1_\2_\3_\4-(seq).grib
+</code></pre>
+
 
     </article>
 
