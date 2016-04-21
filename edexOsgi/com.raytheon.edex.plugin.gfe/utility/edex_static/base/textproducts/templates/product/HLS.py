@@ -5,7 +5,6 @@ import string, time, os, re, types, copy, LogStream, collections
 import ModuleAccessor, SampleAnalysis, EditAreaUtils
 import math
 import Tkinter
-import numpy
 import LocalizationSupport
 
 from AbsTime import *
@@ -2118,23 +2117,23 @@ class TextProduct(HLSTCV_Common.TextProduct):
     # Returns the distance from lat0, lon0 to lat1, lon1 in kilometers
     def _distanceFromLatLon(self, lat0, lon0, lat1, lon1):
         R = 6371.0
-        lat0 = numpy.deg2rad(lat0)
-        lon0 = numpy.deg2rad(lon0)
-        lat1 = numpy.deg2rad(lat1)
-        lon1 = numpy.deg2rad(lon1)
+        lat0 = math.radians(lat0)
+        lon0 = math.radians(lon0)
+        lat1 = math.radians(lat1)
+        lon1 = math.radians(lon1)
         dist = math.acos(math.sin(lat0) * math.sin(lat1) + math.cos(lat0) * math.cos(lat1) * math.cos(lon1 - lon0)) * R
         return dist
     
     def _bearing(self, lat0, lon0, lat1, lon1):
 
-        dlat = numpy.deg2rad((lat0 - lat1))
-        dlon = numpy.deg2rad((lon0 - lon1))
+        dlat = math.radians((lat0 - lat1))
+        dlon = math.radians((lon0 - lon1))
 
-        y = math.sin(dlon) * math.cos(numpy.deg2rad(lat1))
-        x = math.cos(numpy.deg2rad(lat0)) * math.sin(numpy.deg2rad(lat1)) - \
-            (math.sin(numpy.deg2rad(lat0)) * math.cos(numpy.deg2rad(lat1)) * math.cos(dlon))
+        y = math.sin(dlon) * math.cos(math.radians(lat1))
+        x = math.cos(math.radians(lat0)) * math.sin(math.radians(lat1)) - \
+            (math.sin(math.radians(lat0)) * math.cos(math.radians(lat1)) * math.cos(dlon))
 
-        direction = numpy.rad2deg(math.atan2(x, y)) - 90.0
+        direction = math.degrees(math.atan2(x, y)) - 90.0
         if direction < 0.0:
             direction = direction + 360.0
         direction = direction % 360

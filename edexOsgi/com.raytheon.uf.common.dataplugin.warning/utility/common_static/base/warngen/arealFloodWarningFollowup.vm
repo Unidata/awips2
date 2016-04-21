@@ -64,7 +64,7 @@
 ##
 ######################################################################################
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
-FLS${siteId}
+${productId}${siteId}
 
 #if(${productClass}=="T")
 TEST...Flood Statement...TEST
@@ -181,16 +181,16 @@ ${expcanHLTag} #headlineLocList(${cancelareas} true true true false, "ALL")...
 #if(${action}=="EXP" || ${action} == "CAN" || ${action}=="CANCON" || ${CORCAN}=="true")
 #if(${list.contains(${bullets}, "recedingWater")} && ${list.contains(${bullets}, "rainEnded")})
 
-The heavy rain has ended and flood waters have receded, no longer posing a threat to life or property. Please continue to heed any road closures.
+The heavy rain has ended and flood waters have receded#commaOrEllipsis()no longer posing a threat to life or property. Please continue to heed any road closures.
 #elseif(${list.contains(${bullets}, "recedingWater")})
 
-Flood waters have receded, and are no longer expected to pose a threat to life or property. Please continue to heed any road closures.
+Flood waters have receded#commaOrEllipsis()and are no longer expected to pose a threat to life or property. Please continue to heed any road closures.
 #elseif(${list.contains(${bullets}, "rainEnded")})
 
-The heavy rain has ended, and flooding is no longer expected to pose a threat.
+The heavy rain has ended#commaOrEllipsis()and flooding is no longer expected to pose a threat.
 #else
 
-!** The heavy rain has ended. !** OR **! The flood water is receding. Therefore, the flooding threat has ended. **!
+!** The heavy rain has ended. !** OR **! The flood water is receding. Therefore#commaOrEllipsis()the flooding threat has ended. **!
 #end
 
 #printcoords(${areaPoly}, ${list})
@@ -314,15 +314,15 @@ THIS IS A TEST MESSAGE. ##
 #elseif(${list.contains(${bullets}, "thunder")})
   #set($phenom="a thunderstorm producing ")
 #end
-, ${phenom}heavy rain ${waswere} located ##
+#commaOrEllipsis()${phenom}heavy rain ${waswere} located ##
 #handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceLine})
 #if(${movementSpeed} < ${landStationary} || ${stationary})
 . Movement is stationary. ##
 #else
 #if(${stormType} == "line")
-, and moving ## 
+#commaOrEllipsis()and moving ## 
 #else
-, moving ##
+#commaOrEllipsis()moving ##
 #end
 #direction(${movementDirectionRounded}) at ${mathUtil.roundTo5(${movementSpeed})} mph. ##
 #end
@@ -331,7 +331,7 @@ ${rainAmount}
 #else
 ###############IF TRACK IS NOT ENABLED OR stormPosition IS NOT SELECTED  #######################################
 #set($cityListLead = "Runoff from this excessive rainfall will cause ${floodType} to occur. ")
-#thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone}), ##
+#thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})#commaOrEllipsis()##
 #if(${list.contains(${bullets}, "thunder")})
 ${reportBy} slow moving thunderstorms with very heavy rainfall across the warned area.${rainAmount}${floodReason}
 #elseif(${list.contains(${bullets}, "plainRain")})
@@ -412,7 +412,7 @@ PRECAUTIONARY/PREPAREDNESS ACTIONS...
 
 #end
 #if(${list.contains(${bullets}, "TADD_CTA")})
-Turn around, don't drown when encountering flooded roads. Most flood deaths occur in vehicles.
+Turn around#commaOrEllipsis()don't drown when encountering flooded roads. Most flood deaths occur in vehicles.
 
 #end
 #if(${list.contains(${bullets}, "actQuicklyCTA")})
@@ -420,7 +420,7 @@ Move to higher ground now. Act quickly to protect your life.
 
 #end
 #if(${list.contains(${bullets}, "childSafetyCTA")})
-Keep children away from storm drains, culverts, creeks and streams. Water levels can rise rapidly and sweep children away.
+Keep children away from storm drains#commaOrEllipsis()culverts#commaOrEllipsis()creeks and streams. Water levels can rise rapidly and sweep children away.
 
 #end
 #if(${list.contains(${bullets}, "nighttimeCTA")})
@@ -428,11 +428,11 @@ Be especially cautious at night when it is harder to recognize the dangers of fl
 
 #end
 #if(${list.contains(${bullets}, "urbanCTA")})
-Excessive runoff from heavy rainfall will cause flooding of small creeks and streams, urban areas, highways, streets and underpasses as well as other drainage areas and low lying spots. 
+Excessive runoff from heavy rainfall will cause flooding of small creeks and streams#commaOrEllipsis()urban areas#commaOrEllipsis()highways#commaOrEllipsis()streets and underpasses as well as other drainage areas and low lying spots. 
 
 #end
 #if(${list.contains(${bullets}, "ruralCTA")})
-Excessive runoff from heavy rainfall will cause flooding of small creeks and streams, country roads, farmland, and other low lying spots.
+Excessive runoff from heavy rainfall will cause flooding of small creeks and streams#commaOrEllipsis()country roads#commaOrEllipsis()farmland#commaOrEllipsis()and other low lying spots.
 
 #end
 #if(${list.contains(${bullets}, "stayAwayCTA")})
@@ -444,15 +444,15 @@ In hilly terrain there are hundreds of low water crossings which are potentially
 
 #end
 #if(${list.contains(${bullets}, "arroyosCTA")})
-Remain alert for flooding even in locations not receiving rain. Arroyos, streams, and rivers can become raging killer currents in a matter of minutes, even from distant rainfall.
+Remain alert for flooding even in locations not receiving rain. Arroyos#commaOrEllipsis()streams#commaOrEllipsis()and rivers can become raging killer currents in a matter of minutes#commaOrEllipsis()even from distant rainfall.
 
 #end
 #if(${list.contains(${bullets}, "burnAreasCTA")})
-Move away from recently burned areas. Life threatening flooding of creeks, roads and normally dry arroyos is likely. The heavy rains will likely trigger rockslides, mudslides and debris flows in steep terrain, especially in and around these areas.
+Move away from recently burned areas. Life threatening flooding of creeks#commaOrEllipsis()roads and normally dry arroyos is likely. The heavy rains will likely trigger rockslides#commaOrEllipsis()mudslides and debris flows in steep terrain#commaOrEllipsis()especially in and around these areas.
 
 #end
 #if(${list.contains(${bullets}, "camperSafetyCTA")})
-Flooding is occurring or is imminent. It is important to know where you are relative to streams, rivers, or creeks which can become killers in heavy rains. Campers and hikers should avoid streams or creeks.
+Flooding is occurring or is imminent. It is important to know where you are relative to streams#commaOrEllipsis()rivers#commaOrEllipsis()or creeks which can become killers in heavy rains. Campers and hikers should avoid streams or creeks.
 
 #end
 #if(${list.contains(${bullets}, "reportFloodingCTA")})

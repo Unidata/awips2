@@ -45,7 +45,7 @@
 
 ##    .TODAY...
 ##    DEW POINTS...       IN THE UPPER TEENS.
-##    MINIMUM HUMIDITY... 18.0 PERCENT.
+##    Minimum humidity... 18.0 PERCENT.
 ##    WIND CHILL...       35.0 BECOMING 24.0 IN THE NIGHT..
 ##    WIND...             WEST WINDS 25 TO 35 MPH.
 ##    PRECIPITATION...    DRY.
@@ -53,7 +53,7 @@
 
 ##    .WEDNESDAY...
 ##    DEW POINTS...       IN THE MID TEENS.
-##    MINIMUM HUMIDITY... 20.0 PERCENT.
+##    Minimum humidity... 20.0 PERCENT.
 ##    WIND CHILL...       36.0 BECOMING 36.0 IN THE NIGHT..
 ##    WIND...             WEST WINDS 25 TO 35 MPH.
 ##    PRECIPITATION...    WIDESPREAD RAIN AND SNOW.
@@ -70,7 +70,7 @@
 
 ##    .TODAY...
 ##    DEW POINTS...       IN THE UPPER TEENS.
-##    MINIMUM HUMIDITY... 18.0 PERCENT.
+##    Minimum humidity... 18.0 PERCENT.
 ##    WIND CHILL...       35.0 BECOMING 24.0 IN THE NIGHT..
 ##    WIND...             WEST WINDS 25 TO 35 MPH.
 ##    PRECIPITATION...    DRY.
@@ -78,7 +78,7 @@
 
 ##    .WEDNESDAY...
 ##    DEW POINTS...       IN THE MID TEENS.
-##    MINIMUM HUMIDITY... 20.0 PERCENT.
+##    Minimum humidity... 20.0 PERCENT.
 ##    WIND CHILL...       36.0 BECOMING 36.0 IN THE NIGHT..
 ##    WIND...             WEST WINDS 25 TO 35 MPH.
 ##    PRECIPITATION...    WIDESPREAD RAIN AND SNOW.
@@ -281,7 +281,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         elementInfoList = [rh]
         self.subPhraseSetUp(tree, node, elementInfoList, self.scalarConnector) 
         node.set("descriptor", "")
-        node.set("indentLabel", "MINIMUM HUMIDITY... ")
+        node.set("indentLabel", "Minimum humidity... ")
         return self.DONE()
 
     def _rh_words(self, tree, node):
@@ -328,7 +328,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
                                     node.getAreaLabel(), mergeMethod="Max")
            if statsHI is not None and \
               statsHI > self.heatIndex_threshold(tree, node):
-              node.set("indentLabel", "HEAT INDEX...       ")
+              node.set("indentLabel", "Heat index...       ")
            else:
               node.set("indentLabel", "")
               words = ""
@@ -481,9 +481,9 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         # Descriptors for phrases
         dict = TextRules.TextRules.phrase_descriptor_dict(self, tree, node)
         dict["DEW POINTS...       "] = "DEW POINTS.........."
-        dict["MINIMUM HUMIDITY... "] = "MINIMUM HUMIDITY...."
+        dict["Minimum humidity... "] = "Minimum humidity...."
         dict["WIND CHILL...       "] = "WIND CHILL.........."
-        dict["HEAT INDEX...       "] = "HEAT INDEX.........."
+        dict["Heat index...       "] = "Heat index.........."
         dict["WIND...             "] = "WIND................"
         dict["PRECIPITATION...    "] = "PRECIPITATION......."
         dict["LIGHTNING...        "] = "LIGHTNING..........."

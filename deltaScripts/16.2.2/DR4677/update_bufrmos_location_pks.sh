@@ -5,6 +5,12 @@
 
 PSQL="/awips2/psql/bin/psql"
 
+# Check for existence of a table
+table_exists() {
+    ${PSQL} -U awips -Aqt -d metadata -c \
+    "select 1 from information_schema.tables where table_name = '$1'"
+}
+
 # Given table name as argument, return the name of the FK constraint
 # referencing bufrmos_location.
 get_constraint_name() {
@@ -74,120 +80,59 @@ if [[ ("$min_pk" -gt 0) && ("$max_pk" -le "$(last_bufrmos_locationseq_value)") ]
     exit 0
 fi
 
-fk_bufrmosavn=`get_constraint_name bufrmosavn`
-fk_bufrmoseta=`get_constraint_name bufrmoseta`
-fk_bufrmosgfs=`get_constraint_name bufrmosgfs`
-fk_bufrmoshpc=`get_constraint_name bufrmoshpc`
-fk_bufrmoslamp=`get_constraint_name bufrmoslamp`
-fk_bufrmosmrf=`get_constraint_name bufrmosmrf`
-fk_bufrmosngm=`get_constraint_name bufrmosngm`
+all_tables=(bufrmosavn bufrmoseta bufrmosgfs bufrmoshpc bufrmoslamp bufrmosmrf bufrmosngm)
+tables=
+fkeys=
+
+for table in "${all_tables[@]}"; do
+    if [[ $(table_exists $table) == "1" ]]; then
+        tables+=("$table")
+        fkeys+=("$(get_constraint_name $table)")
+    fi
+done
+
+scriptfile=$(mktemp)
+
+if [[ "$scriptfile" == "" ]]; then
+    echo "ERROR: Failed to create temp file for script in /tmp"
+    exit 1
+fi
+
+echo "begin transaction;" > $scriptfile
+
+for i in $(seq 1 $(expr ${#tables[@]} - 1)); do
+    cat << EOF >> $scriptfile
+alter table ${tables[$i]}
+drop constraint ${fkeys[$i]},
+add constraint ${fkeys[$i]}
+      FOREIGN KEY (location_id)
+      REFERENCES bufrmos_location (id) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE NO ACTION;
+EOF
+done
+
+cat << EOF >> $scriptfile
+UPDATE bufrmos_location
+   SET id=nextval('bufrmos_locationseq');
+EOF
+
+for i in $(seq 1 $(expr ${#tables[@]} - 1)); do
+    cat << EOF >> $scriptfile
+alter table ${tables[$i]}
+drop constraint ${fkeys[$i]},
+add constraint ${fkeys[$i]}
+      FOREIGN KEY (location_id)
+      REFERENCES bufrmos_location (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION;
+EOF
+done
+
+echo "commit;" >> $scriptfile
 
 echo "INFO: Updating all PKs of bufrmos_location"
 echo "INFO: This may take a few minutes..."
 
-${PSQL} -U awips -d metadata << EOF
-begin transaction;
-alter table bufrmosavn
-drop constraint ${fk_bufrmosavn},
-add constraint ${fk_bufrmosavn}
-      FOREIGN KEY (location_id)
-      REFERENCES bufrmos_location (id) MATCH SIMPLE
-      ON UPDATE CASCADE ON DELETE NO ACTION;
-
-alter table bufrmoseta
-drop constraint ${fk_bufrmoseta},
-add constraint ${fk_bufrmoseta}
-      FOREIGN KEY (location_id)
-      REFERENCES bufrmos_location (id) MATCH SIMPLE
-      ON UPDATE CASCADE ON DELETE NO ACTION;
-
-alter table bufrmosgfs
-drop constraint ${fk_bufrmosgfs},
-add constraint ${fk_bufrmosgfs}
-      FOREIGN KEY (location_id)
-      REFERENCES bufrmos_location (id) MATCH SIMPLE
-      ON UPDATE CASCADE ON DELETE NO ACTION;
-
-alter table bufrmoshpc
-drop constraint ${fk_bufrmoshpc},
-add constraint ${fk_bufrmoshpc}
-      FOREIGN KEY (location_id)
-      REFERENCES bufrmos_location (id) MATCH SIMPLE
-      ON UPDATE CASCADE ON DELETE NO ACTION;
-
-alter table bufrmoslamp
-drop constraint ${fk_bufrmoslamp},
-add constraint ${fk_bufrmoslamp}
-      FOREIGN KEY (location_id)
-      REFERENCES bufrmos_location (id) MATCH SIMPLE
-      ON UPDATE CASCADE ON DELETE NO ACTION;
-
-alter table bufrmosmrf
-drop constraint ${fk_bufrmosmrf},
-add constraint ${fk_bufrmosmrf}
-      FOREIGN KEY (location_id)
-      REFERENCES bufrmos_location (id) MATCH SIMPLE
-      ON UPDATE CASCADE ON DELETE NO ACTION;
-
-alter table bufrmosngm
-drop constraint ${fk_bufrmosngm},
-add constraint ${fk_bufrmosngm}
-      FOREIGN KEY (location_id)
-      REFERENCES bufrmos_location (id) MATCH SIMPLE
-      ON UPDATE CASCADE ON DELETE NO ACTION;
-
-UPDATE bufrmos_location
-   SET id=nextval('bufrmos_locationseq');
- 
-alter table bufrmosavn
-drop constraint ${fk_bufrmosavn},
-add constraint ${fk_bufrmosavn}
-      FOREIGN KEY (location_id)
-      REFERENCES bufrmos_location (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION;
-
-alter table bufrmoseta
-drop constraint ${fk_bufrmoseta},
-add constraint ${fk_bufrmoseta}
-      FOREIGN KEY (location_id)
-      REFERENCES bufrmos_location (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION;
-
-alter table bufrmosgfs
-drop constraint ${fk_bufrmosgfs},
-add constraint ${fk_bufrmosgfs}
-      FOREIGN KEY (location_id)
-      REFERENCES bufrmos_location (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION;
-
-alter table bufrmoshpc
-drop constraint ${fk_bufrmoshpc},
-add constraint ${fk_bufrmoshpc}
-      FOREIGN KEY (location_id)
-      REFERENCES bufrmos_location (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION;
-
-alter table bufrmoslamp
-drop constraint ${fk_bufrmoslamp},
-add constraint ${fk_bufrmoslamp}
-      FOREIGN KEY (location_id)
-      REFERENCES bufrmos_location (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION;
-
-alter table bufrmosmrf
-drop constraint ${fk_bufrmosmrf},
-add constraint ${fk_bufrmosmrf}
-      FOREIGN KEY (location_id)
-      REFERENCES bufrmos_location (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION;
-
-alter table bufrmosngm
-drop constraint ${fk_bufrmosngm},
-add constraint ${fk_bufrmosngm}
-      FOREIGN KEY (location_id)
-      REFERENCES bufrmos_location (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION;
-commit transaction;
-EOF
+${PSQL} -U awips -d metadata < $scriptfile
 
 echo "INFO: Done."
+rm -f $scriptfile

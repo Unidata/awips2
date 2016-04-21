@@ -33,7 +33,6 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Canvas;
 
 import com.raytheon.viz.gfe.Activator;
-import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.core.wxvalue.VectorWxValue;
 import com.raytheon.viz.gfe.gridmanager.MouseHandler;
@@ -47,7 +46,8 @@ import com.raytheon.viz.gfe.rsc.GFEFonts;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 22, 2009 #1318      randerso     Initial creation
+ * Jun 22, 2009 #1318      randerso    Initial creation
+ * Mar 10, 2016 #5479      randerso    Use improved GFEFonts API
  * 
  * </pre>
  * 
@@ -88,13 +88,8 @@ public class SetValueVectorVisual {
         });
 
         // set the pickup font
-        int pickupFontNum = 3;
-        if (GFEPreference.contains("SetValuePickUp_font")) {
-            pickupFontNum = GFEPreference
-                    .getIntPreference("SetValuePickUp_font");
-        }
-
-        pickupFont = GFEFonts.getFont(canvas.getDisplay(), pickupFontNum);
+        pickupFont = GFEFonts.makeGFEFont(canvas.getDisplay(),
+                "SetValuePickUp_font", SWT.BOLD, 3);
 
         // get the logFactor
         IPreferenceStore prefs = Activator.getDefault().getPreferenceStore();
@@ -129,7 +124,7 @@ public class SetValueVectorVisual {
         if (newDir < 0) {
             newDir += 360;
         }
-        float newMag = (float) (Math.hypot(dx, dy) / maxRadius * magMax);
+        float newMag = (float) ((Math.hypot(dx, dy) / maxRadius) * magMax);
         newMag = Math.max(newMag, parm.getGridInfo().getMinValue());
         newMag = Math.min(newMag, parm.getGridInfo().getMaxValue());
 
@@ -183,9 +178,9 @@ public class SetValueVectorVisual {
         int radius = 0;
         if (logFactor != 0.0) {
             double lg = Math.log(logFactor + (mag / magMax));
-            radius = (int) (maxRadius * (lg - minLog) / (maxLog - minLog));
+            radius = (int) ((maxRadius * (lg - minLog)) / (maxLog - minLog));
         } else {
-            radius = (int) (mag * maxRadius / magMax);
+            radius = (int) ((mag * maxRadius) / magMax);
         }
 
         // paint the circle
@@ -203,7 +198,8 @@ public class SetValueVectorVisual {
         gc.setFont(pickupFont);
         String s = pickupValue.toString();
         Point extent = gc.textExtent(s);
-        gc.drawText(s, center.x - extent.x / 2, center.y - extent.y / 2, true);
+        gc.drawText(s, center.x - (extent.x / 2), center.y - (extent.y / 2),
+                true);
 
     }
 
@@ -222,12 +218,12 @@ public class SetValueVectorVisual {
         ArrayList<Point> segments = new ArrayList<Point>();
 
         // Some handy vectors.
-        Point v1 = new Point((int) (dirSin * size + 0.5),
-                -(int) (dirCos * size + 0.5));
-        Point v2 = new Point((int) (tip1Sin * tipLength + 0.5), -(int) (tip1Cos
-                * tipLength + 0.5));
-        Point v3 = new Point((int) (tip2Sin * tipLength + 0.5), -(int) (tip2Cos
-                * tipLength + 0.5));
+        Point v1 = new Point((int) ((dirSin * size) + 0.5),
+                -(int) ((dirCos * size) + 0.5));
+        Point v2 = new Point((int) ((tip1Sin * tipLength) + 0.5),
+                -(int) ((tip1Cos * tipLength) + 0.5));
+        Point v3 = new Point((int) ((tip2Sin * tipLength) + 0.5),
+                -(int) ((tip2Cos * tipLength) + 0.5));
 
         // calculate the little rectangle
         // genLittleRectangle(segments, location);
@@ -325,12 +321,9 @@ public class SetValueVectorVisual {
 
         // calculate the staffSize length based on the number of units
         segments.add(location);
-        Point p = new Point((int) (0.5 + dirSin
-                * (staffSize + fletchDelta
-                        * (flagDeltaCount + fletchDeltaCount - 1))),
-                -(int) ((-0.5 + dirCos
-                        * (staffSize + fletchDelta
-                                * (flagDeltaCount + fletchDeltaCount - 1)))));
+        Point p = new Point(
+                (int) (0.5 + (dirSin * (staffSize + (fletchDelta * ((flagDeltaCount + fletchDeltaCount) - 1))))),
+                -(int) ((-0.5 + (dirCos * (staffSize + (fletchDelta * ((flagDeltaCount + fletchDeltaCount) - 1)))))));
         p.x += location.x;
         p.y += location.y;
         segments.add(p);
@@ -338,9 +331,9 @@ public class SetValueVectorVisual {
         // Now calculate the locations for the fletches and flags
         // Half fletches first
         if (halfFletchCount > 0) {
-            Point v1 = new Point((int) (0.5 + dirSin
-                    * (staffSize - fletchDelta)), (int) (0.5 - dirCos
-                    * (staffSize - fletchDelta)));
+            Point v1 = new Point(
+                    (int) (0.5 + (dirSin * (staffSize - fletchDelta))),
+                    (int) (0.5 - (dirCos * (staffSize - fletchDelta))));
             Point v2 = new Point((int) ((xFletch * 0.6) + 0.5),
                     -(int) ((yFletch * 0.6) + 0.5));
 
@@ -357,8 +350,9 @@ public class SetValueVectorVisual {
         int i;
         int elementCount = 0;
         for (i = 0; i < fletchCount; i++) {
-            Point v1 = new Point((int) (xStaff + elementCount * xSpace + 0.5),
-                    (int) (-yStaff - elementCount * ySpace + 0.5));
+            Point v1 = new Point(
+                    (int) (xStaff + (elementCount * xSpace) + 0.5),
+                    (int) ((-yStaff - (elementCount * ySpace)) + 0.5));
             Point v2 = new Point((int) (xFletch + 0.5), -(int) (yFletch + 0.5));
 
             v1.x += location.x;
@@ -374,8 +368,9 @@ public class SetValueVectorVisual {
 
         // and finally the flags
         for (i = 0; i < flagCount; i++) {
-            Point v1 = new Point((int) (xStaff + elementCount * xSpace + 0.5),
-                    (int) (-yStaff - elementCount * ySpace + 0.5));
+            Point v1 = new Point(
+                    (int) (xStaff + (elementCount * xSpace) + 0.5),
+                    (int) ((-yStaff - (elementCount * ySpace)) + 0.5));
 
             v1.x += location.x;
             v1.y += location.y;
@@ -390,8 +385,8 @@ public class SetValueVectorVisual {
             // the second side connects back to the staffSize
             elementCount++;
             Point v3 = new Point(
-                    (int) (xStaff + (elementCount) * xSpace + 0.5),
-                    (int) (-yStaff - (elementCount) * ySpace + 0.5));
+                    (int) (xStaff + ((elementCount) * xSpace) + 0.5),
+                    (int) ((-yStaff - ((elementCount) * ySpace)) + 0.5));
 
             v3.x += location.x;
             v3.y += location.y;
@@ -417,7 +412,7 @@ public class SetValueVectorVisual {
      * @see java.lang.Object#finalize()
      */
     public void dispose() {
-        if (pickupFont != null && !pickupFont.isDisposed()) {
+        if ((pickupFont != null) && !pickupFont.isDisposed()) {
             pickupFont.dispose();
             pickupFont = null;
         }

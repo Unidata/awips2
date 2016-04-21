@@ -2,11 +2,28 @@ package com.raytheon.viz.texteditor.qc;
 
 import java.util.regex.Matcher;
 
+/**
+ * MND Header Check
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Mar 10, 2016 5411       randerso    Moved upper case conversion for QC checks into the 
+ *                                      specific checks that need it.
+ * 
+ * </pre>
+ * 
+ * @version 1.0
+ */
 public class MndHeaderCheck implements IQCCheck {
 
     @Override
     public String runQC(String header, String body, String nnn) {
         String errorMsg = "";
+        body = body.toUpperCase();
         if (!nnn.equalsIgnoreCase("FFW") && !nnn.equalsIgnoreCase("SVS")
                 && !nnn.equalsIgnoreCase("FFS") && !nnn.equalsIgnoreCase("FLW")
                 && !nnn.equalsIgnoreCase("FLS") && !nnn.equalsIgnoreCase("MWS")
@@ -49,7 +66,7 @@ public class MndHeaderCheck implements IQCCheck {
                     errorMsg += "Unlocalized site in MND header.\n";
                 }
                 bulletinState++;
-            } else if (bulletinState == 3 || bulletinState == 4) {
+            } else if ((bulletinState == 3) || (bulletinState == 4)) {
                 if (line.startsWith("ISSUED BY NATIONAL WEATHER SERVICE")) {
                     if (line.endsWith("UNLOCALIZED SITE")) {
                         errorMsg += "Unlocalized site in the service backup line.\n";

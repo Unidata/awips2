@@ -6,7 +6,7 @@
 VAR_AWIPSII_BUILD_ROOT="/tmp/awips-component"
 VAR_AWIPSII_VERSION=""
 VAR_AWIPSII_RELEASE=""
-VAR_UFRAME_ECLIPSE="/opt/uframe-eclipse"
+VAR_UFRAME_ECLIPSE="/awips2/eclipse"
 # -----------------------------------------------------------------------------
 
 if [ "${AWIPSII_TOP_DIR}" = "" ]; then
@@ -131,8 +131,11 @@ buildRPM "Installer.edex-configuration"
 
 # build the edex-hazards component
 export COMPONENT_NAME="edex-hazards"
-patchSpecification
-buildRPM "Installer.edex-hazards"
+# Workaround until #5466 is resolved.
+if [ -f ${DIST}/${COMPONENT_NAME}.zip ]; then
+   patchSpecification
+   buildRPM "Installer.edex-hazards"
+fi
 unset COMPONENT_NAME
 
 DIST="${WORKSPACE}/build.edex/edex/dist"
@@ -152,7 +155,10 @@ done
 
 # build the edex-datadelivery rpm
 export COMPONENT_NAME="edex-datadelivery"
-patchSpecification
-buildRPM "Installer.edex-datadelivery"
+# Workaround until #5466 is resolved.
+if [ -f ${DIST}/${COMPONENT_NAME}.zip ]; then
+   patchSpecification
+   buildRPM "Installer.edex-datadelivery"
+fi
 unset COMPONENT_NAME
 

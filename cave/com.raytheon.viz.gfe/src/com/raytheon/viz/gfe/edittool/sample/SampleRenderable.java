@@ -31,7 +31,6 @@ import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IRenderable;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.ISpatialDisplayManager;
 import com.raytheon.viz.gfe.core.msgs.Message;
@@ -58,6 +57,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 07/21/2009              bphillip    Removed the points field
  * 07/23/2012   #936       dgilling    Properly retrieve imageGrid for paintMarkers()
  *                                     and paintSamples().
+ * Mar 10, 2016 #5479      randerso    Use improved GFEFonts API
  * 
  * </pre>
  * 
@@ -115,19 +115,11 @@ public class SampleRenderable implements IRenderable, IMessageClient {
      */
     protected void initFonts(IGraphicsTarget target) {
         if (sampleFont == null) {
-            int fontNum = 2;
-            if (GFEPreference.contains("SESample_font")) {
-                fontNum = GFEPreference.getIntPreference("SESample_font");
-            }
-            sampleFont = GFEFonts.getFont(target, fontNum);
+            sampleFont = GFEFonts.makeGFEIFont(target, "SESample_font", 2);
         }
 
         if (markerFont == null) {
-            int fontNum = 3;
-            if (GFEPreference.contains("SEMarker_font")) {
-                fontNum = GFEPreference.getIntPreference("SEMarker_font");
-            }
-            markerFont = GFEFonts.getFont(target, fontNum);
+            markerFont = GFEFonts.makeGFEIFont(target, "SEMarker_font", 3);
         }
     }
 

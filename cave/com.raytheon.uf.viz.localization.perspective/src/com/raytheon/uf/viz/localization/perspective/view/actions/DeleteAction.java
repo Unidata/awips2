@@ -62,6 +62,7 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * Jan 15, 2016 5242      kbisanz      Replaced LocalizationFile with
  *                                     ILocalizationFile where possible
  * Jan 27, 2016 5054      randerso     Cleaned up SWTMessageBox
+ * Apr 12, 2016 4946      mapeters     Fixed issue where action did nothing if prompt == false
  * 
  * </pre>
  * 
@@ -99,16 +100,14 @@ public class DeleteAction extends Action {
 
     @Override
     public void run() {
-        StringBuilder listOfFiles = new StringBuilder();
-        for (int i = 0; i < toDelete.length; ++i) {
-            listOfFiles.append(LocalizationUtil.extractName(toDelete[i]
-                    .getPath()));
-            listOfFiles.append("\n");
-        }
-
-        Shell shell = page.getWorkbenchWindow().getShell();
-
         if (prompt) {
+            StringBuilder listOfFiles = new StringBuilder();
+            for (int i = 0; i < toDelete.length; ++i) {
+                listOfFiles.append(LocalizationUtil.extractName(toDelete[i]
+                        .getPath()));
+                listOfFiles.append("\n");
+            }
+
             StringBuilder msg = new StringBuilder();
             msg.append("Are you sure you want to delete ");
             if (toDelete.length > 1) {
@@ -118,6 +117,7 @@ public class DeleteAction extends Action {
             }
             msg.append("?\n\n").append(listOfFiles);
 
+            Shell shell = page.getWorkbenchWindow().getShell();
             SWTMessageBox messageDialog = new SWTMessageBox(shell,
                     "Delete Confirmation", msg.toString(), SWT.OK | SWT.CANCEL
                             | SWT.ICON_QUESTION);
@@ -135,6 +135,8 @@ public class DeleteAction extends Action {
             });
 
             messageDialog.open();
+        } else {
+            deleteFiles();
         }
     }
 

@@ -44,6 +44,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.MenuAdapter;
+import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.FontData;
@@ -129,9 +131,10 @@ import com.raytheon.viz.ui.statusline.StatusStore;
  * 10 Apr 2014  15769      ryu         Modify default configuration and menus to match A1.
  *                                     Bring monitor to front before sending alert.
  *                                     Adjusted delay for timer so it fires at the top of a minute.
- * Dec 16, 2015  #5184     dgilling    Remove viz.gfe dependencies.
+ * Dec 16, 2015 #5184      dgilling    Remove viz.gfe dependencies.
  * Feb 05, 2016 #5316      randerso    Moved notification registration into GHGMonitorDlg
  *                                     Switched to use GhgSpatialViewer
+ * Mar 03, 2016 #5316      randerso    Added code to keep Maps menu in sync with map changes
  * 
  * </pre>
  * 
@@ -407,11 +410,6 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
         mainLayout.marginWidth = 2;
         mainLayout.verticalSpacing = 2;
 
-        // ---------------------------------------------
-        // Create the menus at the top of the dialog.
-        // ---------------------------------------------
-        createMenus(shell);
-
         // -----------------------------------------------------
         // Create the SashForm that will be used to manually
         // control the amount of space the top and bottom
@@ -431,6 +429,11 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
         createMainControls(shell);
 
         sashForm.setWeights(new int[] { 70, 30, 5 });
+
+        // ---------------------------------------------
+        // Create the menus at the top of the dialog.
+        // ---------------------------------------------
+        createMenus(shell);
 
         // Set up timer to check for alerting every minute
         initTimer();
@@ -663,13 +666,13 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
         mapMenuItem.setText("&Map");
 
         // Create the Alerts menu item with a Map "dropdown" menu
-        Menu mapMenu = new Menu(menuBar);
+        final Menu mapMenu = new Menu(menuBar);
         mapMenuItem.setMenu(mapMenu);
 
         // -----------------------------------------------------
         // Create all the items in the Map dropdown menu
         // -----------------------------------------------------
-        for (String map : GHGSpatialViewer.knownMaps()) {
+        for (String map : ghgSpatialViewer.knownMaps()) {
             MenuItem item = new MenuItem(mapMenu, SWT.RADIO);
             item.setData(map);
             item.setText("Show " + map);
@@ -693,7 +696,6 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
             MenuItem item = new MenuItem(mapMenu, SWT.RADIO);
             item.setText(zoom.toString());
             item.setData(zoom);
-            item.setSelection(DEFAULT_ZOOM.equals(zoom));
             item.addSelectionListener(new SelectionAdapter() {
                 @Override
                 public void widgetSelected(SelectionEvent e) {
@@ -704,6 +706,17 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
                 }
             });
         }
+        mapMenu.addMenuListener(new MenuAdapter() {
+
+            @Override
+            public void menuShown(MenuEvent e) {
+                String mapName = ghgSpatialViewer.getCurrentMap();
+                for (MenuItem item : mapMenu.getItems()) {
+                    item.setSelection(item.getText().endsWith(mapName));
+                }
+            }
+
+        });
 
         // Menu Separator
         new MenuItem(mapMenu, SWT.SEPARATOR);
@@ -1078,8 +1091,7 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
         mapComp.setLayout(gl);
         mapComp.setLayoutData(gd);
 
-        ghgSpatialViewer = new GHGSpatialViewer(mapComp, myWFO, gridLocation,
-                null);
+        ghgSpatialViewer = new GHGSpatialViewer(mapComp, myWFO, gridLocation);
         ghgSpatialViewer.setMap(DEFAULT_MAP);
         ghgSpatialViewer.setZoomLevel(DEFAULT_ZOOM.getZoomLevel());
         mapTab.setControl(mapComp);
@@ -1250,14 +1262,14 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
         }
 
         List<ActiveTableRecord> activeTableList = sr.getPayload();
-        dataList.clear();
+        List<GhgData> tableData = new ArrayList<GhgData>();
         for (ActiveTableRecord rec : activeTableList) {
             GhgData data = new GhgData(rec, discreteDef.getHazardDescription(
                     HAZARDS_PARM_NAME, rec.getPhensig()));
-            dataList.add(data);
+            tableData.add(data);
         }
 
-        return new ArrayList<GhgData>(dataList);
+        return tableData;
     }
 
     private void refresh(boolean getData) {

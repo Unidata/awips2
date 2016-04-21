@@ -36,12 +36,14 @@ import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
@@ -69,7 +71,8 @@ import com.raytheon.viz.avnconfig.AvnConfigConstants.RuleType;
  * 29 OCT 2010  7262       rferrel     Realigned columns for wider method
  *                                     names.
  * 09 NOV 2011  8865       rferrel     Fixed selection of Edit Buttons.
- * Aug 07, 2014 3502       bclement    changes to StringUtil.split()
+ * 07 AUG 2014  3502       bclement    changes to StringUtil.split()
+ * 15 Mar 2016  5481       randerso    Fix GUI sizing problems
  * 
  * </pre>
  * 
@@ -98,16 +101,6 @@ public class DataSourceTabComp extends Composite implements
      * Scrolled composite used for scrolling the method buttons.
      */
     private ScrolledComposite buttonScrolledComp;
-
-    /**
-     * Scroll composite width.
-     */
-    private final int SCROLLED_COMP_WIDTH = 170;
-
-    /**
-     * Scrolled composite height.
-     */
-    private final int SCROLLED_COMP_HEIGHT = 300;
 
     /**
      * Add button.
@@ -246,6 +239,7 @@ public class DataSourceTabComp extends Composite implements
         createBottomControls();
 
         this.addDisposeListener(new DisposeListener() {
+            @Override
             public void widgetDisposed(DisposeEvent e) {
                 listFont.dispose();
             }
@@ -352,17 +346,22 @@ public class DataSourceTabComp extends Composite implements
         GridLayout gl = new GridLayout(1, false);
         gl.verticalSpacing = 1;
         buttonScrolledComp.setLayout(gl);
-        GridData gd = new GridData(SCROLLED_COMP_WIDTH, SCROLLED_COMP_HEIGHT);
-        gd.heightHint = SCROLLED_COMP_HEIGHT;
+        GridData gd = new GridData(SWT.DEFAULT, SWT.FILL, false, true);
         buttonScrolledComp.setLayoutData(gd);
 
-        gl = new GridLayout(1, false);
-        gl.verticalSpacing = 1;
         final AvailMethodsComp availMethodComp = new AvailMethodsComp(
                 buttonScrolledComp, pageData.getMethodArray(), this);
-        availMethodComp.setLayout(gl);
 
         availMethodComp.layout();
+
+        gl = (GridLayout) availMethodComp.getLayout();
+        for (Control child : availMethodComp.getChildren()) {
+            if (child instanceof Button) {
+                Button button = (Button) child;
+                gd.heightHint = (button.computeSize(SWT.DEFAULT, SWT.DEFAULT).y + gl.verticalSpacing) * 10;
+                break;
+            }
+        }
 
         buttonScrolledComp.setContent(availMethodComp);
         buttonScrolledComp.setExpandHorizontal(true);
@@ -388,7 +387,7 @@ public class DataSourceTabComp extends Composite implements
     private void createRuleEditorGroup(Composite mainBottomComp) {
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         Group ruleEditorGroup = new Group(mainBottomComp, SWT.NONE);
-        ruleEditorGroup.setText(" Rule Editor ");
+        ruleEditorGroup.setText("Rule Editor");
         GridLayout gl = new GridLayout(1, false);
         ruleEditorGroup.setLayout(gl);
         ruleEditorGroup.setLayoutData(gd);
@@ -396,14 +395,14 @@ public class DataSourceTabComp extends Composite implements
         // -------------------------------------------
         // Add the Add, Replace, and Remove buttons
         // -------------------------------------------
-        Composite buttonComp = new Composite(ruleEditorGroup, SWT.BORDER);
-        buttonComp.setLayout(new GridLayout(3, false));
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        Composite buttonComp = new Composite(ruleEditorGroup, SWT.NONE);
+        gl = new GridLayout(3, true);
+        gl.marginWidth = 0;
+        buttonComp.setLayout(gl);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, true, false);
         buttonComp.setLayoutData(gd);
 
-        int buttonWidth = 100;
-
-        gd = new GridData(buttonWidth, SWT.DEFAULT);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         addBtn = new Button(buttonComp, SWT.PUSH);
         addBtn.setText("Add");
         addBtn.setEnabled(false);
@@ -415,7 +414,7 @@ public class DataSourceTabComp extends Composite implements
             }
         });
 
-        gd = new GridData(buttonWidth, SWT.DEFAULT);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         replaceBtn = new Button(buttonComp, SWT.PUSH);
         replaceBtn.setText("Replace");
         replaceBtn.setEnabled(false);
@@ -429,7 +428,7 @@ public class DataSourceTabComp extends Composite implements
             }
         });
 
-        gd = new GridData(buttonWidth, SWT.DEFAULT);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         removeBtn = new Button(buttonComp, SWT.PUSH);
         removeBtn.setText("Remove");
         removeBtn.setEnabled(false);
@@ -447,7 +446,9 @@ public class DataSourceTabComp extends Composite implements
         // unique controls
         // ---------------------------------------------------
         Composite middleComp = new Composite(ruleEditorGroup, SWT.NONE);
-        middleComp.setLayout(new GridLayout(7, false));
+        gl = new GridLayout(7, false);
+        gl.marginWidth = 0;
+        middleComp.setLayout(gl);
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         middleComp.setLayoutData(gd);
 
@@ -499,7 +500,10 @@ public class DataSourceTabComp extends Composite implements
         // unique controls
         // ---------------------------------------------------
         labelTextComp = new Composite(ruleEditorGroup, SWT.NONE);
-        labelTextComp.setLayout(new GridLayout(11, false));
+        gl = new GridLayout(11, false);
+        gl.marginWidth = 0;
+        gl.horizontalSpacing = 5;
+        labelTextComp.setLayout(gl);
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         labelTextComp.setLayoutData(gd);
 
@@ -508,17 +512,23 @@ public class DataSourceTabComp extends Composite implements
         Label tmpLbl;
         Text tmpText;
 
-        for (int i = 0; i < 4; i++) {
-            gd = new GridData(115, SWT.DEFAULT);
-            tmpLbl = new Label(labelTextComp, SWT.NONE);
-            tmpText = new Text(labelTextComp, SWT.BORDER);
-            tmpText.setLayoutData(gd);
+        GC gc = new GC(labelTextComp);
+        int charWidth = gc.getFontMetrics().getAverageCharWidth();
+        gc.dispose();
 
-            if (i < 3) {
-                gd = new GridData(10, SWT.DEFAULT);
-                Label filler = new Label(labelTextComp, SWT.NONE);
-                filler.setLayoutData(gd);
+        for (int i = 0; i < 4; i++) {
+            tmpLbl = new Label(labelTextComp, SWT.NONE);
+            gd = new GridData(SWT.DEFAULT, SWT.DEFAULT);
+            if (i > 0) {
+                gd.horizontalIndent = charWidth * 2;
             }
+            tmpLbl.setLayoutData(gd);
+
+            tmpText = new Text(labelTextComp, SWT.BORDER);
+
+            gd = new GridData(SWT.DEFAULT, SWT.DEFAULT);
+            gd.widthHint = charWidth * 16;
+            tmpText.setLayoutData(gd);
 
             labelTextArray.add(new LabelTextControls(tmpLbl, tmpText));
         }
@@ -536,6 +546,7 @@ public class DataSourceTabComp extends Composite implements
      * Callback method to update the display with the selected method
      * information. Implemented from the IAvailMethodSelected interface.
      */
+    @Override
     public void methodSelected(String methodName) {
         selectedMethodLbl.setText(methodName);
 

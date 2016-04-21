@@ -32,7 +32,6 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Pattern;
@@ -53,7 +52,6 @@ import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.drawables.FillPatterns;
 import com.raytheon.viz.gfe.Activator;
-import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.PreferenceInitializer;
 import com.raytheon.viz.gfe.core.griddata.IGridData;
 import com.raytheon.viz.gfe.core.msgs.ClearHighlightsMsg;
@@ -87,6 +85,7 @@ import com.raytheon.viz.gfe.rsc.GFEFonts;
  * Jun 23, 2011  #9897     ryu         Update static variables on new GFE config
  * Oct 29, 2014  #3776     randerso    Cached fill patterns used in history mode
  *                                     Renamed static variables to match AWIPS standards
+ * Mar 10, 2016 #5479      randerso    Use improved GFEFonts API
  * 
  * </pre>
  * 
@@ -226,7 +225,7 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
 
     private static final int MARGIN = 3;
 
-    private static final int DATA_BLOCK_HORIZONTAL_MARGIN = 2;
+    static final int DATA_BLOCK_HORIZONTAL_MARGIN = 2;
 
     private static final int DATA_BLOCK_HEIGHT = 20;
 
@@ -313,9 +312,9 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
         aGridManager.getDataManager().getSpatialDisplayManager()
                 .addGridVisibilityChangedListener(this);
 
-        timeBlockSourceFont = makeGFEFont(canvas.getDisplay(),
+        timeBlockSourceFont = GFEFonts.makeGFEFont(canvas.getDisplay(),
                 "TimeBlockSource_font", SWT.NORMAL, 1);
-        timeBlockLabelFont = makeGFEFont(canvas.getDisplay(),
+        timeBlockLabelFont = GFEFonts.makeGFEFont(canvas.getDisplay(),
                 "TimeBlockLabel_font", SWT.BOLD, 3);
 
         GC gc = new GC(canvas);
@@ -354,12 +353,12 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
         gridManager.getDataManager().getSpatialDisplayManager()
                 .removeGridVisibilityChangedListener(this);
 
-        if (timeBlockSourceFont != null && !timeBlockSourceFont.isDisposed()) {
+        if ((timeBlockSourceFont != null) && !timeBlockSourceFont.isDisposed()) {
             timeBlockSourceFont.dispose();
             timeBlockSourceFont = null;
         }
 
-        if (timeBlockLabelFont != null && !timeBlockLabelFont.isDisposed()) {
+        if ((timeBlockLabelFont != null) && !timeBlockLabelFont.isDisposed()) {
             timeBlockLabelFont.dispose();
             timeBlockLabelFont = null;
         }
@@ -451,7 +450,7 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
             return;
         }
         TimeRange timeRange = parm.getParmState().getSelectedTimeRange();
-        if (timeRange != null && timeRange.isValid()) {
+        if ((timeRange != null) && timeRange.isValid()) {
             Rectangle selection = gridManager.getUtil()
                     .timeRangeToPixels(timeRange).intersection(getBounds());
 
@@ -667,7 +666,7 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
         String s = truncateLabelToFit(gc, text, rect.width);
         Point textSize = gc.stringExtent(s);
 
-        if (textSize.x < rect.width + DATA_BLOCK_HORIZONTAL_MARGIN) {
+        if (textSize.x < (rect.width + DATA_BLOCK_HORIZONTAL_MARGIN)) {
             int xOffset = (rect.width - textSize.x) / 2;
             int yOffset = (rect.height - textSize.y) / 2;
             gc.drawString(s, rect.x + xOffset, rect.y + yOffset, true);
@@ -1075,7 +1074,7 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
         if (ago < 3600) {
             o = o.concat(String.valueOf(ago / 60));
             o = o.concat("m");
-        } else if (ago < 3600 * 6) {
+        } else if (ago < (3600 * 6)) {
             int hrs = (int) ago / 3600;
             int min = (int) (ago % 3600) / 60;
             o = o.concat(String.valueOf(hrs));
@@ -1136,7 +1135,7 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
         // * stretched, rect.height - 2 * stretched);
 
         int x1 = rect.x + stretched;
-        int x2 = rect.x + rect.width - stretched;
+        int x2 = (rect.x + rect.width) - stretched;
         int y1 = rect.y + stretched;
         int y2 = rect.y + rect.height;
         gc.drawPolyline(new int[] { x1, y2, x1, y1, x2, y1, x2, y2 });
@@ -1167,8 +1166,8 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
         }
 
         String string = label;
-        while (gc.stringExtent(string).x > maxLengthPixels
-                && string.length() > 1) {
+        while ((gc.stringExtent(string).x > maxLengthPixels)
+                && (string.length() > 1)) {
             // remove last character
             string = string.substring(0, string.length() - 1);
         }
@@ -1203,8 +1202,8 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
         Rectangle rect = gridManager.getUtil().timeRangeToPixels(tr);
 
         rect.x += DATA_BLOCK_HORIZONTAL_MARGIN;
-        rect.y = getBounds().y + getBounds().height - DATA_BLOCK_HEIGHT - 1;
-        rect.width -= DATA_BLOCK_HORIZONTAL_MARGIN * 2 - 1;
+        rect.y = (getBounds().y + getBounds().height) - DATA_BLOCK_HEIGHT - 1;
+        rect.width -= (DATA_BLOCK_HORIZONTAL_MARGIN * 2) - 1;
         if (rect.width < 0) {
             rect.width = 0;
         }
@@ -1241,7 +1240,7 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
     }
 
     protected boolean inSelectionBox(int x, int y) {
-        return selectionBox != null && selectionBox.contains(x, y);
+        return (selectionBox != null) && selectionBox.contains(x, y);
     }
 
     private static class TimeBasedColors {
@@ -1326,7 +1325,7 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
                     }
                 }
                 // if fell off the end, then use the very last color
-                if (color == DEFAULT_COLOR && colors.length > 0) {
+                if ((color == DEFAULT_COLOR) && (colors.length > 0)) {
                     color = colors[colors.length - 1];
                 }
             }
@@ -1458,8 +1457,8 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
         else {
             boolean changed = false;
             for (int i = highlights.size() - 1; i >= 0; i--) {
-                if ((highlights.get(i).getColor().equals(highlight) || highlight
-                        .length() == 0)
+                if ((highlights.get(i).getColor().equals(highlight) || (highlight
+                        .length() == 0))
                         && highlights.get(i).getTimeRange().overlaps(tr)) {
                     highlights.remove(i);
                     changed = true;
@@ -1589,30 +1588,5 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
     @Override
     public void parmIDChanged(Parm parm, ParmID newParmID) {
         redraw();
-    }
-
-    /**
-     * Derive a font from the system font of gc, using configName to retrieve
-     * the font number from the current configuration file. This should be a
-     * value in the range 0-4. If the current config file does not contain the
-     * setting, font number 2 is used.
-     * 
-     * @param gc
-     *            The current graphics context.
-     * @param configName
-     *            The name of the font configuration setting for the font.
-     * @param style
-     *            The SWT style of the font
-     * @return
-     */
-    private Font makeGFEFont(Device device, String configName, int style,
-            int dftFontNum) {
-        int fontNum = dftFontNum;
-        if (GFEPreference.contains(configName)) {
-            fontNum = GFEPreference.getIntPreference(configName);
-        }
-
-        Font newFont = GFEFonts.getFont(device, fontNum);
-        return newFont;
     }
 }

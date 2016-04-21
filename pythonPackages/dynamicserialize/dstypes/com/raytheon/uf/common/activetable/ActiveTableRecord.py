@@ -23,6 +23,7 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    05/22/2015       4522         randerso       Initial creation (hand generated)
+#    03/17/2016       5426         randerso       Add issueYear to primary key
 #
 ##    
 
@@ -161,6 +162,9 @@ class ActiveTableRecord(object):
         return self.issueTime
 
     def setIssueTime(self, issueTime):
+        from datetime import datetime
+        date = datetime.utcfromtimestamp(issueTime.getTime()/1000)
+        self.key.setIssueYear(date.year)
         self.issueTime = issueTime
 
     def getPurgeTime(self):

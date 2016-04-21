@@ -29,7 +29,7 @@
 #set($productClass = "X")
 #end
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
-MWS${siteId}
+${productId}${siteId}
 
 #if(${productClass}=="T")
 TEST...Marine Weather Statement...TEST
@@ -230,42 +230,42 @@ $zonecombo
 #set($report = "!** YOU DIDN'T SELECT A REPORTER **! ${threatType}")
 #if(${list.contains(${bullets}, "doppler")})
   #set($capable = "capable of ")
-  #set($report = "Doppler radar indicated ${stormline}, ${capable}producing ${threatType}${hailType}.")
+  #set($report = "Doppler radar indicated ${stormline}#commaOrEllipsis()${capable}producing ${threatType}${hailType}.")
 #if(${list.contains(${bullets}, "fog")})
   #set($capable = "capable of ")
-  #set($report = "Doppler radar indicated an area of ${stormline}, ${capable}reducing visibilities to below ${visibility}.")
+  #set($report = "Doppler radar indicated an area of ${stormline}#commaOrEllipsis()${capable}reducing visibilities to below ${visibility}.")
 #end
 #end
 #if(${list.contains(${bullets}, "marineSpotter")})
-  #set($report = "marine weather spotters reported ${stormline}, ${capable}producing ${threatType}${hailType}.") 
+  #set($report = "marine weather spotters reported ${stormline}#commaOrEllipsis()${capable}producing ${threatType}${hailType}.") 
 #if(${list.contains(${bullets}, "fog")})
-  #set($report = "marine weather spotters reported an area of ${stormline}, ${capable}reducing visibilities to below ${visibility}.")
+  #set($report = "marine weather spotters reported an area of ${stormline}#commaOrEllipsis()${capable}reducing visibilities to below ${visibility}.")
 #end
 #end
 #if(${list.contains(${bullets}, "mariner")})
-  #set($report = "a mariner reported ${stormline}, ${capable}producing ${threatType}${hailType}.") 
+  #set($report = "a mariner reported ${stormline}#commaOrEllipsis()${capable}producing ${threatType}${hailType}.") 
 #if(${list.contains(${bullets}, "fog")})
-  #set($report = "a mariner reported an area of ${stormline}, ${capable}reducing visibilities to below ${visibility}.")
+  #set($report = "a mariner reported an area of ${stormline}#commaOrEllipsis()${capable}reducing visibilities to below ${visibility}.")
 #end
 #end
 #if(${list.contains(${bullets}, "public")})
-  #set($report = "the public reported ${stormline}, ${capable}producing ${threatType}${hailType}.") 
+  #set($report = "the public reported ${stormline}#commaOrEllipsis()${capable}producing ${threatType}${hailType}.") 
 #if(${list.contains(${bullets}, "fog")})
-  #set($report = "the public reported an area of ${stormline}, ${capable}reducing visibilities to below ${visibility}.")
+  #set($report = "the public reported an area of ${stormline}#commaOrEllipsis()${capable}reducing visibilities to below ${visibility}.")
 #end
 #end
 #if(${list.contains(${bullets}, "satellite")})
   #set($capable = "capable of ")
-  #set($report = "satellite imagery indicated ${stormline}, ${capable}producing ${threatType}${hailType}.")
+  #set($report = "satellite imagery indicated ${stormline}#commaOrEllipsis()${capable}producing ${threatType}${hailType}.")
 #if(${list.contains(${bullets}, "fog")})
   #set($capable = "capable of ")
-  #set($report = "satellite imagery indicated an area of ${stormline}, ${capable}reducing visibilities to below ${visibility}.")
+  #set($report = "satellite imagery indicated an area of ${stormline}#commaOrEllipsis()${capable}reducing visibilities to below ${visibility}.")
 #end
 #end
 #if(${list.contains(${bullets}, "pilot")})
-  #set($report = "a pilot reported ${stormline}, ${capable}producing ${threatType}${hailType}.") 
+  #set($report = "a pilot reported ${stormline}#commaOrEllipsis()${capable}producing ${threatType}${hailType}.") 
 #if(${list.contains(${bullets}, "fog")})
-  #set($report = "a pilot reported an area of ${stormline}, ${capable}reducing visibilities to below ${visibility}.")
+  #set($report = "a pilot reported an area of ${stormline}#commaOrEllipsis()${capable}reducing visibilities to below ${visibility}.")
 #end
 #end
 ## Storm current location description
@@ -273,7 +273,7 @@ $zonecombo
 THIS IS A TEST MESSAGE. ##
 #end
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
-, ${report} ${reportLocation} ##
+#commaOrEllipsis()${report} ${reportLocation} ##
 ##Many of the variables passed below are controlled by config.vm
 #if(${stormType} == "line")
 #handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxMarineNearDistance}, ${overPhrase}, ${maxMarineOverDistance}, ${marineDistanceUnits}, ${useSecondReferenceLine})
@@ -283,7 +283,7 @@ THIS IS A TEST MESSAGE. ##
 #if(${movementSpeed} < ${marineStationary} || ${stationary})
 . ${reportType2} nearly stationary.
 #else
-, moving #direction(${movementDirectionRounded}) at ${mathUtil.roundTo5(${movementSpeed})} knots.
+#commaOrEllipsis()moving #direction(${movementDirectionRounded}) at ${mathUtil.roundTo5(${movementSpeed})} knots.
 #end
 
 #set($warningType = "STATEMENT") 
@@ -310,7 +310,7 @@ THIS IS A TEST MESSAGE. ##
 ##############################################
 
 #if(${list.contains(${bullets}, "specialEvent")})
-Those attending !**EVENT/VENUE NAME OR LOCATION**! are in the path of ${specialEvent} and should prepare for imminent dangerous weather conditions. Seek shelter now!
+Those attending !**EVENT/VENUE NAME OR LOCATION**! are in the path of ${specialEvent} and should prepare for IMMINENT DANGEROUS WEATHER CONDITIONS. SEEK SHELTER NOW!
 
 #end
 #####################

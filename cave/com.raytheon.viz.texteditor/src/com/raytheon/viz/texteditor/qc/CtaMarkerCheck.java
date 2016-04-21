@@ -2,10 +2,28 @@ package com.raytheon.viz.texteditor.qc;
 
 import java.util.ArrayList;
 
+/**
+ * CTA Marker Check
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Mar 10, 2016 5411       randerso    Moved upper case conversion for QC checks into the 
+ *                                      specific checks that need it.
+ * 
+ * </pre>
+ * 
+ * @version 1.0
+ */
 public class CtaMarkerCheck implements IQCCheck {
 
     @Override
     public String runQC(String header, String body, String nnn) {
+        body = body.toUpperCase();
+
         String errorMsg = "";
         int segmentCount = 0;
         int[] dollarRow = new int[] { 0, 0 };
@@ -37,10 +55,10 @@ public class CtaMarkerCheck implements IQCCheck {
             // if (startMarker.size() == 0 && endMarker.size() == 0) {
             // errorMsg += "There are no instruction markers.\n";
             // }
-            if (startMarker.size() == 0 && endMarker.size() != 0) {
+            if ((startMarker.size() == 0) && (endMarker.size() != 0)) {
                 errorMsg += "There is no start marker.\n";
             }
-            if (startMarker.size() != 0 && endMarker.size() == 0) {
+            if ((startMarker.size() != 0) && (endMarker.size() == 0)) {
                 errorMsg += "There is no end marker.\n";
             }
             if (startMarker.size() > 1) {
@@ -51,7 +69,7 @@ public class CtaMarkerCheck implements IQCCheck {
             }
 
             int instructLine = 0;
-            if (startMarker.size() == 1 && endMarker.size() == 1) {
+            if ((startMarker.size() == 1) && (endMarker.size() == 1)) {
                 if (startMarker.get(0) > endMarker.get(0)) {
                     errorMsg += "End marker is in front of the start marker.\n";
                 } else {
@@ -94,11 +112,11 @@ public class CtaMarkerCheck implements IQCCheck {
                 // errorMsg += "There are no instruction marker in "
                 // + segmentString + ".\n";
                 // }
-                if (startMarker.size() == 0 && endMarker.size() != 0) {
+                if ((startMarker.size() == 0) && (endMarker.size() != 0)) {
                     errorMsg += "There is no start marker in " + segmentString
                             + ".\n";
                 }
-                if (startMarker.size() != 0 && endMarker.size() == 0) {
+                if ((startMarker.size() != 0) && (endMarker.size() == 0)) {
                     errorMsg += "There is no end marker in " + segmentString
                             + ".\n";
                 }
@@ -112,7 +130,7 @@ public class CtaMarkerCheck implements IQCCheck {
                 }
 
                 int instructLine = 0;
-                if (startMarker.size() == 1 && endMarker.size() == 1) {
+                if ((startMarker.size() == 1) && (endMarker.size() == 1)) {
                     if (startMarker.get(0) > endMarker.get(0)) {
                         errorMsg += "End marker is in front of the start marker in "
                                 + segmentString + ".\n";

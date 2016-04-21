@@ -57,6 +57,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.gfe.Activator;
@@ -117,6 +118,7 @@ import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
  *                                     displayContextMenu() method.
  * 11/03/2015    #4961    randerso     Make topo grids visible in the grid manager when 
  *                                     mutable dbType is EditTopo
+ * Mar 10, 2016 #5479      randerso    Code cleanup
  * 
  * </pre>
  * 
@@ -492,7 +494,7 @@ public class GridCanvas extends Canvas implements IMessageClient {
                     GridManager gm = gridManager;
                     Date clickTime = gm.getUtil().pixelToDate(e.x);
                     TimeRange timeRange = new TimeRange(clickTime,
-                            GridManagerUtil.MILLIS_PER_SECOND);
+                            TimeUtil.MILLIS_PER_SECOND);
 
                     Parm parm = gridBar.getParm();
                     IGridData overGrid = parm.overlappingGrid(clickTime);

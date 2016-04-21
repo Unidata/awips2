@@ -98,6 +98,7 @@ import com.vividsolutions.jts.io.WKBReader;
  * Aug 08, 2015  4722       dhladky     Improved Grid support.
  * Nov 12, 2015  4834       njensen     Changed LocalizationOpFailedException to LocalizationException
  * Feb 15, 2016  5244       nabowle     Replace deprecated LocalizationFile methods.
+ * Apr 07, 2016  5491       tjensen     Fix NullPointerException from getRawGeometries
  *
  * </pre>
  *
@@ -1269,7 +1270,8 @@ public class FFMPTemplates {
                                 primary = true;
                             }
 
-                            if (rawGeometries == null) {
+                            if (rawGeometries == null
+                                    || rawGeometries.isEmpty()) {
                                 rawGeometries = getRawGeometries(dataKey, cwa);
                             }
 
@@ -1781,8 +1783,7 @@ public class FFMPTemplates {
         if (results != null && results.length > 0) {
 
             if (pfafGeometries == null) {
-                pfafGeometries = new HashMap<Long, Geometry>(results.length,
-                        1.0f);
+                pfafGeometries = new HashMap<>(results.length, 1.0f);
                 cwaRawGeometries.put(compositeKey,
                         new SoftReference<Map<Long, Geometry>>(pfafGeometries));
             }
@@ -2058,6 +2059,7 @@ public class FFMPTemplates {
         } catch (SerializationException | IOException | LocalizationException e) {
             statusHandler.error("Exception reading domain map. Domain Map: "
                     + dataKey + " cwa:" + cwa + " huc: " + huc, e);
+
         }
 
         return map;
@@ -2173,14 +2175,15 @@ public class FFMPTemplates {
         if (rawGeomRef != null) {
             pfafGeometries = rawGeomRef.get();
         }
-        if (pfafGeometries == null) {
+        if (pfafGeometries == null || pfafGeometries.isEmpty()) {
             // TODO: add sync locking per cwa
             long t0 = System.currentTimeMillis();
             pfafGeometries = FFMPUtils.getRawGeometries(getMap(siteKey, cwa,
                     FFMPRecord.ALL).keySet());
             long t1 = System.currentTimeMillis();
-            System.out.println("Retrieval of raw geometries for site "
-                    + siteKey + " cwa " + cwa + " took " + (t1 - t0) + " ms.");
+            statusHandler.handle(Priority.INFO,
+                    "Retrieval of raw geometries for site " + siteKey + " cwa "
+                            + cwa + " took " + (t1 - t0) + " ms.");
             cwaRawGeometries.put(compositeKey,
                     new SoftReference<Map<Long, Geometry>>(pfafGeometries));
         }

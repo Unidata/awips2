@@ -7,7 +7,7 @@
 # directory from the environment as well as the build architecture.
 
 if [ "${UFRAME_ECLIPSE}" = "" ]; then
-   export UFRAME_ECLIPSE="/opt/uframe-eclipse"
+   export UFRAME_ECLIPSE="/awips2/eclipse"
 fi
 
 CAVE_RPM_DIST_DIR="${WORKSPACE}/rpms/awips2.cave/setup/dist"

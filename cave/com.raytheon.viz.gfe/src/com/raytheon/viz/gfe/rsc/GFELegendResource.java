@@ -59,7 +59,6 @@ import com.raytheon.uf.viz.core.rsc.legend.AbstractLegendResource;
 import com.raytheon.viz.core.ColorUtil;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.GFEOperationFailedException;
-import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.PreferenceInitializer;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.ISpatialDisplayManager;
@@ -88,6 +87,8 @@ import com.raytheon.viz.ui.input.InputAdapter;
  * 01/22/2013   #1518      randerso    Removed use of Map with Parms as keys,
  *                                     really just needed a list anyway.
  * 11/20/2013   #2331      randerso    Corrected legend for Topography
+ * 03/10/2016   #5479      randerso    Use improved GFEFonts API
+ * 
  * </pre>
  * 
  * @author chammack
@@ -599,11 +600,7 @@ public class GFELegendResource extends
         Message.registerInterest(this, ShowQuickViewDataMsg.class);
         this.dataManager.getParmManager().addNewModelAvailableListener(this);
 
-        int fontNum = 3;
-        if (GFEPreference.contains("SELegend_font")) {
-            fontNum = GFEPreference.getIntPreference("SELegend_font");
-        }
-        font = GFEFonts.getFont(target, fontNum);
+        font = GFEFonts.makeGFEIFont(target, "SELegend_font", 3);
 
         IDisplayPaneContainer container = getResourceContainer();
         if (container != null) {

@@ -116,7 +116,7 @@
 #                           gust and max wind exceeds this amount.
 #  
 #  humidityRecovery_percentage  If max humidity is above this percentage, 
-#                               humidity recovery will be EXCELLENT.
+#                               humidity recovery will be Excellent.
 #  rhPhraseThreshold        The MinRH phrase will be included in the extended, IF
 #                           the MinRH is less than this threshold.
 #                           The default (-1) will not produce a MinRH phrase.
@@ -132,20 +132,20 @@
 #       popWxThreshold       -Affects the values in the following rows:
 #
 ##          * CHANCE PRECIP
-##          * PRECIP AMOUNT
-##          * PRECIP DURATION
-##          * PRECIP BEGIN
-##          * PRECIP END
+##          * Precip amount
+##          * Precip duration
+##          * Precip begin
+##          * Precip end
 
 ##        We will put values in these rows according to the following assumptions:
 ##        --If there is no weather, then all the above fields will be blank, zero or None.
 ##        --If the PoP falls below a the popWxThreshold, value (default 1),
 ##          then all of the above fields are blank, zero, or None.
-##        --If QPF is 0.00, then CHANCE PRECIP, PRECIP DURATION, PRECIP BEGIN and
-##          PRECIP END will represent no precip.
+##        --If QPF is 0.00, then CHANCE PRECIP, Precip duration, Precip begin and
+##          Precip end will represent no precip.
 ##        --Thus, if Wx is non-accumulating i.e. drizzle or snow flurries, the Precip Type
 ##          could be non-empty, but since QPF would be 0.0,
-##          then no CHANCE PRECIP, PRECIP DURATION, PRECIP BEGIN and PRECIP END will be reported.
+##          then no CHANCE PRECIP, Precip duration, Precip begin and Precip end will be reported.
 
 #  areaDictionary    Modify the AreaDictionary utility with UGC 
 #                    information about zones.
@@ -264,7 +264,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         # Threshold for a light wind string in the table
         "tableLightWindThreshold" : 5,
         # Light wind string in the table
-        "tableLightWindPhrase" : "LGT/VAR",
+        "tableLightWindPhrase" : "Lgt/Var",
         # Use a range for the winds in the table 1=yes
         "tableWindRanges" : 0, 
         # Gusts will not be reported below this value.
@@ -272,7 +272,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         # Gust - wind must exceed this threshold to be reported.
         "windGustDiffMph": 7,
         # If max humidity is above this percentage, humidity recovery
-        # will be EXCELLENT.
+        # will be Excellent.
         "humidityRecovery_percentage": 50,
         # Set to MinRH value below which you would like a MinRH phrase in the Extended. 
         # Default (-1) is no MinRH phrase.
@@ -305,42 +305,42 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         # so you may re-arrange the order if you like.
         return [
             # Directive requirements
-            ("CLOUD COVER", self._cloudCover_row),
-            ("PRECIP TYPE", self._precipType_row),
-            ("CHANCE PRECIP (%)", self._chancePrecip_row),
-            ("TEMP (24H TREND)", self._tempWithTrend_row),
-            ("RH % (24H TREND)",self._rhWithTrend_row),
+            ("Cloud cover", self._cloudCover_row),
+            ("Precip type", self._precipType_row),
+            ("Chance precip (%)", self._chancePrecip_row),
+            ("Temp (24h trend)", self._tempWithTrend_row),
+            ("RH % (24h trend)",self._rhWithTrend_row),
             # Use these if you do not want trends
             #("TEMP", self._temp_row),
             #("RH %", self._rh_row),
-            ("20FTWND-VAL/AM(MPH)", self._windValleyMph_row),
-            ("20FTWND-RDG/PM(MPH)", self._windRidgeMph_row),
+            ("20ftWnd-val/AM(mph)", self._windValleyMph_row),
+            ("20ftWnd-rdg/PM(mph)", self._windRidgeMph_row),
             # Directive optional products
-            ("PRECIP AMOUNT", self._precipAmount_row),
-            ("PRECIP DURATION", self._precipDuration_row),
-            ("PRECIP BEGIN", self._precipBegin_row),
-            ("PRECIP END", self._precipEnd_row),
-            ("MIXING HGT(M-AGL/MSL)", self._mixHgtM_row),
-            ("MIXING HGT(FT-AGL/MSL)", self._mixHgtFt_row),
-            ("TRANSPORT WND (KTS)", self._transWindKts_row),
-            ("TRANSPORT WND (M/S)", self._transWindMS_row),
-            ("TRANSPORT WND (MPH)", self._transWindMph_row),
-            ("VENT RATE (KT-FT)", self._ventRateKtFt_row),
-            ("VENT RATE (M/S-M)", self._ventRate_row),
-            ("VENT RATE (MPH-FT)", self._ventRateMphFt_row),
-            ("DISPERSION", self._dispersion_row),
+            ("Precip amount", self._precipAmount_row),
+            ("Precip duration", self._precipDuration_row),
+            ("Precip begin", self._precipBegin_row),
+            ("Precip end", self._precipEnd_row),
+            ("Mixing hgt(m-AGL/MSL)", self._mixHgtM_row),
+            ("Mixing hgt(ft-AGL/MSL)", self._mixHgtFt_row),
+            ("Transport wnd (kts)", self._transWindKts_row),
+            ("Transport wnd (m/s)", self._transWindMS_row),
+            ("Transport wnd (mph)", self._transWindMph_row),
+            ("Vent rate (kt-ft)", self._ventRateKtFt_row),
+            ("Vent rate (m/s-m)", self._ventRate_row),
+            ("Vent rate (mph-ft)", self._ventRateMphFt_row),
+            ("Dispersion", self._dispersion_row),
             ("DSI", self._dsi_row),
-            ("SUNSHINE HOURS", self._sunHours_row),
+            ("Sunshine hours", self._sunHours_row),
 ##            # If you need Ceiling, uncomment the Ceiling line in _getAnalysisList
 ##            #("CEILING", self._ceiling_row),
             ("CWR", self._cwr_row),
             ("LAL", self._lal_row),
-            ("HAINES INDEX", self._haines_row),
-            ("RH RECOVERY", self._rhRecovery_row),
+            ("Haines Index", self._haines_row),
+            ("RH recovery", self._rhRecovery_row),
 ##            # If you need 500m Mix Hgt Temp, uncomment the MixHgt500
 ##            # line in _getAnalysisList
 ##            #("MIX HGT 500", self._mixHgt500_row),
-            ("STABILITY CLASS", self._stability_row),
+            ("Stability class", self._stability_row),
             ]
     
     ########################################################################
@@ -1079,15 +1079,15 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         if sky is None:
             value = ""
         elif  sky <= 6:
-            value = "CLEAR"
+            value = "Clear"
         elif sky <= 31:
-            value = "MCLEAR"
+            value = "MClear"
         elif sky <= 69:
-            value = "PCLDY"
+            value = "PCldy"
         elif sky <= 94:
-            value = "MCLDY"
+            value = "MCldy"
         else:
-            value = "CLOUDY"
+            value = "Cloudy"
         return value
 
     def _wind(self, statDict, timeRange, argList):
@@ -1212,7 +1212,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             return ""
         durStart = durationRange.startTime()
         if durStart < timeRange.startTime():
-            return "CONTINUING"
+            return "Continuing"
         value =  string.strip(self.localHourLabel(durStart))
         return value
     
@@ -1229,7 +1229,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             return ""
         durEnd = durationRange.endTime()
         if durEnd > timeRange.endTime():
-            return "CONTINUING"
+            return "Continuing"
         value =  string.strip(self.localHourLabel(durEnd))
         return value
     
@@ -1301,7 +1301,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         if currentIndex > 0 and not ending:
             # If the precip startTime found in the previous for-loop equals the
             # startTime for the current timeRange, then we need to look at the
-            # previous timeRange to see if precip is "CONTINUING".
+            # previous timeRange to see if precip is "Continuing".
             if range is not None and range.startTime() == timeRange.startTime():
                 #PJ Make sure previous period has Wx/QPF/PoP 
                 precipFlag, wx, qpf, pop = \
@@ -1321,7 +1321,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         if ending == 1:
             # If range has not been set OR the precip endTime equals the
             # endTime for the current timeRange, then we need to look at the
-            # next timeRange to determine if precip is "CONTINUING".
+            # next timeRange to determine if precip is "Continuing".
             if range is not None and range.endTime() == timeRange.endTime():
                 #PJ Make sure next period has Wx/QPF/PoP 
                 precipFlag, wx, qpf, pop = \
@@ -1678,7 +1678,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             return ""
         rh = self.getValue(rh, "Max")
         if rh > self._humidityRecovery_percentage:
-            return "EXCELLENT"
+            return "Excellent"
         priorRH = self.getStats(priorStatDict, priorElement)
         if priorRH is None:
             return ""
@@ -1694,10 +1694,10 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
     def _humidityRecovery_valueList(self):
         "Used to convert percent difference to corresponding category"
         return [
-            (25, "POOR"),
-            (55, "MODERATE"),
-            (70, "GOOD"),
-            (100,"EXCELLENT"),
+            (25, "Poor"),
+            (55, "Moderate"),
+            (70, "Good"),
+            (100,"Excellent"),
             ]
  
     def _calcVentRate(self, statDict, timeRange, argList):
