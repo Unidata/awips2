@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gridParamInfo xmlns:ns2="group">
+  <valtimeMINUSreftime>
+    <fcst>0</fcst>
+    <fcst>21600</fcst>
+    <fcst>43200</fcst>
+    <fcst>64800</fcst>
+    <fcst>86400</fcst>
+    <fcst>108000</fcst>
+    <fcst>129600</fcst>
+    <fcst>151200</fcst>
+    <fcst>172800</fcst>
+    <fcst>194400</fcst>
+    <fcst>216000</fcst>
+    <fcst>237600</fcst>
+    <fcst>259200</fcst>
+  </valtimeMINUSreftime>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>tpMSR</short_name>
+    <long_name>6 hr Total Precip for RFC-&gt; MSR</long_name>
+    <units>mm</units>
+    <udunits>millimeter</udunits>
+    <uiname>totPrecip</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>tpRHA</short_name>
+    <long_name>6 hr Total Precip for RFC-&gt; RHA</long_name>
+    <units>mm</units>
+    <udunits>millimeter</udunits>
+    <uiname>totPrecip</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>tpRSA</short_name>
+    <long_name>6 hr Total Precip for RFC-&gt; RSA</long_name>
+    <units>mm</units>
+    <udunits>millimeter</udunits>
+    <uiname>totPrecip</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>tpHPC</short_name>
+    <long_name>6 hr Total Precip</long_name>
+    <units>mm</units>
+    <udunits>millimeter</udunits>
+    <uiname>totPrecip</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>tpALR</short_name>
+    <long_name>6 hr Total Precip for RFC-&gt; ALR</long_name>
+    <units>mm</units>
+    <udunits>millimeter</udunits>
+    <uiname>totPrecip</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>tpFWR</short_name>
+    <long_name>6 hr Total Precip for RFC-&gt; FWR</long_name>
+    <units>mm</units>
+    <udunits>millimeter</udunits>
+    <uiname>totPrecip</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>tpTUA</short_name>
+    <long_name>6 hr Total Precip for RFC-&gt; TUA</long_name>
+    <units>mm</units>
+    <udunits>millimeter</udunits>
+    <uiname>totPrecip</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>tpTIR</short_name>
+    <long_name>6 hr Total Precip for RFC-&gt; TIR</long_name>
+    <units>mm</units>
+    <udunits>millimeter</udunits>
+    <uiname>totPrecip</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>tpACR</short_name>
+    <long_name>6 hr Total Precip for RFC-&gt; ACR</long_name>
+    <units>mm</units>
+    <udunits>millimeter</udunits>
+    <uiname>totPrecip</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>tpORN</short_name>
+    <long_name>6 hr Total Precip for RFC-&gt; ORN</long_name>
+    <units>mm</units>
+    <udunits>millimeter</udunits>
+    <uiname>totPrecip</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>tpPTR</short_name>
+    <long_name>6 hr Total Precip for RFC-&gt; PTR</long_name>
+    <units>mm</units>
+    <udunits>millimeter</udunits>
+    <uiname>totPrecip</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>tpSTR</short_name>
+    <long_name>6 hr Total Precip for RFC-&gt; STR</long_name>
+    <units>mm</units>
+    <udunits>millimeter</udunits>
+    <uiname>totPrecip</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>tpKRF</short_name>
+    <long_name>6 hr Total Precip for RFC-&gt; KRF</long_name>
+    <units>mm</units>
+    <udunits>millimeter</udunits>
+    <uiname>totPrecip</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>tpTAR</short_name>
+    <long_name>6 hr Total Precip for RFC-&gt; TAR</long_name>
+    <units>mm</units>
+    <udunits>millimeter</udunits>
+    <uiname>totPrecip</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+</gridParamInfo>

@@ -1,0 +1,1020 @@
+/*
+    File: Reservoir.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:28 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "Reservoir.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct Reservoir_t
+{
+    char		lid[9];
+    char		name[21];
+    char		type[11];
+    char		owner[11];
+    double		deadpool;
+    double		conserpool;
+    double		floodpool;
+    double		spillway;
+    double		sill;
+    double		top;
+    double		surchg;
+    double		elev;
+    long		gates;
+    date		impounded;
+    char		uses[9];
+    char		damids[3];
+    char		damidn[6];
+
+    int		ind_name;
+    int		ind_deadpool;
+    int		ind_conserpool;
+    int		ind_floodpool;
+    int		ind_spillway;
+    int		ind_sill;
+    int		ind_top;
+    int		ind_surchg;
+    int		ind_elev;
+    int		ind_gates;
+    int		ind_impounded;
+    int		ind_uses;
+    int		ind_damids;
+    int		ind_damidn;
+} Reservoir_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+Reservoir * GetReservoir(const char * where)
+{
+
+    Reservoir * listPtr = NULL;
+    Reservoir * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM Reservoir ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Reservoir_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetReservoir() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetReservoir() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetReservoir() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.lid, :dbs.name:dbs.ind_name, 
+    :dbs.type, :dbs.owner, 
+    :dbs.deadpool:dbs.ind_deadpool, :dbs.conserpool:dbs.ind_conserpool, 
+    :dbs.floodpool:dbs.ind_floodpool, :dbs.spillway:dbs.ind_spillway, 
+    :dbs.sill:dbs.ind_sill, :dbs.top:dbs.ind_top, 
+    :dbs.surchg:dbs.ind_surchg, :dbs.elev:dbs.ind_elev, 
+    :dbs.gates:dbs.ind_gates, :dbs.impounded:dbs.ind_impounded, 
+    :dbs.uses:dbs.ind_uses, :dbs.damids:dbs.ind_damids, 
+    :dbs.damidn:dbs.ind_damidn    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetReservoir() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (Reservoir *) malloc(sizeof(Reservoir))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+
+            strcpy(structPtr->name, dbs.name);
+            setNullIfIndicated(dbs.ind_name, CHAR, structPtr->name);
+
+            strcpy(structPtr->type, dbs.type);
+
+            strcpy(structPtr->owner, dbs.owner);
+
+            structPtr->deadpool = dbs.deadpool;
+            setNullIfIndicated(dbs.ind_deadpool, DOUBLE, &structPtr->deadpool);
+
+            structPtr->conserpool = dbs.conserpool;
+            setNullIfIndicated(dbs.ind_conserpool, DOUBLE, &structPtr->conserpool);
+
+            structPtr->floodpool = dbs.floodpool;
+            setNullIfIndicated(dbs.ind_floodpool, DOUBLE, &structPtr->floodpool);
+
+            structPtr->spillway = dbs.spillway;
+            setNullIfIndicated(dbs.ind_spillway, DOUBLE, &structPtr->spillway);
+
+            structPtr->sill = dbs.sill;
+            setNullIfIndicated(dbs.ind_sill, DOUBLE, &structPtr->sill);
+
+            structPtr->top = dbs.top;
+            setNullIfIndicated(dbs.ind_top, DOUBLE, &structPtr->top);
+
+            structPtr->surchg = dbs.surchg;
+            setNullIfIndicated(dbs.ind_surchg, DOUBLE, &structPtr->surchg);
+
+            structPtr->elev = dbs.elev;
+            setNullIfIndicated(dbs.ind_elev, DOUBLE, &structPtr->elev);
+
+            structPtr->gates = dbs.gates;
+            setNullIfIndicated(dbs.ind_gates, INT, &structPtr->gates);
+
+            structPtr->impounded = pg_date_to_date_t(dbs.impounded);
+            setNullIfIndicated(dbs.ind_impounded, INT, &structPtr->impounded);
+
+            strcpy(structPtr->uses, dbs.uses);
+            setNullIfIndicated(dbs.ind_uses, CHAR, structPtr->uses);
+
+            strcpy(structPtr->damids, dbs.damids);
+            setNullIfIndicated(dbs.ind_damids, CHAR, structPtr->damids);
+
+            strcpy(structPtr->damidn, dbs.damidn);
+            setNullIfIndicated(dbs.ind_damidn, CHAR, structPtr->damidn);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.lid, :dbs.name:dbs.ind_name, 
+        :dbs.type, :dbs.owner, 
+        :dbs.deadpool:dbs.ind_deadpool, :dbs.conserpool:dbs.ind_conserpool, 
+        :dbs.floodpool:dbs.ind_floodpool, :dbs.spillway:dbs.ind_spillway, 
+        :dbs.sill:dbs.ind_sill, :dbs.top:dbs.ind_top, 
+        :dbs.surchg:dbs.ind_surchg, :dbs.elev:dbs.ind_elev, 
+        :dbs.gates:dbs.ind_gates, :dbs.impounded:dbs.ind_impounded, 
+        :dbs.uses:dbs.ind_uses, :dbs.damids:dbs.ind_damids, 
+        :dbs.damidn:dbs.ind_damidn        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetReservoir() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+Reservoir * SelectReservoir(const char * where)
+{
+
+    Reservoir * listPtr = NULL;
+    Reservoir * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM Reservoir ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Reservoir_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectReservoir() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectReservoir() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectReservoir() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.lid, :dbs.name:dbs.ind_name, 
+    :dbs.type, :dbs.owner, 
+    :dbs.deadpool:dbs.ind_deadpool, :dbs.conserpool:dbs.ind_conserpool, 
+    :dbs.floodpool:dbs.ind_floodpool, :dbs.spillway:dbs.ind_spillway, 
+    :dbs.sill:dbs.ind_sill, :dbs.top:dbs.ind_top, 
+    :dbs.surchg:dbs.ind_surchg, :dbs.elev:dbs.ind_elev, 
+    :dbs.gates:dbs.ind_gates, :dbs.impounded:dbs.ind_impounded, 
+    :dbs.uses:dbs.ind_uses, :dbs.damids:dbs.ind_damids, 
+    :dbs.damidn:dbs.ind_damidn    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectReservoir() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (Reservoir *) malloc(sizeof(Reservoir))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+
+            strcpy(structPtr->name, dbs.name);
+            setNullIfIndicated(dbs.ind_name, CHAR, structPtr->name);
+
+            strcpy(structPtr->type, dbs.type);
+
+            strcpy(structPtr->owner, dbs.owner);
+
+            structPtr->deadpool = dbs.deadpool;
+            setNullIfIndicated(dbs.ind_deadpool, DOUBLE, &structPtr->deadpool);
+
+            structPtr->conserpool = dbs.conserpool;
+            setNullIfIndicated(dbs.ind_conserpool, DOUBLE, &structPtr->conserpool);
+
+            structPtr->floodpool = dbs.floodpool;
+            setNullIfIndicated(dbs.ind_floodpool, DOUBLE, &structPtr->floodpool);
+
+            structPtr->spillway = dbs.spillway;
+            setNullIfIndicated(dbs.ind_spillway, DOUBLE, &structPtr->spillway);
+
+            structPtr->sill = dbs.sill;
+            setNullIfIndicated(dbs.ind_sill, DOUBLE, &structPtr->sill);
+
+            structPtr->top = dbs.top;
+            setNullIfIndicated(dbs.ind_top, DOUBLE, &structPtr->top);
+
+            structPtr->surchg = dbs.surchg;
+            setNullIfIndicated(dbs.ind_surchg, DOUBLE, &structPtr->surchg);
+
+            structPtr->elev = dbs.elev;
+            setNullIfIndicated(dbs.ind_elev, DOUBLE, &structPtr->elev);
+
+            structPtr->gates = dbs.gates;
+            setNullIfIndicated(dbs.ind_gates, INT, &structPtr->gates);
+
+            structPtr->impounded = pg_date_to_date_t(dbs.impounded);
+            setNullIfIndicated(dbs.ind_impounded, INT, &structPtr->impounded);
+
+            strcpy(structPtr->uses, dbs.uses);
+            setNullIfIndicated(dbs.ind_uses, CHAR, structPtr->uses);
+
+            strcpy(structPtr->damids, dbs.damids);
+            setNullIfIndicated(dbs.ind_damids, CHAR, structPtr->damids);
+
+            strcpy(structPtr->damidn, dbs.damidn);
+            setNullIfIndicated(dbs.ind_damidn, CHAR, structPtr->damidn);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.lid, :dbs.name:dbs.ind_name, 
+        :dbs.type, :dbs.owner, 
+        :dbs.deadpool:dbs.ind_deadpool, :dbs.conserpool:dbs.ind_conserpool, 
+        :dbs.floodpool:dbs.ind_floodpool, :dbs.spillway:dbs.ind_spillway, 
+        :dbs.sill:dbs.ind_sill, :dbs.top:dbs.ind_top, 
+        :dbs.surchg:dbs.ind_surchg, :dbs.elev:dbs.ind_elev, 
+        :dbs.gates:dbs.ind_gates, :dbs.impounded:dbs.ind_impounded, 
+        :dbs.uses:dbs.ind_uses, :dbs.damids:dbs.ind_damids, 
+        :dbs.damidn:dbs.ind_damidn        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectReservoir() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectReservoirCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM Reservoir ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountReservoir() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountReservoir() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountReservoir() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountReservoir() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutReservoir(const Reservoir * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Reservoir_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.name, structPtr->name);
+    dbs.ind_name = getIndicator(CHAR, (void *)structPtr->name);
+
+    strcpy(dbs.type, structPtr->type);
+
+    strcpy(dbs.owner, structPtr->owner);
+
+    dbs.deadpool = structPtr->deadpool;
+    dbs.ind_deadpool = getIndicator(DOUBLE, (void *)&structPtr->deadpool);
+
+    dbs.conserpool = structPtr->conserpool;
+    dbs.ind_conserpool = getIndicator(DOUBLE, (void *)&structPtr->conserpool);
+
+    dbs.floodpool = structPtr->floodpool;
+    dbs.ind_floodpool = getIndicator(DOUBLE, (void *)&structPtr->floodpool);
+
+    dbs.spillway = structPtr->spillway;
+    dbs.ind_spillway = getIndicator(DOUBLE, (void *)&structPtr->spillway);
+
+    dbs.sill = structPtr->sill;
+    dbs.ind_sill = getIndicator(DOUBLE, (void *)&structPtr->sill);
+
+    dbs.top = structPtr->top;
+    dbs.ind_top = getIndicator(DOUBLE, (void *)&structPtr->top);
+
+    dbs.surchg = structPtr->surchg;
+    dbs.ind_surchg = getIndicator(DOUBLE, (void *)&structPtr->surchg);
+
+    dbs.elev = structPtr->elev;
+    dbs.ind_elev = getIndicator(DOUBLE, (void *)&structPtr->elev);
+
+    dbs.gates = structPtr->gates;
+    dbs.ind_gates = getIndicator(INT, (void *)&structPtr->gates);
+
+    dbs.impounded = date_t_to_pg_date(structPtr->impounded);
+    dbs.ind_impounded = getIndicator(INT, (void *)&structPtr->impounded);
+
+    strcpy(dbs.uses, structPtr->uses);
+    dbs.ind_uses = getIndicator(CHAR, (void *)structPtr->uses);
+
+    strcpy(dbs.damids, structPtr->damids);
+    dbs.ind_damids = getIndicator(CHAR, (void *)structPtr->damids);
+
+    strcpy(dbs.damidn, structPtr->damidn);
+    dbs.ind_damidn = getIndicator(CHAR, (void *)structPtr->damidn);
+
+
+    EXEC SQL INSERT INTO Reservoir (lid,name,
+        type,owner,deadpool,
+        conserpool,floodpool,spillway,
+        sill,top,surchg,
+        elev,gates,impounded,
+        uses,damids,damidn        )
+        VALUES (
+         :dbs.lid, :dbs.name:dbs.ind_name, :dbs.type,
+         :dbs.owner, :dbs.deadpool:dbs.ind_deadpool, :dbs.conserpool:dbs.ind_conserpool,
+         :dbs.floodpool:dbs.ind_floodpool, :dbs.spillway:dbs.ind_spillway, :dbs.sill:dbs.ind_sill,
+         :dbs.top:dbs.ind_top, :dbs.surchg:dbs.ind_surchg, :dbs.elev:dbs.ind_elev,
+         :dbs.gates:dbs.ind_gates, :dbs.impounded:dbs.ind_impounded, :dbs.uses:dbs.ind_uses,
+         :dbs.damids:dbs.ind_damids, :dbs.damidn:dbs.ind_damidn);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutReservoir() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertReservoir(const Reservoir * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Reservoir_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.name, structPtr->name);
+    dbs.ind_name = getIndicator(CHAR, (void *)structPtr->name);
+
+    strcpy(dbs.type, structPtr->type);
+
+    strcpy(dbs.owner, structPtr->owner);
+
+    dbs.deadpool = structPtr->deadpool;
+    dbs.ind_deadpool = getIndicator(DOUBLE, (void *)&structPtr->deadpool);
+
+    dbs.conserpool = structPtr->conserpool;
+    dbs.ind_conserpool = getIndicator(DOUBLE, (void *)&structPtr->conserpool);
+
+    dbs.floodpool = structPtr->floodpool;
+    dbs.ind_floodpool = getIndicator(DOUBLE, (void *)&structPtr->floodpool);
+
+    dbs.spillway = structPtr->spillway;
+    dbs.ind_spillway = getIndicator(DOUBLE, (void *)&structPtr->spillway);
+
+    dbs.sill = structPtr->sill;
+    dbs.ind_sill = getIndicator(DOUBLE, (void *)&structPtr->sill);
+
+    dbs.top = structPtr->top;
+    dbs.ind_top = getIndicator(DOUBLE, (void *)&structPtr->top);
+
+    dbs.surchg = structPtr->surchg;
+    dbs.ind_surchg = getIndicator(DOUBLE, (void *)&structPtr->surchg);
+
+    dbs.elev = structPtr->elev;
+    dbs.ind_elev = getIndicator(DOUBLE, (void *)&structPtr->elev);
+
+    dbs.gates = structPtr->gates;
+    dbs.ind_gates = getIndicator(INT, (void *)&structPtr->gates);
+
+    dbs.impounded = date_t_to_pg_date(structPtr->impounded);
+    dbs.ind_impounded = getIndicator(INT, (void *)&structPtr->impounded);
+
+    strcpy(dbs.uses, structPtr->uses);
+    dbs.ind_uses = getIndicator(CHAR, (void *)structPtr->uses);
+
+    strcpy(dbs.damids, structPtr->damids);
+    dbs.ind_damids = getIndicator(CHAR, (void *)structPtr->damids);
+
+    strcpy(dbs.damidn, structPtr->damidn);
+    dbs.ind_damidn = getIndicator(CHAR, (void *)structPtr->damidn);
+
+
+    EXEC SQL INSERT INTO Reservoir (lid,name,
+        type,owner,deadpool,
+        conserpool,floodpool,spillway,
+        sill,top,surchg,
+        elev,gates,impounded,
+        uses,damids,damidn        )
+        VALUES (
+         :dbs.lid, :dbs.name:dbs.ind_name, :dbs.type,
+         :dbs.owner, :dbs.deadpool:dbs.ind_deadpool, :dbs.conserpool:dbs.ind_conserpool,
+         :dbs.floodpool:dbs.ind_floodpool, :dbs.spillway:dbs.ind_spillway, :dbs.sill:dbs.ind_sill,
+         :dbs.top:dbs.ind_top, :dbs.surchg:dbs.ind_surchg, :dbs.elev:dbs.ind_elev,
+         :dbs.gates:dbs.ind_gates, :dbs.impounded:dbs.ind_impounded, :dbs.uses:dbs.ind_uses,
+         :dbs.damids:dbs.ind_damids, :dbs.damidn:dbs.ind_damidn);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertReservoir() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateReservoir(const Reservoir *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Reservoir_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.name, structPtr->name);
+    dbs.ind_name = getIndicator(CHAR, (void *)structPtr->name);
+
+    strcpy(dbs.type, structPtr->type);
+
+    strcpy(dbs.owner, structPtr->owner);
+
+    dbs.deadpool = structPtr->deadpool;
+    dbs.ind_deadpool = getIndicator(DOUBLE, (void *)&structPtr->deadpool);
+
+    dbs.conserpool = structPtr->conserpool;
+    dbs.ind_conserpool = getIndicator(DOUBLE, (void *)&structPtr->conserpool);
+
+    dbs.floodpool = structPtr->floodpool;
+    dbs.ind_floodpool = getIndicator(DOUBLE, (void *)&structPtr->floodpool);
+
+    dbs.spillway = structPtr->spillway;
+    dbs.ind_spillway = getIndicator(DOUBLE, (void *)&structPtr->spillway);
+
+    dbs.sill = structPtr->sill;
+    dbs.ind_sill = getIndicator(DOUBLE, (void *)&structPtr->sill);
+
+    dbs.top = structPtr->top;
+    dbs.ind_top = getIndicator(DOUBLE, (void *)&structPtr->top);
+
+    dbs.surchg = structPtr->surchg;
+    dbs.ind_surchg = getIndicator(DOUBLE, (void *)&structPtr->surchg);
+
+    dbs.elev = structPtr->elev;
+    dbs.ind_elev = getIndicator(DOUBLE, (void *)&structPtr->elev);
+
+    dbs.gates = structPtr->gates;
+    dbs.ind_gates = getIndicator(INT, (void *)&structPtr->gates);
+
+    dbs.impounded = date_t_to_pg_date(structPtr->impounded);
+    dbs.ind_impounded = getIndicator(INT, (void *)&structPtr->impounded);
+
+    strcpy(dbs.uses, structPtr->uses);
+    dbs.ind_uses = getIndicator(CHAR, (void *)structPtr->uses);
+
+    strcpy(dbs.damids, structPtr->damids);
+    dbs.ind_damids = getIndicator(CHAR, (void *)structPtr->damids);
+
+    strcpy(dbs.damidn, structPtr->damidn);
+    dbs.ind_damidn = getIndicator(CHAR, (void *)structPtr->damidn);
+
+
+    sprintf(queryBuffer, " UPDATE Reservoir SET " );
+    strcat(queryBuffer, "lid = ? , name = ? , type = ? , owner = ? , deadpool = ? ,     ");
+    strcat(queryBuffer, "conserpool = ? , floodpool = ? , spillway = ? , sill = ? , top = ? ,     ");
+    strcat(queryBuffer, "surchg = ? , elev = ? , gates = ? , impounded = ? , uses = ? ,     ");
+    strcat(queryBuffer, "damids = ? , damidn = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateReservoir() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.lid, :dbs.name:dbs.ind_name, :dbs.type, :dbs.owner, :dbs.deadpool:dbs.ind_deadpool,
+     :dbs.conserpool:dbs.ind_conserpool, :dbs.floodpool:dbs.ind_floodpool, :dbs.spillway:dbs.ind_spillway, :dbs.sill:dbs.ind_sill, :dbs.top:dbs.ind_top,
+     :dbs.surchg:dbs.ind_surchg, :dbs.elev:dbs.ind_elev, :dbs.gates:dbs.ind_gates, :dbs.impounded:dbs.ind_impounded, :dbs.uses:dbs.ind_uses,
+     :dbs.damids:dbs.ind_damids, :dbs.damidn:dbs.ind_damidn;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateReservoir() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteReservoir(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM Reservoir ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteReservoir() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateReservoirByRecord (const Reservoir * newStructPtr, const Reservoir * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetReservoirPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateReservoir(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateReservoir(const Reservoir * structPtr)
+{
+    UpdateReservoirByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertReservoir(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueReservoir(const Reservoir * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (ReservoirExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertReservoir(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteReservoirByRecord(const Reservoir * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetReservoirPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteReservoir(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool ReservoirExists(const Reservoir * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetReservoirPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectReservoirCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetReservoirPrimaryKeyWhereString (const Reservoir * structPtr, char returnWhereString[] )
+{
+    sprintf(returnWhereString, "WHERE lid = '%s' ",
+            structPtr->lid);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeReservoir( Reservoir * structPtr)
+{
+    Reservoir* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( Reservoir * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetReservoirDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetReservoirErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

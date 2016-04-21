@@ -1,0 +1,23 @@
+C                                                *--> FROM CMS(UINCLX)
+C  INCLUDES FROM DATASET COMMON BLOCK
+      COMMON /UINCLX/ MINCL,MPINCL,ICINCL,NINCL,
+     *   PATHINCL(99),NRINCL(99),DIRINCL
+      CHARACTER*132 PATHINCL
+      CHARACTER*120 DIRINCL
+C
+C  DESCRIPTION OF VARIABLES:
+C     VARIABLE   TYPE   I/O   DIM   CONTENTS
+C     --------   ----   ---   ---   --------
+C     MINCL      I*4    I      1    MAXIMUM LEVELS OF NESTED INCLUDES
+C                                   ALLOWED
+C     MPINCL     I*4    I      1    MAXIMUM LEVELS OF NESTED INCLUDES
+C                                   TO BE PROCESSED
+C     ICINCL     I*4    I      1    INDICATOR IF INCLUDED RECORDS TO
+C                                   CHECKED FOR COMMENTS
+C                                     0=NO
+C                                     1=YES
+C     NINCL      I*4    O      1    CURRENT LEVELS OF NESTED INCLUDES
+C     PATHINCL   A132   O     99    PATH NAME
+C     NRINCL     I*4    O     99    NUMBER OF RECORDS INCLUDED
+C     DIRINCL    A132   O      1    DIRECTORY NAME
+C

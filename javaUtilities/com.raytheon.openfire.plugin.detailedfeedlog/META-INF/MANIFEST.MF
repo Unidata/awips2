@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Detailedlogging
+Bundle-SymbolicName: com.raytheon.openfire.plugin.detailedfeedlog;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: RAYTHEON
+Require-Bundle: org.jivesoftware.openfire;bundle-version="3.7.1"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

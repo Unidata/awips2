@@ -1,0 +1,4 @@
+C                                           *--> FROM GCOMMON.GMROPA
+      COMMON /GMROPA/ IDMARO(2), IDESC(5), XLAT, XLONG, NGRIDA,
+     * IREC(2), IFGRID, IFCLTR(2), MDRBOX(3), MDRGRD(3), IGRID(180),
+     * IRELN(180)

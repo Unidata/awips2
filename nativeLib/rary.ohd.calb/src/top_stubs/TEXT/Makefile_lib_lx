@@ -1,0 +1,42 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the calb-top_stubs library file
+#
+#  cmt: File made on Thu Oct 26 14:47:51 EDT 2006 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob81/ohd/calb/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob81/ohd/calb/inc  \
+               -I/fs/hseb/ob81/ohd/ofs/inc  \
+               -I/fs/hseb/ob81/ohd/util/inc  \
+               -I/fs/hseb/ob81/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libtop_stubs_t.a:  \
+     $(LIB)/libtop_stubs_t.a(fapitr.o)  \
+     $(LIB)/libtop_stubs_t.a(fgetrc.o)  \
+     $(LIB)/libtop_stubs_t.a(frclex.o)  \
+     $(LIB)/libtop_stubs_t.a(fsactr.o)  \
+     $(LIB)/libtop_stubs_t.a(fsnwtr.o)  \
+     $(LIB)/libtop_stubs_t.a(fwclex.o)  \
+     $(LIB)/libtop_stubs_t.a(mods.o)
+

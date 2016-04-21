@@ -1,0 +1,4 @@
+C                                           *--> FROM COMMON.FCFGS2
+      COMMON/FCFGS2/FGID2(2),NSEG2,IREC2,ISPEC2,CGIDF2(2),ICOSE2,
+     .  MNDTF2,DESCR2(5),ICRDF2(5),IDUMG2,NFGRC2
+C

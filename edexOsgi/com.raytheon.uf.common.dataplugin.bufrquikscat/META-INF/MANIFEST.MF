@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bufrquikscat Plug-in
+Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.bufrquikscat
+Bundle-Version: 1.12.1174.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: com.raytheon.uf.common.dataplugin.bufrquikscat
+Require-Bundle: com.raytheon.uf.common.pointdata,
+ javax.persistence,
+ javax.measure,
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.serialization
+Import-Package: com.raytheon.uf.common.status

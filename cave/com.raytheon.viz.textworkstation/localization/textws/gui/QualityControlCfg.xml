@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<qualityControlCfg>
+    <ImmediateCause>ER \ RAIN</ImmediateCause>
+    <ImmediateCause>SM \ SNOWMELT</ImmediateCause>
+    <ImmediateCause>SM \ MELTING SNOW</ImmediateCause>
+    <ImmediateCause>SM \ VOLCANIC SNOWMELT</ImmediateCause>
+    <ImmediateCause>IJ \ ICE JAM</ImmediateCause>
+    <ImmediateCause>IC \ ICE JAM AND RAIN</ImmediateCause>
+    <ImmediateCause>IC \ ICE JAM AND SNOWMELT</ImmediateCause>
+    <ImmediateCause>GO \ GLACIER</ImmediateCause>
+    <ImmediateCause>GO \ GLACIER-DAMMED LAKE</ImmediateCause>
+    <ImmediateCause>DM \ DAM</ImmediateCause>
+    <ImmediateCause>DR \ DAM FLOODGATE RELEASE</ImmediateCause>
+    <ImmediateCause>DR \ DAM FLOODGATE</ImmediateCause>
+    <ImmediateCause>DM \ LEVEE FAILURE</ImmediateCause>
+    <ImmediateCause>DM \ DAM FAILURE</ImmediateCause>
+    <ImmediateCause>DM \ DAM BREAK</ImmediateCause>
+    <ImmediateCause>RS \ RAIN AND SNOWMELT</ImmediateCause>
+    <ImmediateCause>RS \ RAIN AND MELTING SNOW</ImmediateCause>
+    <productTypeMap>
+        <item>
+            <key>FFW</key>
+            <value>Flash Flood Warning</value>
+        </item>
+        <item>
+            <key>EWW</key>
+            <value>Extreme Wind Warning</value>
+        </item>
+        <item>
+            <key>NOW</key>
+            <value>Short Term Forecast</value>
+        </item>
+        <item>
+            <key>MWS</key>
+            <value>Marine Weather Statement</value>
+        </item>
+        <item>
+            <key>FLW</key>
+            <value>Flood Warning</value>
+        </item>
+        <item>
+            <key>FFS</key>
+            <value>Flash Flood Statement</value>
+        </item>
+        <item>
+            <key>SVS</key>
+            <value>Severe Weather Statement</value>
+        </item>
+        <item>
+            <key>SPS</key>
+            <value>Special Weather Statement</value>
+        </item>
+        <item>
+            <key>FLS</key>
+            <value>Flood Statement</value>
+        </item>
+        <item>
+            <key>SMW</key>
+            <value>Special Marine Warning</value>
+        </item>
+        <item>
+            <key>SVR</key>
+            <value>Severe Thunderstorm Warning</value>
+        </item>
+        <item>
+            <key>TOR</key>
+            <value>Tornado Warning</value>
+        </item>
+    </productTypeMap>
+    <followupNNN>
+        <item>
+            <key>TO.W</key>
+            <value>SVS</value>
+        </item>
+        <item>
+            <key>SV.W</key>
+            <value>SVS</value>
+        </item>
+        <item>
+            <key>MA.W</key>
+            <value>MWS</value>
+        </item>
+        <item>
+            <key>FA.Y</key>
+            <value>FLS</value>
+        </item>
+        <item>
+            <key>FF.W</key>
+            <value>FFS</value>
+        </item>
+        <item>
+            <key>FA.W</key>
+            <value>FLS</value>
+        </item>
+    </followupNNN>
+    <nnnOfIdent>
+        <item>
+            <key>TO.W</key>
+            <value>TOR</value>
+        </item>
+        <item>
+            <key>SV.W</key>
+            <value>SVR</value>
+        </item>
+        <item>
+            <key>MA.W</key>
+            <value>SMW</value>
+        </item>
+        <item>
+            <key>FA.Y</key>
+            <value>FLS</value>
+        </item>
+        <item>
+            <key>FF.W</key>
+            <value>FFW</value>
+        </item>
+        <item>
+            <key>FA.W</key>
+            <value>FLW</value>
+        </item>
+        <item>
+            <key>EW.W</key>
+            <value>EWW</value>
+        </item>
+    </nnnOfIdent>
+    <SegmentedNNN>WCN</SegmentedNNN>
+    <SegmentedNNN>SLS</SegmentedNNN>
+    <SegmentedNNN>SVS</SegmentedNNN>
+    <SegmentedNNN>FFS</SegmentedNNN>
+    <SegmentedNNN>FLS</SegmentedNNN>
+    <SegmentedNNN>MWS</SegmentedNNN>
+    <bulletTypeMap>
+        <item>
+            <key>FA.Y</key>
+            <value>FLOOD ADVISORY</value>
+            <value>HYDROLOGIC ADVISORY</value>
+        </item>
+    </bulletTypeMap>
+</qualityControlCfg>

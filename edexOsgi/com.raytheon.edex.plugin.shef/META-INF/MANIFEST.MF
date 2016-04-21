@@ -1,0 +1,34 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Shef Plug-in
+Bundle-SymbolicName: com.raytheon.edex.plugin.shef
+Bundle-Version: 1.14.0.qualifier
+Bundle-Vendor: RAYTHEON
+Export-Package: com.raytheon.edex.plugin.shef,
+ com.raytheon.edex.plugin.shef.data,
+ com.raytheon.edex.plugin.shef.data.precip,
+ com.raytheon.edex.plugin.shef.database,
+ com.raytheon.edex.plugin.shef.ohdlib,
+ com.raytheon.edex.plugin.shef.util,
+ com.raytheon.edex.transform.shef,
+ com.raytheon.edex.transform.shef.obs
+Require-Bundle: com.raytheon.edex.common,
+ com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
+ com.raytheon.uf.common.localization,
+ javax.persistence,
+ org.apache.commons.cli;bundle-version="1.0.0",
+ com.raytheon.uf.common.dataplugin.shef;bundle-version="1.12.1174",
+ com.raytheon.uf.common.status;bundle-version="1.12.1174"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: com.raytheon.edex.plugin.obs,
+ com.raytheon.edex.plugin.obs.metar,
+ com.raytheon.edex.plugin.obs.metar.util,
+ com.raytheon.edex.plugin.shef.database,
+ com.raytheon.uf.common.dataplugin.obs.metar,
+ com.raytheon.uf.common.dataplugin.obs.metar.util,
+ com.raytheon.uf.common.dataplugin.sfcobs,
+ com.raytheon.uf.common.dataplugin.text.request,
+ com.raytheon.uf.common.ohd,
+ com.raytheon.uf.common.wmo,
+ org.apache.commons.logging
+

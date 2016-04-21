@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="qcScanner" class="com.raytheon.uf.edex.plugin.qc.QCScanner" depends-on="qcProperties">
+        <property name="maxRecordsInChunk" value="1000" />
+        <property name="target" ref="qcScannerTarget" />
+    </bean>
+
+    <camelContext id="qcIngest-camel" 
+                  xmlns="http://camel.apache.org/schema/spring" 
+                  errorHandlerRef="errorHandler">
+       <proxy id="qcScannerTarget"
+               serviceInterface="com.raytheon.uf.edex.plugin.qc.IQCScannerTarget"
+               serviceUrl="direct-vm:qcToIndexAlert"/>
+
+        <endpoint id="scheduledQCCron" uri="clusteredquartz://qc/scanQC/?cron=${qc.cron}"/>        
+
+        <route id="scheduledQCScan">
+            <from uri="scheduledQCCron" /> 
+            <to uri="jms-generic:queue:scheduledQCScanWork" />
+        </route>
+
+        <route id="qcToIndexAlert">
+            <from uri="direct-vm:qcToIndexAlert" />
+            <setHeader headerName="pluginName">
+                <constant>qc</constant>
+            </setHeader>
+            <setHeader headerName="ingestFileName">
+                <simple>${body.args[0].[last].ncSet}(${body.args[0].[last].ncIndex})</simple>
+            </setHeader>
+            <to uri="direct-vm:indexAlert" pattern="InOnly"/>
+        </route>
+        
+        <route id="scheduledQCScanWork">
+          <from uri="jms-generic:queue:scheduledQCScanWork" />
+          <doTry>
+               <pipeline>
+                <setHeader headerName="pluginName">
+                    <constant>qc</constant>
+                </setHeader>
+                <bean ref="qcScanner" method="scanInChunks" />
+               </pipeline>
+               <doCatch>
+                  <exception>java.lang.Throwable</exception>
+                  <to uri="log:qc?level=ERROR"/>
+               </doCatch>
+          </doTry>
+        </route>
+
+    </camelContext>
+</beans>

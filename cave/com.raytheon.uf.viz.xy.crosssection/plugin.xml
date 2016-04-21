@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="com.raytheon.uf.viz.xy.crosssection.crosssectionadapter" name="Cross Section Adapter" schema="schema/com.raytheon.uf.viz.xy.crosssection.crosssectionadapter.exsd"/>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="com.raytheon.uf.viz.xy.VizXyEditor"
+            default="true"
+            icon="icons/crossSection.gif"  
+            id="com.raytheon.uf.viz.xy.crosssection.CrossSectionEditor"
+            name="Cross Section">
+      </editor>
+   </extension>
+   <extension
+         point="com.raytheon.uf.viz.core.descriptor">
+      <descriptor
+      		name="CrossSectionDescriptor"
+            class="com.raytheon.uf.viz.xy.crosssection.display.CrossSectionDescriptor"
+            editor="com.raytheon.uf.viz.xy.crosssection.CrossSectionEditor">
+      </descriptor>
+   </extension>
+   <extension
+         point="com.raytheon.uf.viz.core.resource">
+      <resource
+            class="com.raytheon.uf.viz.xy.crosssection.rsc.CrossSectionImageResource"
+            name="Cross Section Image"
+            renderingOrderId="IMAGE_COUNTRY"
+            resourceType="CROSS_SECTION"/>
+      <resource
+            class="com.raytheon.uf.viz.xy.crosssection.rsc.CrossSectionContourResource"
+            name="Cross Section Contours"
+            renderingOrderId="CONTOUR"
+            resourceType="CROSS_SECTION"/>
+      <resource
+            class="com.raytheon.uf.viz.xy.crosssection.rsc.CrossSectionVectorResource"
+            name="Cross Section Vector"
+            renderingOrderId="CONTOUR"
+            resourceType="CROSS_SECTION">
+      </resource>
+   </extension>
+</plugin>

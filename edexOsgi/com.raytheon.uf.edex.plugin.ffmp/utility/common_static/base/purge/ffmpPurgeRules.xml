@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--  Purge file for FFMP 
+period tag is where you change the time:
+ex. 01-00:00:00 is one day or 24 hours of retention
+ex. 00-12:00:00 is 12 hours
+-->
+<purgeRuleSet>
+	<defaultRule>
+		<period>01-00:00:00</period>
+	</defaultRule>
+</purgeRuleSet>

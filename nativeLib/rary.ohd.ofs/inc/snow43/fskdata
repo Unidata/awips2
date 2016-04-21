@@ -1,0 +1,20 @@
+C..............................................
+C    COMMON BLOCK FSKDATA
+C
+C    VARIABLE            DESCRIPTION
+C    --------            -----------
+C      nkdv              Number of updating values.
+C      jhsnk             Julian hour of each data value.
+C      wesnk             Water equivalent of snow.
+C      vwesnk            Variance associated with each
+C                        water equivalent value.
+C      wegain            Kalman gain associated with
+C                        each water equivalent value.
+C..............................................
+C
+      integer nkdv, jhsnk  
+      real    wesnk, vwesnk, wegain
+C
+      common/fskdata/nkdv, jhsnk(10), wesnk(10), 
+     1               vwesnk(10), wegain(10)
+C

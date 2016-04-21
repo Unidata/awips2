@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <contribute xsi:type="subMenu" menuText="GOES-R" id="goesr">
+        <contribute xsi:type="titleItem" titleText="------ Best Res East Conus ------" id="goesrBestRes"/>
+        <contribute xsi:type="subinclude" fileName="menus/satellite/goesr/goesrBestResConusByChannel.xml">
+            <substitute key="primaryPosition" value="E"/>
+            <substitute key="secondaryPosition" value="W"/>
+        </contribute>
+        <contribute xsi:type="subMenu" menuText="Regional Best Res">
+            <contribute xsi:type="subinclude" subMenu="West Conus" fileName="menus/satellite/goesr/goesrBestResConusByChannel.xml">
+                <substitute key="primaryPosition" value="W"/>
+                <substitute key="secondaryPosition" value="E"/>
+            </contribute>
+            <contribute xsi:type="subinclude" subMenu="Alaska" fileName="menus/satellite/goesr/goesrBestResRegionByChannel.xml">
+                <substitute key="primaryPosition" value="W"/>
+                <substitute key="secondaryPosition" value="E"/>
+                <substitute key="region" value="AK"/>
+            </contribute>
+            <contribute xsi:type="subinclude" subMenu="Hawaii" fileName="menus/satellite/goesr/goesrBestResRegionByChannel.xml">
+                <substitute key="primaryPosition" value="W"/>
+                <substitute key="secondaryPosition" value="E"/>
+                <substitute key="region" value="HI"/>
+            </contribute>
+            <contribute xsi:type="subinclude" subMenu="Puerto Rico" fileName="menus/satellite/goesr/goesrBestResRegionByChannel.xml">
+                <substitute key="primaryPosition" value="E"/>
+                <substitute key="secondaryPosition" value="W"/>
+                <substitute key="region" value="PR"/>
+            </contribute>
+        </contribute>
+        <contribute xsi:type="titleItem" titleText="------ By Sector ------" id="goesrBySector"/>
+        <contribute xsi:type="subinclude" subMenu="All Channels" fileName="menus/satellite/goesr/goesrBySectorByChannel.xml" />
+        <contribute xsi:type="subinclude" subMenu="Level 2 Products" fileName="menus/satellite/goesr/goesrLevel2.xml" />
+        <contribute xsi:type="subinclude" subMenu="Locally Derived" fileName="menus/satellite/goesr/goesrBySectorLocallyDerived.xml" />
+        <contribute xsi:type="subinclude" subMenu="RGB Composites" fileName="menus/satellite/goesr/goesrBySectorRGBComposites.xml" />
+        <contribute xsi:type="titleItem" titleText="------ Conus With Legacy ------" id="goesrWithLegacy"/>
+        <contribute xsi:type="subinclude" subMenu="GOES-R + GOES-15" fileName="menus/satellite/goesr/goesrConusWithLegacy.xml">
+            <substitute key="sector0" value="West CONUS"/>
+            <substitute key="sector1" value="ECONUS"/>
+        </contribute>
+        <contribute xsi:type="subinclude" subMenu="GOES-R + GOES-13" fileName="menus/satellite/goesr/goesrConusWithLegacy.xml">
+            <substitute key="sector0" value="East CONUS"/>
+            <substitute key="sector1" value="WCONUS"/>
+        </contribute>
+        <contribute xsi:type="subinclude" subMenu="Automatic" fileName="menus/satellite/goesr/goesrConusWithLegacy.xml">
+            <substitute key="sector0" value="ECONUS,East CONUS"/>
+            <substitute key="sector1" value="WCONUS,West CONUS"/>
+        </contribute>
+    </contribute>
+</menuTemplate>

@@ -1,0 +1,950 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gridParamInfo xmlns:ns2="group">
+  <valtimeMINUSreftime>
+    <fcst>3600</fcst>
+    <fcst>7200</fcst>
+    <fcst>10800</fcst>
+    <fcst>14400</fcst>
+    <fcst>18000</fcst>
+    <fcst>21600</fcst>
+    <fcst>25200</fcst>
+    <fcst>28800</fcst>
+    <fcst>32400</fcst>
+    <fcst>36000</fcst>
+    <fcst>39600</fcst>
+    <fcst>43200</fcst>
+    <fcst>46800</fcst>
+    <fcst>50400</fcst>
+    <fcst>54000</fcst>
+    <fcst>57600</fcst>
+    <fcst>61200</fcst>
+    <fcst>64800</fcst>
+    <fcst>68400</fcst>
+    <fcst>72000</fcst>
+    <fcst>75600</fcst>
+    <fcst>79200</fcst>
+    <fcst>82800</fcst>
+    <fcst>86400</fcst>
+    <fcst>90000</fcst>
+    <fcst>93600</fcst>
+    <fcst>97200</fcst>
+    <fcst>108000</fcst>
+    <fcst>129600</fcst>
+    <fcst>151200</fcst>
+    <fcst>172800</fcst>
+    <fcst>194400</fcst>
+    <fcst>216000</fcst>
+    <fcst>237600</fcst>
+    <fcst>259200</fcst>
+    <fcst>280800</fcst>
+    <fcst>302400</fcst>
+    <fcst>324000</fcst>
+    <fcst>345600</fcst>
+    <fcst>367200</fcst>
+    <fcst>388800</fcst>
+    <fcst>410400</fcst>
+    <fcst>432000</fcst>
+    <fcst>453600</fcst>
+    <fcst>475200</fcst>
+    <fcst>496800</fcst>
+    <fcst>518400</fcst>
+    <fcst>540000</fcst>
+    <fcst>561600</fcst>
+    <fcst>583200</fcst>
+    <fcst>604800</fcst>
+  </valtimeMINUSreftime>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>tp48hr</short_name>
+    <long_name>48 hr Total Precip</long_name>
+    <units>mm</units>
+    <udunits>millimeter</udunits>
+    <uiname>totPrecip</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>tpHPCndfd</short_name>
+    <long_name>6 hr Total Precip</long_name>
+    <units>mm</units>
+    <udunits>millimeter</udunits>
+    <uiname>totPrecip</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>tp120hr</short_name>
+    <long_name>120 hr Total Precip</long_name>
+    <units>mm</units>
+    <udunits>millimeter</udunits>
+    <uiname>totPrecip</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>staticSpacing</short_name>
+    <long_name>Grid spacing</long_name>
+    <units>meters</units>
+    <fillValue>-99999.0</fillValue>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>staticTopo</short_name>
+    <long_name>Topography</long_name>
+    <units>meters</units>
+    <fillValue>-99999.0</fillValue>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>staticCoriolis</short_name>
+    <long_name>Coriolis parameter</long_name>
+    <units>/s</units>
+    <fillValue>-99999.0</fillValue>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>ppffg</short_name>
+    <long_name>Prob of excessive rain</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ppffg</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  
+   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>ProbTP0p01in6hr</short_name>
+    <long_name>Probability of Total Precipitation > 0.01 inches</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbTP0p01in6hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>ProbTP0p10in6hr</short_name>
+    <long_name>Probability of Total Precipitation > 0.10 inches</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbTP0p10in6hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>ProbTP0p25in6hr</short_name>
+    <long_name>Probability of Total Precipitation > 0.25 inches</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbTP0p25in6hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>ProbTP0p50in6hr</short_name>
+    <long_name>Probability of Total Precipitation > 0.50 inches</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbTP0p50in6hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>ProbTP0p75in6hr</short_name>
+    <long_name>Probability of Total Precipitation > 0.75 inches</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbTP0p75in6hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>ProbTP1p00in6hr</short_name>
+    <long_name>Probability of Total Precipitation > 1.00 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbTP1p00in6hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>ProbTP1p50in6hr</short_name>
+    <long_name>Probability of Total Precipitation > 1.50 inches</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbTP1p50in6hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>ProbTP2p00in6hr</short_name>
+    <long_name>Probability of Total Precipitation > 2.00 inches</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbTP2p00in6hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>ProbTP2p50in6hr</short_name>
+    <long_name>Probability of Total Precipitation > 2.50 inches</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbTP2p50in6hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>ProbTP3p00in6hr</short_name>
+    <long_name>Probability of Total Precipitation > 3.00 inches</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbTP3p00in6hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>ProbTP0p01in12hr</short_name>
+    <long_name>Probability of Total Precipitation > 0.01 inches</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbTP0p01in12hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>ProbTP0p25in12hr</short_name>
+    <long_name>Probability of Total Precipitation > 0.25 inches</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbTP0p25in12hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>ProbTP0p50in12hr</short_name>
+    <long_name>Probability of Total Precipitation > 0.50 inches</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbTP0p50in12hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>ProbTP0p75in12hr</short_name>
+    <long_name>Probability of Total Precipitation > 0.75 inches</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbTP0p75in12hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>ProbTP1p00in12hr</short_name>
+    <long_name>Probability of Total Precipitation > 1.00 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbTP1p00in12hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>ProbTP1p50in12hr</short_name>
+    <long_name>Probability of Total Precipitation > 1.50 inches</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbTP1p50in12hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>ProbTP2p00in12hr</short_name>
+    <long_name>Probability of Total Precipitation > 2.00 inches</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbTP2p00in12hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>ProbTP2p50in12hr</short_name>
+    <long_name>Probability of Total Precipitation > 2.50 inches</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbTP2p50in12hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>ProbTP3p00in12hr</short_name>
+    <long_name>Probability of Total Precipitation > 3.00 inches</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbTP3p00in12hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>ProbTP4p00in12hr</short_name>
+    <long_name>Probability of Total Precipitation > 4.00 inches</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbTP4p00in12hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>ProbTP0p25in24hr</short_name>
+    <long_name>Probability of Total Precipitation > 0.25 inches</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbTP0p25in24hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>ProbTP0p50in24hr</short_name>
+    <long_name>Probability of Total Precipitation > 0.50 inches</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbTP0p50in24hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>ProbTP1p00in24hr</short_name>
+    <long_name>Probability of Total Precipitation > 1.00 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbTP1p00in24hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>ProbTP1p50in24hr</short_name>
+    <long_name>Probability of Total Precipitation > 1.50 inches</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbTP1p50in24hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>ProbTP2p00in24hr</short_name>
+    <long_name>Probability of Total Precipitation > 2.00 inches</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbTP2p00in24hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>ProbTP2p50in24hr</short_name>
+    <long_name>Probability of Total Precipitation > 2.50 inches</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbTP2p50in24hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>ProbTP3p00in24hr</short_name>
+    <long_name>Probability of Total Precipitation > 3.00 inches</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbTP3p00in24hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>ProbTP4p00in24hr</short_name>
+    <long_name>Probability of Total Precipitation > 4.00 inches</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbTP4p00in24hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>ProbTP5p00in24hr</short_name>
+    <long_name>Probability of Total Precipitation > 5.00 inches</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbTP5p00in24hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>ProbTP6p00in24hr</short_name>
+    <long_name>Probability of Total Precipitation > 6.00 inches</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbTP6p00in24hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>TP5pct6hr</short_name>
+    <long_name>5th percentile Total Precipitation</long_name>
+    <units>millimeter</units>
+    <udunits>mm</udunits>
+    <uiname>TP5pct6hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>TP10pct6hr</short_name>
+    <long_name>10th percentile Total Precipitation</long_name>
+    <units>millimeter</units>
+    <udunits>mm</udunits>
+    <uiname>TP10pct6hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>TP25pct6hr</short_name>
+    <long_name>25th percentile Total Precipitation</long_name>
+    <units>millimeter</units>
+    <udunits>mm</udunits>
+    <uiname>TP25pct6hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>TP50pct6hr</short_name>
+    <long_name>50th percentile Total Precipitation</long_name>
+    <units>millimeter</units>
+    <udunits>mm</udunits>
+    <uiname>TP50pct6hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>TP75pct6hr</short_name>
+    <long_name>75th percentile Total Precipitation</long_name>
+    <units>millimeter</units>
+    <udunits>mm</udunits>
+    <uiname>TP75pct6hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>TP90pct6hr</short_name>
+    <long_name>90th percentile Total Precipitation</long_name>
+    <units>millimeter</units>
+    <udunits>mm</udunits>
+    <uiname>TP90pct6hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>TP95pct6hr</short_name>
+    <long_name>95th percentile Total Precipitation</long_name>
+    <units>millimeter</units>
+    <udunits>mm</udunits>
+    <uiname>TP95pct6hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>TP5pct12hr</short_name>
+    <long_name>5th percentile Total Precipitation</long_name>
+    <units>millimeter</units>
+    <udunits>mm</udunits>
+    <uiname>TP5pct12hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>TP10pct12hr</short_name>
+    <long_name>10th percentile Total Precipitation</long_name>
+    <units>millimeter</units>
+    <udunits>mm</udunits>
+    <uiname>TP10pct12hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>TP25pct12hr</short_name>
+    <long_name>25th percentile Total Precipitation</long_name>
+    <units>millimeter</units>
+    <udunits>mm</udunits>
+    <uiname>TP25pct12hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>TP50pct12hr</short_name>
+    <long_name>50th percentile Total Precipitation</long_name>
+    <units>millimeter</units>
+    <udunits>mm</udunits>
+    <uiname>TP50pct12hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>TP75pct12hr</short_name>
+    <long_name>75th percentile Total Precipitation</long_name>
+    <units>millimeter</units>
+    <udunits>mm</udunits>
+    <uiname>TP75pct12hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>TP90pct12hr</short_name>
+    <long_name>90th percentile Total Precipitation</long_name>
+    <units>millimeter</units>
+    <udunits>mm</udunits>
+    <uiname>TP90pct12hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>TP95pct12hr</short_name>
+    <long_name>95th percentile Total Precipitation</long_name>
+    <units>millimeter</units>
+    <udunits>mm</udunits>
+    <uiname>TP95pct12hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>TP5pct24hr</short_name>
+    <long_name>5th percentile Total Precipitation</long_name>
+    <units>millimeter</units>
+    <udunits>mm</udunits>
+    <uiname>TP5pct24hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>TP10pct24hr</short_name>
+    <long_name>10th percentile Total Precipitation</long_name>
+    <units>millimeter</units>
+    <udunits>mm</udunits>
+    <uiname>TP10pct24hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>TP25pct24hr</short_name>
+    <long_name>25th percentile Total Precipitation</long_name>
+    <units>millimeter</units>
+    <udunits>mm</udunits>
+    <uiname>TP25pct24hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>TP50pct24hr</short_name>
+    <long_name>50th percentile Total Precipitation</long_name>
+    <units>millimeter</units>
+    <udunits>mm</udunits>
+    <uiname>TP50pct24hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>TP75pct24hr</short_name>
+    <long_name>75th percentile Total Precipitation</long_name>
+    <units>millimeter</units>
+    <udunits>mm</udunits>
+    <uiname>TP75pct24hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>TP90pct24hr</short_name>
+    <long_name>90th percentile Total Precipitation</long_name>
+    <units>millimeter</units>
+    <udunits>mm</udunits>
+    <uiname>TP90pct24hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+    
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>TP95pct24hr</short_name>
+    <long_name>95th percentile Total Precipitation</long_name>
+    <units>millimeter</units>
+    <udunits>mm</udunits>
+    <uiname>TP95pct24hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+</gridParamInfo>

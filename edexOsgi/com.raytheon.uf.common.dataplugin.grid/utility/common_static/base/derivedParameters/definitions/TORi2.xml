@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+COMMENT:
+// Super Tornado Icons defined by BRNSHR>60m/s, EHI>2.5, 1000-850MB LR>3C/KM,
+// and CIN > -150
+
+
+AWIPS 1 format
+TORi2 | | |BRNSHR,EHI,0-2km LRate>3C/km | ||| *Test,Layer|gamma,1000MB-850MB| 1.|-1.e37|0.003|0.|1.|0.003|1.e37|BRNEHIi
+
+abbreviation: |TORi2| 
+Notused1: | | 
+Notused2: | | 
+
+functionName, levels: |Test, Layer|	
+varId, level: |gamma, 1000MB-850MB|
+const: |1.| 
+const: |-1.e37| 
+const: |0.003|
+const: |0.|
+const: |1.|
+const: |0.003|
+const: |1.e37|
+varId: |BRNEHIi
+
+NEW FILE - TORi2.xml
+-->
+<DerivedParameter name="BRNSHR,EHI,0-2km LRate &gt; 3C/km" abbreviation="TORi2" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method levels="Layer" name="Test">
+        <Field level="1000MB-850MB" abbreviation="gamma"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="-1.0E37"/>
+        <ConstantField value="0.003"/>
+        <ConstantField value="0.0"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="0.003"/>
+        <ConstantField value="1.0E37"/>
+        <Field abbreviation="BRNEHIi"/>
+    </Method>
+</DerivedParameter>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Header: /cvsroot/ebxmlrr/omar/misc/samples/minDB/SubmitObjectsRequest_ResponseStatusTypeScheme.xml,v 1.7 2007/05/25 17:18:53 farrukh_najmi Exp $-->
+<SubmitObjectsRequest id="urn:oasis:names:tc:ebxml-regrep:request:id" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0" xmlns:lcm="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0" xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:4.0" xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0" xmlns:rs="urn:oasis:names:tc:ebxml-regrep:xsd:rs:4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0  ../../xsd/lcm.xsd">
+    <rim:RegistryObjectList>
+        <rim:RegistryObject xsi:type="rim:ClassificationSchemeType" lid="urn:oasis:names:tc:ebxml-regrep:classificationScheme:ResponseStatusType" id="urn:oasis:names:tc:ebxml-regrep:classificationScheme:ResponseStatusType" isInternal="true" nodeType="urn:oasis:names:tc:ebxml-regrep:NodeType:UniqueCode" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationScheme">
+            <rim:Name>
+                <rim:LocalizedString xml:lang="en-US" value="ResponseStatusType"/>
+            </rim:Name>
+            <rim:Description>
+                <rim:LocalizedString xml:lang="en-US" value="Defines the status values that a RegistryResponse to a client request  may use as status"/>
+            </rim:Description>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ResponseStatusType:PartialSuccess" code="PartialSuccess" id="urn:oasis:names:tc:ebxml-regrep:ResponseStatusType:PartialSuccess" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:classificationScheme:ResponseStatusType">
+                <rim:Name>
+                    <rim:LocalizedString xml:lang="en-US" value="PartialSuccess"/>
+                </rim:Name>
+                <rim:Description>
+                    <rim:LocalizedString xml:lang="en-US" value="Partial Success"/>
+                </rim:Description>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ResponseStatusType:Success" code="Success" id="urn:oasis:names:tc:ebxml-regrep:ResponseStatusType:Success" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:classificationScheme:ResponseStatusType">
+                <rim:Name>
+                    <rim:LocalizedString xml:lang="en-US" value="Success"/>
+                </rim:Name>
+                <rim:Description>
+                    <rim:LocalizedString xml:lang="en-US" value="Success"/>
+                </rim:Description>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ResponseStatusType:Failure" code="Failure" id="urn:oasis:names:tc:ebxml-regrep:ResponseStatusType:Failure" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:classificationScheme:ResponseStatusType">
+                <rim:Name>
+                    <rim:LocalizedString xml:lang="en-US" value="Failure"/>
+                </rim:Name>
+                <rim:Description>
+                    <rim:LocalizedString xml:lang="en-US" value="Failure"/>
+                </rim:Description>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ResponseStatusType:Unavailable" code="Unavailable" id="urn:oasis:names:tc:ebxml-regrep:ResponseStatusType:Unavailable" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:classificationScheme:ResponseStatusType">
+                <rim:Name>
+                    <rim:LocalizedString xml:lang="en-US" value="Unavailable"/>
+                </rim:Name>
+                <rim:Description>
+                    <rim:LocalizedString xml:lang="en-US" value="Unavailable"/>
+                </rim:Description>
+            </rim:ClassificationNode>
+        </rim:RegistryObject>
+    </rim:RegistryObjectList>
+</SubmitObjectsRequest>

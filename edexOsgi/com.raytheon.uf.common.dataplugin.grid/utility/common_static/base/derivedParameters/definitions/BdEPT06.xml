@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+	AWIPS I format
+	BdEPT06| | |Max ThetaE Difference (3-6km Min minus 0-3km Max)|K     |CONTOUR,IMAGE,OTHER|Layer|     *Difference|minEPT|maxEPT
+	
+	
+	varId: |BdEPT06| 
+	Cross Section (CS): | | 
+	isAttachToSource: | | 
+	varName: |Max ThetaE Difference (3-6km Min minus 0-3km Max)| 
+	units: |K| 
+	displayTypes: |CONTOUR,IMAGE,OTHER| 	//Handled via fieldDisplayTypes.xml under Volume Browser in AWIPS II
+	planeList: |Layer| 						//No longer used, planes are available and determined by levels attribute in the Method tag, 
+											//default is all levels.  DerivedParameter planes are limited to the sum of all of its 
+											//method levels
+	
+	functionName: |Difference| 
+	varId: |minEPT| 
+	varId: |maxEPT| 
+
+	AWIPS II NEW FILE - BdEPT06.xml
+ -->
+<DerivedParameter unit="K" name="Max ThetaE Difference (3-6km Min minus 0-3km Max)" abbreviation="BdEPT06" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method name="Difference">
+        <Field abbreviation="minEPT"/>
+        <Field abbreviation="maxEPT"/>
+    </Method>
+</DerivedParameter>

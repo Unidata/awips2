@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<viirsHeaderMapping>
+	<!-- NOTE, the only sure channelInfo mapping is I1-I5, update as more come in -->
+	<!-- Alaska region -->
+	<regionInfo id="TIPB">
+		<region>Alaska</region>
+	</regionInfo>
+
+    <!-- Global region -->
+    <regionInfo id="TIPG">
+        <region>Global</region>
+    </regionInfo>
+
+
+  <regionInfo id="TIPC">
+    <region>CONUS</region>
+  </regionInfo>
+
+  <regionInfo id="TIPI">
+    <region>Pacific</region>
+  </regionInfo>
+
+  <regionInfo id="TIPQ">
+    <region>Puerto Rico</region>
+  </regionInfo>
+  
+  <!-- Global region -->
+  <regionInfo id="TIPG">
+    <region>Global</region>
+  </regionInfo>
+
+	<!-- I1 -->
+	<channelInfo id="01">
+		<channelType>Imagery</channelType>
+		<wavelength>0.64</wavelength>
+		<channel>1</channel>
+		<resolution>375.0</resolution>
+	</channelInfo>
+	
+	<!-- I2 -->
+	<channelInfo id="02">
+		<channelType>Imagery</channelType>
+		<wavelength>0.865</wavelength>
+		<channel>2</channel>
+		<resolution>375.0</resolution>
+	</channelInfo>
+	
+	<!-- I3 -->
+	<channelInfo id="03">
+		<channelType>Imagery</channelType>
+		<wavelength>1.61</wavelength>
+		<channel>3</channel>
+		<resolution>375.0</resolution>
+	</channelInfo>
+	
+	<!-- I4 -->
+	<channelInfo id="04">
+		<channelType>Imagery</channelType>
+		<wavelength>3.74</wavelength>
+		<channel>4</channel>
+		<unit>K</unit>
+		<resolution>375.0</resolution>
+	</channelInfo>
+	
+	<!-- I5 -->
+	<channelInfo id="05">
+		<channelType>Imagery</channelType>
+		<wavelength>11.45</wavelength>
+		<channel>5</channel>
+		<unit>K</unit>
+		<resolution>375.0</resolution>
+	</channelInfo>
+  
+    <!-- NCC -->
+  <channelInfo id="10">
+    <channelType>NCC</channelType>
+    <wavelength>0.7</wavelength>
+    <channel>0</channel>
+    <resolution>750.0</resolution>
+  </channelInfo>
+	
+	<!-- M6 -->
+	<channelInfo id="16">
+		<channelType>Moderate</channelType>
+		<wavelength>0.746</wavelength>
+		<channel>1</channel>
+		<resolution>750.0</resolution>
+	</channelInfo>
+	
+	<!-- M9 -->
+	<channelInfo id="19">
+		<channelType>Moderate</channelType>
+		<wavelength>1.378</wavelength>
+		<channel>2</channel>
+		<resolution>750.0</resolution>
+	</channelInfo>
+	
+	<!-- M13 -->
+	<channelInfo id="23">
+		<channelType>Moderate</channelType>
+		<wavelength>4.05</wavelength>
+		<channel>3</channel>
+		<unit>K</unit>
+		<resolution>750.0</resolution>
+	</channelInfo>
+	
+	<!-- M15 -->
+	<channelInfo id="25">
+		<channelType>Moderate</channelType>
+		<wavelength>10.763</wavelength>
+		<channel>4</channel>
+		<unit>K</unit>
+		<resolution>750.0</resolution>
+	</channelInfo>
+	
+	<!-- M16 -->
+	<channelInfo id="26">
+		<channelType>Moderate</channelType>
+		<wavelength>12.013</wavelength>
+		<channel>5</channel>
+		<unit>K</unit>
+		<resolution>750.0</resolution>
+	</channelInfo>
+</viirsHeaderMapping>

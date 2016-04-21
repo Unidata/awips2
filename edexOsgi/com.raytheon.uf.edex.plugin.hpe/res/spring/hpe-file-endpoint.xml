@@ -1,0 +1,38 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+  	<bean id="hpeFilenameProcessor" class="com.raytheon.uf.edex.plugin.hpe.process.HpeGribFileNameProcessor" />
+
+    <bean id="hpeFileChangedStrategy"
+        class="com.raytheon.uf.edex.esb.camel.FileChangedExclusiveReadLockStrategy" />
+
+
+	<camelContext id="hpegrib-file-endpoint" xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler">
+		
+		<endpoint id="hpeGribFileEndpoint" uri="file:${edex.home}/data/local/hpegrib?delete=true&amp;delay=5000&amp;maxMessagesPerPoll=1000&amp;exclusiveReadLockStrategy=#hpeFileChangedStrategy&amp;recursive=false" />
+		
+	 	<route id="hpeGribFileConsumerRoute">
+	 		<from ref="hpeGribFileEndpoint" />
+	 		<doTry>
+	 			<bean ref="fileToString" />
+	 			<bean ref="hpeFilenameProcessor" />
+				<!-- 
+				<bean ref="manualProc" method="copyFileToArchive"/>
+				-->
+				<to uri="jms-durable:queue:Ingest.GribSplit" />
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:hpeGribFileEndpoint?level=ERROR"/>
+				</doCatch>
+			</doTry>
+		</route>
+
+	</camelContext>
+	
+	<bean factory-bean="contextManager" factory-method="registerClusteredContext">
+		<constructor-arg ref="hpegrib-file-endpoint" />
+  	</bean>
+</beans>

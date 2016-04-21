@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<colorMap xmlns:ns2="http://www.example.org/productType">
+    <color r="0.8862745" g="0.8862745" b="0.8862745" a="1.0"/>
+    <color r="1.0" g="1.0" b="0.0" a="1.0"/>
+    <color r="1.0" g="0.6" b="0.0" a="1.0"/>
+    <color r="1.0" g="0.0" b="0.0" a="1.0"/>
+    <color r="0.8" g="0.0" b="0.8" a="1.0"/>
+</colorMap>

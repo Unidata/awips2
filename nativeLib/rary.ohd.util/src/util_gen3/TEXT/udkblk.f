@@ -1,0 +1,171 @@
+C MODULE UDKBLK
+C-----------------------------------------------------------------------
+C
+C  ROUTINE TO CALCULATE NUMBER OF BLOCKS PER TRACK GIVEN THE DISK
+C  UNIT TYPE AND BLOCK SIZE.
+C
+      SUBROUTINE UDKBLK (DSN,NPUNIT,UNIT,LBLOCK,IPRINT,NBLKS,IPCT,
+     *   ISTAT)
+C
+C  INPUT ARGUMENTS:
+C     DSN    - DATASET NAME. IF BLANK, DSN WILL NOT BE PRINTED.
+C     NPUNIT - UNIT ON WHICH NUMBER OF BLOCKS PER TRACK INFORMATION
+C              WILL BE PRINTED. IF ZERO, WILL BE PRINTED ON NORMAL PRINT
+C              UNIT.
+C     UNIT   - DISK UNIT TYPE (3330, 3350 OR 3380).
+C     LBLOCK - BLOCK SIZE.
+C     IPRINT - INDICATOR WHETHER BLOCKS PER TRACK INFORMATION IS TO
+C              BE PRINTED.
+C                0 = DO NOT PRINT
+C                1 = PRINT SINGLE SPACE
+C                2 = PRINT DOUBLE SPACE
+C
+C  OUTPUT VARIABLES:
+C     NBLKS  - NUMBER OF BLOCKS PER TRACK.
+C     IPCT   - PERCENT OF DISK SPACE UNUSED.
+C     ISTAT   - STATUS INDICATOR.
+C                0 = NO ERRORS
+C                1 = INVALID DISK UNIT TYPE
+C                2 = BLOCK SIZE IS GREATER THAN MAXIMUM BYTES PER
+C                      TRACK FOR SPECIFIED UNIT TYPE
+C                3 = BLOCK SIZE IS GREATER THAN MAXIMUM BYTES PER
+C                      TRACK FOR IBM SYSTEM.
+C
+      CHARACTER*1 XCAR/' '/
+      CHARACTER*4 UNIT
+      CHARACTER*(*) DSN
+C
+      INCLUDE 'uiox'
+      INCLUDE 'ucmdbx'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/util/src/util_gen3/RCS/udkblk.f,v $
+     . $',                                                             '
+     .$Id: udkblk.f,v 1.2 1998/10/14 15:29:32 page Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      IF (ICMTRC.GT.0) THEN
+         CALL ULINE (ICMPRU,1)
+         WRITE (ICMPRU,70)
+         ENDIF
+C
+      IF (ICMDBG.GT.0) THEN
+         CALL ULINE (ICMPRU,1)
+         WRITE (ICMPRU,80) DSN,NPUNIT,UNIT,LBLOCK,IPRINT
+         ENDIF
+C
+      ISTAT=0
+C
+      NBLKS=0
+      IPCT=0
+C
+C  SET MAXIMUM BLOCK SIZE FOR IBM SYSTEM
+      MBLOCK=32760
+C
+C  SET MAXIMUM BYTES PER TRACK BASED IN DISK TYPE
+      MBYTES=0
+      IF (UNIT.EQ.'3330') THEN
+         MBYTES=13030
+         LIRG=135
+         ENDIF
+      IF (UNIT.EQ.'3350') THEN
+         MBYTES=19254
+         LIRG=185
+         ENDIF
+      IF (UNIT.EQ.'3380') THEN
+         MBYTES=47476
+         LIRG=0
+         ENDIF
+      IF (MBYTES.GT.0) GO TO 10
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,90) UNIT
+         ISTAT=1
+         GO TO 60
+C
+C  CHECK IF BLOCK SIZE IS GREATER THAN MAXIMUM BYTES PER TRACK FOR
+C  DISK UNIT TYPE.
+10    IF (LBLOCK.LE.MBYTES) GO TO 20
+         CALL UWARN (LP,1,-1)
+         WRITE (LP,100) LBLOCK,MBYTES,UNIT
+         ISTAT=2
+         NBLKS=1
+         GO TO 55
+C
+C  CHECK IF BLOCK SIZE IS GREATER THAN MAXIMUM BYTES PER TRACK FOR
+C  IBM SYSTEM.
+20    IF (LBLOCK.LE.MBLOCK) GO TO 30
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,110) LBLOCK,MBLOCK
+         ISTAT=3
+         GO TO 60
+C
+30    IF (UNIT.EQ.'3380') GO TO 40
+C
+C  CALCULATE BLOCKS PER TRACK AND BYTES UNUSED FOR 3330 AND 3350 DISK
+      NBLKS=(MBYTES+LIRG)/(LBLOCK+LIRG)
+      GO TO 50
+C
+C  CALCULATE BLOCKS PER TRACK AND BYTES UNUSED FOR 3380 DISK
+40    ND=(LBLOCK+12+31)/32
+      NBLKS=1499/(15+ND)
+C
+C  CALCULATE PERCENT UNUSED SPACE
+50    NLEFT=MBYTES-LBLOCK*NBLKS
+      IPCT=NLEFT*100/MBYTES
+C
+55    IF (IPRINT.EQ.0) GO TO 60
+         XCAR=' '
+         NLINES=1
+         IF (IPRINT.EQ.2) THEN
+            XCAR='0'
+            NLINES=2
+            ENDIF
+         IF (DSN(1:1).EQ.' '.AND.NPUNIT.EQ.0) THEN
+            CALL ULINE (LP,NLINES)
+            WRITE (LP,120) XCAR,LBLOCK,NBLKS,UNIT,NLEFT,MBYTES,IPCT
+            ENDIF
+         IF (DSN(1:1).EQ.' '.AND.NPUNIT.GT.0) THEN
+            CALL ULINE (NPUNIT,NLINES)
+            WRITE (NPUNIT,120) XCAR,LBLOCK,NBLKS,UNIT,NLEFT,MBYTES,IPCT
+            ENDIF
+         IF (DSN(1:1).NE.' '.AND.NPUNIT.GT.0) THEN
+            CALL ULINE (NPUNIT,NLINES)
+            WRITE (NPUNIT,130) XCAR,LBLOCK,NBLKS,UNIT,NLEFT,IPCT,DSN
+            ENDIF
+C
+60    IF (ICMDBG.GT.0) THEN
+         CALL ULINE (ICMPRU,1)
+         WRITE (ICMPRU,140) NBLKS,IPCT,ISTAT
+         ENDIF
+C
+      IF (ICMTRC.GT.0) THEN
+         CALL ULINE (ICMPRU,1)
+         WRITE (ICMPRU,150)
+         ENDIF
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+70    FORMAT (' *** ENTER UDKBLK')
+80    FORMAT (' DSN=',A,3X,'NPUNIT=',I2,3X,'UNIT=',A,3X,
+     *    'LBLOCK=',I5,3X,'IPRINT=',I2)
+90    FORMAT ('+*** ERROR - IN UDKBLK - INVALID DISK UNIT TYPE : ',A)
+100   FORMAT ('+*** WARNING - IN UDKBLK - BLOCK SIZE (',I5,') EXCEEDS ',
+     *   'TRACK CAPACITY (',I5,') FOR A ',A,' DISK PACK.')
+110   FORMAT ('+*** ERROR - IN UDKBLK - BLOCK SIZE (',I5,') EXCEEDS ',
+     *   'MAXIMIM BLOCK SIZE (',I5,') ALLOWED FOR A DATASET ON AN ',
+     *   'IBM SYSTEM.')
+120   FORMAT (A,'BLKSIZE ',I5,' HAS ',I3,' BLOCKS/TRACK ',
+     *   'ON A ',A,' DISK. ',I5,' OF THE ',I5,' BYTES/TRACK (',
+     *   I3,'%) UNUSED.')
+130   FORMAT (A,'BLKSIZE ',I5,' HAS ',I3,' BLOCKS/TRACK ',
+     *   'ON A ',A,' DISK. ',I5,' (',I3,'%) BYTES UNUSED. ',
+     *   'DSN=',A)
+140   FORMAT (' NBLKS=',I5,3X,'IPCT=',I2,3X,'ISTAT=',I2)
+150   FORMAT (' *** EXIT UDKBLK')
+C
+      END

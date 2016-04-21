@@ -1,0 +1,44 @@
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="jmsViirsConfig" class="org.apache.camel.component.jms.JmsConfiguration"
+            factory-bean="jmsDurableConfig" factory-method="copy"/>
+	<bean id="viirsDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg ref="viirsPluginName" />
+		<constructor-arg value="jms-durable:queue:Ingest.VIIRS" />
+	</bean>
+
+  	<bean id="viirsDao" class="com.raytheon.uf.edex.plugin.npp.viirs.dao.VIIRSDao">
+  		<constructor-arg value="viirs"/>
+  	</bean>
+  	
+  	<bean id="viirsDecoder" class="com.raytheon.uf.edex.plugin.npp.viirs.VIIRSDecoder">
+  		<property name="dao" ref="viirsDao"/>
+  	</bean>
+  	
+	<camelContext id="viirs-camel"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler">
+
+		<!-- Begin VIIRS routes -->
+		<route id="viirsIngestRoute">
+			<from uri="jms-durable:queue:Ingest.VIIRS"/>
+			<doTry>
+				<pipeline>
+					<bean ref="stringToFile" />
+					<bean ref="extractWMOHeader" method="remove"/>
+					<bean ref="dataUnzipper" method="gunzip"/>
+					<bean ref="viirsDecoder" method="decode" />
+					<to uri="direct-vm:persistIndexAlert" />
+				</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:viirs?level=ERROR"/>
+				</doCatch>
+			</doTry>
+		</route>
+	</camelContext>
+	
+</beans>

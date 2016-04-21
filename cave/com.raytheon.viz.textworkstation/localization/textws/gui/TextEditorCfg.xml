@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+    	The file is used to set user preferences for the TextEditor. 
+    	  
+    
+        History:
+    	
+    	07/25/2013	Greg Hull		DR 15733 	Created (and modified) from FontSizeCfg.xml and TextColorsCfg.xml
+    	07/31/2013	B. Hebbard		DR 15733 	Changed highlightTextForegroundColor from "0, 0, 0" to "WHITE"
+                                                (per Joshua Huber and Greg Hull)
+
+    	
+    -->    
+<textEditorCfg> 
+
+	<defaultNumEditors>4</defaultNumEditors>
+	
+	<maxNumEditors>8</maxNumEditors>
+	
+	<!-- The format can be either the name of a color or RGB values
+	  -->
+	<textForegroundColor>BLACK</textForegroundColor>
+	<textBackgroundColor>WHITE</textBackgroundColor>
+	<highlightTextForegroundColor>WHITE</highlightTextForegroundColor>
+	<highlightTextBackgroundColor>85, 152, 215</highlightTextBackgroundColor>
+
+<!--  The fonts available under the Options menu. Only one should be selected -->
+	<fontSizeCfg>
+	   <SizeButtonCfg>
+	      <LabelName>Small</LabelName>	      
+	      <FontSize>9</FontSize>
+	      <Selected>false</Selected>
+	   </SizeButtonCfg>
+	   <SizeButtonCfg>
+	      <LabelName>Medium</LabelName>
+	      <FontSize>11</FontSize>
+	      <Selected>true</Selected>
+	   </SizeButtonCfg>
+	   <SizeButtonCfg>
+	      <LabelName>Large</LabelName>
+	      <FontSize>13</FontSize>
+	      <Selected>false</Selected>
+	   </SizeButtonCfg>
+	   <!-- Can add more buttons/fonts like this .....
+	   <SizeButtonCfg>
+	      <LabelName>Giant</LabelName>
+	      <FontSize>20</FontSize>
+	      <FontName>Helvetica</FontName>
+	      <Selected>false</Selected>
+	   </SizeButtonCfg>
+	    -->
+	</fontSizeCfg>
+
+</textEditorCfg>

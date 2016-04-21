@@ -1,0 +1,55 @@
+#!/bin/sh
+#
+# makeforpc - make the include file name list for PC's
+#
+# SAM, RTi (2-10-93)
+#
+# Execute this in the /usr/local/src/NWS/calb/include directory.  This script
+# creates a two-column file, the left one with original include file names, the
+# right one with include file names suitable for PC use.  Comments are lines
+# that start with '#'.  This is a simple script.  You will have to modify the
+# output file further to insure that filenames are OK.
+#
+
+pcfile="includes.pc"
+
+echo '
+# includes.pc
+#
+# This file is used to map workstation include file names to PC include file
+# names for the NWSRFS software (MAP3, MAT3, MCP3, OPT3, etc).  The left
+# column contains the original filenames.  The right column contains the PC
+# names.  Use the "fincswit" program to convert the INCLUDE statements in a
+# file to a version that can be used by a PC.
+#
+# This file compiled on:  \c' > $pcfile
+date >> $pcfile
+
+ls | cut -f9 | (
+        while [ "1" = "1" ]
+                do
+                read oneline
+                if [ "$oneline" = "" ]
+                        then
+                        exit 0
+                fi
+                match=`echo $oneline | grep '\.'`
+                if [ "$match" = "$oneline" ]
+                        then                            # have file with .ext
+                        base=`echo $oneline | cut -d'.' -f1 | cut -c1-3`
+                        ext=`echo $oneline | cut -d'.' -f2 | awk '{
+                                l=length($1)
+                                if ( l > 8 )
+                                        sub("CALL","",$1)
+                                print $1
+                        }' - `
+                        newfile=$ext.$base
+                else    newfile=$oneline
+                fi
+                echo "$oneline $newfile" | awk '{
+                        printf ( "%-24s %-s\n", $1, $2 )
+                }' -
+        done
+) >> $pcfile
+
+exit 0

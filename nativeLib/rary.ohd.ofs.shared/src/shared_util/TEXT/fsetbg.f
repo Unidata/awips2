@@ -1,0 +1,225 @@
+C MODULE FSETBG
+C-----------------------------------------------------------------------
+C
+      SUBROUTINE FSETBG
+C
+C  THIS SUBROUTINE SETS VALUES FOR THE DEBUG VARIABLES.
+
+      CHARACTER*1 DLIM
+      CHARACTER*4 WORD
+      CHARACTER*8 OPTION,OPID
+      CHARACTER*72 CARD
+C
+      INCLUDE 'uio'
+      INCLUDE 'udebug'
+      INCLUDE 'udsi'
+      INCLUDE 'common/ionum'
+      INCLUDE 'common/fdbug'
+      INCLUDE 'common/sysbug'
+      INCLUDE 'common/errdat'
+      INCLUDE 'scommon/sudbgx'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/shared_util/RCS/fsetbg.f,v $
+     . $',                                                             '
+     .$Id: fsetbg.f,v 1.2 2000/03/13 20:45:47 page Exp $
+     . $' /
+C    ===================================================================
+C
+      DATA JBLNK/4H    /
+      DATA JALL/4HALL /
+C
+C
+C  SET MAXIMUM NUMBER OF DEBUG CODES
+      MAX=20
+C
+C  READ CARD
+10    READ (IN,'(A)') CARD
+      WRITE (LP,15) CARD
+15    FORMAT (' >>>>>>>> ',A)
+      CALL ULEFTC (CARD,LEN(CARD),LCARD)
+      READ (CARD,20) OPTION,IOUNIT,NUM
+20    FORMAT (A8,5X,I2,3X,I2)
+C
+      IF (OPTION(1:1).EQ.'$') GO TO 10
+      IF (OPTION.EQ.'END') GO TO 260
+      IF (OPTION.EQ.'RESET') GO TO 50
+      IF (OPTION.EQ.'DEBUGALL') GO TO 70
+      IF (OPTION.EQ.'FTRACE') GO TO 80
+      IF (OPTION.EQ.'STRACE') GO TO 90
+      IF (OPTION.EQ.'UTRACE') GO TO 100
+      IF (OPTION.EQ.'FDEBUG') GO TO 110
+      IF (OPTION.EQ.'SDEBUG') GO TO 130
+      IF (OPTION.EQ.'UDEBUG') GO TO 140
+      IF (OPTION.EQ.'DSIBUG') GO TO 150
+      IF (OPTION.EQ.'SYSDEBUG') GO TO 160
+      IF (OPTION.EQ.'ERRORIO') GO TO 190
+      IF (OPTION.EQ.'CHANGEIO') GO TO 200
+      IF (OPTION.EQ.'PRDTRACE') GO TO 220
+      IF (OPTION.EQ.'PRDDEBUG') GO TO 230
+      IF (OPTION.EQ.'STOP') GO TO 240
+      WRITE (LP,*) '**ERROR** ',OPTION,' IS AN INVALID OPTION.'
+      CALL ERROR
+      GO TO 10
+C
+C  RESET VARIABLES
+50    IODBUG=IPR
+      ITRACE=0
+      IDBALL=0
+      NDEBUG=0
+      NDEBGS=0
+      DO 60 I=1,20
+         IDEBGS(I)=JBLNK
+         IDEBUG(I)=0
+60       CONTINUE
+      IALL=0
+      IOERR=IPR
+      ISTRCE=0
+      ISALL=0
+      IOSDBG=IPR
+      IOGDB=IPR
+      IHCLTR=0
+      IHCLDB=0
+      IPRTR=0
+      IPRDB=0
+      IPDTR=0
+      IPDDB=0
+      IPPTR=0
+      IPPDB=0
+      IUTLTR=0
+      IUTLDB=0
+      IDETR=0
+      IDEDB=0
+      IUTLTR=0
+      NOBUG=0
+      LPD=IPR
+      GO TO 10
+C
+C  SET ALL DEBUG CODES
+70    IDBALL=1
+      WRITE (LP,*) '**NOTE** IDBALL SET TO ',IDBALL,'.'
+      IF (IOUNIT.GT.0) IODBUG=IOUNIT
+      GO TO 10
+C
+C  SET TRACE LEVEL FOR FORECAST COMPONENT
+80    ITRACE=NUM
+      WRITE (LP,*) '**NOTE** ITRACE SET TO ',NUM,'.'
+      IF (IOUNIT.GT.0) IODBUG=IOUNIT
+      GO TO 10
+C
+C  SET TRACE LEVEL FOR PPINIT ROUTINES
+90    ISTRCE=NUM
+      WRITE (LP,*) '**NOTE** ISTRCE SET TO ',ISTRCE,'.'
+      IF (IOUNIT.GT.0) IOSDBG=IOUNIT
+      GO TO 10
+C
+C  SET TRACE LEVEL FOR UTILITY ROUTINES
+100   IUTLTR=NUM
+      WRITE (LP,*) '**NOTE** IUTLTR SET TO ',IUTLTR,'.'
+      IF (IOUNIT.GT.0) IOGDB=IOUNIT
+      GO TO 10
+C
+C  DEBUG CERTAIN OPERATIONS
+110   IF (NUM.LE.0) GO TO 10
+      IF (NUM.GT.MAX) THEN
+         WRITE (LP,115) NUM,MAX
+115   FORMAT ('0**WARNING** NUMBER OF DEBUG CODES SPECIFIED ON OPTION ',
+     *   'CARD (',I2,') EXCEEDS MAXIMUM ALLOWED. THE FIRST ',I2,
+     *   ' WILL BE PROCESSED.')
+         NUM=MAX
+         ENDIF
+      NDEBUG=NUM
+      WRITE (LP,*) '**NOTE** NDEBUG SET TO ',NDEBUG,'.'
+      DO 120 I=1,NDEBUG
+         READ (IN,'(A)') CARD
+         WRITE (LP,15) CARD
+         CALL ULEFTC (CARD,LEN(CARD),LCARD)
+	 OPID=CARD
+         CALL FOPCDE (OPID,NUMOP)
+         IDEBUG(I)=NUMOP
+         WRITE (LP,*) '**NOTE** IDEBUG(',I,') SET TO ',IDEBUG(I),'.'
+120      CONTINUE
+      IF (IOUNIT.GT.0) IODBUG=IOUNIT
+      GO TO 10
+C
+C  SET DEBUG LEVEL FOR PPINIT ROUTINES
+130   ISALL=NUM
+      WRITE (LP,*) '**NOTE** ISALL SET TO ',ISALL,'.'
+      IF (IOUNIT.GT.0) IOSDBG=IOUNIT
+      GO TO 10
+C
+C  SET DEBUG LEVEL FOR UTILITY ROUTINES
+140   IUTLDB=NUM
+      WRITE (LP,*) '**NOTE** IUTLDB SET TO ',IUTLDB,'.'
+      IF (IOUNIT.GT.0) IOGDB=IOUNIT
+      GO TO 10
+C
+C  SET DEBUG LEVEL FOR 'DSI' ROUTINES
+150   NOBUG=NUM
+      WRITE (LP,*) '**NOTE** NOBUG SET TO ',NOBUG,'.'
+      IF (IOUNIT.GT.0) LPD=IOUNIT
+      GO TO 10
+C
+C  SYSTEM DEBUG CODES
+160   IF (NUM.LE.0) NUM=10
+      IF (NUM.GT.MAX) THEN
+         WRITE (LP,115) NUM,MAX
+         NUM=MAX
+         ENDIF
+      NDEBGS=NUM
+      WRITE (LP,*) '**NOTE** NDEBGS SET TO ',NDEBGS,'.'
+      NFOUND=0
+170   READ (IN,'(A)') CARD
+      WRITE (LP,15) CARD
+      DLIM=' '
+      NSCAN=1
+175   CALL USCAN2 (CARD,DLIM,NSCAN,WORD,LWORD,IERR)
+      IF (WORD.EQ.'$'.OR.WORD.EQ.' ') THEN
+         IF (NFOUND.LT.NUM) GO TO 170
+         GO TO 177
+         ENDIF
+      IF (WORD.EQ.'END') GO TO 260
+      NFOUND=NFOUND+1
+      CALL UMEMOV (WORD,IDEBGS(NFOUND),1)
+      WRITE (LP,*) '**NOTE** IDEBGS(',NFOUND,') SET TO ',WORD,
+     *   '.'
+      IF (NFOUND.LT.NUM) THEN
+         NSCAN=NSCAN+1
+         GO TO 175
+         ENDIF
+177   DO 180 I=1,NUM
+         IF (IDEBGS(I).EQ.JALL) IALL=1
+180      CONTINUE
+      IF (IOUNIT.GT.0) IODBUG=IOUNIT
+      GO TO 10
+C
+C  SET UNIT FOR ERROR MESSAGES
+190   IF (IOUNIT.GT.0) IOERR=IOUNIT
+      GO TO 10
+C
+C  CHANGE UNIT FOR PRINT AND/OR PUNCH
+200   IF (IOUNIT.GT.0) IPR=IOUNIT
+      IF (NUM.GT.0) IPU=NUM
+      GO TO 10
+C
+C  SET TRACE LEVEL FOR PROCESSED DATA BASE ROUTINES
+220   IPRTR=NUM
+      IF (IOUNIT.GT.0) IOGDB=IOUNIT
+      GO TO 10
+C
+C  SET DEBUG LEVEL FOR PROCESSED DATA BASE ROUTINES
+230   IPRDB=NUM
+      IF (IOUNIT.GT.0) IOGDB=IOUNIT
+      GO TO 10
+C
+C  STOP ENCOUNTERED
+240   WRITE (LP,250)
+250   FORMAT ('0**ERROR** INPUT CARDS ARE NOT IN THE PROPER ORDER. ',
+     * 'A ''STOP'' CARD WAS ENCOUNTERED.')
+      CALL ERROR
+C
+260   RETURN
+C
+      END

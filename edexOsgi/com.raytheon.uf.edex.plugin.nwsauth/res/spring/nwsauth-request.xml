@@ -1,0 +1,32 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+    <bean id="roleStorage" class="com.raytheon.uf.edex.plugin.nwsauth.NwsRoleStorage" />
+    <bean id="authenticator"
+        class="com.raytheon.uf.edex.auth.authentication.HonorSystemAuthenticator" />
+    <bean id="authStorage"
+        class="com.raytheon.uf.edex.auth.authentication.EmptyAuthenticationStorage" />
+
+    <bean id="authManager" class="com.raytheon.uf.edex.auth.AuthManager">
+        <property name="authenticationStorage" ref="authStorage" />
+        <property name="authenticator" ref="authenticator" />
+        <property name="authorizer" ref="roleStorage" />
+    </bean>
+
+    <bean id="authFactory" class="com.raytheon.uf.edex.auth.AuthManagerFactory"
+        factory-method="getInstance">
+        <property name="manager" ref="authManager" />
+    </bean>
+
+    <bean id="edexNwsRoleManager"
+        class="com.raytheon.uf.edex.plugin.nwsauth.EdexNwsRoleManager" />
+
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="com.raytheon.uf.common.plugin.nwsauth.NwsRoleDataRequest" />
+        <constructor-arg ref="edexNwsRoleManager" />
+    </bean>
+
+
+</beans>

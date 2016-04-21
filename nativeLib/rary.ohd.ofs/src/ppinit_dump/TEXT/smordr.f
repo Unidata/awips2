@@ -1,0 +1,634 @@
+C MODULE SMORDR
+C-----------------------------------------------------------------------
+C
+C  ROUTINE TO OUTPUT ORDER PARAMETERS.
+C
+      SUBROUTINE SMORDR (LARRAY,ARRAY,OUTPUT,LEVEL,NFLD,ISTAT)
+C
+      CHARACTER*4 OUTPUT,XOUTPT,CFGRP
+      CHARACTER*8 XNAME
+      CHARACTER*20 STRNG/' '/,STRNG2/' '/
+C
+      DIMENSION ARRAY(LARRAY)
+      DIMENSION UNUSED(10)
+C
+C  COMPUTATIONAL ORDER ARRAYS
+      DIMENSION CGID(2),FGID(2)
+C
+      INCLUDE 'uiox'
+      INCLUDE 'udebug'
+      INCLUDE 'scommon/sudbgx'
+      INCLUDE 'scommon/sordrx'
+      INCLUDE 'scommon/suoptx'
+      INCLUDE 'scommon/sworkx'
+      INCLUDE 'scommon/swrk2x'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/ppinit_dump/RCS/smordr.f,v $
+     . $',                                                             '
+     .$Id: smordr.f,v 1.4 2001/06/13 13:53:08 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,*) 'ENTER SMORDR'
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+C  SET DEBUG LEVEL
+      LDEBUG=ISBUG('DUMP')
+C
+      ISTAT=0
+C
+      LSTRNG=LEN(STRNG)/4
+      LSTRNG2=LEN(STRNG2)/4
+C      
+      IENDIN=0
+      NIDLST=0
+      NCGRP=0
+      NFGRP=0
+      NUMERR=0
+      NUMWRN=0
+      IPRNT=1
+C
+      ILPFND=0
+      IRPFND=0
+      ICMPLT=0
+      ICNTOR=0
+      IALL=0
+      IMAP=0
+      IFMAP=0
+      IMAPX=0
+      IORDR=0
+      IPRERR=0
+      IERLST=0
+C
+C  SET SIZE OF WORK ARRAYS
+      LWORK=LSWORK/2
+      LARAY=LSWRK2/3
+C  IY:
+      ID1=1
+C  IXB:
+      ID2=LARAY*1+1
+C  IXE:
+      ID3=LARAY*2+1
+C
+C  SET INDICATOR TO RE-READ FIELD
+      ISTRT=-1
+C
+C  PRINT HEADER LINE
+      IF (ISLEFT(10).GT.0) CALL SUPAGE
+      WRITE (LP,290)
+      CALL SULINE (LP,2)
+      WRITE (LP,310)
+      CALL SULINE (LP,1)
+C
+C  CHECK OUTPUT OPTION
+      XOUTPT=OUTPUT
+      IF (XOUTPT.NE.'PRNT') THEN
+         XOUTPT='PRNT'
+         WRITE (LP,320) XOUTPT
+         CALL SUWRNS (LP,2,NUMWRN)
+         ENDIF
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  CHECK FIELDS FOR DUMP ORDER OPTIONS
+10    CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPE,NREP,INTEGR,REAL,
+     *   LSTRNG,STRNG,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,IERR)
+      IF (NFLD.EQ.-1) IENDIN=1
+      IF (NFLD.EQ.-1.AND.ICMPLT.EQ.1) GO TO 270
+      IF (LDEBUG.GT.0) THEN
+         CALL UPRFLD (NFLD,ISTRT,LENGTH,ITYPE,NREP,INTEGR,REAL,
+     *      LSTRNG,STRNG,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,IERR)
+         ENDIF
+      IF (IERR.EQ.1) THEN
+         IF (LDEBUG.GT.0) THEN
+            WRITE (IOSDBG,330) NFLD
+            CALL SULINE (IOSDBG,1)
+            ENDIF
+         GO TO 10
+         ENDIF
+C
+C  CHECK FOR COMMAND
+      IF (LATSGN.EQ.1) THEN
+         IENDIN=1
+         IF (ICMPLT.EQ.1) GO TO 270
+         IF (NFLD.EQ.1) CALL SUPCRD
+         IF (IFMAP.EQ.1) GO TO 40
+         IF (IMAP.EQ.1) THEN
+C        COMMAND IS PRECEEDED BY 'MAP'
+            IALL=1
+            GO TO 150
+            ENDIF
+C     COMMAND IS FIRST FIELD AFTER '@DUMP ORDER'
+         IALL=1
+         IMAP=1
+         IFMAP=1
+         IMAPX=1
+         GO TO 150
+         ENDIF
+C
+C  CHECK FOR IMPLIED ALL OPTION FOR MAP AND FMAP
+40    IF (NFLD.EQ.-1.OR.LATSGN.EQ.1) GO TO 50
+      IF (IMAP.EQ.0.AND.IFMAP.EQ.0) GO TO 60
+      IF (STRNG.NE.'ALL') GO TO 60
+50    IALL=1
+      GO TO 150
+C
+C  CHECK FOR ALL OPTION
+60    IF (STRNG.EQ.'ALL') THEN
+         IMAP=1
+         IFMAP=1
+         IALL=1
+         IORDR=0
+         ICMPLT=0
+         GO TO 150
+         ENDIF
+C
+C  CHECK FOR MAP OPTION
+      IF (STRNG.NE.'MAP') GO TO 70
+      IMAP=1
+      IORDR=0
+      ICMPLT=0
+C
+C  CHECK FOR MISSING RIGHT PARENTHESIS
+      IF (ILPFND.EQ.0) GO TO 10
+      CALL SUPFND (ILPFND,IRPFND,NFLD,0)
+C
+C  END OF IDENTIFIER LIST - RESET FLAGS
+      IFMAP=0
+      ILPFND=0
+      IRPFND=0
+      IERLST=0
+      GO TO 10
+C
+C  CHECK FOR FMAP OPTION
+70    IF (STRNG.NE.'FMAP') GO TO 80
+      IFMAP=1
+      IORDR=0
+      ICMPLT=0
+      IERLST=0
+C
+C  CHECK FOR MISSING RIGHT PARENTHESIS
+      IF (ILPFND.EQ.0) GO TO 10
+      CALL SUPFND (ILPFND,IRPFND,NFLD,0)
+C
+C  END OF IDENTIFIER LIST - RESET FLAGS
+      IMAP=0
+      ILPFND=0
+      GO TO 10
+C
+C  CHECK FOR ORDR OPTION
+80    IF (STRNG.EQ.'ORDR') THEN
+         IORDR=1
+         ICMPLT=1
+         IERLST=0
+         GO TO 150
+         ENDIF
+C
+C  CHECK FOR MAPX OPTION
+      IF (STRNG.EQ.'MAPX') THEN
+         IMAPX=1
+         ICMPLT=1
+         IERLST=0
+         GO TO 150
+         ENDIF
+C
+C  CHECK FOR PARENTHESIS IN FIELD
+      IF (LLPAR.GT.0) CALL UFPACK (LSTRNG2,STRNG2,ISTRT,1,LLPAR-1,IERR)
+      IF (LLPAR.EQ.0) CALL UFPACK (LSTRNG2,STRNG2,ISTRT,1,LENGTH,IERR)
+C
+C  CHECK FOR GROUP
+      CALL SUIDCK ('DUMP',STRNG2,NFLD,0,IKEYWD,IRETRN)
+      IF (IRETRN.EQ.0) GO TO 100
+         IF (LDEBUG.GT.0) THEN
+            WRITE (IOSDBG,340) STRNG
+            CALL SULINE (IOSDBG,1)
+            ENDIF
+      IF (IRETRN.NE.2) GO TO 100
+      IF (ICMPLT.EQ.1) GO TO 270
+      IF (IMAP.EQ.1.OR.IFMAP.EQ.1) GO TO 90
+C
+      IMAP=1
+      IFMAP=1
+      IMAPX=1
+      IALL=1
+      GO TO 150
+C
+90    IALL=1
+      GO TO 150
+C
+C  SET CARRYOVER/FORECAST GROUP IDENTIFIERS
+100   XNAME=' '
+C
+      IF (LLPAR.GT.0) GO TO 110
+      IF (LRPAR.GT.0) GO TO 130
+      IF (IERLST.EQ.1) GO TO 10
+      MAXCHR=LEN(XNAME)
+      IF (LENGTH.GT.MAXCHR) THEN
+         WRITE (LP,350) STRNG(1:LENSTR(STRNG)),LENGTH,MAXCHR,MAXCHR
+         CALL SUWRNS (LP,2,NUMWRN)
+         GO TO 140
+         ENDIF
+C
+C  LEFT PARENTHESIS FOUND
+110   ILPFND=1
+      IF (LRPAR.GT.0) IRPFND=1
+      NFD=NFLD
+C
+C  CHECK FOR C OR F BEFORE IDENTIFIER LIST
+      CFGRP=' '
+      CALL SUBSTR (STRNG,1,LLPAR-1,CFGRP,1)
+      IF (CFGRP.EQ.'C'.OR.CFGRP.EQ.'F') GO TO 120
+C
+C  'C' OR 'F' NOT FOUND
+      WRITE (LP,420) CFGRP
+      CALL SUERRS (LP,2,NUMERR)
+C
+C  TURN OFF MAP FLAG
+      IMAP=0
+      IORDR=1
+      IERLST=1
+      ICMPLT=1
+      GO TO 150
+C
+C  C OR F FOUND
+120   NCHAR=(LENGTH-LLPAR)-(LENGTH-LRPAR+1)
+      IF (LRPAR.EQ.0) NCHAR=LENGTH-LLPAR
+      CALL SUBSTR (STRNG,LLPAR+1,NCHAR,XNAME,1)
+      NIDLST=NIDLST+1
+      GO TO 150
+C
+C  RIGHT PARENTHESIS FOUND
+130   IRPFND=1
+      IF (IERLST.EQ.1) GO TO 10
+      NCHAR=LENGTH-(LENGTH-LRPAR+1)
+      CALL SUBSTR (STRNG,1,NCHAR,XNAME,1)
+      NIDLST=NIDLST+1
+      GO TO 150
+C
+C  IDENTIFIER WITHOUT PARENTHESES FOUND
+140   CALL SUBSTR (STRNG,1,8,XNAME,1)
+      NFD=NFLD
+      IALL=0
+      NIDLST=NIDLST+1
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  READ GENERAL COMPUTATIONAL ORDER PARAMETERS
+C
+150   ICNTOR=ICNTOR+1
+      IF (ICNTOR.GT.1) GO TO 160
+      INCLUDE 'scommon/callsrordr'
+      IF (IERR.GT.0) THEN
+         IF (IERR.NE.2) THEN
+            WRITE (LP,370) 'ORDR','**NONE**',IERR
+            CALL SUERRS (LP,2,NUMERR)
+            GO TO 270
+            ENDIF
+         WRITE (LP,380) 'ORDR'
+         CALL SULINE (LP,2)
+         GO TO 270
+         ENDIF
+C
+C  PRINT GENERAL COMPUTATIONAL ORDER PARAMETERS
+      IF (ISLEFT(15).GT.0) CALL SUPAGE
+      INCLUDE 'scommon/callspordr'
+      IF (IERR.GT.0) THEN
+         WRITE (LP,400) 'ORDR','**NONE**'
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 270
+         ENDIF
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+160   IF (IORDR.EQ.1) GO TO 270
+C
+      IPTRNC=0
+      IPTRNF=0
+C
+      IF (IALL.EQ.0) GO TO 180
+C
+170   XNAME=' '
+      IPTRCG=IPTRNC
+      IPTRFG=IPTRNF
+C
+180   IF (IMAP.EQ.0) GO TO 250
+      IF (CFGRP.EQ.'F') GO TO 190
+C
+C  READ CARRYOVER GROUP PARAMETERS
+      CALL SRMPCO (XNAME,IPTRCG,LARRAY,ARRAY,IVMPCO,CGID,UNUSED,
+     *   MFGIDS,FGIDS,NFGIDS,NRMPFG,MRMPDP,RMPDP,NRMPDP,IPRERR,IPTRNC,
+     *   IERR)
+      IRMPCO=IERR
+      IF (IERR.GT.0) THEN
+         IF (IERR.NE.2) THEN
+            IF (LDEBUG.GT.0) THEN
+               WRITE (IOSDBG,370) 'MPCO',XNAME,IERR
+               CALL SULINE (IOSDBG,1)
+               GO TO 270
+               ENDIF
+            ENDIF
+         IF (IALL.EQ.0) THEN
+C        ALL NOT SPECIFIED
+            WRITE (LP,410) 'CARRYOVER',XNAME
+            ICMPLT=1
+            CALL SUERRS (LP,2,NUMERR)
+            GO TO 270
+            ENDIF
+C     ALL SPECIFIED OR IMPLIED
+         WRITE (LP,380) 'MPCO'
+         CALL SULINE (LP,2)
+         ICMPLT=1
+         GO TO 190
+         ENDIF
+C
+C  PRINT CARRYOVER GROUP PARAMETERS
+      ICMPLT=1
+      WRITE (LP,300)
+      CALL SULINE (LP,2)
+      NUMCG=0
+      CALL SPMPCO (IPRNT,NUMCG,IVMPCO,CGID,
+     *   NFGIDS,FGIDS,RMPDP,NRMPFG,NRMPDP,IERR)
+      IF (IERR.GT.0) THEN
+         WRITE (LP,400) 'MPCO',XNAME
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 270
+         ENDIF
+      NCGRP=NCGRP+1
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  READ FORECAST GROUP PARAMETERS
+C
+190   IPTRFG=0
+      IF (CFGRP.EQ.'C') GO TO 270
+      IF (IALL.EQ.1) THEN
+         IF (IRMPCO.EQ.2) GO TO 230
+         GO TO 210
+         ENDIF
+C
+C  ALL NOT SPECIFIED
+      CALL SRMPFO (XNAME,IPTRFG,LARRAY,ARRAY,IVMPFO,FGID,UNUSED,
+     *   MRMPID,RMPID,NRMPID,MRMPID,MAPSR,NMAPSR,IPRERR,IPTRNF,IERR)
+      IF (IERR.EQ.0) GO TO 200
+         IF (IERR.EQ.2) THEN
+            WRITE (LP,410) 'FORECAST',XNAME
+            CALL SUERRS (LP,2,NUMERR)
+            ENDIF
+         IF (LDEBUG.GT.0) THEN
+            WRITE (IOSDBG,370) 'MPFO',XNAME,IERR
+            CALL SULINE (IOSDBG,1)
+            ENDIF
+         GO TO 270
+C
+C  PRINT FORECAST GROUP PARAMETERS
+200   IPTRFG=0
+      ICMPLT=1
+      N=1
+      CALL SPMPFO (IPRNT,N,IVMPFO,FGID,
+     *   RMPID,NRMPID,MAPSR,NMAPSR,IERR)
+      IF (IERR.GT.0) THEN
+         WRITE (LP,400) 'MPFO',XNAME
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 270
+         ENDIF
+      NFGRP=NFGRP+1
+      GO TO 270
+C
+C  ALL SPECIFIED - CARRYOVER GROUP PARAMETER RECORD FOUND
+210   DO 220 IFGIDS=1,NFGIDS
+         XNAME=FGIDS(IFGIDS)
+         CALL SRMPFO (XNAME,IPTRFG,LARRAY,ARRAY,IVMPFO,FGID,UNUSED,
+     *      MRMPID,RMPID,NRMPID,MRMPID,MAPSR,NMAPSR,IPRERR,IPTRNF,IERR)
+         IF (IERR.GT.0) THEN
+            IF (IERR.NE.2) THEN
+               IF (LDEBUG.GT.0) THEN
+                  WRITE (IOSDBG,370) 'MPFO',XNAME,IERR
+                  CALL SULINE (IOSDBG,1)
+                  ENDIF
+               ICMPLT=1
+               GO TO 270
+               ENDIF
+            WRITE (LP,380) 'MPFO'
+            CALL SULINE (LP,2)
+            ICMPLT=1
+            GO TO 270
+            ENDIF
+         ICMPLT=1
+         CALL SPMPFO (IPRNT,IFGIDS,IVMPFO,FGID,
+     *      RMPID,NRMPID,MAPSR,NMAPSR,IERR)
+         IF (IERR.GT.0) THEN
+            WRITE (LP,400) 'MPFO',XNAME
+            CALL SUERRS (LP,2,NUMERR)
+            GO TO 270
+            ENDIF
+         NFGRP=NFGRP+1
+         IPTRFG=IPTRNF
+220      CONTINUE         
+      GO TO 240
+C
+C  ALL SPECIFIED - CARRYOVER GROUP PARAMETER RECORD NOT FOUND
+230   XNAME=' '
+      CALL SRMPFO (XNAME,IPTRFG,LARRAY,ARRAY,IVMPFO,FGID,UNUSED,
+     *   MRMPID,RMPID,NRMPID,MRMPID,MAPSR,NMAPSR,IPRERR,IPTRNF,IERR)
+      IF (IERR.GT.0) THEN
+         IF (IERR.NE.2) THEN
+            WRITE (LP,370) 'MPFO','**NONE**',IERR
+            ICMPLT=1
+            CALL SUERRS (LP,2,NUMERR)
+            GO TO 250
+            ENDIF
+         WRITE (LP,380) 'MPFO'
+         CALL SULINE (LP,2)
+         ICMPLT=1
+         GO TO 250
+         ENDIF
+      ICMPLT=1
+      CALL SPMPFO (IPRNT,IPTRFG,IVMPFO,FGID,
+     *   RMPID,NRMPID,MAPSR,NMAPSR,IERR)
+      IF (IERR.NE.0) THEN
+         WRITE (LP,400) 'MPFO',XNAME
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 270
+         ENDIF
+      NFGRP=NFGRP+1
+      IPTRFG=IPTRNF
+      GO TO 230
+C
+240   IF (IPTRNC.GT.0) THEN
+         WRITE (LP,360)
+         CALL SULINE (LP,2)
+         GO TO 170
+         ENDIF
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  PRINT MAPX COMPUTATIONAL ORDER PARAMETERS
+C
+250   IF (IMAPX.EQ.0) GO TO 260
+C
+      WRITE (LP,360)
+      CALL SULINE (LP,1)
+      WRITE (LP,300)
+      CALL SULINE (LP,1)
+C
+      CALL SUBSTR ('**NONE**',1,8,XNAME,1)
+C
+C  READ MAPX CARRYOVER GROUP AREA COMPUTATIONAL ORDER PARAMETERS
+      MXA=LSWORK/3
+      IPRERR=0
+      CALL SRMXCO (IVMXCO,UNUSED,MXA,NXA,SWORK(1),SWORK(MXA*2+1),
+     *   LARRAY,ARRAY,IPRERR,IERR)
+      IF (IERR.GT.0) THEN
+         IF (IPRERR.EQ.1) GO TO 260
+         IF (IERR.EQ.2) THEN
+            WRITE (LP,380) 'MXCO'
+            CALL SULINE (LP,2)
+            GO TO 260
+            ENDIF
+         IF (IERR.EQ.4) THEN
+            WRITE (LP,390) 'MXCO'
+            CALL SULINE (LP,2)
+            GO TO 260
+            ENDIF
+         WRITE (LP,370) 'MXCO',XNAME,IERR
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 260
+         ENDIF
+C
+C  PRINT MAPX CARRYOVER GROUP AREA COMPUTATIONAL ORDER PARAMETERS
+      CALL SPMXCO (IPRNT,NXA,IVMXCO,SWORK(1),SWORK(MXA*2+1),
+     *   IERR)
+      IF (IERR.GT.0) THEN
+         WRITE (LP,400) 'MXCO',XNAME
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 260
+         ENDIF
+C
+C  READ XGRD PARAMETERS
+      CALL SRXGRD (IVXGRD,LWORK,NXA,SWORK(1),
+     *   LARAY,SWRK2(ID1),SWRK2(ID2),SWRK2(ID3),
+     *   UNUSED,LARRAY,ARRAY,ARRAY,IPRERR,IERR)
+      IF (IERR.GT.0) THEN
+         IF (IERR.EQ.2) THEN
+            WRITE (LP,380) 'XGRD'
+            CALL SULINE (LP,2)
+            GO TO 260
+            ELSE
+               WRITE (LP,370) 'XGRD',XNAME,IERR
+               CALL SUERRS (LP,2,NUMERR)
+               GO TO 260
+            ENDIF
+         ENDIF
+C
+C  PRINT XGRD PARAMETERS
+      CALL SPXGRD (IVXGRD,NXA,SWORK(1),
+     *   SWRK2(ID1),SWRK2(ID2),SWRK2(ID3),
+     *   LEVEL,IERR)
+      IF (IERR.GT.0) THEN
+         WRITE (LP,400) 'XGRD',XNAME
+         CALL SUERRS (LP,2,NUMERR)
+         ENDIF
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+260   IF (IFMAP.EQ.0) GO TO 270
+C
+C  READ FUTURE MAP COMPUTATIONAL ORDER PARAMETERS
+      CALL SRFMPO (LARRAY,ARRAY,IVFMPO,UNUSED,MFMPID,FMPID,NFMPID,
+     *   IPRERR,IERR)
+      IF (IERR.GT.0) THEN
+         IF (IERR.EQ.2) THEN
+            WRITE (LP,380) 'FMPO'
+            CALL SULINE (LP,2)
+            ENDIF
+         IF (IERR.NE.2) THEN
+            WRITE (LP,370) 'FMPO','**NONE**',IERR
+            CALL SUERRS (LP,2,NUMERR)
+            ENDIF
+         ICMPLT=1
+         GO TO 270
+         ENDIF
+C
+C  PRINT FUTURE MAP COMPUTATIONAL ORDER PARAMETERS
+      ICMPLT=1
+      CALL SPFMPO (IPRNT,IVFMPO,FMPID,NFMPID,IERR)
+      IF (IERR.EQ.0) GO TO 270
+         WRITE (LP,400) 'FMPO','**NONE**'
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 270
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  CHECK FOR MISSING RIGHT PARENTHESIS
+270   CALL SUPFND (ILPFND,IRPFND,NFLD,0)
+C
+      IF (IENDIN.EQ.0) GO TO 10
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  PRINT COUNTERS
+      IF (NIDLST.GT.0) THEN
+         WRITE (LP,430) NIDLST
+         CALL SULINE (LP,2)
+         ENDIF
+      IF (NCGRP.GT.0) THEN
+         WRITE (LP,440) NCGRP
+         CALL SULINE (LP,2)
+         ENDIF
+      IF (NFGRP.GT.0) THEN
+         WRITE (LP,450) NFGRP
+         CALL SULINE (LP,2)
+         ENDIF
+C
+C  CHECK NUMBER OF ERRORS ENCOUNTERED
+      IF (NUMERR.GT.0) THEN
+         WRITE (LP,460) NUMERR
+         CALL SULINE (LP,2)
+         ENDIF
+C
+      IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,*) 'EXIT SMORDR'
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+290   FORMAT ('0*--> DUMP COMPUTATIONAL ORDER PARAMETERS')
+300   FORMAT (' ',132('#'))
+310   FORMAT (' ')
+320   FORMAT ('0*** WARNING - PUNCH NOT ALLOWED FOR ORDER PARAMETERS. ',
+     *   'OUTPUT OPTION SET TO PRINT.')
+330   FORMAT (' BLANK STRING FOUND IN FIELD ',I2)
+340   FORMAT (' INPUT FIELD = ',5A4)
+350   FORMAT ('0*** WARNING - NUMBER OF CHARACTERS IDENTIFIER ',
+     *   A,' (',I2,') EXCEEDS ',I2,'. THE FIRST ',I2,
+     *   ' CHARACTERS WILL BE USED.')
+360   FORMAT ('0')
+370   FORMAT ('0*** ERROR - READING ',A,' PARAMETERS FOR ',
+     *   'IDENTIFIER ',A,
+     *   '. STATUS CODE = ',I2)
+380   FORMAT ('0*** NOTE - NO ',A,' PARAMETER RECORD FOUND.')
+390   FORMAT ('0*** NOTE - PARAMETER TYPE ',A,' IS NOT DEFINED.')
+400   FORMAT ('0*** ERROR - PRINTING ',A,' PARAMETERS FOR ',
+     *   ' IDENTIFIER ',A,'.')
+410   FORMAT ('0*** ERROR - ',A,' GROUP IDENTIFIER ',A,
+     *   ' NOT DEFINED.')
+420   FORMAT ('0*** ERROR - READING CARRYOVER/FORECAST GROUP ',
+     *   'IDENTIFIER TYPE. ''',A,''' NOT RECOGNIZED')
+430   FORMAT ('0*** NOTE - ',I3,' IDENTIFIER PROCESSED.')
+440   FORMAT ('0*** NOTE - ',I3,' CARRYOVER GROUP IDENTIFIER ',
+     *   'PROCESSED')
+450   FORMAT ('0*** NOTE - ',I3,' FORECAST  GROUP IDENTIFIER ',
+     *   'PROCESSED')
+460   FORMAT ('0*** NOTE - ',I3,' ERRORS ENCOUNTERED.')
+470   FORMAT (' *** EXIT SMORDR')
+C
+      END

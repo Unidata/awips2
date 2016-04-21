@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin>
+   <class>com.raytheon.openfire.plugin.detailedfeedlog.DetailedFeedLogPlugin</class>
+   <name>Detailed Logging</name>
+   <description>
+   	This plugin will log a customizable number of hours past for each room.
+   </description>
+   <author>Matt Nash</author>
+   <version>1.0.0</version>
+   <date>7/23/2012</date>
+   <minServerVersion>3.7.1</minServerVersion>
+   
+    <adminconsole>
+   		<tab id="tab-server">
+   			<sidebar id="sidebar-server-settings">
+   				<id item="detailed-logging" name="Detailed Logging Settings"
+   					url="detailed_logging_plugin_configuration.jsp"
+   					description="Click to administer the feed and session logging settings" />
+	   		</sidebar>
+   		</tab>
+   </adminconsole>
+   
+</plugin>

@@ -1,0 +1,7 @@
+C                                           *--> FROM GCOMMON.SETWHERE
+C
+C.....SET THE VALUES IN THE COMMON BLOCK 'WHERE'.
+C
+      IOPNUM    = -1
+      OPNAME(1) = SNAME(1)
+      OPNAME(2) = SNAME(2)

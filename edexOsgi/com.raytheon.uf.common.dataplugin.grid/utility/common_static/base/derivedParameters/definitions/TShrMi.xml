@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+COMMENT:
+// >40 knots of Bulk Shear Magnitude for Supercells
+
+
+AWIPS 1 format
+TShrMi  | |N |S=0-6km Shear Supports Scells| |ICON|Layer  |      *Test,Layer|BlkMag,0-6kmAgl| 1.|-1.e37|20.|0.|1.|19.5|1.e37|1.
+
+
+abbreviation: |TShrMi| 
+Notused1: | | 
+Notused2: |N | 
+name: |S=0-6km Shear Supports Scells| 
+FIELD: || 
+FIELD: |ICON| 
+FIELD: |Layer| 
+FIELD: |BlkMag,0-6kmAgl| 
+FIELD: |1.| 
+FIELD: |-1.e37| 
+FIELD: |20.| 
+FIELD: |0.| 
+FIELD: |1.| 
+FIELD: |19.5| 
+FIELD: |1.e37| 
+FIELD: |1.| 
+
+
+NEW FILE - TShrMi.xml
+-->
+<DerivedParameter name="S=0-6km Shear Supports Scells" abbreviation="TShrMi" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method levels="Layer" name="Test">
+        <Field level="0-6kmAgl" abbreviation="BlkMag"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="-1.0E37"/>
+        <ConstantField value="20.0"/>
+        <ConstantField value="0.0"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="19.5"/>
+        <ConstantField value="1.0E37"/>
+        <ConstantField value="1.0"/>
+    </Method>
+</DerivedParameter>

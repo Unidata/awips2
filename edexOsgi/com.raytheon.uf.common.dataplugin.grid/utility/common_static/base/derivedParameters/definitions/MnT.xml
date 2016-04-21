@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<DerivedParameter abbreviation="MnT" name="Minimum Temperature" unit="K">
+  <Method levels="Surface" name="Alias">
+    <Field abbreviation="MnT" level="2FHAG" />
+  </Method>
+  <Method levels="Surface" models="RTMA" name="Min">
+    <Field abbreviation="T24hr" />
+  </Method>
+  <Method levels="Surface" name="Min">
+    <Field abbreviation="T24hr" />
+  </Method>
+</DerivedParameter>

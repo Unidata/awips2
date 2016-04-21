@@ -1,0 +1,57 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+<!-- data only comes in netcdf from RFC, disabling for now
+	<bean id="arealffgGenerator" class="com.raytheon.uf.edex.ohd.pproc.PprocSrv">
+		<constructor-arg>
+			<list>
+				<value>run_gen_areal_ffg</value>
+			</list>
+		</constructor-arg>
+	</bean>
+
+	<bean id="arealffgDistRegistry" class="com.raytheon.uf.edex.distribution.DistributionSrv"
+		factory-method="register">
+		<constructor-arg value="arealffg" />
+		<constructor-arg value="jms-durable:queue:Ingest.arealffg" />
+	</bean>
+
+	<camelContext id="arealffg-camel"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler">
+		-->
+		<!--
+		<endpoint id="arealffgFileEndpoint" uri="file:${edex.home}/data/sbn/arealffg?noop=true&amp;idempotent=false" />
+
+		<route id="arealffgFileConsumerRoute">
+			<from ref="arealffgFileEndpoint" />
+			<bean ref="fileToString"  />
+			<setHeader headerName="pluginName">
+				<constant>arealffg</constant>
+			</setHeader>
+			<to uri="jms-durable:queue:Ingest.arealffg" />
+		</route>
+		-->
+
+		<!-- Begin arealffg Routes -->
+		<!--
+		<route id="arealffgIngestRoute">
+			<from uri="jms-durable:queue:Ingest.arealffg" />
+			<doTry>
+				<pipeline>
+			        <bean ref="stringToFile"  />
+			        <bean ref="arealffgGenerator" method="execute" />
+			        <bean ref="processUtil" method="log"/>
+				</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:warning?level=INFO"/>
+				</doCatch>
+			</doTry>
+		</route>
+
+	</camelContext>
+	-->
+</beans>

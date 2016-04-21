@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--  COMMENT:
+// EHI/BRN Shear interaction - 72% supercells tornadic - Davies, SLS 1995
+
+
+AWIPS 1 format
+EHIi  | |N|Energy Helicity Index|      |ICON|Layer  |      *Test,Layer|EHI| 1.|-1.e37|2.49|0.|1.|2.49|1.e37|1.  
+
+
+abbreviation: |EHIi| 
+Notused1: | | 
+Notused2: |N| 
+name: |Energy Helicity Index| 
+FIELD: || 
+FIELD: |ICON| 
+FIELD: |Layer| 
+FIELD: |EHI| 
+FIELD: |1.| 
+FIELD: |-1.e37| 
+FIELD: |2.49| 
+FIELD: |0.| 
+FIELD: |1.| 
+FIELD: |2.49| 
+FIELD: |1.e37| 
+FIELD: |1.| 
+
+
+NEW FILE - EHIi.xml
+-->
+<DerivedParameter name="Energy Helicity Index" abbreviation="EHIi" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method levels="Layer" name="Test">
+        <Field abbreviation="EHI"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="-1e37"/>
+        <ConstantField value="2.49"/>
+        <ConstantField value="0.0"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="2.49"/>
+        <ConstantField value="1e37"/>
+        <ConstantField value="1.0"/>
+    </Method>
+</DerivedParameter>

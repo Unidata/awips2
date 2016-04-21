@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<DerivedParameter abbreviation="s2H2O_GFS" name="GFS Snow-to-water ratio" unit="">
+  <Method name="Divide">
+    <ConstantField value="1000" />
+    <Field abbreviation="SDENGFS" />
+  </Method>
+</DerivedParameter>

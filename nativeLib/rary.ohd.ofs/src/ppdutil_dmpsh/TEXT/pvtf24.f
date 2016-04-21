@@ -1,0 +1,201 @@
+C MEMBER PVTF24
+C  (from old member PDBDMPSH)
+C-----------------------------------------------------------------------
+C
+C                             LAST UPDATE: 05/19/95.10:00:36 BY $WC20SV
+C
+C @PROCESS LVL(77)
+C
+C  PGM: PVTF24(UNT,STA,IDTYP,JULDB,JULDE,IUNFLG,IMF,ICOND,
+C  PGM:        DATA,RDATA,IDATES,LDATA) .. SHEF-OUT TF24
+C
+C
+C   IN: UNT .......... UNIT NUMBER FOR OUTPUT IN SHEF FORMAT - INT
+C   IN: STA(2) ....... STATION ID AS 8 PACKED CHARS (2A4) - INT
+C   IN: IDTYP ........ DATA TYPE AS 4 PACKED CHARS (A4) - INT
+C   IN: JULDB ........ BEGINNING ORDINAL DAY NUM (JAN 1 1900 IS 1) - INT
+C   IN: JULDE ........ ENDING ORDINAL DAY NUMBER (JAN 1 1900 IS 1) - INT
+C   IN: IUNFLG ....... UNITS FLAG, 0 = ENGLISH, 1 = METRIC - INT
+C   IN: IMF .......... INCLUDE-MISSING-DATA FLAG, 0=NO, 1=YES - INT
+C  I/O: ICOND ........ CONDITION FLAG, IF NOT 0 SKIP RTN, 1 = ERR - INT
+C  OTH: DATA(LDATA) .. DUMMY ARRAY - INT*2
+C  OTH: RDATA(LDATA) . DUMMY ARRAY - REAL
+C  OTH: IDATES(LDATA)  DUMMY ARRAY - INT
+C   IN: LDATA ........ DIMENSION OF DUMMY ARRAYS - INT
+C
+C
+C  RQD: SUBPROGRAMS:  RPD1S,PVE1S,UFI2AZ,FFF2A,MDYH1
+C  RQD: SUBPROGRAMS:  UMEMST,UMOVEX,PVSUBB,PVSUBE
+C  RQD: COMMON:       HDFLTS
+C
+C
+C  HIS: WRITTEN BY D. STREET IN APRIL 1988
+C  =====================================================================
+      SUBROUTINE PVTF24 (UNT,STA,IDTYP,JULDB,JULDE,IUNFLG,IMF,ICOND,
+     *                  DATA,RDATA,IDATES,LDATA)
+C
+C
+C
+      INCLUDE 'hclcommon/hdflts'
+C
+C
+C
+C
+      REAL      RDATA(LDATA)
+      INTEGER   IDATES(LDATA),IDELT,NVPDT,STA(2),IDTYP
+      INTEGER   LETBM(2),LINE (20),UNT,ROUTN(2)
+      INTEGER*2 DATA(LDATA),MSNG
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/ppdutil_dmpsh/RCS/pvtf24.f,v $
+     . $',                                                             '
+     .$Id: pvtf24.f,v 1.1 1995/09/17 19:10:23 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      DATA    RMAG1,RMAG2,RMAG3 / 4HDEGF,4HDEGC,10.0 /
+      DATA    KEYE / 1 /
+      DATA    ITF24,ROUTN / 4HTF24,4HPVTF,4H24   /
+C
+      DATA    IDOTA,LETE, LETZ, LETDH / 4H.A  ,4HE   ,4HZ   ,4HDH   /
+      DATA    LETDU,ISLS, LETS, LETTF / 4HDU  ,4H/   ,4HS   ,4HTAIF /
+      DATA    LETBM,LETBL             / 4H    ,4H M  ,4H            /
+      DATA    LETXZ,LETNZ             / 4HZXZ ,4HZNZ                /
+C
+C
+C
+C                  CALL TRACE ROUTINE FOR ENTRY INTO THIS ROUTINE
+C
+      CALL PVSUBB (ROUTN,ICOND)
+C
+C                  SKIP THIS RTN IF ICOND = 1, OR IF TYPE IS NOT CORRECT
+C
+      IF ( ICOND.NE.    0 ) GO TO 70
+      IF ( IDTYP.EQ.ITF24 ) GO TO 10
+          GO TO 70
+10    CONTINUE
+C
+C
+C                  SET FLAG FOR STA TO BE NAME, NOT NUMBER, SET DATES
+C
+      LENDAT = LDATA
+      ISTAF1 = 0
+      JUL1 = JULDB
+      JUL2 = JULDE
+C
+C                  GET DATA FROM PPDB DATA BASE FOR GIVEN STA AND TYPE
+C                  OUTPUT ERRORS IF ANY, EXIT RTN IF ERROR OR NO DATA
+C
+      CALL RPD1SF(STA,ISTAF1,IDTYP,JUL1,JUL2,LDATA,DATA,LENDAT,IDATES,
+     *            LDFILL,IDELT,NVPDT,MSNG,ISTAT)
+        IF ( ISTAT .NE.0 ) CALL PVE1SF(KEYE,STA,IDTYP,ISTAT)
+        IF ( ISTAT .NE.0 ) GO TO 70
+        IF ( LDFILL.LT.1 ) GO TO 70
+C
+C                  GET TOTAL NUMBER OF DATA ITEMS, SET MISSG DATA VALUES
+C
+      NUMDTA = NVPDT*24/IDELT * (JUL2-JUL1+1)
+      IPPMSG = MSNG
+      PPMSNG = IPPMSG
+C
+C                  CONVERT DATA TO REALS
+C
+      DO 20 L=1,NUMDTA
+        LD = DATA(L)
+        RD = LD
+        IF ( LD.NE.IPPMSG ) RD = RD/RMAG3
+20      RDATA(L) = RD
+C
+C                  CHECK UNITS, MAYBE GET CONVERSION FACTORS
+C
+      IF ( IUNFLG.NE.0 ) CALL UDUCNV(RMAG1,RMAG2,2,1,FACTOR,TFACT,ISTAT)
+      IF ( IUNFLG.NE.0 ) CALL UDUCNN(1,PPMSNG,ISTAT)
+      IF ( IUNFLG.NE.0 ) CALL UDUCNV(RMAG1,RMAG2,1,NUMDTA,RDATA,RDATA,
+     *                               ISTAT)
+C
+C                  SET UP SHEF FORMAT LINE (EXCEPT FOR DATA VALUE)
+C
+        CALL UMEMST (LETBL,LINE,20)
+        CALL UMOVEX (IDOTA,1,LINE,1,2)
+        CALL UMOVEX (STA,1,LINE,5,8)
+        CALL UMOVEX (LETZ,1,LINE,21,1)
+        CALL UMOVEX (LETDH,1,LINE,23,2)
+        CALL UMOVEX (ISLS,1,LINE,27,1)
+        CALL UMOVEX (LETDU,1,LINE,28,2)
+        IF ( IUNFLG.EQ.0 ) CALL UMOVEX (LETE,1,LINE,30,1)
+        IF ( IUNFLG.NE.0 ) CALL UMOVEX (LETS,1,LINE,30,1)
+        CALL UMOVEX (ISLS,1,LINE,31,1)
+        CALL UMOVEX (LETTF,1,LINE,32,4)
+        CALL UMOVEX (LETXZ,1,LINE,36,3)
+        CALL UMOVEX (ISLS,1,LINE,47,1)
+        CALL UMOVEX (LETTF,1,LINE,48,4)
+        CALL UMOVEX (LETNZ,1,LINE,52,3)
+C
+C                  INITIALIZE STARTING HOUR AND HOUR INCREMENT
+C
+      IHRINC = IDELT
+      IHRSUM = -IHRINC
+C
+C      - - - - - - START LOOP THRU NUMDTA VALUES FOR OUTPUT
+C
+      LINC = NVPDT
+      DO 60 L=1,NUMDTA,LINC
+C
+C                  INCREMENT HOURS FROM FIRST DATE-TIME
+C
+        IHRSUM = IHRSUM + IHRINC
+C
+C                  GET DATA VALUE, IF NOT MISSG PUT VALUE IN OUTPT LINE,
+C                  IF MISSG OUTPUT IF MISSG-DATA FLAG IS ON (IMF.GT.0)
+C
+        RD = RDATA(L)
+        LD = RD
+        XD = RDATA(L+1)
+        JD = XD
+        IF ( LD.EQ.IPPMSG.AND.JD.EQ.IPPMSG.AND.IMF.EQ.0 ) GO TO 60
+        IPRERR=1
+        IF ( LD.EQ.IPPMSG ) CALL UMOVEX (LETBM,1,LINE,40,6)
+        IF ( LD.NE.IPPMSG ) CALL UFF2A (RD,LINE,40,6,1,IPRERR,LP,IERR)
+        IF ( JD.EQ.IPPMSG ) CALL UMOVEX (LETBM,1,LINE,56,6)
+        IF ( JD.NE.IPPMSG ) CALL UFF2A (XD,LINE,56,6,1,IPRERR,LP,IERR)
+C
+C                  COMPUTE THE HOUR AND DAY
+C
+        IDDX   = JUL1
+        IHOUR  = 0
+        IHOUR  = IHOUR + NHOPDB + IHRSUM
+30      IF ( IHOUR.LT.24 ) GO TO 40
+          IDDX  = IDDX + 1
+          IHOUR = IHOUR - 24
+            GO TO 30
+40      CALL MDYH1(IDDX,1,IMO,IDAY,IYR,IH,100,IDSAV,IZN)
+        IYR = MOD(IYR,100)
+C
+C                  CONVERT DATE AND TIME TO CHARACTERS IN OUTPUT LINE
+C
+        CALL UFI2AZ (LINE,14,2,1,IYR)
+        CALL UFI2AZ (LINE,16,2,1,IMO)
+        CALL UFI2AZ (LINE,18,2,1,IDAY)
+        CALL UFI2AZ (LINE,25,2,1,IHOUR)
+C
+C                  OUTPUT SHEF DATA LINE ON UNIT UNT
+C
+        WRITE (UNT,50) (LINE (I),I=1,16)
+50      FORMAT(16A4)
+C
+60    CONTINUE
+C
+C      - - - - - - END LOOP THRU DATA
+C
+C                  CALL TRACE ROUTINE FOR EXIT FROM THIS ROUTINE
+C
+70    CONTINUE
+      CALL PVSUBE (ROUTN,ICOND)
+C
+C
+      RETURN
+C
+      END

@@ -1,0 +1,4 @@
+C                                           *--> FROM COMMON.FCCGD2
+      COMMON/FCCGD2/NSLOT2,NWR2,NRSLO2,RFC2,NWPS2,ICRDA2(5),NCG2,
+     .  CGIDS2(2,25),ICORE2(25),BUFRZ2(28)
+C

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<DerivedParameter unit="in" name="Precip6Hr" abbreviation="Precip6Hr">
+    <Method name="MetarPrecip">
+        <Field abbreviation="precip6Hour"/>
+        <Field abbreviation="accum_precip1Hour6"/>
+    </Method>
+</DerivedParameter>

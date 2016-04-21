@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: McIDAS Satellite Plug-in
+Bundle-SymbolicName: com.raytheon.uf.edex.plugin.satellite.mcidas
+Bundle-Version: 1.14.0.qualifier
+Bundle-Vendor: Raytheon
+Require-Bundle: com.raytheon.edex.common,
+ com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
+ org.geotools,
+ javax.measure,
+ org.apache.commons.lang,
+ javax.persistence,
+ com.raytheon.uf.common.dataplugin.satellite;bundle-version="1.0.0",
+ com.raytheon.edex.plugin.satellite;bundle-version="1.12.1174"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: com.raytheon.uf.common.localization,
+ com.raytheon.uf.common.menus,
+ com.raytheon.uf.common.menus.xml,
+ com.raytheon.uf.common.status,
+ org.apache.commons.codec.binary
+Export-Package: com.raytheon.uf.edex.plugin.satellite.mcidas

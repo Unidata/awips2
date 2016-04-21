@@ -1,0 +1,84 @@
+#!/bin/bash
+##
+# This software was developed and / or modified by Raytheon Company,
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# This software product contains export-restricted data whose
+# export/transfer/disclosure is restricted by U.S. law. Dissemination
+# to non-U.S. persons whether in the United States or abroad requires
+# an export license or other authorization.
+# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
+# See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+# further licensing information.
+##
+##############################################################################
+# This script is triggered by MHS when the requested failed site's grids are
+# sent to the backup site.
+#
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    05/10/11        8688          dgilling       Initial Creation.
+#    02/12/15        4103          dgilling       Pre-emptively determine site id.
+#    03/30/15        4103          dgilling       Support new location for svcbu.properties.
+#
+##############################################################################
+
+# this allows you to run this script from outside of ./bin
+path_to_script=`readlink -f $0`
+RUN_FROM_DIR=`dirname $path_to_script`
+
+BASE_AWIPS_DIR=`dirname $RUN_FROM_DIR`
+
+if [[ -z "${AWIPS_HOME}" ]]
+then
+	AWIPS_HOME=$(dirname $(dirname $BASE_AWIPS_DIR))
+fi
+
+# get the base environment
+source ${AWIPS_HOME}/edex/bin/setup.env
+source /awips2/GFESuite/bin/setup.env
+source /awips2/GFESuite/ServiceBackup/scripts/serviceBackupUtil.sh
+export SVCBU_HOST
+export CDSPORT
+
+# setup the environment needed to run the the Python
+export LD_LIBRARY_PATH=${PYTHON_INSTALL}/lib
+export PYTHONPATH=${RUN_FROM_DIR}/src:$PYTHONPATH
+
+# execute the ifpInit Python module
+_PYTHON="${PYTHON_INSTALL}/bin/python"
+_MODULE="/awips2/GFESuite/ServiceBackup/scripts/receive_grids.py"
+
+RECEIVED_FILE=${1}
+if [[ -f ${RECEIVED_FILE} ]]
+then
+	SITE_ID=$(getSiteIdFromTarFile "${RECEIVED_FILE}")
+    if [[ -z "${SITE_ID}" ]]
+    then
+    	#Still need to do this the old way for backward compatibility
+		tar -tvf ${import_file} | while read line
+		do
+			echo "Using old tar/cut method."
+		    echo "line is $line"
+		    # Can we get rid of this ugly thing somehow???
+		    SITE_ID=`echo $line | cut -d' ' -f8|cut -d'G' -f1|cut -d'/' -f6`
+		    echo "failed site $SITE_ID"
+		    break
+		done
+	fi
+else
+	echo "Unable to locate the gridded data of failed site: ${import_file}. You will need to initialize your grids from models and guidance"
+	exit 1
+fi
+
+$_PYTHON $_MODULE -h localhost -r 9581 ${RECEIVED_FILE} ${SITE_ID}
+

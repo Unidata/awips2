@@ -1,0 +1,4 @@
+C                                           *--> FROM DACOMMON.KDATE
+C  ASAP CURRENT DATE COMMON
+      COMMON /KDATE/ KMON,KDAY,KYR,KTIM
+C

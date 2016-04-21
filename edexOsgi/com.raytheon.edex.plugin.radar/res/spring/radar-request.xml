@@ -1,0 +1,30 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+  
+  	
+  	<bean id="getRadarSpatialRequestHandler" class="com.raytheon.edex.plugin.radar.handler.GetRadarSpatialRequestHandler" />
+	<bean factory-bean="handlerRegistry" factory-method="register">
+  		<constructor-arg value="com.raytheon.uf.common.dataplugin.radar.request.GetRadarSpatialRequest"/>
+  		<constructor-arg ref="getRadarSpatialRequestHandler"/>
+  	</bean>
+
+	<bean id="getRadarDataTreeHandler" class="com.raytheon.edex.plugin.radar.handler.GetRadarDataTreeHandler" />
+	<bean factory-bean="handlerRegistry" factory-method="register">
+  		<constructor-arg value="com.raytheon.uf.common.dataplugin.radar.request.GetRadarDataTreeRequest"/>
+  		<constructor-arg ref="getRadarDataTreeHandler"/>
+  	</bean>
+    
+    <bean id="getRadarDataRecordHandler" class="com.raytheon.edex.plugin.radar.handler.GetRadarDataRecordHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.common.dataplugin.radar.request.GetRadarDataRecordRequest"/>
+        <constructor-arg ref="getRadarDataRecordHandler"/>
+    </bean>
+  	
+  	<bean id="radarMenuUtil" class="com.raytheon.edex.plugin.radar.util.RadarMenuUtil" />
+  	<bean id="radarMenus" factory-bean="menuCreationRegistry" factory-method="register">
+  		<constructor-arg value="radar"/>
+  		<constructor-arg ref="radarMenuUtil"/>
+  	</bean>
+  
+  </beans>

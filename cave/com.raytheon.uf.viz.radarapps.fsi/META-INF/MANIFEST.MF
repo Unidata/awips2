@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: FSI Plug-in
+Bundle-SymbolicName: com.raytheon.uf.viz.radarapps.fsi;singleton:=true
+Bundle-Version: 1.14.0.qualifier
+Bundle-Activator: com.raytheon.uf.viz.radarapps.fsi.Activator
+Bundle-Vendor: Raytheon
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ com.raytheon.uf.viz.core;bundle-version="1.11.17",
+ com.raytheon.viz.ui;bundle-version="1.11.17",
+ org.geotools;bundle-version="2.5.8",
+ com.raytheon.viz.core;bundle-version="1.11.17",
+ com.raytheon.uf.common.message;bundle-version="1.11.17",
+ com.raytheon.viz.radar;bundle-version="1.11.17",
+ com.raytheon.viz.awipstools;bundle-version="1.11.17",
+ com.raytheon.uf.common.dataplugin.radar;bundle-version="1.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: com.raytheon.uf.viz.radarapps.fsi.jar

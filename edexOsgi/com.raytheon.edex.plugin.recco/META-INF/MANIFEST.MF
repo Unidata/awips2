@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Recco Plug-in
+Bundle-SymbolicName: com.raytheon.edex.plugin.recco
+Bundle-Version: 1.12.1174.qualifier
+Bundle-Vendor: RAYTHEON
+Export-Package: com.raytheon.edex.plugin.recco,
+ com.raytheon.edex.plugin.recco.common,
+ com.raytheon.edex.plugin.recco.decoder
+Require-Bundle: com.raytheon.edex.common,
+ com.raytheon.uf.common.pointdata,
+ javax.measure,
+ org.geotools,
+ javax.persistence,
+ com.raytheon.uf.edex.decodertools;bundle-version="1.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: com.raytheon.uf.common.wmo,
+ org.apache.commons.logging

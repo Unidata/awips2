@@ -1,0 +1,17 @@
+eclipse.preferences.version=1
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1995602780=<?xml version\="1.0" encoding\="UTF-8" standalone\="no"?>\n<environment append\="true" appendContributed\="true">\n<variable delimiter\=";" name\="INSTALL_TO" operation\="replace" value\="${ConfigName}"/>\n</environment>\n
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1995602780.1155347710=
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1995602780.1155347710/CC/delimiter=\:
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1995602780.1155347710/CC/operation=replace
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1995602780.1155347710/CC/value=gcc -Wl,--hash-style\=sysv
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1995602780.1155347710/CFLAGS/delimiter=\:
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1995602780.1155347710/CFLAGS/operation=append
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1995602780.1155347710/CFLAGS/value=-m32
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1995602780.1155347710/INSTALL_TO/delimiter=;
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1995602780.1155347710/INSTALL_TO/operation=replace
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1995602780.1155347710/INSTALL_TO/value=../build.native/i386-pc-linux-gnu
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1995602780.1155347710/LD/delimiter=\:
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1995602780.1155347710/LD/operation=append
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1995602780.1155347710/LD/value=ld -melf_i386 --hash-style\=sysv
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1995602780.1155347710/append=true
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1995602780.1155347710/appendContributed=true

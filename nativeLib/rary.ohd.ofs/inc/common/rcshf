@@ -1,0 +1,2 @@
+c Common block rcshf 
+      COMMON/RCSHF/QSHIFT,QORG(112),HORG(112),NRCPTO

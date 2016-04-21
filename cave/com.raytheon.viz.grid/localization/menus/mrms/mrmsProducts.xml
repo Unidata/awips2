@@ -1,0 +1,605 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+     Name				Organization			Date				Info
+     Darrel Kingfield	NOAA/NSSL/CIMMS 		09-02-2014			Initial File Creation
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<!-- Set the initial top level menu -->
+	 <contribute xsi:type="subMenu" menuText="Hail Products" id="MRMS_HAIL">
+		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Maximum Estimated Size of Hail (MESH)" id="MESH">
+			<substitute key="levelOneValue" value="500.0" />
+			<substitute key="datasetID" value="MRMS_1000"/>
+			<substitute key="parameterID" value="MESH"/>
+	 	</contribute>
+	 	<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="MESH Tracks (30 min. accum.)" id="MESH30">
+			<substitute key="levelOneValue" value="500.0" />
+			<substitute key="datasetID" value="MRMS_1000"/>
+			<substitute key="parameterID" value="MESHTrack30min"/>
+	 	</contribute>
+	 	<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="MESH Tracks (60 min. accum.)" id="MESH60">
+			<substitute key="levelOneValue" value="500.0" />
+			<substitute key="datasetID" value="MRMS_1000"/>
+			<substitute key="parameterID" value="MESHTrack60min"/>
+	 	</contribute>
+	 	<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="MESH Tracks (120 min. accum.)" id="MESH120">
+			<substitute key="levelOneValue" value="500.0" />
+			<substitute key="datasetID" value="MRMS_1000"/>
+			<substitute key="parameterID" value="MESHTrack120min"/>
+	 	</contribute>
+	 	<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="MESH Tracks (240 min. accum.)" id="MESH240">
+			<substitute key="levelOneValue" value="500.0"/>
+			<substitute key="datasetID" value="MRMS_1000"/>
+			<substitute key="parameterID" value="MESHTrack240min"/>
+	 	</contribute>
+	 	<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="MESH Tracks (360 min. accum.)" id="MESH360">
+			<substitute key="levelOneValue" value="500.0"/>
+			<substitute key="datasetID" value="MRMS_1000"/>
+			<substitute key="parameterID" value="MESHTrack360min"/>
+	 	</contribute>
+	 	<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="MESH Tracks (1440 min. accum.)" id="MESH1440">
+			<substitute key="levelOneValue" value="500.0"/>
+			<substitute key="datasetID" value="MRMS_1000"/>
+			<substitute key="parameterID" value="MESHTrack1440min"/>
+	 	</contribute>
+	 	<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Probability Of Severe Hail (POSH)" id="POSH">
+			<substitute key="levelOneValue" value="500.0"/>
+			<substitute key="datasetID" value="MRMS_1000"/>
+			<substitute key="parameterID" value="POSH"/>
+	 	</contribute>
+	 	<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Severe Hail Index (SHI)" id="SHI">
+			<substitute key="levelOneValue" value="500.0"/>
+			<substitute key="datasetID" value="MRMS_1000"/>
+			<substitute key="parameterID" value="SHI"/>
+	 	</contribute>
+	 </contribute>
+	 <contribute xsi:type="subMenu" menuText="Lightning Products" id="MRMS_LIGHTNING">
+	 	<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Cloud-to-Ground Lightning Density (1 min.)" id="LightDensity1min">
+			<substitute key="levelOneValue" value="0.0"/>
+			<substitute key="datasetID" value="MRMS_1000"/>
+			<substitute key="parameterID" value="LightningDensity1min"/>
+	 	</contribute>
+	 	<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Cloud-to-Ground Lightning Density (5 min.)" id="LightDensity5min">
+			<substitute key="levelOneValue" value="0.0"/>
+			<substitute key="datasetID" value="MRMS_1000"/>
+			<substitute key="parameterID" value="LightningDensity5min"/>
+	 	</contribute>
+	 	<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Cloud-to-Ground Lightning Density (15 min.)" id="LightDensity15min">
+			<substitute key="levelOneValue" value="0.0"/>
+			<substitute key="datasetID" value="MRMS_1000"/>
+			<substitute key="parameterID" value="LightningDensity15min"/>
+	 	</contribute>
+	 	<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Cloud-to-Ground Lightning Density (30 min.)" id="LightDensity30min">
+			<substitute key="levelOneValue" value="0.0"/>
+			<substitute key="datasetID" value="MRMS_1000"/>
+			<substitute key="parameterID" value="LightningDensity30min"/>
+	 	</contribute>
+	 	<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Cloud-to-Ground Lightning Probability (0-30 min.)" id="LightProb30min">
+			<substitute key="levelOneValue" value="500.0"/>
+			<substitute key="datasetID" value="MRMS_1000"/>
+			<substitute key="parameterID" value="LightningProbabilityNext30min"/>
+	 	</contribute>
+	 </contribute>
+	 <contribute xsi:type="subMenu" menuText="Precipitation Products" id="MRMS_PRECIPITATION">
+	 	<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Surface Precipitation Type (SPT)" id="SfcPrecipType">
+			<substitute key="levelOneValue" value="0.0"/>
+			<substitute key="datasetID" value="MRMS_1000"/>
+			<substitute key="parameterID" value="PrecipType"/>
+	 	</contribute>
+	 	<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Surface Precipitation Rate (SPR)" id="RadarPrecipRate">
+			<substitute key="levelOneValue" value="0.0"/>
+			<substitute key="datasetID" value="MRMS_1000"/>
+			<substitute key="parameterID" value="PrecipRate"/>
+	 	</contribute>
+	 	<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Radar Quality Index (RQI)" id="RadarQualityIndex">
+			<substitute key="levelOneValue" value="0.0"/>
+			<substitute key="datasetID" value="MRMS_1000"/>
+			<substitute key="parameterID" value="RadarQualityIndex"/>
+	 	</contribute>
+	 	<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Seamless Hybrid Scan Reflectivity (SHSR)" id="SHSRVPR">
+			<substitute key="levelOneValue" value="0.0"/>
+			<substitute key="datasetID" value="MRMS_1000"/>
+			<substitute key="parameterID" value="SeamlessHSR"/>
+	 	</contribute>
+	 	<contribute xsi:type="subMenu" menuText="QPE - Radar Only">
+			<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="1 hour Accumulation" id="RadarOnly01hr">
+				<substitute key="levelOneValue" value="0.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="RadarOnlyQPE01H"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="3 hour Accumulation" id="RadarOnly03hr">
+				<substitute key="levelOneValue" value="0.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+			<substitute key="parameterID" value="RadarOnlyQPE03H"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="6 hour Accumulation" id="RadarOnly06hr">
+				<substitute key="levelOneValue" value="0.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="RadarOnlyQPE06H"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="12 hour Accumulation" id="RadarOnly12hr">
+				<substitute key="levelOneValue" value="0.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="RadarOnlyQPE12H"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="24 hour Accumulation" id="RadarOnly24hr">
+				<substitute key="levelOneValue" value="0.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="RadarOnlyQPE24H"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="48 hour Accumulation" id="RadarOnly48hr">
+				<substitute key="levelOneValue" value="0.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="RadarOnlyQPE48H"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="72 hour Accumulation" id="RadarOnly72hr">
+				<substitute key="levelOneValue" value="0.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="RadarOnlyQPE72H"/>
+			</contribute>
+		</contribute>
+		<contribute xsi:type="subMenu" menuText="QPE - Gauge Only">
+			<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="1 hour Accumulation" id="GaugeOnly01hr">
+				<substitute key="levelOneValue" value="0.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="GaugeOnlyQPE01H"/>
+			</contribute>
+				<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="3 hour Accumulation" id="GaugeOnly03hr">
+				<substitute key="levelOneValue" value="0.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="GaugeOnlyQPE03H"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="6 hour Accumulation" id="GaugeOnly06hr">
+				<substitute key="levelOneValue" value="0.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="GaugeOnlyQPE06H"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="12 hour Accumulation" id="GaugeOnly12hr">
+				<substitute key="levelOneValue" value="0.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="GaugeOnlyQPE12H"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="24 hour Accumulation" id="GaugeOnly24hr">
+				<substitute key="levelOneValue" value="0.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="GaugeOnlyQPE24H"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="48 hour Accumulation" id="GaugeOnly48hr">
+				<substitute key="levelOneValue" value="0.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="GaugeOnlyQPE48H"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="72 hour Accumulation" id="GaugeOnly72hr">
+				<substitute key="levelOneValue" value="0.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="GaugeOnlyQPE72H"/>
+			</contribute>
+		</contribute>
+	 	<contribute xsi:type="subMenu" menuText="QPE - Radar w/ Gauge Bias Correction">
+			<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="1 hour Accumulation" id="GaugeCorr01hr">
+				<substitute key="levelOneValue" value="0.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="GaugeCorrQPE01H"/>
+			</contribute>
+				<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="3 hour Accumulation" id="GaugeCorr03hr">
+				<substitute key="levelOneValue" value="0.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="GaugeCorrQPE03H"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="6 hour Accumulation" id="GaugeCorr06hr">
+				<substitute key="levelOneValue" value="0.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="GaugeCorrQPE06H"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="12 hour Accumulation" id="GaugeCorr12hr">
+				<substitute key="levelOneValue" value="0.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="GaugeCorrQPE12H"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="24 hour Accumulation" id="GaugeCorr24hr">
+				<substitute key="levelOneValue" value="0.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="GaugeCorrQPE24H"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="48 hour Accumulation" id="GaugeCorr48hr">
+				<substitute key="levelOneValue" value="0.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="GaugeCorrQPE48H"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="72 hour Accumulation" id="GaugeCorr72hr">
+				<substitute key="levelOneValue" value="0.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="GaugeCorrQPE72H"/>
+			</contribute>
+		</contribute>
+		<contribute xsi:type="subMenu" menuText="QPE - Mountain Mapper">
+			<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="1 hour Accumulation" id="MountainMapper01hr">
+				<substitute key="levelOneValue" value="0.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="MountainMapperQPE01H"/>
+			</contribute>
+				<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="3 hour Accumulation" id="MountainMapper03hr">
+				<substitute key="levelOneValue" value="0.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="MountainMapperQPE03H"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="6 hour Accumulation" id="MountainMapper06hr">
+				<substitute key="levelOneValue" value="0.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="MountainMapperQPE06H"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="12 hour Accumulation" id="MountainMapper12hr">
+				<substitute key="levelOneValue" value="0.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="MountainMapperQPE12H"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="24 hour Accumulation" id="MountainMapper24hr">
+				<substitute key="levelOneValue" value="0.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="MountainMapperQPE24H"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="48 hour Accumulation" id="MountainMapper48hr">
+				<substitute key="levelOneValue" value="0.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="MountainMapperQPE48H"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="72 hour Accumulation" id="MountainMapper72hr">
+				<substitute key="levelOneValue" value="0.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="MountainMapperQPE72H"/>
+			</contribute>
+		</contribute>
+	 </contribute>
+	 <contribute xsi:type="subMenu" menuText="Reflectivity Products" id="MRMS_REFLECTIVITY">
+	 	<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Composite Reflectivity" id="CompZ">
+			<substitute key="levelOneValue" value="500.0"/>
+			<substitute key="datasetID" value="MRMS_1000"/>
+			<substitute key="parameterID" value="MergedReflectivityQCComposite"/>
+	 	</contribute>
+	 	<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Composite Reflectivity Height" id="CompZH">
+			<substitute key="levelOneValue" value="500.0"/>
+			<substitute key="datasetID" value="MRMS_1000"/>
+			<substitute key="parameterID" value="HeightCompositeReflectivity"/>
+	 	</contribute>
+	 	<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Reflectivity At Lowest Altitude (RALA)" id="REFLA">
+			<substitute key="levelOneValue" value="500.0"/>
+			<substitute key="datasetID" value="MRMS_1000"/>
+			<substitute key="parameterID" value="ReflectivityAtLowestAltitude"/>
+	 	</contribute>
+	 	<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Vertically Integrated Ice (VII)" id="VII">
+			<substitute key="levelOneValue" value="500.0"/>
+			<substitute key="datasetID" value="MRMS_1000"/>
+			<substitute key="parameterID" value="VII"/>
+	 	</contribute>
+	 	<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Vertically Integrated Liquid (VIL)" id="MRMSVIL">
+			<substitute key="levelOneValue" value="500.0"/>
+			<substitute key="datasetID" value="MRMS_1000"/>
+			<substitute key="parameterID" value="MRMSVIL"/>
+	 	</contribute>
+	 	<contribute xsi:type="subMenu" menuText="Echo Tops" id="MRMS_ECHO">
+			<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="18 dBZ Echo Top" id="18ET">
+				<substitute key="levelOneValue" value="500.0" />
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="EchoTop18"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="30 dBZ Echo Top" id="30ET">
+				<substitute key="levelOneValue" value="500.0" />
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="EchoTop30"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="50 dBZ Echo Top" id="50ET">
+				<substitute key="levelOneValue" value="500.0" />
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="EchoTop50"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="60 dBZ Echo Top" id="60ET">
+				<substitute key="levelOneValue" value="500.0" />
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="EchoTop60"/>
+	 		</contribute>
+	 	</contribute>
+	 	<contribute xsi:type="subMenu" menuText="Isothermal Reflectivity" id="REF_ISOTHERMAL">
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Reflectivity at 0°C" id="REF0C">
+				<substitute key="levelOneValue" value="500.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="Reflectivity0C"/>
+	 		</contribute>
+		 	<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Reflectivity at -5°C" id="REFM5C">
+				<substitute key="levelOneValue" value="500.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="ReflectivityM5C"/>
+		 	</contribute>
+		 	<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Reflectivity at -10°C" id="REFM10C">
+				<substitute key="levelOneValue" value="500.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="ReflectivityM10C"/>
+		 	</contribute>
+		 	<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Reflectivity at -15°C" id="REFM15C">
+				<substitute key="levelOneValue" value="500.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="ReflectivityM15C"/>
+		 	</contribute>
+		 	<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Reflectivity at -20°C" id="REFM20C">
+				<substitute key="levelOneValue" value="500.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="ReflectivityM20C"/>
+		 	</contribute>
+		</contribute>
+		<contribute xsi:type="subMenu" menuText="Merged Reflectivity Cube" id="REF_CUBE">
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms3D.xml" menuText="0.5km-3.0km Merged Reflectivity All-Tilts" id="MRMS-03-ALL">
+				<substitute key="levelOneValue" value="500.0--3000.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms3D.xml" menuText="0.5km-6.0km Merged Reflectivity All-Tilts" id="MRMS-06-ALL">
+				<substitute key="levelOneValue" value="500.0--6000.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms3D.xml" menuText="0.5km-19.0km Merged Reflectivity All-Tilts" id="MRMS-019-ALL">
+				<substitute key="levelOneValue" value="500.0--19000.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="separator" id="MRMS-Cube-Static" />
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 0.5km/1.6kft" id="MRMS-REF-500">
+				<substitute key="levelOneValue" value="500.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 0.75km/2.5kft" id="MRMS-REF-750">
+				<substitute key="levelOneValue" value="750.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 1.0km/3.3kft" id="MRMS-REF-1000">
+				<substitute key="levelOneValue" value="1000.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 1.25km/4.1kft" id="MRMS-REF-1250">
+				<substitute key="levelOneValue" value="1250.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 1.5km/4.9kft" id="MRMS-REF-1500">
+				<substitute key="levelOneValue" value="1500.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 1.75km/5.7kft" id="MRMS-REF-1750">
+				<substitute key="levelOneValue" value="1750.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 2.0km/6.6kft" id="MRMS-REF-2000">
+				<substitute key="levelOneValue" value="2000.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 2.25km/7.4kft" id="MRMS-REF-2250">
+				<substitute key="levelOneValue" value="2250.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 2.5km/8.2kft" id="MRMS-REF-2500">
+				<substitute key="levelOneValue" value="2500.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 2.75km/9.0kft" id="MRMS-REF-2750">
+				<substitute key="levelOneValue" value="2750.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 3.0km/9.8kft" id="MRMS-REF-3000">
+				<substitute key="levelOneValue" value="3000.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 3.5km/11.5kft" id="MRMS-REF-3500">
+				<substitute key="levelOneValue" value="3500.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 4.0km/13.1kft" id="MRMS-REF-4000">
+				<substitute key="levelOneValue" value="4000.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 4.5km/14.8kft" id="MRMS-REF-4500">
+				<substitute key="levelOneValue" value="4500.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 5.0km/16.4kft" id="MRMS-REF-5000">
+				<substitute key="levelOneValue" value="5000.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 5.5km/18.0kft" id="MRMS-REF-5500">
+				<substitute key="levelOneValue" value="5500.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 6.0km/19.7kft" id="MRMS-REF-6000">
+				<substitute key="levelOneValue" value="6000.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 6.5km/21.3kft" id="MRMS-REF-6500">
+				<substitute key="levelOneValue" value="6500.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 7.0km/23.0kft" id="MRMS-REF-7000">
+				<substitute key="levelOneValue" value="7000.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 7.5km/24.6kft" id="MRMS-REF-7500">
+				<substitute key="levelOneValue" value="7500.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 8.0km/26.2kft" id="MRMS-REF-8000">
+				<substitute key="levelOneValue" value="8000.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 8.5km/27.9kft" id="MRMS-REF-8500">
+				<substitute key="levelOneValue" value="8500.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 9.0km/29.5kft" id="MRMS-REF-9000">
+				<substitute key="levelOneValue" value="9000.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 10.0km/32.8kft" id="MRMS-REF-10000">
+				<substitute key="levelOneValue" value="10000.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 11.0km/36.1kft" id="MRMS-REF-11000">
+				<substitute key="levelOneValue" value="11000.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 12.0km/39.4kft" id="MRMS-REF-12000">
+				<substitute key="levelOneValue" value="12000.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 13.0km/42.7kft" id="MRMS-REF-13000">
+				<substitute key="levelOneValue" value="13000.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 14.0km/45.9kft" id="MRMS-REF-14000">
+				<substitute key="levelOneValue" value="14000.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 15.0km/49.2kft" id="MRMS-REF-15000">
+				<substitute key="levelOneValue" value="15000.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 16.0km/52.5kft" id="MRMS-REF-16000">
+				<substitute key="levelOneValue" value="16000.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 17.0km/55.8kft" id="MRMS-REF-17000">
+				<substitute key="levelOneValue" value="17000.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 18.0km/59.1kft" id="MRMS-REF-18000">
+				<substitute key="levelOneValue" value="18000.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 19.0km/62.3kft" id="MRMS-REF-19000">
+				<substitute key="levelOneValue" value="19000.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 	</contribute>
+		<contribute xsi:type="subMenu" menuText="Thickness" id="REF_THICKNESS">
+			<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Height of 50dBZ Echo Above -20°C" id="H50253">
+				<substitute key="levelOneValue" value="500.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="H50AboveM20C"/>
+		 	</contribute>
+		 	<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Height of 60dBZ Echo Above -20°C" id="H60253">
+				<substitute key="levelOneValue" value="500.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="H60AboveM20C"/>
+		 	</contribute>
+		 	<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Height of 50dBZ Echo Above 0°C" id="H50273">
+				<substitute key="levelOneValue" value="500.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="H50Above0C"/>
+		 	</contribute>
+		 	<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Height of 60dBZ Echo Above 0°C" id="H60273">
+				<substitute key="levelOneValue" value="500.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="H60Above0C"/>
+		 	</contribute>
+		 </contribute>
+	 </contribute>
+	 <contribute xsi:type="subMenu" menuText="Velocity Products" id="MRMS_VELOCITY">
+	 	<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Low-Level Azimuthal Shear (0-2km AGL)" id="AZ02">
+			<substitute key="levelOneValue" value="500.0"/>
+			<substitute key="datasetID" value="MRMS_0500"/>
+			<substitute key="parameterID" value="MergedAzShear02kmAGL"/>
+	 	</contribute>
+	 	<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Low-Level Rotation Tracks (30 min. accum.)" id="ROTLL30">
+			<substitute key="levelOneValue" value="500.0"/>
+			<substitute key="datasetID" value="MRMS_0500"/>
+			<substitute key="parameterID" value="RotationTrackLL30min"/>
+	 	</contribute>
+	 	<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Low-Level Rotation Tracks (60 min. accum.)" id="ROTLL60">
+			<substitute key="levelOneValue" value="500.0"/>
+			<substitute key="datasetID" value="MRMS_0500"/>
+			<substitute key="parameterID" value="RotationTrackLL60min"/>
+	 	</contribute>
+	 	<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Low-Level Rotation Tracks (120 min. accum.)" id="ROTLL120">
+			<substitute key="levelOneValue" value="500.0"/>
+			<substitute key="datasetID" value="MRMS_0500"/>
+			<substitute key="parameterID" value="RotationTrackLL120min"/>
+	 	</contribute>
+	 	<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Low-Level Rotation Tracks (240 min. accum.)" id="ROTLL240">
+			<substitute key="levelOneValue" value="500.0"/>
+			<substitute key="datasetID" value="MRMS_0500"/>
+			<substitute key="parameterID" value="RotationTrackLL240min"/>
+	 	</contribute>
+	 	<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Low-Level Rotation Tracks (360 min. accum.)" id="ROTLL360">
+			<substitute key="levelOneValue" value="500.0"/>
+			<substitute key="datasetID" value="MRMS_0500"/>
+			<substitute key="parameterID" value="RotationTrackLL360min"/>
+	 	</contribute>
+	 	<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Low-Level Rotation Tracks (1440 min. accum.)" id="ROTLL1440">
+			<substitute key="levelOneValue" value="500.0"/>
+			<substitute key="datasetID" value="MRMS_0500"/>
+			<substitute key="parameterID" value="RotationTrackLL1440min"/>
+	 	</contribute>
+	 	<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Mid-Level Azimuthal Shear (3-6km AGL)" id="AZ36">
+			<substitute key="levelOneValue" value="500.0"/>
+			<substitute key="datasetID" value="MRMS_0500"/>
+			<substitute key="parameterID" value="MergedAzShear36kmAGL"/>
+	 	</contribute>
+	 	<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Mid-Level Rotation Tracks (30 min. accum.)" id="ROTML30">
+			<substitute key="levelOneValue" value="500.0"/>
+			<substitute key="datasetID" value="MRMS_0500"/>
+			<substitute key="parameterID" value="RotationTrackML30min"/>
+	 	</contribute>
+	 	<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Mid-Level Rotation Tracks (60 min. accum.)" id="ROTML60">
+			<substitute key="levelOneValue" value="500.0"/>
+			<substitute key="datasetID" value="MRMS_0500"/>
+			<substitute key="parameterID" value="RotationTrackML60min"/>
+	 	</contribute>
+	 	<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Mid-Level Rotation Tracks (120 min. accum.)" id="ROTML120">
+			<substitute key="levelOneValue" value="500.0"/>
+			<substitute key="datasetID" value="MRMS_0500"/>
+			<substitute key="parameterID" value="RotationTrackML120min"/>
+	 	</contribute>
+	 	<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Mid-Level Rotation Tracks (240 min. accum.)" id="ROTML240">
+			<substitute key="levelOneValue" value="500.0"/>
+			<substitute key="datasetID" value="MRMS_0500"/>
+			<substitute key="parameterID" value="RotationTrackML240min"/>
+	 	</contribute>
+	 	<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Mid-Level Rotation Tracks (360 min. accum.)" id="ROTML360">
+			<substitute key="levelOneValue" value="500.0"/>
+			<substitute key="datasetID" value="MRMS_0500"/>
+			<substitute key="parameterID" value="RotationTrackML360min"/>
+	 	</contribute>
+	 	<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Mid-Level Rotation Tracks (1440 min. accum.)" id="ROTML1440">
+			<substitute key="levelOneValue" value="500.0"/>
+			<substitute key="datasetID" value="MRMS_0500"/>
+			<substitute key="parameterID" value="RotationTrackML1440min"/>
+	 	</contribute>
+	 </contribute>
+</menuTemplate>

@@ -1,0 +1,146 @@
+C MODULE WDGCR
+C-----------------------------------------------------------------------
+C
+C  ROUTINE TO CREATE A STATION IN THE GOES CONTROL FILE.
+C
+      SUBROUTINE WDGCR (USERID,GOESID,IDTYPE,PPDBID,PPDBDS,
+     *   NDLYTP,DLYTYP,NRRSTP,RRSTYP,IRTIME,ITIME,ISTAT)
+C
+C
+      CHARACTER*4 DLYTYP(NDLYTP),RRSTYP(NRRSTP)
+      CHARACTER*8 USERID,GOESID,PPDBID
+      CHARACTER*8 USERIDX,GOESIDX,PPDBIDX
+      CHARACTER*20 PPDBDS
+      CHARACTER*128 FILENAME
+C
+      DIMENSION IRTIME(NRRSTP),ITIME(*)
+C
+      INCLUDE 'uio'
+      INCLUDE 'udebug'
+      INCLUDE 'dgcommon/dgunts'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/shared_goes/RCS/wdgcr.f,v $
+     . $',                                                             '
+     .$Id: wdgcr.f,v 1.2 1998/04/07 14:30:33 page Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      ISTAT=0
+C
+      IF (IDETR.GT.0) WRITE (IOGDB,5)
+5     FORMAT (' *** ENTER WDGCR')  
+C
+C  OPEN FILE
+      IOPEN=2
+      CALL UDOPEN (KDGRCF,IOPEN,FILENAME,LRECL,IERR)
+      IF (IERR.NE.0) THEN
+         WRITE (LP,10) FILENAME(1:LENSTR(FILENAME))
+10    FORMAT ('0*** ERROR - IN WDGCR - CANNOT OPEN FILE ',A,'.')
+         ISTAT=1
+         GO TO 210
+         ENDIF
+C
+C  GET NUMBER OF ENTRIES
+      NHD=0
+      READ (KDGRCF,REC=1,ERR=50) NHEAD
+      IF (NHEAD.GT.0) GO TO 70
+         NHEAD=1
+         WRITE (KDGRCF,REC=1,ERR=30) NHEAD
+         NHD=2
+         GO TO 70
+30    WRITE (LP,40) FILENAME(1:LENSTR(FILENAME))
+40    FORMAT ('0*** ERROR - IN WDGCR - BAD WRITE TO FIRST RECORD IN ',
+     *   'FILE ',A,'.')
+      ISTAT=1
+      GO TO 200
+50    WRITE (LP,60) FILENAME(1:LENSTR(FILENAME))
+60    FORMAT ('0*** ERROR - IN WDGCR - BAD READ IN FILE ',A,'.')
+      ISTAT=1
+      GO TO 200
+
+C  SEARCH FILE - IF STATION NOT FOUND SEE IF THERE IS A DELETED RECORD
+70    IF (NHD.GT.0) GO TO 140
+      LDELTE=0
+      NHEAD=NHEAD+1
+      DO 80 NHD=2,NHEAD
+         READ (KDGRCF,REC=NHD,ERR=120) USERIDX,GOESIDX,IDTYPEX,PPDBIDX
+         IF (LDELTE.EQ.0.AND.GOESIDX.EQ.'*DELETED') LDELTE=NHD
+         IF (USERIDX.EQ.USERID.AND.
+     *       GOESIDX.EQ.GOESID.AND.
+     *       IDTYPEX.EQ.IDTYPE.AND.
+     *       PPDBIDX.EQ.PPDBID) THEN
+            ISTAT=2
+            GO TO 200
+            ENDIF       
+80       CONTINUE
+      IF (LDELTE.GT.0) GO TO 110
+         WRITE (KDGRCF,REC=1,ERR=90) NHEAD
+         NHD=NHEAD+1
+         GO TO 140
+90    WRITE (LP,100) FILENAME(1:LENSTR(FILENAME))
+100   FORMAT ('0*** ERROR - IN WDGCR - BAD WRITE TO FILE ',A,'.')
+      ISTAT=1
+      GO TO 200
+110   NHD=LDELTE
+      GO TO 140
+120   WRITE (LP,130) FILENAME(1:LENSTR(FILENAME))
+130   FORMAT ('0*** ERROR - IN WDGCR - BAD READ OR EOF IN FILE ',A,'.')
+      ISTAT=1
+      GO TO 200
+C
+C  SET TIME INTERVAL IN MINUTES
+140   NITIME=NDLYTP+NRRSTP
+      DO 150 I=1,NDLYTP
+         ITIME(I)=0
+         IF (DLYTYP(I).EQ.'PP24') ITIME(I)=24*60
+         IF (DLYTYP(I).EQ.'PP06') ITIME(I)=06*60
+         IF (DLYTYP(I).EQ.'PP03') ITIME(I)=03*60
+         IF (DLYTYP(I).EQ.'PP01') ITIME(I)=01*60
+         IF (DLYTYP(I).EQ.'TM24') ITIME(I)=24*60
+         IF (DLYTYP(I).EQ.'TA06') ITIME(I)=06*60
+         IF (DLYTYP(I).EQ.'TA03') ITIME(I)=03*60
+         IF (DLYTYP(I).EQ.'TA01') ITIME(I)=01*60
+         IF (DLYTYP(I).EQ.'TN24') ITIME(I)=24*60
+         IF (DLYTYP(I).EQ.'TX24') ITIME(I)=24*60
+         IF (DLYTYP(I).EQ.'EA24') ITIME(I)=24*60
+         IF (ITIME(I).EQ.0) THEN
+            IF (IDEDB.GT.0) WRITE (IOGDB,145) DLYTYP(I),PPDBID,GOESID
+145   FORMAT (' DLYTYP ',A,
+     *   ' FOR PPDBID ',A,
+     *   ' AND GOESID ',A,
+     *   ' IS INVALID')
+            ISTAT=3
+            ENDIF
+150      CONTINUE
+      IF (ISTAT.GT.0) GO TO 200
+      DO 160 I=1,NRRSTP
+         ITIME(NDLYTP+I)=IRTIME(I)*60
+160      CONTINUE
+C
+      WRITE (KDGRCF,REC=NHD,ERR=180) USERID,
+     *   GOESID,IDTYPE,PPDBID,PPDBDS,
+     *   NDLYTP,(DLYTYP(I),I=1,NDLYTP),
+     *   NRRSTP,(RRSTYP(I),I=1,NRRSTP),
+     *   NITIME,(ITIME(I),I=1,NITIME)
+      IF (IDEDB.GT.0) WRITE (IOGDB,170) GOESID,NHD,
+     *   FILENAME(1:LENSTR(FILENAME))
+170   FORMAT (' STATION ',A,' CREATED AT RECORD',I5,' IN FILE ',A)
+      GO TO 200
+180   WRITE (LP,190) NHD,FILENAME(1:LENSTR(FILENAME))
+190   FORMAT ('0*** ERROR - IN WDGCR - BAD WRITE AT RECORD ',I5,
+     *   ' IN FILE ',A,'.')
+      ISTAT=1
+C
+C  CLOSE FILE
+200   CALL UPCLOS (KDGRCF,' ',IERR)
+C
+210   IF (IDETR.GT.0) WRITE (IOGDB,220)
+220   FORMAT (' *** EXIT WDGCR')
+C
+      RETURN
+C
+      END

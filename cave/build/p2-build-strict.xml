@@ -1,0 +1,335 @@
+<project name="CaveP2Build" default="p2.build" basedir=".">
+	<!-- 
+		This ant build script will build both a feature and the dependencies
+		associated with the feature. Build Order is not important in this
+		script for this reason.
+		
+		This script requires a significant amount of time to complete a full
+		build so it will not be used in place of p2-build.xml yet. However,
+		when we are able to explore the SVN commits to determine which plugins
+		were altered, it will be possible to generate a list of features
+		that need to be built based on what has changed.
+	-->
+
+	<!-- TODO: Verify These Properties References An Actual Directory. -->
+	<property name="eclipse.dir" 
+		value="/awips2/eclipse" />
+	<property name="build.version"
+		value="1.0.0" />
+	<property name="workspace.dir" value="${basedir}/../" />
+	
+	<property name="feature.to.build" value="" />
+	
+	<property name="pde.build.script"
+		value="org.eclipse.pde.build_3.6.1.R36x_v20100823/scripts/build.xml" />
+	<property name="eclipse.launcher.jar"
+		value="org.eclipse.equinox.launcher_1.1.0.v20100507.jar" />
+	
+	<!-- Verify That We Have Access To A Copy Of Eclipse -->
+	<target name="verify">
+	</target>
+	
+	<!-- Creates The Temporary Directories That We Will Need To Build
+	     The P2 Repositories. -->
+	<target name="init" depends="verify">		
+		<!-- We Will Use A Temporary p2 Directory And Leave The
+			 cave/tmp Directory For The Original PDE Build. -->
+		<mkdir dir="${basedir}/cave/p2" />
+		
+		<!-- Copy The P2 Build build.properties File. -->
+		<copy tofile="${basedir}/cave/p2/build.properties" 
+			file="${basedir}/build.properties.p2" verbose="true" />
+		
+		<!-- We Will Copy The Plugins Here Eventually. -->
+		<mkdir dir="${basedir}/cave/p2/plugins" />
+		<!-- We Will Copy The Features Here Eventually. -->
+		<mkdir dir="${basedir}/cave/p2/features" />
+		
+		<mkdir dir="${basedir}/cave/p2/repository" />
+		<mkdir dir="${basedir}/cave/p2/dist" />
+		<mkdir dir="${basedir}/cave/p2/build-ind" />
+		
+		<!-- BEGIN: Copy The Plugins -->
+		<echo message="PLUGINS: com.*/**" />
+		<copy todir="${basedir}/cave/p2/plugins">
+			<fileset dir="${workspace.dir}"
+				includes="com.*/**" />
+		</copy>
+		
+		<echo message="PLUGINS: ucar.*/**" />
+		<copy todir="${basedir}/cave/p2/plugins">
+			<fileset dir="${workspace.dir}"
+				includes="ucar.*/**" />
+		</copy>
+		
+		<echo message="PLUGINS: *.feature*/**" />
+		<copy todir="${basedir}/cave/p2/plugins">
+			<fileset dir="${workspace.dir}"
+				includes="*.feature*/**" />
+		</copy>
+		
+		<echo message="PLUGINS: ncsa.*/**" />
+		<copy todir="${basedir}/cave/p2/plugins">
+			<fileset dir="${workspace.dir}"
+				includes="ncsa.*/**" />
+		</copy>
+		
+		<echo message="PLUGINS: org.*/**" />
+		<copy todir="${basedir}/cave/p2/plugins">
+			<fileset dir="${workspace.dir}"
+				includes="org.*/**" />
+		</copy>
+		
+		<echo message="PLUGINS: net.*/**" />
+		<copy todir="${basedir}/cave/p2/plugins">
+			<fileset dir="${workspace.dir}"
+				includes="net.*/**" />
+		</copy>
+		
+		<echo message="PLUGINS: ohd*/**" />
+		<copy todir="${basedir}/cave/p2/plugins">
+			<fileset dir="${workspace.dir}"
+				includes="ohd*/**" />
+		</copy>
+		
+		<echo message="PLUGINS: javax.*/**" />
+		<copy todir="${basedir}/cave/p2/plugins">
+			<fileset dir="${workspace.dir}"
+				includes="javax.*/**" />
+		</copy>
+		
+		<echo message="PLUGINS: gov.*/**" />
+		<copy todir="${basedir}/cave/p2/plugins">
+			<fileset dir="${workspace.dir}"
+				includes="gov.*/**" />
+		</copy>
+		
+		<echo message="PLUGINS: edu.*/**" />
+		<copy todir="${basedir}/cave/p2/plugins">
+			<fileset dir="${workspace.dir}"
+				includes="edu.*/**" />
+		</copy>
+		<!-- END: Copy The Plugins -->
+		
+		<!-- Copy The Features -->
+		<echo message="FEATURES: *viz*feature*" />
+		<copy todir="${basedir}/cave/p2/features">
+			<fileset dir="${workspace.dir}"
+				includes="*viz*feature*/**" />
+		</copy>
+	</target>
+	
+	<!-- Cleans Up Any Temporary Directories -->
+	<target name="clean">
+		<if>
+			<available file="${basedir}/cave/p2" type="dir" />
+			<then>
+				<delete includeemptydirs="true">
+					<fileset dir="${basedir}/cave/p2" />
+				</delete>
+			</then>
+		</if>
+	</target>
+	
+	<tstamp>
+		<format property="build.timestamp"
+			pattern="yyyyMMddHHmm" />
+	</tstamp>
+	
+	<target name="p2.build" depends="clean, init">
+		<!-- Has a specific feature been specified? -->
+		
+		<if>
+			<equals arg1="${feature.to.build}" arg2="" />
+			<then>
+				<!-- Loop through the features that we need to build. -->
+				<foreach param="feature"
+					target="p2.build.repo">
+			
+					<path>
+						<dirset 
+							dir="${basedir}/cave/p2/features"
+							includes="*viz*feature*/**"
+							excludes="*viz.eclipse.feature*/**,
+								*viz.feature.alertviz*/**,
+								*viz.feature.awips.developer*/**,
+								com.raytheon.viz.feature.awips" />
+					</path>
+			
+				</foreach>
+			</then>
+			<else>
+				<antcall target="p2.build.repo">
+					<param name="feature"
+						value="${feature.to.build}" />
+				</antcall>
+			</else>
+		</if>
+	</target>
+	
+	<target name="p2.build.repo">
+		<if>
+			<isfalse value="${build.dependency}" />
+			<then>
+				<antcall target="build.awips.feature" />
+			</then>
+		</if>
+
+		<echo message="feature=${feature}" />
+		<basename file="${feature}"
+			property="feature.name" />
+		<!-- Update The Feature -->
+		<property name="process.feature.tool"
+			value="${workspace.dir}/build/tools/ProcessFeature.jar" />
+		<java 
+			jar="${process.feature.tool}"
+			fork="true"
+			failonerror="false"
+			resultproperty="feature.tool.exitcode"
+			outputproperty="feature.dependency.list">
+			
+			<arg value="-u" />
+			<arg value="${basedir}/cave/p2/features/${feature.name}" />
+			<arg value="${build.version}" />
+		</java>
+		
+		<if>
+			<equals arg1="${feature.tool.exitcode}" 
+				arg2="255" />
+			<then>
+				<fail message="${process.feature.tool} FAILED." />
+			</then>
+		</if>
+		<if>
+			<equals arg1="${feature.tool.exitcode}"
+				arg2="50" />
+			<then>
+				<!-- We have dependencies to build, first. -->
+				<foreach 
+					list="${feature.dependency.list}"
+					target="p2.build.dependencies"
+					param="feature">
+				</foreach>
+			</then>
+		</if>
+		
+		<!-- Make sure that the repository has not already been built. -->
+		<!-- Build The Repository -->
+		<if>
+			<not>
+				<available file="${basedir}/cave/p2/build-ind/${feature}.ind" />
+			</not>
+			<then>
+				<java
+					classname="org.eclipse.core.launcher.Main"
+					fork="true"
+					failonerror="true">
+			
+					<arg value="-application" />
+					<arg value="org.eclipse.ant.core.antRunner" />
+					<arg value="-buildfile" />
+					<arg value="${eclipse.dir}/plugins/${pde.build.script}" />
+					<arg value="-Dbuilder=${basedir}/cave/p2" />
+					<arg value="-DbuildDirectory=${basedir}/cave/p2" />
+					<arg value="-DbaseLocation=${eclipse.dir}" />
+					<arg value="-DtopLevelElementId=${feature.name}" />
+					<arg value="-DforceContextQualifier=${build.timestamp}" />
+			
+					<classpath>
+						<pathelement 
+							location="${eclipse.dir}/plugins/${eclipse.launcher.jar}" />
+					</classpath>
+				</java>
+				
+				<touch
+					file="${basedir}/cave/p2/build-ind/${feature.name}.ind" />
+			</then>
+			<else>
+				<echo message="NOTIFY: ${feature.name} WAS ALREADY BUILT." />
+			</else>
+		</if>
+		
+		<if>
+			<isfalse value="${build.dependency}" />
+			<then>
+				<!-- Package The Repository -->
+				<zip
+					destfile="${basedir}/cave/p2/dist/${feature.name}-repo.zip"
+					basedir="${basedir}/cave/p2/repository" />
+		
+				<!-- Cleanup The Current Build -->
+				<if>
+					<available file="${basedir}/cave/p2/I.CAVE" type="dir" />
+					<then>
+						<delete includeemptydirs="true">
+							<fileset dir="${basedir}/cave/p2/I.CAVE" />
+						</delete>
+					</then>
+				</if>
+				
+				<delete includeemptydirs="true" verbose="true">
+					<fileset dir="${basedir}/cave/p2/plugins"
+						includes="**/@dot/**"
+						defaultexcludes="false" />
+				</delete>
+				
+				<if>
+					<available file="${basedir}/cave/p2/build-ind" 
+						type="dir" />
+					<then>
+						<delete includeemptydirs="true">
+							<fileset dir="${basedir}/cave/p2/build-ind" />
+						</delete>
+					</then>
+				</if>
+				<mkdir dir="${basedir}/cave/p2/build-ind" />
+			</then>
+		</if>
+		
+		<if>
+			<available file="${basedir}/cave/p2/repository" type="dir" />
+			<then>
+				<delete includeemptydirs="true">
+					<fileset dir="${basedir}/cave/p2/repository" />
+				</delete>
+			</then>
+		</if>
+		<mkdir dir="${basedir}/cave/p2/repository" />
+	</target>
+	
+	<target name="build.awips.feature">
+		<java
+			classname="org.eclipse.core.launcher.Main"
+			fork="true"
+			failonerror="true">
+			
+			<arg value="-application" />
+			<arg value="org.eclipse.ant.core.antRunner" />
+			<arg value="-buildfile" />
+			<arg value="${eclipse.dir}/plugins/${pde.build.script}" />
+			<arg value="-Dbuilder=${basedir}/cave/p2" />
+			<arg value="-DbuildDirectory=${basedir}/cave/p2" />
+			<arg value="-DbaseLocation=${eclipse.dir}" />
+			<arg 
+				value="-DtopLevelElementId=com.raytheon.viz.feature.awips" />
+			<arg value="-DforceContextQualifier=${build.timestamp}" />
+			
+			<classpath>
+				<pathelement 
+					location="${eclipse.dir}/plugins/${eclipse.launcher.jar}" />
+			</classpath>
+		</java>
+	</target>
+	
+	<target name="p2.build.dependencies">		
+		<antcall target="p2.build.repo">
+			<param name="feature"
+				value="${feature}" />
+			<param name="build.dependency"
+				value="true" />
+		</antcall>
+	</target>
+	
+	<taskdef resource="net/sf/antcontrib/antlib.xml" 
+		classpath="${basedir}/lib/ant/ant-contrib-1.0b3.jar" />
+</project>	

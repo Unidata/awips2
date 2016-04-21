@@ -1,0 +1,84 @@
+C MEMBER GSODAT
+C  (from old member PPGSODAT)
+C
+      SUBROUTINE GSODAT(PG24, W6, GP6, NPGRID, NRAIN, NFLAG6, N6P, WP)
+C
+C.....THIS SUBROUTINE STORES PRECIPITATION DATA THAT HAS BEEN SUBMITTED
+C.....IN A RUNTIME MODE.
+C
+C.....THIS ROUTINE CAN BE CALLED BY GGPXGP.
+C
+C.....ARGUMENTS ARE:
+C
+C.....PG24   - GRID POINT 24-HOUR PRECIPITATION ARRAY
+C.....W6     - ARRAY OF 6-HOUR DISTRIBUTION PERCENTAGES.
+C.....GP6    - POINTER TO W6 ARRAY.
+C.....NPGRID - GRID POINT ADDRESS
+C.....NRAIN  - 24 HR PRECIPITATION AMOUNT
+C.....NFLAG6 - 6 HR FLAG
+C.....          = 1   6 HR DATA PRESENT
+C.....          = 0   6 HR DATA NOT PRESENT
+C.....N6P    - ARRAY TO STORE DISTRIBUTION PERCENTAGES.
+C.....WP     - POINTER TO NEXT FREE SPACE IN W6.
+C
+C.....ORIGINALLY WRITTEN BY
+C
+C.....JERRY M. NUNN       WGRFC FT. WORTH, TEXAS       SEPTEMBER 1986
+C
+      INTEGER*2 NRAIN, NFLAG6, N6P(1), PG24(1), W6(1), GP6(1)
+      INCLUDE 'gcommon/explicit'
+      DIMENSION SNAME(2)
+C
+      INCLUDE 'common/where'
+      INCLUDE 'gcommon/gsize'
+      INCLUDE 'common/ionum'
+      INCLUDE 'common/pudbug'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcst_maro/RCS/gsodat.f,v $
+     . $',                                                             '
+     .$Id: gsodat.f,v 1.1 1995/09/17 19:02:39 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      DATA GPXP, SNAME /4hGPXP, 4hGSOD, 4hAT  /
+C
+    1 FORMAT(1H0, '***** INPUT PRECIPITATION AMOUNT OF ', I4, ' CHANGED
+     *TO MISSING CODE OF ', I5, ' *****')
+  900 FORMAT(1H0, '*** GSODAT ENTERED ***')
+  901 FORMAT(1H0, '*** EXIT GSODAT ***')
+  902 FORMAT(1H0, 2X, 'PG24(', I4, ') = ', I5)
+C
+C
+      INCLUDE 'gcommon/setwhere'
+      IBUG = IPBUG(GPXP)
+      IF(IPTRCE .GE. 3) WRITE(IOPDBG,900)
+C
+C.....THE VALUE '9999' IS A LEGITIMATE MISSING CODE FOR CARD IMAGE
+C.....INPUT. IF THIS VALUE IS ENCOUNTERED...CHANGE IT TO A LEGITIMATE
+C.....INTERNAL MISSING REPRESENTATIN OF -9999.
+C
+      IF(NRAIN .EQ. 9999) WRITE(IPR,1) NRAIN, MSGGRD
+      IF(NRAIN .EQ. 9999) NRAIN = MSGGRD
+C
+C.....ENTER THE 24 HOUR PRECIPITATION.
+C
+      PG24(NPGRID) = NRAIN
+C
+      IF(IBUG .EQ. 1) WRITE(IOPDBG,902) NPGRID, PG24(NPGRID)
+C
+C.....IF THERE IS ANY 6 HR PRECIPITATION...ENTER THAT ALSO.
+C
+      IF(NFLAG6 .EQ. 1) GOTO 100
+      GOTO 200
+C
+  100 CALL GSO6H(W6, GP6, NPGRID, NRAIN, N6P, WP)
+      NFLAG6 = 0
+C
+  200 NPGRID = -1
+      IF(IPTRCE .GE. 3) WRITE(IOPDBG,901)
+      RETURN
+      END

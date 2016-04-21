@@ -1,0 +1,76 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the calb-opt3_shared library file
+#
+#  cmt: File made on Thu Oct 26 14:47:46 EDT 2006 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob81/ohd/calb/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob81/ohd/calb/inc  \
+               -I/fs/hseb/ob81/ohd/ofs/inc  \
+               -I/fs/hseb/ob81/ohd/util/inc  \
+               -I/fs/hseb/ob81/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libopt3_shared_t.a:  \
+     $(LIB)/libopt3_shared_t.a(comp.o)  \
+     $(LIB)/libopt3_shared_t.a(cox22.o)  \
+     $(LIB)/libopt3_shared_t.a(etprnt.o)  \
+     $(LIB)/libopt3_shared_t.a(gasdev.o)  \
+     $(LIB)/libopt3_shared_t.a(indexx.o)  \
+     $(LIB)/libopt3_shared_t.a(oapiin.o)  \
+     $(LIB)/libopt3_shared_t.a(oarsch.o)  \
+     $(LIB)/libopt3_shared_t.a(oarsin.o)  \
+     $(LIB)/libopt3_shared_t.a(obadid.o)  \
+     $(LIB)/libopt3_shared_t.a(obndck.o)  \
+     $(LIB)/libopt3_shared_t.a(occeua.o)  \
+     $(LIB)/libopt3_shared_t.a(oparst.o)  \
+     $(LIB)/libopt3_shared_t.a(opcard.o)  \
+     $(LIB)/libopt3_shared_t.a(opecrv.o)  \
+     $(LIB)/libopt3_shared_t.a(opetck.o)  \
+     $(LIB)/libopt3_shared_t.a(opread.o)  \
+     $(LIB)/libopt3_shared_t.a(oprint.o)  \
+     $(LIB)/libopt3_shared_t.a(opsrch.o)  \
+     $(LIB)/libopt3_shared_t.a(opstat.o)  \
+     $(LIB)/libopt3_shared_t.a(option.o)  \
+     $(LIB)/libopt3_shared_t.a(optmn.o)  \
+     $(LIB)/libopt3_shared_t.a(optype.o)  \
+     $(LIB)/libopt3_shared_t.a(opugaj.o)  \
+     $(LIB)/libopt3_shared_t.a(opugck.o)  \
+     $(LIB)/libopt3_shared_t.a(oreset.o)  \
+     $(LIB)/libopt3_shared_t.a(osacin.o)  \
+     $(LIB)/libopt3_shared_t.a(oscein.o)  \
+     $(LIB)/libopt3_shared_t.a(osceua.o)  \
+     $(LIB)/libopt3_shared_t.a(oschin.o)  \
+     $(LIB)/libopt3_shared_t.a(oslcin.o)  \
+     $(LIB)/libopt3_shared_t.a(osnoin.o)  \
+     $(LIB)/libopt3_shared_t.a(ougin.o)  \
+     $(LIB)/libopt3_shared_t.a(oxinin.o)  \
+     $(LIB)/libopt3_shared_t.a(point.o)  \
+     $(LIB)/libopt3_shared_t.a(puc22.o)  \
+     $(LIB)/libopt3_shared_t.a(puc3.o)  \
+     $(LIB)/libopt3_shared_t.a(ran1.o)  \
+     $(LIB)/libopt3_shared_t.a(randu.o)  \
+     $(LIB)/libopt3_shared_t.a(sort1.o)  \
+     $(LIB)/libopt3_shared_t.a(sort.o)  \
+     $(LIB)/libopt3_shared_t.a(ugprnt.o)
+

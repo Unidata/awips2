@@ -1,0 +1,34 @@
+#include <string.h>
+#include <stdio.h>
+#include "PerfLog.h"
+
+      void wr2log(char type[10], dtime_t *itime, int *nproc,
+	          float *elt, float *cpu, FILE *fp)
+{
+/*
+   this subroutine writes information about each execution of
+     siipp, ofsde and db_purge to the perfLog table                
+*/
+
+      PerfLog fppp;
+      int ret;
+
+      strcpy(fppp.process,type);
+      fppp.start_time = *itime;
+      fppp.num_processed = *nproc;
+      fppp.elapsed_time = *elt;
+      fppp.cpu_time = *cpu;
+
+      fppp.num_reads = 0;
+      fppp.num_inserts = 0;
+      fppp.num_updates = 0;
+      fppp.num_deletes = 0;
+      fppp.io_time = 0;
+
+      ret = PutPerfLog(&fppp);
+      if(ret != 0)
+      {
+	   fprintf(fp,"PostgreSQL error %s attempting insert into PerfLog table\n",sqlca.sqlstate);
+      }
+
+}  /* end function wr2log  */

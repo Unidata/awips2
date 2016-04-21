@@ -1,0 +1,4 @@
+#Product Discipline 209 - Multi-Radar/Multi-Sensor, Parameter Category 8: Radar/Precipitation Products 
+0:0:Radar Quality Index (RQI)::RadarQualityIndex
+8:8:Seamless Hybrid Scan Reflectivity (SHSR):dBZ:SeamlessHSR
+9:9:Height of Seamless Hybrid Scan Reflectivity (H-SHSR):km AGL:SeamlessHSRHeight

@@ -1,0 +1,566 @@
+C MODULE CGDEF
+C-----------------------------------------------------------------------
+C
+C  ROUTINE TO DEFINE CARRYOVER GROUPS.
+C
+C  ORIGINALLY WRITTEN BY - ED JOHNSON -- HRL -- 23 NOV 1979
+C
+      SUBROUTINE CGDEF
+C
+      CHARACTER*1 DLIM/' '/
+      CHARACTER*8 CMDNAM,OPNOLD
+      PARAMETER (NCOMD=13)
+      CHARACTER*10 XCOMD(NCOMD)/
+     *   'CGDEF',
+     *   'IDENTIFIER','ID','I',
+     *   'TITLE','T',
+     *   'FGROUPS','FGROUP','FG','F',
+     *   'DATES','DATE','D'/
+cMGM 1/18/02 Increase MCARDS to 200
+      PARAMETER (MCARDS=200)
+      CHARACTER*80 CARDS(MCARDS),IBUF,STRNG,STRNGT
+      LOGICAL REQD
+      DIMENSION SEGID(2),REQD(4)
+      DIMENSION GLIST(5,100),LISTD(5,100),NUMC(100),NUMCD(100)
+C
+      INCLUDE 'common/ionum'
+      INCLUDE 'common/fdbug'
+      INCLUDE 'common/fccgd'
+      INCLUDE 'common/fccgd1'
+      INCLUDE 'common/fcfgs'
+      INCLUDE 'common/fcsegc'
+      INCLUDE 'common/fcsegn'
+      INCLUDE 'common/fcunit'
+      INCLUDE 'common/fctime'
+C
+      EQUIVALENCE (IBLANK,BLANK)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcinit_top/RCS/cgdef.f,v $
+     . $',                                                             '
+     .$Id: cgdef.f,v 1.7 2002/02/11 20:24:24 dws Exp $
+     . $' /
+C    ===================================================================
+C
+      DATA BLANK/4h    /
+C
+C
+      IF (ITRACE.GT.0) WRITE (IODBUG,*) 'ENTER CGDEF'
+C
+      IBUG=IFBUG('CGDF')
+C
+      IOPNUM=0
+      CALL FSTWHR ('CGDEF   ',IOPNUM,OPNOLD,IOLDOP)
+C
+      NBUF=72
+C
+      WRITE (IPR,10)
+10    FORMAT ('0',80('*') /
+     *   ' ','*',26X,'CARRYOVER GROUP DEFINITION',26X,'*' /
+     *   ' ',80('*'))
+C
+C  READ ALL CARDS
+      CMDNAM='CGDEF'
+      CALL CDINPT (CARDS,MCARDS,NCARDS,CMDNAM,IERR)
+      IF (IERR.GT.0) GO TO 820
+C
+      ICARD1=1
+      ICARDS=0
+C
+20    INDERR=0
+C
+      DO 30 I=1,4
+         REQD(I)=.FALSE.
+30       CONTINUE
+C
+C  CHECK CARDS FOR AT LEAST ONE OF ALL SUBCOMMANDS -
+C  MUST HAVE 'IDENTIFIER', 'TITLE', 'FGROUP' AND 'DATE' SUBCOMMANDS -
+C  CAN BE IN ANY ORDER
+      ICONT=0
+      DO 130 I=ICARD1,NCARDS
+         CALL UMEMOV (CARDS(I),IBUF,20)
+         NSCAN=1
+         CALL USCAN2 (IBUF,DLIM,NSCAN,STRNG,LSTRNG,IERR)
+         IF (STRNG.EQ.' ') GO TO 130
+         IF (IBUG.GE.1) WRITE (IODBUG,*) 'I=',I,
+     *      ' NCARDS=',NCARDS,' STRNG=',STRNG
+C     CHECK FOR COMMENT CARD
+         IF (STRNG(1:1).EQ.'$') GO TO 130
+         IF (ICONT.EQ.1) GO TO 120
+         DO 40 IDEST=1,NCOMD
+            IF (STRNG.EQ.XCOMD(IDEST)) GO TO 60
+40          CONTINUE
+         WRITE (IPR,50) STRNG(1:LENSTR(STRNG)),IBUF
+50    FORMAT ('0**ERROR** INVALID KEYWORD (',A,
+     *      ') FOUND ON THE FOLLOWING CARD:' /
+     *   ' ',A)
+         CALL ERROR
+         INDERR=1
+         GO TO 130
+60       GO TO (70,
+     *          80,80,80,
+     *       90,90,
+     *     100,100,100,100,
+     *     110,110,110),IDEST
+         GO TO 130
+C     CGDEF CARD FOUND
+70       GO TO 120
+C     IDENTIFIER CARD FOUND
+80       REQD(1)=.TRUE.
+         GO TO 120
+C     TITLE CARD FOUND
+90       REQD(2)=.TRUE.
+         GO TO 120
+C     FGROUPS CARD FOUND
+100      REQD(3)=.TRUE.
+         GO TO 120
+C     DATE CARD FOUND
+110      REQD(4)=.TRUE.
+         GO TO 120
+C     CHECK FOR CONTINUATION INDICATOR
+120      ICONT=0
+         CALL ULENTH (IBUF,LEN(IBUF),LENGTH)
+         IF (IBUF(LENGTH:LENGTH).EQ.'&') ICONT=1
+130      CONTINUE
+C
+C  CHECK IF ALL SUBCOMMANDS FOUND
+      DO 150 I=1,4
+         IF (REQD(I)) GO TO 150
+            IF (I.EQ.1) WRITE (IPR,140) 'IDENTIFIER'
+            IF (I.EQ.2) WRITE (IPR,140) 'TITLE'
+            IF (I.EQ.3) WRITE (IPR,140) 'FGROUPS'
+            IF (I.EQ.4) WRITE (IPR,140) 'DATE'
+140   FORMAT ('0**ERROR** NO ''',A,''' CARD FOUND.')
+            CALL ERROR
+            INDERR=1
+150      CONTINUE
+C
+C  DECODE EACH CARD
+      DO 160 I=1,4
+         REQD(I)=.FALSE.
+160      CONTINUE
+C
+170   ICARDS=ICARDS+1
+      IF (ICARDS.GT.NCARDS) GO TO 820
+      CALL UMEMOV (CARDS(ICARDS),IBUF,20)
+C
+C  GET FIRST FIELD
+      NSCAN=1
+      CALL USCAN2 (IBUF,DLIM,NSCAN,STRNG,LSTRNG,IERR)
+      IF (IBUG.GE.1) WRITE (IODBUG,*) 'STRNG=',STRNG
+      IF (STRNG.EQ.' ') GO TO 170
+C
+C  CHECK FOR COMMENT CARD
+      IF (STRNG(1:1).EQ.'$') GO TO 170
+C
+      DO 180 IDEST=1,NCOMD
+         IF (STRNG.EQ.XCOMD(IDEST)) GO TO 190
+180      CONTINUE
+      GO TO 200
+190   GO TO (210,
+     *       220,220,220,
+     *       360,360,
+     *       460,460,460,460,
+     *       510,510,510),IDEST
+200   GO TO 170
+C
+C  CGDEF CARD
+210   GO TO 170
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  IDENTIFIER CARD
+C
+220   REQD(1)=.TRUE.
+C
+C  GET IDENTIFIER
+C
+      NSCAN=2
+      CALL USCAN2 (IBUF,DLIM,NSCAN,STRNG,LSTRNG,IERR)
+      IF (IBUG.GE.1) WRITE (IODBUG,*) 'STRNG=',STRNG
+C
+      IF (STRNG.EQ.' ') THEN
+         WRITE (IPR,230)
+230   FORMAT ('0**ERROR** NO IDENTIFIER FOUND ON ''IDENTIFIER'' CARD.')
+         CALL ERROR
+         INDERR=1
+         GO TO 170
+         ENDIF
+C
+      NWORDS=2
+      CALL UMEMOV (STRNG,CGIDC,NWORDS)
+C
+C  CHACK IF VALID IDENTIFIER
+      LCGID=8
+      IPACKD=1
+      IDTYPE=3
+      IPRINT=1
+      CALL FCIDCK (CGIDC,LCGID,IPACKD,IDTYPE,IPRINT,IERR)
+      IF (IERR.NE.0) GO TO 170
+C
+C  CHECK IF ANY CARRYOVER GROUPS DEFINED
+      IF (NCG.EQ.0) GO TO 260
+C
+C  CHECK IF CARRYOVER GROUP NAME ALREADY EXISTS
+      DO 250 I=1,NCG
+         IF (CGIDC(1).EQ.CGIDS(1,I).AND.CGIDC(2).EQ.CGIDS(2,I)) THEN
+            WRITE (IPR,240) CGIDC
+240   FORMAT ('0**ERROR** CARRYOVER GROUP ',2A4,' ALREADY EXISTS.')
+            CALL ERROR
+            INDERR=1
+            GO TO 170
+            ENDIF
+250      CONTINUE
+C
+260   MCG=25
+      IF (NCG.EQ.MCG) THEN
+         WRITE (IPR,270) MCG
+270   FORMAT ('0**ERROR** MAXIMUM NUMBER OF CARRYOVER GROUPS (',I2,
+     *   ') EXCEEDED.')
+         CALL ERROR
+         INDERR=1
+         GO TO 170
+         ENDIF
+C
+      WRITE (IPR,280) CGIDC
+280   FORMAT ('0',80('*') /
+     *   ' ','*',24X,'CARRYOVER GROUP ID = ',2A4,25X,'*' /
+     *   ' ',80('*'))
+C
+      NCG=NCG+1
+      CGIDS(1,NCG)=CGIDC(1)
+      CGIDS(2,NCG)=CGIDC(2)
+      ICOREC(NCG)=NCG+1
+C
+      IF (NCG.EQ.1) GO TO 330
+C
+      NCGM1=NCG-1
+      DO 300 I=2,26
+         DO 290 J=1,NCGM1
+            IF (ICOREC(J).EQ.I) GO TO 300
+290         CONTINUE
+         GO TO 320
+300      CONTINUE
+      WRITE (IPR,310)
+310   FORMAT ('0**ERROR** TWO CARRYOVER GROUPS HAVE THE SAME ',
+     *   'RECORD NUMBER IN FILE FCCOGDEF.')
+      CALL ERROR
+      INDERR=1
+      NCG=NCG-1
+      GO TO 170
+C
+320   ICOREC(NCG)=I
+C
+C  INITIALIZE COMMON BLOCK FCCGD1 - CARRYOVER GROUP DEFINITION
+330   DO 340 I=1,5
+         ITDEF(I)=NOW(I)
+340      CONTINUE
+      NFG=0
+      MINDTC=1
+      DO 350 I=1,20
+         ICODAY(I)=0
+         ICOTIM(I)=0
+         LUPDAY(I)=0
+         LUPTIM(I)=0
+         IPC(I)=0
+350      CONTINUE
+C
+C  COMPUTE VALUES FOR LUPDAY AND LUPTIM
+      CALL FCTZC (100,0,TZ)
+      CALL JULDA (LUPD,I,NOW(1),NOW(2),NOW(3),1,100,0,TZ)
+      LUPT=NOW(4)*100000+NOW(5)
+C
+      IF (IBUG.GE.1) WRITE (IODBUG,*) 'NCG=',NCG,
+     *   ' ICOREC(NCG)=',ICOREC(NCG)
+C
+      IF (REQD(1).AND.REQD(2).AND.REQD(3).AND.REQD(4)) GO TO 540
+      GO TO 170
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  TITLE CARD
+C
+360   REQD(2)=.TRUE.
+C
+C  GET TITLE
+      CALL UINDEX (IBUF,NBUF,'''',1,LFOUND)
+      IF (LFOUND.NE.0) THEN
+         NSCAN=1
+         STRNGT=' '
+         CALL USCAN2 (IBUF(LFOUND:NBUF),'''',NSCAN,STRNGT,LSTRNGT,IERR)
+         IF (STRNGT.EQ.' ') THEN
+            IBEGIN=0
+            DO 370 IY=1,NBUF
+               IF (IBUF(IY:IY).EQ.' ') THEN
+                  IBEGIN=IY
+                  GO TO 380
+                  ENDIF
+370            CONTINUE
+380         NSCAN=1
+            STRNGT=' '
+            CALL USCAN2 (IBUF(IBEGIN:NBUF),'''',NSCAN,STRNGT,LSTRNGT,
+     *         IERR)
+            GO TO 420
+            ENDIF
+         ENDIF
+      IF (LFOUND.EQ.0) THEN
+         STRNGT=' '
+         LSTRNGT=0
+         DO 410 IZ=1,NBUF-1
+            IF (IBUF(IZ:IZ).EQ.' '.AND.IBUF(IZ+1:IZ+1).NE.' ') THEN
+               IEND=NBUF
+               DO 390 IX=NBUF,IZ+1,-1
+                  IF (IBUF(IX:IX).NE.' ') THEN
+                     IEND=IX
+                     GO TO 400
+                     ENDIF
+390               CONTINUE
+400            STRNGT=IBUF(IZ+1:IEND)
+               IF (STRNGT.NE.STRNG) LSTRNGT=LENSTR(STRNGT)
+               GO TO 420
+               ENDIF
+410         CONTINUE
+         ELSE
+            NSCAN=1
+            CALL USCAN2 (IBUF(LFOUND:NBUF),'''',NSCAN,STRNGT,LSTRNGT,
+     *         IERR)
+         ENDIF
+C
+420   IF (IBUG.GE.1) WRITE (IODBUG,*) 'STRNGT=',STRNGT
+C
+      IF (STRNGT.EQ.' ') THEN
+         WRITE (IPR,430)
+430   FORMAT ('0**WARNING** NO DESCRIPTION FOUND ON ''TITLE'' CARD.')
+         CALL WARN
+         DO 440 I=1,5
+            CGNAME(I)=BLANK
+440         CONTINUE
+         GO TO 450
+         ENDIF
+C
+      NWORDS=5
+      CALL UMEMOV (STRNGT,CGNAME,NWORDS)
+C
+450   IF (REQD(1).AND.REQD(2).AND.REQD(3).AND.REQD(4)) GO TO 540
+      GO TO 170
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  FGROUPS CARD
+C
+460   REQD(3)=.TRUE.
+C
+C  GET FGROUPS
+      NWORDS=2
+      CALL RDLIST (ICARDS,NCARDS,CARDS,GLIST,NGROUP,NWORDS,NUMC,IERR)
+      IF (IERR.GT.0) GO TO 820
+C
+      IF (NGROUP.EQ.0) THEN
+         WRITE (IPR,470)
+470   FORMAT ('0**ERROR** NO FORECAST GROUP NAMES FOUND ON ',
+     *   '''FGROUPS'' CARD.')
+         CALL ERROR
+         INDERR=1
+         GO TO 170
+         ENDIF
+C
+      IF (NGROUP.GT.1) THEN
+         DO 500 I=1,NGROUP
+            DO 490 J=1,NGROUP
+               IF (J.EQ.I) GO TO 490
+               IF (GLIST(1,I).EQ.GLIST(1,J).AND.
+     *             GLIST(2,I).EQ.GLIST(2,J)) THEN
+               WRITE (IPR,480) GLIST(1,I),GLIST(2,I),I,J
+480   FORMAT ('0**ERROR** FORECAST GROUP IDENTIFIER ',2A4,
+     *   ' FOUND AT POSITIONS ',I3,' AND ',I3,' OF LIST.')
+                   CALL ERROR
+                   INDERR=1
+                   GLIST(1,I)=IBLANK
+                   GLIST(2,I)=IBLANK
+                   ENDIF
+490            CONTINUE
+500         CONTINUE
+         ENDIF
+C
+      IF (REQD(1).AND.REQD(2).AND.REQD(3).AND.REQD(4)) GO TO 540
+      GO TO 170
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  DATE CARD
+C
+510   REQD(4)=.TRUE.
+C
+C  GET DATES
+      NDAYS=0
+      NWORDS=5
+      CALL RDLIST (ICARDS,NCARDS,CARDS,LISTD,NDAYS,NWORDS,NUMCD,IERR)
+      IF (IERR.GT.0) GO TO 170
+C
+      IF (NDAYS.EQ.0) THEN
+         WRITE (IPR,520)
+520   FORMAT ('0**ERROR** NO DATES FOUND ON ''DATE'' CARD. ',
+     *   'AT LEAST ONE DATE MUST BE SPECIFIED.')
+         CALL ERROR
+         INDERR=1
+         GO TO 530
+         ENDIF
+C
+530   IF (REQD(1).AND.REQD(2).AND.REQD(3).AND.REQD(4)) GO TO 540
+      GO TO 170
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+540   IF (INDERR.EQ.1) GO TO 810
+C
+      WRITE (IPR,550)
+550   FORMAT ('0FORECAST GROUPS INCLUDED IN THIS CARRYOVER GROUP ',
+     *   '(LISTED IN ORDER OF COMPUTATION):')
+C
+C  ASSIGN FORECAST GROUP TO CARRYOVER GROUP
+      DO 620 IGROUP=1,NGROUP
+         CALL FGGET (GLIST(1,IGROUP),IFGREC,IERR)
+         IF (IERR.EQ.1) GO TO 570
+            WRITE (IPR,560) (GLIST(I,IGROUP),I=1,2)
+560   FORMAT ('0**ERROR** FORECAST GROUP ',2A4,' NOT FOUND.')
+            CALL ERROR
+            IF (NFG.GT.0) GO TO 800
+            GO TO 810
+570      IF (CGIDF(1).EQ.BLANK.AND.CGIDF(2).EQ.BLANK) GO TO 590
+            WRITE (IPR,580) FGID,CGIDF
+580   FORMAT ('0**ERROR** FORECAST GROUP ',2A4,' IS USED IN ',
+     *   'CARRYOVER GROUP ',2A4,'.')
+            CALL ERROR
+            IF (NFG.GT.0) GO TO 800
+            GO TO 810
+590      IF (ISPEC.EQ.1) THEN
+            WRITE (IPR,600) FGID
+600   FORMAT ('0**ERROR** FORECAST GROUP ',2A4,
+     *   ' IS A SPECIAL FORECAST GROUP AND CANNOT BE ADDED TO A',
+     *   ' CARRYOVER GROUP.')
+            CALL ERROR
+            IF (NFG.GT.0) GO TO 800
+            GO TO 810
+            ENDIF
+         CGIDF(1)=CGIDC(1)
+         CGIDF(2)=CGIDC(2)
+         CALL FCLCD (MINDTC,MINDTF)
+         NFG=NFG+1
+         ICOSEQ=NFG
+         CALL UWRITT (KFFGST,IFGREC,FGID,IERR)
+         WRITE (IPR,610) FGID
+610      FORMAT (5X,2A4)
+620      CONTINUE
+C
+C  DATE CARRYOVER
+      IF (NDAYS.GT.NSLOTS) THEN
+         WRITE (IPR,630) NSLOTS
+630   FORMAT ('0**ERROR** ONLY ',I5,' DAYS OF CARRYOVER CAN BE SAVED.')
+         CALL ERROR
+         IF (NFG.GT.0) GO TO 800
+         GO TO 810
+         ENDIF
+      DO 680 I=1,NDAYS
+         NCHAR=NUMCD(I)
+         CALL HDATEA (NCHAR,LISTD(1,I),1,0,1,1,JDAY,JULHR,JTHR,IERR)
+         IF (IERR.LT.1) GO TO 650
+            INDERR=1
+            WRITE (IPR,640)
+640   FORMAT ('0**ERROR** ERRORS ENCOUNTERED DECODING THE ',
+     *  '''DATES'' CARD.')
+            CALL ERROR
+C     HOUR OF THE DATE INPUT MUST FALL ON AN EVEN MULTIPLE OF MINDTC
+650      IF (MOD(JULHR,MINDTC).EQ.0) GO TO 670
+            WRITE (IPR,660) (LISTD(J,I),J=1,5),MINDTC
+660   FORMAT ('0**ERROR** THE HOUR OF THE DATE ',5A4,
+     *   'DOES NOT FALL ON AN EVEN MULTIPLE OF THE MINIMUM TIME STEP (',
+     *   I2,' HOURS).')
+            CALL ERROR
+            INDERR=1
+            GO TO 680
+670      ICODAY(I)=JDAY
+         ICOTIM(I)=JULHR
+         LUPDAY(I)=LUPD
+         LUPTIM(I)=LUPT
+         IPC(I)=1
+680      CONTINUE
+C
+      IF (INDERR.EQ.1) GO TO 800
+C
+      IF (IBUG.GE.1) THEN
+         WRITE (IODBUG,690) CGIDC,CGNAME,NDAYS
+690   FORMAT (' CGIDC=',2A4,' CGNAME=',5A4,' NDAYS=',I2)
+         WRITE (IODBUG,*) 'NFG=',NFG,' MINDTC=',MINDTC,
+     *      ' ITDEF=',ITDEF
+         WRITE (IODBUG,700)
+700   FORMAT (' ',4X,'ICODAY',4X,'ICOTIM',4X,'LUPDAY',4X,'LUPTIM',4X,
+     *  'IPC')
+         WRITE (IODBUG,710) (ICODAY(I),ICOTIM(I),LUPDAY(I),LUPTIM(I),
+     *     IPC(I),I=1,20)
+710   FORMAT (' ',5I10)
+         ENDIF
+C
+C  ASSIGN SEGMENT TO CARRYOVER GROUP - FIND FORECAST GROUPS IN ORDER
+C  AND PROCESS SEGMENTS IN EACH FORECAST GROUP
+      DO 760 IFG=1,NFG
+         IF (IBUG.EQ.1) WRITE (IODBUG,*) 'IFG=',IFG
+         DO 740 IFGREC=1,NFGREC
+            CALL UREADT (KFFGST,IFGREC,FGID,IERR)
+            IF (CGIDC(1).NE.CGIDF(1)) GO TO 740
+            IF (CGIDC(2).NE.CGIDF(2)) GO TO 740
+            IF (ICOSEQ.NE.IFG) GO TO 740
+C        HAVE FORECAST GROUP WHICH BELONGS TO CORRECT CARRYOVER GROUP
+C        IN CORRECT ORDER
+            IR1=IREC
+            IR2=IREC+NSEG-1
+            DO 730 IR=IR1,IR2
+               CALL UREADT (KFFGL,IR,SEGID,IERR)
+               CALL CGDSEG (SEGID,IER,NDAYS)
+               IF (IER.NE.0) THEN
+                  WRITE (IPR,720) SEGID
+720   FORMAT ('0**ERROR** CANNOT ASSIGN SEGMENT ',2A4,
+     *   ' TO CARRYOVER GROUP.')
+                  GO TO 780
+                  ENDIF
+730            CONTINUE
+               GO TO 760
+740         CONTINUE
+         WRITE (IPR,750) IFG
+750   FORMAT ('0**ERROR** CANNOT FIND FORECAST GROUP ',
+     *   'NUMBER ',I3,' SPECIFIED ON FGROUPS CARD.')
+         CALL ERROR
+         GO TO 780
+760      CONTINUE
+C
+C  UPDATE FILE FCCOGDEF
+      CALL UWRITT (KFCGD,1,NSLOTS,IERR)
+      CALL UWRITT (KFCGD,ICOREC(NCG),CGIDC,IERR)
+C
+      WRITE (IPR,770) CGIDC
+770   FORMAT ('0**NOTE** FILES SUCCESSFULLY UPDATED FOR CARRYOVER ',
+     *   'GROUP ',2A4,'.')
+      GO TO 810
+C
+C  DELETE PARTIAL CARRYOVER GROUP DEFINITION
+780   WRITE (IPR,790) 'SEGMENT'
+790   FORMAT ('0**NOTE** DELETING CARRYOVER GROUP IDENTIFIER FROM ',A,
+     *   ' DEFINITIONS BECAUSE ERRORS ENCOUNTERED.')
+      CALL CGDELC (CGIDC)
+800   WRITE (IPR,790) 'FORECAST GROUP'
+      CALL CGDELB (CGIDC)
+C
+810   ICARD1=ICARDS+1
+      IF (ICARDS.LT.NCARDS) GO TO 20
+C
+C  READ RECORD ONE OF FILE FCCOGDEF
+820   CALL UREADT (KFCGD,1,NSLOTS,IERR)
+C
+      CALL FSTWHR (OPNOLD,IOLDOP,OPNOLD,IOLDOP)
+C
+      IF (ITRACE.GT.0) WRITE (IPR,*) 'EXIT CGDEF'
+C
+      RETURN
+C
+      END

@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Radar GL Plug-in
+Bundle-SymbolicName: com.raytheon.uf.viz.radar.gl;singleton:=true
+Bundle-Version: 1.14.0.qualifier
+Bundle-Vendor: RAYTHEON
+Require-Bundle: com.raytheon.viz.radar;bundle-version="1.14",
+ com.raytheon.viz.core.gl;bundle-version="1.14",
+ com.raytheon.uf.viz.core;bundle-version="1.14",
+ com.raytheon.uf.common.geospatial;bundle-version="1.14"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy

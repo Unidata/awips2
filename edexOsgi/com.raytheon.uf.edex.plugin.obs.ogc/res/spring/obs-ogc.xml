@@ -1,0 +1,27 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+	   
+    <bean id="metarLayerCollector" class="com.raytheon.uf.edex.plugin.obs.ogc.metar.MetarLayerCollector" >
+        <constructor-arg ref="layerStore" />
+    </bean>
+    
+	<bean id="metarWfsSource" class="com.raytheon.uf.edex.plugin.obs.ogc.metar.MetarWfsSource">
+		<constructor-arg ref="obsProperties" />
+		<constructor-arg ref="metarTranslator" />
+        <constructor-arg ref="metarLayerCollector"/>
+	</bean>
+	
+	<bean id="metarTranslator" class="com.raytheon.uf.edex.plugin.obs.ogc.metar.MetarTranslator">
+	</bean>
+
+	<bean factory-bean="wfsRegistry" factory-method="register">
+		<constructor-arg ref="metarWfsSource" />
+	</bean> 
+	
+	<bean id="metarLayerTransformer" class="com.raytheon.uf.edex.ogc.common.db.LayerTransformer" >
+  		<constructor-arg value="metar" />
+  		<constructor-arg ref="metarLayerCollector" />
+  	</bean>
+
+</beans>

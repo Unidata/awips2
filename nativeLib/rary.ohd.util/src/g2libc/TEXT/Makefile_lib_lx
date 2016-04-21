@@ -1,0 +1,78 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the util-g2libc library file
+#
+#  cmt: File made on Wed Aug  6 12:56:39 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/util/lib
+
+ARFLAGS  = rv
+CC       = /usr/bin/gcc
+COPTIM   =
+CFLAGS   = $(COPTIM) -fno-strict-aliasing -DUNIX -DGRTYPE_PS -DGRTYPE_XWIN -DLINX -DX1D -DTIMER -D__USE_GNU -DUSE_XM_MWMUTIL_H -DUSE_XGPM -Wall -Wno-unused-variable -Wno-comment
+
+INSERTS      = -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/ofs/inc
+
+INSERTS_CC   = -I/usr/include/informix/esql/  \
+               -I/usr/X11R6/include  \
+               -I/usr/include  \
+               -I/usr/lib/gcc/i386-redhat-linux/3.4.6/include  \
+               -I/usr/local/netcdf/include  \
+               -I/usr/local/jdk-1.5.0_04/include  \
+               -I/usr/local/jdk-1.5.0_04/include/linux  \
+               -I/usr/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .c .h .o .a
+
+.c.a:
+	@echo "-------------------------------- $<"
+	@$(CC) $(CFLAGS) $(INSERTS_CC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@echo "--------------------------------"
+
+$(LIB)/libg2libc_t.a:  \
+     $(LIB)/libg2libc_t.a(compack.o)  \
+     $(LIB)/libg2libc_t.a(comunpack.o)  \
+     $(LIB)/libg2libc_t.a(dec_jpeg2000.o)  \
+     $(LIB)/libg2libc_t.a(dec_png.o)  \
+     $(LIB)/libg2libc_t.a(drstemplates.o)  \
+     $(LIB)/libg2libc_t.a(enc_jpeg2000.o)  \
+     $(LIB)/libg2libc_t.a(enc_png.o)  \
+     $(LIB)/libg2libc_t.a(g2_addfield.o)  \
+     $(LIB)/libg2libc_t.a(g2_addgrid.o)  \
+     $(LIB)/libg2libc_t.a(g2_addlocal.o)  \
+     $(LIB)/libg2libc_t.a(g2_create.o)  \
+     $(LIB)/libg2libc_t.a(g2_free.o)  \
+     $(LIB)/libg2libc_t.a(g2_getfld.o)  \
+     $(LIB)/libg2libc_t.a(g2_gribend.o)  \
+     $(LIB)/libg2libc_t.a(g2_info.o)  \
+     $(LIB)/libg2libc_t.a(g2_unpack1.o)  \
+     $(LIB)/libg2libc_t.a(g2_unpack2.o)  \
+     $(LIB)/libg2libc_t.a(g2_unpack3.o)  \
+     $(LIB)/libg2libc_t.a(g2_unpack4.o)  \
+     $(LIB)/libg2libc_t.a(g2_unpack5.o)  \
+     $(LIB)/libg2libc_t.a(g2_unpack6.o)  \
+     $(LIB)/libg2libc_t.a(g2_unpack7.o)  \
+     $(LIB)/libg2libc_t.a(gbits.o)  \
+     $(LIB)/libg2libc_t.a(getdim.o)  \
+     $(LIB)/libg2libc_t.a(getpoly.o)  \
+     $(LIB)/libg2libc_t.a(gridtemplates.o)  \
+     $(LIB)/libg2libc_t.a(int_power.o)  \
+     $(LIB)/libg2libc_t.a(jpcpack.o)  \
+     $(LIB)/libg2libc_t.a(jpcunpack.o)  \
+     $(LIB)/libg2libc_t.a(mkieee.o)  \
+     $(LIB)/libg2libc_t.a(pdstemplates.o)  \
+     $(LIB)/libg2libc_t.a(pngpack.o)  \
+     $(LIB)/libg2libc_t.a(pngunpack.o)  \
+     $(LIB)/libg2libc_t.a(rdieee.o)  \
+     $(LIB)/libg2libc_t.a(seekgb.o)  \
+     $(LIB)/libg2libc_t.a(simpack.o)  \
+     $(LIB)/libg2libc_t.a(simunpack.o)  \
+     $(LIB)/libg2libc_t.a(specpack.o)  \
+     $(LIB)/libg2libc_t.a(specunpack.o)
+

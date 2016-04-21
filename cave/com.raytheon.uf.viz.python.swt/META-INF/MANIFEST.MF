@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Swt Plug-in
+Bundle-SymbolicName: com.raytheon.uf.viz.python.swt
+Bundle-Version: 1.12.1174.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: org.eclipse.swt,
+ org.eclipse.jface,
+ org.jep;bundle-version="1.0.0"
+Import-Package: com.raytheon.uf.common.localization,
+ com.raytheon.uf.common.localization.exception,
+ com.raytheon.uf.common.localization.msgs,
+ com.raytheon.uf.common.python,
+ com.raytheon.uf.viz.core
+Export-Package: com.raytheon.uf.viz.python.swt,
+ com.raytheon.uf.viz.python.swt.widgets

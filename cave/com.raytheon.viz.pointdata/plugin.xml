@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<?eclipse version="3.2"?>
+<plugin>
+      <!-- Re-enabled when base/site/user permissions are set up -->
+      <!-- <extension
+         point="com.raytheon.viz.ui.contextualMenu">
+      <contextualMenu
+            actionClass="com.raytheon.viz.pointdata.ui.cmenu.ViewPlotModelAction"
+            name="Edit Plot Model"
+            sortID="115"/>
+      </extension> -->
+      <extension
+            point="com.raytheon.uf.viz.core.resource">
+         <resource
+               class="com.raytheon.viz.pointdata.rsc.AdaptivePlotResource"
+               name="Adaptive Point Data"
+               renderingOrderId="PLOT"
+               resourceType="PLAN_VIEW">
+         </resource>
+         <resource
+               class="com.raytheon.viz.pointdata.rsc.PlotResource"
+               name="Point Data"
+               renderingOrderId="PLOT"
+               resourceType="PLAN_VIEW">
+         </resource>
+         <resource
+               class="com.raytheon.viz.pointdata.rsc.PlotBlendedResource"
+               name="Blended Plot Data"
+               renderingOrderId="PLOT"
+               resourceType="PLAN_VIEW">
+         </resource>
+      </extension>
+ 	<extension
+       point="com.raytheon.uf.viz.localization.localizationpath">
+       <path
+          application="D2D"
+          extensionFilter=".svg,.py"
+          localizationType="CAVE_STATIC"
+          name="Plot Models"
+          value="plotModels" 
+          recursive="true">
+       </path>
+    </extension>
+    <extension
+         point="com.raytheon.uf.viz.productbrowser.dataDefinition">
+         <dataDefinition
+         	name="plotModelDataDefinition"
+         	class="com.raytheon.viz.pointdata.PlotModelDataDefinition" >
+         </dataDefinition>
+   </extension>
+    <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="com.raytheon.uf.viz.productbrowser.DataTypePreferencePage"
+            id="com.raytheon.uf.viz.productbrowser.productbrowserdatapreferencepage"
+            name="Plot Models"
+            category="com.raytheon.uf.viz.productbrowser.productbrowserpreferencespage"/>
+   </extension>
+</plugin>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+MLLCL| |N| ML LCL Height |m|CONTOUR,IMAGE,OTHER|ML|\
+      *Multiply,Surface|DpD,ML|120.|\
+      *Test,ML|MLLCL,Surface|1.|0.|500.|500.|1.|501.|1.e37|MLLCL,Surface
+-->
+<DerivedParameter unit="m" name="ML LCL Height" abbreviation="MLLCL" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method levels="Surface" name="Multiply">
+        <Field level="ML" abbreviation="DpD"/>
+        <ConstantField value="120.0"/>
+    </Method>
+    <Method levels="ML" name="Test">
+        <Field level="Surface" abbreviation="MLLCL"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="0.0"/>
+        <ConstantField value="500.0"/>
+        <ConstantField value="500.0"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="501.0"/>
+        <ConstantField value="1.0E37"/>
+        <Field level="Surface" abbreviation="MLLCL"/>
+    </Method>
+</DerivedParameter>

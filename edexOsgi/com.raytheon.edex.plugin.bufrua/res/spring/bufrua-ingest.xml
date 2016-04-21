@@ -1,0 +1,67 @@
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+   <bean id="bufruaDecoder" class="com.raytheon.edex.plugin.bufrua.BufrUADecoder">
+        <constructor-arg ref="bufruaPluginName" />
+    </bean>
+
+    <bean id="bufruaDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg ref="bufruaPluginName" />
+		<constructor-arg value="jms-durable:queue:Ingest.bufrua" />
+	</bean>
+
+    <bean id="raobListener" class="com.raytheon.edex.plugin.bufrua.ingest.RAOBSubscriber" />
+    
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="raob.spi" />
+        <constructor-arg ref="raobListener" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="raob.goodness" />
+        <constructor-arg ref="raobListener" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="raob.primary" />
+        <constructor-arg ref="raobListener" />
+    </bean>
+
+    <camelContext id="bufrua-camel" 
+                  xmlns="http://camel.apache.org/schema/spring" 
+                  errorHandlerRef="errorHandler">
+	    <!-- 
+	    <endpoint id="bufruaFileEndpoint" uri="file:${edex.home}/data/sbn/bufrua?noop=true&amp;idempotent=false"/>
+        
+        <route id="bufruaFileConsumerRoute">
+            <from ref="bufruaFileEndpoint"/>
+            <bean ref="fileToString" />
+            <setHeader headerName="pluginName">
+                <constant>bufrua</constant>
+            </setHeader>
+            <to uri="jms-durable:queue:Ingest.bufrua"/> 
+        </route>
+        -->
+
+        <!-- Begin BUFRUA routes -->
+        <route id="bufruaIngestRoute">
+            <from uri="jms-durable:queue:Ingest.bufrua"/>
+            <setHeader headerName="pluginName">
+                <constant>bufrua</constant>
+            </setHeader>
+            <doTry>
+                <pipeline>
+            		<bean ref="stringToFile" />
+                    <bean ref="bufruaDecoder" method="decode"/>
+                    <to uri="direct-vm:persistIndexAlert" />
+                </pipeline>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:bufrua?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+	</camelContext>
+</beans>

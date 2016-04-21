@@ -1,0 +1,4 @@
+C                                           *--> FROM COMMON.FT
+      COMMON /FT/ MT,T(2000)
+      INTEGER T
+C

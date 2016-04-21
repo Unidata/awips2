@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<DerivedParameter name="Sig. Tornado Parameter (&gt;1 Sig Tor)" abbreviation="STP" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method name="Difference" levels="100MB">
+        <ConstantField value="200.0"/>
+        <Field level="ML" abbreviation="cCin"/>
+    </Method>
+    <Method name="Multiply" levels="Layer">
+          <Field abbreviation="STP1"/>
+          <Field level="100MB" abbreviation="STP"/>
+          <ConstantField value="0.0067"/>
+          <Field level="ML" abbreviation="cCape"/>
+          <Field level="0-1kmAgl" abbreviation="Heli"/>
+          <Field level="0-6kmAgl" abbreviation="BlkMag"/>
+          <ConstantField value="3.33e-10"/>
+    </Method>
+</DerivedParameter>

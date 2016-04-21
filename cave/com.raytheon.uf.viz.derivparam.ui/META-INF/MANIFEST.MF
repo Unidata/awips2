@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Derived Parameters UI
+Bundle-SymbolicName: com.raytheon.uf.viz.derivparam.ui;singleton:=true
+Bundle-Version: 1.14.0.qualifier
+Bundle-Vendor: RAYTHEON
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.ui;bundle-version="3.6.1",
+ com.raytheon.uf.viz.core;bundle-version="1.12.1174",
+ com.raytheon.uf.viz.localization;bundle-version="1.12.1174",
+ com.raytheon.viz.ui;bundle-version="1.12.1174",
+ javax.measure;bundle-version="1.0.0",
+ com.raytheon.uf.common.util;bundle-version="1.12.1174",
+ com.raytheon.uf.common.derivparam;bundle-version="1.14.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy
+Import-Package: com.raytheon.uf.common.units

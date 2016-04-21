@@ -1,0 +1,56 @@
+# This file defines words that we do not allow the spellchecker to display as
+# spelling suggestions.
+#
+# Overrides to this file are not incremental so if you want this base list 
+# included in your override, you must copy this word list to the override file.
+#
+ 
+ASSHOLE'S
+ASSHOLES
+ASSHOLE
+BITCH
+BITCH'S
+BITCHES
+LEPROSY
+GAYEST
+SHIT
+PISS
+PISSED
+PISSER
+PISSES
+PISSING
+TITS
+FUCK
+CUNT
+BLOWJOB
+BEATOFF
+BUTTHEAD
+DICKHEAD
+BUTTMUNCH
+WHACKOFF
+DICKFACE
+PUSSYWHIPPED
+TWAT
+LACKANOOKIE
+JACKOFF
+GODDAMN
+PECKERHEAD
+PECKERFACE
+DORK
+DOOKIE
+BALLBUSTER
+GETLAID
+PECKERWOOD
+TIT
+FART
+BAZONGAS
+SCHMUCK
+PRICKHEAD
+PRICKFACE
+PUSSYFACE
+ASSWIPE
+ASSLICK
+COCKHEAD
+COCKFACE
+COCKSUCKER
+PERVERT

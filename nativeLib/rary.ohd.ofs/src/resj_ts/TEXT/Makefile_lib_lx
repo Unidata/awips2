@@ -1,0 +1,174 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-resj_ts library file
+#
+#  cmt: File made on Wed Aug  6 12:54:47 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+CXX      = /usr/bin/g++ -Wno-deprecated
+CXXOPTIM =
+CXXFLAGS = $(CXXOPTIM) -fno-strict-aliasing -DUNIX -DGRTYPE_PS -DGRTYPE_XWIN -DLINX -DX1D -DTIMER -D__USE_GNU
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_CXX  = -I/usr/X11R6/include  \
+               -I/usr/include  \
+               -I/usr/include/informix/esql/  \
+               -I/usr/lib/gcc/i386-redhat-linux/3.4.6/include  \
+               -I/usr/local/netcdf/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .cxx .h .o .a
+
+.cxx.a:
+	@echo "-------------------------------- $<"
+	@-$(CXX) $(CXXFLAGS) $(INSERTS_CXX) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@echo "--------------------------------"
+
+$(LIB)/libresj_ts_t.a:  \
+     $(LIB)/libresj_ts_t.a(TS_addToComments.o)  \
+     $(LIB)/libresj_ts_t.a(TS_addToGenesis.o)  \
+     $(LIB)/libresj_ts_t.a(TS_allocateDataSpace.o)  \
+     $(LIB)/libresj_ts_t.a(TS_Constructors.o)  \
+     $(LIB)/libresj_ts_t.a(TS_copyHeader.o)  \
+     $(LIB)/libresj_ts_t.a(TS_Destructor.o)  \
+     $(LIB)/libresj_ts_t.a(TSDistData_Constructors.o)  \
+     $(LIB)/libresj_ts_t.a(TSDistData_Destructor.o)  \
+     $(LIB)/libresj_ts_t.a(TSDistData_getDistArray.o)  \
+     $(LIB)/libresj_ts_t.a(TSDistData_getDistribution.o)  \
+     $(LIB)/libresj_ts_t.a(TSDistData_getNDist.o)  \
+     $(LIB)/libresj_ts_t.a(TSDistData_initialize.o)  \
+     $(LIB)/libresj_ts_t.a(TSDistData_setDistribution.o)  \
+     $(LIB)/libresj_ts_t.a(TS_formatOutput.o)  \
+     $(LIB)/libresj_ts_t.a(TS_freeDataSpace.o)  \
+     $(LIB)/libresj_ts_t.a(TS_getComments.o)  \
+     $(LIB)/libresj_ts_t.a(TS_getDataDate.o)  \
+     $(LIB)/libresj_ts_t.a(TS_getDataIntervalBase.o)  \
+     $(LIB)/libresj_ts_t.a(TS_getDataIntervalBaseOriginal.o)  \
+     $(LIB)/libresj_ts_t.a(TS_getDataIntervalMult.o)  \
+     $(LIB)/libresj_ts_t.a(TS_getDataIntervalMultOriginal.o)  \
+     $(LIB)/libresj_ts_t.a(TS_getDataLimits.o)  \
+     $(LIB)/libresj_ts_t.a(TS_getDataPoint.o)  \
+     $(LIB)/libresj_ts_t.a(TS_getDataPointer.o)  \
+     $(LIB)/libresj_ts_t.a(TS_getDataPosition.o)  \
+     $(LIB)/libresj_ts_t.a(TS_getDataType.o)  \
+     $(LIB)/libresj_ts_t.a(TS_getDataUnits.o)  \
+     $(LIB)/libresj_ts_t.a(TS_getDataUnitsOriginal.o)  \
+     $(LIB)/libresj_ts_t.a(TS_getDataValue.o)  \
+     $(LIB)/libresj_ts_t.a(TS_getDate1.o)  \
+     $(LIB)/libresj_ts_t.a(TS_getDate1Original.o)  \
+     $(LIB)/libresj_ts_t.a(TS_getDate2.o)  \
+     $(LIB)/libresj_ts_t.a(TS_getDate2Original.o)  \
+     $(LIB)/libresj_ts_t.a(TS_getDescription.o)  \
+     $(LIB)/libresj_ts_t.a(TS_getGenesis.o)  \
+     $(LIB)/libresj_ts_t.a(TS_getIdentifier.o)  \
+     $(LIB)/libresj_ts_t.a(TS_getIdentifierString.o)  \
+     $(LIB)/libresj_ts_t.a(TS_getInstantaneous.o)  \
+     $(LIB)/libresj_ts_t.a(TS_getLocation.o)  \
+     $(LIB)/libresj_ts_t.a(TS_getMaxValue.o)  \
+     $(LIB)/libresj_ts_t.a(TS_getMinValue.o)  \
+     $(LIB)/libresj_ts_t.a(TS_getMissing.o)  \
+     $(LIB)/libresj_ts_t.a(TS_getNonMissingDataDate1.o)  \
+     $(LIB)/libresj_ts_t.a(TS_getNonMissingDataDate2.o)  \
+     $(LIB)/libresj_ts_t.a(TS_getSequenceNumber.o)  \
+     $(LIB)/libresj_ts_t.a(TS_getVersion.o)  \
+     $(LIB)/libresj_ts_t.a(TSIdent_Constructors.o)  \
+     $(LIB)/libresj_ts_t.a(TSIdent_Destructor.o)  \
+     $(LIB)/libresj_ts_t.a(TSIdent_getAlias.o)  \
+     $(LIB)/libresj_ts_t.a(TSIdent_getBehaviorMask.o)  \
+     $(LIB)/libresj_ts_t.a(TSIdent_getIdentifier.o)  \
+     $(LIB)/libresj_ts_t.a(TSIdent_getIdentifierFromParts.o)  \
+     $(LIB)/libresj_ts_t.a(TSIdent_getIntervalBase.o)  \
+     $(LIB)/libresj_ts_t.a(TSIdent_getInterval.o)  \
+     $(LIB)/libresj_ts_t.a(TSIdent_getIntervalMult.o)  \
+     $(LIB)/libresj_ts_t.a(TSIdent_getLocation.o)  \
+     $(LIB)/libresj_ts_t.a(TSIdent_getMainLocation.o)  \
+     $(LIB)/libresj_ts_t.a(TSIdent_getMainSource.o)  \
+     $(LIB)/libresj_ts_t.a(TSIdent_getScenario.o)  \
+     $(LIB)/libresj_ts_t.a(TSIdent_getSource.o)  \
+     $(LIB)/libresj_ts_t.a(TSIdent_getSubLocation.o)  \
+     $(LIB)/libresj_ts_t.a(TSIdent_getSubSource.o)  \
+     $(LIB)/libresj_ts_t.a(TSIdent_getType.o)  \
+     $(LIB)/libresj_ts_t.a(TSIdent_init.o)  \
+     $(LIB)/libresj_ts_t.a(TSIdent_Operators.o)  \
+     $(LIB)/libresj_ts_t.a(TSIdent_parseIdentifier.o)  \
+     $(LIB)/libresj_ts_t.a(TSIdent_setAlias.o)  \
+     $(LIB)/libresj_ts_t.a(TSIdent_setBehaviorMask.o)  \
+     $(LIB)/libresj_ts_t.a(TSIdent_setFullIdentifier.o)  \
+     $(LIB)/libresj_ts_t.a(TSIdent_setFullLocation.o)  \
+     $(LIB)/libresj_ts_t.a(TSIdent_setFullSource.o)  \
+     $(LIB)/libresj_ts_t.a(TSIdent_setIdentifier.o)  \
+     $(LIB)/libresj_ts_t.a(TSIdent_setInterval.o)  \
+     $(LIB)/libresj_ts_t.a(TSIdent_setIntervalString.o)  \
+     $(LIB)/libresj_ts_t.a(TSIdent_setLocation.o)  \
+     $(LIB)/libresj_ts_t.a(TSIdent_setMainLocation.o)  \
+     $(LIB)/libresj_ts_t.a(TSIdent_setMainSource.o)  \
+     $(LIB)/libresj_ts_t.a(TSIdent_setScenario.o)  \
+     $(LIB)/libresj_ts_t.a(TSIdent_setSource.o)  \
+     $(LIB)/libresj_ts_t.a(TSIdent_setSubLocation.o)  \
+     $(LIB)/libresj_ts_t.a(TSIdent_setSubSource.o)  \
+     $(LIB)/libresj_ts_t.a(TSIdent_setType.o)  \
+     $(LIB)/libresj_ts_t.a(TSIdent_toString.o)  \
+     $(LIB)/libresj_ts_t.a(TS_init.o)  \
+     $(LIB)/libresj_ts_t.a(TSInterval_Constructors.o)  \
+     $(LIB)/libresj_ts_t.a(TSInterval_Destructor.o)  \
+     $(LIB)/libresj_ts_t.a(TSInterval_getBase.o)  \
+     $(LIB)/libresj_ts_t.a(TSInterval_getBaseString.o)  \
+     $(LIB)/libresj_ts_t.a(TSInterval_getMultiplier.o)  \
+     $(LIB)/libresj_ts_t.a(TSInterval_getName.o)  \
+     $(LIB)/libresj_ts_t.a(TSInterval_init.o)  \
+     $(LIB)/libresj_ts_t.a(TSInterval_Operators.o)  \
+     $(LIB)/libresj_ts_t.a(TSInterval_parseInterval.o)  \
+     $(LIB)/libresj_ts_t.a(TSInterval_setBase.o)  \
+     $(LIB)/libresj_ts_t.a(TSInterval_setBaseString.o)  \
+     $(LIB)/libresj_ts_t.a(TSInterval_setMultiplier.o)  \
+     $(LIB)/libresj_ts_t.a(TSInterval_toString.o)  \
+     $(LIB)/libresj_ts_t.a(TS_isDataMissing.o)  \
+     $(LIB)/libresj_ts_t.a(TS_Operators.o)  \
+     $(LIB)/libresj_ts_t.a(TS_printSample.o)  \
+     $(LIB)/libresj_ts_t.a(TS_readPersistent.o)  \
+     $(LIB)/libresj_ts_t.a(TS_readPersistentHeader.o)  \
+     $(LIB)/libresj_ts_t.a(TS_refresh.o)  \
+     $(LIB)/libresj_ts_t.a(TS_setComments.o)  \
+     $(LIB)/libresj_ts_t.a(TS_setDataInterval.o)  \
+     $(LIB)/libresj_ts_t.a(TS_setDataIntervalOriginal.o)  \
+     $(LIB)/libresj_ts_t.a(TS_setDataLimits.o)  \
+     $(LIB)/libresj_ts_t.a(TS_setDataType.o)  \
+     $(LIB)/libresj_ts_t.a(TS_setDataUnits.o)  \
+     $(LIB)/libresj_ts_t.a(TS_setDataUnitsOriginal.o)  \
+     $(LIB)/libresj_ts_t.a(TS_setDataValue.o)  \
+     $(LIB)/libresj_ts_t.a(TS_setDate1.o)  \
+     $(LIB)/libresj_ts_t.a(TS_setDate1Original.o)  \
+     $(LIB)/libresj_ts_t.a(TS_setDate2.o)  \
+     $(LIB)/libresj_ts_t.a(TS_setDate2Original.o)  \
+     $(LIB)/libresj_ts_t.a(TS_setDescription.o)  \
+     $(LIB)/libresj_ts_t.a(TS_setGenesis.o)  \
+     $(LIB)/libresj_ts_t.a(TS_setIdentifier.o)  \
+     $(LIB)/libresj_ts_t.a(TS_setInstantaneous.o)  \
+     $(LIB)/libresj_ts_t.a(TS_setLocation.o)  \
+     $(LIB)/libresj_ts_t.a(TS_setMaxValue.o)  \
+     $(LIB)/libresj_ts_t.a(TS_setMinValue.o)  \
+     $(LIB)/libresj_ts_t.a(TS_setMissing.o)  \
+     $(LIB)/libresj_ts_t.a(TS_setNonMissingDataDate1.o)  \
+     $(LIB)/libresj_ts_t.a(TS_setNonMissingDataDate2.o)  \
+     $(LIB)/libresj_ts_t.a(TS_setSequenceNumber.o)  \
+     $(LIB)/libresj_ts_t.a(TS_setVersion.o)  \
+     $(LIB)/libresj_ts_t.a(TSUtil_changeInterval.o)  \
+     $(LIB)/libresj_ts_t.a(TSUtil_findTSFile.o)  \
+     $(LIB)/libresj_ts_t.a(TSUtil_getDataLimits.o)  \
+     $(LIB)/libresj_ts_t.a(TSUtil_getPeriodFromTS.o)  \
+     $(LIB)/libresj_ts_t.a(TSUtil_getTSDateFromString.o)  \
+     $(LIB)/libresj_ts_t.a(TSUtil_getValidPeriod.o)  \
+     $(LIB)/libresj_ts_t.a(TSUtil_initialize.o)  \
+     $(LIB)/libresj_ts_t.a(TS_writePersistent.o)  \
+     $(LIB)/libresj_ts_t.a(TS_writePersistentHeader.o)
+

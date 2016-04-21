@@ -1,0 +1,307 @@
+module '*ugcDS'
+version = 47;
+xdesigned = 1;
+applicationName = '*ugcDS';
+generateNameC = * './ugc.c';
+generateNameExterns = * './ugc.h';
+generateNameResDB = * './ugc.res';
+generateCPixmapFile = '';
+generateCHeaderFile = '';
+generateMask = 39256293;
+useMask = 0;
+ansiC = 1;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 0;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'ugcDS' : XmDialogShell {
+	arguments {
+	was_selected = true;
+	lastGenName = 'ugcDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_ugcDS (Widget parent)
+';
+	XmNwidth = 725;
+	XmNheight = 355;
+	XmNallowShellResize = true;
+	XmNtitle = 'Universal Generic Codes';
+	XmNminWidth = 725;
+	XmNminHeight = 355;
+	XmNmaxWidth = 725;
+	XmNmaxHeight = 355;
+	XmNdeleteResponse = 2;
+	};
+object 'ugcFM' : XmForm {
+	arguments {
+	lastGenName = 'ugcFM';
+	XmNwidth = 725;
+	XmNheight = 355;
+	XmNautoUnmanage = false;
+	};
+object 'ugcOM' : XmOptionMenu {
+	arguments {
+	lastGenName = 'ugcOM';
+	};
+abstract object 'ugcoptLbl' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'ugcoptLbl';
+	XmNlabelString = 'Selection';
+	};
+};
+abstract object 'ugcoptCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'ugcoptCB';
+	};
+object 'ugcoptPDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'ugcoptPDM';
+	};
+object 'ugccntyPB' : XmPushButton {
+	arguments {
+	lastGenName = 'ugccntyPB';
+	XmNlabelString = 'Counties';
+	};
+};
+object 'ugczonePB' : XmPushButton {
+	arguments {
+	lastGenName = 'ugczonePB';
+	XmNlabelString = 'Zones';
+	};
+};
+};
+};
+};
+object 'ugcuprSP' : XmSeparator {
+	arguments {
+	lastGenName = 'ugcuprSP';
+	};
+};
+object 'ugcaLbl' : XmLabel {
+	arguments {
+	lastGenName = 'ugcaLbl';
+	XmNlabelString = 'Available';
+	};
+};
+object 'ugcaSL' : XmScrolledList {
+	arguments {
+	lastGenName = 'ugcaSL';
+	XmNwidth = 300;
+	XmNheight = 185;
+	};
+abstract object 'ugcaHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'ugcaHSB';
+	};
+};
+abstract object 'ugcaVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'ugcaVSB';
+	};
+};
+abstract object 'ugcaL' : XmList {
+	arguments {
+	lastGenName = 'ugcaL';
+	XmNvisibleItemCount = 9;
+	XmNselectionPolicy = 3;
+	XmNlistSizePolicy = 1;
+	XmNscrollBarDisplayPolicy = 1;
+	};
+};
+};
+object 'ugcaddPB' : XmPushButton {
+	arguments {
+	lastGenName = 'ugcaddPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Add';
+	};
+};
+object 'ugcdelPB' : XmPushButton {
+	arguments {
+	lastGenName = 'ugcdelPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Delete';
+	};
+};
+object 'ugcclearPB' : XmPushButton {
+	arguments {
+	lastGenName = 'ugcclearPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Clear';
+	};
+};
+object 'ugcsLbl' : XmLabel {
+	arguments {
+	lastGenName = 'ugcsLbl';
+	XmNlabelString = 'Selected';
+	};
+};
+object 'ugcsSL' : XmScrolledList {
+	arguments {
+	lastGenName = 'ugcsSL';
+	XmNwidth = 300;
+	XmNheight = 184;
+	};
+abstract object 'ugcsHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'ugcsHSB';
+	};
+};
+abstract object 'ugcsVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'ugcsVSB';
+	};
+};
+abstract object 'ugcsL' : XmList {
+	arguments {
+	lastGenName = 'ugcsL';
+	XmNvisibleItemCount = 9;
+	XmNselectionPolicy = 2;
+	XmNlistSizePolicy = 1;
+	XmNscrollBarDisplayPolicy = 1;
+	};
+};
+};
+object 'ugclwrSP' : XmSeparator {
+	arguments {
+	lastGenName = 'ugclwrSP';
+	};
+};
+object 'ugcokPB' : XmPushButton {
+	arguments {
+	lastGenName = 'ugcokPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Ok';
+	};
+};
+object 'ugcapplyPB' : XmPushButton {
+	arguments {
+	lastGenName = 'ugcapplyPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Apply';
+	};
+};
+object 'ugccancelPB' : XmPushButton {
+	arguments {
+	lastGenName = 'ugccancelPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Cancel';
+	};
+};
+object 'ugchelpPB' : XmPushButton {
+	arguments {
+	lastGenName = 'ugchelpPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Help';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 10;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 0;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 1 10;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 2 10;
+    };
+    attachment {
+	XmNrightAttachment = 3 5 10;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 3 10 10;
+	XmNtopAttachment = 3 3 5;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 320;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 101;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 320;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 5 10;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 320;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 6 10;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 415;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 2 10;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 10;
+	XmNleftAttachment = 1 0 415;
+	XmNbottomAttachment = 3 10 10;
+	XmNtopAttachment = 3 8 5;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 0;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 3 11 10;
+	XmNtopAttachment = 1 0 294;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 308;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 212;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 10 10;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 422;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 10 10;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 629;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 308;
+    };
+    };
+};
+};
+end module;

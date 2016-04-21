@@ -1,0 +1,22 @@
+C MEMBER UDUNTB
+C-----------------------------------------------------------------------
+C
+C @PROCESS LVL(77)
+C
+C  INITIALIZE COMMON BLOCK UDUNTX
+C
+      BLOCK DATA UDUNTB
+C
+      INCLUDE 'uduntx'
+C
+C
+      DATA IDUFIL/0/,MDDIMN/13/,MDUNIT/12/
+      DATA DUDIMN/13*' '/
+      DATA DUUNIT/156*' '/
+      DATA DUCFAC/156*-999./
+      DATA DUTFAC/13*-999./
+      DATA NDUNDC/156*-999/
+      DATA NNUCNV/0/,MNUCNV/5/,UCNVAL/5*0.0/
+C
+C
+      END

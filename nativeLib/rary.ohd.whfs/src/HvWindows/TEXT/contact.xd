@@ -1,0 +1,378 @@
+module 'XApplication'
+version = 47;
+xdesigned = 1;
+applicationName = 'XApplication';
+generateNameC = * './contact.c';
+generateNameExterns = * './contact.h';
+generateNameResDB = * './contact.res';
+generateCPixmapFile = '';
+generateCHeaderFile = '';
+generateMask = 39256293;
+useMask = 0;
+ansiC = 1;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 0;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'contactDS' : XmDialogShell {
+	arguments {
+	name = 'contactDS';
+	lastGenName = 'contactDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_contactDS (Widget parent)
+';
+	XmNwidth = 670;
+	XmNheight = 585;
+	XmNallowShellResize = true;
+	XmNtitle = 'Contacts';
+	XmNminWidth = 670;
+	XmNminHeight = 585;
+	XmNmaxWidth = 670;
+	XmNmaxHeight = 585;
+	};
+object 'contactFM' : XmForm {
+	arguments {
+	name = 'contactFM';
+	was_selected = true;
+	lastGenName = 'contactFM';
+	XmNwidth = 670;
+	XmNheight = 585;
+	XmNautoUnmanage = false;
+	};
+object 'contactSLB' : XmScrolledList {
+	arguments {
+	name = 'contactSLB';
+	lastGenName = 'contactSLB';
+	XmNwidth = 650;
+	XmNheight = 150;
+	};
+abstract object 'con_horizSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'con_horizSB';
+	};
+};
+abstract object 'con_vertSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'con_vertSB';
+	};
+};
+abstract object 'contactLB' : XmList {
+	arguments {
+	name = 'contactLB';
+	lastGenName = 'contactLB';
+	XmNlistSizePolicy = 1;
+	};
+};
+};
+object 'con_infoFrm' : XmFrame {
+	arguments {
+	name = 'con_infoFrm';
+	lastGenName = 'con_infoFrm';
+	};
+object 'con_infoFM' : XmForm {
+	arguments {
+	name = 'con_infoFM';
+	lastGenName = 'con_infoFM';
+	};
+object 'contactTxt' : XmText {
+	arguments {
+	name = 'contactTxt';
+	lastGenName = 'contactTxt';
+	XmNmaxLength = 24;
+	XmNcolumns = 23;
+	};
+};
+object 'concernsLbl' : XmLabel {
+	arguments {
+	lastGenName = 'concernsLbl';
+	XmNlabelString = 'Concerns:';
+	};
+};
+object 'concernsTxt' : XmText {
+	arguments {
+	name = 'concernsTxt';
+	lastGenName = 'concernsTxt';
+	XmNmaxLength = 255;
+	XmNcolumns = 70;
+	XmNwordWrap = true;
+	XmNeditMode = 0;
+	XmNrows = 4;
+	};
+};
+object 'cphoneLbl' : XmLabel {
+	arguments {
+	name = 'cphoneLbl';
+	lastGenName = 'cphoneLbl';
+	XmNlabelString = 'Phone:';
+	XmNalignment = 0;
+	};
+};
+object 'cphoneTxt' : XmText {
+	arguments {
+	name = 'cphoneTxt';
+	lastGenName = 'cphoneTxt';
+	XmNmaxLength = 18;
+	XmNcolumns = 28;
+	};
+};
+object 'contactLbl' : XmLabel {
+	arguments {
+	name = 'contactLbl';
+	lastGenName = 'contactLbl';
+	XmNlabelString = 'Contact:';
+	XmNalignment = 0;
+	};
+};
+object 'csequenceTxt' : XmText {
+	arguments {
+	lastGenName = 'csequenceTxt';
+	XmNmaxLength = 2;
+	};
+};
+object 'csequenceLbl' : XmLabel {
+	arguments {
+	lastGenName = 'csequenceLbl';
+	XmNlabelString = 'Sequence:';
+	XmNalignment = 0;
+	};
+};
+object 'cemailLbl' : XmLabel {
+	arguments {
+	name = 'cemailLbl';
+	lastGenName = 'cemailLbl';
+	XmNlabelString = 'E-Mail:';
+	};
+};
+object 'cemailTxt' : XmTextField {
+	arguments {
+	name = 'cemailTxt';
+	lastGenName = 'cemailTxt';
+	XmNmaxLength = 60;
+	XmNcolumns = 50;
+	XmNeditable = true;
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -310;
+	XmNleftAttachment = 1 0 125;
+	XmNbottomAttachment = 2 0 -76;
+	XmNtopAttachment = 1 0 40;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -90;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -177;
+	XmNtopAttachment = 1 0 150;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -519;
+	XmNleftAttachment = 1 0 8;
+	XmNbottomAttachment = 2 0 -267;
+	XmNtopAttachment = 1 0 180;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -480;
+	XmNleftAttachment = 1 0 420;
+	XmNbottomAttachment = 2 0 -36;
+	XmNtopAttachment = 1 0 11;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -635;
+	XmNleftAttachment = 1 0 420;
+	XmNbottomAttachment = 2 0 -75;
+	XmNtopAttachment = 1 0 40;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -193;
+	XmNleftAttachment = 1 0 123;
+	XmNbottomAttachment = 2 0 -36;
+	XmNtopAttachment = 1 0 11;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -50;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -75;
+	XmNtopAttachment = 1 0 40;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -95;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -35;
+	XmNtopAttachment = 1 0 10;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -67;
+	XmNleftAttachment = 1 0 9;
+	XmNbottomAttachment = 2 0 -105;
+	XmNtopAttachment = 1 0 79;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -518;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -147;
+	XmNtopAttachment = 1 0 109;
+    };
+    };
+};
+object 'con_infoLbl' : XmLabel {
+	arguments {
+	name = 'con_infoLbl';
+	lastGenName = 'con_infoLbl';
+	XmNchildType = 2;
+	XmNlabelString = 'Information';
+	};
+};
+};
+object 'contactSP' : XmSeparator {
+	arguments {
+	lastGenName = 'contactSP';
+	};
+};
+object 'cokPB' : XmPushButton {
+	arguments {
+	name = 'cokPB';
+	lastGenName = 'cokPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Ok';
+	};
+};
+object 'capplyPB' : XmPushButton {
+	arguments {
+	name = 'capplyPB';
+	lastGenName = 'capplyPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Apply';
+	};
+};
+object 'ccancelPB' : XmPushButton {
+	arguments {
+	name = 'ccancelPB';
+	lastGenName = 'ccancelPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Close';
+	};
+};
+object 'cnewPB' : XmPushButton {
+	arguments {
+	name = 'cnewPB';
+	lastGenName = 'cnewPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'New';
+	};
+};
+object 'cdelPB' : XmPushButton {
+	arguments {
+	name = 'cdelPB';
+	lastGenName = 'cdelPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Delete';
+	};
+};
+object 'con_phoneLbl' : XmLabel {
+	arguments {
+	name = 'con_phoneLbl';
+	lastGenName = 'con_phoneLbl';
+	XmNlabelString = 'Phone';
+	};
+};
+object 'con_contactLbl' : XmLabel {
+	arguments {
+	name = 'con_contactLbl';
+	lastGenName = 'con_contactLbl';
+	XmNlabelString = 'Contact';
+	};
+};
+object 'con_sequenceLbl' : XmLabel {
+	arguments {
+	lastGenName = 'con_sequenceLbl';
+	XmNlabelString = 'Sequence';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -660;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -185;
+	XmNtopAttachment = 1 0 35;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 10;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 195;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 0;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 2 30;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 4 6 0;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 145;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 4 6 0;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 285;
+	XmNbottomAttachment = 1 0 10;
+	XmNtopAttachment = 3 3 20;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 430;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 4 6 0;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 575;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 4 6 0;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -490;
+	XmNleftAttachment = 1 0 435;
+	XmNbottomAttachment = 2 0 -30;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -200;
+	XmNleftAttachment = 1 0 135;
+	XmNbottomAttachment = 2 0 -30;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -95;
+	XmNleftAttachment = 1 0 15;
+	XmNbottomAttachment = 2 0 -30;
+	XmNtopAttachment = 1 0 5;
+    };
+    };
+};
+};
+end module;

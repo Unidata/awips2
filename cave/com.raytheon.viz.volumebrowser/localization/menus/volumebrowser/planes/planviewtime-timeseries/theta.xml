@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="250K"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="255K"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="260K"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="265K"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="270K"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="275K"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="280K"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="285K"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="290K"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="295K"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="300K"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="305K"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="310K"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="315K"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="320K"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="325K"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="330K"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="335K"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="340K"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="345K"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="350K"  indentText="false"/>
+    <contribute xsi:type="toolbarSubMenu" menuText="10K Theta Layers">
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="250-260K" indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="255-265K" indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="260-270K" indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="265-275K" indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="270-280K" indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="275-285K" indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="280-290K" indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="285-295K" indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="290-300K" indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="295-305K" indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="300-310K" indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="305-315K" indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="310-320K" indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="315-325K" indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="320-330K" indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="325-335K" indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="330-340K" indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="335-345K" indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="340-350K" indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="345-355K" indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="350-360K" indentText="false"/>
+    </contribute>
+    <contribute xsi:type="toolbarSubMenu" menuText="ThetaE">
+	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="270Ke"  indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="275Ke"  indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="280Ke"  indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="285Ke"  indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="290Ke"  indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="295Ke"  indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="300Ke"  indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="305Ke"  indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="310Ke"  indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="315Ke"  indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="320Ke"  indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="325Ke"  indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="330Ke"  indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="335Ke"  indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="340Ke"  indentText="false"/> 
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="Mept"  indentText="false"/> 		
+    </contribute>
+   
+    <contribute xsi:type="toolbarSubMenu" menuText="10K ThetaE Layers">
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="250-260Ke" indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="255-265Ke" indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="260-270Ke" indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="265-275Ke" indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="270-280Ke" indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="275-285Ke" indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="280-290Ke" indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="285-295Ke" indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="290-300Ke" indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="295-305Ke" indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="300-310Ke" indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="305-315Ke" indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="310-320Ke" indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="315-325Ke" indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="320-330Ke" indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="325-335Ke" indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="330-340Ke" indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="335-345Ke" indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="340-350Ke" indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="345-355Ke" indentText="false"/>
+		<contribute xsi:type="menuItem" textLookup="LevelMapping" key="350-360Ke" indentText="false"/>
+    </contribute>
+</menuTemplate>

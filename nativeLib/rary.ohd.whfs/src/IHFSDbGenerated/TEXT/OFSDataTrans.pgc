@@ -1,0 +1,791 @@
+/*
+    File: OFSDataTrans.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:25 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "OFSDataTrans.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct OFSDataTrans_t
+{
+    char		pe[3];
+    short		dur;
+    char		extremum[2];
+    char		ofs_data_type[5];
+    float		fwd_time_window;
+    float		bkw_time_window;
+
+    int		ind_ofs_data_type;
+    int		ind_fwd_time_window;
+    int		ind_bkw_time_window;
+} OFSDataTrans_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+OFSDataTrans * GetOFSDataTrans(const char * where)
+{
+
+    OFSDataTrans * listPtr = NULL;
+    OFSDataTrans * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM OFSDataTrans ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct OFSDataTrans_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetOFSDataTrans() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetOFSDataTrans() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetOFSDataTrans() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.pe, :dbs.dur, 
+    :dbs.extremum, :dbs.ofs_data_type:dbs.ind_ofs_data_type, 
+    :dbs.fwd_time_window:dbs.ind_fwd_time_window, :dbs.bkw_time_window:dbs.ind_bkw_time_window    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetOFSDataTrans() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (OFSDataTrans *) malloc(sizeof(OFSDataTrans))) != NULL)
+        {
+
+            strcpy(structPtr->pe, dbs.pe);
+
+            structPtr->dur = dbs.dur;
+
+            strcpy(structPtr->extremum, dbs.extremum);
+
+            strcpy(structPtr->ofs_data_type, dbs.ofs_data_type);
+            setNullIfIndicated(dbs.ind_ofs_data_type, CHAR, structPtr->ofs_data_type);
+
+            structPtr->fwd_time_window = dbs.fwd_time_window;
+            setNullIfIndicated(dbs.ind_fwd_time_window, FLOAT, &structPtr->fwd_time_window);
+
+            structPtr->bkw_time_window = dbs.bkw_time_window;
+            setNullIfIndicated(dbs.ind_bkw_time_window, FLOAT, &structPtr->bkw_time_window);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.pe, :dbs.dur, 
+        :dbs.extremum, :dbs.ofs_data_type:dbs.ind_ofs_data_type, 
+        :dbs.fwd_time_window:dbs.ind_fwd_time_window, :dbs.bkw_time_window:dbs.ind_bkw_time_window        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetOFSDataTrans() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+OFSDataTrans * SelectOFSDataTrans(const char * where)
+{
+
+    OFSDataTrans * listPtr = NULL;
+    OFSDataTrans * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM OFSDataTrans ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct OFSDataTrans_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectOFSDataTrans() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectOFSDataTrans() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectOFSDataTrans() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.pe, :dbs.dur, 
+    :dbs.extremum, :dbs.ofs_data_type:dbs.ind_ofs_data_type, 
+    :dbs.fwd_time_window:dbs.ind_fwd_time_window, :dbs.bkw_time_window:dbs.ind_bkw_time_window    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectOFSDataTrans() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (OFSDataTrans *) malloc(sizeof(OFSDataTrans))) != NULL)
+        {
+
+            strcpy(structPtr->pe, dbs.pe);
+
+            structPtr->dur = dbs.dur;
+
+            strcpy(structPtr->extremum, dbs.extremum);
+
+            strcpy(structPtr->ofs_data_type, dbs.ofs_data_type);
+            setNullIfIndicated(dbs.ind_ofs_data_type, CHAR, structPtr->ofs_data_type);
+
+            structPtr->fwd_time_window = dbs.fwd_time_window;
+            setNullIfIndicated(dbs.ind_fwd_time_window, FLOAT, &structPtr->fwd_time_window);
+
+            structPtr->bkw_time_window = dbs.bkw_time_window;
+            setNullIfIndicated(dbs.ind_bkw_time_window, FLOAT, &structPtr->bkw_time_window);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.pe, :dbs.dur, 
+        :dbs.extremum, :dbs.ofs_data_type:dbs.ind_ofs_data_type, 
+        :dbs.fwd_time_window:dbs.ind_fwd_time_window, :dbs.bkw_time_window:dbs.ind_bkw_time_window        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectOFSDataTrans() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectOFSDataTransCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM OFSDataTrans ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountOFSDataTrans() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountOFSDataTrans() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountOFSDataTrans() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountOFSDataTrans() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutOFSDataTrans(const OFSDataTrans * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct OFSDataTrans_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.pe, structPtr->pe);
+
+    dbs.dur = structPtr->dur;
+
+    strcpy(dbs.extremum, structPtr->extremum);
+
+    strcpy(dbs.ofs_data_type, structPtr->ofs_data_type);
+    dbs.ind_ofs_data_type = getIndicator(CHAR, (void *)structPtr->ofs_data_type);
+
+    dbs.fwd_time_window = structPtr->fwd_time_window;
+    dbs.ind_fwd_time_window = getIndicator(FLOAT, (void *)&structPtr->fwd_time_window);
+
+    dbs.bkw_time_window = structPtr->bkw_time_window;
+    dbs.ind_bkw_time_window = getIndicator(FLOAT, (void *)&structPtr->bkw_time_window);
+
+
+    EXEC SQL INSERT INTO OFSDataTrans (pe,dur,
+        extremum,ofs_data_type,fwd_time_window,
+        bkw_time_window        )
+        VALUES (
+         :dbs.pe, :dbs.dur, :dbs.extremum,
+         :dbs.ofs_data_type:dbs.ind_ofs_data_type, :dbs.fwd_time_window:dbs.ind_fwd_time_window, :dbs.bkw_time_window:dbs.ind_bkw_time_window);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutOFSDataTrans() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOFSDataTrans(const OFSDataTrans * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct OFSDataTrans_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.pe, structPtr->pe);
+
+    dbs.dur = structPtr->dur;
+
+    strcpy(dbs.extremum, structPtr->extremum);
+
+    strcpy(dbs.ofs_data_type, structPtr->ofs_data_type);
+    dbs.ind_ofs_data_type = getIndicator(CHAR, (void *)structPtr->ofs_data_type);
+
+    dbs.fwd_time_window = structPtr->fwd_time_window;
+    dbs.ind_fwd_time_window = getIndicator(FLOAT, (void *)&structPtr->fwd_time_window);
+
+    dbs.bkw_time_window = structPtr->bkw_time_window;
+    dbs.ind_bkw_time_window = getIndicator(FLOAT, (void *)&structPtr->bkw_time_window);
+
+
+    EXEC SQL INSERT INTO OFSDataTrans (pe,dur,
+        extremum,ofs_data_type,fwd_time_window,
+        bkw_time_window        )
+        VALUES (
+         :dbs.pe, :dbs.dur, :dbs.extremum,
+         :dbs.ofs_data_type:dbs.ind_ofs_data_type, :dbs.fwd_time_window:dbs.ind_fwd_time_window, :dbs.bkw_time_window:dbs.ind_bkw_time_window);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertOFSDataTrans() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateOFSDataTrans(const OFSDataTrans *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct OFSDataTrans_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.pe, structPtr->pe);
+
+    dbs.dur = structPtr->dur;
+
+    strcpy(dbs.extremum, structPtr->extremum);
+
+    strcpy(dbs.ofs_data_type, structPtr->ofs_data_type);
+    dbs.ind_ofs_data_type = getIndicator(CHAR, (void *)structPtr->ofs_data_type);
+
+    dbs.fwd_time_window = structPtr->fwd_time_window;
+    dbs.ind_fwd_time_window = getIndicator(FLOAT, (void *)&structPtr->fwd_time_window);
+
+    dbs.bkw_time_window = structPtr->bkw_time_window;
+    dbs.ind_bkw_time_window = getIndicator(FLOAT, (void *)&structPtr->bkw_time_window);
+
+
+    sprintf(queryBuffer, " UPDATE OFSDataTrans SET " );
+    strcat(queryBuffer, "pe = ? , dur = ? , extremum = ? , ofs_data_type = ? , fwd_time_window = ? ,     ");
+    strcat(queryBuffer, "bkw_time_window = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateOFSDataTrans() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.pe, :dbs.dur, :dbs.extremum, :dbs.ofs_data_type:dbs.ind_ofs_data_type, :dbs.fwd_time_window:dbs.ind_fwd_time_window,
+     :dbs.bkw_time_window:dbs.ind_bkw_time_window;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateOFSDataTrans() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteOFSDataTrans(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM OFSDataTrans ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteOFSDataTrans() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateOFSDataTransByRecord (const OFSDataTrans * newStructPtr, const OFSDataTrans * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetOFSDataTransPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateOFSDataTrans(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateOFSDataTrans(const OFSDataTrans * structPtr)
+{
+    UpdateOFSDataTransByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertOFSDataTrans(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueOFSDataTrans(const OFSDataTrans * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (OFSDataTransExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertOFSDataTrans(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteOFSDataTransByRecord(const OFSDataTrans * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetOFSDataTransPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteOFSDataTrans(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool OFSDataTransExists(const OFSDataTrans * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetOFSDataTransPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectOFSDataTransCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetOFSDataTransPrimaryKeyWhereString (const OFSDataTrans * structPtr, char returnWhereString[] )
+{
+    sprintf(returnWhereString, "WHERE pe = '%s'  AND dur = %d  AND extremum = '%s' ",
+            structPtr->pe, structPtr->dur, structPtr->extremum);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeOFSDataTrans( OFSDataTrans * structPtr)
+{
+    OFSDataTrans* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( OFSDataTrans * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetOFSDataTransDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetOFSDataTransErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

@@ -1,0 +1,204 @@
+C-----------------------------------------------------------------------
+      SUBROUTINE GDSWZD04(KGDS,IOPT,NPTS,FILL,XPTS,YPTS,RLON,RLAT,NRET,
+     &                    LROT,CROT,SROT,LMAP,XLON,XLAT,YLON,YLAT,AREA)
+C$$$  SUBPROGRAM DOCUMENTATION BLOCK
+C
+C SUBPROGRAM:  GDSWZD04   GDS WIZARD FOR GAUSSIAN CYLINDRICAL
+C   PRGMMR: IREDELL       ORG: W/NMC23       DATE: 96-04-10
+C
+C ABSTRACT: THIS SUBPROGRAM DECODES THE GRIB GRID DESCRIPTION SECTION
+C           (PASSED IN INTEGER FORM AS DECODED BY SUBPROGRAM W3FI63)
+C           AND RETURNS ONE OF THE FOLLOWING:
+C             (IOPT=+1) EARTH COORDINATES OF SELECTED GRID COORDINATES
+C             (IOPT=-1) GRID COORDINATES OF SELECTED EARTH COORDINATES
+C           FOR GAUSSIAN CYLINDRICAL PROJECTIONS.
+C           IF THE SELECTED COORDINATES ARE MORE THAN ONE GRIDPOINT
+C           BEYOND THE THE EDGES OF THE GRID DOMAIN, THEN THE RELEVANT
+C           OUTPUT ELEMENTS ARE SET TO FILL VALUES.
+C           THE ACTUAL NUMBER OF VALID POINTS COMPUTED IS RETURNED TOO.
+C           OPTIONALLY, THE VECTOR ROTATIONS AND THE MAP JACOBIANS
+C           FOR THIS GRID MAY BE RETURNED AS WELL.
+C
+C PROGRAM HISTORY LOG:
+C   96-04-10  IREDELL
+C   97-10-20  IREDELL  INCLUDE MAP OPTIONS
+C 1999-04-08  IREDELL  USE SUBROUTINE SPLAT
+C 2001-06-18  IREDELL  CORRECT AREA COMPUTATION
+C
+C USAGE:    CALL GDSWZD04(KGDS,IOPT,NPTS,FILL,XPTS,YPTS,RLON,RLAT,NRET,
+C    &                    LROT,CROT,SROT,LMAP,XLON,XLAT,YLON,YLAT,AREA)
+C
+C   INPUT ARGUMENT LIST:
+C     KGDS     - INTEGER (200) GDS PARAMETERS AS DECODED BY W3FI63
+C     IOPT     - INTEGER OPTION FLAG
+C                (+1 TO COMPUTE EARTH COORDS OF SELECTED GRID COORDS)
+C                (-1 TO COMPUTE GRID COORDS OF SELECTED EARTH COORDS)
+C     NPTS     - INTEGER MAXIMUM NUMBER OF COORDINATES
+C     FILL     - REAL FILL VALUE TO SET INVALID OUTPUT DATA
+C                (MUST BE IMPOSSIBLE VALUE; SUGGESTED VALUE: -9999.)
+C     XPTS     - REAL (NPTS) GRID X POINT COORDINATES IF IOPT>0
+C     YPTS     - REAL (NPTS) GRID Y POINT COORDINATES IF IOPT>0
+C     RLON     - REAL (NPTS) EARTH LONGITUDES IN DEGREES E IF IOPT<0
+C                (ACCEPTABLE RANGE: -360. TO 360.)
+C     RLAT     - REAL (NPTS) EARTH LATITUDES IN DEGREES N IF IOPT<0
+C                (ACCEPTABLE RANGE: -90. TO 90.)
+C     LROT     - INTEGER FLAG TO RETURN VECTOR ROTATIONS IF 1
+C     LMAP     - INTEGER FLAG TO RETURN MAP JACOBIANS IF 1
+C
+C   OUTPUT ARGUMENT LIST:
+C     XPTS     - REAL (NPTS) GRID X POINT COORDINATES IF IOPT<0
+C     YPTS     - REAL (NPTS) GRID Y POINT COORDINATES IF IOPT<0
+C     RLON     - REAL (NPTS) EARTH LONGITUDES IN DEGREES E IF IOPT>0
+C     RLAT     - REAL (NPTS) EARTH LATITUDES IN DEGREES N IF IOPT>0
+C     NRET     - INTEGER NUMBER OF VALID POINTS COMPUTED
+C     CROT     - REAL (NPTS) CLOCKWISE VECTOR ROTATION COSINES IF LROT=1
+C     SROT     - REAL (NPTS) CLOCKWISE VECTOR ROTATION SINES IF LROT=1
+C                (UGRID=CROT*UEARTH-SROT*VEARTH;
+C                 VGRID=SROT*UEARTH+CROT*VEARTH)
+C     XLON     - REAL (NPTS) DX/DLON IN 1/DEGREES IF LMAP=1
+C     XLAT     - REAL (NPTS) DX/DLAT IN 1/DEGREES IF LMAP=1
+C     YLON     - REAL (NPTS) DY/DLON IN 1/DEGREES IF LMAP=1
+C     YLAT     - REAL (NPTS) DY/DLAT IN 1/DEGREES IF LMAP=1
+C     AREA     - REAL (NPTS) AREA WEIGHTS IN M**2 IF LMAP=1
+C
+C SUBPROGRAMS CALLED:
+C   SPLAT      COMPUTE LATITUDE FUNCTIONS
+C
+C ATTRIBUTES:
+C   LANGUAGE: FORTRAN 77
+C
+C$$$
+      INTEGER KGDS(200)
+      REAL XPTS(NPTS),YPTS(NPTS),RLON(NPTS),RLAT(NPTS)
+      REAL CROT(NPTS),SROT(NPTS)
+      REAL XLON(NPTS),XLAT(NPTS),YLON(NPTS),YLAT(NPTS),AREA(NPTS)
+      PARAMETER(RERTH=6.3712E6)
+      PARAMETER(PI=3.14159265358979,DPR=180./PI)
+      PARAMETER(JGMAX=2000)
+      REAL ALAT(0:JGMAX+1),BLAT(0:JGMAX+1)
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      IF(KGDS(1).EQ.004.AND.KGDS(10)*2.LE.JGMAX) THEN
+        IM=KGDS(2)
+        JM=KGDS(3)
+        RLAT1=KGDS(4)*1.E-3
+        RLON1=KGDS(5)*1.E-3
+        RLAT2=KGDS(7)*1.E-3
+        RLON2=KGDS(8)*1.E-3
+        JG=KGDS(10)*2
+        ISCAN=MOD(KGDS(11)/128,2)
+        JSCAN=MOD(KGDS(11)/64,2)
+        NSCAN=MOD(KGDS(11)/32,2)
+        HI=(-1.)**ISCAN
+        JH=(-1)**JSCAN
+        DLON=HI*(MOD(HI*(RLON2-RLON1)-1+3600,360.)+1)/(IM-1)
+        CALL SPLAT(4,JG,ALAT(1),BLAT)
+        DO JA=1,JG
+          ALAT(JA)=DPR*ASIN(ALAT(JA))
+        ENDDO
+        ALAT(0)=180.-ALAT(1)
+        ALAT(JG+1)=-ALAT(0)
+        BLAT(0)=-BLAT(1)
+        BLAT(JG+1)=BLAT(0)
+        J1=1
+        DOWHILE(J1.LT.JG.AND.RLAT1.LT.(ALAT(J1)+ALAT(J1+1))/2)
+          J1=J1+1
+        ENDDO
+        J2=J1+JH*(JM-1)
+        XMIN=0
+        XMAX=IM+1
+        IF(IM.EQ.NINT(360/ABS(DLON))) XMAX=IM+2
+        YMIN=0.5
+        YMAX=JM+0.5
+        NRET=0
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C  TRANSLATE GRID COORDINATES TO EARTH COORDINATES
+        IF(IOPT.EQ.0.OR.IOPT.EQ.1) THEN
+          DO N=1,NPTS
+            IF(XPTS(N).GE.XMIN.AND.XPTS(N).LE.XMAX.AND.
+     &         YPTS(N).GE.YMIN.AND.YPTS(N).LE.YMAX) THEN
+              RLON(N)=MOD(RLON1+DLON*(XPTS(N)-1)+3600,360.)
+              J=YPTS(N)
+              WB=YPTS(N)-J
+              RLATA=ALAT(J1+JH*(J-1))
+              RLATB=ALAT(J1+JH*J)
+              RLAT(N)=RLATA+WB*(RLATB-RLATA)
+              NRET=NRET+1
+              IF(LROT.EQ.1) THEN
+                CROT(N)=1
+                SROT(N)=0
+              ENDIF
+              IF(LMAP.EQ.1) THEN
+                XLON(N)=1/DLON
+                XLAT(N)=0.
+                YLON(N)=0.
+                YLAT(N)=1/(RLATB-RLATA)
+                WLATA=BLAT(J1+JH*(J-1))
+                WLATB=BLAT(J1+JH*J)
+                WLAT=WLATA+WB*(WLATB-WLATA)
+                AREA(N)=RERTH**2*WLAT*DLON/DPR
+              ENDIF
+            ELSE
+              RLON(N)=FILL
+              RLAT(N)=FILL
+            ENDIF
+          ENDDO
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C  TRANSLATE EARTH COORDINATES TO GRID COORDINATES
+        ELSEIF(IOPT.EQ.-1) THEN
+          DO N=1,NPTS
+            XPTS(N)=FILL
+            YPTS(N)=FILL
+            IF(ABS(RLON(N)).LE.360.AND.ABS(RLAT(N)).LE.90) THEN
+              XPTS(N)=1+HI*MOD(HI*(RLON(N)-RLON1)+3600,360.)/DLON
+              JA=MIN(INT((JG+1)/180.*(90-RLAT(N))),JG)
+              IF(RLAT(N).GT.ALAT(JA)) JA=MAX(JA-2,0)
+              IF(RLAT(N).LT.ALAT(JA+1)) JA=MIN(JA+2,JG)
+              IF(RLAT(N).GT.ALAT(JA)) JA=JA-1
+              IF(RLAT(N).LT.ALAT(JA+1)) JA=JA+1
+              YPTSA=1+JH*(JA-J1)
+              YPTSB=1+JH*(JA+1-J1)
+              WB=(ALAT(JA)-RLAT(N))/(ALAT(JA)-ALAT(JA+1))
+              YPTS(N)=YPTSA+WB*(YPTSB-YPTSA)
+              IF(XPTS(N).GE.XMIN.AND.XPTS(N).LE.XMAX.AND.
+     &           YPTS(N).GE.YMIN.AND.YPTS(N).LE.YMAX) THEN
+                NRET=NRET+1
+                IF(LROT.EQ.1) THEN
+                  CROT(N)=1
+                  SROT(N)=0
+                ENDIF
+                IF(LMAP.EQ.1) THEN
+                  XLON(N)=1/DLON
+                  XLAT(N)=0.
+                  YLON(N)=0.
+                  YLAT(N)=JH/(ALAT(JA)-ALAT(JA+1))
+                  WLATA=BLAT(JA)
+                  WLATB=BLAT(JA+1)
+                  WLAT=WLATA+WB*(WLATB-WLATA)
+                  AREA(N)=RERTH**2*WLAT*DLON/DPR
+                ENDIF
+              ELSE
+                XPTS(N)=FILL
+                YPTS(N)=FILL
+              ENDIF
+            ENDIF
+          ENDDO
+        ENDIF
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C  PROJECTION UNRECOGNIZED
+      ELSE
+        IRET=-1
+        IF(IOPT.GE.0) THEN
+          DO N=1,NPTS
+            RLON(N)=FILL
+            RLAT(N)=FILL
+          ENDDO
+        ENDIF
+        IF(IOPT.LE.0) THEN
+          DO N=1,NPTS
+            XPTS(N)=FILL
+            YPTS(N)=FILL
+          ENDDO
+        ENDIF
+      ENDIF
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      END

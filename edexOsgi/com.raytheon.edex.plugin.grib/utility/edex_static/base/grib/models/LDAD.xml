@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<gribModelSet>
+  <model>
+    <name>nwpsCG1</name>
+    <center>7</center>
+    <subcenter>0</subcenter>
+    <grid>9112</grid>
+    <process>
+      <id>15</id>
+    </process>
+  </model>
+  <model>
+    <name>nwpsTrkngCG0</name>
+    <center>7</center>
+    <subcenter>0</subcenter>
+    <grid>10201978</grid>
+    <process>
+      <id>15</id>
+    </process>
+  </model>
+</gribModelSet>

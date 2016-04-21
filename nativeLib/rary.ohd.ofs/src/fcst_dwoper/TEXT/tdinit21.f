@@ -1,0 +1,104 @@
+      SUBROUTINE TDINIT21(STN,XNOS,NU,MISS,IEND,LAG)
+
+C  THIS SUBROUTINE INITIALIZES THE HH, LL, LH, HL STAGES AND TIME
+C  SEQUENCES.  ALSO, THE TIME SERIES IS SEARCHED FOR MISSING DATA.
+C  MISS=0 ==> NO MISSING DATA;  MISS=NU ==> ALL MISSING DATA
+C
+C  DEFINITION OF VARIABLES
+C    EHH,ELH,ELL,EHL         - ELEVATION CORR. TO TIDE HI-HI,LO-HI,
+C                                LO-LO,HI-LO AT CURRENTLY
+C    EHHO,ELHO,ELLO,EHLO     - ELEVATION CORR. TO TIDE HI-HI,LO-HI,
+C                                LO-LO,HI-LO AT PREVIOUSLY
+C    BHH,BLH,BLL,BHL         - (NOS-OBS) FOR CURRENT HH,LH,LL,HL
+C    BHHO,BLHO,BLLO,BHLO     - (NOS-OBS) FOR PREVIOUS HH,LH,LL,HL
+C    BLMX,BLMN               - MAX AND MIN (NOS-OBS)
+C    ITHH,ITLH,ITLL,ITHL     - TIME STEP CORR TO CURRENT HH,LH,LL,HL
+C    ITHHO,ITLHO,ITLLO,ITHLO - TIME STEP CORR TO PREVIOUS HH,LH,LL,HL
+C    NU      - NO. OF TIME STEPS
+C    LAG     - NO. OF LAG PERIODS BETWEEN OBS & NOS TIDE PEAKS & VALLEYS
+C    MISS    - NO. OF MISSING VALUES
+C    IEND    - LAST TIME STEP WITHOUT MISSING VALUES
+C    STN(I)  - OBSERVED TIDE AT D/S BOUNDARY  T.S.
+C    XNOS(I) - NOS TIDE T.S.
+C
+C THIS SUBROUTINE CALLS: GETLAG21,BLINIT21
+
+      INCLUDE 'common/fdbug'
+      COMMON/XHILO/EHH,ELH,ELL,EHL,EHHO,ELHO,ELLO,EHLO,
+     .             BHH,BLH,BLL,BHL,BHHO,BLHO,BLLO,BHLO,BLMX,BLMN,
+     .             ITHH,ITLH,ITLL,ITHL,ITHHO,ITLHO,ITLLO,ITHLO
+C
+      DIMENSION STN(*),XNOS(*)
+      CHARACTER*8  SNAME
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcst_dwoper/RCS/tdinit21.f,v $
+     . $',                                                             '
+     .$Id: tdinit21.f,v 1.2 2000/09/27 16:13:14 page Exp $
+     . $' /
+C    ===================================================================
+C
+
+      DATA  SNAME / 'TDINIT21' /
+C
+C
+      CALL FPRBUG(SNAME,1,21,IBUG)
+
+C...INITIALIZE VALUES
+CC      DO 2 I=1,NU
+CC      IF(STN(I).GT.-900.) THEN
+CC        EHH=STN(I)
+CC        ELH=STN(I)
+CC        EHL=STN(I)
+CC        ELL=STN(I)
+CC        EHHO=EHH
+CC        ELHO=ELH
+CC        EHLO=EHL
+CC        ELLO=ELL
+CC        ITHH=I
+CC        ITLH=I
+CC        ITHL=I
+CC        ITLL=I
+CC        ITHHO=I
+CC        ITLHO=I
+CC        ITHLO=I
+CC        ITLLO=I
+CC        BHH=0.
+CC        BLH=0.
+CC        BHL=0.
+CC        BLL=0.
+CC        BHHO=0.
+CC        BLHO=0.
+CC        BHLO=0.
+CC        BLLO=0.
+CC        GO TO 5
+CC      ENDIF
+CC    2 CONTINUE
+
+C...GET THE LAG PD BETWEEN NOS AND OBS TIDES
+        CALL GETLAG21(STN,XNOS,NU,LAG)
+
+C...FIND THE LAST VALUE IN THE T.S. THAT'S NOT MISSING
+      DO 10 I=NU,1,-1
+        IF(STN(I).LT.-900.) GO TO 10
+        IEND=I
+        GO TO 20
+   10 CONTINUE
+
+C...FIND THE NO. OF MISSING VALUES
+   20 MISS=0
+      DO 100 I=1,NU
+        IF(STN(I).LT.-900.) MISS=MISS+1
+  100 CONTINUE
+
+      IF(MISS.EQ.0.OR.MISS.EQ.NU) GO TO 1000
+
+C...INITIALIZE BLEND VALUES
+      CALL BLINIT21(XNOS,STN,NU,LAG)
+
+ 1000 IF(ITRACE.EQ.1) WRITE(IODBUG,9000) SNAME
+ 9000 FORMAT(1H0,'** ',A,' EXITED.')
+      RETURN
+      END

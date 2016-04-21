@@ -1,0 +1,35 @@
+<configuration debug="false" scan="true">
+   <include file="${edex.home}/conf/logback-edex-properties.xml"/>
+   <include file="${edex.home}/conf/logback-edex-appenders.xml" />
+   
+   <!-- BandwidthManager log --> 
+   <appender name="RegistryLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <rollingPolicy class="com.raytheon.uf.common.logback.policy.StdTimeBasedRollingPolicy">
+         <name>ebxmlRegistry</name>
+      </rollingPolicy>
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
+   </appender> 
+
+   <appender name="ThreadBasedLog" class="com.raytheon.uf.common.logback.appender.ThreadBasedAppender">
+      <defaultAppenderName>console</defaultAppenderName>
+      <appender-ref ref="console"/>
+   </appender>
+  
+   <include file="${edex.home}/conf/logback-edex-loggers.xml" />
+   <include file="${edex.home}/conf/logback-edex-hibernate-logger.xml" />
+  
+   <logger name="edu">
+      <level value="WARN" />
+   </logger>
+   
+   <logger name="com.raytheon.uf.edex.registry.ebxml.services.notification" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="NotificationLog"/>
+   </logger>
+
+   <!-- default logging --> 
+   <root> 
+      <level value="INFO"/>
+      <appender-ref ref="ThreadBasedLog"/>
+    </root> 
+</configuration> 

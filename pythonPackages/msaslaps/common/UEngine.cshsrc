@@ -1,0 +1,28 @@
+#
+# Set up the environment we need to run the UEngine.
+#
+#set release = ""
+#if ( -e /awips2/edex/conf/banner.txt ) then
+#    set release = `grep Version /awips2/edex/conf/banner.txt | tr '*' ' ' | \
+#                   sed 's/ *$//g' | sed 's/^.* //g'`
+#endif
+#
+while (1)
+    if ( $?INSTALL_BASE ) then
+        if ( -d $INSTALL_BASE/python ) break
+    endif
+    setenv INSTALL_BASE /awips2
+    break
+end
+if ( -e $INSTALL_BASE/bin/uengine ) then
+    setenv UE_BIN_PATH $INSTALL_BASE/bin
+else
+    setenv UE_BIN_PATH $INSTALL_BASE/fxa/bin
+endif
+if ( ! $?PRE_ADE_PATH ) then
+    setenv PRE_ADE_PATH ${PATH}
+endif
+setenv JAVA_HOME $INSTALL_BASE/java
+setenv LD_LIBRARY_PATH /usr/lib
+setenv PYTHONPATH .:$INSTALL_BASE/bin/src
+setenv PATH ${JAVA_HOME}/bin:${UE_BIN_PATH}:${PRE_ADE_PATH}

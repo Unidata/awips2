@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<Thresholds>
+    <Area>
+        <AreaID>DefaultValues</AreaID>
+        <AreaThreshold key = "Display.Product.Blizzard.visibility" red = "4" yellow = "8"/>
+        <AreaThreshold key = "Display.Product.Blizzard.wind_speed" red = "35" yellow = "25"/>
+        <AreaThreshold key = "Display.Product.Blizzard.gust_speed" red = "35" yellow = "25"/>
+        <AreaThreshold key = "Display.Product.Blizzard.peak_wind_speed" red = "35" yellow = "25"/>
+        <AreaThreshold key = "Display.Product.Freezing_Precip.temperature" red = "32" yellow = "35"/>
+        <AreaThreshold key = "Display.Product.Freezing_Precip.hourly_precip" red = "5" yellow = "0"/>
+        <AreaThreshold key = "Display.Product.Heavy_Snow_Warning.snincr_hourly" red = "2" yellow = "1"/>
+        <AreaThreshold key = "Display.Product.Heavy_Snow_Warning.snincr_total" red = "12" yellow = "6"/>
+        <AreaThreshold key = "Display.Product.Heavy_Snow_Warning.snow_depth" red = "12" yellow = "6"/>
+        <AreaThreshold key = "Display.Product.Wind.wind_speed" red = "35" yellow = "25"/>
+        <AreaThreshold key = "Display.Product.Wind.peak_wind_speed" red = "35" yellow = "25"/>
+        <AreaThreshold key = "Display.Product.Wind.gust_speed" red = "35" yellow = "25"/>
+        <AreaThreshold key = "Display.Product.Wind.dirFrom" red = "0" yellow = "0"/>
+        <AreaThreshold key = "Display.Product.Wind.dirTo" red = "0" yellow = "0"/>
+        <AreaThreshold key = "Display.Meteo.temperature" red = "32" yellow = "40"/>
+        <AreaThreshold key = "Display.Meteo.dewpoint" red = "32" yellow = "40"/>
+        <AreaThreshold key = "Display.Meteo.visibility" red = "4" yellow = "8"/>
+        <AreaThreshold key = "Display.Meteo.slp" red = "980" yellow = "1000"/>
+        <AreaThreshold key = "Display.Meteo.hourly_precip" red = "5" yellow = "0"/>
+        <AreaThreshold key = "Display.Meteo.wind_chill" red = "10" yellow = "20"/>
+        <AreaThreshold key = "Display.Meteo.frostbite_time" red = "10" yellow = "20"/>
+        <AreaThreshold key = "Display.Meteo.snow_depth" red = "12" yellow = "6"/>
+        <AreaThreshold key = "Display.Meteo.snincr_hourly" red = "2" yellow = "1"/>
+        <AreaThreshold key = "Display.Meteo.snincr_total" red = "12" yellow = "6"/>
+    </Area>
+</Thresholds>

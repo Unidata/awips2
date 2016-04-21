@@ -1,0 +1,78 @@
+C  MODULE MISCMD
+C
+      INTEGER FUNCTION MISCMD(NCARDS,MODCRD)
+C
+C     RETURNS POS  IF A COMMAND
+C             ZERO IF NOT A COMMAND
+C             -1   IF END OF INPUT
+C
+C     THIS FUNCTION DETERMINES WHETHER A CARD IS A COMMAND CARD
+C
+      INCLUDE 'ufreex'
+C
+      INCLUDE 'common/fdbug'
+      DIMENSION MODCRD(20,NCARDS),IFIELD(3)
+      DIMENSION OLDOPN(2)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcst_mods/RCS/miscmd.f,v $
+     . $',                                                             '
+     .$Id: miscmd.f,v 1.3 1998/07/02 20:45:29 page Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      CALL FSTWHR(8HMISCMD  ,0,OLDOPN,IOLDOP)
+C
+      IBUG=IFBUG(4HMODS)
+      JBUG=IFBUG(4HMODA)
+      IF(IBUG.EQ.1)WRITE(IODBUG,900)NCARDS
+  900 FORMAT(' *** ENTER MISCMD - NCARDS=',I3)
+      IF(JBUG.EQ.1.AND.NCARDS.GT.0)WRITE(IODBUG,901)
+     1 ((MODCRD(I,J),I=1,20),J=1,NCARDS)
+  901 FORMAT(11X,20A4)
+C
+      ICKDAT=0
+      MISCMD=0
+C
+C     GET FIRST FIELD FROM CARD IMAGE
+C
+      NFLD=0
+      ISTRT=-3
+      NCHAR=3
+C            
+      CALL UFIEL2(NCARDS,MODCRD,NFLD,ISTRT,LEN,ITYPE,NREP,INTGER,REAL,
+     1  NCHAR,IFIELD,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,ISTAT)
+C
+      IF(IBUG.EQ.1)WRITE(IODBUG,902)ISTAT,IFIELD,LEN,NFLD,NRDCRD,ITYPE,
+     1  ICDBUF(1:80)
+  902 FORMAT(1H0,10X,'AFTER UFIEL2, ISTAT=',I3,', IFIELD=',3A4,
+     1 ', LEN=',I3,', NFLD=',I3,', NRDCRD=',I3,', ITYPE=',I2/
+     2 5X,'ICDBUF= ',A)
+C
+C     VALID STATUS?
+C
+      IF(ISTAT.EQ.0)GO TO 10
+C
+C     PROBLEMS - CANNOT BE COMMAND CARD - AT END OF INPUT?
+C
+      IF(ISTAT.NE.3)GO TO 999
+C
+C     AT END OF INPUT - SET MISCMD TO -1
+C
+      MISCMD=-1
+      NRDCRD=NRDCRD+1
+      GO TO 999
+C
+   10 MISCMD=MIFCMD(IFIELD,LEN,NFLD)
+C
+  999 IF(IBUG.EQ.1)WRITE(IODBUG,903)MISCMD
+  903 FORMAT(' *** EXIT MISCMD - MISCMD=',I3)
+C
+      ICKDAT=1
+      CALL FSTWHR(OLDOPN,IOLDOP,OLDOPN,IOLDOP)
+      NRDCRD=NRDCRD-1
+      RETURN
+      END

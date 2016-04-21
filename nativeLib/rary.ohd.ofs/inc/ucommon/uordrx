@@ -1,0 +1,5 @@
+C                                           *--> FROM UCOMMON.UORDRX
+C  COMMON BLOCK WITH REORDER PROGRAM INDICATORS
+      COMMON /UORDRX/ IAMORD,IORDER
+C
+C

@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Xy Plug-in
+Bundle-SymbolicName: com.raytheon.uf.viz.xy;singleton:=true
+Bundle-Version: 1.15.0.qualifier
+Bundle-Activator: com.raytheon.uf.viz.xy.Activator
+Bundle-Vendor: RAYTHEON
+Require-Bundle: org.eclipse.core.runtime,
+ com.raytheon.viz.ui,
+ com.raytheon.viz.core,
+ com.raytheon.uf.viz.core.maps
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy
+Export-Package: com.raytheon.uf.viz.xy,
+ com.raytheon.uf.viz.xy.graph,
+ com.raytheon.uf.viz.xy.graph.axis,
+ com.raytheon.uf.viz.xy.graph.labeling,
+ com.raytheon.uf.viz.xy.hodo,
+ com.raytheon.uf.viz.xy.map,
+ com.raytheon.uf.viz.xy.map.rsc
+Import-Package: com.raytheon.viz.core.graphing.xy
+Bundle-ClassPath: com.raytheon.uf.viz.xy.jar

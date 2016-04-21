@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Header: /cvsroot/ebxmlrr/omar/misc/samples/minDB/SubmitObjectsRequest_ObjectTypeScheme.xml,v 1.14 2006/04/25 01:26:06 tonygraham Exp $ -->
+<SubmitObjectsRequest id="urn:oasis:names:tc:ebxml-regrep:request:id" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0" xmlns:lcm="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0" xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:4.0" xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0" xmlns:rs="urn:oasis:names:tc:ebxml-regrep:xsd:rs:4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0  ../../xsd/lcm.xsd">
+  <rim:RegistryObjectList>
+    <rim:RegistryObject xsi:type="rim:ClassificationSchemeType" lid="urn:oasis:names:tc:ebxml-regrep:classificationScheme:ObjectType" id="urn:oasis:names:tc:ebxml-regrep:classificationScheme:ObjectType" isInternal="true" nodeType="urn:oasis:names:tc:ebxml-regrep:NodeType:UniqueCode">
+      <rim:Name>
+        <rim:LocalizedString value="ObjectType"/>
+      </rim:Name>
+      <rim:Description>
+        <rim:LocalizedString value="ObjectType.desc"/>
+      </rim:Description>
+      <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject" code="RegistryObject" id="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject">
+        <rim:Name>
+          <rim:LocalizedString value="RegistryObject"/>
+        </rim:Name>
+        <rim:Description>
+          <rim:LocalizedString value="RegistryObject.desc"/>
+        </rim:Description>
+        <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:QueryDefinition" code="QueryDefinition" id="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:QueryDefinition">
+          <rim:Name>
+            <rim:LocalizedString value="QueryDefinition"/>
+          </rim:Name>
+          <rim:Description>
+            <rim:LocalizedString value="QueryDefinition.desc"/>
+          </rim:Description>
+        </rim:ClassificationNode>
+        <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Association" code="Association" id="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Association">
+          <rim:Name>
+            <rim:LocalizedString value="Association"/>
+          </rim:Name>
+          <rim:Description>
+            <rim:LocalizedString value="Association.desc"/>
+          </rim:Description>
+        </rim:ClassificationNode>
+        <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:AuditableEvent" code="AuditableEvent" id="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:AuditableEvent">
+          <rim:Name>
+            <rim:LocalizedString value="AuditableEvent"/>
+          </rim:Name>
+          <rim:Description>
+            <rim:LocalizedString value="AuditableEvent.desc"/>
+          </rim:Description>
+        </rim:ClassificationNode>
+        <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" code="Classification" id="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification">
+          <rim:Name>
+            <rim:LocalizedString value="Classification"/>
+          </rim:Name>
+          <rim:Description>
+            <rim:LocalizedString value="Classification.desc"/>
+          </rim:Description>
+        </rim:ClassificationNode>
+        <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" code="ExternalIdentifier" id="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier">
+          <rim:Name>
+            <rim:LocalizedString value="ExternalIdentifier"/>
+          </rim:Name>
+          <rim:Description>
+            <rim:LocalizedString value="ExternalIdentifier.desc"/>
+          </rim:Description>
+        </rim:ClassificationNode>
+        <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalLink" code="ExternalLink" id="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalLink">
+          <rim:Name>
+            <rim:LocalizedString value="ExternalLink"/>
+          </rim:Name>
+          <rim:Description>
+            <rim:LocalizedString value="ExternalLink.desc"/>
+          </rim:Description>
+        </rim:ClassificationNode>
+        <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Notification" code="Notification" id="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Notification">
+          <rim:Name>
+            <rim:LocalizedString value="Notification"/>
+          </rim:Name>
+          <rim:Description>
+            <rim:LocalizedString value="Notification.desc"/>
+          </rim:Description>
+        </rim:ClassificationNode>
+        <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Party" code="Party" id="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Party">
+          <rim:Name>
+            <rim:LocalizedString value="Party"/>
+          </rim:Name>
+          <rim:Description>
+            <rim:LocalizedString value="Party.desc"/>
+          </rim:Description>
+          <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Organization" code="Organization" id="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Organization">
+            <rim:Name>
+              <rim:LocalizedString value="Organization"/>
+            </rim:Name>
+            <rim:Description>
+              <rim:LocalizedString value="Organization.desc"/>
+            </rim:Description>
+          </rim:ClassificationNode>
+          <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Person" code="Person" id="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Person">
+            <rim:Name>
+              <rim:LocalizedString value="Person"/>
+            </rim:Name>
+            <rim:Description>
+              <rim:LocalizedString value="Person.desc"/>
+            </rim:Description>
+          </rim:ClassificationNode>
+        </rim:ClassificationNode>
+        <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Subscription" code="Subscription" id="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Subscription">
+          <rim:Name>
+            <rim:LocalizedString value="Subscription"/>
+          </rim:Name>
+          <rim:Description>
+            <rim:LocalizedString value="Subscription.desc"/>
+          </rim:Description>
+        </rim:ClassificationNode>
+        <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:TaxonomyElement" code="TaxonomyElement" id="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:TaxonomyElement">
+          <rim:Name>
+            <rim:LocalizedString value="TaxonomyElement"/>
+          </rim:Name>
+          <rim:Description>
+            <rim:LocalizedString value="TaxonomyElement.desc"/>
+          </rim:Description>
+          <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" code="ClassificationNode" id="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode">
+            <rim:Name>
+              <rim:LocalizedString value="ClassificationNode"/>
+            </rim:Name>
+            <rim:Description>
+              <rim:LocalizedString value="ClassificationNode.desc"/>
+            </rim:Description>
+          </rim:ClassificationNode>
+          <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationScheme" code="ClassificationScheme" id="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationScheme">
+            <rim:Name>
+              <rim:LocalizedString value="ClassificationScheme"/>
+            </rim:Name>
+            <rim:Description>
+              <rim:LocalizedString value="ClassificationScheme.desc"/>
+            </rim:Description>
+          </rim:ClassificationNode>
+        </rim:ClassificationNode>
+        <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Federation" code="Federation" id="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Federation">
+          <rim:Name>
+            <rim:LocalizedString value="Federation"/>
+          </rim:Name>
+          <rim:Description>
+            <rim:LocalizedString value="Federation.desc"/>
+          </rim:Description>
+        </rim:ClassificationNode>
+        <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Registry" code="Registry" id="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Registry">
+          <rim:Name>
+            <rim:LocalizedString value="Registry"/>
+          </rim:Name>
+          <rim:Description>
+            <rim:LocalizedString value="Registry.desc"/>
+          </rim:Description>
+        </rim:ClassificationNode>
+        <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:RegistryPackage" code="RegistryPackage" id="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:RegistryPackage">
+          <rim:Name>
+            <rim:LocalizedString value="RegistryPackage"/>
+          </rim:Name>
+          <rim:Description>
+            <rim:LocalizedString value="RegistryPackage.desc"/>
+          </rim:Description>
+
+          <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:RegistryPackage:Register" code="Register" id="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:RegistryPackage:Register">
+            <rim:Name>
+              <rim:LocalizedString value="Register"/>
+            </rim:Name>
+            <rim:Description>
+              <rim:LocalizedString value="Register.desc"/>
+            </rim:Description>
+          </rim:ClassificationNode>
+
+        </rim:ClassificationNode>
+        <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Role" code="Role" id="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Role">
+          <rim:Name>
+            <rim:LocalizedString value="Role"/>
+          </rim:Name>
+          <rim:Description>
+            <rim:LocalizedString value="A role that may be used in a Contextual Role Based Access Control (CRBAC) policy"/>
+          </rim:Description>
+        </rim:ClassificationNode>
+        <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Service" code="Service" id="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Service">
+          <rim:Name>
+            <rim:LocalizedString value="Service"/>
+          </rim:Name>
+          <rim:Description>
+            <rim:LocalizedString value="Service.desc"/>
+          </rim:Description>
+        </rim:ClassificationNode>
+        <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ServiceEndpoint" code="ServiceEndpoint" id="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ServiceEndpoint">
+          <rim:Name>
+            <rim:LocalizedString value="ServiceEndpoint"/>
+          </rim:Name>
+          <rim:Description>
+            <rim:LocalizedString value="ServiceEndpoint.desc"/>
+          </rim:Description>
+        </rim:ClassificationNode>
+        <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ServiceBinding" code="ServiceBinding" id="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ServiceBinding">
+          <rim:Name>
+            <rim:LocalizedString value="ServiceBinding"/>
+          </rim:Name>
+          <rim:Description>
+            <rim:LocalizedString value="ServiceBinding.desc"/>
+          </rim:Description>
+        </rim:ClassificationNode>
+        <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ServiceInterface" code="ServiceInterface" id="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ServiceInterface">
+          <rim:Name>
+            <rim:LocalizedString value="ServiceInterface"/>
+          </rim:Name>
+          <rim:Description>
+            <rim:LocalizedString value="ServiceInterface.desc"/>
+          </rim:Description>
+        </rim:ClassificationNode>
+        
+        <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExtrinsicObject" code="ExtrinsicObject" id="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExtrinsicObject">
+          <rim:Name>
+            <rim:LocalizedString value="ExtrinsicObject"/>
+          </rim:Name>
+          <rim:Description>
+            <rim:LocalizedString value="ExtrinsicObject.desc"/>
+          </rim:Description>
+
+          <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExtrinsicObject:Comment" code="Comment" id="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExtrinsicObject:Comment">
+            <rim:Name>
+              <rim:LocalizedString value="Comment"/>
+            </rim:Name>
+            <rim:Description>
+              <rim:LocalizedString value="Comment.desc"/>
+            </rim:Description>
+          </rim:ClassificationNode>
+          <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExtrinsicObject:XML" code="XML" id="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExtrinsicObject:XML">
+            <rim:Name>
+              <rim:LocalizedString value="XML"/>
+            </rim:Name>
+            <rim:Description>
+              <rim:LocalizedString value="XML.desc"/>
+            </rim:Description>            
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExtrinsicObject:XML:XSLT" code="XSLT" id="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExtrinsicObject:XML:XSLT">
+              <rim:Name>
+                <rim:LocalizedString value="XSLT"/>
+              </rim:Name>
+              <rim:Description>
+                <rim:LocalizedString value="XSLT.desc"/>
+              </rim:Description>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExtrinsicObject:XML:XMLSchema" code="XMLSchema" id="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExtrinsicObject:XML:XMLSchema">
+              <rim:Name>
+                <rim:LocalizedString value="XMLSchema"/>
+              </rim:Name>
+              <rim:Description>
+                <rim:LocalizedString value="XMLSchema.desc"/>
+              </rim:Description>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExtrinsicObject:XML:Schematron" code="Schematron" id="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExtrinsicObject:XML:Schematron">
+              <rim:Name>
+                <rim:LocalizedString value="Schematron"/>
+              </rim:Name>
+              <rim:Description>
+                <rim:LocalizedString value="Schematron.desc"/>
+              </rim:Description>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExtrinsicObject:XML:XHTML" code="XHTML" id="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExtrinsicObject:XML:XHTML">
+              <rim:Name>
+                <rim:LocalizedString value="XHTML"/>
+              </rim:Name>
+              <rim:Description>
+                <rim:LocalizedString value="XHTML.desc"/>
+              </rim:Description>
+              <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExtrinsicObject:XML:XHTML:XForm" code="XForm" id="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExtrinsicObject:XML:XHTML:XForm">
+                <rim:Name>
+                  <rim:LocalizedString value="XForm"/>
+                </rim:Name>
+                <rim:Description>
+                  <rim:LocalizedString value="XForm.desc"/>
+                </rim:Description>
+              </rim:ClassificationNode>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExtrinsicObject:XML:XACML" code="XACML" id="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExtrinsicObject:XML:XACML">
+              <rim:Name>
+                <rim:LocalizedString value="XACML"/>
+              </rim:Name>
+              <rim:Description>
+                <rim:LocalizedString value="XACML.desc"/>
+              </rim:Description>
+              <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExtrinsicObject:XML:XACML:Policy" code="Policy" id="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExtrinsicObject:XML:XACML:Policy">
+                <rim:Name>
+                  <rim:LocalizedString value="Policy"/>
+                </rim:Name>
+                <rim:Description>
+                  <rim:LocalizedString value="Policy.desc"/>
+                </rim:Description>
+              </rim:ClassificationNode>
+              <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExtrinsicObject:XML:XACML:PolicySet" code="PolicySet" id="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExtrinsicObject:XML:XACML:PolicySet">
+                <rim:Name>
+                  <rim:LocalizedString value="PolicySet"/>
+                </rim:Name>
+                <rim:Description>
+                  <rim:LocalizedString value="PolicySet.desc"/>
+                </rim:Description>
+              </rim:ClassificationNode>
+            </rim:ClassificationNode>
+          </rim:ClassificationNode>
+        </rim:ClassificationNode>
+      </rim:ClassificationNode>
+    </rim:RegistryObject>
+  </rim:RegistryObjectList>
+</SubmitObjectsRequest>

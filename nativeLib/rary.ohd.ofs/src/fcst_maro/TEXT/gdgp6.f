@@ -1,0 +1,106 @@
+C MEMBER GDGP6
+C  (from old member PPGDGP6)
+C
+      SUBROUTINE GDGP6(GP6)
+C
+C.....THIS SUBROUTINE IS CALLED UPON TO DUMP ON THE DEBUG PRINTER THE
+C.....NON-ZERO ELEMENTS OF THE GP6 DATA ARRAY.
+C
+C.....ORIGINALLY WRITTEN BY:
+C
+C.....JERRY M. NUNN       WGRFC, FT. WORTH, TEXAS       AUGUST 18, 1988
+C
+      INTEGER*2 IZERO, GP6(1)
+      DIMENSION IGADR(5), IW6PT(5)
+C
+      INCLUDE 'common/pudbug'
+      INCLUDE 'gcommon/gsize'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcst_maro/RCS/gdgp6.f,v $
+     . $',                                                             '
+     .$Id: gdgp6.f,v 1.1 1995/09/17 19:01:22 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      DATA IZERO /0/
+  900 FORMAT(1H0, '*** ENTER SUBROUTINE GDGP6 ***')
+  901 FORMAT(1H0, '*** EXIT SUBROUTINE GDGP6 ***')
+  902 FORMAT(1H0, 'GP6 DATA ARRAY DUMP -- DISPLAY THE NON-ZERO ELEMENTS
+     *OF THE GP6 DATA ARRAY')
+  903 FORMAT(1X, 5(3X, 'GP6(', I5, ') = ', I5))
+  904 FORMAT(1X, 4(3X, 'GP6(', I5, ') = ', I5))
+  905 FORMAT(1X, 3(3X, 'GP6(', I5, ') = ', I5))
+  906 FORMAT(1X, 2(3X, 'GP6(', I5, ') = ', I5))
+  907 FORMAT(4X, 'GP6(', I5, ') = ', I5)
+  908 FORMAT(1H0, 'END OF DUMP...THERE ARE ', I5, ' NON-ZERO ELEMENTS IN
+     * THE GP6 DATA ARRAY.')
+C
+      IF(IPTRCE .GE. 3) WRITE(IOPDBG,900)
+      WRITE(IOPDBG,902)
+C
+C.....SCAN THRU THE GP6 DATA ARRAY.
+C
+      NP = 0
+      NUM = 0
+      NPGRID = 1
+C
+  100 IF(GP6(NPGRID) .EQ. IZERO) GOTO 200
+C
+C.....WHEN A NON ZERO ENTRY IS FOUND...STORE IN THE OUTPUT BUFFER
+C.....THE GRID POINT ADDRESS AND THE W6 DATA POINTER.
+C
+      NP = NP + 1
+C
+C.....STORE THE GRID POINT ADDRESS AND THE W6 DATA POINTER.
+C.....WHEN FIVE ENTRIES ARE IN THE BUFFER...PRINT IT OUT.
+C
+      IF(NP .LE. 5) GOTO 150
+      NP = 5
+      GOTO 300
+C
+  150 IGADR(NP) = NPGRID
+      IW6PT(NP) = GP6(NPGRID)
+      NUM = NUM + 1
+C
+  200 NPGRID = NPGRID + 1
+      IF(NPGRID .GT. NGRID) GOTO 300
+      GOTO 100
+C
+C.....PRINT OUT THE OUTPUT BUFFER.
+C
+  300 IF(NP .EQ. 5) GOTO 800
+      IF(NP .EQ. 4) GOTO 700
+      IF(NP .EQ. 3) GOTO 600
+      IF(NP .EQ. 2) GOTO 500
+      IF(NP .EQ. 1) GOTO 400
+      IF(NP .EQ. 0) GOTO 875
+      GOTO 875
+C
+  400 WRITE(IOPDBG,907) (IGADR(KP), IW6PT(KP), KP = 1, NP)
+      GOTO 850
+C
+  500 WRITE(IOPDBG,906) (IGADR(KP), IW6PT(KP), KP = 1, NP)
+      GOTO 850
+C
+  600 WRITE(IOPDBG,905) (IGADR(KP), IW6PT(KP), KP = 1, NP)
+      GOTO 850
+C
+  700 WRITE(IOPDBG,904) (IGADR(KP), IW6PT(KP), KP = 1, NP)
+      GOTO 850
+C
+  800 WRITE(IOPDBG,903) (IGADR(KP), IW6PT(KP), KP = 1, NP)
+      GOTO 850
+C
+  850 NP = 0
+      IF(NPGRID .GT. NGRID) GOTO 875
+      GOTO 100
+C
+  875 WRITE(IOPDBG,908) NUM
+  999 IF(IPTRCE .GE. 3) WRITE(IOPDBG,901)
+C
+      RETURN
+      END

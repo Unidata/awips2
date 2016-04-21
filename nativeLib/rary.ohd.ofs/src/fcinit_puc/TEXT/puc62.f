@@ -1,0 +1,132 @@
+C MEMBER PUC62
+C-----------------------------------------------------------------------
+C
+C                             LAST UPDATE:
+C
+C @PROCESS LVL(77)
+C
+      SUBROUTINE PUC62 (P)
+
+C     THIS IS THE CARD PUNCH ROUTINE FOR ASTORIA TIDE ADJUSTMENT
+
+C     THIS ROUTINE ORIGINALLY WRITTEN BY
+C        JOANNE R. SALERNO  - NWRFC   FEB 1998      
+
+C        1         2         3         4         5         6         7
+C23456789012345678901234567890123456789012345678901234567890123456789012
+
+C     POSITION     CONTENTS OF P ARRAY
+
+C      1           VERSION NUMBER OF OPERATION
+C      2-19        GENERAL NAME OR TITLE
+
+C  INPUT
+C     20-22        DW FCST  STAGE      - CSTAP (STGP)
+C
+C     TIDAL RANGE/SLICE DEFINITION
+C     23-24        RANGE LIMIT SERIES IDENTIFIER   -  RANGE
+C     25           RANGE LIMIT TYPE CODE           -  TIDB
+C                  RANGE(1) R1 LOWER LIMIT
+C                  RANGE(2) R2 LOWER LIMIT
+C                  RANGE(3) R3 LOWER LIMIT
+C                  RANGE(4) R4 LOWER LIMIT
+C                  RANGE(5) R4 UPPER LIMIT
+C
+C     OBSERVED PRTO3 AVERAGE  BALANCE TIME SERIES PER RANGE
+C     26-27        RANGE1 AVE TIDE BALANCE TIME SERIES ID  -  SBALR1
+C     28           RANGE1 AVE TIDE BALANCE TYPE CODE       -  TIDB
+C     29-30        RANGE2 AVE TIDE BALANCE TIME SERIES ID  -  SBALR2
+C     31           RANGE2 AVE TIDE BALANCE TYPE CODE       -  TIDB
+C     32-33        RANGE3 AVE TIDE BALANCE TIME SERIES ID  -  SBALR3
+C     34           RANGE3 AVE TIDE BALANCE TYPE CODE       -  TIDB
+C     35-36        RANGE4 AVE TIDE BALANCE TIME SERIES ID  -  SBALR4
+C     37           RANGE4 AVE TIDE BALANCE TYPE CODE       -  TIDB
+C
+C  OUTPUT
+C     38-39        DWADJ  ADJUSTED CSTA TIME SERIES ID    -  DWADJ
+C     40           DWADJ  ADJUSTED DATE TYPE CODE         -  STGA
+
+C**********************************************************************
+
+C     THE NUMBER OF ELEMENTS REQUIRED IN THE P ARRAY IS  40
+
+C     THE NUMBER OF ELEMENTS REQUIRED IN THE C ARRAY IS   0
+
+C        1         2         3         4         5         6         7
+C23456789012345678901234567890123456789012345678901234567890123456789012
+
+C                   NWRFS CARDS
+C                   FREE FORMAT
+C
+C
+C ADJUST STAGE   
+C CSTAP STGP RANGE TIDB
+C SBALR1 TIDB SBALR2 TIDB SBALR3 TIDB SBALR4 TIDB DWADJ STGA
+C
+C     CARD 1 - GENERAL USER SUPPLIED INFORMATION
+C     CARD 2 - TIME SERIES DEFINITION
+C        FIELD 1  - DW OBS/FCST STAGE TIME SERIES ID  - 8 CHAR
+C        FIELD 2  - DW OBS/FCST STAGE DATA TYPE CODE  - 4 CHAR
+C        FIELD 3  - RANGE LIMIT TIME SERIES ID        - 8 CHAR
+C        FIELD 4  - RANGE LIMIT DATA TYPE CODE        - 4 CHAR
+C     CARD 3 - TIME SERIES DEFINITION
+C        FIELD 1  - RANGE1 AVE TIDE BALANCE TIME SERIES ID -8 CHAR
+C        FIELD 2  - RANGE1 AVE TIDE BALANCE TYPE CODE      -4 CHAR
+C        FIELD 3  - RANGE2 AVE TIDE BALANCE TIME SERIES ID -8 CHAR
+C        FIELD 4  - RANGE2 AVE TIDE BALANCE TYPE CODE      -4 CHAR
+C        FIELD 5  - RANGE3 AVE TIDE BALANCE TIME SERIES ID -8 CHAR
+C        FIELD 6  - RANGE3 AVE TIDE BALANCE TYPE CODE      -4 CHAR
+C        FIELD 7  - RANGE4 AVE TIDE BALANCE TIME SERIES ID -8 CHAR
+C        FIELD 8  - RANGE4 AVE TIDE BALANCE TYPE CODE      -4 CHAR
+C        FIELD 9  - DWADJ ADJUSTED TIME SERIES ID          -8 CHAR
+C        FIELD 10 - DWADJ ADJUSTED DATA TYPE CODE          -4 CHAR
+C
+
+C        1         2         3         4         5         6         7
+C23456789012345678901234567890123456789012345678901234567890123456789012
+
+      DIMENSION P(*)
+
+
+C     COMMON BLOCKS
+
+      INCLUDE 'common/ionum'
+      INCLUDE 'common/fdbug'
+      INCLUDE 'common/pudflt'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcinit_puc/RCS/puc62.f,v $
+     . $',                                                             '
+     .$Id: puc62.f,v 1.3 2003/06/17 18:21:49 hsu Exp $
+     . $' /
+C    ===================================================================
+C
+
+      DATA ZERO / 0./
+      CALL FPRBUG ('PUC62   ',1,62,IBUG)
+
+ 
+C ---   CARD 1 USER SUPPLIED INFORMATION
+
+      WRITE(IPU,500) (P(I),I=2,19)
+ 500  FORMAT(20A4)
+
+ 
+C  ---  CARD 2 INPUT TIME SERIES       
+
+         WRITE(IPU,502) (P(I),I=20,25)
+ 502     FORMAT(2(2A4,1X,A4,1X))
+
+ 
+C  ---  CARD 3 INPUT TIME SERIES       
+
+         WRITE(IPU,503) (P(I),I=26,40)
+ 503     FORMAT(5(2A4,1X,A4,1X))
+
+      IF (ITRACE.GE.1) WRITE(IODBUG,90)
+ 90   FORMAT('PUC62:  EXITED:')
+
+      RETURN
+      END

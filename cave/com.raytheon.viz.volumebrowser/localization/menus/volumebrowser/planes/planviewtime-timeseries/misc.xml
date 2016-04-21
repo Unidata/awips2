@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+   
+     <contribute xsi:type="toolbarSubMenu" menuText="Max">
+      <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="MaxCape" indentText="false" />
+      <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="MaxR" indentText="false" />
+      <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="MaxOmega" indentText="false" />
+      <contribute xsi:type="menuItem" menuText="MaxShear" key="MaxShear"
+        indentText="false" />
+      <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="MaxT" indentText="false" />      
+      <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="MaxTW" indentText="false" />      
+      <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="Mept" indentText="false" />
+      <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="MaxWind" indentText="false" />
+     </contribute>
+     <contribute xsi:type="toolbarSubMenu" menuText="Clouds">  
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="LowLyr" indentText="false" />
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="MidLyr" indentText="false" />
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="HiLyr" indentText="false" />
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="CloudBase"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="LowCloudBase"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="MidCloudBase"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="HighCloudBase"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="CloudCeiling"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="CloudTop"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="ConvCloudTop"  indentText="false"/>
+     </contribute> 
+     <contribute xsi:type="toolbarSubMenu" menuText="PV"> 
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="PV5"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="PV10"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="PV15"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="PV20"  indentText="false"/>
+     </contribute>    	 
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="Surface" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping" 
+        key="Layer"  indentText="false"/>
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="ML" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping" 
+           key="ML500" indentText="false"/>	
+    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="FrzLvl"  indentText="false"/>
+	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="WetBulb0"  indentText="false"/>
+    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="LiftCondLvl"  indentText="false"/>
+    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="Htfl"  indentText="false"/>
+    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="Trop"  indentText="false"/>
+    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="BLyr"  indentText="false"/>
+    
+   
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="30agl" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="60agl" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="90agl" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="120agl" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="150agl" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping" 
+        key="400agl" indentText="false"/>
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="EchoTop" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="El" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="SIG0.8-0.5" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Primary" key="Primary"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Secondary" key="Secondary"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Tertiary" key="Tertiary"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="OSEQD-4" key="OSEQD-4"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="OSEQD-5" key="OSEQD-5"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="OSEQD-6" key="OSEQD-6"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="OSEQD-7" key="OSEQD-7"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="OSEQD-8" key="OSEQD-8"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="OSEQD-9" key="OSEQD-9"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="OSEQD-10" key="OSEQD-10"
+        indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="0BSS" indentText="false" />
+  
+</menuTemplate>

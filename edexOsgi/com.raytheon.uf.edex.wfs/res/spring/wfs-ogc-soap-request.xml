@@ -1,0 +1,32 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd">
+  
+    <bean id="wfsSoapServiceImpl" class="com.raytheon.uf.edex.wfs.soap2_0_0.WfsImpl">
+        <constructor-arg ref="wfs2_0_0Provider" />
+    </bean>
+
+    <bean id="wfsSoapService"
+        class="com.raytheon.uf.edex.soap.JaxWsConfigServerFactoryBean"
+        init-method="create">
+        <property name="serviceClass" value="com.raytheon.uf.edex.wfs.soap2_0_0.Wfs" />
+        <property name="address" value="http://0.0.0.0:8086/wfs2.0.0" />
+        <property name="serviceBean" ref="wfsSoapServiceImpl" />
+        <property name="annotationReader">
+            <bean
+                class="com.raytheon.uf.edex.wfs.soap2_0_0.WfsTransientAnnotationReader" />
+        </property>
+        <property name="namespaceMap">
+            <util:constant
+                static-field="com.raytheon.uf.edex.wfs.reg.WfsRegistryImpl.NS_MAP" />
+        </property>
+        <property name="inInterceptors">
+            <list>
+                <ref bean="wfsWsdlInterceptor" />
+            </list>
+        </property>
+    </bean>
+
+</beans>

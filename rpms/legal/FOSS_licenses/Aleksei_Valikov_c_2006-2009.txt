@@ -1,0 +1,8 @@
+Copyright (c) 2006-2009, Aleksei Valikov
+All rights reserved.
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+	• Redistributions of source code must retain the abov e copyright notice, this list of conditions and the following disclaimer.
+	• Redistributions in binary form must reproduce the a bove copyright notice, this list of conditions and the following disclaimer in the docu mentation and/or other materials provided with the distribution.
+	• Neither the name of Alexey Valikov nor the name of Highsource nor the names of its contributors may be used to endorse or promote prod ucts derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WAR RANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTI ES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOS E ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, IN CIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLU DING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERV ICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HO WEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT , STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWI SE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF AD VISED OF THE POSSIBILITY OF SUCH DAMAGE. 

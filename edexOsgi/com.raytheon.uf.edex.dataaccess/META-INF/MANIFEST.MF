@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Data Access Framework EDEX
+Bundle-SymbolicName: com.raytheon.uf.edex.dataaccess
+Bundle-Version: 1.14.0.qualifier
+Bundle-Vendor: RAYTHEON
+Require-Bundle: com.raytheon.uf.common.dataaccess,
+ com.raytheon.uf.common.serialization.comm,
+ com.raytheon.uf.common.util
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy

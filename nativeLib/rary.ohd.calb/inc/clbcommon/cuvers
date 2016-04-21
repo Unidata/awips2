@@ -1,0 +1,4 @@
+C This file ("CLBCOMMON.CUVERS") split out of file:  CLBCOMMON          RTi     
+C  VERSION NUMBER AND DATE COMMON BLOCK
+      COMMON /VERS/ VERS,IVMO,IVDA,IVYR
+C

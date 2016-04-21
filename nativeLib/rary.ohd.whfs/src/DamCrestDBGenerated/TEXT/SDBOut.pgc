@@ -1,0 +1,909 @@
+/*
+    File: SDBOut.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:48 EDT 2008 using database dc_ob7empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "SDBOut.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct SDBOut_t
+{
+    char		nidid[11];
+    char		src[4];
+    char		scenario[3];
+    char		down_name[26];
+    double		slope;
+    double		max_flow;
+    double		max_depth;
+    double		time_max_depth;
+    double		time_flood;
+    double		time_deflood;
+    char		comments[31];
+    dtime_t		updated;
+
+    int		ind_slope;
+    int		ind_max_flow;
+    int		ind_max_depth;
+    int		ind_time_max_depth;
+    int		ind_time_flood;
+    int		ind_time_deflood;
+    int		ind_comments;
+    int		ind_updated;
+} SDBOut_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+SDBOut * GetSDBOut(const char * where)
+{
+
+    SDBOut * listPtr = NULL;
+    SDBOut * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM SDBOut ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct SDBOut_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetSDBOut() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetSDBOut() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetSDBOut() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.nidid, :dbs.src, 
+    :dbs.scenario, :dbs.down_name, 
+    :dbs.slope:dbs.ind_slope, :dbs.max_flow:dbs.ind_max_flow, 
+    :dbs.max_depth:dbs.ind_max_depth, :dbs.time_max_depth:dbs.ind_time_max_depth, 
+    :dbs.time_flood:dbs.ind_time_flood, :dbs.time_deflood:dbs.ind_time_deflood, 
+    :dbs.comments:dbs.ind_comments, :dbs.updated:dbs.ind_updated    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetSDBOut() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (SDBOut *) malloc(sizeof(SDBOut))) != NULL)
+        {
+
+            strcpy(structPtr->nidid, dbs.nidid);
+
+            strcpy(structPtr->src, dbs.src);
+
+            strcpy(structPtr->scenario, dbs.scenario);
+
+            strcpy(structPtr->down_name, dbs.down_name);
+
+            structPtr->slope = dbs.slope;
+            setNullIfIndicated(dbs.ind_slope, DOUBLE, &structPtr->slope);
+
+            structPtr->max_flow = dbs.max_flow;
+            setNullIfIndicated(dbs.ind_max_flow, DOUBLE, &structPtr->max_flow);
+
+            structPtr->max_depth = dbs.max_depth;
+            setNullIfIndicated(dbs.ind_max_depth, DOUBLE, &structPtr->max_depth);
+
+            structPtr->time_max_depth = dbs.time_max_depth;
+            setNullIfIndicated(dbs.ind_time_max_depth, DOUBLE, &structPtr->time_max_depth);
+
+            structPtr->time_flood = dbs.time_flood;
+            setNullIfIndicated(dbs.ind_time_flood, DOUBLE, &structPtr->time_flood);
+
+            structPtr->time_deflood = dbs.time_deflood;
+            setNullIfIndicated(dbs.ind_time_deflood, DOUBLE, &structPtr->time_deflood);
+
+            strcpy(structPtr->comments, dbs.comments);
+            setNullIfIndicated(dbs.ind_comments, CHAR, structPtr->comments);
+
+            structPtr->updated = dbs.updated;
+            setNullIfIndicated(dbs.ind_updated, DATETIME, &structPtr->updated);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.nidid, :dbs.src, 
+        :dbs.scenario, :dbs.down_name, 
+        :dbs.slope:dbs.ind_slope, :dbs.max_flow:dbs.ind_max_flow, 
+        :dbs.max_depth:dbs.ind_max_depth, :dbs.time_max_depth:dbs.ind_time_max_depth, 
+        :dbs.time_flood:dbs.ind_time_flood, :dbs.time_deflood:dbs.ind_time_deflood, 
+        :dbs.comments:dbs.ind_comments, :dbs.updated:dbs.ind_updated        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetSDBOut() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+SDBOut * SelectSDBOut(const char * where)
+{
+
+    SDBOut * listPtr = NULL;
+    SDBOut * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM SDBOut ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct SDBOut_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectSDBOut() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectSDBOut() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectSDBOut() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.nidid, :dbs.src, 
+    :dbs.scenario, :dbs.down_name, 
+    :dbs.slope:dbs.ind_slope, :dbs.max_flow:dbs.ind_max_flow, 
+    :dbs.max_depth:dbs.ind_max_depth, :dbs.time_max_depth:dbs.ind_time_max_depth, 
+    :dbs.time_flood:dbs.ind_time_flood, :dbs.time_deflood:dbs.ind_time_deflood, 
+    :dbs.comments:dbs.ind_comments, :dbs.updated:dbs.ind_updated    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectSDBOut() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (SDBOut *) malloc(sizeof(SDBOut))) != NULL)
+        {
+
+            strcpy(structPtr->nidid, dbs.nidid);
+
+            strcpy(structPtr->src, dbs.src);
+
+            strcpy(structPtr->scenario, dbs.scenario);
+
+            strcpy(structPtr->down_name, dbs.down_name);
+
+            structPtr->slope = dbs.slope;
+            setNullIfIndicated(dbs.ind_slope, DOUBLE, &structPtr->slope);
+
+            structPtr->max_flow = dbs.max_flow;
+            setNullIfIndicated(dbs.ind_max_flow, DOUBLE, &structPtr->max_flow);
+
+            structPtr->max_depth = dbs.max_depth;
+            setNullIfIndicated(dbs.ind_max_depth, DOUBLE, &structPtr->max_depth);
+
+            structPtr->time_max_depth = dbs.time_max_depth;
+            setNullIfIndicated(dbs.ind_time_max_depth, DOUBLE, &structPtr->time_max_depth);
+
+            structPtr->time_flood = dbs.time_flood;
+            setNullIfIndicated(dbs.ind_time_flood, DOUBLE, &structPtr->time_flood);
+
+            structPtr->time_deflood = dbs.time_deflood;
+            setNullIfIndicated(dbs.ind_time_deflood, DOUBLE, &structPtr->time_deflood);
+
+            strcpy(structPtr->comments, dbs.comments);
+            setNullIfIndicated(dbs.ind_comments, CHAR, structPtr->comments);
+
+            structPtr->updated = dbs.updated;
+            setNullIfIndicated(dbs.ind_updated, DATETIME, &structPtr->updated);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.nidid, :dbs.src, 
+        :dbs.scenario, :dbs.down_name, 
+        :dbs.slope:dbs.ind_slope, :dbs.max_flow:dbs.ind_max_flow, 
+        :dbs.max_depth:dbs.ind_max_depth, :dbs.time_max_depth:dbs.ind_time_max_depth, 
+        :dbs.time_flood:dbs.ind_time_flood, :dbs.time_deflood:dbs.ind_time_deflood, 
+        :dbs.comments:dbs.ind_comments, :dbs.updated:dbs.ind_updated        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectSDBOut() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectSDBOutCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM SDBOut ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountSDBOut() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountSDBOut() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountSDBOut() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountSDBOut() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutSDBOut(const SDBOut * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct SDBOut_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.nidid, structPtr->nidid);
+
+    strcpy(dbs.src, structPtr->src);
+
+    strcpy(dbs.scenario, structPtr->scenario);
+
+    strcpy(dbs.down_name, structPtr->down_name);
+
+    dbs.slope = structPtr->slope;
+    dbs.ind_slope = getIndicator(DOUBLE, (void *)&structPtr->slope);
+
+    dbs.max_flow = structPtr->max_flow;
+    dbs.ind_max_flow = getIndicator(DOUBLE, (void *)&structPtr->max_flow);
+
+    dbs.max_depth = structPtr->max_depth;
+    dbs.ind_max_depth = getIndicator(DOUBLE, (void *)&structPtr->max_depth);
+
+    dbs.time_max_depth = structPtr->time_max_depth;
+    dbs.ind_time_max_depth = getIndicator(DOUBLE, (void *)&structPtr->time_max_depth);
+
+    dbs.time_flood = structPtr->time_flood;
+    dbs.ind_time_flood = getIndicator(DOUBLE, (void *)&structPtr->time_flood);
+
+    dbs.time_deflood = structPtr->time_deflood;
+    dbs.ind_time_deflood = getIndicator(DOUBLE, (void *)&structPtr->time_deflood);
+
+    strcpy(dbs.comments, structPtr->comments);
+    dbs.ind_comments = getIndicator(CHAR, (void *)structPtr->comments);
+
+    dbs.updated = structPtr->updated;
+    dbs.ind_updated = getIndicator(DATETIME, (void *)&structPtr->updated);
+
+
+    EXEC SQL INSERT INTO SDBOut (nidid,src,
+        scenario,down_name,slope,
+        max_flow,max_depth,time_max_depth,
+        time_flood,time_deflood,comments,
+        updated        )
+        VALUES (
+         :dbs.nidid, :dbs.src, :dbs.scenario,
+         :dbs.down_name, :dbs.slope:dbs.ind_slope, :dbs.max_flow:dbs.ind_max_flow,
+         :dbs.max_depth:dbs.ind_max_depth, :dbs.time_max_depth:dbs.ind_time_max_depth, :dbs.time_flood:dbs.ind_time_flood,
+         :dbs.time_deflood:dbs.ind_time_deflood, :dbs.comments:dbs.ind_comments, :dbs.updated:dbs.ind_updated);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutSDBOut() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertSDBOut(const SDBOut * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct SDBOut_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.nidid, structPtr->nidid);
+
+    strcpy(dbs.src, structPtr->src);
+
+    strcpy(dbs.scenario, structPtr->scenario);
+
+    strcpy(dbs.down_name, structPtr->down_name);
+
+    dbs.slope = structPtr->slope;
+    dbs.ind_slope = getIndicator(DOUBLE, (void *)&structPtr->slope);
+
+    dbs.max_flow = structPtr->max_flow;
+    dbs.ind_max_flow = getIndicator(DOUBLE, (void *)&structPtr->max_flow);
+
+    dbs.max_depth = structPtr->max_depth;
+    dbs.ind_max_depth = getIndicator(DOUBLE, (void *)&structPtr->max_depth);
+
+    dbs.time_max_depth = structPtr->time_max_depth;
+    dbs.ind_time_max_depth = getIndicator(DOUBLE, (void *)&structPtr->time_max_depth);
+
+    dbs.time_flood = structPtr->time_flood;
+    dbs.ind_time_flood = getIndicator(DOUBLE, (void *)&structPtr->time_flood);
+
+    dbs.time_deflood = structPtr->time_deflood;
+    dbs.ind_time_deflood = getIndicator(DOUBLE, (void *)&structPtr->time_deflood);
+
+    strcpy(dbs.comments, structPtr->comments);
+    dbs.ind_comments = getIndicator(CHAR, (void *)structPtr->comments);
+
+    dbs.updated = structPtr->updated;
+    dbs.ind_updated = getIndicator(DATETIME, (void *)&structPtr->updated);
+
+
+    EXEC SQL INSERT INTO SDBOut (nidid,src,
+        scenario,down_name,slope,
+        max_flow,max_depth,time_max_depth,
+        time_flood,time_deflood,comments,
+        updated        )
+        VALUES (
+         :dbs.nidid, :dbs.src, :dbs.scenario,
+         :dbs.down_name, :dbs.slope:dbs.ind_slope, :dbs.max_flow:dbs.ind_max_flow,
+         :dbs.max_depth:dbs.ind_max_depth, :dbs.time_max_depth:dbs.ind_time_max_depth, :dbs.time_flood:dbs.ind_time_flood,
+         :dbs.time_deflood:dbs.ind_time_deflood, :dbs.comments:dbs.ind_comments, :dbs.updated:dbs.ind_updated);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertSDBOut() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateSDBOut(const SDBOut *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct SDBOut_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.nidid, structPtr->nidid);
+
+    strcpy(dbs.src, structPtr->src);
+
+    strcpy(dbs.scenario, structPtr->scenario);
+
+    strcpy(dbs.down_name, structPtr->down_name);
+
+    dbs.slope = structPtr->slope;
+    dbs.ind_slope = getIndicator(DOUBLE, (void *)&structPtr->slope);
+
+    dbs.max_flow = structPtr->max_flow;
+    dbs.ind_max_flow = getIndicator(DOUBLE, (void *)&structPtr->max_flow);
+
+    dbs.max_depth = structPtr->max_depth;
+    dbs.ind_max_depth = getIndicator(DOUBLE, (void *)&structPtr->max_depth);
+
+    dbs.time_max_depth = structPtr->time_max_depth;
+    dbs.ind_time_max_depth = getIndicator(DOUBLE, (void *)&structPtr->time_max_depth);
+
+    dbs.time_flood = structPtr->time_flood;
+    dbs.ind_time_flood = getIndicator(DOUBLE, (void *)&structPtr->time_flood);
+
+    dbs.time_deflood = structPtr->time_deflood;
+    dbs.ind_time_deflood = getIndicator(DOUBLE, (void *)&structPtr->time_deflood);
+
+    strcpy(dbs.comments, structPtr->comments);
+    dbs.ind_comments = getIndicator(CHAR, (void *)structPtr->comments);
+
+    dbs.updated = structPtr->updated;
+    dbs.ind_updated = getIndicator(DATETIME, (void *)&structPtr->updated);
+
+
+    sprintf(queryBuffer, " UPDATE SDBOut SET " );
+    strcat(queryBuffer, "nidid = ? , src = ? , scenario = ? , down_name = ? , slope = ? ,     ");
+    strcat(queryBuffer, "max_flow = ? , max_depth = ? , time_max_depth = ? , time_flood = ? , time_deflood = ? ,     ");
+    strcat(queryBuffer, "comments = ? , updated = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateSDBOut() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.nidid, :dbs.src, :dbs.scenario, :dbs.down_name, :dbs.slope:dbs.ind_slope,
+     :dbs.max_flow:dbs.ind_max_flow, :dbs.max_depth:dbs.ind_max_depth, :dbs.time_max_depth:dbs.ind_time_max_depth, :dbs.time_flood:dbs.ind_time_flood, :dbs.time_deflood:dbs.ind_time_deflood,
+     :dbs.comments:dbs.ind_comments, :dbs.updated:dbs.ind_updated;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateSDBOut() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteSDBOut(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM SDBOut ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteSDBOut() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateSDBOutByRecord (const SDBOut * newStructPtr, const SDBOut * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetSDBOutPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateSDBOut(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateSDBOut(const SDBOut * structPtr)
+{
+    UpdateSDBOutByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertSDBOut(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueSDBOut(const SDBOut * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (SDBOutExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertSDBOut(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteSDBOutByRecord(const SDBOut * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetSDBOutPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteSDBOut(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool SDBOutExists(const SDBOut * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetSDBOutPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectSDBOutCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetSDBOutPrimaryKeyWhereString (const SDBOut * structPtr, char returnWhereString[] )
+{
+    sprintf(returnWhereString, "WHERE nidid = '%s'  AND src = '%s'  AND scenario = '%s'  AND down_name = '%s' ",
+            structPtr->nidid, structPtr->src, structPtr->scenario, structPtr->down_name);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeSDBOut( SDBOut * structPtr)
+{
+    SDBOut* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( SDBOut * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetSDBOutDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetSDBOutErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

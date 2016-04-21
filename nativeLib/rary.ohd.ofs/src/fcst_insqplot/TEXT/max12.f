@@ -1,0 +1,162 @@
+C MEMBER MAX12
+C  (from old member FCEX12)
+C-----------------------------------------------------------------------
+C
+C                             LAST UPDATE: 04/27/95.08:22:15 BY $WC20SV
+C
+C @PROCESS LVL(77)
+C
+      SUBROUTINE MAX12(IQDAY,NPLOTS,IPTIM,IDTPLT,IDTQ,LPLOTQ,D,
+     1 KHRT,KDRT,KMTHRT,IYRRT,SCALE,DIV,ORD,NDAYS,NDAY,IHRND,NPPDAY)
+C
+C
+C   ROUTINE TO DETERMINE SCALE AND MAXIMUM AND MINIMUN FLOWS
+C   FOR PLOT OPTION TO PLOT ONLY NON MISSING DAYS FOR A SPECIFIED
+C   TIME SERIES
+C
+      DIMENSION IQDAY(1),IDTQ(1),LPLOTQ(1),D(1),SCALE(1),ORD(1),NDAYS(*)
+      INCLUDE 'common/fctime'
+      INCLUDE 'common/fengmt'
+      INCLUDE 'common/fprog'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcst_insqplot/RCS/max12.f,v $
+     . $',                                                             '
+     .$Id: max12.f,v 1.1 1995/09/17 18:58:28 dws Exp $
+     . $' /
+C    ===================================================================
+C
+      DATA DOT/1H./,BLANK/1H /,EXCLAM/1H!/
+C
+      IF(MAINUM.EQ.1)DOT=EXCLAM
+C
+      QMAX=0.
+      QMIN=99999999.
+      KDA=IDA
+      KHR=IHR
+  690 IF(IQDAY(1).EQ.0)GO TO 691
+      DO 692 I=1,NPLOTS
+      IF(((IPTIM/IDTQ(I))*IDTQ(I)).EQ.IPTIM)GO TO 693
+      GO TO 692
+  693 J=(KDA-IDADAT)*24/IDTQ(I)+KHR/IDTQ(I)
+      LOC=LPLOTQ(I)+J-1
+      FLOW=D(LOC)
+      IF(FLOW.LT.1.0E-7)GO TO 692
+      IF(FLOW.GT.QMAX)QMAX=FLOW
+      IF(FLOW.LT.QMIN)QMIN=FLOW
+  692 CONTINUE
+  691 CONTINUE
+      KHR=KHR+IDTPLT
+      IF(KHR.LE.24)GO TO 694
+      KHR=KHR-24
+      KDA=KDA+1
+  694 IPTIM=IPTIM+IDTPLT
+      KHRT=KHRT+IDTPLT
+      IF(KHRT.LE.24)GO TO 690
+      KHRT=KHRT-24
+      KDRT=KDRT+1
+      IF(KDRT.LE.NDAYS(KMTHRT))GO TO 695
+      KDRT=1
+      KMTHRT=KMTHRT+1
+      IF(KMTHRT.LE.12)GO TO 695
+      KMTHRT=1
+      IYRRT=IYRRT+1
+      NDAYS(2)=28
+      IF(((IYRRT/4)*4).EQ.IYRRT)NDAYS(2)=29
+  695 CONTINUE
+C
+C  CHECK REMAINING DAYS
+C
+      DO 700 J=2,NDAY
+      IF(IQDAY(J).EQ.0)GO TO 711
+      IF(J.EQ.NDAY)NPPDAY=IHRND/IDTPLT
+      DO 701 K=1,NPPDAY
+      DO 702 L=1,NPLOTS
+      IF(((IPTIM/IDTQ(L))*IDTQ(L)).EQ.IPTIM) GO TO 703
+      GO TO 702
+  703 L1=(KDA-IDADAT)*24/IDTQ(L)+KHR/IDTQ(L)
+      LOC=LPLOTQ(L)+L1-1
+      FLOW=D(LOC)
+      IF(FLOW.LT.1.0E-7)GO TO 702
+      IF(FLOW.GT.QMAX)QMAX=FLOW
+      IF(FLOW.LT.QMIN)QMIN=FLOW
+  702 CONTINUE
+      KHR=KHR+IDTPLT
+      IF(KHR.LE.24)GO TO 710
+      KHR=KHR-24
+      KDA=KDA+1
+  710 IPTIM=IPTIM+IDTPLT
+      KHRT=KHRT+IDTPLT
+      IF(KHRT.LE.24)GO TO 701
+      KHRT=IDTPLT
+      KDRT=KDRT+1
+      IF(KDRT.LE.NDAYS(KMTHRT))GO TO 701
+      KDRT=1
+      KMTHRT=KMTHRT+1
+      IF(KMTHRT.LE.12)GO TO 701
+      KMTHRT=1
+      IYRRT=IYRRT+1
+      NDAYS(2)=28
+      IF(((IYRRT/4)*4).EQ.IYRRT)NDAYS(2)=29
+  701 CONTINUE
+      GO TO 700
+  711 CONTINUE
+      IF(J.EQ.NDAY)GO TO 700
+      KHRT=IDTPLT
+      IPTIM=IPTIM+24
+      KDA=KDA+1
+      KDRT=KDRT+1
+      IF(KDRT.LE.NDAYS(KMTHRT))GO TO 801
+      KDRT=1
+      KMTHRT=KMTHRT+1
+      IF(KMTHRT.LE.12)GO TO 801
+      KMTHRT=1
+      IYRRT=IYRRT+1
+      NDAYS(2)=28
+      IF(((IYRRT/4)*4).EQ.IYRRT)NDAYS(2)=29
+  801 CONTINUE
+  700 CONTINUE
+C
+C     ESTABLISH SCALE FOR PLOT
+C
+      IF(METRIC.EQ.1)GO TO 1151
+      QMIN=QMIN*35.3147
+      QMAX=QMAX*35.3147
+ 1151 RATIO=QMAX/QMIN
+      IF(RATIO.LE.5.)QMAX=QMAX*5.
+      IF(QMAX.GT.10.)GO TO 1152
+      N=QMAX+1.0
+      IF(N.GT.10)N=10
+      PMAX=FLOAT(N)
+      GO TO 1022
+ 1152 DO 1020 J=1,75
+      X=10.**J
+      IF((QMAX/X).LE.10.) GO TO 1165
+      GO TO 1020
+ 1165 N=(QMAX/X)+1.
+      IF(N.GT.10)N=10
+      PMAX=N*X
+      GO TO 1022
+ 1020 CONTINUE
+C
+C     SET SCALES
+ 1022 CONTINUE
+      DO 1024 I=1,10
+      DEC=I
+ 1024 SCALE(I)=DEC*0.1*PMAX
+      DIV=PMAX/100.
+C
+C     SET UP ORD ARRAY
+C
+      DO 1160 I=1,101,10
+      ORD(I)=DOT
+      IF(I.EQ.101) GO TO 1160
+      DO 1170 J=1,9
+ 1170 ORD(I+J)=BLANK
+ 1160 CONTINUE
+C
+      RETURN
+C
+      END

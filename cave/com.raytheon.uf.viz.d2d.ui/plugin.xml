@@ -1,0 +1,1636 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<?eclipse version="3.2"?>
+<plugin>
+ <extension
+      point="org.eclipse.ui.contexts">
+   <context
+         description="D2D Context"
+         id="com.raytheon.uf.viz.d2d.ui"
+         name="D2DContext">
+   </context>
+   <context
+         description="D2D Perspective Context"
+         id="com.raytheon.uf.viz.d2d.ui.perspective"
+         name="D2DPerspectiveContext">
+   </context>
+ </extension>
+ <extension
+       point="org.eclipse.ui.actionSets">
+      <actionSet
+            id="com.raytheon.uf.viz.d2d.ui.D2DActionSet"
+            label="D2D Action Set"
+            visible="false">
+      </actionSet>
+ </extension>
+ <extension
+       point="org.eclipse.core.expressions.definitions">
+      <definition
+            id="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+         <with
+               variable="activeContexts">
+            <iterate
+                  operator="or">
+               <equals
+                     value="com.raytheon.uf.viz.d2d.ui.D2DActionSet">
+               </equals>
+            </iterate>
+         </with>
+      </definition>
+ </extension>
+
+<extension point="com.raytheon.uf.viz.d2d.core.timeMatchingConfigurationFactory">
+      <factory class = "com.raytheon.uf.viz.d2d.ui.time.dialogs.D2DTimeMatchingConfigurationFactory"/>
+   </extension>
+<extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="menu:org.eclipse.ui.main.menu?after=CAVE">
+          <menu id="d2dFile" label="File" mnemonic="F">
+             <visibleWhen>
+                <reference
+                      definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+                </reference>
+             </visibleWhen>
+             <command
+                   commandId="org.eclipse.ui.window.newEditor"
+                   label="New Map"
+                   style="push">
+             </command>
+             <command
+                   commandId="com.raytheon.viz.ui.maps.createProjection"
+                   label="New Projection"
+                   style="push">
+             </command>
+			 <command
+                   commandId="com.raytheon.viz.ui.newPage"
+                   label="New Window"
+                   style="push">
+             </command>
+			 
+             <separator
+                   name="saveSeparator"
+                   visible="true">
+             </separator>
+             		
+			 <command
+                   commandId="com.raytheon.viz.ui.loadSerialized"
+                   label="Open Bundle"
+                   style="push">
+             </command>
+             <command
+                   commandId="com.raytheon.viz.ui.saveProcedure"
+                   label="Save Bundle"
+                   style="push">
+             </command>
+             <command
+                   commandId="com.raytheon.viz.ui.saveBundle"
+                   label="Save Bundle Locally"
+                   style="push">
+             </command>
+
+             <separator
+                   name="importExportSeparator"
+                   visible="true">
+             </separator>
+             <menu
+                   id="import"
+                   label="Import">
+             </menu>
+             <menu
+                   id="export"
+                   label="Export">
+             </menu>
+          </menu>
+          <menu
+                id="view"
+                label="View"
+                sibling_order="&lt;menu&#x0A;                   label=&quot;label&quot;&gt;&#x0A;             &lt;/menu&gt;">
+             <visibleWhen>	
+                <reference
+                      definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+                </reference>
+             </visibleWhen>
+             <command
+                   commandId="com.raytheon.viz.ui.clear"
+                   label="Clear Data">
+             </command>
+             <separator
+                   name="beforeLoopControlGroup"
+                   visible="true">
+             </separator>
+             <command
+                   commandId="com.raytheon.viz.ui.tools.looping.frameTool"
+                   label="Step Back">
+                   <parameter
+                     name="operation"
+                     value="PREVIOUS">
+               	   </parameter>
+                   <parameter
+                     name="mode"
+                     value="TIME_ONLY">
+                   </parameter>
+             </command>
+             <command
+                   commandId="com.raytheon.viz.ui.tools.looping.frameTool"
+                   label="Step Forward">
+                   <parameter
+                     name="operation"
+                     value="NEXT">
+                   </parameter>
+                   <parameter
+                     name="mode"
+                     value="TIME_ONLY">
+                   </parameter>
+             </command>
+             <command
+                   commandId="com.raytheon.viz.ui.tools.looping.frameTool"
+                   label="First Frame">
+                   <parameter
+                     name="operation"
+                     value="FIRST">
+                   </parameter>
+                   <parameter
+                     name="mode"
+                     value="TIME_AND_SPACE">
+                   </parameter>
+             </command>
+             <command
+                   commandId="com.raytheon.viz.ui.tools.looping.frameTool"
+                   label="Last Frame">
+                   <parameter
+                     name="operation"
+                     value="LAST">
+                   </parameter>
+                   <parameter
+                     name="mode"
+                     value="TIME_AND_SPACE">
+                   </parameter>
+             </command>
+             <separator
+                   name="afterLoopControlGroup"
+                   visible="true">
+             </separator>
+             <command
+                   commandId="com.raytheon.viz.ui.tools.looping.loop"
+                   label="Looping"
+                   style="toggle">
+             </command>
+             <separator
+                   name="beforeLayoutGroup"
+                   visible="true">
+             </separator>
+             <command
+                   commandId="com.raytheon.uf.viz.d2d.ui.actions.changeD2DLayout"
+                   label="1 Pane Layout">
+                <parameter
+                      name="sideViews"
+                      value="4">
+                </parameter>
+             </command>
+             <command
+                   commandId="com.raytheon.uf.viz.d2d.ui.actions.changeD2DLayout"
+                   label="5 Pane Layout">
+                <parameter
+                      name="sideViews"
+                      value="0">
+                </parameter>
+             </command>
+             <separator
+                   name="afterLayoutGroup"
+                   visible="true">
+             </separator>
+          </menu>
+          <menu
+                id="options"
+                label="Options">
+             <visibleWhen>
+                <reference
+                      definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+                </reference>
+             </visibleWhen>
+             <command
+                   commandId="com.raytheon.uf.viz.d2d.ui.actions.timeOptionsAction"
+                   label="Time Options"
+                   style="toggle">
+             </command>
+             <command
+                   commandId="com.raytheon.uf.viz.d2d.ui.actions.dataScaleAction"
+                   label="Data Scale"
+                   style="toggle">
+             </command>
+             <command
+                   commandId="com.raytheon.uf.viz.d2d.ui.actions.imageCombination"
+                   label="Image Combination"
+                   style="toggle">
+             </command>
+             <separator
+                   name="beforeProperties"
+                   visible="true">
+             </separator>
+             <command
+                   commandId="com.raytheon.uf.viz.d2d.ui.actions.displayPropertiesAction"
+                   label="Display Properties...">
+             </command>
+            <command
+                   commandId="com.raytheon.viz.ui.tools.looping.loopProperties"
+                   label="Loop Properties...">
+             </command>
+             <command
+                   commandId="com.raytheon.viz.ui.imageProperties"
+                   label="Image Properties...">
+             </command>
+             <separator
+                   name="afterProperties"
+                   visible="true">
+             </separator>
+             <command
+                   commandId="com.raytheon.viz.ui.settime"
+                   label="Set Time...">
+             </command>
+             <command
+                   commandId="com.raytheon.viz.ui.setbackgroundcolor"
+                   label="Set Background Color...">
+             </command>
+          </menu>
+          <menu
+                id="tools"
+                label="Tools"
+                mnemonic="T">
+             <visibleWhen>
+                <reference
+                      definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+                </reference>
+             </visibleWhen>
+             <separator
+                   name="tools.start"
+                   visible="false">
+             </separator>
+             <separator
+                   name="D2D.Tools.Additions"
+                   visible="false">
+             </separator>
+          </menu>
+          <menu
+                id="models"
+                label="Models"
+                mnemonic="V">
+             <visibleWhen>
+                <reference
+                      definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+                </reference>
+             </visibleWhen>
+             <separator name="top" visible="false"/>
+          </menu>
+          <separator name="d2d.obsMenu" visible="false"/>
+          <separator name="d2d.ncepHydroMenu" visible="false"/>
+          <separator name="d2d.upperAirMenu" visible="false"/>
+          <menu
+               id="satellite"
+               label="Satellite"
+               mnemonic="S">
+             <visibleWhen>
+                <reference
+                      definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+                </reference>
+             </visibleWhen>
+               <separator name="MENUSTART" visible="false"/>
+               <separator name="GROUP1" visible="true"/>
+               <separator name="GROUP2" visible="true"/>
+               <separator name="GROUP3" visible="true"/>
+               <separator name="GROUP4" visible="true"/>
+               <separator name="GROUP5" visible="true"/>
+               <separator name="GROUP6" visible="true"/>
+               <separator name="GROUP7" visible="true"/>
+               <separator name="MENUEND" visible="false"/>
+         </menu>
+         <menu
+               id="radar"
+               label="Radar"
+               mnemonic="R">
+             <visibleWhen>
+                <reference
+                      definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+                </reference>
+             </visibleWhen>
+            <separator name="RADAR_MENU_START" visible="false"/>
+         </menu>
+
+         <menu
+               id="D2Dmaps"
+               label="Maps"
+               mnemonic="M">
+             <visibleWhen>
+                <reference
+                      definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+                </reference>
+             </visibleWhen>
+             <dynamic
+                   class="com.raytheon.uf.viz.core.maps.menus.MapsMenu"
+                   id="com.raytheon.uf.viz.core.maps.menus.MapsMenu">
+             </dynamic>
+         </menu>
+       </menuContribution>
+         <menuContribution
+               locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+             <toolbar
+                  id="mapControls">
+               <command
+                     commandId="com.raytheon.viz.ui.scalebutton"
+                     id="com.raytheon.viz.ui.scale"
+                     label="Scale"
+                     style="pulldown"
+                     tooltip="Scale">
+                  <visibleWhen>
+                    <reference
+                        definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+                    </reference>
+                  </visibleWhen>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.ui.clear"
+                     label="Clear"
+                     style="push">
+                  <visibleWhen>
+                    <reference
+                        definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+                    </reference>
+                  </visibleWhen>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.ui.imageProperties"
+                     icon="icons/adjust.png"
+                     label="Image Properties"
+                     style="push">
+                  <visibleWhen>
+                     <reference
+                           definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+                     </reference>
+                  </visibleWhen>
+               </command>
+            </toolbar>
+            <toolbar
+                  id="d2d-1">
+                <command
+                   commandId="com.raytheon.uf.viz.d2d.ui.actions.loadmodebutton"
+                   id="com.raytheon.uf.viz.d2d.ui.actions.loadmode"
+                   label="Load Mode"
+                   style="pulldown"
+                   tooltip="Load Mode">
+                <visibleWhen>
+                   <reference
+                         definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+                   </reference>
+                </visibleWhen>
+                </command>
+            </toolbar>
+            <toolbar
+                  id="loopControls">
+            <command
+                  commandId="com.raytheon.viz.ui.tools.looping.frameTool"
+                  icon="icons/fast-backward.png"
+                  label="First Frame"
+                  style="push">
+               <visibleWhen>
+                  <reference
+                        definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+                  </reference>
+               </visibleWhen>
+               <parameter
+                     name="operation"
+                     value="FIRST">
+               </parameter>
+               <parameter
+                     name="mode"
+                     value="TIME_AND_SPACE">
+               </parameter>
+            </command>
+            <command
+                  commandId="com.raytheon.viz.ui.tools.looping.frameTool"
+                  icon="icons/play-left.png"
+                  label="Previous Frame"
+                  style="push">
+               <visibleWhen>
+                     <reference
+                           definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+                     </reference>
+               </visibleWhen>
+               <parameter
+                     name="mode"
+                     value="TIME_AND_SPACE">
+               </parameter>
+               <parameter
+                     name="operation"
+                     value="PREVIOUS">
+               </parameter>
+            </command>
+            <command
+                  commandId="com.raytheon.viz.ui.tools.looping.frameTool"
+                  icon="icons/play-right.png"
+                  label="Next Frame"
+                  style="push">
+               <visibleWhen>
+                     <reference
+                           definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+                     </reference>
+               </visibleWhen>
+               <parameter
+                     name="mode"
+                     value="TIME_AND_SPACE">
+               </parameter>
+               <parameter
+                     name="operation"
+                     value="NEXT">
+               </parameter>
+            </command>
+            <command
+                  commandId="com.raytheon.viz.ui.tools.looping.frameTool"
+                  icon="icons/fast-forward.png"
+                  label="Last Frame"
+                  style="push">
+               <visibleWhen>
+                  <reference
+                        definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+                  </reference>
+               </visibleWhen>
+               <parameter
+                     name="operation"
+                     value="LAST">
+               </parameter>
+               <parameter
+                     name="mode"
+                     value="TIME_AND_SPACE">
+               </parameter>
+            </command>
+            <command
+                  commandId="com.raytheon.viz.ui.tools.looping.loop"
+                  icon="icons/refresh.png"
+                  label="Loop"
+                  style="toggle">
+               <visibleWhen>
+                  <reference
+                        definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+                  </reference>
+               </visibleWhen>
+            </command>
+            <command
+                  commandId="com.raytheon.viz.ui.tools.looping.loopProperties"
+                  icon="icons/gear.png"
+                  label="Loop Controls"
+                  style="push">
+               <visibleWhen>
+                  <reference
+                        definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+                  </reference>
+               </visibleWhen>
+            </command>
+            </toolbar>
+         <toolbar
+               id="d2d-3">
+            <command
+                  commandId="com.raytheon.viz.ui.actions.framesbutton"
+                  id="com.raytheon.viz.ui.actions.frames"
+                  label="Frames: ??"
+                  style="pulldown">
+               <visibleWhen>
+                  <reference
+                        definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+                  </reference>
+               </visibleWhen>
+            </command>
+         </toolbar>
+         <toolbar
+               id="NC-1">
+               	<command
+                  commandId="com.raytheon.uf.viz.d2d.nsharp.dialog"
+                  icon="icons/nsharp.png"
+                  id="com.raytheon.uf.viz.d2d.nsharp.dialog"
+                  label="Nsharp"
+                  mode="FORCE_TEXT"
+                  style="push"
+                  tooltip="Nsharp">
+               <visibleWhen>
+                  <reference
+                        definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+                  </reference>
+               </visibleWhen>
+            </command>
+			<!--
+            <command
+                  commandId="gov.noaa.nws.ncep.ui.nsharp.palette"
+                  icon="icons/nsharp.png"
+                  id="gov.noaa.nws.ncep.ui.nsharp.palette"
+                  label="Nsharp"
+                  mode="FORCE_TEXT"
+                  style="push"
+                  tooltip="Nsharp">
+               <visibleWhen>
+                  <reference
+                        definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+                  </reference>
+               </visibleWhen>
+            </command>
+			-->
+            <command
+                  commandId="gov.noaa.nws.ncep.viz.actions.resourceManager"
+                  icon="icons/plus.png"
+                  id="gov.noaa.nws.ncep.viz.actions.resourceManager"
+                  label="Ncdata"
+                  mode="FORCE_TEXT"
+                  style="push"
+                  tooltip="NCP Data Manager">
+               <visibleWhen>
+                  <reference
+                        definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+                  </reference>
+               </visibleWhen>
+               <parameter
+                     name="mode"
+                     value="CREATE_RBD">
+               </parameter>
+            </command>
+			<command
+                  commandId="com.raytheon.uf.viz.productbrowser.productBrowser"
+				  icon="icons/plus.png"
+                  label="Browser"
+				  mode="FORCE_TEXT"
+                  style="push">
+      <visibleWhen>
+         <reference
+               definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+         </reference>
+      </visibleWhen>
+            </command>
+
+
+         </toolbar>
+         </menuContribution>
+         <menuContribution
+               locationURI="menu:com.raytheon.uf.viz.d2d.ui.actions.loadmode">
+            <command
+                 commandId="com.raytheon.uf.viz.d2d.ui.actions.setloadmode"
+                 label="Latest">
+               <parameter
+                     name="loadMode"
+                     value="LATEST">
+               </parameter>
+            </command>
+            <command
+                 commandId="com.raytheon.uf.viz.d2d.ui.actions.setloadmode"
+                 label="Valid time seq">
+               <parameter
+                     name="loadMode"
+                     value="VALID_TIME_SEQ">
+               </parameter>
+            </command>
+            <command
+                 commandId="com.raytheon.uf.viz.d2d.ui.actions.setloadmode"
+                 label="No Backfill">
+               <parameter
+                     name="loadMode"
+                     value="NO_BACKFILL">
+               </parameter>
+            </command>
+            <command
+                 commandId="com.raytheon.uf.viz.d2d.ui.actions.setloadmode"
+                 label="Previous run">
+               <parameter
+                     name="loadMode"
+                     value="PREVIOUS_MODEL_RUN">
+               </parameter>
+            </command>
+            <command
+                 commandId="com.raytheon.uf.viz.d2d.ui.actions.setloadmode"
+                 label="Prev valid time seq">
+               <parameter
+                     name="loadMode"
+                     value="PREVIOUS_VALID_TIME_SEQ">
+               </parameter>
+            </command>
+            <command
+                 commandId="com.raytheon.uf.viz.d2d.ui.actions.setloadmode"
+                 label="Prognosis loop">
+               <parameter
+                     name="loadMode"
+                     value="PROG_LOOP">
+               </parameter>
+            </command>
+            <command
+                 commandId="com.raytheon.uf.viz.d2d.ui.actions.setloadmode"
+                 label="Analysis loop">
+               <parameter
+                     name="loadMode"
+                     value="ANALYSIS_LOOP">
+               </parameter>
+            </command>
+            <command
+                 commandId="com.raytheon.uf.viz.d2d.ui.actions.setbasisloadmode"
+                 label="dProg/dt">
+               <parameter
+                     name="loadMode"
+                     value="DPROG_DT">
+               </parameter>
+            </command>
+            <command
+                 commandId="com.raytheon.uf.viz.d2d.ui.actions.setoverlayloadmode"
+                 label="Forced">
+               <parameter
+                     name="loadMode"
+                     value="FORCED">
+               </parameter>
+            </command>
+            <command
+                 commandId="com.raytheon.uf.viz.d2d.ui.actions.setoverlayloadmode"
+                 label="Forecast match">
+               <parameter
+                     name="loadMode"
+                     value="FCST_TIME_MATCH">
+               </parameter>
+            </command>
+            <command
+                 commandId="com.raytheon.uf.viz.d2d.ui.actions.setloadmode"
+                 label="Inventory">
+               <parameter
+                     name="loadMode"
+                     value="INVENTORY">
+               </parameter>
+            </command>
+            <command
+                 commandId="com.raytheon.uf.viz.d2d.ui.actions.setloadmode"
+                 label="Slot">
+               <parameter
+                     name="loadMode"
+                     value="SLOT">
+               </parameter>
+            </command>
+         </menuContribution>
+         <menuContribution
+               locationURI="menu:com.raytheon.viz.ui.actions.frames">
+            <command commandId="com.raytheon.viz.ui.actions.setframes">
+               <parameter
+                     name="frameCount"
+                     value="1">
+               </parameter>
+            </command>
+            <command
+                  commandId="com.raytheon.viz.ui.actions.setframes">
+               <parameter
+                     name="frameCount"
+                     value="2">
+               </parameter>
+            </command>
+            <command commandId="com.raytheon.viz.ui.actions.setframes">
+               <parameter
+                     name="frameCount"
+                     value="3">
+               </parameter>
+            </command>
+            <command
+                  commandId="com.raytheon.viz.ui.actions.setframes">
+               <parameter
+                     name="frameCount"
+                     value="4">
+               </parameter>
+            </command>
+            <command commandId="com.raytheon.viz.ui.actions.setframes">
+               <parameter
+                     name="frameCount"
+                     value="5">
+               </parameter>
+            </command>
+            <command
+                  commandId="com.raytheon.viz.ui.actions.setframes">
+               <parameter
+                     name="frameCount"
+                     value="10">
+               </parameter>
+            </command>
+            <command commandId="com.raytheon.viz.ui.actions.setframes">
+               <parameter
+                     name="frameCount"
+                     value="20">
+               </parameter>
+            </command>
+            <command commandId="com.raytheon.viz.ui.actions.setframes">
+               <parameter
+                     name="frameCount"
+                     value="30">
+               </parameter>
+            </command>
+               <command commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="40">
+                  </parameter>
+               </command>
+               <command commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="50">
+                  </parameter>
+               </command>
+               <command commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="100">
+                  </parameter>
+               </command>
+               <command commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="150">
+                  </parameter>
+               </command>
+               <command commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="200">
+                  </parameter>
+               </command>
+               <command commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="250">
+                  </parameter>
+               </command>
+               <command commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="300">
+                  </parameter>
+               </command>
+			   <command commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="350">
+                  </parameter>
+               </command>
+               <command commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="400">
+                  </parameter>
+               </command>
+			   <command commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="450">
+                  </parameter>
+               </command>
+			   <command commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="500">
+                  </parameter>
+               </command>
+         </menuContribution>
+         <menuContribution
+               locationURI="menu:com.raytheon.viz.ui.actions.magnification">
+				<dynamic
+          			class="com.raytheon.uf.viz.d2d.ui.MagnificationPopulator"
+          			id="com.raytheon.uf.viz.d2d.ui.magnificationPopulator">
+				</dynamic>
+         </menuContribution>
+         <menuContribution
+               locationURI="menu:com.raytheon.viz.ui.actions.density">
+            	<dynamic
+          			class="com.raytheon.uf.viz.d2d.ui.DensityPopulator"
+          			id="com.raytheon.uf.viz.d2d.ui.densityPopulator">
+				</dynamic>
+         </menuContribution>
+       </extension>
+         
+         
+ <extension
+       id="com.raytheon.uf.viz.d2d.ui.map.actions"
+       point="org.eclipse.ui.handlers">
+         <handler
+               class="com.raytheon.uf.viz.d2d.ui.actions.DataScaleAction"
+               commandId="com.raytheon.uf.viz.d2d.ui.actions.dataScaleAction">
+         </handler>
+         <handler
+               class="com.raytheon.uf.viz.d2d.ui.actions.ChangeLegendModeHandler"
+               commandId="com.raytheon.uf.viz.d2d.ui.actions.changeLegendMode">
+         </handler>
+         <handler
+               class="com.raytheon.uf.viz.d2d.ui.map.actions.ClearAction"
+               commandId="com.raytheon.viz.ui.clear">
+         </handler>
+         <handler
+               class="com.raytheon.uf.viz.d2d.ui.map.actions.ScaleHandler"
+               commandId="com.raytheon.viz.ui.setScale">
+               <activeWhen>
+	               <reference
+	                     definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+	               </reference>
+               </activeWhen>
+         </handler>
+         <handler
+               class="com.raytheon.uf.viz.d2d.ui.actions.TimeOptionsAction"
+               commandId="com.raytheon.uf.viz.d2d.ui.actions.timeOptionsAction">
+				<activeWhen>
+               		<with variable="activeEditor">
+       					<instanceof value="com.raytheon.uf.viz.core.IDisplayPaneContainer"/>
+    				</with>
+               </activeWhen>
+         </handler>
+         <handler
+               class="com.raytheon.uf.viz.d2d.ui.actions.LocateCursorAction"
+               commandId="com.raytheon.uf.viz.d2d.ui.actions.locateCursorAction">
+         </handler>
+         <handler
+               class="com.raytheon.uf.viz.d2d.ui.actions.LoadModeHandler"
+               commandId="com.raytheon.uf.viz.d2d.ui.actions.setloadmode">
+         </handler>
+         <handler
+               class="com.raytheon.uf.viz.d2d.ui.actions.LoadModeOverlayHandler"
+               commandId="com.raytheon.uf.viz.d2d.ui.actions.setoverlayloadmode">
+         </handler>
+         <handler
+               class="com.raytheon.uf.viz.d2d.ui.actions.LoadModeBasisHandler"
+               commandId="com.raytheon.uf.viz.d2d.ui.actions.setbasisloadmode">
+         </handler>
+         <handler
+               class="com.raytheon.uf.viz.d2d.ui.actions.DisplayPropertiesAction"
+               commandId="com.raytheon.uf.viz.d2d.ui.actions.displayPropertiesAction">
+         </handler>
+         <handler
+               class="com.raytheon.uf.viz.d2d.ui.actions.LoadModeButtonHandler"
+               commandId="com.raytheon.uf.viz.d2d.ui.actions.loadmodebutton">
+         </handler>
+         <handler
+               class="com.raytheon.uf.viz.d2d.ui.actions.MagHandler"
+               commandId="com.raytheon.viz.ui.actions.setmagnification">
+         </handler>
+         <handler
+               class="com.raytheon.uf.viz.d2d.ui.actions.MagButtonHandler"
+               commandId="com.raytheon.viz.ui.actions.magnificationbutton">
+         </handler>
+         <handler
+               class="com.raytheon.uf.viz.d2d.ui.actions.DensityHandler"
+               commandId="com.raytheon.viz.ui.actions.setdensity">
+         </handler>
+         <handler
+               class="com.raytheon.uf.viz.d2d.ui.actions.DensityButtonHandler"
+               commandId="com.raytheon.viz.ui.actions.densitybutton">
+         </handler>
+         <handler
+               class="com.raytheon.uf.viz.d2d.ui.map.actions.ToggleResourceHandler"
+               commandId="com.raytheon.viz.ui.actions.toggleResource">
+            <activeWhen>
+               <reference
+                     definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+               </reference>
+            </activeWhen>
+         </handler>
+		 <handler
+               class="com.raytheon.uf.viz.d2d.ui.map.actions.TwoPanelLayoutHandler"
+               commandId="com.raytheon.uf.viz.d2d.ui.map.actions.twoPanelLayout">
+         </handler>
+         <handler
+               class="com.raytheon.uf.viz.d2d.ui.map.actions.FourPanelLayoutHandler"
+               commandId="com.raytheon.uf.viz.d2d.ui.map.actions.fourPanelLayout">
+         </handler>
+         <handler
+               class="com.raytheon.uf.viz.d2d.ui.map.actions.RotatePanelsHandler"
+               commandId="com.raytheon.uf.viz.d2d.ui.map.actions.rotatePanels">
+         </handler>
+         <handler
+               class="com.raytheon.uf.viz.d2d.ui.actions.ImageCombinationAction"
+               commandId="com.raytheon.uf.viz.d2d.ui.actions.imageCombination">
+         </handler>
+	     <handler
+	           class="com.raytheon.uf.viz.d2d.ui.actions.AddAWIPSProcedure"
+	           commandId="com.raytheon.viz.ui.newAWIPSProcedure">
+	     </handler>
+	     <handler
+	           class="com.raytheon.uf.viz.d2d.ui.actions.OpenAWIPSProcedure"
+	           commandId="com.raytheon.viz.ui.openAWIPSProcedure">
+	     </handler>
+	     <handler
+	           class="com.raytheon.uf.viz.d2d.ui.actions.DeleteAWIPSProcedure"
+	           commandId="com.raytheon.viz.ui.deleteAWIPSProcedure">
+	     </handler>
+	     <handler
+	           class="com.raytheon.uf.viz.d2d.ui.actions.CopyOutAWIPSProcedure"
+	           commandId="com.raytheon.viz.ui.copyOutAWIPSProcedure">
+	           <activeWhen>
+               		<with variable="activeEditor">
+       					<instanceof value="com.raytheon.uf.viz.core.IDisplayPaneContainer"/>
+    				</with>
+               </activeWhen>
+	     </handler>
+         <handler
+               class="com.raytheon.uf.viz.d2d.ui.actions.SetPerspectiveHandler"
+               commandId="com.raytheon.viz.ui.setperspective">
+         </handler>
+         <handler
+         	   class="com.raytheon.uf.viz.d2d.ui.actions.ChangeD2DLayoutAction"
+         	   commandId="com.raytheon.uf.viz.d2d.ui.actions.changeD2DLayout">
+         </handler>
+         <handler
+               class="com.raytheon.uf.viz.d2d.ui.actions.ShowPrintDialog"
+               commandId="com.raytheon.uf.viz.d2d.ui.actions.showPrintDialog">
+				<activeWhen>
+               		<with variable="activeEditor">
+       					<instanceof value="com.raytheon.uf.viz.core.IDisplayPaneContainer"/>
+    				</with>
+               </activeWhen>
+         </handler>
+         <handler
+            class="com.raytheon.uf.viz.d2d.ui.actions.IncreaseBlendAmount"
+            commandId="com.raytheon.uf.viz.d2d.ui.actions.increaseBlendAmount">
+	      </handler>
+	      <handler
+            class="com.raytheon.uf.viz.d2d.ui.actions.DecreaseBlendAmount"
+            commandId="com.raytheon.uf.viz.d2d.ui.actions.decreaseBlendAmount">
+	      </handler>
+	      <handler
+            class="com.raytheon.uf.viz.d2d.ui.actions.ToggleTool"
+            commandId="com.raytheon.uf.viz.d2d.ui.actions.toggleTool">
+            	<activeWhen>
+               		<with variable="activeEditor">
+       					<instanceof value="com.raytheon.uf.viz.core.IDisplayPaneContainer"/>
+    				</with>
+               </activeWhen>
+      		</handler>
+	      </extension>
+      <extension
+         point="org.eclipse.ui.views">
+         <view
+            category="com.raytheon.viz.ui"
+            allowMultiple="true"
+            class="com.raytheon.uf.viz.d2d.ui.map.SideView"
+            id="com.raytheon.uf.viz.d2d.ui.map.SideView"
+            name="D2D Side View"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective 
+            class="com.raytheon.uf.viz.d2d.ui.perspectives.D2D5Pane"
+            fixed="true"
+            icon="icons/d2d5.gif"
+            id="com.raytheon.uf.viz.d2d.ui.perspectives.D2D5Pane"
+            name="D2D"
+            singleton="true">
+      </perspective>
+   </extension>
+   <extension
+         id="com.raytheon.viz.ui.bindings"
+         point="org.eclipse.ui.bindings">
+      <key
+      		contextId="com.raytheon.uf.viz.d2d.ui"
+            commandId="com.raytheon.viz.ui.saveBundle"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="M1+SHIFT+S">
+      </key>
+	  <key
+      		contextId="com.raytheon.uf.viz.d2d.ui"
+            commandId="com.raytheon.viz.ui.saveProcedure"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="M1+S">
+      </key>
+      <key
+      		contextId="com.raytheon.uf.viz.d2d.ui"
+            commandId="com.raytheon.uf.viz.d2d.ui.actions.changeLegendMode"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="NUMPAD_ENTER">
+      </key>
+      <key
+      		contextId="com.raytheon.uf.viz.d2d.ui"
+            commandId="com.raytheon.uf.viz.d2d.ui.actions.showPrintDialog"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="M1+P">
+      </key>
+      <key
+      		contextId="com.raytheon.uf.viz.d2d.ui"
+            commandId="com.raytheon.viz.ui.loadSerialized"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="M1+O">
+      </key>
+      <key
+            commandId="org.eclipse.ui.window.newEditor"
+            contextId="com.raytheon.uf.viz.d2d.ui"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="M1+N">
+      </key>
+	  <key
+            commandId="com.raytheon.viz.ui.newPage"
+            contextId="com.raytheon.uf.viz.d2d.ui"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="M1+T">
+      </key>
+      <key
+      		contextId="com.raytheon.uf.viz.d2d.ui"
+            commandId="com.raytheon.viz.ui.clear"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="M1+C">
+      </key>
+      <key
+            commandId="com.raytheon.viz.ui.tools.looping.frameTool"
+            contextId="com.raytheon.viz.ui.loopContext"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="ARROW_LEFT">
+            <parameter
+                  id="mode"
+                  value="TIME_ONLY">
+            </parameter>
+            <parameter
+                  id="operation"
+                  value="PREVIOUS">
+            </parameter>
+      </key>
+      <key
+            commandId="com.raytheon.viz.ui.tools.looping.frameTool"
+            contextId="com.raytheon.viz.ui.loopContext"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="ARROW_RIGHT">
+            <parameter
+                  id="mode"
+                  value="TIME_ONLY">
+            </parameter>
+            <parameter
+                  id="operation"
+                  value="NEXT">
+            </parameter>
+      </key>
+      <key
+            commandId="com.raytheon.viz.ui.tools.looping.frameTool"
+            contextId="com.raytheon.viz.ui.loopContext"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="M1+ARROW_LEFT">
+            <parameter
+                  id="mode"
+                  value="TIME_AND_SPACE">
+            </parameter>
+            <parameter
+                  id="operation"
+                  value="FIRST">
+            </parameter>
+      </key>
+      <key
+            commandId="com.raytheon.viz.ui.tools.looping.frameTool"
+            contextId="com.raytheon.viz.ui.loopContext"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="M1+ARROW_RIGHT">
+            <parameter
+                  id="mode"
+                  value="TIME_AND_SPACE">
+            </parameter>
+            <parameter
+                  id="operation"
+                  value="LAST">
+            </parameter>
+      </key>
+      <key
+            commandId="com.raytheon.viz.ui.tools.looping.frameTool"
+            contextId="com.raytheon.viz.ui.loopContext"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="ARROW_DOWN">
+         <parameter
+               id="mode"
+               value="SPACE_ONLY">
+         </parameter>
+         <parameter
+               id="operation"
+               value="PREVIOUS">
+         </parameter>
+      </key>
+      <key
+            commandId="com.raytheon.viz.ui.tools.looping.frameTool"
+            contextId="com.raytheon.viz.ui.loopContext"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="ARROW_UP">
+         <parameter
+               id="mode"
+               value="SPACE_ONLY">
+         </parameter>
+         <parameter
+               id="operation"
+               value="NEXT">
+         </parameter>
+      </key>
+            <key
+            commandId="com.raytheon.viz.ui.tools.looping.frameTool"
+            contextId="com.raytheon.viz.ui.loopContext"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="M1+ARROW_DOWN">
+            <parameter
+                  id="mode"
+                  value="SPACE_ONLY">
+            </parameter>
+            <parameter
+                  id="operation"
+                  value="FIRST">
+            </parameter>
+      </key>
+      <key
+            commandId="com.raytheon.viz.ui.tools.looping.frameTool"
+            contextId="com.raytheon.viz.ui.loopContext"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="M1+ARROW_UP">
+            <parameter
+                  id="mode"
+                  value="SPACE_ONLY">
+            </parameter>
+            <parameter
+                  id="operation"
+                  value="LAST">
+            </parameter>
+      </key>
+      <key
+            commandId="com.raytheon.viz.ui.tools.looping.frameTool"
+            contextId="com.raytheon.viz.ui.loopContext"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="SHIFT+ARROW_LEFT">
+            <parameter
+                  id="mode"
+                  value="TIME_AND_SPACE">
+            </parameter>
+            <parameter
+                  id="operation"
+                  value="PREVIOUS">
+            </parameter>
+      </key>
+      <key
+            commandId="com.raytheon.viz.ui.tools.looping.frameTool"
+            contextId="com.raytheon.viz.ui.loopContext"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="SHIFT+ARROW_RIGHT">
+            <parameter
+                  id="mode"
+                  value="TIME_AND_SPACE">
+            </parameter>
+            <parameter
+                  id="operation"
+                  value="NEXT">
+            </parameter>
+      </key>
+      <key
+            commandId="com.raytheon.viz.ui.tools.looping.fasterLoop"
+            contextId="com.raytheon.viz.ui.loopContext"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="PAGE_UP"/>
+      <key
+            commandId="com.raytheon.viz.ui.tools.looping.slowerLoop"
+            contextId="com.raytheon.viz.ui.loopContext"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="PAGE_DOWN"/>
+      <key
+      		contextId="com.raytheon.uf.viz.d2d.ui"
+            commandId="com.raytheon.uf.viz.d2d.ui.actions.timeOptionsAction"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="M1+T">
+      </key>
+      <key
+            commandId="com.raytheon.uf.viz.d2d.ui.map.actions.fourPanelLayout"
+            contextId="com.raytheon.uf.viz.d2d.ui"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="END">
+      </key>
+      <key
+            commandId="com.raytheon.uf.viz.d2d.ui.map.actions.rotatePanels"
+            contextId="com.raytheon.uf.viz.d2d.ui"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="DELETE">
+            <parameter id="direction" value="1"></parameter>
+      </key>
+      <key
+            commandId="com.raytheon.uf.viz.d2d.ui.map.actions.rotatePanels"
+            contextId="com.raytheon.uf.viz.d2d.ui"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="BACKSPACE">
+            <parameter id="direction" value="-1"></parameter>
+      </key>
+      <key
+            commandId="com.raytheon.uf.viz.d2d.ui.map.actions.rotatePanels"
+            contextId="com.raytheon.uf.viz.d2d.ui"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="1">
+            <parameter id="direction" value="1"></parameter>
+            <parameter id="startIndex" value="3"></parameter>
+            <parameter id="hideIndex" value="1"></parameter>
+      </key>
+      <key
+            commandId="com.raytheon.uf.viz.d2d.ui.map.actions.rotatePanels"
+            contextId="com.raytheon.uf.viz.d2d.ui"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="5">
+            <parameter id="direction" value="1"></parameter>
+            <parameter id="startIndex" value="3"></parameter>
+            <parameter id="hideIndex" value="0"></parameter>
+      </key>
+      <key
+            commandId="com.raytheon.uf.viz.d2d.ui.map.actions.rotatePanels"
+            contextId="com.raytheon.uf.viz.d2d.ui"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="2">
+            <parameter id="direction" value="1"></parameter>
+            <parameter id="startIndex" value="0"></parameter>
+            <parameter id="hideIndex" value="1"></parameter>
+      </key>
+      <key
+            commandId="com.raytheon.uf.viz.d2d.ui.map.actions.rotatePanels"
+            contextId="com.raytheon.uf.viz.d2d.ui"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="6">
+            <parameter id="direction" value="1"></parameter>
+            <parameter id="startIndex" value="0"></parameter>
+            <parameter id="hideIndex" value="0"></parameter>
+      </key>
+      <key
+            commandId="com.raytheon.uf.viz.d2d.ui.map.actions.rotatePanels"
+            contextId="com.raytheon.uf.viz.d2d.ui"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="3">
+            <parameter id="direction" value="1"></parameter>
+            <parameter id="startIndex" value="1"></parameter>
+            <parameter id="hideIndex" value="1"></parameter>
+      </key>
+      <key
+            commandId="com.raytheon.uf.viz.d2d.ui.map.actions.rotatePanels"
+            contextId="com.raytheon.uf.viz.d2d.ui"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="7">
+            <parameter id="direction" value="1"></parameter>
+            <parameter id="startIndex" value="1"></parameter>
+            <parameter id="hideIndex" value="0"></parameter>
+      </key>
+      <key
+            commandId="com.raytheon.uf.viz.d2d.ui.map.actions.rotatePanels"
+            contextId="com.raytheon.uf.viz.d2d.ui"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="4">
+            <parameter id="direction" value="1"></parameter>
+            <parameter id="startIndex" value="2"></parameter>
+            <parameter id="hideIndex" value="1"></parameter>
+      </key>
+      <key
+            commandId="com.raytheon.uf.viz.d2d.ui.map.actions.rotatePanels"
+            contextId="com.raytheon.uf.viz.d2d.ui"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="8">
+            <parameter id="direction" value="1"></parameter>
+            <parameter id="startIndex" value="2"></parameter>
+            <parameter id="hideIndex" value="0"></parameter>
+      </key>
+      <key
+            contextId="com.raytheon.uf.viz.d2d.ui"
+            commandId="com.raytheon.uf.viz.d2d.ui.actions.imageCombination"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="INSERT">
+      </key>
+      <key
+      		contextId="com.raytheon.uf.viz.d2d.ui"
+            commandId="com.raytheon.uf.viz.d2d.ui.actions.locateCursorAction"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="F12">
+      </key>
+      <key
+      		contextId="com.raytheon.uf.viz.d2d.ui"
+            commandId="com.raytheon.viz.ui.tools.looping.loopProperties"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="M1+L">
+      </key>
+      <key
+      		contextId="com.raytheon.uf.viz.d2d.ui"
+            commandId="com.raytheon.viz.ui.imageProperties"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="M1+I">
+      </key>
+     <key
+            commandId="com.raytheon.uf.viz.d2d.ui.actions.increaseBlendAmount"
+            contextId="com.raytheon.uf.viz.d2d.ui"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="NUMPAD_ADD"/>
+     <key
+            commandId="com.raytheon.uf.viz.d2d.ui.actions.decreaseBlendAmount"
+            contextId="com.raytheon.uf.viz.d2d.ui"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="NUMPAD_SUBTRACT"/>
+	<key
+            commandId="com.raytheon.uf.viz.d2d.ui.actions.toggleTool"
+            contextId="com.raytheon.uf.viz.d2d.ui"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="NUMPAD_DECIMAL"/>
+   </extension>
+   <extension
+      point="org.eclipse.ui.commands">
+      <category
+         id="com.raytheon.uf.viz.d2d.ui"
+         name="D2D" description="Command category for D2D">
+	  </category>
+      <command
+            id="com.raytheon.uf.viz.d2d.ui.actions.setloadmode"
+            name="Set Load Mode">
+         <commandParameter
+               id="loadMode"
+               name="loadMode"
+               optional="false">
+         </commandParameter>
+      </command>
+      <command
+            id="com.raytheon.uf.viz.d2d.ui.actions.dataScaleAction"
+            categoryId="com.raytheon.uf.viz.d2d.ui"
+            description="Toggle the data scale enabled option"
+            name="Toggle Data Scale">
+      </command>
+      <command
+            id="com.raytheon.uf.viz.d2d.ui.actions.changeLegendMode"
+            categoryId="com.raytheon.uf.viz.d2d.ui"
+            description="Change the mode of the legend"
+            name="Change D2D legend mode">
+      </command>
+      <command
+            id="com.raytheon.uf.viz.d2d.ui.actions.changeD2DLayout"
+            name="Change D2D Layout">
+         <commandParameter
+               id="sideViews"
+               name="sideViews"
+               optional="false">
+         </commandParameter>
+      </command>
+      <command
+            id="com.raytheon.uf.viz.d2d.ui.actions.setoverlayloadmode"
+            name="Set Overlay Load Mode">
+         <commandParameter
+               id="loadMode"
+               name="loadMode"
+               optional="false">
+         </commandParameter>
+      </command>
+      <command
+            id="com.raytheon.uf.viz.d2d.ui.actions.setbasisloadmode"
+            name="Set Basis Load Mode">
+         <commandParameter
+               id="loadMode"
+               name="loadMode"
+               optional="false">
+         </commandParameter>
+      </command>
+      <command
+            id="com.raytheon.uf.viz.d2d.ui.actions.loadmodebutton"
+            name="Load Mode Button Updater">
+      </command>
+      <command
+            id="com.raytheon.uf.viz.d2d.ui.actions.timeOptionsAction"
+            categoryId="com.raytheon.uf.viz.d2d.ui"
+            description="Open time options dialog"
+            name="Time Options">
+      </command>
+      <command
+            id="com.raytheon.viz.ui.actions.notImplemented"
+            name="Data Scale">
+      </command>
+      <command
+            id="com.raytheon.uf.viz.d2d.ui.actions.locateCursorAction"
+            categoryId="com.raytheon.uf.viz.d2d.ui"
+            description="Locates the cursor on the screen"
+            name="Locate Cursor">
+      </command>
+      <command
+            id="com.raytheon.uf.viz.d2d.ui.actions.displayPropertiesAction"
+            categoryId="com.raytheon.uf.viz.d2d.ui"
+            description="Opens the display properties dialog"
+            name="Display Properties">
+      </command>
+	  <command
+            id="com.raytheon.uf.viz.d2d.ui.map.actions.twoPanelLayout"
+            categoryId="com.raytheon.uf.viz.d2d.ui"
+            description="Switches editor to a two panel layout"
+            name="Two Panel Layout">
+      </command>
+      <command
+            id="com.raytheon.uf.viz.d2d.ui.map.actions.fourPanelLayout"
+            categoryId="com.raytheon.uf.viz.d2d.ui"
+            description="Switches editor to a four panel layout"
+            name="Four Panel Layout">
+      </command>
+      <command
+            id="com.raytheon.uf.viz.d2d.ui.map.actions.rotatePanels"
+            name="Rotate Panels">
+        <commandParameter
+               id="direction"
+               name="direction"
+               optional="false">
+        </commandParameter>
+        <commandParameter
+               id="startIndex"
+               name="startIndex"
+               optional="true">
+         </commandParameter>
+         <commandParameter 
+         	   id="hideIndex"
+         	   name="hideIndex"
+         	   optional="true">
+         </commandParameter>
+      </command>
+      <command
+            id="com.raytheon.uf.viz.d2d.ui.actions.imageCombination"
+            categoryId="com.raytheon.uf.viz.d2d.ui"
+            description="Toggle the image combination option"
+            name="Image Combination">
+      </command>
+      <command
+            id="com.raytheon.viz.ui.openAWIPSProcedure"
+            categoryId="com.raytheon.uf.viz.d2d.ui"
+            description="Open an existing bundle"
+            name="Open Bundle">
+      </command>
+      <command
+            id="com.raytheon.viz.ui.saveAWIPSProcedure"
+            categoryId="com.raytheon.uf.viz.d2d.ui"
+            description="Save current display to bundle"
+            name="Save Bundle">
+      </command>
+      <command
+            id="com.raytheon.viz.ui.deleteAWIPSProcedure"
+            categoryId="com.raytheon.uf.viz.d2d.ui"
+            description="Delete a bundle"
+            name="Delete Bundle">
+      </command>
+      <command
+            id="com.raytheon.viz.ui.copyOutAWIPSProcedure"
+            categoryId="com.raytheon.uf.viz.d2d.ui"
+            description="Copy out an AWIPS procedure"
+            name="Copy Out AWIPS Procedure">
+      </command>
+      <command
+            id="com.raytheon.viz.ui.setperspective"
+            name="Set Perspective">
+         <commandParameter
+               id="perspective"
+               name="perspective"
+               optional="false">
+         </commandParameter>
+      </command>
+      <command
+            categoryId="com.raytheon.uf.viz.d2d.ui"
+            description="Show the AWIPS II Print Dialog"
+            id="com.raytheon.uf.viz.d2d.ui.actions.showPrintDialog"
+            name="Show Print Dialog">
+      </command>
+      <command
+            id="com.raytheon.uf.viz.d2d.ui.actions.increaseBlendAmount"
+            categoryId="com.raytheon.uf.viz.d2d.ui"
+      	    description="Increases the blend amout on a blended resource"
+            name="Increase Blend"/>
+      <command
+            id="com.raytheon.uf.viz.d2d.ui.actions.decreaseBlendAmount"
+            categoryId="com.raytheon.uf.viz.d2d.ui"
+      	    description="Decreases the blend amout on a blended resource"
+            name="Decrease Blend"/>
+     <command
+            id="com.raytheon.uf.viz.d2d.ui.actions.toggleTool"
+            categoryId="com.raytheon.uf.viz.d2d.ui"
+      	    description="Toggles a blended resource"
+            name="Toggle Layer"/>
+   </extension>
+   <extension
+         point="com.raytheon.viz.ui.perspectiveManager">
+      <perspectiveManager
+      		perspectiveId="com.raytheon.uf.viz.d2d.ui.perspectives.D2D5Pane"
+            class="com.raytheon.uf.viz.d2d.ui.perspectives.D2DPerspectiveManager"
+            name="D2DPerspectiveManager">
+      </perspectiveManager>
+   </extension>
+    <extension
+      point="com.raytheon.uf.viz.ui.mouse.action">
+      <mouseAction 
+      	id="com.raytheon.viz.d2d.ui.toggleLegend"
+      	default="Right Click"
+      	description="Switch which Legends are displayed"
+      	eventOptions="Left Click,Middle Click,Right Click"
+      	name="Toggle Legends" 
+      	category="Editor Action">
+      </mouseAction>
+      <mouseAction 
+      	id="com.raytheon.viz.d2d.ui.show.colorEdit"
+      	default="Right Click"
+      	description="Switch which Legends are displayed"
+      	eventOptions="Left Click,Middle Click,Right Click"
+      	name="Show Color Edit dialog" 
+      	category="Editor Action">
+      </mouseAction>
+      <mouseAction 
+      	id="com.raytheon.viz.d2d.ui.hide.resource"
+      	default="Left Click"
+      	description="Show/Hide a resource when a user clicks on the title in the legend"
+      	eventOptions="Left Click,Middle Click"
+      	name="Show/Hide Resource" 
+      	category="Legend Interaction">
+      </mouseAction>
+	</extension>
+    <extension
+          point="org.eclipse.ui.perspectiveExtensions">
+       <perspectiveExtension
+             targetID="com.raytheon.uf.viz.d2d.ui.perspectives.D2D5Pane">
+          <actionSet
+                id="com.raytheon.uf.viz.d2d.ui.D2DActionSet">
+          </actionSet>
+       </perspectiveExtension>
+       <perspectiveExtension
+             targetID="*">
+          <perspectiveShortcut
+                id="com.raytheon.uf.viz.d2d.ui.perspectives.D2D5Pane">
+          </perspectiveShortcut>
+       </perspectiveExtension>
+    </extension>
+   	<extension
+	      point="com.raytheon.uf.viz.core.classContext">
+	      <classContext
+             class="com.raytheon.uf.viz.d2d.ui.perspectives.D2DPerspectiveManager">
+	          <contextId
+	                id="com.raytheon.uf.viz.d2d.ui.perspective">
+	          </contextId>
+	      </classContext>
+	      <classContext
+             class="com.raytheon.uf.viz.d2d.ui.perspectives.D2DContextActivator">
+	          <contextId
+	                id="com.raytheon.uf.viz.d2d.ui">
+	          </contextId>
+	      </classContext>
+	</extension>
+	<extension
+         point="com.raytheon.viz.ui.contextualMenu">
+	      <contextualMenu
+            actionClass="com.raytheon.uf.viz.d2d.ui.actions.BlinkToggleAction"
+            name="Blinking"
+            sortID="997">
+      	  </contextualMenu>
+    </extension>
+    <extension
+         point="com.raytheon.uf.viz.core.resource">
+      <resource
+            class="com.raytheon.uf.viz.d2d.ui.map.resource.SpottersReadoutResource"
+            name="Spotters Readout"
+            renderingOrderId="PLOT"/>
+   </extension>
+   <extension
+       point="com.raytheon.uf.viz.localization.localizationpath">
+       <path
+          application="D2D"
+          localizationType="CAVE_STATIC"
+          name="Procedures"
+          value="procedures" 
+          recursive="true">
+       </path>
+       <path
+          application="D2D"
+          localizationType="CAVE_STATIC"
+          name="Map Scales"
+          value="bundles/scales" 
+          recursive="true">
+       </path>
+       <path
+          application="D2D"
+          localizationType="COMMON_STATIC"
+          name="Purge Rules"
+          value="purge">
+    	</path>
+    	<path
+          application="D2D"
+          localizationType="CAVE_STATIC"
+          name="Volume Browser Menus"
+          value="menus/volumebrowser" 
+          recursive="true">
+       </path>
+    </extension>
+    <extension
+       point="com.raytheon.uf.viz.ui.menus.tearoffperspective">
+    	<tearoffperspective
+          enabled="true"
+          perspectiveId="com.raytheon.uf.viz.d2d.ui.perspectives.D2D5Pane">
+    </tearoffperspective>
+ </extension>
+ 
+ <!-- add right click on tab actions -->
+ <extension
+         point="com.raytheon.viz.ui.editorMenuAddition">
+      <editorMenuAddition
+            class="com.raytheon.viz.ui.actions.RenameTabAction"
+            name="Rename Tab"
+            icon="icons/rename.png"
+            perspectiveId="com.raytheon.uf.viz.d2d.ui.perspectives.D2D5Pane">            
+      </editorMenuAddition>
+  </extension>
+ 
+</plugin>

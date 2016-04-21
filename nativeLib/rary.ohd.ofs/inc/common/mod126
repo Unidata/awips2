@@ -1,0 +1,4 @@
+C                                           *--> FROM COMMON.MOD126
+      COMMON/MOD126/M126ON,MJ126,NVM126,VM126(124)
+      LOGICAL M126ON
+C

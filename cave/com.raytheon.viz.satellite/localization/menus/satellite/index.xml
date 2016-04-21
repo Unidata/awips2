@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<menuContributionFile>	
+	<include installTo="menu:satellite?before=GROUP1" 
+             fileName="menus/satellite/baseUniwiscComposite.xml">
+    </include>
+	<include installTo="menu:satellite?after=GROUP1"
+		fileName="menus/satellite/baseSatellite.xml">
+	</include>
+    <include installTo="menu:satellite?before=GROUP2" 
+             fileName="menus/satellite/baseSounderImagery.xml">
+    	<substitute key="sector0" value="West CONUS"/>
+    	<substitute key="sector1" value="East CONUS"/>
+    	<substitute key="sector2" value="Supernational"/>
+    	<substitute key="sector3" value="Northern Hemisphere Composite"/>
+    	<substitute key="entity" value="GOES%"/>
+    </include>
+    <include subMenu="Derived Products Imagery" installTo="menu:satellite?after=GROUP3" 
+             fileName="menus/satellite/baseDerivedProductsImagery.xml">
+    	<substitute key="sector" value="Supernational"/>
+    </include>
+    <include installTo="menu:satellite?before=GROUP3" 
+             fileName="menus/satellite/baseDerivedProductPlots.xml"/>    
+</menuContributionFile>

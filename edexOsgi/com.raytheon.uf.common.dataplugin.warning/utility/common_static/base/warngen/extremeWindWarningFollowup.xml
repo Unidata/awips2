@@ -1,0 +1,143 @@
+<!-- Extreme Wind Warning followup configuration 
+      MODIFIED EVAN BOOKBINDER 09-16-2011 OB11.0.8-8
+      EVAN BOOKBINDER WFO EAX 11-4-2011 removed bulletDefaults that prevented auto selection
+      Qinglu Lin    04-04-2012 DR 14691. Added <feAreaField> tag.
+      Evan Bookbinder 09-11-2012 Added settings for locations shapefile
+                                 Added new areaSource object
+      Evan Bookbinder 03-01-2013 Fixed Group Settings
+      Evan Bookbinder 06-07-2013 Fixed CTAs
+      Phil Kurimski   09-19-2013 added geospatialConfig.xml
+      Mike Dangelo    10-22-2015 checked for mixed case = passed
+-->
+<warngenConfig>
+
+<!-- INCLUDE ALL GEOSPTATIAL INFORMATION FOR THIS PRODUCT
+ANY pointSource/areaSource/pathcastConfig OVERRIDES TO THAT FILE CAN BE
+PLACED IN FULL BELOW THE INCLUDE LINE BELOW. -->
+<include file="geospatialConfig_COUNTY.xml"/>
+
+<!-- Include Various geospatial XML files to create their objects. These are *NOT*
+turned on unless the corresponding .vm file is turned on in a given template's .vm file
+-->  
+<include file="mileMarkers.xml"/>
+<!-- To enable, make sure mileMarkers.vm is added/uncommented in a WarnGen template's .vm file -->
+<include file="pointMarkers.xml"/>
+<!-- To enable, make sure pointMarkers.vm is added/uncommented in a WarnGen template's .vm file -->
+
+ <!-- Config distance/speed units -->
+ <unitDistance>mi</unitDistance>
+ <unitSpeed>mph</unitSpeed>
+
+ <!-- Maps to load on template selection. Refer to 'Maps' menu in CAVE. 
+ 	The various menu items are also the different maps
+ 	that can be loaded with each template. -->
+ <maps>
+  <map>County Names</map>
+  <map>County Warning Areas</map>
+ </maps>
+
+ <!-- Followups: VTEC actions of allowable followups when this template is selected 
+	Each followup will become available when the appropriate time range permits.
+ -->
+ <followups>
+  <followup>COR</followup>
+  <followup>CON</followup>
+  <followup>CAN</followup>
+  <followup>EXP</followup>
+ </followups>
+ 
+ <!-- Phensigs: The list of phenomena and significance combinations that this template applies to -->
+ <phensigs>
+   <phensig>EW.W</phensig>
+ </phensigs>
+ 
+  <!-- Enables/disables user from selecting the Restart button the GUI -->
+ <enableRestart>false</enableRestart>
+ 
+ <!-- Enable/disables the system to lock text based on various patterns -->
+ <autoLockText>true</autoLockText>
+ 
+  <!-- Included watches: If a tornado watch or severe thunderstorm watch is to be 
+ 	included with the warning product include TO.A and/or SV.A, 
+ 	respectively. Please refer to 'includedWatchAreaBuffer' in <areaConfig/>. -->
+ <includedWatches>
+  <includedWatch>TO.A</includedWatch>
+  <includedWatch>SV.A</includedWatch>
+ </includedWatches>
+ 
+ <!-- durations: the list of possible durations of the svs -->
+ <!-- THIS REALLY SERVES NO PURPOSE BUT WILL CRASH WARNGEN IF REMVOED -->
+ <defaultDuration>30</defaultDuration>
+ <durations>
+  <duration>30</duration>
+ </durations>
+ 
+<bulletActionGroups>
+<bulletActionGroup>
+ <bullets>
+  <bullet bulletText="*********** SELECT A FOLLOWUP **********" bulletType="title"/>
+ </bullets>
+</bulletActionGroup>
+<bulletActionGroup action="CAN" phen="EW" sig="W">
+ <bullets>
+  <bullet bulletText="*********** CAN SELECTED **********" bulletType="title"/>
+ </bullets>
+</bulletActionGroup>
+<bulletActionGroup action="EXP" phen="EW" sig="W">
+ <bullets>
+  <bullet bulletText="*********** EXP SELECTED **********" bulletType="title"/>
+ </bullets>
+</bulletActionGroup>
+<bulletActionGroup action="CON" phen="EW" sig="W">
+ <bullets>
+  <bullet bulletText="***** THREAT ******" bulletType="title"/>
+  <bullet bulletName="var1" bulletText="Hurricane Eyewall" bulletGroup="warnReason" parseString="ASSOCIATED WITH THE EYEWALL" showString="ASSOCIATED WITH THE EYEWALL"/>
+  <bullet bulletName="var2" bulletText="Convective winds" bulletGroup="warnReason" parseString="ASSOCIATED WITH A BROAD AREA OF INTENSE THUNDERSTORMS" showString="ASSOCIATED WITH A BROAD AREA OF INTENSE THUNDERSTORMS"/>
+  <bullet bulletName="var3" bulletText="Non-hurricane winds" bulletGroup="warnReason" parseString="ASSOCIATED WITH AN INTENSE LOW PRESSURE AREA" showString="ASSOCIATED WITH AN INTENSE LOW PRESSURE AREA"/>
+  <bullet bulletName="var4" bulletText="Downslope winds" bulletGroup="warnReason" parseString="ASSOCIATED WITH A DOWNSLOPE WINDSTORM" showString="ASSOCIATED WITH A DOWNSLOPE WINDSTORM"/>
+  <bullet bulletText="***** BASIS FOR WARNING (CHOOSE 1) ******" bulletType="title"/>
+  <bullet bulletName="basis1" bulletText="Doppler radar indicated" bulletGroup="warnBasis" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED"/>
+  <bullet bulletName="basis2" bulletText="Surface observations indicated..." bulletGroup="warnBasis" parseString="SURFACE OBSERVATIONS INDICATED EXTREME WINDS"/>
+  <bullet bulletName="basis3" bulletText="Maritime observations indicated..." bulletGroup="warnBasis" parseString="MARITIME OBSERVATIONS INDICATED EXTREME WINDS"/>
+  <bullet bulletName="basis4" bulletText="Spotters indicated..." bulletGroup="warnBasis" parseString="TRAINED WEATHER SPOTTERS REPORTED EXTREME WINDS"/>
+  <bullet bulletName="basis5" bulletText="Radar and surface observations..." bulletGroup="warnBasis" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR AND SURFACE OBSERVATIONS"/>
+  <bullet bulletName="basis6" bulletText="Radar and maritime observations..." bulletGroup="warnBasis" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR AND MARITIME OBSERVATIONS"/>
+  <bullet bulletName="basis7" bulletText="Radar and spotters..." bulletGroup="warnBasis" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR AND TRAINED WEATHER SPOTTERS"/>
+  <bullet bulletText="*********** CALL TO ACTIONS (CHOOSE 1 OR MORE) **********" bulletType="title"/>
+  <bullet bulletName="destructiveWindsCTA" bulletText="Specific wind values" parseString="WIDESPREAD DESTRUCTIVE WINDS OF"/>
+  <bullet bulletName="takeCoverCTA" bulletText="CTA - Take cover now" parseString="TAKE COVER NOW!"/>
+  <bullet bulletName="safePlacesCTA" bulletText="Hurricane CTA - Safe places to be" parseString="THE SAFEST PLACE TO BE DURING"/>
+  <bullet bulletText="*********** Pathcast? **********" bulletType="title"/>
+  <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="pcast" parseString="WILL BE NEAR..."/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="&quot;LOCATIONS&quot;,&quot;INCLUDE...&quot;"/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="WILL REMAIN OVER" showString="WILL REMAIN OVER"/>
+ </bullets>
+</bulletActionGroup>
+<bulletActionGroup action="COR" phen="EW" sig="W">
+ <bullets>
+  <bullet bulletText="***** THREAT ******" bulletType="title"/>
+  <bullet bulletName="var1" bulletText="Hurricane Eyewall" bulletGroup="warnReason" parseString="ASSOCIATED WITH THE EYEWALL" showString="ASSOCIATED WITH THE EYEWALL"/>
+  <bullet bulletName="var2" bulletText="Convective winds" bulletGroup="warnReason" parseString="ASSOCIATED WITH A BROAD AREA OF INTENSE THUNDERSTORMS" showString="ASSOCIATED WITH A BROAD AREA OF INTENSE THUNDERSTORMS"/>
+  <bullet bulletName="var3" bulletText="Non-hurricane winds" bulletGroup="warnReason" parseString="ASSOCIATED WITH AN INTENSE LOW PRESSURE AREA" showString="ASSOCIATED WITH AN INTENSE LOW PRESSURE AREA"/>
+  <bullet bulletName="var4" bulletText="Downslope winds" bulletGroup="warnReason" parseString="ASSOCIATED WITH A DOWNSLOPE WINDSTORM" showString="ASSOCIATED WITH A DOWNSLOPE WINDSTORM"/>
+  <bullet bulletText="***** BASIS FOR WARNING (CHOOSE 1) ******" bulletType="title"/>
+  <bullet bulletName="basis1" bulletText="Doppler radar indicated" bulletGroup="warnBasis" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED"/>
+  <bullet bulletName="basis2" bulletText="Surface observations indicated..." bulletGroup="warnBasis" parseString="SURFACE OBSERVATIONS INDICATED EXTREME WINDS"/>
+  <bullet bulletName="basis3" bulletText="Maritime observations indicated..." bulletGroup="warnBasis" parseString="MARITIME OBSERVATIONS INDICATED EXTREME WINDS"/>
+  <bullet bulletName="basis4" bulletText="Spotters indicated..." bulletGroup="warnBasis" parseString="TRAINED WEATHER SPOTTERS REPORTED EXTREME WINDS"/>
+  <bullet bulletName="basis5" bulletText="Radar and surface observations..." bulletGroup="warnBasis" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR AND SURFACE OBSERVATIONS"/>
+  <bullet bulletName="basis6" bulletText="Radar and maritime observations..." bulletGroup="warnBasis" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR AND MARITIME OBSERVATIONS"/>
+  <bullet bulletName="basis7" bulletText="Radar and spotters..." bulletGroup="warnBasis" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR AND TRAINED WEATHER SPOTTERS"/>
+  <bullet bulletText="*********** CALL TO ACTIONS (CHOOSE 1 OR MORE) **********" bulletType="title"/>
+  <bullet bulletName="destructiveWindsCTA" bulletText="Specific wind values" parseString="WIDESPREAD DESTRUCTIVE WINDS OF"/>
+  <bullet bulletName="takeCoverCTA" bulletText="CTA - Take cover now" parseString="TAKE COVER NOW!"/>
+  <bullet bulletName="safePlacesCTA" bulletText="Hurricane CTA - Safe places to be" parseString="THE SAFEST PLACE TO BE DURING"/>
+  <bullet bulletText="*********** Pathcast? **********" bulletType="title"/>
+  <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="pcast" parseString="WILL BE NEAR..."/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="&quot;LOCATIONS&quot;,&quot;INCLUDE...&quot;"/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="WILL REMAIN OVER" showString="WILL REMAIN OVER"/> 
+ </bullets>
+</bulletActionGroup>
+</bulletActionGroups>
+
+</warngenConfig>

@@ -1,0 +1,897 @@
+/*
+    File: Crest.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:18 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "Crest.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct Crest_t
+{
+    char		lid[9];
+    date		datcrst;
+    char		cremark[81];
+    char		hw[2];
+    char		jam[2];
+    char		olddatum[2];
+    long		q;
+    double		stage;
+    char		suppress[2];
+    char		timcrst[6];
+    char		prelim[2];
+
+    int		ind_cremark;
+    int		ind_hw;
+    int		ind_jam;
+    int		ind_olddatum;
+    int		ind_q;
+    int		ind_stage;
+    int		ind_suppress;
+    int		ind_prelim;
+} Crest_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+Crest * GetCrest(const char * where)
+{
+
+    Crest * listPtr = NULL;
+    Crest * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM Crest ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Crest_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetCrest() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetCrest() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetCrest() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.lid, :dbs.datcrst, 
+    :dbs.cremark:dbs.ind_cremark, :dbs.hw:dbs.ind_hw, 
+    :dbs.jam:dbs.ind_jam, :dbs.olddatum:dbs.ind_olddatum, 
+    :dbs.q:dbs.ind_q, :dbs.stage:dbs.ind_stage, 
+    :dbs.suppress:dbs.ind_suppress, :dbs.timcrst, 
+    :dbs.prelim:dbs.ind_prelim    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetCrest() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (Crest *) malloc(sizeof(Crest))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+
+            structPtr->datcrst = pg_date_to_date_t(dbs.datcrst);
+
+            strcpy(structPtr->cremark, dbs.cremark);
+            setNullIfIndicated(dbs.ind_cremark, CHAR, structPtr->cremark);
+
+            strcpy(structPtr->hw, dbs.hw);
+            setNullIfIndicated(dbs.ind_hw, CHAR, structPtr->hw);
+
+            strcpy(structPtr->jam, dbs.jam);
+            setNullIfIndicated(dbs.ind_jam, CHAR, structPtr->jam);
+
+            strcpy(structPtr->olddatum, dbs.olddatum);
+            setNullIfIndicated(dbs.ind_olddatum, CHAR, structPtr->olddatum);
+
+            structPtr->q = dbs.q;
+            setNullIfIndicated(dbs.ind_q, INT, &structPtr->q);
+
+            structPtr->stage = dbs.stage;
+            setNullIfIndicated(dbs.ind_stage, DOUBLE, &structPtr->stage);
+
+            strcpy(structPtr->suppress, dbs.suppress);
+            setNullIfIndicated(dbs.ind_suppress, CHAR, structPtr->suppress);
+
+            strcpy(structPtr->timcrst, dbs.timcrst);
+
+            strcpy(structPtr->prelim, dbs.prelim);
+            setNullIfIndicated(dbs.ind_prelim, CHAR, structPtr->prelim);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.lid, :dbs.datcrst, 
+        :dbs.cremark:dbs.ind_cremark, :dbs.hw:dbs.ind_hw, 
+        :dbs.jam:dbs.ind_jam, :dbs.olddatum:dbs.ind_olddatum, 
+        :dbs.q:dbs.ind_q, :dbs.stage:dbs.ind_stage, 
+        :dbs.suppress:dbs.ind_suppress, :dbs.timcrst, 
+        :dbs.prelim:dbs.ind_prelim        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetCrest() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+Crest * SelectCrest(const char * where)
+{
+
+    Crest * listPtr = NULL;
+    Crest * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM Crest ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Crest_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCrest() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCrest() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCrest() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.lid, :dbs.datcrst, 
+    :dbs.cremark:dbs.ind_cremark, :dbs.hw:dbs.ind_hw, 
+    :dbs.jam:dbs.ind_jam, :dbs.olddatum:dbs.ind_olddatum, 
+    :dbs.q:dbs.ind_q, :dbs.stage:dbs.ind_stage, 
+    :dbs.suppress:dbs.ind_suppress, :dbs.timcrst, 
+    :dbs.prelim:dbs.ind_prelim    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCrest() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (Crest *) malloc(sizeof(Crest))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+
+            structPtr->datcrst = pg_date_to_date_t(dbs.datcrst);
+
+            strcpy(structPtr->cremark, dbs.cremark);
+            setNullIfIndicated(dbs.ind_cremark, CHAR, structPtr->cremark);
+
+            strcpy(structPtr->hw, dbs.hw);
+            setNullIfIndicated(dbs.ind_hw, CHAR, structPtr->hw);
+
+            strcpy(structPtr->jam, dbs.jam);
+            setNullIfIndicated(dbs.ind_jam, CHAR, structPtr->jam);
+
+            strcpy(structPtr->olddatum, dbs.olddatum);
+            setNullIfIndicated(dbs.ind_olddatum, CHAR, structPtr->olddatum);
+
+            structPtr->q = dbs.q;
+            setNullIfIndicated(dbs.ind_q, INT, &structPtr->q);
+
+            structPtr->stage = dbs.stage;
+            setNullIfIndicated(dbs.ind_stage, DOUBLE, &structPtr->stage);
+
+            strcpy(structPtr->suppress, dbs.suppress);
+            setNullIfIndicated(dbs.ind_suppress, CHAR, structPtr->suppress);
+
+            strcpy(structPtr->timcrst, dbs.timcrst);
+
+            strcpy(structPtr->prelim, dbs.prelim);
+            setNullIfIndicated(dbs.ind_prelim, CHAR, structPtr->prelim);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.lid, :dbs.datcrst, 
+        :dbs.cremark:dbs.ind_cremark, :dbs.hw:dbs.ind_hw, 
+        :dbs.jam:dbs.ind_jam, :dbs.olddatum:dbs.ind_olddatum, 
+        :dbs.q:dbs.ind_q, :dbs.stage:dbs.ind_stage, 
+        :dbs.suppress:dbs.ind_suppress, :dbs.timcrst, 
+        :dbs.prelim:dbs.ind_prelim        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectCrest() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectCrestCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM Crest ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountCrest() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountCrest() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountCrest() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountCrest() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutCrest(const Crest * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Crest_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    dbs.datcrst = date_t_to_pg_date(structPtr->datcrst);
+
+    strcpy(dbs.cremark, structPtr->cremark);
+    dbs.ind_cremark = getIndicator(CHAR, (void *)structPtr->cremark);
+
+    strcpy(dbs.hw, structPtr->hw);
+    dbs.ind_hw = getIndicator(CHAR, (void *)structPtr->hw);
+
+    strcpy(dbs.jam, structPtr->jam);
+    dbs.ind_jam = getIndicator(CHAR, (void *)structPtr->jam);
+
+    strcpy(dbs.olddatum, structPtr->olddatum);
+    dbs.ind_olddatum = getIndicator(CHAR, (void *)structPtr->olddatum);
+
+    dbs.q = structPtr->q;
+    dbs.ind_q = getIndicator(INT, (void *)&structPtr->q);
+
+    dbs.stage = structPtr->stage;
+    dbs.ind_stage = getIndicator(DOUBLE, (void *)&structPtr->stage);
+
+    strcpy(dbs.suppress, structPtr->suppress);
+    dbs.ind_suppress = getIndicator(CHAR, (void *)structPtr->suppress);
+
+    strcpy(dbs.timcrst, structPtr->timcrst);
+
+    strcpy(dbs.prelim, structPtr->prelim);
+    dbs.ind_prelim = getIndicator(CHAR, (void *)structPtr->prelim);
+
+
+    EXEC SQL INSERT INTO Crest (lid,datcrst,
+        cremark,hw,jam,
+        olddatum,q,stage,
+        suppress,timcrst,prelim        )
+        VALUES (
+         :dbs.lid, :dbs.datcrst, :dbs.cremark:dbs.ind_cremark,
+         :dbs.hw:dbs.ind_hw, :dbs.jam:dbs.ind_jam, :dbs.olddatum:dbs.ind_olddatum,
+         :dbs.q:dbs.ind_q, :dbs.stage:dbs.ind_stage, :dbs.suppress:dbs.ind_suppress,
+         :dbs.timcrst, :dbs.prelim:dbs.ind_prelim);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutCrest() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertCrest(const Crest * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Crest_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    dbs.datcrst = date_t_to_pg_date(structPtr->datcrst);
+
+    strcpy(dbs.cremark, structPtr->cremark);
+    dbs.ind_cremark = getIndicator(CHAR, (void *)structPtr->cremark);
+
+    strcpy(dbs.hw, structPtr->hw);
+    dbs.ind_hw = getIndicator(CHAR, (void *)structPtr->hw);
+
+    strcpy(dbs.jam, structPtr->jam);
+    dbs.ind_jam = getIndicator(CHAR, (void *)structPtr->jam);
+
+    strcpy(dbs.olddatum, structPtr->olddatum);
+    dbs.ind_olddatum = getIndicator(CHAR, (void *)structPtr->olddatum);
+
+    dbs.q = structPtr->q;
+    dbs.ind_q = getIndicator(INT, (void *)&structPtr->q);
+
+    dbs.stage = structPtr->stage;
+    dbs.ind_stage = getIndicator(DOUBLE, (void *)&structPtr->stage);
+
+    strcpy(dbs.suppress, structPtr->suppress);
+    dbs.ind_suppress = getIndicator(CHAR, (void *)structPtr->suppress);
+
+    strcpy(dbs.timcrst, structPtr->timcrst);
+
+    strcpy(dbs.prelim, structPtr->prelim);
+    dbs.ind_prelim = getIndicator(CHAR, (void *)structPtr->prelim);
+
+
+    EXEC SQL INSERT INTO Crest (lid,datcrst,
+        cremark,hw,jam,
+        olddatum,q,stage,
+        suppress,timcrst,prelim        )
+        VALUES (
+         :dbs.lid, :dbs.datcrst, :dbs.cremark:dbs.ind_cremark,
+         :dbs.hw:dbs.ind_hw, :dbs.jam:dbs.ind_jam, :dbs.olddatum:dbs.ind_olddatum,
+         :dbs.q:dbs.ind_q, :dbs.stage:dbs.ind_stage, :dbs.suppress:dbs.ind_suppress,
+         :dbs.timcrst, :dbs.prelim:dbs.ind_prelim);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertCrest() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateCrest(const Crest *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Crest_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    dbs.datcrst = date_t_to_pg_date(structPtr->datcrst);
+
+    strcpy(dbs.cremark, structPtr->cremark);
+    dbs.ind_cremark = getIndicator(CHAR, (void *)structPtr->cremark);
+
+    strcpy(dbs.hw, structPtr->hw);
+    dbs.ind_hw = getIndicator(CHAR, (void *)structPtr->hw);
+
+    strcpy(dbs.jam, structPtr->jam);
+    dbs.ind_jam = getIndicator(CHAR, (void *)structPtr->jam);
+
+    strcpy(dbs.olddatum, structPtr->olddatum);
+    dbs.ind_olddatum = getIndicator(CHAR, (void *)structPtr->olddatum);
+
+    dbs.q = structPtr->q;
+    dbs.ind_q = getIndicator(INT, (void *)&structPtr->q);
+
+    dbs.stage = structPtr->stage;
+    dbs.ind_stage = getIndicator(DOUBLE, (void *)&structPtr->stage);
+
+    strcpy(dbs.suppress, structPtr->suppress);
+    dbs.ind_suppress = getIndicator(CHAR, (void *)structPtr->suppress);
+
+    strcpy(dbs.timcrst, structPtr->timcrst);
+
+    strcpy(dbs.prelim, structPtr->prelim);
+    dbs.ind_prelim = getIndicator(CHAR, (void *)structPtr->prelim);
+
+
+    sprintf(queryBuffer, " UPDATE Crest SET " );
+    strcat(queryBuffer, "lid = ? , datcrst = ? , cremark = ? , hw = ? , jam = ? ,     ");
+    strcat(queryBuffer, "olddatum = ? , q = ? , stage = ? , suppress = ? , timcrst = ? ,     ");
+    strcat(queryBuffer, "prelim = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateCrest() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.lid, :dbs.datcrst, :dbs.cremark:dbs.ind_cremark, :dbs.hw:dbs.ind_hw, :dbs.jam:dbs.ind_jam,
+     :dbs.olddatum:dbs.ind_olddatum, :dbs.q:dbs.ind_q, :dbs.stage:dbs.ind_stage, :dbs.suppress:dbs.ind_suppress, :dbs.timcrst,
+     :dbs.prelim:dbs.ind_prelim;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateCrest() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteCrest(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM Crest ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteCrest() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateCrestByRecord (const Crest * newStructPtr, const Crest * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetCrestPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateCrest(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateCrest(const Crest * structPtr)
+{
+    UpdateCrestByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertCrest(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueCrest(const Crest * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (CrestExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertCrest(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteCrestByRecord(const Crest * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetCrestPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteCrest(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool CrestExists(const Crest * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetCrestPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectCrestCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetCrestPrimaryKeyWhereString (const Crest * structPtr, char returnWhereString[] )
+{
+    char date_buffer0[40];
+    sprintf(returnWhereString, "WHERE lid = '%s'  AND datcrst = '%s'  AND timcrst = '%s' ",
+            structPtr->lid, date_t_to_ansi_date(structPtr->datcrst, date_buffer0), structPtr->timcrst);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeCrest( Crest * structPtr)
+{
+    Crest* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( Crest * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetCrestDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetCrestErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<DerivedParameter abbreviation="MaxWHRRR" name="Maximum 1hr Wind Gust" unit="m/s">
+  <Method levels="Surface" models="HRRR" name="Max">
+    <Field abbreviation="WGS1hr" />
+    <Field abbreviation="WGS" />
+  </Method>
+</DerivedParameter>

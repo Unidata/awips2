@@ -1,0 +1,286 @@
+<!-- Areal Flood Warning Follow-up Statement configuration -->
+<!-- Created by Mike Dangelo 09-19-2011 at Alaska TIM   
+     Edited by Mike Dangelo 01-25-2012 at CRH TIM
+     Edited by Evan Bookbinder 2-24-2012   
+     Edited by Phil Kurimski   2-28-2012  
+               Qinglu Lin      04-04-2012 DR 14691. Added <feAreaField> tag.
+               Evan Bookbinder 09-11-2012 Added settings for locations shapefile
+               Phil Kurimski   02-05-2013
+               Mike Dangelo    09-16-2013 changed name bullets to 'specific' stream, slight urbanCTA modification
+               Mike Dangelo    09-18-2013 added initial position and pathcasting options
+               Phil Kurimski   09-19-2013 added geospatialConfig.xml
+               Mike Rega       01-18-2014 added Alaska GP changes for 14.2.1
+               Mike Dangelo 1/23/2014 added IC group to bottom of CON bullets (it's locked anyway, no need to have it at the top) 
+               Phil Kurimski   06-24-2014 Put types of warnings and IC back at the top (forecasters rely on this when choosing a con statement
+                                          to determine what warning they are following up!)
+               Evan Bookbinder 10-24-2014 Fixed parseString for EXT for generic flooding
+               Evan Bookbinder 10-31-2014 Changed "FLOOD WARNING FOR" to "FLOOD WARNING" for all parse and show strings where the flood type
+                                           is "Generic"
+               Mike Dangelo    10-20-2015 Standard CTAs
+               Phil/Dave       10-20-2015  Added Canned statement for CAN
+-->
+                 
+<warngenConfig>
+
+<!-- INCLUDE ALL GEOSPTATIAL INFORMATION FOR THIS PRODUCT
+ANY pointSource/areaSource/pathcastConfig OVERRIDES TO THAT FILE CAN BE
+PLACED IN FULL BELOW THE INCLUDE LINE BELOW. -->
+<include file="geospatialConfig_COUNTY.xml"/>
+
+<!-- Include Various geospatial XML files to create their objects. These are *NOT*
+turned on unless the corresponding .vm file is turned on in a given template's .vm file
+-->  
+<include file="mileMarkers.xml"/>
+<!-- To enable, make sure mileMarkers.vm is added/uncommented in a WarnGen template's .vm file -->
+<include file="pointMarkers.xml"/>
+<!-- To enable, make sure pointMarkers.vm is added/uncommented in a WarnGen template's .vm file -->
+
+ <!-- Config distance/speed units -->
+ <unitDistance>mi</unitDistance>
+ <unitSpeed>mph</unitSpeed>
+
+ <!-- Maps to load on template selection. Refer to 'Maps' menu in CAVE. 
+ 	The various menu items are also the different maps
+ 	that can be loaded with each template. -->
+ <maps>
+    <map>County Names</map>
+    <map>County Warning Areas</map>
+  <!-- 	<map>FFMP Small Stream Basin Links</map> -->
+  <!-- 	<map>Major Rivers</map> --> 
+ </maps>
+
+ <!-- Followups: VTEC actions of allowable followups when this template is selected 
+	Each followup will become available when the appropriate time range permits.
+ -->
+ <followups>
+  <followup>COR</followup>
+  <followup>CON</followup>
+  <followup>CAN</followup>
+  <followup>EXP</followup>
+ </followups>
+ 
+ <!-- Phensigs: The list of phenomena and significance combinations that this template applies to -->
+ <phensigs>
+   <phensig>FA.W</phensig>
+ </phensigs>
+ 
+  <!-- Enables/disables user from selecting the Restart button the GUI -->
+ <enableRestart>false</enableRestart>
+ 
+  <!-- Enable/disables the system to lock text based on various patterns -->
+ <autoLockText>true</autoLockText>
+ 
+   <!-- if trackEnabled is set to 'true' = makes third bullet initial position and movement 
+as well as fourth bullet pathcast (which are optional info) available to forecaster.   
+Must be paired with proper vm code (which are commented out in arealFloodWarningFollowup.vm)! -->
+ <trackEnabled>false</trackEnabled> 
+  
+ <!-- durations: the list of possible durations of the warning -->
+  <!-- THIS REALLY SERVES NO PURPOSE BUT WILL CRASH WARNGEN IF REMVOED -->
+ <defaultDuration>30</defaultDuration>
+ <durations>
+  <duration>30</duration>
+ </durations>
+ 
+   <!-- UNCOMMENT IF YOU HAVE YOUR RIVER DRAINAGE BASINS SETUP 
+ <pointSource variable="riverdrainages">
+ 	<pointSource>ffmp_basins</pointSource>
+    <geometryDecimationTolerance>0.064</geometryDecimationTolerance>
+ 	<pointField>streamname</pointField>
+ 	<filter>
+ 		<mapping key="cwa">
+ 			<constraint constraintValue="$warngenCWAFilter" constraintType="EQUALS" />
+ 		</mapping>
+ 	</filter>
+ 	<withinPolygon>true</withinPolygon>
+ </pointSource>
+-->
+ 
+ <!-- bullets: User specified text generation options 
+          - bulletName: an id that is passed to the template when a bullet
+                      is selected. This should be unique
+          - bulletText: the text presented to the user in the selection list
+          - bulletType: "title" makes the bullet unselectable
+          				"basin" correlates the item to a Geometry in the customlocations table
+          - bulletGroup: Only one bullet can be selected per bulletGroup 
+          - parseString: this string must MATCH a unique phrase in the associated bulletText. 
+          	This will be used to highlight the appropriate bullet on a follow up-->
+<lockedGroupsOnFollowup>ic,ttt</lockedGroupsOnFollowup>
+<bulletActionGroups>
+<bulletActionGroup>
+ <bullets>
+  <bullet bulletText="*********** SELECT A FOLLOWUP **********" bulletType="title"/>
+ </bullets>
+</bulletActionGroup>
+<bulletActionGroup action="CAN" phen="FA" sig="W">
+ <bullets>
+  <bullet bulletText="****  TYPE OF WARNING (locked) ****" bulletType="title"/>
+  <bullet bulletName="generic" bulletText="Flood warning: generic" bulletGroup="ttt" parseString="&quot;FLOOD WARNING&quot;,&quot;-WARNING FOR SMALL STREAMS&quot;,&quot;-WARNING FOR URBAN&quot;" showString="&quot;FLOOD WARNING&quot;,&quot;-WARNING FOR SMALL STREAMS&quot;,&quot;-WARNING FOR URBAN&quot;"/>
+  <bullet bulletName="smallstreams" bulletText="Flood warning for small streams" bulletGroup="ttt" parseString="FLOOD WARNING FOR SMALL STREAMS" showString="FLOOD WARNING FOR SMALL STREAMS" />
+  <bullet bulletName="urbansmallstreams" bulletText="Flood warning for urban areas and small stream" bulletGroup="ttt" parseString="FLOOD WARNING FOR URBAN" showString="FLOOD WARNING FOR URBAN"/>
+  <bullet bulletText="*** PRIMARY CAUSE *** (locked)" bulletType="title"/>
+  <bullet bulletName="er" bulletText="Excessive Rain" bulletGroup="ic" parseString=".ER." showString=".ER."/>
+  <bullet bulletName="sm" bulletText="Snowmelt" bulletGroup="ic" parseString=".SM." showString=".SM."/>
+  <bullet bulletName="rs" bulletText="Rain and snowmelt" bulletGroup="ic" parseString=".RS." showString=".RS."/>
+  <bullet bulletName="ij" bulletText="Ice Jam" bulletGroup="ic" parseString=".IJ." showString=".IJ."/>
+  <bullet bulletName="ic" bulletText="Ice Jam/Rain/Snowmelt" bulletGroup="ic" parseString=".IC." showString=".IC."/>
+  <bullet bulletName="mc" bulletText="Multiple Causes" bulletGroup="ic" parseString=".MC." showString=".MC."/>
+  <bullet bulletName="uu" bulletText="Unknown Cause" bulletGroup="ic" parseString=".UU." showString=".UU."/>
+  <bullet bulletName="dm" bulletText="Levee Failure" bulletGroup="ic" parseString=".DM." showString=".DM."/>
+  <bullet bulletName="dr" bulletText="Dam Floodgate Release" bulletGroup="ic" parseString=".DR." showString=".DR."/>
+  <bullet bulletName="go" bulletText="Glacial Lake Outburst" bulletGroup="ic" parseString=".GO." showString=".GO."/>
+  <bullet bulletText="****** CANCELLATION OPTIONS **********" bulletType="title"/>
+  <bullet bulletName="recedingWater" bulletText="Receding water" />
+  <bullet bulletName="rainEnded" bulletText="Heavy rain ended" />
+ </bullets>
+</bulletActionGroup>
+<bulletActionGroup action="EXP" phen="FA" sig="W">
+ <bullets>
+  <bullet bulletText="****  TYPE OF WARNING (locked) ****" bulletType="title"/>
+  <bullet bulletName="generic" bulletText="Flood warning: generic" bulletGroup="ttt" parseString="&quot;FLOOD WARNING&quot;,&quot;-WARNING FOR SMALL STREAMS&quot;,&quot;-WARNING FOR URBAN&quot;" showString="&quot;FLOOD WARNING&quot;,&quot;-WARNING FOR SMALL STREAMS&quot;,&quot;-WARNING FOR URBAN&quot;"/>
+  <bullet bulletName="smallstreams" bulletText="Flood warning for small streams" bulletGroup="ttt" parseString="FLOOD WARNING FOR SMALL STREAMS" showString="FLOOD WARNING FOR SMALL STREAMS" />
+  <bullet bulletName="urbansmallstreams" bulletText="Flood warning for urban areas and small stream" bulletGroup="ttt" parseString="FLOOD WARNING FOR URBAN" showString="FLOOD WARNING FOR URBAN"/>
+  <bullet bulletText="*** PRIMARY CAUSE *** (locked)" bulletType="title"/>
+  <bullet bulletName="er" bulletText="Excessive Rain" bulletGroup="ic" parseString=".ER." showString=".ER."/>
+  <bullet bulletName="sm" bulletText="Snowmelt" bulletGroup="ic" parseString=".SM." showString=".SM."/>
+  <bullet bulletName="rs" bulletText="Rain and snowmelt" bulletGroup="ic" parseString=".RS." showString=".RS."/>
+  <bullet bulletName="ij" bulletText="Ice Jam" bulletGroup="ic" parseString=".IJ." showString=".IJ."/>
+  <bullet bulletName="ic" bulletText="Ice Jam/Rain/Snowmelt" bulletGroup="ic" parseString=".IC." showString=".IC."/>
+  <bullet bulletName="mc" bulletText="Multiple Causes" bulletGroup="ic" parseString=".MC." showString=".MC."/>
+  <bullet bulletName="uu" bulletText="Unknown Cause" bulletGroup="ic" parseString=".UU." showString=".UU."/>
+  <bullet bulletName="dm" bulletText="Levee Failure" bulletGroup="ic" parseString=".DM." showString=".DM."/>
+  <bullet bulletName="dr" bulletText="Dam Floodgate Release" bulletGroup="ic" parseString=".DR." showString=".DR."/>
+  <bullet bulletName="go" bulletText="Glacial Lake Outburst" bulletGroup="ic" parseString=".GO." showString=".GO."/>
+  <bullet bulletText="******* EXPIRATION OPTIONS **********" bulletType="title"/>
+  <bullet bulletName="recedingWater" bulletText="Water receding" />
+  <bullet bulletName="rainEnded" bulletText="Heavy rain ended" />
+ </bullets>
+</bulletActionGroup>
+<bulletActionGroup action="CON" phen="FA" sig="W">
+ <bullets>
+  <bullet bulletText="****  TYPE OF WARNING (locked) ****" bulletType="title"/>
+  <bullet bulletName="generic" bulletText="Flood warning: generic" bulletGroup="ttt" parseString="&quot;FLOOD WARNING&quot;,&quot;-WARNING FOR SMALL STREAMS&quot;,&quot;-WARNING FOR URBAN&quot;" showString="&quot;FLOOD WARNING&quot;,&quot;-WARNING FOR SMALL STREAMS&quot;,&quot;-WARNING FOR URBAN&quot;"/>
+  <bullet bulletName="smallstreams" bulletText="Flood warning for small streams" bulletGroup="ttt" parseString="FLOOD WARNING FOR SMALL STREAMS" showString="FLOOD WARNING FOR SMALL STREAMS" />
+  <bullet bulletName="urbansmallstreams" bulletText="Flood warning for urban areas and small stream" bulletGroup="ttt" parseString="FLOOD WARNING FOR URBAN" showString="FLOOD WARNING FOR URBAN"/>
+  <bullet bulletText="*** PRIMARY CAUSE *** (locked)" bulletType="title"/>
+  <bullet bulletName="er" bulletText="Excessive Rain" bulletGroup="ic" parseString=".ER." showString=".ER."/>
+  <bullet bulletName="sm" bulletText="Snowmelt" bulletGroup="ic" parseString=".SM." showString=".SM."/>
+  <bullet bulletName="rs" bulletText="Rain and snowmelt" bulletGroup="ic" parseString=".RS." showString=".RS."/>
+  <bullet bulletName="ij" bulletText="Ice Jam" bulletGroup="ic" parseString=".IJ." showString=".IJ."/>
+  <bullet bulletName="ic" bulletText="Ice Jam/Rain/Snowmelt" bulletGroup="ic" parseString=".IC." showString=".IC."/>
+  <bullet bulletName="mc" bulletText="Multiple Causes" bulletGroup="ic" parseString=".MC." showString=".MC."/>
+  <bullet bulletName="uu" bulletText="Unknown Cause" bulletGroup="ic" parseString=".UU." showString=".UU."/>
+  <bullet bulletName="dm" bulletText="Levee Failure" bulletGroup="ic" parseString=".DM." showString=".DM."/>
+  <bullet bulletName="dr" bulletText="Dam Floodgate Release" bulletGroup="ic" parseString=".DR." showString=".DR."/>
+  <bullet bulletName="go" bulletText="Glacial Lake Outburst" bulletGroup="ic" parseString=".GO." showString=".GO."/>
+  <bullet bulletText="*********** SOURCE (CHOOSE 1) **********" bulletType="title"/>
+  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="source" parseString="DOPPLER RADAR"/>
+  <bullet bulletName="dopplerGauge" bulletText="Doppler radar and automated gauges" bulletGroup="source"  parseString="AUTOMATED "/>
+  <bullet bulletName="trainedSpotters" bulletText="Trained spotters" bulletGroup="source" parseString="TRAINED WEATHER SPOTTERS REPORTED"/>
+  <bullet bulletName="public" bulletText="Public" bulletGroup="source" parseString="PUBLIC REPORTED"/>
+  <bullet bulletName="lawEnforcement" bulletText="Local law enforcement" bulletGroup="source" parseString="LOCAL LAW ENFORCEMENT OFFICIALS REPORTED"/>
+  <bullet bulletName="emergencyManagement" bulletText="Emergency management" bulletGroup="source" parseString="EMERGENCY MANAGEMENT OFFICIALS REPORTED"/>
+  <bullet bulletName="satellite" bulletText="Satellite estimates" bulletGroup="source" parseString="SATELLITE ESTIMATES INDICATE"/>
+  <bullet bulletName="satelliteGauge" bulletText="Satellite estimates and automated gauges" bulletGroup="source" parseString="SATELLITE ESTIMATES AND RAIN"/>
+  <bullet bulletName="onlyGauge" bulletText="Gauge reports" bulletGroup="source" parseString="GAUGE REPORTS "/>
+  <bullet bulletText="*********** EVENT (CHOOSE 1) **********" bulletType="title"/>
+  <bullet bulletName="thunder" bulletText="Thunderstorms with heavy rainfall" bulletGroup="event" parseString="&quot;THUNDERSTORM&quot;,&quot;-REPORTED FLOODING&quot;"/>
+  <bullet bulletName="plainRain" bulletText="Heavy rainfall (no thunder)" bulletGroup="event" parseString="&quot;HEAVY RAIN&quot;,&quot;-THUNDERSTORM&quot;,&quot;-REPORTED FLOODING&quot;"/>
+  <bullet bulletName="floodOccurring" bulletText="Flooding occurring" bulletGroup="event" parseString="&quot;REPORTED FLOODING&quot;"/>
+  <bullet bulletName="genericFlood" bulletText="Generic (provide reasoning)" bulletGroup="event"/>
+<!-- <bullet bulletName="stormPosition" bulletText="* USE DOT to specify initial position *" bulletGroup="addEvent" parseString="LOCATED"/> -->
+  <bullet bulletText="*********** RAIN SO FAR (CHOOSE 1) **********" bulletType="title"/>
+  <bullet bulletName="rain1" bulletText="One inch so far" bulletGroup="rainAmt" parseString="ONE INCH OF RAIN HAS ALREADY FALLEN"/>
+  <bullet bulletName="rain2" bulletText="Two inches so far" bulletGroup="rainAmt" parseString="TWO INCHES OF RAIN HAVE ALREADY FALLEN"/>
+  <bullet bulletName="rain3" bulletText="Three inches so far" bulletGroup="rainAmt" parseString="THREE INCHES OF RAIN HAVE ALREADY FALLEN"/>
+  <bullet bulletName="rainEdit" bulletText="User defined amount" bulletGroup="rainAmt" parseString="INCHES OF RAIN HAVE FALLEN"/>
+  <bullet bulletText="*********** ADDITIONAL INFO ***********" bulletType="title"/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="&quot;LOCATIONS&quot;,&quot;INCLUDE...&quot;"/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="WILL REMAIN OVER" showString="WILL REMAIN OVER"/>
+<!-- <bullet bulletName="pathcast" bulletText="* Use storm track for pathcast (for thunderstorms) *" bulletGroup="pcast" parseString="OVER THE FOLLOWING LOCATIONS..."/> -->  
+  <bullet bulletName="drainages" bulletText="Automated list of drainages" parseString="THIS INCLUDES THE FOLLOWING STREAMS AND DRAINAGES" loadMap="River Drainage Basins"/>
+  <bullet bulletName="addRainfall" bulletText="Additional rainfall of XX inches expected" parseString="ADDITIONAL RAINFALL"/>
+  <bullet bulletName="specificStream" bulletText="Flooding is occurring in a specific stream/river" parseString="FLOOD WATERS ARE MOVING DOWN"/>
+  <bullet bulletText="**** CALL TO ACTIONS (CHOOSE 1 OR MORE) ****" bulletType="title"/>
+<!-- end all call to action bullets with "CTA" ex: "obviousNameCTA" -->
+  <bullet bulletName="TADD_CTA" bulletText="Turn around, don't drown" parseString="TURN AROUND, DON'T DROWN"/>
+  <bullet bulletName="actQuicklyCTA" bulletText="Act Quickly" parseString="ACT QUICKLY TO PROTECT YOUR LIFE"/>
+  <bullet bulletName="childSafetyCTA" bulletText="Child Safety" parseString="KEEP CHILDREN AWAY"/>
+  <bullet bulletName="nighttimeCTA" bulletText="Nighttime flooding" parseString="AT NIGHT WHEN IT IS HARDER TO RECOGNIZE"/>
+  <bullet bulletName="urbanCTA" bulletText="Urban areas" parseString="URBAN AREAS, HIGHWAYS, STREETS AND UNDERPASSES"/>
+  <bullet bulletName="ruralCTA" bulletText="Rural areas" parseString="COUNTRY ROADS, FARMLAND, AND OTHER LOW LYING SPOTS"/>
+  <bullet bulletName="stayAwayCTA" bulletText="Stay away" parseString="STAY AWAY OR BE SWEPT AWAY"/>
+  <bullet bulletName="lowSpotsCTA" bulletText="Low spots in hilly terrain" parseString="IN HILLY TERRAIN THERE ARE HUNDREDS OF LOW WATER CROSSINGS"/>
+  <bullet bulletName="arroyosCTA" bulletText="Arroyos" parseString="ARROYOS"/>
+  <bullet bulletName="burnAreasCTA" bulletText="Burn Areas" parseString="RECENTLY BURNED AREAS"/>
+  <bullet bulletName="camperSafetyCTA" bulletText="Camper/Hiker Safety" parseString="CAMPERS AND HIKERS"/>
+  <bullet bulletName="reportFloodingCTA" bulletText="Report flooding to law enforcement" parseString="REPORT FLOODING TO YOUR LOCAL LAW ENFORCEMENT"/>
+  <bullet bulletName="warningMeansCTA" bulletText="Flood Warning means" parseString="A FLOOD WARNING MEANS"/>
+ </bullets>
+</bulletActionGroup>
+<bulletActionGroup action="COR" phen="FA" sig="W">
+  <bullets>
+  <bullet bulletText="****  TYPE OF WARNING (locked) ****" bulletType="title"/>
+  <bullet bulletName="generic" bulletText="Flood warning: generic" bulletGroup="ttt" parseString="&quot;FLOOD WARNING&quot;,&quot;-WARNING FOR SMALL STREAMS&quot;,&quot;-WARNING FOR URBAN&quot;" showString="&quot;FLOOD WARNING&quot;,&quot;-WARNING FOR SMALL STREAMS&quot;,&quot;-WARNING FOR URBAN&quot;"/>
+  <bullet bulletName="smallstreams" bulletText="Flood warning for small streams" bulletGroup="ttt" parseString="FLOOD WARNING FOR SMALL STREAMS" showString="FLOOD WARNING FOR SMALL STREAMS" />
+  <bullet bulletName="urbansmallstreams" bulletText="Flood warning for urban areas and small stream" bulletGroup="ttt" parseString="FLOOD WARNING FOR URBAN" showString="FLOOD WARNING FOR URBAN"/>
+  <bullet bulletText="*** PRIMARY CAUSE *** (locked)" bulletType="title"/>
+  <bullet bulletName="er" bulletText="Excessive Rain" bulletGroup="ic" parseString=".ER." showString=".ER."/>
+  <bullet bulletName="sm" bulletText="Snowmelt" bulletGroup="ic" parseString=".SM." showString=".SM."/>
+  <bullet bulletName="rs" bulletText="Rain and snowmelt" bulletGroup="ic" parseString=".RS." showString=".RS."/>
+  <bullet bulletName="ij" bulletText="Ice Jam" bulletGroup="ic" parseString=".IJ." showString=".IJ."/>
+  <bullet bulletName="ic" bulletText="Ice Jam/Rain/Snowmelt" bulletGroup="ic" parseString=".IC." showString=".IC."/>
+  <bullet bulletName="mc" bulletText="Multiple Causes" bulletGroup="ic" parseString=".MC." showString=".MC."/>
+  <bullet bulletName="uu" bulletText="Unknown Cause" bulletGroup="ic" parseString=".UU." showString=".UU."/>
+  <bullet bulletName="dm" bulletText="Levee Failure" bulletGroup="ic" parseString=".DM." showString=".DM."/>
+  <bullet bulletName="dr" bulletText="Dam Floodgate Release" bulletGroup="ic" parseString=".DR." showString=".DR."/>
+  <bullet bulletName="go" bulletText="Glacial Lake Outburst" bulletGroup="ic" parseString=".GO." showString=".GO."/>
+  <bullet bulletText="*********** SOURCE (CHOOSE 1) **********" bulletType="title"/>
+  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="source" parseString="DOPPLER RADAR"/>
+  <bullet bulletName="dopplerGauge" bulletText="Doppler radar and automated gauges" bulletGroup="source" parseString="AUTOMATED "/>
+  <bullet bulletName="satellite" bulletText="Satellite estimates" bulletGroup="source" parseString="SATELLITE ESTIMATES"/>
+  <bullet bulletName="satelliteGauge" bulletText="Satellite estimates and automated gauges" bulletGroup="source" parseString="SATELLITE AND "/>
+  <bullet bulletName="onlyGauge" bulletText="Gauge reports" bulletGroup="source" parseString="GAUGE REPORTS "/>
+  <bullet bulletName="trainedSpotters" bulletText="Trained spotters reported" bulletGroup="source" parseString="TRAINED WEATHER SPOTTERS REPORTED"/>
+  <bullet bulletName="public" bulletText="Public reported" bulletGroup="source" parseString="PUBLIC REPORTED"/>
+  <bullet bulletName="lawEnforcement" bulletText="Local law enforcement reported" bulletGroup="source" parseString="LOCAL LAW ENFORCEMENT OFFICIALS REPORTED"/>
+  <bullet bulletName="emergencyManagement" bulletText="Emergency management reported" bulletGroup="source" parseString="EMERGENCY MANAGEMENT OFFICIALS REPORTED"/>
+  <bullet bulletText="*********** EVENT (CHOOSE 1) **********" bulletType="title"/>
+  <bullet bulletName="thunder" bulletText="Thunderstorms with heavy rainfall" bulletGroup="event" parseString="&quot;THUNDERSTORM&quot;,&quot;-REPORTED FLOODING&quot;"/>
+  <bullet bulletName="plainRain" bulletText="Heavy rainfall (no thunder)" bulletGroup="event" parseString="&quot;HEAVY RAIN&quot;,&quot;-THUNDERSTORM&quot;,&quot;-REPORTED FLOODING&quot;"/>
+  <bullet bulletName="floodOccurring" bulletText="Flooding occurring" bulletGroup="event" parseString="&quot;REPORTED FLOODING&quot;"/>
+  <bullet bulletName="genericFlood" bulletText="Generic (provide reasoning)" bulletGroup="event"/>
+<!-- <bullet bulletName="stormPosition" bulletText="* USE DOT to specify initial position *" bulletGroup="addEvent" parseString="LOCATED"/> -->
+  <bullet bulletText="*********** RAIN SO FAR (CHOOSE 1) **********" bulletType="title"/>
+  <bullet bulletName="rain1" bulletText="One inch so far" bulletGroup="rainAmt" parseString="ONE INCH OF RAIN HAS ALREADY FALLEN"/>
+  <bullet bulletName="rain2" bulletText="Two inches so far" bulletGroup="rainAmt" parseString="TWO INCHES OF RAIN HAVE ALREADY FALLEN"/>
+  <bullet bulletName="rain3" bulletText="Three inches so far" bulletGroup="rainAmt" parseString="THREE INCHES OF RAIN HAVE ALREADY FALLEN"/>
+  <bullet bulletName="rainEdit" bulletText="User defined amount" bulletGroup="rainAmt" parseString="INCHES OF RAIN HAVE FALLEN"/>
+  <bullet bulletText="*********** ADDITIONAL INFO ***********" bulletType="title"/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="&quot;LOCATIONS&quot;,&quot;INCLUDE...&quot;"/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="WILL REMAIN OVER" showString="WILL REMAIN OVER"/>
+<!-- <bullet bulletName="pathcast" bulletText="* Use storm track for pathcast (for thunderstorms) *" bulletGroup="pcast" parseString="OVER THE FOLLOWING LOCATIONS..."/> -->  
+  <bullet bulletName="drainages" bulletText="Automated list of drainages" parseString="THIS INCLUDES THE FOLLOWING STREAMS AND DRAINAGES" loadMap="River Drainage Basins"/>
+  <bullet bulletName="addRainfall" bulletText="Additional rainfall of XX inches expected" parseString="ADDITIONAL RAINFALL"/>
+  <bullet bulletName="specificStream" bulletText="Flooding is occurring in a specific stream/river" parseString="FLOOD WATERS ARE MOVING DOWN"/>
+  <bullet bulletText="**** CALL TO ACTIONS (CHOOSE 1 OR MORE) ****" bulletType="title"/>
+<!-- end all call to action bullets with "CTA" ex: "obviousNameCTA" -->
+  <bullet bulletName="TADD_CTA" bulletText="Turn around, don't drown" parseString="TURN AROUND, DON'T DROWN"/>
+  <bullet bulletName="actQuicklyCTA" bulletText="Act Quickly" parseString="ACT QUICKLY TO PROTECT YOUR LIFE"/>
+  <bullet bulletName="childSafetyCTA" bulletText="Child Safety" parseString="KEEP CHILDREN AWAY"/>
+  <bullet bulletName="nighttimeCTA" bulletText="Nighttime flooding" parseString="AT NIGHT WHEN IT IS HARDER TO RECOGNIZE"/>
+  <bullet bulletName="urbanCTA" bulletText="Urban areas" parseString="URBAN AREAS, HIGHWAYS, STREETS AND UNDERPASSES"/>
+  <bullet bulletName="ruralCTA" bulletText="Rural areas" parseString="COUNTRY ROADS, FARMLAND, AND OTHER LOW LYING SPOTS"/>
+  <bullet bulletName="stayAwayCTA" bulletText="Stay away" parseString="STAY AWAY OR BE SWEPT AWAY"/>
+  <bullet bulletName="lowSpotsCTA" bulletText="Low spots in hilly terrain" parseString="IN HILLY TERRAIN THERE ARE HUNDREDS OF LOW WATER CROSSINGS"/>
+  <bullet bulletName="arroyosCTA" bulletText="Arroyos" parseString="ARROYOS"/>
+  <bullet bulletName="burnAreasCTA" bulletText="Burn Areas" parseString="RECENTLY BURNED AREAS"/>
+  <bullet bulletName="camperSafetyCTA" bulletText="Camper/Hiker Safety" parseString="CAMPERS AND HIKERS"/>
+  <bullet bulletName="reportFloodingCTA" bulletText="Report flooding to law enforcement" parseString="REPORT FLOODING TO YOUR LOCAL LAW ENFORCEMENT"/>
+  <bullet bulletName="warningMeansCTA" bulletText="Flood Warning means" parseString="A FLOOD WARNING MEANS"/>
+ </bullets>
+</bulletActionGroup>
+</bulletActionGroups>
+ 
+</warngenConfig>
+

@@ -1,0 +1,316 @@
+C MODULE HCNGPR
+C-----------------------------------------------------------------------
+C
+      SUBROUTINE HCNGPR (ISTAT)
+C
+C          ROUTINE:  HCNGPR
+C             VERSION:  1.0.0
+C                DATE:  1-13-81
+C              AUTHOR:  JIM ERLANDSON
+C                       DATA SCIENCES INC
+C
+C***********************************************************************
+C
+C          DESCRIPTION:
+C
+C    THIS ROUTINE DOES THE CHANGE PROC COMMAND.
+C
+C***********************************************************************
+C
+C          ARGUMENT LIST:
+C
+C         NAME    TYPE  I/O   DIM   DESCRIPTION
+C
+C       ISTAT      I     O     1    STATUS INDICATOR
+C                                       0=OK
+C                                       OTHER=ERROR
+C
+C***********************************************************************
+C
+C          COMMON:
+C
+      INCLUDE 'uio'
+      INCLUDE 'udebug'
+      INCLUDE 'ufreei'
+      INCLUDE 'udatas'
+      INCLUDE 'hclcommon/hcomnd'
+      INCLUDE 'hclcommon/hunits'
+C
+C***********************************************************************
+C
+C          DIMENSION AND TYPE DECLARATIONS:
+C
+      PARAMETER (LMAX=2000)
+      DIMENSION IPROC(LMAX),IADDAR(LMAX),INEW(LMAX)
+      PARAMETER (LIADD=80)
+      DIMENSION IADD(LIADD)
+      PARAMETER (LIDELAR=40)
+      DIMENSION IDELAR(LIDELAR)
+      DIMENSION NAME(2),IMODE(2),INSERT(2)
+      INTEGER IDELET(2),IEND2(2),DEL(2),IENPRC(2)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/db_hclrw/RCS/hcngpr.f,v $
+     . $',                                                             '
+     .$Id: hcngpr.f,v 1.2 1998/04/07 12:53:41 page Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C***********************************************************************
+C
+C          DATA:
+C
+      DATA INSERT/4HINSE,4HRT  /
+      DATA IDELET/4HDELE,4HTE  /
+      DATA IEND/4HEND /,IEND2/4HENDI,4HNSER/
+      DATA IENPRC/4HENDP,4HROC /
+C
+C***********************************************************************
+C
+C
+C
+      ITYPE=1
+      IERR=0
+      CALL UMEMST (0,IDELAR,LIDELAR)
+      IDPOS=0
+      CALL UMEMST (0,IADD,LIADD)
+      IADPOS=0
+      CALL UMEMST (0,IADDAR,LMAX)
+      INPOS=1
+C
+      IF (KEYWRD.EQ.1) GO TO 20
+         CALL ULINE (LP,2)
+         WRITE (LP,10)
+10    FORMAT ('0**ERROR** CHANGE COMMAND ONLY VALID FOR PROCEDURES.')
+         IERR=1
+         GO TO 390
+C
+C  READ FIRST CARD
+20    NNCARD=1
+      CALL HCARDR (NNCARD,ISTAT)
+      IF (ISTAT.NE.0) GO TO 370
+C
+C  GET NAME AND PASSWORD
+      IFLD=3
+      IF (IFLD.LE.NFIELD) GO TO 50
+30       CALL ULINE (LP,2)
+         WRITE (LP,40)
+40    FORMAT ('0**ERROR** PROCEDURE NAME REQUIRED ON FIRST CARD.')
+         IERR=1
+         GO TO 390
+50    CALL HNMPSW(IFLD,NAME,IPASS,ISTAT)
+      IF (ISTAT.NE.0) GO TO 30
+C
+C  GET THE PROC RECORD
+      CALL HFNDDF (NAME,IREC,ITYPE,IXREC)
+      IF (IREC.NE.0) GO TO 70
+         CALL ULINE (LP,2)
+         WRITE (LP,60) NAME
+60    FORMAT ('0**ERROR** PROCEDURE ',2A4,' NOT PREVIOUSLY DEFINED.')
+         IERR=1
+         GO TO 390
+70    IUNIT=KDEFNL
+      IF (ITYPE.LT.0) IUNIT=KDEFNG
+      CALL HGTRDN (IUNIT,IREC,IPROC,LMAX,ISTAT)
+      IF (ISTAT.NE.0) GO TO 370
+      IPOS=IPROC(9)*2+10
+      IF (IPROC(6).EQ.IPASS) GO TO 90
+         CALL ULINE (LP,2)
+         WRITE (LP,80) NAME
+80    FORMAT ('0**ERROR** INVALID PASSWORD FOR PROCEDURE ',2A4,'.')
+         IERR=1
+C
+C  READ THE NEXT CARD
+90    NNCARD=NNCARD+1
+      IF (NNCARD.EQ.NCARD) GO TO 300
+      CALL HCARDR (NNCARD,ISTAT)
+      IF (ISTAT.NE.0) GO TO 370
+      IFLD=2
+C
+C  SEE IF DELETE OR INSERT
+      IMODE(2)=IBLNK
+      IRNG=1
+      K=IFSTRT(1)
+      NUM=IFSTOP(1)-K+1
+      IF (NUM.GT.8) NUM=8
+      CALL UPACK1(IBUF(K),IMODE,NUM)
+      CALL UNAMCP(IMODE,INSERT,ISTAT)
+      IF (ISTAT.EQ.0) GO TO 190
+      IF (IMODE(1).EQ.INSERT(1).AND.IMODE(2).EQ.IBLNK) GO TO 190
+      CALL UNAMCP (IMODE,IDELET,ISTAT)
+      IF (ISTAT.EQ.0) GO TO 110
+      IF (IMODE(1).EQ.IDELET(1).AND.IMODE(2).EQ.IBLNK) GO TO 110
+      CALL ULINE (LP,2)
+      WRITE (LP,100)
+100   FORMAT ('0**ERROR** INSERT OR DELETE EXPECTED')
+      IERR=1
+      GO TO 90
+C
+C  DELETE A LINE OR LINES
+110   IF (IFTYPE(IFLD).EQ.1) GO TO 130
+      CALL ULINE (LP,2)
+      WRITE (LP,120) IFLD
+120   FORMAT ('0**ERROR** VALUE IN FIELD ',I2,' MUST BE INTEGER.')
+      IERR=1
+      GO TO 90
+C
+C  GET LINE NUMBER TO DELETE
+130   K=IFSTRT(IFLD)
+      N=IFSTOP(IFLD)
+      CALL UNUMIC (IBUF,K,N,DEL(IRNG))
+      IF (DEL(IRNG).GT.0.AND.DEL(IRNG).LE.IPROC(IPOS)) GO TO 160
+140      CALL ULINE (LP,2)
+         WRITE (LP,150) IFLD
+150   FORMAT ('0**ERROR** INVALID LINE NUMBER IN FIELD ',I2,'.')
+         IERR=1
+         GO TO 90
+160   IRNG=IRNG+1
+      IFLD=IFLD+1
+      IF (NFIELD.GE.IFLD) GO TO 110
+C
+C  SET UP THE DELETE ARRAY
+      IDPOS=IDPOS+1
+      IDELAR(IDPOS)=DEL(1)
+      IF (IRNG.EQ.2) GO TO 90
+C
+C  RANGE OF DELETES
+      IS=DEL(1)+1
+      IE=DEL(2)
+      IF (IE.GE.IS) GO TO 170
+         IFLD=3
+         GO TO 140
+170   DO 180 I=IS,IE
+          IDPOS=IDPOS+1
+          IDELAR(IDPOS)=I
+180       CONTINUE
+      GO TO 90
+C
+C  HAVE AN INSERT
+190   IF (IFTYPE(2).EQ.1) GO TO 210
+         CALL ULINE (LP,2)
+         WRITE (LP,200)
+200   FORMAT ('0**ERROR** INVALID LINE NUMBER IN FIELD 2.')
+         IERR=1
+         GO TO 220
+C
+C  SET THE ADD ARRAY
+210   K=IFSTRT(2)
+      N=IFSTOP(2)
+      IADPOS =IADPOS+1
+      CALL UNUMIC(IBUF,K,N,IADD(IADPOS))
+      IF (IADD(IADPOS).LT.0.OR.IADD(IADPOS).GT.IPROC(IPOS)) GO TO 140
+      IADPOS=IADPOS+1
+C
+C  READ NEXT CARD
+220   NNCARD=NNCARD+1
+      IF (NNCARD.LT.NCARD) GO TO 240
+         CALL ULINE (LP,2)
+         WRITE (LP,230)
+230   FORMAT ('0**ERROR** NO ENDINSERT CARD FOUND.')
+         IERR=1
+         GO TO 390
+C
+C  CHECK IF THIS IS ENDINSERT CARD
+240   CALL HCARDR (NNCARD,ISTAT)
+      IF (ISTAT.NE.0) GO TO 370
+      IMODE(2)=IBLNK
+      K=IFSTRT(1)
+      NUM=IFSTOP(1)-K+1
+      IF (NUM.GT.8) NUM=8
+      CALL UPACK1(IBUF(K),IMODE,NUM)
+      CALL UNAMCP(IMODE,IEND2,ISTAT)
+      IF (ISTAT.EQ.0) GO TO 250
+      GO TO 270
+C
+C  MAKE SURE SOME CARDS WERE THERE
+250   IF (IADD(IADPOS).NE.0) GO TO 90
+         CALL ULINE (LP,2)
+         WRITE (LP,260)
+260   FORMAT ('0**ERROR** NO CARDS FOLLOWING INSERT CARD.')
+         IERR=1
+         GO TO 90
+C
+C  PROCESS THE NEW CARD
+270   IF (INPOS+20.GT.LMAX) GO TO 280
+      CALL HFEXCP (ITYPE,INTNUM,0,ISTAT)
+      IF (ISTAT.NE.0) IERR=1
+      LENGTH=IFSTOP(NFIELD)
+      CALL HPTSTR (IBUF,LENGTH,IADDAR(INPOS+1),ISTAT)
+      IF (ISTAT.NE.0) IERR=1
+      IADDAR(INPOS)=LENGTH
+      INPOS=INPOS+LENGTH+1
+      IADD(IADPOS)=IADD(IADPOS)+1
+      GO TO 220
+280   CALL ULINE (LP,2)
+      WRITE (LP,290)
+290   FORMAT ('0**ERROR** ARRAY FULL - TOO MANY COMMANDS.')
+      IERR=1
+      GO TO 390
+C
+C  PUT NEW RECORD TOGEATHER
+300   IIII=IDPOS+1
+      IF (IHCLDB.EQ.3) WRITE (IOGDB,310) IDPOS,(IDELAR(I),I=1,IIII)
+310   FORMAT (' IDPOS=',I2,' ARRAY =' / 1X,40I2)
+      IIII=IADPOS+1
+      IF (IHCLDB.EQ.3) WRITE (IOGDB,320) IADPOS,(IADD(I),I=1,IIII)
+320   FORMAT (' IADPOS=',I2,' ARRAY=' / (1X,40I2))
+      IF (IHCLDB.EQ.3) WRITE (IOGDB,330) INPOS,(IADDAR(I),I=1,INPOS)
+330   FORMAT (' INPOS=',I3,' ARRAY='/(1X,20I4))
+C
+C  MAKE SURE LAST CARD IS END OR ENDPROC
+      CALL HCARDR (NNCARD,ISTAT)
+      IF (ISTAT.NE.0) GO TO 370
+      K=IFSTRT(1)
+      NUM=IFSTOP(1)-K+1
+      IF (NUM.GT.8) NUM=8
+      IMODE(2)=IBLNK
+      CALL UPACK1(IBUF(K),IMODE,NUM)
+      CALL UNAMCP(IMODE,IENPRC,ISTAT)
+      IF (ISTAT.EQ.0) GO TO 350
+      IF (IMODE(1).EQ.IEND.AND.IMODE(2).EQ.IBLNK) GO TO 350
+         CALL ULINE (LP,2)
+         WRITE (LP,340)
+340   FORMAT ('0**ERROR** NO END OR ENDPROC AS LAST CARD.')
+         IERR=1
+350   IF (IERR.EQ.1) GO TO 390
+      CALL HPTCHN (IDELAR,IDPOS,IADDAR,IADD,IADPOS,IPROC(IPOS+1),
+     1   IPROC(IPOS),INEW,LMAX,INPOS,ISTAT)
+      IF (ISTAT.EQ.0) GO TO 360
+      IERR=1
+      GO TO 390
+C
+C  MOVE NEW COMMAND INTO PROC RECORD
+360   NWDS=IPOS+INPOS
+      IF (NWDS.GT.LMAX) GO TO 280
+      CALL UMEMOV (INEW,IPROC(IPOS+1),INPOS)
+C
+C  WRITE THE RECORD
+      CALL HREPRN (IPROC,NWDS,ISTAT)
+      IF (ISTAT.NE.0) IERR=1
+      IF (IERR.EQ.0.AND.ITYPE.EQ.1) CALL HCKCNG (NAME,ITYPE,IPROC(IPOS),
+     1   INEW,IERR)
+      GO TO 390
+C
+C  SYSTEM ERROR
+370   CALL ULINE (LP,2)
+      WRITE (LP,380)
+380   FORMAT ('0**ERROR** SYSTEM ERROR.')
+      IERR=1
+C
+390   IF (IERR.EQ.1) GO TO 410
+      CALL ULINE (LP,2)
+      WRITE (LP,400) NAME
+400   FORMAT ('0**NOTE** PROCEDURE ',2A4,' CHANGED.')
+      CALL HPPRCG (IPROC)
+      GO TO 430
+C
+410   CALL ULINE (LP,2)
+      WRITE (LP,420) NAME
+420   FORMAT ('0**NOTE** PROCEDURE ',2A4,' NOT CHANGED.')
+C
+430   RETURN
+C
+      END

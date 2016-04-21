@@ -1,0 +1,67 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-ppinit_dump library file
+#
+#  cmt: File made on Wed Aug  6 12:51:53 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libppinit_dump_t.a:  \
+     $(LIB)/libppinit_dump_t.a(smaray.o)  \
+     $(LIB)/libppinit_dump_t.a(smare2.o)  \
+     $(LIB)/libppinit_dump_t.a(smarea.o)  \
+     $(LIB)/libppinit_dump_t.a(smbasn.o)  \
+     $(LIB)/libppinit_dump_t.a(smchar.o)  \
+     $(LIB)/libppinit_dump_t.a(smdflt.o)  \
+     $(LIB)/libppinit_dump_t.a(smdump.o)  \
+     $(LIB)/libppinit_dump_t.a(smfcid.o)  \
+     $(LIB)/libppinit_dump_t.a(smfcr2.o)  \
+     $(LIB)/libppinit_dump_t.a(smfcr3.o)  \
+     $(LIB)/libppinit_dump_t.a(smfcrt.o)  \
+     $(LIB)/libppinit_dump_t.a(smgbox.o)  \
+     $(LIB)/libppinit_dump_t.a(smgmdr.o)  \
+     $(LIB)/libppinit_dump_t.a(smmmmt.o)  \
+     $(LIB)/libppinit_dump_t.a(smname.o)  \
+     $(LIB)/libppinit_dump_t.a(smntwk.o)  \
+     $(LIB)/libppinit_dump_t.a(smordr.o)  \
+     $(LIB)/libppinit_dump_t.a(smpdfn.o)  \
+     $(LIB)/libppinit_dump_t.a(smppdd.o)  \
+     $(LIB)/libppinit_dump_t.a(smppdi.o)  \
+     $(LIB)/libppinit_dump_t.a(smppdr.o)  \
+     $(LIB)/libppinit_dump_t.a(smppfn.o)  \
+     $(LIB)/libppinit_dump_t.a(smpppi.o)  \
+     $(LIB)/libppinit_dump_t.a(smpppp.o)  \
+     $(LIB)/libppinit_dump_t.a(smpppt.o)  \
+     $(LIB)/libppinit_dump_t.a(smprdi.o)  \
+     $(LIB)/libppinit_dump_t.a(smrfro.o)  \
+     $(LIB)/libppinit_dump_t.a(smsta2.o)  \
+     $(LIB)/libppinit_dump_t.a(smsta.o)  \
+     $(LIB)/libppinit_dump_t.a(smstat.o)  \
+     $(LIB)/libppinit_dump_t.a(smtshd.o)  \
+     $(LIB)/libppinit_dump_t.a(smuser.o)
+

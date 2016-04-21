@@ -1,0 +1,184 @@
+<!-- Special Weather Statement for various THREATS
+     Mike Dangelo  1.25.2013 (on build 12.12.1-12)
+     Phil Kurimski 2.05.2013 (on build 13.2.1-5)
+     Phil Kurimski 9-19-2013 added geospatialConfig.xml
+     Mike Dangelo 1/23/2014 added blankStatement bullet
+     Mike Rega 5/23/14 DR 17380 svr wx watch logic OB14.3.1
+     Mike Dangelo 6/24/2014 removed unnecessary example bullets
+     Evan Bookbinder 6/21/2015 fixed bad parse strings (thunderstorms) on two winter weather CTAs.
+     Phil Kurimski 10-20-2015 added campers CTA
+-->
+<warngenConfig>
+
+<!-- INCLUDE ALL GEOSPTATIAL INFORMATION FOR THIS PRODUCT
+ANY pointSource/areaSource/pathcastConfig OVERRIDES TO THAT FILE CAN BE
+PLACED IN FULL BELOW THE INCLUDE LINE BELOW. -->
+<include file="geospatialConfig_ZONE.xml"/>
+
+<!-- Include Various geospatial XML files to create their objects. These are *NOT*
+turned on unless the corresponding .vm file is turned on in a given template's .vm file
+-->  
+<include file="mileMarkers.xml"/>
+<!-- To enable, make sure mileMarkers.vm is added/uncommented in a WarnGen template's .vm file -->
+<include file="pointMarkers.xml"/>
+<!-- To enable, make sure pointMarkers.vm is added/uncommented in a WarnGen template's .vm file -->
+
+ <!-- Config distance/speed units -->
+ <unitDistance>mi</unitDistance>
+ <unitSpeed>mph</unitSpeed>
+
+ <!-- Maps to load on template selection. Refer to 'Maps' menu in CAVE. 
+ 	The various menu items are also the different maps
+ 	that can be loaded with each template. -->
+ <maps>
+  <map>Forecast Zones</map>
+  <map>County Names</map>
+  <map>County Warning Areas</map>
+ </maps>
+
+ <!-- Followups: VTEC actions of allowable followups when this template is selected -->
+ <followups>
+   <followup>NEW</followup>
+   <followup>COR</followup>
+  </followups>
+ 
+ <!-- Phensigs: The list of phenomena and significance combinations that this template applies to -->
+ <phensigs>
+ </phensigs>
+ 
+  <!-- Enables/disables user from selecting the Restart button the GUI -->
+ <enableRestart>true</enableRestart>
+ 
+  <!-- Enable/disables the system to lock text based on various patterns -->
+ <autoLockText>true</autoLockText>
+
+ <!-- Included watches: If a tornado watch or severe thunderstorm watch is to be 
+  	included with the warning product include TO.A and/or SV.A, 
+ 	respectively. Please refer to 'includedWatchAreaBuffer' in <areaConfig/>. -->
+ <includedWatches>
+  <includedWatch>TO.A</includedWatch>
+  <includedWatch>SV.A</includedWatch>
+ </includedWatches>
+ 
+ <!-- durations: the list of possible durations of the warning -->
+ <defaultDuration>30</defaultDuration>
+ <durations>
+  <duration>15</duration>
+  <duration>20</duration>
+  <duration>30</duration>
+  <duration>40</duration>
+  <duration>45</duration>
+  <duration>50</duration>
+  <duration>60</duration>
+  <duration>75</duration>
+  <duration>90</duration> 
+  <duration>120</duration> 
+  <duration>180</duration> 
+ </durations>
+ 
+<bulletActionGroups>
+<bulletActionGroup action="NEW">
+ <bullets>
+  <bullet bulletText="*********** TYPE OF THREAT **********" bulletType="title"/>
+  <bullet bulletName="blankStatement" bulletText="Blank Statement" bulletGroup="toggle1"/>
+  <bullet bulletName="strongThunderstorm" bulletText="Strong Thunderstorm" bulletGroup="toggle1" bulletDefault="true" parseString="STRONG THUNDERSTORM"/>
+  <bullet bulletName="noThunder" bulletText="no thunder SHOWER(S) with gusty winds or hail" bulletGroup="toggle1" parseString=" SHOWER "/>
+  <bullet bulletName="areaOfThunderstorms" bulletText="An area of Strong Thunderstorms" bulletGroup="toggle1" parseString="AN AREA OF STRONG THUNDERSTORMS"/>
+  <bullet bulletName="snowSquall" bulletText="SNOW: A snow squall" bulletGroup="toggle1" parseString="SNOW SQUALL"/>
+  <bullet bulletName="snowSquallDangerous" bulletText="SNOW: A dangerous snow squall" bulletGroup="toggle1" parseString="DANGEROUS SNOW"/>
+  <bullet bulletName="snowSquallSevere" bulletText="SNOW: A severe snow squall" bulletGroup="toggle1" parseString="SEVERE SNOW"/>
+  <bullet bulletName="snowArea" bulletText="SNOW: An area of heavy snow" bulletGroup="toggle1" parseString="AREA OF HEAVY SNOW"/>
+  <bullet bulletName="freezingRain" bulletText="FZRA: Freezing Rain" bulletGroup="toggle1" parseString="FREEZING RAIN"/>
+  <bullet bulletName="freezingDrizzle" bulletText="FZDZ: Freezing Drizzle" bulletGroup="toggle1" parseString="FREEZING DRIZZLE"/>
+  <bullet bulletName="sleet" bulletText="PL: Sleet" bulletGroup="toggle1" parseString="SLEET"/>
+  <bullet bulletName="wintryMix" bulletText="FZRA/SN/PL: Wintry Mix" bulletGroup="toggle1" parseString="WINTRY MIX"/>
+  <bullet bulletName="flashFreeze" bulletText="Flash Freeze/Black Ice" bulletGroup="toggle1" parseString="FLASH FREEZE"/>
+  <bullet bulletText="******* THREATS (CHOOSE UP TO 1 EACH WIND/HAIL/VIZ) ******" bulletType="title"/>
+  <bullet bulletName="wind30" bulletText="Winds 30 mph or greater" bulletGroup="windThreat" parseString="30 MPH"/>
+  <bullet bulletName="wind40" bulletText="Strong winds 40 mph or greater" bulletGroup="windThreat" parseString="40 MPH"/>
+  <bullet bulletName="wind50" bulletText="Strong winds to 50 mph" bulletGroup="windThreat" parseString="50 MPH"/>
+  <bullet bulletName="wind55" bulletText="Strong winds 50 to 55 mph" bulletGroup="windThreat" parseString="55 MPH"/>
+  <bullet bulletName="peaHail" bulletText="Pea sized hail" bulletGroup="hailThreat" parseString="PEA SIZED HAIL"/>
+  <bullet bulletName="halfHail" bulletText="Half inch hail" bulletGroup="hailThreat" parseString="HALF INCH HAIL"/>
+  <bullet bulletName="dimeHail" bulletText="Dime sized hail" bulletGroup="hailThreat" parseString="DIME SIZED HAIL"/>
+  <bullet bulletName="nickelHail" bulletText="Nickel sized hail" bulletGroup="hailThreat" parseString="NICKEL SIZED HAIL"/>
+  <bullet bulletName="quarterMile" bulletText="SNOW: Visibilities M1/4SM" bulletGroup="toggle4" parseString="BELOW ONE QUARTER"/>
+  <bullet bulletName="zeroMile" bulletText="SNOW: Visibilities near Zero" bulletGroup="toggle4" parseString="NEAR ZERO"/>
+  <bullet bulletText="************ ADDITIONAL INFO  **************" bulletType="title"/>
+  <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="toggle5" parseString="WILL BE NEAR..."/>
+  <bullet bulletName="listofcities" bulletDefault="true" bulletText="Select for a list of cities" bulletGroup="toggle5"/>
+  <bullet bulletName="specialEvent" bulletText="Special heads-up for large event/venue" parseString="THOSE ATTENDING"/>
+  <bullet bulletText="******** CALLS TO ACTION (CHOOSE 1 OR MORE) *********" bulletType="title"/>
+  <bullet bulletName="stormIntensifyCTA" bulletText="Storm(s) May Intensify" parseString="STORMS MAY INTENSIFY...MONITOR TV"/>
+  <bullet bulletName="lightningCTA" bulletText="Frequent Lightning" bulletGroup="toggle3" parseString="FREQUENT CLOUD TO GROUND LIGHTNING IS OCCURRING"/>
+  <bullet bulletName="torrentialRainfallCTA" bulletText="Torrential rainfall" parseString="TORRENTIAL RAINFALL IS ALSO OCCURRING"/>
+  <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="CONTACT YOUR NEAREST LAW ENFORCEMENT"/>
+  <bullet bulletName="boatersCTA" bulletText="Over Lake - Boaters seek shelter" parseString="GET OUT OF THE WATER AND MOVE INDOORS"/>
+  <bullet bulletName="camperCTA" bulletText="Campground - Campers seek shelter" parseString="PERSONS IN CAMPGROUNDS"/>
+  <bullet bulletName="includeTorWatches" bulletText="Include Tornado Watches" parseString=""/>
+  <bullet bulletName="includeSvrWatches" bulletText="Include Severe Thunderstorm Watches" parseString=""/> 
+  <bullet bulletText="******** WINTER WX CALLS TO ACTION (CHOOSE 1 OR MORE) *********" bulletType="title"/>
+  <bullet bulletName="advisoryCTA" bulletText="Advisory may be required" bulletGroup="toggle3" parseString="WINTER WEATHER ADVISORY MAY BECOME NECESSARY"/>
+  <bullet bulletName="advisoryEffectCTA" bulletText="Advisory in effect" bulletGroup="toggle3" parseString="WINTER WEATHER ADVISORY IS IN EFFECT"/>
+  <bullet bulletName="snowSquallCTA" bulletText="Snow Squall" parseString="TORRENTIAL RAINFALL IS ALSO OCCURRING"/>
+  <bullet bulletName="freezingDrizzleCTA" bulletText="Freezing Drizzle/Rain" parseString="CONTACT YOUR NEAREST LAW ENFORCEMENT"/>
+  <bullet bulletName="flashFreezeCTA" bulletText="Flash Freeze" parseString="RAPID DROP IN TEMPERATURES"/>
+  <bullet bulletName="icyRoads" bulletText="SNOW: Icy Roads CTA" parseString="ICY ROADS"/>
+  <bullet bulletName="changingConditionsCTA" bulletText="Changing Conditions...slow down" parseString=""/>
+ </bullets>
+</bulletActionGroup>
+<bulletActionGroup action="COR">
+ <bullets>
+  <bullet bulletText="*********** TYPE OF THREAT **********" bulletType="title"/>
+  <bullet bulletName="blankStatement" bulletText="Blank Statement" bulletGroup="toggle1"/>
+  <bullet bulletName="strongThunderstorm" bulletText="Strong Thunderstorm" bulletGroup="toggle1" bulletDefault="true" parseString="STRONG THUNDERSTORM"/>
+  <bullet bulletName="noThunder" bulletText="no thunder SHOWER(S) with gusty winds or hail" bulletGroup="toggle1" parseString=" SHOWER "/>
+  <bullet bulletName="areaOfThunderstorms" bulletText="An area of Strong Thunderstorms" bulletGroup="toggle1" parseString="AN AREA OF STRONG THUNDERSTORMS"/>
+  <bullet bulletName="snowSquall" bulletText="SNOW: A snow squall" bulletGroup="toggle1" parseString="SNOW SQUALL"/>
+  <bullet bulletName="snowSquallDangerous" bulletText="SNOW: A dangerous snow squall" bulletGroup="toggle1" parseString="DANGEROUS SNOW"/>
+  <bullet bulletName="snowSquallSevere" bulletText="SNOW: A severe snow squall" bulletGroup="toggle1" parseString="SEVERE SNOW"/>
+  <bullet bulletName="snowArea" bulletText="SNOW: An area of heavy snow" bulletGroup="toggle1" parseString="AREA OF HEAVY SNOW"/>
+  <bullet bulletName="freezingRain" bulletText="FZRA: Freezing Rain" bulletGroup="toggle1" parseString="FREEZING RAIN"/>
+  <bullet bulletName="freezingDrizzle" bulletText="FZDZ: Freezing Drizzle" bulletGroup="toggle1" parseString="FREEZING DRIZZLE"/>
+  <bullet bulletName="sleet" bulletText="PL: Sleet" bulletGroup="toggle1" parseString="SLEET"/>
+  <bullet bulletName="wintryMix" bulletText="FZRA/SN/PL: Wintry Mix" bulletGroup="toggle1" parseString="WINTRY MIX"/>
+  <bullet bulletName="flashFreeze" bulletText="Flash Freeze/Black Ice" bulletGroup="toggle1" parseString="FLASH FREEZE"/>
+  <bullet bulletText="******* THREATS (CHOOSE UP TO 1 EACH WIND/HAIL/VIZ) ******" bulletType="title"/>
+  <bullet bulletName="wind30" bulletText="Winds 30 mph or greater" bulletGroup="windThreat" parseString="30 MPH"/>
+  <bullet bulletName="wind40" bulletText="Strong winds 40 mph or greater" bulletGroup="windThreat" parseString="40 MPH"/>
+  <bullet bulletName="wind50" bulletText="Strong winds to 50 mph" bulletGroup="windThreat" parseString="50 MPH"/>
+  <bullet bulletName="wind55" bulletText="Strong winds 50 to 55 mph" bulletGroup="windThreat" parseString="55 MPH"/>
+  <bullet bulletName="peaHail" bulletText="Pea sized hail" bulletGroup="hailThreat" parseString="PEA SIZED HAIL"/>
+  <bullet bulletName="halfHail" bulletText="Half inch hail" bulletGroup="hailThreat" parseString="HALF INCH HAIL"/>
+  <bullet bulletName="dimeHail" bulletText="Dime sized hail" bulletGroup="hailThreat" parseString="DIME SIZED HAIL"/>
+  <bullet bulletName="nickelHail" bulletText="Nickel sized hail" bulletGroup="hailThreat" parseString="NICKEL SIZED HAIL"/>
+  <bullet bulletName="quarterMile" bulletText="SNOW: Visibilities M1/4SM" bulletGroup="toggle4" parseString="BELOW ONE QUARTER"/>
+  <bullet bulletName="zeroMile" bulletText="SNOW: Visibilities near Zero" bulletGroup="toggle4" parseString="NEAR ZERO"/>
+  <bullet bulletText="************ ADDITIONAL INFO  **************" bulletType="title"/>
+  <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="toggle5" parseString="WILL BE NEAR..."/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="toggle5" parseString="LOCATIONS IMPACTED INCLUDE" showString="LOCATIONS IMPACTED INCLUDE"/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="toggle5" parseString="LOCATIONS IN THE WARNING INCLUDE" showString="LOCATIONS IN THE WARNING INCLUDE"/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="toggle5" parseString="WILL REMAIN OVER" showString="WILL REMAIN OVER"/>
+  <bullet bulletName="specialEvent" bulletText="Special heads-up for large event/venue" parseString="THOSE ATTENDING"/>
+  <bullet bulletText="******** CALLS TO ACTION (CHOOSE 1 OR MORE) *********" bulletType="title"/>
+  <bullet bulletName="stormIntensifyCTA" bulletText="Storm(s) May Intensify" parseString="STORMS MAY INTENSIFY...MONITOR TV"/>
+  <bullet bulletName="lightningCTA" bulletText="Frequent Lightning" bulletGroup="toggle3" parseString="FREQUENT CLOUD TO GROUND LIGHTNING IS OCCURRING"/>
+  <bullet bulletName="torrentialRainfallCTA" bulletText="Torrential rainfall" parseString="TORRENTIAL RAINFALL IS ALSO OCCURRING"/>
+  <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="CONTACT YOUR NEAREST LAW ENFORCEMENT"/>
+  <bullet bulletName="boatersCTA" bulletText="Over Lake - Boaters seek shelter" parseString="GET OUT OF THE WATER AND MOVE INDOORS"/>
+  <bullet bulletName="camperCTA" bulletText="Campground - Campers seek shelter" parseString="PERSONS IN CAMPGROUNDS"/>
+  <bullet bulletName="includeTorWatches" bulletText="Include Tornado Watches" parseString=""/>
+  <bullet bulletName="includeSvrWatches" bulletText="Include Severe Thunderstorm Watches" parseString=""/>
+  <bullet bulletText="******** WINTER WX CALLS TO ACTION (CHOOSE 1 OR MORE) *********" bulletType="title"/>
+  <bullet bulletName="advisoryCTA" bulletText="Advisory may be required" bulletGroup="toggle3" parseString="WINTER WEATHER ADVISORY MAY BECOME NECESSARY"/>
+  <bullet bulletName="advisoryEffectCTA" bulletText="Advisory in effect" bulletGroup="toggle3" parseString="WINTER WEATHER ADVISORY IS IN EFFECT"/>
+  <bullet bulletName="snowSquallCTA" bulletText="Snow Squall" parseString="TORRENTIAL RAINFALL IS ALSO OCCURRING"/>
+  <bullet bulletName="freezingDrizzleCTA" bulletText="Freezing Drizzle/Rain" parseString="CONTACT YOUR NEAREST LAW ENFORCEMENT"/>
+  <bullet bulletName="flashFreezeCTA" bulletText="Flash Freeze" parseString="RAPID DROP IN TEMPERATURES"/>
+  <bullet bulletName="icyRoads" bulletText="SNOW: Icy Roads CTA" parseString="ICY ROADS"/>
+  <bullet bulletName="changingConditionsCTA" bulletText="Changing Conditions...slow down" parseString=""/>
+ </bullets>
+</bulletActionGroup>
+</bulletActionGroups>
+
+</warngenConfig>

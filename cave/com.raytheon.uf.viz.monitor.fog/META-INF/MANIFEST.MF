@@ -1,0 +1,26 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Fog Plug-in
+Bundle-SymbolicName: com.raytheon.uf.viz.monitor.fog;singleton:=true
+Bundle-Version: 1.14.0.qualifier
+Bundle-Activator: com.raytheon.uf.viz.monitor.fog.Activator
+Bundle-Vendor: RAYTHEON
+Require-Bundle: org.eclipse.core.runtime,
+ com.raytheon.uf.common.monitor;bundle-version="1.0.0",
+ com.raytheon.viz.alerts;bundle-version="1.10.13",
+ com.raytheon.viz.ui;bundle-version="1.10.13",
+ com.raytheon.uf.viz.monitor,
+ com.raytheon.uf.common.dataplugin.fog;bundle-version="1.11.17",
+ com.raytheon.uf.common.colormap;bundle-version="1.12.1174",
+ com.raytheon.uf.viz.core;bundle-version="1.15.1",
+ com.raytheon.uf.viz.core.grid;bundle-version="1.15.0",
+ com.raytheon.uf.common.geospatial;bundle-version="1.14.2",
+ com.raytheon.uf.common.dataplugin;bundle-version="1.14.0",
+ com.raytheon.uf.common.datastorage;bundle-version="1.15.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy
+Export-Package: com.raytheon.uf.viz.monitor.fog,
+ com.raytheon.uf.viz.monitor.fog.threshold,
+ com.raytheon.uf.viz.monitor.fog.ui.resource,
+ com.raytheon.uf.viz.monitor.fog.xml
+Bundle-ClassPath: com.raytheon.uf.viz.monitor.fog.jar

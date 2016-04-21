@@ -1,0 +1,116 @@
+<!--Fire Warning configuration -->
+<!-- MODIFIED
+     Version 1.1 EVAN BOOKBINDER/MIKE DANGELO 2-07-2012 Initial creation
+     Modified MIKE REGA 5-10-2012 DR 14525 added timeZoneField
+                                  DR 14691 added feAreaField
+              Evan Bookbinder 09-12-2012 added new areaSource object
+              Phil Kurimski   09-19-2013 added geospatialConfig.xml
+              Mike Dangelo    06-25-2014 disabled autoLockText and added example requesting agency bullets
+              Dave Tomalak    10-23-2015 added Forecast Zones to default maps
+ -->
+<warngenConfig>
+
+<!-- INCLUDE ALL GEOSPTATIAL INFORMATION FOR THIS PRODUCT
+ANY pointSource/areaSource/pathcastConfig OVERRIDES TO THAT FILE CAN BE
+PLACED IN FULL BELOW THE INCLUDE LINE BELOW. -->
+<include file="geospatialConfig_ZONE.xml"/>
+
+<!-- Include Various geospatial XML files to create their objects. These are *NOT*
+turned on unless the corresponding .vm file is turned on in a given template's .vm file
+-->  
+<include file="mileMarkers.xml"/>
+<!-- To enable, make sure mileMarkers.vm is added/uncommented in a WarnGen template's .vm file -->
+<include file="pointMarkers.xml"/>
+<!-- To enable, make sure pointMarkers.vm is added/uncommented in a WarnGen template's .vm file -->
+
+ <!-- Config distance/speed units -->
+ <unitDistance>mi</unitDistance>
+ <unitSpeed>mph</unitSpeed>
+
+ <!-- enable/disable WarnGen Pathcast Track -->
+ <trackEnabled>false</trackEnabled>
+
+ <!-- Maps to load on template selection. Refer to 'Maps' menu in CAVE. 
+ 	The various menu items are also the different maps
+ 	that can be loaded with each template. -->
+ <maps>
+  <map>Forecast Zones</map>
+  <map>County Names</map>
+  <map>County Warning Areas</map>
+ </maps>
+
+ <!-- Followups: VTEC actions of allowable followups when this template is selected -->
+ <followups>
+	<followup>COR</followup>
+ </followups>
+ 
+ <!-- Phensigs: The list of phenomena and significance combinations that this template applies to -->
+ <phensigs>
+ </phensigs>
+ 
+  <!-- Enables/disables user from selecting the Restart button the GUI -->
+ <enableRestart>true</enableRestart>
+ 
+  <!-- Enable/disables the system to lock text based on various patterns -->
+ <autoLockText>false</autoLockText>
+
+ <!-- Included watches: If a tornado watch or severe thunderstorm watch is to be 
+ 	included with the warning product include TO.A and/or SV.A, 
+ 	respectively. Please refer to 'includedWatchAreaBuffer' in <areaConfig/>. -->
+ <includedWatches>
+ </includedWatches>
+ 
+ <!-- durations: the list of possible durations of the warning -->
+ <defaultDuration>60</defaultDuration>
+ <durations>
+  <duration>30</duration>
+  <duration>40</duration>
+  <duration>45</duration>
+  <duration>50</duration>
+  <duration>60</duration>
+  <duration>75</duration>
+  <duration>90</duration> 
+  <duration>105</duration> 
+  <duration>120</duration> 
+  <duration>150</duration> 
+  <duration>180</duration> 
+ </durations>
+ 
+<bulletActionGroups>
+<bulletActionGroup action="NEW">
+ <bullets>
+  <bullet bulletName="fireEmergency" bulletText="** SELECT FOR FIRE EMERGENCY **" parseString="FIRE EMERGENCY" />
+  <bullet bulletText="******  REQUESTING AGENCY  *******" bulletType="title" />
+  <bullet bulletName="manualAgency" bulletText="manually enter other agency name" bulletGroup="requestingAgency" bulletDefault="true" />
+  <bullet bulletName="agency1" bulletText="Requesting Agency example number 1" bulletGroup="requestingAgency" />
+  <bullet bulletName="agency2" bulletText="Requesting Agency example number 2" bulletGroup="requestingAgency" />
+  <bullet bulletText="*********** BASIS FOR WARNING (CHOOSE 1) **********" bulletType="title" />
+  <bullet bulletName="generic" bulletText="Generic wording..." bulletGroup="basis" bulletDefault="true" />
+  <bullet bulletName="actual" bulletText="Actual Fire..." bulletGroup="basis" parseText="COULD AFFECT" />
+  <bullet bulletName="racing" bulletText="Fire Racing Toward..." bulletGroup="basis" parseText="RACING" />
+  <bullet bulletText="*********** CALL TO ACTIONS (CHOOSE 1 OR MORE) **********" bulletType="title" />
+  <bullet bulletName="stayIndoorsCTA" bulletText="Stay Indoors..." bulletDefault="true" parseText="STAY INDOORS" />
+  <bullet bulletName="followInstructionsCTA" bulletText="Follow Safety Instructions..." bulletDefault="true" parseText="FOLLOW SAFETY INSTRUCTIONS" />
+  <bullet bulletName="heedEvacuationsCTA" bulletText="Heed Evacuation Orders..." bulletDefault="true" parseText="HEED ANY EVACUATION ORDERS" />
+  </bullets>
+</bulletActionGroup>
+<bulletActionGroup action="COR">
+ <bullets>
+  <bullet bulletName="fireEmergency" bulletText="** SELECT FOR FIRE EMERGENCY **" parseString="FIRE EMERGENCY" />
+  <bullet bulletText="******  REQUESTING AGENCY  *******" bulletType="title" />
+  <bullet bulletName="manualAgency" bulletText="manually enter other agency name" bulletGroup="requestingAgency" bulletDefault="true" />
+  <bullet bulletName="agency1" bulletText="Requesting Agency example number 1" bulletGroup="requestingAgency" />
+  <bullet bulletName="agency2" bulletText="Requesting Agency example number 2" bulletGroup="requestingAgency" />
+  <bullet bulletText="*********** BASIS FOR WARNING (CHOOSE 1) **********" bulletType="title" />
+  <bullet bulletName="generic" bulletText="Generic wording..." bulletGroup="basis" bulletDefault="true" />
+  <bullet bulletName="actual" bulletText="Actual Fire..." bulletGroup="basis" parseText="COULD AFFECT" />
+  <bullet bulletName="racing" bulletText="Fire Racing Toward..." bulletGroup="basis" parseText="RACING" />
+  <bullet bulletText="*********** CALL TO ACTIONS (CHOOSE 1 OR MORE) **********" bulletType="title" />
+  <bullet bulletName="stayIndoorsCTA" bulletText="Stay Indoors..." bulletDefault="true" parseText="STAY INDOORS" />
+  <bullet bulletName="followInstructionsCTA" bulletText="Follow Safety Instructions..." bulletDefault="true" parseText="FOLLOW SAFETY INSTRUCTIONS" />
+  <bullet bulletName="heedEvacuationsCTA" bulletText="Heed Evacuation Orders..." bulletDefault="true" parseText="HEED ANY EVACUATION ORDERS" />
+  </bullets>
+</bulletActionGroup>
+</bulletActionGroups>
+
+</warngenConfig>

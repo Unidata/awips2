@@ -1,0 +1,51 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+  <bean class="com.raytheon.uf.common.logback.appender.ThreadBasedAppender"
+     factory-method="registerThreadPattern">
+     <constructor-arg value="satellite" />
+     <constructor-arg value="Ingest.dmw.*" />
+  </bean>
+
+   <bean id="dmwDecoder" class="com.raytheon.uf.edex.plugin.goesr.dmw.decoder.DMWDecoder" />
+
+   <!-- Filter out all southern hemisphere data -->
+   <bean id="dmwSHFilter" class="com.raytheon.uf.edex.decodertools.core.filterimpl.PluginDataObjectFilter">
+        <constructor-arg type="java.lang.String" value="dmw_filters.xml" />
+        <constructor-arg type="java.lang.String" value="BASE" />
+   </bean>
+
+    <bean id="dmwDistRegistry" factory-bean="distributionSrv"
+        factory-method="register">
+        <constructor-arg value="dmw" />
+        <constructor-arg value="jms-durable:queue:Ingest.dmw" />
+    </bean>
+
+    <camelContext id="dmw-camel"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler">
+
+        <!-- Begin dmw routes -->
+        <route id="dmwIngestRoute">
+            <from uri="jms-durable:queue:Ingest.dmw"/>
+            <setHeader headerName="pluginName">
+                <constant>dmw</constant>
+            </setHeader>
+            <doTry>
+                <pipeline>
+                    <bean ref="stringToFile" />
+                    <bean ref="extractWMOHeader" method="remove" />
+                    <bean ref="dmwDecoder" method="decode" />
+                    <bean ref="dmwSHFilter" method="filter" />
+                    <to uri="direct-vm:persistIndexAlert" />
+                </pipeline>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:dmw?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+    </camelContext>
+</beans>

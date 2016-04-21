@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: BCD Plug-in
+Bundle-SymbolicName: com.raytheon.viz.bcd;singleton:=true
+Bundle-Version: 1.14.0.qualifier
+Bundle-Vendor: Raytheon
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ com.raytheon.viz.core,
+ com.raytheon.viz.ui,
+ org.geotools,
+ org.apache.commons.lang,
+ com.raytheon.uf.viz.core.maps;bundle-version="1.0.0",
+ com.raytheon.uf.common.pointdata;bundle-version="1.12.1174"
+Bundle-ActivationPolicy: lazy
+Export-Package: com.raytheon.viz.bcd
+Import-Package: com.raytheon.uf.common.colormap
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ClassPath: com.raytheon.viz.bcd.jar

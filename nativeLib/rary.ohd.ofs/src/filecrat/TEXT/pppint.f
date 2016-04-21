@@ -1,0 +1,567 @@
+C MEMBER PPPINT
+C  (from old member UXPPPINT)
+C-----------------------------------------------------------------------
+C
+C                             LAST UPDATE: 02/25/94.15:48:12 BY $WC20SV
+C
+C @PROCESS LVL(77)
+C
+      SUBROUTINE PPPINT (USER,DCBDDN,DCBMBR,DSKUNT,LDEBUG)
+C
+C          ROUTINE:  PPPINT
+C
+C             VERSION:  1.0.0
+C
+C                DATE:  12-4-1982
+C
+C              AUTHOR:  JANINE FRANZOI
+C                       DATA SCIENCES INC
+C
+C***********************************************************************
+C
+C          DESCRIPTION:
+C
+C    THIS ROUTINE INITIALIZES THE PREPROCESSOR PARAMETRIC DATA BASE
+C    INDEX FILE AND PARAMETER FILES.  IT PARSES THE USER INPUT CARDS
+C    AND CALCULATES THE NUMBER OF RECORDS PER FILE BASED ON THE NUMBER
+C    OF TRACKS.  IT CALLS ROUTINE WPPPCO TO WRITE THE CONTROL
+C    RECORD TO EACH RESPECTIVE FILE.  THE PARAMETER TYPE RECORDS ARE
+C    ALSO WRITTEN TO THE INDEX FILE AND THE REMAINDER OF EACH
+C    FILE IS INITIALIZED TO ZEROS.
+C
+C***********************************************************************
+C
+C          COMMON:
+C
+      INCLUDE 'uio'
+      INCLUDE 'ufreei'
+      INCLUDE 'pppcommon/ppunts'
+      INCLUDE 'pppcommon/ppxctl'
+      INCLUDE 'pppcommon/ppmctl'
+      INCLUDE 'pppcommon/ppdtdr'
+C
+C***********************************************************************
+C
+C          DIMENSION AND TYPE DECLARATIONS:
+C
+      CHARACTER*(*) USER,DCBDDN,DCBMBR,DSKUNT
+      CHARACTER*4 BLNK4/' '/
+      CHARACTER*8 XWORD
+C
+      DIMENSION MAXREC(9),IXARR(4)
+      DIMENSION IPBUF(16),ITYPAR(21)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/filecrat/RCS/pppint.f,v $
+     . $',                                                             '
+     .$Id: pppint.f,v 1.2 1997/04/06 13:06:34 page Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C***********************************************************************
+C
+C          DATA:
+C
+C***********************************************************************
+C
+C
+      CALL ULINE (LP,2)
+      WRITE (LP,340)
+C
+      NMPFIL=5
+      NTRKI=0
+      NSTMMT=0
+      NSTCHR=0
+C
+C  PRINT CARD
+      CALL ULINE (LP,1)
+      WRITE (LP,*) ' '
+      CALL WPCARD (IBUF)
+C
+C  SET ERROR FLAGS
+      INDERR=0
+C
+C   SET USER NAME
+      CALL SUBSTR (USER,1,8,USERPP,1)
+C
+C  READ CARD
+10    CALL RPCARD (IBUF,IERR)
+      CALL ULINE (LP,1)
+      WRITE (LP,*) ' '
+      CALL WPCARD (IBUF)
+      IF (IERR.NE.0) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,350) 'RPCARD',IERR
+         GO TO 330
+         ENDIF
+      CALL UFREE (1,72)
+C
+C  CHECK FOR BLANK CARD
+      IF (NFIELD.EQ.0) GO TO 10
+C
+C  GET FIRST FIELD
+      NFLD=1
+      NCHAR=IFSTOP(NFLD)-IFSTRT(NFLD)+1
+      XWORD=' '
+      CALL UPACK1 (IBUF(IFSTRT(NFLD)),XWORD,NCHAR)
+C
+C  CHECK FOR COMMENT
+      IF (XWORD.EQ.'$') GO TO 10
+C
+C  CHECK FOR OPTION
+      IF (XWORD.EQ.'INDEX') GO TO 20
+      IF (XWORD.EQ.'FILES') GO TO 30
+      IF (XWORD.EQ.'TRACKS') GO TO 50
+      GO TO 130
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  SET NUMBER OF TRACKS IN INDEX FILE
+C
+20    IF (NFIELD.NE.2) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,360) 'INDEX'
+         INDERR=1
+         GO TO 10
+         ENDIF
+C
+C  CHECK NEXT FIELD FOR NUMBER OF TRACKS
+      NFLD=2
+      IF (IFTYPE(NFLD).NE.1) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,370) NFLD
+         INDERR=1
+         GO TO 10
+         ENDIF
+      CALL UNUMIC (IBUF,IFSTRT(NFLD),IFSTOP(NFLD),NTRKI)
+      CALL ULINE (LP,2)
+      WRITE (LP,430) KPPIDX,NTRKI
+      GO TO 10
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  SET NUMBER OF PARAMETER FILES TO BE INITIALIZED
+C
+30    IF (NFIELD.NE.2) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,360) 'FILES'
+         INDERR=1
+         GO TO 40
+         ENDIF
+C
+C  CHECK NEXT FIELD FOR NUMBER OF PARAMETER FILES
+      NFLD=2
+      IF (IFTYPE(NFLD).NE.1) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,370) NFLD
+         INDERR=1
+         GO TO 10
+         ENDIF
+      CALL UNUMIC (IBUF,IFSTRT(NFLD),IFSTOP(NFLD),NMPFIL)
+      MINVAL=1
+      MAXVAL=9
+      IF (NMPFIL.GE.MINVAL.AND.NMPFIL.LE.MAXVAL) GO TO 40
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,380) MINVAL,MAXVAL,NFLD
+         INDERR=1
+         GO TO 10
+40    CALL ULINE (LP,2)
+      WRITE (LP,390) NMPFIL
+      GO TO 10
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  READ TRACK SIZES TO CALCULATE MAXIMUM RECORDS IN FILES
+C
+50    IF (NFIELD.GE.3) GO TO 60
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,400) 'TRACKS'
+         INDERR=1
+         GO TO 130
+60    NFLD=1
+      NCHAR=IFSTOP(NFLD)-IFSTRT(NFLD)+1
+      IF (NCHAR.NE.6) GO TO 70
+         CALL UPACK1 (IBUF(IFSTRT(NFLD)),XWORD,NCHAR)
+         IF (XWORD.EQ.'TRACKS') GO TO 80
+70    CALL UEROR (LP,1,-1)
+      WRITE (LP,410) 'TRACKS'
+      INDERR=1
+      GO TO 130
+C
+C  GET DCB FOR INDEX FILE
+80    CALL UFLDCB (DCBDDN,DCBMBR,'PPPINDEX',LRECL,LBLOCK,IERR)
+      IF (IERR.GT.0) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,350) 'UFLDCB',IERR
+         GO TO 330
+         ENDIF
+C
+C  CALCULATE NUMBER OF BLOCKS PER TRACK
+      LPRINT=2
+      CALL UDKBLK (' ',0,DSKUNT,LBLOCK,LPRINT,NBLKS,IPCT,IERR)
+      IF (IERR.GT.0) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,350) 'UDKBLK',IERR
+         GO TO 330
+         ENDIF
+      NPRBLK=LBLOCK/LRECL
+      NPRTRK=NPRBLK*NBLKS
+      NFLD=1
+      IF (NTRKI.GT.0) GO TO 90
+         NFLD=2
+         IF (IFTYPE(NFLD).NE.1) GO TO 120
+         CALL UNUMIC (IBUF,IFSTRT(NFLD),IFSTOP(NFLD),NTRKS)
+         CALL ULINE (LP,2)
+         WRITE (LP,430) KPPIDX,NTRKS
+         GO TO 100
+90    NTRKS=NTRKI
+100   NFILE=1
+      MAXREC(NFILE)=NTRKS*NPRTRK
+      MXPXRC=MAXREC(NFILE)
+C
+C  GET DCB FOR PARAMETER FILE
+      CALL UFLDCB (DCBDDN,DCBMBR,'PPPPARM',LRECL,LBLOCK,IERR)
+      IF (IERR.GT.0) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,350) 'UFLDCB',IERR
+         GO TO 330
+         ENDIF
+C  SET PARAMETER FILE LOGICAL RECORD LENGTH
+      LRECPP=LRECL/4
+C
+C  CALCULATE NUMBER OF BLOCKS PER TRACK
+      CALL UDKBLK (' ',0,DSKUNT,LBLOCK,LPRINT,NBLKS,IPCT,IERR)
+      IF (IERR.GT.0) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,350) 'UDKBLK',IERR
+         GO TO 330
+         ENDIF
+      NPRBLK=LBLOCK/LRECL
+      NPRTRK=NPRBLK*NBLKS
+C
+C  CALCULATE MAXIMUM NUMBER OF RECORDS FOR EACH FILE
+      DO 110 I=1,NMPFIL
+         NFLD=NFLD+1
+         NFILE=NFILE+1
+         NUNIT=KPPRMU(I)
+         IF (IFTYPE(NFLD).NE.1) GO TO 120
+         CALL UNUMIC (IBUF,IFSTRT(NFLD),IFSTOP(NFLD),NTRKS)
+         CALL ULINE (LP,2)
+         WRITE (LP,430) NUNIT,NTRKS
+         MAXREC(NFILE)=NTRKS*NPRTRK
+110      CONTINUE
+      GO TO 130
+C
+120   CALL UEROR (LP,1,-1)
+      WRITE (LP,440)
+      INDERR=1
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  READ STATION CHARACTERISTICS CARD
+C
+130   CALL RPCARD (IBUF,IERR)
+      CALL ULINE (LP,1)
+      WRITE (LP,*) ' '
+      CALL WPCARD (IBUF)
+      IF (IERR.NE.0) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,350) 'RPCARD',IERR
+         GO TO 150
+         ENDIF
+      CALL UFREE (1,72)
+C
+C  CHECK FOR BLANK CARD
+      IF (NFIELD.EQ.0) GO TO 130
+C
+C  GET FIRST FIELD
+      NFLD=1
+      NCHAR=IFSTOP(NFLD)-IFSTRT(NFLD)+1
+      XWORD=' '
+      CALL UPACK1 (IBUF(IFSTRT(NFLD)),XWORD,NCHAR)
+C
+C  CHECK FOR COMMENT
+      IF (XWORD.EQ.'$') GO TO 130
+C
+      IF (NFIELD.NE.2) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,360) 'MAXCHAR'
+         INDERR=1
+         GO TO 150
+         ENDIF
+      IF (NCHAR.EQ.7) GO TO 140
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,450) 'MAXCHAR'
+         INDERR=1
+         GO TO 150
+140   CALL UPACK1 (IBUF(IFSTRT(NFLD)),XWORD,NCHAR)
+      IF (XWORD.NE.'MAXCHAR') THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,450) 'MAXCHAR'
+         INDERR=1
+         GO TO 150
+         ENDIF
+      NFLD=2
+      NCHAR=IFSTOP(NFLD)-IFSTRT(NFLD)+1
+      IF (IFTYPE(NFLD).NE.1) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,370) NFLD
+         INDERR=1
+         GO TO 150
+         ENDIF
+      CALL UNUMIC (IBUF,IFSTRT(NFLD),IFSTOP(NFLD),NSTCHR)
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  READ TEMPERATURE STATIONS CARD
+C
+150   CALL RPCARD (IBUF,IERR)
+      CALL ULINE (LP,1)
+      WRITE (LP,*) ' '
+      CALL WPCARD (IBUF)
+      IF (IERR.NE.0) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,350) 'RPCARD',IERR
+         GO TO 150
+         ENDIF
+      CALL UFREE (1,72)
+C
+C  CHECK FOR BLANK CARD
+      IF (NFIELD.EQ.0) GO TO 150
+C
+C  GET FIRST FIELD
+      NFLD=1
+      NCHAR=IFSTOP(NFLD)-IFSTRT(NFLD)+1
+      XWORD=' '
+      CALL UPACK1 (IBUF(IFSTRT(NFLD)),XWORD,NCHAR)
+C
+C  CHECK FOR COMMENT
+      IF (XWORD.EQ.'$') GO TO 150
+C
+      IF (NFIELD.NE.2) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,360) 'MAXTEMP'
+         INDERR=1
+         GO TO 170
+         ENDIF
+      NFLD=1
+      NCHAR=IFSTOP(NFLD)-IFSTRT(NFLD)+1
+      IF (NCHAR.NE.7) GO TO 160
+         CALL UPACK1 (IBUF(IFSTRT(NFLD)),XWORD,NCHAR)
+         IF (XWORD.NE.'MAXTEMP') THEN
+160            CALL UEROR (LP,1,-1)
+               WRITE (LP,450) 'MAXTEMP'
+               INDERR=1
+               GO TO 170
+               ENDIF
+      NFLD=2
+      NCHAR=IFSTOP(NFLD)-IFSTRT(NFLD)+1
+      IF (IFTYPE(NFLD).NE.1) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,370) NFLD
+         INDERR=1
+         GO TO 170
+         ENDIF
+      CALL UNUMIC (IBUF,IFSTRT(NFLD),IFSTOP(NFLD),NSTMMT)
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  READ OPTIONAL FILE PARAMETER CARD OR END CARD
+170   CALL RPCARD (IBUF,IERR)
+      CALL ULINE (LP,1)
+      WRITE (LP,*) ' '
+      CALL WPCARD (IBUF)
+      IF (IERR.NE.0) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,350) 'RPCARD',IERR
+         GO TO 150
+         ENDIF
+      CALL UFREE (1,72)
+C
+C  CHECK FOR BLANK CARD
+      IF (NFIELD.EQ.0) GO TO 170
+C
+C  GET FIRST FIELD
+      NFLD=1
+      NCHAR=IFSTOP(NFLD)-IFSTRT(NFLD)+1
+      XWORD=' '
+      CALL UPACK1 (IBUF(IFSTRT(NFLD)),XWORD,NCHAR)
+C
+C  CHECK FOR COMMENT
+      IF (XWORD.EQ.'$') GO TO 170
+C
+      IF (NFIELD.EQ.1) GO TO 240
+180   CALL UMEMST (BLNK4,ITYPAR,21)
+      NFLD=1
+      NCHAR=IFSTOP(NFLD)-IFSTRT(NFLD)
+      IF (NCHAR.NE.7) GO TO 190
+         XWORD=' '
+         CALL UPACK1 (IBUF(IFSTRT(NFLD)),XWORD,NCHAR)
+         IF (XWORD.EQ.'PPPPARM') GO TO 200
+190   CALL UEROR (LP,1,-1)
+      WRITE (LP,460)
+      INDERR=1
+200   CALL UINTFX (IANS,IFSTOP(NFLD),IFSTOP(NFLD),IERR)
+      MINVAL=1
+      MAXVAL=9
+      IF (IANS.GE.MINVAL.AND.IANS.LE.MAXVAL) GO TO 210
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,380) MINVAL,MAXVAL,NFLD
+         INDERR=1
+C
+C  GET DATA TYPES FOR FILE CHANGE
+210   JT=1
+      DO 230 KT=2,NFIELD
+         NCHAR=IFSTOP(KT)-IFSTRT(KT)+1
+         CALL UPACK1 (IBUF(IFSTRT(KT)),ITYPAR(JT),NCHAR)
+         IDX=IPCKDT(ITYPAR(JT))
+         IF (IDX.EQ.0) GO TO 220
+            IPDTDR(2,IDX)=IANS
+220      JT=JT+1
+230      CONTINUE
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  SEE IF END OR ANOTHER PARAMETER FILE CARD
+235   CALL RPCARD (IBUF,IERR)
+      CALL ULINE (LP,1)
+      WRITE (LP,*) ' '
+      CALL WPCARD (IBUF)
+      IF (IERR.NE.0) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,350) 'RPCARD',IERR
+         GO TO 150
+         ENDIF
+      CALL UFREE (1,72)
+C
+C  CHECK FOR BLANK CARD
+      IF (NFIELD.EQ.0) GO TO 235
+C
+C  GET FIRST FIELD
+      NFLD=1
+      NCHAR=IFSTOP(NFLD)-IFSTRT(NFLD)+1
+      XWORD=' '
+      CALL UPACK1 (IBUF(IFSTRT(NFLD)),XWORD,NCHAR)
+C
+C  CHECK FOR COMMENT
+      IF (XWORD.EQ.'$') GO TO 235
+C
+      IF (NFIELD.NE.1) GO TO 180
+C
+C  END CARD
+240   NFLD=1
+      NCHAR=IFSTOP(NFLD)-IFSTRT(NFLD)+1
+      XWORD=' '
+      CALL UPACK1 (IBUF(IFSTRT(NFLD)),XWORD,NCHAR)
+      IF (XWORD.NE.'END') THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,470)
+         INDERR=1
+         ENDIF
+C
+C  CHECK ERROR FLAG
+      IF (INDERR.EQ.1) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,480)
+         GO TO 330
+         ENDIF
+C
+C  RESET THE FILE NUMBER TO 1 FOR THOSE TYPES NOT BEING INITIALIZED
+      DO 250 II=1,NMPTYP
+         IF (IPDTDR(2,II).LE.NMPFIL) GO TO 250
+         IPDTDR(2,II)=1
+250      CONTINUE
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  SET NUMBER OF RECORDS FOR EACH FILE
+      DO 260 I=1,NMPFIL
+         IPMCTL(1,I)=MAXREC(I+1)
+260      CONTINUE
+C
+      NUNIT=KPPIDX
+C
+C  PRINT DATASET ATTRIBUTES
+      IPRERR=1
+      CALL UPRDSA ('NONE',NUNIT,'NONE',IPRERR,LP,IERR)
+      IF (IERR.GT.0) GO TO 330
+C
+C  INITIALIZE INDEX FILE RECORDS
+      K=NMPTYP*2+3
+      CALL UMEMST (0,IXARR,4)
+      DO 270 I=K,MXPXRC
+         CALL UWRITT (NUNIT,I,IXARR,IERR)
+         IF (IERR.NE.0) GO TO 310
+270      CONTINUE
+      CALL ULINE (LP,2)
+      WRITE (LP,490) NUNIT,MXPXRC
+C
+      CALL UMEMST (0,IPBUF,LRECPP)
+C
+C  INITIALIZE RECORDS FOR PARAMETER FILES
+      DO 300 IFILE=1,NMPFIL
+         NUNIT=KPPRMU(IFILE)
+C     PRINT DATASET ATTRIBUTES
+         IPRERR=1
+         CALL UPRDSA ('NONE',NUNIT,'NONE',IPRERR,LP,IERR)
+         IF (IERR.GT.0) GO TO 300
+         NREC=MAXREC(IFILE+1)
+         DO 290 IREC=2,NREC
+            CALL UWRITT (NUNIT,IREC,IPBUF,IERR)
+            IF (IERR.NE.0) GO TO 310
+290         CONTINUE
+         CALL ULINE (LP,2)
+         WRITE (LP,490) NUNIT,NREC
+300      CONTINUE
+C
+C  WRITE SPECIAL PARAMETER CONTROL RECORD FOR STATION CHARACTERISTICS
+C  AND TEMPERATURE PARAMETERS
+      IF (NSTCHR.GT.0) CALL WPPSPC ('CHAR',NSTCHR,1,IERR)
+      IF (NSTMMT.GT.0) CALL WPPSPC ('MMMT',NSTMMT,2,IERR)
+C
+C  WRITE CONTROL RECORDS TO EACH FILE
+      CALL WPPPCO (IERR)
+C
+C  PRINT REPORT OF CONTROL RECORD DATA
+      CALL PPPCTL (LDEBUG)
+C
+      CALL ULINE (LP,2)
+      WRITE (LP,510)
+      GO TO 330
+C
+C  ERROR MESSAGES
+310   CALL UEROR (LP,1,-1)
+      WRITE (LP,500)
+C
+330   RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+340   FORMAT ('0*** NOTE - BEGIN PREPROCESSOR PARAMETRIC DATA BASE ',
+     *   'INITIALIZATION.')
+350   FORMAT ('+*** ERROR - ROUTINE ',A,' NOT SUCCESSFULLY CALLED. ',
+     *   'STATUS CODE=',I2)
+360   FORMAT ('+*** ERROR - INVALID NUMBER OF FIELDS ON ',A,' CARD.')
+370   FORMAT ('+*** ERROR - INTEGER VALUE EXPECTED IN FIELD ',I2,'.')
+380   FORMAT ('+*** ERROR - A VALUE BETWEEN ',I2,' AND ',I2,
+     *   ' EXPECTED IN FIELD ',I2,'.')
+390   FORMAT ('0*** NOTE - NUMBER OF FILES SET TO ',I4,'.')
+400   FORMAT ('+*** ERROR - TOO FEW FIELDS ON ',A,' CARD.')
+410   FORMAT ('+*** ERROR - INVALID KEYWORD ON ',A,' CARD.')
+430   FORMAT ('0*** NOTE - UNIT ',I2.2,' SET TO ',I3,' TRACKS.')
+440   FORMAT ('+*** ERROR - INVALID FIELD FOR TRACK SIZE.')
+450   FORMAT ('+*** ERROR - ',A,' FIELD INVALID ON INPUT CARD.')
+460   FORMAT ('+*** ERROR - INVALID PARAMETER FILE CARD.')
+470   FORMAT ('+*** ERROR - INVALID END CARD.')
+480   FORMAT ('+*** ERROR - PROCESSING STOPPED BECAUSE INPUT ERRORS ',
+     *   'ENCOUNTERED.')
+490   FORMAT ('0*** NOTE - UNIT ',I2.2,' SUCCESSFULLY INITIALIZED ',
+     *   'WITH ',I6,' RECORDS.')
+500   FORMAT ('+*** ERROR - DAIO WRITE ERROR.')
+510   FORMAT ('0*** NOTE - PREPROCESSOR PARAMETRIC DATA BASE FILES ',
+     *   'SUCCESSFULLY INITIALIZED.')
+C
+      END

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+//
+// Partial Thickness Precipitation Type Icons - Mix2
+// 
+
+AWIPS 1 format
+Mix2 |0|N |Thickness: Wintery MIX | |ICON|Surface |   *Test,Surface|dZ,850MB-700MB|1.|-1.e37|1541.|0.|1.|1542.|1553.|Mix1|1.|1554.|1.e37|0.  
+
+abbreviation: |Mix2| 
+Notused1: |0| 
+Notused2: |N | 
+name: |Thickness: Wintery MIX | 
+FIELD: || 
+FIELD: |ICON| 
+FIELD: |Surface| 
+FIELD: |dZ,850MB-700MB| 
+FIELD: |1.| 
+FIELD: |-1.e37| 
+FIELD: |1541.| 
+FIELD: |0.| 
+FIELD: |1.| 
+FIELD: |1542.| 
+FIELD: |1553.| 
+FIELD: |Mix1| 
+FIELD: |1.| 
+FIELD: |1554.| 
+FIELD: |1.e37| 
+FIELD: |0.| 
+
+Mix thickness criteria: 
+1000-850 mb thickness 1300m or less 
+850-700 mb thickness 1541-1553m 
+-->
+<DerivedParameter name="Thickness: Wintery MIX" abbreviation="Mix2" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method levels="900MB" name="Test">
+        <Field level="1000MB-850MB" abbreviation="dZ"/>
+		<ConstantField value="1"/>
+	    <ConstantField value="-1e37"/>
+	    <ConstantField value="1299.4"/>
+	    <ConstantField value="1"/>
+	    <ConstantField value="1"/>
+	    <ConstantField value="1299.5"/>
+	    <ConstantField value="1e37"/>
+	    <ConstantField value="0"/>
+    </Method>
+    <Method levels="850MB" name="Test">
+        <Field level="850MB-700MB" abbreviation="dZ"/>
+	 	<ConstantField value="1"/>
+        <ConstantField value="-1e37"/>
+        <ConstantField value="1541.0"/>
+        <ConstantField value="0"/>
+        <ConstantField value="1"/>
+        <ConstantField value="1541.1"/>
+        <ConstantField value="1553.0"/>
+    	<Field level="900MB" abbreviation="Mix2"/>
+		<ConstantField value="1"/>
+        <ConstantField value="1553.1"/>
+        <ConstantField value="1e37"/>
+        <ConstantField value="0"/>
+    </Method>
+     <Method name="Mapping" levels="Surface">
+		<Field level="850MB" abbreviation="Mix2" />
+        <ConstantField value="1" />
+		<ConstantField value="187" />
+	</Method>
+</DerivedParameter>

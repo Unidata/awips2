@@ -1,0 +1,446 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<styleRuleset>
+  <!-- GOES-R Level 2 Satellite Rules -->
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>ADP</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayLegend>Aerosol Detection</displayLegend>
+      <defaultColormap>Sat/GOESR-L2/ADP</defaultColormap>
+      <range scale="LINEAR">
+        <minValue>-0.5</minValue>
+        <maxValue>8.5</maxValue>
+      </range>
+      <dataMapping>
+        <entry displayValue="0" pixelValue="0" label="Clear" sample="Clear" />
+        <entry displayValue="1" pixelValue="1" label="Aerosol" sample="Aerosol" />
+        <entry displayValue="2" pixelValue="2" label="Dust" sample="Dust" />
+        <entry displayValue="3" pixelValue="3" label="A+D" sample="Aerosol+Dust" />
+        <entry displayValue="4" pixelValue="4" label="Smoke" sample="Smoke" />
+        <entry displayValue="5" pixelValue="5" label="A+S" sample="Aerosol+Smoke" />
+        <entry displayValue="6" pixelValue="6" label="A+D" sample="Dust+Smoke" />
+        <entry displayValue="7" pixelValue="7" label="A+D+S" sample="Aerosol+Dust+Smoke" />
+        <entry displayValue="8" pixelValue="255" label="NO DATA" sample="NO DATA" />
+     </dataMapping>
+    </imageStyle>
+  </styleRule>
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>AOD</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayLegend>Aerosol Optical Depth</displayLegend>
+      <range scale="LINEAR">
+        <minValue>-1</minValue>
+        <maxValue>5</maxValue>
+      </range>
+      <defaultColormap>Sat/GOESR-L2/VTRSB</defaultColormap>
+      <colorbarLabeling>
+        <values>-1 0 1 2 3 4 5</values>
+      </colorbarLabeling>
+    </imageStyle>
+  </styleRule>
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>CSM</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayLegend>Clear Sky Mask</displayLegend>
+      <defaultColormap>Sat/GOESR-L2/CSM</defaultColormap>
+      <range scale="LINEAR">
+        <minValue>-0.5</minValue>
+        <maxValue>2.5</maxValue>
+      </range>
+      <dataMapping>
+        <entry displayValue="0" pixelValue="0" label="Clear" sample="Clear" />
+        <entry displayValue="1" pixelValue="1" label="Cloudy" sample="Cloudy" />
+        <entry displayValue="2" pixelValue="255" label="NO DATA" sample="NO DATA" />
+     </dataMapping>
+    </imageStyle>
+  </styleRule>
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>COD</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayLegend>Cloud Optical Depth</displayLegend>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>160</maxValue>
+      </range>
+      <defaultColormap>Sat/GOESR-L2/VTRSB</defaultColormap>
+      <colorbarLabeling>
+        <values>0 40 80 120 160</values>
+      </colorbarLabeling>
+    </imageStyle>
+  </styleRule>
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>CPSD</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayLegend>Cloud Particle Size</displayLegend>
+      <displayUnits>microm</displayUnits>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>100</maxValue>
+      </range>
+      <defaultColormap>Sat/GOESR-L2/VTRSB</defaultColormap>
+      <colorbarLabeling>
+        <values>0 20 40 60 80 100</values>
+      </colorbarLabeling>
+    </imageStyle>
+  </styleRule>
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>CTH</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayLegend>Cloud Top Height</displayLegend>
+      <displayUnits>m</displayUnits>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>15000</maxValue>
+      </range>
+      <defaultColormap>Sat/GOESR-L2/VTRSB</defaultColormap>
+      <colorbarLabeling>
+        <values>0 3000 6000 9000 12000 15000</values>
+      </colorbarLabeling>
+    </imageStyle>
+  </styleRule>
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>ACTP</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayLegend>Cloud Top Phase</displayLegend>
+      <defaultColormap>Sat/GOESR-L2/ACTP</defaultColormap>
+      <range scale="LINEAR">
+        <minValue>-0.5</minValue>
+        <maxValue>6.5</maxValue>
+      </range>
+      <dataMapping>
+        <entry displayValue="0" pixelValue="0" label="Clear" sample="Clear" />
+        <entry displayValue="1" pixelValue="1" label="Water" sample="Water" />
+        <entry displayValue="2" pixelValue="2" label="Supercooled" sample="Supercooled" />
+        <entry displayValue="3" pixelValue="3" label="Mixed" sample="Mixed"/>
+        <entry displayValue="4" pixelValue="4" label="Ice" sample="Ice" />
+        <entry displayValue="5" pixelValue="5" label="Uncertain" sample="Uncertain" />
+        <entry displayValue="6" pixelValue="255" label="NO DATA" sample="NO DATA" />
+     </dataMapping>
+    </imageStyle>
+  </styleRule>
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>CTP</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayLegend>Cloud Top Pressure</displayLegend>
+      <displayUnits>mb</displayUnits>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>1100</maxValue>
+      </range>
+      <defaultColormap>Sat/GOESR-L2/VTRSB</defaultColormap>
+      <colorbarLabeling>
+        <values>0 200 400 600 800 1000</values>
+      </colorbarLabeling>
+    </imageStyle>
+  </styleRule>
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>CTT</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayLegend>Cloud Top Temperature</displayLegend>
+      <displayUnits>C</displayUnits>
+      <range scale="LINEAR">
+        <minValue>55</minValue>
+        <maxValue>-109</maxValue>
+      </range>
+      <defaultColormap>Sat/GOESR-L2/VTRSB</defaultColormap>
+      <colorbarLabeling>
+        <values>40 20 0 -20 -40 -60 -80</values>
+      </colorbarLabeling>
+    </imageStyle>
+  </styleRule>
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>CAPE</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayUnits>J/kg</displayUnits>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>5000</maxValue>
+      </range>
+      <defaultColormap>Sat/GOESR-L2/VTRSB</defaultColormap>
+      <colorbarLabeling>
+        <values>0 1000 2000 3000 4000 5000</values>
+      </colorbarLabeling>
+    </imageStyle>
+  </styleRule>
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>KI</parameter>
+      <!-- These are specified to prevent it from conflicting with grid rules for the same parameter. -->
+      <creatingEntity>GOES-16</creatingEntity>
+      <creatingEntity>GOES-17</creatingEntity>
+      <creatingEntity>GOES-18</creatingEntity>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayLegend>K-Index</displayLegend>
+      <displayUnits>C</displayUnits>
+      <range scale="LINEAR">
+        <minValue>-70</minValue>
+        <maxValue>70</maxValue>
+      </range>
+      <defaultColormap>Sat/GOESR-L2/VTRSB</defaultColormap>
+      <colorbarLabeling>
+        <values>-60 -40 -20 0 20 40 60</values>
+      </colorbarLabeling>
+    </imageStyle>
+  </styleRule>
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>LI</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayLegend>Lifted Index</displayLegend>
+      <displayUnits>C</displayUnits>
+      <range scale="LINEAR">
+        <minValue>-40</minValue>
+        <maxValue>40</maxValue>
+      </range>
+      <defaultColormap>Sat/GOESR-L2/VTRSB</defaultColormap>
+      <colorbarLabeling>
+        <values>-40 -20 0 20 40</values>
+      </colorbarLabeling>
+    </imageStyle>
+  </styleRule>
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>SI</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayLegend>Showalter Index</displayLegend>
+      <displayUnits>C</displayUnits>
+      <range scale="LINEAR">
+        <minValue>-30</minValue>
+        <maxValue>30</maxValue>
+      </range>
+      <defaultColormap>Sat/GOESR-L2/VTRSB</defaultColormap>
+      <colorbarLabeling>
+        <values>-30 -20 -10 0 10 20 30</values>
+      </colorbarLabeling>
+    </imageStyle>
+  </styleRule>
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>TT</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayLegend>Total Totals</displayLegend>
+      <displayUnits>C</displayUnits>
+      <range scale="LINEAR">
+        <minValue>-60</minValue>
+        <maxValue>60</maxValue>
+      </range>
+      <defaultColormap>Sat/GOESR-L2/VTRSB</defaultColormap>
+      <colorbarLabeling>
+        <values>-60 -40 -20 0 20 40 60</values>
+      </colorbarLabeling>
+    </imageStyle>
+  </styleRule>
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>FDC Area</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayLegend>Fire Area</displayLegend>
+      <displayUnits>km*km</displayUnits>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>4</maxValue>
+      </range>
+      <defaultColormap>Sat/GOESR-L2/VTRSB</defaultColormap>
+      <colorbarLabeling>
+        <values>0 1 2 3 4</values>
+      </colorbarLabeling>
+    </imageStyle>
+  </styleRule>
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>FDC Power</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayLegend>Fire Power</displayLegend>
+      <displayUnits>MW</displayUnits>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>1000</maxValue>
+      </range>
+      <defaultColormap>Sat/GOESR-L2/VTRSB</defaultColormap>
+      <colorbarLabeling>
+        <values>0 200 400 600 800 1000</values>
+      </colorbarLabeling>
+    </imageStyle>
+  </styleRule>
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>FDC Temp</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayLegend>Fire Temperature</displayLegend>
+      <displayUnits>K</displayUnits>
+      <range scale="LINEAR">
+        <minValue>400</minValue>
+        <maxValue>1200</maxValue>
+      </range>
+      <defaultColormap>Sat/GOESR-L2/VTRSB</defaultColormap>
+      <colorbarLabeling>
+        <values>400 600 800 1000 1200</values>
+      </colorbarLabeling>
+    </imageStyle>
+  </styleRule>
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>FDC Area</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayLegend>Fire Area</displayLegend>
+      <displayUnits>km*km</displayUnits>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>4</maxValue>
+      </range>
+      <defaultColormap>Sat/GOESR-L2/VTRSB</defaultColormap>
+      <colorbarLabeling>
+        <values>0 1 2 3 4</values>
+      </colorbarLabeling>
+    </imageStyle>
+  </styleRule>
+  
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>RRQPE</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayLegend>Rain Rate/Quantitative Precip Estimate</displayLegend>
+      <displayUnits>mm/h</displayUnits>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>30</maxValue>
+      </range>
+      <defaultColormap>Sat/GOESR-L2/RRQPE</defaultColormap>
+      <colorbarLabeling>
+        <values>0 5 10 15 20 25 30</values>
+      </colorbarLabeling>
+    </imageStyle>
+  </styleRule>
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>SST</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayLegend>Sea Surface Temperature</displayLegend>
+      <displayUnits>C</displayUnits>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>30</maxValue>
+      </range>
+      <defaultColormap>Sat/GOESR-L2/VTRSB</defaultColormap>
+      <colorbarLabeling>
+        <values>0 5 10 15 20 25 30</values>
+      </colorbarLabeling>
+    </imageStyle>
+  </styleRule>
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>FSC</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayLegend>Snow Cover</displayLegend>
+      <displayUnits>%</displayUnits>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>100</maxValue>
+      </range>
+      <defaultColormap>Sat/GOESR-L2/FSC</defaultColormap>
+      <colorbarLabeling>
+        <values>0 25 50 75 100</values>
+      </colorbarLabeling>
+    </imageStyle>
+  </styleRule>
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>TPW</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayLegend>Total Precip Water</displayLegend>
+      <displayUnits>mm</displayUnits>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>84</maxValue>
+      </range>
+      <defaultColormap>Sat/Precip Water/Precip Water - New CIMSS Table</defaultColormap>
+      <colorbarLabeling>
+        <values>0 17 34 50 67 84</values>
+      </colorbarLabeling>
+    </imageStyle>
+  </styleRule>
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>VAH</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayLegend>Volcanic Ash Cloud Height</displayLegend>
+      <displayUnits>m</displayUnits>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>30000</maxValue>
+      </range>
+      <defaultColormap>Sat/GOESR-L2/VTRSB</defaultColormap>
+      <colorbarLabeling>
+        <values>0 10000 20000 30000</values>
+      </colorbarLabeling>
+    </imageStyle>
+  </styleRule>
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>VAML</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayLegend>Volcanic Ash Mass Loading</displayLegend>
+      <displayUnits>ton_us/(km*km)</displayUnits>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>300</maxValue>
+      </range>
+      <defaultColormap>Sat/GOESR-L2/VTRSB</defaultColormap>
+      <colorbarLabeling>
+        <values>0 50 100 150 200 250 300</values>
+      </colorbarLabeling>
+    </imageStyle>
+  </styleRule>
+</styleRuleset>

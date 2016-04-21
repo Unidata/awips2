@@ -1,0 +1,46 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the calb-calb_waterbal library file
+#
+#  cmt: File made on Thu Oct 26 14:47:38 EDT 2006 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob81/ohd/calb/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob81/ohd/calb/inc  \
+               -I/fs/hseb/ob81/ohd/ofs/inc  \
+               -I/fs/hseb/ob81/ohd/util/inc  \
+               -I/fs/hseb/ob81/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libcalb_waterbal_t.a:  \
+     $(LIB)/libcalb_waterbal_t.a(ex40.o)  \
+     $(LIB)/libcalb_waterbal_t.a(mywb40.o)  \
+     $(LIB)/libcalb_waterbal_t.a(myzc40.o)  \
+     $(LIB)/libcalb_waterbal_t.a(pin40.o)  \
+     $(LIB)/libcalb_waterbal_t.a(plotmy.o)  \
+     $(LIB)/libcalb_waterbal_t.a(plotwb.o)  \
+     $(LIB)/libcalb_waterbal_t.a(plotzc.o)  \
+     $(LIB)/libcalb_waterbal_t.a(prp40.o)  \
+     $(LIB)/libcalb_waterbal_t.a(puc40.o)  \
+     $(LIB)/libcalb_waterbal_t.a(tab40.o)  \
+     $(LIB)/libcalb_waterbal_t.a(wtwy40.o)
+

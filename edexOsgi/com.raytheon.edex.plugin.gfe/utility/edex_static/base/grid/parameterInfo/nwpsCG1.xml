@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gridParamInfo xmlns:ns2="group">
+<!-- This is the GFE parameterInfo file for the nwpsCG1
+
+        Created:        16-MAY-13, BScalio/AGibbs
+        Change Log:     27-MAY-13, BScalio/AGibbs      Corrected wrong paths for model information
+
+        D2D MODEL NAME  = nwpsCG1
+
+        GRID DEFINITION = /awips2/edex/data/utility/common_static/site/XXX/grid/models/nwpsCG1.xml
+                        = 7:0:9112:255
+
+        PARAMETER ALIAS = /awips2/edex/data/utility/common_static/site/XXX/grid/dataset/alias/gfeParamInfo.xml
+                        = <alias base>"nwpsCG1">nwpsCG1</alias>
+
+        PARAMETER DEFS  = /awips2/edex/data/utility/common_static/site/XXX/parameter/definition/parameters.xml
+                        = Maps model specific (undefined in base) parameters: DBSS, DEVMSL, SPC, DIRC
+
+        SMART INIT       = nwpsCG1
+
+        NOTE:   Changes to this file or any other GFE parameter mapping files in alias or definition
+                require all the JVMs on all EDEx Processing Servers (DX3-6) to be restarted.
+                Do one server at a time, and wait for the EDEx-Request JVM to start back up before
+                continuing onto other servers and watch the logfiles at startup for any errors that
+                might be resultant from the changes made.
+-->
+
+<!--    Model forecast hours in D2D are:
+                00, 03, 06, 09, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45, 48, 51, 54, 57, 60, 63, 66, 69, 72, 75, 78, 81, 84, 87, 90, 93, 96, 99, 102
+                (in seconds below)
+
+        NOTE:   If other FH hours added later, those must
+                be included in valtimeMINUSreftime below
+-->
+
+  <valtimeMINUSreftime>
+    <fcst>0</fcst>
+    <fcst>10800</fcst>
+    <fcst>21600</fcst>
+    <fcst>32400</fcst>
+    <fcst>43200</fcst>
+    <fcst>54000</fcst>
+    <fcst>64800</fcst>
+    <fcst>75600</fcst>
+    <fcst>86400</fcst>
+    <fcst>97200</fcst>
+    <fcst>108000</fcst>
+    <fcst>118800</fcst>
+    <fcst>129600</fcst>
+    <fcst>140400</fcst>
+    <fcst>151200</fcst>
+    <fcst>162000</fcst>
+    <fcst>172800</fcst>
+    <fcst>183600</fcst>
+    <fcst>194400</fcst>
+    <fcst>205200</fcst>
+    <fcst>216000</fcst>
+    <fcst>226800</fcst>
+    <fcst>237600</fcst>
+    <fcst>248400</fcst>
+    <fcst>259200</fcst>
+    <fcst>270000</fcst>
+    <fcst>280800</fcst>
+    <fcst>291600</fcst>
+    <fcst>302400</fcst>
+    <fcst>313200</fcst>
+    <fcst>324000</fcst>
+    <fcst>334800</fcst>
+    <fcst>345600</fcst>
+    <fcst>356400</fcst>
+    <fcst>367200</fcst>
+  </valtimeMINUSreftime>
+
+<!--    Parameters in D2D model are:
+                HTSGW, dirPW, PERPW, SWELL, HTSGW, WD
+                (defined in WCwave4 already, copied here)
+
+                WDEPTH, DSLM, DIRC, SPC, WS
+                (not in any baseline model)
+                Required addition to gfeParamInfo.xml and parameters.xml in alias and definition directories
+
+-->
+
+<!-- WDEPTH: Surface Geometric Depth Below Sea Surface -->
+ <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>wdepth</short_name>
+    <long_name>Surface Geometric Depth Below Sea Surface</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>DepthBelowSeaSurface</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>10000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+
+<!-- DSLM: Surface Deviation of Sea Level from Mean -->
+ <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>dslm</short_name>
+    <long_name>Surface Deviation of Sea Level From Mean</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>DevFromMeanSeaLevel</uiname>
+    <valid_range>-15.0</valid_range>
+    <valid_range>15.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+
+<!-- DIRC: Surface Current Direction -->
+ <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>dirc</short_name>
+    <long_name>Surface Current Direction</long_name>
+    <units>degree_angle</units>
+    <udunits>degree_angle</udunits>
+    <uiname>CurrentDir</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>360.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+
+<!-- SPC: Surface Current Speed -->
+ <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>spc</short_name>
+    <long_name>Surface Current Speed</long_name>
+    <units>m/s</units>
+    <udunits>meter/sec</udunits>
+    <uiname>CurrSpeed</uiname>
+    <valid_range>0</valid_range>
+    <valid_range>7</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+
+<!-- WS: Surface Wind Speed -->
+ <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>ws</short_name>
+    <long_name>Surface Wind Speed</long_name>
+    <units>m/s</units>
+    <udunits>meter/sec</udunits>
+    <uiname>WindSpeed</uiname>
+    <valid_range>0</valid_range>
+    <valid_range>150.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+
+<!-- HTSGW: Total Significant Wave Height -->
+ <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>htsgw</short_name>
+    <long_name>Sig height combined wind waves and swell</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>heightWindWavesandSwell</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>50.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+
+<!-- SWELL: Swell Height -->
+ <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>swell</short_name>
+    <long_name>Significant swell wave height</long_name>
+    <units>m</units>
+    <udunits>meter/sec</udunits>
+    <uiname>heightSwellWaves</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>50.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+
+<!-- dirPW: Primary Wave Direction -->
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>dirpw</short_name>
+    <long_name>Primary wave direction</long_name>
+    <units>degree_angle</units>
+    <udunits>degree_angle</udunits>
+    <uiname>primaryWaveDir</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>360.0</valid_range>
+    <fillValue>-999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+
+<!-- PERPW: Primary Wave Period -->
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>perpw</short_name>
+    <long_name>Primary wave period</long_name>
+    <units>s</units>
+    <udunits>seconds</udunits>
+    <uiname>primaryWavePeriod</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>25.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+
+<!-- WD: Wind Direction -->
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>wd</short_name>
+    <long_name>Wind Direction</long_name>
+    <units>degree_angle</units>
+    <udunits>degree_angle</udunits>
+    <uiname>windDir</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>360.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+<!-- ::END::  nwpsCG1 parameters for GFE -->
+
+</gridParamInfo>

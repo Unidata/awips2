@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		   	<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                        menuText="Blended Rain Rate" id="rainfallRate">
+	                <substitute key="element" value="Rain fall rate"/>
+	                <substitute key="entity" value="POES-NPOESS"/>
+	                <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+	             </contribute>
+		<contribute xsi:type="titleItem" titleText="------ GOES ------" 
+            id="GOESLine"/>
+    	<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Lifted Index" id="liftedIndex">
+	        <substitute key="element" value="Sounder Based Derived Lifted Index (LI)"/>
+	        <substitute key="entity" value="Composite"/>
+	        <substitute key="colormap" value="Sat/Lifted Index/Lifted Index Default"/>
+	    </contribute>
+        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Total Precip Water" id="totalPrecipWater">
+	        <substitute key="element" value="Sounder Based Derived Precipitable Water (PW)"/>
+	        <substitute key="entity" value="Composite"/>
+	        <substitute key="colormap" value="Sat/Precip Water/Precip Water Default"/>
+	    </contribute>
+        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Cloud Amount" id="cloud Amount">
+	        <substitute key="element" value="Gridded Cloud Amount"/>
+	        <substitute key="entity" value="Composite"/>
+	        <substitute key="colormap" value="Sat/Cloud Amount Default"/>
+	    </contribute>
+        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Cloud Top Height" id="cloudTopHeight">
+	        <substitute key="element" value="Gridded Cloud Top Pressure or Height"/>
+	        <substitute key="entity" value="Composite"/>
+	        <substitute key="colormap" value="Sat/Cloud Top Height"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Skin Temperature" id="skinTemp">
+	        <substitute key="element" value="Sounder Based Derived Surface Skin Temp (SFC Skin)"/>
+	        <substitute key="entity" value="Composite"/>
+	        <substitute key="colormap" value="Sat/Skin Temp/Skin Temp Default"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultCONUSSatellite.xml"
+			menuText="Low Cloud Base" id="lowCloudBase">
+			<substitute key="element" value="Low cloud base imagery" />
+			<substitute key="sector0" value="West CONUS" />
+			<substitute key="sector1" value="East CONUS" />
+			<substitute key="entity" value="GOES%" />
+			<substitute key="colormap" value="Sat/Low Cloud Base" />
+		</contribute> 
+	    <contribute xsi:type="titleItem" titleText="------ DMSP SSM/I ------" id="DMSPLine"/>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Total Precip Water" id="totalPrecipWater">
+	        <substitute key="element" value="Sounder Based Derived Precipitable Water (PW)"/>
+	        <substitute key="entity" value="DMSP"/>
+	        <substitute key="colormap" value="Sat/Precip Water/Precip Water - Polar)"/>
+	    </contribute>
+	    <contribute xsi:type="titleItem" titleText="------ POES AMSU ------" id="POESAMSULine"/>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Total Precip Water" id="totalPrecipWater">
+	        <substitute key="element" value="Sounder Based Derived Precipitable Water (PW)"/>
+	        <substitute key="entity" value="POES-NPOESS"/>
+	        <substitute key="colormap" value="Sat/Precip Water/Precip Water - Polar)"/>
+	    </contribute>
+	    <contribute xsi:type="titleItem" 
+					titleText="------ AMSU and SSM/I + GPS ------" id="blendedofAMSUAndSSMIDataLine"/>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="Blended Total Precip Water" id="blendedTotalPrecipWater">
+		    	<substitute key="element" value="Sounder Based Derived Precipitable Water (PW)"/>
+		        <substitute key="entity" value="Miscellaneous"/>
+		        <substitute key="colormap" value="Sat/Precip Water/Blended Total Precip Water"/>
+		    </contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="Percent of Normal TPW" id="percentofNormalTPW">
+		        <substitute key="element" value="Percent of Normal TPW"/>
+		        <substitute key="entity" value="Miscellaneous"/>
+		        <substitute key="colormap" value="Sat/Precip Water/Percent of Normal TPW"/>
+		    </contribute>
+	<contribute xsi:type="separator" id="MySeparatorId"/>
+	<contribute xsi:type="bundleItem" file="bundles/SoundingAvailability.xml" 
+               menuText="GOES Sounding Availability" id="goesSoundingAvailability">
+        <substitute key="pluginName" value="goessounding"/>
+        <substitute key="plotSource" value="GOES Sounding Availability"/>
+        <substitute key="offset" value="1800"/>
+    </contribute>
+	<contribute xsi:type="bundleItem" file="bundles/SoundingAvailability.xml" 
+               menuText="POES Sounding Availability" id="poesSoundingAvailability">
+        <substitute key="pluginName" value="poessounding"/>
+        <substitute key="plotSource" value="POES Sounding Availability"/>
+        <substitute key="offset" value="1800"/>
+    </contribute>
+</menuTemplate>

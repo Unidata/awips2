@@ -1,0 +1,381 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+	<!--
+		This_software_was_deVoped_and_/_or_modified_by_Raytheon_Company,
+		pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+
+		U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+		This_software_product_contains_export-restricted_data_whose
+		export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+		to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+		an_export_license_or_other_authorization.
+
+		Contractor_Name:________Raytheon_Company
+		Contractor_Address:_____6825_Pine_Street,_Suite_340
+		________________________Mail_Stop_B8
+		________________________Omaha,_NE_68106
+		________________________402.291.0100
+
+		See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+		further_licensing_information.
+	-->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<contribute xsi:type="subMenu" menuText="${icao} 4-Bit/Legacy Prods"
+		id="${icao}Terminal4-Bit Z">
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+			menuText="Storm Total Precip (STP)" id="${icao}StormTotalPrecipSTP">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product" value="80" />
+			<substitute key="elevation" value="0.0--0.0" />
+		</contribute>
+		<contribute xsi:type="separator" id="below${icao}TerminalStormTotalPrecip4bit" />
+		<contribute xsi:type="subMenu" menuText="${icao} 4-Bit Z"
+			id="${icao}Terminal4-Bit Z">
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev0} 4-Bit Z" id="${icao}Terminal${elev0}4-Bit Z" suppressErrors="${suppressErrors0}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="181" />
+				<substitute key="elevation" value="${elev0}--${elev0}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev1} 4-Bit Z" id="${icao}Terminal${elev1}4-Bit Z" suppressErrors="${suppressErrors1}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="181" />
+				<substitute key="elevation" value="${elev1}--${elev1}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev2} 4-Bit Z" id="${icao}Terminal${elev2}4-Bit Z" suppressErrors="${suppressErrors2}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="181" />
+				<substitute key="elevation" value="${elev2}--${elev2}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev3} 4-Bit Z" id="${icao}Terminal${elev3}4-Bit Z" suppressErrors="${suppressErrors3}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="181" />
+				<substitute key="elevation" value="${elev3}--${elev3}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev4} 4-Bit Z" id="${icao}Terminal${elev4}4-Bit Z" suppressErrors="${suppressErrors4}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="181" />
+				<substitute key="elevation" value="${elev4}--${elev4}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev5} 4-Bit Z" id="${icao}Terminal${elev5}4-Bit Z" suppressErrors="${suppressErrors5}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="181" />
+				<substitute key="elevation" value="${elev5}--${elev5}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev6} 4-Bit Z" id="${icao}Terminal${elev6}4-Bit Z" suppressErrors="${suppressErrors6}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="181" />
+				<substitute key="elevation" value="${elev6}--${elev6}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev7} 4-Bit Z" id="${icao}Terminal${elev7}4-Bit Z" suppressErrors="${suppressErrors7}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="181" />
+				<substitute key="elevation" value="${elev7}--${elev7}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev8} 4-Bit Z" id="${icao}Terminal${elev8}4-Bit Z" suppressErrors="${suppressErrors8}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="181" />
+				<substitute key="elevation" value="${elev8}--${elev8}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev9} 4-Bit Z" id="${icao}Terminal${elev9}4-Bit Z" suppressErrors="${suppressErrors9}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="181" />
+				<substitute key="elevation" value="${elev9}--${elev9}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev10} 4-Bit Z" id="${icao}Terminal${elev10}4-Bit Z"
+				suppressErrors="${suppressErrors10}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="181" />
+				<substitute key="elevation" value="${elev10}--${elev10}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev11} 4-Bit Z" id="${icao}Terminal${elev11}4-Bit Z"
+				suppressErrors="${suppressErrors11}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="181" />
+				<substitute key="elevation" value="${elev11}--${elev11}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev12} 4-Bit Z" id="${icao}Terminal${elev12}4-Bit Z"
+				suppressErrors="${suppressErrors12}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="181" />
+				<substitute key="elevation" value="${elev12}--${elev12}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev13} 4-Bit Z" id="${icao}Terminal${elev13}4-Bit Z"
+				suppressErrors="${suppressErrors13}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="181" />
+				<substitute key="elevation" value="${elev13}--${elev13}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev14} 4-Bit Z" id="${icao}Terminal${elev14}4-Bit Z"
+				suppressErrors="${suppressErrors14}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="181" />
+				<substitute key="elevation" value="${elev14}--${elev14}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev15} 4-Bit Z" id="${icao}Terminal${elev15}4-Bit Z"
+				suppressErrors="${suppressErrors15}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="181" />
+				<substitute key="elevation" value="${elev15}--${elev15}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev16} 4-Bit Z" id="${icao}Terminal${elev16}4-Bit Z"
+				suppressErrors="${suppressErrors16}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="181" />
+				<substitute key="elevation" value="${elev16}--${elev16}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev17} 4-Bit Z" id="${icao}Terminal${elev17}4-Bit Z"
+				suppressErrors="${suppressErrors17}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="181" />
+				<substitute key="elevation" value="${elev17}--${elev17}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev18} 4-Bit Z" id="${icao}Terminal${elev18}4-Bit Z"
+				suppressErrors="${suppressErrors18}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="181" />
+				<substitute key="elevation" value="${elev18}--${elev18}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev19} 4-Bit Z" id="${icao}Terminal${elev19}4-Bit Z"
+				suppressErrors="${suppressErrors19}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="181" />
+				<substitute key="elevation" value="${elev19}--${elev19}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev20} 4-Bit Z" id="${icao}Terminal${elev20}4-Bit Z"
+				suppressErrors="${suppressErrors20}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="181" />
+				<substitute key="elevation" value="${elev20}--${elev20}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev21} 4-Bit Z" id="${icao}Terminal${elev21}4-Bit Z"
+				suppressErrors="${suppressErrors21}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="181" />
+				<substitute key="elevation" value="${elev21}--${elev21}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev22} 4-Bit Z" id="${icao}Terminal${elev22}4-Bit Z"
+				suppressErrors="${suppressErrors22}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="181" />
+				<substitute key="elevation" value="${elev22}--${elev22}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev23} 4-Bit Z" id="${icao}Terminal${elev23}4-Bit Z"
+				suppressErrors="${suppressErrors23}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="181" />
+				<substitute key="elevation" value="${elev23}--${elev23}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev24} 4-Bit Z" id="${icao}Terminal${elev24}4-Bit Z"
+				suppressErrors="${suppressErrors24}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="181" />
+				<substitute key="elevation" value="${elev24}--${elev24}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="4-Bit Z (All)" id="${icao}TerminalZAll">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="181" />
+				<substitute key="elevation" value="0.0--360.0" />
+			</contribute>
+		</contribute>
+		<contribute xsi:type="subMenu" menuText="${icao} 4-Bit V"
+			id="${icao}Terminal4-Bit V">
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev0} 4-Bit V" id="${icao}Terminal${elev0}4-Bit V" suppressErrors="${suppressErrors0}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="183" />
+				<substitute key="elevation" value="${elev0}--${elev0}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev1} 4-Bit V" id="${icao}Terminal${elev1}4-Bit V" suppressErrors="${suppressErrors1}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="183" />
+				<substitute key="elevation" value="${elev1}--${elev1}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev2} 4-Bit V" id="${icao}Terminal${elev2}4-Bit V" suppressErrors="${suppressErrors2}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="183" />
+				<substitute key="elevation" value="${elev2}--${elev2}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev3} 4-Bit V" id="${icao}Terminal${elev3}4-Bit V" suppressErrors="${suppressErrors3}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="183" />
+				<substitute key="elevation" value="${elev3}--${elev3}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev4} 4-Bit V" id="${icao}Terminal${elev4}4-Bit V" suppressErrors="${suppressErrors4}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="183" />
+				<substitute key="elevation" value="${elev4}--${elev4}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev5} 4-Bit V" id="${icao}Terminal${elev5}4-Bit V" suppressErrors="${suppressErrors5}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="183" />
+				<substitute key="elevation" value="${elev5}--${elev5}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev6} 4-Bit V" id="${icao}Terminal${elev6}4-Bit V" suppressErrors="${suppressErrors6}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="183" />
+				<substitute key="elevation" value="${elev6}--${elev6}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev7} 4-Bit V" id="${icao}Terminal${elev7}4-Bit V" suppressErrors="${suppressErrors7}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="183" />
+				<substitute key="elevation" value="${elev7}--${elev7}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev8} 4-Bit V" id="${icao}Terminal${elev8}4-Bit V" suppressErrors="${suppressErrors8}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="183" />
+				<substitute key="elevation" value="${elev8}--${elev8}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev9} 4-Bit V" id="${icao}Terminal${elev9}4-Bit V" suppressErrors="${suppressErrors9}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="183" />
+				<substitute key="elevation" value="${elev9}--${elev9}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev10} 4-Bit V" id="${icao}Terminal${elev10}4-Bit V"
+				suppressErrors="${suppressErrors10}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="183" />
+				<substitute key="elevation" value="${elev10}--${elev10}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev11} 4-Bit V" id="${icao}Terminal${elev11}4-Bit V"
+				suppressErrors="${suppressErrors11}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="183" />
+				<substitute key="elevation" value="${elev11}--${elev11}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev12} 4-Bit V" id="${icao}Terminal${elev12}4-Bit V"
+				suppressErrors="${suppressErrors12}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="183" />
+				<substitute key="elevation" value="${elev12}--${elev12}" />
+				<substitute key="suppressErrors" value="${suppressErrors12}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev13} 4-Bit V" id="${icao}Terminal${elev13}4-Bit V"
+				suppressErrors="${suppressErrors13}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="183" />
+				<substitute key="elevation" value="${elev13}--${elev13}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev14} 4-Bit V" id="${icao}Terminal${elev14}4-Bit V"
+				suppressErrors="${suppressErrors14}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="183" />
+				<substitute key="elevation" value="${elev14}--${elev14}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev15} 4-Bit V" id="${icao}Terminal${elev15}4-Bit V"
+				suppressErrors="${suppressErrors15}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="183" />
+				<substitute key="elevation" value="${elev15}--${elev15}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev16} 4-Bit V" id="${icao}Terminal${elev16}4-Bit V"
+				suppressErrors="${suppressErrors16}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="183" />
+				<substitute key="elevation" value="${elev16}--${elev16}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev17} 4-Bit V" id="${icao}Terminal${elev17}4-Bit V"
+				suppressErrors="${suppressErrors17}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="183" />
+				<substitute key="elevation" value="${elev17}--${elev17}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev18} 4-Bit V" id="${icao}Terminal${elev18}4-Bit V"
+				suppressErrors="${suppressErrors18}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="183" />
+				<substitute key="elevation" value="${elev18}--${elev18}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev19} 4-Bit V" id="${icao}Terminal${elev19}4-Bit V"
+				suppressErrors="${suppressErrors19}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="183" />
+				<substitute key="elevation" value="${elev19}--${elev19}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev20} 4-Bit V" id="${icao}Terminal${elev20}4-Bit V"
+				suppressErrors="${suppressErrors20}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="183" />
+				<substitute key="elevation" value="${elev20}--${elev20}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev21} 4-Bit V" id="${icao}Terminal${elev21}4-Bit V"
+				suppressErrors="${suppressErrors21}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="183" />
+				<substitute key="elevation" value="${elev21}--${elev21}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev22} 4-Bit V" id="${icao}Terminal${elev22}4-Bit V"
+				suppressErrors="${suppressErrors22}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="183" />
+				<substitute key="elevation" value="${elev22}--${elev22}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev23} 4-Bit V" id="${icao}Terminal${elev23}4-Bit V"
+				suppressErrors="${suppressErrors23}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="183" />
+				<substitute key="elevation" value="${elev23}--${elev23}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="${elev24} 4-Bit V" id="${icao}Terminal${elev24}4-Bit V"
+				suppressErrors="${suppressErrors24}">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="183" />
+				<substitute key="elevation" value="${elev24}--${elev24}" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="4-Bit V (All)" id="${icao}TerminalVAll">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="183" />
+				<substitute key="elevation" value="0.0--360.0" />
+			</contribute>
+		</contribute>
+	</contribute>
+</menuTemplate>

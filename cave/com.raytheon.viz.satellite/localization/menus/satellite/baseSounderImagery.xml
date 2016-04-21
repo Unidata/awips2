@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  
+	<contribute xsi:type="separator" id="MySeparatorId"/>
+
+	<contribute xsi:type="subMenu" menuText="Sounder Imagery">
+		
+    <contribute xsi:type="satBundleItem" file="bundles/DefaultSatellite.xml" 
+        menuText="Ozone" id="GOES-Sounder-Ozone">
+        <substitute key="element" value="Sounder Based Total Column Ozone"/>
+        <substitute key="entity" value="SOUNDER" /> 
+        <substitute key="sector" value="GOES-Sounder" />     
+        <substitute key="colormap" value="Sat/Ozone/Ozone"/>
+    </contribute>
+	<contribute xsi:type="satBundleItem" file="bundles/DefaultSatellite.xml" 
+        menuText="Derived Lifted Index" id="GOES-Sounder-LI">
+        <substitute key="element" value="Sounder Based Derived Lifted Index (LI)"/>
+        <substitute key="entity" value="SOUNDER" /> 
+        <substitute key="sector" value="GOES-Sounder" />     
+        <substitute key="colormap" value="Sat/Ozone/Ozone"/>
+    </contribute>
+	<contribute xsi:type="satBundleItem" file="bundles/DefaultSatellite.xml" 
+        menuText="Precipitable Water" id="GOES-Sounder-PW">
+        <substitute key="element" value="Sounder Based Derived Precipitable Water (PW)"/>
+        <substitute key="entity" value="SOUNDER" /> 
+        <substitute key="sector" value="GOES-Sounder" />     
+        <substitute key="colormap" value="Sat/Precip Water/Precip Water - Polar"/>
+    </contribute>
+	<contribute xsi:type="satBundleItem" file="bundles/DefaultSatellite.xml" 
+        menuText="CAPE" id="GOES-Sounder-Cape">
+        <substitute key="element" value="CAPE"/>
+        <substitute key="entity" value="SOUNDER" /> 
+        <substitute key="sector" value="GOES-Sounder" />     
+        <substitute key="colormap" value="Sat/IR/IR WV"/>
+    </contribute>
+    </contribute> 
+</menuTemplate>

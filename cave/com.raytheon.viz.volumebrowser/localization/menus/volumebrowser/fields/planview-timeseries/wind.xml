@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <contribute xsi:type="menuItem" menuText="Wind Speed Analysis Uncertainty" key="wSpea" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Wind Dir Analysis Uncertainty" key="WDea" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Gust Speed Analysis Uncertainty" key="WGSea" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Ageo Wind" key="ageoW" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Ageo Wind Speed" key="ageoWM"  indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Deformation (Total)" key="Tdef" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Deformation Vect" key="defV" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Geo Wind" key="geoW" indentText="false" />    
+    <contribute xsi:type="menuItem" menuText="Geo Wind Speed" key="geoWM"  indentText="true" /> 
+    <contribute xsi:type="menuItem" menuText="Thermal Wind" key="tWind" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Wind (Total)" key="Wind" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="u Component of Wind" key="uW"  indentText="true" />
+    <contribute xsi:type="menuItem" menuText="v Component of Wind" key="vW"  indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Wind Direction" key="WD" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Wind Divergence" key="wDiv" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Mean Div" key="wDivxSM" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Wind Gust Speed" key="WGS" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Max Hourly Gust Speed" key="MaxWGS1hr" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Wind Gust (Barb)" key="Gust" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Wind Speed" key="wSp" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Max Hourly Sustained Wind Speed" key="MWSPD" indentText="true" />
+
+    <contribute xsi:type="titleImgItem" titleText="Wind Shear" displayImage="true" displayDashes="true"/>
+    <contribute xsi:type="menuItem" menuText="Wind Shear" key="Shear" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Shear Mag" key="ShrMag" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Bulk Shear Vecs" key="BlkShr" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Bulk Shear Mag" key="BlkMag" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Bulk Shear Vecs - Normalized" key="Shear" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Cumulative Shear" key="CumShr" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Norm Cumulative Shr" key="CumNrm" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="BRN" key="BRN" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="BRN Shear" key="BRNSHR" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="3-6 km icons &gt; 11kts" key="36SHRMi" indentText="false" />
+</menuTemplate>

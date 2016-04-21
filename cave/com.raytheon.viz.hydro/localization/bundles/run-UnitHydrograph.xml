@@ -1,0 +1,10 @@
+<launcher title="UnitHydrograph" >
+	<application runDir="$HYDRO_APPS_DIR/whfs/bin" 
+	             path="$HYDRO_APPS_DIR/whfs/bin"
+	             name="run_UnitHydrographEditor" />
+	<settings>
+        <environment>
+        	 <variable name="sys_java_dir" value="$JAVA_HOME" />
+        </environment>
+	</settings>
+</launcher>

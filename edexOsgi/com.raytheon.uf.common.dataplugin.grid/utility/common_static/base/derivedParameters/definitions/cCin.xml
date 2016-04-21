@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<DerivedParameter unit="J/kg" name="Computed CIN" abbreviation="cCin" xmlns:ns2="group">
+    <Method name="Cin" levels="S">
+        <Field abbreviation="T" level="3D"/>
+        <Field abbreviation="P"/>
+        <Field abbreviation="PoT"/>
+        <Field abbreviation="SHx"/>
+        <ConstantField value="0.0"/>
+    </Method>
+    <Method name="Cin" levels="B">
+        <Field abbreviation="T" level="3D"/>
+        <Field abbreviation="P"/>
+        <Field abbreviation="PoT"/>
+        <Field abbreviation="SHx"/>
+        <ConstantField value="0.0"/>
+    </Method>
+    <Method name="Cin" levels="Surface">
+        <Field abbreviation="T" level="3D"/>
+        <Field abbreviation="P"/>
+        <Field abbreviation="PoT"/>
+        <Field abbreviation="SHx"/>
+        <ConstantField value="0.0"/>
+    </Method>
+    <Method name="Cin" levels="C,FHAG">
+        <Field level="3D" abbreviation="T"/>
+        <Field abbreviation="P" level="lower"/>
+        <Field abbreviation="PoT"/>
+        <Field abbreviation="SHx"/>
+        <ConstantField value="0.0"/>
+    </Method>
+    <Method name="Cin" levels="1000MB-850MB,850MB-700MB,925MB-850MB,925MB-700MB">
+        <Field level="3D" abbreviation="T"/>
+        <Field abbreviation="P" level="lower"/>
+        <Field abbreviation="PoT"/>
+        <Field abbreviation="SHx"/>
+        <ConstantField value="0.0"/>
+    </Method>
+	<!-- For Composite Agl levels it is better to explicitly list the levels 
+		to Average to avoid pulling in extra levels, specifically levels defined at 
+		kft heights. -->
+    <Method name="Average" levels="0-1kmAgl">
+        <Field abbreviation="cCin" level="0kmAgl" />
+        <Field abbreviation="cCin" level="0.5kmAgl" />
+        <Field abbreviation="cCin" level="1kmAgl" />
+    </Method>
+    <Method name="Average" levels="0-2kmAgl">
+        <Field abbreviation="cCin" level="0kmAgl" />
+        <Field abbreviation="cCin" level="0.5kmAgl" />
+        <Field abbreviation="cCin" level="1kmAgl" />
+        <Field abbreviation="cCin" level="1.5kmAgl" />
+        <Field abbreviation="cCin" level="2kmAgl" />
+    </Method>
+    <Method name="Average" levels="0-3kmAgl">
+        <Field abbreviation="cCin" level="0kmAgl" />
+        <Field abbreviation="cCin" level="0.5kmAgl" />
+        <Field abbreviation="cCin" level="1kmAgl" />
+        <Field abbreviation="cCin" level="1.5kmAgl" />
+        <Field abbreviation="cCin" level="2kmAgl" />
+        <Field abbreviation="cCin" level="2.5kmAgl" />
+        <Field abbreviation="cCin" level="3kmAgl" />
+    </Method>
+    <Method name="Average" levels="0-4kmAgl">
+        <Field abbreviation="cCin" level="0kmAgl" />
+        <Field abbreviation="cCin" level="0.5kmAgl" />
+        <Field abbreviation="cCin" level="1kmAgl" />
+        <Field abbreviation="cCin" level="1.5kmAgl" />
+        <Field abbreviation="cCin" level="2kmAgl" />
+        <Field abbreviation="cCin" level="2.5kmAgl" />
+        <Field abbreviation="cCin" level="3kmAgl" />
+        <Field abbreviation="cCin" level="3.5kmAgl" />
+        <Field abbreviation="cCin" level="4kmAgl" />
+    </Method>
+    <Method name="Average" levels="0-5kmAgl">
+        <Field abbreviation="cCin" level="0kmAgl" />
+        <Field abbreviation="cCin" level="0.5kmAgl" />
+        <Field abbreviation="cCin" level="1kmAgl" />
+        <Field abbreviation="cCin" level="1.5kmAgl" />
+        <Field abbreviation="cCin" level="2kmAgl" />
+        <Field abbreviation="cCin" level="2.5kmAgl" />
+        <Field abbreviation="cCin" level="3kmAgl" />
+        <Field abbreviation="cCin" level="3.5kmAgl" />
+        <Field abbreviation="cCin" level="4kmAgl" />
+        <Field abbreviation="cCin" level="4.5kmAgl" />
+        <Field abbreviation="cCin" level="5kmAgl" />
+    </Method>
+    <Method name="Average" levels="0-6kmAgl">
+        <Field abbreviation="cCin" level="0kmAgl" />
+        <Field abbreviation="cCin" level="0.5kmAgl" />
+        <Field abbreviation="cCin" level="1kmAgl" />
+        <Field abbreviation="cCin" level="1.5kmAgl" />
+        <Field abbreviation="cCin" level="2kmAgl" />
+        <Field abbreviation="cCin" level="2.5kmAgl" />
+        <Field abbreviation="cCin" level="3kmAgl" />
+        <Field abbreviation="cCin" level="3.5kmAgl" />
+        <Field abbreviation="cCin" level="4kmAgl" />
+        <Field abbreviation="cCin" level="4.5kmAgl" />
+        <Field abbreviation="cCin" level="5kmAgl" />
+        <Field abbreviation="cCin" level="5.5kmAgl" />
+        <Field abbreviation="cCin" level="6kmAgl" />
+    </Method>
+</DerivedParameter>

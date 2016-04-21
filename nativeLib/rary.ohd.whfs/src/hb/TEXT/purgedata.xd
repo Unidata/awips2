@@ -1,0 +1,376 @@
+module 'Hb'
+version = 47;
+xdesigned = 1;
+applicationName = 'Hb';
+generateNameC = * 'purgedata.c';
+generateNameExterns = * 'purgedata.h';
+generateNameResDB = * 'purgedata.res';
+generateCPixmapFile = '';
+generateCHeaderFile = '';
+generateMask = 39256301;
+useMask = 0;
+ansiC = 1;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 0;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'purgedataDS' : XmDialogShell {
+	arguments {
+	lastGenName = 'purgedataDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_purgedataDS (Widget parent)
+';
+	XmNwidth = 605;
+	XmNheight = 670;
+	XmNallowShellResize = true;
+	XmNtitle = 'Data Purge Parameters';
+	XmNminWidth = 605;
+	XmNminHeight = 670;
+	XmNmaxWidth = 605;
+	XmNmaxHeight = 670;
+	XmNbaseWidth = 605;
+	XmNbaseHeight = 670;
+	};
+object 'purgedataFO' : XmForm {
+	arguments {
+	lastGenName = 'purgedataFO';
+	XmNwidth = 605;
+	XmNheight = 670;
+	XmNautoUnmanage = false;
+	};
+object 'purgepeFR' : XmFrame {
+	arguments {
+	lastGenName = 'purgepeFR';
+	};
+object 'purgepeFO' : XmForm {
+	arguments {
+	lastGenName = 'purgepeFO';
+	};
+object 'purgepeLB1' : XmLabel {
+	arguments {
+	lastGenName = 'purgepeLB1';
+	XmNlabelString = 'Table Name';
+	XmNalignment = 0;
+	};
+};
+object 'purgepeLB2' : XmLabel {
+	arguments {
+	lastGenName = 'purgepeLB2';
+	XmNlabelString = 'Days/Hrs (Hrs) To Retain for Locations in';
+	XmNalignment = 0;
+	};
+};
+object 'purgepeLB3' : XmLabel {
+	arguments {
+	lastGenName = 'purgepeLB3';
+	XmNlabelString = 'Host Area              Backup Areas       Time Fld Name';
+	XmNalignment = 0;
+	};
+};
+object 'purgepeSL' : XmScrolledList {
+	arguments {
+	lastGenName = 'purgepeSL';
+	};
+abstract object 'purgepeHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'purgepeHSB';
+	};
+};
+abstract object 'purgepeVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'purgepeVSB';
+	};
+};
+abstract object 'purgepeLS' : XmList {
+	arguments {
+	lastGenName = 'purgepeLS';
+	XmNlistSizePolicy = 2;
+	};
+};
+};
+object 'purgepe_datasetTX' : XmText {
+	arguments {
+	lastGenName = 'purgepe_datasetTX';
+	XmNmaxLength = 18;
+	XmNcolumns = 23;
+	XmNeditable = false;
+	};
+};
+object 'purgepe_hrsTX' : XmText {
+	arguments {
+	lastGenName = 'purgepe_hrsTX';
+	XmNmaxLength = 5;
+	XmNcolumns = 8;
+	};
+};
+object 'purgepe_hrsbackupTX' : XmTextField {
+	arguments {
+	lastGenName = 'purgepe_hrsbackupTX';
+	XmNmaxLength = 5;
+	};
+};
+object 'purgepe_updatePB' : XmPushButton {
+	arguments {
+	lastGenName = 'purgepe_updatePB';
+	XmNlabelString = 'Update';
+	};
+};
+object 'purgepe_timefldTX' : XmTextField {
+	arguments {
+	name = 'purgepe_timefldTX';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -150;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -45;
+	XmNtopAttachment = 1 0 25;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -575;
+	XmNleftAttachment = 1 0 160;
+	XmNbottomAttachment = 2 0 -25;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -575;
+	XmNleftAttachment = 1 0 160;
+	XmNbottomAttachment = 2 0 -45;
+	XmNtopAttachment = 1 0 25;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -570;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -175;
+	XmNtopAttachment = 1 0 50;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -195;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -215;
+	XmNtopAttachment = 1 0 180;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -300;
+	XmNleftAttachment = 1 0 225;
+	XmNbottomAttachment = 2 0 -215;
+	XmNtopAttachment = 1 0 180;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -410;
+	XmNleftAttachment = 1 0 335;
+	XmNbottomAttachment = 2 0 -215;
+	XmNtopAttachment = 1 0 180;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -370;
+	XmNleftAttachment = 1 0 230;
+	XmNbottomAttachment = 2 0 -255;
+	XmNtopAttachment = 1 0 220;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -570;
+	XmNleftAttachment = 1 0 440;
+	XmNbottomAttachment = 2 0 -215;
+	XmNtopAttachment = 1 0 180;
+    };
+    };
+};
+object 'purgepeLB' : XmLabel {
+	arguments {
+	lastGenName = 'purgepeLB';
+	XmNchildType = 2;
+	XmNlabelString = 'Location Data Purge Parameters';
+	};
+};
+};
+object 'purgeprodFR' : XmFrame {
+	arguments {
+	lastGenName = 'purgeprodFR';
+	};
+object 'purgeprodFO' : XmForm {
+	arguments {
+	lastGenName = 'purgeprodFO';
+	};
+object 'purgeprodLB1' : XmLabel {
+	arguments {
+	lastGenName = 'purgeprodLB1';
+	XmNlabelString = 'Product Id        to Keep     Product Time             Posting Time';
+	XmNalignment = 0;
+	};
+};
+object 'purgeprodSL' : XmScrolledList {
+	arguments {
+	lastGenName = 'purgeprodSL';
+	};
+abstract object 'purgeprodHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'purgeprodHSB';
+	};
+};
+abstract object 'purgeprodVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'purgeprodVSB';
+	};
+};
+abstract object 'purgeprodLS' : XmList {
+	arguments {
+	lastGenName = 'purgeprodLS';
+	XmNlistSizePolicy = 2;
+	};
+};
+};
+object 'purgeprod_idTX' : XmText {
+	arguments {
+	lastGenName = 'purgeprod_idTX';
+	XmNmaxLength = 10;
+	XmNcolumns = 10;
+	};
+};
+object 'purgeprod_verTX' : XmText {
+	arguments {
+	lastGenName = 'purgeprod_verTX';
+	XmNmaxLength = 3;
+	XmNcolumns = 5;
+	};
+};
+object 'purgeprod_addPB' : XmPushButton {
+	arguments {
+	lastGenName = 'purgeprod_addPB';
+	XmNlabelString = 'Add';
+	};
+};
+object 'purgeprod_updatePB' : XmPushButton {
+	arguments {
+	lastGenName = 'purgeprod_updatePB';
+	XmNlabelString = 'Update';
+	};
+};
+object 'purgeprod_deletePB' : XmPushButton {
+	arguments {
+	lastGenName = 'purgeprod_deletePB';
+	XmNlabelString = 'Delete';
+	};
+};
+object 'purgeprodLB2' : XmLabel {
+	arguments {
+	lastGenName = 'purgeprodLB2';
+	XmNlabelString = 'Versions    Latest';
+	XmNalignment = 0;
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -555;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -45;
+	XmNtopAttachment = 1 0 20;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -560;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -160;
+	XmNtopAttachment = 1 0 45;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 175;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 145;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 175;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -110;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -255;
+	XmNtopAttachment = 1 0 220;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -345;
+	XmNleftAttachment = 1 0 235;
+	XmNbottomAttachment = 2 0 -255;
+	XmNtopAttachment = 1 0 220;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -565;
+	XmNleftAttachment = 1 0 475;
+	XmNbottomAttachment = 2 0 -255;
+	XmNtopAttachment = 1 0 220;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -320;
+	XmNleftAttachment = 1 0 125;
+	XmNbottomAttachment = 2 0 -20;
+	XmNtopAttachment = 1 0 0;
+    };
+    };
+};
+object 'purgeprodLB' : XmLabel {
+	arguments {
+	lastGenName = 'purgeprodLB';
+	XmNchildType = 2;
+	XmNlabelString = 'Text Product Purge Parameters';
+	};
+};
+};
+object 'purge_sepSE' : XmSeparator {
+	arguments {
+	lastGenName = 'purge_sepSE';
+	};
+};
+object 'purge_okPB' : XmPushButton {
+	arguments {
+	lastGenName = 'purge_okPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Close';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -595;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -295;
+	XmNtopAttachment = 1 0 10;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -595;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -595;
+	XmNtopAttachment = 1 0 300;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -600;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -610;
+	XmNtopAttachment = 1 0 605;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -110;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -660;
+	XmNtopAttachment = 1 0 620;
+    };
+    };
+};
+};
+end module;

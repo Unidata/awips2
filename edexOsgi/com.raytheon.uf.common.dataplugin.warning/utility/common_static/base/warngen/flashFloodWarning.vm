@@ -1,0 +1,498 @@
+############################################################
+## FLASH FLOOD WARNING TEMPLATE FOR COUNTY-BASED PRODUCTS ##
+############################################################
+## RECENT VERSION HISTORY:
+## EDITED BY Phil Kurimski 9-13-2012 OB12.9.1-12 to add Flash Flood Emergency Headline
+##           Mike Dangelo  9-13-2012 minor tweaks to ${variables} 
+##           Phil Kurimski 2-05-2013 revised CTA statements
+##           Mike Dangelo 09-17-2013 added code for init pos & pathcasting, and added pointMarkers parse line
+##           Evan Bookbinder 9-18-2013 Implemented config.vm
+##           Gene Petrescu 09-19-2013 Added Alaska Modifications (GP comments)
+##           Mike Rega     01-18-2014 added Alaska GP changes for 14.2.1
+##           Mike Rega     03-05-2014 added 3rd bullet text ACROSS THE WARNED AREA
+##           Phil Kurimski 06-24-2014 minor changes for 14.2.2-9
+##           Mike Dangelo  26 March 2015  Mixed Case Changes
+##           Evan Bookbinder 06-15-2015 Replaced hard coded values in handleClosestPoints function with 
+##                                      those from config.vm
+##                                      Fixed default wording on "EXT" to state flooding ongoing instead
+##                                      of expected to occur shortly.  
+##           Phil Kurimski 10-20-2015 Fixed FFW Emergency wording
+##           Mike Dangelo  10-20-2015 Standard CTAs
+#################################### SET SOME VARIABLES ###################################
+#parse("config.vm")
+#set($hycType = "")
+##
+#if(${action} == "EXT")
+	#set($starttime = "000000T0000Z")
+	#set($extend = true)
+#else
+	#set($starttime = ${dateUtil.format(${start}, ${timeFormat.ymdthmz})})
+	#set($extend = false)
+#end
+##
+#set($ic = "ER")
+#set($snowMelt = "")
+#if(${list.contains(${bullets}, "icrs")})
+	#set($ic = "RS")
+    #set($hycType = "Rain and Snowmelt in...")
+    #set($snowMelt = "Rapid snowmelt is also occurring and will add to the flooding. ")
+#end
+##
+${WMOId} ${vtecOffice} 000000 ${BBBId}
+FFW${siteId}
+${ugcline}
+#################################### VTEC LINE ###################################
+/${productClass}.${action}.${vtecOffice}.FF.W.${etn}.${starttime}-${dateUtil.format(${expire}, ${timeFormat.ymdthmz}, 15)}/
+/00000.0.${ic}.000000T0000Z.000000T0000Z.000000T0000Z.OO/
+
+#################################### MND HEADER ###################################
+BULLETIN - EAS ACTIVATION REQUESTED
+#if(${productClass}=="T")
+TEST...Flash Flood Warning...TEST
+#else
+Flash Flood Warning
+#end
+National Weather Service ${officeShort}
+#backupText(${backupSite})
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+
+#if(${productClass}=="T")
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
+
+#end
+
+####################################
+## Flash Flood Emergency Headline ##
+####################################
+#if(${list.contains(${bullets}, "ffwEmergency")} )
+#set($ctaSelected = "YES")
+...FLASH FLOOD EMERGENCY FOR !** EDIT LOCATION(S) **!...
+
+#end
+#headlineext(${officeLoc}, ${backupSite}, ${extend})
+
+#################################
+######## FIRST BULLET ###########
+#################################
+* ##
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+Flash Flood Warning for...
+#if(${hycType} != "")
+<L>  ${hycType}</L>
+#end
+############# added by GP
+#if(${alaska}=="true")
+  !**INSERT RIVER/STREAM OR AREA**! IN !**INSERT GEO AREA**!
+#elseif(${wrZoneCounty}=="true")
+  #firstBullet(${affectedCounties})
+#else
+  #firstBullet(${areas})
+#end
+### GP end
+#################################
+####### SECOND BULLET ###########
+#################################
+
+* ##
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+#secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone})
+
+################################################
+#################################
+######## THIRD BULLET ###########
+#################################
+#set($s1 = "Doppler radar ")
+#set($s2 = "indicated ")
+#set($s3 = "heavy rain")
+#set($overPhrase = "OVER")
+#set($nearPhrase = "NEAR")
+#if(${list.contains(${bullets}, "flash")} || ${action}=="EXT" )
+  #set($isExpected = "Flash flooding is already occurring. ")   
+#else
+  #set($isExpected = "Flash flooding is expected to begin shortly. ")   
+#end
+#if(${list.contains(${bullets}, "burnScar")} )
+  #set($burnScar = "Excessive rainfall over the burn scar will result in debris flow moving through the !** DRAINAGE **!. The debris flow can consist of rock, mud, vegetation and other loose materials.")
+##  #set($burnCTA = "Persons in the vicinity of !** DRAINAGE **! should evacuate immediately.")   
+##  #set($ctaSelected = "YES")
+#elseif(${list.contains(${bullets}, "mudSlide")} )
+  #set($burnScar = "Excessive rainfall over the warned area will cause mud slides near steep terrain. The mud slide can consist of rock, mud, vegetation and other loose materials.")
+##  #set($burnCTA = "Persons in the vicinity of !** DRAINAGE **! should evacuate immediately.")   
+##  #set($ctaSelected = "YES")
+#else
+  #set($burnScar = "") 
+  #set($burnCTA = "")  
+#end
+#set($rainAmount = "")
+#if(${list.contains(${bullets}, "rain1")} )
+  #set($rainAmount = "Up to one inch of rain has already fallen. ")
+#end
+#if(${list.contains(${bullets}, "rain2")} )
+  #set($rainAmount = "Up to two inches of rain have already fallen. ")   
+#end
+#if(${list.contains(${bullets}, "rain3")} )
+  #set($rainAmount = "Up to three inches of rain have already fallen. ")   
+#end
+#if(${list.contains(${bullets}, "rainEdit")} )
+  #set($rainAmount = "!** RAINFALL AMOUNTS **! inches of rain have fallen. ")   
+#end
+#if(${list.contains(${bullets}, "doppler")})
+  #set($nearPhrase = "near")
+  #set($overPhrase = "over")
+#end
+#if(${list.contains(${bullets}, "doppler")} && ${list.contains(${bullets}, "thunder")})
+  #set($s3 = "thunderstorms producing heavy rain")
+  #set($nearPhrase = "near")
+  #set($overPhrase = "over")
+#end
+#if(${list.contains(${bullets}, "dopplerGauge")})
+  #set($s1 = "Doppler radar and automated rain gauges ")
+  #set($s3 = "heavy rain falling")
+  #set($nearPhrase = "near")
+  #set($overPhrase = "over")
+#end
+#if(${list.contains(${bullets}, "dopplerGauge")} && ${list.contains(${bullets}, "thunder")})
+  #set($s1 = "Doppler radar and automated rain gauges ")
+  #set($s3 = "thunderstorms producing heavy rain")
+  #set($nearPhrase = "near")
+  #set($overPhrase = "over")
+#end
+#if(${list.contains(${bullets}, "trainedSpotters")})
+  #set($s1 = "trained weather spotters ")
+  #set($s2 = "reported ")
+  #set($s3 = "flash flooding")
+  #set($nearPhrase = "in")
+  #set($overPhrase = "in")
+#end
+#if(${list.contains(${bullets}, "trainedSpotters")} && ${list.contains(${bullets}, "thunder")})
+  #set($s1 = "trained weather spotters ")
+  #set($s2 = "reported ")
+  #set($s3 = "thunderstorms producing heavy rain")
+  #set($nearPhrase = "IN")
+  #set($overPhrase = "IN")
+#end
+#if(${list.contains(${bullets}, "trainedSpotters")} && ${list.contains(${bullets}, "plainRain")})
+  #set($s1 = "trained weather spotters ")
+  #set($s2 = "reported ")
+  #set($s3 = "heavy rain")
+  #set($nearPhrase = "in")
+  #set($overPhrase = "in")
+#end
+#if(${list.contains(${bullets}, "public")})
+  #set($s1 = "the public ")
+  #set($s2 = "reported ")
+  #set($s3 = "flash flooding")
+  #set($nearPhrase = "in")
+  #set($overPhrase = "in")
+#end
+#if(${list.contains(${bullets}, "public")} && ${list.contains(${bullets}, "thunder")})
+  #set($s1 = "the public ")
+  #set($s2 = "reported ")
+  #set($s3 = "thunderstorms producing heavy rain")
+  #set($nearPhrase = "in")
+  #set($overPhrase = "in")
+#end
+#if(${list.contains(${bullets}, "public")} && ${list.contains(${bullets}, "plainRain")})
+  #set($s1 = "the public ")
+  #set($s2 = "reported ")
+  #set($s3 = "heavy rain")
+  #set($nearPhrase = "in")
+  #set($overPhrase = "in")
+#end
+#if(${list.contains(${bullets}, "lawEnforcement")})
+  #set($s1 = "local law enforcement officials ")
+  #set($s2 = "reported ")
+  #set($s3 = "heavy rain")
+  #set($nearPhrase = "in")
+  #set($overPhrase = "in")
+#end
+#if(${list.contains(${bullets}, "lawEnforcement")} && ${list.contains(${bullets}, "thunder")})
+  #set($s1 = "local law enforcement officials ")
+  #set($s2 = "reported ")
+  #set($s3 = "thunderstorms producing heavy rain")
+  #set($nearPhrase = "in")
+  #set($overPhrase = "in")
+#end
+#if(${list.contains(${bullets}, "lawEnforcement")} && ${list.contains(${bullets}, "plainRain")})
+  #set($s1 = "local law enforcement officials ")
+  #set($s2 = "reported ")
+  #set($s3 = "heavy rain")
+  #set($nearPhrase = "in")
+  #set($overPhrase = "in")
+#end
+#if(${list.contains(${bullets}, "emergencyManagement")})
+  #set($s1 = "emergency management officials ")
+  #set($s2 = "reported ")
+  #set($s3 = "heavy rain")
+  #set($nearPhrase = "in")
+  #set($overPhrase = "in")
+#end
+#if(${list.contains(${bullets}, "emergencyManagement")} && ${list.contains(${bullets}, "thunder")})
+  #set($s1 = "emergency management officials ")
+  #set($s2 = "reported ")
+  #set($s3 = "thunderstorms producing heavy rain")
+  #set($nearPhrase = "in")
+  #set($overPhrase = "in")
+#end
+#if(${list.contains(${bullets}, "emergencyManagement")} && ${list.contains(${bullets}, "plainRain")})
+  #set($s1 = "emergency management officials ")
+  #set($s2 = "reported ")
+  #set($s3 = "heavy rain")
+  #set($nearPhrase = "in")
+  #set($overPhrase = "in")
+#end
+#if(${list.contains(${bullets}, "satellite")})
+  #set($s1 = "satellite estimates ")
+  #set($s3 = "heavy rain")
+  #set($nearPhrase = "near")
+  #set($overPhrase = "over")
+#end
+#if(${list.contains(${bullets}, "satellite")} && ${list.contains(${bullets}, "thunder")})
+  #set($s1 = "satellite estimates ")
+  #set($s3 = "thunderstorms producing heavy rain")
+  #set($nearPhrase = "near")
+  #set($overPhrase = "over")
+#end
+#if(${list.contains(${bullets}, "satelliteGauge")})
+  #set($s1 = "satellite estimates and rain gauges ")
+  #set($s3 = "heavy rain falling")
+  #set($nearPhrase = "near")
+  #set($overPhrase = "over")
+#end
+#if(${list.contains(${bullets}, "satelliteGauge")} && ${list.contains(${bullets}, "thunder")})
+  #set($s1 = "satellite estimates and rain gauges ")
+  #set($s3 = "thunderstorms producing heavy rain")
+  #set($nearPhrase = "near")
+  #set($overPhrase = "over")
+#end
+### added by GP
+#if(${list.contains(${bullets}, "onlyGauge")})
+  #set($s1 = "gauge reports ")
+  #set($s3 = "heavy rain falling")
+  #set($nearPhrase = "near")
+  #set($overPhrase = "over")
+#end
+#if(${list.contains(${bullets}, "onlyGauge")} && ${list.contains(${bullets}, "thunder")})
+  #set($s1 = "gauge reports ")
+  #set($s3 = "thunderstorms producing heavy rain")
+  #set($nearPhrase = "near")
+  #set($overPhrase = "over")
+#end
+#if(${list.contains(${bullets}, "onlyGauge")} && ${list.contains(${bullets}, "plain rain")})
+  #set($s1 = "gauge reports ")
+  #set($nearPhrase = "near")
+  #set($overPhrase = "over")
+#end
+### GP end
+
+* ##
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+#thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
+, ${s1}${s2}${s3} ##
+############# IF TRACK IS ENABLED AND stormPosition SELECTED ###############################################
+#if(${list.contains(${bullets},"stormPosition")})
+#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase}, ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, "MILES", false)
+. ##
+#if(${list.contains(${bullets}, "flash")})
+#set($skip = "")
+#else
+#if(${movementSpeed} < 3 || ${stationary})
+#if(${list.contains(${bullets}, "thunder")})
+The storm is nearly stationary. ## 
+#else
+The rain will continue. ##
+#end
+#else
+#if(${stormType} == "line")
+#if(${list.contains(${bullets}, "thunder")})
+The storms are moving ## 
+#else
+The storm is moving ##
+#end
+#else
+The rain is moving ##
+#end
+#direction(${movementDirectionRounded}) at ${mathUtil.roundTo5(${movementSpeed})} mph. ##
+#end
+#end
+#else
+across the warned area. ##
+##  !** LOCATION **! ##
+#end
+${rainAmount}${isExpected}${snowMelt}
+
+##########################################################################
+## Flash Flood Emergency per NWS 10-922 Directive goes with third bullet #
+##########################################################################
+#if(${list.contains(${bullets}, "ffwEmergency")} )
+#set($ctaSelected = "YES")
+#wrapText("This is a FLASH FLOOD EMERGENCY for !** Edit Location(s) **!. This is a PARTICULARLY DANGEROUS SITUATION. SEEK HIGHER GROUND NOW!" 2 2)
+#end
+
+
+#############################################################
+######## FOURTH BULLET (OPTIONAL IN FLOOD PRODUCTS) #########
+#############################################################
+############# IF TRACK IS ENABLED AND trackStorm AND stormPosition BOTH SELECTED ###############################################
+#if(${list.contains(${bullets},"pathcast")})
+* ##
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+#if($movementSpeed < 3 )
+#pathCast("Heavy rain will continue over the following locations..." "heavy rain" ${pathCast} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
+
+#else
+#pathCast("Heavy rain will move over the following locations..." "heavy rain" ${pathCast} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
+
+#end
+#end
+################
+#if(${list.contains(${bullets}, "listofcities")})
+#set($floodType = "flash flooding") 
+* ##
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+#### THE THIRD ARGUMENT IS A NUMBER SPECIFYING THE NUMBER OF COLUMNS TO OUTPUT THE CITIES LIST IN
+#### 0 IS A ... SEPARATED LIST, 1 IS ONE PER LINE, >1 IS A COLUMN FORMAT
+#### IF YOU USE SOMETHING OTHER THAN "LOCATIONS IMPACTED INCLUDE" LEAD IN BELOW, MAKE SURE THE
+#### ACCOMPANYING XML FILE PARSE STRING IS CHANGED TO MATCH!
+#locationsList("Some locations that will experience flooding include..." ${floodType} 0 ${cityList} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
+
+#end
+#if(${list.contains(${bullets}, "burnScar")} || ${list.contains(${bullets}, "mudSlide")})
+${burnScar}
+
+#end 
+########################################## END OF OPTIONAL FOURTH BULLET ##############################
+######################################
+###### WHERE ADDITIONAL INFO GOES ####
+######################################
+
+#if(${list.contains(${bullets}, "addRainfall")})
+Additional rainfall amounts of !** EDIT AMOUNT **! are possible in the warned area.
+
+#end
+#if(${list.contains(${bullets}, "drainages")})
+#drainages(${riverdrainages})
+
+#end
+#if(${list.contains(${bullets}, "particularStream")})
+Flood waters are moving down !**NAME OF CHANNEL**! from !**LOCATION**! to !**LOCATION**!. The flood crest is expected to reach !**LOCATION(S)**! by !**TIME(S)**!. 
+
+#end
+
+## parse file command here is to pull in mile marker and/or point marker info
+## #parse("mileMarkers.vm")
+## #parse("pointMarkers.vm")
+
+#################################### END OF ADDITIONAL STUFF ###################################
+######################################
+####### CALL TO ACTIONS ##############
+######################################
+##Check to see if we've selected any calls to action. 
+#foreach (${bullet} in ${bullets})
+#if(${bullet.endsWith("CTA")})
+#set($ctaSelected = "YES")
+#end
+#end
+##
+#if(${ctaSelected} == "YES") 
+PRECAUTIONARY/PREPAREDNESS ACTIONS...
+
+#end
+
+##${burnCTA}
+
+#if(${list.contains(${bullets}, "ffwEmergencyCTA")} || ${list.contains(${bullets}, "ffwEmergency")})
+#if(${list.contains(${bullets}, "ffwEmergency")})
+Move to higher ground now. This is an extremely dangerous and life-threatening situation. Do not attempt to travel unless you are fleeing an area subject to flooding or under an evacuation order.
+
+#else
+!** YOU SELECTED THE FLASH FLOOD EMERGENCY CTA WITHOUT SELECTING THE FLASH FLOOD EMERGENCY HEADER. PLEASE CLOSE THIS WINDOW AND RE-GENERATE THIS WARNING **!
+
+#end
+#end
+#if(${list.contains(${bullets}, "TADD_CTA")})
+Turn around, don't drown when encountering flooded roads. Most flood deaths occur in vehicles.
+
+#end
+#if(${list.contains(${bullets}, "actQuicklyCTA")})
+Move to higher ground now. Act quickly to protect your life.
+
+#end
+#if(${list.contains(${bullets}, "childSafetyCTA")})
+Keep children away from storm drains, culverts, creeks and streams. Water levels can rise rapidly and sweep children away.
+
+#end
+#if(${list.contains(${bullets}, "nighttimeCTA")})
+Be especially cautious at night when it is harder to recognize the dangers of flooding. 
+
+#end
+#if(${list.contains(${bullets}, "urbanCTA")})
+Excessive runoff from heavy rainfall will cause flooding of small creeks and streams, urban areas, highways, streets and underpasses as well as other drainage areas and low lying spots. 
+
+#end
+#if(${list.contains(${bullets}, "ruralCTA")})
+Excessive runoff from heavy rainfall will cause flooding of small creeks and streams, country roads, farmland, and other low lying spots.
+
+#end
+#if(${list.contains(${bullets}, "stayAwayCTA")})
+Stay away or be swept away. River banks and culverts can become unstable and unsafe. 
+
+#end
+#if(${list.contains(${bullets}, "lowSpotsCTA")})
+In hilly terrain there are hundreds of low water crossings which are potentially dangerous in heavy rain. Do not attempt to cross flooded roads. Find an alternate route.
+
+#end
+#if(${list.contains(${bullets}, "arroyosCTA")})
+Remain alert for flooding even in locations not receiving rain. Arroyos, streams, and rivers can become raging killer currents in a matter of minutes, even from distant rainfall.
+
+#end
+#if(${list.contains(${bullets}, "burnAreasCTA")})
+Move away from recently burned areas. Life-threatening flooding of creeks, roads and normally dry arroyos is likely. The heavy rains will likely trigger rockslides, mudslides and debris flows in steep terrain, especially in and around these areas.
+
+#end
+#if(${list.contains(${bullets}, "camperSafetyCTA")})
+Flooding is occurring or is imminent. It is important to know where you are relative to streams, rivers, or creeks which can become killers in heavy rains. Campers and hikers should avoid streams or creeks.
+
+#end
+#if(${list.contains(${bullets}, "reportFloodingCTA")})
+Please report flooding to your local law enforcement agency when you can do so safely. 
+
+#end
+#if(${list.contains(${bullets}, "ffwMeansCTA")})
+A Flash Flood Warning means that flooding is imminent or occurring. If you are in the warned area move to higher ground immediately. Residents living along streams and creeks should take immediate precautions to protect life and property. 
+
+#end
+#if(${ctaSelected} == "YES") 
+&&
+
+#end
+#################################### END OF CTA STUFF ###################################
+##########################################
+########BOTTOM OF THE PRODUCT#############
+##########################################
+########################
+## LAT/LON, TML, SIGN ##
+########################
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
+
+#end
+
+#printcoords(${areaPoly}, ${list})
+
+
+$$
+
+
+#parse("forecasterName.vm")

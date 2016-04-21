@@ -1,0 +1,206 @@
+C$PRAGMA C (GET_APPS_DEFAULTS)
+C MODULE GET_GEOCOORD
+C-----------------------------------------------------------------------
+C
+      SUBROUTINE GET_GEO_COORD (IUPR,IUGEO,GEOPATH,
+     *   NHWCOL,NHCOL,NHSROW,NHROW,ISTAT)
+C
+C  GET HRAP COORDINATES FROM GEO DATA FILE
+C
+      CHARACTER*20 ENVVAR/' '/
+      CHARACTER*5 GEOREC1,GEOREC2,GEOREC3,GEOREC4
+      CHARACTER*20 GEOUSER
+      CHARACTER*128 GEODIR
+      CHARACTER*256 GEOPATH
+      LOGICAL*4 FLEXST
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/util/src/util_gen2/RCS/get_geo_coord.f,v $
+     . $',                                                             '
+     .$Id: get_geo_coord.f,v 1.2 2003/03/14 18:14:44 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      ISTAT=0
+C
+      INDERR=0
+C
+      GEODIR=' '
+      GEOPATH=' '
+      GEOUSER=' '
+C
+C  GET GEO DATA DIRECTORY NAME
+      ENVVAR='geo_data'
+      CALL GET_APPS_DEFAULTS (ENVVAR,LENSTR(ENVVAR),
+     *   GEODIR,LGEODIR)
+      MGEODIR=LEN(GEODIR)
+      IF (LGEODIR.GT.MGEODIR) THEN
+         WRITE (IUPR,30) ENVVAR(1:LENSTR(ENVVAR)),LGEODIR,MGEODIR
+         INDERR=1
+         ENDIF
+      IF (GEODIR.EQ.' ') THEN
+         WRITE (IUPR,40) ENVVAR(1:LENSTR(ENVVAR))
+         INDERR=1
+         ENDIF
+C
+C  GET USER NAME
+      ENVVAR='ifp_rfc'
+      CALL GET_APPS_DEFAULTS (ENVVAR,LENSTR(ENVVAR),
+     *   GEOUSER,LGEOUSER)
+      MGEOUSER=LEN(GEOUSER)
+      IF (LGEOUSER.GT.MGEOUSER) THEN
+         WRITE (IUPR,30) ENVVAR(1:LENSTR(ENVVAR)),LGEOUSER,MGEOUSER
+         INDERR=1
+         ENDIF
+      IF (GEOUSER.EQ.' ') THEN
+         WRITE (IUPR,40) ENVVAR(1:LENSTR(ENVVAR))
+         INDERR=1
+         ENDIF
+      IF (INDERR.EQ.1) THEN
+         ISTAT=1
+         GO TO 100
+         ENDIF
+C
+C  SET PATH NAME FOR GEO DATA FILE
+      MGEOPATH=LEN(GEOPATH)
+      IF (LGEODIR.LE.MGEOPATH) THEN
+         GEOPATH=GEODIR(1:LGEODIR)
+         ELSE
+            WRITE (IUPR,80) 'GEOPATH',MGEOPATH
+            ISTAT=1
+            GO TO 100
+         ENDIF
+      CALL UCNCAT (GEOPATH,'/',IERR)
+      IF (IERR.NE.0) THEN
+         WRITE (IUPR,80) 'GEOPATH',MGEOPATH
+         ISTAT=1
+         GO TO 100
+         ENDIF
+      CALL UCNCAT (GEOPATH,GEOUSER(1:LGEOUSER),IERR)
+      IF (IERR.NE.0) THEN
+         WRITE (IUPR,80) 'GEOPATH',MGEOPATH
+         ISTAT=1
+         GO TO 100
+         ENDIF
+      CALL UCNCAT (GEOPATH,'/ascii/',IERR)
+      IF (IERR.NE.0) THEN
+         WRITE (IUPR,80) 'GEOPATH',MGEOPATH
+         ISTAT=1
+         GO TO 100
+         ENDIF
+      CALL UCNCAT (GEOPATH,'coord_',IERR)
+      IF (IERR.NE.0) THEN
+         WRITE (IUPR,80) 'GEOPATH',MGEOPATH
+         ISTAT=1
+         GO TO 100
+         ENDIF
+      CALL UCNCAT (GEOPATH,GEOUSER(1:LGEOUSER),IERR)
+      IF (IERR.NE.0) THEN
+         WRITE (IUPR,80) 'GEOPATH',MGEOPATH
+         ISTAT=1
+         GO TO 100
+         ENDIF
+      CALL UCNCAT (GEOPATH,'.dat',IERR)
+      IF (IERR.NE.0) THEN
+         WRITE (IUPR,80) 'GEOPATH',MGEOPATH
+         ISTAT=1
+         GO TO 100
+         ENDIF
+C
+C  CHECK IF FILE EXISTS
+      INQUIRE (FILE=GEOPATH,EXIST=FLEXST,IOSTAT=IOSTAT)
+      IF (IOSTAT.NE.0) THEN
+         WRITE (IUPR,70) 'INQUIRING',GEOPATH(1:LENSTR(GEOPATH)),IOSTAT
+         ISTAT=1
+         GO TO 100
+         ENDIF
+      IF (.NOT.FLEXST) THEN
+         WRITE (IUPR,50) GEOPATH(1:LENSTR(GEOPATH))
+         ISTAT=1
+         GO TO 100
+         ENDIF
+C
+C  OPEN FILE
+      OPEN (UNIT=IUGEO,FILE=GEOPATH,STATUS='OLD',
+     *   ACCESS='SEQUENTIAL',IOSTAT=IOSTAT)
+      IF (IOSTAT.NE.0) THEN
+         WRITE (IUPR,70) 'OPENING',GEOPATH(1:LENSTR(GEOPATH)),IOSTAT
+         ISTAT=1
+         GO TO 100
+         ENDIF
+C
+C  READ GEO DATA FILE
+      NREC=1
+      READ (IUGEO,'(A)',ERR=10) GEOREC1
+      NREC=NREC+1
+      READ (IUGEO,'(A)',ERR=10) GEOREC2
+      NREC=NREC+1
+      READ (IUGEO,'(A)',ERR=10) GEOREC3
+      NREC=NREC+1
+      READ (IUGEO,'(A)',ERR=10) GEOREC4
+      GO TO 20
+10    WRITE (IUPR,60) NREC,GEOPATH(1:LENSTR(GEOPATH))
+      ISTAT=1
+      GO TO 100
+C
+C  CLOSE FILE
+20    CLOSE (UNIT=IUGEO,IOSTAT=IOSTAT)
+      IF (IOSTAT.NE.0) THEN
+         WRITE (IUPR,70) 'CLOSING',GEOPATH(1:LENSTR(GEOPATH)),IOSTAT
+         ISTAT=1
+         GO TO 100
+         ENDIF
+C
+C  CONVERT FROM CHARACTER TO INTEGER VALUES
+      INDERR=0
+      IBEG=1
+      IPRERR=1
+      CALL UFA2I (GEOREC1,IBEG,LENSTR(GEOREC1),NHWCOL,
+     *   IPRERR,LP,IERR)
+      IF (IERR.NE.0) THEN
+         WRITE (IUPR,90) 'GEOREC1',GEOREC1(1:LENSTR(GEOREC1))
+         INDERR=1
+         ENDIF
+      CALL UFA2I (GEOREC2,IBEG,LENSTR(GEOREC2),NHSROW,
+     *  IPRERR,LP,IERR)
+      IF (IERR.NE.0) THEN
+         WRITE (IUPR,90) 'GEOREC2',GEOREC2(1:LENSTR(GEOREC2))
+         INDERR=1
+         ENDIF
+      CALL UFA2I (GEOREC3,IBEG,LENSTR(GEOREC3),NHCOL,
+     *   IPRERR,LP,IERR)
+      IF (IERR.NE.0) THEN
+         WRITE (IUPR,90) 'GEOREC3',GEOREC3(1:LENSTR(GEOREC3))
+         INDERR=1
+         ENDIF
+      CALL UFA2I (GEOREC4,IBEG,LENSTR(GEOREC4),NHROW,
+     *   IPRERR,LP,IERR)
+      IF (IERR.NE.0) THEN
+         WRITE (IUPR,90) 'GEOREC4',GEOREC4(1:LENSTR(GEOREC4))
+         INDERR=1
+         ENDIF
+      IF (INDERR.EQ.1) THEN
+         ISTAT=1
+         ENDIF
+C
+30    FORMAT (' ERROR: IN GET_GEO_COORD - LENGTH OF APPS_DEFAULT ',
+     *   'ENVIRONMENT VARIABLE ',A,' (',I2,') ',
+     *   'EXCEEDS MAXIMUM (',I2,').')
+40    FORMAT (' ERROR: IN GET_GEO_COORD - CANNOT GET APPS_DEFAULT ',
+     *   'VALUE FOR ENVIRONMENT VARIABLE ',A,'.')
+50    FORMAT (' ERROR: IN GET_GEO_COORD - FILE ',A,' NOT FOUND.')
+60    FORMAT (' ERROR: IN GET_GEO_COORD - READING RECORD ',I2,' ',
+     *   'FROM FILE ',A,'.')
+70    FORMAT (' ERROR: IN GET_GEO_COORD - ',A,' FILE ',A,'. ',
+     *   'IOSTAT=',I2,'.')
+80    FORMAT (' ERROR: IN GET_GEO_COORD - LENGTH OF VARIABLE ',A,' ',
+     *   '(',I3,') TOO SMALL.')
+90    FORMAT (' ERROR: IN GET_GEO_COORD - CONVERTING THE CONTENTS ',
+     *   'OF VARIABLE ',A,' (',A,') TO AN INTEGER VALUE.')
+C
+100   RETURN
+C
+      END

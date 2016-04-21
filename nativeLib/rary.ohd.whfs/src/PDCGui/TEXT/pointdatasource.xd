@@ -1,0 +1,107 @@
+module 'XApplication'
+version = 48;
+xdesigned = 1;
+applicationName = 'XApplication';
+generateNameC = * 'pointdatasource.c';
+generateNameExterns = * 'pointdatasource.h';
+generateNameResDB = * 'pointservice_backup.res';
+motifFlavour = 2;
+generateMask = 4390924;
+useMask = 0;
+ansiC = 1;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 0;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+javaVersion = 2;
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'dataSourceFilterDS' : XmDialogShell {
+	arguments {
+	was_selected = true;
+	lastGenName = 'dataSourceFilterDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_dataSourceFilterDS (Widget parent)
+';
+	XmNwidth = 250;
+	XmNmappedWhenManaged = true;
+	XmNallowShellResize = true;
+	XmNtitle = 'Data Source List';
+	XmNminWidth = 250;
+	XmNminHeight = 200;
+	XmNmaxWidth = 250;
+	XmNmaxHeight = 200;
+	};
+object 'dataSourceFilterFO' : XmForm {
+	arguments {
+	lastGenName = 'dataSourceFilterFO';
+	XmNwidth = 250;
+	XmNautoUnmanage = false;
+	};
+object 'dataSourceFilterSL' : XmScrolledList {
+	arguments {
+	lastGenName = 'dataSourceFilterSL';
+	};
+abstract object 'dataSourceFilterHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'dataSourceFilterHSB';
+	};
+};
+abstract object 'dataSourceFilterVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'dataSourceFilterVSB';
+	};
+};
+abstract object 'dataSourceFilterLI' : XmList {
+	arguments {
+	lastGenName = 'dataSourceFilterLI';
+	XmNselectionPolicy = XmMULTIPLE_SELECT;
+	};
+};
+};
+object 'dataSourceFilterApplyPB' : XmPushButton {
+	arguments {
+	lastGenName = 'dataSourceFilterApplyPB';
+	generateResName = true;
+	XmNmappedWhenManaged = true;
+	XmNlabelString = 'Apply';
+	};
+};
+object 'dataSourceFilterCancelPB' : XmPushButton {
+	arguments {
+	lastGenName = 'dataSourceFilterCancelPB';
+	XmNlabelString = 'Cancel';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -188;
+	XmNleftAttachment = 1 0 60;
+	XmNbottomAttachment = 2 0 -136;
+	XmNtopAttachment = 1 0 16;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -99;
+	XmNleftAttachment = 1 0 24;
+	XmNbottomAttachment = 2 0 -186;
+	XmNtopAttachment = 1 0 156;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -219;
+	XmNleftAttachment = 1 0 144;
+	XmNbottomAttachment = 2 0 -186;
+	XmNtopAttachment = 1 0 156;
+    };
+    };
+};
+};
+end module;

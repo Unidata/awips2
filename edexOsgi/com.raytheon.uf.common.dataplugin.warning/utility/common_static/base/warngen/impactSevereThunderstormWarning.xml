@@ -1,0 +1,224 @@
+<!-- Severe Thunderstorm Warning configuration --> 
+<!-- MODIFIED 
+     PHIL KURIMSKI WFO DTX   1-26-2012 OB12.1.1-1 FOR IMPACT BASED SVR WARNINGS
+     PHIL KURIMSKI WFO DTX   2-29-2012 OB12.2.1-4
+     PHIL KURIMSKI 4-20-2012
+     MIKE REGA 5-10-2012 DR 14525 added timeZoneField
+                         DR 14691 added feAreaField
+     Evan Bookbinder 09-11-2012 Added settings for locations shapefile    
+                                Added new areaSource object     
+     Phil Kurimski   09-19-2013 added geospatialConfig.xml      
+     Evan Bookbinder  2-18-2014 corrected supercell CTA typo & added DSS Events
+     Evan Bookbinder  6-15-2015 corrected grapefruit and softball hail sizes     
+-->
+<warngenConfig>
+
+<!-- INCLUDE ALL GEOSPTATIAL INFORMATION FOR THIS PRODUCT
+ANY pointSource/areaSource/pathcastConfig OVERRIDES TO THAT FILE CAN BE
+PLACED IN FULL BELOW THE INCLUDE LINE BELOW. -->
+<include file="geospatialConfig_COUNTY.xml"/>
+
+<!-- Include Various geospatial XML files to create their objects. These are *NOT*
+turned on unless the corresponding .vm file is turned on in a given template's .vm file
+-->  
+
+<include file="dssEvents.xml"/>
+<!-- To enable, make sure dssEvents.vm is added/uncommented in the severeThunderstormWarning.vm .vm file -->
+<include file="mileMarkers.xml"/>
+<!-- To enable, make sure mileMarkers.vm is added/uncommented in the severeThunderstormWarning.vm file -->
+<include file="pointMarkers.xml"/>
+<!-- To enable, make sure pointMarkers.vm is added/uncommented in the severeThunderstormWarning.vm .vm file -->
+
+ <!-- Config distance/speed units -->
+ <unitDistance>mi</unitDistance>
+ <unitSpeed>mph</unitSpeed>
+
+ <!-- Maps to load on template selection. Refer to 'Maps' menu in CAVE. 
+ 	The various menu items are also the different maps
+ 	that can be loaded with each template. -->
+ <maps>
+  <map>County Names</map>
+  <map>County Warning Areas</map>
+ </maps>
+
+ <!-- Followups: VTEC actions of allowable followups when this template is selected -->
+ <followups>
+  <followup>NEW</followup>
+  <followup>COR</followup>
+ </followups>
+ 
+ <!-- Phensigs: The list of phenomena and significance combinations that this template applies to -->
+ <phensigs>
+   <phensig>SV.W</phensig>
+ </phensigs>
+ 
+ <!-- Enables/disables user from selecting the Restart button the GUI -->
+ <enableRestart>true</enableRestart>
+
+  <!-- Enable/disables the system to lock text based on various patterns -->
+ <autoLockText>true</autoLockText>
+ 
+ <!-- Included watches: If a tornado watch or severe thunderstorm watch is to be 
+ 	included with the warning product include TO.A and/or SV.A, 
+ 	respectively. Please refer to 'includedWatchAreaBuffer' in <areaConfig/>. -->
+ <includedWatches>
+  <includedWatch>TO.A</includedWatch>
+ </includedWatches>
+
+ <!-- durations: the list of possible durations of the warning -->
+ <defaultDuration>30</defaultDuration>
+ <durations>
+  <duration>15</duration>
+  <duration>20</duration>
+  <duration>25</duration>
+  <duration>30</duration>
+  <duration>40</duration>
+  <duration>45</duration>
+  <duration>50</duration>
+  <duration>60</duration>
+  <duration>75</duration>
+  <duration>90</duration>
+ </durations>
+ 
+ <!-- bullets: User specified text generation options 
+          - bulletName: an id that is passed to the template when a bullet
+                      is selected. This should be unique
+          - bulletText: the text presented to the user in the selection list
+          - bulletType: "title" makes the bullet unselectable
+          				"basin" correlates the item to a Geometry in the customlocations table
+          - bulletGroup: Only one bullet can be selected per bulletGroup 
+          - parseString: this string must MATCH a unique phrase in the associated bulletText. 
+          	This will be used to highlight the appropriate bullet on a follow up-->
+<bulletActionGroups>
+<bulletActionGroup action="NEW" phen="SV" sig="W">
+ <bullets>
+  <bullet bulletText="*********** BASIS FOR WARNING (CHOOSE 1) **********" bulletType="title"/>
+  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="toggle1" bulletDefault="true" parseString="SOURCE...RADAR INDICATED"/>
+  <bullet bulletName="trainedSpotters" bulletText="Trained spotters reported" bulletGroup="toggle1" parseString="SOURCE...TRAINED WEATHER SPOTTERS"/>
+  <bullet bulletName="lawEnforcement" bulletText="Law Enforcement Reported" bulletGroup="toggle1" parseString="SOURCE...LAW ENFORCEMENT"/>
+  <bullet bulletName="emergencyMgmt" bulletText="Emergency Management Reported" bulletGroup="toggle1" parseString="SOURCE...EMERGENCY MANAGEMENT"/>
+  <bullet bulletName="public" bulletText="Public reported" bulletGroup="toggle1" parseString="SOURCE...PUBLIC"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="******* THREAT (CHOOSE UP TO 1 EACH WIND/HAIL) ******" bulletType="title"/>
+  <bullet bulletName="60mphWind" bulletText="60 mph wind" bulletGroup="toggle2" parseString="60MPH"/>
+  <bullet bulletName="70mphWind" bulletText="70 mph wind" bulletGroup="toggle2" parseString="70MPH"/>
+  <bullet bulletName="80mphWind" bulletText="80 mph wind" bulletGroup="toggle2" parseString="80MPH"/>
+  <bullet bulletName="90mphWind" bulletText="90 mph wind" bulletGroup="toggle2" parseString="90MPH"/>
+  <bullet bulletName="100mphWind" bulletText="100 mph wind" bulletGroup="toggle2" parseString="100MPH"/>
+  <bullet bulletName="pennyHail" bulletText="Penny size hail (3/4&quot;)" bulletGroup="toggle3" parseString="0.75IN"/>
+  <bullet bulletName="nickelHail" bulletText="Nickel size hail (7/8&quot;)" bulletGroup="toggle3" parseString="0.88IN"/>
+  <bullet bulletName="quarterHail" bulletText="Quarter size hail (1&quot;)" bulletGroup="toggle3" parseString="1.00IN"/>
+  <bullet bulletName="halfdollarHail" bulletText="Half dollar size hail (1 1/4&quot;)" bulletGroup="toggle3" parseString="1.25IN"/>
+  <bullet bulletName="pingpongHail" bulletText="Ping pong ball size hail (1 1/2&quot;)" bulletGroup="toggle3" parseString="1.50IN"/>
+  <bullet bulletName="golfballHail" bulletText="Golf ball size hail (1 3/4&quot;)" bulletGroup="toggle3" parseString="1.75IN"/>
+  <bullet bulletName="twoinchHail" bulletText="Two Inch hail (2&quot;)" bulletGroup="toggle3" parseString="2.00IN"/>
+  <bullet bulletName="tennisBallHail" bulletText="Tennis ball hail (2 1/2&quot;)" bulletGroup="toggle3" parseString="2.50IN"/>
+  <bullet bulletName="baseballHail" bulletText="Baseball size hail (2 3/4&quot;)" bulletGroup="toggle3" parseString="2.75IN"/>
+  <bullet bulletName="threeinchHail" bulletText="Three inch hail (3&quot;)" bulletGroup="toggle3" parseString="3.00IN"/>
+  <bullet bulletName="softballHail" bulletText="Softball size hail (4&quot;)" bulletGroup="toggle3" parseString="4.00IN"/>
+  <bullet bulletName="grapefruitHail" bulletText="Grapefruit size hail (4 1/2&quot;)" bulletGroup="toggle3" parseString="4.50IN"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="******** TORNADO TAG ********" bulletType="title"/>
+  <bullet bulletName="svrTorTag" bulletText="SELECT FOR TORNADO...POSSIBLE TAG" parseString="TORNADO...POSSIBLE"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="******** ADDITIONAL REPORTS ********" bulletType="title"/>
+  <bullet bulletName="addlHailWindRpt" bulletText="Select to include additional hail and/or wind reports" bulletGroup="radioset4"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="************ LOCATIONS IMPACTED  **************" bulletType="title"/>
+  <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="toggle4" parseString="WILL BE NEAR..."/>
+  <bullet bulletName="listofcities" bulletDefault="true" bulletText="Select for a list of cities" bulletGroup="toggle4"/>
+  <bullet bulletName="specialEvent" bulletText="Special heads-up for large event/venue" parseString="THOSE ATTENDING"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="******** CALLS TO ACTION (CHOOSE 1 OR MORE) *********" bulletType="title"/>
+  <bullet bulletText="******* (B) = Base (E) = Elevated CTA Statements *******" bulletType="title"/>
+  <bullet bulletName="torWatchRemainsInEffectCTA" bulletText="Tor Watch In Effect or TOR...POSSIBLE Tag" parseString="TORNADOES CAN DEVELOP QUICKLY FROM SEVERE THUNDERSTORMS"/>
+  <bullet bulletName="genericCTA" bulletText="(B) Generic threat - standard CTA" bulletDefault="true" parseString="MOVE TO AN INTERIOR ROOM ON THE LOWEST FLOOR OF A BUILDING"/>
+  <bullet bulletName="largeHailCTA" bulletText="(B) Large Hail and Deadly Lightning" parseString="LARGE HAIL AND DEADLY CLOUD TO GROUND LIGHTNING"/>
+  <bullet bulletName="largeHailWindCTA" bulletText="(B) Large Hail and Damaging Wind" parseString="PREPARE IMMEDIATELY FOR LARGE HAIL AND DAMAGING WINDS"/>
+  <bullet bulletName="historyHailCTA" bulletText="(B) This storm is producing large hail" parseString="PRODUCING LARGE HAIL. SEEK SHELTER"/>
+  <bullet bulletName="historyWindCTA" bulletText="(B) This storm is producing widespread wind damage" parseString="PRODUCING WIDESPREAD WIND DAMAGE ACROSS"/>
+  <bullet bulletName="veryLargeHailCTA" bulletText="(E) This is a dangerous storm (Large DESTRUCTIVE Hail)" parseString="LARGE DESTRUCTIVE HAIL CAPABLE OF PRODUCING SIGNIFICANT DAMAGE"/>
+  <bullet bulletName="extremeWindsCTA" bulletText="(E) Winds in excess of 80 mph (Tor-like wind speeds)" parseString="TORNADO LIKE WIND SPEEDS"/>
+  <bullet bulletName="deadlyStormCTA" bulletText="(E) This is a potentially deadly storm" parseString="POTENTIALLY DEADLY STORM"/>
+  <bullet bulletName="widespreadWindCTA" bulletText="(E) This storm is producing widespread wind damage" parseString="EXTREMELY DANGEROUS SITUATION"/>
+  <bullet bulletName="historyWindHailCTA" bulletText="(E) This storm is producing destructive winds/large hail" parseString="PRODUCING DESTRUCTIVE WINDS AND LARGE DAMAGING HAIL"/>
+  <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="CONTACT YOUR NEAREST LAW ENFORCEMENT"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="******** SPECIAL CASE CALLS TO ACTION **********" bulletType="title"/>
+  <bullet bulletName="gustFrontOutflowCTA" bulletText="(B) Preceding svr gust front/outflow...no rain/thunder expected" parseString="WILL OCCUR BEFORE ANY RAIN OR LIGHTNING"/>
+  <bullet bulletName="squallLineCTA" bulletText="(E) Thunderstorm lines can produce tornadoes (can use w/TOR...POSSIBLE tag)" parseString="TORNADOES AND WIDESPREAD SIGNIFICANT WIND DAMAGE"/>
+  <bullet bulletName="superCellsCTA" bulletText="(E) Supercells can produce all types of svr...includes tornado" parseString="ALL TYPES OF SEVERE WEATHER INCLUDING"/>
+  <bullet bulletText="******** MISCELLANEOUS CALLS TO ACTION **********" bulletType="title"/>
+  <bullet bulletName="lightningCTA" bulletText="Lightning in addition to hail/winds" parseString="CONTINUOUS CLOUD TO GROUND LIGHTNING IS OCCURRING"/>
+  <bullet bulletName="boatersCTA" bulletText="Over Lake - Boaters seek shelter" parseString="GET AWAY FROM THE WATER AND MOVE INDOORS"/>
+  <bullet bulletName="torrentialRainfallCTA" bulletText="Torrential rainfall" parseString="TORRENTIAL RAINFALL IS OCCURRING"/>
+ </bullets>
+</bulletActionGroup>
+<bulletActionGroup action="COR" phen="SV" sig="W">
+ <bullets>
+  <bullet bulletText="*********** BASIS FOR WARNING (CHOOSE 1) **********" bulletType="title"/>
+  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="toggle1" bulletDefault="true" parseString="SOURCE...RADAR INDICATED"/>
+  <bullet bulletName="trainedSpotters" bulletText="Trained spotters reported" bulletGroup="toggle1" parseString="SOURCE...TRAINED WEATHER SPOTTERS"/>
+  <bullet bulletName="lawEnforcement" bulletText="Law Enforcement Reported" bulletGroup="toggle1" parseString="SOURCE...LAW ENFORCEMENT"/>
+  <bullet bulletName="emergencyMgmt" bulletText="Emergency Management Reported" bulletGroup="toggle1" parseString="SOURCE...EMERGENCY MANAGEMENT"/>
+  <bullet bulletName="public" bulletText="Public reported" bulletGroup="toggle1" parseString="SOURCE...PUBLIC"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="******* THREAT (CHOOSE UP TO 1 EACH WIND/HAIL) ******" bulletType="title"/>
+  <bullet bulletName="60mphWind" bulletText="60 mph wind" bulletGroup="toggle2" parseString="60MPH"/>
+  <bullet bulletName="70mphWind" bulletText="70 mph wind" bulletGroup="toggle2" parseString="70MPH"/>
+  <bullet bulletName="80mphWind" bulletText="80 mph wind" bulletGroup="toggle2" parseString="80MPH"/>
+  <bullet bulletName="90mphWind" bulletText="90 mph wind" bulletGroup="toggle2" parseString="90MPH"/>
+  <bullet bulletName="100mphWind" bulletText="100 mph wind" bulletGroup="toggle2" parseString="100MPH"/>
+  <bullet bulletName="pennyHail" bulletText="Penny size hail (3/4&quot;)" bulletGroup="toggle3" parseString="0.75IN"/>
+  <bullet bulletName="nickelHail" bulletText="Nickel size hail (7/8&quot;)" bulletGroup="toggle3" parseString="0.88IN"/>
+  <bullet bulletName="quarterHail" bulletText="Quarter size hail (1&quot;)" bulletGroup="toggle3" parseString="1.00IN"/>
+  <bullet bulletName="halfdollarHail" bulletText="Half dollar size hail (1 1/4&quot;)" bulletGroup="toggle3" parseString="1.25IN"/>
+  <bullet bulletName="pingpongHail" bulletText="Ping pong ball size hail (1 1/2&quot;)" bulletGroup="toggle3" parseString="1.50IN"/>
+  <bullet bulletName="golfballHail" bulletText="Golf ball size hail (1 3/4&quot;)" bulletGroup="toggle3" parseString="1.75IN"/>
+  <bullet bulletName="twoinchHail" bulletText="Two Inch hail (2&quot;)" bulletGroup="toggle3" parseString="2.00IN"/>
+  <bullet bulletName="tennisBallHail" bulletText="Tennis ball hail (2 1/2&quot;)" bulletGroup="toggle3" parseString="2.50IN"/>
+  <bullet bulletName="baseballHail" bulletText="Baseball size hail (2 3/4&quot;)" bulletGroup="toggle3" parseString="2.75IN"/>
+  <bullet bulletName="threeinchHail" bulletText="Three inch hail (3&quot;)" bulletGroup="toggle3" parseString="3.00IN"/>
+  <bullet bulletName="softballHail" bulletText="Softball size hail (4&quot;)" bulletGroup="toggle3" parseString="4.00IN"/>
+  <bullet bulletName="grapefruitHail" bulletText="Grapefruit size hail (4 1/2&quot;)" bulletGroup="toggle3" parseString="4.50IN"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="******** TORNADO TAG ********" bulletType="title"/>
+  <bullet bulletName="svrTorTag" bulletText="SELECT FOR TORNADO...POSSIBLE TAG" parseString="TORNADO...POSSIBLE"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="******** ADDITIONAL REPORTS ********" bulletType="title"/>
+  <bullet bulletName="addlHailWindRpt" bulletText="Select to include additional hail and/or wind reports..." bulletGroup="radioset4"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="************ LOCATIONS IMPACTED  **************" bulletType="title"/>
+  <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="pcast" parseString="WILL BE NEAR..."/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="&quot;LOCATIONS&quot;,&quot;INCLUDE...&quot;"/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="WILL REMAIN OVER" showString="WILL REMAIN OVER"/>
+  <bullet bulletName="specialEvent" bulletText="Special heads-up for large event/venue" parseString="THOSE ATTENDING"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="******** CALLS TO ACTION (CHOOSE 1 OR MORE) *********" bulletType="title"/>
+  <bullet bulletText="******* (B) = Base (E) = Elevated CTA Statements *******" bulletType="title"/>
+  <bullet bulletName="torWatchRemainsInEffectCTA" bulletText="Tor Watch In Effect or TOR...POSSIBLE Tag" parseString="TORNADOES CAN DEVELOP QUICKLY FROM SEVERE THUNDERSTORMS"/>
+  <bullet bulletName="genericCTA" bulletText="(B) Generic threat - standard CTA" bulletDefault="true" parseString="MOVE TO AN INTERIOR ROOM ON THE LOWEST FLOOR OF A BUILDING"/>
+  <bullet bulletName="largeHailCTA" bulletText="(B) Large Hail and Deadly Lightning" parseString="LARGE HAIL AND DEADLY CLOUD TO GROUND LIGHTNING"/>
+  <bullet bulletName="largeHailWindCTA" bulletText="(B) Large Hail and Damaging Wind" parseString="PREPARE IMMEDIATELY FOR LARGE HAIL AND DAMAGING WINDS"/>
+  <bullet bulletName="historyHailCTA" bulletText="(B) This storm is producing large hail" parseString="PRODUCING LARGE HAIL. SEEK SHELTER"/>
+  <bullet bulletName="historyWindCTA" bulletText="(B) This storm is producing widespread wind damage" parseString="PRODUCING WIDESPREAD WIND DAMAGE ACROSS"/>
+  <bullet bulletName="veryLargeHailCTA" bulletText="(E) This is a dangerous storm (Large DESTRUCTIVE Hail)" parseString="LARGE DESTRUCTIVE HAIL CAPABLE OF PRODUCING SIGNIFICANT DAMAGE"/>
+  <bullet bulletName="extremeWindsCTA" bulletText="(E) Winds in excess of 80 mph (Tor-like wind speeds)" parseString="TORNADO LIKE WIND SPEEDS"/>
+  <bullet bulletName="deadlyStormCTA" bulletText="(E) This is a potentially deadly storm" parseString="POTENTIALLY DEADLY STORM"/>
+  <bullet bulletName="widespreadWindCTA" bulletText="(E) This storm is producing widespread wind damage" parseString="EXTREMELY DANGEROUS SITUATION"/>
+  <bullet bulletName="historyWindHailCTA" bulletText="(E) This storm is producing destructive winds/large hail" parseString="PRODUCING DESTRUCTIVE WINDS AND LARGE DAMAGING HAIL"/>
+  <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="CONTACT YOUR NEAREST LAW ENFORCEMENT"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="******** SPECIAL CASE CALLS TO ACTION **********" bulletType="title"/>
+  <bullet bulletName="gustFrontOutflowCTA" bulletText="(B) Preceding svr gust front/outflow...no rain/thunder expected" parseString="WILL OCCUR BEFORE ANY RAIN OR LIGHTNING"/>
+  <bullet bulletName="squallLineCTA" bulletText="(E) Thunderstorm lines can produce tornadoes (can use w/TOR...POSSIBLE tag)" parseString="TORNADOES AND WIDESPREAD SIGNIFICANT WIND DAMAGE"/>
+  <bullet bulletName="superCellsCTA" bulletText="(E) Supercells can produce all types of svr...includes tornado" parseString="ALL TYPES OF SEVERE WEATHER INCLUDING"/>
+  <bullet bulletText="******** MISCELLANEOUS CALLS TO ACTION **********" bulletType="title"/>
+  <bullet bulletName="lightningCTA" bulletText="Lightning in addition to hail/winds" parseString="CONTINUOUS CLOUD TO GROUND LIGHTNING IS OCCURRING"/>
+  <bullet bulletName="boatersCTA" bulletText="Over Lake - Boaters seek shelter" parseString="GET AWAY FROM THE WATER AND MOVE INDOORS"/>
+  <bullet bulletName="torrentialRainfallCTA" bulletText="Torrential rainfall" parseString="TORRENTIAL RAINFALL IS OCCURRING"/>
+ </bullets>
+</bulletActionGroup>
+</bulletActionGroups>
+
+</warngenConfig>

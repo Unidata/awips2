@@ -1,0 +1,52 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ffg-ffg_util library file
+#
+#  cmt: File made on Thu Oct 26 14:48:23 EDT 2006 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob81/ohd/ffg/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob81/ohd/ffg/inc  \
+               -I/fs/hseb/ob81/ohd/ofs/inc  \
+               -I/fs/hseb/ob81/ohd/util/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libffg_util_t.a:  \
+     $(LIB)/libffg_util_t.a(cw2c4.o)  \
+     $(LIB)/libffg_util_t.a(degcon.o)  \
+     $(LIB)/libffg_util_t.a(edvca.o)  \
+     $(LIB)/libffg_util_t.a(edvcag.o)  \
+     $(LIB)/libffg_util_t.a(edviag.o)  \
+     $(LIB)/libffg_util_t.a(edvid.o)  \
+     $(LIB)/libffg_util_t.a(edvi.o)  \
+     $(LIB)/libffg_util_t.a(edvra.o)  \
+     $(LIB)/libffg_util_t.a(edvrag.o)  \
+     $(LIB)/libffg_util_t.a(edwtid.o)  \
+     $(LIB)/libffg_util_t.a(prbug2.o)  \
+     $(LIB)/libffg_util_t.a(prbug.o)  \
+     $(LIB)/libffg_util_t.a(uc2ir.o)  \
+     $(LIB)/libffg_util_t.a(ucw2c1.o)  \
+     $(LIB)/libffg_util_t.a(ucw2c4.o)  \
+     $(LIB)/libffg_util_t.a(uffch.o)  \
+     $(LIB)/libffg_util_t.a(uffir.o)  \
+     $(LIB)/libffg_util_t.a(ui2c4.o)
+

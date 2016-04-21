@@ -1,0 +1,139 @@
+module '*Hb'
+applicationName = '*Hb';
+generateNameC = 'cnty.c';
+generateNameExterns = 'cnty.h';
+generateNameResDB = 'cnty.res';
+generateCPixmapFile = '';
+generateCHeaderFile = '';
+generateMask = 39256293;
+useMask = 0;
+ansiC = 1;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 0;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+value
+object 'cntyDS' : XmDialogShell {
+	arguments {
+	name = 'cntyDS';
+	XmNwidth = 282;
+	XmNheight = 271;
+	XmNallowShellResize = true;
+	XmNtitle = 'County/State';
+	XmNminWidth = 300;
+	XmNminHeight = 320;
+	XmNmaxWidth = 300;
+	XmNmaxHeight = 320;
+	};
+object 'cntyFM' : XmForm {
+	arguments {
+	name = 'cntyFM';
+	XmNwidth = 280;
+	XmNheight = 260;
+	XmNdialogStyle = 2;
+	XmNautoUnmanage = false;
+	};
+object 'cntyLbl' : XmLabel {
+	arguments {
+	name = 'cntyLbl';
+	XmNlabelString = 'County                    State';
+	};
+};
+object 'cntySLB' : XmScrolledList {
+	arguments {
+	name = 'cntySLB';
+	XmNwidth = 260;
+	XmNheight = 159;
+	};
+object 'cntyHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	};
+};
+object 'cntyVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	};
+};
+object 'cntyLB' : XmList {
+	arguments {
+	name = 'cntyLB';
+	XmNvisibleItemCount = 8;
+	XmNlistSizePolicy = 2;
+	};
+};
+};
+object 'cntySP' : XmSeparator {
+	arguments {
+	};
+};
+object 'cntyokPB' : XmPushButton {
+	arguments {
+	name = 'cntyokPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Ok';
+	};
+};
+object 'cntyclearPB' : XmPushButton {
+	arguments {
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Clear';
+	};
+};
+object 'cntyclosePB' : XmPushButton {
+	arguments {
+	name = 'cntyclosePB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Cancel';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 24;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 10;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 1 0 80;
+	XmNtopAttachment = 1 0 48;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 0;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 1 0 60;
+	XmNtopAttachment = 0 0 0;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 3 10;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 3 4 13;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 3 10;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 10;
+	XmNleftAttachment = 0 0 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 3 10;
+    };
+    };
+};
+};
+end module;

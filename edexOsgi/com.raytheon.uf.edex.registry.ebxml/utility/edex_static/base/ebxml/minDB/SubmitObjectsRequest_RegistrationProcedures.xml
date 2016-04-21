@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Header: /cvsroot/ebxmlrr/omar/misc/samples/minDB/SubmitObjectsRequest_StatusTypeScheme.xml,v 1.7 2007/05/25 17:18:54 farrukh_najmi Exp $-->
+<SubmitObjectsRequest id="urn:oasis:names:tc:ebxml-regrep:request:id" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0" xmlns:lcm="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0" xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:4.0" xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0" xmlns:rs="urn:oasis:names:tc:ebxml-regrep:xsd:rs:4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0  ../../xsd/lcm.xsd">
+    <rim:RegistryObjectList>
+        <!-- StatusType extensions -->
+        <rim:RegistryObject xsi:type="rim:ClassificationNodeType" lid="urn:oasis:names:tc:ebxml-regrep:StatusType:Proposed" code="Proposed" id="urn:oasis:names:tc:ebxml-regrep:StatusType:Proposed" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:classificationScheme:StatusType">
+            <rim:Name>
+                <rim:LocalizedString xml:lang="en-US" value="Proposed"/>
+            </rim:Name>
+            <rim:Description>
+                <rim:LocalizedString xml:lang="en-US" value="Object has been proposed in a Change Proposal for a Register"/>
+            </rim:Description>
+        </rim:RegistryObject>
+        <rim:RegistryObject xsi:type="rim:ClassificationNodeType" lid="urn:oasis:names:tc:ebxml-regrep:StatusType:UnderReview" code="UnderReview" id="urn:oasis:names:tc:ebxml-regrep:StatusType:UnderReview" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:classificationScheme:StatusType">
+            <rim:Name>
+                <rim:LocalizedString xml:lang="en-US" value="UnderReview"/>
+            </rim:Name>
+            <rim:Description>
+                <rim:LocalizedString xml:lang="en-US" value="Object has been accepted for review by the Register Manager Organization for its register"/>
+            </rim:Description>
+        </rim:RegistryObject>
+        <rim:RegistryObject xsi:type="rim:ClassificationNodeType" lid="urn:oasis:names:tc:ebxml-regrep:StatusType:Rejected" code="Rejected" id="urn:oasis:names:tc:ebxml-regrep:StatusType:Rejected" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:classificationScheme:StatusType">
+            <rim:Name>
+                <rim:LocalizedString xml:lang="en-US" value="Rejected"/>
+            </rim:Name>
+            <rim:Description>
+                <rim:LocalizedString xml:lang="en-US" value="Object has been approved by the Control Body Organization for its Register"/>
+            </rim:Description>
+        </rim:RegistryObject>
+
+        <!-- SubjectRole extensions -->
+        <rim:RegistryObject xsi:type="rim:ClassificationNodeType" lid="urn:oasis:names:tc:ebxml-regrep:SubjectRole:ChangeProposalSubmitter" code="ChangeProposalSubmitter" id="urn:oasis:names:tc:ebxml-regrep:SubjectRole:ChangeProposalSubmitter" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:classificationScheme:SubjectRole">
+            <rim:Name>
+                <rim:LocalizedString xml:lang="en-US" value="Change Proposal Submitter"/>
+            </rim:Name>
+            <rim:Description>
+                <rim:LocalizedString xml:lang="en-US" value="A Person associated with a SubmittingOrganization for a Register who is authorized to submit change proposals for that register"/>
+            </rim:Description>
+        </rim:RegistryObject>
+        <rim:RegistryObject xsi:type="rim:ClassificationNodeType" lid="urn:oasis:names:tc:ebxml-regrep:SubjectRole:ChangeProposalReceiver" code="ChangeProposalReceiver" id="urn:oasis:names:tc:ebxml-regrep:SubjectRole:ChangeProposalReceiver" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:classificationScheme:SubjectRole">
+            <rim:Name>
+                <rim:LocalizedString xml:lang="en-US" value="Change Proposal Receiver"/>
+            </rim:Name>
+            <rim:Description>
+                <rim:LocalizedString xml:lang="en-US" value="A Person associated with a RegisterManager for a Register who is authorized to accept or reject change proposals for that register"/>
+            </rim:Description>
+        </rim:RegistryObject>
+        <rim:RegistryObject xsi:type="rim:ClassificationNodeType" lid="urn:oasis:names:tc:ebxml-regrep:SubjectRole:ChangeProposalReviewer" code="ChangeProposalReviewer" id="urn:oasis:names:tc:ebxml-regrep:SubjectRole:ChangeProposalReviewer" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:classificationScheme:SubjectRole">
+            <rim:Name>
+                <rim:LocalizedString xml:lang="en-US" value="Change Proposal Reviewer"/>
+            </rim:Name>
+            <rim:Description>
+                <rim:LocalizedString xml:lang="en-US" value="A Person associated with a ControlBody for a Register who is authorized to approve or reject change proposals for that register"/>
+            </rim:Description>
+        </rim:RegistryObject>
+
+    </rim:RegistryObjectList>
+</SubmitObjectsRequest>

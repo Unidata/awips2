@@ -1,0 +1,361 @@
+C MODULE UXMAIN
+C-----------------------------------------------------------------------
+C
+C  MAIN ROUTINE FOR PROGRAM TO CREATE AND INITIALIZE NWSRFS FORECAST
+C  SYSTEM DATA FILES.
+C
+      SUBROUTINE UXMAIN_MAIN
+C
+      CHARACTER*4 DSKUNT,DISP
+      CHARACTER*8 USER
+      CHARACTER*8 DCBDDN/'FT??F001'/
+      CHARACTER*8 DCBMBR/'FS5FLDCB'/
+      CHARACTER*10 XCMD
+      CHARACTER*100 PMFLD/' '/
+C
+      INCLUDE 'uiox'
+      INCLUDE 'ucmdbx'
+      INCLUDE 'udebug'
+      INCLUDE 'upagex'
+      common /CMFILECRAT/ PGMVRN,PGMVRD,PGMNAM,MPGMRG,PGMCMP,PGMSYS
+      INCLUDE 'upvrsx_types'
+      INCLUDE 'udsatx'
+      INCLUDE 'uunits'
+      INCLUDE 'ufldcx'
+      INCLUDE 'ufreei'
+      INCLUDE 'ustopx'
+      INCLUDE 'ufstcd'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/filecrat/RCS/uxmain.f,v $
+     . $',                                                             '
+     .$Id: uxmain.f,v 1.6 2004/07/21 17:32:33 dsa Exp $
+     . $' /
+C    ===================================================================
+C
+
+C     Setup the upvrsx common block
+      call set_upvrsx(PGMVRN,PGMVRD,PGMNAM,MPGMRG,PGMCMP,PGMSYS)
+
+C
+C     Subroutine ARGVER outputs the version/date info and exits the
+C      program if the first command line argument is "-version"
+C
+      CALL ARGVER()
+C
+      IUSTOP=0
+      LDEBUG=0
+      IFSTCD=0
+      INEWPG=1
+      IBLCRD=0
+C
+      INCLUDE 'cluprimo'
+C
+C  SET INDICATOR THAT FILE ATTRIBUTE COMMON BLOCK NOT FILLED
+      IFLDCX=0
+C
+C  SET OPTIONS FOR UTILITY ROUTINES
+      CALL USETO1 ('PAGNUM',IERR)
+      CALL USETO1 ('LINCNT',IERR)
+      CALL USETO1 ('ERWRPR',IERR)
+      CALL USETO1 ('CONDPR',IERR)
+C
+C  GET DATASET FROM WHICH PROGRAM IS BEING EXECUTED
+      NUNIT=0
+      IPRERR=-1
+      CALL UPRDSN ('STEPLIB ',NUNIT,'NONE',IPRERR,LP,IERR)
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+      INDERR=0
+C
+C  PRINT DATASET ATTRIBUTES
+      NUNIT=ICD
+      IPRERR=1
+      CALL UPRDSA ('NONE',NUNIT,'NONE',IPRERR,LP,IERR)
+      IF (IERR.GT.0) INDERR=1
+      NUNIT=LP
+      CALL UPRDSA ('NONE',NUNIT,'NONE',IPRERR,LP,IERR)
+      IF (LPE.NE.LP) THEN
+         NUNIT=LPE
+         CALL UPRDSA ('NONE',NUNIT,'NONE',IPRERR,LP,IERR)
+         IF (IERR.GT.0) LPE=LP
+         ENDIF
+C
+      IF (INDERR.GT.0) GO TO 170
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  GET PARM FIELD
+      CALL UGTPRM (LPMFLD,PMFLD)
+      CALL ULINE (LP,2)
+      WRITE (LP,180) PMFLD
+      CALL UINDEX (PMFLD,LPMFLD,'(',1,LLPAR)
+      ISTRT=1
+      IEND=3
+      IF (LLPAR.GT.0) THEN
+         CALL UINDEX (PMFLD,LPMFLD,',',1,LDOT)
+         IF (LDOT.EQ.0) IEND=LPMFLD
+         IF (LDOT.GT.0) IEND=LDOT-1
+         ISTRT=LLPAR+1
+         ENDIF
+      NCHAR=IEND-ISTRT+1
+      CALL SUBSTR (PMFLD,ISTRT,NCHAR,DISP,1)
+      CALL ULINE (LP,2)
+      WRITE (LP,190) DISP
+C
+C  CHECK IF DATASET ALLOCATED
+      NUNIT=KDTYPE
+      IPRERR=1
+      CALL UDDNST (DCBDDN,NUNIT,IPRERR,IERR)
+      IF (IERR.GT.0) GO TO 170
+C
+      CALL ULINE (LP,2)
+      WRITE (LP,200) DCBMBR
+C
+C  GET DEFAULT DISK UNIT
+      CALL UFLDCB (DCBDDN,DCBMBR,' ',LRECL,LBLOCK,IERR)
+      IF (IERR.GT.0) GO TO 170
+      DSKUNT=DUNITX
+      CALL ULINE (LP,2)
+      WRITE (LP,210) DSKUNT
+C
+      CALL ULINE (LP,1)
+      WRITE (LP,*) ' '
+C
+C  READ CARD
+10    IBLCRD=0
+20    CALL RPCARD (IBUF,IERR)
+      IF (IERR.GT.0) GO TO 170
+C
+C  FIND FIELDS ON CARD
+      IBEG=1
+      IEND=72
+      CALL UFREE (IBEG,IEND)
+C
+C  CHECK FOR BLANK CARD
+      IF (NFIELD.EQ.0) THEN
+         CALL WPCARD (IBUF)
+         IBLCRD=1
+         GO TO 20
+         ENDIF
+C
+C  GET FIRST FIELD
+      NFLD=1
+      NUM=IFSTOP(NFLD)-IFSTRT(NFLD)+1
+      IF (NUM.GT.LEN(XCMD)) NUM=LEN(XCMD)
+      XCMD=' '
+      CALL UPACK1 (IBUF(IFSTRT(NFLD)),XCMD,NUM)
+C
+C  CHECK FOR VALID COMMAND
+      IF (XCMD.EQ.'UPRM') GO TO 90
+      IF (XCMD.EQ.'HCL') GO TO 100
+      IF (XCMD.EQ.'PRD') GO TO 110
+      IF (XCMD.EQ.'PPP') GO TO 120
+      IF (XCMD.EQ.'PDB') GO TO 130
+      IF (XCMD.EQ.'FC') GO TO 140
+      IF (XCMD.EQ.'ESPP') GO TO 150
+      IF (XCMD.EQ.'ESPT') GO TO 160
+      IF (XCMD.EQ.'STOP') GO TO 170
+      CALL ULINE (LP,1)
+      WRITE (LP,*) ' '
+      CALL WPCARD (IBUF)
+      IF (XCMD.EQ.'$') GO TO 10
+      IF (XCMD.EQ.'UNIT') GO TO 30
+      IF (XCMD.EQ.'DCBMBR') GO TO 40
+      IF (XCMD.EQ.'DEBUG') GO TO 70
+      IF (XCMD.EQ.'NEWPAGE') GO TO 50
+      IF (XCMD.EQ.'NONEWPAGE') GO TO 60
+      IF (XCMD.EQ.'USER') GO TO 80
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,230) XCMD
+         GO TO 10
+C
+C  GET DISK UNIT TYPE
+30    NFLD=2
+      NUM=IFSTOP(NFLD)-IFSTRT(NFLD)+1
+      CALL UPACK1 (IBUF(IFSTRT(NFLD)),DSKUNT,NUM)
+      IF (DSKUNT.EQ.'3330'.OR.DSKUNT.EQ.'3350'.OR.DSKUNT.EQ.'3380')
+     *   THEN
+         ELSE
+            CALL UEROR (LP,1,-1)
+            WRITE (LP,240) DSKUNT
+            GO TO 10
+         ENDIF
+      IF (DSKUNT.EQ.'3330') THEN
+         CALL SUBSTR ('1',1,1,DCBMBR,8)
+         CALL ULINE (LP,2)
+         WRITE (LP,220) DCBMBR
+         ENDIF
+      GO TO 10
+C
+C  GET DCB DATASET MEMBER NAME
+40    DCBMBR=' '
+      NUM=IFSTOP(2)-IFSTRT(2)+1
+      CALL UPACK1 (IBUF(IFSTRT(2)),DCBMBR,NUM)
+      CALL ULINE (LP,2)
+      WRITE (LP,250) DCBMBR
+      IFLDCX=0
+      CALL UFLDCB (DCBDDN,DCBMBR,' ',LRECL,LBLOCK,IERR)
+      DSKUNT=DUNITX
+      CALL ULINE (LP,2)
+      WRITE (LP,210) DSKUNT
+      GO TO 10
+C
+C  SET NEWPAGE OPTION
+50    INEWPG=1
+      GO TO 10
+60    INEWPG=0
+      GO TO 10
+C
+C  SET DEBUG VARIABLES
+70    LEVEL=1
+      NFLD=2
+      IF (NFIELD.GE.NFLD) THEN
+         CALL UNUMIC (IBUF,IFSTRT(NFLD),IFSTOP(NFLD),LEVEL)
+         ENDIF
+      LDEBUG=LEVEL
+      ICMTRC=LEVEL
+      ICMDBG=LEVEL
+      IUTLTR=LEVEL
+      IUTLDB=LEVEL
+      IPDTR=LEVEL
+      IPDDB=LEVEL
+      IPPTR=LEVEL
+      IPPDB=LEVEL
+      IPRTR=LEVEL
+      IPRDB=LEVEL
+      CALL ULINE (LP,2)
+      WRITE (LP,'(1H0,A,10(A,I2,3X))')
+     *   'DEBUG VARIABLES SET :',
+     *   ' ICMTRC=',ICMTRC,
+     *   ' ICMDBG=',ICMDBG,
+     *   ' IUTLTR=',IUTLTR,
+     *   ' IUTLDB=',IUTLDB,
+     *   ' '
+      CALL ULINE (LP,1)
+      WRITE (LP,'(22X,10(A,I2,3X))')
+     *   ' IPDTR=',IPDTR,
+     *   ' IPDDB=',IPDDB,
+     *   ' IPPTR=',IPPTR,
+     *   ' IPPDB=',IPPDB,
+     *   ' IPRTR=',IPRTR,
+     *   ' IPRDB=',IPRDB,
+     *   ' '
+      GO TO 10
+C
+C  SET USER NAME
+80    NFLD=2
+      NUM=IFSTOP(NFLD)-IFSTRT(NFLD)+1
+      MAXCHR=LEN(USER)
+      IF (NUM.GT.MAXCHR) THEN
+         CALL UWARN (LP,1,-1)
+         WRITE (LP,260) MAXCHR,MAXCHR
+         NUM=MAXCHR
+         ENDIF
+      USER=' '
+      CALL UPACK1 (IBUF(IFSTRT(NFLD)),USER,NUM)
+      PUSRID=USER
+      GO TO 10
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  INITIALIZE DATASET FOR USER PARAMETERS
+90    IF (INEWPG.EQ.1.AND.IBLCRD.EQ.0) CALL UPAGE (LP)
+      CALL UPMINT (USER,LDEBUG)
+      GO TO 10
+C
+C  INITIALIZE DATASETS FOR HYDROLOGIC COMMAND LANGUAGE
+100   IF (INEWPG.EQ.1.AND.IBLCRD.EQ.0) CALL UPAGE (LP)
+      CALL HCLINT (USER,DCBDDN,DCBMBR,DSKUNT,DISP,LDEBUG)
+      GO TO 10
+C
+C  INITIALIZE DATASETS FOR PROCESSED DATA
+110   IF (INEWPG.EQ.1.AND.IBLCRD.EQ.0) CALL UPAGE (LP)
+      CALL PRDINT (USER,DCBDDN,DCBMBR,DSKUNT,LDEBUG)
+      GO TO 10
+C
+C  INITIALIZE DATASETS FOR PREPROCESSOR PARAMETRIC DATA
+120   IF (INEWPG.EQ.1.AND.IBLCRD.EQ.0) CALL UPAGE (LP)
+      CALL PPPINT (USER,DCBDDN,DCBMBR,DSKUNT,LDEBUG)
+      GO TO 10
+C
+C  INITIALIZE DATASETS FOR PREPROCESSOR DATA
+130   IF (INEWPG.EQ.1.AND.IBLCRD.EQ.0) CALL UPAGE (LP)
+      CALL PDBINT (USER,DCBDDN,DCBMBR,DSKUNT,LDEBUG)
+      GO TO 10
+C
+C  INITIALIZE DATASETS FOR FORECAST COMPONENT
+140   IF (INEWPG.EQ.1.AND.IBLCRD.EQ.0) CALL UPAGE (LP)
+      ICOPY=0
+      CALL FCINT (USER,DCBDDN,DCBMBR,DSKUNT,ICOPY,LDEBUG,IERR)
+      GO TO 10
+C
+C  INITIALIZE PARAMETER FILE FOR EXTENDED STREAM FLOW PREDICTION
+150   IF (INEWPG.EQ.1.AND.IBLCRD.EQ.0) CALL UPAGE (LP)
+      CALL ESPINP (USER,DCBDDN,DCBMBR,DSKUNT,LDEBUG)
+      GO TO 10
+C
+C  INITIALIZE TIME SERIES DATASETS FOR EXTENDED STREAM FLOW PREDICTION
+160   IF (INEWPG.EQ.1.AND.IBLCRD.EQ.0) CALL UPAGE (LP)
+      CALL ESPINT (USER,DCBDDN,DCBMBR,DSKUNT,LDEBUG)
+      GO TO 10
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+170   IF (INEWPG.EQ.1.AND.IBLCRD.EQ.0) CALL UPAGE (LP)
+      CALL ULINE (LP,1)
+      WRITE (LP,*) ' '
+      CALL WPCARD (IBUF)
+C
+C  CLOSE FILES
+      CALL UCLOSL
+C
+C  STOP EXECUTION
+C
+      IF ((LPE.NE.LP).AND.(NPSNLT(LPE).NE.0)) THEN
+         NSTOP=-1
+         CALL USTOP (LPE,NSTOP)
+         ENDIF
+      NSTOP=-IUSTOP
+      IF (NSTOP.EQ.0.AND.ISTOPX.GT.0) NSTOP=-ISTOPX
+      IF (NSTOP.EQ.0) NSTOP=-1
+      IF (LDEBUG.GT.0) THEN
+         CALL ULINE (LPD,1)
+         WRITE (LPD,*) 'ISTOPX=',ISTOPX,
+     *     ' NSTOP=',NSTOP
+         ENDIF
+      CALL USTOP (LP,NSTOP)
+C
+      IF (LDEBUG.GT.0) THEN
+         CALL ULINE (LPD,1)
+         WRITE (LPD,*) 'LP=',LP,
+     *      ' LPE=',LPE
+         ENDIF
+      IF (LPE.NE.LP) ENDFILE LPE
+C
+      INCLUDE 'cluprimc'
+C
+      CALL USTOP2 ()
+C
+      STOP
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+180   FORMAT ('0*** NOTE - PARM FIELD : ',A)
+190   FORMAT ('0*** NOTE - DISPOSITION IS ',A,'.')
+200   FORMAT ('0*** NOTE - DEFAULT DATASET MEMBER NAME FOR DATA ',
+     *   'FILE ATTRIBUTES IS ',A,'.')
+210   FORMAT ('0*** NOTE - DEFAULT DISK UNIT TYPE IS ',A,'.')
+220   FORMAT ('0*** NOTE - DATASET MEMBER NAME FOR DATA ',
+     *   'FILE ATTRIBUTES SET TO ',A,'.')
+230   FORMAT ('+*** ERROR - INVALID COMMAND : ',A)
+240   FORMAT ('+*** ERROR - ',A,' IS AN INVALID DISK UNIT TYPE.')
+250   FORMAT ('0*** NOTE - DCB DATASET MEMBER NAME SET TO ',A,'.')
+260   FORMAT ('+*** WARNING - MAXIMUM NUMBER OF CHARACTERS IN ',
+     *   'USER IDENTIFIER IS ',I2,' CHARACTERS. ',
+     *   'THE FIRST ',I2,' CHARACTERS WILL BE USED.')
+C
+      END

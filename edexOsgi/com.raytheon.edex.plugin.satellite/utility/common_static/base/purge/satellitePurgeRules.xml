@@ -1,0 +1,571 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<purgeRuleSet>
+	<key>sectorID</key>
+	<key>physicalElement</key>
+	<defaultRule>
+		<versionsToKeep>24</versionsToKeep>
+	</defaultRule>
+	<rule>
+		<keyValue>Alaska National</keyValue>
+		<keyValue>Imager 11 micron IR</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Alaska National</keyValue>
+		<keyValue>Imager 6.7-6.5 micron IR (WV)</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Alaska National</keyValue>
+		<keyValue>Imager Visible</keyValue>
+		<versionsToKeep>36</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Alaska National</keyValue>
+		<keyValue>Percent of Normal TPW</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Alaska National</keyValue>
+		<keyValue>Rain fall rate</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Alaska National</keyValue>
+		<keyValue>Sounder Based Derived Precipitable Water (PW)</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Alaska Regional</keyValue>
+		<keyValue>Imager 11 micron IR</keyValue>
+		<versionsToKeep>96</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Alaska Regional</keyValue>
+		<keyValue>Imager 12 micron IR</keyValue>
+		<versionsToKeep>96</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Alaska Regional</keyValue>
+		<keyValue>Imager 13 micron (IR)</keyValue>
+		<versionsToKeep>96</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Alaska Regional</keyValue>
+		<keyValue>Imager 3.9 micron IR</keyValue>
+		<versionsToKeep>96</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Alaska Regional</keyValue>
+		<keyValue>Imager 6.7-6.5 micron IR (WV)</keyValue>
+		<versionsToKeep>96</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Alaska Regional</keyValue>
+		<keyValue>Imager Visible</keyValue>
+		<versionsToKeep>72</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>East CONUS</keyValue>
+		<keyValue>Imager 11 micron IR</keyValue>
+		<versionsToKeep>96</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>East CONUS</keyValue>
+		<keyValue>Imager 12 micron IR</keyValue>
+		<versionsToKeep>96</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>East CONUS</keyValue>
+		<keyValue>Imager 13 micron (IR)</keyValue>
+		<versionsToKeep>96</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>East CONUS</keyValue>
+		<keyValue>Imager 3.9 micron IR</keyValue>
+		<versionsToKeep>96</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>East CONUS</keyValue>
+		<keyValue>Imager 6.7-6.5 micron IR (WV)</keyValue>
+		<versionsToKeep>96</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>East CONUS</keyValue>
+		<keyValue>Imager Visible</keyValue>
+		<versionsToKeep>56</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>East CONUS</keyValue>
+		<keyValue>Low cloud base imagery</keyValue>
+		<versionsToKeep>62</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>East CONUS</keyValue>
+		<keyValue>Sounder 11.03 micron imagery</keyValue>
+		<versionsToKeep>4</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>East CONUS</keyValue>
+		<keyValue>Sounder 14.06 micron imagery</keyValue>
+		<versionsToKeep>4</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>East CONUS</keyValue>
+		<keyValue>Sounder 3.98 micron imagery</keyValue>
+		<versionsToKeep>4</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>East CONUS</keyValue>
+		<keyValue>Sounder 4.45 micron imagery</keyValue>
+		<versionsToKeep>4</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>East CONUS</keyValue>
+		<keyValue>Sounder 6.51 micron imagery</keyValue>
+		<versionsToKeep>4</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>East CONUS</keyValue>
+		<keyValue>Sounder 7.02 micron imagery</keyValue>
+		<versionsToKeep>4</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>East CONUS</keyValue>
+		<keyValue>Sounder 7.43 micron imagery</keyValue>
+		<versionsToKeep>4</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>East CONUS</keyValue>
+		<keyValue>Sounder Visible imagery</keyValue>
+		<versionsToKeep>4</versionsToKeep>
+	</rule>
+	
+	<rule>
+		<keyValue>Hawaii National</keyValue>
+		<keyValue>Imager 11 micron IR</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Hawaii National</keyValue>
+		<keyValue>Imager 6.7-6.5 micron IR (WV)</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Hawaii National</keyValue>
+		<keyValue>Imager Visible</keyValue>
+		<versionsToKeep>36</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Hawaii National</keyValue>
+		<keyValue>Percent of Normal TPW</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Hawaii National</keyValue>
+		<keyValue>Rain fall rate</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Hawaii National</keyValue>
+		<keyValue>Sounder 11.03 micron imagery</keyValue>
+		<versionsToKeep>4</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Hawaii National</keyValue>
+		<keyValue>Sounder 14.06 micron imagery</keyValue>
+		<versionsToKeep>4</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Hawaii National</keyValue>
+		<keyValue>Sounder 3.98 micron imagery</keyValue>
+		<versionsToKeep>4</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Hawaii National</keyValue>
+		<keyValue>Sounder 4.45 micron imagery</keyValue>
+		<versionsToKeep>4</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Hawaii National</keyValue>
+		<keyValue>Sounder 6.51 micron imagery</keyValue>
+		<versionsToKeep>4</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Hawaii National</keyValue>
+		<keyValue>Sounder 7.02 micron imagery</keyValue>
+		<versionsToKeep>4</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Hawaii National</keyValue>
+		<keyValue>Sounder 7.43 micron imagery</keyValue>
+		<versionsToKeep>4</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Hawaii National</keyValue>
+		<keyValue>Sounder Based Derived Precipitable Water (PW)</keyValue>
+		<versionsToKeep>4</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Hawaii National</keyValue>
+		<keyValue>Sounder Visible imagery</keyValue>
+		<versionsToKeep>4</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Hawaii Regional</keyValue>
+		<keyValue>Imager 11 micron IR</keyValue>
+		<versionsToKeep>96</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Hawaii Regional</keyValue>
+		<keyValue>Imager 12 micron IR</keyValue>
+		<versionsToKeep>96</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Hawaii Regional</keyValue>
+		<keyValue>Imager 3.9 micron IR</keyValue>
+		<versionsToKeep>96</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Hawaii Regional</keyValue>
+		<keyValue>Imager 6.7-6.5 micron IR (WV)</keyValue>
+		<versionsToKeep>96</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Hawaii Regional</keyValue>
+		<keyValue>Imager Visible</keyValue>
+		<versionsToKeep>72</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>NH Composite - Meteosat-GOES E-GOES W-GMS</keyValue>
+		<keyValue>Imager 11 micron IR</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>NH Composite - Meteosat-GOES E-GOES W-GMS</keyValue>
+		<keyValue>Imager 6.7-6.5 micron IR (WV)</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>NH Composite - Meteosat-GOES E-GOES W-GMS</keyValue>
+		<keyValue>Imager Visible</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Northern Hemisphere Composite</keyValue>
+		<keyValue>Imager 11 micron IR</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Northern Hemisphere Composite</keyValue>
+		<keyValue>Imager 6.7-6.5 micron IR (WV)</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Northern Hemisphere Composite</keyValue>
+		<keyValue>Imager Visible</keyValue>
+		<versionsToKeep>36</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Puerto Rico National</keyValue>
+		<keyValue>Imager 11 micron IR</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Puerto Rico National</keyValue>
+		<keyValue>Imager 6.7-6.5 micron IR (WV)</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Puerto Rico National</keyValue>
+		<keyValue>Imager Visible</keyValue>
+		<versionsToKeep>36</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Puerto Rico National</keyValue>
+		<keyValue>Percent of Normal TPW</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Puerto Rico National</keyValue>
+		<keyValue>Rain fall rate</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Puerto Rico National</keyValue>
+		<keyValue>Sounder 11.03 micron imagery</keyValue>
+		<versionsToKeep>4</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Puerto Rico National</keyValue>
+		<keyValue>Sounder 14.06 micron imagery</keyValue>
+		<versionsToKeep>4</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Puerto Rico National</keyValue>
+		<keyValue>Sounder 3.98 micron imagery</keyValue>
+		<versionsToKeep>4</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Puerto Rico National</keyValue>
+		<keyValue>Sounder 4.45 micron imagery</keyValue>
+		<versionsToKeep>4</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Puerto Rico National</keyValue>
+		<keyValue>Sounder 6.51 micron imagery</keyValue>
+		<versionsToKeep>4</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Puerto Rico National</keyValue>
+		<keyValue>Sounder 7.02 micron imagery</keyValue>
+		<versionsToKeep>4</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Puerto Rico National</keyValue>
+		<keyValue>Sounder 7.43 micron imagery</keyValue>
+		<versionsToKeep>4</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Puerto Rico National</keyValue>
+		<keyValue>Sounder Based Derived Precipitable Water (PW)</keyValue>
+		<versionsToKeep>4</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Puerto Rico National</keyValue>
+		<keyValue>Sounder Visible imagery</keyValue>
+		<versionsToKeep>36</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Puerto Rico Regional</keyValue>
+		<keyValue>Imager 11 micron IR</keyValue>
+		<versionsToKeep>96</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Puerto Rico Regional</keyValue>
+		<keyValue>Imager 12 micron IR</keyValue>
+		<versionsToKeep>96</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Puerto Rico Regional</keyValue>
+		<keyValue>Imager 13 micron (IR)</keyValue>
+		<versionsToKeep>96</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Puerto Rico Regional</keyValue>
+		<keyValue>Imager 3.9 micron IR</keyValue>
+		<versionsToKeep>96</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Puerto Rico Regional</keyValue>
+		<keyValue>Imager 6.7-6.5 micron IR (WV)</keyValue>
+		<versionsToKeep>96</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Puerto Rico Regional</keyValue>
+		<keyValue>Imager Visible</keyValue>
+		<versionsToKeep>72</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Gridded Cloud Amount</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Gridded Cloud Top Pressure or Height</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Imager 11 micron IR</keyValue>
+		<versionsToKeep>32</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Imager 6.7-6.5 micron IR (WV)</keyValue>
+		<versionsToKeep>32</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Imager Visible</keyValue>
+		<versionsToKeep>32</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Percent of Normal TPW</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Rain fall rate</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Sounder Based Derived Lifted Index (LI)</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Sounder Based Derived Precipitable Water (PW)</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Sounder Based Derived Surface Skin Temp (SFC Skin)</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Imager 11 micron IR</keyValue>
+		<versionsToKeep>24</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Imager 12 micron IR</keyValue>
+		<versionsToKeep>32</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Imager 13 micron (IR)</keyValue>
+		<versionsToKeep>32</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Imager 3.9 micron IR</keyValue>
+		<versionsToKeep>32</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Imager 6.7-6.5 micron IR (WV)</keyValue>
+		<versionsToKeep>32</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Imager Visible</keyValue>
+		<versionsToKeep>20</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Low cloud base imagery</keyValue>
+		<versionsToKeep>36</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Sounder 11.03 micron imagery</keyValue>
+		<versionsToKeep>4</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Sounder 14.06 micron imagery</keyValue>
+		<versionsToKeep>4</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Sounder 3.98 micron imagery</keyValue>
+		<versionsToKeep>4</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Sounder 4.45 micron imagery</keyValue>
+		<versionsToKeep>4</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Sounder 6.51 micron imagery</keyValue>
+		<versionsToKeep>4</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Sounder 7.02 micron imagery</keyValue>
+		<versionsToKeep>4</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Sounder 7.43 micron imagery</keyValue>
+		<versionsToKeep>4</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Sounder Visible imagery</keyValue>
+		<versionsToKeep>4</versionsToKeep>
+	</rule>
+	
+	<rule>
+		<keyValue>West CONUS</keyValue>
+		<keyValue>Imager 11 micron IR</keyValue>
+		<versionsToKeep>96</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>West CONUS</keyValue>
+		<keyValue>Imager 12 micron IR</keyValue>
+		<versionsToKeep>96</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>West CONUS</keyValue>
+		<keyValue>Imager 13 micron (IR)</keyValue>
+		<versionsToKeep>96</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>West CONUS</keyValue>
+		<keyValue>Imager 3.9 micron IR</keyValue>
+		<versionsToKeep>96</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>West CONUS</keyValue>
+		<keyValue>Imager 6.7-6.5 micron IR (WV)</keyValue>
+		<versionsToKeep>96</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>West CONUS</keyValue>
+		<keyValue>Imager Visible</keyValue>
+		<versionsToKeep>56</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>West CONUS</keyValue>
+		<keyValue>Low cloud base imagery</keyValue>
+		<versionsToKeep>62</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>West CONUS</keyValue>
+		<keyValue>Sounder 11.03 micron imagery</keyValue>
+		<versionsToKeep>4</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>West CONUS</keyValue>
+		<keyValue>Sounder 14.06 micron imagery</keyValue>
+		<versionsToKeep>4</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>West CONUS</keyValue>
+		<keyValue>Sounder 3.98 micron imagery</keyValue>
+		<versionsToKeep>4</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>West CONUS</keyValue>
+		<keyValue>Sounder 4.45 micron imagery</keyValue>
+		<versionsToKeep>4</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>West CONUS</keyValue>
+		<keyValue>Sounder 6.51 micron imagery</keyValue>
+		<versionsToKeep>4</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>West CONUS</keyValue>
+		<keyValue>Sounder 7.02 micron imagery</keyValue>
+		<versionsToKeep>4</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>West CONUS</keyValue>
+		<keyValue>Sounder 7.43 micron imagery</keyValue>
+		<versionsToKeep>4</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>West CONUS</keyValue>
+		<keyValue>Sounder Visible imagery</keyValue>
+		<versionsToKeep>4</versionsToKeep>
+	</rule>
+	
+</purgeRuleSet>

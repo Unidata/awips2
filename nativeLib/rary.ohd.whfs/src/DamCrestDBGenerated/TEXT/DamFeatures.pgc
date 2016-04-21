@@ -1,0 +1,1757 @@
+/*
+    File: DamFeatures.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:47 EDT 2008 using database dc_ob7empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "DamFeatures.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct DamFeatures_t
+{
+    char		nidid[11];
+    char		other_dam_name[66];
+    char		dam_former_name[51];
+    char		stateid[21];
+    char		section_t_r[31];
+    char		owner_name[51];
+    char		owner_type[15];
+    char		dam_designer[66];
+    char		private_on_federal[7];
+    char		dam_type[7];
+    char		core[7];
+    char		foundation[7];
+    char		purposes[9];
+    char		year_completed[21];
+    char		year_modified[21];
+    char		emerg_action_plan[4];
+    char		inspection_date[21];
+    char		inspection_freq[21];
+    char		st_reg_dam[7];
+    char		st_reg_agency[31];
+    char		spillway_type[7];
+    double		spillway_width;
+    char		outlet_gates[7];
+    double		volume_dam;
+    double		number_locks;
+    double		length_locks;
+    double		width_locks;
+    char		fed_funding[21];
+    char		fed_design[21];
+    char		fed_construction[21];
+    char		fed_regulatory[21];
+    char		fed_inspection[21];
+    char		fed_operation[21];
+    char		fed_other[21];
+    char		fed_owner[21];
+    char		source_agency[61];
+    double		drainage_area;
+    char		topo_map[23];
+    long		return_flow_region;
+    double		dam_length;
+    double		dam_height;
+    double		structural_height;
+    double		hydraulic_height;
+    double		nid_height;
+    double		max_discharge;
+    double		normal_storage;
+    double		nid_storage;
+    double		surface_area;
+    double		elev;
+    char		prebreak_avail[2];
+    char		comments[31];
+    dtime_t		updated;
+
+    int		ind_other_dam_name;
+    int		ind_dam_former_name;
+    int		ind_stateid;
+    int		ind_section_t_r;
+    int		ind_owner_name;
+    int		ind_owner_type;
+    int		ind_dam_designer;
+    int		ind_private_on_federal;
+    int		ind_dam_type;
+    int		ind_core;
+    int		ind_foundation;
+    int		ind_purposes;
+    int		ind_year_completed;
+    int		ind_year_modified;
+    int		ind_emerg_action_plan;
+    int		ind_inspection_date;
+    int		ind_inspection_freq;
+    int		ind_st_reg_dam;
+    int		ind_st_reg_agency;
+    int		ind_spillway_type;
+    int		ind_spillway_width;
+    int		ind_outlet_gates;
+    int		ind_volume_dam;
+    int		ind_number_locks;
+    int		ind_length_locks;
+    int		ind_width_locks;
+    int		ind_fed_funding;
+    int		ind_fed_design;
+    int		ind_fed_construction;
+    int		ind_fed_regulatory;
+    int		ind_fed_inspection;
+    int		ind_fed_operation;
+    int		ind_fed_other;
+    int		ind_fed_owner;
+    int		ind_source_agency;
+    int		ind_drainage_area;
+    int		ind_topo_map;
+    int		ind_return_flow_region;
+    int		ind_dam_length;
+    int		ind_dam_height;
+    int		ind_structural_height;
+    int		ind_hydraulic_height;
+    int		ind_nid_height;
+    int		ind_max_discharge;
+    int		ind_normal_storage;
+    int		ind_nid_storage;
+    int		ind_surface_area;
+    int		ind_elev;
+    int		ind_prebreak_avail;
+    int		ind_comments;
+    int		ind_updated;
+} DamFeatures_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+DamFeatures * GetDamFeatures(const char * where)
+{
+
+    DamFeatures * listPtr = NULL;
+    DamFeatures * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM DamFeatures ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DamFeatures_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDamFeatures() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDamFeatures() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDamFeatures() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.nidid, :dbs.other_dam_name:dbs.ind_other_dam_name, 
+    :dbs.dam_former_name:dbs.ind_dam_former_name, :dbs.stateid:dbs.ind_stateid, 
+    :dbs.section_t_r:dbs.ind_section_t_r, :dbs.owner_name:dbs.ind_owner_name, 
+    :dbs.owner_type:dbs.ind_owner_type, :dbs.dam_designer:dbs.ind_dam_designer, 
+    :dbs.private_on_federal:dbs.ind_private_on_federal, :dbs.dam_type:dbs.ind_dam_type, 
+    :dbs.core:dbs.ind_core, :dbs.foundation:dbs.ind_foundation, 
+    :dbs.purposes:dbs.ind_purposes, :dbs.year_completed:dbs.ind_year_completed, 
+    :dbs.year_modified:dbs.ind_year_modified, :dbs.emerg_action_plan:dbs.ind_emerg_action_plan, 
+    :dbs.inspection_date:dbs.ind_inspection_date, :dbs.inspection_freq:dbs.ind_inspection_freq, 
+    :dbs.st_reg_dam:dbs.ind_st_reg_dam, :dbs.st_reg_agency:dbs.ind_st_reg_agency, 
+    :dbs.spillway_type:dbs.ind_spillway_type, :dbs.spillway_width:dbs.ind_spillway_width, 
+    :dbs.outlet_gates:dbs.ind_outlet_gates, :dbs.volume_dam:dbs.ind_volume_dam, 
+    :dbs.number_locks:dbs.ind_number_locks, :dbs.length_locks:dbs.ind_length_locks, 
+    :dbs.width_locks:dbs.ind_width_locks, :dbs.fed_funding:dbs.ind_fed_funding, 
+    :dbs.fed_design:dbs.ind_fed_design, :dbs.fed_construction:dbs.ind_fed_construction, 
+    :dbs.fed_regulatory:dbs.ind_fed_regulatory, :dbs.fed_inspection:dbs.ind_fed_inspection, 
+    :dbs.fed_operation:dbs.ind_fed_operation, :dbs.fed_other:dbs.ind_fed_other, 
+    :dbs.fed_owner:dbs.ind_fed_owner, :dbs.source_agency:dbs.ind_source_agency, 
+    :dbs.drainage_area:dbs.ind_drainage_area, :dbs.topo_map:dbs.ind_topo_map, 
+    :dbs.return_flow_region:dbs.ind_return_flow_region, :dbs.dam_length:dbs.ind_dam_length, 
+    :dbs.dam_height:dbs.ind_dam_height, :dbs.structural_height:dbs.ind_structural_height, 
+    :dbs.hydraulic_height:dbs.ind_hydraulic_height, :dbs.nid_height:dbs.ind_nid_height, 
+    :dbs.max_discharge:dbs.ind_max_discharge, :dbs.normal_storage:dbs.ind_normal_storage, 
+    :dbs.nid_storage:dbs.ind_nid_storage, :dbs.surface_area:dbs.ind_surface_area, 
+    :dbs.elev:dbs.ind_elev, :dbs.prebreak_avail:dbs.ind_prebreak_avail, 
+    :dbs.comments:dbs.ind_comments, :dbs.updated:dbs.ind_updated    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDamFeatures() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (DamFeatures *) malloc(sizeof(DamFeatures))) != NULL)
+        {
+
+            strcpy(structPtr->nidid, dbs.nidid);
+
+            strcpy(structPtr->other_dam_name, dbs.other_dam_name);
+            setNullIfIndicated(dbs.ind_other_dam_name, CHAR, structPtr->other_dam_name);
+
+            strcpy(structPtr->dam_former_name, dbs.dam_former_name);
+            setNullIfIndicated(dbs.ind_dam_former_name, CHAR, structPtr->dam_former_name);
+
+            strcpy(structPtr->stateid, dbs.stateid);
+            setNullIfIndicated(dbs.ind_stateid, CHAR, structPtr->stateid);
+
+            strcpy(structPtr->section_t_r, dbs.section_t_r);
+            setNullIfIndicated(dbs.ind_section_t_r, CHAR, structPtr->section_t_r);
+
+            strcpy(structPtr->owner_name, dbs.owner_name);
+            setNullIfIndicated(dbs.ind_owner_name, CHAR, structPtr->owner_name);
+
+            strcpy(structPtr->owner_type, dbs.owner_type);
+            setNullIfIndicated(dbs.ind_owner_type, CHAR, structPtr->owner_type);
+
+            strcpy(structPtr->dam_designer, dbs.dam_designer);
+            setNullIfIndicated(dbs.ind_dam_designer, CHAR, structPtr->dam_designer);
+
+            strcpy(structPtr->private_on_federal, dbs.private_on_federal);
+            setNullIfIndicated(dbs.ind_private_on_federal, CHAR, structPtr->private_on_federal);
+
+            strcpy(structPtr->dam_type, dbs.dam_type);
+            setNullIfIndicated(dbs.ind_dam_type, CHAR, structPtr->dam_type);
+
+            strcpy(structPtr->core, dbs.core);
+            setNullIfIndicated(dbs.ind_core, CHAR, structPtr->core);
+
+            strcpy(structPtr->foundation, dbs.foundation);
+            setNullIfIndicated(dbs.ind_foundation, CHAR, structPtr->foundation);
+
+            strcpy(structPtr->purposes, dbs.purposes);
+            setNullIfIndicated(dbs.ind_purposes, CHAR, structPtr->purposes);
+
+            strcpy(structPtr->year_completed, dbs.year_completed);
+            setNullIfIndicated(dbs.ind_year_completed, CHAR, structPtr->year_completed);
+
+            strcpy(structPtr->year_modified, dbs.year_modified);
+            setNullIfIndicated(dbs.ind_year_modified, CHAR, structPtr->year_modified);
+
+            strcpy(structPtr->emerg_action_plan, dbs.emerg_action_plan);
+            setNullIfIndicated(dbs.ind_emerg_action_plan, CHAR, structPtr->emerg_action_plan);
+
+            strcpy(structPtr->inspection_date, dbs.inspection_date);
+            setNullIfIndicated(dbs.ind_inspection_date, CHAR, structPtr->inspection_date);
+
+            strcpy(structPtr->inspection_freq, dbs.inspection_freq);
+            setNullIfIndicated(dbs.ind_inspection_freq, CHAR, structPtr->inspection_freq);
+
+            strcpy(structPtr->st_reg_dam, dbs.st_reg_dam);
+            setNullIfIndicated(dbs.ind_st_reg_dam, CHAR, structPtr->st_reg_dam);
+
+            strcpy(structPtr->st_reg_agency, dbs.st_reg_agency);
+            setNullIfIndicated(dbs.ind_st_reg_agency, CHAR, structPtr->st_reg_agency);
+
+            strcpy(structPtr->spillway_type, dbs.spillway_type);
+            setNullIfIndicated(dbs.ind_spillway_type, CHAR, structPtr->spillway_type);
+
+            structPtr->spillway_width = dbs.spillway_width;
+            setNullIfIndicated(dbs.ind_spillway_width, DOUBLE, &structPtr->spillway_width);
+
+            strcpy(structPtr->outlet_gates, dbs.outlet_gates);
+            setNullIfIndicated(dbs.ind_outlet_gates, CHAR, structPtr->outlet_gates);
+
+            structPtr->volume_dam = dbs.volume_dam;
+            setNullIfIndicated(dbs.ind_volume_dam, DOUBLE, &structPtr->volume_dam);
+
+            structPtr->number_locks = dbs.number_locks;
+            setNullIfIndicated(dbs.ind_number_locks, DOUBLE, &structPtr->number_locks);
+
+            structPtr->length_locks = dbs.length_locks;
+            setNullIfIndicated(dbs.ind_length_locks, DOUBLE, &structPtr->length_locks);
+
+            structPtr->width_locks = dbs.width_locks;
+            setNullIfIndicated(dbs.ind_width_locks, DOUBLE, &structPtr->width_locks);
+
+            strcpy(structPtr->fed_funding, dbs.fed_funding);
+            setNullIfIndicated(dbs.ind_fed_funding, CHAR, structPtr->fed_funding);
+
+            strcpy(structPtr->fed_design, dbs.fed_design);
+            setNullIfIndicated(dbs.ind_fed_design, CHAR, structPtr->fed_design);
+
+            strcpy(structPtr->fed_construction, dbs.fed_construction);
+            setNullIfIndicated(dbs.ind_fed_construction, CHAR, structPtr->fed_construction);
+
+            strcpy(structPtr->fed_regulatory, dbs.fed_regulatory);
+            setNullIfIndicated(dbs.ind_fed_regulatory, CHAR, structPtr->fed_regulatory);
+
+            strcpy(structPtr->fed_inspection, dbs.fed_inspection);
+            setNullIfIndicated(dbs.ind_fed_inspection, CHAR, structPtr->fed_inspection);
+
+            strcpy(structPtr->fed_operation, dbs.fed_operation);
+            setNullIfIndicated(dbs.ind_fed_operation, CHAR, structPtr->fed_operation);
+
+            strcpy(structPtr->fed_other, dbs.fed_other);
+            setNullIfIndicated(dbs.ind_fed_other, CHAR, structPtr->fed_other);
+
+            strcpy(structPtr->fed_owner, dbs.fed_owner);
+            setNullIfIndicated(dbs.ind_fed_owner, CHAR, structPtr->fed_owner);
+
+            strcpy(structPtr->source_agency, dbs.source_agency);
+            setNullIfIndicated(dbs.ind_source_agency, CHAR, structPtr->source_agency);
+
+            structPtr->drainage_area = dbs.drainage_area;
+            setNullIfIndicated(dbs.ind_drainage_area, DOUBLE, &structPtr->drainage_area);
+
+            strcpy(structPtr->topo_map, dbs.topo_map);
+            setNullIfIndicated(dbs.ind_topo_map, CHAR, structPtr->topo_map);
+
+            structPtr->return_flow_region = dbs.return_flow_region;
+            setNullIfIndicated(dbs.ind_return_flow_region, INT, &structPtr->return_flow_region);
+
+            structPtr->dam_length = dbs.dam_length;
+            setNullIfIndicated(dbs.ind_dam_length, DOUBLE, &structPtr->dam_length);
+
+            structPtr->dam_height = dbs.dam_height;
+            setNullIfIndicated(dbs.ind_dam_height, DOUBLE, &structPtr->dam_height);
+
+            structPtr->structural_height = dbs.structural_height;
+            setNullIfIndicated(dbs.ind_structural_height, DOUBLE, &structPtr->structural_height);
+
+            structPtr->hydraulic_height = dbs.hydraulic_height;
+            setNullIfIndicated(dbs.ind_hydraulic_height, DOUBLE, &structPtr->hydraulic_height);
+
+            structPtr->nid_height = dbs.nid_height;
+            setNullIfIndicated(dbs.ind_nid_height, DOUBLE, &structPtr->nid_height);
+
+            structPtr->max_discharge = dbs.max_discharge;
+            setNullIfIndicated(dbs.ind_max_discharge, DOUBLE, &structPtr->max_discharge);
+
+            structPtr->normal_storage = dbs.normal_storage;
+            setNullIfIndicated(dbs.ind_normal_storage, DOUBLE, &structPtr->normal_storage);
+
+            structPtr->nid_storage = dbs.nid_storage;
+            setNullIfIndicated(dbs.ind_nid_storage, DOUBLE, &structPtr->nid_storage);
+
+            structPtr->surface_area = dbs.surface_area;
+            setNullIfIndicated(dbs.ind_surface_area, DOUBLE, &structPtr->surface_area);
+
+            structPtr->elev = dbs.elev;
+            setNullIfIndicated(dbs.ind_elev, DOUBLE, &structPtr->elev);
+
+            strcpy(structPtr->prebreak_avail, dbs.prebreak_avail);
+            setNullIfIndicated(dbs.ind_prebreak_avail, CHAR, structPtr->prebreak_avail);
+
+            strcpy(structPtr->comments, dbs.comments);
+            setNullIfIndicated(dbs.ind_comments, CHAR, structPtr->comments);
+
+            structPtr->updated = dbs.updated;
+            setNullIfIndicated(dbs.ind_updated, DATETIME, &structPtr->updated);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.nidid, :dbs.other_dam_name:dbs.ind_other_dam_name, 
+        :dbs.dam_former_name:dbs.ind_dam_former_name, :dbs.stateid:dbs.ind_stateid, 
+        :dbs.section_t_r:dbs.ind_section_t_r, :dbs.owner_name:dbs.ind_owner_name, 
+        :dbs.owner_type:dbs.ind_owner_type, :dbs.dam_designer:dbs.ind_dam_designer, 
+        :dbs.private_on_federal:dbs.ind_private_on_federal, :dbs.dam_type:dbs.ind_dam_type, 
+        :dbs.core:dbs.ind_core, :dbs.foundation:dbs.ind_foundation, 
+        :dbs.purposes:dbs.ind_purposes, :dbs.year_completed:dbs.ind_year_completed, 
+        :dbs.year_modified:dbs.ind_year_modified, :dbs.emerg_action_plan:dbs.ind_emerg_action_plan, 
+        :dbs.inspection_date:dbs.ind_inspection_date, :dbs.inspection_freq:dbs.ind_inspection_freq, 
+        :dbs.st_reg_dam:dbs.ind_st_reg_dam, :dbs.st_reg_agency:dbs.ind_st_reg_agency, 
+        :dbs.spillway_type:dbs.ind_spillway_type, :dbs.spillway_width:dbs.ind_spillway_width, 
+        :dbs.outlet_gates:dbs.ind_outlet_gates, :dbs.volume_dam:dbs.ind_volume_dam, 
+        :dbs.number_locks:dbs.ind_number_locks, :dbs.length_locks:dbs.ind_length_locks, 
+        :dbs.width_locks:dbs.ind_width_locks, :dbs.fed_funding:dbs.ind_fed_funding, 
+        :dbs.fed_design:dbs.ind_fed_design, :dbs.fed_construction:dbs.ind_fed_construction, 
+        :dbs.fed_regulatory:dbs.ind_fed_regulatory, :dbs.fed_inspection:dbs.ind_fed_inspection, 
+        :dbs.fed_operation:dbs.ind_fed_operation, :dbs.fed_other:dbs.ind_fed_other, 
+        :dbs.fed_owner:dbs.ind_fed_owner, :dbs.source_agency:dbs.ind_source_agency, 
+        :dbs.drainage_area:dbs.ind_drainage_area, :dbs.topo_map:dbs.ind_topo_map, 
+        :dbs.return_flow_region:dbs.ind_return_flow_region, :dbs.dam_length:dbs.ind_dam_length, 
+        :dbs.dam_height:dbs.ind_dam_height, :dbs.structural_height:dbs.ind_structural_height, 
+        :dbs.hydraulic_height:dbs.ind_hydraulic_height, :dbs.nid_height:dbs.ind_nid_height, 
+        :dbs.max_discharge:dbs.ind_max_discharge, :dbs.normal_storage:dbs.ind_normal_storage, 
+        :dbs.nid_storage:dbs.ind_nid_storage, :dbs.surface_area:dbs.ind_surface_area, 
+        :dbs.elev:dbs.ind_elev, :dbs.prebreak_avail:dbs.ind_prebreak_avail, 
+        :dbs.comments:dbs.ind_comments, :dbs.updated:dbs.ind_updated        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetDamFeatures() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+DamFeatures * SelectDamFeatures(const char * where)
+{
+
+    DamFeatures * listPtr = NULL;
+    DamFeatures * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM DamFeatures ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DamFeatures_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDamFeatures() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDamFeatures() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDamFeatures() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.nidid, :dbs.other_dam_name:dbs.ind_other_dam_name, 
+    :dbs.dam_former_name:dbs.ind_dam_former_name, :dbs.stateid:dbs.ind_stateid, 
+    :dbs.section_t_r:dbs.ind_section_t_r, :dbs.owner_name:dbs.ind_owner_name, 
+    :dbs.owner_type:dbs.ind_owner_type, :dbs.dam_designer:dbs.ind_dam_designer, 
+    :dbs.private_on_federal:dbs.ind_private_on_federal, :dbs.dam_type:dbs.ind_dam_type, 
+    :dbs.core:dbs.ind_core, :dbs.foundation:dbs.ind_foundation, 
+    :dbs.purposes:dbs.ind_purposes, :dbs.year_completed:dbs.ind_year_completed, 
+    :dbs.year_modified:dbs.ind_year_modified, :dbs.emerg_action_plan:dbs.ind_emerg_action_plan, 
+    :dbs.inspection_date:dbs.ind_inspection_date, :dbs.inspection_freq:dbs.ind_inspection_freq, 
+    :dbs.st_reg_dam:dbs.ind_st_reg_dam, :dbs.st_reg_agency:dbs.ind_st_reg_agency, 
+    :dbs.spillway_type:dbs.ind_spillway_type, :dbs.spillway_width:dbs.ind_spillway_width, 
+    :dbs.outlet_gates:dbs.ind_outlet_gates, :dbs.volume_dam:dbs.ind_volume_dam, 
+    :dbs.number_locks:dbs.ind_number_locks, :dbs.length_locks:dbs.ind_length_locks, 
+    :dbs.width_locks:dbs.ind_width_locks, :dbs.fed_funding:dbs.ind_fed_funding, 
+    :dbs.fed_design:dbs.ind_fed_design, :dbs.fed_construction:dbs.ind_fed_construction, 
+    :dbs.fed_regulatory:dbs.ind_fed_regulatory, :dbs.fed_inspection:dbs.ind_fed_inspection, 
+    :dbs.fed_operation:dbs.ind_fed_operation, :dbs.fed_other:dbs.ind_fed_other, 
+    :dbs.fed_owner:dbs.ind_fed_owner, :dbs.source_agency:dbs.ind_source_agency, 
+    :dbs.drainage_area:dbs.ind_drainage_area, :dbs.topo_map:dbs.ind_topo_map, 
+    :dbs.return_flow_region:dbs.ind_return_flow_region, :dbs.dam_length:dbs.ind_dam_length, 
+    :dbs.dam_height:dbs.ind_dam_height, :dbs.structural_height:dbs.ind_structural_height, 
+    :dbs.hydraulic_height:dbs.ind_hydraulic_height, :dbs.nid_height:dbs.ind_nid_height, 
+    :dbs.max_discharge:dbs.ind_max_discharge, :dbs.normal_storage:dbs.ind_normal_storage, 
+    :dbs.nid_storage:dbs.ind_nid_storage, :dbs.surface_area:dbs.ind_surface_area, 
+    :dbs.elev:dbs.ind_elev, :dbs.prebreak_avail:dbs.ind_prebreak_avail, 
+    :dbs.comments:dbs.ind_comments, :dbs.updated:dbs.ind_updated    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDamFeatures() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (DamFeatures *) malloc(sizeof(DamFeatures))) != NULL)
+        {
+
+            strcpy(structPtr->nidid, dbs.nidid);
+
+            strcpy(structPtr->other_dam_name, dbs.other_dam_name);
+            setNullIfIndicated(dbs.ind_other_dam_name, CHAR, structPtr->other_dam_name);
+
+            strcpy(structPtr->dam_former_name, dbs.dam_former_name);
+            setNullIfIndicated(dbs.ind_dam_former_name, CHAR, structPtr->dam_former_name);
+
+            strcpy(structPtr->stateid, dbs.stateid);
+            setNullIfIndicated(dbs.ind_stateid, CHAR, structPtr->stateid);
+
+            strcpy(structPtr->section_t_r, dbs.section_t_r);
+            setNullIfIndicated(dbs.ind_section_t_r, CHAR, structPtr->section_t_r);
+
+            strcpy(structPtr->owner_name, dbs.owner_name);
+            setNullIfIndicated(dbs.ind_owner_name, CHAR, structPtr->owner_name);
+
+            strcpy(structPtr->owner_type, dbs.owner_type);
+            setNullIfIndicated(dbs.ind_owner_type, CHAR, structPtr->owner_type);
+
+            strcpy(structPtr->dam_designer, dbs.dam_designer);
+            setNullIfIndicated(dbs.ind_dam_designer, CHAR, structPtr->dam_designer);
+
+            strcpy(structPtr->private_on_federal, dbs.private_on_federal);
+            setNullIfIndicated(dbs.ind_private_on_federal, CHAR, structPtr->private_on_federal);
+
+            strcpy(structPtr->dam_type, dbs.dam_type);
+            setNullIfIndicated(dbs.ind_dam_type, CHAR, structPtr->dam_type);
+
+            strcpy(structPtr->core, dbs.core);
+            setNullIfIndicated(dbs.ind_core, CHAR, structPtr->core);
+
+            strcpy(structPtr->foundation, dbs.foundation);
+            setNullIfIndicated(dbs.ind_foundation, CHAR, structPtr->foundation);
+
+            strcpy(structPtr->purposes, dbs.purposes);
+            setNullIfIndicated(dbs.ind_purposes, CHAR, structPtr->purposes);
+
+            strcpy(structPtr->year_completed, dbs.year_completed);
+            setNullIfIndicated(dbs.ind_year_completed, CHAR, structPtr->year_completed);
+
+            strcpy(structPtr->year_modified, dbs.year_modified);
+            setNullIfIndicated(dbs.ind_year_modified, CHAR, structPtr->year_modified);
+
+            strcpy(structPtr->emerg_action_plan, dbs.emerg_action_plan);
+            setNullIfIndicated(dbs.ind_emerg_action_plan, CHAR, structPtr->emerg_action_plan);
+
+            strcpy(structPtr->inspection_date, dbs.inspection_date);
+            setNullIfIndicated(dbs.ind_inspection_date, CHAR, structPtr->inspection_date);
+
+            strcpy(structPtr->inspection_freq, dbs.inspection_freq);
+            setNullIfIndicated(dbs.ind_inspection_freq, CHAR, structPtr->inspection_freq);
+
+            strcpy(structPtr->st_reg_dam, dbs.st_reg_dam);
+            setNullIfIndicated(dbs.ind_st_reg_dam, CHAR, structPtr->st_reg_dam);
+
+            strcpy(structPtr->st_reg_agency, dbs.st_reg_agency);
+            setNullIfIndicated(dbs.ind_st_reg_agency, CHAR, structPtr->st_reg_agency);
+
+            strcpy(structPtr->spillway_type, dbs.spillway_type);
+            setNullIfIndicated(dbs.ind_spillway_type, CHAR, structPtr->spillway_type);
+
+            structPtr->spillway_width = dbs.spillway_width;
+            setNullIfIndicated(dbs.ind_spillway_width, DOUBLE, &structPtr->spillway_width);
+
+            strcpy(structPtr->outlet_gates, dbs.outlet_gates);
+            setNullIfIndicated(dbs.ind_outlet_gates, CHAR, structPtr->outlet_gates);
+
+            structPtr->volume_dam = dbs.volume_dam;
+            setNullIfIndicated(dbs.ind_volume_dam, DOUBLE, &structPtr->volume_dam);
+
+            structPtr->number_locks = dbs.number_locks;
+            setNullIfIndicated(dbs.ind_number_locks, DOUBLE, &structPtr->number_locks);
+
+            structPtr->length_locks = dbs.length_locks;
+            setNullIfIndicated(dbs.ind_length_locks, DOUBLE, &structPtr->length_locks);
+
+            structPtr->width_locks = dbs.width_locks;
+            setNullIfIndicated(dbs.ind_width_locks, DOUBLE, &structPtr->width_locks);
+
+            strcpy(structPtr->fed_funding, dbs.fed_funding);
+            setNullIfIndicated(dbs.ind_fed_funding, CHAR, structPtr->fed_funding);
+
+            strcpy(structPtr->fed_design, dbs.fed_design);
+            setNullIfIndicated(dbs.ind_fed_design, CHAR, structPtr->fed_design);
+
+            strcpy(structPtr->fed_construction, dbs.fed_construction);
+            setNullIfIndicated(dbs.ind_fed_construction, CHAR, structPtr->fed_construction);
+
+            strcpy(structPtr->fed_regulatory, dbs.fed_regulatory);
+            setNullIfIndicated(dbs.ind_fed_regulatory, CHAR, structPtr->fed_regulatory);
+
+            strcpy(structPtr->fed_inspection, dbs.fed_inspection);
+            setNullIfIndicated(dbs.ind_fed_inspection, CHAR, structPtr->fed_inspection);
+
+            strcpy(structPtr->fed_operation, dbs.fed_operation);
+            setNullIfIndicated(dbs.ind_fed_operation, CHAR, structPtr->fed_operation);
+
+            strcpy(structPtr->fed_other, dbs.fed_other);
+            setNullIfIndicated(dbs.ind_fed_other, CHAR, structPtr->fed_other);
+
+            strcpy(structPtr->fed_owner, dbs.fed_owner);
+            setNullIfIndicated(dbs.ind_fed_owner, CHAR, structPtr->fed_owner);
+
+            strcpy(structPtr->source_agency, dbs.source_agency);
+            setNullIfIndicated(dbs.ind_source_agency, CHAR, structPtr->source_agency);
+
+            structPtr->drainage_area = dbs.drainage_area;
+            setNullIfIndicated(dbs.ind_drainage_area, DOUBLE, &structPtr->drainage_area);
+
+            strcpy(structPtr->topo_map, dbs.topo_map);
+            setNullIfIndicated(dbs.ind_topo_map, CHAR, structPtr->topo_map);
+
+            structPtr->return_flow_region = dbs.return_flow_region;
+            setNullIfIndicated(dbs.ind_return_flow_region, INT, &structPtr->return_flow_region);
+
+            structPtr->dam_length = dbs.dam_length;
+            setNullIfIndicated(dbs.ind_dam_length, DOUBLE, &structPtr->dam_length);
+
+            structPtr->dam_height = dbs.dam_height;
+            setNullIfIndicated(dbs.ind_dam_height, DOUBLE, &structPtr->dam_height);
+
+            structPtr->structural_height = dbs.structural_height;
+            setNullIfIndicated(dbs.ind_structural_height, DOUBLE, &structPtr->structural_height);
+
+            structPtr->hydraulic_height = dbs.hydraulic_height;
+            setNullIfIndicated(dbs.ind_hydraulic_height, DOUBLE, &structPtr->hydraulic_height);
+
+            structPtr->nid_height = dbs.nid_height;
+            setNullIfIndicated(dbs.ind_nid_height, DOUBLE, &structPtr->nid_height);
+
+            structPtr->max_discharge = dbs.max_discharge;
+            setNullIfIndicated(dbs.ind_max_discharge, DOUBLE, &structPtr->max_discharge);
+
+            structPtr->normal_storage = dbs.normal_storage;
+            setNullIfIndicated(dbs.ind_normal_storage, DOUBLE, &structPtr->normal_storage);
+
+            structPtr->nid_storage = dbs.nid_storage;
+            setNullIfIndicated(dbs.ind_nid_storage, DOUBLE, &structPtr->nid_storage);
+
+            structPtr->surface_area = dbs.surface_area;
+            setNullIfIndicated(dbs.ind_surface_area, DOUBLE, &structPtr->surface_area);
+
+            structPtr->elev = dbs.elev;
+            setNullIfIndicated(dbs.ind_elev, DOUBLE, &structPtr->elev);
+
+            strcpy(structPtr->prebreak_avail, dbs.prebreak_avail);
+            setNullIfIndicated(dbs.ind_prebreak_avail, CHAR, structPtr->prebreak_avail);
+
+            strcpy(structPtr->comments, dbs.comments);
+            setNullIfIndicated(dbs.ind_comments, CHAR, structPtr->comments);
+
+            structPtr->updated = dbs.updated;
+            setNullIfIndicated(dbs.ind_updated, DATETIME, &structPtr->updated);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.nidid, :dbs.other_dam_name:dbs.ind_other_dam_name, 
+        :dbs.dam_former_name:dbs.ind_dam_former_name, :dbs.stateid:dbs.ind_stateid, 
+        :dbs.section_t_r:dbs.ind_section_t_r, :dbs.owner_name:dbs.ind_owner_name, 
+        :dbs.owner_type:dbs.ind_owner_type, :dbs.dam_designer:dbs.ind_dam_designer, 
+        :dbs.private_on_federal:dbs.ind_private_on_federal, :dbs.dam_type:dbs.ind_dam_type, 
+        :dbs.core:dbs.ind_core, :dbs.foundation:dbs.ind_foundation, 
+        :dbs.purposes:dbs.ind_purposes, :dbs.year_completed:dbs.ind_year_completed, 
+        :dbs.year_modified:dbs.ind_year_modified, :dbs.emerg_action_plan:dbs.ind_emerg_action_plan, 
+        :dbs.inspection_date:dbs.ind_inspection_date, :dbs.inspection_freq:dbs.ind_inspection_freq, 
+        :dbs.st_reg_dam:dbs.ind_st_reg_dam, :dbs.st_reg_agency:dbs.ind_st_reg_agency, 
+        :dbs.spillway_type:dbs.ind_spillway_type, :dbs.spillway_width:dbs.ind_spillway_width, 
+        :dbs.outlet_gates:dbs.ind_outlet_gates, :dbs.volume_dam:dbs.ind_volume_dam, 
+        :dbs.number_locks:dbs.ind_number_locks, :dbs.length_locks:dbs.ind_length_locks, 
+        :dbs.width_locks:dbs.ind_width_locks, :dbs.fed_funding:dbs.ind_fed_funding, 
+        :dbs.fed_design:dbs.ind_fed_design, :dbs.fed_construction:dbs.ind_fed_construction, 
+        :dbs.fed_regulatory:dbs.ind_fed_regulatory, :dbs.fed_inspection:dbs.ind_fed_inspection, 
+        :dbs.fed_operation:dbs.ind_fed_operation, :dbs.fed_other:dbs.ind_fed_other, 
+        :dbs.fed_owner:dbs.ind_fed_owner, :dbs.source_agency:dbs.ind_source_agency, 
+        :dbs.drainage_area:dbs.ind_drainage_area, :dbs.topo_map:dbs.ind_topo_map, 
+        :dbs.return_flow_region:dbs.ind_return_flow_region, :dbs.dam_length:dbs.ind_dam_length, 
+        :dbs.dam_height:dbs.ind_dam_height, :dbs.structural_height:dbs.ind_structural_height, 
+        :dbs.hydraulic_height:dbs.ind_hydraulic_height, :dbs.nid_height:dbs.ind_nid_height, 
+        :dbs.max_discharge:dbs.ind_max_discharge, :dbs.normal_storage:dbs.ind_normal_storage, 
+        :dbs.nid_storage:dbs.ind_nid_storage, :dbs.surface_area:dbs.ind_surface_area, 
+        :dbs.elev:dbs.ind_elev, :dbs.prebreak_avail:dbs.ind_prebreak_avail, 
+        :dbs.comments:dbs.ind_comments, :dbs.updated:dbs.ind_updated        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectDamFeatures() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectDamFeaturesCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM DamFeatures ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDamFeatures() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDamFeatures() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDamFeatures() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDamFeatures() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutDamFeatures(const DamFeatures * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DamFeatures_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.nidid, structPtr->nidid);
+
+    strcpy(dbs.other_dam_name, structPtr->other_dam_name);
+    dbs.ind_other_dam_name = getIndicator(CHAR, (void *)structPtr->other_dam_name);
+
+    strcpy(dbs.dam_former_name, structPtr->dam_former_name);
+    dbs.ind_dam_former_name = getIndicator(CHAR, (void *)structPtr->dam_former_name);
+
+    strcpy(dbs.stateid, structPtr->stateid);
+    dbs.ind_stateid = getIndicator(CHAR, (void *)structPtr->stateid);
+
+    strcpy(dbs.section_t_r, structPtr->section_t_r);
+    dbs.ind_section_t_r = getIndicator(CHAR, (void *)structPtr->section_t_r);
+
+    strcpy(dbs.owner_name, structPtr->owner_name);
+    dbs.ind_owner_name = getIndicator(CHAR, (void *)structPtr->owner_name);
+
+    strcpy(dbs.owner_type, structPtr->owner_type);
+    dbs.ind_owner_type = getIndicator(CHAR, (void *)structPtr->owner_type);
+
+    strcpy(dbs.dam_designer, structPtr->dam_designer);
+    dbs.ind_dam_designer = getIndicator(CHAR, (void *)structPtr->dam_designer);
+
+    strcpy(dbs.private_on_federal, structPtr->private_on_federal);
+    dbs.ind_private_on_federal = getIndicator(CHAR, (void *)structPtr->private_on_federal);
+
+    strcpy(dbs.dam_type, structPtr->dam_type);
+    dbs.ind_dam_type = getIndicator(CHAR, (void *)structPtr->dam_type);
+
+    strcpy(dbs.core, structPtr->core);
+    dbs.ind_core = getIndicator(CHAR, (void *)structPtr->core);
+
+    strcpy(dbs.foundation, structPtr->foundation);
+    dbs.ind_foundation = getIndicator(CHAR, (void *)structPtr->foundation);
+
+    strcpy(dbs.purposes, structPtr->purposes);
+    dbs.ind_purposes = getIndicator(CHAR, (void *)structPtr->purposes);
+
+    strcpy(dbs.year_completed, structPtr->year_completed);
+    dbs.ind_year_completed = getIndicator(CHAR, (void *)structPtr->year_completed);
+
+    strcpy(dbs.year_modified, structPtr->year_modified);
+    dbs.ind_year_modified = getIndicator(CHAR, (void *)structPtr->year_modified);
+
+    strcpy(dbs.emerg_action_plan, structPtr->emerg_action_plan);
+    dbs.ind_emerg_action_plan = getIndicator(CHAR, (void *)structPtr->emerg_action_plan);
+
+    strcpy(dbs.inspection_date, structPtr->inspection_date);
+    dbs.ind_inspection_date = getIndicator(CHAR, (void *)structPtr->inspection_date);
+
+    strcpy(dbs.inspection_freq, structPtr->inspection_freq);
+    dbs.ind_inspection_freq = getIndicator(CHAR, (void *)structPtr->inspection_freq);
+
+    strcpy(dbs.st_reg_dam, structPtr->st_reg_dam);
+    dbs.ind_st_reg_dam = getIndicator(CHAR, (void *)structPtr->st_reg_dam);
+
+    strcpy(dbs.st_reg_agency, structPtr->st_reg_agency);
+    dbs.ind_st_reg_agency = getIndicator(CHAR, (void *)structPtr->st_reg_agency);
+
+    strcpy(dbs.spillway_type, structPtr->spillway_type);
+    dbs.ind_spillway_type = getIndicator(CHAR, (void *)structPtr->spillway_type);
+
+    dbs.spillway_width = structPtr->spillway_width;
+    dbs.ind_spillway_width = getIndicator(DOUBLE, (void *)&structPtr->spillway_width);
+
+    strcpy(dbs.outlet_gates, structPtr->outlet_gates);
+    dbs.ind_outlet_gates = getIndicator(CHAR, (void *)structPtr->outlet_gates);
+
+    dbs.volume_dam = structPtr->volume_dam;
+    dbs.ind_volume_dam = getIndicator(DOUBLE, (void *)&structPtr->volume_dam);
+
+    dbs.number_locks = structPtr->number_locks;
+    dbs.ind_number_locks = getIndicator(DOUBLE, (void *)&structPtr->number_locks);
+
+    dbs.length_locks = structPtr->length_locks;
+    dbs.ind_length_locks = getIndicator(DOUBLE, (void *)&structPtr->length_locks);
+
+    dbs.width_locks = structPtr->width_locks;
+    dbs.ind_width_locks = getIndicator(DOUBLE, (void *)&structPtr->width_locks);
+
+    strcpy(dbs.fed_funding, structPtr->fed_funding);
+    dbs.ind_fed_funding = getIndicator(CHAR, (void *)structPtr->fed_funding);
+
+    strcpy(dbs.fed_design, structPtr->fed_design);
+    dbs.ind_fed_design = getIndicator(CHAR, (void *)structPtr->fed_design);
+
+    strcpy(dbs.fed_construction, structPtr->fed_construction);
+    dbs.ind_fed_construction = getIndicator(CHAR, (void *)structPtr->fed_construction);
+
+    strcpy(dbs.fed_regulatory, structPtr->fed_regulatory);
+    dbs.ind_fed_regulatory = getIndicator(CHAR, (void *)structPtr->fed_regulatory);
+
+    strcpy(dbs.fed_inspection, structPtr->fed_inspection);
+    dbs.ind_fed_inspection = getIndicator(CHAR, (void *)structPtr->fed_inspection);
+
+    strcpy(dbs.fed_operation, structPtr->fed_operation);
+    dbs.ind_fed_operation = getIndicator(CHAR, (void *)structPtr->fed_operation);
+
+    strcpy(dbs.fed_other, structPtr->fed_other);
+    dbs.ind_fed_other = getIndicator(CHAR, (void *)structPtr->fed_other);
+
+    strcpy(dbs.fed_owner, structPtr->fed_owner);
+    dbs.ind_fed_owner = getIndicator(CHAR, (void *)structPtr->fed_owner);
+
+    strcpy(dbs.source_agency, structPtr->source_agency);
+    dbs.ind_source_agency = getIndicator(CHAR, (void *)structPtr->source_agency);
+
+    dbs.drainage_area = structPtr->drainage_area;
+    dbs.ind_drainage_area = getIndicator(DOUBLE, (void *)&structPtr->drainage_area);
+
+    strcpy(dbs.topo_map, structPtr->topo_map);
+    dbs.ind_topo_map = getIndicator(CHAR, (void *)structPtr->topo_map);
+
+    dbs.return_flow_region = structPtr->return_flow_region;
+    dbs.ind_return_flow_region = getIndicator(INT, (void *)&structPtr->return_flow_region);
+
+    dbs.dam_length = structPtr->dam_length;
+    dbs.ind_dam_length = getIndicator(DOUBLE, (void *)&structPtr->dam_length);
+
+    dbs.dam_height = structPtr->dam_height;
+    dbs.ind_dam_height = getIndicator(DOUBLE, (void *)&structPtr->dam_height);
+
+    dbs.structural_height = structPtr->structural_height;
+    dbs.ind_structural_height = getIndicator(DOUBLE, (void *)&structPtr->structural_height);
+
+    dbs.hydraulic_height = structPtr->hydraulic_height;
+    dbs.ind_hydraulic_height = getIndicator(DOUBLE, (void *)&structPtr->hydraulic_height);
+
+    dbs.nid_height = structPtr->nid_height;
+    dbs.ind_nid_height = getIndicator(DOUBLE, (void *)&structPtr->nid_height);
+
+    dbs.max_discharge = structPtr->max_discharge;
+    dbs.ind_max_discharge = getIndicator(DOUBLE, (void *)&structPtr->max_discharge);
+
+    dbs.normal_storage = structPtr->normal_storage;
+    dbs.ind_normal_storage = getIndicator(DOUBLE, (void *)&structPtr->normal_storage);
+
+    dbs.nid_storage = structPtr->nid_storage;
+    dbs.ind_nid_storage = getIndicator(DOUBLE, (void *)&structPtr->nid_storage);
+
+    dbs.surface_area = structPtr->surface_area;
+    dbs.ind_surface_area = getIndicator(DOUBLE, (void *)&structPtr->surface_area);
+
+    dbs.elev = structPtr->elev;
+    dbs.ind_elev = getIndicator(DOUBLE, (void *)&structPtr->elev);
+
+    strcpy(dbs.prebreak_avail, structPtr->prebreak_avail);
+    dbs.ind_prebreak_avail = getIndicator(CHAR, (void *)structPtr->prebreak_avail);
+
+    strcpy(dbs.comments, structPtr->comments);
+    dbs.ind_comments = getIndicator(CHAR, (void *)structPtr->comments);
+
+    dbs.updated = structPtr->updated;
+    dbs.ind_updated = getIndicator(DATETIME, (void *)&structPtr->updated);
+
+
+    EXEC SQL INSERT INTO DamFeatures (nidid,other_dam_name,
+        dam_former_name,stateid,section_t_r,
+        owner_name,owner_type,dam_designer,
+        private_on_federal,dam_type,core,
+        foundation,purposes,year_completed,
+        year_modified,emerg_action_plan,inspection_date,
+        inspection_freq,st_reg_dam,st_reg_agency,
+        spillway_type,spillway_width,outlet_gates,
+        volume_dam,number_locks,length_locks,
+        width_locks,fed_funding,fed_design,
+        fed_construction,fed_regulatory,fed_inspection,
+        fed_operation,fed_other,fed_owner,
+        source_agency,drainage_area,topo_map,
+        return_flow_region,dam_length,dam_height,
+        structural_height,hydraulic_height,nid_height,
+        max_discharge,normal_storage,nid_storage,
+        surface_area,elev,prebreak_avail,
+        comments,updated        )
+        VALUES (
+         :dbs.nidid, :dbs.other_dam_name:dbs.ind_other_dam_name, :dbs.dam_former_name:dbs.ind_dam_former_name,
+         :dbs.stateid:dbs.ind_stateid, :dbs.section_t_r:dbs.ind_section_t_r, :dbs.owner_name:dbs.ind_owner_name,
+         :dbs.owner_type:dbs.ind_owner_type, :dbs.dam_designer:dbs.ind_dam_designer, :dbs.private_on_federal:dbs.ind_private_on_federal,
+         :dbs.dam_type:dbs.ind_dam_type, :dbs.core:dbs.ind_core, :dbs.foundation:dbs.ind_foundation,
+         :dbs.purposes:dbs.ind_purposes, :dbs.year_completed:dbs.ind_year_completed, :dbs.year_modified:dbs.ind_year_modified,
+         :dbs.emerg_action_plan:dbs.ind_emerg_action_plan, :dbs.inspection_date:dbs.ind_inspection_date, :dbs.inspection_freq:dbs.ind_inspection_freq,
+         :dbs.st_reg_dam:dbs.ind_st_reg_dam, :dbs.st_reg_agency:dbs.ind_st_reg_agency, :dbs.spillway_type:dbs.ind_spillway_type,
+         :dbs.spillway_width:dbs.ind_spillway_width, :dbs.outlet_gates:dbs.ind_outlet_gates, :dbs.volume_dam:dbs.ind_volume_dam,
+         :dbs.number_locks:dbs.ind_number_locks, :dbs.length_locks:dbs.ind_length_locks, :dbs.width_locks:dbs.ind_width_locks,
+         :dbs.fed_funding:dbs.ind_fed_funding, :dbs.fed_design:dbs.ind_fed_design, :dbs.fed_construction:dbs.ind_fed_construction,
+         :dbs.fed_regulatory:dbs.ind_fed_regulatory, :dbs.fed_inspection:dbs.ind_fed_inspection, :dbs.fed_operation:dbs.ind_fed_operation,
+         :dbs.fed_other:dbs.ind_fed_other, :dbs.fed_owner:dbs.ind_fed_owner, :dbs.source_agency:dbs.ind_source_agency,
+         :dbs.drainage_area:dbs.ind_drainage_area, :dbs.topo_map:dbs.ind_topo_map, :dbs.return_flow_region:dbs.ind_return_flow_region,
+         :dbs.dam_length:dbs.ind_dam_length, :dbs.dam_height:dbs.ind_dam_height, :dbs.structural_height:dbs.ind_structural_height,
+         :dbs.hydraulic_height:dbs.ind_hydraulic_height, :dbs.nid_height:dbs.ind_nid_height, :dbs.max_discharge:dbs.ind_max_discharge,
+         :dbs.normal_storage:dbs.ind_normal_storage, :dbs.nid_storage:dbs.ind_nid_storage, :dbs.surface_area:dbs.ind_surface_area,
+         :dbs.elev:dbs.ind_elev, :dbs.prebreak_avail:dbs.ind_prebreak_avail, :dbs.comments:dbs.ind_comments,
+         :dbs.updated:dbs.ind_updated);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutDamFeatures() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertDamFeatures(const DamFeatures * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DamFeatures_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.nidid, structPtr->nidid);
+
+    strcpy(dbs.other_dam_name, structPtr->other_dam_name);
+    dbs.ind_other_dam_name = getIndicator(CHAR, (void *)structPtr->other_dam_name);
+
+    strcpy(dbs.dam_former_name, structPtr->dam_former_name);
+    dbs.ind_dam_former_name = getIndicator(CHAR, (void *)structPtr->dam_former_name);
+
+    strcpy(dbs.stateid, structPtr->stateid);
+    dbs.ind_stateid = getIndicator(CHAR, (void *)structPtr->stateid);
+
+    strcpy(dbs.section_t_r, structPtr->section_t_r);
+    dbs.ind_section_t_r = getIndicator(CHAR, (void *)structPtr->section_t_r);
+
+    strcpy(dbs.owner_name, structPtr->owner_name);
+    dbs.ind_owner_name = getIndicator(CHAR, (void *)structPtr->owner_name);
+
+    strcpy(dbs.owner_type, structPtr->owner_type);
+    dbs.ind_owner_type = getIndicator(CHAR, (void *)structPtr->owner_type);
+
+    strcpy(dbs.dam_designer, structPtr->dam_designer);
+    dbs.ind_dam_designer = getIndicator(CHAR, (void *)structPtr->dam_designer);
+
+    strcpy(dbs.private_on_federal, structPtr->private_on_federal);
+    dbs.ind_private_on_federal = getIndicator(CHAR, (void *)structPtr->private_on_federal);
+
+    strcpy(dbs.dam_type, structPtr->dam_type);
+    dbs.ind_dam_type = getIndicator(CHAR, (void *)structPtr->dam_type);
+
+    strcpy(dbs.core, structPtr->core);
+    dbs.ind_core = getIndicator(CHAR, (void *)structPtr->core);
+
+    strcpy(dbs.foundation, structPtr->foundation);
+    dbs.ind_foundation = getIndicator(CHAR, (void *)structPtr->foundation);
+
+    strcpy(dbs.purposes, structPtr->purposes);
+    dbs.ind_purposes = getIndicator(CHAR, (void *)structPtr->purposes);
+
+    strcpy(dbs.year_completed, structPtr->year_completed);
+    dbs.ind_year_completed = getIndicator(CHAR, (void *)structPtr->year_completed);
+
+    strcpy(dbs.year_modified, structPtr->year_modified);
+    dbs.ind_year_modified = getIndicator(CHAR, (void *)structPtr->year_modified);
+
+    strcpy(dbs.emerg_action_plan, structPtr->emerg_action_plan);
+    dbs.ind_emerg_action_plan = getIndicator(CHAR, (void *)structPtr->emerg_action_plan);
+
+    strcpy(dbs.inspection_date, structPtr->inspection_date);
+    dbs.ind_inspection_date = getIndicator(CHAR, (void *)structPtr->inspection_date);
+
+    strcpy(dbs.inspection_freq, structPtr->inspection_freq);
+    dbs.ind_inspection_freq = getIndicator(CHAR, (void *)structPtr->inspection_freq);
+
+    strcpy(dbs.st_reg_dam, structPtr->st_reg_dam);
+    dbs.ind_st_reg_dam = getIndicator(CHAR, (void *)structPtr->st_reg_dam);
+
+    strcpy(dbs.st_reg_agency, structPtr->st_reg_agency);
+    dbs.ind_st_reg_agency = getIndicator(CHAR, (void *)structPtr->st_reg_agency);
+
+    strcpy(dbs.spillway_type, structPtr->spillway_type);
+    dbs.ind_spillway_type = getIndicator(CHAR, (void *)structPtr->spillway_type);
+
+    dbs.spillway_width = structPtr->spillway_width;
+    dbs.ind_spillway_width = getIndicator(DOUBLE, (void *)&structPtr->spillway_width);
+
+    strcpy(dbs.outlet_gates, structPtr->outlet_gates);
+    dbs.ind_outlet_gates = getIndicator(CHAR, (void *)structPtr->outlet_gates);
+
+    dbs.volume_dam = structPtr->volume_dam;
+    dbs.ind_volume_dam = getIndicator(DOUBLE, (void *)&structPtr->volume_dam);
+
+    dbs.number_locks = structPtr->number_locks;
+    dbs.ind_number_locks = getIndicator(DOUBLE, (void *)&structPtr->number_locks);
+
+    dbs.length_locks = structPtr->length_locks;
+    dbs.ind_length_locks = getIndicator(DOUBLE, (void *)&structPtr->length_locks);
+
+    dbs.width_locks = structPtr->width_locks;
+    dbs.ind_width_locks = getIndicator(DOUBLE, (void *)&structPtr->width_locks);
+
+    strcpy(dbs.fed_funding, structPtr->fed_funding);
+    dbs.ind_fed_funding = getIndicator(CHAR, (void *)structPtr->fed_funding);
+
+    strcpy(dbs.fed_design, structPtr->fed_design);
+    dbs.ind_fed_design = getIndicator(CHAR, (void *)structPtr->fed_design);
+
+    strcpy(dbs.fed_construction, structPtr->fed_construction);
+    dbs.ind_fed_construction = getIndicator(CHAR, (void *)structPtr->fed_construction);
+
+    strcpy(dbs.fed_regulatory, structPtr->fed_regulatory);
+    dbs.ind_fed_regulatory = getIndicator(CHAR, (void *)structPtr->fed_regulatory);
+
+    strcpy(dbs.fed_inspection, structPtr->fed_inspection);
+    dbs.ind_fed_inspection = getIndicator(CHAR, (void *)structPtr->fed_inspection);
+
+    strcpy(dbs.fed_operation, structPtr->fed_operation);
+    dbs.ind_fed_operation = getIndicator(CHAR, (void *)structPtr->fed_operation);
+
+    strcpy(dbs.fed_other, structPtr->fed_other);
+    dbs.ind_fed_other = getIndicator(CHAR, (void *)structPtr->fed_other);
+
+    strcpy(dbs.fed_owner, structPtr->fed_owner);
+    dbs.ind_fed_owner = getIndicator(CHAR, (void *)structPtr->fed_owner);
+
+    strcpy(dbs.source_agency, structPtr->source_agency);
+    dbs.ind_source_agency = getIndicator(CHAR, (void *)structPtr->source_agency);
+
+    dbs.drainage_area = structPtr->drainage_area;
+    dbs.ind_drainage_area = getIndicator(DOUBLE, (void *)&structPtr->drainage_area);
+
+    strcpy(dbs.topo_map, structPtr->topo_map);
+    dbs.ind_topo_map = getIndicator(CHAR, (void *)structPtr->topo_map);
+
+    dbs.return_flow_region = structPtr->return_flow_region;
+    dbs.ind_return_flow_region = getIndicator(INT, (void *)&structPtr->return_flow_region);
+
+    dbs.dam_length = structPtr->dam_length;
+    dbs.ind_dam_length = getIndicator(DOUBLE, (void *)&structPtr->dam_length);
+
+    dbs.dam_height = structPtr->dam_height;
+    dbs.ind_dam_height = getIndicator(DOUBLE, (void *)&structPtr->dam_height);
+
+    dbs.structural_height = structPtr->structural_height;
+    dbs.ind_structural_height = getIndicator(DOUBLE, (void *)&structPtr->structural_height);
+
+    dbs.hydraulic_height = structPtr->hydraulic_height;
+    dbs.ind_hydraulic_height = getIndicator(DOUBLE, (void *)&structPtr->hydraulic_height);
+
+    dbs.nid_height = structPtr->nid_height;
+    dbs.ind_nid_height = getIndicator(DOUBLE, (void *)&structPtr->nid_height);
+
+    dbs.max_discharge = structPtr->max_discharge;
+    dbs.ind_max_discharge = getIndicator(DOUBLE, (void *)&structPtr->max_discharge);
+
+    dbs.normal_storage = structPtr->normal_storage;
+    dbs.ind_normal_storage = getIndicator(DOUBLE, (void *)&structPtr->normal_storage);
+
+    dbs.nid_storage = structPtr->nid_storage;
+    dbs.ind_nid_storage = getIndicator(DOUBLE, (void *)&structPtr->nid_storage);
+
+    dbs.surface_area = structPtr->surface_area;
+    dbs.ind_surface_area = getIndicator(DOUBLE, (void *)&structPtr->surface_area);
+
+    dbs.elev = structPtr->elev;
+    dbs.ind_elev = getIndicator(DOUBLE, (void *)&structPtr->elev);
+
+    strcpy(dbs.prebreak_avail, structPtr->prebreak_avail);
+    dbs.ind_prebreak_avail = getIndicator(CHAR, (void *)structPtr->prebreak_avail);
+
+    strcpy(dbs.comments, structPtr->comments);
+    dbs.ind_comments = getIndicator(CHAR, (void *)structPtr->comments);
+
+    dbs.updated = structPtr->updated;
+    dbs.ind_updated = getIndicator(DATETIME, (void *)&structPtr->updated);
+
+
+    EXEC SQL INSERT INTO DamFeatures (nidid,other_dam_name,
+        dam_former_name,stateid,section_t_r,
+        owner_name,owner_type,dam_designer,
+        private_on_federal,dam_type,core,
+        foundation,purposes,year_completed,
+        year_modified,emerg_action_plan,inspection_date,
+        inspection_freq,st_reg_dam,st_reg_agency,
+        spillway_type,spillway_width,outlet_gates,
+        volume_dam,number_locks,length_locks,
+        width_locks,fed_funding,fed_design,
+        fed_construction,fed_regulatory,fed_inspection,
+        fed_operation,fed_other,fed_owner,
+        source_agency,drainage_area,topo_map,
+        return_flow_region,dam_length,dam_height,
+        structural_height,hydraulic_height,nid_height,
+        max_discharge,normal_storage,nid_storage,
+        surface_area,elev,prebreak_avail,
+        comments,updated        )
+        VALUES (
+         :dbs.nidid, :dbs.other_dam_name:dbs.ind_other_dam_name, :dbs.dam_former_name:dbs.ind_dam_former_name,
+         :dbs.stateid:dbs.ind_stateid, :dbs.section_t_r:dbs.ind_section_t_r, :dbs.owner_name:dbs.ind_owner_name,
+         :dbs.owner_type:dbs.ind_owner_type, :dbs.dam_designer:dbs.ind_dam_designer, :dbs.private_on_federal:dbs.ind_private_on_federal,
+         :dbs.dam_type:dbs.ind_dam_type, :dbs.core:dbs.ind_core, :dbs.foundation:dbs.ind_foundation,
+         :dbs.purposes:dbs.ind_purposes, :dbs.year_completed:dbs.ind_year_completed, :dbs.year_modified:dbs.ind_year_modified,
+         :dbs.emerg_action_plan:dbs.ind_emerg_action_plan, :dbs.inspection_date:dbs.ind_inspection_date, :dbs.inspection_freq:dbs.ind_inspection_freq,
+         :dbs.st_reg_dam:dbs.ind_st_reg_dam, :dbs.st_reg_agency:dbs.ind_st_reg_agency, :dbs.spillway_type:dbs.ind_spillway_type,
+         :dbs.spillway_width:dbs.ind_spillway_width, :dbs.outlet_gates:dbs.ind_outlet_gates, :dbs.volume_dam:dbs.ind_volume_dam,
+         :dbs.number_locks:dbs.ind_number_locks, :dbs.length_locks:dbs.ind_length_locks, :dbs.width_locks:dbs.ind_width_locks,
+         :dbs.fed_funding:dbs.ind_fed_funding, :dbs.fed_design:dbs.ind_fed_design, :dbs.fed_construction:dbs.ind_fed_construction,
+         :dbs.fed_regulatory:dbs.ind_fed_regulatory, :dbs.fed_inspection:dbs.ind_fed_inspection, :dbs.fed_operation:dbs.ind_fed_operation,
+         :dbs.fed_other:dbs.ind_fed_other, :dbs.fed_owner:dbs.ind_fed_owner, :dbs.source_agency:dbs.ind_source_agency,
+         :dbs.drainage_area:dbs.ind_drainage_area, :dbs.topo_map:dbs.ind_topo_map, :dbs.return_flow_region:dbs.ind_return_flow_region,
+         :dbs.dam_length:dbs.ind_dam_length, :dbs.dam_height:dbs.ind_dam_height, :dbs.structural_height:dbs.ind_structural_height,
+         :dbs.hydraulic_height:dbs.ind_hydraulic_height, :dbs.nid_height:dbs.ind_nid_height, :dbs.max_discharge:dbs.ind_max_discharge,
+         :dbs.normal_storage:dbs.ind_normal_storage, :dbs.nid_storage:dbs.ind_nid_storage, :dbs.surface_area:dbs.ind_surface_area,
+         :dbs.elev:dbs.ind_elev, :dbs.prebreak_avail:dbs.ind_prebreak_avail, :dbs.comments:dbs.ind_comments,
+         :dbs.updated:dbs.ind_updated);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertDamFeatures() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateDamFeatures(const DamFeatures *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DamFeatures_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.nidid, structPtr->nidid);
+
+    strcpy(dbs.other_dam_name, structPtr->other_dam_name);
+    dbs.ind_other_dam_name = getIndicator(CHAR, (void *)structPtr->other_dam_name);
+
+    strcpy(dbs.dam_former_name, structPtr->dam_former_name);
+    dbs.ind_dam_former_name = getIndicator(CHAR, (void *)structPtr->dam_former_name);
+
+    strcpy(dbs.stateid, structPtr->stateid);
+    dbs.ind_stateid = getIndicator(CHAR, (void *)structPtr->stateid);
+
+    strcpy(dbs.section_t_r, structPtr->section_t_r);
+    dbs.ind_section_t_r = getIndicator(CHAR, (void *)structPtr->section_t_r);
+
+    strcpy(dbs.owner_name, structPtr->owner_name);
+    dbs.ind_owner_name = getIndicator(CHAR, (void *)structPtr->owner_name);
+
+    strcpy(dbs.owner_type, structPtr->owner_type);
+    dbs.ind_owner_type = getIndicator(CHAR, (void *)structPtr->owner_type);
+
+    strcpy(dbs.dam_designer, structPtr->dam_designer);
+    dbs.ind_dam_designer = getIndicator(CHAR, (void *)structPtr->dam_designer);
+
+    strcpy(dbs.private_on_federal, structPtr->private_on_federal);
+    dbs.ind_private_on_federal = getIndicator(CHAR, (void *)structPtr->private_on_federal);
+
+    strcpy(dbs.dam_type, structPtr->dam_type);
+    dbs.ind_dam_type = getIndicator(CHAR, (void *)structPtr->dam_type);
+
+    strcpy(dbs.core, structPtr->core);
+    dbs.ind_core = getIndicator(CHAR, (void *)structPtr->core);
+
+    strcpy(dbs.foundation, structPtr->foundation);
+    dbs.ind_foundation = getIndicator(CHAR, (void *)structPtr->foundation);
+
+    strcpy(dbs.purposes, structPtr->purposes);
+    dbs.ind_purposes = getIndicator(CHAR, (void *)structPtr->purposes);
+
+    strcpy(dbs.year_completed, structPtr->year_completed);
+    dbs.ind_year_completed = getIndicator(CHAR, (void *)structPtr->year_completed);
+
+    strcpy(dbs.year_modified, structPtr->year_modified);
+    dbs.ind_year_modified = getIndicator(CHAR, (void *)structPtr->year_modified);
+
+    strcpy(dbs.emerg_action_plan, structPtr->emerg_action_plan);
+    dbs.ind_emerg_action_plan = getIndicator(CHAR, (void *)structPtr->emerg_action_plan);
+
+    strcpy(dbs.inspection_date, structPtr->inspection_date);
+    dbs.ind_inspection_date = getIndicator(CHAR, (void *)structPtr->inspection_date);
+
+    strcpy(dbs.inspection_freq, structPtr->inspection_freq);
+    dbs.ind_inspection_freq = getIndicator(CHAR, (void *)structPtr->inspection_freq);
+
+    strcpy(dbs.st_reg_dam, structPtr->st_reg_dam);
+    dbs.ind_st_reg_dam = getIndicator(CHAR, (void *)structPtr->st_reg_dam);
+
+    strcpy(dbs.st_reg_agency, structPtr->st_reg_agency);
+    dbs.ind_st_reg_agency = getIndicator(CHAR, (void *)structPtr->st_reg_agency);
+
+    strcpy(dbs.spillway_type, structPtr->spillway_type);
+    dbs.ind_spillway_type = getIndicator(CHAR, (void *)structPtr->spillway_type);
+
+    dbs.spillway_width = structPtr->spillway_width;
+    dbs.ind_spillway_width = getIndicator(DOUBLE, (void *)&structPtr->spillway_width);
+
+    strcpy(dbs.outlet_gates, structPtr->outlet_gates);
+    dbs.ind_outlet_gates = getIndicator(CHAR, (void *)structPtr->outlet_gates);
+
+    dbs.volume_dam = structPtr->volume_dam;
+    dbs.ind_volume_dam = getIndicator(DOUBLE, (void *)&structPtr->volume_dam);
+
+    dbs.number_locks = structPtr->number_locks;
+    dbs.ind_number_locks = getIndicator(DOUBLE, (void *)&structPtr->number_locks);
+
+    dbs.length_locks = structPtr->length_locks;
+    dbs.ind_length_locks = getIndicator(DOUBLE, (void *)&structPtr->length_locks);
+
+    dbs.width_locks = structPtr->width_locks;
+    dbs.ind_width_locks = getIndicator(DOUBLE, (void *)&structPtr->width_locks);
+
+    strcpy(dbs.fed_funding, structPtr->fed_funding);
+    dbs.ind_fed_funding = getIndicator(CHAR, (void *)structPtr->fed_funding);
+
+    strcpy(dbs.fed_design, structPtr->fed_design);
+    dbs.ind_fed_design = getIndicator(CHAR, (void *)structPtr->fed_design);
+
+    strcpy(dbs.fed_construction, structPtr->fed_construction);
+    dbs.ind_fed_construction = getIndicator(CHAR, (void *)structPtr->fed_construction);
+
+    strcpy(dbs.fed_regulatory, structPtr->fed_regulatory);
+    dbs.ind_fed_regulatory = getIndicator(CHAR, (void *)structPtr->fed_regulatory);
+
+    strcpy(dbs.fed_inspection, structPtr->fed_inspection);
+    dbs.ind_fed_inspection = getIndicator(CHAR, (void *)structPtr->fed_inspection);
+
+    strcpy(dbs.fed_operation, structPtr->fed_operation);
+    dbs.ind_fed_operation = getIndicator(CHAR, (void *)structPtr->fed_operation);
+
+    strcpy(dbs.fed_other, structPtr->fed_other);
+    dbs.ind_fed_other = getIndicator(CHAR, (void *)structPtr->fed_other);
+
+    strcpy(dbs.fed_owner, structPtr->fed_owner);
+    dbs.ind_fed_owner = getIndicator(CHAR, (void *)structPtr->fed_owner);
+
+    strcpy(dbs.source_agency, structPtr->source_agency);
+    dbs.ind_source_agency = getIndicator(CHAR, (void *)structPtr->source_agency);
+
+    dbs.drainage_area = structPtr->drainage_area;
+    dbs.ind_drainage_area = getIndicator(DOUBLE, (void *)&structPtr->drainage_area);
+
+    strcpy(dbs.topo_map, structPtr->topo_map);
+    dbs.ind_topo_map = getIndicator(CHAR, (void *)structPtr->topo_map);
+
+    dbs.return_flow_region = structPtr->return_flow_region;
+    dbs.ind_return_flow_region = getIndicator(INT, (void *)&structPtr->return_flow_region);
+
+    dbs.dam_length = structPtr->dam_length;
+    dbs.ind_dam_length = getIndicator(DOUBLE, (void *)&structPtr->dam_length);
+
+    dbs.dam_height = structPtr->dam_height;
+    dbs.ind_dam_height = getIndicator(DOUBLE, (void *)&structPtr->dam_height);
+
+    dbs.structural_height = structPtr->structural_height;
+    dbs.ind_structural_height = getIndicator(DOUBLE, (void *)&structPtr->structural_height);
+
+    dbs.hydraulic_height = structPtr->hydraulic_height;
+    dbs.ind_hydraulic_height = getIndicator(DOUBLE, (void *)&structPtr->hydraulic_height);
+
+    dbs.nid_height = structPtr->nid_height;
+    dbs.ind_nid_height = getIndicator(DOUBLE, (void *)&structPtr->nid_height);
+
+    dbs.max_discharge = structPtr->max_discharge;
+    dbs.ind_max_discharge = getIndicator(DOUBLE, (void *)&structPtr->max_discharge);
+
+    dbs.normal_storage = structPtr->normal_storage;
+    dbs.ind_normal_storage = getIndicator(DOUBLE, (void *)&structPtr->normal_storage);
+
+    dbs.nid_storage = structPtr->nid_storage;
+    dbs.ind_nid_storage = getIndicator(DOUBLE, (void *)&structPtr->nid_storage);
+
+    dbs.surface_area = structPtr->surface_area;
+    dbs.ind_surface_area = getIndicator(DOUBLE, (void *)&structPtr->surface_area);
+
+    dbs.elev = structPtr->elev;
+    dbs.ind_elev = getIndicator(DOUBLE, (void *)&structPtr->elev);
+
+    strcpy(dbs.prebreak_avail, structPtr->prebreak_avail);
+    dbs.ind_prebreak_avail = getIndicator(CHAR, (void *)structPtr->prebreak_avail);
+
+    strcpy(dbs.comments, structPtr->comments);
+    dbs.ind_comments = getIndicator(CHAR, (void *)structPtr->comments);
+
+    dbs.updated = structPtr->updated;
+    dbs.ind_updated = getIndicator(DATETIME, (void *)&structPtr->updated);
+
+
+    sprintf(queryBuffer, " UPDATE DamFeatures SET " );
+    strcat(queryBuffer, "nidid = ? , other_dam_name = ? , dam_former_name = ? , stateid = ? , section_t_r = ? ,     ");
+    strcat(queryBuffer, "owner_name = ? , owner_type = ? , dam_designer = ? , private_on_federal = ? , dam_type = ? ,     ");
+    strcat(queryBuffer, "core = ? , foundation = ? , purposes = ? , year_completed = ? , year_modified = ? ,     ");
+    strcat(queryBuffer, "emerg_action_plan = ? , inspection_date = ? , inspection_freq = ? , st_reg_dam = ? , st_reg_agency = ? ,     ");
+    strcat(queryBuffer, "spillway_type = ? , spillway_width = ? , outlet_gates = ? , volume_dam = ? , number_locks = ? ,     ");
+    strcat(queryBuffer, "length_locks = ? , width_locks = ? , fed_funding = ? , fed_design = ? , fed_construction = ? ,     ");
+    strcat(queryBuffer, "fed_regulatory = ? , fed_inspection = ? , fed_operation = ? , fed_other = ? , fed_owner = ? ,     ");
+    strcat(queryBuffer, "source_agency = ? , drainage_area = ? , topo_map = ? , return_flow_region = ? , dam_length = ? ,     ");
+    strcat(queryBuffer, "dam_height = ? , structural_height = ? , hydraulic_height = ? , nid_height = ? , max_discharge = ? ,     ");
+    strcat(queryBuffer, "normal_storage = ? , nid_storage = ? , surface_area = ? , elev = ? , prebreak_avail = ? ,     ");
+    strcat(queryBuffer, "comments = ? , updated = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateDamFeatures() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.nidid, :dbs.other_dam_name:dbs.ind_other_dam_name, :dbs.dam_former_name:dbs.ind_dam_former_name, :dbs.stateid:dbs.ind_stateid, :dbs.section_t_r:dbs.ind_section_t_r,
+     :dbs.owner_name:dbs.ind_owner_name, :dbs.owner_type:dbs.ind_owner_type, :dbs.dam_designer:dbs.ind_dam_designer, :dbs.private_on_federal:dbs.ind_private_on_federal, :dbs.dam_type:dbs.ind_dam_type,
+     :dbs.core:dbs.ind_core, :dbs.foundation:dbs.ind_foundation, :dbs.purposes:dbs.ind_purposes, :dbs.year_completed:dbs.ind_year_completed, :dbs.year_modified:dbs.ind_year_modified,
+     :dbs.emerg_action_plan:dbs.ind_emerg_action_plan, :dbs.inspection_date:dbs.ind_inspection_date, :dbs.inspection_freq:dbs.ind_inspection_freq, :dbs.st_reg_dam:dbs.ind_st_reg_dam, :dbs.st_reg_agency:dbs.ind_st_reg_agency,
+     :dbs.spillway_type:dbs.ind_spillway_type, :dbs.spillway_width:dbs.ind_spillway_width, :dbs.outlet_gates:dbs.ind_outlet_gates, :dbs.volume_dam:dbs.ind_volume_dam, :dbs.number_locks:dbs.ind_number_locks,
+     :dbs.length_locks:dbs.ind_length_locks, :dbs.width_locks:dbs.ind_width_locks, :dbs.fed_funding:dbs.ind_fed_funding, :dbs.fed_design:dbs.ind_fed_design, :dbs.fed_construction:dbs.ind_fed_construction,
+     :dbs.fed_regulatory:dbs.ind_fed_regulatory, :dbs.fed_inspection:dbs.ind_fed_inspection, :dbs.fed_operation:dbs.ind_fed_operation, :dbs.fed_other:dbs.ind_fed_other, :dbs.fed_owner:dbs.ind_fed_owner,
+     :dbs.source_agency:dbs.ind_source_agency, :dbs.drainage_area:dbs.ind_drainage_area, :dbs.topo_map:dbs.ind_topo_map, :dbs.return_flow_region:dbs.ind_return_flow_region, :dbs.dam_length:dbs.ind_dam_length,
+     :dbs.dam_height:dbs.ind_dam_height, :dbs.structural_height:dbs.ind_structural_height, :dbs.hydraulic_height:dbs.ind_hydraulic_height, :dbs.nid_height:dbs.ind_nid_height, :dbs.max_discharge:dbs.ind_max_discharge,
+     :dbs.normal_storage:dbs.ind_normal_storage, :dbs.nid_storage:dbs.ind_nid_storage, :dbs.surface_area:dbs.ind_surface_area, :dbs.elev:dbs.ind_elev, :dbs.prebreak_avail:dbs.ind_prebreak_avail,
+     :dbs.comments:dbs.ind_comments, :dbs.updated:dbs.ind_updated;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateDamFeatures() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteDamFeatures(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM DamFeatures ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteDamFeatures() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateDamFeaturesByRecord (const DamFeatures * newStructPtr, const DamFeatures * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetDamFeaturesPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateDamFeatures(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateDamFeatures(const DamFeatures * structPtr)
+{
+    UpdateDamFeaturesByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertDamFeatures(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueDamFeatures(const DamFeatures * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (DamFeaturesExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertDamFeatures(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteDamFeaturesByRecord(const DamFeatures * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetDamFeaturesPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteDamFeatures(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool DamFeaturesExists(const DamFeatures * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetDamFeaturesPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectDamFeaturesCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetDamFeaturesPrimaryKeyWhereString (const DamFeatures * structPtr, char returnWhereString[] )
+{
+    sprintf(returnWhereString, "WHERE nidid = '%s' ",
+            structPtr->nidid);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeDamFeatures( DamFeatures * structPtr)
+{
+    DamFeatures* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( DamFeatures * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetDamFeaturesDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetDamFeaturesErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

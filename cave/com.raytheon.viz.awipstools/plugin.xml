@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="com.raytheon.viz.ui.contextualMenu">
+      <contextualMenu
+            actionClass="com.raytheon.viz.awipstools.ui.action.RangeRingsOverlayRightClickAction"
+            capabilityClass="com.raytheon.viz.awipstools.capabilities.RangeRingsOverlayCapability"
+            name="Range Rings Capability"
+            sortID="2"/>
+      <contextualMenu
+            actionClass="com.raytheon.viz.awipstools.ui.action.VelocitySourceAction"
+            capabilityClass="com.raytheon.viz.awipstools.ui.layer.VRShearLayer"
+            name="Velocity Source"
+            sortID="601">
+      </contextualMenu>
+   </extension>
+   <extension
+         point="com.raytheon.viz.ui.contextualMenu">
+      <contextualMenu
+            actionClass="com.raytheon.uf.viz.points.ui.action.PointEditAction"
+            capabilityClass="com.raytheon.uf.viz.points.ui.layer.PointsToolLayer"
+            name="Edit Points"
+            sortID="110"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+     <command
+            id="com.raytheon.viz.awipstools.arbitrary"
+            name="Arbitrary">
+        <commandParameter
+              id="commandAction"
+              name="CommandAction"
+              optional="false">
+        </commandParameter>
+        <commandParameter
+              id="captureOutput"
+              name="CaptureOutput"
+              optional="true">
+        </commandParameter>
+        <commandParameter
+              id="showStdOut"
+              name="ShowStdOut"
+              optional="true">
+        </commandParameter>
+     </command>
+     <command
+            id="com.raytheon.viz.awipstools.sunrise"
+            name="Sunrise">
+      </command>
+     <command
+          id="com.raytheon.viz.awipstools.home"
+          name="Home">
+    </command>
+     <command
+          id="com.raytheon.viz.awipstools.unitscalculator"
+          name="Units">
+    </command>
+     <command
+          id="com.raytheon.viz.awipstools.azran"
+          name="AzRan">
+    </command>
+     <command
+          id="com.raytheon.viz.awipstools.baselines"
+          name="Baselines">
+    </command>
+     <command
+          id="com.raytheon.viz.awipstools.distancebearing"
+          name="Distance Bearing">
+    </command>
+     <command
+          id="com.raytheon.viz.awipstools.points"
+          name="Points">
+    </command>
+     <command
+          id="com.raytheon.viz.awipstools.vrshear"
+          name="VR Shear">
+    </command>
+    <command
+    	  id="com.raytheon.viz.awipstools.estimatedactualvelocity"
+    	  name="Estimated Actual Velocity">
+   	 </command>
+     <command
+          id="com.raytheon.viz.awipstools.distancespeed"
+          name="Distance Speed">
+    </command>
+    <command
+          id="com.raytheon.viz.awipstools.ffz"
+          name="Feature Following Zoom">
+    </command>
+     <command
+          id="com.raytheon.viz.awipstools.puthomecursor"
+          name="Put Home Cursor">
+    </command>
+     <command
+          id="com.raytheon.viz.awipstools.choosebyid"
+          name="Choose By Id">
+    </command>
+     <command
+          id="com.raytheon.viz.awipstools.timeofarrival"
+          name="Time Of Arrival / Lead Time">
+    </command>
+     <command
+          id="com.raytheon.viz.awipstools.rangerings"
+          name="Range Rings">
+    </command>
+     <command
+           id="com.raytheon.viz.awipstools.distancetool"
+           name="Distance Tool">
+     </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="com.raytheon.viz.awipstools.ui.action.SunriseToolAction"
+            commandId="com.raytheon.viz.awipstools.sunrise">
+      </handler>
+      <handler
+            class="com.raytheon.viz.awipstools.ui.action.HomeToolAction"
+            commandId="com.raytheon.viz.awipstools.home">
+      </handler>
+      <handler
+            class="com.raytheon.viz.awipstools.ui.action.LapsToolsAction"
+            commandId="com.raytheon.viz.awipstools.lapstools">
+      </handler>
+      <handler
+            class="com.raytheon.viz.awipstools.ui.action.UnitsCalculatorAction"
+            commandId="com.raytheon.viz.awipstools.unitscalculator">
+      </handler>
+      <handler
+            class="com.raytheon.viz.awipstools.ui.action.AzimuthToolAction"
+            commandId="com.raytheon.viz.awipstools.azran">
+      </handler>
+      <handler
+            class="com.raytheon.viz.awipstools.ui.action.BaselinesToolAction"
+            commandId="com.raytheon.viz.awipstools.baselines">
+      </handler>
+      <handler
+            class="com.raytheon.viz.awipstools.ui.action.DistanceBearingToolAction"
+            commandId="com.raytheon.viz.awipstools.distancebearing">
+      </handler>
+      <handler
+            class="com.raytheon.uf.viz.points.ui.action.PointsToolAction"
+            commandId="com.raytheon.viz.awipstools.points">
+      </handler>
+      <handler
+            class="com.raytheon.viz.awipstools.ui.action.VRShearAction"
+            commandId="com.raytheon.viz.awipstools.vrshear">
+      </handler>
+      <handler
+      		class="com.raytheon.viz.awipstools.ui.action.EstimatedActualVelocityAction"
+      		commandId="com.raytheon.viz.awipstools.estimatedactualvelocity">
+      </handler>
+      <handler
+            class="com.raytheon.viz.awipstools.ui.action.DistanceSpeedAction"
+            commandId="com.raytheon.viz.awipstools.distancespeed">
+      </handler>
+      <handler
+            class="com.raytheon.viz.awipstools.ui.action.FeatureFollowingZoomAction"
+            commandId="com.raytheon.viz.awipstools.ffz">
+      </handler>
+      <handler
+            class="com.raytheon.viz.awipstools.ui.action.PutHomeCursorAction"
+            commandId="com.raytheon.viz.awipstools.puthomecursor">
+      </handler>      
+      <handler
+      		class="com.raytheon.viz.awipstools.ui.action.ChooseByIdAction"
+      		commandId="com.raytheon.viz.awipstools.choosebyid">
+      </handler>
+      <handler
+      		class="com.raytheon.viz.awipstools.ui.action.TimeOfArrivalAction"
+      		commandId="com.raytheon.viz.awipstools.timeofarrival">
+      </handler>
+      <handler
+      		class="com.raytheon.viz.awipstools.ui.action.RangeRingsAction"
+      		commandId="com.raytheon.viz.awipstools.rangerings">
+      </handler>
+      <handler
+            class="com.raytheon.viz.awipstools.ui.action.DistanceToolAction"
+            commandId="com.raytheon.viz.awipstools.distancetool">
+      </handler>
+      <handler
+            class="com.raytheon.viz.awipstools.ui.action.ArbitraryHandler"
+            commandId="com.raytheon.viz.awipstools.arbitrary">
+      </handler>
+   </extension>
+</plugin>

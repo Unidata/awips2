@@ -1,0 +1,373 @@
+/*
+	File:		DbmsUtils.ec
+	
+*/
+	
+#include <ctype.h>
+
+
+#include "DbmsUtils.h"
+#include "GeneralUtil.h"
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+
+// --------------------------------------------------------------------------
+/*
+    This is used by generated code to keep track of results of SQL statements
+*/
+void initDbStatus(DbStatus *dbStatus)
+{
+   
+      dbStatus->rows_affected = sqlca.sqlerrd[2];
+      strncpy(dbStatus->sql_state, sqlca.sqlstate, sizeof(dbStatus->sql_state)-1);
+      // dbStatus.sql_code = SQLCODE;
+      dbStatus->sql_code = sqlca.sqlcode;
+      strncpy(dbStatus->error_msg, 
+              sqlca.sqlerrm.sqlerrmc,
+	      sizeof(dbStatus->error_msg));
+	
+}
+// --------------------------------------------------------------------------
+/*
+    This is used by generated code to keep track of the number of rows affected
+    when multiple SQL statements are involved. (SELECT and GET)
+*/
+void setDbStatusRowsAffected(DbStatus *dbStatus, int rowCount)
+{
+   
+      dbStatus->rows_affected = rowCount;
+}
+// --------------------------------------------------------------------------
+/*
+    This is used by generated code to keep track of the number of rows affected
+    when multiple SQL statements are involved. (SELECT and GET)
+*/
+
+void setDbStatusSqlCommand(DbStatus *dbStatus, SqlCommand command)
+{
+    dbStatus->command = command;
+}
+
+// --------------------------------------------------------------------------
+/*
+	Determines whether the supplied field parameter
+	is null or non-null.
+*/	
+int  IsNull(int type, void *field)
+{
+	if ((type >= 0) && (type < MAXTYPES))
+	{
+  		if (risnull(type, field))
+/*              if (ECPGis_informix_null(type, field)) */
+			return(ISNULL);
+		else
+			return(NOTNULL);
+	}
+	else
+	{
+		return(UNK_TYPE);
+	}
+}
+
+// --------------------------------------------------------------------------
+
+/*
+	Sets the supplied field parameter to null.
+*/
+int  SetNull(int type, void *field)
+{
+	if ((type >= 0) && (type < MAXTYPES))
+	{
+		rsetnull(type, field);
+/*              ECPGset_informix_null(type, field); */
+		return(OK);
+	}
+	else
+	{
+		return(UNK_TYPE);
+	}
+}
+
+//--------------------------------------------------------------------------
+
+void setNullIfIndicated(int indicator, int type, void *field)
+{
+    if (indicatesNull(indicator))
+    {
+        SetNull(type, field);
+    }
+    
+    return;
+}
+
+//--------------------------------------------------------------------------
+
+/*
+     Used by generated code to determine if the passed-in indicator
+     indicates if the column is null
+*/
+int indicatesNull(int indicator)
+{
+   int rv = 0;
+
+   if (indicator < 0)
+   {
+       rv = 1;
+   }
+   
+   return rv;
+}
+
+// --------------------------------------------------------------------------
+/*
+    Used by generated code get an appropriate value of an indicator, based on
+    the value of the field.
+*/
+int getIndicator(int type, void *field)
+{
+   int rv = 0;  // default to not NULL
+
+   if (IsNull(type, field))
+   {
+       rv = -1;
+   }
+
+   return rv;
+}
+
+// --------------------------------------------------------------------------
+
+
+/*
+	Convert a SQL data type to string, 
+	substituting the parameter char *
+	missing, if the passed value is
+	NULL.
+*/
+int DataToString(void *ptr, int data_type, char *string,
+                 const char *format, const char *missing)
+{
+        double *d;
+        int  *i;
+        short *s;
+        float *f;
+        char *c;
+
+        if (IsNull(data_type,ptr) == ISNULL)
+                sprintf(string,"%s",missing);
+        else
+        {
+                switch (data_type)
+                {
+                        case CHAR:
+                        {
+                                c = (char *) ptr;
+                                sprintf(string, format, *c);
+                                return 1;
+                        }
+                        case DOUBLE:
+                        {
+                                d = (double *) ptr;
+                                sprintf(string, format, *d);
+                                return 1;
+                        }
+                        case FLOAT:
+                        {
+                                f = (float *) ptr;
+                                sprintf(string, format, *f);
+                                return 1;
+                        }
+                        
+                        case SHORT:
+                        {
+                                s = (short *) ptr;
+                                sprintf(string, format, *s);
+                                return 1;
+                        }
+
+                        case INT:
+                        {
+                                i = (int *) ptr;
+                                sprintf(string, format, *i);
+                                return 1;
+                        }
+                }
+        }
+        return 0;
+}
+   
+// --------------------------------------------------------------------------
+/* get the data table name associated with the data type */
+
+
+void	getTableName(const char *pe,
+		     const char *ts,
+		     char *tablename)
+{	
+
+   	typedef struct TableNameMatch
+	{
+		char firstletter;
+		char name[32];
+   
+	} TableNameMatch;   
+
+   
+   	int	num_names, i, match_found = 0;
+	int	tokenlen, retlen;
+	int	treat_proc_as_obs;
+	char	retstr[20];
+	
+	/* note: for TB, TV, NO; this function will return the temperature
+	   and gatedam names, but the data are really stored in pairedvalue */
+	
+ 	const TableNameMatch ObstableMatch[] =
+	{ 
+	   { 'a' , "agricultural" },
+	   { 'e' , "evaporation"  },
+	   { 'f' , "fishcount"    },
+	   { 'g' , "ground"  	  },
+	   { 'h' , "height"	  },
+	   { 'i' , "ice" 	  },
+	   { 'l' , "lake"	  },
+	   { 'm' , "moisture"	  },
+	   { 'n' , "gatedam"      },
+           { 'p' , "precip"	  },  /* pressure, procvalue, rawpc, and rawpp
+                                         are handled below */
+	   { 'q' , "discharge"    },
+	   { 'r' , "radiation"    },
+	   { 's' , "snow" 	  },
+	   { 't' , "temperature"  },
+	   { 'u' , "wind"	  },
+	   { 'v' , "power"	  },
+	   { 'w' , "waterquality" },
+	   { 'x' , "weather"	  },
+	   { 'y' , "yunique"	  }
+	};
+	
+	
+	/* fcstother is handled below */
+		
+	const TableNameMatch FcsttableMatch[] =
+	{ 
+	   { 'h' , "fcstheight"      },
+	   { 'p' , "fcstprecip"      },
+	   { 'q' , "fcstdischarge"   },
+	   { 't' , "fcsttemperature" }
+	};
+   
+	
+   /* if type-source indicates processed data, then
+      check if processed data being treated as observed */
+	
+   treat_proc_as_obs = 0;  
+   if (ts[0] == 'P')
+   {
+   	tokenlen = strlen("shef_procobs");
+   	get_apps_defaults("shef_procobs", &tokenlen, retstr, &retlen);
+	
+	if (strcmp(retstr, "ON") == 0 || strcmp(retstr, "on") == 0)
+		treat_proc_as_obs = 1;
+	else
+	{
+		strcpy(tablename, "procvalue");
+		return;
+	}
+   }
+   
+   
+   /* if type-source indicates contingency data */
+   
+   if (ts[0] == 'C')
+   {
+   	strcpy(tablename, "contingencyvalue");
+	return;
+   }
+   
+
+   /* if observed data or processed data being treated as observed */
+
+   if (ts[0] == 'R' || treat_proc_as_obs == 1 || ( (ts[0] == 'X') && (ts[1] =='X') ) )
+   {	 
+	num_names = sizeof(ObstableMatch) / ( sizeof(TableNameMatch));
+	
+	for (i = 0; i < num_names; i++)
+	{
+		if (tolower(pe[0]) == ObstableMatch[i].firstletter)
+		{
+                    if ( pe[ 0 ] == 'P' )
+                    {
+		       if ( ( pe[1] == 'A' ) || ( pe[1] == 'D' ) ||
+		            ( pe[1] == 'E' ) || ( pe[1] == 'L' ) )
+		       {
+		          strcpy(tablename, "pressure");
+		       }
+		       else if ( pe [ 1 ] == 'P' )
+                       {
+                          strcpy(tablename, "rawpp");
+                       }
+                       else
+                       {
+                          strcpy(tablename, "rawpc");
+                       }
+                    }
+                    else
+                    {
+		       strcpy(tablename, ObstableMatch[i].name);
+                    }
+ 
+	    	    match_found = 1;
+		    break;
+		}
+	}   
+	
+   }
+
+   /* if forecast data */
+
+   else if (ts[0] == 'F')
+   {	 
+	num_names = sizeof(FcsttableMatch) / ( sizeof(TableNameMatch));
+	
+	for (i = 0; i < num_names; i++)
+	{
+		if (tolower(pe[0]) == FcsttableMatch[i].firstletter)
+		{   
+			strcpy(tablename, FcsttableMatch[i].name); 
+	    		match_found = 1;
+			break;
+		}
+	}
+	
+	if (!match_found) 
+	{
+	  strcpy(tablename, "fcstother");
+	  match_found = 1;
+	}  
+	
+   }
+
+   /* if type-source not valid */
+
+   else
+   {
+      printf("Invalid type-source specified for getTableName(): %s.\n", ts);
+      strcpy(tablename, "INVALID");
+   }
+   
+   
+   /* check that match was found */      
+   
+   if (!match_found)
+   {
+      printf("Error finding table name match for pe, ts = %s %s\n",
+	     pe, ts);
+      strcpy(tablename, "INVALID");
+   }
+
+   return;   
+}
+
+// --------------------------------------------------------------------------
+ 

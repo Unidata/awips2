@@ -1,0 +1,236 @@
+C MODULE HLDCBS
+C-----------------------------------------------------------------------
+C
+C  ROUTINE TO FILL HCL FUNCTION RELATED COMMON BLOCKS.
+C
+      SUBROUTINE HLDCBS (FUNCNM,ISTAT)
+C
+C  ARGUMENT LIST:
+C
+C       NAME      TYPE   I/O   DIM   DESCRIPTION
+C       ------    ----   ---   ---   -----------
+C       FUNCNM    A*8     I     1    FUNCTION NAME
+C       ISTAT     I*4     O     1    STATUS:
+C                                      0=OK
+C                                      1=ERROR
+C
+      CHARACTER*8 FUNCNM
+      CHARACTER*8 RTNNAM,RTNOLD
+      PARAMETER (MFBUF=128)
+      DIMENSION IFBUF(MFBUF)
+      PARAMETER (MDBUF=128)
+      DIMENSION IDBUF(MDBUF)
+      PARAMETER (MDLOCL=128)
+      DIMENSION IDLOCL(MDLOCL)
+      PARAMETER (MTBUF=256)
+      DIMENSION ITBUF(MTBUF)
+      PARAMETER (MDFBUF=256)
+      DIMENSION IDFBUF(MDFBUF)
+      PARAMETER (MDTLOC=256)
+      DIMENSION IDTLOC(MDTLOC)
+C
+      INCLUDE 'uiox'
+      INCLUDE 'udebug'
+      INCLUDE 'hclcommon/hunits'
+      INCLUDE 'hclcommon/hgtech'
+      INCLUDE 'hclcommon/htechn'
+      INCLUDE 'hclcommon/hgargm'
+      INCLUDE 'hclcommon/hargmn'
+      INCLUDE 'hclcommon/hptray'
+      INCLUDE 'hclcommon/hdflts'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/db_hclrw/RCS/hldcbs.f,v $
+     . $',                                                             '
+     .$Id: hldcbs.f,v 1.2 2001/06/13 12:05:48 mgm Exp $
+     . $' /
+C    ===================================================================
+C
+C  
+      RTNNAM='HLDCBS'
+C
+      IF (IHCLTR.GT.1) WRITE (IOGDB,*) 'ENTER ',RTNNAM
+C
+      IOPNUM=-1
+      CALL FSTWHR (RTNNAM,IOPNUM,RTNOLD,IOLDOP)
+C
+      NPTRAY=0
+C
+C  FILL HDFLTS
+      CALL HGETPM (ISTAT)
+C
+C  GET HCL DEFINITION CONTROLS
+      CALL HRDCTL (ISTAT)
+      CALL HRIDXC (ISTAT)
+      CALL HGETP2 (ISTAT)
+      IF (ISTAT.NE.0) GO TO 230
+C
+C  GET THE FUNCTION DEFINITION RECORD
+      IT=2
+      CALL HGTRCD (IT,FUNCNM,MFBUF,IFBUF,ISTAT)
+      IF (ISTAT.NE.0) THEN
+         WRITE (LP,240) FUNCNM
+         CALL ERROR
+         ISTAT=1
+         GO TO 230
+         ENDIF
+C
+C  SET COMMON BLOCKS TO ZERO
+      N=MPTRAY/2
+      CALL UMEMST (0,IPTRAY,N)
+      CALL UMEMST (0,IGTECH,MGTECH)
+      CALL UMEMST (0,ITECH,MTECH)
+      CALL UMEMST (0,IGARG,MGARG)
+      CALL UMEMST (0,IARG,MARG)
+C
+C  CHECK IF NO TECHNIQUES
+      IF (IFBUF(9).EQ.0) GO TO 230
+C
+C  GET APPROPRIATE DEFAULT RECORD
+      IF (IT.LT.0) GO TO 20
+         CALL HGTRDN (KDEFNL,IFBUF(7),IDBUF,MDBUF,ISTAT)
+         IF (ISTAT.NE.0) GO TO 230
+         GO TO 30
+C
+C  READ GLOBAL DEFAULTS
+20    CALL HGTRDN (KDEFNG,IFBUF(8),IDBUF,MDBUF,ISTAT)
+      IF (ISTAT.NE.0) GO TO 230
+C
+C  READ LOCAL DEFAULTS
+      CALL HGTRDN (KLDFGD,IFBUF(7),IDLOCL,MDLOCL,ISTAT)
+      IF (ISTAT.NE.0) GO TO 230
+C
+C  CHECK DEFAULT NAME
+30    CALL UNAMCP (FUNCNM,IDBUF(4),IX)
+      IF (IX.EQ.0) GO TO 40
+         WRITE (LP,250) FUNCNM,IDBUF(4),IDBUF(5)
+         CALL ERROR
+         ISTAT=1
+         GO TO 230
+C
+C  SET TECHNIQUE DEFAULTS
+40    ND=IDBUF(7)
+      IX=8
+      NPTRAY=1
+      IPTRAY(NPTRAY)=ND
+      DO 220 I=1,ND
+         IT=IDBUF(IX)
+         IF (IT.GE.1.AND.IT.LE.MTECH) GO TO 50
+         IF (IT.GE.-MGTECH.AND.IT.LE.-1) GO TO 60
+            WRITE (LP,260) IABS(IT)
+            CALL ERROR
+            ISTAT=1
+            GO TO 230
+50       ITECH(IT)=IDBUF(IX+1)
+         GO TO 100
+60       IF (IDLOCL(7).LE.0) GO TO 80
+C        SEARCH LOCAL DEFAULT FIRST
+            NLD=IDLOCL(7)
+            ILX=8
+            DO 70 J=1,NLD
+               IF (IDLOCL(ILX).EQ.IT) GO TO 90
+               ILX=ILX+2
+70             CONTINUE
+C         NOT FOUND - USE GLOBAL
+80          IGTECH(-IT)=IDBUF(IX+1)
+            GO TO 100
+C     FOUND - USE LOCAL
+90       IGTECH(-IT)=IDLOCL(ILX+1)
+C     SET ARGUMENTS - GET TECH USING INTERNAL TECH NUMBER
+100      ITYP=3
+         CALL HGTDIN (IT,ITYP,IRECX,IRECD,ITBUF,MTBUF,ISTAT)
+C     PUT NAME INTO HPTRAY FOR LATER REFERENCE
+         IF (NPTRAY+7.LT.MPTRAY) GO TO 110
+            WRITE (LP,270) MPTRAY
+            CALL ERROR
+            ISTAT=1
+            GO TO 230
+110      NPTRAY=NPTRAY+1
+         CALL UMEMOV (ITBUF(4),IPTRAY(NPTRAY),2)
+C     SET INTERNAL TECH POINTER
+         IPTRAY(NPTRAY+4)=IT
+C     CHECK IF ANY ARGUMENTS
+         IF (ITBUF(10).EQ.0) GO TO 200
+         IF (ITBUF(3).LT.0) GO TO 120
+C        GET DEFAULT TECH ARRAY
+            CALL HGTRDN (KDEFNL,ITBUF(8),IDFBUF,MDFBUF,ISTAT)
+            IF (ISTAT.NE.0) GO TO 230
+            GO TO 130
+C     GET GLOBAL DEFAULT AND LOCAL DEFAULT
+120      CALL HGTRDN (KDEFNG,ITBUF(9),IDFBUF,MDFBUF,ISTAT)
+         IF (ISTAT.NE.0) GO TO 230
+         CALL HGTRDN (KLDFGD,ITBUF(8),IDTLOC,MDTLOC,ISTAT)
+         IF (ISTAT.NE.0) GO TO 230
+C     GET ARGUMENT NUMBERS FROM TECHNIQUE RECORD
+130      NA=IDFBUF(7)
+         IP1=0
+         NARGWD=0
+         ND1=8
+         IF (IHCLDB.GT.0) WRITE (IOGDB,280) (IDFBUF(J),J=1,20)
+         DO 190 K=1,NA
+            IAP=IDFBUF(ND1)
+C        SAVE PTR TO FIRST ARG IN THE TECHNIQUE
+            IF (IP1.EQ.0) IP1=IAP
+C        MOVE IN ARGUMENT DEFAULT
+            N=IDFBUF(ND1+1)
+            NARGWD=NARGWD+N
+            IF (IHCLDB.GT.0) WRITE (IOGDB,290) IDFBUF(ND1),ND1,NLDT,ILX,
+     *         N
+            IF (IDFBUF(ND1).LT.0) GO TO 140
+               CALL UMEMOV (IDFBUF(ND1+2),IARG(IAP),N)
+               GO TO 180
+C        CHECK FOR A LOCAL DEFAULT
+140         IF (IDTLOC(7).LE.0) GO TO 160
+               NLDT=IDTLOC(7)
+               ILX=8
+               DO 150 J=1,NLDT
+                  IF (IDTLOC(ILX).EQ.IDFBUF(ND1)) GO TO 170
+                  ILX=ILX+IDTLOC(ILX+1)+2
+150               CONTINUE
+C       NOT FOUND - USE GLOBAL
+160         CALL UMEMOV (IDFBUF(ND1+2),IGARG(-IAP),N)
+            GO TO 180
+C        FOUND LOCAL DEFAULT
+170         CALL UMEMOV (IDTLOC(ILX+2),IGARG(-IAP),N)
+180         ND1=ND1+N+2
+190         CONTINUE
+C     ENTER FIRST ARG LOC AND TOTAL IN PTR ARRAY
+         IPTRAY(NPTRAY+5)=NARGWD
+         NPTRAY=NPTRAY+6
+         IPTRAY(NPTRAY)=IP1
+         GO TO 210
+C     NO ARGS - ENTER 0 IN IPTRAY FOR NUMBER AND FIRST ARG PTR
+200      NPTRAY=NPTRAY+6
+         IPTRAY(NPTRAY-1)=0
+         IPTRAY(NPTRAY)=0
+210      IX=IX+2
+220      CONTINUE
+C
+230   IF (IHCLDB.GT.0) THEN
+         WRITE (IOGDB,300) FUNCNM,NPTRAY,(IPTRAY(I),I=1,NPTRAY)
+         ENDIF
+C
+      CALL FSTWHR (RTNOLD,IOLDOP,RTNOLD,IOLDOP)
+C
+      IF (IHCLTR.GT.1) WRITE (IOGDB,*) 'EXIT ',RTNNAM
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+240   FORMAT ('0**ERROR** IN HLDCBS - FUNCTION ',A,' NOT DEFINED.')
+250   FORMAT ('0**ERROR** IN HLDCBS - DEFAULT RECORD INVALID: ',
+     *   'FUNCTION=',A,' DEFAULT= ',2A4)
+260   FORMAT ('0**ERROR** IN HLDCBS - MAXIMUM NUMBER OF TECHNIQUES (',
+     *   I4,') EXCEEDED.')
+270   FORMAT ('0**ERROR** IN HLDCBS - SIZE OF ARRAY IPTRAY (',I5,
+     *   ') EXCEEDED.')
+280   FORMAT (' IDFBUF=',10I5)
+290   FORMAT (' IN HLDCBS - IDFBUF(ND1)=',I5,' ND1=',I5,' NLDT=',I5,
+     *   ' ILX=',I5,' N=',I5)
+300   FORMAT (' IN HLDCBS - FUNCNM=',A,' NPTRAY=',I4,' IPTRAY=',I4,1X,
+     *   2(4A2,3I5))
+C
+      END

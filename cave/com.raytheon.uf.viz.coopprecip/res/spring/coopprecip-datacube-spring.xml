@@ -1,0 +1,13 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+	
+	<bean id="coopprecipDataCubeAdapter" class="com.raytheon.uf.viz.coopprecip.CoopPrecipDataCubeAdapter" />
+
+	<bean id="coopprecipDataCubeAdapterRegistered"
+		factory-bean="dataCubeAdapterRegistry"
+		factory-method="registerAdapter">
+		<constructor-arg ref="coopprecipDataCubeAdapter" />
+	</bean>
+
+</beans>

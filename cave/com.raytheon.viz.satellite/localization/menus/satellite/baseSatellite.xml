@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<contribute xsi:type="subMenu" menuText="Regional Imagery">
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Puerto Rico IR" id="irWindow">
+	        <substitute key="element" value="Imager 11 micron IR"/>
+	        <substitute key="sector" value="Puerto Rico Regional"/>
+	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="Puerto Rico Visible" id="visible">
+	        <substitute key="element" value="Imager Visible"/>
+	        <substitute key="sector" value="Puerto Rico Regional"/>
+	        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+	    </contribute>
+		
+		<contribute xsi:type="separator" id="MySeparatorId"/>
+
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		    menuText="Hawaii IR" id="irWindow">
+			<substitute key="element" value="Imager 11 micron IR"/>
+			<substitute key="sector" value="Hawaii Regional"/>
+			<substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		        menuText="Hawaii Visible" id="visible">
+			<substitute key="element" value="Imager Visible"/>
+			<substitute key="sector" value="Hawaii Regional"/>
+			<substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+		</contribute>
+		
+		<contribute xsi:type="separator" id="MySeparatorId"/>
+		
+		
+	    <contribute xsi:type="satBundleItem" file="bundles/DefaultSatellite.xml" 
+	        menuText="Arctic IR" id="Arctic-3.9">
+	        <substitute key="element" value="Imager 3.5-4.0 micro IR (Fog)"/>
+	        <substitute key="entity" value="COMP" /> 
+	        <substitute key="sector" value="Arctic" />     
+	        <substitute key="colormap" value="Sat/IR/Fog"/>
+	    </contribute>
+		<contribute xsi:type="satBundleItem" file="bundles/DefaultSatellite.xml" 
+	        menuText="Arctic Visible" id="Arctic-Vis">
+	        <substitute key="element" value="Imager Visible"/>
+	        <substitute key="entity" value="COMP" /> 
+	        <substitute key="sector" value="Arctic" />     
+	        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+	    </contribute>
+	    <contribute xsi:type="satBundleItem" file="bundles/DefaultSatellite.xml" 
+	        menuText="Arctic WV" id="Arctic-WV">
+	        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
+	        <substitute key="entity" value="COMP" /> 
+	        <substitute key="sector" value="Arctic" />     
+	        <substitute key="colormap" value="Sat/WV/wv_tpc"/>
+	    </contribute>
+		
+		<contribute xsi:type="separator" id="MySeparatorId"/>
+		
+	    <contribute xsi:type="satBundleItem" file="bundles/DefaultSatellite.xml" 
+	        menuText="Antarctica IR" id="Arctic-IR1">
+	        <substitute key="element" value="Imager 3.5-4.0 micro IR (Fog)"/>
+	        <substitute key="entity" value="COMP" /> 
+	        <substitute key="sector" value="Antarctic" />     
+	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+	    </contribute>
+		<contribute xsi:type="satBundleItem" file="bundles/DefaultSatellite.xml" 
+	        menuText="Antarctica Visible" id="Arctic-Vis">
+	        <substitute key="element" value="Imager Visible"/>
+	        <substitute key="entity" value="COMP" /> 
+	        <substitute key="sector" value="Antarctic" />     
+	        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+	    </contribute>
+	    <contribute xsi:type="satBundleItem" file="bundles/DefaultSatellite.xml" 
+	        menuText="Antarctica WV" id="Arctic-WV">
+	        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
+	        <substitute key="entity" value="COMP" /> 
+	        <substitute key="sector" value="Antarctica" />     
+	        <substitute key="colormap" value="Sat/WV/wv_tpc"/>
+	    </contribute>
+	</contribute>
+</menuTemplate>

@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Mping
+Bundle-SymbolicName: gov.noaa.nws.sr.oun.dataplugin.mping
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: NWS OUN
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
+ com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
+ com.raytheon.edex.common;bundle-version="1.12.1174",
+ javax.persistence;bundle-version="1.0.0",
+ org.apache.commons.lang;bundle-version="2.3.0",
+ javax.measure;bundle-version="1.0.0",
+ com.raytheon.uf.common.pointdata,
+ com.raytheon.uf.edex.pointdata,
+ com.raytheon.uf.common.status
+Export-Package: gov.noaa.nws.sr.oun.dataplugin.mping
+

@@ -1,0 +1,77 @@
+############################################################################
+## This file contains global WarnGen tempate (.vm) configuration settings
+## If you have any questions please contact Evan Bookbinder - WFO EAX
+## CREATED 9/20/2013
+## Edited by Mike Rega       01-17-2014 added Alaska changes for 14.12.1
+## Edited by Evan Bookbinder 03-23-2015 Changes for mixed-case!
+## Edited by Evan Bookbinder 10-23-2015 Changes for 2016 Impact-based warnings
+##                                      SITES WILL NEED TO MERGE OVERRIDES
+############################################################################
+### SET LAND REFERENCE DISTANCE UNITS (UNIT is in ALL CAPS)
+#set($landDistanceUnits = "MILES")
+### SET MARINE REFERENCE DISTANCE UNITS (UNIT is in ALL CAPS)
+#set($marineDistanceUnits = "NM")
+
+### SET DISTANCE (LAND) AT OR BELOW WHICH STORM REFERENCE MILEAGE WILL BE SHOWN AS "NEAR"
+#set($maxLandNearDistance = 6)
+### SET DISTANCE (MARINE) AT OR BELOW WHICH STORM REFERENCE MILEAGE WILL BE SHOWN AS "NEAR"
+#set($maxMarineNearDistance = 6)
+### SET "NEAR" WORDING
+#set($nearPhrase = "near")
+
+### SET DISTANCE (LAND) AT OR BELOW WHICH STORM REFERENCE MILEAGE WILL BE SHOWN AS "OVER"
+#set($maxLandOverDistance = 2)
+### SET DISTANCE (LAND) AT OR BELOW WHICH STORM REFERENCE MILEAGE WILL BE SHOWN AS "OVER"
+#set($maxMarineOverDistance = 2)
+### SET "OVER" WORDING
+#set($overPhrase = "over")
+
+### SET STORM SPEED (LAND) BELOW WHICH STORM MOVEMENT WILL BE "STATIONARY" .. e.g. < 5 mph
+#set($landStationary = 5)
+### SET STORM SPEED (MARINE) BELOW WHICH STORM MOVEMENT WILL BE "STATIONARY" .. e.g  < 5 knots
+#set($marineStationary = 5)
+
+### USE SECOND STORM REFERENCE? true or false
+### DETERMINES WHETHER OR NOT A SECOND STORM REFERENCE IS USED IN THE 3RD BULLET.
+### TRUE:
+### "A SEVERE THUNDERSTORM WAS LOCATED NEAR PODUNK...OR 40 MILES EAST OF DENVER"
+### FALSE:
+### "A SEVERE THUNDERSTORM WAS LOCATED NEAR PODUNK"
+### ONE VARIABLE IS SET FOR A SINGLE STORM, THE OTHER FOR A LINE OF STORMS
+#set ($useSecondReferenceCell = true)
+#set ($useSecondReferenceLine = false) 
+
+### INCLUDE STATE ABBREVIATIONS WITH ZONE LISTING IN MND HEADER? true or false
+###
+### FOR WESTERN REGION/ALASKA, THIS WILL LIKELY BE FALSE...AS WOULD ANY CWA COVERING
+### ONLY A SINGLE STATE
+### FALSE OPTION:
+### AKZ220>224-226-170400
+### YUKON FLAT AND SURROUNDING UPLANDS-CENTRAL INTERIOR-
+### MIDDLE TANANA VALLEY-DELTANA AND TANANA FLATS-
+### 556 PM AKDT MON SEP 16 2013
+###
+### TRUE OPTION:
+### AKZ220>224-226-170400
+### YUKON FLAT AND SURROUNDING UPLANDS AK-CENTRAL INTERIOR AK-
+### MIDDLE TANANA VALLEY AK-DELTANA AND TANANA FLATS AK-
+### 556 PM AKDT MON SEP 16 2013
+#set($includeStateAbbreviation = true)
+
+### SET RURAL PHRASING WHEN NO WARNGEN LOCATIONS ARE IN THE PATH OF THE STORM TRACK/POLYGON
+### THIS STORM WILL REMAIN OVER ___________ OF XXXX COUNTY/ZONE
+### ALASKA SETTING IS ON THE NEXT LINE
+###set($noLocPhrase = "sparsely populated areas")
+#set($noLocPhrase = "mainly rural areas")
+
+### SET IF AN ALASKA WFO (default is false)
+#set($alaska = false)
+### SET IF A WESTERN REGION WFO THAT USES MIXED ZONES / COUNTIES IN FLOOD PRODUCTS
+### default is false
+#set($wrZoneCounty = false)
+###
+### CHANGES BELOW ANTICIPATED FOR 2016 IBW EXPERIMENT.
+###
+#set($svrHailConsiderableThreshold = 2.75)
+#set($svrWindConsiderableThreshold = 80)
+#set($svrDamageThreat = "SEVERE DAMAGE THREAT...CONSIDERABLE")

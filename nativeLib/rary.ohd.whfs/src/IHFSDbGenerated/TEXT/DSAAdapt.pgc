@@ -1,0 +1,1420 @@
+/*
+    File: DSAAdapt.pgc
+    Author  : CDBGEN
+    Created : Wed Dec 04 19:07:10 EST 2013 using database hd_ob9eempty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "DSAAdapt.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct DSAAdapt_t
+{
+    char		radid[4];
+    dtime_t		obstime;
+    short		num_of_adap;
+    float		default_ml_depth;
+    char		ml_overide_flag[9];
+    float		kdp_mult;
+    float		kdp_power;
+    float		z_r_mult;
+    float		z_r_power;
+    float		zdr_z_mult;
+    float		zdr_z_power;
+    float		zdr_zdr_power;
+    float		min_corr_precip;
+    float		min_corr_kdp;
+    float		refl_max;
+    float		kdp_max_beam_blk;
+    float		max_usability_blk;
+    float		kdp_min_usage_rate;
+    float		ws_mult;
+    float		gr_mult;
+    float		rh_mult;
+    float		ds_mult;
+    float		ic_mult;
+    float		grid_is_full;
+    float		paif_rate;
+    float		paif_area;
+    float		rain_time_thresh;
+    float		num_zones;
+    float		max_precip_rate;
+    float		restart_time;
+    float		max_interp_time;
+    float		max_hourly_acc;
+    float		time_bias;
+    float		num_grpairs;
+    float		reset_bias;
+    float		longst_lag;
+
+    int		ind_num_of_adap;
+    int		ind_default_ml_depth;
+    int		ind_ml_overide_flag;
+    int		ind_kdp_mult;
+    int		ind_kdp_power;
+    int		ind_z_r_mult;
+    int		ind_z_r_power;
+    int		ind_zdr_z_mult;
+    int		ind_zdr_z_power;
+    int		ind_zdr_zdr_power;
+    int		ind_min_corr_precip;
+    int		ind_min_corr_kdp;
+    int		ind_refl_max;
+    int		ind_kdp_max_beam_blk;
+    int		ind_max_usability_blk;
+    int		ind_kdp_min_usage_rate;
+    int		ind_ws_mult;
+    int		ind_gr_mult;
+    int		ind_rh_mult;
+    int		ind_ds_mult;
+    int		ind_ic_mult;
+    int		ind_grid_is_full;
+    int		ind_paif_rate;
+    int		ind_paif_area;
+    int		ind_rain_time_thresh;
+    int		ind_num_zones;
+    int		ind_max_precip_rate;
+    int		ind_restart_time;
+    int		ind_max_interp_time;
+    int		ind_max_hourly_acc;
+    int		ind_time_bias;
+    int		ind_num_grpairs;
+    int		ind_reset_bias;
+    int		ind_longst_lag;
+} DSAAdapt_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+DSAAdapt * GetDSAAdapt(const char * where)
+{
+
+    DSAAdapt * listPtr = NULL;
+    DSAAdapt * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM DSAAdapt ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DSAAdapt_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDSAAdapt() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDSAAdapt() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDSAAdapt() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.radid, :dbs.obstime, 
+    :dbs.num_of_adap:dbs.ind_num_of_adap, :dbs.default_ml_depth:dbs.ind_default_ml_depth, 
+    :dbs.ml_overide_flag:dbs.ind_ml_overide_flag, :dbs.kdp_mult:dbs.ind_kdp_mult, 
+    :dbs.kdp_power:dbs.ind_kdp_power, :dbs.z_r_mult:dbs.ind_z_r_mult, 
+    :dbs.z_r_power:dbs.ind_z_r_power, :dbs.zdr_z_mult:dbs.ind_zdr_z_mult, 
+    :dbs.zdr_z_power:dbs.ind_zdr_z_power, :dbs.zdr_zdr_power:dbs.ind_zdr_zdr_power, 
+    :dbs.min_corr_precip:dbs.ind_min_corr_precip, :dbs.min_corr_kdp:dbs.ind_min_corr_kdp, 
+    :dbs.refl_max:dbs.ind_refl_max, :dbs.kdp_max_beam_blk:dbs.ind_kdp_max_beam_blk, 
+    :dbs.max_usability_blk:dbs.ind_max_usability_blk, :dbs.kdp_min_usage_rate:dbs.ind_kdp_min_usage_rate, 
+    :dbs.ws_mult:dbs.ind_ws_mult, :dbs.gr_mult:dbs.ind_gr_mult, 
+    :dbs.rh_mult:dbs.ind_rh_mult, :dbs.ds_mult:dbs.ind_ds_mult, 
+    :dbs.ic_mult:dbs.ind_ic_mult, :dbs.grid_is_full:dbs.ind_grid_is_full, 
+    :dbs.paif_rate:dbs.ind_paif_rate, :dbs.paif_area:dbs.ind_paif_area, 
+    :dbs.rain_time_thresh:dbs.ind_rain_time_thresh, :dbs.num_zones:dbs.ind_num_zones, 
+    :dbs.max_precip_rate:dbs.ind_max_precip_rate, :dbs.restart_time:dbs.ind_restart_time, 
+    :dbs.max_interp_time:dbs.ind_max_interp_time, :dbs.max_hourly_acc:dbs.ind_max_hourly_acc, 
+    :dbs.time_bias:dbs.ind_time_bias, :dbs.num_grpairs:dbs.ind_num_grpairs, 
+    :dbs.reset_bias:dbs.ind_reset_bias, :dbs.longst_lag:dbs.ind_longst_lag    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDSAAdapt() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (DSAAdapt *) malloc(sizeof(DSAAdapt))) != NULL)
+        {
+
+            strcpy(structPtr->radid, dbs.radid);
+
+            structPtr->obstime = dbs.obstime;
+
+            structPtr->num_of_adap = dbs.num_of_adap;
+            setNullIfIndicated(dbs.ind_num_of_adap, SHORT, &structPtr->num_of_adap);
+
+            structPtr->default_ml_depth = dbs.default_ml_depth;
+            setNullIfIndicated(dbs.ind_default_ml_depth, FLOAT, &structPtr->default_ml_depth);
+
+            strcpy(structPtr->ml_overide_flag, dbs.ml_overide_flag);
+            setNullIfIndicated(dbs.ind_ml_overide_flag, CHAR, structPtr->ml_overide_flag);
+
+            structPtr->kdp_mult = dbs.kdp_mult;
+            setNullIfIndicated(dbs.ind_kdp_mult, FLOAT, &structPtr->kdp_mult);
+
+            structPtr->kdp_power = dbs.kdp_power;
+            setNullIfIndicated(dbs.ind_kdp_power, FLOAT, &structPtr->kdp_power);
+
+            structPtr->z_r_mult = dbs.z_r_mult;
+            setNullIfIndicated(dbs.ind_z_r_mult, FLOAT, &structPtr->z_r_mult);
+
+            structPtr->z_r_power = dbs.z_r_power;
+            setNullIfIndicated(dbs.ind_z_r_power, FLOAT, &structPtr->z_r_power);
+
+            structPtr->zdr_z_mult = dbs.zdr_z_mult;
+            setNullIfIndicated(dbs.ind_zdr_z_mult, FLOAT, &structPtr->zdr_z_mult);
+
+            structPtr->zdr_z_power = dbs.zdr_z_power;
+            setNullIfIndicated(dbs.ind_zdr_z_power, FLOAT, &structPtr->zdr_z_power);
+
+            structPtr->zdr_zdr_power = dbs.zdr_zdr_power;
+            setNullIfIndicated(dbs.ind_zdr_zdr_power, FLOAT, &structPtr->zdr_zdr_power);
+
+            structPtr->min_corr_precip = dbs.min_corr_precip;
+            setNullIfIndicated(dbs.ind_min_corr_precip, FLOAT, &structPtr->min_corr_precip);
+
+            structPtr->min_corr_kdp = dbs.min_corr_kdp;
+            setNullIfIndicated(dbs.ind_min_corr_kdp, FLOAT, &structPtr->min_corr_kdp);
+
+            structPtr->refl_max = dbs.refl_max;
+            setNullIfIndicated(dbs.ind_refl_max, FLOAT, &structPtr->refl_max);
+
+            structPtr->kdp_max_beam_blk = dbs.kdp_max_beam_blk;
+            setNullIfIndicated(dbs.ind_kdp_max_beam_blk, FLOAT, &structPtr->kdp_max_beam_blk);
+
+            structPtr->max_usability_blk = dbs.max_usability_blk;
+            setNullIfIndicated(dbs.ind_max_usability_blk, FLOAT, &structPtr->max_usability_blk);
+
+            structPtr->kdp_min_usage_rate = dbs.kdp_min_usage_rate;
+            setNullIfIndicated(dbs.ind_kdp_min_usage_rate, FLOAT, &structPtr->kdp_min_usage_rate);
+
+            structPtr->ws_mult = dbs.ws_mult;
+            setNullIfIndicated(dbs.ind_ws_mult, FLOAT, &structPtr->ws_mult);
+
+            structPtr->gr_mult = dbs.gr_mult;
+            setNullIfIndicated(dbs.ind_gr_mult, FLOAT, &structPtr->gr_mult);
+
+            structPtr->rh_mult = dbs.rh_mult;
+            setNullIfIndicated(dbs.ind_rh_mult, FLOAT, &structPtr->rh_mult);
+
+            structPtr->ds_mult = dbs.ds_mult;
+            setNullIfIndicated(dbs.ind_ds_mult, FLOAT, &structPtr->ds_mult);
+
+            structPtr->ic_mult = dbs.ic_mult;
+            setNullIfIndicated(dbs.ind_ic_mult, FLOAT, &structPtr->ic_mult);
+
+            structPtr->grid_is_full = dbs.grid_is_full;
+            setNullIfIndicated(dbs.ind_grid_is_full, FLOAT, &structPtr->grid_is_full);
+
+            structPtr->paif_rate = dbs.paif_rate;
+            setNullIfIndicated(dbs.ind_paif_rate, FLOAT, &structPtr->paif_rate);
+
+            structPtr->paif_area = dbs.paif_area;
+            setNullIfIndicated(dbs.ind_paif_area, FLOAT, &structPtr->paif_area);
+
+            structPtr->rain_time_thresh = dbs.rain_time_thresh;
+            setNullIfIndicated(dbs.ind_rain_time_thresh, FLOAT, &structPtr->rain_time_thresh);
+
+            structPtr->num_zones = dbs.num_zones;
+            setNullIfIndicated(dbs.ind_num_zones, FLOAT, &structPtr->num_zones);
+
+            structPtr->max_precip_rate = dbs.max_precip_rate;
+            setNullIfIndicated(dbs.ind_max_precip_rate, FLOAT, &structPtr->max_precip_rate);
+
+            structPtr->restart_time = dbs.restart_time;
+            setNullIfIndicated(dbs.ind_restart_time, FLOAT, &structPtr->restart_time);
+
+            structPtr->max_interp_time = dbs.max_interp_time;
+            setNullIfIndicated(dbs.ind_max_interp_time, FLOAT, &structPtr->max_interp_time);
+
+            structPtr->max_hourly_acc = dbs.max_hourly_acc;
+            setNullIfIndicated(dbs.ind_max_hourly_acc, FLOAT, &structPtr->max_hourly_acc);
+
+            structPtr->time_bias = dbs.time_bias;
+            setNullIfIndicated(dbs.ind_time_bias, FLOAT, &structPtr->time_bias);
+
+            structPtr->num_grpairs = dbs.num_grpairs;
+            setNullIfIndicated(dbs.ind_num_grpairs, FLOAT, &structPtr->num_grpairs);
+
+            structPtr->reset_bias = dbs.reset_bias;
+            setNullIfIndicated(dbs.ind_reset_bias, FLOAT, &structPtr->reset_bias);
+
+            structPtr->longst_lag = dbs.longst_lag;
+            setNullIfIndicated(dbs.ind_longst_lag, FLOAT, &structPtr->longst_lag);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.radid, :dbs.obstime, 
+        :dbs.num_of_adap:dbs.ind_num_of_adap, :dbs.default_ml_depth:dbs.ind_default_ml_depth, 
+        :dbs.ml_overide_flag:dbs.ind_ml_overide_flag, :dbs.kdp_mult:dbs.ind_kdp_mult, 
+        :dbs.kdp_power:dbs.ind_kdp_power, :dbs.z_r_mult:dbs.ind_z_r_mult, 
+        :dbs.z_r_power:dbs.ind_z_r_power, :dbs.zdr_z_mult:dbs.ind_zdr_z_mult, 
+        :dbs.zdr_z_power:dbs.ind_zdr_z_power, :dbs.zdr_zdr_power:dbs.ind_zdr_zdr_power, 
+        :dbs.min_corr_precip:dbs.ind_min_corr_precip, :dbs.min_corr_kdp:dbs.ind_min_corr_kdp, 
+        :dbs.refl_max:dbs.ind_refl_max, :dbs.kdp_max_beam_blk:dbs.ind_kdp_max_beam_blk, 
+        :dbs.max_usability_blk:dbs.ind_max_usability_blk, :dbs.kdp_min_usage_rate:dbs.ind_kdp_min_usage_rate, 
+        :dbs.ws_mult:dbs.ind_ws_mult, :dbs.gr_mult:dbs.ind_gr_mult, 
+        :dbs.rh_mult:dbs.ind_rh_mult, :dbs.ds_mult:dbs.ind_ds_mult, 
+        :dbs.ic_mult:dbs.ind_ic_mult, :dbs.grid_is_full:dbs.ind_grid_is_full, 
+        :dbs.paif_rate:dbs.ind_paif_rate, :dbs.paif_area:dbs.ind_paif_area, 
+        :dbs.rain_time_thresh:dbs.ind_rain_time_thresh, :dbs.num_zones:dbs.ind_num_zones, 
+        :dbs.max_precip_rate:dbs.ind_max_precip_rate, :dbs.restart_time:dbs.ind_restart_time, 
+        :dbs.max_interp_time:dbs.ind_max_interp_time, :dbs.max_hourly_acc:dbs.ind_max_hourly_acc, 
+        :dbs.time_bias:dbs.ind_time_bias, :dbs.num_grpairs:dbs.ind_num_grpairs, 
+        :dbs.reset_bias:dbs.ind_reset_bias, :dbs.longst_lag:dbs.ind_longst_lag        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetDSAAdapt() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+DSAAdapt * SelectDSAAdapt(const char * where)
+{
+
+    DSAAdapt * listPtr = NULL;
+    DSAAdapt * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM DSAAdapt ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DSAAdapt_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDSAAdapt() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDSAAdapt() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDSAAdapt() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.radid, :dbs.obstime, 
+    :dbs.num_of_adap:dbs.ind_num_of_adap, :dbs.default_ml_depth:dbs.ind_default_ml_depth, 
+    :dbs.ml_overide_flag:dbs.ind_ml_overide_flag, :dbs.kdp_mult:dbs.ind_kdp_mult, 
+    :dbs.kdp_power:dbs.ind_kdp_power, :dbs.z_r_mult:dbs.ind_z_r_mult, 
+    :dbs.z_r_power:dbs.ind_z_r_power, :dbs.zdr_z_mult:dbs.ind_zdr_z_mult, 
+    :dbs.zdr_z_power:dbs.ind_zdr_z_power, :dbs.zdr_zdr_power:dbs.ind_zdr_zdr_power, 
+    :dbs.min_corr_precip:dbs.ind_min_corr_precip, :dbs.min_corr_kdp:dbs.ind_min_corr_kdp, 
+    :dbs.refl_max:dbs.ind_refl_max, :dbs.kdp_max_beam_blk:dbs.ind_kdp_max_beam_blk, 
+    :dbs.max_usability_blk:dbs.ind_max_usability_blk, :dbs.kdp_min_usage_rate:dbs.ind_kdp_min_usage_rate, 
+    :dbs.ws_mult:dbs.ind_ws_mult, :dbs.gr_mult:dbs.ind_gr_mult, 
+    :dbs.rh_mult:dbs.ind_rh_mult, :dbs.ds_mult:dbs.ind_ds_mult, 
+    :dbs.ic_mult:dbs.ind_ic_mult, :dbs.grid_is_full:dbs.ind_grid_is_full, 
+    :dbs.paif_rate:dbs.ind_paif_rate, :dbs.paif_area:dbs.ind_paif_area, 
+    :dbs.rain_time_thresh:dbs.ind_rain_time_thresh, :dbs.num_zones:dbs.ind_num_zones, 
+    :dbs.max_precip_rate:dbs.ind_max_precip_rate, :dbs.restart_time:dbs.ind_restart_time, 
+    :dbs.max_interp_time:dbs.ind_max_interp_time, :dbs.max_hourly_acc:dbs.ind_max_hourly_acc, 
+    :dbs.time_bias:dbs.ind_time_bias, :dbs.num_grpairs:dbs.ind_num_grpairs, 
+    :dbs.reset_bias:dbs.ind_reset_bias, :dbs.longst_lag:dbs.ind_longst_lag    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDSAAdapt() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (DSAAdapt *) malloc(sizeof(DSAAdapt))) != NULL)
+        {
+
+            strcpy(structPtr->radid, dbs.radid);
+
+            structPtr->obstime = dbs.obstime;
+
+            structPtr->num_of_adap = dbs.num_of_adap;
+            setNullIfIndicated(dbs.ind_num_of_adap, SHORT, &structPtr->num_of_adap);
+
+            structPtr->default_ml_depth = dbs.default_ml_depth;
+            setNullIfIndicated(dbs.ind_default_ml_depth, FLOAT, &structPtr->default_ml_depth);
+
+            strcpy(structPtr->ml_overide_flag, dbs.ml_overide_flag);
+            setNullIfIndicated(dbs.ind_ml_overide_flag, CHAR, structPtr->ml_overide_flag);
+
+            structPtr->kdp_mult = dbs.kdp_mult;
+            setNullIfIndicated(dbs.ind_kdp_mult, FLOAT, &structPtr->kdp_mult);
+
+            structPtr->kdp_power = dbs.kdp_power;
+            setNullIfIndicated(dbs.ind_kdp_power, FLOAT, &structPtr->kdp_power);
+
+            structPtr->z_r_mult = dbs.z_r_mult;
+            setNullIfIndicated(dbs.ind_z_r_mult, FLOAT, &structPtr->z_r_mult);
+
+            structPtr->z_r_power = dbs.z_r_power;
+            setNullIfIndicated(dbs.ind_z_r_power, FLOAT, &structPtr->z_r_power);
+
+            structPtr->zdr_z_mult = dbs.zdr_z_mult;
+            setNullIfIndicated(dbs.ind_zdr_z_mult, FLOAT, &structPtr->zdr_z_mult);
+
+            structPtr->zdr_z_power = dbs.zdr_z_power;
+            setNullIfIndicated(dbs.ind_zdr_z_power, FLOAT, &structPtr->zdr_z_power);
+
+            structPtr->zdr_zdr_power = dbs.zdr_zdr_power;
+            setNullIfIndicated(dbs.ind_zdr_zdr_power, FLOAT, &structPtr->zdr_zdr_power);
+
+            structPtr->min_corr_precip = dbs.min_corr_precip;
+            setNullIfIndicated(dbs.ind_min_corr_precip, FLOAT, &structPtr->min_corr_precip);
+
+            structPtr->min_corr_kdp = dbs.min_corr_kdp;
+            setNullIfIndicated(dbs.ind_min_corr_kdp, FLOAT, &structPtr->min_corr_kdp);
+
+            structPtr->refl_max = dbs.refl_max;
+            setNullIfIndicated(dbs.ind_refl_max, FLOAT, &structPtr->refl_max);
+
+            structPtr->kdp_max_beam_blk = dbs.kdp_max_beam_blk;
+            setNullIfIndicated(dbs.ind_kdp_max_beam_blk, FLOAT, &structPtr->kdp_max_beam_blk);
+
+            structPtr->max_usability_blk = dbs.max_usability_blk;
+            setNullIfIndicated(dbs.ind_max_usability_blk, FLOAT, &structPtr->max_usability_blk);
+
+            structPtr->kdp_min_usage_rate = dbs.kdp_min_usage_rate;
+            setNullIfIndicated(dbs.ind_kdp_min_usage_rate, FLOAT, &structPtr->kdp_min_usage_rate);
+
+            structPtr->ws_mult = dbs.ws_mult;
+            setNullIfIndicated(dbs.ind_ws_mult, FLOAT, &structPtr->ws_mult);
+
+            structPtr->gr_mult = dbs.gr_mult;
+            setNullIfIndicated(dbs.ind_gr_mult, FLOAT, &structPtr->gr_mult);
+
+            structPtr->rh_mult = dbs.rh_mult;
+            setNullIfIndicated(dbs.ind_rh_mult, FLOAT, &structPtr->rh_mult);
+
+            structPtr->ds_mult = dbs.ds_mult;
+            setNullIfIndicated(dbs.ind_ds_mult, FLOAT, &structPtr->ds_mult);
+
+            structPtr->ic_mult = dbs.ic_mult;
+            setNullIfIndicated(dbs.ind_ic_mult, FLOAT, &structPtr->ic_mult);
+
+            structPtr->grid_is_full = dbs.grid_is_full;
+            setNullIfIndicated(dbs.ind_grid_is_full, FLOAT, &structPtr->grid_is_full);
+
+            structPtr->paif_rate = dbs.paif_rate;
+            setNullIfIndicated(dbs.ind_paif_rate, FLOAT, &structPtr->paif_rate);
+
+            structPtr->paif_area = dbs.paif_area;
+            setNullIfIndicated(dbs.ind_paif_area, FLOAT, &structPtr->paif_area);
+
+            structPtr->rain_time_thresh = dbs.rain_time_thresh;
+            setNullIfIndicated(dbs.ind_rain_time_thresh, FLOAT, &structPtr->rain_time_thresh);
+
+            structPtr->num_zones = dbs.num_zones;
+            setNullIfIndicated(dbs.ind_num_zones, FLOAT, &structPtr->num_zones);
+
+            structPtr->max_precip_rate = dbs.max_precip_rate;
+            setNullIfIndicated(dbs.ind_max_precip_rate, FLOAT, &structPtr->max_precip_rate);
+
+            structPtr->restart_time = dbs.restart_time;
+            setNullIfIndicated(dbs.ind_restart_time, FLOAT, &structPtr->restart_time);
+
+            structPtr->max_interp_time = dbs.max_interp_time;
+            setNullIfIndicated(dbs.ind_max_interp_time, FLOAT, &structPtr->max_interp_time);
+
+            structPtr->max_hourly_acc = dbs.max_hourly_acc;
+            setNullIfIndicated(dbs.ind_max_hourly_acc, FLOAT, &structPtr->max_hourly_acc);
+
+            structPtr->time_bias = dbs.time_bias;
+            setNullIfIndicated(dbs.ind_time_bias, FLOAT, &structPtr->time_bias);
+
+            structPtr->num_grpairs = dbs.num_grpairs;
+            setNullIfIndicated(dbs.ind_num_grpairs, FLOAT, &structPtr->num_grpairs);
+
+            structPtr->reset_bias = dbs.reset_bias;
+            setNullIfIndicated(dbs.ind_reset_bias, FLOAT, &structPtr->reset_bias);
+
+            structPtr->longst_lag = dbs.longst_lag;
+            setNullIfIndicated(dbs.ind_longst_lag, FLOAT, &structPtr->longst_lag);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.radid, :dbs.obstime, 
+        :dbs.num_of_adap:dbs.ind_num_of_adap, :dbs.default_ml_depth:dbs.ind_default_ml_depth, 
+        :dbs.ml_overide_flag:dbs.ind_ml_overide_flag, :dbs.kdp_mult:dbs.ind_kdp_mult, 
+        :dbs.kdp_power:dbs.ind_kdp_power, :dbs.z_r_mult:dbs.ind_z_r_mult, 
+        :dbs.z_r_power:dbs.ind_z_r_power, :dbs.zdr_z_mult:dbs.ind_zdr_z_mult, 
+        :dbs.zdr_z_power:dbs.ind_zdr_z_power, :dbs.zdr_zdr_power:dbs.ind_zdr_zdr_power, 
+        :dbs.min_corr_precip:dbs.ind_min_corr_precip, :dbs.min_corr_kdp:dbs.ind_min_corr_kdp, 
+        :dbs.refl_max:dbs.ind_refl_max, :dbs.kdp_max_beam_blk:dbs.ind_kdp_max_beam_blk, 
+        :dbs.max_usability_blk:dbs.ind_max_usability_blk, :dbs.kdp_min_usage_rate:dbs.ind_kdp_min_usage_rate, 
+        :dbs.ws_mult:dbs.ind_ws_mult, :dbs.gr_mult:dbs.ind_gr_mult, 
+        :dbs.rh_mult:dbs.ind_rh_mult, :dbs.ds_mult:dbs.ind_ds_mult, 
+        :dbs.ic_mult:dbs.ind_ic_mult, :dbs.grid_is_full:dbs.ind_grid_is_full, 
+        :dbs.paif_rate:dbs.ind_paif_rate, :dbs.paif_area:dbs.ind_paif_area, 
+        :dbs.rain_time_thresh:dbs.ind_rain_time_thresh, :dbs.num_zones:dbs.ind_num_zones, 
+        :dbs.max_precip_rate:dbs.ind_max_precip_rate, :dbs.restart_time:dbs.ind_restart_time, 
+        :dbs.max_interp_time:dbs.ind_max_interp_time, :dbs.max_hourly_acc:dbs.ind_max_hourly_acc, 
+        :dbs.time_bias:dbs.ind_time_bias, :dbs.num_grpairs:dbs.ind_num_grpairs, 
+        :dbs.reset_bias:dbs.ind_reset_bias, :dbs.longst_lag:dbs.ind_longst_lag        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectDSAAdapt() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectDSAAdaptCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM DSAAdapt ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDSAAdapt() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDSAAdapt() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDSAAdapt() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDSAAdapt() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutDSAAdapt(const DSAAdapt * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DSAAdapt_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.radid, structPtr->radid);
+
+    dbs.obstime = structPtr->obstime;
+
+    dbs.num_of_adap = structPtr->num_of_adap;
+    dbs.ind_num_of_adap = getIndicator(SHORT, (void *)&structPtr->num_of_adap);
+
+    dbs.default_ml_depth = structPtr->default_ml_depth;
+    dbs.ind_default_ml_depth = getIndicator(FLOAT, (void *)&structPtr->default_ml_depth);
+
+    strcpy(dbs.ml_overide_flag, structPtr->ml_overide_flag);
+    dbs.ind_ml_overide_flag = getIndicator(CHAR, (void *)structPtr->ml_overide_flag);
+
+    dbs.kdp_mult = structPtr->kdp_mult;
+    dbs.ind_kdp_mult = getIndicator(FLOAT, (void *)&structPtr->kdp_mult);
+
+    dbs.kdp_power = structPtr->kdp_power;
+    dbs.ind_kdp_power = getIndicator(FLOAT, (void *)&structPtr->kdp_power);
+
+    dbs.z_r_mult = structPtr->z_r_mult;
+    dbs.ind_z_r_mult = getIndicator(FLOAT, (void *)&structPtr->z_r_mult);
+
+    dbs.z_r_power = structPtr->z_r_power;
+    dbs.ind_z_r_power = getIndicator(FLOAT, (void *)&structPtr->z_r_power);
+
+    dbs.zdr_z_mult = structPtr->zdr_z_mult;
+    dbs.ind_zdr_z_mult = getIndicator(FLOAT, (void *)&structPtr->zdr_z_mult);
+
+    dbs.zdr_z_power = structPtr->zdr_z_power;
+    dbs.ind_zdr_z_power = getIndicator(FLOAT, (void *)&structPtr->zdr_z_power);
+
+    dbs.zdr_zdr_power = structPtr->zdr_zdr_power;
+    dbs.ind_zdr_zdr_power = getIndicator(FLOAT, (void *)&structPtr->zdr_zdr_power);
+
+    dbs.min_corr_precip = structPtr->min_corr_precip;
+    dbs.ind_min_corr_precip = getIndicator(FLOAT, (void *)&structPtr->min_corr_precip);
+
+    dbs.min_corr_kdp = structPtr->min_corr_kdp;
+    dbs.ind_min_corr_kdp = getIndicator(FLOAT, (void *)&structPtr->min_corr_kdp);
+
+    dbs.refl_max = structPtr->refl_max;
+    dbs.ind_refl_max = getIndicator(FLOAT, (void *)&structPtr->refl_max);
+
+    dbs.kdp_max_beam_blk = structPtr->kdp_max_beam_blk;
+    dbs.ind_kdp_max_beam_blk = getIndicator(FLOAT, (void *)&structPtr->kdp_max_beam_blk);
+
+    dbs.max_usability_blk = structPtr->max_usability_blk;
+    dbs.ind_max_usability_blk = getIndicator(FLOAT, (void *)&structPtr->max_usability_blk);
+
+    dbs.kdp_min_usage_rate = structPtr->kdp_min_usage_rate;
+    dbs.ind_kdp_min_usage_rate = getIndicator(FLOAT, (void *)&structPtr->kdp_min_usage_rate);
+
+    dbs.ws_mult = structPtr->ws_mult;
+    dbs.ind_ws_mult = getIndicator(FLOAT, (void *)&structPtr->ws_mult);
+
+    dbs.gr_mult = structPtr->gr_mult;
+    dbs.ind_gr_mult = getIndicator(FLOAT, (void *)&structPtr->gr_mult);
+
+    dbs.rh_mult = structPtr->rh_mult;
+    dbs.ind_rh_mult = getIndicator(FLOAT, (void *)&structPtr->rh_mult);
+
+    dbs.ds_mult = structPtr->ds_mult;
+    dbs.ind_ds_mult = getIndicator(FLOAT, (void *)&structPtr->ds_mult);
+
+    dbs.ic_mult = structPtr->ic_mult;
+    dbs.ind_ic_mult = getIndicator(FLOAT, (void *)&structPtr->ic_mult);
+
+    dbs.grid_is_full = structPtr->grid_is_full;
+    dbs.ind_grid_is_full = getIndicator(FLOAT, (void *)&structPtr->grid_is_full);
+
+    dbs.paif_rate = structPtr->paif_rate;
+    dbs.ind_paif_rate = getIndicator(FLOAT, (void *)&structPtr->paif_rate);
+
+    dbs.paif_area = structPtr->paif_area;
+    dbs.ind_paif_area = getIndicator(FLOAT, (void *)&structPtr->paif_area);
+
+    dbs.rain_time_thresh = structPtr->rain_time_thresh;
+    dbs.ind_rain_time_thresh = getIndicator(FLOAT, (void *)&structPtr->rain_time_thresh);
+
+    dbs.num_zones = structPtr->num_zones;
+    dbs.ind_num_zones = getIndicator(FLOAT, (void *)&structPtr->num_zones);
+
+    dbs.max_precip_rate = structPtr->max_precip_rate;
+    dbs.ind_max_precip_rate = getIndicator(FLOAT, (void *)&structPtr->max_precip_rate);
+
+    dbs.restart_time = structPtr->restart_time;
+    dbs.ind_restart_time = getIndicator(FLOAT, (void *)&structPtr->restart_time);
+
+    dbs.max_interp_time = structPtr->max_interp_time;
+    dbs.ind_max_interp_time = getIndicator(FLOAT, (void *)&structPtr->max_interp_time);
+
+    dbs.max_hourly_acc = structPtr->max_hourly_acc;
+    dbs.ind_max_hourly_acc = getIndicator(FLOAT, (void *)&structPtr->max_hourly_acc);
+
+    dbs.time_bias = structPtr->time_bias;
+    dbs.ind_time_bias = getIndicator(FLOAT, (void *)&structPtr->time_bias);
+
+    dbs.num_grpairs = structPtr->num_grpairs;
+    dbs.ind_num_grpairs = getIndicator(FLOAT, (void *)&structPtr->num_grpairs);
+
+    dbs.reset_bias = structPtr->reset_bias;
+    dbs.ind_reset_bias = getIndicator(FLOAT, (void *)&structPtr->reset_bias);
+
+    dbs.longst_lag = structPtr->longst_lag;
+    dbs.ind_longst_lag = getIndicator(FLOAT, (void *)&structPtr->longst_lag);
+
+
+    EXEC SQL INSERT INTO DSAAdapt (radid,obstime,
+        num_of_adap,default_ml_depth,ml_overide_flag,
+        kdp_mult,kdp_power,z_r_mult,
+        z_r_power,zdr_z_mult,zdr_z_power,
+        zdr_zdr_power,min_corr_precip,min_corr_kdp,
+        refl_max,kdp_max_beam_blk,max_usability_blk,
+        kdp_min_usage_rate,ws_mult,gr_mult,
+        rh_mult,ds_mult,ic_mult,
+        grid_is_full,paif_rate,paif_area,
+        rain_time_thresh,num_zones,max_precip_rate,
+        restart_time,max_interp_time,max_hourly_acc,
+        time_bias,num_grpairs,reset_bias,
+        longst_lag        )
+        VALUES (
+         :dbs.radid, :dbs.obstime, :dbs.num_of_adap:dbs.ind_num_of_adap,
+         :dbs.default_ml_depth:dbs.ind_default_ml_depth, :dbs.ml_overide_flag:dbs.ind_ml_overide_flag, :dbs.kdp_mult:dbs.ind_kdp_mult,
+         :dbs.kdp_power:dbs.ind_kdp_power, :dbs.z_r_mult:dbs.ind_z_r_mult, :dbs.z_r_power:dbs.ind_z_r_power,
+         :dbs.zdr_z_mult:dbs.ind_zdr_z_mult, :dbs.zdr_z_power:dbs.ind_zdr_z_power, :dbs.zdr_zdr_power:dbs.ind_zdr_zdr_power,
+         :dbs.min_corr_precip:dbs.ind_min_corr_precip, :dbs.min_corr_kdp:dbs.ind_min_corr_kdp, :dbs.refl_max:dbs.ind_refl_max,
+         :dbs.kdp_max_beam_blk:dbs.ind_kdp_max_beam_blk, :dbs.max_usability_blk:dbs.ind_max_usability_blk, :dbs.kdp_min_usage_rate:dbs.ind_kdp_min_usage_rate,
+         :dbs.ws_mult:dbs.ind_ws_mult, :dbs.gr_mult:dbs.ind_gr_mult, :dbs.rh_mult:dbs.ind_rh_mult,
+         :dbs.ds_mult:dbs.ind_ds_mult, :dbs.ic_mult:dbs.ind_ic_mult, :dbs.grid_is_full:dbs.ind_grid_is_full,
+         :dbs.paif_rate:dbs.ind_paif_rate, :dbs.paif_area:dbs.ind_paif_area, :dbs.rain_time_thresh:dbs.ind_rain_time_thresh,
+         :dbs.num_zones:dbs.ind_num_zones, :dbs.max_precip_rate:dbs.ind_max_precip_rate, :dbs.restart_time:dbs.ind_restart_time,
+         :dbs.max_interp_time:dbs.ind_max_interp_time, :dbs.max_hourly_acc:dbs.ind_max_hourly_acc, :dbs.time_bias:dbs.ind_time_bias,
+         :dbs.num_grpairs:dbs.ind_num_grpairs, :dbs.reset_bias:dbs.ind_reset_bias, :dbs.longst_lag:dbs.ind_longst_lag);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutDSAAdapt() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertDSAAdapt(const DSAAdapt * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DSAAdapt_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.radid, structPtr->radid);
+
+    dbs.obstime = structPtr->obstime;
+
+    dbs.num_of_adap = structPtr->num_of_adap;
+    dbs.ind_num_of_adap = getIndicator(SHORT, (void *)&structPtr->num_of_adap);
+
+    dbs.default_ml_depth = structPtr->default_ml_depth;
+    dbs.ind_default_ml_depth = getIndicator(FLOAT, (void *)&structPtr->default_ml_depth);
+
+    strcpy(dbs.ml_overide_flag, structPtr->ml_overide_flag);
+    dbs.ind_ml_overide_flag = getIndicator(CHAR, (void *)structPtr->ml_overide_flag);
+
+    dbs.kdp_mult = structPtr->kdp_mult;
+    dbs.ind_kdp_mult = getIndicator(FLOAT, (void *)&structPtr->kdp_mult);
+
+    dbs.kdp_power = structPtr->kdp_power;
+    dbs.ind_kdp_power = getIndicator(FLOAT, (void *)&structPtr->kdp_power);
+
+    dbs.z_r_mult = structPtr->z_r_mult;
+    dbs.ind_z_r_mult = getIndicator(FLOAT, (void *)&structPtr->z_r_mult);
+
+    dbs.z_r_power = structPtr->z_r_power;
+    dbs.ind_z_r_power = getIndicator(FLOAT, (void *)&structPtr->z_r_power);
+
+    dbs.zdr_z_mult = structPtr->zdr_z_mult;
+    dbs.ind_zdr_z_mult = getIndicator(FLOAT, (void *)&structPtr->zdr_z_mult);
+
+    dbs.zdr_z_power = structPtr->zdr_z_power;
+    dbs.ind_zdr_z_power = getIndicator(FLOAT, (void *)&structPtr->zdr_z_power);
+
+    dbs.zdr_zdr_power = structPtr->zdr_zdr_power;
+    dbs.ind_zdr_zdr_power = getIndicator(FLOAT, (void *)&structPtr->zdr_zdr_power);
+
+    dbs.min_corr_precip = structPtr->min_corr_precip;
+    dbs.ind_min_corr_precip = getIndicator(FLOAT, (void *)&structPtr->min_corr_precip);
+
+    dbs.min_corr_kdp = structPtr->min_corr_kdp;
+    dbs.ind_min_corr_kdp = getIndicator(FLOAT, (void *)&structPtr->min_corr_kdp);
+
+    dbs.refl_max = structPtr->refl_max;
+    dbs.ind_refl_max = getIndicator(FLOAT, (void *)&structPtr->refl_max);
+
+    dbs.kdp_max_beam_blk = structPtr->kdp_max_beam_blk;
+    dbs.ind_kdp_max_beam_blk = getIndicator(FLOAT, (void *)&structPtr->kdp_max_beam_blk);
+
+    dbs.max_usability_blk = structPtr->max_usability_blk;
+    dbs.ind_max_usability_blk = getIndicator(FLOAT, (void *)&structPtr->max_usability_blk);
+
+    dbs.kdp_min_usage_rate = structPtr->kdp_min_usage_rate;
+    dbs.ind_kdp_min_usage_rate = getIndicator(FLOAT, (void *)&structPtr->kdp_min_usage_rate);
+
+    dbs.ws_mult = structPtr->ws_mult;
+    dbs.ind_ws_mult = getIndicator(FLOAT, (void *)&structPtr->ws_mult);
+
+    dbs.gr_mult = structPtr->gr_mult;
+    dbs.ind_gr_mult = getIndicator(FLOAT, (void *)&structPtr->gr_mult);
+
+    dbs.rh_mult = structPtr->rh_mult;
+    dbs.ind_rh_mult = getIndicator(FLOAT, (void *)&structPtr->rh_mult);
+
+    dbs.ds_mult = structPtr->ds_mult;
+    dbs.ind_ds_mult = getIndicator(FLOAT, (void *)&structPtr->ds_mult);
+
+    dbs.ic_mult = structPtr->ic_mult;
+    dbs.ind_ic_mult = getIndicator(FLOAT, (void *)&structPtr->ic_mult);
+
+    dbs.grid_is_full = structPtr->grid_is_full;
+    dbs.ind_grid_is_full = getIndicator(FLOAT, (void *)&structPtr->grid_is_full);
+
+    dbs.paif_rate = structPtr->paif_rate;
+    dbs.ind_paif_rate = getIndicator(FLOAT, (void *)&structPtr->paif_rate);
+
+    dbs.paif_area = structPtr->paif_area;
+    dbs.ind_paif_area = getIndicator(FLOAT, (void *)&structPtr->paif_area);
+
+    dbs.rain_time_thresh = structPtr->rain_time_thresh;
+    dbs.ind_rain_time_thresh = getIndicator(FLOAT, (void *)&structPtr->rain_time_thresh);
+
+    dbs.num_zones = structPtr->num_zones;
+    dbs.ind_num_zones = getIndicator(FLOAT, (void *)&structPtr->num_zones);
+
+    dbs.max_precip_rate = structPtr->max_precip_rate;
+    dbs.ind_max_precip_rate = getIndicator(FLOAT, (void *)&structPtr->max_precip_rate);
+
+    dbs.restart_time = structPtr->restart_time;
+    dbs.ind_restart_time = getIndicator(FLOAT, (void *)&structPtr->restart_time);
+
+    dbs.max_interp_time = structPtr->max_interp_time;
+    dbs.ind_max_interp_time = getIndicator(FLOAT, (void *)&structPtr->max_interp_time);
+
+    dbs.max_hourly_acc = structPtr->max_hourly_acc;
+    dbs.ind_max_hourly_acc = getIndicator(FLOAT, (void *)&structPtr->max_hourly_acc);
+
+    dbs.time_bias = structPtr->time_bias;
+    dbs.ind_time_bias = getIndicator(FLOAT, (void *)&structPtr->time_bias);
+
+    dbs.num_grpairs = structPtr->num_grpairs;
+    dbs.ind_num_grpairs = getIndicator(FLOAT, (void *)&structPtr->num_grpairs);
+
+    dbs.reset_bias = structPtr->reset_bias;
+    dbs.ind_reset_bias = getIndicator(FLOAT, (void *)&structPtr->reset_bias);
+
+    dbs.longst_lag = structPtr->longst_lag;
+    dbs.ind_longst_lag = getIndicator(FLOAT, (void *)&structPtr->longst_lag);
+
+
+    EXEC SQL INSERT INTO DSAAdapt (radid,obstime,
+        num_of_adap,default_ml_depth,ml_overide_flag,
+        kdp_mult,kdp_power,z_r_mult,
+        z_r_power,zdr_z_mult,zdr_z_power,
+        zdr_zdr_power,min_corr_precip,min_corr_kdp,
+        refl_max,kdp_max_beam_blk,max_usability_blk,
+        kdp_min_usage_rate,ws_mult,gr_mult,
+        rh_mult,ds_mult,ic_mult,
+        grid_is_full,paif_rate,paif_area,
+        rain_time_thresh,num_zones,max_precip_rate,
+        restart_time,max_interp_time,max_hourly_acc,
+        time_bias,num_grpairs,reset_bias,
+        longst_lag        )
+        VALUES (
+         :dbs.radid, :dbs.obstime, :dbs.num_of_adap:dbs.ind_num_of_adap,
+         :dbs.default_ml_depth:dbs.ind_default_ml_depth, :dbs.ml_overide_flag:dbs.ind_ml_overide_flag, :dbs.kdp_mult:dbs.ind_kdp_mult,
+         :dbs.kdp_power:dbs.ind_kdp_power, :dbs.z_r_mult:dbs.ind_z_r_mult, :dbs.z_r_power:dbs.ind_z_r_power,
+         :dbs.zdr_z_mult:dbs.ind_zdr_z_mult, :dbs.zdr_z_power:dbs.ind_zdr_z_power, :dbs.zdr_zdr_power:dbs.ind_zdr_zdr_power,
+         :dbs.min_corr_precip:dbs.ind_min_corr_precip, :dbs.min_corr_kdp:dbs.ind_min_corr_kdp, :dbs.refl_max:dbs.ind_refl_max,
+         :dbs.kdp_max_beam_blk:dbs.ind_kdp_max_beam_blk, :dbs.max_usability_blk:dbs.ind_max_usability_blk, :dbs.kdp_min_usage_rate:dbs.ind_kdp_min_usage_rate,
+         :dbs.ws_mult:dbs.ind_ws_mult, :dbs.gr_mult:dbs.ind_gr_mult, :dbs.rh_mult:dbs.ind_rh_mult,
+         :dbs.ds_mult:dbs.ind_ds_mult, :dbs.ic_mult:dbs.ind_ic_mult, :dbs.grid_is_full:dbs.ind_grid_is_full,
+         :dbs.paif_rate:dbs.ind_paif_rate, :dbs.paif_area:dbs.ind_paif_area, :dbs.rain_time_thresh:dbs.ind_rain_time_thresh,
+         :dbs.num_zones:dbs.ind_num_zones, :dbs.max_precip_rate:dbs.ind_max_precip_rate, :dbs.restart_time:dbs.ind_restart_time,
+         :dbs.max_interp_time:dbs.ind_max_interp_time, :dbs.max_hourly_acc:dbs.ind_max_hourly_acc, :dbs.time_bias:dbs.ind_time_bias,
+         :dbs.num_grpairs:dbs.ind_num_grpairs, :dbs.reset_bias:dbs.ind_reset_bias, :dbs.longst_lag:dbs.ind_longst_lag);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertDSAAdapt() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateDSAAdapt(const DSAAdapt *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DSAAdapt_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.radid, structPtr->radid);
+
+    dbs.obstime = structPtr->obstime;
+
+    dbs.num_of_adap = structPtr->num_of_adap;
+    dbs.ind_num_of_adap = getIndicator(SHORT, (void *)&structPtr->num_of_adap);
+
+    dbs.default_ml_depth = structPtr->default_ml_depth;
+    dbs.ind_default_ml_depth = getIndicator(FLOAT, (void *)&structPtr->default_ml_depth);
+
+    strcpy(dbs.ml_overide_flag, structPtr->ml_overide_flag);
+    dbs.ind_ml_overide_flag = getIndicator(CHAR, (void *)structPtr->ml_overide_flag);
+
+    dbs.kdp_mult = structPtr->kdp_mult;
+    dbs.ind_kdp_mult = getIndicator(FLOAT, (void *)&structPtr->kdp_mult);
+
+    dbs.kdp_power = structPtr->kdp_power;
+    dbs.ind_kdp_power = getIndicator(FLOAT, (void *)&structPtr->kdp_power);
+
+    dbs.z_r_mult = structPtr->z_r_mult;
+    dbs.ind_z_r_mult = getIndicator(FLOAT, (void *)&structPtr->z_r_mult);
+
+    dbs.z_r_power = structPtr->z_r_power;
+    dbs.ind_z_r_power = getIndicator(FLOAT, (void *)&structPtr->z_r_power);
+
+    dbs.zdr_z_mult = structPtr->zdr_z_mult;
+    dbs.ind_zdr_z_mult = getIndicator(FLOAT, (void *)&structPtr->zdr_z_mult);
+
+    dbs.zdr_z_power = structPtr->zdr_z_power;
+    dbs.ind_zdr_z_power = getIndicator(FLOAT, (void *)&structPtr->zdr_z_power);
+
+    dbs.zdr_zdr_power = structPtr->zdr_zdr_power;
+    dbs.ind_zdr_zdr_power = getIndicator(FLOAT, (void *)&structPtr->zdr_zdr_power);
+
+    dbs.min_corr_precip = structPtr->min_corr_precip;
+    dbs.ind_min_corr_precip = getIndicator(FLOAT, (void *)&structPtr->min_corr_precip);
+
+    dbs.min_corr_kdp = structPtr->min_corr_kdp;
+    dbs.ind_min_corr_kdp = getIndicator(FLOAT, (void *)&structPtr->min_corr_kdp);
+
+    dbs.refl_max = structPtr->refl_max;
+    dbs.ind_refl_max = getIndicator(FLOAT, (void *)&structPtr->refl_max);
+
+    dbs.kdp_max_beam_blk = structPtr->kdp_max_beam_blk;
+    dbs.ind_kdp_max_beam_blk = getIndicator(FLOAT, (void *)&structPtr->kdp_max_beam_blk);
+
+    dbs.max_usability_blk = structPtr->max_usability_blk;
+    dbs.ind_max_usability_blk = getIndicator(FLOAT, (void *)&structPtr->max_usability_blk);
+
+    dbs.kdp_min_usage_rate = structPtr->kdp_min_usage_rate;
+    dbs.ind_kdp_min_usage_rate = getIndicator(FLOAT, (void *)&structPtr->kdp_min_usage_rate);
+
+    dbs.ws_mult = structPtr->ws_mult;
+    dbs.ind_ws_mult = getIndicator(FLOAT, (void *)&structPtr->ws_mult);
+
+    dbs.gr_mult = structPtr->gr_mult;
+    dbs.ind_gr_mult = getIndicator(FLOAT, (void *)&structPtr->gr_mult);
+
+    dbs.rh_mult = structPtr->rh_mult;
+    dbs.ind_rh_mult = getIndicator(FLOAT, (void *)&structPtr->rh_mult);
+
+    dbs.ds_mult = structPtr->ds_mult;
+    dbs.ind_ds_mult = getIndicator(FLOAT, (void *)&structPtr->ds_mult);
+
+    dbs.ic_mult = structPtr->ic_mult;
+    dbs.ind_ic_mult = getIndicator(FLOAT, (void *)&structPtr->ic_mult);
+
+    dbs.grid_is_full = structPtr->grid_is_full;
+    dbs.ind_grid_is_full = getIndicator(FLOAT, (void *)&structPtr->grid_is_full);
+
+    dbs.paif_rate = structPtr->paif_rate;
+    dbs.ind_paif_rate = getIndicator(FLOAT, (void *)&structPtr->paif_rate);
+
+    dbs.paif_area = structPtr->paif_area;
+    dbs.ind_paif_area = getIndicator(FLOAT, (void *)&structPtr->paif_area);
+
+    dbs.rain_time_thresh = structPtr->rain_time_thresh;
+    dbs.ind_rain_time_thresh = getIndicator(FLOAT, (void *)&structPtr->rain_time_thresh);
+
+    dbs.num_zones = structPtr->num_zones;
+    dbs.ind_num_zones = getIndicator(FLOAT, (void *)&structPtr->num_zones);
+
+    dbs.max_precip_rate = structPtr->max_precip_rate;
+    dbs.ind_max_precip_rate = getIndicator(FLOAT, (void *)&structPtr->max_precip_rate);
+
+    dbs.restart_time = structPtr->restart_time;
+    dbs.ind_restart_time = getIndicator(FLOAT, (void *)&structPtr->restart_time);
+
+    dbs.max_interp_time = structPtr->max_interp_time;
+    dbs.ind_max_interp_time = getIndicator(FLOAT, (void *)&structPtr->max_interp_time);
+
+    dbs.max_hourly_acc = structPtr->max_hourly_acc;
+    dbs.ind_max_hourly_acc = getIndicator(FLOAT, (void *)&structPtr->max_hourly_acc);
+
+    dbs.time_bias = structPtr->time_bias;
+    dbs.ind_time_bias = getIndicator(FLOAT, (void *)&structPtr->time_bias);
+
+    dbs.num_grpairs = structPtr->num_grpairs;
+    dbs.ind_num_grpairs = getIndicator(FLOAT, (void *)&structPtr->num_grpairs);
+
+    dbs.reset_bias = structPtr->reset_bias;
+    dbs.ind_reset_bias = getIndicator(FLOAT, (void *)&structPtr->reset_bias);
+
+    dbs.longst_lag = structPtr->longst_lag;
+    dbs.ind_longst_lag = getIndicator(FLOAT, (void *)&structPtr->longst_lag);
+
+
+    sprintf(queryBuffer, " UPDATE DSAAdapt SET " );
+    strcat(queryBuffer, "radid = ? , obstime = ? , num_of_adap = ? , default_ml_depth = ? , ml_overide_flag = ? ,     ");
+    strcat(queryBuffer, "kdp_mult = ? , kdp_power = ? , z_r_mult = ? , z_r_power = ? , zdr_z_mult = ? ,     ");
+    strcat(queryBuffer, "zdr_z_power = ? , zdr_zdr_power = ? , min_corr_precip = ? , min_corr_kdp = ? , refl_max = ? ,     ");
+    strcat(queryBuffer, "kdp_max_beam_blk = ? , max_usability_blk = ? , kdp_min_usage_rate = ? , ws_mult = ? , gr_mult = ? ,     ");
+    strcat(queryBuffer, "rh_mult = ? , ds_mult = ? , ic_mult = ? , grid_is_full = ? , paif_rate = ? ,     ");
+    strcat(queryBuffer, "paif_area = ? , rain_time_thresh = ? , num_zones = ? , max_precip_rate = ? , restart_time = ? ,     ");
+    strcat(queryBuffer, "max_interp_time = ? , max_hourly_acc = ? , time_bias = ? , num_grpairs = ? , reset_bias = ? ,     ");
+    strcat(queryBuffer, "longst_lag = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateDSAAdapt() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.radid, :dbs.obstime, :dbs.num_of_adap:dbs.ind_num_of_adap, :dbs.default_ml_depth:dbs.ind_default_ml_depth, :dbs.ml_overide_flag:dbs.ind_ml_overide_flag,
+     :dbs.kdp_mult:dbs.ind_kdp_mult, :dbs.kdp_power:dbs.ind_kdp_power, :dbs.z_r_mult:dbs.ind_z_r_mult, :dbs.z_r_power:dbs.ind_z_r_power, :dbs.zdr_z_mult:dbs.ind_zdr_z_mult,
+     :dbs.zdr_z_power:dbs.ind_zdr_z_power, :dbs.zdr_zdr_power:dbs.ind_zdr_zdr_power, :dbs.min_corr_precip:dbs.ind_min_corr_precip, :dbs.min_corr_kdp:dbs.ind_min_corr_kdp, :dbs.refl_max:dbs.ind_refl_max,
+     :dbs.kdp_max_beam_blk:dbs.ind_kdp_max_beam_blk, :dbs.max_usability_blk:dbs.ind_max_usability_blk, :dbs.kdp_min_usage_rate:dbs.ind_kdp_min_usage_rate, :dbs.ws_mult:dbs.ind_ws_mult, :dbs.gr_mult:dbs.ind_gr_mult,
+     :dbs.rh_mult:dbs.ind_rh_mult, :dbs.ds_mult:dbs.ind_ds_mult, :dbs.ic_mult:dbs.ind_ic_mult, :dbs.grid_is_full:dbs.ind_grid_is_full, :dbs.paif_rate:dbs.ind_paif_rate,
+     :dbs.paif_area:dbs.ind_paif_area, :dbs.rain_time_thresh:dbs.ind_rain_time_thresh, :dbs.num_zones:dbs.ind_num_zones, :dbs.max_precip_rate:dbs.ind_max_precip_rate, :dbs.restart_time:dbs.ind_restart_time,
+     :dbs.max_interp_time:dbs.ind_max_interp_time, :dbs.max_hourly_acc:dbs.ind_max_hourly_acc, :dbs.time_bias:dbs.ind_time_bias, :dbs.num_grpairs:dbs.ind_num_grpairs, :dbs.reset_bias:dbs.ind_reset_bias,
+     :dbs.longst_lag:dbs.ind_longst_lag;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateDSAAdapt() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteDSAAdapt(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM DSAAdapt ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteDSAAdapt() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateDSAAdaptByRecord (const DSAAdapt * newStructPtr, const DSAAdapt * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetDSAAdaptPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateDSAAdapt(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateDSAAdapt(const DSAAdapt * structPtr)
+{
+    UpdateDSAAdaptByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertDSAAdapt(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueDSAAdapt(const DSAAdapt * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (DSAAdaptExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertDSAAdapt(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteDSAAdaptByRecord(const DSAAdapt * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetDSAAdaptPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteDSAAdapt(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool DSAAdaptExists(const DSAAdapt * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetDSAAdaptPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectDSAAdaptCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetDSAAdaptPrimaryKeyWhereString (const DSAAdapt * structPtr, char returnWhereString[] )
+{
+    char time_buffer0[40];
+    sprintf(returnWhereString, "WHERE radid = '%s'  AND obstime = '%s' ",
+            structPtr->radid, dtimet_to_ansi(structPtr->obstime, time_buffer0));
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeDSAAdapt( DSAAdapt * structPtr)
+{
+    DSAAdapt* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( DSAAdapt * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetDSAAdaptDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetDSAAdaptErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

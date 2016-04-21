@@ -1,0 +1,21 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+    <bean id="sfcobsPluginName" class="java.lang.String">
+        <constructor-arg type="java.lang.String" value="sfcobs" />
+    </bean>
+
+	<bean id="sfcobsProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
+		<property name="pluginName" ref="sfcobsPluginName" />
+		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.sfcobs" />
+		<property name="dao" value="com.raytheon.edex.plugin.sfcobs.SfcObsDao" />
+		<property name="record" value="com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon" />
+	</bean>
+	
+	<bean id="sfcObsRegistered" factory-bean="pluginRegistry" factory-method="register">
+		<constructor-arg ref="sfcobsPluginName" />
+		<constructor-arg ref="sfcobsProperties"/>
+	</bean>
+
+</beans>

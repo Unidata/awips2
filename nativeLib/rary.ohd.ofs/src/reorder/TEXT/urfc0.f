@@ -1,0 +1,196 @@
+C MODULE URFC0
+C-----------------------------------------------------------------------
+C
+C  ROUTINE TO INITIALIZE FORECAST COMPONENT COMMON BLOCKS FOR REORDER
+C  PROGRAM.
+C
+      SUBROUTINE URFC0 (IER)
+C
+      CHARACTER*8 RTNNAM,OLDNAM
+C
+C  ROUTINE ORIGINALLY WRITTEN BY - ED JOHNSON - HRL - 12/1979
+C
+      INCLUDE 'common/ionum'
+      INCLUDE 'common/errdat'
+      INCLUDE 'common/fdbug'
+      INCLUDE 'common/fccgd'
+      INCLUDE 'common/fccgd1'
+      INCLUDE 'common/fccgd2'
+      INCLUDE 'common/fcfgs'
+      INCLUDE 'common/fcfgs2'
+      INCLUDE 'common/fcsegn'
+      INCLUDE 'common/fcsegp'
+      INCLUDE 'common/fcsgp2'
+      INCLUDE 'common/fsglst'
+      INCLUDE 'common/fcunit'
+      INCLUDE 'common/fctime'
+      INCLUDE 'common/frcptr'
+      INCLUDE 'common/frcpt2'
+      INCLUDE 'common/fratng'
+      INCLUDE 'common/fratn2'
+      INCLUDE 'common/fginfo'
+      INCLUDE 'common/fginf2'
+      INCLUDE 'urcommon/urunts'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/reorder/RCS/urfc0.f,v $
+     . $',                                                             '
+     .$Id: urfc0.f,v 1.3 2002/02/11 21:13:59 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      RTNNAM='URFC0'
+C
+      IF (ITRACE.GE.1) WRITE (IODBUG,*) 'ENTER ',RTNNAM
+C
+      IOPNUM=0
+      CALL FSTWHR (RTNNAM,IOPNUM,OLDNAM,IOLDOP)
+C
+      IER=0
+C
+C  FCCGD: (RECORD ONE OF OLD FILE FCCOGDEF)
+      JREC=1
+      CALL UREADT (KFCGD,JREC,NSLOTS,ISTAT)
+C
+C  FCCGD1: (GET FIRST CARRYOVER GROUP ON OLD SET OF FILES)
+      JREC=2
+      CALL UREADT (KFCGD,JREC,CGIDC,ISTAT)
+C
+C  FCCGD2: (RECORD ONE OF NEW FILE FCCOGDEF)
+      JREC=1
+      CALL UREADT (LFCGD,JREC,NSLOT2,ISTAT)
+C
+C  FCFGS: (NUMBER OF FORECAST GROUPS ON OLD FILE FCFGSTAT)
+      JREC=1
+      CALL UREADT (KFFGST,JREC,FGID,ISTAT)
+      NFGREC=IDUMYG
+C
+C  FCFGS2: (NUMBER OF FORECAST GROUPS ON NEW FILE FCFGSTAT)
+      JREC=1
+      CALL UREADT (LFFGST,JREC,FGID2,ISTAT)
+      NFGRC2=IDUMG2
+      NFGREC=IDUMYG
+C
+C  FGINFO:
+C  GET THE MAXIMUM NUMBER OF FORECAST GROUPS FROM RECORD 2 WORD 20
+C  OF OLD FCFGSTAT FILE
+      JREC=2
+      CALL UREADT (KFFGST,JREC,FGID,ISTAT)
+      MAXFG=IDUMYG
+C
+C  READ THRU OLD FCFGSTAT FILE AND COMPUTE THE LAST USED RECORD
+C  IN THE OLD FCFGLIST FILE
+      LUFGL=0
+      IF (NFGREC.GT.0) THEN
+         DO 20 JREC=1,NFGREC
+            CALL UREADT (KFFGST,JREC,FGID,ISTAT)
+            LUREC=IREC+NSEG-1
+            IF (LUREC.GT.LUFGL) LUFGL=LUREC
+20          CONTINUE
+         ENDIF
+C
+C  FGINFO:
+C  GET THE MAXIMUM NUMBER OF FORECAST GROUPS FROM RECORD 2 WORD 20 
+C  OF NEW FCFGSTAT FILE
+      JREC=2
+      CALL UREADT (LFFGST,JREC,FGID2,ISTAT)
+      MAXFG2=IDUMG2
+C
+C  READ THRU NEW FCFGSTAT FILE AND COMPUTE THE LAST USED RECORD
+C  IN THE NEW FCFGLIST FILE
+      LUFGL2=0
+      IF (NFGRC2.GT.0) THEN
+         DO 40 JREC=1,NFGRC2
+            CALL UREADT (LFFGST,JREC,FGID2,ISTAT)
+            LUREC=IREC+NSEG2-1
+            IF (LUREC.GT.LUFGL2) LUFGL2=LUREC
+40          CONTINUE
+         ENDIF
+C
+C  FCSEGP:
+      JREC=1
+      CALL UREADT (KFSGPT,JREC,NS,ISTAT)
+      JREC=2
+      CALL UREADT (KFSGPT,JREC,NRP,ISTAT)
+C
+C  FSGLST:
+      NLIST=NS
+      IF (NLIST.GT.MLIST) THEN
+         WRITE (IPR,45) 'SEGMENTS',NLIST,'FSGLST',MLIST
+45    FORMAT ('0*** ERROR - NUMBER OF ',A,' TO BE READ (',I4,
+     *   ') EXCEEDS THE MAXIMUM NUMBER IN COMMON BLOCK ',A,' (',I4,').')
+         CALL SUERRS (IPR,2,-1)
+         NLIST=MLIST
+         ENDIF
+      DO 60 I=1,NLIST
+         JREC=I+2
+         CALL UREADT (KFSGPT,JREC,IDZ(1,I),ISTAT)
+60       CONTINUE
+C
+C  FCSGP2: (FIRST RECORD OF NEW FILE FCSEGPTR)
+      JREC=1
+      CALL UREADT (LFSGPT,JREC,NS2,ISTAT)
+      JREC=2
+      CALL UREADT (LFSGPT,JREC,NRP2,ISTAT)
+C
+C  FRCPTR AND FRCPT2: (FIRST RECORD OF FILES FCRCPTR AND FCRCPT2)
+      JREC=1
+      MRCZ=MRC
+      CALL UREADT (KFRCPT,JREC,NRC,ISTAT)
+      MRC=MRCZ
+      MRCZ=MRC2
+      CALL UREADT (LFRCPT,JREC,NRC2,ISTAT)
+      MRC2=MRCZ
+      NKRC=NRC
+      IF (NKRC.GT.MRC) THEN
+         WRITE (IPR,45) 'RATING CURVES',NRC,'FRCPTR',MRC
+         CALL SUERRS (IPR,2,-1)
+         NKRC=MRC
+         ENDIF
+      IF (NKRC.GT.MRC2) THEN
+         WRITE (IPR,45) 'RATING CURVES',NRC,'FRCPT2',MRC2
+         CALL SUWRNS (IPR,2,-1)
+         NKRC=MRC2
+         ENDIF
+      DO 70 I=1,NKRC
+         JREC=I+1
+         CALL UREADT (KFRCPT,JREC,RCZZ(1,I),ISTAT)
+70       CONTINUE
+C
+C  FCTIME: (FIDFLT SETS VARIABLES IN FCTIME AND OTHER COMMON BLOCKS)
+      CALL FSETNW
+      CALL FIDFLT
+C
+C  INITIALIZATION COMPLE - CHECK IF NEW FILES ARE EMPTY
+      IF (NCG2.EQ.0.AND.
+     *    NFGRC2.EQ.0.AND.
+     *    NS2.EQ.0.AND.
+     *    NRSTS2.EQ.0.AND.
+     *    NWPS2.EQ.0.AND.
+     *    NRP2.EQ.0.AND.
+     *    NRC2.EQ.0) GO TO 100
+      WRITE (IPR,80)
+80    FORMAT ('0*** ERROR - IN URFC0 - NEW FILES ARE NOT EMPTY. ',
+     *      'NEW FILES HAVE:')
+      WRITE (IPR,90) NCG2,NFGRC2,NS2,NRSTS2,NWPS2,NRP2,NRC2
+90    FORMAT (
+     *   ' ',I6,' CARRYOVER GROUPS' /
+     *   ' ',I6,' FORECAST GROUPS (INCLUDING OBSOLETE DEFINITIONS)' /
+     *   ' ',I6,' SEGMENTS (INCLUDING OBSOLETE DEFINITIONS)' /
+     *   ' ',I6,' RECORDS IN USE ON SEGMENT STATUS FILE' /
+     *   ' ',I6,' WORDS IN USE ON CARRYOVER FILE (PER SLOT)' /
+     *   ' ',I6,' WORDS IN USE ON PARAMETER FILE' /
+     *   ' ',I6,' RATING CURVES')
+      CALL SUERRS (IPR,2,-1)
+      IER=1
+C
+100   CALL FSTWHR (OLDNAM,IOLDOP,OLDNAM,IOLDOP)
+C
+      IF (ITRACE.GE.1) WRITE (IODBUG,*) 'EXIT ',RTNNAM 
+C
+      RETURN
+C
+      END

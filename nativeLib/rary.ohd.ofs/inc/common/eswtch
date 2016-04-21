@@ -1,0 +1,4 @@
+C                                           *--> FROM COMMON.ESWTCH
+      character*4 PRSF
+      COMMON/ESWTCH/JHSS,JASS,JBPS,JVAR(5,10),JDSPS(10,5),PRSF
+C

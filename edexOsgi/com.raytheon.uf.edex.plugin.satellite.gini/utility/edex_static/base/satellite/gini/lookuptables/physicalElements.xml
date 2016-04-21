@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<numericLookupTable id="physicalElements">
+    <entry index="1" value="Imager Visible" />
+    <entry index="2" value="Imager 3.9 micron IR" />
+    <entry index="3" value="Imager 6.7-6.5 micron IR (WV)" />
+    <entry index="4" value="Imager 11 micron IR" />
+    <entry index="5" value="Imager 12 micron IR" />
+    <entry index="6" value="Imager 13 micron (IR)" />
+    <entry index="7" value="Imager 1.3 micron (IR)" />
+    <entry index="8" value="Reserved for future use" />
+    <entry index="9" value="Reserved for future use" />
+    <entry index="10" value="Reserved for future use" />
+    <entry index="11" value="Reserved for future use" />
+    <entry index="12" value="Reserved for future use" />
+    <entry index="13" value="Imager Based Derived Lifted Index (LI)" />
+    <entry index="14" value="Imager Based Derived Precipitable Water (PW)" />
+    <entry index="15" value="Imager Based Derived Surface Skin Temp (SFC Skin)" />
+    <entry index="16" value="Sounder Based Derived Lifted Index (LI)" />
+    <entry index="17" value="Sounder Based Derived Precipitable Water (PW)" />
+    <entry index="18" value="Sounder Based Derived Surface Skin Temp (SFC Skin)" />
+    <entry index="19" value="Derived Convective Available Potential Energy (CAPE)" />
+    <entry index="20" value="Derived land-sea temp" />
+    <entry index="21" value="Derived Wind Index(WINDEX)" />
+    <entry index="22" value="Derived Dry Microburst Potential Index (DMPI)" />
+    <entry index="23" value="Derived Microburst Day Potential Index (MDPI)" />
+    <entry index="24" value="Derived Convective Inhibition" />
+    <entry index="25" value="Derived Volcano Imagery" />
+    <entry index="26" value="Scatterometer Data" />
+    <entry index="27" value="Gridded Cloud Top Pressure or Height" />
+    <entry index="28" value="Gridded Cloud Amount" />
+    <entry index="29" value="Rain fall rate" />
+    <entry index="30" value="Surface wind speeds over oceans and Great Lakes" />
+    <entry index="31" value="Surface wetness" />
+    <entry index="32" value="Ice concentrations" />
+    <entry index="33" value="Ice type" />
+    <entry index="34" value="Ice edge" />
+    <entry index="35" value="Cloud water content" />
+    <entry index="36" value="Surface type" />
+    <entry index="37" value="Snow indicator" />
+    <entry index="38" value="Snow-water content" />
+    <entry index="39" value="Derived volcano imagery" />
+    <entry index="40" value="Low cloud base imagery" />
+    <entry index="41" value="Sounder 14.71 micron imagery" />
+    <entry index="42" value="Sounder 14.37 micron imagery" />
+    <entry index="43" value="Sounder 14.06 micron imagery" />
+    <entry index="44" value="Sounder 13.64 micron imagery" />
+    <entry index="45" value="Sounder 13.37 micron imagery" />
+    <entry index="46" value="Sounder 12.66 micron imagery" />
+    <entry index="47" value="Sounder 12.02 micron imagery" />
+    <entry index="48" value="Sounder 11.03 micron imagery" />
+    <entry index="49" value="Sounder 9.71 micron imagery" />
+    <entry index="50" value="Sounder 7.43 micron imagery" />
+    <entry index="51" value="Sounder 7.02 micron imagery" />
+    <entry index="52" value="Sounder 6.51 micron imagery" />
+    <entry index="53" value="Sounder 4.57 micron imagery" />
+    <entry index="54" value="Sounder 4.52 micron imagery" />
+    <entry index="55" value="Sounder 4.45 micron imagery" />
+    <entry index="56" value="Sounder 4.13 micron imagery" />
+    <entry index="57" value="Sounder 3.98 micron imagery" />
+    <entry index="58" value="Sounder 3.74 micron imagery" />
+    <entry index="59" value="Sounder Visible imagery" />
+    <entry index="60" value="Percent of Normal TPW" />
+    <entry index="61" value="Polar Vis" />
+    <entry index="62" value="Polar 3.9u" />
+    <entry index="63" value="Polar 3.7u" />
+    <entry index="64" value="Polar IR" />
+    <entry index="118" value="OHA" />
+    <entry index="119" value="DSP" />
+    <entry index="120" value="DTA" />
+    <entry index="121" value="DAA" />
+    <entry index="122" value="N0C" />
+    <entry index="123" value="N0X" />
+    <entry index="124" value="N0Q" />
+    <entry index="125" value="HHC" />
+    <entry index="126" value="EET" />
+    <entry index="127" value="N0R" />
+    <entry index="128" value="DHR" />
+    <entry index="129" value="DVL" />
+    <entry index="130" value="N1P" />
+    <entry index="131" value="NTP" />
+</numericLookupTable>

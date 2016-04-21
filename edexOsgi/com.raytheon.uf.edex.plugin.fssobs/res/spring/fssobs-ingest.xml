@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="fssObsPointData" class="com.raytheon.uf.edex.plugin.fssobs.FSSObsDataTransform"/>
+
+    <bean id="fssObsGenerator" class="com.raytheon.uf.edex.plugin.fssobs.FSSObsGenerator"/>
+
+    <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
+        <constructor-arg ref="fssobs-camel" />
+        <constructor-arg ref="fssObsGenerator" />
+    </bean>
+
+    <bean factory-bean="cpgSrvDispatcher" factory-method="register">
+		<constructor-arg ref="fssObsGenerator"/>
+	</bean>
+	
+	<camelContext id="fssobs-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
+        <route id="FSSObsGenerate">
+        	<from uri="jms-durable:queue:fssobsGenerate"/>
+            <doTry>
+	          	<bean ref="serializationUtil" method="transformFromThrift" />
+	        	<bean ref="fssObsGenerator" method="generate" />
+	        	<doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:fssobs?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+    </camelContext>
+</beans>

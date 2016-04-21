@@ -1,0 +1,13 @@
+bin/
+.metadata/
+ldm/Debug
+test-bin/
+testbin/
+testBin/
+bin-test/
+*.class
+*.pyo
+*.pyc
+*.o
+*.orig
+*.log

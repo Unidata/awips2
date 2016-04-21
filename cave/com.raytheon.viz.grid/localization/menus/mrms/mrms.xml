@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+     Name - Organization - Date - Info
+     Darrel Kingfield - NOAA/NSSL/CIMMS - 09-02-2014 - Initial File Creation
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<!-- Set the initial top level menu -->
+	<contribute xsi:type="titleItem" titleText="---Multiple-Radar/Multiple-Sensor---" id="MRMS-SVR"/>
+	<contribute xsi:type="subinclude" fileName="menus/mrms/mrmsProducts.xml"/>
+</menuTemplate>

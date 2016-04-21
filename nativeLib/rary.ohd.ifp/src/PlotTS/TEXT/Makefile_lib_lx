@@ -1,0 +1,53 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ifp-PlotTS library file
+#
+#  cmt: File made on Thu Oct 26 14:49:03 EDT 2006 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob81/ohd/ifp/lib
+
+ARFLAGS  = rv
+CC       = /usr/bin/gcc
+COPTIM   =
+CFLAGS   = $(COPTIM) -fno-strict-aliasing -DUNIX -DGRTYPE_PS -DGRTYPE_XWIN -DLINX -DX1D -DTIMER -D__USE_GNU
+
+INSERTS      = -I/fs/hseb/ob81/ohd/ifp/inc  \
+               -I/fs/hseb/ob81/ohd/ofs/inc  \
+               -I/fs/hseb/ob81/ohd/util/inc  \
+               -I/fs/hseb/ob81/ohd/calb/inc
+
+INSERTS_CC   = -I/usr/X11R6/include  \
+               -I/usr/include/pgsql  \
+               -I/usr/include/pgsql/informix/esql  \
+               -I/usr/lib/gcc/i386-redhat-linux/3.4.6/include  \
+               -I/usr/local/netcdf/include  \
+               -I/usr/local/jdk-1.5.0_04/include  \
+               -I/usr/local/jdk-1.5.0_04/include/linux  \
+               -I/usr/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .c .h .o .a
+
+.c.a:
+	@echo "-------------------------------- $<"
+	@$(CC) $(CFLAGS) $(INSERTS_CC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@echo "--------------------------------"
+
+$(LIB)/libPlotTS_t.a:  \
+     $(LIB)/libPlotTS_t.a(cex18.o)  \
+     $(LIB)/libPlotTS_t.a(get_flood_flow.o)  \
+     $(LIB)/libPlotTS_t.a(InitTSChngMod.o)  \
+     $(LIB)/libPlotTS_t.a(SaveModGui.o)  \
+     $(LIB)/libPlotTS_t.a(SaveTSMod.o)  \
+     $(LIB)/libPlotTS_t.a(show_Plots_TS.o)  \
+     $(LIB)/libPlotTS_t.a(show_Ymaxmin.o)  \
+     $(LIB)/libPlotTS_t.a(TSCallbacks.o)  \
+     $(LIB)/libPlotTS_t.a(TSEdit.o)  \
+     $(LIB)/libPlotTS_t.a(TS_event_loop.o)  \
+     $(LIB)/libPlotTS_t.a(TSUtils.o)  \
+     $(LIB)/libPlotTS_t.a(YscalesInp.o)
+

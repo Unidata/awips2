@@ -1,0 +1,292 @@
+C$PRAGMA C (RMRESJFS5FILES)
+C$PRAGMA C (MVRESJFILESTOPERM)
+C MODULE FUPDCO
+C-----------------------------------------------------------------------
+C
+      SUBROUTINE FUPDCO (INC,C,RESETC,NOLDC,OLDC,INP,P,NOLDP,OLDP,
+     *  IADD,NPLACE)
+C
+C  THIS ROUTINE UPDATES CARRYOVER SLOTS WHEN A SEGMENT IS:
+C    ADDED (IADD=1)
+C    REDEFINED (IADD=0)
+C    REDEFINED IN PLACE (IADD=0 AND NPLACE=1)
+C
+C  NOTE THAT 'SKELETON' CARRYOVER RECORDS EXIST ON FILE IN ALL CASES. 
+C  THEY WERE WRITTEN BY ROUTINE FPUTSG AND ALLOW THIS ROUTINE TO USE THE 
+C  ROUTINE FPUTCO TO WRITE CARRYOVER TO FILE.
+C
+C  ROUTINE ORIGINALLY WRITTEN BY - ED JOHNSON - HRL - 11/1979
+C
+      CHARACTER*4 CNAME/'C'/,PNAME/'P'/
+      CHARACTER*8 OLDOPN
+      CHARACTER*12 STRING
+C
+      DIMENSION C(INC),RESETC(INC),OLDC(NOLDC),P(INP),OLDP(NOLDP)
+      DIMENSION INTBU1(5)
+C
+      INCLUDE 'common/ionum'
+      INCLUDE 'common/fdbug'
+      INCLUDE 'common/where'
+      INCLUDE 'common/fd'
+      INCLUDE 'common/fccgd'
+      INCLUDE 'common/fcsegc'
+C  COMMON BLOCK /FCSEGN/ HOLDS OLD SEGMENT DEFINITION (IF ANY)
+      INCLUDE 'common/fcsegn'
+C  COMMON BLOCK /FCSGNN/ HOLDS NEW SEGMENT DEFINITION
+      INCLUDE 'common/fcsgnn'
+      INCLUDE 'common/fctime'
+      INCLUDE 'common/fctim2'
+      INCLUDE 'common/fcunit'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcinit_top/RCS/fupdco.f,v $
+     . $',                                                             '
+     .$Id: fupdco.f,v 1.3 2002/02/11 20:22:45 dws Exp $
+     . $' /
+C    ===================================================================
+C
+      DATA IBLANK/4H    /
+C
+C     
+      IOPNUM=0
+      CALL FSTWHR ('FUPDCO  ',IOPNUM,OLDOPN,IOLDOP)
+C
+      IF (ITRACE.GE.1) WRITE (IODBUG,*) 'ENTER FUPDCO'
+C
+      IBUG=IFBUG('SEGD')
+      IBUGA=0
+C
+      IF (IBUG.EQ.1) THEN
+         WRITE (IODBUG,*)
+     *     ' INC=',INC,
+     *     ' NOLDC=',NOLDC,
+     *     ' INP=',INP,
+     *     ' NOLDP=',NOLDP,
+     *     ' IADD=',IADD,
+     *     ' NPLACE=',NPLACE
+         IF (IBUGA.EQ.1) THEN
+            WRITE (IODBUG,*) 'DUMP OF P AND RESETC ARRAYS:'
+            CALL FDMPA (PNAME,P,INP)
+            CALL FDMPA (CNAME,RESETC,INC)
+            IF (IADD.EQ.0) THEN
+               WRITE (IODBUG,*) 'DUMP OF OLDP AND OLDC ARRAYS:'
+               CALL FDMPA (PNAME,OLDP,NOLDP)
+               CALL FDMPA (CNAME,OLDC,NOLDC)
+               ENDIF
+            ENDIF
+         ENDIF
+C
+      IDC(1)=IBLANK
+      IDC(2)=IBLANK
+C
+C  SET DATES OF CARRYOVER
+      IF (IADD.EQ.0) GO TO 90
+C     SET ALL DATES SET TO ZERO
+         DO 70 I=1,NSLOTS
+            ICDAYC(I)=0
+            ICHRC(I)=0
+70          CONTINUE
+         DO 80 I=1,INC
+            C(I)=RESETC(I)
+80          CONTINUE
+         GO TO 100
+C  GET DATES OF CARRYOVER
+90    IF (NPLACE.NE.1) THEN
+         IOBSO=1
+         CALL FCDATE (IDSEGN,IOBSO)
+         ENDIF
+      IF (NPLACE.EQ.1) THEN
+         IOBSO=0
+         CALL FCDATE (IDSEGN,IOBSO)
+         ENDIF
+      IF (IADD.EQ.0.AND.NPLACE.EQ.1) GO TO 120
+C
+C  INITIALIZE RECORDS WITH ONLY THE SEGMENT ID, THE LENGTH OF THE 
+C  CARRYOVER ARRAY AND JULIAN DAY
+100   INTBU1(1)=JDSEGN(1)
+      INTBU1(2)=JDSEGN(2)
+      INTBU1(3)=0
+      INTBU1(4)=0
+      INTBU1(5)=JNC
+      NROFF=(JWOCRY+NWR-1)/NWR
+      IW11=MOD(JWOCRY,NWR)
+      IF (IW11.EQ.0)IW11=NWR
+      IW21=IW11+4
+      NEED2=0
+      IF (IW21.LE.NWR) GO TO 120
+         NEED2=1
+         IW21=NWR
+         NBUF2=IW21-IW11+2
+         IW12=1
+         IW22=5-NBUF2+1
+C
+120   IF (IBUG.EQ.1) THEN
+         WRITE (IODBUG,130) (I,ICDAYC(I),ICHRC(I),I=1,NSLOTS)
+         ENDIF
+C     
+      WRITE (IPR,140) JDSEGN
+C
+C  PROCESS EACH CARRYOVER SLOT
+      DO 400 I=1,NSLOTS
+         CALL MDYH2 (ICDAYC(I),ICHRC(I),MM,MDAY,MY,MH,NDUMZ,NDUMDS,
+     *      INPTZC)
+         ICOX=1
+         NEST=NERRS
+         IF (IADD.EQ.1) GO TO 160
+C        REDEFINING SEGMENT - FIRST RESET C ARRAY
+            DO 150 J=1,INC
+               C(J)=RESETC(J)
+150            CONTINUE
+160      IF (IADD.EQ.0.AND.NPLACE.EQ.1) GO TO 220
+C        ADDING OR UPDATING NOT IN NPLACE - WRITE SKELETON RECORDS
+C        WITH DATES (IF DATED) TO CARRYOVER FILE
+            INTBU1(3)=ICDAYC(I)
+            INTBU1(4)=ICHRC(I)
+            J=(I-1)*NRSLOT+NROFF
+            WRITE (IPR,170) I
+            CALL FCWTCF (J,IW11,IW21,INTBU1,1)
+            IF (NEED2.EQ.0) GO TO 180
+               J=J+1
+               CALL FCWTCF (J,IW12,IW22,INTBU1(NBUF2),1)
+C        WRITE DEFAULT CARRYOVER
+180         WRITE (IPR,190) I
+            WRITE (IPR,200) I,MM,MDAY,MY,MH,INPTZC
+            CALL FPUTCO (JDSEGN,ICDAYC(I),ICHRC(I),NOW,I,JWOCRY,C,INC,1)
+            WRITE (IPR,210) I
+            IF (IADD.EQ.1) GO TO 390
+C     REDEFINING SEGMENT - RETRIEVE AND TRANSFER OLD CARRYOVER IF 
+C     OLD DEFINITION HAD CARRYOVER
+220      IF (NCOPS.EQ.0) GO TO 360
+C     IF CARRYOVER SLOT FOR OLD DEFINITION IS INCOMPLETE IT CANNOT 
+C     BE RETRIEVED
+         IF (INCSEG(I).EQ.1) GO TO 280
+         IF (NPLACE.EQ.1) GO TO 240
+             WRITE (IPR,230) I,IDSEGN
+              CALL WARN
+              GO TO 340
+240        WRITE (IPR,250) I,IDSEGN,MM,MDAY,MY,MH,INPTZC
+           CALL WARN
+C     HEADER INFORMATION TO BE WRITTEN FOR REDEFINITION IN PLACE
+C     BECAUSE THE SLOT IS INCOMPLETE.
+         INTBU1(1)=IDSEGN(1)
+         INTBU1(2)=IDSEGN(2)
+         INTBU1(3)=ICDAYC(I)
+         INTBU1(4)=ICHRC(I)
+         INTBU1(5)=INC
+         NROFF=(IWOCRY+NWR-1)/NWR
+         IW11=MOD(IWOCRY,NWR)
+         IF (IW11.EQ.0)IW11=NWR
+         IW21=IW11+4
+         NEED2=0
+         IF (IW21.LE.NWR) GO TO 260
+            NEED2=1
+            IW21=NWR
+            NBUF2=IW21-IW11+2
+            IW12=1
+            IW22=5-NBUF2+1
+260      J=(I-1)*NRSLOT+NROFF
+         WRITE (IPR,170) I
+         CALL FCWTCF (J,IW11,IW21,INTBU1,1)
+         IF (NEED2.EQ.0) GO TO 270
+            J=J+1
+            CALL FCWTCF (J,IW12,IW22,INTBU1(NBUF2),1)
+270      WRITE (IPR,190) I
+         GO TO 340
+C     GET OLD CARRYOVER ARRAY IF DATED (FOR UPDATES ONLY)
+280      IF (ICDAYC(I).LE.0) GO TO 360
+         CALL FGETCO (IDSEGN,ICDAYC(I),ICHRC(I),OLDC,NOLDC,'ERROR',IER)
+         IF (IER.EQ.0) GO TO 300
+            WRITE (IPR,290) I,IDSEGN
+            CALL WARN
+            GO TO 340
+300      IF (IBUGA.EQ.1) THEN
+            WRITE (IODBUG,*) 'DEBUG DUMP OF OLDC FOR ',
+     *         ' ICDAYC(I)',ICDAYC(I),
+     *         ' ICHRC(I)',ICHRC(I),
+     *         ' :'
+            CALL FDMPA (CNAME,OLDC,NOLDC)
+            ENDIF
+         WRITE (IPR,320) I,MM,MDAY,MY,MH,INPTZC
+C     CARRYOVER ON FILE IS PROPORTIONED TO REFLECT CHANGES IN PARAMETERS
+         CALL COXDRV (P,INP,C,INC,OLDP,NOLDP,OLDC,NOLDC,D,MD)
+         ICOX=2
+         WRITE (IPR,330)
+340      IF (IBUGA.EQ.1) THEN
+            WRITE (IODBUG,*) 'DEBUG DUMP OF C FOR ',
+     *         ' ICDAYC(I)',ICDAYC(I),
+     *         ' ICHRC(I)',ICHRC(I),
+     *         ' :'
+            CALL FDMPA (CNAME,C,INC)
+            ENDIF
+C     TRANSFERRED CARRYOVER IS WRITTEN ONLY IF TRANSFER HAS TAKEN PLACE
+360      IF (NPLACE.EQ.0.AND.ICOX.EQ.1) GO TO 390
+         IF (ICOX.EQ.1) STRING='DEFAULT'
+         IF (ICOX.EQ.2) STRING='TRANSFERRED'
+         WRITE (IPR,370) STRING(1:LENSTR(STRING)),I,MM,MDAY,MY,MH,INPTZC
+         CALL FPUTCO (JDSEGN,ICDAYC(I),ICHRC(I),NOW,I,JWOCRY,C,INC,1)
+         WRITE (IPR,380) I
+C     SET COMPLETE INDICATOR TO COMPLETE IF SUCCESSFULLY FINISHED
+390      IF (NERRS.GT.NEST) GO TO 400
+            JNCSEG(I)=1
+            CALL UWRITT (KFSGST,JRSEG,JDSEGN,IERR)
+            IF (IERR.NE.0) THEN
+               WRITE (IPR,395) JRSEG,KFSGST,JDSEGN
+               CALL ERROR        
+               ENDIF
+400      CONTINUE
+C
+      WRITE (IPR,410) JDSEGN
+C................................................
+C EJM RTi Modification 12/01/97
+C   rm all old RESJ fs5files and mv temp RES-J
+C   fs5files to permanent RES-J fs5files
+C   works for both resegdefs and segdefs
+C
+          ier = rmRESJfs5files( OLDP, iseg  )   ! remove the old fs5files for the segment
+          ier = mvRESJFilesToPerm( P, iseg )    ! move the temporary RESJ files to
+                                                ! the permanent fs5files
+C END EJM MODIFICATIONS
+C
+      CALL FSTWHR (OLDOPN,IOLDOP,OLDOPN,IOLDOP)
+      
+      IF (ITRACE.GE.1) WRITE (IODBUG,*) 'EXIT FUPDCO'
+C      
+      RETURN
+C
+130   FORMAT (' JULIAN DAYS AND INTERNAL CLOCK HOURS OF CO ARE:',
+     *  (' ',I2,1X,I5,1X,I2))
+140   FORMAT ('0*** BEGINNING CARRYOVER FILE UPDATE FOR SEGMENT ',2A4,
+     *  '.')      
+170   FORMAT ('0*** HEADER INFORMATION WILL BE WRITTEN TO SLOT ',I2,
+     * ' OF CARRYOVER FILE.')
+190   FORMAT (' *** HEADER INFORMATION WRITTEN TO SLOT ',I2,
+     * ' OF CARRYOVER FILE.')
+200   FORMAT ('0*** DEFAULT CARRYOVER BEING WRITTEN TO CARRYOVER ',
+     * 'FILE ON SLOT ',I2,
+     * ' WITH DATE ',I2.2,'/',I2.2,'/',I4,'-',I2.2,A4,'.')
+210   FORMAT (' *** DEFAULT CARRYOVER SUCCESSFULLY WRITTEN TO SLOT ',I2,
+     * ' OF CARRYOVER FILE.')
+230   FORMAT ('0**WARNING** SLOT NUMBER ',I2,' FOR SEGMENT ',2A4,
+     *  ' IS INCOMPLETE. NO CARRYOVER TRANSFER WILL OCCUR.')
+250   FORMAT ('0**WARNING** SLOT NUMBER ',I2,' FOR SEGMENT ',2A4,
+     *  ' IS INCOMPLETE. NO CARRYOVER TRANSFER WILL OCCUR.' /
+     * 13X,'DEFAULT CARRYOVER WILL BE PLACED IN THIS ',
+     *  'SLOT WITH DATE ',I2.2,'/',I2.2,'/',I4,'-',I2.2,A4,'.')
+290   FORMAT ('0**WARNING** ERROR DETECTED IN READING CARRYOVER ',
+     *  'FOR SLOT ',I3,' FOR SEGMENT ',2A4,'.' /
+     * 13X,'DEFAULT CARRYOVER INPUT WITH RESEGDEF COMMAND WILL ',
+     *  'BE STORED ON CARRYOVER FILE.')
+320   FORMAT ('0*** SEGMENT REDEFINITION - CARRYOVER TRANSFER WILL BE ',
+     * 'DONE FOR SLOT ',I2,
+     * ' WITH DATE ',I2.2,'/',I2.2,'/',I4,'-',I2.2,A4,'.')
+330   FORMAT (' *** CARRYOVER TRANSFER SUCCESSFULLY DONE.')
+370   FORMAT ('0*** ',A,' CARRYOVER WILL BE WRITTEN TO SLOT ',I2,
+     *  ' FOR DATE ',I2.2,'/',I2.2,'/',I4,'-',I2.2,A4,'.')
+380   FORMAT (' *** CARRYOVER FOR SLOT ',I2,' SUCCESSFULLY WRITTEN.')
+395   FORMAT ('0**ERROR** WRITING TO RECORD ',I6,' TO UNIT ',I2,
+     *  ' FOR SEGMENT ',2A4,'.')
+410   FORMAT ('0*** END OF CARRYOVER FILE UPDATE FOR SEGMENT ',2A4,'.')
+C      
+      END

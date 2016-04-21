@@ -1,0 +1,4 @@
+C                                           *--> FROM DACOMMON.NMCTIM
+C  ASAP NMC LAST TRANSFER TIME COMMON
+      COMMON /NMCTIM/ NMCMON,NMCDAY,NMCYR,NMCHR
+C

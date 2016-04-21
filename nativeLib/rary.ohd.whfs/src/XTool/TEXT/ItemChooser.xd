@@ -1,0 +1,111 @@
+module 'XApplication'
+version = 48;
+xdesigned = 1;
+applicationName = 'XApplication';
+generateNameC = * 'ItemChooser.c';
+generateNameExterns = * 'ItemChooser.h';
+generateNameResDB = 'ItemChooser.res';
+motifFlavour = 2;
+generateMask = 4390924;
+useMask = 0;
+ansiC = 1;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 0;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+javaVersion = 2;
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'itemChooserDS' : XmDialogShell {
+	arguments {
+	lastGenName = 'itemChooserDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_itemChooserDS (Widget parent)
+';
+	XmNwidth = 275;
+	XmNheight = 300;
+	XmNmappedWhenManaged = true;
+	XmNallowShellResize = true;
+	XmNtitle = 'Item Chooser';
+	XmNminWidth = 275;
+	XmNminHeight = 300;
+	XmNmaxWidth = 275;
+	XmNmaxHeight = 300;
+	};
+object 'itemChooserFO' : XmForm {
+	arguments {
+	lastGenName = 'itemChooserFO';
+	XmNwidth = 275;
+	XmNheight = 300;
+	XmNdialogStyle = XmDIALOG_FULL_APPLICATION_MODAL;
+	XmNresizePolicy = XmRESIZE_NONE;
+	XmNautoUnmanage = false;
+	};
+object 'ic_itemSL' : XmScrolledList {
+	arguments {
+	lastGenName = 'ic_itemSL';
+	};
+abstract object 'ic_HSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'ic_HSB';
+	};
+};
+abstract object 'ic_VSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'ic_VSB';
+	};
+};
+abstract object 'ic_itemLI' : XmList {
+	arguments {
+	lastGenName = 'ic_itemLI';
+	XmNselectionPolicy = XmMULTIPLE_SELECT;
+	};
+};
+};
+object 'ic_applyPB' : XmPushButton {
+	arguments {
+	lastGenName = 'ic_applyPB';
+	generateResName = true;
+	XmNmappedWhenManaged = true;
+	XmNlabelString = 'Apply';
+	};
+};
+object 'ic_cancelPB' : XmPushButton {
+	arguments {
+	was_selected = true;
+	lastGenName = 'ic_cancelPB';
+	XmNlabelString = 'Close';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -255;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -235;
+	XmNtopAttachment = 1 0 10;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -86;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -289;
+	XmNtopAttachment = 1 0 265;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -255;
+	XmNleftAttachment = 1 0 180;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 265;
+    };
+    };
+};
+};
+end module;

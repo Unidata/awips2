@@ -1,0 +1,74 @@
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="sfcobsDecoder" class="com.raytheon.edex.plugin.sfcobs.SfcObsDecoder" />
+    <bean id="sfcobsSeparator" class="com.raytheon.edex.plugin.sfcobs.SfcObsSeparator" />
+
+    <bean id="sfcobsPointData" class="com.raytheon.edex.plugin.sfcobs.SfcObsPointDataTransform">
+        <constructor-arg ref="sfcobsPluginName" />
+    </bean>
+
+    <bean id="sfcobsDistRegistry" factory-bean="distributionSrv" factory-method="register">
+        <constructor-arg value="sfcobs" />
+        <constructor-arg value="jms-durable:queue:Ingest.sfcobs" />
+    </bean>
+
+    <bean id="buoyListener" class="com.raytheon.edex.plugin.sfcobs.ingest.BuoySubscriber" />
+
+    <bean id="marineInfoListener" class="com.raytheon.edex.plugin.sfcobs.ingest.MarineInfoSubscriber">
+        <constructor-arg value="${db.port}" />
+        <constructor-arg value="${edex.home}" />
+    </bean>    
+    
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="MarineInfo.txt" />
+        <constructor-arg ref="marineInfoListener" />
+    </bean>
+    
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="BUOY.spi" />
+        <constructor-arg ref="buoyListener" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="BUOY.goodness" />
+        <constructor-arg ref="buoyListener" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="BUOY.primary" />
+        <constructor-arg ref="buoyListener" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="maritimeStationInfo.txt" />
+        <constructor-arg ref="buoyListener" />
+    </bean>
+
+    <camelContext id="sfcobs-camel" xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler">
+
+        <!-- Begin sfcobs routes -->
+        <route id="sfcobsIngestRoute">
+            <from uri="jms-durable:queue:Ingest.sfcobs" />
+            <setHeader headerName="pluginName">
+                <constant>sfcobs</constant>
+            </setHeader>
+            <bean ref="stringToFile" />
+            <doTry>
+                <pipeline>
+                    <bean ref="sfcobsDecoder" method="decode" />
+                    <bean ref="dupElim" />
+                    <bean ref="sfcobsPointData" method="toPointData" />
+                    <multicast>
+                        <to uri="direct-vm:persistIndexAlert" />
+                    </multicast>
+                </pipeline>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:sfcobs?level=ERROR" />
+                </doCatch>
+            </doTry>
+        </route>
+    </camelContext>
+</beans>

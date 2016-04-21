@@ -1,0 +1,146 @@
+<!-- Significant Weather Advisory configuration -->
+<!-- MODIFIED 
+     EVAN BOOKBINDER WFO EAX 3-23-2011 Initial creation
+                             4-13-2011 Merge in OB11.4 Coding Changes
+                             9-15-2011 Merge in OB11.8.0-8 Coding Changes, Zone Codes
+                             9-12-2012 Added in new areaSource object and recode
+                                       for new locations shapefile
+     Phil Kurimski          09-19-2013 added geospatialConfig.xml
+     Mike Dangelo            6/26/2014 added bullets for watch info inclusion (bulletDefault set to true)
+     Phil Kurimski          10-20-2015 added campers CTA
+ -->
+<warngenConfig>
+
+<!-- INCLUDE ALL GEOSPTATIAL INFORMATION FOR THIS PRODUCT
+ANY pointSource/areaSource/pathcastConfig OVERRIDES TO THAT FILE CAN BE
+PLACED IN FULL BELOW THE INCLUDE LINE BELOW. -->
+<include file="geospatialConfig_ZONE.xml"/>
+
+<!-- Include Various geospatial XML files to create their objects. These are *NOT*
+turned on unless the corresponding .vm file is turned on in a given template's .vm file
+-->  
+<include file="mileMarkers.xml"/>
+<!-- To enable, make sure mileMarkers.vm is added/uncommented in a WarnGen template's .vm file -->
+<include file="pointMarkers.xml"/>
+<!-- To enable, make sure pointMarkers.vm is added/uncommented in a WarnGen template's .vm file -->
+
+ <!-- Config distance/speed units -->
+ <unitDistance>mi</unitDistance>
+ <unitSpeed>mph</unitSpeed>
+
+ <!-- Maps to load on template selection. Refer to 'Maps' menu in CAVE. 
+ 	The various menu items are also the different maps
+ 	that can be loaded with each template. -->
+ <maps>
+  <map>Forecast Zones</map>
+  <map>County Names</map>
+  <map>County Warning Areas</map>
+ </maps>
+
+ <!-- Followups: VTEC actions of allowable followups when this template is selected -->
+ <followups>
+ </followups>
+ 
+ <!-- Phensigs: The list of phenomena and significance combinations that this template applies to -->
+ <phensigs>
+ </phensigs>
+ 
+  <!-- Enables/disables user from selecting the Restart button the GUI -->
+ <enableRestart>true</enableRestart>
+ 
+  <!-- Enable/disables the system to lock text based on various patterns -->
+ <autoLockText>true</autoLockText>
+
+ <!-- Included watches: If a tornado watch or severe thunderstorm watch is to be 
+ 	included with the warning product include TO.A and/or SV.A, 
+ 	respectively. Please refer to 'includedWatchAreaBuffer' in <areaConfig/>. -->
+ <includedWatches>
+  <includedWatch>TO.A</includedWatch>
+  <includedWatch>SV.A</includedWatch>
+ </includedWatches>
+ 
+ <!-- durations: the list of possible durations of the warning -->
+ <defaultDuration>45</defaultDuration>
+ <durations>
+  <duration>15</duration>
+  <duration>20</duration>
+  <duration>30</duration>
+  <duration>40</duration>
+  <duration>45</duration>
+  <duration>50</duration>
+  <duration>60</duration>
+  <duration>75</duration>
+  <duration>90</duration> 
+ </durations>
+ 
+<bulletActionGroups>
+<bulletActionGroup action="NEW">
+ <bullets>
+  <bullet bulletText="*********** BASIS FOR ADVISORY (CHOOSE 1) **********" bulletType="title"/>
+  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="advBasis" bulletDefault="true" parseString="DOPPLER RADAR INDICATED"/>
+  <bullet bulletName="stormSpotters" bulletText="Trained spotters reported" bulletGroup="advBasis" parseString="TRAINED WEATHER SPOTTERS REPORTED"/>
+  <bullet bulletName="lawEnforcement" bulletText="Law Enforcement reported" bulletGroup="advBasis" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
+  <bullet bulletName="emergencyMgmt" bulletText="Emergency Management Reported" bulletGroup="advBasis" parseString="EMERGENCY MANAGEMENT REPORTED"/>
+  <bullet bulletName="public" bulletText="Public Reported" bulletGroup="advBasis" parseString="THE PUBLIC REPORTED"/>
+  <bullet bulletName="amateurRadio" bulletText="Amateur Radio Operators Reported" bulletGroup="advBasis" parseString="AMATUER RADIO OPERATORS REPORTED"/>
+  <bullet bulletText="******* THREAT (CHOOSE UP TO 1 EACH WIND/HAIL) ******" bulletType="title"/>
+  <bullet bulletName="wind30" bulletText="Winds 30 mph or greater" bulletGroup="windThreat" parseString="30 MPH"/>
+  <bullet bulletName="wind40" bulletText="Strong winds 40 mph or greater" bulletGroup="windThreat" parseString="40 MPH"/>
+  <bullet bulletName="wind50" bulletText="Strong winds to 50 mph" bulletGroup="windThreat" parseString="50 MPH"/>
+  <bullet bulletName="wind55" bulletText="Strong winds 50 to 55 mph" bulletGroup="windThreat" parseString="55 MPH"/>
+  <bullet bulletName="halfHail" bulletText="Half inch hail" bulletGroup="hailThreat" parseString="HALF INCH HAIL"/>
+  <bullet bulletName="dimeHail" bulletText="Dime sized hail" bulletGroup="hailThreat" parseString="DIME SIZED HAIL"/>
+  <bullet bulletName="nickelHail" bulletText="Nickel sized hail" bulletGroup="hailThreat" parseString="NICKEL SIZED HAIL"/>
+  <bullet bulletText="************ LOCATIONS IMPACTED  **************" bulletType="title"/>
+  <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="pcast" parseString="WILL BE NEAR..."/>
+  <bullet bulletName="listofcities" bulletDefault="true" bulletText="Select for a list of cities" bulletGroup="pcast"/>
+  <bullet bulletName="specialEvent" bulletText="Special heads-up for large event/venue" parseString="THOSE ATTENDING"/>
+  <bullet bulletText="******** CALLS TO ACTION (CHOOSE 1 OR MORE) *********" bulletType="title"/>
+  <bullet bulletName="torrentialRainfallCTA" bulletText="Torrential rainfall" parseString="TORRENTIAL RAINFALL IS ALSO OCCURRING"/>
+  <bullet bulletName="lightningCTA" bulletText="Frequent Lightning" parseString="FREQUENT CLOUD TO GROUND LIGHTNING IS OCCURRING"/>
+  <bullet bulletName="stormIntensify" bulletText="Storm(s) May Intensify" parseString="STORMS MAY INTENSIFY...MONITOR TV"/>
+  <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="CONTACT YOUR NEAREST LAW ENFORCEMENT"/>
+  <bullet bulletName="boatersCTA" bulletText="Over Lake - Boaters seek shelter" parseString="GET OUT OF THE WATER AND MOVE INDOORS"/>
+  <bullet bulletName="camperCTA" bulletText="Campground - Campers seek shelter" parseString="PERSONS IN CAMPGROUNDS"/>
+  <bullet bulletName="includeTorWatches" bulletText="Include Tornado Watches" bulletDefault="true" parseString=""/>
+  <bullet bulletName="includeSvrWatches" bulletText="Include Severe Thunderstorm Watches" bulletDefault="true" parseString=""/>
+  <bullet bulletText="" bulletType="title"/>
+ </bullets>
+</bulletActionGroup>
+<bulletActionGroup action="COR">
+ <bullets>
+  <bullet bulletText="*********** BASIS FOR ADVISORY (CHOOSE 1) **********" bulletType="title"/>
+  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="advBasis" bulletDefault="true" parseString="DOPPLER RADAR INDICATED"/>
+  <bullet bulletName="stormSpotters" bulletText="Trained spotters reported" bulletGroup="advBasis" parseString="TRAINED WEATHER SPOTTERS REPORTED"/>
+  <bullet bulletName="lawEnforcement" bulletText="Law Enforcement reported" bulletGroup="advBasis" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
+  <bullet bulletName="emergencyMgmt" bulletText="Emergency Management Reported" bulletGroup="advBasis" parseString="EMERGENCY MANAGEMENT REPORTED"/>
+  <bullet bulletName="public" bulletText="Public Reported" bulletGroup="advBasis" parseString="THE PUBLIC REPORTED"/>
+  <bullet bulletName="amateurRadio" bulletText="Amateur Radio Operators Reported" bulletGroup="advBasis" parseString="AMATUER RADIO OPERATORS REPORTED"/>
+  <bullet bulletText="******* THREAT (CHOOSE UP TO 1 EACH WIND/HAIL) ******" bulletType="title"/>
+  <bullet bulletName="wind30" bulletText="Winds 30 mph or greater" bulletGroup="windThreat" parseString="30 MPH"/>
+  <bullet bulletName="wind40" bulletText="Strong winds 40 mph or greater" bulletGroup="windThreat" parseString="40 MPH"/>
+  <bullet bulletName="wind50" bulletText="Strong winds to 50 mph" bulletGroup="windThreat" parseString="50 MPH"/>
+  <bullet bulletName="wind55" bulletText="Strong winds 50 to 55 mph" bulletGroup="windThreat" parseString="55 MPH"/>
+  <bullet bulletName="halfHail" bulletText="Half inch hail" bulletGroup="hailThreat" parseString="HALF INCH HAIL"/>
+  <bullet bulletName="dimeHail" bulletText="Dime sized hail" bulletGroup="hailThreat" parseString="DIME SIZED HAIL"/>
+  <bullet bulletName="nickelHail" bulletText="Nickel sized hail" bulletGroup="hailThreat" parseString="NICKEL SIZED HAIL"/>
+  <bullet bulletText="************ LOCATIONS IMPACTED  **************" bulletType="title"/>
+  <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="pcast" parseString="WILL BE NEAR..."/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="&quot;LOCATIONS&quot;,&quot;INCLUDE...&quot;"/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="WILL REMAIN OVER" showString="WILL REMAIN OVER"/>
+  <bullet bulletName="specialEvent" bulletText="Special heads-up for large event/venue" parseString="THOSE ATTENDING"/>
+  <bullet bulletText="******** CALLS TO ACTION (CHOOSE 1 OR MORE) *********" bulletType="title"/>
+  <bullet bulletName="torrentialRainfallCTA" bulletText="Torrential rainfall" parseString="TORRENTIAL RAINFALL IS ALSO OCCURRING"/>
+  <bullet bulletName="lightningCTA" bulletText="Frequent Lightning" parseString="FREQUENT CLOUD TO GROUND LIGHTNING IS OCCURRING"/>
+  <bullet bulletName="stormIntensify" bulletText="Storm(s) May Intensify" parseString="STORMS MAY INTENSIFY...MONITOR TV"/>
+  <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="CONTACT YOUR NEAREST LAW ENFORCEMENT"/>
+  <bullet bulletName="boatersCTA" bulletText="Over Lake - Boaters seek shelter" parseString="GET OUT OF THE WATER AND MOVE INDOORS"/>
+  <bullet bulletName="camperCTA" bulletText="Campground - Campers seek shelter" parseString="PERSONS IN CAMPGROUNDS"/>
+  <bullet bulletName="includeTorWatches" bulletText="Include Tornado Watches" bulletDefault="true" parseString=""/>
+  <bullet bulletName="includeSvrWatches" bulletText="Include Severe Thunderstorm Watches" bulletDefault="true" parseString=""/>
+  <bullet bulletText="" bulletType="title"/>
+ </bullets>
+</bulletActionGroup>
+</bulletActionGroups>
+
+</warngenConfig>

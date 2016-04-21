@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Viz Data Access
+Bundle-SymbolicName: com.raytheon.viz.dataaccess
+Bundle-Version: 1.15.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy
+Require-Bundle: com.raytheon.uf.viz.core;bundle-version="1.14.0",
+ com.raytheon.uf.common.dataaccess;bundle-version="1.0.0",
+ com.raytheon.uf.common.colormap;bundle-version="1.12.1174",
+ javax.measure;bundle-version="1.0.0",
+ org.apache.commons.lang;bundle-version="2.3.0",
+ com.raytheon.uf.common.style;bundle-version="1.0.0",
+ com.raytheon.uf.common.numeric;bundle-version="1.14.0",
+ com.raytheon.uf.viz.core.grid;bundle-version="1.15.0",
+ com.raytheon.uf.common.dataplugin;bundle-version="1.14.0",
+ org.eclipse.swt;bundle-version="3.8.1"
+Export-Package: com.raytheon.viz.dataaccess.rsc,
+ com.raytheon.viz.dataaccess.rsc.geometry,
+ com.raytheon.viz.dataaccess.rsc.grid
+Import-Package: com.raytheon.viz.core.rsc.jts

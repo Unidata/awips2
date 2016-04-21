@@ -1,0 +1,24 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+	<bean id="madisPluginName" class="java.lang.String">
+		<constructor-arg type="java.lang.String" value="madis" />
+	</bean>
+
+	<bean id="madisProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
+		<property name="pluginName" ref="madisPluginName" />
+		<property name="database" value="metadata"/>
+		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.madis" />
+		<property name="dao" value="com.raytheon.uf.edex.plugin.madis.MadisDao" />
+		<property name="record"
+			value="com.raytheon.uf.common.dataplugin.madis.MadisRecord" />
+	</bean>
+
+	<bean id="registerMadisPlugin" factory-bean="pluginRegistry"
+		factory-method="register">
+		<constructor-arg ref="madisPluginName" />
+		<constructor-arg ref="madisProperties" />
+	</bean>
+
+</beans>

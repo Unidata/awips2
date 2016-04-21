@@ -1,0 +1,217 @@
+C MEMBER FPRSAC
+C  (from old member FCFPRSAC)
+C
+      SUBROUTINE FPRSAC(NXD,D,MD,OLDP,MOLDP,IOTIME,ISFG,LINE,ND,NP,NC,
+     1   ITITLE)
+C.......................................
+C     THIS SUBROUTINE PRINTS THE VALUES STORED IN THE D ARRAY BY
+C       SUBROUTINE FSVSAC FOR THE SAC-SMA OPERATION AS PART
+C       OF THE FCINIT PRINTOPS COMMAND.
+C.......................................
+C     WRITTEN BY...ERIC ANDERSON-HRL MARCH 1982
+C.......................................
+      INTEGER OLDP(MOLDP)
+      DIMENSION D(MD),IOTIME(3,1)
+      DIMENSION TYPE(2),CGROUP(2),FGROUP(2),UNITS(2),UENG(2),UMET(2)
+      DIMENSION SEGID(2),OPNAME(2),SNAME(5)
+C
+C     COMMON BLOCKS.
+      INCLUDE 'common/fdbug'
+      INCLUDE 'common/ionum'
+      INCLUDE 'common/fengmt'
+      INCLUDE 'common/fcrunc'
+      INCLUDE 'common/oldt'
+      INCLUDE 'common/fctime'
+      INCLUDE 'common/fdispl'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcst_printops/RCS/fprsac.f,v $
+     . $',                                                             '
+     .$Id: fprsac.f,v 1.1 1995/09/17 19:04:45 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C     DATA STATEMENTS
+      DATA CGROUP,FGROUP/4HCGRO,4HUP  ,4HFGRO,4HUP  /
+      DATA UENG,UMET/4HENGL,4HISH ,4HMETR,4HIC  /
+      DATA BLANK,ASKL,ASKR/4H    ,4H*** ,4H ***/
+C.......................................
+C     CHECK TRACE LEVEL--TRACE LEVEL=2.
+      IF(ITRACE.GE.2) WRITE(IODBUG,900)
+ 900  FORMAT(1H0,17H** FPRSAC ENTERED)
+C.......................................
+C     DETERMINE IF CGROUP OR FGROUP BEING PRINTED.
+      IF(ITYPRN.NE.1) GO TO 101
+      TYPE(1)=CGROUP(1)
+      TYPE(2)=CGROUP(2)
+      GO TO 102
+ 101  TYPE(1)=FGROUP(1)
+      TYPE(2)=FGROUP(2)
+C
+C     METRIC OR ENGLISH UNITS.
+ 102  IF(METRIC.EQ.1) GO TO 103
+      DO 104 I=1,2
+ 104  UNITS(I)=UENG(I)
+      GO TO 100
+ 103  DO 105 I=1,2
+ 105  UNITS(I)=UMET(I)
+C
+C     GET OUTPUT TIME ZONE
+ 100  CALL FCTZC(NOUTZ,NOUTDS,TZC)
+C.......................................
+C     PRINT TITLE AND HEADINGS
+      IF (ITITLE.EQ.0) GO TO 106
+      CALL FSACTL(METRIC)
+      ITITLE=0
+  106 IF(LINE.GT.0) GO TO 110
+C
+C  NEW PAGE
+C
+      WRITE(IPR,901)(NOW(I),I=1,3),TYPE,RUNID,UNITS
+ 901  FORMAT(1H1,31HSAC-SMA CARRYOVER DISPLAY AS OF,I3,1H/,I2,1H/,
+     1I4,1X,3HFOR,1X,A4,A2,1X,2A4,51X,A4,A3,1X,5HUNITS,/,11X,
+     225HCAPACITIES IN PARENTHESES)
+      WRITE (IPR,902)
+  902 FORMAT (1H )
+      LINE=3
+C.......................................
+C     FOR NORMAL FGROUP AND CGROUP STORE LOCATION OF FIRST
+C       CARRYOVER VALUE IN THE D ARRAY FOR EACH DATE
+C       RELATIVE TO THE STARTING LOCATION FOR AN OPERATION.
+ 110  IF(ISFG.EQ.1) GO TO 120
+      DO 111 I=1,ND
+ 111  OLDT(100+I)=NP+4+(I-1)*NC
+      NAD=ND
+C.......................................
+C     BEGIN SEGMENT LOOP
+ 120  LD=1
+ 125  SEGID(1)=D(LD)
+      SEGID(2)=D(LD+1)
+      NSMA=D(LD+2)
+      LP=D(LD+3)
+C
+C     FIND ACTUAL NUMBER OF DATES IF SPECIAL FGROUP AND
+C       STORE CARRYOVER LOCATION FOR EACH.
+      IF(ISFG.NE.1) GO TO 130
+      NAD=0
+      DO 131 I=1,ND
+      J=LP+(I-1)*2
+      JD=OLDP(J)
+      IF(JD.LE.0) GO TO 131
+      IH=OLDP(J+1)
+      NAD=NAD+1
+      OLDT(100+NAD)=NP+4+(I-1)*NC
+      CALL MDYH1(JD,IH,IOTIME(1,NAD),IOTIME(2,NAD),J,
+     1 IOTIME(3,NAD),NOUTZ,NOUTDS,TZC)
+ 131  CONTINUE
+      IF(NAD.EQ.0) GO TO 190
+C
+C  NEW SEGMENT
+C
+  130 IF ((LINE+NAD+5).LE.LX) WRITE(IPR,903) TZC
+  903 FORMAT (1H0,4X,7HSEGMENT,11X,5HDATE-,A3,3X,5HUZTWD,1X,5HLZTWD,
+     1 1X,5HUZTWC,1X,5HUZFWC,1X,5HLZTWC,1X,5HLZFSC,1X,5HLZFPC,1X,
+     2 5HADIMC,2X,4HFGIX,3X,3HUZK,2X,4HLZSK,2X,4HLZPK,1X,5HPCTIM,1X,
+     3 5HADIMP,2X,7HOP-NAME)
+      LINE=LINE+3
+      SNAME(1)=ASKL
+      SNAME(2)=SEGID(1)
+      SNAME(3)=SEGID(2)
+      SNAME(4)=ASKR
+      SNAME(5)=BLANK
+C.......................................
+C     BEGIN PRINTING EACH OPERATION
+      DO 150 N=1,NSMA
+C
+C     PRINT NEW TITLE AND HEADING IF NEEDED.
+      IF ((LINE+NAD+2).LE.LX) GO TO 151
+C
+C  NEW PAGE
+C
+      WRITE(IPR,901)(NOW(I),I=1,3),TYPE,RUNID,UNITS
+      WRITE(IPR,902)
+      WRITE(IPR,903) TZC
+      LINE=6
+C
+C     GET BASIC INFRO. FOR OPERATION
+  151 LOP=LD+13+(N-1)*(4+NP+ND*NC)
+      OPNAME(1)=D(LOP)
+      OPNAME(2)=D(LOP+1)
+      IFRZE=D(LOP+NP+3)
+      NCO=NC-1
+      IF(IFRZE.GT.0)NCO=NC
+      LPM=LOP+1
+C.......................................
+C     BEGIN CARRYOVER DATE LOOP
+      DO 140 J=1,NAD
+      LCO=LOP+OLDT(100+J)-1
+C
+C     COMPUTE DEFICIT
+      IF(D(LCO+1).LT.-900.00) GO TO 141
+      DUZTW=D(LPM+1)-D(LCO+1)
+      DLZTW=D(LPM+3)-D(LCO+3)
+      GO TO 142
+ 141  DUZTW=-999.0
+      DLZTW=-999.0
+C.......................................
+C     PRINT VALUES
+ 142  IF(J.GT.1) GO TO 147
+C
+C     PRINT PARAMETERS
+      ADIMPM=D(LPM+1)+D(LPM+3)
+      IF(N.EQ.1) GO TO 143
+      WRITE(IPR,902)
+      LINE=LINE+1
+ 143  IF(METRIC.EQ.1) GO TO 144
+      WRITE(IPR,905) SNAME,(D(LPM+I),I=1,5),ADIMPM,(D(LPM+I),I=6,NP),
+     1 OPNAME
+  905 FORMAT(1H ,5A4,24X,6(1H(,F4.1,1H)),6X,2(2X,F4.3),1X,F5.4,
+     1  2(2X,F4.3),2X,2A4)
+      GO TO 145
+  144 IUZT=D(LPM+1)+0.01
+      LZTWM=D(LPM+3)+0.01
+      LZFPM=D(LPM+5)+0.01
+      IADM=ADIMPM+0.01
+      WRITE(IPR,906) SNAME,IUZT,D(LPM+2),LZTWM,D(LPM+4),LZFPM,IADM,
+     1 (D(LPM+I),I=6,NP),OPNAME
+ 906  FORMAT(1H ,5A4,24X,1H(,I4,2H)(,F4.0,2H)(,I4,2H)(,F4.0,1H),
+     1  2(1H(,I4,1H)),6X,2(2X,F4.3),1X,F5.4,2(2X,F4.3),2X,2A4)
+ 145  LINE=LINE+1
+      IF(N.GT.1) GO TO 147
+      DO 146 I=1,5
+ 146  SNAME(I)=D(LD+7+I)
+C
+C     PRINT CARRYOVER
+ 147  IF(METRIC.EQ.1) GO TO 148
+      WRITE(IPR,907) SNAME,(IOTIME(I,J),I=1,3),DUZTW,DLZTW,
+     1(D(LCO+I),I=1,NCO)
+ 907  FORMAT(1H ,5A4,2X,I2,1H/,I2,1H-,I2,2X,8F6.2,F6.0)
+      GO TO 149
+  148 WRITE(IPR,908)SNAME,(IOTIME(I,J),I=1,3),DUZTW,DLZTW,
+     1(D(LCO+I),I=1,NCO)
+  908 FORMAT(1H ,5A4,2X,I2,1H/,I2,1H-,I2,2X,3F6.0,F6.1,F6.0,F6.1,
+     13F6.0)
+  149 LINE=LINE+1
+      IF((N.GT.1).OR.(J.GT.1)) GO TO 140
+      DO 152 I=1,5
+  152 SNAME(I)=BLANK
+ 140  CONTINUE
+ 150  CONTINUE
+      WRITE(IPR,904)
+  904 FORMAT(1H ,126(1H-))
+      LINE=LINE+1
+C.......................................
+C     INCREMENT LD AND CHECK FOR LAST SEGMENT IN D ARRAY.
+ 190  LD=LD+13+NSMA*(4+NP+ND*NC)
+      IF(LD.GE.NXD) GO TO 199
+      GO TO 125
+C.......................................
+C     EXIT SUBROUTINE
+ 199  IF(ITRACE.GE.2) WRITE(IODBUG,909)
+ 909  FORMAT(1H0,14H** EXIT FPRSAC)
+C.......................................
+      RETURN
+      END

@@ -1,0 +1,64 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="reccoDecoder" class="com.raytheon.edex.plugin.recco.RECCODecoder">
+        <constructor-arg ref="reccoPluginName" />	
+	</bean>
+
+	<bean id="reccoSeparator" class="com.raytheon.edex.plugin.recco.RECCOSeparator" />
+
+	<bean id="reccoDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg ref="reccoPluginName" />
+		<constructor-arg value="jms-durable:queue:Ingest.recco" />
+	</bean>
+
+	<camelContext id="recco-camel"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler">
+		<!--
+		<endpoint id="reccoFileEndpoint" uri="file:${edex.home}/data/sbn/recco?noop=true&amp;idempotent=false" />
+
+		<route id="reccoFileConsumerRoute">
+			<from ref="reccoFileEndpoint" />
+			<bean ref="fileToString" />
+			<setHeader headerName="pluginName">
+                <constant>recco</constant>
+			</setHeader>
+			<to uri="jms-durable:queue:Ingest.recco" />
+		</route>
+		-->
+
+		<!-- Begin RECCO routes -->
+		<route id="reccoIngestRoute">
+			<from uri="jms-durable:queue:Ingest.recco"/>
+			<setHeader headerName="pluginName">
+                <constant>recco</constant>
+			</setHeader>
+			<doTry>
+				<pipeline>
+					<bean ref="stringToFile" />
+					<split streaming="true">
+						<method bean="reccoSeparator" method="separate" />
+						<doTry>
+							<pipeline>
+								<bean ref="reccoDecoder" method="decode" />
+								<to uri="direct-vm:indexAlert" />
+							</pipeline>
+							<doCatch>
+								<exception>java.lang.Throwable</exception>
+								<to uri="log:recco?level=ERROR"/>
+							</doCatch>
+						</doTry>
+					</split>
+				</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:recco?level=ERROR"/>
+				</doCatch>
+			</doTry>
+		</route>
+	</camelContext>
+</beans>

@@ -1,0 +1,105 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<!--
+        Copyright (c) OASIS Open 2002-2011. All Rights Reserved.
+
+	All capitalized terms in the following text have the meanings assigned to them
+   	in the OASIS Intellectual Property Rights Policy (the "OASIS IPR Policy"). The
+	full Policy may be found at the OASIS website.
+
+	This document and translations of it may be copied and furnished to others, and
+	derivative works that comment on or otherwise explain it or assist in its
+	implementation may be prepared, copied, published, and distributed, in whole or
+	in part, without restriction of any kind, provided that the above copyright
+	notice and this section are included on all such copies and derivative works.
+	However, this document itself may not be modified in any way, including by
+	removing the copyright notice or references to OASIS, except as needed for the
+	purpose of developing any document or deliverable produced by an OASIS
+	Technical Committee (in which case the rules applicable to copyrights, as set
+	forth in the OASIS IPR Policy, must be followed) or as required to translate it
+	into languages other than English.
+
+	The limited permissions granted above are perpetual and will not be revoked by
+	OASIS or its successors or assigns.
+
+	This document and the information contained herein is provided on an "AS IS"
+	basis and OASIS DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+	LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION HEREIN WILL NOT
+	INFRINGE ANY OWNERSHIP RIGHTS OR ANY IMPLIED WARRANTIES OF MERCHANTABILITY OR
+	FITNESS FOR A PARTICULAR PURPOSE.
+-->
+<schema attributeFormDefault="unqualified" elementFormDefault="qualified" 
+  targetNamespace="urn:oasis:names:tc:ebxml-regrep:xsd:query:4.0" 
+  xmlns="http://www.w3.org/2001/XMLSchema" 
+  xmlns:xml="http://www.w3.org/XML/1998/namespace"
+  xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0" 
+  xmlns:rs="urn:oasis:names:tc:ebxml-regrep:xsd:rs:4.0" 
+  xmlns:tns="urn:oasis:names:tc:ebxml-regrep:xsd:query:4.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.w3.org/2001/XMLSchema  http://www.w3.org/2001/XMLSchema.xsd"
+  >
+  <import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"/>
+  <import namespace="urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0" schemaLocation="rim.xsd"/>
+  <import namespace="urn:oasis:names:tc:ebxml-regrep:xsd:rs:4.0" schemaLocation="rs.xsd"/>
+  <complexType name="ResponseOptionType">
+    <attribute name="returnType" default="LeafClassWithRepositoryItem">
+      <simpleType>
+        <restriction base="NCName">
+          <enumeration value="ObjectRef"/>
+          <enumeration value="RegistryObject"/>
+          <enumeration value="LeafClass"/>
+          <enumeration value="LeafClassWithRepositoryItem"/>
+        </restriction>
+      </simpleType>
+    </attribute>
+    <attribute name="returnComposedObjects" type="boolean" use="optional" default="false"/>
+  </complexType>
+  <element name="ResponseOption" type="tns:ResponseOptionType"/>
+  <element name="QueryRequest">
+    <annotation>
+      <documentation xml:lang="en">Request to invoke a query.</documentation>
+    </annotation>
+    <complexType>
+      <complexContent>
+        <extension base="rs:RegistryRequestType">
+          <sequence>
+            <element name="ResponseOption" type="tns:ResponseOptionType" minOccurs="1" maxOccurs="1"/>
+            <element name="Query" type="rim:QueryType" minOccurs="1" maxOccurs="1" />
+          </sequence>
+          <attribute name="federated" type="boolean" use="optional" default="false"/>
+          <attribute name="federation" type="anyURI" use="optional"/>
+          <attribute name="format" type="string" use="optional" default="application/ebrim+xml"/>
+          <attribute ref="xml:lang" use="optional"/>
+          <attribute name="startIndex" type="integer" default="0"/>
+          <attribute name="maxResults" type="integer" default="-1"/>
+          <attribute name="depth" type="integer" default="0"/>
+          <attribute name="matchOlderVersions" type="boolean" use="optional" default="false"/>
+        </extension>
+      </complexContent>
+    </complexType>
+  </element>
+  <element name="QueryResponse">
+    <annotation>
+      <documentation xml:lang="en">
+        The response includes a RegistryObjectList which has zero or more
+        RegistryObjects that match the query specified in QueryRequest.
+      </documentation>
+    </annotation>
+    <complexType>
+      <complexContent>
+        <extension base="rs:RegistryResponseType">
+          <attribute name="startIndex" type="integer" default="0"/>
+          <attribute name="totalResultCount" type="integer" use="optional"/>
+        </extension>
+      </complexContent>
+    </complexType>
+  </element>
+  
+  <complexType name="QueryExceptionType">
+    <complexContent>
+      <extension base="rs:RegistryExceptionType">
+        <sequence/>
+      </extension>
+    </complexContent>
+  </complexType>
+    
+</schema>

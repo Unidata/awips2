@@ -1,0 +1,174 @@
+<!-- CREATED 9-16-2013 EVAN BOOKBINDER WFO EAX (MODIFIED 2-6-14 CORRECT TYPO)
+     THIS DOCUMENT CONTAINS GLOBAL SPATIAL CONFIGURATION SETTINGS FOR **MARINE**
+     BASED PRODUCTS. INCLUDE THIS FILE INTO EACH MARINE TEMPLATE'S .XML FILE.
+     THIS REPLACES THE PER-TEMPLATE XML SECTIONS BELOW. IF YOU HAVE LOCAL
+     CONFIGURATIONS, YOU CAN EITHER:
+     1.) Copy this file to another geospatialConfig_XXXX.xml file and include 
+         that filename at the top of that WarnGen template's XML file.
+     2.) Copy one or more of the sections (areaSource, pointSource, etc..)
+         below and paste them into your template's XML file below the following line 
+         <include file="geospatialConfig_MARINE.xml"/>
+         If you have multiple objects with the same name, the last one read is used.
+     
+     THIS CHANGE WAS DONE SO THAT CONFIGURATIONS COULD BE MADE IN ONE LOCATION
+     AND NOT ACROSS 20-30 TEMPLATES. A COUNTY-BASED and ZONE-BASED COUNTERPART
+     EXISTS TO THIS FILE.      
+
+SOFTWARE HISTORY
+Date     Ticket#     Engineer    Description
+01/20/15 RM #14929   Qinglu Lin  Changed false to true for <withinPolygon> tags in <pathcastConfig>,
+                                 <pointSource variable="otherPoints>, and <pointSource variable="locationList">.
+-->
+
+<!-- CREATE DEFAULT OBJECTS. THIS SHOULD GENERALLY NOT BE TOUCHED-->
+ <geospatialConfig>
+  <pointSource>WarnGenLoc</pointSource>
+  <areaSource>MarineZones</areaSource>
+  <parentAreaSource>MarineZones</parentAreaSource>
+  <timezoneSource>TIMEZONES</timezoneSource>
+  <timezoneField>TIME_ZONE</timezoneField>
+ </geospatialConfig>
+ 
+ 
+<!-- CREATE areaSource OBJECT TO GENERATE MARINE-BASED INFORMATION OFF WARNGEN HATCHING -->
+ <areaSource variable="areas">
+   <areaSource>MarineZones</areaSource>
+   <inclusionPercent>0</inclusionPercent>
+   <inclusionAndOr>AND</inclusionAndOr>
+   <inclusionArea>0</inclusionArea>
+   <areaField>NAME</areaField> 
+   <parentAreaField>NAME</parentAreaField>
+   <areaNotationField>NAME</areaNotationField>
+   <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
+   <fipsField>ID</fipsField>
+   <pointField>NAME</pointField>
+   <sortBy>
+  	<sort>parent</sort>
+   </sortBy>
+   <pointFilter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="1" constraintType="EQUALS" />
+ 		</mapping>
+  </pointFilter>
+  <includedWatchAreaBuffer>0</includedWatchAreaBuffer>
+</areaSource>
+ 
+
+<!-- CREATE pointSource OBJECT TO GENERATE LIST OF CLOSEST POINTS TO DOT (3RD BULLET) -->
+<!-- type = AREA allows us to use multi-polygonal shapefiles despite the pointSource misnomer -->
+ <pointSource variable="closestPoints">
+ 	<pointField>NAME</pointField>
+ 	<type>AREA</type>
+ 	<searchMethod>POINTS</searchMethod>
+ 	<maxResults>1</maxResults>
+ 	<distanceThreshold>100</distanceThreshold>
+ 	<filter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="1,2" constraintType="IN" />
+ 		</mapping>
+  	  <mapping key="LANDWATER">
+ 		<constraint constraintValue="W,C,LW,LC" constraintType="IN" />
+ 	  </mapping>  		
+ 	</filter>
+ 	<sortBy>
+ 		<sort>distance</sort>
+  		<sort>warngenlev</sort>
+  	</sortBy>
+ </pointSource>
+ 
+<!-- CREATE pointSource OBJECT TO GENERATE LIST OF SECONDARY POINTS TO DOT (3RD BULLET) 
+...OR ABOUT XXX MILES FROM LARGER KNOWN LOCATION -->
+ <pointSource variable="otherClosestPoints">
+ 	<pointField>NAME</pointField>
+ 	<type>AREA</type>
+ 	<searchMethod>POINTS</searchMethod>
+ 	<filter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="1" constraintType="IN" />
+ 		</mapping>
+  	  <mapping key="LANDWATER">
+ 		<constraint constraintValue="W,C,LW,LC" constraintType="IN" />
+ 	  </mapping>  		
+ 	</filter>
+ 	<maxResults>5</maxResults>
+ 	<distanceThreshold>100</distanceThreshold>
+ 	<sortBy>
+ 		<sort>distance</sort>
+  		<sort>warngenlev</sort>
+  	</sortBy>
+ </pointSource>
+
+<!-- CREATE pathcastConfig OBJECT FOR PATHCAST (4TH BULLET) --> 
+<pathcastConfig>
+  <type>AREA</type>
+  <withinPolygon>true</withinPolygon>
+  <inclusionPercent>1</inclusionPercent>
+  <distanceThreshold>10.0</distanceThreshold>
+  <interval>5</interval>
+  <delta>5</delta>
+  <maxResults>10</maxResults>
+  <maxGroup>8</maxGroup>
+  <pointField>Name</pointField>
+  <areaField>Name</areaField>
+  <parentAreaField>Name</parentAreaField>
+  <areaNotationField>Name</areaNotationField>
+  <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
+  <sortBy>
+  		<sort>warngenlev</sort>
+  		<sort>distance</sort>
+  </sortBy>
+  <filter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="1,2,3" constraintType="IN" />
+ 		</mapping>
+  	  <mapping key="LANDWATER">
+ 		<constraint constraintValue="W,LW" constraintType="IN" />
+ 	  </mapping>  		
+  </filter>
+ </pathcastConfig> 
+ 
+ <!-- CREATE pointSource OBJECT FOR LOWER ORDER CITIES FOR PATHCAST SETTING (4TH BULLET) --> 
+ <pointSource variable="otherPoints">
+ 	<pointField>NAME</pointField>
+ 	<inclusionPercent>1</inclusionPercent>
+ 	<type>AREA</type>
+ 	<searchMethod>TRACK</searchMethod>
+ 	<withinPolygon>true</withinPolygon>
+ 	<maxResults>10</maxResults>
+ 	<distanceThreshold>10</distanceThreshold>
+ 	<sortBy>
+  		<sort>distance</sort>
+  		<sort>warngenlev</sort>
+  	</sortBy>
+	<filter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="3,4" constraintType="IN" />
+ 		</mapping>
+  	  <mapping key="LANDWATER">
+ 		<constraint constraintValue="W,LW" constraintType="IN" />
+ 	  </mapping>  		
+  	</filter>
+ </pointSource>
+ 
+  <!-- CREATE pointSource OBJECT FOR NON-PATHCAST LOCATION LIST --> 
+ <pointSource variable="locationList">
+ 	<pointField>NAME</pointField>
+ 	<inclusionPercent>1</inclusionPercent>
+ 	<type>AREA</type>
+ 	<searchMethod>TRACK</searchMethod>
+ 	<withinPolygon>true</withinPolygon>
+ 	<maxResults>20</maxResults>
+ 	<distanceThreshold>10</distanceThreshold>
+	<filter> 	
+  	  <mapping key="WARNGENLEV">
+ 		<constraint constraintValue="1,2,3,4" constraintType="IN" />
+ 	  </mapping>  
+  	  <mapping key="LANDWATER">
+ 		<constraint constraintValue="W,LW" constraintType="IN" />
+ 	  </mapping>   	  
+ 	</filter>   	
+ 	<sortBy>
+  		<sort>distance</sort>
+  	</sortBy>  	
+ </pointSource>
+ 

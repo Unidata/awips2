@@ -1,0 +1,303 @@
+# Original Author(s): Roberto Padilla-Hernandez,Douglas Gaer
+# Alex Gibbs, Pablo Santos,Tony Freeman
+# File Creation Date: 06/01/2012
+# Date Last Modified: 05/11/13...ag
+#
+# Version control: 1.33
+#
+# Support Team:
+#
+# Contributors:
+#
+# -----------------------------------------------------------------------
+# ---------------------- Description and Details ------------------------
+# -----------------------------------------------------------------------
+#
+# File used to setup a geographical domain for SWAN and WW3
+#
+# -----------------------------------------------------------
+#========================================================================
+#                                    HFO                                =
+#  GEOGRAPHICAL DOMAIN, GEOGRAPHICAL RESOLUTION AND OUTPUT TIME STEP    =
+#                                                                       =
+#  NOTE: RES   = spatial resolution in km                               =
+#        TSTEP = request output time step (not the model time step)     =
+#========================================================================
+#
+export SITEID="HFO"
+export REGIONID="PR"
+export NELAT="27.00"
+export NELON="-150.00"
+export SWLAT="14.00"
+export SWLON="-165.00"
+export RES="18"
+export TSTEP="3"
+#
+#========================================================================
+#                  NESTED GRID CONFIGURATION                              =
+#                                                                         =
+# These nested grids are non-telescopic grids (i.e all of them are        =
+# nested in the outer grid, and get the boundary conditions only from it) =
+# Later versions of NWPS will either allow for telescopic nesting or      =
+# will be run on an unstructured grid characterized with a fine mesh      =
+# over the nearshore zones and a coarser mesh across the offshore areas.  =
+#                                                                         =
+#========================================================================
+#
+# TO DO: Update the domains below to reflect the area/s that you are
+#        interested in (must reside inside of you outer domain defined
+#        above). Also, remember to remove or comment out the remaining
+#        example nests below that were configured for another area. Once
+#        your nests are configured, just toggle the NESTGRIDS to '1'
+#        (Default configuration is off or '0') and you will have control
+#        from the GFE GUI to activate your nests during your runs.
+#
+# STATIONARY VS NONSTATIONARY MODE:
+#
+# STATN=STA for STATIONARY RUNS, STATN=NON for NON-STATIONARY RUNS.
+# The default value is NONstationary for CG1 (outer grid) and STAtionary
+# for the nested grids. Change this only if you know what you are doing.
+# You can choose STA or NON for a particular nested grid. In general,
+# if your domain that you define as a nest below is >= 100 km^2, then
+# set STATN=NON. For the very small domains or nests (<= 100 km^2)
+# set STATN=STA.
+#
+# ACTIVATE NEST/S: default is on for HFO
+#
+# NESTGRIDS="0" ... turns off nest options
+# NESTGRIDS="1" ... turns on nest options
+#
+export NESTGRIDS="0"
+#
+# NEST 1..all reef/keys domain
+export NELATN1="25.40"
+export NELONN1="-80.10"
+export SWLATN1="24.30"
+export SWLONN1="-83.20"
+export RESN1="1"
+export TSTEPN1="3"
+export STATN1="NON"
+#
+#========================================================================
+#                    SPECTRA OUTPUT LOCATIONS
+#                                                                       =
+# NOTE TO USER: the lat/lon points specified can be changed for any     =
+# arbitrary point of interest within your outer domain defined above.   =
+# One default buoy locations has already been configured for you        =
+# below. Add more as needed.                                            =
+#
+# NOTE: These do not have to match NDBC locations.                      =
+#
+#========================================================================
+# Spectra points defined as space delimited list of:
+#   "name1:lat1:lon1 name2:lat2:lon2 name3:lat3:lon3 name4:lat4:lon4 ...."
+#
+# export SPECPOINTS="PLSF1:24.720:-82.860 SANF1:24.460:-81.940 SMKF1:24.600:-81.170 LONF1:24.780:-80.840 MLRF1:25.060:-80.440"
+#
+#========================================================================
+#                    WAVE TRACKING (and WAVE PARTITION) ON/OFF          =
+#   SET: SUBDOHFON, GEOGRAPH RESOL and TOLERANCE WAVETRACK PARAMETERS   =
+#========================================================================
+# IF WAVE TRACKING IS REQUIRED THEN WVTRCK="ON", OTHER WISE SET IT AS "OFF"
+# IF WVTRCK IS "ON", ADDTIONAL INFORMATION IS REQUIRED, SEE BELOW
+#
+export WVTRCK="OFF"
+#
+# IF WAVE TRACKING IS REQUIRED EXACTLY OVER THE COMPUTATIONAL GRID AND SAME SPATIAL
+# RESOLUTION: SET WVTONCG="1"
+# IF USER WANTS TO CHANGE ANYONE OF THE PARAMETERS THEN WVTONCG="0" AND USER MUST GIVE
+# ALL INFORMATION FOR THE DOMAIN OR SUBDOMAIN AND GEOGRAPHICAL RESOLUTION.
+# BE CAREFULL, IF THERE IS ANY SPECTRAL OUTPUT LOCATIONS OUT OF THE NEW (REDUCED) DOMAIN
+# FOR WAVE TRACKING NWPS WILL ABORT.
+# (This will be changed in a new version, the user can get 1d-spectra but not g-h plots).
+#
+export WVTONCG="0"
+export NELATWT="26.00"
+export NELONWT="-79.00"
+export SWLATWT="23.00"
+export SWLONWT="-83.50"
+export GEORESWT="3.5"
+#
+# PARAMETERS FOR TRACKING ALGORITHM for WVTONCG=0 or =1 THIS IS ALWAYS READ
+# *CAUTION* CHANGE THEM ONLY IF YOU KNOW WHAT YOU ARE DOING
+# RECOMENDED VALUES WVTRKPA="10. 1. 0.25 0.1 10. 1."
+#               dirKnob, perKnob, hsKnob, wetPts, dirTimeKnob, tpTimeKnob
+export WVTRKPA="10. 1. 0.25 0.1 10. 1."
+#
+#========================================================================
+#                   CURRENTS DEFINITION (SEE SWAN MANUAL)               =
+#========================================================================
+#export CURRL1="INPGRID CUR ............................."
+#export CURRL2="READINP CUR ............................."
+#
+#========================================================================
+#                    BOUNDARY CONDITIONS (SEE SWAN MANUAL)              =
+#========================================================================
+# IF BOUNDARY CONDITIONS WILL BE USED then BOUNDCOND=1, Otherwise =0;
+# Setting up BOUNDCOND here to zero will permanently disable BCs.
+# If you leave it as 1 the user will still have the option to disable
+# them from the interactive Run_NWPS GUI.
+#
+export BOUNCOND="1"
+export FTPPAT1="multi_1"
+export FTPPAT1B="multi_1"
+export FTPPAT2="NW-HFO"
+export NFTPATTEMPTS="3"
+export WAVECPS="multi_1.NW-HFO51.spec.swan,multi_1.NW-HFO63.spec.swan,multi_1.NW-HFO68.spec.swan,multi_1.NW-HFO71.spec.swan"
+#
+# THE FOLLOWING LINES MUST BE COMMENTED. IF YOU ADD BOUNDARY COMMAND LINES FOR YOUR
+# DOMAIN, ADD THEM WITH THE "#" AS A FIRST CHARACTER, IF YOU DECIDE NOT TO USE BOUNARY
+# CONDITIONS (BOUNCOND="0") THEY WILL REMAIN AS A COMMENTED LINES. IF YOU DECIDE TO USE
+# BOUNDARY CONDITIONS (BOUNCOND="1") NWPS WILL INCLUDE THE INFORMATION IN THE ACTUAL
+# INPUT FILES WITH NOT COMMENT CHARACTER
+#
+#$BOUNDARY COMMAND LINES
+#$southern side HFO - east to west
+#BOUN SEG XY 276.50 26.00 276.50 23.00 VAR FILE 0.00 'multi_1.NW-HFO51.spec.swan'    1 &
+#0.25 'multi_1.NW-HFO52.spec.swan'    1 &
+#0.50 'multi_1.NW-HFO53.spec.swan'    1 &
+#0.75 'multi_1.NW-HFO54.spec.swan'    1 &
+#1.00 'multi_1.NW-HFO55.spec.swan'    1 &
+#1.25 'multi_1.NW-HFO56.spec.swan'    1 &
+#1.50 'multi_1.NW-HFO57.spec.swan'    1 &
+#1.75 'multi_1.NW-HFO58.spec.swan'    1 &
+#2.00 'multi_1.NW-HFO59.spec.swan'    1 &
+#2.25 'multi_1.NW-HFO60.spec.swan'    1 &
+#2.50 'multi_1.NW-HFO61.spec.swan'    1 &
+#2.75 'multi_1.NW-HFO62.spec.swan'    1 &
+#3.00 'multi_1.NW-HFO63.spec.swan.cp' 1
+#$ Southern Boundary
+#BOUN SEG XY 276.50 23.00 281.00 23.00 VAR FILE 0.00 'multi_1.NW-HFO63.spec.swan'    1 &
+#3.70 'multi_1.NW-HFO64.spec.swan'    1 &
+#3.90 'multi_1.NW-HFO65.spec.swan'    1 &
+#4.10 'multi_1.NW-HFO66.spec.swan'    1 &
+#4.30 'multi_1.NW-HFO67.spec.swan'    1 &
+#4.50 'multi_1.NW-HFO68.spec.swan.cp' 1
+#$ Eastern Boundary
+#BOUN SEG XY 281.00 23.00 281.00 26.00 VAR FILE 0.00 'multi_1.NW-HFO68.spec.swan'    1 &
+#0.20 'multi_1.NW-HFO69.spec.swan'    1 &
+#0.40 'multi_1.NW-HFO70.spec.swan'    1 &
+#3.00 'multi_1.NW-HFO71.spec.swan.cp' 1
+#$ Northern Boundary
+#BOUN SEG XY 281.00 26.00 276.5 26.00 VAR FILE 0.00 'multi_1.NW-HFO71.spec.swan'    1 &
+#0.20 'multi_1.NW-HFO72.spec.swan'    1 &
+#0.40 'multi_1.NW-HFO73.spec.swan'    1 &
+#0.60 'multi_1.NW-HFO74.spec.swan'    1 &
+#0.80 'multi_1.NW-HFO75.spec.swan'    1 &
+#1.00 'multi_1.NW-HFO76.spec.swan'    1 &
+#3.20 'multi_1.NW-HFO77.spec.swan'    1 &
+#3.45 'multi_1.NW-HFO78.spec.swan'    1 &
+#3.70 'multi_1.NW-HFO79.spec.swan'    1 &
+#3.95 'multi_1.NW-HFO80.spec.swan'    1 &
+#4.20 'multi_1.NW-HFO81.spec.swan'    1 &
+#4.50 'multi_1.NW-HFO51.spec.swan.cp' 1
+#$END BOUNSEG
+#
+#################################################################################################
+# UNSTRSWAN DEV
+# Updated: 8/10/2014
+# By: alex.gibbs@noaa.gov
+# Code: to support the UNSWAN development
+#################################################################################################
+#
+#$UNSTR SWAN BOUNDARY COMMAND LINES
+#$ W boundary
+#BOUNdspec SIDE 1 CLOCKW CON FILE 'multi_1.NW-HFO51.spec.swan' 1
+#BOUNdspec SIDE 2 CLOCKW CON FILE 'multi_1.NW-HFO96.spec.swan' 1
+#BOUNdspec SIDE 3 CLOCKW CON FILE 'multi_1.NW-HFO97.spec.swan' 1
+#BOUNdspec SIDE 4 CLOCKW CON FILE 'multi_1.NW-HFO98.spec.swan' 1
+#BOUNdspec SIDE 5 CLOCKW CON FILE 'multi_1.NW-HFO99.spec.swan' 1
+#BOUNdspec SIDE 6 CLOCKW CON FILE 'multi_1.NW-HFO100.spec.swan' 1
+#BOUNdspec SIDE 7 CLOCKW CON FILE 'multi_1.NW-HFO101.spec.swan' 1
+#BOUNdspec SIDE 8 CLOCKW CON FILE 'multi_1.NW-HFO102.spec.swan' 1
+#BOUNdspec SIDE 9 CLOCKW CON FILE 'multi_1.NW-HFO103.spec.swan' 1
+#BOUNdspec SIDE 10 CLOCKW CON FILE 'multi_1.NW-HFO104.spec.swan' 1
+#BOUNdspec SIDE 11 CLOCKW CON FILE 'multi_1.NW-HFO105.spec.swan' 1
+#BOUNdspec SIDE 12 CLOCKW CON FILE 'multi_1.NW-HFO79.spec.swan' 1
+#$ N boundary
+#BOUNdspec SIDE 13 CLOCKW CON FILE 'multi_1.NW-HFO80.spec.swan' 1
+#BOUNdspec SIDE 14 CLOCKW CON FILE 'multi_1.NW-HFO81.spec.swan' 1
+#BOUNdspec SIDE 15 CLOCKW CON FILE 'multi_1.NW-HFO82.spec.swan' 1
+#BOUNdspec SIDE 16 CLOCKW CON FILE 'multi_1.NW-HFO83.spec.swan' 1
+#BOUNdspec SIDE 17 CLOCKW CON FILE 'multi_1.NW-HFO84.spec.swan' 1
+#BOUNdspec SIDE 18 CLOCKW CON FILE 'multi_1.NW-HFO85.spec.swan' 1
+#BOUNdspec SIDE 19 CLOCKW CON FILE 'multi_1.NW-HFO86.spec.swan' 1
+#BOUNdspec SIDE 20 CLOCKW CON FILE 'multi_1.NW-HFO87.spec.swan' 1
+#BOUNdspec SIDE 21 CLOCKW CON FILE 'multi_1.NW-HFO88.spec.swan' 1
+#BOUNdspec SIDE 22 CLOCKW CON FILE 'multi_1.NW-HFO89.spec.swan' 1
+#BOUNdspec SIDE 23 CLOCKW CON FILE 'multi_1.NW-HFO90.spec.swan' 1
+#BOUNdspec SIDE 24 CLOCKW CON FILE 'multi_1.NW-HFO91.spec.swan' 1
+#BOUNdspec SIDE 25 CLOCKW CON FILE 'multi_1.NW-HFO92.spec.swan' 1
+#BOUNdspec SIDE 26 CLOCKW CON FILE 'multi_1.NW-HFO93.spec.swan' 1
+#BOUNdspec SIDE 27 CLOCKW CON FILE 'multi_1.NW-HFO94.spec.swan' 1
+#BOUNdspec SIDE 28 CLOCKW CON FILE 'multi_1.NW-HFO67.spec.swan' 1
+#$ E boundary
+#BOUNdspec SIDE 29 CLOCKW CON FILE 'multi_1.NW-HFO68.spec.swan' 1
+#BOUNdspec SIDE 30 CLOCKW CON FILE 'multi_1.NW-HFO69.spec.swan' 1
+#BOUNdspec SIDE 31 CLOCKW CON FILE 'multi_1.NW-HFO70.spec.swan' 1
+#BOUNdspec SIDE 32 CLOCKW CON FILE 'multi_1.NW-HFO71.spec.swan' 1
+#BOUNdspec SIDE 33 CLOCKW CON FILE 'multi_1.NW-HFO72.spec.swan' 1
+#BOUNdspec SIDE 34 CLOCKW CON FILE 'multi_1.NW-HFO73.spec.swan' 1
+#BOUNdspec SIDE 35 CLOCKW CON FILE 'multi_1.NW-HFO74.spec.swan' 1
+#BOUNdspec SIDE 36 CLOCKW CON FILE 'multi_1.NW-HFO75.spec.swan' 1
+#BOUNdspec SIDE 37 CLOCKW CON FILE 'multi_1.NW-HFO76.spec.swan' 1
+#BOUNdspec SIDE 38 CLOCKW CON FILE 'multi_1.NW-HFO77.spec.swan' 1
+#BOUNdspec SIDE 39 CLOCKW CON FILE 'multi_1.NW-HFO78.spec.swan' 1
+#$ S boundary
+#BOUNdspec SIDE 40 CLOCKW CON FILE 'multi_1.NW-HFO66.spec.swan' 1
+#BOUNdspec SIDE 41 CLOCKW CON FILE 'multi_1.NW-HFO65.spec.swan' 1
+#BOUNdspec SIDE 42 CLOCKW CON FILE 'multi_1.NW-HFO64.spec.swan' 1
+#BOUNdspec SIDE 43 CLOCKW CON FILE 'multi_1.NW-HFO63.spec.swan' 1
+#BOUNdspec SIDE 44 CLOCKW CON FILE 'multi_1.NW-HFO62.spec.swan' 1
+#BOUNdspec SIDE 45 CLOCKW CON FILE 'multi_1.NW-HFO61.spec.swan' 1
+#BOUNdspec SIDE 46 CLOCKW CON FILE 'multi_1.NW-HFO60.spec.swan' 1
+#BOUNdspec SIDE 47 CLOCKW CON FILE 'multi_1.NW-HFO59.spec.swan' 1
+#BOUNdspec SIDE 48 CLOCKW CON FILE 'multi_1.NW-HFO58.spec.swan' 1
+#BOUNdspec SIDE 49 CLOCKW CON FILE 'multi_1.NW-HFO57.spec.swan' 1
+#BOUNdspec SIDE 50 CLOCKW CON FILE 'multi_1.NW-HFO56.spec.swan' 1
+#BOUNdspec SIDE 51 CLOCKW CON FILE 'multi_1.NW-HFO55.spec.swan' 1
+#BOUNdspec SIDE 52 CLOCKW CON FILE 'multi_1.NW-HFO54.spec.swan' 1
+#BOUNdspec SIDE 53 CLOCKW CON FILE 'multi_1.NW-HFO53.spec.swan' 1
+#BOUNdspec SIDE 54 CLOCKW CON FILE 'multi_1.NW-HFO52.spec.swan' 1
+#$END BOUNSEG for UNSTR SWAN
+#
+#========================================================================
+#                    RIP CURRENT PROGRAM (SEE NWPS MANUAL)              =
+#========================================================================
+# IF RIP CURRENT PROGRAM WILL BE RUN, then RIPCONT=1, Otherwise =0;
+# Setting up RIPCONT here to zero will permanently disable RIP program.
+#
+export RIPPROG="1"
+export RIPDOMAIN="CG2"
+export RIPCONT="5m"
+#
+#___________________________________________________________________________
+# RAY Section: Define a pair of rays to drop data out along critical contours
+#              for rip current program.
+#
+# Example: for data output every 2km along a 5m bathy contour
+#
+# RAY 'rayname' xp yp xq yq int xp yp xq yq
+#
+# RAY 'ray1' 282.85 34.628 282.85 34.62 2000 283.00 34.655 283.00 34.62
+#
+# ISOLINE '5mcont' 'ray1' BOTtom 5
+# TABLE '5mcont' HEAD '5mtable' HSIGN TPS PDIR OUTPUT 20110825.1200 3.0 HR
+#_____________________________________________________________________________
+#
+# THE FOLLOWING LINES MUST BE COMMENTED. IF YOU ADD RIP COMMAND LINES FOR YOUR
+# DOMAIN, ADD THEM WITH THE "#" AS A FIRST CHARACTER, IF YOU DECIDE NOT TO USE RIP
+# CURRENTS (RIPCONT="0") THEY WILL REMAIN AS A COMMENTED LINES. IF YOU DECIDE TO USE
+# BOUNDARY CONDITIONS (BOUNCOND="1") NWPS WILL INCLUDE THE INFORMATION IN THE ACTUAL
+# INPUT FILES WITH NOT COMMENT CHARACTER
+#ORIGINAL LINE
+#TABLE '5mcont' HEAD '5m_contour_CG2' TIME XP YP HSIGN TPS DIR DSPR VEL WATL WIND OUTPUT YYYYMMDD.HHMM H.M HR
+#$RIP LINES
+#$ Ray for 5m contour data.
+#$
+#RAY 'ray1' 279.88 25.84 279.9 25.84 100 279.88 25.90 279.90 25.90
+#ISOLINE '5mcont' 'ray1' BOTtom 5
+#TABLE '5mcont' HEAD '5m_contour_CG2' TIME XP YP HSIGN TPS DIR DSPR VEL BOTLEV WIND OUTPUT YYYYMMDD.HHMM H.M HR
+#$
+#$END RIP
+#

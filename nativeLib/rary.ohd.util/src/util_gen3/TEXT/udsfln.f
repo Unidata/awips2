@@ -1,0 +1,221 @@
+C MEMBER UDSFLN
+C-----------------------------------------------------------------------
+C
+      SUBROUTINE UDSFLN (TYPE,UNDEF,MFILE,NFILE,FILE,QULF,ISTAT)
+C
+C
+C  ROUTINE UDSFLN READS A FILE CONTAINING THE FILE UNIT NUMBERS AND
+C  DATASET NAME QUALIFIERS.
+C
+C
+C  INPUT ARGUMENTS:
+C
+C       TYPE  - TYPE OF FILE NAMES TO BE RETURNED
+C       UNDEF - SYMBOL TO BE USED TO FILL UNDEFINED FILE NAMES
+C       MFILE - SIZE OF DATA FILE ARRAY
+C
+C  OUTPUT ARGUMENTS:
+C
+C       NFILE  - NUMBER OF DATA FILES FOUND
+C       FILE   - ARRAY OF DATA FILES
+C       QULF   - FIRST QUALIFIERS OF DATASET NAME
+C       ISTAT  - STATUS INDICATOR
+C                 0 = NO ERROR
+C                 1 = INVALID UNIT NUMBER FOUND
+C                 2 = DATA ARRAY SIZE EXCEEDED
+C
+C-----------------------------------------------------------------------
+C
+      CHARACTER*4 TYPE
+      CHARACTER*8 UNDEF,XFILE,TMBR
+      CHARACTER*8 FILE(MFILE)
+      CHARACTER*8 PDSMBR/' '/
+      CHARACTER*8 DDN/'FT??F001'/
+      CHARACTER*8 BLNK8/' '/
+      CHARACTER*44 QULF
+      CHARACTER*80 REC
+C
+      DIMENSION CARD(18),SEQNUM(2),DESC(12)
+C
+      INCLUDE 'uiox'
+      INCLUDE 'ucmdbx'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/util/src/util_gen3/RCS/udsfln.f,v $
+     . $',                                                             '
+     .$Id: udsfln.f,v 1.1 1995/09/17 19:03:25 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C
+      IF (ICMTRC.GT.0) THEN
+         CALL ULINE (ICMPRU,1)
+         WRITE (ICMPRU,160)
+         ENDIF
+C
+      IF (ICMDBG.GT.2) THEN
+         CALL ULINE (ICMPRU,1)
+         WRITE (ICMPRU,170) MFILE
+         ENDIF
+C
+      ISTAT=0
+C
+      NFILE=0
+      NFILEA=0
+      NUMREC=0
+C
+C  INITIALZE ARRAYS
+      DO 10 I=1,MFILE
+         FILE(I)=UNDEF
+10       CONTINUE
+C
+C  CHECK IF DATASET IS ALLOCATED
+      IPRERR=1
+      CALL UDDNST (DDN,LSYS,IPRERR,IERR)
+      IF (IERR.GT.0) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,190) LSYS
+         ISTAT=1
+         GO TO 140
+         ENDIF
+C
+C  CHECK FILE TYPE
+      IF (TYPE.EQ.'FCST'.OR.TYPE.EQ.'OFS5') PDSMBR='FS5FFILE'
+C
+      IF (ICMDBG.GT.0) THEN
+         CALL ULINE (ICMPRU,1)
+         WRITE (ICMPRU,180) DDN,PDSMBR
+         ENDIF
+C
+      IPERRR=0
+      TMBR=PDSMBR
+C
+C  READ FILE NAMES
+30    CALL URDPDS (DDN,TMBR,IPRERR,REC,LRECL,NUMREC,IFLAG,IRCPDS)
+      IF (IRCPDS.EQ.0.OR.IRCPDS.EQ.2) GO TO 40
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,200) IRCPDS
+         GO TO 120
+C
+40    IF (ICMDBG.GT.2) THEN
+         CALL ULINE (ICMPRU,1)
+         WRITE (ICMPRU,210) LRECL,REC(1:LRECL)
+         ENDIF
+C
+C  CHECK FOR COMMENT CARD
+      IF (REC(1:1).EQ.'*') THEN
+         IF (ICMDBG.LE.0) GO TO 50
+            CALL SUBSTR (REC,1,72,CARD,1)
+            CALL SUBSTR (REC,73,8,SEQNUM,1)
+            CALL ULINE (ICMPRU,1)
+            WRITE (ICMPRU,250) SEQNUM,CARD
+50       IF (IRCPDS.EQ.2) GO TO 120
+         GO TO 30
+         ENDIF
+C
+C  CHECK FOR FIRST QUALIFIERS OF DATASET NAME
+      CALL SUBSTR (REC,1,4,CHK,1)
+      IF (REC(1:4).NE.'QULF') GO TO 70
+         CALL SUBSTR (REC,6,44,QULF,1)
+         IF (ICMDBG.GT.2) THEN
+            CALL ULINE (ICMPRU,1)
+            WRITE (ICMPRU,260) QULF
+            ENDIF
+         IF (IRCPDS.EQ.2) GO TO 120
+         GO TO 30
+C
+C  RECORD HAS FILE NAME AND UNIT NUMBER
+70    CALL SUBSTR (REC,1,8,XFILE,1)
+C
+C  GET UNIT NUMBER
+80    CALL UFA2I (REC,10,2,IUNIT,IPERRR,LP,IERR)
+      IF (ICMDBG.GT.2) THEN
+         CALL ULINE (ICMPRU,1)
+         WRITE (ICMPRU,220) XFILE,IUNIT
+         ENDIF
+      IF (IUNIT.GE.1.AND.IUNIT.LE.99) GO TO 90
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,230) IUNIT
+         ISTAT=1
+C
+C  CHECK FOR ENOUGH SPACE IN ARRAYS
+90    NFILE=NFILE+1
+      IF (ICMDBG.GT.2) THEN
+         CALL ULINE (ICMPRU,1)
+         WRITE (ICMPRU,280) NFILE
+         ENDIF
+      IF (NFILE.LE.MFILE) GO TO 100
+         IF (NFILEA.EQ.0) THEN
+            CALL UEROR (LP,1,-1)
+            WRITE (LP,290) MFILE
+            ISTAT=2
+            ENDIF
+         NFILEA=NFILEA+1
+C
+C  STORE DATA FILE AND ATTRIBUTES
+100   IF (ISTAT.GT.1) GO TO 110
+         IF (MFILE.LT.99) FILE(NFILE)=XFILE
+         IF (MFILE.GE.99) FILE(IUNIT)=XFILE
+C
+110   IF (IRCPDS.EQ.2) GO TO 120
+      GO TO 30
+C
+120   IF (ICMDBG.GT.2) THEN
+         CALL ULINE (ICMPRU,1)
+         WRITE (ICMPRU,240) NUMREC,PDSMBR
+         ENDIF
+C
+      IF (ISTAT.NE.1) GO TO 130
+         IF (NFILEA.GT.0) THEN
+            CALL ULINE (LP,2)
+            WRITE (LP,300) NFILEA
+            ENDIF
+         NFILE=NFILE-NFILEA
+C
+C  CLOSE DATASET
+130   CALL URDPDS (DDN,BLNK8,IPRERR,REC,LRECL,NUMREC,IFLAG,IRCPDS)
+C
+140   IF (ICMDBG.GT.0) THEN
+         CALL ULINE (ICMPRU,1)
+         WRITE (ICMPRU,310) NFILE
+         CALL ULINE (ICMPRU,1)
+         WRITE (ICMPRU,320) (FILE(I),I=1,MFILE)
+         ENDIF
+C
+      IF (ICMTRC.GT.0) THEN
+         CALL ULINE (ICMPRU,1)
+         WRITE (ICMPRU,330) ISTAT
+         ENDIF
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+160   FORMAT (' *** ENTER UDSFLN')
+170   FORMAT (' MFILE=',I3)
+180   FORMAT (' DDN=',A,3X,'PDSMBR=',A)
+190   FORMAT ('+*** ERROR - IN UDSFLN - SYSTEM DATASET NOT ',
+     *   'ALLOCATED TO UNIT ',I2,'.')
+200   FORMAT ('+*** ERROR - IN UDSFLN - URRPDS CALLED. STATUS CODE=',
+     *   I2,'.')
+210   FORMAT (' LRECL=',I2,' REC=',A)
+220   FORMAT (' XFILE=',A,3X,'IUNIT=',I2)
+230   FORMAT ('+*** ERROR - IN UDSFLN - UNIT NUMBER (',I3,') MUST BE ',
+     *   'GREATER THAN 0 AND LESS THAN 100.')
+240   FORMAT (' ',I5,' RECORD READ FROM MEMBER ',A)
+250   FORMAT (' ',2A4,1X,18A4)
+260   FORMAT (' QULF=',A)
+270   FORMAT (' SEQNUM=',2A4,3X,'DESC=',12A4)
+280   FORMAT (' NFILE=',I3)
+290   FORMAT ('+*** ERROR - IN UDSFLN - MAXIMUM NUMBER OF FILE NAMES (',
+     *   I3,') EXCEEDED.')
+300   FORMAT ('0*** NOTE - IN UDSFLN - ',I2,' FILE NAMES NOT ',
+     *   'PROCESSED BECAUSE MAXIMUM FILES EXECEDED.')
+310   FORMAT (' NFILE=',I3,3X,'FILE:')
+320   FORMAT (10(1X,A))
+330   FORMAT (' *** EXIT UDSFLN : STATUS CODE=',I2)
+C
+      END

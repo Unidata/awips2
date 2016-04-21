@@ -1,0 +1,24 @@
+# This file contains the product IDs (nnn) that should be sent in mixed case.
+# Product IDs should be 3 characters long and delimited by commas or white space.
+# Overrides to the base file will add to the list of mixed case products
+
+# Phase 1 Products
+#AFD PNS RWS PWO TCD TWD TWO WRK             
+
+# Phase 2 Text Products
+#ADA ADM ADR AVA AVW AWO BRT FTM PLS SIM SYN 
+
+# Phase 2 Climate Refresh Products
+#CF6 CLA CLI CLM CLQ CLS CLT LCD             
+
+# Phase 2 GFE Forecast Products
+#AFM CCF CWF ESF FWF FWM FWS GLF HLS MVF NOW NSH OFF PFM RFD SAF SFT SPS SRF ZFP
+
+# Phase 2 GFE CivilEmerg Products
+#ADR AVA AVW CAE CDW CEM EQR EQW EVI FRW HMW LAE LEW NUW RHW SPW TOE VOW     
+
+# Phase 2 GFE Hazard Products
+#AQA CFW FFA HWO MWS MWW NPW RFW TCV WCN WSW
+
+# Phase 3 WarnGen Products
+#AWW EWW FFS FFW FLS FLW FRW MWS NOW SMW SPS SVR SVS TOR

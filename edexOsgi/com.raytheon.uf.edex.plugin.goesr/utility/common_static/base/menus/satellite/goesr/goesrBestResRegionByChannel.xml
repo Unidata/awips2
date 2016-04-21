@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesrBestResRegion.xml" 
+                menuText="Channel 1(0.47u)" id="goesr-ch1">
+        <substitute key="element" value="CH-01-0.47um"/>
+        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+        <substitute key="entity" value="GOES%"/>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesrBestResRegion.xml" 
+                menuText="Channel 2(0.64u)" id="goesr-ch2">
+        <substitute key="element" value="CH-02-0.64um"/>
+        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+        <substitute key="entity" value="GOES%"/>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesrBestResRegion.xml" 
+                menuText="Channel 3(0.87u)" id="goesr-ch3">
+        <substitute key="element" value="CH-03-0.87um"/>
+        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+        <substitute key="entity" value="GOES%"/>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesrBestResRegion.xml" 
+                menuText="Channel 4(1.38u)" id="goesr-ch4">
+        <substitute key="element" value="CH-04-1.38um"/>
+        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+        <substitute key="entity" value="GOES%"/>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesrBestResRegion.xml" 
+                menuText="Channel 5(1.61u)" id="goesr-ch5">
+        <substitute key="element" value="CH-05-1.61um"/>
+        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+        <substitute key="entity" value="GOES%"/>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesrBestResRegion.xml" 
+                menuText="Channel 6(2.25u)" id="goesr-ch6">
+        <substitute key="element" value="CH-06-2.25um"/>
+        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+        <substitute key="entity" value="GOES%"/>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesrBestResRegion.xml" 
+                menuText="Channel 7(3.9u)" id="goesr-ch7">
+        <substitute key="element" value="CH-07-3.90um"/>
+        <substitute key="colormap" value="Sat/IR/CIMSS_IR"/>
+        <substitute key="entity" value="GOES%"/>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesrBestResRegion.xml" 
+                menuText="Channel 8(6.19u)" id="goesr-ch8">
+        <substitute key="element" value="CH-08-6.19um"/>
+        <substitute key="colormap" value="Sat/WV/CIMSS_WV"/>
+        <substitute key="entity" value="GOES%"/>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesrBestResRegion.xml" 
+                menuText="Channel 9(6.95u)" id="goesr-ch9">
+        <substitute key="element" value="CH-09-6.95um"/>
+        <substitute key="colormap" value="Sat/WV/CIMSS_WV"/>
+        <substitute key="entity" value="GOES%"/>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesrBestResRegion.xml" 
+                menuText="Channel 10(7.34u)" id="goesr-ch10">
+        <substitute key="element" value="CH-10-7.34um"/>
+        <substitute key="colormap" value="Sat/WV/CIMSS_WV"/>
+        <substitute key="entity" value="GOES%"/>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesrBestResRegion.xml" 
+                menuText="Channel 11(8.5u)" id="goesr-ch11">
+        <substitute key="element" value="CH-11-8.50um"/>
+        <substitute key="colormap" value="Sat/IR/CIMSS_IR"/>
+        <substitute key="entity" value="GOES%"/>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesrBestResRegion.xml" 
+                menuText="Channel 12(9.61u)" id="goesr-ch12">
+        <substitute key="element" value="CH-12-9.61um"/>
+        <substitute key="colormap" value="Sat/IR/CIMSS_IR"/>
+        <substitute key="entity" value="GOES%"/>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesrBestResRegion.xml" 
+                menuText="Channel 13(10.35u)" id="goesr-ch13">
+        <substitute key="element" value="CH-13-10.35um"/>
+        <substitute key="colormap" value="Sat/IR/CIMSS_IR"/>
+        <substitute key="entity" value="GOES%"/>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesrBestResRegion.xml" 
+                menuText="Channel 14(11.2u)" id="goesr-ch14">
+        <substitute key="element" value="CH-14-11.20um"/>
+        <substitute key="colormap" value="Sat/IR/CIMSS_IR"/>
+        <substitute key="entity" value="GOES%"/>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesrBestResRegion.xml" 
+                menuText="Channel 15(12.3u)" id="goesr-ch15">
+        <substitute key="element" value="CH-15-12.30um"/>
+        <substitute key="colormap" value="Sat/IR/CIMSS_IR"/>
+        <substitute key="entity" value="GOES%"/>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesrBestResRegion.xml" 
+                menuText="Channel 16(13.3u)" id="goesr-ch16">
+        <substitute key="element" value="CH-16-13.30um"/>
+        <substitute key="colormap" value="Sat/IR/CIMSS_IR"/>
+        <substitute key="entity" value="GOES%"/>
+    </contribute>
+</menuTemplate>

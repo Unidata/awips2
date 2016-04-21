@@ -1,0 +1,65 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-fcinit_ssarresv library file
+#
+#  cmt: File made on Wed Aug  6 12:49:39 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libfcinit_ssarresv_t.a:  \
+     $(LIB)/libfcinit_ssarresv_t.a(card51.o)  \
+     $(LIB)/libfcinit_ssarresv_t.a(elst51.o)  \
+     $(LIB)/libfcinit_ssarresv_t.a(erot51.o)  \
+     $(LIB)/libfcinit_ssarresv_t.a(etom51.o)  \
+     $(LIB)/libfcinit_ssarresv_t.a(flwk51.o)  \
+     $(LIB)/libfcinit_ssarresv_t.a(glst51.o)  \
+     $(LIB)/libfcinit_ssarresv_t.a(infc51.o)  \
+     $(LIB)/libfcinit_ssarresv_t.a(infl51.o)  \
+     $(LIB)/libfcinit_ssarresv_t.a(inft51.o)  \
+     $(LIB)/libfcinit_ssarresv_t.a(lwb51.o)  \
+     $(LIB)/libfcinit_ssarresv_t.a(prpb51.o)  \
+     $(LIB)/libfcinit_ssarresv_t.a(pucb51.o)  \
+     $(LIB)/libfcinit_ssarresv_t.a(rfil51.o)  \
+     $(LIB)/libfcinit_ssarresv_t.a(sabc51.o)  \
+     $(LIB)/libfcinit_ssarresv_t.a(sabp51.o)  \
+     $(LIB)/libfcinit_ssarresv_t.a(sar51.o)  \
+     $(LIB)/libfcinit_ssarresv_t.a(sarc51.o)  \
+     $(LIB)/libfcinit_ssarresv_t.a(sarp51.o)  \
+     $(LIB)/libfcinit_ssarresv_t.a(sart51.o)  \
+     $(LIB)/libfcinit_ssarresv_t.a(ster51.o)  \
+     $(LIB)/libfcinit_ssarresv_t.a(strn51.o)  \
+     $(LIB)/libfcinit_ssarresv_t.a(tran51.o)  \
+     $(LIB)/libfcinit_ssarresv_t.a(trp51.o)  \
+     $(LIB)/libfcinit_ssarresv_t.a(trpc51.o)  \
+     $(LIB)/libfcinit_ssarresv_t.a(trpp51.o)  \
+     $(LIB)/libfcinit_ssarresv_t.a(tsid51.o)  \
+     $(LIB)/libfcinit_ssarresv_t.a(ufld51.o)  \
+     $(LIB)/libfcinit_ssarresv_t.a(upb51.o)  \
+     $(LIB)/libfcinit_ssarresv_t.a(wksp51.o)  \
+     $(LIB)/libfcinit_ssarresv_t.a(wtpc51.o)
+

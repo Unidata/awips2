@@ -1,0 +1,78 @@
+#########################################################################
+## The next section is for site specific dams. Each site should take the
+## example below and customize it for their dams with the information
+## from the LLL-damInfo.txt file in AWIPS 1. If you have any questions
+## please contact Phil Kurimski - WFO DTX
+#########################################################################
+#*
+#if(${list.contains(${bullets}, "BigRockDam")})
+    #set($riverName = "Phil River")
+    #set($damName = "Big Rock Dam")
+    #set($cityInfo = "Evan, located about 3 miles")
+#end
+#if(${list.contains(${bullets}, "BigRockhighfast")})
+    #set($scenario = "If a complete failure of the dam occurs, the water depth at Evan could exceed 18 feet in 16 minutes.")
+#end
+#if(${list.contains(${bullets}, "BigRockhighnormal")})
+    #set($scenario = "If a complete failure of the dam occurs, the water depth at Evan could exceed 23 feet in 31 minutes.")
+#end
+#if(${list.contains(${bullets}, "BigRockmediumfast")})
+    #set($scenario = "If a complete failure of the dam occurs, the water depth at Evan could exceed 14 feet in 19 minutes.")
+#end
+#if(${list.contains(${bullets}, "BigRockmediumnormal")})
+    #set($scenario = "If a complete failure of the dam occurs, the water depth at Evan could exceed 17 feet in 32 minutes.")
+#end
+#if(${list.contains(${bullets}, "BigRockruleofthumb")})
+    #set($ruleofthumb = "Flood wave estimate based on the dam in Idaho: Flood initially half of original height behind dam and 3-4 mph; 5 miles in 1/2 hours; 10 miles in 1 hour; and 20 miles in 9 hours.")
+#end
+#if(${list.contains(${bullets}, "BranchedOakDam")})
+    #set($riverName = "Kells River")
+    #set($damName = "Branched Oak Dam")
+    #set($cityInfo = "Dangelo, located about 6 miles")
+#end
+#if(${list.contains(${bullets}, "BranchedOakhighfast")})
+    #set($scenario = "If a complete failure of the dam occurs, the water depth at Dangelo could exceed 19 feet in 32 minutes.")
+#end
+#if(${list.contains(${bullets}, "BranchedOakhighnormal")})
+    #set($scenario = "If a complete failure of the dam occurs, the water depth at Dangelo could exceed 26 feet in 56 minutes.")
+#end
+#if(${list.contains(${bullets}, "BranchedOakmediumfast")})
+    #set($scenario = "If a complete failure of the dam occurs, the water depth at Dangelo could exceed 14 feet in 33 minutes.")
+#end
+#if(${list.contains(${bullets}, "BranchedOakmediumnormal")})
+    #set($scenario = "If a complete failure of the dam occurs, the water depth at Dangelo could exceed 20 feet in 60 minutes.")
+#end
+#if(${list.contains(${bullets}, "BranchedOakruleofthumb")})
+    #set($ruleofthumb = "Flood wave estimate based on the dam in Idaho: Flood initially half of original height behind dam and 3-4 mph; 5 miles in 1/2 hours; 10 miles in 1 hour; and 20 miles in 9 hours.")
+#end
+*#
+#########################################################
+## End of example
+#########################################################
+
+#######################################################################
+## Look for site specific selections to override the 4th bullet and
+## to set up the headlines and additional info used in the product.
+## This loop assumes you end each site specific selection with
+## the word "Dam". If you end with a different word you will need
+## to modify the loop below.
+########################################################################
+#foreach (${bullet} in ${bullets})
+#if(${bullet.endsWith("Dam")})
+    #set($ctaSelected = "YES")
+    #set($sitespecSelected = "YES")
+    #set($hycType = "THE ${riverName} BELOW ${damName}")
+    #set($emergencyText = "towns and cities immediately below ${damName} on the ${riverName}")
+    #set($emergencyHeadline = "#capitalize(${emergencyText} 'ALL')")
+    #set($headline = "for ${reportType2} ${damName} on the ${riverName} ")
+## The following line will capitalize the headline in the product.
+## If the headline will be mixed case just comment out the line below.    
+    #set($headline = "#capitalize(${headline} 'ALL')")
+    #set($reportType1 = "${reportType2} ${damName} on the ${riverName}")
+    #set($addInfo = "The nearest downstream town is ${cityInfo} from the dam.")
+    #set($sitespecCTA = "If you are in low lying areas below the ${damName} you should move to higher ground immediately.")
+#end
+#end
+#######################################################################
+## End of Site Specific Dam Information
+#######################################################################

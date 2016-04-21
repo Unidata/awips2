@@ -1,0 +1,20 @@
+<heightScales>
+	<scales name="Log 1050-150" unit="MILLIBARS" minVal="1050" maxVal="150" scale="LOG" heightType="PRESSURE" parameter="P" parameterUnit="hPa">
+		<labels>1000,850,700,500,400,300,250,200,150</labels>
+	</scales>
+	<scales name="Log 850-100" unit="MILLIBARS" minVal="850" maxVal="100" scale="LOG" heightType="PRESSURE" parameter="P" parameterUnit="hPa"/>
+    <scales name="Log 1050-500" unit="MILLIBARS" minVal="1050" maxVal="500" scale="LOG" heightType="PRESSURE" parameter="P" parameterUnit="hPa"/>
+    <scales name="Log 700-300" unit="MILLIBARS" minVal="700" maxVal="300" scale="LOG" heightType="PRESSURE" parameter="P" parameterUnit="hPa"/>
+    <scales name="Log 500-100" unit="MILLIBARS" minVal="500" maxVal="100" scale="LOG" heightType="PRESSURE" parameter="P" parameterUnit="hPa"/>
+    <scales name="Lin 1050-150" unit="MILLIBARS" minVal="1050" maxVal="150" scale="LIN" heightType="PRESSURE" parameter="P" parameterUnit="hPa"/>
+    <scales name="Lin 850-100" unit="MILLIBARS" minVal="850" maxVal="100" scale="LIN" heightType="PRESSURE" parameter="P" parameterUnit="hPa"/>
+    <scales name="Lin 1050-500" unit="MILLIBARS" minVal="1050" maxVal="500" scale="LIN" heightType="PRESSURE" parameter="P" parameterUnit="hPa"/>
+    <scales name="Lin 700-300" unit="MILLIBARS" minVal="700" maxVal="300" scale="LIN" heightType="PRESSURE" parameter="P" parameterUnit="hPa"/>
+    <scales name="Lin 500-100" unit="MILLIBARS" minVal="500" maxVal="100" scale="LIN" heightType="PRESSURE" parameter="P" parameterUnit="hPa"/>
+    <scales name="0-5km MSL" unit="KILOMETERS" minVal="0" maxVal="5" scale="LIN" heightType="HEIGHT_MSL" parameter="GH" parameterUnit="km"/>
+    <scales name="0-2.5km AGL" unit="METERS AGL" minVal="0" maxVal="2500" scale="LIN" heightType="HEIGHT_AGL" parameter="zAGL" parameterUnit="m"/>
+    <scales name="0-60 kft AGL" unit="KILOFEET AGL" minVal="0" maxVal="60" scale="LIN" heightType="HEIGHT_AGL" parameter="zAGL" parameterUnit="ft*1000"/>
+    <scales name="0-45 kft AGL" unit="KILOFEET AGL" minVal="0" maxVal="45" scale="LIN" heightType="HEIGHT_AGL" parameter="zAGL" parameterUnit="ft*1000"/>
+    <scales name="0-30 kft AGL" unit="KILOFEET AGL" minVal="0" maxVal="30" scale="LIN" heightType="HEIGHT_AGL" parameter="zAGL" parameterUnit="ft*1000"/>
+    <scales name="0-15 kft AGL" unit="KILOFEET AGL" minVal="0" maxVal="15" scale="LIN" heightType="HEIGHT_AGL" parameter="zAGL" parameterUnit="ft*1000"/>
+</heightScales>

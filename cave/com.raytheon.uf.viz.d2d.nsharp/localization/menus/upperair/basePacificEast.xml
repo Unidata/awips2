@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Rikitea (91948)" id="raobRikitea"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="91948"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Rapa (91958)" id="raobRapa"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="91958"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Rarotonga (NCRG)" id="raobRarotonga"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="91843"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Pago Pago, American Samoa (NSTU)" id="raobAmericanSamoa"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="91765"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Atuona (NTMN)" id="raobAtuona"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="91925"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Hao (NTTO)" id="raobHao"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="91944"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Papeete/Tahiti (NTTT)" id="raobTahiti"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="91938"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Raoul Is/Kermadec (NZRN)" id="raobKermadec"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="93997"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Canton Is (Jopham Arpt) (PCIS)" id="raobCantonIs"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="91700"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Lihue, HI (PHLI)" id="raobLihue_HI"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="91165"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Hilo, HI (PHTO)" id="raobHilo_HI "
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="91285"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Johnston Is. (USWB) (PJON)" id="raobJohnstonIs"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="91275"/>
+	    </contribute>
+
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Midway Island (Navy) (PMDY)" id="raobMidwayIs"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="91066"/>
+	    </contribute>
+</menuTemplate>

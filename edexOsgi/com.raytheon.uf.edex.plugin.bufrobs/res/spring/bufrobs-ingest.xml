@@ -1,0 +1,72 @@
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="bufrobsProcessor" class="com.raytheon.uf.edex.plugin.bufrobs.BufrObsProcessor" />
+
+    <bean id="bufrFileSeparator" class="com.raytheon.uf.common.nc.bufr.BufrFileSeparator" />
+
+    <bean id="bufrobsSynopticLandDecoder" class="com.raytheon.uf.edex.plugin.bufrobs.synoptic.SynopticLandBufrDecoder" depends-on="sfcObsRegistered">
+        <constructor-arg ref="sfcobsPluginName" />
+    </bean>
+    
+    <bean id="bufrobsBuoyDecoder" class="com.raytheon.uf.edex.plugin.bufrobs.buoy.BuoyBufrDecoder" depends-on="sfcObsRegistered">
+        <constructor-arg ref="sfcobsPluginName" />
+    </bean>
+
+    <bean factory-bean="bufrobsProcessor" factory-method="registerAll">
+        <constructor-arg>
+            <list>
+                <ref bean="bufrobsSynopticLandDecoder" />
+                <ref bean="bufrobsBuoyDecoder" />
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean id="bufrobsDistRegistry" factory-bean="distributionSrv" factory-method="register">
+        <constructor-arg value="bufrobs" />
+        <constructor-arg value="jms-durable:queue:Ingest.bufrobs" />
+    </bean>
+
+    <bean id="bufrObsRecordPopulator" class="com.raytheon.uf.edex.plugin.bufrobs.util.RecordPopulator" />
+
+    <camelContext id="bufrobs-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
+
+        <endpoint id="bufrobsInboxJmsEndpoint" uri="jms-durable:queue:Ingest.bufrobs" />
+
+        <!-- Begin bufrobs routes -->
+
+        <route id="bufrobsIngestRoute">
+            <from ref="bufrobsInboxJmsEndpoint" />
+            <setHeader headerName="pluginName">
+                <constant>sfcobs</constant>
+            </setHeader>
+            <bean ref="stringToFile" />
+            <doTry>
+                <split streaming="true">
+                    <method bean="bufrFileSeparator" method="separate" />
+                    <doTry>
+                        <pipeline>
+                            <bean ref="bufrobsProcessor" />
+                            <multicast>
+                                <to uri="direct-vm:persistIndexAlert" />
+                            </multicast>
+                        </pipeline>
+                        <doCatch>
+                            <exception>java.lang.Throwable</exception>
+                            <to uri="log:bufrobs?level=ERROR" />
+                        </doCatch>
+                    </doTry>
+                </split>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:bufrobs?level=ERROR" />
+                </doCatch>
+                <doFinally>
+                    <bean ref="bufrFileSeparator" method="clean" />
+                </doFinally>
+            </doTry>
+        </route>
+
+    </camelContext>
+</beans>

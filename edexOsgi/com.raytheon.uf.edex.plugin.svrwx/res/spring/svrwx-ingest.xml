@@ -1,0 +1,39 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="svrwxDecoder" class="com.raytheon.uf.edex.plugin.svrwx.SvrWxDecoder">
+        <constructor-arg ref="svrwxPluginName" />
+    </bean>
+
+	<bean id="svrwxDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg ref="svrwxPluginName" />
+		<constructor-arg value="jms-durable:queue:Ingest.svrwx" />
+	</bean>
+	
+    <camelContext id="svrwx-camel"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler">
+
+        <route id="svrwxIngestRoute">
+            <from uri="jms-durable:queue:Ingest.svrwx"/>
+            <setHeader headerName="pluginName">
+                <constant>svrwx</constant>
+            </setHeader>
+            <doTry>
+               <pipeline>
+                  <bean ref="stringToFile" />
+                  <bean ref="svrwxDecoder" method="decode" />
+                  <to uri="direct-vm:persistIndexAlert" />
+               </pipeline>
+               <doCatch>
+                   <exception>java.lang.Throwable</exception>
+                   <to uri="log:svrwx?level=ERROR"/>
+               </doCatch>
+            </doTry>
+        </route>
+
+    </camelContext>
+</beans>

@@ -1,0 +1,72 @@
+<project default="main" basedir=".">
+	<property name="localization.sites" value="OAX" />
+	<property name="deploy.python" value="true" />
+	<!-- 
+		The python packages to deploy - provided that 
+		deploy.python is true 
+	-->
+	<property name="python.packages" 
+		value="pypies" />
+	<!-- EDEX root directory - defaults to /awips2/edex -->
+	<property name="edex.root" value="/awips2/edex" />
+	<!-- Python root directory - defaults to /awips2/python -->
+	<property name="python.root" value="/awips2/python" />
+	<!--
+		if groovy.path is not manually set, groovy must be
+		on the PATH.
+	-->
+	<property name="groovy.path" value="" />
+	<property name="architecture" value="x86_64" />
+	
+	<available property="groovyPathSet" 
+		file="${groovy.path}/groovy" type="file" />
+	
+	<target name="main">
+		<antcall target="deploy-using-specific-groovy" />
+		<antcall target="deploy-using-environment-groovy" />
+	</target>
+	
+	<target name="usage" unless="${requiredPropertiesSet}">
+		<echo message="Usage: the following parameters are available when running deploy-install.xml." />
+		<echo message="REQUIRED PARAMETERS:" />
+		<echo message="		-Dworkspace_loc            the location of the Eclipse workspace; use the 'workspace_loc' variable provided by Eclipse" />
+		<echo message="OPTIONAL PARAMETERS:" />
+		<echo message="		-Dlocalization.sites       a colon delimited list of sites to deploy localization for" />
+		<echo message="		-Dedex.root                the root of the EDEX installation; defaults to /awips2/edex" />
+		<echo message="		-Ddeploy.python            a boolean value {true, false} indicating if python should be deployed" />
+		<echo message="		-Dpython.root              the root of the python installation; defaults to /awips2/python" />
+		<echo message="		-Dpython.packages          a colon delimited list of python packages to deploy; defaults to pypies:ufpy:dynamicserialize" />
+		<echo message="		-Darchitecture             used to override the deployment architecture; use one of: {x86_64, x86}." />
+		
+		<fail message="All required parameters have not been specified. Refer to the usage message above." />
+	</target>
+	
+	<target name="deploy-using-specific-groovy" if="${groovyPathSet}">
+		<deploy
+			groovy.executable="${groovy.path}/groovy" />		
+	</target>
+	
+	<target name="deploy-using-environment-groovy" unless="${groovyPathSet}">
+		<deploy
+			groovy.executable="groovy" />
+	</target>
+	
+	<macrodef name="deploy">
+		<attribute name="groovy.executable" />
+		
+		<sequential>
+			<exec executable="@{groovy.executable}">
+				<arg value="-cp" />
+				<arg value="${basedir}${path.separator}${basedir}/../build.core" />
+				<arg value="${basedir}/RunDeployInstall.groovy" />
+				<arg value="${workspace_loc}" />
+				<arg value="${localization.sites}" />
+				<arg value="${deploy.python}" />
+				<arg value="${edex.root}" />
+				<arg value="${python.root}" />
+				<arg value="${python.packages}" />
+				<arg value="${architecture}" />
+			</exec>
+		</sequential>
+	</macrodef>
+</project>

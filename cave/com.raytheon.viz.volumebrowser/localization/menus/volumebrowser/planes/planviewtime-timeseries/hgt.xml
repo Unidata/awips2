@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="54ftAgl" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="80m" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="1500 m" key="1.5km"
+        indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="0.5kmAgl" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="1kmAgl" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="1.5kmAgl" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="2kmAgl" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="2.5kmAgl" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="3kmAgl" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="3.5kmAgl" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="4kmAgl" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="4.5kmAgl" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="5kmAgl" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="5.5kmAgl" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="6kmAgl" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="7kmAgl" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="8kmAgl" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="9kmAgl" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="10kmAgl" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="11kmAgl" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="12kmAgl" indentText="false" />
+    
+    <contribute xsi:type="toolbarSubMenu" menuText="km AGL Layers">
+        <contribute xsi:type="subinclude"
+            fileName="menus/volumebrowser/planes/planviewtime-timeseries/hgt/kmAglLayers.xml" />
+    </contribute>
+    
+    <contribute xsi:type="toolbarSubMenu" menuText="MSL">
+        <contribute xsi:type="subinclude"
+            fileName="menus/volumebrowser/planes/planviewtime-timeseries/hgt/MSL.xml" />
+    </contribute>
+
+    <contribute xsi:type="toolbarSubMenu" menuText="ft AGL">
+        <contribute xsi:type="subinclude"
+            fileName="menus/volumebrowser/planes/planviewtime-timeseries/hgt/kftAGL.xml" />
+    </contribute>
+
+    <contribute xsi:type="toolbarSubMenu" menuText="ft MSL">
+        <contribute xsi:type="subinclude"
+            fileName="menus/volumebrowser/planes/planviewtime-timeseries/hgt/kftMSL.xml" />
+    </contribute>
+    <contribute xsi:type="toolbarSubMenu" menuText="FL180-FL450">
+        <contribute xsi:type="subinclude"
+            fileName="menus/volumebrowser/planes/planviewtime-timeseries/hgt/FL180-FL450.xml" />
+    </contribute>
+    
+    
+</menuTemplate>

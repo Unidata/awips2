@@ -1,0 +1,243 @@
+C MODULE TMAT
+C-----------------------------------------------------------------------
+C
+      SUBROUTINE TMAT (IARY,MIARY,NTOTM)
+C
+C   THIS ROUTINE CALCULATES THE MAT TIME SERIES FOR EACH
+C   MAT AREA FROM THE 6 HR MEANS OF THE STATION DATA..
+C
+      CHARACTER*4 UNITS,TZC
+      CHARACTER*8 OLDOPN,RMATID
+      CHARACTER*20 DESCR
+      INTEGER*2 IARY
+C
+      DIMENSION IPT(50),WT(50)
+      DIMENSION IARY(1)
+C
+      INCLUDE 'common/ionum'
+      INCLUDE 'common/pudbug'
+      INCLUDE 'common/fctime'
+      INCLUDE 'common/fctim2'
+      INCLUDE 'common/tloc'
+      INCLUDE 'common/tscrat'
+      INCLUDE 'common/tary'
+      INCLUDE 'common/tout'
+C
+      EQUIVALENCE (ARY(2),RMATID),(ARY(4),DESCR)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcst_mat/RCS/tmat.f,v $
+     . $',                                                             '
+     .$Id: tmat.f,v 1.3 2000/07/21 19:18:58 page Exp $
+     . $' /
+C    ===================================================================
+C
+      DATA MAT/4hMAT /
+C
+C
+      IF (IPTRCE.GE.1) WRITE (IOPDBG,*) 'ENTER TMAT'
+C
+      IBUG=IPBUG('MAT ')
+C
+      IOPNUM=-1
+      CALL FSTWHR ('TMAT    ',IOPNUM,OLDOPN,IOLDOP)
+C
+      IER=0
+C
+      UNITS='DEGF'
+      IF (METRIC.EQ.1) UNITS='DEGC'
+C
+      REWIND KTSCR
+      IDA=IDARUN
+C
+      IFUTHR=(LDACPD-1)*24+LHRCPD+6+NHOPDB
+C
+      NEED=NTOTM*4
+      NDAYS=MIARY/NEED
+      NDAYST=LDARUN-IDARUN+1
+C
+   50 IF (NDAYST.LT.NDAYS) NDAYS=NDAYST
+      LDA=IDA+NDAYS-1
+      IPTR=0
+      IREC=0
+      L1=1
+      IF (IBUG.GT.0) WRITE (IPR,602) NDAYS
+  602 FORMAT (' NDAYS=',I6,1X,'6 HOUR MEANS:')
+      DO 100 I=1,NDAYS
+         L2=L1+NTOTM*4-1
+         READ(KTSCR) (IARY(L),L=L1,L2)
+         IF (IBUG.GT.0) WRITE (IPR,604) (IARY(L),L=L1,L2)
+  604 FORMAT (10X,20I6)
+         L1=L2+1
+  100    CONTINUE
+C
+      IF (IPRMAT.EQ.0) GO TO 110
+C
+C  PRINT HEADER
+      CALL MDYH1 (IDA,24,IMONTH,IDAY,IYEAR,IHOUR,NOUTZ,NOUTDS,TZC)
+      CALL MDYH1 (LDA,24,LMONTH,LDAY,LYEAR,LHOUR,NOUTZ,NOUTDS,TZC)
+      WRITE (IPR,601)
+601   FORMAT ('0')
+      WRITE (IPR,610) UNITS,
+     1 IMONTH,IDAY,IYEAR,IHOUR,TZC,
+     2 LMONTH,LDAY,LYEAR,LHOUR,TZC
+  610 FORMAT ('0',20X,'MEAN AREAL TEMPERATURES  (UNITS=',A4,')',5X,
+     1 'FOR DAYS ',
+     2 I2.2,'/',I2.2,'/',I4.4,'-',I2.2,A4,' THRU ',
+     3 I2.2,'/',I2.2,'/',I4.4,'-',I2.2,A4)
+C
+  110 RMATID=' '
+      LIMIT=ISTDAT-1
+      CALL RPPREC (RMATID,MAT,IPTR,LIMIT,ARY,NFILL,IPNXT,ISTAT)
+      IF (IBUG.GT.0) CALL PDUMPA (NFILL,ARY,MAT,RMATID,1)
+      IF (ISTAT.NE.0) THEN
+         IF (ISTAT.EQ.6) GO TO 990
+         CALL PSTRDC (ISTAT,MAT,RMATID,IPTR,LIMIT,NFILL)
+         IER=1
+         GO TO 999
+	 ENDIF
+C
+      IF (IPRMAT.EQ.0) GO TO 135
+C
+      WRITE (IPR,635) RMATID,DESCR
+  635 FORMAT ('0AREA ID = ',A,5X,'DESCRIPTION = ',A)
+      JDAY=1
+      INTHR=6
+      CALL MDYH1(JDAY,INTHR,IM,ID,IY,IH1,NOUTZ,NOUTDS,TZC)
+      IH2=IH1+6
+      IH3=IH2+6
+      IH4=IH3+6
+      IF (TZC.EQ.'Z') GO TO 125
+         IF (IH2.GT.24) IH2=IH2-24
+         IF (IH3.GT.24) IH3=IH3-24
+         IF (IH4.GT.24) IH4=IH4-24
+         GO TO 130
+  125 IF (IH1.EQ.24) IH1=0
+      IF (IH2.GE.24) IH2=IH2-24
+      IF (IH3.GE.24) IH3=IH3-24
+      IF (IH4.GE.24) IH4=IH4-24
+  130 WRITE (IPR,638) IH1,TZC,IH2,TZC,IH3,TZC,IH4,TZC,
+     1 IH1,TZC,IH2,TZC,IH3,TZC,IH4,TZC
+  638 FORMAT ('0',
+     1  11X,'DATE',5X,I2.2,A4,4X,I2.2,A4,4X,I2.2,A4,4X,I2.2,A4,
+     2  15X,'DATE',5X,I2.2,A4,4X,I2.2,A4,4X,I2.2,A4,4X,I2.2,A4 /
+     3 ' ',
+     4  11X,'----',4(5X,'-----'),
+     5  15X,'----',4(5X,'-----'))
+C
+  135 NTEMP=ARY(17)
+      DO 140 I=1,NTEMP
+         IPT(I)=ARY(17+2*NTEMP+I)
+         WT(I)=ARY(17+3*NTEMP+I)
+  140    CONTINUE
+C
+      L1=1
+      KOUNT=ISTDAT-1
+      DO 200 J=1,NDAYS
+         DO 180 K=1,4
+            SUMN=0.
+            SUMD=0.
+            DO 160 L=1,NTEMP
+               LMP=IPT(L)
+               I=(LMP-1)/5
+               L6M=(I*4)+1
+               SUMN=SUMN+IARY(L1+L6M+K-2)*WT(L)
+               SUMD=SUMD+WT(L)
+  160          CONTINUE
+            ARY(KOUNT+K)=SUMN/SUMD/10.
+  180       CONTINUE
+         KOUNT=KOUNT+4
+         L1=L1+NTOTM*4
+  200    CONTINUE
+C
+      IF (METRIC.EQ.1) THEN
+C     CONVERT VALUES
+         ICONV=1
+         NVAL=KOUNT-ISTDAT+1
+         CALL UDUCNV ('DEGF','DEGC',ICONV,NVAL,ARY(ISTDAT),ARY(ISTDAT),
+     *      ISTAT)
+         ENDIF
+C
+      IJHR=(IDA-1)*24+6+NHOPDB
+      LJHR=LDA*24+NHOPDB
+      IJHRF=0
+      IF (LJHR.GE.IFUTHR) IJHRF=IFUTHR
+      IF (IJHR.GE.IFUTHR) IJHRF=IJHR
+C
+C  WRITE VALUES
+      ISTEP=6
+      NTPER=NDAYS*4
+      IWRK=ISTDAT+NTPER
+      MAXWRK=MARY-IWRK+1
+      ICALL=0
+      LTSDAT=MARY-ISTDAT
+      CALL WPRDD (RMATID,MAT,IJHR,ISTEP,NTPER,UNITS,NTPER,
+     1 LTSDAT,ARY(ISTDAT),IJHRF,ICALL,MAXWRK,ARY(IWRK),IREC,ISTAT)
+      IF (ISTAT.EQ.0) GO TO 300
+      IF (ISTAT.EQ.1) WRITE (IPR,640) MAT,RMATID
+  640 FORMAT ('0**ERROR** ',A4,' TIME SERIES ',A,' NOT FOUND.')
+      IF (ISTAT.EQ.2) WRITE (IPR,645) NTPER
+  645 FORMAT ('0**ERROR** TOO MANY VALUES ',I6,'. ',
+     1 'TIME SERIES WAS TRUNCATED AND WRITTEN.')
+      IF (ISTAT.EQ.3) WRITE (IPR,650)
+  650 FORMAT ('0**ERROR** TIME INTERVAL DOES NOT MATCH.')
+      IF (ISTAT.EQ.4) WRITE (IPR,655)
+  655 FORMAT ('0**ERROR** ILLEGAL WRITE.')
+      IF (ISTAT.EQ.5) WRITE (IPR,660)
+  660 FORMAT ('0**ERROR** FILE READ/WRITE ERROR.')
+      IF (ISTAT.EQ.6) WRITE (IPR,665)
+  665 FORMAT ('0**ERROR** NUMBER OF VALUES PER TIME STEP ',
+     1 'IS DIFFERENT ON FILE.')
+      IF (ISTAT.EQ.7) WRITE (IPR,670)
+  670 FORMAT ('0**ERROR** MINIMUM DAYS OF OBSERVED DATA ',
+     1 'CANNOT BE PRESERVED TIME SERIES NOT WRITTEN.')
+      IF (ISTAT.EQ.8) WRITE (IPR,675)
+  675 FORMAT ('0**ERROR** NTPER IS ZERO.')
+      IF (ISTAT.EQ.9) WRITE (IPR,680)
+  680 FORMAT ('0**ERROR** INVALID UNITS CONVERSION.')
+      IF (ISTAT.EQ.10) WRITE (IPR,685)
+  685 FORMAT ('0**ERROR** TIME SERIES WORK ARRAY TOO SMALL.')
+      IF (ISTAT.EQ.11) WRITE (IPR,686)
+  686 FORMAT ('0**ERROR** INVALID HOUR.')
+      IF (ISTAT.EQ.12) WRITE (IPR,687)
+  687 FORMAT ('0**ERROR** TIME SERIES DATA ARRAY TOO SMALL.')
+      CALL ERROR
+C
+  300 IF (IPRMAT.EQ.0) GO TO 400
+C
+C  PRINT VALUES
+      NTIMES=(NDAYS-1)/2+1
+      J2=ISTDAT-1
+      KDA2=IDA-1
+      DO 350 L=1,NTIMES
+         I1=J2+1
+         I2=I1+3
+         J1=I2+1
+         J2=J1+3
+         KDA1=KDA2+1
+         CALL MDYH1 (KDA1,24,KM1,KD1,KY,KH,NOUTZ,NOUTDS,TZC)
+         KDA2=KDA1+1
+         IF (KDA2.LE.LDA) GO TO 340
+            WRITE (IPR,695) KM1,KD1,(ARY(I),I=I1,I2)
+  695 FORMAT (11X,I2,'/',I2,4(5X,F5.1),15X,I2,'/',I2,4(5X,F5.1))
+            GO TO 350
+  340    CALL MDYH1 (KDA2,24,KM2,KD2,KY,KH,NOUTZ,NOUTDS,TZC)
+         WRITE (IPR,695) KM1,KD1,(ARY(I),I=I1,I2),
+     1      KM2,KD2,(ARY(J),J=J1,J2)
+  350    CONTINUE
+C
+  400 IPTR=IPNXT
+      IF (IPTR.NE.0) GO TO 110
+C
+  990 IF (LDA.GE.LDARUN) GO TO 999
+      IDA=LDA+1
+      NDAYST=LDARUN-IDA+1
+      GO TO 50
+C
+  999 CALL FSTWHR (OLDOPN,IOLDOP,OLDOPN,IOLDOP)
+C
+      RETURN
+C
+      END

@@ -1,0 +1,36 @@
+#########################################################################
+## The next section is for site specific burn scars and other areas that
+## need a pre-defined polygon for a FFW. Each site should take the
+## example below and customize it with the information they used in 
+## AWIPS 1. The following is an example of a burn scar area for a
+## pre-defined polygon in Boulders (BOU) cwa. 
+## If you have any questions please contact Phil Kurimski - WFO DTX 
+##            Mike Dangelo  23 March 2015  Mixed Case changes
+#########################################################################
+#*
+#if(${list.contains($bullets, "FourMileBurnArea")})
+    #set($burnScarName = "Four Mile Burn Area")
+    #set($burnScarEnd = " over the Four Mile Burn Area")
+    #set($emergencyHeadline = "areas in and around the ${burnScarName}")
+#end
+#if(${list.contains($bullets, "fourmilelowimpact")})
+  #set($ctaSelected = "YES")
+  #set($burnScar = "This is a life threatening situation.  Heavy rainfall will cause extensive and severe flash flooding of creeks...streams...and ditches in the Four Mile burn area.")
+  #set($burnDrainage = "Some drainage basins impacted include Four Mile Creek...Gold Run...and Four Mile Canyon Creek.")
+  #set($burnCTA = "This is a life-threatening situation.  Heavy rainfall will cause extensive and severe flash flooding of creeks...streams...and ditches in the Four Mile burn area.  Some drainage basins impacted include Four Mile Creek...Gold Run...and Four Mile Canyon Creek.  Severe debris flows can also be anticipated across roads.  Roads and driveways may be washed away in places.  If you encounter flood waters...climb to safety.")
+#end
+#if(${list.contains($bullets, "fourmilehighimpact")})
+  #set($ctaSelected = "YES")
+  #set($burnScar = "This is a life-threatening situation for people along Boulder Creek in the City of Boulder...in the Four Mile Burn Area...and in Boulder Canyon.  Heavy rainfall will cause extensive and severe flash flooding of creeks and streams from the Four Mile Burn Area downstream through the City of Boulder.")
+  #set($burnDrainage = "Some drainage basins impacted include Boulder Creek...Four Mile Creek...Gold Run...Four Mile Canyon Creek...and Wonderland Creek.")
+  #set($burnCTA = "This is a life-threatening situation for people along Boulder Creek in the City of Boulder...in the Four Mile Burn Area...and in Boulder Canyon.  Heavy rainfall will cause extensive and severe flash flooding of creeks and streams from the Four Mile Burn Area downstream through the City of Boulder.  Some drainage basins impacted include Boulder Creek...Four Mile Creek...Gold Run...Four Mile Canyon Creek...and Wonderland Creek.  Severe debris flows can also be anticipated across roads.  Roadways and bridges may be washed away in places. If you encounter flood waters...climb to safety.")
+#end
+*#
+#########################################################
+## End of example
+#########################################################
+
+#######################################################################
+## End of Site Specific Burn Scar Information
+#######################################################################
+

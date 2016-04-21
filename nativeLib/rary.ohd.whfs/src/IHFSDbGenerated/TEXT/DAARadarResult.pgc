@@ -1,0 +1,838 @@
+/*
+    File: DAARadarResult.pgc
+    Author  : CDBGEN
+    Created : Wed Dec 04 19:07:08 EST 2013 using database hd_ob9eempty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "DAARadarResult.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct DAARadarResult_t
+{
+    char		radid[4];
+    dtime_t		obstime;
+    short		num_gages;
+    char		rad_avail[2];
+    double		rw_bias_val_used;
+    double		mem_span_used;
+    char		edit_bias[2];
+    char		ignore_radar[2];
+
+    int		ind_num_gages;
+    int		ind_rad_avail;
+    int		ind_rw_bias_val_used;
+    int		ind_mem_span_used;
+    int		ind_edit_bias;
+    int		ind_ignore_radar;
+} DAARadarResult_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+DAARadarResult * GetDAARadarResult(const char * where)
+{
+
+    DAARadarResult * listPtr = NULL;
+    DAARadarResult * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM DAARadarResult ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DAARadarResult_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDAARadarResult() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDAARadarResult() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDAARadarResult() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.radid, :dbs.obstime, 
+    :dbs.num_gages:dbs.ind_num_gages, :dbs.rad_avail:dbs.ind_rad_avail, 
+    :dbs.rw_bias_val_used:dbs.ind_rw_bias_val_used, :dbs.mem_span_used:dbs.ind_mem_span_used, 
+    :dbs.edit_bias:dbs.ind_edit_bias, :dbs.ignore_radar:dbs.ind_ignore_radar    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDAARadarResult() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (DAARadarResult *) malloc(sizeof(DAARadarResult))) != NULL)
+        {
+
+            strcpy(structPtr->radid, dbs.radid);
+
+            structPtr->obstime = dbs.obstime;
+
+            structPtr->num_gages = dbs.num_gages;
+            setNullIfIndicated(dbs.ind_num_gages, SHORT, &structPtr->num_gages);
+
+            strcpy(structPtr->rad_avail, dbs.rad_avail);
+            setNullIfIndicated(dbs.ind_rad_avail, CHAR, structPtr->rad_avail);
+
+            structPtr->rw_bias_val_used = dbs.rw_bias_val_used;
+            setNullIfIndicated(dbs.ind_rw_bias_val_used, DOUBLE, &structPtr->rw_bias_val_used);
+
+            structPtr->mem_span_used = dbs.mem_span_used;
+            setNullIfIndicated(dbs.ind_mem_span_used, DOUBLE, &structPtr->mem_span_used);
+
+            strcpy(structPtr->edit_bias, dbs.edit_bias);
+            setNullIfIndicated(dbs.ind_edit_bias, CHAR, structPtr->edit_bias);
+
+            strcpy(structPtr->ignore_radar, dbs.ignore_radar);
+            setNullIfIndicated(dbs.ind_ignore_radar, CHAR, structPtr->ignore_radar);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.radid, :dbs.obstime, 
+        :dbs.num_gages:dbs.ind_num_gages, :dbs.rad_avail:dbs.ind_rad_avail, 
+        :dbs.rw_bias_val_used:dbs.ind_rw_bias_val_used, :dbs.mem_span_used:dbs.ind_mem_span_used, 
+        :dbs.edit_bias:dbs.ind_edit_bias, :dbs.ignore_radar:dbs.ind_ignore_radar        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetDAARadarResult() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+DAARadarResult * SelectDAARadarResult(const char * where)
+{
+
+    DAARadarResult * listPtr = NULL;
+    DAARadarResult * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM DAARadarResult ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DAARadarResult_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDAARadarResult() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDAARadarResult() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDAARadarResult() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.radid, :dbs.obstime, 
+    :dbs.num_gages:dbs.ind_num_gages, :dbs.rad_avail:dbs.ind_rad_avail, 
+    :dbs.rw_bias_val_used:dbs.ind_rw_bias_val_used, :dbs.mem_span_used:dbs.ind_mem_span_used, 
+    :dbs.edit_bias:dbs.ind_edit_bias, :dbs.ignore_radar:dbs.ind_ignore_radar    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDAARadarResult() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (DAARadarResult *) malloc(sizeof(DAARadarResult))) != NULL)
+        {
+
+            strcpy(structPtr->radid, dbs.radid);
+
+            structPtr->obstime = dbs.obstime;
+
+            structPtr->num_gages = dbs.num_gages;
+            setNullIfIndicated(dbs.ind_num_gages, SHORT, &structPtr->num_gages);
+
+            strcpy(structPtr->rad_avail, dbs.rad_avail);
+            setNullIfIndicated(dbs.ind_rad_avail, CHAR, structPtr->rad_avail);
+
+            structPtr->rw_bias_val_used = dbs.rw_bias_val_used;
+            setNullIfIndicated(dbs.ind_rw_bias_val_used, DOUBLE, &structPtr->rw_bias_val_used);
+
+            structPtr->mem_span_used = dbs.mem_span_used;
+            setNullIfIndicated(dbs.ind_mem_span_used, DOUBLE, &structPtr->mem_span_used);
+
+            strcpy(structPtr->edit_bias, dbs.edit_bias);
+            setNullIfIndicated(dbs.ind_edit_bias, CHAR, structPtr->edit_bias);
+
+            strcpy(structPtr->ignore_radar, dbs.ignore_radar);
+            setNullIfIndicated(dbs.ind_ignore_radar, CHAR, structPtr->ignore_radar);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.radid, :dbs.obstime, 
+        :dbs.num_gages:dbs.ind_num_gages, :dbs.rad_avail:dbs.ind_rad_avail, 
+        :dbs.rw_bias_val_used:dbs.ind_rw_bias_val_used, :dbs.mem_span_used:dbs.ind_mem_span_used, 
+        :dbs.edit_bias:dbs.ind_edit_bias, :dbs.ignore_radar:dbs.ind_ignore_radar        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectDAARadarResult() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectDAARadarResultCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM DAARadarResult ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDAARadarResult() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDAARadarResult() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDAARadarResult() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDAARadarResult() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutDAARadarResult(const DAARadarResult * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DAARadarResult_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.radid, structPtr->radid);
+
+    dbs.obstime = structPtr->obstime;
+
+    dbs.num_gages = structPtr->num_gages;
+    dbs.ind_num_gages = getIndicator(SHORT, (void *)&structPtr->num_gages);
+
+    strcpy(dbs.rad_avail, structPtr->rad_avail);
+    dbs.ind_rad_avail = getIndicator(CHAR, (void *)structPtr->rad_avail);
+
+    dbs.rw_bias_val_used = structPtr->rw_bias_val_used;
+    dbs.ind_rw_bias_val_used = getIndicator(DOUBLE, (void *)&structPtr->rw_bias_val_used);
+
+    dbs.mem_span_used = structPtr->mem_span_used;
+    dbs.ind_mem_span_used = getIndicator(DOUBLE, (void *)&structPtr->mem_span_used);
+
+    strcpy(dbs.edit_bias, structPtr->edit_bias);
+    dbs.ind_edit_bias = getIndicator(CHAR, (void *)structPtr->edit_bias);
+
+    strcpy(dbs.ignore_radar, structPtr->ignore_radar);
+    dbs.ind_ignore_radar = getIndicator(CHAR, (void *)structPtr->ignore_radar);
+
+
+    EXEC SQL INSERT INTO DAARadarResult (radid,obstime,
+        num_gages,rad_avail,rw_bias_val_used,
+        mem_span_used,edit_bias,ignore_radar        )
+        VALUES (
+         :dbs.radid, :dbs.obstime, :dbs.num_gages:dbs.ind_num_gages,
+         :dbs.rad_avail:dbs.ind_rad_avail, :dbs.rw_bias_val_used:dbs.ind_rw_bias_val_used, :dbs.mem_span_used:dbs.ind_mem_span_used,
+         :dbs.edit_bias:dbs.ind_edit_bias, :dbs.ignore_radar:dbs.ind_ignore_radar);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutDAARadarResult() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertDAARadarResult(const DAARadarResult * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DAARadarResult_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.radid, structPtr->radid);
+
+    dbs.obstime = structPtr->obstime;
+
+    dbs.num_gages = structPtr->num_gages;
+    dbs.ind_num_gages = getIndicator(SHORT, (void *)&structPtr->num_gages);
+
+    strcpy(dbs.rad_avail, structPtr->rad_avail);
+    dbs.ind_rad_avail = getIndicator(CHAR, (void *)structPtr->rad_avail);
+
+    dbs.rw_bias_val_used = structPtr->rw_bias_val_used;
+    dbs.ind_rw_bias_val_used = getIndicator(DOUBLE, (void *)&structPtr->rw_bias_val_used);
+
+    dbs.mem_span_used = structPtr->mem_span_used;
+    dbs.ind_mem_span_used = getIndicator(DOUBLE, (void *)&structPtr->mem_span_used);
+
+    strcpy(dbs.edit_bias, structPtr->edit_bias);
+    dbs.ind_edit_bias = getIndicator(CHAR, (void *)structPtr->edit_bias);
+
+    strcpy(dbs.ignore_radar, structPtr->ignore_radar);
+    dbs.ind_ignore_radar = getIndicator(CHAR, (void *)structPtr->ignore_radar);
+
+
+    EXEC SQL INSERT INTO DAARadarResult (radid,obstime,
+        num_gages,rad_avail,rw_bias_val_used,
+        mem_span_used,edit_bias,ignore_radar        )
+        VALUES (
+         :dbs.radid, :dbs.obstime, :dbs.num_gages:dbs.ind_num_gages,
+         :dbs.rad_avail:dbs.ind_rad_avail, :dbs.rw_bias_val_used:dbs.ind_rw_bias_val_used, :dbs.mem_span_used:dbs.ind_mem_span_used,
+         :dbs.edit_bias:dbs.ind_edit_bias, :dbs.ignore_radar:dbs.ind_ignore_radar);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertDAARadarResult() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateDAARadarResult(const DAARadarResult *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DAARadarResult_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.radid, structPtr->radid);
+
+    dbs.obstime = structPtr->obstime;
+
+    dbs.num_gages = structPtr->num_gages;
+    dbs.ind_num_gages = getIndicator(SHORT, (void *)&structPtr->num_gages);
+
+    strcpy(dbs.rad_avail, structPtr->rad_avail);
+    dbs.ind_rad_avail = getIndicator(CHAR, (void *)structPtr->rad_avail);
+
+    dbs.rw_bias_val_used = structPtr->rw_bias_val_used;
+    dbs.ind_rw_bias_val_used = getIndicator(DOUBLE, (void *)&structPtr->rw_bias_val_used);
+
+    dbs.mem_span_used = structPtr->mem_span_used;
+    dbs.ind_mem_span_used = getIndicator(DOUBLE, (void *)&structPtr->mem_span_used);
+
+    strcpy(dbs.edit_bias, structPtr->edit_bias);
+    dbs.ind_edit_bias = getIndicator(CHAR, (void *)structPtr->edit_bias);
+
+    strcpy(dbs.ignore_radar, structPtr->ignore_radar);
+    dbs.ind_ignore_radar = getIndicator(CHAR, (void *)structPtr->ignore_radar);
+
+
+    sprintf(queryBuffer, " UPDATE DAARadarResult SET " );
+    strcat(queryBuffer, "radid = ? , obstime = ? , num_gages = ? , rad_avail = ? , rw_bias_val_used = ? ,     ");
+    strcat(queryBuffer, "mem_span_used = ? , edit_bias = ? , ignore_radar = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateDAARadarResult() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.radid, :dbs.obstime, :dbs.num_gages:dbs.ind_num_gages, :dbs.rad_avail:dbs.ind_rad_avail, :dbs.rw_bias_val_used:dbs.ind_rw_bias_val_used,
+     :dbs.mem_span_used:dbs.ind_mem_span_used, :dbs.edit_bias:dbs.ind_edit_bias, :dbs.ignore_radar:dbs.ind_ignore_radar;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateDAARadarResult() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteDAARadarResult(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM DAARadarResult ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteDAARadarResult() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateDAARadarResultByRecord (const DAARadarResult * newStructPtr, const DAARadarResult * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetDAARadarResultPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateDAARadarResult(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateDAARadarResult(const DAARadarResult * structPtr)
+{
+    UpdateDAARadarResultByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertDAARadarResult(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueDAARadarResult(const DAARadarResult * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (DAARadarResultExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertDAARadarResult(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteDAARadarResultByRecord(const DAARadarResult * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetDAARadarResultPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteDAARadarResult(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool DAARadarResultExists(const DAARadarResult * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetDAARadarResultPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectDAARadarResultCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetDAARadarResultPrimaryKeyWhereString (const DAARadarResult * structPtr, char returnWhereString[] )
+{
+    char time_buffer0[40];
+    sprintf(returnWhereString, "WHERE radid = '%s'  AND obstime = '%s' ",
+            structPtr->radid, dtimet_to_ansi(structPtr->obstime, time_buffer0));
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeDAARadarResult( DAARadarResult * structPtr)
+{
+    DAARadarResult* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( DAARadarResult * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetDAARadarResultDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetDAARadarResultErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

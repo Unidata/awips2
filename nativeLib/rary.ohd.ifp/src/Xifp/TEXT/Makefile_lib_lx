@@ -1,0 +1,105 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ifp-Xifp library file
+#
+#  cmt: File made on Thu Oct 26 14:49:10 EDT 2006 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob81/ohd/ifp/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+CC       = /usr/bin/gcc
+COPTIM   =
+CFLAGS   = $(COPTIM) -fno-strict-aliasing -DUNIX -DGRTYPE_PS -DGRTYPE_XWIN -DLINX -DX1D -DTIMER -D__USE_GNU
+
+INSERTS      = -I/fs/hseb/ob81/ohd/ifp/inc  \
+               -I/fs/hseb/ob81/ohd/ofs/inc  \
+               -I/fs/hseb/ob81/ohd/util/inc  \
+               -I/fs/hseb/ob81/ohd/calb/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+INSERTS_CC   = -I/usr/X11R6/include  \
+               -I/usr/include/pgsql  \
+               -I/usr/include/pgsql/informix/esql  \
+               -I/usr/lib/gcc/i386-redhat-linux/3.4.6/include  \
+               -I/usr/local/netcdf/include  \
+               -I/usr/local/jdk-1.5.0_04/include  \
+               -I/usr/local/jdk-1.5.0_04/include/linux  \
+               -I/usr/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .c .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+.c.a:
+	@echo "-------------------------------- $<"
+	@$(CC) $(CFLAGS) $(INSERTS_CC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@echo "--------------------------------"
+
+$(LIB)/libXifp_t.a:  \
+     $(LIB)/libXifp_t.a(get_ofs_default_tzc.o)  \
+     $(LIB)/libXifp_t.a(getSegDescr.o)  \
+     $(LIB)/libXifp_t.a(getSegStatus.o)  \
+     $(LIB)/libXifp_t.a(number_of_fgroups.o)  \
+     $(LIB)/libXifp_t.a(ofs_carryover_dates.o)  \
+     $(LIB)/libXifp_t.a(read_f_and_c_group_names.o)  \
+     $(LIB)/libXifp_t.a(read_seg_names.o)  \
+     $(LIB)/libXifp_t.a(read_ts_array.o)  \
+     $(LIB)/libXifp_t.a(reset_file_message_unit.o)  \
+     $(LIB)/libXifp_t.a(retrieve_hcl_techs_args.o)  \
+     $(LIB)/libXifp_t.a(setFCTIMEcb.o)  \
+     $(LIB)/libXifp_t.a(build_filename.o)  \
+     $(LIB)/libXifp_t.a(crwdgt.o)  \
+     $(LIB)/libXifp_t.a(dateChanging.o)  \
+     $(LIB)/libXifp_t.a(date_funcs.o)  \
+     $(LIB)/libXifp_t.a(find_datatype_in_ts.o)  \
+     $(LIB)/libXifp_t.a(find_in_ts.o)  \
+     $(LIB)/libXifp_t.a(findints.o)  \
+     $(LIB)/libXifp_t.a(findt.o)  \
+     $(LIB)/libXifp_t.a(findts_c.o)  \
+     $(LIB)/libXifp_t.a(fork_NWSRFS.o)  \
+     $(LIB)/libXifp_t.a(get_map_names.o)  \
+     $(LIB)/libXifp_t.a(get_pixel.o)  \
+     $(LIB)/libXifp_t.a(getrdates.o)  \
+     $(LIB)/libXifp_t.a(get_ts.o)  \
+     $(LIB)/libXifp_t.a(gfn.o)  \
+     $(LIB)/libXifp_t.a(gtd.o)  \
+     $(LIB)/libXifp_t.a(help_dialogs.o)  \
+     $(LIB)/libXifp_t.a(helpEvntHdlr.o)  \
+     $(LIB)/libXifp_t.a(intern_atoms.o)  \
+     $(LIB)/libXifp_t.a(linear_int.o)  \
+     $(LIB)/libXifp_t.a(log_int.o)  \
+     $(LIB)/libXifp_t.a(map_areas_in_fg.o)  \
+     $(LIB)/libXifp_t.a(map_areas_in_seg.o)  \
+     $(LIB)/libXifp_t.a(menus.o)  \
+     $(LIB)/libXifp_t.a(mods_keywds.o)  \
+     $(LIB)/libXifp_t.a(num_maps_in_fg.o)  \
+     $(LIB)/libXifp_t.a(num_maps_in_seg.o)  \
+     $(LIB)/libXifp_t.a(pr_ts_names.o)  \
+     $(LIB)/libXifp_t.a(quit_button.o)  \
+     $(LIB)/libXifp_t.a(save_ifp_gif_file.o)  \
+     $(LIB)/libXifp_t.a(scaleMaxMin.o)  \
+     $(LIB)/libXifp_t.a(sd_include.o)  \
+     $(LIB)/libXifp_t.a(seg_names_in_fg.o)  \
+     $(LIB)/libXifp_t.a(setUnitFlgs.o)  \
+     $(LIB)/libXifp_t.a(stage_to_q.o)  \
+     $(LIB)/libXifp_t.a(tree.o)  \
+     $(LIB)/libXifp_t.a(usleep.o)
+

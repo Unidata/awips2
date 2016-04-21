@@ -1,0 +1,6 @@
+The python packages dir exists solely for pure python packages.
+NO JAVA/JEP CODE ALLOWED.
+
+Each dir under this directory should be able to be copied to an installed python's
+site-packages dir and function correctly, being able to be imported and used
+as needed.

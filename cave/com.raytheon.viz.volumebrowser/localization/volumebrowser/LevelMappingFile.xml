@@ -1,0 +1,1731 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<LevelMappings>
+       	<Level displayName="ML (0-1km)" key="ML" group="C">
+		<DatabaseLevel levelName="FHAG" levelOneValue="0"
+			levelTwoValue="1000.0" unit="m" />
+	    </Level>
+	    <Level displayName="ML (0-500m)" key="ML500" group="C">
+		<DatabaseLevel levelName="FHAG" levelOneValue="0"
+			levelTwoValue="500.0" unit="m" />
+	    </Level>
+        <Level displayName="MaxT" key="MaxT" group="S">
+                <DatabaseLevel levelName="MAXT" levelOneValue="0" />
+        </Level>
+        <Level displayName="MaxOmega" key="MaxOmega" group="S">
+                <DatabaseLevel levelName="MAXOMEGA" levelOneValue="0" />
+        </Level>
+        <Level displayName="MaxTW" key="MaxTW" group="S">
+                <DatabaseLevel levelName="MAXTW" levelOneValue="0" />
+        </Level>
+        <Level displayName="MaxMixingRatio" key="MaxR" group="S">
+                <DatabaseLevel levelName="MAXR" levelOneValue="0" />
+        </Level>
+	<Level displayName="Sfc" key="Surface">
+		<DatabaseLevel levelName="SFC" levelOneValue="0.0" />
+		<DatabaseLevel levelName="MSL" levelOneValue="0.0" />
+		<DatabaseLevel levelName="FH" levelOneValue="0.0" />
+	</Level>
+	<Level displayName="10FHAG" key="10FHAG">
+		<DatabaseLevel levelName="FHAG" levelOneValue="10.0" />
+	</Level>
+	<Level displayName="Primary" key="Primary">
+		<DatabaseLevel levelName="OSEQD" levelOneValue="1" />
+	</Level>
+	<Level displayName="Secondary" key="Secondary">
+		<DatabaseLevel levelName="OSEQD" levelOneValue="2" />
+	</Level>
+	<Level displayName="2FHAG" key="2FHAG">
+		<DatabaseLevel levelName="FHAG" levelOneValue="2.0" />
+	</Level>
+	<Level displayName="10FH" key="10FH">
+		<DatabaseLevel levelName="FH" levelOneValue="10.0" />
+	</Level>
+	<Level displayName="MSL" key="MSL">
+		<DatabaseLevel levelName="MSL" levelOneValue="0.0" />
+	</Level>
+	<Level displayName="BLD" key="0BLD">
+		<DatabaseLevel levelName="BLD" levelOneValue="0.0" />
+	</Level>
+	<Level displayName="100MB" key="100MB" group="S">
+		<DatabaseLevel levelName="MB" levelOneValue="100" unit="hPa" />
+	</Level>
+	<Level displayName="125MB" key="125MB" group="S">
+		<DatabaseLevel levelName="MB" levelOneValue="125" unit="hPa" />
+	</Level>
+	<Level displayName="150MB" key="150MB" group="S">
+		<DatabaseLevel levelName="MB" levelOneValue="150" unit="hPa" />
+	</Level>
+	<Level displayName="175MB" key="175MB" group="S">
+		<DatabaseLevel levelName="MB" levelOneValue="175" unit="hPa" />
+	</Level>
+	<Level displayName="200MB" key="200MB" group="S">
+		<DatabaseLevel levelName="MB" levelOneValue="200" unit="hPa" />
+	</Level>
+	<Level displayName="225MB" key="225MB" group="S">
+		<DatabaseLevel levelName="MB" levelOneValue="225" unit="hPa" />
+	</Level>
+	<Level displayName="250MB" key="250MB" group="S">
+		<DatabaseLevel levelName="MB" levelOneValue="250" unit="hPa" />
+	</Level>
+	<Level displayName="275MB" key="275MB" group="S">
+		<DatabaseLevel levelName="MB" levelOneValue="275" unit="hPa" />
+	</Level>
+	<Level displayName="300MB" key="300MB" group="S">
+		<DatabaseLevel levelName="MB" levelOneValue="300" unit="hPa" />
+	</Level>
+	<Level displayName="325MB" key="325MB" group="S">
+		<DatabaseLevel levelName="MB" levelOneValue="325" unit="hPa" />
+	</Level>
+	<Level displayName="350MB" key="350MB" group="S">
+		<DatabaseLevel levelName="MB" levelOneValue="350" unit="hPa" />
+	</Level>
+	<Level displayName="375MB" key="375MB" group="S">
+		<DatabaseLevel levelName="MB" levelOneValue="375" unit="hPa" />
+	</Level>
+	<Level displayName="400MB" key="400MB" group="S">
+		<DatabaseLevel levelName="MB" levelOneValue="400" unit="hPa" />
+	</Level>
+	<Level displayName="425MB" key="425MB" group="S">
+		<DatabaseLevel levelName="MB" levelOneValue="425" unit="hPa" />
+	</Level>
+	<Level displayName="450MB" key="450MB" group="S">
+		<DatabaseLevel levelName="MB" levelOneValue="450" unit="hPa" />
+	</Level>
+	<Level displayName="475MB" key="475MB" group="S">
+		<DatabaseLevel levelName="MB" levelOneValue="475" unit="hPa" />
+	</Level>
+	<Level displayName="500MB" key="500MB" group="S">
+		<DatabaseLevel levelName="MB" levelOneValue="500" unit="hPa" />
+	</Level>
+	<Level displayName="525MB" key="525MB" group="S">
+		<DatabaseLevel levelName="MB" levelOneValue="525" unit="hPa" />
+	</Level>
+	<Level displayName="550MB" key="550MB" group="S">
+		<DatabaseLevel levelName="MB" levelOneValue="550" unit="hPa" />
+	</Level>
+	<Level displayName="575MB" key="575MB" group="S">
+		<DatabaseLevel levelName="MB" levelOneValue="575" unit="hPa" />
+	</Level>
+	<Level displayName="600MB" key="600MB" group="S">
+		<DatabaseLevel levelName="MB" levelOneValue="600" unit="hPa" />
+	</Level>
+	<Level displayName="625MB" key="625MB" group="S">
+		<DatabaseLevel levelName="MB" levelOneValue="625" unit="hPa" />
+	</Level>
+	<Level displayName="650MB" key="650MB" group="S">
+		<DatabaseLevel levelName="MB" levelOneValue="650" unit="hPa" />
+	</Level>
+	<Level displayName="675MB" key="675MB" group="S">
+		<DatabaseLevel levelName="MB" levelOneValue="675" unit="hPa" />
+	</Level>
+	<Level displayName="700MB" key="700MB" group="S">
+		<DatabaseLevel levelName="MB" levelOneValue="700" unit="hPa" />
+	</Level>
+	<Level displayName="725MB" key="725MB" group="S">
+		<DatabaseLevel levelName="MB" levelOneValue="725" unit="hPa" />
+	</Level>
+	<Level displayName="750MB" key="750MB" group="S">
+		<DatabaseLevel levelName="MB" levelOneValue="750" unit="hPa" />
+	</Level>
+	<Level displayName="775MB" key="775MB" group="S">
+		<DatabaseLevel levelName="MB" levelOneValue="775" unit="hPa" />
+	</Level>
+	<Level displayName="800MB" key="800MB" group="S">
+		<DatabaseLevel levelName="MB" levelOneValue="800" unit="hPa" />
+	</Level>
+	<Level displayName="825MB" key="825MB" group="S">
+		<DatabaseLevel levelName="MB" levelOneValue="825" unit="hPa" />
+	</Level>
+	<Level displayName="850MB" key="850MB" group="S">
+		<DatabaseLevel levelName="MB" levelOneValue="850" unit="hPa" />
+	</Level>
+	<Level displayName="875MB" key="875MB" group="S">
+		<DatabaseLevel levelName="MB" levelOneValue="875" unit="hPa" />
+	</Level>
+	<Level displayName="900MB" key="900MB" group="S">
+		<DatabaseLevel levelName="MB" levelOneValue="900" unit="hPa" />
+	</Level>
+	<Level displayName="925MB" key="925MB" group="S">
+		<DatabaseLevel levelName="MB" levelOneValue="925" unit="hPa" />
+	</Level>
+	<Level displayName="950MB" key="950MB" group="S">
+		<DatabaseLevel levelName="MB" levelOneValue="950" unit="hPa" />
+	</Level>
+	<Level displayName="975MB" key="975MB" group="S">
+		<DatabaseLevel levelName="MB" levelOneValue="975" unit="hPa" />
+	</Level>
+	<Level displayName="1000MB" key="1000MB" group="S">
+		<DatabaseLevel levelName="MB" levelOneValue="1000" unit="hPa" />
+	</Level>
+	<Level displayName="1025MB" key="1025MB" group="S">
+		<DatabaseLevel levelName="MB" levelOneValue="1025" unit="hPa" />
+	</Level>
+	<Level displayName="1050MB" key="1050MB" group="S">
+		<DatabaseLevel levelName="MB" levelOneValue="1050" unit="hPa" />
+	</Level>
+	<Level displayName="10MB" key="10MB" group="S">
+		<DatabaseLevel levelName="MB" levelOneValue="10" unit="hPa" />
+	</Level>
+	<Level displayName="30MB" key="30MB" group="S">
+		<DatabaseLevel levelName="MB" levelOneValue="30" unit="hPa" />
+	</Level>
+	<Level displayName="50MB" key="50MB" group="S">
+		<DatabaseLevel levelName="MB" levelOneValue="50" unit="hPa" />
+	</Level>
+	<Level displayName="300MB-200MB" key="300MB-200MB" group="C">
+		<DatabaseLevel levelName="MB" levelOneValue="300"
+			levelTwoValue="200" unit="hPa" />
+	</Level>
+	<Level displayName="400MB-300MB" key="400-300MB" group="C">
+		<DatabaseLevel levelName="MB" levelOneValue="400"
+			levelTwoValue="300" unit="hPa" />
+	</Level>
+	<Level displayName="500MB-400MB" key="500-400MB" group="C">
+		<DatabaseLevel levelName="MB" levelOneValue="500"
+			levelTwoValue="400" unit="hPa" />
+	</Level>
+	<Level displayName="600MB-500MB" key="600-500MB" group="C">
+		<DatabaseLevel levelName="MB" levelOneValue="600"
+			levelTwoValue="500" unit="hPa" />
+	</Level>
+	<Level displayName="700MB-600MB" key="700-600MB" group="C">
+		<DatabaseLevel levelName="MB" levelOneValue="700"
+			levelTwoValue="600" unit="hPa" />
+	</Level>
+	<Level displayName="800MB-700MB" key="800-700MB" group="C">
+		<DatabaseLevel levelName="MB" levelOneValue="800"
+			levelTwoValue="700" unit="hPa" />
+	</Level>
+	<Level displayName="900MB-800MB" key="900-800MB" group="C">
+		<DatabaseLevel levelName="MB" levelOneValue="900"
+			levelTwoValue="800" unit="hPa" />
+	</Level>
+	<Level displayName="1000MB-900MB" key="1000-900MB" group="C">
+		<DatabaseLevel levelName="MB" levelOneValue="1000"
+			levelTwoValue="900" unit="hPa" />
+	</Level>
+	<Level displayName="1000MB-950MB" key="1000-950MB" group="C">
+		<DatabaseLevel levelName="MB" levelOneValue="1000"
+			levelTwoValue="950" unit="hPa" />
+	</Level>
+	<Level displayName="950MB-900MB" key="950-900MB" group="C">
+		<DatabaseLevel levelName="MB" levelOneValue="950"
+			levelTwoValue="900" unit="hPa" />
+	</Level>
+	<Level displayName="900MB-850MB" key="900-850MB" group="C">
+		<DatabaseLevel levelName="MB" levelOneValue="900"
+			levelTwoValue="850" unit="hPa" />
+	</Level>
+	<Level displayName="850MB-800MB" key="850-800MB" group="C">
+		<DatabaseLevel levelName="MB" levelOneValue="850"
+			levelTwoValue="800" unit="hPa" />
+	</Level>
+	<Level displayName="800MB-750MB" key="800-750MB" group="C">
+		<DatabaseLevel levelName="MB" levelOneValue="800"
+			levelTwoValue="750" unit="hPa" />
+	</Level>
+	<Level displayName="750MB-700MB" key="750-700MB" group="C">
+		<DatabaseLevel levelName="MB" levelOneValue="750"
+			levelTwoValue="700" unit="hPa" />
+	</Level>
+	<Level displayName="700MB-650MB" key="700-650MB" group="C">
+		<DatabaseLevel levelName="MB" levelOneValue="700"
+			levelTwoValue="650" unit="hPa" />
+	</Level>
+	<Level displayName="650MB-600MB" key="650-600MB" group="C">
+		<DatabaseLevel levelName="MB" levelOneValue="650"
+			levelTwoValue="600" unit="hPa" />
+	</Level>
+	<Level displayName="600MB-550MB" key="600-550MB" group="C">
+		<DatabaseLevel levelName="MB" levelOneValue="600"
+			levelTwoValue="550" unit="hPa" />
+	</Level>
+	<Level displayName="550MB-500MB" key="550-500MB" group="C">
+		<DatabaseLevel levelName="MB" levelOneValue="550"
+			levelTwoValue="500" unit="hPa" />
+	</Level>
+	<Level displayName="500MB-450MB" key="500-450MB" group="C">
+		<DatabaseLevel levelName="MB" levelOneValue="500"
+			levelTwoValue="450" unit="hPa" />
+	</Level>
+	<Level displayName="450MB-400MB" key="450-400MB" group="C">
+		<DatabaseLevel levelName="MB" levelOneValue="450"
+			levelTwoValue="400" unit="hPa" />
+	</Level>
+	<Level displayName="400MB-350MB" key="400-350MB" group="C">
+		<DatabaseLevel levelName="MB" levelOneValue="400"
+			levelTwoValue="350" unit="hPa" />
+	</Level>
+	<Level displayName="350MB-300MB" key="350-300MB" group="C">
+		<DatabaseLevel levelName="MB" levelOneValue="350"
+			levelTwoValue="300" unit="hPa" />
+	</Level>
+	<Level displayName="300MB-250MB" key="300-250MB" group="C">
+		<DatabaseLevel levelName="MB" levelOneValue="300"
+			levelTwoValue="250" unit="hPa" />
+	</Level>
+	<Level displayName="250MB-200MB" key="250-200MB" group="C">
+		<DatabaseLevel levelName="MB" levelOneValue="250"
+			levelTwoValue="200" unit="hPa" />
+	</Level>
+	<Level displayName="400MB-200MB" key="400MB-200MB" group="C">
+		<DatabaseLevel levelName="MB" levelOneValue="400"
+			levelTwoValue="200" unit="hPa" />
+	</Level>
+	<Level displayName="500MB-100MB" key="500MB-100MB" group="C">
+		<DatabaseLevel levelName="MB" levelOneValue="500"
+			levelTwoValue="100" unit="hPa" />
+	</Level>
+	<Level displayName="500MB-250MB" key="500-250MB" group="C">
+		<DatabaseLevel levelName="MB" levelOneValue="500"
+			levelTwoValue="250" unit="hPa" />
+	</Level>
+	<Level displayName="500MB-300MB" key="500MB-300MB" group="C">
+		<DatabaseLevel levelName="MB" levelOneValue="500"
+			levelTwoValue="300" unit="hPa" />
+	</Level>
+	<Level displayName="600MB-400MB" key="600-400MB" group="C">
+		<DatabaseLevel levelName="MB" levelOneValue="600"
+			levelTwoValue="400" unit="hPa" />
+	</Level>
+	<Level displayName="700MB-300MB" key="700MB-300MB" group="C">
+		<DatabaseLevel levelName="MB" levelOneValue="700"
+			levelTwoValue="300" unit="hPa" />
+	</Level>
+	<Level displayName="700MB-500MB" key="700MB-500MB" group="C">
+		<DatabaseLevel levelName="MB" levelOneValue="700"
+			levelTwoValue="500" unit="hPa" />
+	</Level>
+	<Level displayName="850MB-250MB" key="850-250MB" group="C">
+		<DatabaseLevel levelName="MB" levelOneValue="850"
+			levelTwoValue="250" unit="hPa" />
+	</Level>
+	<Level displayName="850MB-300MB" key="850MB-300MB" group="C">
+		<DatabaseLevel levelName="MB" levelOneValue="850"
+			levelTwoValue="300" unit="hPa" />
+	</Level>
+	<Level displayName="850MB-500MB" key="850MB-500MB" group="C">
+		<DatabaseLevel levelName="MB" levelOneValue="850"
+			levelTwoValue="500" unit="hPa" />
+	</Level>
+	<Level displayName="850MB-700MB" key="850MB-700MB" group="C">
+		<DatabaseLevel levelName="MB" levelOneValue="850"
+			levelTwoValue="700" unit="hPa" />
+	</Level>
+	<Level displayName="925MB-700MB" key="925MB-700MB" group="C">
+		<DatabaseLevel levelName="MB" levelOneValue="925"
+			levelTwoValue="700" unit="hPa" />
+	</Level>
+	<Level displayName="925MB-850MB" key="925MB-850MB" group="C">
+		<DatabaseLevel levelName="MB" levelOneValue="925"
+			levelTwoValue="850" unit="hPa" />
+	</Level>
+	<Level displayName="1000MB-500MB" key="1000MB-500MB" group="C">
+		<DatabaseLevel levelName="MB" levelOneValue="1000"
+			levelTwoValue="500" unit="hPa" />
+	</Level>
+	<Level displayName="1000MB-700MB" key="1000MB-700MB" group="C">
+		<DatabaseLevel levelName="MB" levelOneValue="1000"
+			levelTwoValue="700" unit="hPa" />
+	</Level>
+	<Level displayName="1000MB-850MB" key="1000MB-850MB" group="C">
+		<DatabaseLevel levelName="MB" levelOneValue="1000"
+			levelTwoValue="850" unit="hPa" />
+	</Level>
+	<Level displayName="0-100 Sigma" key="0SIG-100SIG" group="B">
+		<DatabaseLevel levelName="SIG" levelOneValue="0"
+			levelTwoValue="100"/>
+	</Level>
+	<Level displayName="-40C" key="-40C" group="S">
+		<DatabaseLevel levelName="TEMP" levelOneValue="-40"
+			unit="C" />
+	</Level>
+	<Level displayName="-35C" key="-35C" group="S">
+		<DatabaseLevel levelName="TEMP" levelOneValue="-35"
+			unit="C" />
+	</Level>
+	<Level displayName="-30C" key="-30C" group="S">
+		<DatabaseLevel levelName="TEMP" levelOneValue="-30"
+			unit="C" />
+	</Level>
+	<Level displayName="-25C" key="-25C" group="S">
+		<DatabaseLevel levelName="TEMP" levelOneValue="-25"
+			unit="C" />
+	</Level>
+	<Level displayName="-20C" key="-20C" group="S">
+		<DatabaseLevel levelName="TEMP" levelOneValue="-20"
+			unit="C" />
+	</Level>
+	<Level displayName="-19C" key="-19C" group="S">
+		<DatabaseLevel levelName="TEMP" levelOneValue="-19"
+			unit="C" />
+	</Level>
+	<Level displayName="-18C" key="-18C" group="S">
+		<DatabaseLevel levelName="TEMP" levelOneValue="-18"
+			unit="C" />
+	</Level>
+	<Level displayName="-17C" key="-17C" group="S">
+		<DatabaseLevel levelName="TEMP" levelOneValue="-17"
+			unit="C" />
+	</Level>
+	<Level displayName="-16C" key="-16C" group="S">
+		<DatabaseLevel levelName="TEMP" levelOneValue="-16"
+			unit="C" />
+	</Level>
+	<Level displayName="-15C" key="-15C" group="S">
+		<DatabaseLevel levelName="TEMP" levelOneValue="-15"
+			unit="C" />
+	</Level>
+	<Level displayName="-14C" key="-14C" group="S">
+		<DatabaseLevel levelName="TEMP" levelOneValue="-14"
+			unit="C" />
+	</Level>
+	<Level displayName="-13C" key="-13C" group="S">
+		<DatabaseLevel levelName="TEMP" levelOneValue="-13"
+			unit="C" />
+	</Level>
+	<Level displayName="-12C" key="-12C" group="S">
+		<DatabaseLevel levelName="TEMP" levelOneValue="-12"
+			unit="C" />
+	</Level>
+	<Level displayName="-11C" key="-11C" group="S">
+		<DatabaseLevel levelName="TEMP" levelOneValue="-11"
+			unit="C" />
+	</Level>
+	<Level displayName="-10C" key="-10C" group="S">
+		<DatabaseLevel levelName="TEMP" levelOneValue="-10"
+			unit="C" />
+	</Level>
+	<Level displayName="-9C" key="-9C" group="S">
+		<DatabaseLevel levelName="TEMP" levelOneValue="-9" unit="C" />
+	</Level>
+	<Level displayName="-8C" key="-8C" group="S">
+		<DatabaseLevel levelName="TEMP" levelOneValue="-8" unit="C" />
+	</Level>
+	<Level displayName="-7C" key="-7C" group="S">
+		<DatabaseLevel levelName="TEMP" levelOneValue="-7" unit="C" />
+	</Level>
+	<Level displayName="-6C" key="-6C" group="S">
+		<DatabaseLevel levelName="TEMP" levelOneValue="-6" unit="C" />
+	</Level>
+	<Level displayName="-5C" key="-5C" group="S">
+		<DatabaseLevel levelName="TEMP" levelOneValue="-5" unit="C" />
+	</Level>
+	<Level displayName="-4C" key="-4C" group="S">
+		<DatabaseLevel levelName="TEMP" levelOneValue="-4" unit="C" />
+	</Level>
+	<Level displayName="-3C" key="-3C" group="S">
+		<DatabaseLevel levelName="TEMP" levelOneValue="-3" unit="C" />
+	</Level>
+	<Level displayName="-2C" key="-2C" group="S">
+		<DatabaseLevel levelName="TEMP" levelOneValue="-2" unit="C" />
+	</Level>
+	<Level displayName="0C" key="0C" group="S">
+		<DatabaseLevel levelName="TEMP" levelOneValue="0" unit="C" />
+	</Level>
+	<Level displayName="1C" key="1C" group="S">
+		<DatabaseLevel levelName="TEMP" levelOneValue="1" unit="C" />
+	</Level>
+	<Level displayName="2C" key="2C" group="S">
+		<DatabaseLevel levelName="TEMP" levelOneValue="2" unit="C" />
+	</Level>
+	<Level displayName="3C" key="3C" group="S">
+		<DatabaseLevel levelName="TEMP" levelOneValue="3" unit="C" />
+	</Level>
+	<Level displayName="4C" key="4C" group="S">
+		<DatabaseLevel levelName="TEMP" levelOneValue="4" unit="C" />
+	</Level>
+	<Level displayName="5C" key="5C" group="S">
+		<DatabaseLevel levelName="TEMP" levelOneValue="5" unit="C" />
+	</Level>
+	<Level displayName="10C" key="10C" group="S">
+		<DatabaseLevel levelName="TEMP" levelOneValue="10" unit="C" />
+	</Level>
+	<Level displayName="15C" key="15C" group="S">
+		<DatabaseLevel levelName="TEMP" levelOneValue="15" unit="C" />
+	</Level>
+	<Level displayName="20C" key="20C" group="S">
+		<DatabaseLevel levelName="TEMP" levelOneValue="20" unit="C" />
+	</Level>
+	<Level displayName="25C" key="25C" group="S">
+		<DatabaseLevel levelName="TEMP" levelOneValue="25" unit="C" />
+	</Level>
+	<Level displayName="30C" key="30C" group="S">
+		<DatabaseLevel levelName="TEMP" levelOneValue="30" unit="C" />
+	</Level>
+	<Level displayName="250 K" key="250K" group="S">
+		<DatabaseLevel levelName="K" levelOneValue="250" unit="K" />
+	</Level>
+	<Level displayName="255 K" key="255K" group="S">
+		<DatabaseLevel levelName="K" levelOneValue="255" unit="K" />
+	</Level>
+	<Level displayName="260 K" key="260K" group="S">
+		<DatabaseLevel levelName="K" levelOneValue="260" unit="K" />
+	</Level>
+	<Level displayName="265 K" key="265K" group="S">
+		<DatabaseLevel levelName="K" levelOneValue="265" unit="K" />
+	</Level>
+	<Level displayName="270 K" key="270K" group="S">
+		<DatabaseLevel levelName="K" levelOneValue="270" unit="K" />
+	</Level>
+	<Level displayName="275 K" key="275K" group="S">
+		<DatabaseLevel levelName="K" levelOneValue="275" unit="K" />
+	</Level>
+	<Level displayName="280 K" key="280K" group="S">
+		<DatabaseLevel levelName="K" levelOneValue="280" unit="K" />
+	</Level>
+	<Level displayName="285 K" key="285K" group="S">
+		<DatabaseLevel levelName="K" levelOneValue="285" unit="K" />
+	</Level>
+	<Level displayName="290 K" key="290K" group="S">
+		<DatabaseLevel levelName="K" levelOneValue="290" unit="K" />
+	</Level>
+	<Level displayName="295 K" key="295K" group="S">
+		<DatabaseLevel levelName="K" levelOneValue="295" unit="K" />
+	</Level>
+	<Level displayName="300 K" key="300K" group="S">
+		<DatabaseLevel levelName="K" levelOneValue="300" unit="K" />
+	</Level>
+	<Level displayName="305 K" key="305K" group="S">
+		<DatabaseLevel levelName="K" levelOneValue="305" unit="K" />
+	</Level>
+	<Level displayName="310 K" key="310K" group="S">
+		<DatabaseLevel levelName="K" levelOneValue="310" unit="K" />
+	</Level>
+	<Level displayName="315 K" key="315K" group="S">
+		<DatabaseLevel levelName="K" levelOneValue="315" unit="K" />
+	</Level>
+	<Level displayName="320 K" key="320K" group="S">
+		<DatabaseLevel levelName="K" levelOneValue="320" unit="K" />
+	</Level>
+	<Level displayName="325 K" key="325K" group="S">
+		<DatabaseLevel levelName="K" levelOneValue="325" unit="K" />
+	</Level>
+	<Level displayName="330 K" key="330K" group="S">
+		<DatabaseLevel levelName="K" levelOneValue="330" unit="K" />
+	</Level>
+	<Level displayName="335 K" key="335K" group="S">
+		<DatabaseLevel levelName="K" levelOneValue="335" unit="K" />
+	</Level>
+	<Level displayName="340 K" key="340K" group="S">
+		<DatabaseLevel levelName="K" levelOneValue="340" unit="K" />
+	</Level>
+	<Level displayName="345 K" key="345K" group="S">
+		<DatabaseLevel levelName="K" levelOneValue="345" unit="K" />
+	</Level>
+	<Level displayName="350 K" key="350K" group="S">
+		<DatabaseLevel levelName="K" levelOneValue="350" unit="K" />
+	</Level>
+	<Level displayName="350 K - 250 K" key="350K-250K" group="C">
+		<DatabaseLevel levelName="K" levelOneValue="350"
+			levelTwoValue="250" unit="K" />
+	</Level>
+	<Level displayName="270 Ke" key="270Ke" group="S">
+		<DatabaseLevel levelName="Ke" levelOneValue="270" unit="K" />
+	</Level>
+	<Level displayName="275 Ke" key="275Ke" group="S">
+		<DatabaseLevel levelName="Ke" levelOneValue="275" unit="K" />
+	</Level>
+	<Level displayName="280 Ke" key="280Ke" group="S">
+		<DatabaseLevel levelName="Ke" levelOneValue="280" unit="K" />
+	</Level>
+	<Level displayName="285 Ke" key="285Ke" group="S">
+		<DatabaseLevel levelName="Ke" levelOneValue="285" unit="K" />
+	</Level>
+	<Level displayName="290 Ke" key="290Ke" group="S">
+		<DatabaseLevel levelName="Ke" levelOneValue="290" unit="K" />
+	</Level>
+	<Level displayName="295 Ke" key="295Ke" group="S">
+		<DatabaseLevel levelName="Ke" levelOneValue="295" unit="K" />
+	</Level>
+	<Level displayName="300 Ke" key="300Ke" group="S">
+		<DatabaseLevel levelName="Ke" levelOneValue="300" unit="K" />
+	</Level>
+	<Level displayName="305 Ke" key="305Ke" group="S">
+		<DatabaseLevel levelName="Ke" levelOneValue="305" unit="K" />
+	</Level>	
+	<Level displayName="310 Ke" key="310Ke" group="S">
+		<DatabaseLevel levelName="Ke" levelOneValue="310" unit="K" />
+	</Level>
+	<Level displayName="315 Ke" key="315Ke" group="S">
+		<DatabaseLevel levelName="Ke" levelOneValue="315" unit="K" />
+	</Level>
+	<Level displayName="320 Ke" key="320Ke" group="S">
+		<DatabaseLevel levelName="Ke" levelOneValue="320" unit="K" />
+	</Level>
+	<Level displayName="325 Ke" key="325Ke" group="S">
+		<DatabaseLevel levelName="Ke" levelOneValue="325" unit="K" />
+	</Level>
+	<Level displayName="330 Ke" key="330Ke" group="S">
+		<DatabaseLevel levelName="Ke" levelOneValue="330" unit="K" />
+	</Level>
+	<Level displayName="335 Ke" key="335Ke" group="S">
+		<DatabaseLevel levelName="Ke" levelOneValue="335" unit="K" />
+	</Level>
+	<Level displayName="340 Ke" key="340Ke" group="S">
+		<DatabaseLevel levelName="Ke" levelOneValue="340" unit="K" />
+	</Level>
+	<Level displayName="0 m AGL" key="0FHAG" group="S">
+		<DatabaseLevel levelName="FHAG" levelOneValue="0" unit="m" />
+	</Level>
+	<Level displayName="100 m AGL" key="100mAgl" group="S">
+		<DatabaseLevel levelName="FHAG" levelOneValue="100"
+			unit="m" />
+	</Level>
+	<Level displayName="250 m AGL" key="250mAgl" group="S">
+		<DatabaseLevel levelName="FHAG" levelOneValue="250"
+			unit="m" />
+	</Level>
+	<Level displayName="0.5 km AGL" key="0.5kmAgl" group="S">
+		<DatabaseLevel levelName="FHAG" levelOneValue="500"
+			unit="m" />
+	</Level>
+	<Level displayName="750 m AGL" key="750mAgl" group="S">
+		<DatabaseLevel levelName="FHAG" levelOneValue="750"
+			unit="m" />
+	</Level>
+	<Level displayName="1 km AGL" key="1kmAgl" group="S">
+		<DatabaseLevel levelName="FHAG" levelOneValue="1000.0"
+			unit="m" />
+	</Level>
+	<Level displayName="1250 m AGL" key="1250mAgl" group="S">
+		<DatabaseLevel levelName="FHAG" levelOneValue="1250"
+			unit="m" />
+	</Level>
+	<Level displayName="1.5 km AGL" key="1.5kmAgl" group="S">
+		<DatabaseLevel levelName="FHAG" levelOneValue="1500.0"
+			unit="m" />
+	</Level>
+	<Level displayName="2 km AGL" key="2kmAgl" group="S">
+		<DatabaseLevel levelName="FHAG" levelOneValue="2000.0"
+			unit="m" />
+	</Level>
+	<Level displayName="2.5 km AGL" key="2.5kmAgl" group="S">
+		<DatabaseLevel levelName="FHAG" levelOneValue="2500.0"
+			unit="m" />
+	</Level>
+	<Level displayName="3 km AGL" key="3kmAgl" group="S">
+		<DatabaseLevel levelName="FHAG" levelOneValue="3000.0"
+			unit="m" />
+	</Level>
+	<Level displayName="3.5 km AGL" key="3.5kmAgl" group="S">
+		<DatabaseLevel levelName="FHAG" levelOneValue="3500.0"
+			unit="m" />
+	</Level>
+	<Level displayName="4 km AGL" key="4kmAgl" group="S">
+		<DatabaseLevel levelName="FHAG" levelOneValue="4000.0"
+			unit="m" />
+	</Level>
+	<Level displayName="4.5 km AGL" key="4.5kmAgl" group="S">
+		<DatabaseLevel levelName="FHAG" levelOneValue="4500.0"
+			unit="m" />
+	</Level>
+	<Level displayName="5 km AGL" key="5kmAgl" group="S">
+		<DatabaseLevel levelName="FHAG" levelOneValue="5000.0"
+			unit="m" />
+	</Level>
+	<Level displayName="5.5 km AGL" key="5.5kmAgl" group="S">
+		<DatabaseLevel levelName="FHAG" levelOneValue="5500.0"
+			unit="m" />
+	</Level>
+	<Level displayName="6 km AGL" key="6kmAgl" group="S">
+		<DatabaseLevel levelName="FHAG" levelOneValue="6000.0"
+			unit="m" />
+	</Level>
+	<Level displayName="7 km AGL" key="7kmAgl" group="S">
+		<DatabaseLevel levelName="FHAG" levelOneValue="7000.0"
+			unit="m" />
+	</Level>
+	<Level displayName="8 km AGL" key="8kmAgl" group="S">
+		<DatabaseLevel levelName="FHAG" levelOneValue="8000.0"
+			unit="m" />
+	</Level>
+	<Level displayName="9 km AGL" key="9kmAgl" group="S">
+		<DatabaseLevel levelName="FHAG" levelOneValue="9000.0"
+			unit="m" />
+	</Level>
+	<Level displayName="10 km AGL" key="10kmAgl" group="S">
+		<DatabaseLevel levelName="FHAG" levelOneValue="10000.0"
+			unit="m" />
+	</Level>
+	<Level displayName="11 km AGL" key="11kmAgl" group="S">
+		<DatabaseLevel levelName="FHAG" levelOneValue="11000.0"
+			unit="m" />
+	</Level>
+	<Level displayName="12 km AGL" key="12kmAgl" group="S">
+		<DatabaseLevel levelName="FHAG" levelOneValue="12000.0"
+			unit="m" />
+	</Level>
+	<Level displayName="13 km AGL" key="13kmAgl" group="S">
+		<DatabaseLevel levelName="FHAG" levelOneValue="13000.0"
+			unit="m" />
+	</Level>
+	<Level displayName="14 km AGL" key="14kmAgl" group="S">
+		<DatabaseLevel levelName="FHAG" levelOneValue="14000.0"
+			unit="m" />
+	</Level>
+	<Level displayName="15 km AGL" key="15kmAgl" group="S">
+		<DatabaseLevel levelName="FHAG" levelOneValue="15000.0"
+			unit="m" />
+	</Level>
+	<Level displayName="54 ft" key="54ftAgl" group="S">
+		<DatabaseLevel levelName="FHAG" levelOneValue="54.0"
+			unit="ft" />
+	</Level>
+	
+	<Level displayName="2 kft AGL" key="2kftAgl" group="S">
+		<DatabaseLevel levelName="FHAG" levelOneValue="2000.0"
+			unit="ft" />
+	</Level>
+	<Level displayName="0-2 kft AGL" key="0-2kftAgl" group="C">
+		<DatabaseLevel levelName="FHAG" levelOneValue="0"
+			levelTwoValue="2000.0" unit="ft" />
+	</Level>
+	<Level displayName="5 kft AGL" key="5kftAgl" group="S">
+		<DatabaseLevel levelName="FHAG" levelOneValue="5000.0"
+			unit="ft" />
+	</Level>
+	<Level displayName="6 kft AGL" key="6kftAgl" group="S">
+		<DatabaseLevel levelName="FHAG" levelOneValue="6000.0"
+			unit="ft" />
+	</Level>
+	<Level displayName="9 kft AGL" key="9kftAgl" group="S">
+		<DatabaseLevel levelName="FHAG" levelOneValue="9000.0"
+			unit="ft" />
+	</Level>
+	<Level displayName="10 kft AGL" key="10kftAgl" group="S">
+		<DatabaseLevel levelName="FHAG" levelOneValue="10000.0"
+			unit="ft" />
+	</Level>
+	<Level displayName="12 kft AGL" key="12kftAgl" group="S">
+		<DatabaseLevel levelName="FHAG" levelOneValue="12000.0"
+			unit="ft" />
+	</Level>
+	<Level displayName="15 kft AGL" key="15kftAgl" group="S">
+		<DatabaseLevel levelName="FHAG" levelOneValue="15000.0"
+			unit="ft" />
+	</Level>
+	<Level displayName="20 kft AGL" key="20kftAgl" group="S">
+		<DatabaseLevel levelName="FHAG" levelOneValue="20000.0"
+			unit="ft" />
+	</Level>
+	<Level displayName="25 kft AGL" key="25kftAgl" group="S">
+		<DatabaseLevel levelName="FHAG" levelOneValue="25000.0"
+			unit="ft" />
+	</Level>
+	<Level displayName="30 kft AGL" key="30kftAgl" group="S">
+		<DatabaseLevel levelName="FHAG" levelOneValue="30000.0"
+			unit="ft" />
+	</Level>
+	<Level displayName="35 kft AGL" key="35kftAgl" group="S">
+		<DatabaseLevel levelName="FHAG" levelOneValue="35000.0"
+			unit="ft" />
+	</Level>
+	<Level displayName="40 kft AGL" key="40kftAgl" group="S">
+		<DatabaseLevel levelName="FHAG" levelOneValue="40000.0"
+			unit="ft" />
+	</Level>
+	<Level displayName="45 kft AGL" key="45kftAgl" group="S">
+		<DatabaseLevel levelName="FHAG" levelOneValue="45000.0"
+			unit="ft" />
+	</Level>
+	<Level displayName="50 kft AGL" key="50kftAgl" group="S">
+		<DatabaseLevel levelName="FHAG" levelOneValue="50000.0"
+			unit="ft" />
+	</Level>
+	<Level displayName="55 kft AGL" key="55kftAgl" group="S">
+		<DatabaseLevel levelName="FHAG" levelOneValue="55000.0"
+			unit="ft" />
+	</Level>
+	<Level displayName="60 kft AGL" key="60kftAgl" group="S">
+		<DatabaseLevel levelName="FHAG" levelOneValue="60000.0"
+			unit="ft" />
+	</Level>
+	<Level displayName="65 kft AGL" key="65kftAgl" group="S">
+		<DatabaseLevel levelName="FHAG" levelOneValue="65000.0"
+			unit="ft" />
+	</Level>
+	<Level displayName="70 kft AGL" key="70kftAgl" group="S">
+		<DatabaseLevel levelName="FHAG" levelOneValue="70000.0"
+			unit="ft" />
+	</Level>
+	<Level displayName="0-0.5 km AGL" key="0-0.5kmAgl" group="C">
+		<DatabaseLevel levelName="FHAG" levelOneValue="0.0"
+			levelTwoValue="500" unit="m" />
+	</Level>
+	<Level displayName="0-1 km AGL" key="0-1kmAgl" group="C">
+		<DatabaseLevel levelName="FHAG" levelOneValue="0"
+			levelTwoValue="1000.0" unit="m" />
+	</Level>
+	<Level displayName="0-1.5 km Agl" key="0-1.5kmAgl" group="C">
+		<DatabaseLevel levelName="FHAG" levelOneValue="0"
+			levelTwoValue="1500.0" unit="m" />
+	</Level>
+	<Level displayName="0-2 km AGL" key="0-2kmAgl" group="C">
+		<DatabaseLevel levelName="FHAG" levelOneValue="0"
+			levelTwoValue="2000.0" unit="m" />
+	</Level>
+	<Level displayName="0-2.5 km Agl" key="0-2.5kmAgl" group="C">
+		<DatabaseLevel levelName="FHAG" levelOneValue="0"
+			levelTwoValue="2500.0" unit="m" />
+	</Level>
+	<Level displayName="0-3 km AGL" key="0-3kmAgl" group="C">
+		<DatabaseLevel levelName="FHAG" levelOneValue="0"
+			levelTwoValue="3000.0" unit="m" />
+	</Level>
+	<Level displayName="0-4 km AGL" key="0-4kmAgl" group="C">
+		<DatabaseLevel levelName="FHAG" levelOneValue="0"
+			levelTwoValue="4000.0" unit="m" />
+	</Level>
+	<Level displayName="0-5 km AGL" key="0-5kmAgl" group="C">
+		<DatabaseLevel levelName="FHAG" levelOneValue="0"
+			levelTwoValue="5000.0" unit="m" />
+	</Level>
+	<Level displayName="0-6 km AGL" key="0-6kmAgl" group="C">
+		<DatabaseLevel levelName="FHAG" levelOneValue="0"
+			levelTwoValue="6000.0" unit="m" />
+	</Level>
+	<Level displayName="0-8 km Agl" key="0-8kmAgl" group="C">
+		<DatabaseLevel levelName="FHAG" levelOneValue="0"
+			levelTwoValue="8000.0" unit="m" />
+	</Level>
+	<Level displayName="0-10 km AGL" key="0-10kmAgl" group="C">
+		<DatabaseLevel levelName="FHAG" levelOneValue="0"
+			levelTwoValue="10000.0" unit="m" />
+	</Level>
+	<Level displayName="0.5-1 km AGL" key="0.5-1kmAgl" group="C">
+		<DatabaseLevel levelName="FHAG" levelOneValue="500"
+			levelTwoValue="1000.0" unit="m" />
+	</Level>
+	<Level displayName="1-1.5 km AGL" key="1-1.5kmAgl" group="C">
+		<DatabaseLevel levelName="FHAG" levelOneValue="1000"
+			levelTwoValue="1500.0" unit="m" />
+	</Level>
+	<Level displayName="1.5-2 km AGL" key="1.5-2kmAgl" group="C">
+		<DatabaseLevel levelName="FHAG" levelOneValue="1500"
+			levelTwoValue="2000.0" unit="m" />
+	</Level>
+	<Level displayName="2-2.5 km AGL" key="2-2.5kmAgl" group="C">
+		<DatabaseLevel levelName="FHAG" levelOneValue="2000"
+			levelTwoValue="2500.0" unit="m" />
+	</Level>
+	<Level displayName="2.5-3 km AGL" key="2.5-3kmAgl" group="C">
+		<DatabaseLevel levelName="FHAG" levelOneValue="2500"
+			levelTwoValue="3000.0" unit="m" />
+	</Level>
+	<Level displayName="3-3.5 km AGL" key="3-3.5kmAgl" group="C">
+		<DatabaseLevel levelName="FHAG" levelOneValue="3000"
+			levelTwoValue="3500.0" unit="m" />
+	</Level>
+	<Level displayName="3.5-4 km AGL" key="3.5-4kmAgl" group="C">
+		<DatabaseLevel levelName="FHAG" levelOneValue="3500"
+			levelTwoValue="4000.0" unit="m" />
+	</Level>
+	<Level displayName="4-4.5 km AGL" key="4-4.5kmAgl" group="C">
+		<DatabaseLevel levelName="FHAG" levelOneValue="4000"
+			levelTwoValue="4500.0" unit="m" />
+	</Level>
+	<Level displayName="4.5-5 km AGL" key="4.5-5kmAgl" group="C">
+		<DatabaseLevel levelName="FHAG" levelOneValue="4500"
+			levelTwoValue="5000.0" unit="m" />
+	</Level>
+	<Level displayName="5-5.5 km AGL" key="5-5.5kmAgl" group="C">
+		<DatabaseLevel levelName="FHAG" levelOneValue="5000"
+			levelTwoValue="5500.0" unit="m" />
+	</Level>
+	<Level displayName="5.5-6 km AGL" key="5.5-6kmAgl" group="C">
+		<DatabaseLevel levelName="FHAG" levelOneValue="5500"
+			levelTwoValue="6000.0" unit="m" />
+	</Level>
+	<Level displayName="6-7 km AGL" key="6-7kmAgl" group="C">
+		<DatabaseLevel levelName="FHAG" levelOneValue="6000"
+			levelTwoValue="7000.0" unit="m" />
+	</Level>
+	<Level displayName="7-8 km AGL" key="7-8kmAgl" group="C">
+		<DatabaseLevel levelName="FHAG" levelOneValue="7000"
+			levelTwoValue="8000.0" unit="m" />
+	</Level>
+	<Level displayName="8-9 km AGL" key="8-9kmAgl" group="C">
+		<DatabaseLevel levelName="FHAG" levelOneValue="8000"
+			levelTwoValue="9000.0" unit="m" />
+	</Level>
+	<Level displayName="9-10 km AGL" key="9-10kmAgl" group="C">
+		<DatabaseLevel levelName="FHAG" levelOneValue="9000"
+			levelTwoValue="10000.0" unit="m" />
+	</Level>
+	<Level displayName="10-11 km AGL" key="10-11kmAgl" group="C">
+		<DatabaseLevel levelName="FHAG" levelOneValue="10000"
+			levelTwoValue="11000.0" unit="m" />
+	</Level>
+	<Level displayName="11-12 km AGL" key="11-12kmAgl" group="C">
+		<DatabaseLevel levelName="FHAG" levelOneValue="11000"
+			levelTwoValue="12000.0" unit="m" />
+	</Level>
+	<Level displayName="1-3 km Agl" key="1-3kmAgl" group="C">
+		<DatabaseLevel levelName="FHAG" levelOneValue="1000"
+			levelTwoValue="3000.0" unit="m" />
+	</Level>
+	<Level displayName="1-6 km Agl" key="1-6kmAgl" group="C">
+		<DatabaseLevel levelName="FHAG" levelOneValue="1000"
+			levelTwoValue="6000.0" unit="m" />
+	</Level>
+	<Level displayName="1-7 km Agl" key="1-7kmAgl" group="C">
+		<DatabaseLevel levelName="FHAG" levelOneValue="1000"
+			levelTwoValue="7000.0" unit="m" />
+	</Level>
+	<Level displayName="2-5 km Agl" key="2-5kmAgl" group="C">
+		<DatabaseLevel levelName="FHAG" levelOneValue="2000"
+			levelTwoValue="5000.0" unit="m" />
+	</Level>
+	<Level displayName="2-7 km Agl" key="2-7kmAgl" group="C">
+		<DatabaseLevel levelName="FHAG" levelOneValue="2000"
+			levelTwoValue="7000.0" unit="m" />
+	</Level>
+	<Level displayName="2-8 km Agl" key="2-8kmAgl" group="C">
+		<DatabaseLevel levelName="FHAG" levelOneValue="2000"
+			levelTwoValue="8000.0" unit="m" />
+	</Level>
+	<Level displayName="3-6 km AGL" key="3-6kmAgl" group="C">
+		<DatabaseLevel levelName="FHAG" levelOneValue="3000"
+			levelTwoValue="6000.0" unit="m" />
+	</Level>
+	<Level displayName="3-8 km Agl" key="3-8kmAgl" group="C">
+		<DatabaseLevel levelName="FHAG" levelOneValue="3000"
+			levelTwoValue="8000.0" unit="m" />
+	</Level>
+	<Level displayName="3-12 km Agl" key="3-12kmAgl" group="C">
+		<DatabaseLevel levelName="FHAG" levelOneValue="3000"
+			levelTwoValue="12000.0" unit="m" />
+	</Level>
+	<Level displayName="0.5 km MSL" key="0.5km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="500" unit="m" />
+	</Level>
+	<Level displayName="0.75 km MSL" key="0.75km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="750" unit="m" />
+	</Level>
+	<Level displayName="1 km MSL" key="1km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="1000.0"
+			unit="m" />
+	</Level>
+	<Level displayName="1.25 km MSL" key="1.25km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="1250.0"
+			unit="m" />
+	</Level>
+	<Level displayName="1.5 km MSL" key="1.5km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="1500.0"
+			unit="m" />
+	</Level>
+	<Level displayName="1.75 km MSL" key="1.75km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="1750.0"
+			unit="m" />
+	</Level>
+	<Level displayName="2 km MSL" key="2km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="2000.0"
+			unit="m" />
+	</Level>
+	<Level displayName="2.25 km MSL" key="2.25km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="2250.0"
+			unit="m" />
+	</Level>
+	<Level displayName="2.5 km MSL" key="2.5km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="2500.0"
+			unit="m" />
+	</Level>
+	<Level displayName="2.75 km MSL" key="2.75km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="2750.0"
+			unit="m" />
+	</Level>
+	<Level displayName="3 km MSL" key="3km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="3000.0"
+			unit="m" />
+	</Level>
+	<Level displayName="3.5 km MSL" key="3.5km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="3500.0"
+			unit="m" />
+	</Level>
+	<Level displayName="4 km MSL" key="4km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="4000.0"
+			unit="m" />
+	</Level>
+	<Level displayName="4.5 km MSL" key="4.5km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="4500.0"
+			unit="m" />
+	</Level>
+	<Level displayName="5 km MSL" key="5km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="5000.0"
+			unit="m" />
+	</Level>
+	<Level displayName="5.5 km MSL" key="5.5km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="5500.0"
+			unit="m" />
+	</Level>
+	<Level displayName="6 km MSL" key="6km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="6000.0"
+			unit="m" />
+	</Level>
+	<Level displayName="6.5 km MSL" key="6.5km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="6500.0"
+			unit="m" />
+	</Level>
+	<Level displayName="7 km MSL" key="7km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="7000.0"
+			unit="m" />
+	</Level>
+	<Level displayName="7.5 km MSL" key="7.5km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="7500.0"
+			unit="m" />
+	</Level>
+	<Level displayName="8 km MSL" key="8km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="8000.0"
+			unit="m" />
+	</Level>
+	<Level displayName="8.5 km MSL" key="8.5km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="8500.0"
+			unit="m" />
+	</Level>
+	<Level displayName="9 km MSL" key="9km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="9000.0"
+			unit="m" />
+	</Level>
+	<Level displayName="10 km MSL" key="10km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="10000.0"
+			unit="m" />
+	</Level>
+	<Level displayName="11 km MSL" key="11km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="11000.0"
+			unit="m" />
+	</Level>
+	<Level displayName="12 km MSL" key="12km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="12000.0"
+			unit="m" />
+	</Level>
+	<Level displayName="13 km MSL" key="13km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="13000.0"
+			unit="m" />
+	</Level>
+	<Level displayName="14 km MSL" key="14km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="14000.0"
+			unit="m" />
+	</Level>
+	<Level displayName="15 km MSL" key="15km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="15000.0"
+			unit="m" />
+	</Level>
+	<Level displayName="16 km MSL" key="16km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="16000.0"
+			unit="m" />
+	</Level>
+	<Level displayName="17 km MSL" key="17km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="17000.0"
+			unit="m" />
+	</Level>
+	<Level displayName="18 km MSL" key="18km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="18000.0"
+			unit="m" />
+	</Level>
+	<Level displayName="19 km MSL" key="19km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="19000.0"
+			unit="m" />
+	</Level>
+	<Level displayName="1 kft MSL" key="1kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="1000.0" unit="ft" />
+        <DatabaseLevel levelName="FH" levelOneValue="304.0" unit="m" />
+	</Level>
+	<Level displayName="2 kft MSL" key="2kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="2000.0" unit="ft" />
+        <DatabaseLevel levelName="FH" levelOneValue="609.0" unit="m" />
+	</Level>
+	<Level displayName="3 kft MSL" key="3kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="3000.0"
+			unit="ft" />
+		<DatabaseLevel levelName="FH" levelOneValue="914.0"
+			unit="m" />
+	</Level>
+	<Level displayName="4 kft MSL" key="4kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="4000.0"
+			unit="ft" />
+		<DatabaseLevel levelName="FH" levelOneValue="1219.0"
+			unit="m" />
+	</Level>
+	<Level displayName="5 kft MSL" key="5kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="5000.0"
+			unit="ft" />
+		<DatabaseLevel levelName="FH" levelOneValue="1524.0"
+			unit="m" />
+	</Level>
+	<Level displayName="6 kft MSL" key="6kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="6000.0"
+			unit="ft" />
+		<DatabaseLevel levelName="FH" levelOneValue="1828.0"
+			unit="m" />
+	</Level>
+	<Level displayName="7 kft MSL" key="7kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="7000.0"
+			unit="ft" />
+		<DatabaseLevel levelName="FH" levelOneValue="2133.0"
+			unit="m" />
+	</Level>
+	<Level displayName="8 kft MSL" key="8kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="8000.0"
+			unit="ft" />
+		<DatabaseLevel levelName="FH" levelOneValue="2438.0"
+			unit="m" />
+	</Level>
+	<Level displayName="9 kft MSL" key="9kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="9000.0"
+			unit="ft" />
+		<DatabaseLevel levelName="FH" levelOneValue="2743.0"
+			unit="m" />
+	</Level>
+	<Level displayName="10 kft MSL" key="10kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="10000.0"
+			unit="ft" />
+		<DatabaseLevel levelName="FH" levelOneValue="3048.0"
+			unit="m" />
+	</Level>
+	<Level displayName="11 kft MSL" key="11kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="11000.0"
+			unit="ft" />
+		<DatabaseLevel levelName="FH" levelOneValue="3352.0"
+			unit="m" />
+	</Level>
+	<Level displayName="12 kft MSL" key="12kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="12000.0"
+			unit="ft" />
+		<DatabaseLevel levelName="FH" levelOneValue="3657.0"
+			unit="m" />
+	</Level>
+	<Level displayName="13 kft MSL" key="13kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="13000.0"
+			unit="ft" />
+		<DatabaseLevel levelName="FH" levelOneValue="3962.0"
+			unit="m" />
+	</Level>
+	<Level displayName="14 kft MSL" key="14kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="14000.0"
+			unit="ft" />
+		<DatabaseLevel levelName="FH" levelOneValue="4267.0"
+			unit="m" />
+	</Level>
+	<Level displayName="15 kft MSL" key="15kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="15000.0"
+			unit="ft" />
+        <DatabaseLevel levelName="FH" levelOneValue="4572.0"
+            unit="m" />
+	</Level>
+	<Level displayName="16 kft MSL" key="16kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="16000.0"
+			unit="ft" />
+        <DatabaseLevel levelName="FH" levelOneValue="4876.0"
+            unit="m" />
+	</Level>
+	<Level displayName="17 kft MSL" key="17kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="17000.0"
+			unit="ft" />
+        <DatabaseLevel levelName="FH" levelOneValue="5181.0"
+            unit="m" />
+	</Level>
+	<Level displayName="18 kft MSL" key="18kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="5486.0"
+			unit="m" />
+	</Level>
+	<Level displayName="19 kft MSL" key="19kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="5791.0"
+			unit="m" />
+	</Level>
+	<Level displayName="20 kft MSL" key="20kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="20000.0"
+			unit="ft" />
+        <DatabaseLevel levelName="FH" levelOneValue="6096.0"
+            unit="m" />
+	</Level>
+	<Level displayName="21 kft MSL" key="21kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="6400.0"
+			unit="m" />
+	</Level>
+	<Level displayName="22 kft MSL" key="22kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="6705.0"
+			unit="m" />
+	</Level>
+	<Level displayName="23 kft MSL" key="23kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="7010.0"
+			unit="m" />
+	</Level>
+	<Level displayName="24 kft MSL" key="24kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="7315.0"
+			unit="m" />
+	</Level>
+	<Level displayName="25 kft MSL" key="25kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="25000.0"
+			unit="ft" />
+        <DatabaseLevel levelName="FH" levelOneValue="7620.0"
+            unit="m" />
+	</Level>
+	<Level displayName="26 kft MSL" key="26kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="7924.0"
+			unit="m" />
+	</Level>
+	<Level displayName="27 kft MSL" key="27kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="8229.0"
+			unit="m" />
+	</Level>
+	<Level displayName="28 kft MSL" key="28kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="8534.0"
+			unit="m" />
+	</Level>
+	<Level displayName="29 kft MSL" key="29kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="8839.0"
+			unit="m" />
+	</Level>
+	<Level displayName="30 kft MSL" key="30kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="30000.0"
+			unit="ft" />
+        <DatabaseLevel levelName="FH" levelOneValue="9144.0"
+            unit="m" />
+	</Level>
+	<Level displayName="31 kft MSL" key="31kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="9448.0"
+			unit="m" />
+	</Level>
+	<Level displayName="32 kft MSL" key="32kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="9753.0"
+			unit="m" />
+	</Level>
+	<Level displayName="33 kft MSL" key="33kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="10058.0"
+			unit="m" />
+	</Level>
+	<Level displayName="34 kft MSL" key="34kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="10363.0"
+			unit="m" />
+	</Level>
+	<Level displayName="35 kft MSL" key="35kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="35000.0"
+			unit="ft" />
+	</Level>
+	<Level displayName="36 kft MSL" key="36kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="10972.0"
+			unit="m" />
+	</Level>
+	<Level displayName="37 kft MSL" key="37kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="11277.0"
+			unit="m" />
+	</Level>
+	<Level displayName="38 kft MSL" key="38kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="11582.0"
+			unit="m" />
+	</Level>
+	<Level displayName="39 kft MSL" key="39kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="11887.0"
+			unit="m" />
+	</Level>
+	<Level displayName="40 kft MSL" key="40kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="40000.0"
+			unit="ft" />
+	</Level>
+	<Level displayName="41 kft MSL" key="41kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="12496.0"
+			unit="m" />
+	</Level>
+	<Level displayName="42 kft MSL" key="42kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="12801.0"
+			unit="m" />
+	</Level>
+	<Level displayName="43 kft MSL" key="43kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="13106.0"
+			unit="m" />
+	</Level>
+	<Level displayName="44 kft MSL" key="44kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="13411.0"
+			unit="m" />
+	</Level>
+	<Level displayName="45 kft MSL" key="45kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="45000.0"
+			unit="ft" />
+	</Level>
+	<Level displayName="50 kft MSL" key="50kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="50000.0"
+			unit="ft" />
+	</Level>
+	<Level displayName="55 kft MSL" key="55kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="55000.0"
+			unit="ft" />
+	</Level>
+	<Level displayName="60 kft MSL" key="60kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="60000.0"
+			unit="ft" />
+	</Level>
+	<Level displayName="65 kft MSL" key="65kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="65000.0"
+			unit="ft" />
+	</Level>
+	<Level displayName="70 kft MSL" key="70kft" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="70000.0"
+			unit="ft" />
+	</Level>
+	<Level displayName="Mixed Layer (1km)" key="1kmMLD">
+		<DatabaseLevel levelName="MLD" levelOneValue="1000"
+			unit="m" />
+	</Level>
+	<Level displayName="Mixed Layer (500m)" key="500mMLD">
+		<DatabaseLevel levelName="MLD" levelOneValue="500" unit="m" />
+	</Level>
+	<Level displayName="Layer" key="Layer">
+		<DatabaseLevel levelName="EA" levelOneValue="0" />
+	</Level>
+	<Level displayName="Lo Layer" key="LowLyr" group="S">
+		<DatabaseLevel levelName="LCY" levelOneValue="0" />
+	</Level>
+	<Level displayName="Mid Layer" key="MidLyr" group="S">
+		<DatabaseLevel levelName="MCY" levelOneValue="0" />
+	</Level>
+	<Level displayName="Hi Layer" key="HiLyr" group="S">
+		<DatabaseLevel levelName="HCY" levelOneValue="0" />
+		<DatabaseLevel levelName="HCL" levelOneValue="0" />
+	</Level>
+	<Level displayName="Low Cloud Base" key="LowCloudBase" group="S">
+		<DatabaseLevel levelName="LCBL" levelOneValue="0" />
+	</Level>
+	<Level displayName="Middle Cloud Base" key="MidCloudBase" group="S">
+		<DatabaseLevel levelName="MCBL" levelOneValue="0" />
+	</Level>
+	<Level displayName="High Cloud Base" key="HighCloudBase" group="S">
+		<DatabaseLevel levelName="HCBL" levelOneValue="0" />
+	</Level>
+	<Level displayName="Cloud Base" key="CloudBase" group="S">
+		<DatabaseLevel levelName="CBL" levelOneValue="0" />
+	</Level>
+	<Level displayName="Cloud Ceiling" key="CloudCeiling" group="S">
+		<DatabaseLevel levelName="CLG" levelOneValue="0" />
+	</Level>
+	<Level displayName="Cloud Top" key="CloudTop" group="S">
+		<DatabaseLevel levelName="CTL" levelOneValue="0" />
+	</Level>
+	<Level displayName="Conv Cloud Top" key="ConvCloudTop" group="S">
+		<DatabaseLevel levelName="CCTL" levelOneValue="0" />
+	</Level>
+	<Level displayName="Potential Vorticity 0.5" key="PV5" group="S">
+		<DatabaseLevel levelName="PV" levelOneValue="5e-07"
+			unit="K * m^2/kg^1*s^1" />
+	</Level>
+	<Level displayName="Potential Vorticity 1.0" key="PV10" group="S">
+		<DatabaseLevel levelName="PV" levelOneValue="1e-06"
+			unit="K * m^2/kg^1*s^1" />
+	</Level>
+	<Level displayName="Potential Vorticity 1.5" key="PV15" group="S">
+		<DatabaseLevel levelName="PV" levelOneValue="1.5e-06"
+			unit="K * m^2/kg^1*s^1" />
+	</Level>
+	<Level displayName="Potential Vorticity 2.0" key="PV20" group="S">
+		<DatabaseLevel levelName="PV" levelOneValue="2e-06"
+			unit="K * m^2/kg^1*s^1" />
+	</Level>
+	<Level displayName="EqlibrmLvl" key="El" group="S">
+		<DatabaseLevel levelName="EL" levelOneValue="0" />
+	</Level>
+	<Level displayName="Echo Top" key="EchoTop" group="S">
+		<DatabaseLevel levelName="ETOP" levelOneValue="0" />
+	</Level>
+	<Level displayName="Lift Cond Level" key="LiftCondLvl" group="S">
+		<DatabaseLevel levelName="LCL" levelOneValue="0" />
+	</Level>
+	<Level displayName="Wet Bulb 0" key="WetBulb0" group="S">
+		<DatabaseLevel levelName="TW0" levelOneValue="0" />
+		<DatabaseLevel levelName="WBZ" levelOneValue="0" />
+	</Level>
+	<Level displayName="Low Wet Bulb 0" key="LowWetBulb0" group="S"> <!-- Lowest Level of the wet bulb zero -->
+		<DatabaseLevel levelName="LLTW" levelOneValue="0" />
+	</Level>
+	<Level displayName="MaxThetaE" key="Mept" group="S">
+		<DatabaseLevel levelName="MEPT" levelOneValue="0" />
+	</Level>
+	<Level displayName="FrzLvl" key="FrzLvl" group="S">
+		<DatabaseLevel levelName="FRZ" levelOneValue="0" />
+		<DatabaseLevel levelName="TEMP" levelOneValue="0" unit="C" />
+	</Level>
+	<Level displayName="Highest Trop FrzLvl" key="Htfl" group="S">
+		<DatabaseLevel levelName="HTFL" levelOneValue="0" />
+	</Level>
+	<Level displayName="MaxWind" key="MaxWind" group="S">
+		<DatabaseLevel levelName="MAXW" levelOneValue="0" />
+	</Level>
+	<Level displayName="MaxCape" key="MaxCape" group="S">
+		<DatabaseLevel levelName="MAXCAPE" levelOneValue="0" />
+	</Level>
+	<Level displayName="Trop" key="Trop" group="S">
+		<DatabaseLevel levelName="TROP" levelOneValue="0" />
+	</Level>
+	<Level displayName="BL" key="BLyr" group="B">
+		<DatabaseLevel levelName="BL" levelOneValue="30"
+			levelTwoValue="0" />
+		<DatabaseLevel levelName="BL" levelOneValue="180"
+			levelTwoValue="0" />
+		<DatabaseLevel levelName="BL" levelOneValue="255"
+			levelTwoValue="0" />
+		<DatabaseLevel levelName="FHAG" levelOneValue="0"
+			levelTwoValue="30" />
+	</Level>
+	<Level displayName="30agl" key="30agl" group="B">
+		<DatabaseLevel levelName="BL" levelOneValue="60"
+			levelTwoValue="30" />
+	</Level>
+	<Level displayName="60agl" key="60agl" group="B">
+		<DatabaseLevel levelName="BL" levelOneValue="90"
+			levelTwoValue="60" />
+	</Level>
+	<Level displayName="90agl" key="90agl" group="B">
+		<DatabaseLevel levelName="BL" levelOneValue="120"
+			levelTwoValue="90" />
+	</Level>
+	<Level displayName="120agl" key="120agl" group="B">
+		<DatabaseLevel levelName="BL" levelOneValue="150"
+			levelTwoValue="120" />
+	</Level>
+	<Level displayName="150agl" key="150agl" group="B">
+		<DatabaseLevel levelName="BL" levelOneValue="180"
+			levelTwoValue="150" />
+	</Level>
+	<Level displayName="0.0 deg" key="0.0deg" group="S">
+		<DatabaseLevel levelName="TILT" levelOneValue="0" />
+	</Level>
+	<Level displayName="0.5 deg" key="0.5deg" group="S">
+		<DatabaseLevel levelName="TILT" levelOneValue="0.5" />
+	</Level>
+	<Level displayName="0.9 deg" key="0.9deg" group="S">
+		<DatabaseLevel levelName="TILT" levelOneValue="0.9" />
+	</Level>
+	<Level displayName="1.5 deg" key="1.5deg" group="S">
+		<DatabaseLevel levelName="TILT" levelOneValue="1.5" />
+	</Level>
+	<Level displayName="1.8 deg" key="1.8deg" group="S">
+		<DatabaseLevel levelName="TILT" levelOneValue="1.8" />
+	</Level>
+	<Level displayName="2.4 deg" key="2.4deg" group="S">
+		<DatabaseLevel levelName="TILT" levelOneValue="2.4" />
+	</Level>
+	<Level displayName="3.4 deg" key="3.4deg" group="S">
+		<DatabaseLevel levelName="TILT" levelOneValue="3.4" />
+	</Level>
+	<Level displayName="4.3 deg" key="4.3deg" group="S">
+		<DatabaseLevel levelName="TILT" levelOneValue="4.3" />
+	</Level>
+	<Level displayName="5.3 deg" key="5.3deg" group="S">
+		<DatabaseLevel levelName="TILT" levelOneValue="5.3" />
+	</Level>
+	<Level displayName="6.0 deg" key="6.0deg" group="S">
+		<DatabaseLevel levelName="TILT" levelOneValue="6.0" />
+	</Level>
+	<Level displayName="7.5 deg" key="7.5deg" group="S">
+		<DatabaseLevel levelName="TILT" levelOneValue="7.5" />
+	</Level>
+	<Level displayName="8.7 deg" key="8.7deg" group="S">
+		<DatabaseLevel levelName="TILT" levelOneValue="8.7" />
+	</Level>
+	<Level displayName="10 deg" key="10deg" group="S">
+		<DatabaseLevel levelName="TILT" levelOneValue="10" />
+	</Level>
+	<Level displayName="12 deg" key="12deg" group="S">
+		<DatabaseLevel levelName="TILT" levelOneValue="12" />
+	</Level>
+	<Level displayName="14 deg" key="14deg" group="S">
+		<DatabaseLevel levelName="TILT" levelOneValue="14" />
+	</Level>
+	<Level displayName="17 deg" key="17deg" group="S">
+		<DatabaseLevel levelName="TILT" levelOneValue="16.7" />
+	</Level>
+	<Level displayName="20 deg" key="20deg" group="S">
+		<DatabaseLevel levelName="TILT" levelOneValue="19.5" />
+	</Level>
+	<Level displayName="25 deg" key="25deg" group="S">
+		<DatabaseLevel levelName="TILT" levelOneValue="25" />
+	</Level>
+	<Level displayName="30 deg" key="30deg" group="S">
+		<DatabaseLevel levelName="TILT" levelOneValue="30" />
+	</Level>
+	<Level displayName="35 deg" key="35deg" group="S">
+		<DatabaseLevel levelName="TILT" levelOneValue="35" />
+	</Level>
+	<Level displayName="40 deg" key="40deg" group="S">
+		<DatabaseLevel levelName="TILT" levelOneValue="40" />
+	</Level>
+	<Level displayName="45 deg" key="45deg" group="S">
+		<DatabaseLevel levelName="TILT" levelOneValue="45" />
+	</Level>
+	<Level displayName="50 deg" key="50deg" group="S">
+		<DatabaseLevel levelName="TILT" levelOneValue="50" />
+	</Level>
+	<Level displayName="55 deg" key="55deg" group="S">
+		<DatabaseLevel levelName="TILT" levelOneValue="55" />
+	</Level>
+	<Level displayName="60 deg" key="60deg" group="S">
+		<DatabaseLevel levelName="TILT" levelOneValue="60" />
+	</Level>
+	<Level displayName="Station" key="Station">
+		<DatabaseLevel levelName="UNKNOWN" levelOneValue="0" />
+	</Level>
+	<Level displayName="Default" key="Default">
+		<DatabaseLevel levelName="Dflt" levelOneValue="0" />
+	</Level>
+	<Level displayName="3C to -1C" key="3C_-1C" group="C">
+		<DatabaseLevel levelName="TEMP" levelOneValue="3"
+			levelTwoValue="-1" unit="C" />
+	</Level>
+	<Level displayName="-3C to -10C" key="-3C_-10C" group="C">
+		<DatabaseLevel levelName="TEMP" levelOneValue="-3"
+			levelTwoValue="-10" unit="C" />
+	</Level>
+	<Level displayName="-10C to -13C" key="-10C_-13C" group="C">
+		<DatabaseLevel levelName="TEMP" levelOneValue="-10"
+			levelTwoValue="-13" unit="C" />
+	</Level>
+	<Level displayName="-10C to -20C" key="-10C_-20C" group="C">
+		<DatabaseLevel levelName="TEMP" levelOneValue="-10"
+			levelTwoValue="-20" unit="C" />
+	</Level>
+	<Level displayName="-12C to -18C" key="-12C_-18C" group="C">
+		<DatabaseLevel levelName="TEMP" levelOneValue="-12"
+			levelTwoValue="-18" unit="C" />
+	</Level>
+	<Level displayName="-10C to -30C" key="-10C_-30C" group="C">
+		<DatabaseLevel levelName="TEMP" levelOneValue="-10"
+			levelTwoValue="-30" unit="C" />
+	</Level>
+	<Level displayName="-20C to -30C" key="-20C_-30C" group="C">
+		<DatabaseLevel levelName="TEMP" levelOneValue="-20"
+			levelTwoValue="-30" unit="C" />
+	</Level>
+	<Level displayName="250-260K" key="250-260K" group="C">
+		<DatabaseLevel levelName="K" levelOneValue="250"
+			levelTwoValue="260" unit="K" />
+	</Level>
+	<Level displayName="255-265K" key="255-265K" group="C">
+		<DatabaseLevel levelName="K" levelOneValue="255"
+			levelTwoValue="265" unit="K" />
+	</Level>
+	<Level displayName="260-270K" key="260-270K" group="C">
+		<DatabaseLevel levelName="K" levelOneValue="260"
+			levelTwoValue="270" unit="K" />
+	</Level>
+	<Level displayName="265-275K" key="265-275K" group="C">
+		<DatabaseLevel levelName="K" levelOneValue="265"
+			levelTwoValue="275" unit="K" />
+	</Level>
+	<Level displayName="270-280K" key="270-280K" group="C">
+		<DatabaseLevel levelName="K" levelOneValue="270"
+			levelTwoValue="280" unit="K" />
+	</Level>
+	<Level displayName="275-285K" key="275-285K" group="C">
+		<DatabaseLevel levelName="K" levelOneValue="275"
+			levelTwoValue="285" unit="K" />
+	</Level>
+	<Level displayName="280-290K" key="280-290K" group="C">
+		<DatabaseLevel levelName="K" levelOneValue="280"
+			levelTwoValue="290" unit="K" />
+	</Level>
+	<Level displayName="285-295K" key="285-295K" group="C">
+		<DatabaseLevel levelName="K" levelOneValue="285"
+			levelTwoValue="295" unit="K" />
+	</Level>
+	<Level displayName="290-300K" key="290-300K" group="C">
+		<DatabaseLevel levelName="K" levelOneValue="290"
+			levelTwoValue="300" unit="K" />
+	</Level>
+	<Level displayName="295-305K" key="295-305K" group="C">
+		<DatabaseLevel levelName="K" levelOneValue="295"
+			levelTwoValue="305" unit="K" />
+	</Level>
+	<Level displayName="300-310K" key="300-310K" group="C">
+		<DatabaseLevel levelName="K" levelOneValue="300"
+			levelTwoValue="310" unit="K" />
+	</Level>
+	<Level displayName="305-315K" key="305-315K" group="C">
+		<DatabaseLevel levelName="K" levelOneValue="305"
+			levelTwoValue="315" unit="K" />
+	</Level>
+	<Level displayName="310-320K" key="310-320K" group="C">
+		<DatabaseLevel levelName="K" levelOneValue="310"
+			levelTwoValue="320" unit="K" />
+	</Level>
+	<Level displayName="315-325K" key="315-325K" group="C">
+		<DatabaseLevel levelName="K" levelOneValue="315"
+			levelTwoValue="325" unit="K" />
+	</Level>
+	<Level displayName="320-330K" key="320-330K" group="C">
+		<DatabaseLevel levelName="K" levelOneValue="320"
+			levelTwoValue="330" unit="K" />
+	</Level>
+	<Level displayName="325-335K" key="325-335K" group="C">
+		<DatabaseLevel levelName="K" levelOneValue="325"
+			levelTwoValue="335" unit="K" />
+	</Level>
+	<Level displayName="330-340K" key="330-340K" group="C">
+		<DatabaseLevel levelName="K" levelOneValue="330"
+			levelTwoValue="340" unit="K" />
+	</Level>
+	<Level displayName="335-345K" key="335-345K" group="C">
+		<DatabaseLevel levelName="K" levelOneValue="335"
+			levelTwoValue="345" unit="K" />
+	</Level>
+	<Level displayName="340-350K" key="340-350K" group="C">
+		<DatabaseLevel levelName="K" levelOneValue="340"
+			levelTwoValue="350" unit="K" />
+	</Level>
+	<Level displayName="345-355K" key="345-355K" group="C">
+		<DatabaseLevel levelName="K" levelOneValue="345"
+			levelTwoValue="355" unit="K" />
+	</Level>
+	<Level displayName="350-360K" key="350-360K" group="C">
+		<DatabaseLevel levelName="K" levelOneValue="350"
+			levelTwoValue="360" unit="K" />
+	</Level>
+	
+	<Level displayName="250-260Ke" key="250-260Ke" group="C">
+		<DatabaseLevel levelName="Ke" levelOneValue="250"
+			levelTwoValue="260" unit="K" />
+	</Level>
+	<Level displayName="255-265Ke" key="255-265Ke" group="C">
+		<DatabaseLevel levelName="Ke" levelOneValue="255"
+			levelTwoValue="265" unit="K" />
+	</Level>
+	<Level displayName="260-270Ke" key="260-270Ke" group="C">
+		<DatabaseLevel levelName="Ke" levelOneValue="260"
+			levelTwoValue="270" unit="K" />
+	</Level>
+	<Level displayName="265-275Ke" key="265-275Ke" group="C">
+		<DatabaseLevel levelName="Ke" levelOneValue="265"
+			levelTwoValue="275" unit="K" />
+	</Level>
+	<Level displayName="270-280Ke" key="270-280Ke" group="C">
+		<DatabaseLevel levelName="Ke" levelOneValue="270"
+			levelTwoValue="280" unit="K" />
+	</Level>
+	<Level displayName="275-285Ke" key="275-285Ke" group="C">
+		<DatabaseLevel levelName="Ke" levelOneValue="275"
+			levelTwoValue="285" unit="K" />
+	</Level>
+	<Level displayName="280-290Ke" key="280-290Ke" group="C">
+		<DatabaseLevel levelName="Ke" levelOneValue="280"
+			levelTwoValue="290" unit="K" />
+	</Level>
+	<Level displayName="285-295Ke" key="285-295Ke" group="C">
+		<DatabaseLevel levelName="Ke" levelOneValue="285"
+			levelTwoValue="295" unit="K" />
+	</Level>
+	<Level displayName="290-300Ke" key="290-300Ke" group="C">
+		<DatabaseLevel levelName="Ke" levelOneValue="290"
+			levelTwoValue="300" unit="K" />
+	</Level>
+	<Level displayName="295-305Ke" key="295-305Ke" group="C">
+		<DatabaseLevel levelName="Ke" levelOneValue="295"
+			levelTwoValue="305" unit="K" />
+	</Level>
+	<Level displayName="300-310Ke" key="300-310Ke" group="C">
+		<DatabaseLevel levelName="Ke" levelOneValue="300"
+			levelTwoValue="310" unit="K" />
+	</Level>
+	<Level displayName="305-315Ke" key="305-315Ke" group="C">
+		<DatabaseLevel levelName="Ke" levelOneValue="305"
+			levelTwoValue="315" unit="K" />
+	</Level>
+	<Level displayName="310-320Ke" key="310-320Ke" group="C">
+		<DatabaseLevel levelName="Ke" levelOneValue="310"
+			levelTwoValue="320" unit="K" />
+	</Level>
+	<Level displayName="315-325Ke" key="315-325Ke" group="C">
+		<DatabaseLevel levelName="Ke" levelOneValue="315"
+			levelTwoValue="325" unit="K" />
+	</Level>
+	<Level displayName="320-330Ke" key="320-330Ke" group="C">
+		<DatabaseLevel levelName="Ke" levelOneValue="320"
+			levelTwoValue="330" unit="K" />
+	</Level>
+	<Level displayName="325-335Ke" key="325-335Ke" group="C">
+		<DatabaseLevel levelName="Ke" levelOneValue="325"
+			levelTwoValue="335" unit="K" />
+	</Level>
+	<Level displayName="330-340Ke" key="330-340Ke" group="C">
+		<DatabaseLevel levelName="Ke" levelOneValue="330"
+			levelTwoValue="340" unit="K" />
+	</Level>
+	<Level displayName="335-345Ke" key="335-345Ke" group="C">
+		<DatabaseLevel levelName="Ke" levelOneValue="335"
+			levelTwoValue="345" unit="K" />
+	</Level>
+	<Level displayName="340-350Ke" key="340-350Ke" group="C">
+		<DatabaseLevel levelName="Ke" levelOneValue="340"
+			levelTwoValue="350" unit="K" />
+	</Level>
+	<Level displayName="345-355Ke" key="345-355Ke" group="C">
+		<DatabaseLevel levelName="Ke" levelOneValue="345"
+			levelTwoValue="355" unit="K" />
+	</Level>
+	<Level displayName="350-360Ke" key="350-360Ke" group="C">
+		<DatabaseLevel levelName="Ke" levelOneValue="350"
+			levelTwoValue="360" unit="K" />
+	</Level>
+	<Level displayName="Surface" key="1HYB">
+		<DatabaseLevel levelName="HYB" levelOneValue="1" />
+	</Level>
+	<Level displayName="Sea Surface" key="0BSS">
+		<DatabaseLevel levelName="BSS" levelOneValue="0" />
+	</Level>
+	<Level displayName="80 m" key="80m" group="S">
+ 		<DatabaseLevel levelName="FHAG" levelOneValue="80.0"
+		unit="m" />
+ 	</Level>
+	<Level displayName="SIG0.8-0.5" key="SIG0.8-0.5" group="S">
+		<DatabaseLevel levelName="SIG" levelOneValue="0.5"
+		levelTwoValue="0.8" unit="m/s" />
+	</Level>
+	<Level displayName="400agl" key="400agl" group="C">
+		<DatabaseLevel levelName="BL" levelOneValue="1000"
+		levelTwoValue="400" unit="hPa" />
+	</Level>
+	<Level displayName="Tertiary" key="Tertiary"> <!-- Start NWPS -->
+		<DatabaseLevel levelName="OSEQD" levelOneValue="3" />
+	</Level>
+	<Level displayName="OSEQD-4" key="OSEQD-4">
+		<DatabaseLevel levelName="OSEQD" levelOneValue="4" />
+	</Level>
+	<Level displayName="OSEQD-5" key="OSEQD-5">
+		<DatabaseLevel levelName="OSEQD" levelOneValue="5" />
+	</Level>
+	<Level displayName="OSEQD-6" key="OSEQD-6">
+		<DatabaseLevel levelName="OSEQD" levelOneValue="6" />
+	</Level>
+	<Level displayName="OSEQD-7" key="OSEQD-7">
+		<DatabaseLevel levelName="OSEQD" levelOneValue="7" />
+	</Level>
+	<Level displayName="OSEQD-8" key="OSEQD-8">
+		<DatabaseLevel levelName="OSEQD" levelOneValue="8" />
+	</Level>
+	<Level displayName="OSEQD-9" key="OSEQD-9">
+		<DatabaseLevel levelName="OSEQD" levelOneValue="9" />
+	</Level>
+	<Level displayName="OSEQD-10" key="OSEQD-10"> <!-- End NWPS -->
+		<DatabaseLevel levelName="OSEQD" levelOneValue="10" />
+	</Level>
+	<Level displayName="NTAT" key="NTAT" group="S">
+		<DatabaseLevel levelName="NTAT" levelOneValue="0" />
+	</Level>
+
+</LevelMappings>

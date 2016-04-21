@@ -1,0 +1,4 @@
+      common /count/ nerr,nwarn, ngrid,negrid,nwgrid,
+     +               narea,nearea,nwarea,  nhead,nehwat,nwhwat,
+     +               nvar,nevar,nwvar,     nwsup,newsup,nwwsup,
+     +               nlang,nelang,nwlang

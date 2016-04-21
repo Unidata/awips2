@@ -1,0 +1,4 @@
+C                                           *--> FROM COMMON.FRCFIL
+      COMMON/FRCFIL/NDEF,RCNAME(2,3),LOCF(3),LOCK(3),LOCL(3),NXREC,
+     .MREC,IRC
+C

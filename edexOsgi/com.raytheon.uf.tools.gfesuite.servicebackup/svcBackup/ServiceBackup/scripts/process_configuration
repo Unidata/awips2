@@ -1,0 +1,248 @@
+#!/bin/bash
+
+##############################################################################
+# Process Received Configuration
+# This is run at the backup site to import the failed site's grids into the 
+# localization store.
+#
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    03/20/14        #2933         randerso       Changed PRDDIR and LOGDIR to use		
+#                                                  Backup site's configuration 
+#    01/30/15        #17081        lshi           Added backup vtec
+#    02/13/15        #4103         dgilling       Consolidated process_configuration and
+#                                                 proc_receive_config into 1 script.
+#    03/23/15        #4103         dgilling       Save off MHSID of failed site so to fix
+#                                                 export_grids_to_failed_site script.
+#    04/29/15        #4427         dgilling       Code cleanup.
+#    06/24/15        #16831        bhunder        Copy colormaps directory into localization
+#                                                 directory.
+#    08/10/15        #17443        lshi           Bug in scripts results in rsync_parms.ccc 
+#                                                 file not getting used
+##############################################################################
+
+
+if [ ${#AWIPS_HOME} = 0 ]
+then
+        path_to_script=`readlink -f $0`
+		export AWIPS_HOME=$(dirname $(dirname $(dirname $(dirname  $path_to_script))))
+fi
+
+. ${AWIPS_HOME}/GFESuite/ServiceBackup/configuration/svcbu.env
+source ${AWIPS_HOME}/GFESuite/ServiceBackup/scripts/serviceBackupUtil.sh
+
+# $1 = Path to packaged configuration data from MHS
+# $2 = site ID for the file
+import_file=${1}
+SITE_ID=`echo ${2} | tr '[A-Z]' '[a-z]'`
+SITE_ID_CAPS=`echo ${SITE_ID}|tr [a-z] [A-Z]`
+
+# Create the log file
+configureLogging "svcbu_receive_configuration" ${SITE_ID}
+
+# Check the status of the lock file to see if we are OK to proceed
+lock_file=$(getLockFile "importConfiguration" ${SITE_ID})
+trmode_lock_file=$(getLockFile "trMode" ${SITE_ID})
+svcbu_lock_file=$(getLockFile "svcbuMode" ${SITE_ID})
+lock_status=$(isOperationInProgress "importConfiguration" ${SITE_ID})
+if [[ "${lock_status}" = "false" ]]
+then
+	echo "Lock file not present for importing configuration!  Cannot continue!"
+	echo "FAILED" > ${svcbu_lock_file}
+    echo "FAILED" > ${lock_file}
+    echo "FAILED" > ${trmode_lock_file}
+	exit 1
+fi
+
+USER=$(whoami)
+if [ $USER = "root" ]
+then 
+	echo "Running script as root"
+elif [ $USER = "awips" ]
+then
+	echo "Running script as user awips"
+else
+	echo "Script must be run as user root or awips"
+	echo "FAILED" > ${svcbu_lock_file}
+    echo "FAILED" > ${lock_file}
+    echo "FAILED" > ${trmode_lock_file}
+	exit 1
+fi
+
+echo "The import_file is: $import_file"
+FILESIZE=$(stat -c%s "$import_file")
+echo "File Size is: $FILESIZE bytes."
+
+#
+# determine local site id(s) using PRIMARY_SITES
+#
+IFS=',' read -ra PRI_SITES <<< "${PRIMARY_SITES}"
+if [ ${#PRI_SITES[@]} -eq 0 ] 
+then
+   declare -a PRI_SITES=( "${AW_SITE_IDENTIFIER}" )
+fi
+echo "My primary GFE sites are: ${PRI_SITES[@]}"
+
+# Determine which host service backup was run from
+# if my_site is the same as the failed site, stop
+for primary_site in "${PRI_SITES[@]}"
+do
+	primary_site=`echo $primary_site | tr [A-Z] [a-z]`
+	if [[ "$primary_site" = "${SITE_ID}" ]]
+	then
+    	echo "You cannot import configuration data for your own site."
+		echo "FAILED" > ${svcbu_lock_file}
+    	echo "FAILED" > ${lock_file}
+    	echo "FAILED" > ${trmode_lock_file}
+		exit 1
+	fi
+done
+
+# Retrieve the file from the MHS x400 directory
+OUTPUT_DIR=$(getTempDirectory "receive_config" ${SITE_ID})
+rm -rf "${OUTPUT_DIR}/*"
+echo "Moving ${import_file} to ${OUTPUT_DIR}/svc_bkup_${SITE_ID}.tar"
+mv -f ${import_file} ${OUTPUT_DIR}/svc_bkup_${SITE_ID}.tar
+
+# Update owner and permissions from root to ifps
+#chown awips:awips ${SVCBU_HOME}/svc_bkup_${SITE}.tar
+chmod 777 ${OUTPUT_DIR}/svc_bkup_${SITE_ID}.tar
+
+echo "Extracting files..."
+cd ${OUTPUT_DIR}
+tar -xvf svc_bkup_${SITE_ID}.tar
+gunzip -c GFEconfig.${SITE_ID}.tar.gz | tar xf -
+if [ $? -ne 0 ]; then
+    echo "\nERROR: Could not explode GFEconfig.${SITE_ID}.tar.gz..."
+    echo "FAILED" > ${svcbu_lock_file}
+    echo "FAILED" > ${lock_file}
+    echo "FAILED" > ${trmode_lock_file}
+    exit 1
+fi
+
+echo "Checking format of received configuration data..."
+if [ -d GFEconfig ]; then
+	echo "AWIPS II configuration received.  OK to proceed!"
+else
+	echo "Incorrectly formatted configuration received.  Cannot continue!"
+	echo "FAILED" > ${svcbu_lock_file}
+    echo "FAILED" > ${lock_file}
+    echo "FAILED" > ${trmode_lock_file}
+    exit 1
+fi
+
+echo "Copying files into position..."
+
+echo "Checking if localization directories exist for ${SITE_ID_CAPS}"
+edex_site_dest=${LOCALIZATION_PATH}/edex_static/site/${SITE_ID_CAPS}/config
+edex_site_si_dest=${LOCALIZATION_PATH}/edex_static/site/${SITE_ID_CAPS}
+common_site_dest=${LOCALIZATION_PATH}/common_static/site/${SITE_ID_CAPS}
+cave_site_dest=${LOCALIZATION_PATH}/cave_static/site/${SITE_ID_CAPS}
+rsync_parms_dest=/awips2/GFESuite/ServiceBackup/data # DR 16464
+
+if [ -d ${edex_site_dest} ]; then
+	echo "edex_static site directory exists for ${SITE_ID_CAPS}"
+else
+	echo "Creating edex_static site directory for ${SITE_ID_CAPS}" 
+	mkdir -p ${edex_site_dest}
+fi
+
+if [ -d ${common_site_dest} ]; then
+	echo "common_static site directory exists for ${SITE_ID_CAPS}"
+else
+	echo "Creating common_static site directory for ${SITE_ID_CAPS}"
+	mkdir -p ${common_site_dest}
+fi
+
+if [ -d ${cave_site_dest} ]; then
+	echo "cave_static site directory exists for ${SITE_ID_CAPS}"
+else
+	echo "Creating cave_static site directory for ${SITE_ID_CAPS}"
+	mkdir -p ${cave_site_dest}
+fi
+# DR 16464
+if [ -d ${rsync_parms_dest} ]; then
+	echo "rsync_parms_dest directory exists for ${SITE_ID_CAPS}"
+else
+	echo "Creating rsync_parms_dest directory for ${SITE_ID_CAPS}"
+	mkdir -p ${rsync_parms_dest}
+fi
+
+echo "${SITE_ID_CAPS}'s localization directories have been verified"
+cp -r GFEconfig/common_static/site/gfe ${common_site_dest}
+cp -r GFEconfig/common_static/site/vtec ${common_site_dest}
+cp -r GFEconfig/common_static/site/mixedCase ${common_site_dest}
+cp -r GFEconfig/edex_static/site/gfe ${edex_site_dest}
+cp -r GFEconfig/edex_static/site/smartinit ${edex_site_si_dest}
+cp -r GFEconfig/cave_static/site/* ${cave_site_dest}
+
+# DR 16831
+cp -r GFEconfig/common_static/site/colormaps ${common_site_dest}
+
+# DR 17443
+cp -a GFEconfig/site/rsync_parms.${SITE_ID} ${rsync_parms_dest}
+echo "Files successfully copied!"
+
+echo "Changing ownership of received configuration"
+if [ $USER = "root" ]
+then 
+	chown -R awips:fxalpha ${LOCALIZATION_PATH}/edex_static/site/${SITE_ID_CAPS}
+	chown -R awips:fxalpha ${LOCALIZATION_PATH}/common_static/site/${SITE_ID_CAPS}
+	chown -R awips:fxalpha ${LOCALIZATION_PATH}/cave_static/site/${SITE_ID_CAPS}
+    chown -R awips:fxalpha /awips2/GFESuite/ServiceBackup/data    # DR 16464
+elif [ $USER = "awips" ]
+then
+	echo "Files already owned by awips"
+fi
+
+#
+# DR21404 - disable ISC/VTEC for troubleshooting mode
+#
+if [ -f ${trmode_lock_file} ]; then
+  echo "Activating troubleshooting mode..."
+  rm -f ${LOCALIZATION_PATH}/common_static/site/${SITE_ID_CAPS}/vtec/localVTECPartners.py*
+  echo "serverConfig.REQUEST_ISC = 0" >> ${LOCALIZATION_PATH}/edex_static/site/${SITE_ID_CAPS}/config/gfe/localConfig.py
+  echo "serverConfig.SEND_ISC_ON_SAVE = 0" >> ${LOCALIZATION_PATH}/edex_static/site/${SITE_ID_CAPS}/config/gfe/localConfig.py
+  echo "serverConfig.SEND_ISC_ON_PUBLISH = 0" >> ${LOCALIZATION_PATH}/edex_static/site/${SITE_ID_CAPS}/config/gfe/localConfig.py
+fi
+
+echo "Updating siteConfig.py..."
+
+#Change the MHS ID of the received configuration
+my_site_id=`echo ${PRI_SITES[0]} |tr [a-z] [A-Z]`
+backup_config=${LOCALIZATION_PATH}/edex_static/site/${my_site_id}/config/gfe/siteConfig.py
+failed_config=${LOCALIZATION_PATH}/edex_static/site/${SITE_ID_CAPS}/config/gfe/siteConfig.py
+
+sed -i "s/  / /" $failed_config
+sed -i "s/   / /" $failed_config
+BACKUP_MHSID=$(egrep "^GFESUITE_MHSID" ${backup_config})
+FAILED_MHSID=$(egrep "^GFESUITE_MHSID" ${failed_config})
+BACKUP_SERVER=$(egrep "^GFESUITE_SERVER" ${backup_config})
+FAILED_SERVER=$(egrep "^GFESUITE_SERVER" ${failed_config})
+BACKUP_LOGDIR=$(egrep "^GFESUITE_LOGDIR" ${backup_config})
+FAILED_LOGDIR=$(egrep "^GFESUITE_LOGDIR" ${failed_config})
+BACKUP_PRDDIR=$(egrep "^GFESUITE_PRDDIR" ${backup_config})
+FAILED_PRDDIR=$(egrep "^GFESUITE_PRDDIR" ${failed_config})
+
+sed -i "s/$FAILED_MHSID/$BACKUP_MHSID/" ${failed_config}
+sed -i "s/$FAILED_SERVER/$BACKUP_SERVER/" ${failed_config}
+sed -i "s/$FAILED_LOGDIR/$BACKUP_LOGDIR/" ${failed_config}
+sed -i "s/$FAILED_PRDDIR/$BACKUP_PRDDIR/" ${failed_config}
+sed -i "s/98000000/$SVCBU_FAILED_SITE_PORT/" ${failed_config}
+
+# store originating MHS ID so grids can be correctly sent to failed site upon
+# exiting service backup mode
+FAILED_SRC_MHSID=`echo ${FAILED_MHSID} | sed "s/GFESUITE_MHSID/GFESUITE_SRC_MHSID/"`
+echo ${FAILED_SRC_MHSID} >> ${failed_config}
+
+
+# Cleanup
+rm -rf "${OUTPUT_DIR}/*"
+echo "SUCCESS" > ${lock_file}
+echo "SUCCESS" > ${trmode_lock_file}
+
+echo "SUCCESS" > ${svcbu_lock_file}
+echo "Configuration Import Complete!"
+exit 0

@@ -1,0 +1,12 @@
+### IF YOU HAVE DUPLICATE COUNTY NAMES IN YOUR CWA 
+### (e.g. LINN KANSAS AND LINN MISSOURI) INCLUDE FIPS/ZONE CODES BELOW.
+### FIPS CODES ARE IN A XXYYY NUMERIC FORMAT WHERE XX = STATE FIPS AND YYY = COUNTY FIPS
+### ZONE CODES ARE IN A XXYYY STRING FORMAT WHERE XX = STATE ABBREVIATION AND YYY = ZONE CODE
+### For example: For Linn County Kansas and Linn County Missouri, we would have 4 entires:
+### 	the FIPS/Zone pair for Linn Kansas and the FIPS/Zone pair for Linn Missouri
+### #set ($dupcounties = ["29115","MO024","20107","KS060"])
+### IF YOU DO NOT HAVE DUPLICATE COUNTY NAMES USE THE FOLLOWING SYNTAX:
+### Null example: #set ($dupcounties = [""])
+### #set ($dupcounties = [""])
+### SET LWX FREDERICK CO VA, FREDERICK CO MD
+#set ($dupcounties = ["51069","VA028","24021","MD004"])

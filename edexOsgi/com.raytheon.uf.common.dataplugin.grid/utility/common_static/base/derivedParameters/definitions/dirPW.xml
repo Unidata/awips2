@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<DerivedParameter name="Primary Wave Direction" abbreviation="dirPW" xmlns:ns2="group">
+    <Method name="Vector">
+    	<ConstantField value="20"/>
+        <Field abbreviation="DIRPW" unit="deg"/>
+        <ConstantField value="1"/>
+    </Method>
+</DerivedParameter>

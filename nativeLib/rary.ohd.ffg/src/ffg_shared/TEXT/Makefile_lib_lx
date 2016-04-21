@@ -1,0 +1,84 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ffg-ffg_shared library file
+#
+#  cmt: File made on Thu Oct 26 14:48:20 EDT 2006 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob81/ohd/ffg/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob81/ohd/ffg/inc  \
+               -I/fs/hseb/ob81/ohd/ofs/inc  \
+               -I/fs/hseb/ob81/ohd/util/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libffg_shared_t.a:  \
+     $(LIB)/libffg_shared_t.a(addidx.o)  \
+     $(LIB)/libffg_shared_t.a(adelim.o)  \
+     $(LIB)/libffg_shared_t.a(alph.o)  \
+     $(LIB)/libffg_shared_t.a(btype.o)  \
+     $(LIB)/libffg_shared_t.a(chkext.o)  \
+     $(LIB)/libffg_shared_t.a(ckcpd.o)  \
+     $(LIB)/libffg_shared_t.a(cvllgd.o)  \
+     $(LIB)/libffg_shared_t.a(datimi.o)  \
+     $(LIB)/libffg_shared_t.a(datimz.o)  \
+     $(LIB)/libffg_shared_t.a(devnum.o)  \
+     $(LIB)/libffg_shared_t.a(dispid.o)  \
+     $(LIB)/libffg_shared_t.a(drname.o)  \
+     $(LIB)/libffg_shared_t.a(dspbb.o)  \
+     $(LIB)/libffg_shared_t.a(dspgrd.o)  \
+     $(LIB)/libffg_shared_t.a(duuinf.o)  \
+     $(LIB)/libffg_shared_t.a(envfix.o)  \
+     $(LIB)/libffg_shared_t.a(fixfil.o)  \
+     $(LIB)/libffg_shared_t.a(fixopn.o)  \
+     $(LIB)/libffg_shared_t.a(getar.o)  \
+     $(LIB)/libffg_shared_t.a(getbb.o)  \
+     $(LIB)/libffg_shared_t.a(getdut.o)  \
+     $(LIB)/libffg_shared_t.a(getgpm.o)  \
+     $(LIB)/libffg_shared_t.a(getgrd.o)  \
+     $(LIB)/libffg_shared_t.a(gethed.o)  \
+     $(LIB)/libffg_shared_t.a(gethiq.o)  \
+     $(LIB)/libffg_shared_t.a(getidx.o)  \
+     $(LIB)/libffg_shared_t.a(getinf.o)  \
+     $(LIB)/libffg_shared_t.a(getsup.o)  \
+     $(LIB)/libffg_shared_t.a(gpcomm.o)  \
+     $(LIB)/libffg_shared_t.a(infxdt.o)  \
+     $(LIB)/libffg_shared_t.a(inigrd.o)  \
+     $(LIB)/libffg_shared_t.a(int2xt.o)  \
+     $(LIB)/libffg_shared_t.a(mkfnam.o)  \
+     $(LIB)/libffg_shared_t.a(opnlog.o)  \
+     $(LIB)/libffg_shared_t.a(pininf.o)  \
+     $(LIB)/libffg_shared_t.a(prnamv.o)  \
+     $(LIB)/libffg_shared_t.a(pstcod.o)  \
+     $(LIB)/libffg_shared_t.a(rcci.o)  \
+     $(LIB)/libffg_shared_t.a(rdxmrg.o)  \
+     $(LIB)/libffg_shared_t.a(rppfil.o)  \
+     $(LIB)/libffg_shared_t.a(strgrd.o)  \
+     $(LIB)/libffg_shared_t.a(stridx.o)  \
+     $(LIB)/libffg_shared_t.a(strinf.o)  \
+     $(LIB)/libffg_shared_t.a(subidx.o)  \
+     $(LIB)/libffg_shared_t.a(typent.o)  \
+     $(LIB)/libffg_shared_t.a(tzcnum.o)  \
+     $(LIB)/libffg_shared_t.a(usrext.o)  \
+     $(LIB)/libffg_shared_t.a(usrinf.o)  \
+     $(LIB)/libffg_shared_t.a(wppfil.o)  \
+     $(LIB)/libffg_shared_t.a(wrxmrg.o)
+

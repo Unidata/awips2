@@ -1,0 +1,306 @@
+module '*Hb'
+version = 48;
+xdesigned = 1;
+applicationName = '*Hb';
+generateNameC = * 'pubds.c';
+generateNameExterns = * 'pubds.h';
+generateNameResDB = * 'pubds.res';
+generateCPixmapFile = '';
+generateCHeaderFile = '';
+motifFlavour = 2;
+generateMask = 39256301;
+useMask = 0;
+ansiC = 1;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 0;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+javaVersion = 2;
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'pubDS' : XmDialogShell {
+	arguments {
+	name = 'pubDS';
+	lastGenName = 'pubDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_pubDS (Widget parent)
+';
+	XmNwidth =  * 520;
+	XmNheight =  * 405;
+	XmNallowShellResize = true;
+	XmNtitle =  * 'Publications';
+	XmNminWidth =  * 520;
+	XmNminHeight =  * 405;
+	XmNmaxWidth =  * 520;
+	XmNmaxHeight =  * 405;
+	};
+object 'pubFM' : XmForm {
+	arguments {
+	name = 'pubFM';
+	was_selected = true;
+	lastGenName = 'pubFM';
+	XmNwidth =  * 520;
+	XmNheight =  * 405;
+	XmNresizePolicy = XmRESIZE_NONE;
+	XmNautoUnmanage = false;
+	};
+object 'pubinfoLbl' : XmLabel {
+	arguments {
+	name = 'pubinfoLbl';
+	lastGenName = 'pubinfoLbl';
+	XmNlabelString =  * 'Information';
+	};
+};
+object 'pubinfoFrm' : XmFrame {
+	arguments {
+	name = 'pubinfoFrm';
+	lastGenName = 'pubinfoFrm';
+	XmNwidth = 496;
+	XmNheight = 100;
+	};
+object 'pubinfoFM' : XmForm {
+	arguments {
+	name = 'pubinfoFM';
+	lastGenName = 'pubinfoFM';
+	XmNwidth =  * 496;
+	XmNheight =  * 100;
+	XmNresizePolicy = XmRESIZE_NONE;
+	};
+object 'pubbegTxt' : XmText {
+	arguments {
+	name = 'pubbegTxt';
+	lastGenName = 'pubbegTxt';
+	XmNmaxLength =  * 10;
+	XmNcolumns =  * 10;
+	};
+};
+object 'pubendTxt' : XmText {
+	arguments {
+	name = 'pubendTxt';
+	lastGenName = 'pubendTxt';
+	XmNmaxLength =  * 10;
+	XmNcolumns =  * 10;
+	};
+};
+object 'publocLbl' : XmLabel {
+	arguments {
+	name = 'publocLbl';
+	lastGenName = 'publocLbl';
+	XmNlabelString =  * 'Location:';
+	};
+};
+object 'publocTxt' : XmText {
+	arguments {
+	name = 'publocTxt';
+	lastGenName = 'publocTxt';
+	XmNmaxLength =  * 25;
+	XmNcolumns =  * 34;
+	};
+};
+object '3' : XmLabel {
+	arguments {
+	lastGenName = 'label3';
+	XmNlabelString =  * 'Begin:';
+	};
+};
+object '4' : XmLabel {
+	arguments {
+	lastGenName = 'label4';
+	XmNlabelString =  * 'End:';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 93;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 10;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 358;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 10;
+    };
+    attachment {
+	XmNrightAttachment = 3 4 10;
+	XmNleftAttachment = 1 0 7;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 59;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 94;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 52;
+    };
+    attachment {
+	XmNrightAttachment = 3 1 10;
+	XmNleftAttachment = 1 0 27;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 17;
+    };
+    attachment {
+	XmNrightAttachment = 3 2 10;
+	XmNleftAttachment = 1 0 307;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 17;
+    };
+    };
+};
+};
+object 'pubokPB' : XmPushButton {
+	arguments {
+	name = 'pubokPB';
+	lastGenName = 'pubokPB';
+	XmNwidth =  * 85;
+	XmNheight =  * 35;
+	XmNlabelString =  * 'Ok';
+	};
+};
+object 'pubapplyPB' : XmPushButton {
+	arguments {
+	name = 'pubapplyPB';
+	lastGenName = 'pubapplyPB';
+	XmNwidth =  * 85;
+	XmNheight =  * 35;
+	XmNlabelString =  * 'Apply';
+	};
+};
+object 'pubclosePB' : XmPushButton {
+	arguments {
+	name = 'pubclosePB';
+	lastGenName = 'pubclosePB';
+	XmNwidth =  * 85;
+	XmNheight =  * 35;
+	XmNlabelString =  * 'Cancel';
+	};
+};
+object 'pubnewPB' : XmPushButton {
+	arguments {
+	name = 'pubnewPB';
+	lastGenName = 'pubnewPB';
+	XmNwidth =  * 85;
+	XmNheight =  * 35;
+	XmNlabelString =  * 'New';
+	};
+};
+object 'pubdelPB' : XmPushButton {
+	arguments {
+	name = 'pubdelPB';
+	lastGenName = 'pubdelPB';
+	XmNwidth =  * 85;
+	XmNheight =  * 35;
+	XmNlabelString =  * 'Delete';
+	};
+};
+object '5' : XmLabel {
+	arguments {
+	lastGenName = 'label5';
+	XmNlabelString =  * 'Begin                                                         End';
+	};
+};
+object 'pubSLB' : XmScrolledList {
+	arguments {
+	name = 'pubSLB';
+	lastGenName = 'pubSLB';
+	};
+abstract object '1' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'scrollbar1';
+	};
+};
+abstract object '2' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'scrollbar2';
+	};
+};
+abstract object 'pubLB' : XmList {
+	arguments {
+	name = 'pubLB';
+	lastGenName = 'pubLB';
+	XmNwidth =  * 500;
+	XmNvisibleItemCount =  * 8;
+	XmNlistSizePolicy =  * XmCONSTANT;
+	};
+};
+};
+object '1' : XmSeparator {
+	arguments {
+	lastGenName = 'separator1';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 21;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 201;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 213;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 10 10;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 113;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 10 10;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 218;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 10 10;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 320;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 10 10;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 424;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 10 10;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 14;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -510;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -175;
+	XmNtopAttachment = 1 0 40;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 0;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 1 0 60;
+	XmNtopAttachment = 0 0 0;
+    };
+    };
+};
+};
+end module;

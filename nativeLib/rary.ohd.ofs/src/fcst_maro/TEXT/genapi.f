@@ -1,0 +1,63 @@
+C MEMBER GENAPI
+C  (from old member PPGENAPI)
+C
+      SUBROUTINE GENAPI(IBEGN, IEND, APIG)
+C
+C
+C.....THIS SUBROUTINE SETS ELEMENTS OF THE APIG ARRAY...BEGINNING AT
+C.....ADDRESS IBEGN AND ENDING AT ADDRESS IEND...TO VALUE APIV.
+C
+C.....THIS SUBROUTINE IS CALLED IN THE EVENT THE APIG ARRAY NEEDS TO
+C.....BE UPDATED, OR CHANGED TO A GIVEN VALUE. THIS SUBROUTINE WILL
+C.....MOST LIKELY BE CALLED ONLY AFTER THERE IS NO OBSERVED API IN
+C.....ANY OF THE PREPROCESSOR DATABASE.
+C
+C.....ORIGINALLY WRITTEN BY:
+C
+C.....JERRY M. NUNN     WGRFC FT. WORTH, TEXAS     OCTOBER 12, 1989
+C
+      INTEGER*2 APIG(1), JAPIMN, JAPIMX, JAPI
+C
+      INCLUDE 'common/pudbug'
+      INCLUDE 'gcommon/gopt'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcst_maro/RCS/genapi.f,v $
+     . $',                                                             '
+     .$Id: genapi.f,v 1.1 1995/09/17 19:01:31 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+  900 FORMAT(1H0, '*** ENTER SUBROUTINE GENAPI ***')
+  901 FORMAT(1H0, '*** EXIT SUBROUTINE GENAPI -- ADDRESSES ', I6,
+     * ' THRU ', I6, ' OF THE APIG ARRAY SET TO ', F7.2)
+C
+      IF(IPTRCE .GE. 3) WRITE(IOPDBG,900)
+C
+C....."INTEGERIZE" THE API LIMITS AND THE VALUE OF API TO SET THE
+C.....APIG ARRAY TO.
+C
+      JAPIMX = APIMAX*100.0
+      JAPIMN = APIMIN*100.0
+      JAPI   = APIV*100.
+C
+C.....TEST THE VALUE OF API AGAINST THE LIMITS. DO NOT LET THE VALUE
+C.....EXCEED THE LIMITS.
+C
+      IF(JAPI .LT. JAPIMN) JAPI = JAPIMN
+      IF(JAPI .GT. JAPIMX) JAPI = JAPIMX
+C
+C.....SET THE DESIRED ELEMENTS OF THE APIG ARRAY TO THEIR SPECIFIED
+C.....VALUE.
+C
+      DO 100 KP = IBEGN, IEND
+      APIG(KP)  = JAPI
+  100 CONTINUE
+C
+      IF(IPTRCE .GE. 3) WRITE(IOPDBG,901) IBEGN, IEND, APIV
+C
+      RETURN
+      END

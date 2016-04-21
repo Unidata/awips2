@@ -1,0 +1,18 @@
+C MEMBER UFLDBLOC
+C-----------------------------------------------------------------------
+C
+      BLOCK DATA
+C
+C  INITIALIZE FREE FORMAT FIELD COMMON BLOCK
+C
+      INCLUDE 'ufreex'
+C
+      DATA PFCOMA/.TRUE./
+      DATA ICDBUF/100*' '/
+      DATA ICDSTR/1/,ICDSTP/72/,IPRCRD/0/,IPRBLN/1/,IPRMPT/0/
+      DATA NRDCRD/0/,ICPNCH/7/,NPUCRD/0/,IPRTCD/0/,MAXFLD/50/
+      DATA ICKDAT/0/,ICDTMP/02/,IOPREP/0/,ICDSPC/1/,ICDQTE/1/
+      DATA NFLDNQ/0/
+      DATA CMTCHR/'$'/
+C
+      END

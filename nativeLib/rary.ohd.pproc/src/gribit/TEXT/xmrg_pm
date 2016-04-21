@@ -1,0 +1,4 @@
+      character*20 xqpfwmo
+      character*62 xline
+      common /xmrg_pm/ numx,xline(30),xqpfwmo(12)
+      

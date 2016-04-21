@@ -1,0 +1,74 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+    http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="geospatialDataGenerator" class="com.raytheon.edex.plugin.warning.gis.GeospatialDataGenerator">
+        <constructor-arg value="geospatialUpdateNotify"/>
+    </bean>
+
+  	<bean id="generateGeospatialDataRequestHandler" class="com.raytheon.edex.plugin.warning.gis.GenerateGeospatialDataRequestHandler">
+  	    <constructor-arg ref="geospatialDataGenerator"/>
+  	</bean>
+
+	<bean factory-bean="handlerRegistry" factory-method="register">
+  		<constructor-arg value="com.raytheon.uf.common.dataplugin.warning.gis.GenerateGeospatialDataRequest"/>
+  		<constructor-arg ref="generateGeospatialDataRequestHandler"/>
+  	</bean>
+   
+    <bean id="generateGeospatialTimeSetHandler" class="com.raytheon.edex.plugin.warning.gis.GenerateGeospatialTimeSetRequestHandler"/>
+   
+    <bean id="generateGeospatialTimesetRequest" factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.common.dataplugin.warning.gis.GenerateGeospatialTimeSetRequest"/>
+        <constructor-arg ref="generateGeospatialTimeSetHandler"/>
+    </bean>
+    
+    <bean id="warningDecodeVerifier" class="com.raytheon.uf.edex.python.decoder.PythonDecoder">
+        <property name="pluginName" value="warning"/>
+        <property name="pluginFQN" value="com.raytheon.edex.plugin.warning"/>
+        <property name="moduleName" value="WarningDecoder"/>
+        <property name="cache" value="false"/>
+        <property name="recordClassname" value="com.raytheon.uf.common.dataplugin.warning.WarningRecord"/>
+    </bean>
+    
+    <bean id="VerifyProductDecodeHandler" class="com.raytheon.edex.plugin.warning.handler.VerifyProductDecodeHandler">
+    	<constructor-arg ref="warningDecodeVerifier" />
+    </bean>
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.common.dataplugin.warning.request.VerifyProductDecodeRequest" />
+        <constructor-arg ref="VerifyProductDecodeHandler" />
+    </bean>
+
+    <camelContext id="geospatialDataGenerator-camel"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler">
+        <endpoint id="geospatialDataUpdaterCron"
+            uri="clusteredquartz://warning/checkGeospatialData/?cron=${geospatial.updater.cron}" />
+
+        <!-- Generate once on context start -->
+        <route id="geospatialDataGeneratorRoute">
+            <from uri="timer://generateWarngenGeometries?repeatCount=1"/>
+            <bean ref="geospatialDataGenerator" method="generateUniqueGeospatialMetadataGeometries"/>
+        </route>
+
+        <!-- check generate periodically -->
+        <route id="geospatialDataUpdaterRoute">
+            <from ref="geospatialDataUpdaterCron"/>
+            <doTry>
+                <bean ref="geospatialDataGenerator" method="generateUniqueGeospatialMetadataGeometries"/>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to
+                        uri="log:geospatialDataUpdater?level=ERROR" />
+                </doCatch>
+            </doTry>
+        </route>
+
+        <!-- Route to send geospatial data update notification -->
+        <route id="geospatialUpdateNotify">
+            <from uri="vm:edex.geospatialUpdateNotification" />
+            <bean ref="serializationUtil" method="transformToThrift" />
+            <to uri="jms-generic:topic:edex.geospatialUpdate.msg" />
+        </route>
+    </camelContext>
+</beans>

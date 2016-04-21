@@ -1,0 +1,5 @@
+C                                           *--> FROM COMMON.MODRCS             
+C  FORECAST COMPONENT RATING CURVE SHIFT COMMON BLOCK                           
+      COMMON /MODRCS/ NUMRC,RCSID(2,2),NSHIFT(2),IJHSHF(5,2),                   
+     *   LJHSHF(5,2),ISTYPE(5,2),HNEW(5,2),QNEW(5,2),HL(5,2),HU(5,2)            
+C                                                                               
