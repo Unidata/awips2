@@ -908,3 +908,8 @@ NGRID	^(HEN[A-KXY][0-9][0-9]) (KWNH) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*
 # 2.5km CONUS PWPF
 NGRID	^(HIN[B-X][0-9][0-9]) (KWNH) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/grib2/(\3:yyyy)(\3:mm)\3/\4/PWPF/GRID184/\1_\2_\3\4\5_(seq).grib2.%Y%m%d%H
+
+# National Radar for DCS 18425 / DR 18913
+NNEXRAD	^(SDUS[234578].) (K|P|T)(...) (..)(..)(..) /p(N0Q|N1Q|N0U|N1U|NST|TZL|TR1|TV1|NCR)(...)
+	FILE	-overwrite -log -close -edex	/data_store/radar/\2\8/\7/\1_\5\6_\2\8_\7_(seq).rad
+
