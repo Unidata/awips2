@@ -1,0 +1,26 @@
+#!/bin/sh
+exe=$0
+while test -L "$exe"; do
+	exe=`readlink "$exe"`
+done
+bin_dir=`dirname "$exe"`
+bin_dir=`cd "$bin_dir";pwd`
+rs_home_dir=`cd "$bin_dir/..";pwd`
+
+pid_file=$rs_home_dir/data/radarserver-pid
+if [ -f $pid_file ]
+then
+	pid=`cat "$pid_file"`
+	if test -n "$pid"; then
+		rm -f "$pid_file"
+		if kill "$pid"; then
+			echo "Killing radar server at process $pid, also removing pid file."
+			exit 0
+		fi
+	else
+		echo "Cannot find pid of radar server, please kill it manually."
+	fi
+else
+	echo "File does not exist to find pid.  It may not be running or it might need to be killed manually."
+fi
+exit 1

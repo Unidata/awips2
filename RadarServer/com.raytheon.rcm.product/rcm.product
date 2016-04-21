@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.4"?>
+
+<product name="Radar Server" useFeatures="true">
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
+   </launcherArgs>
+
+   <plugins>
+   </plugins>
+
+   <features>
+      <feature id="com.raytheon.rcm.feature" version="1.0.0"/>
+   </features>
+
+</product>
