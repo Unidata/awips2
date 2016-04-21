@@ -76,7 +76,8 @@ import com.raytheon.viz.gfe.smarttool.script.SmartToolRunnerController;
  * Jul 23, 2015  4263      dgilling    Support SmartToolMetadataManager.
  * Aug 27, 2015  4749      njensen     Call shutdown() on PythonJobCoordinator
  * Sep 16, 2015  4871      randerso    Return modified varDict from Tool
- * 10/08/2015    18125     bhunder     Modified CANCEL_MSG_START to work with Jep updates
+ * Oct 08, 2015  18125     bhunder     Modified CANCEL_MSG_START to work with Jep updates
+ * Apr 20, 2016  5593      randerso    Fixed issue with running tool with no grids left parm immutable
  * 
  * </pre>
  * 
@@ -435,37 +436,41 @@ public class Tool {
 
         startedParmEdit = false;
 
-        // Determine the pre, execute, and post methods to call
-        // If present, instantiate Tool class
-
-        // Check the tool modes to make sure they make sense
-
         boolean saveParams = false;
         int numberOfGrids = 0;
-
         try {
+            /*
+             * Make sure parm is mutable.
+             * 
+             * This should be done first so saveMutableFlag is set before
+             * cleanUp is run
+             */
+            if (parmToEdit != null) {
+                saveMutableFlag = this.inputParm.isMutable();
+                this.inputParm.setMutable(true);
+            }
+
+            /*
+             * varDict must be set before returning from execute to prevent
+             * errors attempting to retrieve the updated contents
+             */
             tool.setVarDict(varDict);
 
             // Get the gridInventory for the timeRange
             IGridData[] grids = this.inputParm.getGridInventory(timeRange);
-            if (grids.length == 0) {
+            numberOfGrids = grids.length;
+            if (numberOfGrids == 0) {
                 String message = "Smart Tool " + toolName
                         + ": No Grids To Edit for "
                         + inputParm.expressionName();
                 statusHandler.handle(Priority.EVENTA, message);
                 return;
             }
-            numberOfGrids = grids.length;
-
-            // Make sure parm is mutable
-            if (parmToEdit != null) {
-                saveMutableFlag = this.inputParm.isMutable();
-                this.inputParm.setMutable(true);
-            }
 
             // Clear missing grids
             GridCycler.getInstance().clearMissingData();
-            // # PreProcess Tool
+
+            // PreProcess Tool
             handlePreAndPostProcess("preProcessTool", null, timeRange,
                     editArea, dataMode);
             statusHandler.handle(Priority.DEBUG, "Running smartTool: "
@@ -479,11 +484,6 @@ public class Tool {
                     return;
                 }
 
-                // # Show progress on a grid basis for numeric and parm-based
-                // if toolType == "numeric" or toolType == "parm-based":
-                // percent = (index+1)/numberOfGrids * 100.0
-                // AFPS.ProgressBarMsg_send_mh(self.__msgHand, "SmartTool",
-                // percent)
                 if (!grid.isOkToEdit() && (parmToEdit != null)) {
                     String message = "Smart Tool " + toolName
                             + ": Encountered locked grid. ";
@@ -558,7 +558,7 @@ public class Tool {
                 }
             } // end of grids for loop
 
-            // # PostProcess Tool
+            // PostProcess Tool
             handlePreAndPostProcess("postProcessTool", null, timeRange,
                     trueEditArea, dataMode);
             saveParams = true;

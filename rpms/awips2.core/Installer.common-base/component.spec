@@ -27,7 +27,7 @@ requires: netcdf = 4.1.2
 requires: netcdf-devel = 4.1.2
 
 %description
-AWIPS II Common Base - Contains common plugins utilized by both EDEX and CAVE.
+AWIPS II Common Base - Contains common plugins utilized by EDEX.
 
 %prep
 # Ensure that a "buildroot" has been specified.
@@ -41,27 +41,23 @@ if [ -d %{_build_root} ]; then
    rm -rf %{_build_root}
 fi
 /bin/mkdir -p %{_build_root}
-#/bin/mkdir %{_build_root}
 if [ $? -ne 0 ]; then
    exit 1
 fi
 
 %build
-_hybrid_target=buildHybrid
-
 _build_xml=build.xml
 BUILD_EDEX=%{_baseline_workspace}/build.edex
 EDEX_DIST=${BUILD_EDEX}/edex/dist
 
-_pde_build_arch=x86
-if [ "%{_build_arch}" = "x86_64" ]; then
-   _pde_build_arch=%{_build_arch}
-fi
-
 cd ${BUILD_EDEX}
 /awips2/ant/bin/ant -f ${_build_xml} \
-   -Dbuild.arch=${_pde_build_arch} \
-   -Duframe.eclipse=%{_uframe_eclipse} ${_hybrid_target}
+   -Dbuild.arch=x86_64 \
+   -Dfeature=com.raytheon.uf.common.base.feature \
+   -Duframe.eclipse=%{_uframe_eclipse} \
+   clean \
+   build \
+   clean
 if [ $? -ne 0 ]; then
    exit 1
 fi
@@ -74,15 +70,6 @@ EDEX_DIST=${BUILD_EDEX}/edex/dist
 if [ $? -ne 0 ]; then
    exit 1
 fi
-
-RPMS_CORE=%{_baseline_workspace}/rpms/awips2.core
-RPMS_COMMON_BASE=${RPMS_CORE}/Installer.common-base
-SCRIPTS=${RPMS_COMMON_BASE}/scripts
-cp -vf ${RPMS_COMMON_BASE}/scripts/* %{_build_root}/awips2/cave
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-
 
 #create a list of all files packaged for /awips2/edex/data/utility
 UTILITY=/awips2/edex/data/utility
@@ -120,29 +107,7 @@ else if [ $retVal -eq 0 ]; then
  fi
 fi
 
-# CAVE installed?
-
-# when the plugins are for CAVE, we need to
-# use the p2 director to install from a repository.
-rpm -q awips2-cave > /dev/null 2>&1
-if [ $? -eq 0 ]; then
-   /bin/bash /awips2/cave/installCAVECommon.sh
-   rm -f /awips2/cave/installCAVECommon.sh   
-else
-   # hide the cave repository
-   pushd . > /dev/null 2>&1
-   cd /awips2
-   rm -rf .cave
-   mv cave .cave
-   popd > /dev/null 2>&1
-fi
-
-
-
 %preun
-if [ -d /awips2/.cave ]; then
-   rm -rf /awips2/.cave
-fi
 if [ -d /awips2/.edex ]; then
    rm -rf /awips2/.edex
 fi
@@ -157,8 +122,3 @@ rm -rf ${RPM_BUILD_ROOT}
 %dir /awips2
 %dir /awips2/edex
 /awips2/edex/*
-
-%dir /awips2/cave
-/awips2/cave/*
-%dir /awips2/cave/.repository
-/awips2/cave/.repository/*
