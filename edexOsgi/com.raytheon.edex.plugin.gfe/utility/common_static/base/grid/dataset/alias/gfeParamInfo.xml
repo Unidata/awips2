@@ -228,6 +228,9 @@
     <alias base="FFG-TIR">RFCFFG_ParameterInfo</alias>
     <alias base="FFG-TUA">RFCFFG_ParameterInfo</alias>
     <alias base="NationalBlend">NationalBlend</alias>
+    <alias base="NationalBlendPR">NationalBlend</alias>
+    <alias base="NationalBlendHI">NationalBlend</alias>
+    <alias base="NationalBlendAK">NationalBlend</alias>
     <alias base="PGBlended">PGBlended</alias>
     <alias base="PGBlended-Night">PGBlended</alias>
     <alias base="NCOM-USEAST">ncom</alias>
