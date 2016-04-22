@@ -94,6 +94,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  *  Jan 22, 2014 3949       nabowle     refactor out default and unknown source constants.
  *  Jul 23, 2015 2360       rferrel     Add name to unique constraint.
  *  Mar 08, 2016 18336      amoore      Keep-alive messages should update the legend.
+ *  May 02, 2016 18336      amoore      BinLightningRecord constructor takes source.
  * 
  * </pre>
  * 
@@ -172,9 +173,11 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
      * 
      * @param dateTime
      *            WMO header base date.
+     * @param vendorSource
+     *            source of the record.
      */
-    public BinLightningRecord(final Calendar dateTime) {
-        source = LightningConstants.DEFAULT_SOURCE;
+    public BinLightningRecord(final Calendar dateTime, String vendorSource) {
+        source = vendorSource;
 
         // only data shall be datetime for keep-alive
         strikeDataArrays.put(LightningConstants.TIME_DATASET,
@@ -321,18 +324,37 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
     }
 
     /**
-     * Extract data source from strike
+     * Extract data source from strike.
      * 
      * @param strike
-     * @return
+     *            the strike from which to get data source.
+     * @return the strike's data source. If null, return
+     *         {@link LightningConstants#DEFAULT_SOURCE}. If empty, return
+     *         {@link LightningConstants#UNKNOWN_SOURCE}.
      */
     public static String getDataSource(LightningStrikePoint strike) {
-        if (strike.getLightSource() == null) {
+        return validateSource(strike.getLightSource());
+    }
+
+    /**
+     * Examine the lightning source given, and return a pre-defined constant if
+     * it is empty or null. Return lightning source as-is if non-null and
+     * non-empty.
+     * 
+     * @param iSource
+     *            the lightning source to examine.
+     * @return a validated lightning source. If null, return
+     *         {@link LightningConstants#DEFAULT_SOURCE}. If empty, return
+     *         {@link LightningConstants#UNKNOWN_SOURCE}. If neither, return the
+     *         original input.
+     */
+    public static String validateSource(String iSource) {
+        if (iSource == null) {
             return LightningConstants.DEFAULT_SOURCE;
-        } else if (strike.getLightSource().isEmpty()) {
+        } else if (iSource.isEmpty()) {
             return LightningConstants.UNKNOWN_SOURCE;
         } else {
-            return strike.getLightSource();
+            return iSource;
         }
     }
 
