@@ -27,7 +27,7 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.handlers.HandlerUtil;
 
 import com.raytheon.viz.hydrocommon.HydroDisplayManager;
 import com.raytheon.viz.hydrocommon.datasources.DataSourcesDlg;
@@ -47,6 +47,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 12/16/2008   1782        grichard    Refreshed Data Sources.
  * 1/11/2008    1802        askripsk    HydroBase implementation.
  * 07/15/2013   2088        rferrel     Changes for non-blocking DataSourceDlg.
+ * 04/22/2016   5483        dgilling    Code cleanup.
  * 
  * </pre>
  * 
@@ -54,19 +55,18 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 
  */
 public class DataSourcesAction extends AbstractHandler {
-    private final Map<String, DataSourcesDlg> dataSourcesDlgMap = new HashMap<String, DataSourcesDlg>();
+    private final Map<String, DataSourcesDlg> dataSourcesDlgMap = new HashMap<>();
 
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
+        Shell shell = HandlerUtil.getActiveShellChecked(arg0);
 
         HydroDisplayManager manager = HydroDisplayManager.getInstance();
         if (manager.isCurrentLidSelected(shell)) {
-            String lid = manager.getCurrentLid();
+            final String lid = manager.getCurrentLid();
             DataSourcesDlg dataSourcesDlg = dataSourcesDlgMap.get(lid);
 
-            if (dataSourcesDlg == null || dataSourcesDlg.isDisposed()) {
+            if ((dataSourcesDlg == null) || (dataSourcesDlg.isDisposed())) {
                 String name = manager.getCurrentData().getName();
 
                 StringBuilder displayString = new StringBuilder(" - ");
@@ -77,14 +77,11 @@ public class DataSourcesAction extends AbstractHandler {
 
                 dataSourcesDlg = new DataSourcesDlg(shell,
                         displayString.toString(), lid, false);
-                dataSourcesDlg.setCloseCallback(new ICloseCallback() {
+                dataSourcesDlg.addCloseCallback(new ICloseCallback() {
 
                     @Override
                     public void dialogClosed(Object returnValue) {
-                        if (returnValue instanceof String) {
-                            String lid = returnValue.toString();
-                            dataSourcesDlgMap.remove(lid);
-                        }
+                        dataSourcesDlgMap.remove(lid);
                     }
                 });
                 dataSourcesDlg.open();
