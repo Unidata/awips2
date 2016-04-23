@@ -36,18 +36,20 @@ Developed on the Raytheon Visualization Environment (viz)
 
    <windowImages/>
 
+
    <launcher name="alertviz">
       <solaris/>
       <win useIco="false">
          <bmp
-            winSmallHigh="/com.raytheon.viz.ui.personalities.awips/awips2_tray16x16.bmp"
-            winSmallLow="/com.raytheon.viz.ui.personalities.awips/awips2_tray16x16.bmp"
-            winMediumHigh="/com.raytheon.viz.ui.personalities.awips/awips2_tray32x32.bmp"
-            winMediumLow="/com.raytheon.viz.ui.personalities.awips/awips2_tray32x32.bmp"
-            winLargeHigh="/com.raytheon.viz.ui.personalities.awips/awips2_tray48x48.bmp"
-            winLargeLow="/com.raytheon.viz.ui.personalities.awips/awips2_tray48x48.bmp"/>
+            winSmallHigh="/com.raytheon.viz.ui.personalities.awips/icons/awips2_tray16x16.bmp"
+            winSmallLow="/com.raytheon.viz.ui.personalities.awips/icons/awips2_tray16x16.bmp"
+            winMediumHigh="/com.raytheon.viz.ui.personalities.awips/icons/awips2_tray32x32.bmp"
+            winMediumLow="/com.raytheon.viz.ui.personalities.awips/icons/awips2_tray32x32.bmp"
+            winLargeHigh="/com.raytheon.viz.ui.personalities.awips/icons/awips2_tray48x48.bmp"
+            winLargeLow="/com.raytheon.viz.ui.personalities.awips/icons/awips2_tray48x48.bmp"/>
       </win>
    </launcher>
+
 
    <vm>
       <linux include="true">jdk1.6.0</linux>
@@ -61,11 +63,11 @@ Developed on the Raytheon Visualization Environment (viz)
       <feature id="com.raytheon.uf.viz.feature.alertviz" version="1.9.0.qualifier"/>
    </features>
 
-   <configurations>      
+   <configurations>
+      <plugin id="com.raytheon.uf.viz.spring.dm" autoStart="true" startLevel="4" />
+      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
       <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="2" />
-      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
-      <plugin id="com.raytheon.uf.viz.spring.dm" autoStart="true" startLevel="4" />
    </configurations>
 
 </product>

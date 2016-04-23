@@ -1,12 +1,12 @@
 /*
-    File: DPAAdapt.h
+    File: DpaAdapt.h
     Author  : CDBGEN
-    Created : Wed Aug 06 12:34:15 EDT 2008 using database hd_ob83empty
+    Created : Thu Nov 08 10:55:29 EST 2007 using database hd_ob83empty
     Description: This header file is associated with its .pgc file 
             and defines functions and the table's record structure.
 */
-#ifndef DPAAdapt_h
-#define DPAAdapt_h
+#ifndef DpaAdapt_h
+#define DpaAdapt_h
 
 
 #include <stdio.h>
@@ -23,7 +23,7 @@
 
 
 
-typedef struct _DPAAdapt
+typedef struct _DpaAdapt
 {
     Node		node;
     char		radid[4];
@@ -77,24 +77,24 @@ typedef struct _DPAAdapt
     float		longest_lag;
     char		bias_applied[2];
     List		list;
-} DPAAdapt;
+} DpaAdapt;
 /*
     Function Prototypes
 */
-    DPAAdapt* GetDPAAdapt(const char * where);
-    DPAAdapt* SelectDPAAdapt(const char * where);
-    int SelectDPAAdaptCount(const char * where);
-    int PutDPAAdapt(const DPAAdapt * structPtr);
-    int InsertDPAAdapt(const DPAAdapt * structPtr);
-    int UpdateDPAAdapt(const DPAAdapt* structPtr, const char *where);
-    int DeleteDPAAdapt(const char *where);
-    int UpdateDPAAdaptByRecord (const DPAAdapt * newStructPtr, const DPAAdapt * oldStructPtr);
-    int InsertOrUpdateDPAAdapt(const DPAAdapt * structPtr);
-    int InsertIfUniqueDPAAdapt(const DPAAdapt * structPtr, bool *isUnique);
-    bool DPAAdaptExists(const DPAAdapt * structPtr);
-    int DeleteDPAAdaptByRecord(const DPAAdapt * structPtr);
-    void GetDPAAdaptPrimaryKeyWhereString (const DPAAdapt * structPtr, char returnWhereString[] );
-    void FreeDPAAdapt(DPAAdapt * structPtr);
-    DbStatus * GetDPAAdaptDbStatus();
-    void SetDPAAdaptErrorLogging(int value);
+    DpaAdapt* GetDpaAdapt(const char * where);
+    DpaAdapt* SelectDpaAdapt(const char * where);
+    int SelectDpaAdaptCount(const char * where);
+    int PutDpaAdapt(const DpaAdapt * structPtr);
+    int InsertDpaAdapt(const DpaAdapt * structPtr);
+    int UpdateDpaAdapt(const DpaAdapt* structPtr, const char *where);
+    int DeleteDpaAdapt(const char *where);
+    int UpdateDpaAdaptByRecord (const DpaAdapt * newStructPtr, const DpaAdapt * oldStructPtr);
+    int InsertOrUpdateDpaAdapt(const DpaAdapt * structPtr);
+    int InsertIfUniqueDpaAdapt(const DpaAdapt * structPtr, bool *isUnique);
+    bool DpaAdaptExists(const DpaAdapt * structPtr);
+    int DeleteDpaAdaptByRecord(const DpaAdapt * structPtr);
+    void GetDpaAdaptPrimaryKeyWhereString (const DpaAdapt * structPtr, char returnWhereString[] );
+    void FreeDpaAdapt(DpaAdapt * structPtr);
+    DbStatus * GetDpaAdaptDbStatus();
+    void SetDpaAdaptErrorLogging(int value);
 #endif

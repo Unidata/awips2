@@ -94,10 +94,6 @@
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.viz.hydro.feature"
-         version="0.0.0"/>
-
-   <includes
          id="com.raytheon.uf.viz.d2d.xy.feature"
          version="0.0.0"/>
 
@@ -200,10 +196,6 @@
 	-->
    <includes
          id="com.raytheon.uf.viz.d2d.damagepath.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="gov.noaa.gsd.viz.hazards.feature"
          version="0.0.0"/>
 
    <includes

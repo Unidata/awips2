@@ -1,27 +1,23 @@
+
+#ifndef dbmserrs_h
+#define dbmserrs_h
+
+
 /*
-	File:		DbmsErrs.h
-
-	Date:		2/21/94
-
-	Purpose:	This file contains the definition of
-			the error codes related to the "C"
-			encapsulation of ESQL.
+	Error code defines.
 */
-
-#ifndef DbmsErrs_h
-#define DbmsErrs_h
-
-
-typedef enum {
-	errOk = 0,
-	errGeneral,
-	errBadArgs,
-	errPrepareQid,
-	errDescribeQid,
-	errOpenCursor,
-	errInsertFail
-} dbErrResult;
+#define ERR_OK			0
+#define ERR_GENERAL		1
+#define ERR_BAD_ARGS		-4444
+#define ERR_OPEN_DBMS		3
+#define ERR_CREATE_HDR		4
+#define ERR_CREATE_SRC		5
+#define ERR_OPEN_INPUT		6
+#define ERR_OPEN_OUTPUT		7
+#define ERR_PREPARE_QID		8
+#define ERR_DESCRIBE_QID	9
+#define ERR_OPEN_CURSOR		10
+#define ERR_INSERT_FAIL		11
 
 
 #endif
-

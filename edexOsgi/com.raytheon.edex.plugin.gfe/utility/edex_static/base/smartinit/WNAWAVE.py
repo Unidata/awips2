@@ -18,12 +18,17 @@
 # further licensing information.
 ##
 
-from GWW import *
+from Init import *
+from WW3 import *
 
-class WNAWAVEForecaster(GWWForecaster):
+##--------------------------------------------------------------------------
+## Module that calculates surface weather elements from WW3 model
+## output.
+##
+##--------------------------------------------------------------------------
+class WNAwaveForecaster(WW3Forecaster):
     def __init__(self):
-        Forecaster.__init__(self, "WNAWAVE", "WNAWAVE")
+        WW3Forecaster.__init__(self, "WNAwave", "WNAwave")
 
 def main():
-    WNAWAVEForecaster().run()
-
+    WNAwaveForecaster().run()

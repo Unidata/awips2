@@ -19,92 +19,173 @@
 ##
 #
 #    Name:
-#       avnserver.py
-#       GFS1-NHD:A7964.0000-SCRIPT;1.6
+#       AvnServer.py
+#       GFS1-NHD:A7965.0000-SCRIPT;1.6
 #
 #    Status:
 #       DELIVERED
 #    
-#    History:
-#       Revision 1.6 (DELIVERED)
-#         Created:  29-NOV-2007 09:54:12      OBERFIEL
-#           Removed obsolete directory search path
-#       
-#       Revision 1.5 (DELIVERED)
-#         Created:  11-JUL-2005 18:14:03      TROJAN
-#           spr 6885
-#       
-#       Revision 1.4 (DELIVERED)
-#         Created:  07-MAY-2005 11:41:45      OBERFIEL
-#           Added Item Header Block
-#       
-#       Revision 1.3 (DELIVERED)
-#         Created:  23-JAN-2005 18:42:21      TROJAN
-#           spr 6604
-#       
-#       Revision 1.2 (APPROVED)
-#         Created:  30-SEP-2004 20:22:08      TROJAN
-#           stdr 873
-#       
-#       Revision 1.1 (APPROVED)
-#         Created:  19-AUG-2004 21:07:38      OBERFIEL
-#           date and time created 08/19/04 21:07:37 by oberfiel
-#
-#    Change Document History:
-#       1:
-#       	Change Document:   GFS1-NHD_SPR_7351
-#       	Action Date:       19-MAR-2008 08:14:54
-#       	Relationship Type: In Response to
-#       	Status:           CLOSED
-#       	Title:             AvnFPS: Remove dependency on shared library, climmodule.so
-#       
-#
-#    Purpose:
-#	A driver for starting Pyro name server
+# AvnServer.py
+# wrappers for name and event servers
+# George Trojan, SAIC/MDL, August 2004
+# last update: 06/04/05
 
-import getopt, os, sys, time
+import os, threading
+import Pyro.core, Pyro.naming, Pyro.util, Pyro.constants
+from Pyro.errors import *
+import AvnPyro
 
-TopDir = os.environ['TOP_DIR']
-sys.path = sys.path[1:]
-sys.path.extend([os.path.join(TopDir, dir) for dir in \
-    ['sitepy', 'py', 'toolpy']])
-import AvnUtils
+class NameServer(threading.Thread):
+    def __init__(self, **kw):
+        threading.Thread.__init__(self)
+        self.setDaemon(1)
+        self.kw = kw
+        self.starter = Pyro.naming.NameServerStarter()
 
-def main():
-    me = os.path.basename(sys.argv[0])
-    args = [me] + sys.argv[1:]
-    pids = AvnUtils.isRunning(args)
-    if pids:
-        print '%s is running, pids=%s. Terminating' % (args[0], str(pids))
-        raise SystemExit
-    try:
-        opts, pargs = getopt.getopt(sys.argv[1:], 'dn:')
-        kwds = dict(opts)
-    except Exception, e:
-        print 'python avnserver.py [-d] -n host'
-        raise SystemExit
-    if '-d' in kwds:
-        del kwds['-d']
-    else:
-        AvnUtils.daemonize()
-    os.chdir(TopDir)
-    try:
-        import Startup
-        import AvnServer
-        nss = AvnServer.NameServer(**kwds)
-        nss.start()
-        time.sleep(2)
-        if not nss.waitUntilStarted(10):
-            raise SystemExit
-        ess = AvnServer.EventServer(**kwds)
-        ess.start()
-        ess.waitUntilStarted()
-        time.sleep(1000000000.0)
-    except SystemExit:
-        raise
-    except Exception:
-        import logging
-        logging.getLogger(__name__).exception('Uncaught exception')
+    def run(self):
+        print "Launching Pyro Name Server"
+        kw = {'hostname': self.kw.get('-n', '')}
+        kw.update({'persistent': 1, 'dbdir': 'nsdb', 'verbose': 1,\
+            'Guards': (AvnPyro.NSGuard(), AvnPyro.BCGuard())})
+        self.starter.start(**kw)
 
-if __name__ == '__main__':
-    main()
+    def waitUntilStarted(self, timeout=None):
+        return self.starter.waitUntilStarted(timeout)
+
+##############################################################################
+import Pyro.EventService.Server
+
+Log=Pyro.util.Log
+        
+class EventServer(threading.Thread):
+    def __init__(self, **kw):
+        threading.Thread.__init__(self)
+        self.setDaemon(1)
+        self.kw = kw
+        self.starter = EventServiceStarter()
+
+    def run(self):
+        Log.msg('Launching Pyro Event Server')
+        self.starter.start(hostname=self.kw.get('-n', ''))
+
+    def waitUntilStarted(self):
+        return self.starter.waitUntilStarted()
+
+###############################################################################
+# EventServiceStarter is copied from Pyro.EventService.Server, with minor
+# modifications, to avoid the need for interactive call
+
+class EventServiceStarter:
+    def __init__(self, identification=None):
+        self.running=1
+        self.identification=identification
+        self.started = Pyro.util.getEventObject()
+
+    def start(self, *args, **kwargs):
+        # see _start for allowed arguments
+        self._start(startloop=1, *args, **kwargs)
+
+    def initialize(self, *args, **kwargs):      
+        # see _start for allowed arguments
+        self._start(startloop=0, *args, **kwargs)
+
+    def getServerSockets(self):
+        return self.daemon.getServerSockets()
+
+    def waitUntilStarted(self, timeout=None):
+        self.started.wait(timeout)
+        return self.started.isSet()
+
+    def _start(self, hostname='', port=None, startloop=1, useNameServer=1):
+        daemon = Pyro.core.Daemon(host=hostname, port=port)
+        if self.identification:
+            # Requiring connection authentication
+            daemon.setAllowedIdentifications([self.identification])
+
+        if useNameServer:
+            locator = Pyro.naming.NameServerLocator( \
+                identification=self.identification)
+            try:
+                port = int(os.environ['PYRO_NS_PORT'])
+            except KeyError:
+                port = None
+            ns = locator.getNS(port=port)
+    
+            # check if ES already running
+            try:
+                ns.resolve(Pyro.constants.EVENTSERVER_NAME)
+                Log.warn('Event Server appears to be already running.')
+#               ns.unregister(Pyro.constants.EVENTSERVER_NAME)
+            except NamingError:
+                pass
+    
+            daemon.useNameServer(ns)
+
+        es = Pyro.EventService.Server.EventService()
+
+        esURI=daemon.connectPersistent(es, 
+            Pyro.constants.EVENTSERVER_NAME)
+        Log.msg('URI=%s' % esURI)
+
+        message = daemon.validateHostnameAndIP()
+        if message:
+            Log.warn('WARNING: ' + message)
+
+        Log.msg('Event Server started.')
+
+        self.started.set()      # signal that we've started.
+
+        if startloop:
+            Log.msg('ES daemon','This is the Pyro Event Server.')
+            try:
+                daemon.setTimeout(20)  # XXX fixed timeout
+                daemon.requestLoop(lambda s=self: s.running)
+            except KeyboardInterrupt:
+                Log.warn('ES daemon', 'shutdown on user break signal')
+                self.shutdown(es)
+            except:
+                try:
+                    import traceback
+                    (exc_type, exc_value, exc_trb) = sys.exc_info()
+                    out = ''.join(traceback.format_exception(exc_type, 
+                        exc_value, exc_trb)[-5:])
+                    Log.error('ES daemon', 'Unexpected exception, type',
+                        exc_type,
+                        '\n--- partial traceback of this exception follows:\n',
+                        out,'\n--- end of traceback')
+                finally:    
+                    del exc_type, exc_value, exc_trb
+            Log.msg('ES daemon','Shut down gracefully.')
+        else:
+            # no loop, store the required objects for 
+            # getServerSockets()
+            self.daemon=daemon
+            self.es=es
+            daemon.setTimeout(20)  # XXX fixed timeout
+
+    def mustContinueRunning(self):
+        return self.running
+
+    def handleRequests(self, timeout=None):
+        # this method must be called from a custom event loop
+        self.daemon.handleRequests(timeout=timeout)
+
+    def shutdown(self, es):
+        if es:
+            # internal shutdown call with specified ES object
+            daemon=es.getDaemon()
+        else:
+            # custom shutdown call w/o specified ES object, 
+            # use stored instance
+            daemon=self.daemon
+            es=self.es
+            del self.es, self.daemon
+        try:
+            daemon.disconnect(es) # clean up nicely
+        except NamingError,x:
+            Log.warn('ES daemon', 'disconnect error during shutdown:',x)
+        except ConnectionClosedError,x:
+            Log.warn('ES daemon',
+                'lost connection with Name Server, cannot unregister')
+        self.running=0
+        daemon.shutdown()
