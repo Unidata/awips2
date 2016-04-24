@@ -21,16 +21,16 @@
 <link rel="publisher" href="https://plus.google.com/107187849809354688692">
 <link rel="shortcut icon" href="http://www.unidata.ucar.edu/favicon.ico">
 <link href="//fonts.googleapis.com/css?family=RobotoDraft:300,400,500|Source+Code+Pro:400,500,700" rel="stylesheet">
-<link href="/awips2/css/site2.css?20160421" rel="stylesheet">
-<link href="/awips2/css/site2_sd_rules.css?20160421" rel="stylesheet" shim-shadowdom>
+<link href="/awips2/css/site2.css?20160424" rel="stylesheet">
+<link href="/awips2/css/site2_sd_rules.css?20160424" rel="stylesheet" shim-shadowdom>
 
 
 
-<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20160421"></script>
+<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20160424"></script>
 <!-- TODO: remove when https://github.com/Polymer/polymer/issues/391 is fixed -->
 <link rel="import" href="/awips2/components/polymer/polymer.html">
 <link rel="stylesheet" href="/awips2/css/elements/docs-menu.css">
-<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20160421">
+<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20160424">
 
 
 </head>
@@ -74,13 +74,21 @@
         </h1>
       </header>
 
-      <p><a href="http://www.unidata.ucar.edu/downloads/awips2/awips2-cave.dmg"><paper-button raised="" role="button" tabindex="0"><core-icon icon="file-download" aria-label="file-download" role="img"></core-icon>Mac OS X</paper-button></a><a href="http://www.unidata.ucar.edu/software/awips2/installCAVE.sh"><paper-button raised="" role="button" tabindex="0"><core-icon icon="file-download" aria-label="file-download" role="img"></core-icon>64-bit Linux</paper-button></a></p>
+      <p><a href="http://www.unidata.ucar.edu/downloads/awips2/awips2-cave.dmg"><paper-button raised="" role="button" tabindex="0"><core-icon icon="file-download" aria-label="file-download" role="img"></core-icon>Mac OS X</paper-button></a><a href="http://www.unidata.ucar.edu/software/awips2/installCAVE.sh"><paper-button raised="" role="button" tabindex="0"><core-icon icon="file-download" aria-label="file-download" role="img"></core-icon>64-bit Linux</paper-button></a><a href="http://www.unidata.ucar.edu/downloads/awips2/awips-cave.msi"><paper-button raised="" role="button" tabindex="0"><core-icon icon="file-download" aria-label="file-download" role="img"></core-icon>32-bit Windows</paper-button></a><a href="http://www.unidata.ucar.edu/downloads/awips2/awips-cave.amd64.msi"><paper-button raised="" role="button" tabindex="0"><core-icon icon="file-download" aria-label="file-download" role="img"></core-icon>64-bit Windows</paper-button></a></p>
 
 <p><br /></p>
 
 <h1 id="os-x-client">OS X client</h1>
 
 <p>Download <a href="http://www.unidata.ucar.edu/downloads/awips2/awips2-cave.dmg">awips2-cave.dmg</a> (263 MB), click to open and drag to your Applications folder.  The application will write to a local data cache directory <code>~/Library/CAVE</code>.</p>
+
+<p><br /></p>
+
+<h1 id="windows-client">Windows client</h1>
+
+<p>32-bit <a href="http://www.unidata.ucar.edu/downloads/awips2/awips-cave.msi">awips-cave.msi</a></p>
+
+<p>64-bit <a href="http://www.unidata.ucar.edu/downloads/awips2/awips-cave.amd64.msi">awips-cave.amd64.msi</a></p>
 
 <p><br /></p>
 
@@ -100,6 +108,8 @@ chmod 755 ./installCAVE.sh
 <ul>
   <li>OpenGL 2.0</li>
   <li><a href="http://www.nvidia.com/Download/index.aspx?lang=en-us">Latest NVIDIA driver</a> for your graphics card.</li>
+  <li>1.5GB disk space (you should be prepared for more with caching datasets in <code>~/caveData</code>)</li>
+  <li>All package dependencies should be resolved by yum.  Packages such as libXp, libXt, and openmotif will be picked up and installed along with CAVE.</li>
 </ul>
 
 <h2 id="how-to-run-cave">How to run CAVE</h2>
@@ -147,7 +157,7 @@ chmod 755 ./installCAVE.sh
 <script src="/awips2/js/prettify/prettify.js"></script>
 
 <!-- <script src="/awips2/js/bower_components/smoothscroll/smoothscroll.js"></script> -->
-<script src="/awips2/js/app.js?20160421"></script>
+<script src="/awips2/js/app.js?20160424"></script>
 
 
   </scroll-area>

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1">
 <meta name="google-site-verification" content="k0e8DrbD40s54xHNBqwIsRrSSAkZoprwtEYDnNY06bU" />
 <meta name="google-site-verification" content="pnjjbQFvjPwaWhEXY6nSyaS9iyghmH-M_yLHBveDX2M">
-<meta itemprop="name" content="AWIPS II - Global Polymer settings">
+<meta itemprop="name" content="AWIPS II - Unidata AWIPS System Requirements">
 <meta itemprop="description" content="Polymer is a library that uses the latest web technologies to let you create custom HTML elements. Build anything from a button to a complete application as an encapsulated, reusable element that works across desktop and mobile.">
 
 
@@ -15,7 +15,7 @@
 
 <title>
   
-    Global Polymer settings -
+    Unidata AWIPS System Requirements -
    AWIPS II
 </title>
 <link rel="publisher" href="https://plus.google.com/107187849809354688692">
@@ -34,7 +34,7 @@
 
 
 </head>
-<body id="global-polymer-settings">
+<body id="unidata-awips-system-requirements">
 
 <main id="content-container" class="polymer-content">
   <app-drawer id="sidebar" unresolved>
@@ -51,16 +51,14 @@
   </app-drawer>
 
   <scroll-area sidebar unresolved class="scrolling">
-    <site-banner type="guide" shortname="Docs" unresolved>
+    <site-banner type="" shortname="" unresolved>
       
 <app-bar theme="light" class="bar fixed">
 </app-bar>
 
       <header class="shrink">
         <h1>
-        
-          EDEX Admin
-        : Global Polymer settings
+         Unidata AWIPS System Requirements
         </h1>
       </header>
     </site-banner>
@@ -72,50 +70,29 @@
 
       <header class="onlyonmobile">
         <h1>
-          
-          EDEX Admin
-          : Global Polymer settings
+          : Unidata AWIPS System Requirements
         </h1>
       </header>
 
-      <p>Document-level global AWIPS II settings can be set 
-by creating a <code>Polymer</code> object on window before importing the AWIPS II
-library:</p>
-
-<pre><code>&lt;html&gt;
-&lt;head&gt;
-  &lt;meta charset="utf-8"&gt;
-  &lt;script src="components/webcomponentsjs/webcomponents-lite.js"&gt;&lt;/script&gt;
-  &lt;script&gt;
-    window.Polymer = window.Polymer || {};
-    window.Polymer.dom = 'shadow';
-  &lt;/script&gt;
-  &lt;!-- import a component that relies on Polymer --&gt;
-  &lt;link rel="import" href="elements/my-app.html"&gt;
-&lt;/head&gt;
-&lt;body&gt;
-
-  ...
-</code></pre>
-
-<p class="alert alert-info"><strong>Note:</strong>  The <em>full</em> version of <code>webcomponents.js</code> includes a stub version
-of the <code>Polymer</code> function. Setting the value this way avoids overwriting the 
-stub.</p>
-
-<p>Settings can also be switched on the URL query string:</p>
-
-<pre><code>http://myserver.com/test-app/index.html?dom=shadow
-</code></pre>
-
-<p>Available settings:</p>
+      <h1 id="cave">CAVE</h1>
 
 <ul>
-  <li><code>dom</code> - options:
-    <ul>
-      <li><code>shady</code>. All local DOM is rendered using shady DOM, even where shadow DOM is supported (current default).</li>
-      <li><code>shadow</code>. Local DOM is rendered using shadow DOM where supported (this will be the default in the future).</li>
-    </ul>
-  </li>
+  <li>64-bit CentOS/RHEL 5 or 6 (including the latest 6.7) (or Mac)</li>
+  <li>8GB memory</li>
+  <li>1.5GB disk space (you should be prepared for more with caching datasets in <code>~/caveData</code>)</li>
+  <li>2GB video ram and OpenGL 2.0</li>
+  <li><a href="http://www.nvidia.com/Download/index.aspx?lang=en-us">Latest NVIDIA driver</a> for your graphics card.</li>
+  <li>All package dependencies should be resolved by yum.  Packages such as libXp, libXt, and openmotif will be picked up and installed along with CAVE.</li>
+</ul>
+
+<h1 id="edex">EDEX</h1>
+
+<ul>
+  <li>64-bit CentOS/RHEL 5 or 6 (including the latest 6.7).</li>
+  <li>4 CPU cores minimum, 8+ recommended (EDEX can scale to any system limitations by reducing the amount of incoming data and/or turning off certain decoders).</li>
+  <li>8GB memory minimum, 24GB and 32GB recommended to process more IDD data feeds</li>
+  <li>250GB minimum footprint, 400GB with full IDD ingest, more if you plan to build a data archive (100 GB/day for 3 months = 10TB)</li>
+  <li>A <strong>Solid State Drive</strong> is recommended if you want to process high volume feeds such as NEXRAD3 and CONDUIT.</li>
 </ul>
 
     </article>
