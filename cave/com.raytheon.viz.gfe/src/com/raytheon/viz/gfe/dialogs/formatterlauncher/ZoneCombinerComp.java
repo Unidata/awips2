@@ -63,12 +63,14 @@ import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
-import com.raytheon.uf.common.dataplugin.gfe.server.notify.CombinationsFileChangedNotification;
+import com.raytheon.uf.common.localization.FileUpdatedMessage;
+import com.raytheon.uf.common.localization.ILocalizationFileObserver;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.LocalizationUtil;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -80,7 +82,6 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.DataManagerUIFactory;
-import com.raytheon.viz.gfe.core.internal.NotificationRouter.AbstractGFENotificationObserver;
 import com.raytheon.viz.gfe.textformatter.CombinationsFileUtil;
 import com.raytheon.viz.gfe.textformatter.TextProductManager;
 import com.raytheon.viz.gfe.ui.zoneselector.ZoneSelector;
@@ -112,6 +113,7 @@ import com.raytheon.viz.gfe.ui.zoneselector.ZoneSelector;
  *                                     FileUpdatedMessage so we can ignore our own changes
  *                                     Moved retrieval of combinations file to CombinationsFileUtil.init
  * Oct 07, 2015  #4695     dgilling    Move loading of combinations file off UI thread.
+ * Apr 25, 2016  #5605     randerso    Switched back to writing combinations file using Localization
  * 
  * </pre>
  * 
@@ -208,7 +210,7 @@ public class ZoneCombinerComp extends Composite implements IZoneCombiner {
 
     protected boolean mapRequired;
 
-    private List<RGB> colorMap = new ArrayList<RGB>();
+    private List<RGB> colorMap = new ArrayList<>();
 
     private final String COLOR_MAP_FILE = FileUtil.join("gfe", "combinations",
             "Combinations_ColorMap");
@@ -229,15 +231,13 @@ public class ZoneCombinerComp extends Composite implements IZoneCombiner {
 
     protected Object initialZoom = null;
 
-    private String currentComboFile = null;
-
-    private final LocalizationFile comboDir;
+    private final LocalizationFile combinationsFile;
 
     private boolean includeAllZones = false;
 
     private List<String> mapNames;
 
-    private AbstractGFENotificationObserver<CombinationsFileChangedNotification> comboChangeListener;
+    private ILocalizationFileObserver combinationsChangeListener;
 
     private final ExecutorService asyncExecutor;
 
@@ -289,41 +289,43 @@ public class ZoneCombinerComp extends Composite implements IZoneCombiner {
         initPreferences();
         init();
 
+        String combinationsName = textProductMgr
+                .getCombinationsFileName(productName);
+
         IPathManager pathMgr = PathManagerFactory.getPathManager();
         LocalizationContext baseCtx = pathMgr.getContext(
                 LocalizationType.CAVE_STATIC, LocalizationLevel.BASE);
-        comboDir = pathMgr.getLocalizationFile(baseCtx,
-                CombinationsFileUtil.COMBO_DIR_PATH);
+        combinationsFile = pathMgr.getLocalizationFile(baseCtx,
+                LocalizationUtil.join(
+                        CombinationsFileUtil.COMBINATIONS_DIR_PATH,
+                        combinationsName + ".py"));
 
-        this.comboChangeListener = new AbstractGFENotificationObserver<CombinationsFileChangedNotification>(
-                CombinationsFileChangedNotification.class) {
+        this.combinationsChangeListener = new ILocalizationFileObserver() {
 
             @Override
-            public void notify(
-                    CombinationsFileChangedNotification notificationMessage) {
-                comboFileChanged(notificationMessage);
-            }
+            public void fileUpdated(FileUpdatedMessage message) {
+                comboFileChanged(message);
 
+            }
         };
 
         this.addDisposeListener(new DisposeListener() {
 
             @Override
             public void widgetDisposed(DisposeEvent e) {
-                ZoneCombinerComp.this.dataManager.getNotificationRouter()
-                        .removeObserver(
-                                ZoneCombinerComp.this.comboChangeListener);
+                combinationsFile
+                        .removeFileUpdatedObserver(combinationsChangeListener);
                 ZoneCombinerComp.this.asyncExecutor.shutdown();
             }
         });
 
-        dataManager.getNotificationRouter().addObserver(
-                this.comboChangeListener);
+        combinationsFile
+                .addFileUpdatedObserver(this.combinationsChangeListener);
     }
 
     private List<String> getMapNames(String productName) {
         Object obj = this.textProductMgr.getMapNameForCombinations(productName);
-        List<String> mapNames = new ArrayList<String>();
+        List<String> mapNames = new ArrayList<>();
         if (obj instanceof String) {
             String s = (String) obj;
             if (!s.isEmpty()) {
@@ -554,7 +556,7 @@ public class ZoneCombinerComp extends Composite implements IZoneCombiner {
         if (zoneSelector != null) {
             return zoneSelector.getZoneGroupings();
         } else {
-            return new ArrayList<List<String>>();
+            return new ArrayList<>();
         }
     }
 
@@ -717,7 +719,7 @@ public class ZoneCombinerComp extends Composite implements IZoneCombiner {
         }
 
         LocalizationFile[] lfs = CombinationsFileUtil.getSavedCombos();
-        List<String> names = new ArrayList<String>();
+        List<String> names = new ArrayList<>();
         for (LocalizationFile lf : lfs) {
             String id = CombinationsFileUtil.fileToId(lf);
             String name = CombinationsFileUtil.fnToName(this.mapNames, id);
@@ -943,8 +945,8 @@ public class ZoneCombinerComp extends Composite implements IZoneCombiner {
 
         LocalizationContext localization = pm.getContext(
                 LocalizationType.CAVE_STATIC, level);
-        File localFile = pm.getFile(localization,
-                FileUtil.join(CombinationsFileUtil.COMBO_DIR_PATH, local));
+        File localFile = pm.getFile(localization, FileUtil.join(
+                CombinationsFileUtil.COMBINATIONS_DIR_PATH, local));
         return localFile;
     }
 
@@ -960,7 +962,7 @@ public class ZoneCombinerComp extends Composite implements IZoneCombiner {
         } catch (Exception e) {
             statusHandler.handle(Priority.SIGNIFICANT,
                     "Error loading combo file", e);
-            comboDict = new HashMap<String, Integer>();
+            comboDict = new HashMap<>();
         }
         zoneSelector.updateCombos(comboDict);
     }
@@ -992,7 +994,7 @@ public class ZoneCombinerComp extends Composite implements IZoneCombiner {
             return Collections.emptyMap();
         }
 
-        Map<String, Integer> dict = new HashMap<String, Integer>();
+        Map<String, Integer> dict = new HashMap<>();
         // reformat combinations into combo dictionary
         int group = 1;
         for (List<String> zonelist : combolist) {
@@ -1002,8 +1004,6 @@ public class ZoneCombinerComp extends Composite implements IZoneCombiner {
             group += 1;
         }
 
-        currentComboFile = comboName;
-
         return dict;
     }
 
@@ -1011,7 +1011,7 @@ public class ZoneCombinerComp extends Composite implements IZoneCombiner {
      * load the color map file
      */
     private List<RGB> getColorsFromFile() {
-        List<RGB> colors = new ArrayList<RGB>();
+        List<RGB> colors = new ArrayList<>();
 
         IPathManager pm = PathManagerFactory.getPathManager();
         File file = pm.getStaticFile(COLOR_MAP_FILE);
@@ -1037,19 +1037,16 @@ public class ZoneCombinerComp extends Composite implements IZoneCombiner {
         return colors;
     }
 
-    private void comboFileChanged(CombinationsFileChangedNotification notif) {
-        String comboName = notif.getCombinationsFileName();
+    private void comboFileChanged(FileUpdatedMessage message) {
+        String comboName = LocalizationUtil.extractName(message.getFileName())
+                .replace(".py", "");
+        statusHandler
+                .info("Received CombinationsFileChangedNotification for combinations file: "
+                        + comboName);
 
-        // if it's the same file and not changed by me update the combos
-        if (comboName.equalsIgnoreCase(currentComboFile)
-                && !VizApp.getWsId().equals(notif.getWhoChanged())) {
-            statusHandler
-                    .info("Received CombinationsFileChangedNotification for combinations file: "
-                            + comboName);
-            Map<String, Integer> comboDict = loadCombinationsFile(comboName);
-            this.zoneSelector.updateCombos(comboDict);
-            applyButtonState(false);
-        }
+        Map<String, Integer> comboDict = loadCombinationsFile(comboName);
+        this.zoneSelector.updateCombos(comboDict);
+        applyButtonState(false);
     }
 
     @Override

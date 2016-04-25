@@ -206,11 +206,6 @@
         <constructor-arg value="com.raytheon.uf.common.dataplugin.gfe.request.ConfigureTextProductsRequest"/>
         <constructor-arg ref="configureTextProductsHandler"/>
     </bean>
-    <bean id="SaveCombinationsFileHandler" class="com.raytheon.edex.plugin.gfe.server.handler.SaveCombinationsFileHandler"/>
-    <bean factory-bean="handlerRegistry" factory-method="register">
-        <constructor-arg value="com.raytheon.uf.common.dataplugin.gfe.request.SaveCombinationsFileRequest"/>
-        <constructor-arg ref="SaveCombinationsFileHandler"/>
-    </bean>
     <bean id="GetSelectTRHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetSelectTimeRangeHandler"/>
     <bean factory-bean="handlerRegistry" factory-method="register">
         <constructor-arg value="com.raytheon.uf.common.dataplugin.gfe.request.GetSelectTimeRangeRequest"/>
