@@ -60,7 +60,7 @@
    <includes
          id="com.raytheon.viz.radar.feature"
          version="0.0.0"/>
-
+         
    <includes
          id="com.raytheon.viz.text.feature"
          version="0.0.0"/>
@@ -148,14 +148,6 @@
    <includes
          id="com.raytheon.uf.viz.acarssounding.feature"
          version="0.0.0"/>
-<!--
-   <includes
-         id="com.raytheon.viz.avnfps.feature"
-         version="0.0.0"/>
--->
-   <includes
-         id="com.raytheon.uf.viz.dat.feature"
-         version="0.0.0"/>
 
    <includes
          id="com.raytheon.uf.viz.d2d.gfe.feature"
@@ -172,16 +164,7 @@
    <includes
          id="com.raytheon.uf.viz.registry.feature"
          version="0.0.0"/>
-<!--
-   <includes
-         id="com.raytheon.uf.viz.aviation.advisory.feature"
-         version="0.0.0"/>
-         -->
-<!--
-   <includes
-         id="com.raytheon.uf.viz.datadelivery.feature"
-         version="0.0.0"/>
--->
+
    <includes
          id="edu.wisc.ssec.cimss.viz.convectprob.feature"
          version="0.0.0"/>
