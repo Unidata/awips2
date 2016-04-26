@@ -21,61 +21,84 @@ package com.raytheon.rcm.message;
 
 import java.nio.ByteBuffer;
 
+/**
+ * Represents the contents of an ORPG General Status Message.
+ *
+ * <pre>
+ *  SOFTWARE HISTORY
+ *
+ *  Date         Ticket#     Engineer    Description
+ *  ------------ ----------  ----------- --------------------------
+ *  2009                     dfriedman   Initial version
+ *  2016-04-22   DR 18909    dfriedman   Read fields of expanded GSM.
+ * </pre>
+ */
 public class GSM extends Message {
-	public static final int OP_MODE_MAINTENANCE = 0;
-	public static final int OP_MODE_CLEAR_AIR = 1;
-	public static final int OP_MODE_STORM = 2;
-	
-	public int opMode;
-	public int rdaOpStatus;
-	public int vcp;
-	public int[] cuts; // in tenths of degrees
-	public int rdaStatus;
-	public int rdaAlarms;
-	public int dataAvailability; // "DTE"
-	public int rpgOpStatus;
-	public int rpgAlarms;
-	public int rpgStatus;
-	public int rpgNarrowbandStatus;
-	public int rcc;
-	public int productAvailability;
-	public int superResCuts;
-	public int rdaVersion;
-	public int rdaChannel;
-	public int rpgVersion;
-	
-	public static GSM decode(byte[] msg) {
-		return (GSM) MD.decode(msg);
-	}
+    public static final int OP_MODE_MAINTENANCE = 0;
+    public static final int OP_MODE_CLEAR_AIR = 1;
+    public static final int OP_MODE_STORM = 2;
 
-	protected void decodeBlock(int index, ByteBuffer buf) {
-		if (index != 1)
-			return;
-		opMode = buf.getShort();
-		rdaOpStatus = buf.getShort();
-		vcp = buf.getShort();
-		int nCuts = buf.getShort();
-		cuts = new int[nCuts];
-		for (int i = 0; i < 20; ++i) {
-			if (i < cuts.length)
-				cuts[i] = buf.getShort();
-			else
-				buf.getShort();
-		}
-		rdaStatus = buf.getShort();
-		rdaAlarms = buf.getShort();
-		dataAvailability = buf.getShort();
-		rpgOpStatus = buf.getShort();
-		rpgAlarms = buf.getShort();
-		rpgStatus = buf.getShort();
-		rpgNarrowbandStatus = buf.getShort();
-		rcc = buf.getShort();
-		productAvailability = buf.getShort();
-		superResCuts = buf.getShort();
-		buf.position(buf.position() + 4);
-		rdaVersion = buf.getShort();
-		rdaChannel = buf.getShort();
-		buf.position(buf.position() + 4);
-		rpgVersion = buf.getShort();
-	}	
+    public int opMode;
+    public int rdaOpStatus;
+    public int vcp;
+    public int[] cuts; // in tenths of degrees
+    public int rdaStatus;
+    public int rdaAlarms;
+    public int dataAvailability; // "DTE"
+    public int rpgOpStatus;
+    public int rpgAlarms;
+    public int rpgStatus;
+    public int rpgNarrowbandStatus;
+    public int rcc;
+    public int productAvailability;
+    public int superResCuts;
+    public int rdaVersion;
+    public int rdaChannel;
+    public int rpgVersion;
+    public int vcpSupplemental;
+
+    public static GSM decode(byte[] msg) {
+        return (GSM) MD.decode(msg);
+    }
+
+    protected void decodeBlock(int index, ByteBuffer buf) {
+        if (index != 1)
+            return;
+        opMode = buf.getShort();
+        rdaOpStatus = buf.getShort();
+        vcp = buf.getShort();
+        int nCuts = buf.getShort();
+        cuts = new int[nCuts];
+        for (int i = 0; i < 20; ++i) {
+            short cut = buf.getShort();
+            if (i < cuts.length) {
+                cuts[i] = cut;
+            }
+        }
+        rdaStatus = buf.getShort();
+        rdaAlarms = buf.getShort();
+        dataAvailability = buf.getShort();
+        rpgOpStatus = buf.getShort();
+        rpgAlarms = buf.getShort();
+        rpgStatus = buf.getShort();
+        rpgNarrowbandStatus = buf.getShort();
+        rcc = buf.getShort();
+        productAvailability = buf.getShort();
+        superResCuts = buf.getShort();
+        buf.position(buf.position() + 4);
+        rdaVersion = buf.getShort();
+        rdaChannel = buf.getShort();
+        buf.position(buf.position() + 4);
+        rpgVersion = buf.getShort();
+        if (buf.remaining() < 12) {
+            return;
+        }
+        for (int i = 20; i < 25; ++i) {
+            short cut = buf.getShort();
+            if (i < cuts.length) {
+                cuts[i] = cut;
+            }
+        }
+        vcpSupplemental = buf.getShort();
+    }
 }
