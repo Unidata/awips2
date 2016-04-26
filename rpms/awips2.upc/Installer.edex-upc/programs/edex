@@ -28,13 +28,12 @@
 # 10/2015 M.James/Unidata       Log files fixed; purge check added      #
 # 11/2015 M.James/Unidata       Added CAVE user count as "edex users"   #
 #-----------------------------------------------------------------------#
-
+. /etc/profile.d/awips2.sh
 # directories definitions
 AWIPS_HOME=/awips2
 EDEX_PATH=${AWIPS_HOME}/edex
 DATA_PATH=${AWIPS_HOME}/data
 LOG_PATH=${EDEX_PATH}/logs
-
 
 # files
 PG_FILE=${DATA_PATH}/pg_hba.conf
