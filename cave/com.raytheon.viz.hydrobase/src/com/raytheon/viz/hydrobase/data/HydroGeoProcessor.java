@@ -20,7 +20,15 @@
 package com.raytheon.viz.hydrobase.data;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import org.geotools.coverage.grid.GridGeometry2D;
+import org.geotools.geometry.jts.JTS;
+import org.geotools.referencing.CRS;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.MathTransform;
 
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.hydro.spatial.HRAP;
@@ -42,6 +50,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * Mar 08, 2016    5217    mpduff      Fixed column values to be full hrap columns rather
  *                                        than relative to the subgrid.
  * Apr 07, 2016    5217    mpduff      Fixed an issue calculating hrap column.
+ * Apr 15, 2016    5217    mpduff      Need to reproject the basin polygon into HRAP CRS.
  * 
  * </pre>
  * 
@@ -77,18 +86,28 @@ public class HydroGeoProcessor {
      */
     public HrapBinList getHrapBinList(GeoAreaData geoData) throws Exception {
         List<Coordinate> coords = getPointsFromArea(geoData);
-        Coordinate[] minMaxXY = getMinMaxXY(coords);
 
         Polygon poly = MapUtil.getPolygon(coords.toArray(new Coordinate[0]));
 
-        Coordinate minC = minMaxXY[0];
-        Coordinate maxC = minMaxXY[1];
+        /*
+         * Reproject the polygon to the same map space as the HRAP grid.
+         */
+        HRAP hrap = HRAP.getInstance();
+        GridGeometry2D hrapGridGeometry = hrap.getGridGeometry();
+        CoordinateReferenceSystem latLonCRS = DefaultGeographicCRS.WGS84;
+        CoordinateReferenceSystem hrapCRS = hrap.getGridGeometry()
+                .getCoordinateReferenceSystem();
+        MathTransform transform = CRS.findMathTransform(latLonCRS, hrapCRS);
+        Geometry crsGeometry = JTS.transform(poly, transform);
+        Geometry gridSpaceGeometry = JTS.transform(crsGeometry,
+                hrapGridGeometry.getCRSToGrid2D());
+        Coordinate[] gridSpaceCoords = gridSpaceGeometry.getCoordinates();
+        Coordinate[] minMaxXY = getMinMaxXY(Arrays.asList(gridSpaceCoords));
+        Coordinate hrapMin = minMaxXY[0];
+        Coordinate hrapMax = minMaxXY[1];
 
-        Coordinate hrapMin = HrapUtil.latLonToHrap(minC);
-        Coordinate hrapMax = HrapUtil.latLonToHrap(maxC);
-
-        int maxRow = (int) Math.floor(hrapMax.y);
-        int maxCol = (int) Math.floor(hrapMax.x);
+        int maxRow = (int) Math.ceil(hrapMax.y);
+        int maxCol = (int) Math.ceil(hrapMax.x);
         int minRow = (int) Math.floor(hrapMin.y);
         int minCol = (int) Math.floor(hrapMin.x);
 
@@ -110,7 +129,6 @@ public class HydroGeoProcessor {
         double area = 0;
 
         HrapBinList binList = new HrapBinList();
-
         for (int r = 0; r < rows; r++) {
             rowNum = r + minRow;
             startCol = -1;
@@ -214,10 +232,8 @@ public class HydroGeoProcessor {
         for (int i = 1; i < data.getNumberPoints(); i++) {
 
             /* if input points are different */
-            if ((lat[i] != lat[i - 1]) || (lon[i] != lon[i - 1])) {
-                coord = new Coordinate(lon[i], lat[i]);
-                points.add(coord);
-            }
+            coord = new Coordinate(lon[i], lat[i]);
+            points.add(coord);
         }
 
         /*
