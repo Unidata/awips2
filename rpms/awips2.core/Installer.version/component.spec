@@ -29,7 +29,7 @@ Packager: Bryan Kowal
 AutoReq: no
 provides: %{_component_name}
 requires: awips2-base-component
-requires: unzip
+requires: wget openssh-clients unzip zenity bc
 
 %description
 %{_component_desc}

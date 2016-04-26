@@ -1,4 +1,7 @@
 #!/bin/bash
+if [[ ${USER} = "root" ]]; then
+  return
+fi
 alias cave='/awips2/cave/run.sh -alertviz -component thinclient'
 PYTHON_INSTALL="/awips2/python"
 CLI_INSTALL="/awips2/fxa"

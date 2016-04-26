@@ -1,4 +1,7 @@
 #!/bin/csh
+if ( ${USER} == "root" ) then
+  exit 1
+endif
 alias cave /awips2/cave/run.sh -alertviz -component thinclient
 set JAVA_INSTALL="/awips2/java"
 set PYTHON_INSTALL="/awips2/python"

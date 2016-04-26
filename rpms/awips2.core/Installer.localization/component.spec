@@ -16,7 +16,7 @@ Packager: Bryan Kowal
 
 AutoReq: no
 provides: %{_component_name}
-obsoletes: awips2-localization-OAX
+obsoletes: awips2-localization-OAX < 16.1.4
 
 %description
 AWIPS II Site Localization.
