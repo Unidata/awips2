@@ -16,7 +16,7 @@ Packager: Bryan Kowal
 
 AutoReq: no
 provides: %{_component_name}
-obsoletes: awips2-localization-OAX
+obsoletes: awips2-localization-OAX < 16.1.4
 
 %description
 AWIPS II Site Localization.
@@ -61,11 +61,11 @@ if [ $? -ne 0 ]; then
 fi
 
 # Copy the shapefiles (too large to include in git repo)
-cp -rv ${AWIPSCM_SHARE}/awips2-static/shapefiles/ \
-   ${RPM_BUILD_ROOT}/awips2/edex/data/utility/edex_static/site/OAX/
-if [ $? -ne 0 ]; then
-   exit 1
-fi
+#cp -rv ${AWIPSCM_SHARE}/awips2-static/shapefiles/ \
+#   ${RPM_BUILD_ROOT}/awips2/edex/data/utility/edex_static/site/OAX/
+#if [ $? -ne 0 ]; then
+#   exit 1
+#fi
 
 %pre
 
@@ -349,7 +349,7 @@ function restoreHydroDb()
    echo "INFO: The Hydro databases were successfully restored." >> ${log_file}
 }
 
-importShapefiles
+#importShapefiles
 restoreHydroDb
 removeHydroDbDirectory
 
