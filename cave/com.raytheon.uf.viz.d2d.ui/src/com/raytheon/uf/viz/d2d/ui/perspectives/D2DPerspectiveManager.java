@@ -294,12 +294,14 @@ public class D2DPerspectiveManager extends AbstractCAVEPerspectiveManager {
                     FourPanelLayoutMenuAction fourPanelLayoutMenuAction = new FourPanelLayoutMenuAction();
                     fourPanelLayoutMenuAction.setContainer(container);
                     menuManager.add(fourPanelLayoutMenuAction);
+                    
                     SelectPaneAction selectPaneAction = new SelectPaneAction(
                             pane, IMultiPaneEditor.LOAD_ACTION);
                     selectPaneAction.setContainer(container);
                     selectPaneAction.setSelectedRsc(null);
                     menuManager.add(selectPaneAction);
                 } else {
+                	
                 	TwoPanelLayoutMenuAction twoPanelLayoutMenuAction = new TwoPanelLayoutMenuAction();
                     twoPanelLayoutMenuAction.setContainer(container);
                     menuManager.add(twoPanelLayoutMenuAction);
@@ -358,6 +360,10 @@ public class D2DPerspectiveManager extends AbstractCAVEPerspectiveManager {
                 menuManager.add(rotatePanelLayoutMenuAction);
 
                 if (editor.displayedPaneCount() == 1) {
+                	TwoPanelLayoutMenuAction twoPanelLayoutMenuAction = new TwoPanelLayoutMenuAction();
+                	twoPanelLayoutMenuAction.setContainer(editor);
+                    menuManager.add(twoPanelLayoutMenuAction);
+                     
                     FourPanelLayoutMenuAction fourPanelLayoutMenuAction = new FourPanelLayoutMenuAction();
                     fourPanelLayoutMenuAction.setContainer(editor);
                     menuManager.add(fourPanelLayoutMenuAction);

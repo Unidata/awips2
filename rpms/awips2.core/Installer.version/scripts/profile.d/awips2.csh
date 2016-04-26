@@ -1,4 +1,5 @@
 #!/bin/csh
+alias cave /awips2/cave/run.sh -alertviz -component thinclient
 set JAVA_INSTALL="/awips2/java"
 set PYTHON_INSTALL="/awips2/python"
 set NOTIFICATION_INSTALL="/awips2/notification"
