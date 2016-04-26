@@ -1,5 +1,5 @@
 #!/bin/bash
-
+alias cave='/awips2/cave/run.sh -alertviz -component thinclient'
 PYTHON_INSTALL="/awips2/python"
 CLI_INSTALL="/awips2/fxa"
 GFESUITE_PATH="/awips2/GFESuite/bin"
