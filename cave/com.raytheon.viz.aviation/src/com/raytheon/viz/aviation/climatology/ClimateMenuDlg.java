@@ -26,6 +26,7 @@ import java.util.List;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -54,23 +55,24 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 1/24/2008    817         grichard    Initial creation.
- * 3/27/2008    1033        grichard    Added bottom message control.
- * 4/7/2008     934         grichard    Unselected message viewer button.
- * 4/10/2008    934         grichard    Populated site lists with icaos.
- * 5/7/2008     1121        grichard    Hot fix to upper case current site.
- * 5/12/2008    1119        grichard    Convert 3-letter site to conus 4-letter site.
- * 9/12/2008    1444        grichard    Accommodate separate message logs.
- * 7/9/2010     5078        rferrel     Added catch for FileNotFound
- *                                      in initializeComponents
+ * 01/24/2008    817         grichard   Initial creation.
+ * 03/27/2008    1033        grichard   Added bottom message control.
+ * 04/07/2008    934         grichard   Unselected message viewer button.
+ * 04/10/2008    934         grichard   Populated site lists with icaos.
+ * 05/07/2008    1121        grichard   Hot fix to upper case current site.
+ * 05/12/2008    1119        grichard   Convert 3-letter site to conus 4-letter site.
+ * 09/12/2008    1444        grichard   Accommodate separate message logs.
+ * 07/09/2010    5078        rferrel    Added catch for FileNotFound
+ *                                       in initializeComponents
  * 10/12/2010   6009        rferrel     Code clean up from making TafSiteConfig
- *                                      a singleton
+ *                                       a singleton
  * 10/04/2012   1229        rferrel     Made non-blocking.
  * 10/08/2012   1229        rferrel     Changes for non-blocking WindRosePlotDlg.
  * 10/09/2012   1229        rferrel     Changes for non-blocking MetarDisplayDialog.
  * 10/09/2012   1229        rferrel     Changes for non-blocking CigVisTrendDlg.
  * 10/15/2012   1229        rferrel     Changes for non-blocking HelpUsageDlg.
- * Sep 15, 2015 4880        njensen     Removed dead code
+ * 09/15/2015   4880        njensen     Removed dead code
+ * 03/15/2016   5481        randerso    Fix GUI sizing problems
  * 
  * </pre>
  * 
@@ -245,20 +247,23 @@ public class ClimateMenuDlg extends CaveSWTDialog {
 
         // Create the top composite widget
         Composite topComposite = new Composite(shell, SWT.NONE);
-        GridLayout layoutTC = new GridLayout(1, false);
-        topComposite.setLayout(layoutTC);
+        GridLayout layout = new GridLayout(1, true);
+        layout.marginHeight = 0;
+        layout.marginWidth = 0;
+        topComposite.setLayout(layout);
+        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        topComposite.setLayoutData(gd);
 
         // Create the "METARs" button
         Button metarsBtn = new Button(topComposite, SWT.PUSH);
         String metarsBtnTitle = "METARs";
-        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        gd.widthHint = 200;
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         metarsBtn.setLayoutData(gd);
         metarsBtn.setText(metarsBtnTitle);
         metarsBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (metarDlg == null || metarDlg.getShell() == null
+                if ((metarDlg == null) || (metarDlg.getShell() == null)
                         || metarDlg.isDisposed()) {
                     metarDlg = new MetarDisplayDialog(shell, stationList,
                             statusMsgTypes[0], statusCompRGB);
@@ -272,14 +277,13 @@ public class ClimateMenuDlg extends CaveSWTDialog {
         // Create the "Wind Rose" button
         Button windRoseBtn = new Button(topComposite, SWT.PUSH);
         String windRoseBtnTitle = "Wind Rose";
-        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        gd.widthHint = 200;
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         windRoseBtn.setLayoutData(gd);
         windRoseBtn.setText(windRoseBtnTitle);
         windRoseBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (windRose == null || windRose.getShell() == null
+                if ((windRose == null) || (windRose.getShell() == null)
                         || windRose.isDisposed()) {
                     windRose = new WindRosePlotDlg(shell, stationList,
                             statusMsgTypes[1], statusCompRGB);
@@ -293,14 +297,13 @@ public class ClimateMenuDlg extends CaveSWTDialog {
         // Create the "Ceiling and Visibility Distribution Climatology" button
         Button distBtn = new Button(topComposite, SWT.PUSH);
         String distBtnTitle = "CigVis Dist";
-        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        gd.widthHint = 200;
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         distBtn.setLayoutData(gd);
         distBtn.setText(distBtnTitle);
         distBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (cigVisDist == null || cigVisDist.getShell() == null
+                if ((cigVisDist == null) || (cigVisDist.getShell() == null)
                         || cigVisDist.isDisposed()) {
                     cigVisDist = new CigVisDistributionDlg(shell, stationList,
                             statusMsgTypes[2], statusCompRGB);
@@ -314,14 +317,13 @@ public class ClimateMenuDlg extends CaveSWTDialog {
         // Create the "Ceiling and Visibility Trend Climatology" button
         Button trendBtn = new Button(topComposite, SWT.PUSH);
         String trendBtnTitle = "CigVis Trend";
-        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        gd.widthHint = 200;
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         trendBtn.setLayoutData(gd);
         trendBtn.setText(trendBtnTitle);
         trendBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (cigVisTrend == null || cigVisTrend.getShell() == null
+                if ((cigVisTrend == null) || (cigVisTrend.getShell() == null)
                         || cigVisTrend.isDisposed()) {
                     cigVisTrend = new CigVisTrendDlg(shell, stationList,
                             statusMsgTypes[3], statusCompRGB);
@@ -337,7 +339,14 @@ public class ClimateMenuDlg extends CaveSWTDialog {
      * Create the message status composite.
      */
     private void createBottomMessageControls() {
-        new MessageStatusComp(shell, null, null);
+        MessageStatusComp statusComp = new MessageStatusComp(shell, null, null);
+        GridData layoutData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+
+        // Set width to try to make full dialog title visible
+        GC gc = new GC(statusComp);
+        layoutData.widthHint = gc.getFontMetrics().getAverageCharWidth() * 30;
+        gc.dispose();
+        statusComp.setLayoutData(layoutData);
     }
 
     /**

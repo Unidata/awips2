@@ -154,7 +154,7 @@
 #end
 #if(${action}!="CANCON" && ${CORCAN}!="true")
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
-FFS${siteId}
+${productId}${siteId}
 
 #if(${productClass}=="T")
 TEST...Flash Flood Statement...TEST
@@ -369,7 +369,7 @@ Move to higher ground now! This is an extremely dangerous and life-threatening s
 #end
 #end
 #if(${list.contains(${bullets}, "TADD_CTA")})
-Turn around, don't drown when encountering flooded roads. Most flood deaths occur in vehicles.
+Turn around#commaOrEllipsis()don't drown when encountering flooded roads. Most flood deaths occur in vehicles.
 
 #end
 #if(${list.contains(${bullets}, "actQuicklyCTA")})
@@ -377,7 +377,7 @@ Move to higher ground now. Act quickly to protect your life.
 
 #end
 #if(${list.contains(${bullets}, "childSafetyCTA")})
-Keep children away from storm drains, culverts, creeks and streams. Water levels can rise rapidly and sweep children away.
+Keep children away from storm drains#commaOrEllipsis()culverts#commaOrEllipsis()creeks and streams. Water levels can rise rapidly and sweep children away.
 
 #end
 #if(${list.contains(${bullets}, "nighttimeCTA")})
@@ -385,11 +385,11 @@ Be especially cautious at night when it is harder to recognize the dangers of fl
 
 #end
 #if(${list.contains(${bullets}, "urbanCTA")})
-Excessive runoff from heavy rainfall will cause flooding of small creeks and streams, urban areas, highways, streets and underpasses as well as other drainage areas and low lying spots. 
+Excessive runoff from heavy rainfall will cause flooding of small creeks and streams#commaOrEllipsis()urban areas#commaOrEllipsis()highways#commaOrEllipsis()streets and underpasses as well as other drainage areas and low lying spots. 
 
 #end
 #if(${list.contains(${bullets}, "ruralCTA")})
-Excessive runoff from heavy rainfall will cause flooding of small creeks and streams, country roads, farmland, and other low lying spots.
+Excessive runoff from heavy rainfall will cause flooding of small creeks and streams#commaOrEllipsis()country roads#commaOrEllipsis()farmland#commaOrEllipsis()and other low lying spots.
 
 #end
 #if(${list.contains(${bullets}, "stayAwayCTA")})
@@ -401,15 +401,15 @@ In hilly terrain there are hundreds of low water crossings which are potentially
 
 #end
 #if(${list.contains(${bullets}, "arroyosCTA")})
-Remain alert for flooding even in locations not receiving rain. Arroyos, streams, and rivers can become raging killer currents in a matter of minutes, even from distant rainfall.
+Remain alert for flooding even in locations not receiving rain. Arroyos#commaOrEllipsis()streams#commaOrEllipsis()and rivers can become raging killer currents in a matter of minutes#commaOrEllipsis()even from distant rainfall.
 
 #end
 #if(${list.contains(${bullets}, "burnAreasCTA")})
-Move away from recently burned areas. Life-threatening flooding of creeks, roads and normally dry arroyos is likely. The heavy rains will likely trigger rockslides, mudslides and debris flows in steep terrain, especially in and around these areas.
+Move away from recently burned areas. Life-threatening flooding of creeks#commaOrEllipsis()roads and normally dry arroyos is likely. The heavy rains will likely trigger rockslides#commaOrEllipsis()mudslides and debris flows in steep terrain#commaOrEllipsis()especially in and around these areas.
 
 #end
 #if(${list.contains(${bullets}, "camperSafetyCTA")})
-Flooding is occurring or is imminent. It is important to know where you are relative to streams, rivers, or creeks which can become killers in heavy rains. Campers and hikers should avoid streams or creeks.
+Flooding is occurring or is imminent. It is important to know where you are relative to streams#commaOrEllipsis()rivers, or creeks which can become killers in heavy rains. Campers and hikers should avoid streams or creeks.
 
 #end
 #if(${list.contains(${bullets}, "reportFloodingCTA")})
@@ -431,7 +431,7 @@ A Flash Flood Warning means that flooding is imminent or occurring. If you are i
 ###########################
 #if(${action}=="CANCON")
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
-FFS${siteId}
+${productId}${siteId}
 
 #if(${productClass}=="T")
 TEST...Flash Flood Statement...TEST
@@ -646,7 +646,7 @@ Move to higher ground now! This is an extremely dangerous and life-threatening s
 #end
 #end
 #if(${list.contains(${bullets}, "TADD_CTA")})
-Turn around, don't drown when encountering flooded roads. Most flood deaths occur in vehicles.
+Turn around#commaOrEllipsis()don't drown when encountering flooded roads. Most flood deaths occur in vehicles.
 
 #end
 #if(${list.contains(${bullets}, "actQuicklyCTA")})
@@ -654,7 +654,7 @@ Move to higher ground now. Act quickly to protect your life.
 
 #end
 #if(${list.contains(${bullets}, "childSafetyCTA")})
-Keep children away from storm drains, culverts, creeks and streams. Water levels can rise rapidly and sweep children away.
+Keep children away from storm drains#commaOrEllipsis()culverts#commaOrEllipsis()creeks and streams. Water levels can rise rapidly and sweep children away.
 
 #end
 #if(${list.contains(${bullets}, "nighttimeCTA")})
@@ -662,11 +662,11 @@ Be especially cautious at night when it is harder to recognize the dangers of fl
 
 #end
 #if(${list.contains(${bullets}, "urbanCTA")})
-Excessive runoff from heavy rainfall will cause flooding of small creeks and streams, urban areas, highways, streets and underpasses as well as other drainage areas and low lying spots. 
+Excessive runoff from heavy rainfall will cause flooding of small creeks and streams#commaOrEllipsis()urban areas#commaOrEllipsis()highways#commaOrEllipsis()streets and underpasses as well as other drainage areas and low lying spots. 
 
 #end
 #if(${list.contains(${bullets}, "ruralCTA")})
-Excessive runoff from heavy rainfall will cause flooding of small creeks and streams, country roads, farmland, and other low lying spots.
+Excessive runoff from heavy rainfall will cause flooding of small creeks and streams#commaOrEllipsis()country roads#commaOrEllipsis()farmland#commaOrEllipsis()and other low lying spots.
 
 #end
 #if(${list.contains(${bullets}, "stayAwayCTA")})
@@ -678,15 +678,15 @@ In hilly terrain there are hundreds of low water crossings which are potentially
 
 #end
 #if(${list.contains(${bullets}, "arroyosCTA")})
-Remain alert for flooding even in locations not receiving rain. Arroyos, streams, and rivers can become raging killer currents in a matter of minutes, even from distant rainfall.
+Remain alert for flooding even in locations not receiving rain. Arroyos#commaOrEllipsis()streams#commaOrEllipsis()and rivers can become raging killer currents in a matter of minutes#commaOrEllipsis()even from distant rainfall.
 
 #end
 #if(${list.contains(${bullets}, "burnAreasCTA")})
-Move away from recently burned areas. Life-threatening flooding of creeks, roads and normally dry arroyos is likely. The heavy rains will likely trigger rockslides, mudslides and debris flows in steep terrain, especially in and around these areas.
+Move away from recently burned areas. Life-threatening flooding of creeks#commaOrEllipsis()roads and normally dry arroyos is likely. The heavy rains will likely trigger rockslides#commaOrEllipsis()mudslides and debris flows in steep terrain#commaOrEllipsis()especially in and around these areas.
 
 #end
 #if(${list.contains(${bullets}, "camperSafetyCTA")})
-Flooding is occurring or is imminent. It is important to know where you are relative to streams, rivers, or creeks which can become killers in heavy rains. Campers and hikers should avoid streams or creeks.
+Flooding is occurring or is imminent. It is important to know where you are relative to streams#commaOrEllipsis()rivers#commaOrEllipsis()or creeks which can become killers in heavy rains. Campers and hikers should avoid streams or creeks.
 
 #end
 #if(${list.contains(${bullets}, "reportFloodingCTA")})
@@ -704,7 +704,7 @@ A Flash Flood Warning means that flooding is imminent or occurring. If you are i
 
 #elseif(${CORCAN}=="true")
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
-FFS${siteId}
+${productId}${siteId}
 
 #if(${productClass}=="T")
 TEST...Flash Flood Statement...TEST
@@ -903,7 +903,7 @@ Move to higher ground now! This is an extremely dangerous and life-threatening s
 #end
 #end
 #if(${list.contains(${bullets}, "TADD_CTA")})
-Turn around, don't drown when encountering flooded roads. Most flood deaths occur in vehicles.
+Turn around#commaOrEllipsis()don't drown when encountering flooded roads. Most flood deaths occur in vehicles.
 
 #end
 #if(${list.contains(${bullets}, "actQuicklyCTA")})
@@ -911,7 +911,7 @@ Move to higher ground now. Act quickly to protect your life.
 
 #end
 #if(${list.contains(${bullets}, "childSafetyCTA")})
-Keep children away from storm drains, culverts, creeks and streams. Water levels can rise rapidly and sweep children away.
+Keep children away from storm drains#commaOrEllipsis()culverts#commaOrEllipsis()creeks and streams. Water levels can rise rapidly and sweep children away.
 
 #end
 #if(${list.contains(${bullets}, "nighttimeCTA")})
@@ -919,11 +919,11 @@ Be especially cautious at night when it is harder to recognize the dangers of fl
 
 #end
 #if(${list.contains(${bullets}, "urbanCTA")})
-Excessive runoff from heavy rainfall will cause flooding of small creeks and streams, urban areas, highways, streets and underpasses as well as other drainage areas and low lying spots. 
+Excessive runoff from heavy rainfall will cause flooding of small creeks and streams#commaOrEllipsis()urban areas#commaOrEllipsis()highways#commaOrEllipsis()streets and underpasses as well as other drainage areas and low lying spots. 
 
 #end
 #if(${list.contains(${bullets}, "ruralCTA")})
-Excessive runoff from heavy rainfall will cause flooding of small creeks and streams, country roads, farmland, and other low lying spots.
+Excessive runoff from heavy rainfall will cause flooding of small creeks and streams#commaOrEllipsis()country roads#commaOrEllipsis()farmland#commaOrEllipsis()and other low lying spots.
 
 #end
 #if(${list.contains(${bullets}, "stayAwayCTA")})
@@ -935,15 +935,15 @@ In hilly terrain there are hundreds of low water crossings which are potentially
 
 #end
 #if(${list.contains(${bullets}, "arroyosCTA")})
-Remain alert for flooding even in locations not receiving rain. Arroyos, streams, and rivers can become raging killer currents in a matter of minutes, even from distant rainfall.
+Remain alert for flooding even in locations not receiving rain. Arroyos#commaOrEllipsis()streams#commaOrEllipsis()and rivers can become raging killer currents in a matter of minutes#commaOrEllipsis()even from distant rainfall.
 
 #end
 #if(${list.contains(${bullets}, "burnAreasCTA")})
-Move away from recently burned areas. Life-threatening flooding of creeks, roads and normally dry arroyos is likely. The heavy rains will likely trigger rockslides, mudslides and debris flows in steep terrain, especially in and around these areas.
+Move away from recently burned areas. Life-threatening flooding of creeks#commaOrEllipsis()roads and normally dry arroyos is likely. The heavy rains will likely trigger rockslides#commaOrEllipsis()mudslides and debris flows in steep terrain#commaOrEllipsis()especially in and around these areas.
 
 #end
 #if(${list.contains(${bullets}, "camperSafetyCTA")})
-Flooding is occurring or is imminent. It is important to know where you are relative to streams, rivers, or creeks which can become killers in heavy rains. Campers and hikers should avoid streams or creeks.
+Flooding is occurring or is imminent. It is important to know where you are relative to streams#commaOrEllipsis()rivers#commaOrEllipsis()or creeks which can become killers in heavy rains. Campers and hikers should avoid streams or creeks.
 
 #end
 #if(${list.contains(${bullets}, "reportFloodingCTA")})

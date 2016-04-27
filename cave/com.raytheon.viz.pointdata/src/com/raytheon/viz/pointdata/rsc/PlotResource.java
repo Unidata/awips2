@@ -31,7 +31,9 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang3.Validate;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.widgets.Display;
 import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -43,6 +45,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.viz.core.IDisplayPane;
+import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.drawables.IImage;
@@ -100,6 +104,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Dec 02, 2013  2473     njensen     Prog Disclose paint frames at high priority
  * Mar 21, 2014  2868     njensen     Use PlotThreadOverseer for increased efficiency
  * Jun 06, 2014  2061     bsteffen    Rename and remove old PlotResource
+ * Mar 29, 2016  5514     bsteffen    Include DPI in size calculations
  * 
  * </pre>
  * 
@@ -119,8 +124,6 @@ public class PlotResource extends
     private AbstractProgDisclosure progressiveDisclosure;
 
     private PlotThreadOverseer generator;
-
-    private double plotWidth;
 
     private final Map<DataTime, FrameInformation> frameMap;
 
@@ -281,11 +284,7 @@ public class PlotResource extends
         this.generator.setPlotMissingData(resourceData.isPlotMissingData());
         this.generator.setLowerLimit(resourceData.getLowerLimit());
         this.generator.setUpperLimit(resourceData.getUpperLimit());
-        this.plotWidth = generator.getOriginalPlotModelWidth();
-        this.plotWidth *= getCapability(MagnificationCapability.class)
-                .getMagnification();
-        generator.setPlotModelSize(Math.round(plotWidth));
-
+        
         // TODO this should be in a factory or something
         if (resourceData.getSpiFile() != null) {
             progressiveDisclosure = new SpiProgDisclosure(this, descriptor,
@@ -298,8 +297,8 @@ public class PlotResource extends
         progressiveDisclosure.setDensity(this.getCapability(
                 DensityCapability.class).getDensity());
         progressiveDisclosure.setPixelSizeHint(resourceData.getPixelSizeHint());
-        progressiveDisclosure.setPlotWidth(plotWidth);
-
+        calculateActualPlotWidth();
+        
         DataTime[] dts = this.descriptor.getFramesInfo().getTimeMap().get(this);
         // if this is null then the time matcher has not yet had time to time
         // match this, in which case frames will have to load when they are
@@ -617,18 +616,7 @@ public class PlotResource extends
                     issueRefresh();
                 }
             } else if (object instanceof MagnificationCapability) {
-                if (generator != null) {
-                    this.plotWidth = generator.getOriginalPlotModelWidth();
-                    this.plotWidth *= getCapability(
-                            MagnificationCapability.class).getMagnification();
-                    generator.setPlotModelSize(Math.round(plotWidth));
-
-                }
-                if (progressiveDisclosure != null) {
-                    progressiveDisclosure.setMagnification(getCapability(
-                            MagnificationCapability.class).getMagnification());
-                    progressiveDisclosure.setPlotWidth(plotWidth);
-                }
+                calculateActualPlotWidth();
                 clearImages();
             } else if (object instanceof OutlineCapability) {
                 if (generator != null) {
@@ -640,6 +628,54 @@ public class PlotResource extends
             }
         }
         issueRefresh();
+    }
+    
+    /**
+     * Calculate a width for the plot based off the original plot width, the
+     * magnification, and the DPI. The new width will be applied to the
+     * {@link #generator} and the {@link #progressiveDisclosure}.
+     * 
+     * @return the new plot width.
+     */
+    protected double calculateActualPlotWidth(){
+        double plotWidth = Double.NaN;
+        if (generator != null) {
+            plotWidth = generator.getOriginalPlotModelWidth();
+            plotWidth *= getCapability(
+                    MagnificationCapability.class).getMagnification();
+            IDisplayPaneContainer container = getResourceContainer();
+            if (container != null) {
+                IDisplayPane pane = container.getActiveDisplayPane();
+                if (pane != null) {
+                    final Display display = pane.getDisplay();
+                    final Point dpi = new Point(85, 85);
+                    display.syncExec(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            Point displayDpi = display.getDPI();
+                            dpi.x = displayDpi.x;
+                            dpi.y = displayDpi.y;
+                        }
+
+                    });
+                    /*
+                     * Existing plot models were developed on 85 DPI displays,
+                     * so scale the plot to maintain that size.
+                     */
+                    plotWidth = plotWidth * dpi.x / 85;
+                }
+            }
+
+            generator.setPlotModelSize(Math.round(plotWidth));
+            if (progressiveDisclosure != null) {
+                progressiveDisclosure.setMagnification(getCapability(
+                        MagnificationCapability.class).getMagnification());
+                progressiveDisclosure.setPlotWidth(plotWidth);
+            }
+        }
+
+        return plotWidth;
     }
 
     /**

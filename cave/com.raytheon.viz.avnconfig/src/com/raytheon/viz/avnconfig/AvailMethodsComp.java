@@ -43,6 +43,7 @@ import org.eclipse.swt.widgets.Composite;
  * ------------ ---------- ----------- --------------------------
  * 22 MAY 2008  1119       lvenable    Initial creation
  * 29 OCT 2010  7262       rferrel     Sort Rule method buttons.
+ * 15 Mar 2016  5481       randerso    Fix GUI sizing problems
  * 
  * </pre>
  * 
@@ -114,12 +115,13 @@ public class AvailMethodsComp extends Composite {
         for (String key : keyList) {
             methodData = methodArray.get(methodIndex.get(key).intValue());
 
-            gd = new GridData(160, SWT.DEFAULT);
+            gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
             Button tmpBtn = new Button(this, SWT.PUSH);
             tmpBtn.setText(methodData.getMethodName());
             tmpBtn.setToolTipText(methodData.getComment());
             tmpBtn.setLayoutData(gd);
             tmpBtn.addSelectionListener(new SelectionAdapter() {
+                @Override
                 public void widgetSelected(SelectionEvent event) {
                     Button btn = (Button) event.getSource();
                     callback.methodSelected(btn.getText());

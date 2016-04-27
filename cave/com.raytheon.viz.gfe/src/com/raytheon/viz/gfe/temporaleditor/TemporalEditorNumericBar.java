@@ -51,7 +51,6 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
-import com.raytheon.viz.gfe.GFEOperationFailedException;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 import com.raytheon.viz.gfe.core.griddata.IGridData;
@@ -65,6 +64,7 @@ import com.raytheon.viz.gfe.core.wxvalue.VectorWxValue;
 import com.raytheon.viz.gfe.core.wxvalue.WxValue;
 import com.raytheon.viz.gfe.edittool.GridID;
 import com.raytheon.viz.gfe.gridmanager.MouseHandler;
+import com.raytheon.viz.gfe.rsc.GFEFonts;
 import com.raytheon.viz.gfe.sampler.HistSample;
 import com.raytheon.viz.gfe.temporaleditor.TemporalEditor.StatisticsMode;
 import com.raytheon.viz.gfe.temporaleditor.TemporalEditorUtil.TextJustify;
@@ -79,7 +79,9 @@ import com.raytheon.viz.gfe.visual.ScaleVisual;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 30, 2009 2159       rjpeter     Initial creation.
+ * Apr 30, 2009  2159      rjpeter     Initial creation.
+ * Mar 10, 2016 #5479      randerso    Use improved GFEFonts API
+ * 
  * </pre>
  * 
  * @author rjpeter
@@ -176,7 +178,7 @@ public class TemporalEditorNumericBar extends AbstractTemporalEditorBar
     @SuppressWarnings("unchecked")
     @Override
     public void dispose() {
-        if (sampleFont != null && !sampleFont.isDisposed()) {
+        if ((sampleFont != null) && !sampleFont.isDisposed()) {
             sampleFont.dispose();
             sampleFont = null;
         }
@@ -253,7 +255,7 @@ public class TemporalEditorNumericBar extends AbstractTemporalEditorBar
     protected void setupScaleCanvas() {
         int width = SCALE_WIDTH;
 
-        if (scaleCanvas != null && !scaleCanvas.isDisposed()) {
+        if ((scaleCanvas != null) && !scaleCanvas.isDisposed()) {
             width = ((GridData) scaleCanvas.getLayoutData()).widthHint;
             scaleCanvas.removeMouseListener(scaleMouseHandler);
             scaleCanvas.dispose();
@@ -280,7 +282,7 @@ public class TemporalEditorNumericBar extends AbstractTemporalEditorBar
      */
     @Override
     protected void setupEditorCanvas() {
-        if (editorCanvas != null && !editorCanvas.isDisposed()) {
+        if ((editorCanvas != null) && !editorCanvas.isDisposed()) {
             editorCanvas.removeMouseListener(editorMouseHandler);
             editorCanvas.dispose();
         }
@@ -406,7 +408,8 @@ public class TemporalEditorNumericBar extends AbstractTemporalEditorBar
 
         Font oldFont = gc.getFont();
         if (sampleFont == null) {
-            sampleFont = makeLabelFont(gc, "TESample_font", 1);
+            sampleFont = GFEFonts.makeGFEFont(gc.getDevice(), "TESample_font",
+                    SWT.NORMAL, 1);
         }
         Font labelFont = (sampleFont == null) ? oldFont : sampleFont;
         try {
@@ -529,7 +532,7 @@ public class TemporalEditorNumericBar extends AbstractTemporalEditorBar
                                     yAbsAve + 4);
                             gc.drawLine(xEnd, yAbsAve - 4, xEnd, yAbsAve + 4);
 
-                            if (prevVt != null && prevVt.isAdjacentTo(vt)
+                            if ((prevVt != null) && prevVt.isAdjacentTo(vt)
                                     && showSplitBoundaries) {
                                 // paint split boundary
                                 gc.setLineStyle(SWT.LINE_DASH);
@@ -705,24 +708,18 @@ public class TemporalEditorNumericBar extends AbstractTemporalEditorBar
             Point v1 = new Point(xPixel, yPixel);
             Point v2 = new Point(
                     xPixel
-                            + (int) (0.5 + dirSin
-                                    * (staffSize + fletchDelta
-                                            * (flagDeltaCount
-                                                    + fletchDeltaCount - 1))),
+                            + (int) (0.5 + (dirSin * (staffSize + (fletchDelta * ((flagDeltaCount + fletchDeltaCount) - 1))))),
                     yPixel
-                            - (int) ((-0.5 + dirCos
-                                    * (staffSize + fletchDelta
-                                            * (flagDeltaCount
-                                                    + fletchDeltaCount - 1)))));
+                            - (int) ((-0.5 + (dirCos * (staffSize + (fletchDelta * ((flagDeltaCount + fletchDeltaCount) - 1)))))));
             gc.drawLine(v1.x, v1.y, v2.x, v2.y);
 
             // Now calculate the locations for the fletches and flags
             // Half fletches first
             if (halfFletchCount > 0) {
                 v1.x = xPixel
-                        + (int) (0.5 + dirSin * (staffSize - fletchDelta));
+                        + (int) (0.5 + (dirSin * (staffSize - fletchDelta)));
                 v1.y = yPixel
-                        + (int) (0.5 - dirCos * (staffSize - fletchDelta));
+                        + (int) (0.5 - (dirCos * (staffSize - fletchDelta)));
                 v2.x = v1.x + (int) ((xFletch * 0.6) + 0.5);
                 v2.y = v1.y - (int) ((yFletch * 0.6) + 0.5);
 
@@ -732,8 +729,9 @@ public class TemporalEditorNumericBar extends AbstractTemporalEditorBar
             // On to the full-size fletches
             int elementCount = 0;
             for (int i = 0; i < fletchCount; i++, elementCount++) {
-                v1.x = xPixel + (int) (xStaff + elementCount * xSpace + 0.5);
-                v1.y = yPixel + (int) (-yStaff - elementCount * ySpace + 0.5);
+                v1.x = xPixel + (int) (xStaff + (elementCount * xSpace) + 0.5);
+                v1.y = yPixel
+                        + (int) ((-yStaff - (elementCount * ySpace)) + 0.5);
                 v2.x = v1.x + (int) (xFletch + 0.5);
                 v2.y = v1.y - (int) (yFletch + 0.5);
                 gc.drawLine(v1.x, v1.y, v2.x, v2.y);
@@ -743,16 +741,18 @@ public class TemporalEditorNumericBar extends AbstractTemporalEditorBar
             Point v3 = new Point(0, 0);
             for (int i = 0; i < flagCount; i++) {
                 // the first side is just like a regular fletch
-                v1.x = xPixel + (int) (xStaff + elementCount * xSpace + 0.5);
-                v1.y = yPixel + (int) (-yStaff - elementCount * ySpace + 0.5);
+                v1.x = xPixel + (int) (xStaff + (elementCount * xSpace) + 0.5);
+                v1.y = yPixel
+                        + (int) ((-yStaff - (elementCount * ySpace)) + 0.5);
                 v2.x = v1.x + (int) (xFletch + 0.5);
                 v2.y = v1.y - (int) (yFletch + 0.5);
                 gc.drawLine(v1.x, v1.y, v2.x, v2.y);
 
                 // the second side connects back to the staffSize
                 elementCount++;
-                v3.x = xPixel + (int) (xStaff + elementCount * xSpace + 0.5);
-                v3.y = yPixel + (int) (-yStaff - elementCount * ySpace + 0.5);
+                v3.x = xPixel + (int) (xStaff + (elementCount * xSpace) + 0.5);
+                v3.y = yPixel
+                        + (int) ((-yStaff - (elementCount * ySpace)) + 0.5);
                 gc.drawLine(v2.x, v2.y, v3.x, v3.y);
             }
         }
@@ -802,12 +802,12 @@ public class TemporalEditorNumericBar extends AbstractTemporalEditorBar
         double tip2Cos = Math.cos((arrowDir - tipAngle) * radPerDeg);
 
         // Some handy vectors.
-        Point v1 = new Point((int) (dirSin * size + 0.5),
-                -(int) (dirCos * size + 0.5));
-        Point v2 = new Point((int) (tip1Sin * tipLength + 0.5), -(int) (tip1Cos
-                * tipLength + 0.5));
-        Point v3 = new Point((int) (tip2Sin * tipLength + 0.5), -(int) (tip2Cos
-                * tipLength + 0.5));
+        Point v1 = new Point((int) ((dirSin * size) + 0.5),
+                -(int) ((dirCos * size) + 0.5));
+        Point v2 = new Point((int) ((tip1Sin * tipLength) + 0.5),
+                -(int) ((tip1Cos * tipLength) + 0.5));
+        Point v3 = new Point((int) ((tip2Sin * tipLength) + 0.5),
+                -(int) ((tip2Cos * tipLength) + 0.5));
 
         // calculate the little rectangle
         int yPixel = scaleVisual.getPointForValue(mag).y;
@@ -851,7 +851,7 @@ public class TemporalEditorNumericBar extends AbstractTemporalEditorBar
      * 
      */
     public void fitToData() {
-        if (max != -Float.MAX_VALUE && min != Float.MAX_VALUE) {
+        if ((max != -Float.MAX_VALUE) && (min != Float.MAX_VALUE)) {
             float spacing = (max - min) * 0.2f;
             scaleVisual.setVisibleRange(min - spacing, max + spacing);
             scaleCanvas.redraw();
@@ -891,9 +891,9 @@ public class TemporalEditorNumericBar extends AbstractTemporalEditorBar
             IGridData grid = parm.overlappingGrid(date);
 
             if (parmDispAtt.isDisplayed() && parm.isOkToEdit(range)
-                    && grid != null) {
+                    && (grid != null)) {
                 float ave = getAverage(parm, date);
-                if (closestParm == null
+                if ((closestParm == null)
                         || (Math.abs(ave - val) < Math.abs(closestVal - val))) {
                     closestParm = parm;
                     closestVal = ave;
@@ -971,9 +971,9 @@ public class TemporalEditorNumericBar extends AbstractTemporalEditorBar
             gid = new GridID(grid.getParm(), grid.getGridTime().getStart());
         }
 
-        if (gid != null && gid.equals(quickviewGrid)) {
+        if ((gid != null) && gid.equals(quickviewGrid)) {
             return;
-        } else if (gid == null && quickviewGrid == null) {
+        } else if ((gid == null) && (quickviewGrid == null)) {
             return;
         }
 

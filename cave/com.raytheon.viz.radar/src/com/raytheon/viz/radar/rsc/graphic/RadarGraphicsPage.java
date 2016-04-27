@@ -19,6 +19,7 @@
  **/
 package com.raytheon.viz.radar.rsc.graphic;
 
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ import javax.measure.unit.SI;
 
 import org.eclipse.swt.graphics.RGB;
 import org.geotools.coverage.grid.GeneralGridGeometry;
+import org.geotools.referencing.GeodeticCalculator;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 
@@ -62,6 +64,7 @@ import com.raytheon.uf.common.geospatial.ReferencedGeometry;
 import com.raytheon.uf.common.geospatial.ReferencedObject.Type;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.viz.core.DrawableCircle;
 import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -111,6 +114,8 @@ import com.vividsolutions.jts.geom.LineString;
  * Nov 06, 2014  16776    zwang       Handle AMDA product MBA
  * Feb 08, 2016  5318     randerso    Font should not be preference based because the
  *                                    size must match the table outline
+ * Feb 16, 2016  12021    wkwock      Fix mesocyclone zooming issue
+ * Mar 08, 2016  5318     randerso    Fix hard coded scaling factors
  * 
  * </pre>
  * 
@@ -119,6 +124,10 @@ import com.vividsolutions.jts.geom.LineString;
  */
 
 public class RadarGraphicsPage implements IRenderable {
+    private static final int ORIGINAL_FONT_HEIGHT = 10;
+
+    private static final int ORIGINAL_FONT_WIDTH = 7;
+
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(RadarGraphicsPage.class);
 
@@ -166,15 +175,13 @@ public class RadarGraphicsPage implements IRenderable {
     private int tableX = 0;
 
     // The default y position of the table for Generic Data
-    private int tableY = 20;
+    private int tableY = 2 * ORIGINAL_FONT_HEIGHT;
 
     // The x position of the table for Generic Data
     private int startTableX = 0;
 
     // The y position of the table for Generic Data
-    private int startTableY = 20;
-
-    private int tableRowSpacing = 10;
+    private int startTableY = 2 * ORIGINAL_FONT_HEIGHT;
 
     // User preferences for table positioning.
     private DmdModifier tableModifier;
@@ -182,6 +189,10 @@ public class RadarGraphicsPage implements IRenderable {
     private boolean drawBorder = false;
 
     private int recordsPerPage = 5;
+
+    private static final int MIN_RADIUS_IN_PIXEL = 7;
+
+    private static final int SPIKE_SIZE = 8;
 
     // for GFM product, add gfmFcstWireframeShape
     public RadarGraphicsPage(IDescriptor descriptor, GeneralGridGeometry gg,
@@ -332,7 +343,7 @@ public class RadarGraphicsPage implements IRenderable {
                         MesocyclonePoint mp = (MesocyclonePoint) currPoint;
                         try {
                             pObject = RadarGraphicFunctions
-                                    .createMesocycloneImage(
+                                    .setMesocycloneInfo(
                                             mp.i,
                                             mp.j,
                                             mp.getMesoCycloneRadius(),
@@ -340,7 +351,7 @@ public class RadarGraphicsPage implements IRenderable {
                                             this.gridGeometry,
                                             this.descriptor,
                                             RadarGraphicFunctions.MesocycloneType.MESOCYCLONE,
-                                            color);
+                                            color, LineStyle.SOLID);
                         } catch (TransformException e) {
                             statusHandler.error(e.getLocalizedMessage(), e);
                         } catch (FactoryException e) {
@@ -832,9 +843,13 @@ public class RadarGraphicsPage implements IRenderable {
                     double radius = currFeature
                             .getValueAsDouble(DMDAttributeIDs.BASE_DIAMETER
                                     .toString()) / 2;
+                    LineStyle lineStyle = LineStyle.SOLID;
+                    if (currFeature.getValue(DMDAttributeIDs.DETECTION_STATUS.toString()).equals("EXT")) {
+                        lineStyle = LineStyle.DASHED;
+                    }
 
-                    image = RadarGraphicFunctions.createMesocycloneImage(rc,
-                            radius, target, this.descriptor, iconType, color);
+                    image = RadarGraphicFunctions.setMesocycloneInfo(rc,
+                            radius, descriptor, iconType, color, lineStyle);
                     double radiusInPixels = RadarGraphicFunctions
                             .getRadiusInPixels(radius, rc.asLatLon().x,
                                     rc.asLatLon().y, descriptor, target);
@@ -1252,10 +1267,11 @@ public class RadarGraphicsPage implements IRenderable {
 
         double yOffset = 24.0;
         double xOffset = 24.0;
-        double magnification = this.magnification;
+        double xScale = 1.0;
+        double yScale = 1.0;
+        double minx = Double.MAX_VALUE;
+        double maxx = Double.MIN_VALUE;
         if ((this.screenGeometries != null) && !this.screenGeometries.isEmpty()) {
-            double minx = Double.MAX_VALUE;
-            double maxx = Double.MIN_VALUE;
             for (Geometry g : this.screenGeometries) {
                 for (Coordinate co : g.getCoordinates()) {
                     minx = Math.min(minx, co.x);
@@ -1265,17 +1281,20 @@ public class RadarGraphicsPage implements IRenderable {
 
             // the target may have messes with our magnification value,
             // especially in smaller panes.
-            DrawableString testString = new DrawableString("hy", this.color);
+            DrawableString testString = new DrawableString("X", this.color);
             testString.font = this.font;
-            magnification = target.getStringsBounds(testString).getHeight() / 14;
-            double width = (maxx - minx) * magnification;
-            // If the table wider than our canvas then shrink it
-            if (width > paintProps.getCanvasBounds().width) {
-                magnification = (this.magnification * paintProps
-                        .getCanvasBounds().width) / (width + (xOffset * 2));
-                font.setMagnification((float) magnification, false);
-                magnification = target.getStringsBounds(testString).getHeight() / 14;
-                width = (maxx - minx) * magnification;
+            Rectangle2D bounds = target.getStringsBounds(testString);
+            xScale = bounds.getWidth() / ORIGINAL_FONT_WIDTH;
+            yScale = bounds.getHeight() / ORIGINAL_FONT_HEIGHT;
+            double width = (maxx - minx) * xScale;
+            // If the table wider than our 90 % of canvas width then shrink it
+            double maxWidth = paintProps.getCanvasBounds().width * 0.9;
+            if (width > maxWidth) {
+                double shrink = maxWidth / width;
+                width *= shrink;
+                yScale *= shrink;
+                xScale *= shrink;
+                font.setMagnification((float) (magnification * shrink), false);
             }
             xOffset = (paintProps.getCanvasBounds().width - width) / 2;
             List<DrawableLine> lines = new ArrayList<DrawableLine>();
@@ -1283,12 +1302,10 @@ public class RadarGraphicsPage implements IRenderable {
                 Coordinate[] coords = g.getCoordinates();
 
                 // offsets to make the table fit the screen
-                double x1 = (coords[0].x * magnification) + xOffset;
-                double y1 = ((coords[0].y + 0.25) * magnification * 1.3)
-                        + yOffset;
-                double x2 = (coords[1].x * magnification) + xOffset;
-                double y2 = ((coords[1].y + 0.25) * magnification * 1.3)
-                        + yOffset;
+                double x1 = ((coords[0].x - minx) * xScale) + xOffset;
+                double y1 = ((coords[0].y + 0.25) * yScale) + yOffset;
+                double x2 = ((coords[1].x - minx) * xScale) + xOffset;
+                double y2 = ((coords[1].y + 0.25) * yScale) + yOffset;
                 DrawableLine line = new DrawableLine();
                 line.addPoint(x1, y1);
                 line.addPoint(x2, y2);
@@ -1309,11 +1326,8 @@ public class RadarGraphicsPage implements IRenderable {
                 for (Coordinate c : this.screenStringMap.keySet()) {
                     String str = this.screenStringMap.get(c);
 
-                    double x = (c.x * magnification) + xOffset;
-                    double y = (c.y * magnification * 1.3) + yOffset;
-                    // if (x < 0.1) {
-                    // x = 0;
-                    // }
+                    double x = ((c.x - minx) * xScale) + xOffset;
+                    double y = (c.y * yScale) + yOffset;
                     DrawableString string = new DrawableString(str, this.color);
                     string.font = this.font;
                     string.setCoordinates(x, y);
@@ -1323,15 +1337,16 @@ public class RadarGraphicsPage implements IRenderable {
                 }
 
             }
-            target.setupClippingPlane(paintProps.getClippingPane());
-            if (magnification != this.magnification) {
+            if (xScale != this.magnification) {
                 font.setMagnification((float) this.magnification, false);
             }
         }
 
+        target.setupClippingPlane(paintProps.getClippingPane());
+
         // paint symbols on screen
-        double ratio = (paintProps.getView().getExtent().getWidth() / paintProps
-                .getCanvasBounds().width);
+        double ratio = paintProps.getView().getExtent().getWidth()
+                / paintProps.getCanvasBounds().width;
         double pixels = 90 * magnification;
 
         for (PlotObject po : this.plotObjects) {
@@ -1353,11 +1368,120 @@ public class RadarGraphicsPage implements IRenderable {
                 target.drawStrings(string);
 
             }
-            target.getExtension(IPointImageExtension.class).drawPointImages(
-                    paintProps, image);
 
+            if (po.image != null) {
+                target.getExtension(IPointImageExtension.class)
+                        .drawPointImages(paintProps, image);
+            } else {
+                drawMesocyclone(target, paintProps, po);
+            }
+        }
+    }
+
+    /**
+     * Convert the radius from kilometer to radius relative to pixel
+     * @param lat The latitude in decimal degrees between -90 and +90°
+     * @param lon The longitude in decimal degrees between -180 and +180°
+     * @param radius in kilometer
+     * @return radius relative to pixel
+     */
+    private double convertRadius(double lat, double lon, double radius){
+        GeodeticCalculator gc = new GeodeticCalculator(descriptor.getCRS());
+        gc.setStartingGeographicPoint(lat, lon);
+        gc.setDirection(90, radius * 1000); //convert to meter
+
+        
+        double[] p1 = descriptor.worldToPixel(new double[] {
+                gc.getStartingGeographicPoint().getX(),
+                gc.getStartingGeographicPoint().getY() });
+        double[] p2 = descriptor.worldToPixel(new double[] {
+                gc.getDestinationGeographicPoint().getX(),
+                gc.getDestinationGeographicPoint().getY() });
+        return Math.abs(p1[0] - p2[0]);
+    }
+
+    /**
+     * Draw mesocyclone symbols
+     * @param target
+     * @param paintProps
+     * @param po
+     * @throws VizException
+     */
+    private void drawMesocyclone(IGraphicsTarget target,
+            PaintProperties paintProps, PlotObject po) throws VizException {
+        float width = 4;
+        if (po.type.equals(MesocycloneType.CORRELATED_SHEAR)
+                || po.type
+                        .equals(MesocycloneType.CORRELATED_SHEAR_EXTRAPOLATED)) {
+            width = 1;
         }
 
+        double radius = Math.abs(po.mesoRadius);
+        if (radius==0) {//In case, it's 0 for line radius=MIN_RADIUS_IN_PIXEL/radiusInPixel*radius;
+            radius = 0.01;
+        }
+            
+        radius=convertRadius(po.lat,po.lon,radius);
+
+        double[] centerXy = this.descriptor.getRenderableDisplay()
+                .gridToScreen(new double[] { po.coord.x, po.coord.y, 0.0 },
+                        target);
+        double[] rightXy = this.descriptor.getRenderableDisplay().gridToScreen(
+                new double[] { po.coord.x + radius, po.coord.y, 0.0 }, target);
+        double radiusInPixel = rightXy[0] - centerXy[0];
+
+        if (radiusInPixel<MIN_RADIUS_IN_PIXEL){
+            radius=MIN_RADIUS_IN_PIXEL/radiusInPixel*radius;
+            radiusInPixel=MIN_RADIUS_IN_PIXEL;
+        }
+
+        DrawableCircle circle = new DrawableCircle();
+        circle = new DrawableCircle();
+        circle.setCoordinates(po.coord.x,po.coord.y);
+        circle.radius = radius;
+        circle.basics.color = po.color;
+        circle.lineWidth = width;
+        circle.lineStyle=po.lineStyle;
+        target.drawCircle(circle);
+        
+        if (po.type.equals(MesocycloneType.MESOCYCLONE_WITH_SPIKES)) {
+            List<DrawableLine> lines = new ArrayList<DrawableLine>();
+
+            DrawableLine topSpike = new DrawableLine();
+            topSpike.addPoint(centerXy[0], centerXy[1] - radiusInPixel);
+            topSpike.addPoint(centerXy[0], centerXy[1] - radiusInPixel
+                    - SPIKE_SIZE);
+            topSpike.basics.color = po.color;
+            topSpike.width = width;
+            lines.add(topSpike);
+
+            DrawableLine bottomSpike = new DrawableLine();
+            bottomSpike.addPoint(centerXy[0], centerXy[1] + radiusInPixel);
+            bottomSpike.addPoint(centerXy[0], centerXy[1] + radiusInPixel
+                    + SPIKE_SIZE);
+            bottomSpike.basics.color = po.color;
+            bottomSpike.width = width;
+            lines.add(bottomSpike);
+
+            DrawableLine leftSpike = new DrawableLine();
+            leftSpike.addPoint(centerXy[0] - radiusInPixel, centerXy[1]);
+            leftSpike.addPoint(centerXy[0] - radiusInPixel - SPIKE_SIZE,
+                    centerXy[1]);
+            leftSpike.basics.color = po.color;
+            leftSpike.width = width;
+            lines.add(leftSpike);
+
+            DrawableLine rightSpike = new DrawableLine();
+            rightSpike.addPoint(centerXy[0] + radiusInPixel, centerXy[1]);
+            rightSpike.addPoint(centerXy[0] + radiusInPixel + SPIKE_SIZE,
+                    centerXy[1]);
+            rightSpike.basics.color = po.color;
+            rightSpike.width = width;
+            lines.add(rightSpike);
+            target.getExtension(ICanvasRenderingExtension.class).drawLines(
+                    paintProps, lines.toArray(new DrawableLine[0]));
+            
+        }
     }
 
     /**
@@ -1367,9 +1491,8 @@ public class RadarGraphicsPage implements IRenderable {
     private void drawTableBorder() {
         this.drawBorder = false;
 
-        int rowHeight = 10;
-        int[] columnWidths = new int[] { 41, 42, 81, 70, 56, 45, 49, 63, 63,
-                63, 57 };
+        int[] columns = new int[] { 0, 42, 84, 165, 231, 291, 336, 388, 448,
+                511, 574, 636 };
 
         int numberOfRows = this.screenStringMap.size();
 
@@ -1380,16 +1503,12 @@ public class RadarGraphicsPage implements IRenderable {
         List<Coordinate> coords = new ArrayList<Coordinate>();
         LineString ls = null;
 
-        int tableRight = tableLeft;
+        int tableRight = tableLeft + columns[columns.length - 1];
 
-        for (Integer width : columnWidths) {
-            tableRight += width;
-        }
-
-        int tableBottom = (rowHeight * numberOfRows) + tableTop;
+        int tableBottom = (ORIGINAL_FONT_HEIGHT * numberOfRows) + tableTop;
 
         // Rows
-        for (int i = tableTop; i <= tableBottom; i += rowHeight) {
+        for (int i = tableTop; i <= tableBottom; i += ORIGINAL_FONT_HEIGHT) {
             coords.clear();
             coords.add(new Coordinate(tableLeft, i));
             coords.add(new Coordinate(tableRight, i));
@@ -1399,19 +1518,13 @@ public class RadarGraphicsPage implements IRenderable {
         }
 
         // Columns
-        int k = 0;
-        for (int i = tableLeft; i <= tableRight;) {
+        for (int x : columns) {
             coords.clear();
-            coords.add(new Coordinate(i, tableTop));
-            coords.add(new Coordinate(i, tableBottom));
+            coords.add(new Coordinate(tableLeft + x, tableTop));
+            coords.add(new Coordinate(tableLeft + x, tableBottom));
             ls = this.geomFactory.createLineString(coords
                     .toArray(new Coordinate[coords.size()]));
             this.screenGeometries.add(ls);
-
-            i += columnWidths[k];
-            if (k < 10) {
-                k++;
-            }
         }
     }
 
@@ -1481,7 +1594,7 @@ public class RadarGraphicsPage implements IRenderable {
 
         if (plotObjects != null) {
             for (PlotObject po : plotObjects) {
-                if (po != null) {
+                if (po != null && po.image != null) {
                     po.image.dispose();
                     po.image = null;
                 }
@@ -1496,7 +1609,7 @@ public class RadarGraphicsPage implements IRenderable {
 
     public void addTableRow(String headings) {
         this.screenStringMap.put(new Coordinate(tableX, tableY), headings);
-        tableY += tableRowSpacing;
+        tableY += ORIGINAL_FONT_HEIGHT;
     }
 
     public void drawTableBorder(boolean draw) {

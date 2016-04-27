@@ -32,7 +32,6 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -74,8 +73,9 @@ import com.raytheon.viz.ui.dialogs.ModeListener;
  * Oct 31,2011  8510       rferrel     Cleaned up code made more robust
  * Sep 20,2011  1196       rferrel     Change dialogs so they do not block.
  * Mar 05,2013  15173   mgamazaychikov Set the initial location and dimension of 
- * 									   dialog as it is in A1.
+ *                                      dialog as it is in A1.
  * Jun 23, 2014 #3161      lvenable    Added SWT dialog trim to the dialogs for thin client.
+ * Mar 30, 2016 5513       randerso    Fixed to display on same monitor as parent
  * 
  * </pre>
  * 
@@ -124,8 +124,6 @@ public class AlarmAlertDlg extends CaveSWTDialog {
     private static final int HEIGHT_HINT = 150;
 
     private static final int WIDTH_HINT = 500;
-
-    private static Point shellLocation = null;
 
     private ILocalizationFileObserver listener = new ILocalizationFileObserver() {
         @Override
@@ -194,6 +192,10 @@ public class AlarmAlertDlg extends CaveSWTDialog {
 
         opened();
 
+    }
+
+    @Override
+    public void preOpened() {
         setLocation();
     }
 
@@ -203,10 +205,9 @@ public class AlarmAlertDlg extends CaveSWTDialog {
     private void setLocation() {
         int shellSizeX = getShell().getSize().x;
         int shellSizeY = getShell().getSize().y;
-        Rectangle displayArea = shell.getDisplay().getClientArea();
-        int locationX = displayArea.width - shellSizeX;
-        int locationY = displayArea.y + shellSizeY;
-        shellLocation = new Point(locationX, locationY);
+        Rectangle bounds = getParent().getMonitor().getBounds();
+        int locationX = bounds.x + bounds.width - shellSizeX;
+        int locationY = bounds.y + bounds.height - shellSizeY;
         shell.setLocation(locationX, locationY);
         return;
     }
@@ -226,12 +227,8 @@ public class AlarmAlertDlg extends CaveSWTDialog {
         // Initialize all of the controls and layouts
         initializeComponents();
 
-        // Set the shell location
-        if (shellLocation != null) {
-            shell.setLocation(shellLocation);
-        }
-
         shell.addShellListener(new ShellAdapter() {
+            @Override
             public void shellClosed(ShellEvent event) {
                 forcedClose();
             }
@@ -267,6 +264,7 @@ public class AlarmAlertDlg extends CaveSWTDialog {
         MenuItem saveMenuItem = new MenuItem(fileMenu, SWT.NONE);
         saveMenuItem.setText("Save");
         saveMenuItem.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 save();
                 changeSaveState(false);
@@ -276,6 +274,7 @@ public class AlarmAlertDlg extends CaveSWTDialog {
         MenuItem saveCloseMenuItem = new MenuItem(fileMenu, SWT.NONE);
         saveCloseMenuItem.setText("Save && Close");
         saveCloseMenuItem.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 save();
                 changeSaveState(false);
@@ -286,6 +285,7 @@ public class AlarmAlertDlg extends CaveSWTDialog {
         MenuItem closeMenuItem = new MenuItem(fileMenu, SWT.NONE);
         closeMenuItem.setText("Close");
         closeMenuItem.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 closeDisplay();
             }
@@ -297,6 +297,7 @@ public class AlarmAlertDlg extends CaveSWTDialog {
         MenuItem saveAsMenuItem = new MenuItem(fileMenu, SWT.NONE);
         saveAsMenuItem.setText("Save As...");
         saveAsMenuItem.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 // open dialog
                 AlarmAlertSaveLoadDlg dialog = new AlarmAlertSaveLoadDlg(shell,
@@ -315,6 +316,7 @@ public class AlarmAlertDlg extends CaveSWTDialog {
         MenuItem loadMenuItem = new MenuItem(fileMenu, SWT.NONE);
         loadMenuItem.setText("Load...");
         loadMenuItem.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 // open dialog
                 AlarmAlertSaveLoadDlg dialog = new AlarmAlertSaveLoadDlg(shell,
@@ -396,6 +398,7 @@ public class AlarmAlertDlg extends CaveSWTDialog {
         newAAEntry.setText("New AA Entry");
 
         newAAEntry.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 if (proximityAlarmDlg != null
                         && !proximityAlarmDlg.getShell().isDisposed()) {
@@ -431,6 +434,7 @@ public class AlarmAlertDlg extends CaveSWTDialog {
         Button newPAEntry = new Button(entryButtons, SWT.PUSH);
         newPAEntry.setText("New PA Entry");
         newPAEntry.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 if (proximityAlarmDlg != null
                         && !proximityAlarmDlg.getShell().isDisposed()) {
@@ -465,6 +469,7 @@ public class AlarmAlertDlg extends CaveSWTDialog {
         changeEntry.setText("Change Entry");
         changeEntry.setEnabled(false);
         changeEntry.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 // Ignore if dialog already being displayed.
                 if (proximityAlarmDlg != null
@@ -540,6 +545,7 @@ public class AlarmAlertDlg extends CaveSWTDialog {
         deleteEntry.setText("Delete Entry");
         deleteEntry.setEnabled(false);
         deleteEntry.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 if (paList.getSelectionIndex() != -1) {
                     papList.remove(paList.getSelectionIndex() - 1);
@@ -570,6 +576,7 @@ public class AlarmAlertDlg extends CaveSWTDialog {
         aaList = new List(shellComp, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
         aaList.setLayoutData(gd);
         aaList.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 int selected = aaList.getSelectionIndex();
                 if (selected <= siteAdminNumberAA - 1) {
@@ -603,6 +610,7 @@ public class AlarmAlertDlg extends CaveSWTDialog {
         paList = new List(shellComp, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
         paList.setLayoutData(gd);
         paList.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 int selected = paList.getSelectionIndex();
                 if (selected <= siteAdminNumberPA - 1) {
@@ -652,6 +660,7 @@ public class AlarmAlertDlg extends CaveSWTDialog {
         label.setLayoutData(gd);
 
         saveButton.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 save();
                 changeSaveState(false);
@@ -659,6 +668,7 @@ public class AlarmAlertDlg extends CaveSWTDialog {
         });
 
         saveAndCloseButton.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 save();
                 closeDisplay();
@@ -666,6 +676,7 @@ public class AlarmAlertDlg extends CaveSWTDialog {
         });
 
         closeButton.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 closeDisplay();
             }
@@ -871,18 +882,9 @@ public class AlarmAlertDlg extends CaveSWTDialog {
         shell.setActive();
     }
 
-    /*
-     * public boolean compareLists(java.util.List<AlarmAlertProduct> prev,
-     * java.util.List<AlarmAlertProduct> curr) { boolean isTrue = true; for (int
-     * i = 0; i < curr.size(); i++) { if (!prev.isEmpty() && prev.get(i) != null
-     * && !prev.get(i).equals(curr.get(i))) { isTrue = false; break; } } return
-     * isTrue; }
-     */
-
     private boolean isOperationalMode() {
         CAVEMode mode = CAVEMode.getMode();
-        return (CAVEMode.OPERATIONAL.equals(mode) || CAVEMode.TEST.equals(mode) ? true
-                : false);
+        return CAVEMode.OPERATIONAL.equals(mode) || CAVEMode.TEST.equals(mode);
     }
 
     private AAPACombined loadLastList() {
@@ -899,7 +901,7 @@ public class AlarmAlertDlg extends CaveSWTDialog {
         // if currentFile is null use default.xml
         // else if currentFile does not exists and is not default.xml use
         // default.xml
-        // else load normally ( non-existant file will be created and return and
+        // else load normally ( non-existent file will be created and return and
         // empty lists of alarms )
         if (AlarmAlertDlg.currentFile == null) {
             setLastFile("default.xml");
@@ -909,7 +911,6 @@ public class AlarmAlertDlg extends CaveSWTDialog {
             setLastFile("default.xml");
             return loadLastList();
         } else {
-            // setShellText(currentFile.getName());
             return AlarmAlertFunctions.loadUserAlarmsFromConfig();
         }
     }

@@ -181,6 +181,9 @@ class TimeDescriptor(TimeRangeUtils.TimeRangeUtils, Interfaces.Interfaces):
                 label = Holidays.getHolidayLabel(timeRange.startTime())
 
             if label != "":
+                if labelType == "CapitalWithPeriod":
+                    label = label.upper()
+                    
                 return pre + label + post
 
         # Check for today or tonight
@@ -399,13 +402,13 @@ class TimeDescriptor(TimeRangeUtils.TimeRangeUtils, Interfaces.Interfaces):
                 "PrePunctuation": "",
                 "PostPunctuation": "",
                 "Weekday" : {
-                    6 : "SUN",
-                    0 : "MON",
-                    1 : "TUE",
-                    2 : "WED",
-                    3 : "THU",
-                    4 : "FRI",
-                    5 : "SAT"
+                    6 : "Sun",
+                    0 : "Mon",
+                    1 : "Tue",
+                    2 : "Wed",
+                    3 : "Thu",
+                    4 : "Fri",
+                    5 : "Sat"
                 },
                 "Now": "Now",
                 "Today":"Today",

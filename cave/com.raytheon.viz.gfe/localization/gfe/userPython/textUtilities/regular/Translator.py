@@ -669,7 +669,7 @@ if __name__ == '__main__':
     "High winds in the afternoon. Partly cloudy. Very heavy rain showers likely. Snow accumulation of 1 inch. Lows in the mid 30s. East winds at 75 mph. Probability of precipitation 65 percent.",
     "Mostly sunny. Widespread heavy volcanic ash. Snow accumulation of 1 to 20 inches. Highs around 120. Probability of precipitation 99 percent.",
     "High winds. Partly cloudy. Slight chance of very heavy rain showers. Snow accumulation of 1 inch. Lows in the mid 30s. East winds at 75 mph. Probability of precipitation 1 percent. Southwest winds up to 15 mph.",
-    "SKY/WEATHER...Mostly cloudy with scattered rain showers and thunderstorms\nLAL...........3-4\nTEMPERATURE...Lows in the mid 30s\nHUMIDITY......70 pct\nWIND - 20 FT..Northwest to Southeast in the evening\n    VALLEYS...\n    RIDGES....\nHAINES INDEX..4 low\nSMOKE DISPERSAL:\n MIXING HEIGHT...Decreasing to 500-1,000 ft AGL\n TRANSPORT WIND..Northeast to southeast 3-8 mph",
+    "Sky/weather...Mostly cloudy with scattered rain showers and thunderstorms\nLAL...........3-4\nTemperature...Lows in the mid 30s\nHumidity......70 pct\nWind - 20 ft..Northwest to Southeast in the evening\n    Valleys...\n    Ridges....\nHaines Index..4 low\nSmoke dispersal:\n Mixing height...Decreasing to 500-1,000 ft AGL\n Transport wind..Northeast to southeast 3-8 mph",
     "High winds. Decreasing cloudiness. Widely scattered light sleet. Snow accumulation of 1 to 50 inches. Low 0. Northwest winds at 90 to 100 mph becoming southwest at 80 to 90 mph. Probability of precipitation 110 percent." ]
 
     for forecast in forecastList:

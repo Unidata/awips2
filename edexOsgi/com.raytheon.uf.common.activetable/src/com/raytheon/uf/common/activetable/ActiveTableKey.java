@@ -36,6 +36,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 05/22/2015   4522       randerso    Create proper primary key for ActiveTableRecord
+ * 03/17/2016   5426       randerso    Add issueYear to primary key
  * 
  * </pre>
  * 
@@ -68,16 +69,16 @@ public class ActiveTableKey extends PersistableDataObject {
     @DynamicSerializeElement
     protected String ugcZone;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#hashCode()
-     */
+    @Column
+    @DynamicSerializeElement
+    protected int issueYear;
+
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
         result = (prime * result) + ((etn == null) ? 0 : etn.hashCode());
+        result = (prime * result) + issueYear;
         result = (prime * result)
                 + ((officeid == null) ? 0 : officeid.hashCode());
         result = (prime * result) + ((phen == null) ? 0 : phen.hashCode());
@@ -87,11 +88,6 @@ public class ActiveTableKey extends PersistableDataObject {
         return result;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -109,6 +105,9 @@ public class ActiveTableKey extends PersistableDataObject {
                 return false;
             }
         } else if (!etn.equals(other.etn)) {
+            return false;
+        }
+        if (issueYear != other.issueYear) {
             return false;
         }
         if (officeid == null) {
@@ -217,11 +216,21 @@ public class ActiveTableKey extends PersistableDataObject {
         this.ugcZone = ugcZone;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#toString()
+    /**
+     * @return the issueYear
      */
+    public int getIssueYear() {
+        return issueYear;
+    }
+
+    /**
+     * @param issueYear
+     *            the issueYear to set
+     */
+    public void setIssueYear(int issueYear) {
+        this.issueYear = issueYear;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

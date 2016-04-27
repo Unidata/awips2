@@ -70,7 +70,7 @@ class FirePhrases(ScalarPhrases.ScalarPhrases, VectorRelatedPhrases.VectorRelate
         if words == "":
             words = "MISSING"
         node.set("descriptor", "")
-        node.set("indentLabel", "SKY/WEATHER.........")
+        node.set("indentLabel", "Sky/weather.........")
         node.set("compound", 1)
         return self.DONE()
 
@@ -328,7 +328,7 @@ class FirePhrases(ScalarPhrases.ScalarPhrases, VectorRelatedPhrases.VectorRelate
         elementInfoList = [self.ElementInfo("VentRate", "List")]
         self.subPhraseSetUp(tree, node, elementInfoList, self.scalarConnector)  
         node.set("descriptor", "")
-        node.set("indentLabel","SMOKE DISPERSAL.....")
+        node.set("indentLabel","Smoke dispersal.....")
         return self.DONE()
 
     def smokeDispersal_words(self, tree, node):
@@ -382,7 +382,7 @@ class FirePhrases(ScalarPhrases.ScalarPhrases, VectorRelatedPhrases.VectorRelate
     def transportWind_setUp(self, tree, node):
         self.wind_setUp(tree, node, gustFlag=0, element="TransWind")
         node.set("descriptor", "")
-        node.set("indentLabel","TRANSPORT WINDS.....")
+        node.set("indentLabel","Transport winds.....")
         return self.DONE()
     
     def freeWind_phrase(self):
@@ -394,16 +394,16 @@ class FirePhrases(ScalarPhrases.ScalarPhrases, VectorRelatedPhrases.VectorRelate
     def freeWind_setUp(self, tree, node):
         self.wind_setUp(tree, node, gustFlag=0, element="FreeWind")
         node.set("descriptor", "")
-        node.set("indentLabel","FREE WINDS..........")
+        node.set("indentLabel","Free winds..........")
         return self.DONE()
 
     def ridgeValleyAreas(self, tree, node):
         # List of edit area names for which we want
         # ridge/valley winds reported:
         #
-        # 20-FOOT WINDS...
-        #     VALLEYS/LWR SLOPES...
-        #     RIDGES/UPR SLOPES....       
+        # 20-foot winds...
+        #     Valleys/lwr slopes...
+        #     Ridges/upr slopes....       
         #
         # e.g.
         # return ["Area1"]
@@ -443,7 +443,7 @@ class FirePhrases(ScalarPhrases.ScalarPhrases, VectorRelatedPhrases.VectorRelate
         if words == "":
             words = "MISSING"
         node.set("descriptor", "")
-        node.set("indentLabel", "20-FOOT WINDS.......")
+        node.set("indentLabel", "20-foot winds.......")
         node.set("compound", 1)
         return self.setWords(node, words)
 
@@ -458,7 +458,7 @@ class FirePhrases(ScalarPhrases.ScalarPhrases, VectorRelatedPhrases.VectorRelate
             return self.setWords(node, "")
         self.setWords(node, "")
         node.set("descriptor", "")
-        node.set("indentLabel", "20-FOOT WINDS.......")
+        node.set("indentLabel", "20-foot winds.......")
         return self.DONE()
 
     #  Valley/Ridge split set-up    
@@ -501,7 +501,7 @@ class FirePhrases(ScalarPhrases.ScalarPhrases, VectorRelatedPhrases.VectorRelate
         if words == "":
             words = "MISSING"
         node.set("descriptor", "")
-        node.set("indentLabel","    VALLEYS/LWR SLOPES...")
+        node.set("indentLabel","    Valleys/lwr slopes...")
         node.set("compound", 1)
         return self.setWords(node, words)
   
@@ -526,7 +526,7 @@ class FirePhrases(ScalarPhrases.ScalarPhrases, VectorRelatedPhrases.VectorRelate
         if words == "":
             words = "MISSING"
         node.set("descriptor", "")
-        node.set("indentLabel", "    RIDGES/UPR SLOPES....")
+        node.set("indentLabel", "    Ridges/upr slopes....")
         node.set("compound", 1)
         return self.setWords(node, words)
 
@@ -565,7 +565,7 @@ class FirePhrases(ScalarPhrases.ScalarPhrases, VectorRelatedPhrases.VectorRelate
         elementInfoList = [self.ElementInfo("Haines", "List")]
         self.subPhraseSetUp(tree, node, elementInfoList, self.scalarConnector) 
         node.set("descriptor", "")
-        node.set("indentLabel","HAINES INDEX........")
+        node.set("indentLabel","Haines Index........")
         return self.DONE()
 
     def haines_words(self, tree, node):
@@ -618,7 +618,7 @@ class FirePhrases(ScalarPhrases.ScalarPhrases, VectorRelatedPhrases.VectorRelate
         elementInfoList = [self.ElementInfo(elementName, "List")]
         self.subPhraseSetUp(tree, node, elementInfoList, self.scalarConnector)  
         node.set("descriptor", "")
-        node.set("indentLabel", "HUMIDITY RECOVERY...")
+        node.set("indentLabel", "Humidity recovery...")
         return self.DONE()
 
     def humidityRecovery_words(self, tree, node):
@@ -759,17 +759,17 @@ class FirePhrases(ScalarPhrases.ScalarPhrases, VectorRelatedPhrases.VectorRelate
         return self.setWords(node, words)
 
     def lal_value(self, tree, node, lal):
-        value = "NO TSTMS"
+        value = "No Tstms"
         if lal > 1:
-            value = "1-8 STRIKES"
+            value = "1-8 strikes"
         if lal > 2:
-            value = "9-15 STRIKES"
+            value = "9-15 strikes"
         if lal > 3:
-            value = "16-25 STRIKES"
+            value = "16-25 strikes"
         if lal > 4:
-            value = ">25 STRIKES"
+            value = ">25 strikes"
         if lal > 5:
-            value = "DRY LIGHTNING"
+            value = "Dry lightning"
         return value
     
     def coverageLAL_value(self, coverage):
@@ -843,7 +843,7 @@ class FirePhrases(ScalarPhrases.ScalarPhrases, VectorRelatedPhrases.VectorRelate
         elementInfoList = [self.ElementInfo("MixHgt", "List")]
         self.subPhraseSetUp(tree, node, elementInfoList, self.scalarConnector) 
         node.set("descriptor", "")
-        node.set("indentLabel", "MIXING HEIGHT.......")
+        node.set("indentLabel", "Mixing height.......")
         return self.DONE()
 
     def mixingHgt_words(self, tree, node):
@@ -893,7 +893,7 @@ class FirePhrases(ScalarPhrases.ScalarPhrases, VectorRelatedPhrases.VectorRelate
         #    return self.DONE()
         
         node.set("descriptor", "")
-        node.set("indentLabel", "MARINE LAYER........")
+        node.set("indentLabel", "Marine layer........")
         return self.DONE()
     
     def marineLayer_words(self, tree, node):

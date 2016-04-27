@@ -74,9 +74,10 @@ import com.raytheon.viz.ui.widgets.duallist.IUpdate;
  * Sep 25, 2012   1357     mpduff      Initial creation.
  * Jan 17, 2013   1357     mpduff      Added timestep settings.
  * Feb 26, 2013   1667     mpduff      Sort categories.
- * Sep 27, 2013  #2419     lvenable    Changed code so the dual list will
- *                                     function correctly on start up.
+ * Sep 27, 2013   2419     lvenable    Changed code so the dual list will
+ *                                      function correctly on start up.
  * Feb 19, 2014   2734     mpduff      Default time range to 24 hours.
+ * Mar 15, 2016   5484     randerso    Fix GUI sizing issues
  * 
  * </pre>
  * 
@@ -153,9 +154,6 @@ public class StatsControlDlg extends CaveSWTDialog implements IStatsControl,
     /** Data type label */
     private Label dataTypeLabel;
 
-    /** Combo box size */
-    private int comboSize;
-
     /** Selected Date */
     private Date selectedDate;
 
@@ -196,8 +194,6 @@ public class StatsControlDlg extends CaveSWTDialog implements IStatsControl,
         mainComp.setLayout(gl);
         mainComp.setLayoutData(gd);
 
-        // calculateSize();
-
         createDateTimeComp();
         createTimeRangeComp();
         createDataChoiceComp();
@@ -216,11 +212,11 @@ public class StatsControlDlg extends CaveSWTDialog implements IStatsControl,
         GridLayout gl = new GridLayout(2, false);
 
         Group timeDateGroup = new Group(mainComp, SWT.NONE);
-        timeDateGroup.setText(" Date/Time ");
+        timeDateGroup.setText("Date/Time");
         timeDateGroup.setLayout(gl);
         timeDateGroup.setLayoutData(gd);
 
-        GridData btnData = new GridData(135, SWT.DEFAULT);
+        GridData btnData = new GridData(SWT.DEFAULT, SWT.DEFAULT);
         dateTimeBtn = new Button(timeDateGroup, SWT.PUSH);
         dateTimeBtn.setLayoutData(btnData);
         dateTimeBtn.setText("Select Date/Time...");
@@ -248,7 +244,7 @@ public class StatsControlDlg extends CaveSWTDialog implements IStatsControl,
         GridLayout gl = new GridLayout(2, false);
 
         Group rangeGroup = new Group(mainComp, SWT.NONE);
-        rangeGroup.setText(" Graph Range ");
+        rangeGroup.setText("Graph Range");
         rangeGroup.setLayout(gl);
         rangeGroup.setLayoutData(gd);
 
@@ -293,7 +289,7 @@ public class StatsControlDlg extends CaveSWTDialog implements IStatsControl,
         GridLayout gl = new GridLayout(1, false);
 
         Group choiceGroup = new Group(mainComp, SWT.NONE);
-        choiceGroup.setText(" Graph Data ");
+        choiceGroup.setText("Graph Data");
         choiceGroup.setLayout(gl);
         choiceGroup.setLayoutData(gd);
 
@@ -308,11 +304,9 @@ public class StatsControlDlg extends CaveSWTDialog implements IStatsControl,
         categoryLabel.setLayoutData(gd);
         categoryLabel.setText("  Category: ");
 
-        gd = new GridData(comboSize + 50, SWT.DEFAULT);
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         categoryCombo = new Combo(comboComp, SWT.READ_ONLY);
         categoryCombo.setLayoutData(gd);
-        categoryCombo.setSize(comboSize, SWT.DEFAULT);
         categoryCombo.setToolTipText("The Statistics Category");
         categoryCombo.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -327,11 +321,9 @@ public class StatsControlDlg extends CaveSWTDialog implements IStatsControl,
         eventTypeLabel.setLayoutData(gd);
         eventTypeLabel.setText("  Event Type: ");
 
-        gd = new GridData(comboSize + 50, SWT.DEFAULT);
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         eventTypeCombo = new Combo(comboComp, SWT.READ_ONLY);
         eventTypeCombo.setLayoutData(gd);
-        eventTypeCombo.setSize(comboSize, SWT.DEFAULT);
         eventTypeCombo.setToolTipText("The Event Type to Display");
         eventTypeCombo.select(0);
         eventTypeCombo.addSelectionListener(new SelectionAdapter() {
@@ -346,11 +338,9 @@ public class StatsControlDlg extends CaveSWTDialog implements IStatsControl,
         dataTypeLabel.setLayoutData(gd);
         dataTypeLabel.setText("  Event Attribute: ");
 
-        gd = new GridData(comboSize + 50, SWT.DEFAULT);
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         dataTypeCombo = new Combo(comboComp, SWT.READ_ONLY);
         dataTypeCombo.setLayoutData(gd);
-        dataTypeCombo.setSize(comboSize, SWT.DEFAULT);
         dataTypeCombo.setToolTipText("The Event Attribute to Display");
 
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
@@ -375,13 +365,13 @@ public class StatsControlDlg extends CaveSWTDialog implements IStatsControl,
      */
     private void createButtons() {
         GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
-        GridLayout gl = new GridLayout(2, false);
+        GridLayout gl = new GridLayout(2, true);
 
         Composite comp = new Composite(mainComp, SWT.NONE);
         comp.setLayout(gl);
         comp.setLayoutData(gd);
 
-        GridData btnData = new GridData(85, SWT.DEFAULT);
+        GridData btnData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         displayBtn = new Button(comp, SWT.PUSH);
         displayBtn.setLayoutData(btnData);
         displayBtn.setText("Display");
@@ -394,7 +384,7 @@ public class StatsControlDlg extends CaveSWTDialog implements IStatsControl,
             }
         });
 
-        btnData = new GridData(85, SWT.DEFAULT);
+        btnData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         closeBtn = new Button(comp, SWT.PUSH);
         closeBtn.setLayoutData(btnData);
         closeBtn.setText("Close");
@@ -625,17 +615,17 @@ public class StatsControlDlg extends CaveSWTDialog implements IStatsControl,
 
         if (tr.getDuration() <= TimeUtil.MILLIS_PER_HOUR) {
             request.setTimeStep(5);
-        } else if (tr.getDuration() <= TimeUtil.MILLIS_PER_HOUR * 3) {
+        } else if (tr.getDuration() <= (TimeUtil.MILLIS_PER_HOUR * 3)) {
             request.setTimeStep(5);
-        } else if (tr.getDuration() <= TimeUtil.MILLIS_PER_HOUR * 6) {
+        } else if (tr.getDuration() <= (TimeUtil.MILLIS_PER_HOUR * 6)) {
             request.setTimeStep(10);
-        } else if (tr.getDuration() <= TimeUtil.MILLIS_PER_HOUR * 12) {
+        } else if (tr.getDuration() <= (TimeUtil.MILLIS_PER_HOUR * 12)) {
             request.setTimeStep(20);
-        } else if (tr.getDuration() <= TimeUtil.MILLIS_PER_HOUR * 24) {
+        } else if (tr.getDuration() <= (TimeUtil.MILLIS_PER_HOUR * 24)) {
             request.setTimeStep(40);
-        } else if (tr.getDuration() <= TimeUtil.MILLIS_PER_DAY * 7) {
+        } else if (tr.getDuration() <= (TimeUtil.MILLIS_PER_DAY * 7)) {
             request.setTimeStep(240);
-        } else if (tr.getDuration() <= TimeUtil.MILLIS_PER_DAY * 14) {
+        } else if (tr.getDuration() <= (TimeUtil.MILLIS_PER_DAY * 14)) {
             request.setTimeStep(480);
         } else {
             request.setTimeStep(1000);

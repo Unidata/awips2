@@ -63,7 +63,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Sep 4, 2008				lvenable	Initial creation
  * Jan 8, 2008  1802        askripsk    Connect to DB.
  * Apr 19, 2013 170-        rferrel     Make dialog non-blocking.
- * 
+ * Nov 30, 2015  14228      wkwock      Update remark limit to 510.
  * </pre>
  * 
  * @author lvenable
@@ -160,6 +160,9 @@ public class GageHistoryDlg extends CaveSWTDialog {
      * @param titleInfo
      *            Dialog title information.
      */
+    
+    private final int MAX_REMARK_CHAR = 510;
+
     public GageHistoryDlg(Shell parent, String titleInfo, String lid) {
         super(parent);
         setText("Gage History" + titleInfo);
@@ -345,11 +348,11 @@ public class GageHistoryDlg extends CaveSWTDialog {
         gd = new GridData(500, 120);
         locationTF = new Text(locationGroup, SWT.BORDER | SWT.MULTI | SWT.WRAP);
         locationTF.setLayoutData(gd);
-        locationTF.setTextLimit(255);
+        locationTF.setTextLimit(MAX_REMARK_CHAR);
         currentLocText = locationTF.getText();
         ModifyListener listener = new ModifyListener() {
             public void modifyText(ModifyEvent e) {
-                if (locationTF.getText().length() > 255) {
+                if (locationTF.getText().length() > MAX_REMARK_CHAR) {
                     locationTF.setText(currentLocText);
                     shell.getDisplay().beep();
                 } else

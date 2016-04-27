@@ -100,6 +100,7 @@ import com.vividsolutions.jts.io.WKTWriter;
  * Aug 08, 2015  4722       dhladky     Added Grid coverage and parsing methods.
  * Sep 17, 2015  4756       dhladky     Multiple guidance source bugs.
  * Feb 12, 2016  5370       dhladky     Camel case for insertTime.
+ * Apr 07, 2016  5491       tjensen     Fix NullPointerException from getRawGeometries
  * </pre>
  * 
  * @author dhladky
@@ -124,7 +125,7 @@ public class FFMPUtils {
     public static float MISSING = -99999.0f;
 
     private static NumberFormat formatter = new DecimalFormat("#.##");
-    
+
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(FFMPUtils.class);
 
@@ -371,8 +372,8 @@ public class FFMPUtils {
      * @param extents
      * @return
      */
-    public static Object[] getBasins(String cwa, double buffer,
-            String extents, String mode) {
+    public static Object[] getBasins(String cwa, double buffer, String extents,
+            String mode) {
         String lowestSimplificationLevel = ScanUtils
                 .getHighResolutionLevel("ffmp_basins");
         String highestSimplificationLevel = ScanUtils
@@ -424,7 +425,8 @@ public class FFMPUtils {
      * @return
      */
     public static Map<Long, Geometry> getRawGeometries(Collection<Long> pfafs) {
-        HashMap<Long, Geometry> rval = null;
+        // Initialize rval to an empty Map to use as the default return value.
+        HashMap<Long, Geometry> rval = new HashMap<>();
         if (pfafs.size() > 0) {
             StringBuilder builder = new StringBuilder();
             builder.append("SELECT pfaf_id, AsBinary("
@@ -448,7 +450,7 @@ public class FFMPUtils {
             try {
                 sq = SpatialQueryFactory.create();
                 results = sq.dbRequest(builder.toString(), MAPS_DB);
-                rval = new HashMap<Long, Geometry>(results.length, 1.0f);
+                rval = new HashMap<>(results.length, 1.0f);
             } catch (SpatialException e) {
                 statusHandler.error("Error querying Raw Geometries: +sql: "
                         + builder.toString(), e);
@@ -971,19 +973,19 @@ public class FFMPUtils {
      * @param id
      * @return
      */
-    public static String getFFGDataURI(GUIDANCE_TYPE type, String datasetid, String parameter,
-            String plugin) {
+    public static String getFFGDataURI(GUIDANCE_TYPE type, String datasetid,
+            String parameter, String plugin) {
         DbQueryRequest request = new DbQueryRequest();
         request.setEntityClass(GridRecord.class.getName());
         request.addConstraint(GridConstants.PARAMETER_ABBREVIATION,
                 new RequestConstraint(parameter));
-        
+
         if (type == GUIDANCE_TYPE.RFC) {
-            request.addConstraint(GridConstants.DATASET_ID, new RequestConstraint(
-                    "FFG-" + datasetid.substring(1)));
+            request.addConstraint(GridConstants.DATASET_ID,
+                    new RequestConstraint("FFG-" + datasetid.substring(1)));
         } else {
-            request.addConstraint(GridConstants.DATASET_ID, new RequestConstraint(
-                    datasetid));
+            request.addConstraint(GridConstants.DATASET_ID,
+                    new RequestConstraint(datasetid));
         }
 
         request.setOrderByField("dataTime.refTime", OrderMode.DESC);
@@ -994,8 +996,8 @@ public class FFMPUtils {
             if (grids != null && grids.length > 0) {
                 return grids[0].getDataURI();
             } else {
-                statusHandler.warn(
-                        "No data available for this FFG Request: " + request.toString());
+                statusHandler.warn("No data available for this FFG Request: "
+                        + request.toString());
             }
         } catch (Exception e) {
             statusHandler.error(
@@ -1432,7 +1434,7 @@ public class FFMPUtils {
 
         return unmappedResults.toArray(new Object[0]);
     }
-    
+
     /**
      * For Grid FFMP types used as primary sources, request the coverage record
      * for use in domain creation.
@@ -1471,8 +1473,9 @@ public class FFMPUtils {
                 coverage = record.getLocation();
             }
         } else {
-            statusHandler.error("Query for Grid Coverage returned no results: DataSetID = "
-                    + datasetID);
+            statusHandler
+                    .error("Query for Grid Coverage returned no results: DataSetID = "
+                            + datasetID);
         }
 
         return coverage;

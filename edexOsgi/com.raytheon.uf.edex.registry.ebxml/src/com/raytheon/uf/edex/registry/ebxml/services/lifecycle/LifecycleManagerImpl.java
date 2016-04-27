@@ -95,8 +95,8 @@ import com.raytheon.uf.edex.registry.events.DeleteSlotEvent;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 18, 2012            bphillip     Initial creation
- * Sep 14, 2012 1169       djohnson     Throw exception when object exists during create only mode.
+ * Jan 18, 2012            bphillip    Initial creation
+ * Sep 14, 2012 1169       djohnson    Throw exception when object exists during create only mode.
  * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring injection
  * 4/9/2013     1802       bphillip    Changed how auditable events are handled
  * Apr 18, 2013 1693       djohnson    Changes to conform to Ebxml 4.0 SubmitObjects protocol.
@@ -109,12 +109,13 @@ import com.raytheon.uf.edex.registry.events.DeleteSlotEvent;
  *                                     Separate update from create notifications.
  * 12/2/2013    1829       bphillip    Auditable events are not genereted via messages on the event bus
  * 01/21/2014   2613       bphillip    Removed verbose log message from removeObjects
- * 2/19/2014    2769        bphillip   Added current time to audit trail events
+ * 2/19/2014    2769       bphillip    Added current time to audit trail events
  * Mar 31, 2014 2889       dhladky     Added username for notification center tracking.
  * 4/11/2014    3011       bphillip    Modified merge behavior
  * 4/17/2014    3011       bphillip    Delete slot events now contain strings
- * June 25, 2014 2760      dhladky     Added external delivery of registry events
+ * Jun 25, 2014 2760       dhladky     Added external delivery of registry events
  * May 14, 2015 4493       dhladky     Better integrated external delivery of registry events.
+ * Apr 05, 2016 5488       tjensen     Fixed serialization issue in removeObjects
  * 
  * 
  * </pre>
@@ -297,8 +298,22 @@ public class LifecycleManagerImpl implements LifecycleManager {
             // Don't send notifications for Association types
             if (objectType != null
                     && !objectType.equals(RegistryObjectTypes.ASSOCIATION)) {
+
+                /*
+                 * Clone the object before publishing it to the Event Bus. This
+                 * resolves an issue with serialization due to the
+                 * InternationalStringType data of the obj having odd
+                 * classnames.
+                 */
+                RegistryObjectType objClone = new RegistryObjectType(
+                        obj.getId(), obj.getLid(), obj.getObjectType(),
+                        obj.getOwner(), obj.getStatus(), obj.getName()
+                                .toString(), obj.getDescription().toString());
+                objClone.setSlot(obj.getSlot());
+                objClone.setVersionInfo(obj.getVersionInfo());
                 RemoveRegistryEvent event = new RemoveRegistryEvent(
-                        request.getUsername(), obj.getId(), obj);
+                        request.getUsername(), obj.getId(), objClone);
+
                 event.setAction(Action.DELETE);
                 event.setLid(obj.getLid());
                 event.setObjectType(objectType);
@@ -762,7 +777,8 @@ public class LifecycleManagerImpl implements LifecycleManager {
 
     private void mergeObjects(RegistryObjectType newObject,
             RegistryObjectType existingObject) {
-        DeleteSlotEvent deleteSlotEvent = new DeleteSlotEvent(existingObject.getSlot());
+        DeleteSlotEvent deleteSlotEvent = new DeleteSlotEvent(
+                existingObject.getSlot());
         registryObjectDao.merge(newObject, existingObject);
         EventBus.publish(deleteSlotEvent);
     }
@@ -860,5 +876,5 @@ public class LifecycleManagerImpl implements LifecycleManager {
     public void setXpathProcessor(RegistryXPathProcessor xpathProcessor) {
         this.xpathProcessor = xpathProcessor;
     }
-    
+
 }

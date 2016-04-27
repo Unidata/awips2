@@ -50,7 +50,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  *                                     configuable information.
  * Apr 29, 2013 3033       jsanchez    Updated method to retrieve files in localization.
  * Mar 23, 2013 4320       dgilling    Integrate WarningDecoderQCCheck.
- * 
+ * Mar 10, 2016 5411       randerso    Added UnsubstitutedVariableCheck
  * </pre>
  * 
  * @author rferrel
@@ -131,9 +131,10 @@ public class QualityControl {
         }
 
         IQCCheck[] checks = new IQCCheck[] { new WmoHeaderCheck(),
-                new MndHeaderCheck(), new TextSegmentCheck(),
-                new TimeConsistentCheck(), new CtaMarkerCheck(),
-                new TwoDollarCheck(), new WarningDecoderQCCheck() };
+                new UnsubstitutedVariableCheck(), new MndHeaderCheck(),
+                new TextSegmentCheck(), new TimeConsistentCheck(),
+                new CtaMarkerCheck(), new TwoDollarCheck(),
+                new WarningDecoderQCCheck() };
 
         errorMsg = "";
         for (IQCCheck check : checks) {

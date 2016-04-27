@@ -1,6 +1,6 @@
 <project default="usage" basedir=".">
 	<property name="eclipse.dir" 
-		value="/opt/uframe-eclipse" />
+		value="/awips2/eclipse" />
 	<property name="build.os"
 		value="linux" />
 	<property name="build.ws"

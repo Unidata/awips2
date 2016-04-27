@@ -62,8 +62,8 @@ AreaDictionary = {
             'landSeaArea': 'SRF_850',
             'marineArea':  'GMZ850',
             'surfAreas': [
-                   ('NorthCoast1', 'SURF ALONG NORTH FACING REEFS.............'),
-                   ('SouthCoast', 'SURF ALONG SOUTH FACING REEFS.............')
+                   ('NorthCoast1', 'Surf along north facing reefs.............'),
+                   ('SouthCoast', 'Surf along south facing reefs.............')
                    ],
             'uviCity': "Tampa",  # City for which UVI should be listed
             'tideTables':   ["Cedar Key", "Venice Inlet"],
@@ -76,8 +76,8 @@ AreaDictionary = {
             'ugcName': 'Citrus',
             'ugcTimeZone': 'EST5EDT',
             'surfAreas': [
-                   ('NorthCoast2', 'SURF ALONG NORTH FACING REEFS.............'),
-                   ('SouthCoast', 'SURF ALONG SOUTH FACING REEFS.............')
+                   ('NorthCoast2', 'Surf along north facing reefs.............'),
+                   ('SouthCoast', 'Surf along south facing reefs.............')
                    ],
             },
  'FLZ148': {'fullStateName': 'Florida',

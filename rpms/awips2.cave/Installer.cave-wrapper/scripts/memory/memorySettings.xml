@@ -305,7 +305,7 @@
             <site-type>wfo</site-type>
 			<ini-substitutions>
 				<max-memory>
-					<value>2560M</value>
+					<value>6144M</value>
 				</max-memory>
 			
 				<max-perm>

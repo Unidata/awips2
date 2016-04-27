@@ -30,6 +30,7 @@ import java.util.Set;
 
 import com.raytheon.uf.common.dataplugin.HDF5Util;
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
+import com.raytheon.uf.common.dataplugin.binlightning.LightningConstants;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.Request;
@@ -63,11 +64,11 @@ import com.vividsolutions.jts.geom.Point;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 10, 2009            njensen     Initial creation
+ * Mar 08, 2016 18336      amoore      Keep-alive records only have time data.
  * 
  * </pre>
  * 
  * @author njensen
- * @version 1.0
  */
 
 public class LtgDataMgr {
@@ -176,25 +177,30 @@ public class LtgDataMgr {
                     recordList.add(rec);
                 }
 
-                List<IDataRecord> times = recordMap.get("obsTime");
+                List<IDataRecord> latitudes = recordMap
+                        .get(LightningConstants.LAT_DATASET);
 
-                int k = 0;
-                for (IDataRecord timeRec : times) {
-                    LongDataRecord time = (LongDataRecord) timeRec;
+                if (latitudes != null) {
+                    int k = 0;
+                    for (IDataRecord latitude : latitudes) {
 
-                    long[] timeData = time.getLongData();
-                    float[] latitudeData = ((FloatDataRecord) recordMap.get(
-                            "latitude").get(k)).getFloatData();
-                    float[] longitudeData = ((FloatDataRecord) recordMap.get(
-                            "longitude").get(k)).getFloatData();
-                    for (int n = 0; n < timeData.length; n++) {
-                        updateSites(timeData[n], latitudeData[n],
-                                longitudeData[n]);
+                        long[] timeData = ((LongDataRecord) recordMap.get(
+                                LightningConstants.TIME_DATASET).get(k))
+                                .getLongData();
+                        float[] latitudeData = ((FloatDataRecord) latitude)
+                                .getFloatData();
+                        float[] longitudeData = ((FloatDataRecord) recordMap
+                                .get(LightningConstants.LON_DATASET).get(k))
+                                .getFloatData();
+                        for (int n = 0; n < timeData.length; n++) {
+                            updateSites(timeData[n], latitudeData[n],
+                                    longitudeData[n]);
+                        }
+                        k++;
                     }
-                    k++;
                 }
             } catch (FileNotFoundException e) {
-				statusHandler.handle(Priority.PROBLEM, e.getMessage());
+                statusHandler.handle(Priority.PROBLEM, e.getMessage());
             } catch (Exception e) {
                 // TODO
                 e.printStackTrace();

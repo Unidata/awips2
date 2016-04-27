@@ -18,7 +18,7 @@ People attending ##
 #set($counter = 1)
 #foreach($dss in $dss_events_marine)
 #if($counter < $size)
-${dss.name}, ##
+${dss.name}#commaOrEllipsis()##
 #set($counter = $counter + 1)
 #elseif($counter == $size)
 #if($size > 1)
@@ -38,7 +38,7 @@ People attending ##
 #set($counter = 1)
 #foreach($dss in $dss_events)
 #if($counter < $size)
-${dss.name}, ####
+${dss.name}#commaOrEllipsis()####
 #set($counter = $counter + 1)
 #elseif($counter == $size)
 #if($size > 1)

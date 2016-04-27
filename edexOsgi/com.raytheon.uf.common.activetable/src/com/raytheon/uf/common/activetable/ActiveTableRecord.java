@@ -38,6 +38,7 @@ import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
@@ -58,6 +59,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * 04/28/2015   4027       randerso    Expunged Calendar from ActiveTableRecord
  * 05/22/2015   4522       randerso    Create proper primary key for ActiveTableRecord
  * 08/04/2015   4712       bphillip    Added parameter to PersistableDataObject
+ * 03/17/2016   5426       randerso    Add issueYear to primary key
+ * 
  * </pre>
  * 
  * @author njensen
@@ -67,7 +70,8 @@ import com.vividsolutions.jts.geom.Geometry;
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @DynamicSerialize
 // TODO: do we get anything from extending PersistableDataObject here?
-public abstract class ActiveTableRecord extends PersistableDataObject<ActiveTableKey> {
+public abstract class ActiveTableRecord extends
+        PersistableDataObject<ActiveTableKey> {
     protected static final long serialVersionUID = 1L;
 
     @EmbeddedId
@@ -207,11 +211,6 @@ public abstract class ActiveTableRecord extends PersistableDataObject<ActiveTabl
     @Override
     public abstract Object clone();
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -673,6 +672,8 @@ public abstract class ActiveTableRecord extends PersistableDataObject<ActiveTabl
      *            the issueTime to set
      */
     public void setIssueTime(Date issueTime) {
+        this.key.issueYear = TimeUtil.newGmtCalendar(issueTime).get(
+                Calendar.YEAR);
         this.issueTime = issueTime;
     }
 

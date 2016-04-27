@@ -21,27 +21,28 @@ package com.raytheon.viz.ghg.monitor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Event;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.RGBColors;
-import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.uf.viz.zoneselector.AbstractZoneSelector;
 import com.raytheon.uf.viz.zoneselector.ZoneSelectorResource;
 import com.raytheon.viz.ghg.monitor.event.AbstractGhgMonitorEvent.GhgEventListener;
 import com.raytheon.viz.ghg.monitor.event.GhgMonitorZoneSelectionEvent;
 import com.raytheon.viz.ui.input.InputAdapter;
-import com.raytheon.viz.ui.input.PanHandler;
 
 /**
  * GHG Spatial Viewer
@@ -54,6 +55,8 @@ import com.raytheon.viz.ui.input.PanHandler;
  * ------------ ---------- ----------- --------------------------
  * Aug 23, 2011            randerso    Initial creation
  * Feb 05, 2016 #5316      randerso    Fleshed out implementation
+ * Mar 03, 2016 #5316      randerso    Added code to switch to appropriate map
+ *                                     when product selected from table
  * 
  * </pre>
  * 
@@ -120,106 +123,6 @@ public class GHGSpatialViewer extends AbstractZoneSelector {
                 Arrays.asList("Marine_Zones", "Offshore_Marine_Zones"));
     }
 
-    IInputHandler theMouseListener = new InputAdapter() {
-
-        /**
-         * Primary mouse button
-         */
-        private static final int MB1 = 1;
-
-        /**
-         * Middle (Wheel) mouse button
-         */
-        private static final int MB2 = 2;
-
-        /*
-         * (non-Javadoc)
-         * 
-         * @see com.raytheon.viz.ui.input.IInputHandler#handleDoubleClick(int,
-         * int)
-         */
-        @Override
-        public boolean handleDoubleClick(int x, int y, int button) {
-            return false;
-        }
-
-        /*
-         * (non-Javadoc)
-         * 
-         * @see com.raytheon.viz.ui.input.IInputHandler#handleMouseDown(int,
-         * int, int)
-         */
-        @Override
-        public boolean handleMouseDown(int x, int y, int mouseButton) {
-            switch (mouseButton) {
-            case MB1:
-                button1Press(x, y);
-                break;
-
-            default:
-                // do nothing
-            }
-
-            return true;
-        }
-
-        /*
-         * (non-Javadoc)
-         * 
-         * @see com.raytheon.viz.ui.input.IInputHandler#handleMouseDownMove(int,
-         * int, int)
-         */
-        @Override
-        public boolean handleMouseDownMove(int x, int y, int mouseButton) {
-            return false;
-        }
-
-        /*
-         * (non-Javadoc)
-         * 
-         * @see com.raytheon.viz.ui.input.IInputHandler#handleMouseHover(int,
-         * int)
-         */
-        @Override
-        public boolean handleMouseHover(int x, int y) {
-            return false;
-        }
-
-        /*
-         * (non-Javadoc)
-         * 
-         * @see com.raytheon.viz.ui.input.IInputHandler#handleMouseMove(int,
-         * int)
-         */
-        @Override
-        public boolean handleMouseMove(int x, int y) {
-            return false;
-        }
-
-        /*
-         * (non-Javadoc)
-         * 
-         * @see com.raytheon.viz.ui.input.IInputHandler#handleMouseUp(int, int,
-         * int)
-         */
-        @Override
-        public boolean handleMouseUp(int x, int y, int mouseButton) {
-            switch (mouseButton) {
-            case MB1:
-                button1Release(x, y);
-            default:
-                // do nothing
-            }
-            return true;
-        }
-
-        @Override
-        public boolean handleMouseWheel(Event event, int x, int y) {
-            return true;
-        }
-
-    };
-
     private String myWfo;
 
     private String mapName;
@@ -234,25 +137,36 @@ public class GHGSpatialViewer extends AbstractZoneSelector {
 
     private List<GhgEventListener> zoneSelectionListenerList = new ArrayList<>();
 
+    private Map<String, Set<String>> mapDataDict;
+
     /**
      * @param parent
      * @param myWfo
      * @param gloc
      * @param callback
      */
-    public GHGSpatialViewer(Composite parent, String myWfo, GridLocation gloc,
-            IZoneSelectionListener callback) {
-        super(parent, gloc, callback);
+    public GHGSpatialViewer(Composite parent, String myWfo, GridLocation gloc) {
+        super(parent, gloc, null);
         this.myWfo = myWfo;
 
         this.backColor = RGBColors.getRGBColor("gray90");
-        // this.backColor = parent.getShell().getDisplay()
-        // .getSystemColor(SWT.COLOR_WIDGET_BACKGROUND).getRGB();
         this.fgColor = RGBColors.getRGBColor("gray40");
         this.myWfoOutlineColor = RGBColors.getRGBColor("yellow");
         this.otherWfoOutlineColor = RGBColors.getRGBColor("black");
 
-        registerMouseHandler(theMouseListener);
+        setupMapData();
+    }
+
+    private void setupMapData() {
+        mapDataDict = new HashMap<String, Set<String>>(mapConfigure.size(),
+                1.0f);
+        for (Entry<String, List<String>> entry : mapConfigure.entrySet()) {
+            setMap(entry.getKey());
+            List<String> zones = getZoneNames();
+            if (!zones.isEmpty()) {
+                mapDataDict.put(entry.getKey(), new HashSet<>(zones));
+            }
+        }
     }
 
     /**
@@ -298,8 +212,8 @@ public class GHGSpatialViewer extends AbstractZoneSelector {
         setMapInternal(mapRscList);
     }
 
-    public static List<String> knownMaps() {
-        return new ArrayList<String>(mapConfigure.keySet());
+    public List<String> knownMaps() {
+        return new ArrayList<String>(mapDataDict.keySet());
     }
 
     public String getCurrentMap() {
@@ -309,8 +223,6 @@ public class GHGSpatialViewer extends AbstractZoneSelector {
     @Override
     protected void registerHandlers(IDisplayPane pane) {
         super.registerHandlers(pane);
-        registerMouseHandler(new PanHandler(this));
-
         registerMouseHandler(new InputAdapter() {
             private boolean drag = false;
 
@@ -344,6 +256,36 @@ public class GHGSpatialViewer extends AbstractZoneSelector {
      */
     public void setHighlightedZones(RGB selectionColor,
             String... highlightedZones) {
+        List<String> highlightedList = Arrays.asList(highlightedZones);
+
+        // user current map as initial guess
+        String mapName = this.mapName;
+        Set<String> intersection = new HashSet<>(highlightedList);
+        intersection.retainAll(mapDataDict.get(mapName));
+        int maxCount = intersection.size();
+
+        // determine which map to use
+        int count;
+        for (Entry<String, Set<String>> entry : mapDataDict.entrySet()) {
+            if (entry.getKey().equals(this.mapName)) {
+                continue;
+            }
+            intersection.clear();
+            intersection.addAll(highlightedList);
+            intersection.retainAll(entry.getValue());
+
+            count = intersection.size();
+            if (count > maxCount) {
+                mapName = entry.getKey();
+                maxCount = count;
+            }
+        }
+
+        // update the map if changed
+        if (!mapName.equals(this.mapName)) {
+            setMap(mapName);
+        }
+
         for (ZoneSelectorResource rsc : mapRscList) {
             rsc.clearZones();
             rsc.setZone(selectionColor, highlightedZones);

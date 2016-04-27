@@ -61,6 +61,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 12 Oct 2012  1229       rferrel     Convert to subclass of CaveSWTDialog
  *                                      and made non-blocking.
  * 15 OCT 2012  1229       rferrel     Changes for non-blocking HelpUsageDlg.
+ * 15 Mar 2016  5481       randerso    Fix GUI sizing problems
  * 
  * </pre>
  * 
@@ -152,7 +153,7 @@ public class MonitoringCriteriaDlg extends CaveSWTDialog {
         // Create the composite for the controls.
         // ------------------------------------------
         Composite controlComp = new Composite(shell, SWT.NONE);
-        GridLayout gl = new GridLayout(7, false);
+        GridLayout gl = new GridLayout(3, false);
         controlComp.setLayout(gl);
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         controlComp.setLayoutData(gd);
@@ -160,7 +161,7 @@ public class MonitoringCriteriaDlg extends CaveSWTDialog {
         Label siteIdLbl = new Label(controlComp, SWT.NONE);
         siteIdLbl.setText("Site ID:");
 
-        gd = new GridData(40, SWT.DEFAULT);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT);
         siteIdTF = new Text(controlComp, SWT.BORDER);
         siteIdTF.setLayoutData(gd);
         siteIdTF.setText(siteId);
@@ -186,11 +187,13 @@ public class MonitoringCriteriaDlg extends CaveSWTDialog {
             }
         });
 
-        int buttonWidth = 80;
+        Composite buttonComp = new Composite(controlComp, SWT.NONE);
+        buttonComp.setLayout(new GridLayout(5, true));
+        buttonComp.setLayoutData(new GridData(SWT.RIGHT, SWT.DEFAULT, true,
+                false));
 
-        gd = new GridData(SWT.RIGHT, SWT.DEFAULT, true, false);
-        gd.widthHint = buttonWidth;
-        Button loadBtn = new Button(controlComp, SWT.PUSH);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        Button loadBtn = new Button(buttonComp, SWT.PUSH);
         loadBtn.setText("Load");
         loadBtn.setToolTipText("Retrieves rule set for selected site");
         loadBtn.setLayoutData(gd);
@@ -201,8 +204,8 @@ public class MonitoringCriteriaDlg extends CaveSWTDialog {
             }
         });
 
-        gd = new GridData(buttonWidth, SWT.DEFAULT);
-        Button saveBtn = new Button(controlComp, SWT.PUSH);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        Button saveBtn = new Button(buttonComp, SWT.PUSH);
         saveBtn.setText("Save");
         saveBtn.setToolTipText("Saves rule set to a file");
         saveBtn.setLayoutData(gd);
@@ -237,8 +240,8 @@ public class MonitoringCriteriaDlg extends CaveSWTDialog {
             }
         });
 
-        gd = new GridData(buttonWidth, SWT.DEFAULT);
-        Button closeBtn = new Button(controlComp, SWT.PUSH);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        Button closeBtn = new Button(buttonComp, SWT.PUSH);
         closeBtn.setText("Close");
         closeBtn.setToolTipText("Closes this dialog");
         closeBtn.setLayoutData(gd);
@@ -249,8 +252,8 @@ public class MonitoringCriteriaDlg extends CaveSWTDialog {
             }
         });
 
-        gd = new GridData(buttonWidth, SWT.DEFAULT);
-        Button deleteBtn = new Button(controlComp, SWT.PUSH);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        Button deleteBtn = new Button(buttonComp, SWT.PUSH);
         deleteBtn.setText("Delete");
         deleteBtn.setToolTipText("Deletes site-specific rules");
         deleteBtn.setLayoutData(gd);
@@ -297,8 +300,8 @@ public class MonitoringCriteriaDlg extends CaveSWTDialog {
             }
         });
 
-        gd = new GridData(buttonWidth, SWT.DEFAULT);
-        Button helpBtn = new Button(controlComp, SWT.PUSH);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        Button helpBtn = new Button(buttonComp, SWT.PUSH);
         helpBtn.setText("Help");
         helpBtn.setToolTipText("Shows help");
         helpBtn.setLayoutData(gd);

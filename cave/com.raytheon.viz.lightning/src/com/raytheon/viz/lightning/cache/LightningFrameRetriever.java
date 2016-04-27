@@ -75,11 +75,11 @@ import com.raytheon.uf.viz.core.cache.CacheObject.IObjectRetrieverAndDisposer;
  *                                  better error handling
  * Sep 25, 2015  4605     bsteffen  repeat binning
  * Nov 05, 2015  5090     bsteffen  Use constants for datatime start/end
+ * Mar 08, 2016 18336     amoore    Keep-alive messages should update the legend.
  * 
  * </pre>
  * 
  * @author bclement
- * @version 1.0
  */
 public class LightningFrameRetriever implements
         IObjectRetrieverAndDisposer<LightningFrameMetadata, LightningFrame> {
@@ -153,13 +153,13 @@ public class LightningFrameRetriever implements
                 DbQueryRequest request = new DbQueryRequest();
                 request.setEntityClass(BinLightningRecord.class);
                 request.addConstraint(LightningConstants.SOURCE, sourceRC);
-                request.addConstraint(PluginDataObject.STARTTIME_ID,
-                        startRC);
+                request.addConstraint(PluginDataObject.STARTTIME_ID, startRC);
                 request.addConstraint(PluginDataObject.ENDTIME_ID, endRC);
                 try {
                     DbQueryResponse response = (DbQueryResponse) RequestRouter
                             .route(request);
-                    BinLightningRecord[] newRecords = response.getEntityObjects(BinLightningRecord.class);
+                    BinLightningRecord[] newRecords = response
+                            .getEntityObjects(BinLightningRecord.class);
                     metadata.getNewRecords().addAll(Arrays.asList(newRecords));
                 } catch (Exception e) {
                     statusHandler.handle(Priority.PROBLEM,
@@ -289,14 +289,23 @@ public class LightningFrameRetriever implements
                     IDataRecord pulseIndexes = recordMap
                             .get(LightningConstants.PULSE_INDEX_DATASET);
 
-                    if (timeRec == null || intensities == null || lats == null
-                            || lons == null || types == null
+                    if (timeRec != null && intensities == null && lats == null
+                            && lons == null && types == null
+                            && pulseIndexes == null) {
+                        statusHandler.debug("Group '" + entry.getKey()
+                                + "'is a keep-alive message");
+                        // has time, but missing others; must be keep-alive
+                        continue;
+                    } else if (timeRec == null || intensities == null
+                            || lats == null || lons == null || types == null
                             || pulseIndexes == null) {
                         List<String> missing = getMissingDatasets(recordMap);
                         statusHandler.error("Group '" + entry.getKey()
                                 + "' missing dataset(s): " + missing);
+                        // missing some mix of data
                         continue;
                     }
+
                     if (!allSameLength(timeRec, intensities, lats, lons, types,
                             pulseIndexes)) {
                         statusHandler.error("Group '" + entry.getKey()
@@ -496,8 +505,8 @@ public class LightningFrameRetriever implements
                         "Mismatched pulse latitude/longitude data", latRecord);
             }
             for (int i = 0; i < lats.length; ++i) {
-                bundle.getPulseLatLonList()
-                        .add(new double[] { lons[i], lats[i] });
+                bundle.getPulseLatLonList().add(
+                        new double[] { lons[i], lats[i] });
             }
         } catch (FileNotFoundException e) {
             statusHandler.error("Unable to open lightning file", e);

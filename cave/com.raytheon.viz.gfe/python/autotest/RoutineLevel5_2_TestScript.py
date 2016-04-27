@@ -998,7 +998,7 @@ scripts = [
      "productType":"FWF",
      "comboFlag": 1,
      "orderStrings": 1,
-     "checkStrings": ["HUMIDITY RECOVERY...Poor"],
+     "checkStrings": ["Humidity recovery...Poor"],
      "createGrids": [
        ("Fcst", "MaxRH", "SCALAR", "MaxRHBegin-24", "MaxRHEnd-24", 10, ["Valleys"], 1),
        ("Fcst", "MaxRH", "SCALAR", "MaxRHBegin-24", "MaxRHEnd-24", 10, ["Ridges"], 1),
@@ -1015,7 +1015,7 @@ scripts = [
      "productType":"FWF",
      "comboFlag": 1,
      "orderStrings": 1,
-     "checkStrings": ["HUMIDITY RECOVERY...Poor...except Excellent on the ridges."],
+     "checkStrings": ["Humidity recovery...Poor...except Excellent on the ridges."],
      "createGrids": [
        ("Fcst", "MaxRH", "SCALAR", "MaxRHBegin-24", "MaxRHEnd-24", 10, ["Valleys"], 1),
        ("Fcst", "MaxRH", "SCALAR", "MaxRHBegin-24", "MaxRHEnd-24", 10, ["Ridges"], 1),

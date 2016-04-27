@@ -28,34 +28,33 @@ import org.eclipse.ui.IEditorPart;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.globals.VizGlobalsManager;
 import com.raytheon.uf.viz.core.maps.actions.NewMapEditor;
 import com.raytheon.uf.viz.core.maps.display.VizMapEditor;
-import com.raytheon.uf.viz.core.status.StatusConstants;
-import com.raytheon.uf.viz.d2d.ui.Activator;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.HistoryList;
 import com.raytheon.viz.ui.editor.AbstractEditor;
-import com.raytheon.viz.ui.editor.IMultiPaneEditor;
 
 /**
- * Action to reset a map to its initial state
+ * Action to reset or close an editor. With no editors, it will create a new
+ * map. With a map editor, it will reset. With any other editor, it will close
+ * the editor.
  * 
  * <pre>
  * 
- *  SOFTWARE HISTORY
+ * SOFTWARE HISTORY
  * 
- *  Date         Ticket#     Engineer    Description
- *  ------------ ----------  ----------- --------------------------
- *  Mar 10, 2007             chammack    Initial Creation.
- *  23Oct2007                ebabin      Added pan as default action, so clear works
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * Mar 10, 2007             chammack    Initial Creation.
+ * Oct 23, 2007             ebabin      Added pan as default action, so clear works
  *                                       properly.
- *  Jul 10, 2008             chammack    Properly clear the resource list on the old 
+ * Jul 10, 2008             chammack    Properly clear the resource list on the old 
  *                                       descriptor to facilitate better cleanup
- * Oct 21, 2008   #1450      randerso    Fixed to support multipane editors
+ * Oct 21, 2008   #1450     randerso    Fixed to support multipane editors
+ * Mar 16, 2016    5023     njensen     Fix clear reseting editor name to Map
  * 
  * </pre>
  * 
@@ -88,9 +87,11 @@ public class ClearAction extends AbstractHandler {
         return null;
     }
 
-    public static void clear(IEditorPart part) throws VizException {
+    public static void clear(IEditorPart part) {
         if (part instanceof VizMapEditor) {
-            ((VizMapEditor) part).clear();
+            VizMapEditor mapEditor = (VizMapEditor) part;
+            mapEditor.setPartName(mapEditor.getEditorInput().getName());
+            mapEditor.clear();
         } else if (part instanceof AbstractEditor) {
             // AbstractEditor asks the user if they are sure if we pass in
             // save=true, if the user clicked clear than they must be sure so

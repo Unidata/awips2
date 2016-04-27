@@ -666,7 +666,7 @@ scripts = scripts + firstScripts + secondScripts
 import TestScript
 def testScript(self, dataMgr):
     defaults = {
-        "cmdLineVars" :"{('Source', 'source'): 'COLORADO EMERGENCY MANAGEMENT AGENCY DENVER COLORADO', ('Issued By', 'issuedBy'): None, ('EAS Level', 'eas'): 'NONE'}",
+        "cmdLineVars" :"{('Source', 'source'): 'Colorado Emergency Management Agency Denver Colorado', ('Issued By', 'issuedBy'): None, ('EAS Level', 'eas'): 'NONE'}",
         "publishGrids" : 1,
         "vtecMode" : "O",
         "clearHazardsTable": 1,

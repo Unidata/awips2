@@ -63,6 +63,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  *    Apr 28, 2014  3033       jsanchez    Properly handled back up configuration (*.xml) files.
  *    Aug 28, 2014 ASM #15658  D. Friedman Add marine zone watch wording option.
  *    Dec 21, 2015 DCS 17942   D. Friedman Add extension area specification.
+ *    Mar 10, 2015  5411       randerso    Added productId to configuration
+ * 
  * </pre>
  * 
  * @author chammack
@@ -142,6 +144,9 @@ public class WarngenConfiguration {
     @XmlElement(name = "autoLockText")
     private boolean autoLockText;
 
+    @XmlElement(name = "productId")
+    private String productId;
+
     @XmlElementWrapper(name = "phensigs")
     @XmlElement(name = "phensig")
     private String[] phensigs;
@@ -176,8 +181,8 @@ public class WarngenConfiguration {
             IOException, JAXBException {
         WarngenConfiguration config = new WarngenConfiguration();
         // Open the template file
-        String xml = WarnFileUtil
-                .convertFileContentsToString(templateName + ".xml", localSite, backupSite);
+        String xml = WarnFileUtil.convertFileContentsToString(templateName
+                + ".xml", localSite, backupSite);
 
         // Include external files, such as damInfo.txt
         Matcher m = p.matcher(xml);
@@ -185,8 +190,8 @@ public class WarngenConfiguration {
         try {
             while (m.find()) {
                 includeFile = m.group(1);
-                String includeXml = WarnFileUtil.convertFileContentsToString(includeFile, localSite,
-                        backupSite);
+                String includeXml = WarnFileUtil.convertFileContentsToString(
+                        includeFile, localSite, backupSite);
                 xml = xml.replace(m.group(0), includeXml);
             }
         } catch (Exception e) {
@@ -195,7 +200,7 @@ public class WarngenConfiguration {
                             + " in template " + templateName, e);
         }
 
-        config = (WarngenConfiguration) jaxb.unmarshalFromXml(xml);
+        config = jaxb.unmarshalFromXml(xml);
 
         // Sets the lists of bullets and dam bullets
         if (config.getBulletActionGroups() != null) {
@@ -378,6 +383,21 @@ public class WarngenConfiguration {
     }
 
     /**
+     * @return the productId
+     */
+    public String getProductId() {
+        return productId;
+    }
+
+    /**
+     * @param productId
+     *            the productId to set
+     */
+    public void setProductId(String productId) {
+        this.productId = productId;
+    }
+
+    /**
      * @param phensigs
      *            the phensigs to set
      */
@@ -404,7 +424,8 @@ public class WarngenConfiguration {
         return includeMarineAreasInWatches;
     }
 
-    public void setIncludeMarineAreasInWatches(boolean includeMarineAreasInWatches) {
+    public void setIncludeMarineAreasInWatches(
+            boolean includeMarineAreasInWatches) {
         this.includeMarineAreasInWatches = includeMarineAreasInWatches;
     }
 
@@ -455,8 +476,8 @@ public class WarngenConfiguration {
     @XmlElement(name = "unitDistance")
     public void setUnitDistanceString(String unitDistance) {
         try {
-            this.unitDistance = (Unit<?>) UnitFormat.getUCUMInstance()
-                    .parseProductUnit(unitDistance, new ParsePosition(0));
+            this.unitDistance = UnitFormat.getUCUMInstance().parseProductUnit(
+                    unitDistance, new ParsePosition(0));
         } catch (ParseException e) {
             throw new RuntimeException("Error setting unit speed: "
                     + e.getLocalizedMessage(), e);
@@ -470,8 +491,8 @@ public class WarngenConfiguration {
     @XmlElement(name = "unitSpeed")
     public void setUnitSpeedString(String unitSpeed) {
         try {
-            this.unitSpeed = (Unit<?>) UnitFormat.getUCUMInstance()
-                    .parseProductUnit(unitSpeed, new ParsePosition(0));
+            this.unitSpeed = UnitFormat.getUCUMInstance().parseProductUnit(
+                    unitSpeed, new ParsePosition(0));
         } catch (ParseException e) {
             throw new RuntimeException("Error setting unit speed: "
                     + e.getLocalizedMessage(), e);

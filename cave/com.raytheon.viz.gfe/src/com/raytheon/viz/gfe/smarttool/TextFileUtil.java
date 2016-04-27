@@ -188,7 +188,7 @@ public class TextFileUtil {
             lf.delete();
             String path = lf.getFile().getAbsolutePath();
             if (path.endsWith(".py")) {
-                path = path + "o";
+                path = path + "c";
                 Files.deleteIfExists(Paths.get(path));
             }
         } else {

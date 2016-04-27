@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+    This is a base version for OCONUS satellite sub-menu in D2D. 
+    The base version is intentionally empty. Each OCONUS site should
+    create a site version of this file and put the contents with 
+    satellite image items and groups for the site in the site 
+    version. A sample can be found in baseOCONUSImageryTemplate.xml
+-->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+</menuTemplate>

@@ -59,6 +59,7 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.rsc.FFMPResourceData;
  * Jun 07, 2013 2075       njensen     Added progress monitoring
  * Oct 26, 2015 5056       dhladky     Removed println.
  * Feb 16, 2016 5372       dhladky     Make missing mosaic messages debug.
+ * Mar 15, 2016 5463       dhladky     Guidance needs to be loaded earlier than QPE for initial load.
  * 
  * </pre>
  * 
@@ -87,6 +88,10 @@ public class InitialLoadJob extends AbstractLoadJob {
         smonitor.subTask("Processing Rate...");
         doRate();
         smonitor.worked(200);
+        
+        // Guidance
+        smonitor.subTask("Processing Guidance...");
+        doGuidance(startTime, smonitor.newChild(200));
 
         // QPE
         smonitor.subTask("Processing QPE...");
@@ -151,10 +156,6 @@ public class InitialLoadJob extends AbstractLoadJob {
         // Virtual
         smonitor.subTask("Processing Virtual...");
         doVirtual(smonitor.newChild(200));
-
-        // Guidance
-        smonitor.subTask("Processing Guidance...");
-        doGuidance(startTime, smonitor.newChild(200));
 
         statusHandler.debug(this.getName() + " took: "
                 + (System.currentTimeMillis() - t0) + " ms");

@@ -37,7 +37,9 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Monitor;
@@ -68,8 +70,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 
  * SOFTWARE HISTORY
  * 
- * Date       	Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
  * 9/27/2007    368         lvenable    Initial creation.
  * 10/11/2007   482         grichard    Reformatted file.
  * 11/28/2007   520         grichard    Implemented build 11 features.
@@ -93,14 +95,14 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 02Oct2012    1229        rferrel     Option to allow blocking when top dialog.
  * 13Dec2012    1353        rferrel     Fix bug introduced in the Show all dialogs.
  * 30Jan2013    DR 14736    D. Friedman Display local time.
- * 24Jun2013	DR 15733    XHuang      Display MAX_BUTTON_CNT (8 button).
+ * 24Jun2013    DR 15733    XHuang      Display MAX_BUTTON_CNT (8 button).
  * 25July2013   DR 15733    Greg Hull   Make dflt and max number of Text Buttons configurable.
  * 28Oct2015    5054        randerso    Make TextWorkstationDlg appear in upper left corner of 
  *                                      monitor where parent shell is located
  * Dec 14, 2015 4834        njensen     Remove dead menu items
  * Jan 26, 2016 5054        randerso    Changed to use display as parent
  * Feb 15, 2016 4860        njensen     Removed references to IAviationObserver
- * 
+ * Mar 30, 2016 5513        randerso    Fixed to display on same monitor as parent
  * 
  * </pre>
  * 
@@ -178,8 +180,7 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
         NotificationManagerJob.removeQueueObserver(
                 TextWorkstationConstants.getTextWorkstationQueueName(), null,
                 this);
-        notify.checkExpirationNotices(shell);
-        AlarmAlertFunctions.getAlarmalertbell().close();
+        AlarmAlertFunctions.closeAlarmAlertBell();
         for (TextEditorDialog teDlg : textEditorArray) {
             if (teDlg != null) {
                 teDlg.disposeDialog();
@@ -221,16 +222,21 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
         createTextButtons();
         createWarngenDisplay();
 
+        shell.addListener(SWT.Close, new Listener() {
+            @Override
+            public void handleEvent(Event event) {
+                event.doit = notify.checkExpirationNotices(getShell());
+            }
+        });
+
         // Opens the alarm queue invisibly, to duplicate A1 functionality.
         alarmDlg = CurrentAlarmQueue.getInstance(shell);
         alarmDlg.openInvisible();
+
+        // Create the alarm alert bell
+        AlarmAlertFunctions.getAlarmAlertBell(shell);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialog#preOpened()
-     */
     @Override
     protected void preOpened() {
         super.preOpened();
@@ -394,19 +400,7 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
         alertAlarmBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (alarmDlg == null) {
-                    AlarmAlertNotificationObserver.getInstance();
-                    alarmDlg = CurrentAlarmQueue.getInstance(shell);
-                    alarmDlg.open();
-                } else {
-                    if (alarmDlg.getShell().isDisposed()) {
-                        AlarmAlertNotificationObserver.getInstance();
-                        alarmDlg = CurrentAlarmQueue.getInstance(shell);
-                        alarmDlg.open();
-                    } else {
-                        alarmDlg.open();
-                    }
-                }
+                alarmDlg.show();
             }
         });
     }
@@ -569,7 +563,7 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
                 // service the queue. This would involve significant changes to
                 // how we use 3rd party software and can not be implemented at
                 // this time.
-                if ((System.currentTimeMillis() - initStartTime) <= delta) {
+                if (System.currentTimeMillis() - initStartTime <= delta) {
                     // Slowly increment the delta in case there are a lot of old
                     // messages.
                     delta += TextWorkstationDlg.incDelta;

@@ -179,7 +179,7 @@
 ################################################################
 
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
-SPS${siteId}
+${productId}${siteId}
 
 #if(${productClass}=="T")
 TEST...Special Weather Statement...TEST
@@ -234,7 +234,7 @@ THIS IS A TEST MESSAGE. ##
 
 
 #else
-#thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone}), ##
+#thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})#commaOrEllipsis()##
 ${describeMovement} ##
 ##Many of the variables passed below are controlled by config.vm
 #if(${stormType} == "line")
@@ -248,7 +248,7 @@ ${describeMovement} ##
 #if(${stormType} == "line")
 . Movement was ## 
 #else
-, moving ##
+#commaOrEllipsis()moving ##
 #end
 #direction(${movementDirectionRounded}) at ${mathUtil.roundTo5(${movementSpeed})} mph. 
 #end
@@ -313,7 +313,7 @@ Visibilities will drop quickly to near zero in ${thisEvent}.
 
 #end
 #if(${list.contains($bullets, "torrentialRainfallCTA")} && ${SvsR} == "RAIN")
-Torrential rainfall is also occurring with ${thisEvent}, and may cause localized flooding. Do not drive your vehicle through flooded roadways.
+Torrential rainfall is also occurring with ${thisEvent}#commaOrEllipsis()and may cause localized flooding. Do not drive your vehicle through flooded roadways.
 
 #end
 #if(${list.contains($bullets, "lightningCTA")} && ${SvsR} == "RAIN")
@@ -321,19 +321,19 @@ Frequent cloud to ground lightning is occurring with this storm. Lightning can s
 
 #end
 #if(${list.contains($bullets, "stormIntensifyCTA")} && ${SvsR} == "RAIN")
-#capitalize(${thisEvent}, "firstOnly") may intensify, so be certain to monitor local radio stations and available television stations for additional information and possible warnings from the National Weather Service. 
+#capitalize(${thisEvent}, "firstOnly") may intensify#commaOrEllipsis()so be certain to monitor local radio stations and available television stations for additional information and possible warnings from the National Weather Service. 
 
 #end
 #if(${list.contains($bullets, "lawEnforcementCTA")})
-To report severe weather, contact your nearest law enforcement agency. They can relay your report to the National Weather Service office in ${officeLoc}.
+To report severe weather#commaOrEllipsis()contact your nearest law enforcement agency. They can relay your report to the National Weather Service office in ${officeLoc}.
 
 #end
 #if(${list.contains($bullets, "boatersCTA")} && ${SvsR} == "RAIN")
-If you are on or near !**NAME OF LAKE**!, get out of the water and move indoors or inside a vehicle. Remember, lightning can strike out to 10 miles from the parent thunderstorm. If you can hear thunder, you are close enough to be struck by lightning. Move to safe shelter now! Do not be caught on the water in a thunderstorm.
+If you are on or near !**NAME OF LAKE**!#commaOrEllipsis()get out of the water and move indoors or inside a vehicle. Remember#commaOrEllipsis()lightning can strike out to 10 miles from the parent thunderstorm. If you can hear thunder#commaOrEllipsis()you are close enough to be struck by lightning. Move to safe shelter now! Do not be caught on the water in a thunderstorm.
 
 #end
 #if(${list.contains($bullets, "advisoryCTA")})
-Although this event is expected to be short lived, if conditions worsen, a winter weather advisory may become necessary. Please monitor local media outlets and the national weather service for further statements.
+Although this event is expected to be short lived#commaOrEllipsis()if conditions worsen#commaOrEllipsis()a winter weather advisory may become necessary. Please monitor local media outlets and the national weather service for further statements.
 
 #end
 #if(${list.contains($bullets, "advisoryEffectCTA")})
@@ -345,11 +345,11 @@ Use extra caution if you must travel into or through this dangerous snow squall.
 
 #end
 #if(${list.contains($bullets, "freezingDrizzleCTA")} && (${describeEventShort} == "FREEZING RAIN" || ${describeEventShort} == "FREEZING DRIZZLE"))
-The ${describeEventShort} may quickly coat roadways with a thin layer of ice that may be undetectable. Please use extreme caution, especially on bridges, overpasses and around curves. Allow plenty of stopping distance and avoid braking suddenly.
+The ${describeEventShort} may quickly coat roadways with a thin layer of ice that may be undetectable. Please use extreme caution#commaOrEllipsis()especially on bridges#commaOrEllipsis()overpasses and around curves. Allow plenty of stopping distance and avoid braking suddenly.
 
 #end
 #if(${list.contains($bullets, "flashFreezeCTA")})
-A rapid drop in temperatures will lead to the rapid formation of black ice on area roadways. Black ice is nearly impossible to see and roadways may appear wet. Please use extreme caution, especially on bridges, overpasses and around curves. Allow plenty of stopping distance and avoid braking suddenly.
+A rapid drop in temperatures will lead to the rapid formation of black ice on area roadways. Black ice is nearly impossible to see and roadways may appear wet. Please use extreme caution#commaOrEllipsis()especially on bridges#commaOrEllipsis()overpasses and around curves. Allow plenty of stopping distance and avoid braking suddenly.
 
 #end
 #if(${list.contains($bullets, "icyRoads")} && ${SvsR} == "SNOW")

@@ -49,6 +49,7 @@ import org.apache.velocity.app.Velocity;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.tools.generic.ListTool;
 
+import com.raytheon.uf.common.dataplugin.text.db.MixedCaseProductSupport;
 import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
 import com.raytheon.uf.common.dataplugin.warning.WarningConstants;
 import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
@@ -154,6 +155,8 @@ import com.vividsolutions.jts.io.WKTReader;
  * Oct 21, 2105   5021     randerso    Fix issue with CORs for mixed case
  * Feb  9, 2016 DR18421    D. Friedman Don't call ToolsDataManager.setStormTrackData if there is no storm motion.
  * Feb 17, 2016 DR 17531   Qinglu Lin  Added calStormVelocityAndEventLocation(), updated runTemplate().
+ * Mar 10, 2016 5411       randerso    Added productId and mixedCaseEnabled to Velocity context
+ * 
  * </pre>
  * 
  * @author njensen
@@ -188,6 +191,8 @@ public class TemplateRunner {
     /**
      * Read cwa and timezone info from officeCityTimezone.txt, and put them into
      * map officeCityTimezone.
+     * 
+     * @return officeCityTimezone map
      */
     public static Map<String, String> createOfficeTimezoneMap() {
         Map<String, String> officeCityTimezone = new HashMap<String, String>();
@@ -223,6 +228,8 @@ public class TemplateRunner {
      * @param startTime
      * @param endTime
      * @param selectedBullets
+     * @param followupData
+     * @param backupData
      * @param selectedUpdate
      * @param backupSite
      * @return the generated product
@@ -278,11 +285,21 @@ public class TemplateRunner {
                     .getWarngenOfficeShort());
         }
 
+        String productId = config.getProductId();
+        if (productId == null) {
+            statusHandler.warn("Warngen configuration file: "
+                    + warngenLayer.getTemplateName() + ".xml"
+                    + " does not contain a <productId> tag.");
+        }
+
         String stormType = stormTrackState.displayType == DisplayType.POLY ? "line"
                 : "single";
         context.put("stormType", stormType);
         context.put("mathUtil", new WarnGenMathTool());
         context.put("dateUtil", new DateUtil());
+        context.put("productId", productId);
+        context.put("mixedCaseEnabled",
+                MixedCaseProductSupport.isMixedCase(productId));
         context.put("pointComparator", new ClosestPointComparator());
 
         String action = followupData != null ? followupData.getAct()
@@ -720,9 +737,10 @@ public class TemplateRunner {
                                 hhmmEnd = message.indexOf("...", hhmmStart);
                             } else {
                                 if (hhmmEnd > 0) {
-                                    context.put("corToNewMarker", "cortonewmarker");
-                                    context.put("corEventtime",
-                                            message.substring(hhmmStart, hhmmEnd));
+                                    context.put("corToNewMarker",
+                                            "cortonewmarker");
+                                    context.put("corEventtime", message
+                                            .substring(hhmmStart, hhmmEnd));
                                 }
                             }
                         }
