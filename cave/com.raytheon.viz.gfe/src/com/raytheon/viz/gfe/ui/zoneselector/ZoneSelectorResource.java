@@ -816,7 +816,7 @@ public class ZoneSelectorResource extends DbMapResource {
                                 node.getLocation()[1]);
                         ds.font = font;
                         ds.horizontalAlignment = HorizontalAlignment.CENTER;
-                        ds.verticallAlignment = VerticalAlignment.MIDDLE;
+                        ds.verticalAlignment = VerticalAlignment.MIDDLE;
                         ds.addTextStyle(TextStyle.DROP_SHADOW);
                         strings.add(ds);
 

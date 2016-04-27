@@ -258,14 +258,14 @@ public class RadarGraphicsResource extends AbstractRadarResource<MapDescriptor>
                         ColorableCapability.class).getColor());
                 offscreen.setCoordinates(xPos, yPos);
                 offscreen.horizontalAlignment = HorizontalAlignment.CENTER;
-                offscreen.verticallAlignment = VerticalAlignment.MIDDLE;
+                offscreen.verticalAlignment = VerticalAlignment.MIDDLE;
 
                 DrawableString notShown = new DrawableString(filteredCount
                         + " FEATURES NOT SHOWN", this.getCapability(
                         ColorableCapability.class).getColor());
                 notShown.setCoordinates(xPos, yPos + 20);
                 notShown.horizontalAlignment = HorizontalAlignment.CENTER;
-                notShown.verticallAlignment = VerticalAlignment.MIDDLE;
+                notShown.verticalAlignment = VerticalAlignment.MIDDLE;
                 target.getExtension(ICanvasRenderingExtension.class)
                         .drawStrings(paintProps, offscreen, notShown);
             } finally {

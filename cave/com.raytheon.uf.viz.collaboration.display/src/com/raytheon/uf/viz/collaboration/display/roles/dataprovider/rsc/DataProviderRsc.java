@@ -112,7 +112,7 @@ public class DataProviderRsc extends
 
         DrawableString string = new DrawableString(getName(), foreground);
         string.horizontalAlignment = HorizontalAlignment.CENTER;
-        string.verticallAlignment = VerticalAlignment.BOTTOM;
+        string.verticalAlignment = VerticalAlignment.BOTTOM;
         string.setCoordinates(extent.getMinX() + extent.getWidth() / 2,
                 extent.getMaxY());
         string.font = font;

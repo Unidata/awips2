@@ -171,7 +171,7 @@ public class ContinuousColorbar implements IColorBarDisplay {
         DrawableString dstring = new DrawableString("", seColorBarTextColor);
         dstring.font = colorbarResource.getColorbarScaleFont();
         dstring.horizontalAlignment = HorizontalAlignment.CENTER;
-        dstring.verticallAlignment = VerticalAlignment.MIDDLE;
+        dstring.verticalAlignment = VerticalAlignment.MIDDLE;
 
         DrawableLine dline = new DrawableLine();
         dline.basics.color = seColorBarTickColor;

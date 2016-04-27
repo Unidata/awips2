@@ -138,28 +138,28 @@ public class NcwfMovementResource extends
 
             // This works but it is supposed to avoid putting text over arrows
             spdStr.horizontalAlignment = HorizontalAlignment.CENTER;
-            spdStr.verticallAlignment = VerticalAlignment.MIDDLE;
+            spdStr.verticalAlignment = VerticalAlignment.MIDDLE;
             topStr.horizontalAlignment = HorizontalAlignment.CENTER;
-            topStr.verticallAlignment = VerticalAlignment.MIDDLE;
+            topStr.verticalAlignment = VerticalAlignment.MIDDLE;
             if (dir <= 90 && dir >= 0) {
-                topStr.verticallAlignment = VerticalAlignment.BOTTOM;
+                topStr.verticalAlignment = VerticalAlignment.BOTTOM;
                 topStr.horizontalAlignment = HorizontalAlignment.LEFT;
-                spdStr.verticallAlignment = VerticalAlignment.TOP;
+                spdStr.verticalAlignment = VerticalAlignment.TOP;
                 spdStr.horizontalAlignment = HorizontalAlignment.RIGHT;
             } else if (dir >= 270 && dir < 360) {
-                topStr.verticallAlignment = VerticalAlignment.BOTTOM;
+                topStr.verticalAlignment = VerticalAlignment.BOTTOM;
                 topStr.horizontalAlignment = HorizontalAlignment.RIGHT;
-                spdStr.verticallAlignment = VerticalAlignment.TOP;
+                spdStr.verticalAlignment = VerticalAlignment.TOP;
                 spdStr.horizontalAlignment = HorizontalAlignment.LEFT;
             } else if (dir > 90 && dir < 180) {
-                topStr.verticallAlignment = VerticalAlignment.TOP;
+                topStr.verticalAlignment = VerticalAlignment.TOP;
                 topStr.horizontalAlignment = HorizontalAlignment.LEFT;
-                spdStr.verticallAlignment = VerticalAlignment.BOTTOM;
+                spdStr.verticalAlignment = VerticalAlignment.BOTTOM;
                 spdStr.horizontalAlignment = HorizontalAlignment.RIGHT;
             } else {
-                topStr.verticallAlignment = VerticalAlignment.TOP;
+                topStr.verticalAlignment = VerticalAlignment.TOP;
                 topStr.horizontalAlignment = HorizontalAlignment.RIGHT;
-                spdStr.verticallAlignment = VerticalAlignment.BOTTOM;
+                spdStr.verticalAlignment = VerticalAlignment.BOTTOM;
                 spdStr.horizontalAlignment = HorizontalAlignment.LEFT;
             }
             // Draw the tops string

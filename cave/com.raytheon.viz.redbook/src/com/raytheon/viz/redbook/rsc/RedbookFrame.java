@@ -554,7 +554,7 @@ public class RedbookFrame implements IRenderable {
             dstring.setCoordinates(x, y);
             dstring.font = font;
             dstring.horizontalAlignment = HorizontalAlignment.LEFT;
-            dstring.verticallAlignment = top ? VerticalAlignment.TOP
+            dstring.verticalAlignment = top ? VerticalAlignment.TOP
                     : VerticalAlignment.BOTTOM;
             Rectangle2D bounds = target.getStringsBounds(dstring);
             if (blanked) {

@@ -222,7 +222,7 @@ public class CrossSectionGraph extends AbstractGraph {
         titleString.setCoordinates(x, y);
         titleString.addTextStyle(TextStyle.DROP_SHADOW);
         titleString.horizontalAlignment = HorizontalAlignment.LEFT;
-        titleString.verticallAlignment = VerticalAlignment.BOTTOM;
+        titleString.verticalAlignment = VerticalAlignment.BOTTOM;
         titleString.magnification = currentMagnification;
         target.drawStrings(titleString);
 
@@ -321,8 +321,8 @@ public class CrossSectionGraph extends AbstractGraph {
             caret.font = city.font = unitsFont;
             city.addTextStyle(TextStyle.BLANKED);
             caret.horizontalAlignment = city.horizontalAlignment = HorizontalAlignment.CENTER;
-            caret.verticallAlignment = VerticalAlignment.BOTTOM;
-            city.verticallAlignment = VerticalAlignment.MIDDLE;
+            caret.verticalAlignment = VerticalAlignment.BOTTOM;
+            city.verticalAlignment = VerticalAlignment.MIDDLE;
             caret.magnification = city.magnification = currentMagnification;
             labels.add(caret);
             labels.add(city);
@@ -357,7 +357,7 @@ public class CrossSectionGraph extends AbstractGraph {
             dString.font = unitsFont;
             dString.setCoordinates(x, y);
             dString.horizontalAlignment = HorizontalAlignment.CENTER;
-            dString.verticallAlignment = VerticalAlignment.TOP;
+            dString.verticalAlignment = VerticalAlignment.TOP;
             dString.magnification = currentMagnification;
             labels.add(dString);
         }

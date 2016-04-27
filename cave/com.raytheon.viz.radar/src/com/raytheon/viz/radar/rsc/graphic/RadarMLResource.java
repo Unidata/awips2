@@ -218,7 +218,7 @@ public class RadarMLResource extends RadarGraphicsResource {
         DrawableString info = new DrawableString(text, rgbs);
         info.font = textFont;
         info.horizontalAlignment = HorizontalAlignment.LEFT;
-        info.verticallAlignment = VerticalAlignment.TOP;
+        info.verticalAlignment = VerticalAlignment.TOP;
         info.setCoordinates(extent.getMinX() + X_OFFSET * ratio,
                 extent.getMinY() + Y_OFFSET * ratio);
         target.drawStrings(info);

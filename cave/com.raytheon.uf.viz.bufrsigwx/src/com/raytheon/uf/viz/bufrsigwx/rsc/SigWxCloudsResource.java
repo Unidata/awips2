@@ -155,7 +155,7 @@ public class SigWxCloudsResource extends SigWxPolygonResource {
         string.font = font;
         string.setCoordinates(x, y);
         string.horizontalAlignment = HorizontalAlignment.CENTER;
-        string.verticallAlignment = VerticalAlignment.TOP;
+        string.verticalAlignment = VerticalAlignment.TOP;
         target.drawStrings(string);
     }
 

@@ -259,7 +259,7 @@ public class VarHeightGraph extends AbstractGraph {
                     parameters.font = unitsFont;
                     parameters.addTextStyle(TextStyle.DROP_SHADOW);
                     parameters.horizontalAlignment = HorizontalAlignment.CENTER;
-                    parameters.verticallAlignment = VerticalAlignment.TOP;
+                    parameters.verticalAlignment = VerticalAlignment.TOP;
                     parameters.magnification = this.currentMagnification;
 
                     parameters.setText(value, rcsColor);

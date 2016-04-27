@@ -180,9 +180,9 @@ public class TimeSeriesGraph extends AbstractGraph {
 
                         String value = df.format(xAxes[i].getDiscreteValue());
                         if (i == 0) {
-                            parameters.verticallAlignment = VerticalAlignment.BOTTOM;
+                            parameters.verticalAlignment = VerticalAlignment.BOTTOM;
                         } else {
-                            parameters.verticallAlignment = VerticalAlignment.MIDDLE;
+                            parameters.verticalAlignment = VerticalAlignment.MIDDLE;
                         }
                         parameters.setText(value, colorToUse);
                         parameters.setCoordinates(coords[0].x, coords[0].y,

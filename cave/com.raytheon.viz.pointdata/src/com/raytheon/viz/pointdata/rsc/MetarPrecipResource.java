@@ -566,7 +566,7 @@ public class MetarPrecipResource extends
                 data.string = new DrawableString(formatPrecip(precips.get(i)
                         .getPrecipAmt()), color);
                 data.string.setCoordinates(px[0], px[1], px[2]);
-                data.string.verticallAlignment = VerticalAlignment.MIDDLE;
+                data.string.verticalAlignment = VerticalAlignment.MIDDLE;
                 data.string.horizontalAlignment = HorizontalAlignment.CENTER;
             }
             double bestDist = Double.MAX_VALUE;

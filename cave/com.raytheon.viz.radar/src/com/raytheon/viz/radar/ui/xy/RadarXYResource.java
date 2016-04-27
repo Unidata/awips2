@@ -301,7 +301,7 @@ public class RadarXYResource extends RadarImageResource<RadarXYDescriptor> {
             string.setCoordinates((c.x + X_OFFSET_NWP) * SCALAR,
                     (c.y + Y_OFFSET_NWP) * SCALAR, 0.0);
             string.horizontalAlignment = HorizontalAlignment.LEFT;
-            string.verticallAlignment = VerticalAlignment.TOP;
+            string.verticalAlignment = VerticalAlignment.TOP;
             strings.add(string);
         }
         target.drawStrings(strings);

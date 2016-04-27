@@ -120,7 +120,7 @@ public class SigWxVtsResource extends SigWxResource {
         DrawableString string = new DrawableString(text, color);
         string.font = font;
         string.setCoordinates(loc[0], loc[1]);
-        string.verticallAlignment = VerticalAlignment.MIDDLE;
+        string.verticalAlignment = VerticalAlignment.MIDDLE;
         target.drawStrings(string);
     }
 

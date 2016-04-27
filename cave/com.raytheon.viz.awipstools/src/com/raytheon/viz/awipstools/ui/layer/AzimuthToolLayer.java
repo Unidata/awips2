@@ -289,7 +289,7 @@ public class AzimuthToolLayer extends
             DrawableString str = new DrawableString("", null);
             str.font = labelFont;
             str.horizontalAlignment = HorizontalAlignment.CENTER;
-            str.verticallAlignment = VerticalAlignment.MIDDLE;
+            str.verticalAlignment = VerticalAlignment.MIDDLE;
             labels[i] = str;
         }
 

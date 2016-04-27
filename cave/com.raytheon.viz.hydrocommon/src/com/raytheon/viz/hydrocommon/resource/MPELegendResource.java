@@ -185,7 +185,7 @@ public class MPELegendResource extends
                         double xLoc = xMin + offset + (cbarSize * i);
                         strings.setText(entry.getText(), textColor);
                         strings.horizontalAlignment = HorizontalAlignment.CENTER;
-                        strings.verticallAlignment = VerticalAlignment.TOP;
+                        strings.verticalAlignment = VerticalAlignment.TOP;
                         strings.setCoordinates(xLoc, y1);
                         target.drawStrings(strings);
                     }
@@ -200,7 +200,7 @@ public class MPELegendResource extends
                 strings.setText(rsc.getName(), textColor);
                 double xLoc = xMin + padding;
                 strings.horizontalAlignment = HorizontalAlignment.LEFT;
-                strings.verticallAlignment = VerticalAlignment.TOP;
+                strings.verticalAlignment = VerticalAlignment.TOP;
                 strings.setCoordinates(xLoc, y1);
                 target.drawStrings(strings);
 

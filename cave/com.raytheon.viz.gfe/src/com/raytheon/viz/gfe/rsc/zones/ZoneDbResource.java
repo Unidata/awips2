@@ -2138,7 +2138,7 @@ public class ZoneDbResource extends
         ds.font = font;
         ds.addTextStyle(TextStyle.DROP_SHADOW);
         ds.horizontalAlignment = horiz;
-        ds.verticallAlignment = vert;
+        ds.verticalAlignment = vert;
         refcLoop: for (ReferencedCoordinate refCoord : refCoordList) {
             try {
                 coord = refCoord.asPixel(mapGeometry);

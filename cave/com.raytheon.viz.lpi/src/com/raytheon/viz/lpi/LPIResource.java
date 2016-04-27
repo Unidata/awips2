@@ -283,7 +283,7 @@ public class LPIResource extends
                         string.setCoordinates(p.pixel[0] + offsetX, p.pixel[1]
                                 + offsetY);
                         string.horizontalAlignment = align;
-                        string.verticallAlignment = VerticalAlignment.MIDDLE;
+                        string.verticalAlignment = VerticalAlignment.MIDDLE;
                         strings.add(string);
                     }
                 }

@@ -433,7 +433,7 @@ public class DisplayMeanArealPrecipResource extends
                         string.setText(area_id, txtcolor);
                         string.setCoordinates(labelCoor.x, labelCoor.y);
                         string.horizontalAlignment = HorizontalAlignment.LEFT;
-                        string.verticallAlignment = VerticalAlignment.TOP;
+                        string.verticalAlignment = VerticalAlignment.TOP;
                         target.drawStrings(string);
                     } catch (VizException e1) {
                         // TODO Auto-generated catch block
@@ -445,7 +445,7 @@ public class DisplayMeanArealPrecipResource extends
                         string.setText(valStr, txtcolor);
                         string.setCoordinates(valueCoor.x, valueCoor.y);
                         string.horizontalAlignment = HorizontalAlignment.LEFT;
-                        string.verticallAlignment = VerticalAlignment.TOP;
+                        string.verticalAlignment = VerticalAlignment.TOP;
                         target.drawStrings(string);
                     } catch (VizException e1) {
                         // TODO Auto-generated catch block

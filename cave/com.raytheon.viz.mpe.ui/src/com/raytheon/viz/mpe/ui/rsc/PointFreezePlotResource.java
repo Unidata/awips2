@@ -401,7 +401,7 @@ public class PointFreezePlotResource extends
             string.setText(tbuf, color);
             string.setCoordinates(xLoc, yLoc);
             string.horizontalAlignment = HorizontalAlignment.LEFT;
-            string.verticallAlignment = VerticalAlignment.TOP;
+            string.verticalAlignment = VerticalAlignment.TOP;
             target.drawStrings(string);
             if (i == find_station_flag) {
                 find_station_flag = -1;
@@ -559,7 +559,7 @@ public class PointFreezePlotResource extends
             string.setText(label, color);
             string.setCoordinates(xLoc, yLoc);
             string.horizontalAlignment = HorizontalAlignment.LEFT;
-            string.verticallAlignment = VerticalAlignment.BOTTOM;
+            string.verticalAlignment = VerticalAlignment.BOTTOM;
             target.drawStrings(string);
             temp++;
         }

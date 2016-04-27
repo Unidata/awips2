@@ -226,7 +226,7 @@ public class DrawStringEvent extends AbstractRemoteGraphicsRenderEvent {
 
         this.xOrColors = string.basics.xOrColors;
         this.horizontalAlignment = string.horizontalAlignment;
-        this.verticalAlignment = string.verticallAlignment;
+        this.verticalAlignment = string.verticalAlignment;
         this.magnification = string.magnification;
         this.point = new double[] { string.basics.x, string.basics.y,
                 string.basics.z };
@@ -261,7 +261,7 @@ public class DrawStringEvent extends AbstractRemoteGraphicsRenderEvent {
         ds.basics.xOrColors = xOrColors;
 
         ds.horizontalAlignment = horizontalAlignment;
-        ds.verticallAlignment = verticalAlignment;
+        ds.verticalAlignment = verticalAlignment;
         ds.magnification = magnification;
         ds.setCoordinates(point[0], point[1], point[2]);
         ds.rotation = rotation;

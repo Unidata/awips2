@@ -357,19 +357,19 @@ public class FogResource extends
         strings[0].font = font;
         strings[0].setCoordinates(pixel1[0], pixel1[1]);
         strings[0].addTextStyle(TextStyle.BLANKED);
-        strings[0].verticallAlignment = VerticalAlignment.MIDDLE;
+        strings[0].verticalAlignment = VerticalAlignment.MIDDLE;
 
         strings[1] = new DrawableString("MODERATE", color);
         strings[1].font = font;
         strings[1].setCoordinates(pixel2[0], pixel2[1]);
         strings[1].addTextStyle(TextStyle.BLANKED);
-        strings[1].verticallAlignment = VerticalAlignment.MIDDLE;
+        strings[1].verticalAlignment = VerticalAlignment.MIDDLE;
 
         strings[2] = new DrawableString("HIGH", color);
         strings[2].font = font;
         strings[2].setCoordinates(pixel3[0], pixel3[1]);
         strings[2].addTextStyle(TextStyle.BLANKED);
-        strings[2].verticallAlignment = VerticalAlignment.MIDDLE;
+        strings[2].verticalAlignment = VerticalAlignment.MIDDLE;
 
         target.drawStrings(strings);
     }

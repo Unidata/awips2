@@ -152,9 +152,9 @@ public class KmlStringsGenerator extends KmlFeatureGenerator {
                 DrawableString dstring2 = inMap;
                 // try determine which of the two dtrings would be considered
                 // "first"
-                if (dstring2.verticallAlignment != dstring.verticallAlignment) {
-                    if (dstring2.verticallAlignment == VerticalAlignment.BOTTOM
-                            || dstring.verticallAlignment == VerticalAlignment.TOP) {
+                if (dstring2.verticalAlignment != dstring.verticalAlignment) {
+                    if (dstring2.verticalAlignment == VerticalAlignment.BOTTOM
+                            || dstring.verticalAlignment == VerticalAlignment.TOP) {
                         DrawableString tmp = dstring2;
                         dstring2 = dstring;
                         dstring = tmp;

@@ -244,7 +244,7 @@ public class SamplePainter {
                 ds.addTextStyle(TextStyle.DROP_SHADOW, this.shadowColor);
             }
             ds.horizontalAlignment = HorizontalAlignment.CENTER;
-            ds.verticallAlignment = VerticalAlignment.BOTTOM;
+            ds.verticalAlignment = VerticalAlignment.BOTTOM;
             ds.basics.x = screenloc[0] + (this.xOffset * ratio);
             ds.basics.y = screenloc[1] + ((this.yOffset + OFFSET) * ratio);
 

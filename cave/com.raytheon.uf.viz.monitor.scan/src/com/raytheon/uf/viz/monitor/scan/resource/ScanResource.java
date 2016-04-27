@@ -450,7 +450,7 @@ public class ScanResource extends
             string.font = getScanDrawer().font;
             string.addTextStyle(TextStyle.BLANKED);
             string.horizontalAlignment = HorizontalAlignment.LEFT;
-            string.verticallAlignment = VerticalAlignment.MIDDLE;
+            string.verticalAlignment = VerticalAlignment.MIDDLE;
         }
         target.drawStrings(strings);
     }
@@ -474,7 +474,7 @@ public class ScanResource extends
                     ColorableCapability.class).getColor());
             string.font = getScanDrawer().font;
             string.horizontalAlignment = HorizontalAlignment.LEFT;
-            string.verticallAlignment = VerticalAlignment.MIDDLE;
+            string.verticalAlignment = VerticalAlignment.MIDDLE;
             string.addTextStyle(TextStyle.BLANKED);
             string.basics.x = pixel[0];
             string.basics.y = pixel[1];

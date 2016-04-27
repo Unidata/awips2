@@ -261,7 +261,7 @@ public class AdvisoryResource extends
                     dStrings.setCoordinates(pixelLoc[0], pixelLoc[1]);
                     dStrings.addTextStyle(TextStyle.DROP_SHADOW);
                     dStrings.horizontalAlignment = HorizontalAlignment.LEFT;
-                    dStrings.verticallAlignment = VerticalAlignment.TOP;
+                    dStrings.verticalAlignment = VerticalAlignment.TOP;
                     target.drawStrings(dStrings);
                 }
             }
@@ -288,7 +288,7 @@ public class AdvisoryResource extends
                     dStrings.setCoordinates(pixelLoc[0], pixelLoc[1]);
                     dStrings.addTextStyle(TextStyle.DROP_SHADOW);
                     dStrings.horizontalAlignment = HorizontalAlignment.CENTER;
-                    dStrings.verticallAlignment = VerticalAlignment.MIDDLE;
+                    dStrings.verticalAlignment = VerticalAlignment.MIDDLE;
                     strings.add(dStrings);
                 } else if (record.getType() == AdvisoryResourceType.TEXT) {
                     double[] pixelLoc = descriptor.worldToPixel(new double[] {
@@ -301,7 +301,7 @@ public class AdvisoryResource extends
                     dStrings.setCoordinates(pixelLoc[0], pixelLoc[1]);
                     dStrings.addTextStyle(TextStyle.DROP_SHADOW);
                     dStrings.horizontalAlignment = HorizontalAlignment.LEFT;
-                    dStrings.verticallAlignment = VerticalAlignment.TOP;
+                    dStrings.verticalAlignment = VerticalAlignment.TOP;
                     strings.add(dStrings);
                 }
             }
@@ -371,7 +371,7 @@ public class AdvisoryResource extends
                 dStrings.setCoordinates(xLoc, yLoc);
                 dStrings.addTextStyle(TextStyle.BLANKED);
                 dStrings.horizontalAlignment = HorizontalAlignment.LEFT;
-                dStrings.verticallAlignment = VerticalAlignment.TOP;
+                dStrings.verticalAlignment = VerticalAlignment.TOP;
                 target.drawStrings(dStrings);
                 return;
             }

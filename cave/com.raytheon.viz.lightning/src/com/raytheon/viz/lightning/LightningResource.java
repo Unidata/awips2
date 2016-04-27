@@ -381,7 +381,7 @@ public class LightningResource extends
         pos.setCoordinates(225, height * (verticalOffset + 2 * this.posAdj));
         // jjg above
         pos.font = font;
-        pos.verticallAlignment = VerticalAlignment.TOP;
+        pos.verticalAlignment = VerticalAlignment.TOP;
         pos.horizontalAlignment = HorizontalAlignment.RIGHT;
         return pos;
     }

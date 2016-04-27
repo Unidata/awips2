@@ -1161,7 +1161,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
         string.font = font;
         string.addTextStyle(textStyle);
         string.horizontalAlignment = horizontalAlignment;
-        string.verticallAlignment = verticalAlignment;
+        string.verticalAlignment = verticalAlignment;
         string.rotation = rotation;
         drawStrings(string);
     }
@@ -1198,7 +1198,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
         string.font = font;
         string.addTextStyle(textStyle);
         string.horizontalAlignment = horizontalAlignment;
-        string.verticallAlignment = verticalAlignment;
+        string.verticalAlignment = verticalAlignment;
         drawStrings(string);
     }
 
