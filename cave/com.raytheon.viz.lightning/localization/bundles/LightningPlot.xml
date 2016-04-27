@@ -23,14 +23,13 @@
     <displays xsi:type="d2DMapRenderableDisplay" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
       <descriptor xsi:type="mapDescriptor">
         <resource>
-          <loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="true">
+          <loadProperties loadWithoutData="true">
           </loadProperties>
           <properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false"
             isVisible="true" />
-          <resourceData xsi:type="gridLightningResourceData" isUpdatingOnMetadataOnly="false"
-            isRequeryNecessaryOnTimeMatch="true" handlingPositiveStrikes="true" handlingNegativeStrikes="true"
-            handlingPulses="false" handlingCloudFlashes="false" kmResolution="${resolution}">
-            <binOffset posOffset="0" negOffset="${negOffset}" virtualOffset="0" />
+          <resourceData xsi:type="lightningResourceData" isUpdatingOnMetadataOnly="false"
+            isRequeryNecessaryOnTimeMatch="true" handlingPositiveStrikes="true" handlingNegativeStrikes="true">
+            <binOffset posOffset="0" negOffset="${negOffset;60}" virtualOffset="0" />
             <binRepeatCount>${binRepeatCount;1}</binRepeatCount>
             <metadataMap>
               <mapping key="pluginName">
