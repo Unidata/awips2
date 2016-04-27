@@ -97,9 +97,6 @@ public class DataSourcesDlg extends CaveJFACEDialog {
     /**
      * Button ID for Delete button.
      */
-    /**
-     *
-     */
     private static final int DELETE_ID = IDialogConstants.CLIENT_ID + 2;
 
     /**

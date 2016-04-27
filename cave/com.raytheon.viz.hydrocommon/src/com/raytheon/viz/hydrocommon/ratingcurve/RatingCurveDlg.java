@@ -38,6 +38,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -78,6 +80,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                      whfs_import_dir for "Import Curve" button.
  * 15 Jul 2013  2088        rferrel     Make dialog non-blocking.
  * 23 Oct 2015  14375       xwei        Fixed rating curve saving error. Fixed import rating curve format error.
+ * 27 Apr 2016  5483        randerso    Fix GUI sizing issues
  * </pre>
  * 
  * @author lvenable
@@ -291,14 +294,16 @@ public class RatingCurveDlg extends CaveSWTDialog {
      * Shift amount
      */
     private double shiftAmount = 0;
-    
-    private boolean deleteAllRatingCurve = false; 
+
+    private boolean deleteAllRatingCurve = false;
 
     /**
      * Constructor.
      * 
      * @param parent
      *            Parent shell.
+     * @param lid
+     * @param titleInfo
      * @param GageData
      *            gage chosen on screen
      * @param fullControls
@@ -369,7 +374,7 @@ public class RatingCurveDlg extends CaveSWTDialog {
         addSeparator();
         createBottomButtons();
         populateControls();
-        curveImportBtnSetEnabled(); 
+        curveImportBtnSetEnabled();
     }
 
     /**
@@ -400,15 +405,22 @@ public class RatingCurveDlg extends CaveSWTDialog {
         Label stageLbl = new Label(labelComp, SWT.NONE);
         stageLbl.setText("Stage:");
 
-        GridData gd = new GridData(100, SWT.DEFAULT);
         stageDataLbl = new Label(labelComp, SWT.NONE);
         stageDataLbl.setText("");
+
+        GC gc = new GC(stageDataLbl);
+        int textWidth = gc.textExtent("000.0").x;
+        gc.dispose();
+
+        GridData gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, false, false);
+        gd.widthHint = textWidth;
         stageDataLbl.setLayoutData(gd);
 
         Label kcfsLbl = new Label(labelComp, SWT.NONE);
         kcfsLbl.setText("KCFS:");
 
-        gd = new GridData(100, SWT.DEFAULT);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, false, false);
+        gd.widthHint = textWidth;
         kcfsDataLbl = new Label(labelComp, SWT.NONE);
         kcfsDataLbl.setText("");
         kcfsDataLbl.setLayoutData(gd);
@@ -416,37 +428,41 @@ public class RatingCurveDlg extends CaveSWTDialog {
         Label floodLbl = new Label(labelComp, SWT.NONE);
         floodLbl.setText("Flood:");
 
-        gd = new GridData(100, SWT.DEFAULT);
         floodDataLbl = new Label(labelComp, SWT.NONE);
+        gc = new GC(stageDataLbl);
+        textWidth = gc.textExtent("0000.00").x;
+        gc.dispose();
+
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, false, false);
+        gd.widthHint = textWidth;
         floodDataLbl.setText("");
         floodDataLbl.setLayoutData(gd);
 
         Label recordLbl = new Label(labelComp, SWT.NONE);
         recordLbl.setText("Record:");
 
-        gd = new GridData(100, SWT.DEFAULT);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, false, false);
+        gd.widthHint = textWidth;
         recordDataLbl = new Label(labelComp, SWT.NONE);
         recordDataLbl.setText("");
         recordDataLbl.setLayoutData(gd);
     }
 
-    
     /**
      * Create the rating curve canvas.
      * 
      */
     private void curveImportBtnSetEnabled() {
 
-        if ( noShiftCurveDataList.getItemCount() == 0 && shiftCurveDataList.getItemCount() == 0 ) {
-        	curveImportBtn.setEnabled(true);	
+        if (noShiftCurveDataList.getItemCount() == 0
+                && shiftCurveDataList.getItemCount() == 0) {
+            curveImportBtn.setEnabled(true);
         } else {
-            curveImportBtn.setEnabled(false);	
+            curveImportBtn.setEnabled(false);
         }
-        
 
     }
-    
-    
+
     /**
      * Create the rating curve canvas.
      * 
@@ -477,8 +493,6 @@ public class RatingCurveDlg extends CaveSWTDialog {
         mainShiftComp.setLayout(labelGl);
         mainShiftComp.setLayoutData(gd);
 
-        int buttonWidth = 120;
-
         // --------------------------------------------------------
         // Create the shift data list and text controls
         // --------------------------------------------------------
@@ -487,7 +501,7 @@ public class RatingCurveDlg extends CaveSWTDialog {
         shiftComp.setLayout(labelGl);
 
         // Create Shift Data List label
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, false, true);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         gd.horizontalSpan = 3;
         gd.horizontalIndent = 4;
         Label shiftListLbl = new Label(shiftComp, SWT.NONE);
@@ -496,26 +510,45 @@ public class RatingCurveDlg extends CaveSWTDialog {
         shiftListLbl.setLayoutData(gd);
 
         // Create Shift Data List
-        gd = new GridData(270, 90);
-        gd.horizontalSpan = 3;
         shiftDataList = new List(shiftComp, SWT.BORDER | SWT.SINGLE
                 | SWT.V_SCROLL);
         shiftDataList.setFont(controlFont);
+
+        GC gc = new GC(shiftDataList);
+        int textWidth = gc.textExtent("M").x * 32;
+        gc.dispose();
+
+        Rectangle trim = shiftDataList.computeTrim(0, 0, textWidth,
+                shiftDataList.getItemHeight() * 5);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, false, false);
+        gd.widthHint = trim.width;
+        gd.heightHint = trim.height;
+        gd.horizontalSpan = 3;
         shiftDataList.setLayoutData(gd);
 
         // Create Shift Data Controls
-        gd = new GridData(110, SWT.DEFAULT);
         shiftDateTF = new Text(shiftComp, SWT.BORDER);
+        gc = new GC(shiftDateTF);
+        textWidth = gc.textExtent("00/00/0000").x;
+        gc.dispose();
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, false, false);
+        gd.widthHint = textWidth;
         shiftDateTF.setLayoutData(gd);
         shiftDateTF.setEditable(false);
 
-        gd = new GridData(60, SWT.DEFAULT);
         shiftValueTF = new Text(shiftComp, SWT.BORDER);
+        gc = new GC(shiftDateTF);
+        textWidth = gc.textExtent("000.00").x;
+        gc.dispose();
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, false, false);
+        gd.widthHint = textWidth;
         shiftValueTF.setLayoutData(gd);
         shiftValueTF.setEditable(false);
 
         shiftActiveChk = new Button(shiftComp, SWT.CHECK);
         shiftActiveChk.setText("Active");
+        gd = new GridData(SWT.DEFAULT, SWT.CENTER, false, false);
+        shiftActiveChk.setLayoutData(gd);
 
         df.setGroupingUsed(false);
         df.setMaximumFractionDigits(2);
@@ -525,12 +558,15 @@ public class RatingCurveDlg extends CaveSWTDialog {
         // Create the Shift Remove & Update/Insert buttons
         // --------------------------------------------------------
         Composite shiftBtnComp = new Composite(mainShiftComp, SWT.NONE);
-        gd = new GridData(SWT.FILL, SWT.CENTER, true, true);
+        gd = new GridData(SWT.LEFT, SWT.CENTER, true, true);
         labelGl = new GridLayout(1, false);
         shiftBtnComp.setLayout(labelGl);
         shiftBtnComp.setLayoutData(gd);
 
-        gd = new GridData(buttonWidth, SWT.DEFAULT);
+        int buttonWidth = getDisplay().getDPI().x * 3 / 2;
+
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gd.minimumWidth = buttonWidth;
         shftRemoveBtn = new Button(shiftBtnComp, SWT.PUSH);
         shftRemoveBtn.setText("Remove Shift");
         shftRemoveBtn.setLayoutData(gd);
@@ -541,7 +577,8 @@ public class RatingCurveDlg extends CaveSWTDialog {
             }
         });
 
-        gd = new GridData(buttonWidth, SWT.DEFAULT);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gd.minimumWidth = buttonWidth;
         shftUpdateInsBtn = new Button(shiftBtnComp, SWT.PUSH);
         shftUpdateInsBtn.setText("Update/Insert");
         shftUpdateInsBtn.setLayoutData(gd);
@@ -559,7 +596,8 @@ public class RatingCurveDlg extends CaveSWTDialog {
         labelGl = new GridLayout(1, false);
         curveBtnComp.setLayout(labelGl);
 
-        gd = new GridData(buttonWidth, SWT.DEFAULT);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gd.minimumWidth = buttonWidth;
         curveImportBtn = new Button(curveBtnComp, SWT.PUSH);
         curveImportBtn.setText("Import Curve");
         curveImportBtn.setLayoutData(gd);
@@ -583,7 +621,8 @@ public class RatingCurveDlg extends CaveSWTDialog {
             }
         });
 
-        gd = new GridData(buttonWidth, SWT.DEFAULT);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gd.minimumWidth = buttonWidth;
         curveClearAllBtn = new Button(curveBtnComp, SWT.PUSH);
         curveClearAllBtn.setText("Clear All");
         curveClearAllBtn.setLayoutData(gd);
@@ -598,14 +637,13 @@ public class RatingCurveDlg extends CaveSWTDialog {
                 int response = messageDialog.open();
 
                 if (response == SWT.OK) {
-                    
-                	
-                	deleteAllRatingCurve = true;                           
+
+                    deleteAllRatingCurve = true;
                     // Add all rating curve points to the array.
                     for (RatingCurveData d : noShiftCurveArray) {
-                           removedPoints.add(d);                      
+                        removedPoints.add(d);
                     }
-                                        
+
                     noShiftCurveArray.clear();
                     noShiftCurveDataList.removeAll();
                     noShiftCurveDataList.redraw();
@@ -626,7 +664,8 @@ public class RatingCurveDlg extends CaveSWTDialog {
             }
         });
 
-        gd = new GridData(buttonWidth, SWT.DEFAULT);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gd.minimumWidth = buttonWidth;
         curveRemoveBtn = new Button(curveBtnComp, SWT.PUSH);
         curveRemoveBtn.setText("Remove Point");
         curveRemoveBtn.setLayoutData(gd);
@@ -660,7 +699,8 @@ public class RatingCurveDlg extends CaveSWTDialog {
             }
         });
 
-        gd = new GridData(buttonWidth, SWT.DEFAULT);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gd.minimumWidth = buttonWidth;
         curveUpdateInsBtn = new Button(curveBtnComp, SWT.PUSH);
         curveUpdateInsBtn.setText("Update/Insert");
         curveUpdateInsBtn.setLayoutData(gd);
@@ -743,7 +783,6 @@ public class RatingCurveDlg extends CaveSWTDialog {
         GridData gd = new GridData(SWT.DEFAULT, SWT.TOP, false, true);
         Composite rightComp = new Composite(shell, SWT.NONE);
         GridLayout rightGl = new GridLayout(1, false);
-        rightGl.marginTop = 10;
         rightComp.setLayout(rightGl);
         rightComp.setLayoutData(gd);
 
@@ -754,9 +793,18 @@ public class RatingCurveDlg extends CaveSWTDialog {
 
         createStageDischargeLabels(rightComp);
 
-        gd = new GridData(220, 400);
         shiftCurveDataList = new List(rightComp, SWT.BORDER | SWT.V_SCROLL);
         shiftCurveDataList.setFont(controlFont);
+
+        GC gc = new GC(shiftCurveDataList);
+        int textWidth = gc.getFontMetrics().getAverageCharWidth() * 25;
+        gc.dispose();
+
+        Rectangle trim = shiftCurveDataList.computeTrim(0, 0, textWidth,
+                shiftCurveDataList.getItemHeight() * 20);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, false, false);
+        gd.widthHint = trim.width;
+        gd.heightHint = trim.height;
         shiftCurveDataList.setLayoutData(gd);
         shiftCurveDataList.deselectAll();
         shiftCurveDataList.setForeground(Display.getCurrent().getSystemColor(
@@ -773,10 +821,15 @@ public class RatingCurveDlg extends CaveSWTDialog {
         ratingLbl.setText(ratingLblText);
         ratingLbl.setLayoutData(gd);
 
-        gd = new GridData(220, 130);
         noShiftCurveDataList = new List(rightComp, SWT.BORDER | SWT.SINGLE
                 | SWT.V_SCROLL);
         noShiftCurveDataList.setFont(controlFont);
+
+        trim = shiftCurveDataList.computeTrim(0, 0, textWidth,
+                shiftCurveDataList.getItemHeight() * 7);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, false, false);
+        gd.widthHint = trim.width;
+        gd.heightHint = trim.height;
         noShiftCurveDataList.setLayoutData(gd);
         noShiftCurveDataList.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -820,17 +873,14 @@ public class RatingCurveDlg extends CaveSWTDialog {
         GridLayout rightGl = new GridLayout(2, false);
         rightGl.marginHeight = 0;
         labelComp.setLayout(rightGl);
+        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        labelComp.setLayoutData(gd);
 
-        GridData gd = new GridData(150, SWT.DEFAULT);
-        Label stageLbl = new Label(labelComp, SWT.NONE);
-        stageLbl.setText("Stage");
-        stageLbl.setLayoutData(gd);
-
-        gd = new GridData(70, SWT.DEFAULT);
-        Label dischargeLbl = new Label(labelComp, SWT.NONE);
-        dischargeLbl.setText("Discharge");
-        dischargeLbl.setLayoutData(gd);
-        dischargeLbl.setLayoutData(gd);
+        gd = new GridData(SWT.LEFT, SWT.DEFAULT, false, false);
+        Label label = new Label(labelComp, SWT.NONE);
+        label.setFont(controlFont);
+        label.setText(String.format("%8s %16s", "Stage", "Discharge"));
+        label.setLayoutData(gd);
     }
 
     /**
@@ -841,16 +891,19 @@ public class RatingCurveDlg extends CaveSWTDialog {
      */
     private void createStageDischargeTextFields(Composite parentComp) {
         Composite labelComp = new Composite(parentComp, SWT.NONE);
-        GridLayout rightGl = new GridLayout(2, false);
+        GridLayout rightGl = new GridLayout(2, true);
+        rightGl.marginWidth = 0;
         rightGl.marginHeight = 0;
         labelComp.setLayout(rightGl);
+        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        labelComp.setLayoutData(gd);
 
-        GridData gd = new GridData(100, SWT.DEFAULT);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         stageTF = new Text(labelComp, SWT.BORDER);
         stageTF.setEditable(false);
         stageTF.setLayoutData(gd);
 
-        gd = new GridData(100, SWT.DEFAULT);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         dischargeTF = new Text(labelComp, SWT.BORDER);
         dischargeTF.setEditable(false);
         dischargeTF.setLayoutData(gd);
@@ -865,7 +918,7 @@ public class RatingCurveDlg extends CaveSWTDialog {
      * Add a horizontal separator bar to the dialog.
      */
     private void addSeparator() {
-        GridData gd = new GridData(GridData.FILL_HORIZONTAL);
+        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         gd.horizontalSpan = 2;
         Label sepLbl = new Label(shell, SWT.SEPARATOR | SWT.HORIZONTAL);
         sepLbl.setLayoutData(gd);
@@ -882,10 +935,10 @@ public class RatingCurveDlg extends CaveSWTDialog {
         gd.horizontalSpan = 2;
         buttonComp.setLayoutData(gd);
 
-        int buttonWidth = 120;
+        int buttonWidth = getDisplay().getDPI().x * 3 / 2;
 
         gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
-        gd.widthHint = buttonWidth;
+        gd.minimumWidth = buttonWidth;
         saveExitBtn = new Button(buttonComp, SWT.NONE);
         saveExitBtn.setText("Save && Exit");
         saveExitBtn.setLayoutData(gd);
@@ -898,7 +951,7 @@ public class RatingCurveDlg extends CaveSWTDialog {
         });
 
         gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
-        gd.widthHint = buttonWidth;
+        gd.minimumWidth = buttonWidth;
         saveBtn = new Button(buttonComp, SWT.NONE);
         saveBtn.setText("Save");
         saveBtn.setLayoutData(gd);
@@ -910,7 +963,7 @@ public class RatingCurveDlg extends CaveSWTDialog {
         });
 
         gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
-        gd.widthHint = buttonWidth;
+        gd.minimumWidth = buttonWidth;
         Button closeBtn = new Button(buttonComp, SWT.NONE);
         closeBtn.setText("Close");
         closeBtn.setLayoutData(gd);
@@ -933,7 +986,7 @@ public class RatingCurveDlg extends CaveSWTDialog {
      * @return Label text.
      */
     private String getShiftListLabel() {
-        String format = "%S       %S       %S";
+        String format = "%10S %10S %10S";
 
         String labelStr = String
                 .format(format, "Shift Date", "Value", "Active");
@@ -1150,13 +1203,13 @@ public class RatingCurveDlg extends CaveSWTDialog {
 
         if (removedPoints.size() != 0 && deleteAllRatingCurve) {
             for (RatingCurveData rcd : removedPoints) {
-                   rcdm.clearAllRatingCurveData(rcd,lid);
+                rcdm.clearAllRatingCurveData(rcd, lid);
             }
-            deleteAllRatingCurve=false;
+            deleteAllRatingCurve = false;
             removedPoints = new ArrayList<RatingCurveData>();
-           
+
         }
-        
+
         if (removedPoints.size() != 0) {
             for (RatingCurveData rcd : removedPoints) {
                 rcdm.deleteRatingCurveData(rcd, lid);
@@ -1181,8 +1234,8 @@ public class RatingCurveDlg extends CaveSWTDialog {
             }
             addedCurveShifts = new ArrayList<RatingCurveShiftData>();
         }
-        
-        curveImportBtnSetEnabled(); 
+
+        curveImportBtnSetEnabled();
     }
 
     /**
@@ -1354,7 +1407,7 @@ public class RatingCurveDlg extends CaveSWTDialog {
             sdf.parse(field.getText().trim());
         } catch (ParseException pe) {
             // fire a dialog here
-            error("Invalid Date Format, required: dd/mm/yyyy", field);
+            error("Invalid Date Format, required: " + sdf.toPattern(), field);
             return false;
         }
         return true;
