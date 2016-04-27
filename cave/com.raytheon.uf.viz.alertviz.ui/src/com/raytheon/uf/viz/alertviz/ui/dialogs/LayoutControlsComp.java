@@ -74,7 +74,8 @@ import com.raytheon.uf.viz.alertviz.config.TrayConfiguration;
  * 24 Mar 2011	5853	   cjeanbap    Add createLayoutControls() to reloadConfig().
  * 02 May 2011  9067       cjeanbap    Remove createLayoutControls() from reloadConfig().
  * 07 Feb 2013	15490	   Xiaochuan   Add configDialog to handle the updated setting 
- * 									   on Category layers. 
+ * 									   on Category layers.
+ * 19 Apr 2016  5517       randerso    Fix GUI sizing issues
  * 
  * </pre>
  * 
@@ -204,7 +205,7 @@ public class LayoutControlsComp extends Composite implements MouseListener {
     private MenuItem menuItem;
 
     private INeedsSaveListener needsSaveListener;
-    
+
     private AlertVisConfigDlg configDialog;
 
     /**
@@ -240,6 +241,7 @@ public class LayoutControlsComp extends Composite implements MouseListener {
         initControls();
 
         this.addDisposeListener(new DisposeListener() {
+            @Override
             public void widgetDisposed(DisposeEvent arg0) {
                 controlFont.dispose();
             }
@@ -290,7 +292,7 @@ public class LayoutControlsComp extends Composite implements MouseListener {
      */
     private void createCategoryListControls() {
         Composite listComp = new Composite(this, SWT.NONE);
-        listComp.setLayout(new GridLayout(2, false));
+        listComp.setLayout(new GridLayout(2, true));
 
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         gd.horizontalIndent = 4;
@@ -300,15 +302,22 @@ public class LayoutControlsComp extends Composite implements MouseListener {
         listLbl.setFont(controlFont);
         listLbl.setLayoutData(gd);
 
-        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        gd.widthHint = 200;
-        gd.heightHint = 205;
-        gd.horizontalSpan = 2;
         categoryList = new List(listComp, SWT.BORDER | SWT.SINGLE
                 | SWT.V_SCROLL);
-        categoryList.setLayoutData(gd);
         categoryList.setFont(controlFont);
+
+        GC gc = new GC(categoryList);
+        int textWidth = gc.getFontMetrics().getAverageCharWidth() * 30;
+        gc.dispose();
+
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        gd.widthHint = textWidth;
+        gd.heightHint = categoryList.getItemHeight() * 10;
+        gd.horizontalSpan = 2;
+        categoryList.setLayoutData(gd);
+
         categoryList.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 handleSourceSelection();
             }
@@ -316,23 +325,27 @@ public class LayoutControlsComp extends Composite implements MouseListener {
 
         populateCategoryList();
 
-        gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
-        gd.widthHint = 80;
+        int buttonWidth = listComp.getDisplay().getDPI().x;
+
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gd.minimumWidth = buttonWidth;
         Button newBtn = new Button(listComp, SWT.PUSH);
         newBtn.setText("New...");
         newBtn.setLayoutData(gd);
         newBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 createNewCategory();
             }
         });
 
-        gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
-        gd.widthHint = 80;
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gd.minimumWidth = buttonWidth;
         deleteBtn = new Button(listComp, SWT.PUSH);
         deleteBtn.setText("Delete");
         deleteBtn.setLayoutData(gd);
         deleteBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 deleteCategory();
             }
@@ -344,6 +357,7 @@ public class LayoutControlsComp extends Composite implements MouseListener {
         clearAllBtn.setText("Clear All Layouts");
         clearAllBtn.setLayoutData(gd);
         clearAllBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 clearAllCategoryTextBoxes();
             }
@@ -353,6 +367,7 @@ public class LayoutControlsComp extends Composite implements MouseListener {
         popupMenuCList = new Menu(categoryList);
         categoryList.setMenu(popupMenuCList);
         popupMenuCList.addListener(SWT.Show, new Listener() {
+            @Override
             public void handleEvent(Event event) {
                 MenuItem[] menuItems = popupMenuCList.getItems();
 
@@ -363,6 +378,7 @@ public class LayoutControlsComp extends Composite implements MouseListener {
                 if (categoryMap.get(getListIndexToKey()).isLocked() != true) {
                     menuItem = new MenuItem(popupMenuCList, SWT.PUSH);
                     menuItem.addSelectionListener(new SelectionAdapter() {
+                        @Override
                         public void widgetSelected(SelectionEvent e) {
                             deleteCategory();
                         }
@@ -386,6 +402,7 @@ public class LayoutControlsComp extends Composite implements MouseListener {
         layoutCombo = new Combo(controlComp, SWT.DROP_DOWN | SWT.READ_ONLY);
         populateLayoutCombo();
         layoutCombo.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 int index = layoutCombo.getSelectionIndex();
                 selectedMode = TrayConfiguration.TrayMode.valueOf(layoutCombo
@@ -393,7 +410,7 @@ public class LayoutControlsComp extends Composite implements MouseListener {
                 selectedModeRecs = layoutRecs.getRectangles(selectedMode);
                 canvas.redraw();
                 updateCellNumbers();
-				configDialog.setNewConfig();
+                configDialog.setNewConfig();
                 needsSaveListener.saveNeeded(true);
             }
         });
@@ -414,6 +431,7 @@ public class LayoutControlsComp extends Composite implements MouseListener {
         removeSelectionBtn.setEnabled(false);
         removeSelectionBtn.setLayoutData(gd);
         removeSelectionBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 int index = categoryList.getSelectionIndex();
 
@@ -451,6 +469,7 @@ public class LayoutControlsComp extends Composite implements MouseListener {
 
         canvas.setLayoutData(gd);
         canvas.addPaintListener(new PaintListener() {
+            @Override
             public void paintControl(PaintEvent e) {
                 drawCanvas(e.gc);
             }
@@ -467,7 +486,7 @@ public class LayoutControlsComp extends Composite implements MouseListener {
      */
     private void drawCanvas(GC gc) {
         gc.setFont(controlFont);
-        aveFontWidth = (int) gc.getFontMetrics().getAverageCharWidth();
+        aveFontWidth = gc.getFontMetrics().getAverageCharWidth();
 
         gc.setLineWidth(3);
 
@@ -885,8 +904,9 @@ public class LayoutControlsComp extends Composite implements MouseListener {
             selectedCell = 0;
         }
 
-        if (removeSelectionBtn == null || canvas == null)
+        if (removeSelectionBtn == null || canvas == null) {
             return;
+        }
 
         if (selectedCell == 0) {
             removeSelectionBtn.setEnabled(false);

@@ -20,22 +20,25 @@
 package com.raytheon.viz.mpe.ui.dialogs.polygon;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
-import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
 
 import com.raytheon.viz.mpe.ui.DisplayFieldData;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
@@ -57,6 +60,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                     displayed for polygons with
  *                                     the "sub" action.
  * Jan 7, 2015  16954      cgobs       Fix for cv_use issue - using getFieldName() in certain parts.
+ * Apr 08, 2016 5504       bkowal      Fix GUI sizing issues. Display tabular data in a {@link Table}.
  * </pre>
  * 
  * @author mpduff
@@ -64,29 +68,64 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  */
 
 public class DeletePolygonDlg extends CaveSWTDialog {
-    private static final String format = "%-2s %27s %27s %21s                  %2.2f";
 
-    private static final String format2 = "%-2s %27s %27s %21s                 %8s";
+    private static final int NUM_POLYGON_ROWS = 7;
+
+    private static final String POLY_TRUE = "T";
+
+    private static final String POLY_FALSE = "F";
+
+    private static final int DISPLAY_COL_INDEX = 1;
+
+    private enum MPE_TABLE_COLUMNS {
+        NUMBER("Number", 12), DISPLAYED("Displayed", 16), PERSISTENT(
+                "Persistent", 20), ACTION("Action", 20), VALUE("Value", 16);
+
+        private final String text;
+
+        private final int numCharacters;
+
+        private MPE_TABLE_COLUMNS(String text, int numCharacters) {
+            this.text = text;
+            this.numCharacters = numCharacters;
+        }
+
+        public String getText() {
+            return text;
+        }
+
+        public int getNumCharacters() {
+            return numCharacters;
+        }
+    }
 
     /**
-     * Date/Time Text Field.
+     * {@link Table} to display information about the current mpe polygons.
      */
-    private Text dateTimeTF = null;
+    private Table table;
 
     /**
-     * Product Text Field.
+     * Date/Time Text Label.
      */
-    private Text productTF = null;
+    private Label dateTimeLbl;
 
     /**
-     * Polygon List Text Field.
+     * Product Label.
      */
-    private List polygonListBox = null;
+    private Label productLbl;
+
+    private Button displayBtn;
+
+    private Button undisplayBtn;
+
+    private Button deleteBtn;
+
+    private Button deleteAllBtn;
 
     /**
      * Polygon list.
      */
-    private java.util.List<RubberPolyData> polygonList = new ArrayList<RubberPolyData>();
+    private List<RubberPolyData> polygonList = Collections.emptyList();
 
     /**
      * Simple date formatter.
@@ -108,8 +147,8 @@ public class DeletePolygonDlg extends CaveSWTDialog {
     @Override
     protected Layout constructShellLayout() {
         GridLayout mainLayout = new GridLayout(1, true);
-        mainLayout.marginHeight = 1;
-        mainLayout.marginWidth = 1;
+        mainLayout.marginHeight = 0;
+        mainLayout.marginWidth = 0;
         return mainLayout;
     }
 
@@ -118,7 +157,7 @@ public class DeletePolygonDlg extends CaveSWTDialog {
         setReturnValue(false);
         Composite comp = createMainComposite();
         createDateTimeProduct(comp);
-        createPolygonList(comp);
+        createPolygonTable(comp);
         createPolygonButtons(comp);
         createCloseButton(comp);
         populateDlg();
@@ -131,8 +170,8 @@ public class DeletePolygonDlg extends CaveSWTDialog {
      */
     private Composite createMainComposite() {
         Composite comp = new Composite(shell, SWT.NONE);
-        comp.setLayout(new GridLayout(2, true));
-        GridData gd = new GridData(500, SWT.DEFAULT);
+        comp.setLayout(new GridLayout(1, false));
+        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         comp.setLayoutData(gd);
 
         return comp;
@@ -146,25 +185,46 @@ public class DeletePolygonDlg extends CaveSWTDialog {
      */
     private void createDateTimeProduct(Composite comp) {
         // Create adjust group
-        Composite dateTimeComp = new Composite(comp, SWT.NONE);
-        dateTimeComp.setLayout(new GridLayout(2, false));
+        Composite headerComp = new Composite(comp, SWT.NONE);
+        GridLayout gl = new GridLayout(2, true);
+        gl.marginWidth = 0;
+        headerComp.setLayout(gl);
+        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        headerComp.setLayoutData(gd);
 
-        Label dateTimeLbl = new Label(dateTimeComp, SWT.NONE);
-        dateTimeLbl.setText("Date/Time:  ");
+        Composite dateTimeComp = new Composite(headerComp, SWT.NONE);
+        gl = new GridLayout(2, false);
+        gl.marginWidth = 0;
+        dateTimeComp.setLayout(gl);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        dateTimeComp.setLayoutData(gd);
 
-        GridData gd = new GridData(135, SWT.DEFAULT);
-        dateTimeTF = new Text(dateTimeComp, SWT.BORDER);
-        dateTimeTF.setLayoutData(gd);
+        gd = new GridData(SWT.DEFAULT, SWT.CENTER, false, false);
+        Label dtLbl = new Label(dateTimeComp, SWT.NONE);
+        dtLbl.setLayoutData(gd);
+        dtLbl.setText("Date/Time:");
+        dtLbl.setLayoutData(gd);
 
-        Composite productComp = new Composite(comp, SWT.NONE);
-        productComp.setLayout(new GridLayout(2, false));
+        gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
+        dateTimeLbl = new Label(dateTimeComp, SWT.BORDER);
+        dateTimeLbl.setLayoutData(gd);
 
+        Composite productComp = new Composite(headerComp, SWT.NONE);
+        gl = new GridLayout(2, false);
+        gl.marginWidth = 0;
+        productComp.setLayout(gl);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        productComp.setLayoutData(gd);
+
+        gd = new GridData(SWT.DEFAULT, SWT.CENTER, false, false);
         Label prodLbl = new Label(productComp, SWT.NONE);
-        prodLbl.setText("MPE Product:  ");
+        prodLbl.setLayoutData(gd);
+        prodLbl.setText("MPE Product:");
+        prodLbl.setLayoutData(gd);
 
-        gd = new GridData(125, SWT.DEFAULT);
-        productTF = new Text(productComp, SWT.BORDER);
-        productTF.setLayoutData(gd);
+        gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
+        productLbl = new Label(productComp, SWT.BORDER);
+        productLbl.setLayoutData(gd);
     }
 
     /**
@@ -173,21 +233,35 @@ public class DeletePolygonDlg extends CaveSWTDialog {
      * @param comp
      *            The main composite
      */
-    private void createPolygonList(Composite comp) {
-        Composite dataComp = new Composite(comp, SWT.NONE);
-        dataComp.setLayout(new GridLayout(1, true));
-        GridData gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, true, false, 2, 1);
-        dataComp.setLayoutData(gd);
+    private void createPolygonTable(Composite comp) {
+        table = new Table(comp, SWT.BORDER | SWT.V_SCROLL | SWT.MULTI);
+        table.setHeaderVisible(true);
+        table.setLinesVisible(true);
+        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        gd.heightHint = table.getItemHeight() * NUM_POLYGON_ROWS;
+        table.setLayoutData(gd);
 
-        Label label = new Label(dataComp, SWT.NONE);
-        label.setText("Number            Displayed             Persistent           Action                  Value");
+        /*
+         * Add table columns.
+         */
+        GC gc = new GC(table);
+        gc.setFont(table.getFont());
 
-        polygonListBox = new List(dataComp, SWT.BORDER | SWT.MULTI
-                | SWT.V_SCROLL);
-        gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, true);
-        gd.widthHint = 480;
-        gd.heightHint = 150;
-        polygonListBox.setLayoutData(gd);
+        for (MPE_TABLE_COLUMNS mpeTableColumn : MPE_TABLE_COLUMNS.values()) {
+            TableColumn tc = new TableColumn(table, SWT.CENTER);
+            tc.setText(mpeTableColumn.getText());
+            tc.setWidth(gc.getFontMetrics().getAverageCharWidth()
+                    * mpeTableColumn.getNumCharacters());
+        }
+
+        gc.dispose();
+
+        table.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                handleTableSelection(e);
+            }
+        });
     }
 
     /**
@@ -198,38 +272,42 @@ public class DeletePolygonDlg extends CaveSWTDialog {
      */
     private void createPolygonButtons(Composite comp) {
         Composite buttonComp = new Composite(comp, SWT.NONE);
-        buttonComp.setLayout(new GridLayout(4, false));
-        GridData gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, false, false, 2, 1);
+        buttonComp.setLayout(new GridLayout(4, true));
+        GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, false, false);
         buttonComp.setLayoutData(gd);
 
-        Button displayBtn = new Button(buttonComp, SWT.PUSH);
+        final int minimumButtonWidth = buttonComp.getDisplay().getDPI().x;
+
+        displayBtn = new Button(buttonComp, SWT.PUSH);
         displayBtn.setText("Display");
-        gd = new GridData(116, SWT.DEFAULT);
-        displayBtn.setAlignment(SWT.CENTER);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gd.minimumWidth = minimumButtonWidth;
         displayBtn.setLayoutData(gd);
         displayBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                display(true, polygonListBox.getSelectionIndex());
+                display(true);
             }
         });
+        displayBtn.setEnabled(false);
 
-        Button undisplayBtn = new Button(buttonComp, SWT.PUSH);
+        undisplayBtn = new Button(buttonComp, SWT.PUSH);
         undisplayBtn.setText("Undisplay");
-        gd = new GridData(116, SWT.DEFAULT);
-        undisplayBtn.setAlignment(SWT.CENTER);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gd.minimumWidth = minimumButtonWidth;
         undisplayBtn.setLayoutData(gd);
         undisplayBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                display(false, polygonListBox.getSelectionIndex());
+                display(false);
             }
         });
+        undisplayBtn.setEnabled(false);
 
-        Button deleteBtn = new Button(buttonComp, SWT.PUSH);
+        deleteBtn = new Button(buttonComp, SWT.PUSH);
         deleteBtn.setText("Delete");
-        gd = new GridData(116, SWT.DEFAULT);
-        deleteBtn.setAlignment(SWT.CENTER);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gd.minimumWidth = minimumButtonWidth;
         deleteBtn.setLayoutData(gd);
         deleteBtn.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -237,11 +315,12 @@ public class DeletePolygonDlg extends CaveSWTDialog {
                 delete();
             }
         });
+        deleteBtn.setEnabled(false);
 
-        Button deleteAllBtn = new Button(buttonComp, SWT.PUSH);
+        deleteAllBtn = new Button(buttonComp, SWT.PUSH);
         deleteAllBtn.setText("Delete All");
-        gd = new GridData(116, SWT.DEFAULT);
-        deleteAllBtn.setAlignment(SWT.CENTER);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gd.minimumWidth = minimumButtonWidth;
         deleteAllBtn.setLayoutData(gd);
         deleteAllBtn.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -249,6 +328,7 @@ public class DeletePolygonDlg extends CaveSWTDialog {
                 deleteAll();
             }
         });
+        deleteAllBtn.setEnabled(false);
     }
 
     /**
@@ -256,15 +336,14 @@ public class DeletePolygonDlg extends CaveSWTDialog {
      */
     private void createCloseButton(Composite comp) {
         // Add separator
-        GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false, 2, 1);
+        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Label sepLbl = new Label(comp, SWT.SEPARATOR | SWT.HORIZONTAL);
-        gd.widthHint = 480;
         sepLbl.setLayoutData(gd);
 
         Button closeBtn = new Button(comp, SWT.PUSH);
         closeBtn.setText("Close");
-        gd = new GridData(SWT.CENTER, SWT.DEFAULT, false, false, 2, 1);
-        gd.widthHint = 90;
+        gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
+        gd.minimumWidth = closeBtn.getDisplay().getDPI().x;
         closeBtn.setAlignment(SWT.CENTER);
         closeBtn.setLayoutData(gd);
         closeBtn.addSelectionListener(new SelectionAdapter() {
@@ -282,74 +361,70 @@ public class DeletePolygonDlg extends CaveSWTDialog {
         MPEDisplayManager displayManager = MPEDisplayManager.getCurrent();
         Date editDate = displayManager.getCurrentEditDate();
         DisplayFieldData fieldData = displayManager.getDisplayFieldType();
-        dateTimeTF.setText(sdf.format(editDate));
-
-        polygonListBox.removeAll();
+        dateTimeLbl.setText(sdf.format(editDate));
 
         String type = displayManager.getDisplayFieldType().getFieldName();
-        
-        productTF.setText(type);
+        productLbl.setText(type);
         polygonList = PolygonEditManager.getPolygonEdits(fieldData, editDate);
-        recreatePolygonListBox();
+        populatePolygonTable();
     }
 
-    /**
-     * Recreates the polygonListBox based on polygonList field
-     */
-    private void recreatePolygonListBox() {
-        int[] selected = polygonListBox.getSelectionIndices();
-        polygonListBox.removeAll();
+    private void populatePolygonTable() {
+        table.removeAll();
+
+        if (polygonList.isEmpty()) {
+            displayBtn.setEnabled(false);
+            undisplayBtn.setEnabled(false);
+            deleteBtn.setEnabled(false);
+            deleteAllBtn.setEnabled(false);
+            return;
+        }
+
         for (int i = 0; i < polygonList.size(); i++) {
             RubberPolyData data = polygonList.get(i);
-            String number = String.valueOf(i + 1);
-            String displayed = "F";
-            if (data.isVisible()) {
-                displayed = "T";
-            }
+            final PolygonEditAction action = data.getEditAction();
 
-            String persist = "F";
-            if (data.isPersistent()) {
-                persist = "T";
-            }
+            final String number = String.valueOf(i + 1);
+            final String displayed = data.isVisible() ? POLY_TRUE : POLY_FALSE;
+            final String persist = data.isPersistent() ? POLY_TRUE : POLY_FALSE;
+            final String value = (action == PolygonEditAction.SUB) ? data
+                    .getSubDrawSource().getFieldName() : Double.toString(data
+                    .getPrecipValue());
 
-            PolygonEditAction action = data.getEditAction();
-            if (action == PolygonEditAction.SUB) {
-                String value = data.getSubDrawSource().getFieldName();
-                polygonListBox.add(String.format(format2, number, displayed,
-                        persist, action.toPrettyName(), value));
-            } else {
-                double value = data.getPrecipValue();
-                polygonListBox.add(String.format(format, number, displayed,
-                        persist, action.toPrettyName(), value));
-            }
+            TableItem ti = new TableItem(table, SWT.NONE);
+            ti.setData(data);
+            final String[] tableItemValues = new String[] { number, displayed,
+                    persist, action.toPrettyName(), value };
+            ti.setText(tableItemValues);
         }
-        int numGood = 0;
-        for (int idx : selected) {
-            if (idx >= 0 && idx < polygonListBox.getItemCount()) {
-                numGood += 1;
-            }
+        deleteAllBtn.setEnabled(true);
+    }
+
+    private void handleTableSelection(SelectionEvent e) {
+        if (table.getSelectionCount() <= 0) {
+            this.displayBtn.setEnabled(false);
+            this.undisplayBtn.setEnabled(false);
+            this.deleteBtn.setEnabled(false);
+            return;
         }
-        int[] newSelected = new int[numGood];
-        int i = 0;
-        for (int idx : selected) {
-            if (idx >= 0 && idx < polygonListBox.getItemCount()) {
-                newSelected[i++] = idx;
-            }
-        }
-        polygonListBox.select(newSelected);
+
+        RubberPolyData data = (RubberPolyData) table.getSelection()[0]
+                .getData();
+        final boolean visible = data.isVisible();
+        this.displayBtn.setEnabled(!visible);
+        this.undisplayBtn.setEnabled(visible);
+        this.deleteBtn.setEnabled(true);
     }
 
     /**
      * Delete the selected polygon.
      */
     private void delete() {
-        // Make sure a selection has been made.
-        if (polygonListBox.getSelectionIndex() < 0) {
-            return;
-        }
         // Remove selected from list and apply
-        polygonList.remove(polygonListBox.getSelectionIndex());
-        applyPolygonList();
+        RubberPolyData data = (RubberPolyData) table.getSelection()[0]
+                .getData();
+        polygonList.remove(data);
+        applyPolygonList(true);
     }
 
     /**
@@ -358,7 +433,7 @@ public class DeletePolygonDlg extends CaveSWTDialog {
     private void deleteAll() {
         // Clear the list and apply
         polygonList.clear();
-        applyPolygonList();
+        applyPolygonList(true);
     }
 
     /**
@@ -370,20 +445,26 @@ public class DeletePolygonDlg extends CaveSWTDialog {
      * @param polygon
      *            The polygon to display/undisplay
      */
-    private void display(boolean display, int polygon) {
-        if (polygon >= 0 && polygon < polygonList.size()) {
-            RubberPolyData data = polygonList.get(polygon);
-            data.setVisible(display);
-            applyPolygonList();
-        }
+    private void display(boolean display) {
+        TableItem tableItem = table.getSelection()[0];
+        RubberPolyData data = (RubberPolyData) tableItem.getData();
+        data.setVisible(display);
+        applyPolygonList(false);
+
+        tableItem
+                .setText(DISPLAY_COL_INDEX, (display) ? POLY_TRUE : POLY_FALSE);
+
+        displayBtn.setEnabled(!display);
+        undisplayBtn.setEnabled(display);
     }
 
-    private void applyPolygonList() {
+    private void applyPolygonList(final boolean populate) {
         MPEDisplayManager displayManager = MPEDisplayManager.getCurrent();
         DisplayFieldData fieldData = displayManager.getDisplayFieldType();
         Date editDate = displayManager.getCurrentEditDate();
         PolygonEditManager.writePolygonEdits(fieldData, editDate, polygonList);
-        recreatePolygonListBox();
+        if (populate) {
+            populatePolygonTable();
+        }
     }
-
 }
