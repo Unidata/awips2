@@ -109,6 +109,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * Aug 26, 2015  4777       dhladky     Fixed bug in DPR accumulations.
  * Sep 28, 2015  4756       dhladky     Multiple Guidance upgrades.
  * Feb 04, 2016  5311       dhladky     Bug in creation of source bins fixed.
+ * Apr 07, 2016  5491       tjensen     Fix NullPointerException from getRawGeometries
  * </pre>
  * 
  * @author dhladky
@@ -377,7 +378,8 @@ public class FFMPProcessor {
                                 } else {
                                     if (checkLockStatus()) {
                                         lock();
-                                        if (cwaGeometries == null) {
+                                        if (cwaGeometries == null
+                                           || cwaGeometries.isEmpty()) {
                                             cwaGeometries = template
                                                     .getRawGeometries(dataKey,
                                                             domain.getCwa());
@@ -902,7 +904,7 @@ public class FFMPProcessor {
             }
         } else {
 
-            if (cwaGeometries == null) {
+            if (cwaGeometries == null || cwaGeometries.isEmpty()) {
                 cwaGeometries = template.getRawGeometries(dataKey, cwa);
             }
 
@@ -1007,7 +1009,7 @@ public class FFMPProcessor {
             }
         } else {
 
-            if (cwaGeometries == null) {
+            if (cwaGeometries == null || cwaGeometries.isEmpty()) {
                 cwaGeometries = template.getRawGeometries(dataKey, cwa);
             }
 
@@ -1222,7 +1224,7 @@ public class FFMPProcessor {
             }
         } else {
 
-            if (cwaGeometries == null) {
+            if (cwaGeometries == null || cwaGeometries.isEmpty()) {
                 cwaGeometries = template.getRawGeometries(siteKey, cwa);
             }
 

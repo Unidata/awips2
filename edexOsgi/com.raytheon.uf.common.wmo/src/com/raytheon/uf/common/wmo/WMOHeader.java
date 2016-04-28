@@ -44,7 +44,6 @@ import java.util.regex.Pattern;
  * 20071203            410 jkorman     JavaDoc complaints.
  * Jul 10, 2009 2191       rjpeter     Added getTtaaii.
  * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
- * Mar 22, 2016 DR18763 mgamazaychikov Changed WMO_HEADER regular expression string.
  * </pre>
  * 
  * @author jkorman
@@ -54,7 +53,7 @@ public class WMOHeader {
 
     public static final String INGEST_FILE_NAME = "ingestfilename";
 
-    public static final String WMO_HEADER = "[A-Z]{3}[A-Z0-9](?:\\d{0,2}|[A-Z]{0,2}) [A-Z0-9]{4} \\d{6}(?: [A-Z]{3})?[^\\r\\n]*[\\r]{2}[\\n]";
+    public static final String WMO_HEADER = "[A-Z]{3}[A-Z0-9](?:\\d{0,2}|[A-Z]{0,2}) [A-Z0-9]{4} \\d{6}(?: [A-Z]{3})?[^\\r\\n]*[\\r\\n]+";
 
     private static final Pattern WMO_HEADER_PATTERN = Pattern
             .compile(WMO_HEADER);

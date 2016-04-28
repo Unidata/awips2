@@ -137,6 +137,7 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  * Oct 13, 2015 4933       rferrel     Refactored to use selected variables.
  * Oct 27, 2015 4900       mduff       Don't transmit SHEF files if in DRT.
  * Nov 06, 2015 17846      lbousaidi   change the query so that after QC, the quality_code  
+ * Feb 17, 2016 14471      amoore      Update/insert/modify in Latest obs table
  *                                     is reset from Bad to Good.
  * Mar 17, 2016  5483      randerso    Major GUI cleanup
  * 
@@ -1867,10 +1868,161 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                 }
             }
         } // end if fcst
-
+        else {
+            /* code for inserting/updating latestobsvalue table, if not forecast */
+            updateInsertLatestObsValue(td, dataManager, now, dr, newDateTime);
+        }
         /* reload list of timeseries */
         scheduleDataRetrieval();
         tabularLoadTimeseries();
+    }
+
+    /**
+     * Update/Insert the edited value into the latestobsvalue table, if newer
+     * than the existing record.
+     * 
+     * @param tabularData
+     *            tabular data.
+     * @param dataManager
+     *            data manager.
+     * @param postingTime
+     *            posting time to use.
+     * @param dataRecord
+     *            data record to use/update with information.
+     * @param obsTime
+     *            observation time to use.
+     */
+    private void updateInsertLatestObsValue(TabularData tabularData,
+            TimeSeriesDataManager dataManager, Date postingTime,
+            DataRecord dataRecord, Date obsTime) {
+        String tablename = "latestobsvalue";
+
+        /* set the update/add structure with data which doesn't change */
+        dataRecord.setLid(lid);
+        dataRecord.setPe(pe);
+        dataRecord.setDur(Integer.parseInt(dur));
+        dataRecord.setTs(ts);
+        dataRecord.setExt(extremum);
+        /* set posting time to current time */
+        dataRecord.setPostingTime(postingTime);
+
+        /* set the update structure with data from the original entry */
+
+        if (tabularDataList.size() != 0) {
+
+            dataRecord.setProductId(tabularData.getProductId());
+            dataRecord.setProductTime(tabularData.getProductTime());
+            dataRecord.setValue(Double.parseDouble(valueTF.getText()));
+
+            long qualityCode;
+            if (qcCbo.getItem(qcCbo.getSelectionIndex()).equals("Good")) {
+                qualityCode = TimeSeriesUtil.setQcCode(QC_MANUAL_PASSED,
+                        tabularData.getQualityCode());
+            } else if (qcCbo.getItem(qcCbo.getSelectionIndex()).equals("Bad")) {
+                qualityCode = TimeSeriesUtil.setQcCode(QC_MANUAL_FAILED,
+                        tabularData.getQualityCode());
+            } else {
+                qualityCode = TimeSeriesUtil.setQcCode(QC_MANUAL_QUEST,
+                        tabularData.getQualityCode());
+            }
+
+            dataRecord.setQualityCode(qualityCode);
+
+        } else { /* if no data in list, set defaults values. */
+
+            dataRecord.setProductId(INSERT_PROD_ID);
+            dataRecord.setValue(Double.parseDouble(valueTF.getText()));
+            dataRecord.setQualityCode(TimeSeriesUtil.setQcCode(
+                    QC_MANUAL_PASSED, 0));
+            dataRecord.setRevision(0);
+            obsTime = postingTime;
+
+            try {
+                Date defaultDate = dbFormat.parse(productTimeLbl.getText());
+                dataRecord.setProductTime(defaultDate);
+            } catch (ParseException e) {
+                statusHandler.error("Parse Error: Could not parse ["
+                        + productTimeLbl.getText() + "]", e);
+            }
+
+        }
+        /* always set the shefQualCode with a "M" for Manual edit */
+        dataRecord.setShefQualCode("M");
+
+        /* do the update */
+        String whereExists = createWhereExistsLatestObsValue(dataRecord);
+        String whereOlderExists = createOlderThanWhereLatestObsValue(dataRecord);
+        /* if toggle button ProductTime/ID is checked */
+
+        if (useProductTimeChk.getSelection()) {
+            try {
+                Date useProductDate = dbFormat.parse(productTimeLbl.getText());
+                dataRecord.setProductTime(useProductDate);
+                dataRecord.setProductId(INSERT_PROD_ID);
+
+            } catch (ParseException e) {
+                statusHandler.handle(
+                        Priority.PROBLEM,
+                        "Parse Error: Could not parse ["
+                                + productTimeLbl.getText() + "]", e);
+            }
+        }
+
+        try {
+            long existingRecordCount = dataManager.recordCount(tablename,
+                    whereExists);
+            long olderRecordCount = dataManager.recordCount(tablename,
+                    whereOlderExists);
+            /* already a record with same key that is older */
+            if (olderRecordCount == 1) {
+                dataRecord.setRevision(1);
+                String updateSQL = "update "
+                        + tablename
+                        + " set value = "
+                        + dataRecord.getValue()
+                        + ", quality_code = "
+                        + dataRecord.getQualityCode()
+                        + ", obstime = '"
+                        + HydroConstants.DATE_FORMAT.format(obsTime)
+                        + "', postingtime = '"
+                        + HydroConstants.DATE_FORMAT.format(dataRecord
+                                .getPostingTime())
+                        + "', product_id = '"
+                        + dataRecord.getProductId()
+                        + "', "
+                        + "producttime = '"
+                        + HydroConstants.DATE_FORMAT.format(dataRecord
+                                .getProductTime()) + "', revision = "
+                        + dataRecord.getRevision() + ", shef_qual_code = '"
+                        + dataRecord.getShefQualCode() + "' ";
+
+                String query = updateSQL + whereExists;
+                try {
+                    dataManager.update(query);
+                } catch (VizException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Failed to execute query [" + query + "]", e);
+                }
+            } else if (existingRecordCount == 0) {
+                /*
+                 * if no record, insert a new one and set revision to 0
+                 */
+                try {
+                    dataRecord.setRevision(0);
+                    dataManager.addDataRecord(tablename, dataRecord);
+                } catch (VizException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Failed to add data record to table [" + tablename
+                                    + "]", e);
+                }
+            }
+            scheduleDataRetrieval();
+
+        } catch (VizException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Failed to get record count for table [" + tablename + "]",
+                    e);
+        }
     }
 
     /**
@@ -2061,6 +2213,10 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                     /* copy the deleted record to RejectedData */
                     dataRecordList.add(dr);
                 }
+
+                /********** This part is for latestobsvalue data ****/
+                String where = createUpdDelWhereObs(dr);
+                queryList.add("delete from latestobsvalue" + " " + where);
             }
 
             // execute the queries
@@ -2566,10 +2722,68 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
     }
 
     /**
-     * Create the update and delete where clause
+     * Create the where clause for latestobsvalue table, seeing if matching keys
+     * and the given record's obstime is newer.
+     * 
+     * @param dataRecord
+     *            The DataRecord to update
+     * @return The Where clause used in the update
+     */
+    private String createOlderThanWhereLatestObsValue(DataRecord dr) {
+        StringBuilder sb = new StringBuilder(" where ");
+        sb.append("lid = '");
+        sb.append(dr.getLid());
+        sb.append("' and ");
+        sb.append("pe = '");
+        sb.append(dr.getPe().toUpperCase());
+        sb.append("' and ");
+        sb.append("dur = ");
+        sb.append(dr.getDur());
+        sb.append(" and ");
+        sb.append("ts = '");
+        sb.append(dr.getTs().toUpperCase());
+        sb.append("' and ");
+        sb.append("extremum = '");
+        sb.append(dr.getExt().toUpperCase());
+        sb.append("' and ");
+        sb.append("obstime < '");
+        sb.append(dbFormat.format(dr.getObsTime()));
+        sb.append("';");
+        return sb.toString();
+    }
+
+    /**
+     * Create the update where clause for latestobsvalue table.
      * 
      * @param dataRecord
      *            The DataRecord to update or delete
+     * @return The Where clause used in the update or delete
+     */
+    private String createWhereExistsLatestObsValue(DataRecord dr) {
+        StringBuilder sb = new StringBuilder(" where ");
+        sb.append("lid = '");
+        sb.append(dr.getLid());
+        sb.append("' and ");
+        sb.append("pe = '");
+        sb.append(dr.getPe().toUpperCase());
+        sb.append("' and ");
+        sb.append("dur = ");
+        sb.append(dr.getDur());
+        sb.append(" and ");
+        sb.append("ts = '");
+        sb.append(dr.getTs().toUpperCase());
+        sb.append("' and ");
+        sb.append("extremum = '");
+        sb.append(dr.getExt().toUpperCase());
+        sb.append("';");
+        return sb.toString();
+    }
+
+    /**
+     * Create the update where clause
+     * 
+     * @param dataRecord
+     *            The DataRecord to update
      * @return The Where clause used in the update or delete
      */
     private String createUpdDelWhereObs(DataRecord dr) {

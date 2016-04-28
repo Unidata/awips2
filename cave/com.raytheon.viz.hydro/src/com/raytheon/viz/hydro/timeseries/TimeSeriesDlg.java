@@ -131,6 +131,7 @@ import com.raytheon.viz.ui.widgets.DateTimeSpinner;
  * Oct 13, 2015 4933       rferrel     Log error if unable to find group definition file
  *                                      Fixed formatter resource leaks.
  * 30 Oct, 2015 15102      wkwock      Implements preferred order for PE-D-TS-EXT list
+ * 26 Oct, 2015 14217      jwu         Removed DAYS_MAX & MAX_TRACES limitations
  * Jan 26, 2016 5054       randerso    Allow dialog to be parented to display
  * Mar 17, 2016  5483      randerso    Major GUI cleanup
  * 
@@ -1456,6 +1457,11 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
         PageInfo pageInfo = null;
         GraphData graphData = null;
 
+        // Make sure group definition file exists.
+        if (groupConfigFilePath == null) {
+            return;
+        }
+
         try (BufferedReader in = new BufferedReader(new FileReader(
                 groupConfigFilePath))) {
             String str;
@@ -1826,13 +1832,19 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
         tableButton.setEnabled(false);
         graphButton.setEnabled(false);
         bothButton.setEnabled(false);
-        openTabularDisplay();
-        openGraph();
+        
+        // Open display/graph if user's selections are valid.
+        if (validateForm()) {
+            openTabularDisplay();
+            openGraph();
+            tabularDlg.getShell().moveAbove(this.shell);
+            timeSeriesDisplayDlg.getShell().moveAbove(this.shell);
+        }
+
         tableButton.setEnabled(true);
         graphButton.setEnabled(true);
         bothButton.setEnabled(true);
-        tabularDlg.getShell().moveAbove(this.shell);
-        timeSeriesDisplayDlg.getShell().moveAbove(this.shell);
+
     }
 
     /**
@@ -2117,19 +2129,6 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
             if (endCal.getTimeInMillis() - beginCal.getTimeInMillis() < 0) {
                 MessageDialog.openWarning(shell, "Invalid Date Selection",
                         "Ending Time is prior to Beginning Time");
-                valid = false;
-            }
-
-            long numberOfDays = (endCal.getTimeInMillis() - beginCal
-                    .getTimeInMillis())
-                    / HydroConstants.MILLIS_PER_MINUTE
-                    / 60
-                    / 24;
-
-            if (numberOfDays > HydroConstants.DAYS_MAX) {
-                MessageDialog.openWarning(shell, "Invalid Date Selection",
-                        "Time Period exceeds " + HydroConstants.DAYS_MAX
-                                + " days");
                 valid = false;
             }
 

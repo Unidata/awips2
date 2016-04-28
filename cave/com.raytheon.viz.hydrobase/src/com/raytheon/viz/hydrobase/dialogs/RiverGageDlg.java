@@ -82,6 +82,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Feb.02, 2015 #13372      djingtao    Change from GMT time to local time for "Revise" field
  * May 15, 2015 4380        skorolev    Added issuanceStage and issuanceFlow text fields.
  * Jul 06, 2015 #14104      lbousaidi   increased textlimit to 15 
+ * Nov 30, 2015  14228      wkwock      Update remark limit to 510.
  * Jan 13, 2016 #17652      jingtaoD    use location lat/lon for 1st guess for new River Gage
  * 
  * </pre>
@@ -339,7 +340,7 @@ public class RiverGageDlg extends CaveSWTDialog implements
     /**
      * maximum number of character allowed in the remark text box
      */
-    private final int MAX_REMARK_CHAR = 255;
+    private final int MAX_REMARK_CHAR = 510;
 
     /**
      * Issuance Stage text control

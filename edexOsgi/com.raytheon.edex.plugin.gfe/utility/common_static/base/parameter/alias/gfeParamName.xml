@@ -112,6 +112,7 @@
     <alias base="WGSerranl">wgserranl</alias>
     <alias base="WS">ws</alias>
     <alias base="WSerranl">wserranl</alias>
+    <alias base="WSTP">wstp</alias>
     <alias base="WVDIR">wvdir</alias>
     <alias base="WVHGT">wvhgt</alias>
     <alias base="WVPER">wvper</alias>

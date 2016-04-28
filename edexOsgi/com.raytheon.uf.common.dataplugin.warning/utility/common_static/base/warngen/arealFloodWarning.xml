@@ -161,12 +161,12 @@ Must be paired with proper vm code (also commented out in arealFloodWarning.vm)!
   <bullet bulletName="addRainfall" bulletText="Additional rainfall of XX is expected" parseString="ADDITIONAL RAINFALL AMOUNTS OF"/>
   <bullet bulletName="specificStream" bulletText="Flooding is occurring in a specific stream/river" parseString="FLOOD WATERS ARE MOVING DOWN"/>
   <bullet bulletText="****** CALLS TO ACTION (CHOOSE 1 OR MORE) ******" bulletType="title"/>
-  <bullet bulletName="TADD_CTA" bulletText="Turn around, don't drown" parseString="TURN AROUND, DON'T DROWN"/>
+  <bullet bulletName="TADD_CTA" bulletText="Turn around, don't drown" parseString="&quot;TURN AROUND&quot;,&quot;DON'T DROWN&quot;"/>
   <bullet bulletName="actQuicklyCTA" bulletText="Act Quickly" parseString="ACT QUICKLY TO PROTECT YOUR LIFE"/>
   <bullet bulletName="childSafetyCTA" bulletText="Child Safety" parseString="KEEP CHILDREN AWAY"/>
   <bullet bulletName="nighttimeCTA" bulletText="Nighttime flooding" parseString="AT NIGHT WHEN IT IS HARDER TO RECOGNIZE"/>
-  <bullet bulletName="urbanCTA" bulletText="Urban areas" parseString="URBAN AREAS, HIGHWAYS, STREETS AND UNDERPASSES"/>
-  <bullet bulletName="ruralCTA" bulletText="Rural areas" parseString="COUNTRY ROADS, FARMLAND, AND OTHER LOW LYING SPOTS"/>
+  <bullet bulletName="urbanCTA" bulletText="Urban areas" parseString="&quot;URBAN AREAS&quot;,&quot;HIGHWAYS&quot;,&quot;UNDERPASSES&quot;"/>
+  <bullet bulletName="ruralCTA" bulletText="Rural areas" parseString="&quot;COUNTRY ROADS&quot;,&quot;FARMLAND&quot;,&quot;LOW LYING SPOTS&quot;"/>
   <bullet bulletName="stayAwayCTA" bulletText="Stay away" parseString="STAY AWAY OR BE SWEPT AWAY"/>
   <bullet bulletName="lowSpotsCTA" bulletText="Low spots in hilly terrain" parseString="IN HILLY TERRAIN THERE ARE HUNDREDS OF LOW WATER CROSSINGS"/>
   <bullet bulletName="arroyosCTA" bulletText="Arroyos" parseString="ARROYOS"/>
@@ -222,12 +222,12 @@ Must be paired with proper vm code (also commented out in arealFloodWarning.vm)!
   <bullet bulletName="drainages" bulletText="Automated list of drainages" parseString="THIS INCLUDES THE FOLLOWING STREAMS AND DRAINAGES" loadMap="River Drainage Basins"/>
   <bullet bulletName="specificStream" bulletText="Flooding is occurring in a specific stream/river" parseString="FLOOD WATERS ARE MOVING DOWN"/>
   <bullet bulletText="****** CALLS TO ACTION (CHOOSE 1 OR MORE) ******" bulletType="title"/>
-  <bullet bulletName="TADD_CTA" bulletText="Turn around, don't drown" parseString="TURN AROUND, DON'T DROWN"/>
+  <bullet bulletName="TADD_CTA" bulletText="Turn around, don't drown" parseString="&quot;TURN AROUND&quot;,&quot;DON'T DROWN&quot;"/>
   <bullet bulletName="actQuicklyCTA" bulletText="Act Quickly" parseString="ACT QUICKLY TO PROTECT YOUR LIFE"/>
   <bullet bulletName="childSafetyCTA" bulletText="Child Safety" parseString="KEEP CHILDREN AWAY"/>
   <bullet bulletName="nighttimeCTA" bulletText="Nighttime flooding" parseString="AT NIGHT WHEN IT IS HARDER TO RECOGNIZE"/>
-  <bullet bulletName="urbanCTA" bulletText="Urban areas" parseString="URBAN AREAS, HIGHWAYS, STREETS AND UNDERPASSES"/>
-  <bullet bulletName="ruralCTA" bulletText="Rural areas" parseString="COUNTRY ROADS, FARMLAND, AND OTHER LOW LYING SPOTS"/>
+  <bullet bulletName="urbanCTA" bulletText="Urban areas" parseString="&quot;URBAN AREAS&quot;,&quot;HIGHWAYS&quot;,&quot;UNDERPASSES&quot;"/>
+  <bullet bulletName="ruralCTA" bulletText="Rural areas" parseString="&quot;COUNTRY ROADS&quot;,&quot;FARMLAND&quot;,&quot;LOW LYING SPOTS&quot;"/>
   <bullet bulletName="stayAwayCTA" bulletText="Stay away" parseString="STAY AWAY OR BE SWEPT AWAY"/>
   <bullet bulletName="lowSpotsCTA" bulletText="Low spots in hilly terrain" parseString="IN HILLY TERRAIN THERE ARE HUNDREDS OF LOW WATER CROSSINGS"/>
   <bullet bulletName="arroyosCTA" bulletText="Arroyos" parseString="ARROYOS"/>
@@ -283,12 +283,12 @@ Must be paired with proper vm code (also commented out in arealFloodWarning.vm)!
   <bullet bulletName="drainages" bulletText="Automated list of drainages" parseString="THIS INCLUDES THE FOLLOWING STREAMS AND DRAINAGES" loadMap="River Drainage Basins"/>
   <bullet bulletName="specificStream" bulletText="Flooding is occurring in a specific stream/river" parseString="FLOOD WATERS ARE MOVING DOWN"/>
   <bullet bulletText="****** CALLS TO ACTION (CHOOSE 1 OR MORE) ******" bulletType="title"/>
-  <bullet bulletName="TADD_CTA" bulletText="Turn around, don't drown" parseString="TURN AROUND, DON'T DROWN"/>
+  <bullet bulletName="TADD_CTA" bulletText="Turn around, don't drown" parseString="&quot;TURN AROUND&quot;,&quot;DON'T DROWN&quot;"/>
   <bullet bulletName="actQuicklyCTA" bulletText="Act Quickly" parseString="ACT QUICKLY TO PROTECT YOUR LIFE"/>
   <bullet bulletName="childSafetyCTA" bulletText="Child Safety" parseString="KEEP CHILDREN AWAY"/>
   <bullet bulletName="nighttimeCTA" bulletText="Nighttime flooding" parseString="AT NIGHT WHEN IT IS HARDER TO RECOGNIZE"/>
-  <bullet bulletName="urbanCTA" bulletText="Urban areas" parseString="URBAN AREAS, HIGHWAYS, STREETS AND UNDERPASSES"/>
-  <bullet bulletName="ruralCTA" bulletText="Rural areas" parseString="COUNTRY ROADS, FARMLAND, AND OTHER LOW LYING SPOTS"/>
+  <bullet bulletName="urbanCTA" bulletText="Urban areas" parseString="&quot;URBAN AREAS&quot;,&quot;HIGHWAYS&quot;,&quot;UNDERPASSES&quot;"/>
+  <bullet bulletName="ruralCTA" bulletText="Rural areas" parseString="&quot;COUNTRY ROADS&quot;,&quot;FARMLAND&quot;,&quot;LOW LYING SPOTS&quot;"/>
   <bullet bulletName="stayAwayCTA" bulletText="Stay away" parseString="STAY AWAY OR BE SWEPT AWAY"/>
   <bullet bulletName="lowSpotsCTA" bulletText="Low spots in hilly terrain" parseString="IN HILLY TERRAIN THERE ARE HUNDREDS OF LOW WATER CROSSINGS"/>
   <bullet bulletName="arroyosCTA" bulletText="Arroyos" parseString="ARROYOS"/>

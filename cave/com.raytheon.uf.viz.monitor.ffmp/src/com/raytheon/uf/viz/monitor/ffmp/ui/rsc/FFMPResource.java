@@ -475,11 +475,16 @@ public class FFMPResource extends
             LoadProperties loadProperties) {
         super(resourceData, loadProperties);
         getResourceData().addChangeListener(this);
-        
-        // The FFMPMonitor dialog was opened here previously but this led
-        // to an issue where if the user pressed the clear button before the
-        // FFMPResource was properly initialized the dialog would not close.
-        // Opening the dialog is now the responsibility of the FFMPResource
+
+        monitor = getResourceData().getMonitor();
+        monitor.addResourceListener(this);
+
+        if (getResourceData().tableLoad) {
+            if (!isBasinToggle()) {
+                setBasinToggle(true);
+            }
+            monitor.launchFFMPDialog(this);
+        }
         
         // So we are not time agnostic
         dataTimes = new ArrayList<DataTime>();
@@ -1293,16 +1298,6 @@ public class FFMPResource extends
 
             }
         });
-
-        monitor = getResourceData().getMonitor();
-        monitor.addResourceListener(this);
-
-        if (getResourceData().tableLoad) {
-            if (!isBasinToggle()) {
-                setBasinToggle(true);
-            }
-            monitor.launchFFMPDialog(this);
-        }
         
         // Set flag for HPE data
         isHpe = resourceData.dataKey.equalsIgnoreCase(HPE)

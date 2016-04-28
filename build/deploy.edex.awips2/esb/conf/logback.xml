@@ -10,4 +10,19 @@
       <level value="INFO"/> 
       <appender-ref ref="asyncConsole"/> 
     </root> 
+    
+     <!-- HydroDualPol log --> 
+   <appender name="HydroDualPolLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <rollingPolicy class="com.raytheon.uf.common.logback.policy.StdTimeBasedRollingPolicy">
+         <name>hydrodualpol</name>
+      </rollingPolicy>
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
+   </appender>
+
+   <!-- default logging -->
+   <logger name="HydroDualPolLog" additivity="false">
+      <level value="DEBUG"/>
+      <appender-ref ref="HydroDualPolLog"/>
+   </logger>
+   
 </configuration>

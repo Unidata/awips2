@@ -23,8 +23,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import com.raytheon.viz.hydrocommon.HydroConstants;
-
 /**
  * Object to hold the data and metadata for the time series.
  * 
@@ -36,6 +34,7 @@ import com.raytheon.viz.hydrocommon.HydroConstants;
  * ------------	----------	-----------	--------------------------
  * Jun 24, 2008				mpduff	    Initial creation.
  * May 06, 2013   1976      mpduff      Use List interface.
+ * 26 Oct, 2015   14217     jwu         Removed DAYS_MAX & MAX_TRACES limitations
  * 
  * </pre>
  * 
@@ -311,10 +310,8 @@ public class GraphData {
     }
 
     public void addTrace(TraceData trace) {
-        if (traces.size() < HydroConstants.MAX_TRACES) {
-            if (!traces.contains(trace)) {
-                traces.add(trace);
-            }
+        if (!traces.contains(trace)) {
+            traces.add(trace);
         }
     }
 
@@ -340,9 +337,7 @@ public class GraphData {
      *            true if value is stage, false otherwise
      */
     public void addIsStage(boolean isStage) {
-        if (traces.size() < HydroConstants.MAX_TRACES) {
-            this.isStage.add(isStage);
-        }
+        this.isStage.add(isStage);
     }
 
     /**
