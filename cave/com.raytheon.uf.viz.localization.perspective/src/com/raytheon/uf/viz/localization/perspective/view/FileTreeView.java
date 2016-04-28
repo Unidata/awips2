@@ -150,6 +150,7 @@ import com.raytheon.uf.viz.localization.service.ILocalizationService;
  * Jan 11, 2016 5242       kbisanz     Replaced calls to deprecated LocalizationFile methods
  * Jan 15, 2016 5242       kbisanz     Replaced LocalizationFile with
  *                                     ILocalizationFile where possible
+ * Apr 14, 2016 4946       mapeters    Fix duplicate files listed in delete confirmation dialog
  * 
  * </pre>
  * 
@@ -921,9 +922,13 @@ public class FileTreeView extends ViewPart implements IPartListener2,
             }
 
             if (toDelete.size() > 0) {
-                Collections.sort(toDelete, new FileTreeFileComparator());
-                mgr.add(new DeleteAction(getSite().getPage(), toDelete
-                        .toArray(new LocalizationFile[toDelete.size()])));
+                // Duplicates occur if both a dir and its contents are selected
+                LocalizationFile[] toDeleteWithoutDuplicates = new HashSet<>(
+                        toDelete).toArray(new LocalizationFile[0]);
+                Arrays.sort(toDeleteWithoutDuplicates,
+                        new FileTreeFileComparator());
+                mgr.add(new DeleteAction(getSite().getPage(),
+                        toDeleteWithoutDuplicates));
                 mgr.add(new Separator());
             }
         }

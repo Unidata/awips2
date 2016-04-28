@@ -19,7 +19,7 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <contribute xsi:type="toolbarSubMenu" menuText="Probablistic Forecasts">
+    <contribute xsi:type="toolbarSubMenu" menuText="Probabilistic Forecasts">
         <contribute xsi:type="toolbarSubMenu" menuText="12hr">
             <contribute xsi:type="menuItem" menuText="12hr 5th Percentile Snow accumulation" key="TOTSN5pct12hr" indentText="false" />
             <contribute xsi:type="menuItem" menuText="12hr 10th Percentile Snow accumulation" key="TOTSN10pct12hr" indentText="false" />

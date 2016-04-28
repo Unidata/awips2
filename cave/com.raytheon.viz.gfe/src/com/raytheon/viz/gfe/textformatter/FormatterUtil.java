@@ -23,7 +23,14 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
+
 import com.raytheon.uf.common.activetable.ActiveTableMode;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.viz.core.mode.CAVEMode;
@@ -52,6 +59,8 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeProhibitedOpException;
  * Aug 26, 2015  4804      dgilling    Add methods so SmartScript can run formatters.
  * Sep 15, 2015  4858      dgilling    Disable store/transmit in DRT mode.
  * Oct 01, 2015  4888      dgilling    Fix javadoc for exceptions.
+ * Apr 14, 2016  5578      dgilling    Ensure formatters launched interactively
+ *                                     ask for varDict before execution.
  * 
  * </pre>
  * 
@@ -60,6 +69,9 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeProhibitedOpException;
  */
 
 public class FormatterUtil {
+
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(FormatterUtil.class);
 
     public static final String[] VTEC_MODES = { "Normal: NoVTEC",
             "Normal: O-Vtec", "Normal: E-Vtec", "Normal: X-Vtec",
@@ -85,20 +97,43 @@ public class FormatterUtil {
      *            VTEC mode
      * @param finish
      *            listener to fire when formatter finishes generating product
-     * @throws SimulatedTimeProhibitedOperationException
+     * 
      */
-    public static void runFormatterScript(DataManager dataMgr,
-            TextProductManager productMgr, String productName, String dbId,
-            String vtecMode, TextProductFinishListener finish)
-            throws SimulatedTimeProhibitedOpException {
-        String activeTable = getActiveTableName(dataMgr);
-        int testMode = getTestMode(dataMgr, vtecMode);
-        String shortVtec = getVTECModeCode(vtecMode);
-        String name = productMgr.getModuleName(productName);
-        String time = getDRTString();
+    public static void runFormatterScript(final DataManager dataMgr,
+            final TextProductManager productMgr, final String productName,
+            final String dbId, final String vtecMode,
+            final TextProductFinishListener finish) {
+        /*
+         * we wrap this inside an eclipse Job so that we aren't blocking the UI
+         * thread by waiting for the varDict result. Waiting on the varDict on
+         * the UI thread would cause a deadlock because ValuesDialog requires
+         * use of VizApp.runAsync.
+         */
+        Job runFormatterJob = new Job("Running product formatter") {
 
-        runFormatterScript(name, shortVtec, dbId, activeTable, time, testMode,
-                finish, dataMgr);
+            @Override
+            protected IStatus run(IProgressMonitor monitor) {
+                String activeTable = getActiveTableName(dataMgr);
+                int testMode = getTestMode(dataMgr, vtecMode);
+                String shortVtec = getVTECModeCode(vtecMode);
+                String name = productMgr.getModuleName(productName);
+                String time = getDRTString();
+                String varDict = dataMgr.getTextProductMgr().obtainVarDictSelections(name,
+                        dataMgr, dbId);
+
+                try {
+                    runFormatterScript(name, shortVtec, dbId, varDict,
+                            activeTable, time, testMode, finish, dataMgr);
+                } catch (Exception e) {
+                    statusHandler.error(String.format(
+                            "Error running text formatter %s", productName), e);
+                }
+
+                return Status.OK_STATUS;
+            }
+        };
+        runFormatterJob.setSystem(true);
+        runFormatterJob.schedule();
     }
 
     /**
@@ -132,14 +167,6 @@ public class FormatterUtil {
         String time = getDRTString();
         runFormatterScript(name, shortVtec, dbId, varDict, activeTable, time,
                 testMode, listener, dataMgr);
-    }
-
-    public static void runFormatterScript(String name, String vtecMode,
-            String databaseID, String vtecActiveTable, String drtTime,
-            int testMode, TextProductFinishListener finish, DataManager dataMgr)
-            throws SimulatedTimeProhibitedOpException {
-        runFormatterScript(name, vtecMode, databaseID, null, vtecActiveTable,
-                drtTime, testMode, finish, dataMgr);
     }
 
     public static void runFormatterScript(String name, String vtecMode,

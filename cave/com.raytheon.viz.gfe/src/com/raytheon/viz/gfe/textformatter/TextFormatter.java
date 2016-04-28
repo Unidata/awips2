@@ -25,10 +25,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import jep.JepException;
-
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
-import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
 import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.PerformanceStatus;
@@ -37,7 +33,6 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.dialogs.formatterlauncher.ConfigData;
 import com.raytheon.viz.gfe.dialogs.formatterlauncher.ConfigData.ProductStateEnum;
@@ -65,6 +60,7 @@ import com.raytheon.viz.gfe.tasks.AbstractGfeTask;
  * Aug 26, 2015  #4804     dgilling    Support ability to run TextFormatters 
  *                                     from SmartScript.
  * Dec 08, 2015  #5129     dgilling    Pass IFPClient to getVarDict.
+ * Apr 14, 2016  #5578     dgilling    Remove getVarDict.
  * 
  * </pre>
  * 
@@ -166,9 +162,7 @@ public class TextFormatter extends AbstractGfeTask {
         argMap.put(ArgDictConstants.VTEC_MODE, vtecMode);
         argMap.put(ArgDictConstants.VTEC_ACTIVE_TABLE, vtecActiveTable);
         argMap.put("drtTime", drtTime);
-        if (!StringUtil.isEmptyString(varDict)) {
-            argMap.put(ArgDictConstants.CMDLINE_VARDICT, varDict);
-        }
+        argMap.put(ArgDictConstants.CMDLINE_VARDICT, varDict);
 
         listener = finish;
         this.state = ConfigData.ProductStateEnum.Queued;
@@ -187,14 +181,6 @@ public class TextFormatter extends AbstractGfeTask {
 
             String productName = (String) argMap
                     .get(ArgDictConstants.FORECAST_LIST);
-            String issuedBy = dataMgr.getTextProductMgr().getIssuedBy();
-            String dbId = (String) argMap.get(ArgDictConstants.DATABASE_ID);
-
-            if (!argMap.containsKey(ArgDictConstants.CMDLINE_VARDICT)) {
-                String varDict = getVarDict(productName, dataMgr, dbId,
-                        issuedBy, script);
-                argMap.put(ArgDictConstants.CMDLINE_VARDICT, varDict);
-            }
 
             String varDict = (String) argMap
                     .get(ArgDictConstants.CMDLINE_VARDICT);
@@ -280,22 +266,6 @@ public class TextFormatter extends AbstractGfeTask {
                 .append(argMap.get(ArgDictConstants.VTEC_ACTIVE_TABLE));
 
         return sb.toString();
-    }
-
-    private String getVarDict(String productName, DataManager dataManager,
-            String dbId, String issuedBy, FormatterScript script)
-            throws JepException {
-        Map<String, Object> map = new HashMap<String, Object>(5, 1f);
-        map.put("paths", GfePyIncludeUtil.getTextProductsIncludePath());
-        map.put("dspName",
-                dataManager.getTextProductMgr().getDisplayName(productName));
-        map.put("dataMgr", dataManager);
-        map.put("ifpClient", dataManager.getClient().getPythonClient());
-        map.put("issuedBy", issuedBy);
-        map.put("dataSource", new DatabaseID(dbId).getModelName());
-
-        String varDict = (String) script.execute("getVarDict", map);
-        return varDict;
     }
 
     @Override

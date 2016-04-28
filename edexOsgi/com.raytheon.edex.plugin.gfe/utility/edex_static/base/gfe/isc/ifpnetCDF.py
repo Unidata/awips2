@@ -41,6 +41,8 @@
 #    05/13/2015      4427          dgilling       Add siteIdOverride field.
 #    08/06/2015      4718          dgilling       Optimize casting when using where with
 #                                                 NumPy 1.9.
+#    04/07/2016      5539          randerso       Reversed order of parameters/return value in collapseKey 
+#                                                 to match order of Wx/Discrete tuple 
 #
 ##
 
@@ -924,21 +926,20 @@ def storeVectorWE(we, trList, file, timeRange,
 
 ###-------------------------------------------------------------------------###
 # Collapse key and bytes. (for discrete and weather)
-### Returns tuple of (updated key, updated grid)
-def collapseKey(keys, grid):
+### Returns tuple of (updated grid, updated key)
+def collapseKey(grid, keys):
     #make list of unique indexes in the grid
     flatGrid = grid.flat
-    used = []
+    used = numpy.zeros((len(keys)), dtype=numpy.bool)
     for n in range(flatGrid.__array__().shape[0]):
-        if flatGrid[n] not in used:
-            used.append(flatGrid[n])
+        used[0xFF & flatGrid[n]] = True
 
     #make reverse map
     map = []
     newKeys = []
     j = 0
     for i in range(len(keys)):
-       if i in used:
+       if used[i]:
            map.append(j)
            newKeys.append(keys[i])
            j = j + 1
@@ -948,10 +949,10 @@ def collapseKey(keys, grid):
     # modify the data
     newGrid = grid
     for k in range(len(map)):
-       mask = numpy.equal(k, grid)
+       mask = numpy.equal(numpy.int8(k), grid)
        newGrid = numpy.where(mask, numpy.int8(map[k]), newGrid).astype(numpy.int8)
 
-    return (newKeys, newGrid)
+    return (newGrid, newKeys)
 
 ###-------------------------------------------------------------------------###
 # Stores the specified Weather WE in the netCDF file whose grids fall within
@@ -987,7 +988,7 @@ def storeWeatherWE(we, trList, file, timeRange, databaseID, invMask, clipArea, s
     #  Process the weather keys so we store only what is necessary
     
     for g in range(byteCube.shape[0]):
-        (keyList[g], byteCube[g]) = collapseKey(keyList[g], byteCube[g])
+        (byteCube[g], keyList[g]) = collapseKey(byteCube[g], keyList[g])
 
     # Mask the values
     fillValue = -127
@@ -1072,7 +1073,7 @@ def storeDiscreteWE(we, trList, file, timeRange, databaseID, invMask, clipArea, 
     #  Process the discrete keys so we store only what is necessary
 
     for g in range(byteCube.shape[0]):
-        (keyList[g], byteCube[g]) = collapseKey(keyList[g], byteCube[g])
+        (byteCube[g], keyList[g]) = collapseKey(byteCube[g], keyList[g])
 
     # Mask the values
     fillValue = -127
