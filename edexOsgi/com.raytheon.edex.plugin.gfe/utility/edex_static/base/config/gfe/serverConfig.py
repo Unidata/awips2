@@ -3153,7 +3153,6 @@ DATABASES = [
 # Intersite coordination database parameter groupings, based on
 # OFFICIALDBS, but time constraint is always TC1
 ISCPARMS = []
-<<<<<<< HEAD
 if type(officeType) != str:
     raise TypeError, "Office type not a str: " + `officeType`
 else:
@@ -3161,9 +3160,6 @@ else:
         raise ValueError, "Office type: " + str(officeType) + " does not match any of the following: [" + (', '.join(VALID_OFFICE_TYPES)) + "]"
     
         
-=======
-
->>>>>>> master_16.2.2
 #
 # new parameters for NewTerrain
 #
