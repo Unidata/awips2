@@ -64,6 +64,7 @@ import com.raytheon.viz.texteditor.util.VtecUtil;
  * 15 SEP 2014    529      mgamazaychikov   Create firstBulletImmediateCauseQCExclusions list and add IC to it.
  * 29 MAY 2015   4441      randerso    Fixed QC to work with mixed case 
  * 24 NOV 2015   DR 17501  dhuffman    Added lookaheads to ugc pattern to remove the telephone number special case.
+ * 28 APR 2016  DR 18947   D. Friedman Fixed UGC pattern.
  * 
  * </pre>
  * 
@@ -72,7 +73,7 @@ import com.raytheon.viz.texteditor.util.VtecUtil;
 public class TextSegmentCheck implements IQCCheck {
 
     private static final Pattern ugcPtrn = Pattern
-            .compile("(^(?!\\d{3}-\\d{4}[^-]*)^(?!\\d{3}-\\d{3}-\\d{4}[^-]*)(((\\w{2}[CZ](\\d{3}-){1,}){1,})|(\\d{3}-){1,})(((\\d{2})(\\d{2})(\\d{2})-){0,1}))");
+            .compile("^(?:(?:[A-Z]{2}[CZ]\\d{3}-)?(?:\\d{3}-)*)*(?:\\d{6}-)?$");
 
     private static Map<String, List<String>> bulletTypeMaps;
     static {
