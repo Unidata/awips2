@@ -4433,7 +4433,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                         nnnxxxOffset = nnnxxxOffset + 1;
                     }
                 }
-                String replaceText = textEditor.getText().substring(nnnxxxOffset);
+                String replaceText = textEditor.getText().substring(
+                        nnnxxxOffset);
                 textEditor.setText(replaceText);
             }
 

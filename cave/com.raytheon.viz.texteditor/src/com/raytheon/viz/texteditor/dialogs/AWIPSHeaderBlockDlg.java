@@ -459,8 +459,10 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
             prodDesignatorTF.setText(textProd.getXxxid());
 
             // Special case when a product does not have WMO header
-            if (textProd.getWmoid().equals("")) {
-                lookupWmoIDs();
+            if (textProd.getWmoid() != null) {
+                if (textProd.getWmoid().equals("")) {
+                    lookupWmoIDs();
+                }
             }
         }
     }
