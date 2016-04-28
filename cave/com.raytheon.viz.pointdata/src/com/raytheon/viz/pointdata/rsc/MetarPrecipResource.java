@@ -32,6 +32,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import javax.measure.unit.Unit;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -47,12 +49,19 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
+import com.raytheon.uf.common.colormap.Color;
+import com.raytheon.uf.common.colormap.ColorMapException;
+import com.raytheon.uf.common.colormap.ColorMapLoader;
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
+import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences;
+import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences.DataMappingEntry;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURIUtil;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
+import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -72,6 +81,7 @@ import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.DensityCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
@@ -106,7 +116,29 @@ public class MetarPrecipResource extends
         AbstractVizResource<MetarPrecipResourceData, IMapDescriptor> {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(MetarPrecipResource.class);
+	
+	private RGB color = new RGB(126, 126, 126);
+    
+    public RGB getColorByValue(float value) {
+    	ColorMapParameters parameters = getCapability(ColorMapCapability.class).getColorMapParameters();
+        if (parameters != null) {
+            Color color = parameters.getColorByValue(value);
+            if (color != null) {
+                return new RGB((int) (color.getRed() * 255),
+                        (int) (color.getGreen() * 255),
+                        (int) (color.getBlue() * 255));
+            }
+        }
+        return getColor();
+    }
 
+    public RGB getColor() {
+        return color;
+    }
+
+    public void setColor(RGB color) {
+        this.color = color;
+    }
     private static final int PLOT_PIXEL_SIZE = 30;
 
     private class RenderablePrecipData extends PrecipData {
@@ -184,7 +216,7 @@ public class MetarPrecipResource extends
             return;
         }
 
-        RGB color = getCapability(ColorableCapability.class).getColor();
+        //RGB color = getCapability(ColorableCapability.class).getColor();
         Double magnification = getCapability(MagnificationCapability.class)
                 .getMagnification();
         Double density = getCapability(DensityCapability.class).getDensity();
@@ -211,7 +243,7 @@ public class MetarPrecipResource extends
             if (data.distValue >= threshold) {
                 // This is easier then changing it when the capability changes.
                 data.string.font = this.font;
-                data.string.setText(data.string.getText(), color);
+                //data.string.setText(data.string.getText(), color);
                 strings.add(data.string);
             }
         }
@@ -236,6 +268,59 @@ public class MetarPrecipResource extends
     protected void initInternal(IGraphicsTarget target) throws VizException {
         dataTimes = new ArrayList<DataTime>();
         dataProcessJob.schedule();
+        ColorMapParameters params = new ColorMapParameters();
+
+        try {
+            params.setColorMap(ColorMapLoader.loadColorMap("AQI"
+                    + IPathManager.SEPARATOR + "Default Colormap"));
+        } catch (ColorMapException e) {
+            throw new VizException(e);
+        }
+
+        DataMappingPreferences preferences = new DataMappingPreferences();
+
+        DataMappingEntry entry = new DataMappingEntry();
+        entry.setDisplayValue(0.0);
+        entry.setPixelValue(0.0);
+        preferences.addEntry(entry);
+
+        entry = new DataMappingEntry();
+        entry.setDisplayValue(0.5);
+        entry.setPixelValue(1.0);
+        preferences.addEntry(entry);
+
+        entry = new DataMappingEntry();
+        entry.setDisplayValue(1.0);
+        entry.setPixelValue(2.0);
+        preferences.addEntry(entry);
+
+        entry = new DataMappingEntry();
+        entry.setDisplayValue(1.5);
+        entry.setPixelValue(3.0);
+        preferences.addEntry(entry);
+
+        entry = new DataMappingEntry();
+        entry.setDisplayValue(2.0);
+        entry.setPixelValue(4.0);
+        preferences.addEntry(entry);
+
+        entry = new DataMappingEntry();
+        entry.setDisplayValue(3.0);
+        entry.setPixelValue(5.0);
+        preferences.addEntry(entry);
+
+        entry = new DataMappingEntry();
+        entry.setDisplayValue(100.0);
+        entry.setPixelValue(6.0);
+        preferences.addEntry(entry);
+
+        params.setDisplayUnit(Unit.ONE);
+        params.setDataMapping(preferences);
+        params.setColorMapMin(0);
+        params.setColorMapMax(6);
+
+        getCapability(ColorMapCapability.class).setColorMapParameters(params);
+        
     }
 
     @Override
@@ -546,7 +631,7 @@ public class MetarPrecipResource extends
         List<RenderablePrecipData> newPrecips = new ArrayList<RenderablePrecipData>(
                 precips.size());
 
-        RGB color = getCapability(ColorableCapability.class).getColor();
+        //RGB color = getCapability(ColorableCapability.class).getColor();
 
         GridEnvelope2D envelope = GridGeometry2D.wrap(
                 descriptor.getGridGeometry()).getGridRange2D();
@@ -563,8 +648,10 @@ public class MetarPrecipResource extends
                 if (!envelope.contains(px[0], px[1])) {
                     continue;
                 }
+                Float amount = precips.get(i).getPrecipAmt().floatValue();
+                RGB rgbval = getColorByValue(amount);
                 data.string = new DrawableString(formatPrecip(precips.get(i)
-                        .getPrecipAmt()), color);
+                        .getPrecipAmt()), rgbval);
                 data.string.setCoordinates(px[0], px[1], px[2]);
                 data.string.verticalAlignment = VerticalAlignment.MIDDLE;
                 data.string.horizontalAlignment = HorizontalAlignment.CENTER;

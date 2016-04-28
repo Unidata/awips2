@@ -29,9 +29,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.eclipse.swt.graphics.RGB;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 
 import com.raytheon.uf.common.inventory.exception.DataCubeException;
+import com.raytheon.uf.common.colormap.Color;
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.geospatial.MapUtil;
@@ -161,7 +164,8 @@ public class MetarPrecipDataContainer {
     private final Map<Long, Map<String, PrecipData>> cache6 = new HashMap<Long, Map<String, PrecipData>>();
 
     private final Map<DataTime, Set<String>> baseStations = new HashMap<DataTime, Set<String>>();
-
+    
+  
     /**
      * Consturct a container with geospatially filtering to only request data in
      * the area of descriptorEnvelope
@@ -585,4 +589,5 @@ public class MetarPrecipDataContainer {
         }
         return result;
     }
+
 }
