@@ -8,6 +8,9 @@
  -->
 <gridParamInfo xmlns:ns2="group">
   <valtimeMINUSreftime>
+    <fcst>237600</fcst>
+    <fcst>259200</fcst>
+    <fcst>280800</fcst>
     <fcst>302400</fcst>
     <fcst>324000</fcst>
     <fcst>345600</fcst>

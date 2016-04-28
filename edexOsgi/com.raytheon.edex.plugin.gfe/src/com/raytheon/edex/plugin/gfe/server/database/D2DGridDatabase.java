@@ -998,6 +998,11 @@ public class D2DGridDatabase extends VGridDatabase {
                 vRecord = d2dDao.getGrid(d2dModelName, refTime, "vW",
                         windParm.getLevel(), fcstHr, gpi);
 
+                if ((uRecord == null) || (vRecord == null)) {
+                    throw new GfeException("No data available for " + parmId
+                            + " for time range " + timeRange);
+                }
+
                 // Gets the raw grid data from the D2D grib HDF5 files
                 Grid2DFloat uData = getRawGridData(uRecord);
                 Grid2DFloat vData = getRawGridData(vRecord);
@@ -1034,6 +1039,11 @@ public class D2DGridDatabase extends VGridDatabase {
                         windParm.getLevel(), fcstHr, gpi);
                 dRecord = d2dDao.getGrid(d2dModelName, refTime, "WD",
                         windParm.getLevel(), fcstHr, gpi);
+
+                if ((sRecord == null) || (dRecord == null)) {
+                    throw new GfeException("No data available for " + parmId
+                            + " for time range " + timeRange);
+                }
 
                 // Gets the raw grid data from the D2D grib HDF5 files
                 Grid2DFloat sData = getRawGridData(sRecord);
