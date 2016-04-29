@@ -26,6 +26,8 @@
 				<resource>
                     <loadProperties>
 						<capabilities>
+							<capability xsi:type="magnificationCapability" magnification="1.5"/>
+                            <capability xsi:type="densityCapability" density="3"/>
 						</capabilities>
 					</loadProperties>
 					<properties isSystemResource="false" isBlinking="false"

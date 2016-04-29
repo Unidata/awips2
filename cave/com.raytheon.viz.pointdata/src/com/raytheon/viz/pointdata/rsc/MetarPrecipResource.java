@@ -271,8 +271,7 @@ public class MetarPrecipResource extends
         ColorMapParameters params = new ColorMapParameters();
 
         try {
-            params.setColorMap(ColorMapLoader.loadColorMap("AQI"
-                    + IPathManager.SEPARATOR + "Default Colormap"));
+            params.setColorMap(ColorMapLoader.loadColorMap("Precip Accumulation"));
         } catch (ColorMapException e) {
             throw new VizException(e);
         }
@@ -280,7 +279,7 @@ public class MetarPrecipResource extends
         DataMappingPreferences preferences = new DataMappingPreferences();
 
         DataMappingEntry entry = new DataMappingEntry();
-        entry.setDisplayValue(0.0);
+        entry.setDisplayValue(0.005);
         entry.setPixelValue(0.0);
         preferences.addEntry(entry);
 
@@ -310,7 +309,7 @@ public class MetarPrecipResource extends
         preferences.addEntry(entry);
 
         entry = new DataMappingEntry();
-        entry.setDisplayValue(100.0);
+        entry.setDisplayValue(20.0);
         entry.setPixelValue(6.0);
         preferences.addEntry(entry);
 
@@ -684,25 +683,7 @@ public class MetarPrecipResource extends
         if (precipAmt < -0.005) {
             return "";
         } else if (precipAmt < 0.005) {
-            return "T";
-        } else if (precipAmt < 0.015) {
-            return ".o1";
-        } else if (precipAmt < 0.025) {
-            return ".o2";
-        } else if (precipAmt < 0.035) {
-            return ".o3";
-        } else if (precipAmt < 0.045) {
-            return ".o4";
-        } else if (precipAmt < 0.055) {
-            return ".o5";
-        } else if (precipAmt < 0.065) {
-            return ".o6";
-        } else if (precipAmt < 0.075) {
-            return ".o7";
-        } else if (precipAmt < 0.085) {
-            return ".o8";
-        } else if (precipAmt < 0.095) {
-            return ".o9";
+            return "t";
         } else if (precipAmt < 0.495) {
             return String.format("%4.2f", precipAmt).substring(1);
         } else if (precipAmt < 9.995) {

@@ -124,10 +124,10 @@
                             <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="SOLID"/>
                             <capability xsi:type="displayTypeCapability" displayType="IMAGE"/>
                             <capability xsi:type="colorMapCapability">
-                                <colorMapParameters colorMapName="Grid/gridded data">
+                                <colorMapParameters colorMapName="Grid/Temperature F">
                                             <persisted>
-                                                <colorMapMin>245.05</colorMapMin>
-                                                <colorMapMax>302.62222</colorMapMax>
+                                                <colorMapMin>247.9278</colorMapMin>
+                                                <colorMapMax>316.483</colorMapMax>
                                             </persisted>
                                         </colorMapParameters>
                             </capability>
