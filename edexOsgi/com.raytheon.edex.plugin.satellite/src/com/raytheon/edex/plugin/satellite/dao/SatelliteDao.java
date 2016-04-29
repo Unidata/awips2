@@ -67,6 +67,8 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  *                                    plugin.
  * Nov 04, 2014  2714     bclement    removed GINI specific DAOs
  * Apr 15, 2014  4388     bsteffen    Preserve fill value across interpolation levels.
+ * Apr 29, 2016  ----     mjames      Force 1 interpolationLevels for NEXRCOMP products
+ *                                    since def. (5) is pixeled and load time is similar.
  * 
  * </pre>
  * 
@@ -163,8 +165,13 @@ public class SatelliteDao extends PluginDao {
                         }
 
                     });
-            // set the number of levels in the 'parent' satellite data.
-            satRecord.setInterpolationLevels(levels);
+            
+            // If these are 1-4km UCAR NEXRCOMP composites, show full res (no tiling)
+            if (satRecord.getSectorID().equals("NEXRCOMP")){
+            	satRecord.setInterpolationLevels(1);
+            } else {
+            	satRecord.setInterpolationLevels(levels);
+            }
         }
         return dataStore;
     }
