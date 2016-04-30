@@ -26,5 +26,5 @@
     <include installTo="menu:obs?after=MARITIME" 
              fileName="menus/obs/baseMaritime.xml"/>
     <include installTo="menu:obs?before=CollectionDissemination"   
-             fileName="menus/mping/baseMPing.xml"/> 
+             fileName="menus/obs/baseMPing.xml"/> 
 </menuContributionFile>
