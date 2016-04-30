@@ -134,27 +134,28 @@
                 </resource>
                 <timeMatcher xsi:type="d2DTimeMatcher" loadMode="VALID_TIME_SEQ" deltaFilter="0" forecastFilter="0"/>
                 <numberOfFrames>12</numberOfFrames>
-                <gridGeometry envelopeMaxY="330048.65549884734" envelopeMinY="-330041.72068797084" envelopeMaxX="330042.41692510553" envelopeMinX="-330048.3123174316" rangeY="0 9999" rangeX="0 9999">
-                    <CRS>PROJCS["Stereographic", 
-  GEOGCS["WGS84(DD)", 
-    DATUM["WGS84", 
-      SPHEROID["WGS84", 6378137.0, 298.257223563]], 
-    PRIMEM["Greenwich", 0.0], 
-    UNIT["degree", 0.017453292519943295], 
-    AXIS["Geodetic longitude", EAST], 
-    AXIS["Geodetic latitude", NORTH]], 
-  PROJECTION["Stereographic"], 
-  PARAMETER["semi_major", 6371200.0], 
-  PARAMETER["semi_minor", 6371200.0], 
-  PARAMETER["central_meridian", -104.87973], 
-  PARAMETER["latitude_of_origin", 39.774450000000002], 
-  PARAMETER["scale_factor", 1.0], 
-  PARAMETER["false_easting", 0.0], 
-  PARAMETER["false_northing", 0.0], 
-  UNIT["m", 1.0], 
-  AXIS["Easting", EAST], 
+                <gridGeometry rangeX="0 9999" rangeY="0 9999" envelopeMinX="-330048.3123174316" envelopeMaxX="330042.41692510556" envelopeMinY="-230041.72068797087" envelopeMaxY="230048.65549884737">
+                            <CRS>PROJCS["Stereographic",
+  GEOGCS["WGS84(DD)",
+    DATUM["WGS84",
+      SPHEROID["WGS84", 6378137.0, 298.257223563]],
+    PRIMEM["Greenwich", 0.0],
+    UNIT["degree", 0.017453292519943295],
+    AXIS["Geodetic longitude", EAST],
+    AXIS["Geodetic latitude", NORTH]],
+  PROJECTION["Stereographic"],
+  PARAMETER["semi_major", 6371200.0],
+  PARAMETER["semi_minor", 6371200.0],
+  PARAMETER["central_meridian", -104.87973000000001],
+  PARAMETER["latitude_of_origin", 39.77445],
+  PARAMETER["scale_factor", 1.0],
+  PARAMETER["false_easting", 0.0],
+  PARAMETER["false_northing", 0.0],
+  UNIT["m", 1.0],
+  AXIS["Easting", EAST],
   AXIS["Northing", NORTH]]</CRS>
-                </gridGeometry>
+                        </gridGeometry>
+
             </descriptor>
         </displays>
     </displayList>
