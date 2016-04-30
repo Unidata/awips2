@@ -21,7 +21,7 @@
 	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarComposite.xml" 
                 menuText="DHR - Digital Hybrid Reflectivity" id="DHR">
         <substitute key="element" value="DHR"/>
-        <substitute key="colormap" value="Radar/Hi-Res Ref (SGF)"/>
+        <substitute key="colormap" value="Radar/DHR"/>
     </contribute>
 	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarComposite.xml" 
                 menuText="DVL - Digital VIL" id="DVL">
