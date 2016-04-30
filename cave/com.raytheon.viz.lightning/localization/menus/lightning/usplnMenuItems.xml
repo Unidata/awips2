@@ -19,28 +19,30 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <contribute xsi:type="bundleItem" file="bundles/USPLNPlot60Min.xml" 
-                menuText="USPLN 1hr plot" id="1HrUSPLNFlashPlot">
-                <substitute key="source" value="USPLN"/>
-    </contribute>
-    <contribute xsi:type="bundleItem" file="bundles/USPLNPlot15Min.xml" 
-                menuText="USPLN 15min plot" id="15MinUSPLNFlashPlot">
-                <substitute key="source" value="USPLN"/>
-    </contribute>
-    <contribute xsi:type="bundleItem" file="bundles/USPLNPlot15MinPN.xml" 
-                menuText="USPLN 15min Pos/Neg plot" id="15MinPNLightningFlashPlot">
-                <substitute key="source" value="USPLN"/>
-    </contribute> 
-    <contribute xsi:type="bundleItem" file="bundles/USPLNPlot5Min.xml" 
-                menuText="USPLN 5min plot" id="5MinUSPLNFlashPlot">
-                <substitute key="source" value="USPLN"/>
-    </contribute>
-    <contribute xsi:type="bundleItem" file="bundles/USPLNSeq60min.xml" 
-                menuText="USPLN 1hr Lgtng Seq Plot" id="60HrUSPLNFlashSeq">
-                <substitute key="source" value="USPLN"/>
-    </contribute>
-    <contribute xsi:type="bundleItem" file="bundles/LightningSeq.xml" 
-                menuText="USPLN 1min Lgtng Seq Plot" id="1MinUSPLNFlashSeq">
-                <substitute key="source" value="USPLN"/>
-    </contribute>
+	<contribute xsi:type="subMenu" menuText="Lightning - USPLN">
+	    <contribute xsi:type="bundleItem" file="bundles/USPLNPlot60Min.xml" 
+	                menuText="USPLN 1hr plot" id="1HrUSPLNFlashPlot">
+	                <substitute key="source" value="USPLN"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/USPLNPlot15Min.xml" 
+	                menuText="USPLN 15min plot" id="15MinUSPLNFlashPlot">
+	                <substitute key="source" value="USPLN"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/USPLNPlot15MinPN.xml" 
+	                menuText="USPLN 15min Pos/Neg plot" id="15MinPNLightningFlashPlot">
+	                <substitute key="source" value="USPLN"/>
+	    </contribute> 
+	    <contribute xsi:type="bundleItem" file="bundles/USPLNPlot5Min.xml" 
+	                menuText="USPLN 5min plot" id="5MinUSPLNFlashPlot">
+	                <substitute key="source" value="USPLN"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/USPLNSeq60min.xml" 
+	                menuText="USPLN 1hr Lgtng Seq Plot" id="60HrUSPLNFlashSeq">
+	                <substitute key="source" value="USPLN"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/LightningSeq.xml" 
+	                menuText="USPLN 1min Lgtng Seq Plot" id="1MinUSPLNFlashSeq">
+	                <substitute key="source" value="USPLN"/>
+	    </contribute>
+	</contribute>
 </menuTemplate>

@@ -27,7 +27,7 @@
                		<loadProperties loadWithoutData="true">
                         <capabilities>
                             <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true"
-                                outlineWidth="1" />
+                                outlineWidth="4" />
                             <capability xsi:type="colorableCapability" colorAsString="#00FFFF" />
                         </capabilities>
                     </loadProperties>

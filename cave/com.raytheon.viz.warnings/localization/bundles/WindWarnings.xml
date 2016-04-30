@@ -8,20 +8,25 @@
                         <capabilities>
                             <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true"
                                 outlineWidth="4" />
-                            <capability xsi:type="colorableCapability" colorAsString="#ffffff" />
+                            <capability xsi:type="colorableCapability" colorAsString="#CC99FF" />
                         </capabilities>
                     </loadProperties>
 					<properties isSystemResource="false" isBlinking="false"
 						isMapLayer="false" isHoverOn="false" 
 						isVisible="true" />
-					<resourceData xsi:type="cwaspsResourceData" 						
+					<resourceData xsi:type="wwaResourceData" 						
 						isUpdatingOnMetadataOnly="false"
-						retrieveData="true"
-						isRequeryNecessaryOnTimeMatch="false" name="Sig Wx Advisories (SPS)"
-						hideSampling="true">
+						retrieveData="false"
+						isRequeryNecessaryOnTimeMatch="true" name="EWW Warnings">
 						<metadataMap>							
+							<mapping key="act">
+								<constraint constraintValue="NEW,CON,CAN,EXP" constraintType="IN" />
+							</mapping>
 							<mapping key="pil">
-								<constraint constraintValue="SPS" constraintType="IN" />
+								<constraint constraintValue="EWW,EWS,SVS" constraintType="IN" />
+							</mapping>
+							<mapping key="phensig">
+								<constraint constraintValue="EW.W" constraintType="EQUALS" />
 							</mapping>
 							<mapping key="pluginName">
 								<constraint constraintValue="warning" constraintType="EQUALS" />

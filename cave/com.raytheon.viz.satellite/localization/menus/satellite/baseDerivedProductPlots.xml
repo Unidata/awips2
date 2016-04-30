@@ -24,8 +24,8 @@
         <substitute key="legend" value="ASCAT"/>
         <substitute key="svg" value="ascatPlotDesign.svg"/>
         <substitute key="plugin" value="bufrascat"/>
-        <substitute key="posOffset" value="2650"/>
-        <substitute key="negOffset" value="2650"/>
+        <substitute key="posOffset" value="5400"/>
+        <substitute key="negOffset" value="5400"/>
     </contribute>
 	<contribute xsi:type="subMenu" menuText="SSM/I Point Data">
 		<contribute xsi:type="titleItem" 

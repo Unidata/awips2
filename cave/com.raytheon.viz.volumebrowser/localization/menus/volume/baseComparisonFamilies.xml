@@ -19,26 +19,27 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<contribute xsi:type="titleItem" titleText="------ Comparison Families ------"
-		id="ComparisonFamiliesLine" />
-	<contribute xsi:type="bundleItem" file="bundles/volume/HeightComparison.xml"
-		menuText="850MB Height" id="850hgt" useReferenceTime="true">
-			<substitute key="level" value="850.0" />
-	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/volume/HeightComparison.xml"
-		menuText="700MB Height" id="700hgt" useReferenceTime="true">
-			<substitute key="level" value="700.0" />
-	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/volume/HeightComparison.xml"
-		menuText="500MB Height" id="500hgt" useReferenceTime="true">
-			<substitute key="level" value="500.0" />
-	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/volume/HeightComparison.xml"
-		menuText="250MB Height" id="250hgt" useReferenceTime="true">
-			<substitute key="level" value="250.0" />
-	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/volume/MSLPComparison.xml"
-		menuText="MSLP" id="mslPress" useReferenceTime="true">
+	<contribute xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="subMenu" 
+	menuText="Comparison Families" id="ComparisonFamiliesLine">
+		<contribute xsi:type="bundleItem" file="bundles/volume/HeightComparison.xml"
+			menuText="850MB Height" id="850hgt" useReferenceTime="true">
+				<substitute key="level" value="850.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/HeightComparison.xml"
+			menuText="700MB Height" id="700hgt" useReferenceTime="true">
+				<substitute key="level" value="700.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/HeightComparison.xml"
+			menuText="500MB Height" id="500hgt" useReferenceTime="true">
+				<substitute key="level" value="500.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/HeightComparison.xml"
+			menuText="250MB Height" id="250hgt" useReferenceTime="true">
+				<substitute key="level" value="250.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/MSLPComparison.xml"
+			menuText="MSLP" id="mslPress" useReferenceTime="true">
+		</contribute>
 	</contribute>
 	<contribute xsi:type="titleItem" titleText="------ Ocean Products ------"
 		id="OceanModelsLine" />

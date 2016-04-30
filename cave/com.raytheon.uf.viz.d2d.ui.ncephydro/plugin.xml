@@ -35,27 +35,27 @@
              </visibleWhen>
              <separator
                    name="SPC"
-                   visible="true">
+                   visible="false">
              </separator>
              <separator
                    name="TPC"
-                   visible="true">
+                   visible="false">
              </separator>
              <separator
                    name="NCO"
-                   visible="true">
+                   visible="false">
              </separator>     
              <separator
                    name="HPC"
-                   visible="true">
+                   visible="false">
              </separator>
              <separator
                    name="OPC"
-                   visible="true">
+                   visible="false">
              </separator>
              <separator
                    name="CPC"
-                   visible="true">
+                   visible="false">
              </separator>
              <separator
                    name="AWC"
