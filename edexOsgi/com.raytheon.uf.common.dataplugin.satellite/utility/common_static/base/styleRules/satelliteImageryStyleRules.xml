@@ -48,6 +48,7 @@
      <parameter>Imager 11 micron IR</parameter>
      <parameter>Imager 12 micron IR</parameter>
      <parameter>Imager 13 micron (IR)</parameter>
+     <parameter>Imager 13 micron IR</parameter>
   </paramLevelMatches>
   <imageStyle>
      <range scale="LINEAR">
@@ -69,7 +70,7 @@
         <minValue>0</minValue>
         <maxValue>255</maxValue>
      </range>
-     <defaultColormap>Sat/WV/Gray Scale Water Vapor</defaultColormap>
+     <defaultColormap>Sat/WV/RAMSDIS WV</defaultColormap>
   </imageStyle>
 </styleRule>
 <styleRule>

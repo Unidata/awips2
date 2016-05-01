@@ -14,7 +14,7 @@
                                 </colorMapParameters>
                             </capability>
                             <capability xsi:type="colorableCapability" colorAsString="green"/>
-                            <capability xsi:type="imagingCapability" contrast="1.0" brightness="1.0" interpolationState="false" alpha="0.8"/>
+                            <capability xsi:type="imagingCapability" contrast="1.0" brightness="1.0" interpolationState="true" alpha="0.8"/>
                         </capabilities>
                     </loadProperties>
                     <properties isVisible="true" isHoverOn="false" isMapLayer="false" isBlinking="false" isSystemResource="false" renderingOrderId="MAP_IMAGE">
@@ -37,7 +37,7 @@
                                 </colorMapParameters>
                             </capability>
                             <capability xsi:type="colorableCapability" colorAsString="white"/>
-                            <capability xsi:type="imagingCapability" contrast="1.0" brightness="1.0" interpolationState="false" alpha="0.85"/>
+                            <capability xsi:type="imagingCapability" contrast="1.0" brightness="1.0" interpolationState="true" alpha="0.85"/>
                         </capabilities>
                         <resourceType>PLAN_VIEW</resourceType>
 	                    <perspectiveProperty  xsi:type="d2dLoadProperties" overlayMatchTolerance="1"/>

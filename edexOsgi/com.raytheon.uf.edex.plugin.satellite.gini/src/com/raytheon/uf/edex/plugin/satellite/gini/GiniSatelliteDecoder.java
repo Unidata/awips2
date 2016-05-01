@@ -37,8 +37,8 @@ import com.raytheon.edex.util.satellite.SatSpatialFactory;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.exception.UnrecognizedDataException;
 import com.raytheon.uf.common.dataplugin.satellite.SatMapCoverage;
-import com.raytheon.uf.common.dataplugin.satellite.SatelliteMessageData;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
+import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationFile;
@@ -97,7 +97,7 @@ import com.raytheon.uf.edex.plugin.satellite.gini.lookup.NumericLookupTable;
  * Nov 04, 2014  2714     bclement    moved from satellite to satellite.gini
  *                                      renamed from SatelliteDecoder to GiniDecoder
  *                                      replaced database lookups with in memory tables
- * Mar 06, 2015           mjames      Added support for UCAR NEXRCOMP GINI images
+ * Apr 15, 2014  4388     bsteffen    Set Fill Value.
  * 
  * </pre>
  * 
@@ -114,11 +114,11 @@ public class GiniSatelliteDecoder {
 
     private static final String SAT_HDR_TT = "TI";
 
-    private static final int GINI_HEADER_SIZE = 512;
-
     private static final int UCAR = 99;
-
+    
     private static final int UCAR_PRODUCT_OFFSET = 100;
+    
+    private static final int GINI_HEADER_SIZE = 512;
 
     private static final int INITIAL_READ = GINI_HEADER_SIZE + 128;
 
@@ -282,18 +282,20 @@ public class GiniSatelliteDecoder {
                 // get the scanning mode
                 int scanMode = byteBuffer.get(37);
 
+                
                 // read the creating entity
                 byte entityByte = byteBuffer.get(1);
                 String entity = creatingEntityTable.lookup(entityByte);
                 if (entity == null) {
-                    throw new UnrecognizedDataException(
-                            "Unknown satellite entity id: " + entityByte);
-                }
+                	throw new UnrecognizedDataException(
+                			"Unknown satellite entity id: " + entityByte);
+                	}
                 record.setCreatingEntity(entity);
-                
+
                 // read the source
                 byte sourceByte = byteBuffer.get(0);
                 if (entityByte == UCAR) sourceByte = (byte) (UCAR_PRODUCT_OFFSET+byteBuffer.get(0));
+
                 String source = sourceTable.lookup(sourceByte);
                 if (source == null) {
                     throw new UnrecognizedDataException(
@@ -304,6 +306,7 @@ public class GiniSatelliteDecoder {
                 // read the sector ID
                 byte sectorByte = byteBuffer.get(2);
                 if (entityByte == UCAR) sectorByte = (byte) (UCAR_PRODUCT_OFFSET+byteBuffer.get(2));
+                
                 String sector = sectorIdTable.lookup(sectorByte);
                 if (sector == null) {
                     throw new UnrecognizedDataException(
@@ -313,7 +316,8 @@ public class GiniSatelliteDecoder {
 
                 // read the physical element
                 int physByte = byteBuffer.get(3);
-                if (entityByte == UCAR) physByte = (int) (UCAR_PRODUCT_OFFSET+byteBuffer.get(3));  
+                if (entityByte == UCAR) physByte = (int) (UCAR_PRODUCT_OFFSET+byteBuffer.get(3));
+                
                 String physElem = physicalElementTable.lookup(physByte);
                 if (physElem == null) {
                     throw new UnrecognizedDataException(
@@ -325,7 +329,7 @@ public class GiniSatelliteDecoder {
                 // read the units
                 String unit = unitTable.lookup(byteBuffer.get(3));
                 if (entityByte == UCAR) {
-                    unit = unitTable.lookup((int) (UCAR_PRODUCT_OFFSET+byteBuffer.get(3)));
+                	unit = unitTable.lookup((int) (UCAR_PRODUCT_OFFSET+byteBuffer.get(3)));
                 }
                 if (unit != null) {
                     record.setUnits(unit);
@@ -336,6 +340,7 @@ public class GiniSatelliteDecoder {
                 // correction for pngg2gini
                 if (entityByte == UCAR && byteBuffer.get(8) < 100)
                 	intValue = 2000 +  byteBuffer.get(8);
+
                 calendar.set(Calendar.YEAR, intValue);
 
                 // read the month of the year
@@ -461,8 +466,6 @@ public class GiniSatelliteDecoder {
                 default:
                     break;
                 }
-                SatelliteMessageData messageData = new SatelliteMessageData(
-                        tempBytes, nx, ny);
 
                 // get the latitude of the first point
                 byteBuffer.position(20);
@@ -551,8 +554,11 @@ public class GiniSatelliteDecoder {
                 record.setTraceId(traceId);
                 record.setCoverage(mapCoverage);
                 // Create the data record.
-                IDataRecord dataRec = messageData.getStorageRecord(record,
-                        SatelliteRecord.SAT_DATASET_NAME);
+                long[] sizes = new long[] { nx, ny };
+                IDataRecord dataRec = DataStoreFactory.createStorageRecord(
+                        SatelliteRecord.SAT_DATASET_NAME, record.getDataURI(),
+                        tempBytes, 2, sizes);
+                dataRec.setFillValue(0);
                 record.setMessageData(dataRec);
             }
             timer.stop();

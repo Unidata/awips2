@@ -21,54 +21,38 @@
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<contribute xsi:type="separator" id="MySeparatorId"/>
 	<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-                menuText="1km GOES East Visible (B/W)" id="visible">
+                menuText="1km GOES East Visible" id="visible">
         <substitute key="element" value="Imager Visible"/>
 		<substitute key="sector" value="GOES-East"/>
     	<substitute key="entity" value="GOES13"/>
         <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
     </contribute>
 	<contribute xsi:type="bundleItem" file="bundles/VisibleTopo.xml" 
-                menuText="1km GOES East Visible (Topo)" id="visible">
+                menuText="1km GOES East Visible w Topo" id="visible">
         <substitute key="element" value="Imager Visible"/>
 		<substitute key="sector" value="GOES-East"/>
     	<substitute key="entity" value="GOES13"/>
         <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
     </contribute>
     <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-                menuText="4km GOES East IR" id="irWindow">
-        <substitute key="element" value="Imager 11 micron IR"/>
-		<substitute key="sector" value="GOES-East"/>
+                menuText="GOES IR" id="irWindow">
+        <substitute key="element" value="Imager 13 micron IR"/>
+		<substitute key="sector" value="GOES-East-West"/>
     	<substitute key="entity" value="GOES13"/>
         <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
-    </contribute>
-    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-                menuText="4km GOES East WV" id="waterVapor">
-        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
-		<substitute key="sector" value="GOES-East"/>
-    	<substitute key="entity" value="GOES13"/>
-        <substitute key="colormap" value="Sat/WV/GEMPAK WV"/>
     </contribute>
 	<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-                menuText="4km GOES West Visible" id="visible">
+                menuText="GOES Water Vapor" id="waterVapor">
+        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
+		<substitute key="sector" value="GOES-East-West"/>
+    	<substitute key="entity" value="GOES13"/>
+        <substitute key="colormap" value="Sat/WV/RAMSDIS WV"/>
+    </contribute>
+	<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="GOES Visible" id="visible">
         <substitute key="element" value="Imager Visible"/>
-		<substitute key="sector" value="GOES-West"/>
-    	<substitute key="entity" value="GOES15"/>
+		<substitute key="sector" value="GOES-East-West"/>
+    	<substitute key="entity" value="GOES13"/>
         <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
     </contribute>
-    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-                menuText="4km GOES West IR" id="irWindow">
-        <substitute key="element" value="Imager 11 micron IR"/>
-		<substitute key="sector" value="GOES-West"/>
-    	<substitute key="entity" value="GOES15"/>
-        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
-    </contribute>
-    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-                menuText="4km GOES West WV" id="waterVapor">
-        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
-		<substitute key="sector" value="GOES-West"/>
-    	<substitute key="entity" value="GOES15"/>
-        <substitute key="colormap" value="Sat/WV/GEMPAK WV"/>
-    </contribute>
-	
-    
 </menuTemplate>
