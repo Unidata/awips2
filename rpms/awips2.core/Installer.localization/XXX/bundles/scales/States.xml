@@ -34,12 +34,28 @@
                         <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
                     </properties>
                     <resourceData xsi:type="mapResourceGroupData">
+			<resource>
+                            <loadProperties loadWithoutData="false">
+                                <capabilities>
+                                    <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="2"/>
+                                    <capability xsi:type="colorableCapability" colorAsString="#cc5000"/>
+                                </capabilities>
+                                <resourceType>PLAN_VIEW</resourceType>
+                            </loadProperties>
+                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" opacity="1.0" isVisible="true">
+                                <pdProps maxDisplayWidth="750000" minDisplayWidth="0"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+                                <mapName>State Boundaries Zoom</mapName>
+                                <table>mapdata.states</table>
+                                <geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
                         <resource>
                             <loadProperties loadWithoutData="false">
                                 <capabilities>
-                                    <capability xsi:type="shadeableCapability" shaded="false"/>
-                                    <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
-                                    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+                                    <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="2"/>
+                                    <capability xsi:type="colorableCapability" colorAsString="#cc5000"/>
                                 </capabilities>
                                 <resourceType>PLAN_VIEW</resourceType>
                             </loadProperties>
@@ -52,6 +68,7 @@
                                 <geomField>the_geom</geomField>
                             </resourceData>
                         </resource>
+
                         <resource>
                             <loadProperties loadWithoutData="false">
                                 <capabilities>
