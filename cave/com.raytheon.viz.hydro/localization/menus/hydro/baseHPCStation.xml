@@ -19,20 +19,18 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<contribute xsi:type="subMenu" menuText="HPC Station Data">
-		<contribute xsi:type="bundleItem" file="bundles/BufrMosPlot.xml" 
-			 menuText="MaxT/MinT" id="HPCmaxTminT" >
-	        	<substitute key="model" value="HPC"/>
-        		<substitute key="plotModel" value="bufrmos/maxmin.svg"/>
-	    		<substitute key="title" value="HPC MaxT/MinT ( F )"/>
-	    </contribute>
-	    <contribute xsi:type="bundleItem" file="bundles/BufrMosPlot.xml" 
-			 menuText="POP 24hr" id="HPCpop24hr" >
-	        	<substitute key="model" value="HPC"/>
-        		<substitute key="plotModel" value="bufrmos/pop24hr.svg"/>
-	    		<substitute key="title" value="HPC POP 24hr"/>
-	    </contribute>
-	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/BufrMosPlot.xml" 
+		 menuText="HPC Station MaxT/MinT" id="HPCmaxTminT" >
+        	<substitute key="model" value="HPC"/>
+    		<substitute key="plotModel" value="bufrmos/maxmin.svg"/>
+    		<substitute key="title" value="HPC MaxT/MinT ( F )"/>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/BufrMosPlot.xml" 
+		 menuText="HPC Station POP 24hr" id="HPCpop24hr" >
+        	<substitute key="model" value="HPC"/>
+    		<substitute key="plotModel" value="bufrmos/pop24hr.svg"/>
+    		<substitute key="title" value="HPC POP 24hr"/>
+    </contribute>
 	<contribute xsi:type="subMenu" menuText="0-3 Hour Radar-based QPF">
 		<contribute xsi:type="bundleItem" file="bundles/hydro/zeroToThreeHourRadarQPF.xml"
 			menuText="0-3hr Prob > 0.1 inch" id="probGt01Inch">

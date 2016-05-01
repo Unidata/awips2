@@ -89,24 +89,25 @@ import com.vividsolutions.jts.geom.Polygon;
  * Apr 11, 2014  2947     bsteffen    Fix equals
  * Oct 16, 2014  3454     bphillip    Upgrading to Hibernate 4
  * Nov 05, 2014  3788     bsteffen    Make gid a sequence instead of a hash.
- * May 19, 2015           mjames@ucar Added decoding of GVAR native projection products,
+ * May 19, 2015           mjames      Added McIDAS GVAR native projection support.
+ * 
  * </pre>
  */
 @Entity
 @Table(name = "satellite_spatial", uniqueConstraints = { @UniqueConstraint(columnNames = {
-        "minX", "minY", "dx", "dy", "nx", "ny", "upperLeftElement", 
-        "upperLeftLine", "elementRes", "lineRes", "crsWKT" }) })
+		"minX", "minY", "dx", "dy", "nx", "ny", "upperLeftElement",
+		"upperLeftLine", "elementRes", "lineRes", "crsWKT" }) })
 @SequenceGenerator(name = "SATELLITE_SPATIAL_GENERATOR", sequenceName = "satspatial_seq", allocationSize = 1)
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class SatMapCoverage extends PersistableDataObject<Object> implements
         IGridGeometryProvider {
-
-    public static final int PROJ_GVAR = 7585;
-
-    private static final long serialVersionUID = 1L;
-    
+	
+	public static final int PROJ_GVAR = 7585;
+	
     public static final Integer VAL_MISSING = new Integer(-9999998);
+	
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SATELLITE_SPATIAL_GENERATOR")
@@ -116,16 +117,11 @@ public class SatMapCoverage extends PersistableDataObject<Object> implements
 
     /**
      * The projection of the map coverage 1=Mercator, 3=Lambert Conformal
-     * 5=Polar Stereographic, 7585 = native satellite navigation e.g.
-     * GVAR, ...
-     * 
-     * @deprecated This field is only useful for GINI satellite format decoding
-     *             and should not be in the coverage object
+     * 5=Polar Stereographic, 7585=GVAR Native
      */
     @Column
     @XmlAttribute
     @DynamicSerializeElement
-    @Deprecated
     private Integer projection;
 
     /** Minimum x coordinate in crs space */
@@ -163,7 +159,7 @@ public class SatMapCoverage extends PersistableDataObject<Object> implements
     @XmlAttribute
     @DynamicSerializeElement
     private double dy;
-    
+
     /** image element coordinate of area line 0, element 0 */
     @Column
     @XmlAttribute
@@ -181,7 +177,7 @@ public class SatMapCoverage extends PersistableDataObject<Object> implements
     @XmlAttribute
     @DynamicSerializeElement
     private int elementRes;
-
+    
     /** line resolution */
     @Column
     @XmlAttribute
@@ -229,31 +225,7 @@ public class SatMapCoverage extends PersistableDataObject<Object> implements
      */
     public SatMapCoverage(int projection, double minX, double minY, int nx,
             int ny, double dx, double dy, CoordinateReferenceSystem crs) {
-        this.projection = projection;
-        this.minX = minX;
-        this.minY = minY;
-        this.nx = nx;
-        this.ny = ny;
-        this.dx = dx;
-        this.dy = dy;
-        this.upperLeftElement = VAL_MISSING;
-        this.upperLeftLine = VAL_MISSING;
-        this.elementRes = VAL_MISSING;
-        this.lineRes = VAL_MISSING;
-        this.crsObject = crs;
-        Geometry latLonGeometry = null;
-        try {
-            latLonGeometry = EnvelopeIntersection
-                    .createEnvelopeIntersection(
-                            getGridGeometry().getEnvelope(),
-                            new Envelope2D(DefaultGeographicCRS.WGS84,
-                                    -180, -90, 360, 180), 1.0, 10, 10)
-                    .getEnvelope();
-        } catch (Exception e) {
-            // Ignore exception, null location
-        }
-        
-        this.location = latLonGeometry;
+        this(projection, minX, minY, nx, ny, dx, dy, crs, null);
     }
 
     /**
@@ -279,8 +251,7 @@ public class SatMapCoverage extends PersistableDataObject<Object> implements
      *            A Geometry representing the satellite bounds in lat/lon space
      */
     public SatMapCoverage(int projection, double minX, double minY, int nx,
-            int ny, double dx, double dy, int upperLeftElement, 
-    		int upperLeftLine, int xres, int yres, CoordinateReferenceSystem crs,
+            int ny, double dx, double dy, CoordinateReferenceSystem crs,
             Geometry latLonGeometry) {
         this.projection = projection;
         this.minX = minX;
@@ -289,10 +260,71 @@ public class SatMapCoverage extends PersistableDataObject<Object> implements
         this.ny = ny;
         this.dx = dx;
         this.dy = dy;
-        this.upperLeftElement = upperLeftElement;
-        this.upperLeftLine = upperLeftLine;
-        this.elementRes = xres;
-        this.lineRes = yres;
+        setUpperLeftElement(VAL_MISSING);
+        setUpperLeftLine(VAL_MISSING);
+        setElementRes(VAL_MISSING);
+        setLineRes(VAL_MISSING);
+        this.crsObject = crs;
+        if (latLonGeometry == null) {
+            try {
+                latLonGeometry = EnvelopeIntersection
+                        .createEnvelopeIntersection(
+                                getGridGeometry().getEnvelope(),
+                                new Envelope2D(DefaultGeographicCRS.WGS84,
+                                        -180, -90, 360, 180), 1.0, 10, 10)
+                        .getEnvelope();
+            } catch (Exception e) {
+                // Ignore exception, null location
+            }
+        }
+        this.location = latLonGeometry;
+    }
+    
+    /**
+     * Constructs a new SatMapCoverage Object
+     * 
+     * @param projection
+     *            the projection id value
+     * @param minX
+     *            minimum x value in crs space
+     * @param minY
+     *            minimum y value in crs space
+     * @param nx
+     *            number of x points in the satellite grid
+     * @param ny
+     *            number of y points in the satellite grid
+     * @param dx
+     *            spacing between grid cells in crs x space
+     * @param dy
+     *            spacing between grid cells in crs y space
+     * @param upperLeftElement
+     * 			  
+     * @param upperLeftLine
+     * 
+     * @param xres
+     * 
+     * @param yres
+     * 
+     * @param crs
+     *            the satellite data crs
+     * @param latLonGeometry
+     *            A Geometry representing the satellite bounds in lat/lon space
+     */
+    public SatMapCoverage(int projection, double minX, double minY, int nx,
+            int ny, double dx, double dy, int upperLeftElement, int upperLeftLine, 
+            int xres, int yres, CoordinateReferenceSystem crs, Geometry latLonGeometry) {
+        this.projection = projection;
+        this.minX = minX;
+        this.minY = minY;
+        this.nx = nx;
+        this.ny = ny;
+        this.dx = dx;
+        this.dy = dy;
+        setUpperLeftElement(upperLeftElement);
+        setUpperLeftLine(upperLeftLine);
+        setElementRes(xres);
+        setLineRes(yres);
+
         this.crsObject = crs;
         if (latLonGeometry == null) {
             try {
@@ -309,22 +341,17 @@ public class SatMapCoverage extends PersistableDataObject<Object> implements
         this.location = latLonGeometry;
     }
 
-    /**
-     * @deprecated This field is only useful for GINI satellite format decoding
-     *             and should not be in the coverage object
+
+	/**
      * @return
      */
-    @Deprecated
     public Integer getProjection() {
         return projection;
     }
 
     /**
-     * @deprecated This field is only useful for GINI satellite format decoding
-     *             and should not be in the coverage object
      * @param projection
      */
-    @Deprecated
     public void setProjection(Integer projection) {
         this.projection = projection;
     }
@@ -384,67 +411,39 @@ public class SatMapCoverage extends PersistableDataObject<Object> implements
     public void setDy(double dy) {
         this.dy = dy;
     }
-
-    /**
-     * @return the upperLeftElement
-     */
-    public int getUpperLeftElement() {
-        return upperLeftElement;
-    }
-
-    /**
-     * @param upperLeftElement
-     *            the upperLeftElement to set
-     */
-    public void setUpperLeftElement(int upperLeftElement) {
-        this.upperLeftElement = upperLeftElement;
-    }
-
-    /**
-     * @return the upperLeftLine
-     */
-    public int getUpperLeftLine() {
-        return upperLeftLine;
-    }
-
-    /**
-     * @param upperLeftLine
-     *            the upperLeftLine to set
-     */
-    public void setUpperLeftLine(int upperLeftLine) {
-        this.upperLeftLine = upperLeftLine;
-    }
-
-    /**
-     * @return the elementRes
-     */
-    public int getElementRes() {
-        return elementRes;
-    }
-
-    /**
-     * @param elementRes
-     *            the elementRes to set
-     */
-    public void setElementRes(int elementRes) {
-        this.elementRes = elementRes;
-    }
-
-    /**
-     * @return the lineRes
-     */
-    public int getLineRes() {
-        return lineRes;
-    }
-
-    /**
-     * @param lineRes
-     *            the lineRes to set
-     */
-    public void setLineRes(int lineRes) {
-        this.lineRes = lineRes;
-    }
     
+    public int getUpperLeftElement() {
+		return upperLeftElement;
+	}
+
+	public void setUpperLeftElement(int upperLeftElement) {
+		this.upperLeftElement = upperLeftElement;
+	}
+
+	public int getUpperLeftLine() {
+		return upperLeftLine;
+	}
+
+	public void setUpperLeftLine(int upperLeftLine) {
+		this.upperLeftLine = upperLeftLine;
+	}
+
+	public int getElementRes() {
+		return elementRes;
+	}
+
+	public void setElementRes(int elementRes) {
+		this.elementRes = elementRes;
+	}
+
+	public int getLineRes() {
+		return lineRes;
+	}
+
+	public void setLineRes(int lineRes) {
+		this.lineRes = lineRes;
+	}
+	
     public String getCrsWKT() {
         if (crsWKT == null && crsObject != null) {
             crsWKT = crsObject.toWKT();
@@ -453,7 +452,7 @@ public class SatMapCoverage extends PersistableDataObject<Object> implements
     }
 
     public void setCrsWKT(String crsWKT) {
-        this.crsWKT = crsWKT.replaceAll("\r\n", "");
+        this.crsWKT = crsWKT.replaceAll("\r\n", "");;
         if (crsObject != null) {
             crsObject = null;
         }
@@ -496,13 +495,12 @@ public class SatMapCoverage extends PersistableDataObject<Object> implements
     public CoordinateReferenceSystem getCrs() {
         if (crsObject == null && crsWKT != null) {
             try {
-                if (this.projection == PROJ_GVAR) {
-                	crsObject = constructCRSfromWKT(crsWKT);
-                	
-            	} else {
-                crsObject = CRSCache.getInstance()
-                        .getCoordinateReferenceSystem(crsWKT);
-            	}
+            	if (this.projection == PROJ_GVAR) {
+                       crsObject = constructCRSfromWKT(crsWKT);
+               } else {
+	                crsObject = CRSCache.getInstance()
+	                        .getCoordinateReferenceSystem(crsWKT);
+               }
             } catch (FactoryException e) {
                 crsObject = null;
             }
@@ -513,29 +511,98 @@ public class SatMapCoverage extends PersistableDataObject<Object> implements
     @Override
     public GridGeometry2D getGridGeometry() {
     	/* 
-    	 * Native projections
-    	 */
+        * Native projections
+        */
         if (projection == PROJ_GVAR) { 
-        	GridEnvelope gridRange = new GeneralGridEnvelope(new int[] {
-                    0, 0 }, new int[] { getNx(),getNy() }, false);
-        	GeneralEnvelope crsRange = new GeneralEnvelope(2);
-        	crsRange.setCoordinateReferenceSystem( getCrs() );
-    	    
-    	    int minX = getUpperLeftElement();
-    	    int maxX = getUpperLeftElement() + ( getNx() * getElementRes() );
-    	    int minY = getUpperLeftLine() + ( getNy() * getLineRes() );
-    	    minY = -minY;
-    	    int maxY = -1 * getUpperLeftLine();
-    	    crsRange.setRange(0, minX, maxX);
-    	    crsRange.setRange(1, minY, maxY);
-    	    return new GridGeometry2D(gridRange, crsRange);
+           GridEnvelope gridRange = new GeneralGridEnvelope(new int[] {
+                0, 0 }, new int[] { getNx(),getNy() }, false);
+           GeneralEnvelope crsRange = new GeneralEnvelope(2);
+           crsRange.setCoordinateReferenceSystem( getCrs() );
+           
+           int minX = getUpperLeftElement();
+           int maxX = getUpperLeftElement() + ( getNx() * getElementRes() );
+           int minY = getUpperLeftLine() + ( getNy() * getLineRes() );
+           minY = -minY;
+           int maxY = -1 * getUpperLeftLine();
+           crsRange.setRange(0, minX, maxX);
+           crsRange.setRange(1, minY, maxY);
+           return new GridGeometry2D(gridRange, crsRange);
         } else {
-        GridEnvelope gridRange = new GridEnvelope2D(0, 0, getNx(), getNy());
-        Envelope crsRange = new Envelope2D(getCrs(), new Rectangle2D.Double(
-                minX, minY, getNx() * getDx(), getNy() * getDy()));
-        return new GridGeometry2D(gridRange, crsRange);
+	        GridEnvelope gridRange = new GridEnvelope2D(0, 0, getNx(), getNy());
+	        Envelope crsRange = new Envelope2D(getCrs(), new Rectangle2D.Double(
+	                minX, minY, getNx() * getDx(), getNy() * getDy()));
+	        return new GridGeometry2D(gridRange, crsRange);
+        }
+    }
+    
+    public static ProjectedCRS constructCRSfromWKT(String crsWKT) {
+    	Pattern AREA_PATTERN = Pattern
+                .compile("PROJCS\\[\"MCIDAS\\sAREA\\s(.*)\"");
+        Pattern NAV_BLOCK_PATTERN = Pattern.compile(
+                "\\[\"NAV_BLOCK_BASE64\",\\s\"(.*)\"\\]", Pattern.MULTILINE
+                        | Pattern.DOTALL);
+        Matcher m = AREA_PATTERN.matcher(crsWKT);
+        m.find();
+        ProjectedCRS crsObject = null;
+
+        if (m.groupCount() == 1) {
+            String type = m.group(1);
+            m = NAV_BLOCK_PATTERN.matcher(crsWKT);
+            boolean found = m.find();
+            if (found) {
+                String navBlock = m.group(1);
+                crsObject = constructCRS(type, navBlock);
+            }
+        }
+
+        return crsObject;
     }
 
+    public static ProjectedCRS constructCRS(String type, String encoded) {
+        ParameterValueGroup pvg = null;
+        DefaultMathTransformFactory dmtFactory = new DefaultMathTransformFactory();
+        try {
+            pvg = dmtFactory.getDefaultParameters("MCIDAS_AREA_NAV");
+        } catch (NoSuchIdentifierException e1) {
+            e1.printStackTrace();
+        }
+        /*
+         * semi_major and semi_minor parameters are set to 1, so that no global
+         * scaling is performed during coordinate transforms by
+         * org.geotools.referencing.operation.projection.MapProjection based on
+         * the radius of earth
+         */
+        pvg.parameter("semi_major").setValue(1.0);
+        pvg.parameter("semi_minor").setValue(1.0);
+        pvg.parameter("central_meridian").setValue(0.0);
+        pvg.parameter("NAV_BLOCK_BASE64").setValue(encoded);
+
+        String projectionName = "MCIDAS AREA " + type;
+        ProjectedCRS mcidasCRS = null;
+        try {
+            mcidasCRS = MapUtil.constructProjection(projectionName, pvg);
+        } catch (FactoryException e) {
+            e.printStackTrace();
+        }
+        return mcidasCRS;
+    }
+
+    public GridGeometry2D getGridGeometryNativeProjection() {
+    	GridEnvelope gridRange = new GeneralGridEnvelope(new int[] { 0, 0 }, new int[] { getNx(),getNy() }, false);
+    	GeneralEnvelope crsRange = new GeneralEnvelope(2);
+    	crsRange.setCoordinateReferenceSystem( constructCRSfromWKT(crsWKT) );
+    	int minX = getUpperLeftElement();
+    	int maxX = getUpperLeftElement() + ( getNx() * getElementRes() );
+    	int minY = getUpperLeftLine() + ( getNy() * getLineRes() );
+    	minY = -minY;
+    	int maxY = -1 * getUpperLeftLine();
+    	crsRange.setRange(0, minX, maxX);
+    	crsRange.setRange(1, minY, maxY);
+    	return new GridGeometry2D(gridRange, crsRange);
+    }
+    
+    public Geometry getGeometry() {
+        return getLocation();
     }
     
     @Override
@@ -551,11 +618,6 @@ public class SatMapCoverage extends PersistableDataObject<Object> implements
         builder.append(ny);
         return builder.toHashCode();
     }
-
-    public Geometry getGeometry() {
-        return getLocation();
-    }
-
 
     @Override
     public boolean equals(Object obj) {
@@ -598,57 +660,4 @@ public class SatMapCoverage extends PersistableDataObject<Object> implements
         return true;
     }
 
-    public static ProjectedCRS constructCRSfromWKT(String crsWKT) {
-        Pattern p = Pattern.compile("PROJCS\\[\"MCIDAS\\sAREA\\s(.*)\"");
-        Matcher m = p.matcher(crsWKT);
-        m.find();
-        ProjectedCRS crsObject = null;
-
-        if (m.groupCount() == 1) {
-            String type = m.group(1);
-            p = Pattern.compile("\\[\"NAV_BLOCK_BASE64\",\\s\"(.*)\"\\],");
-            m = p.matcher(crsWKT);
-            boolean found = m.find();
-            if (found) {
-                String navBlock = m.group(1);
-                crsObject = constructCRS(type, navBlock);
-            }
-        }
-
-        return crsObject;
-    }
-    
-    public static ProjectedCRS constructCRS(String type, String encoded) {
-
-        ParameterValueGroup pvg = null;
-
-        DefaultMathTransformFactory dmtFactory = new DefaultMathTransformFactory();
-        try {
-            pvg = dmtFactory.getDefaultParameters("MCIDAS_AREA_NAV");
-        } catch (NoSuchIdentifierException e1) {
-            e1.printStackTrace();
-        }
-        /*
-         * semi_major and semi_minor parameters are set to 1, so that no global
-         * scaling is performed during coordinate transforms by
-         * org.geotools.referencing.operation.projection.MapProjection based on
-         * the radius of earth
-         */
-        pvg.parameter("semi_major").setValue(1.0);
-        pvg.parameter("semi_minor").setValue(1.0);
-        pvg.parameter("central_meridian").setValue(0.0);
-        pvg.parameter("NAV_BLOCK_BASE64").setValue(encoded);
-
-        String projectionName = "MCIDAS AREA " + type;
-        ProjectedCRS mcidasCRS = null;
-        try {
-            mcidasCRS = MapUtil.constructProjection(projectionName, pvg);
-        } catch (NoSuchIdentifierException e) {
-            e.printStackTrace();
-        } catch (FactoryException e) {
-            e.printStackTrace();
-        }
-
-        return mcidasCRS;
-    }
 }

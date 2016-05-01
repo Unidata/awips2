@@ -30,32 +30,13 @@
                 </visibleWhen>
                 <separator name="SURFACE" visible="false">
                 </separator>
-                <separator name="EndOfInitial" visible="true">
-                </separator>
-                <separator
-                      name="WATCHWARN"
-                      visible="false">
-                </separator>
-				
-				<separator name="EndOfMos" visible="true">
-                </separator>
-                <command commandId="com.raytheon.viz.ui.actions.titleAction"
-                    label="------ Hazards ------">
-                </command>
-                <separator name="HAZARDS" visible="false" />
-                <command
-                      commandId="com.raytheon.viz.ui.actions.titleAction"
-                      label="------ Lightning ------">
-                </command>
-                <separator
-                      name="USPLNPLACEHOLDER"
-                      visible="false">
+				<separator name="HAZARDS" visible="true" />
+                <separator name="USPLNPLACEHOLDER" visible="true">
                 </separator>
 				<separator name="MOS" visible="false">
                 </separator>
-                <command commandId="com.raytheon.viz.ui.actions.titleAction"
-                    label="------ Maritime ------" id="MARITIME">
-                </command>
+				<separator name="MARITIME" visible="false">
+                </separator>
                 <separator name="EndOfMaritime" visible="true">
                 </separator>
                 <separator name="LIGHTNINGPLACEHOLDER"

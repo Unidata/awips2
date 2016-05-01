@@ -8,40 +8,8 @@
                     <loadProperties loadWithoutData="true">
                         <capabilities>
                             <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true"
-                                outlineWidth="1" />
-                           	<capability xsi:type="colorableCapability" colorAsString="#545454" />
-                        </capabilities>
-                    </loadProperties>
-					<properties isSystemResource="false" isBlinking="false"
-						isMapLayer="false" isHoverOn="false" 
-						isVisible="true" />
-					<resourceData xsi:type="wwaResourceData" 						
-						isUpdatingOnMetadataOnly="false"
-						retrieveData="false"
-						isRequeryNecessaryOnTimeMatch="true" name="Flood Warnings"
-						hideSampling="true">
-						<metadataMap>							
-							<mapping key="act">
-								<constraint constraintValue="NEW,CON,CAN,EXT,EXP" constraintType="IN" />
-							</mapping>
-							<mapping key="pil">
-								<constraint constraintValue="FFW,FLW,FLY,FFS,FLS" constraintType="IN" />
-							</mapping>
-							<mapping key="phensig">
-								<constraint constraintValue="FF.W,FA.W,FA.Y,FL.Y" constraintType="IN" />
-							</mapping>
-							<mapping key="pluginName">
-								<constraint constraintValue="warning" constraintType="EQUALS" />
-							</mapping>
-						</metadataMap>
-					</resourceData>
-				</resource>
-				<resource>
-                    <loadProperties loadWithoutData="true">
-                        <capabilities>
-                            <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true"
-                                outlineWidth="1" />
-                            <capability xsi:type="colorableCapability" colorAsString="#00ff7f" />
+                                outlineWidth="4" />
+                            <capability xsi:type="colorableCapability" colorAsString="#DB5151" />
                         </capabilities>
                     </loadProperties>
 					<properties isSystemResource="false" isBlinking="false"
@@ -71,8 +39,8 @@
                     <loadProperties loadWithoutData="true">
                         <capabilities>
                             <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true"
-                                outlineWidth="1" />
-                            <capability xsi:type="colorableCapability" colorAsString="#3cb371" />
+                                outlineWidth="4" />
+                            <capability xsi:type="colorableCapability" colorAsString="#00FF00" />
                         </capabilities>
                     </loadProperties>
 					<properties isSystemResource="false" isBlinking="false"
@@ -102,8 +70,8 @@
                     <loadProperties loadWithoutData="true">
                         <capabilities>
                             <capability xsi:type="outlineCapability" lineStyle="DASHED" outlineOn="true"
-                                outlineWidth="1" />
-                            <capability xsi:type="colorableCapability" colorAsString="#8fbc8f" />
+                                outlineWidth="4" />
+                            <capability xsi:type="colorableCapability" colorAsString="#90EE90" />
                         </capabilities>
                     </loadProperties>
 					<properties isSystemResource="false" isBlinking="false"

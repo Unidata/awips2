@@ -25,6 +25,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.geotools.coverage.grid.GridGeometry2D;
+
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
@@ -127,10 +129,17 @@ public class SatelliteDao extends PluginDao {
             dataStore.addDataRecord(storageRecord);
 
             SatMapCoverage coverage = satRecord.getCoverage();
-
-            GridDownscaler downScaler = new GridDownscaler(
-                    coverage.getGridGeometry());
-
+            
+            GridGeometry2D gridGeom;
+            try {
+                gridGeom = coverage.getGridGeometry();
+            } catch (Exception e) {
+                throw new StorageException(
+                        "Unable to create grid geometry for record: "
+                                + satRecord, storageRecord, e);
+            }
+            GridDownscaler downScaler = new GridDownscaler(gridGeom);
+            
             Rectangle fullScale = downScaler.getDownscaleSize(0);
             BufferWrapper dataSource = BufferWrapper.wrapArray(
                     storageRecord.getDataObject(), fullScale.width, fullScale.height);
@@ -172,6 +181,7 @@ public class SatelliteDao extends PluginDao {
             } else {
             	satRecord.setInterpolationLevels(levels);
             }
+
         }
         return dataStore;
     }

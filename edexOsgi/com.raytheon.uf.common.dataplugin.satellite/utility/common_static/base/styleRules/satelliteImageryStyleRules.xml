@@ -48,6 +48,7 @@
      <parameter>Imager 11 micron IR</parameter>
      <parameter>Imager 12 micron IR</parameter>
      <parameter>Imager 13 micron (IR)</parameter>
+     <parameter>Imager 13 micron IR</parameter>
   </paramLevelMatches>
   <imageStyle>
      <range scale="LINEAR">
@@ -69,7 +70,7 @@
         <minValue>0</minValue>
         <maxValue>255</maxValue>
      </range>
-     <defaultColormap>Sat/WV/Gray Scale Water Vapor</defaultColormap>
+     <defaultColormap>Sat/WV/RAMSDIS WV</defaultColormap>
   </imageStyle>
 </styleRule>
 <styleRule>
@@ -510,15 +511,15 @@
 		<displayUnits>kft</displayUnits>
 		<defaultColormap>Radar/Enhanced Echo Tops</defaultColormap>
 		<dataMapping>
-			<entry displayValue='0' label="" />
-			<entry displayValue='20' label="20" />
-			<entry displayValue='50' label="50" />
-			<entry displayValue='71' label="70" />
-			<entry displayValue='130' label="0" />
-			<entry displayValue='150' label="20" />
-			<entry displayValue='170' label="50" />
-			<entry displayValue='199' label="70" />
-			<entry displayValue='228' label="Topped" />
+			<entry displayValue='0' pixelValue='0' label="" />
+			<entry displayValue='20' pixelValue='20' label="20" />
+			<entry displayValue='50' pixelValue='50' label="50" />
+			<entry displayValue='71' pixelValue='71' label="70" />
+			<entry displayValue='130' pixelValue='130' label="0" />
+			<entry displayValue='150' pixelValue='150' label="20" />
+			<entry displayValue='170' pixelValue='170' label="50" />
+			<entry displayValue='199' pixelValue='199' label="70" />
+			<entry displayValue='255' pixelValue='255' label="Topped" />
 		</dataMapping>
 	</imageStyle>
 </styleRule>

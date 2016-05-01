@@ -19,12 +19,36 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<contribute xsi:type="bundleItem" file="bundles/SurfacePlotMetar.xml"
-			menuText="METAR Plot" id="MetarPlot">
-    </contribute> 
 	<contribute xsi:type="bundleItem" file="bundles/SurfacePlotWinds.xml"
-			menuText="METAR Winds" id="MetarPlot">
+			menuText="Wind Barbs" id="MetarPlot">
     </contribute> 
+	<contribute xsi:type="bundleItem" file="bundles/SurfacePlotMetar.xml"
+			menuText="METAR Station Plot" id="MetarPlot">
+    </contribute> 
+	<contribute xsi:type="bundleItem" file="bundles/MetarPrecipPlot.xml" 
+           menuText="METAR 24hr Precip" id="24HrPrecip">
+        <substitute key="duration" value="24"/>
+        <substitute key="posOffset" value="21600"/>
+        <substitute key="negOffset" value="0"/>
+    </contribute>
+	<contribute xsi:type="bundleItem" file="bundles/MetarPrecipPlot.xml" 
+           menuText="METAR 6hr Precip" id="6HrPrecip">
+		<substitute key="duration" value="6"/>
+        <substitute key="posOffset" value="10800"/>
+        <substitute key="negOffset" value="10800"/>
+    </contribute>
+	<contribute xsi:type="bundleItem" file="bundles/MetarPrecipPlot.xml" 
+           menuText="METAR 3hr Precip" id="3HrPrecip">
+        <substitute key="duration" value="3"/>
+        <substitute key="posOffset" value="1800"/>
+        <substitute key="negOffset" value="9000"/>
+    </contribute>
+	<contribute xsi:type="bundleItem" file="bundles/MetarPrecipPlot.xml" 
+           menuText="METAR 1hr Precip" id="1HrPrecip">
+        <substitute key="duration" value="1"/>
+        <substitute key="posOffset" value="1800"/>
+        <substitute key="negOffset" value="1800"/>       
+    </contribute>
 	<contribute xsi:type="bundleItem" file="bundles/SynSurfacePlot.xml" 
 			menuText="Synoptic Plot" id="SynSurfacePlot">
 		<substitute key="svg" value="stdSynDesign.svg"/>
@@ -32,10 +56,7 @@
 		<substitute key="posOffset" value="19800"/>
 	    <substitute key="negOffset" value="1800"/> 
 	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/SurfacePlotMaritime.xml"
-			menuText="Maritime Plot" id="MaritimePlot">
-    </contribute>
-		<contribute xsi:type="subMenu" menuText="Other Plots">
+	<contribute xsi:type="subMenu" menuText="Other Plots">
 		<contribute xsi:type="bundleItem" file="bundles/15minSurfacePlot.xml"
 			menuText="15 min METARs" id="15MinSurfacePlot" />
 	    <contribute xsi:type="bundleItem" file="bundles/MetarPlot.xml" 
@@ -70,31 +91,7 @@
 	    
 	    <contribute xsi:type="titleItem" 
 			titleText="------ Precip ------" id="PrecipLine"/>
-	
-		<contribute xsi:type="bundleItem" file="bundles/MetarPrecipPlot.xml" 
-               menuText="METAR 24hr Precip" id="24HrPrecip">
-	        <substitute key="duration" value="24"/>
-	        <substitute key="posOffset" value="21600"/>
-	        <substitute key="negOffset" value="0"/>
-	    </contribute>
-		<contribute xsi:type="bundleItem" file="bundles/MetarPrecipPlot.xml" 
-               menuText="METAR 6hr Precip" id="6HrPrecip">
-			<substitute key="duration" value="6"/>
-	        <substitute key="posOffset" value="10800"/>
-	        <substitute key="negOffset" value="10800"/>
-	    </contribute>
-		<contribute xsi:type="bundleItem" file="bundles/MetarPrecipPlot.xml" 
-               menuText="METAR 3hr Precip" id="3HrPrecip">
-	        <substitute key="duration" value="3"/>
-	        <substitute key="posOffset" value="1800"/>
-	        <substitute key="negOffset" value="9000"/>
-	    </contribute>
-		<contribute xsi:type="bundleItem" file="bundles/MetarPrecipPlot.xml" 
-               menuText="METAR 1hr Precip" id="1HrPrecip">
-	        <substitute key="duration" value="1"/>
-	        <substitute key="posOffset" value="1800"/>
-	        <substitute key="negOffset" value="1800"/>       
-	    </contribute>
+
 	    
 		<contribute xsi:type="bundleItem" file="bundles/SynSurfacePlot.xml" 
 			menuText="Synoptic 6 hr Precip" id="synoptic6hrPrecip">

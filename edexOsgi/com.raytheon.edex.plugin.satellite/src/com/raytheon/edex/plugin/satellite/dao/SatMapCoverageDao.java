@@ -48,6 +48,7 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * Jun 27, 2012  798      jkorman   Corrected id query type.
  * Oct 02, 2013  2333     mschenke  Removed unused code
  * Nov 05, 2014  3788     bsteffen  add getOrCreateCoverage
+ * Apr 30, 2016  ----     mjames    add Criteria for line element/res
  * 
  * </pre>
  * 
@@ -138,6 +139,10 @@ public class SatMapCoverageDao extends CoreDao {
         crit.add(Restrictions.eq("ny", coverage.getNy()));
         crit.add(Restrictions.eq("dx", coverage.getDx()));
         crit.add(Restrictions.eq("dy", coverage.getDy()));
+        crit.add(Restrictions.eq("upperLeftElement", coverage.getUpperLeftElement()));
+        crit.add(Restrictions.eq("upperLeftLine", coverage.getUpperLeftLine()));
+        crit.add(Restrictions.eq("elementRes", coverage.getElementRes()));
+        crit.add(Restrictions.eq("lineRes", coverage.getLineRes()));
         crit.add(Restrictions.eq("minX", coverage.getMinX()));
         crit.add(Restrictions.eq("minY", coverage.getMinY()));
         crit.add(Restrictions.eq("crsWKT", coverage.getCrsWKT()));

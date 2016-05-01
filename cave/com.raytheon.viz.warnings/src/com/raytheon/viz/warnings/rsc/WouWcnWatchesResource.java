@@ -240,7 +240,7 @@ public class WouWcnWatchesResource extends WatchesResource implements ISimulated
         AbstractWarningRecord record = entry.record;
         if (record.getGeometry() != null) {
             IShadedShape ss = target.createShadedShape(false,
-                    descriptor.getGridGeometry(), false);
+                    descriptor.getGridGeometry());
             Geometry geo = (Geometry) record.getGeometry().clone();
             JTSCompiler jtsCompiler = new JTSCompiler(ss, null,
                     this.descriptor, PointStyle.CROSS);

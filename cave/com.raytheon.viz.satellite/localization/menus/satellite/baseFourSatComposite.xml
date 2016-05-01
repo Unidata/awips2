@@ -28,7 +28,7 @@
     <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
                 menuText="Water Vapor" id="waterVapor">
         <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
-        <substitute key="colormap" value="Sat/WV/wv_tpc"/>
+        <substitute key="colormap" value="Sat/WV/GEMPAK WV"/>
     </contribute>
     <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
                 menuText="Visible" id="visible">
