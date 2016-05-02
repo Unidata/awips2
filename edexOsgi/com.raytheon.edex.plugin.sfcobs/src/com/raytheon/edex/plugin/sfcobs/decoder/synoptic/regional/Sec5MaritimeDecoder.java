@@ -58,6 +58,8 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  *                                     updated deprecated {@link TimeTools} usage.\
  * Sep 30, 2014 #3629      mapeters    Replaced {@link AbstractSfcObsDecoder#matchElement()}
  *                                     calls, added Pattern constants.
+ * Apr 20, 2016 DR18361    MPorricelli Added decoding of 1-minute peak wind and lowest
+ *                                     pressure data
  * 
  * </pre>
  * 
@@ -78,6 +80,8 @@ public class Sec5MaritimeDecoder extends SynopticSec5Decoder {
     
     private static final Pattern PEAK_WIND_4 = Pattern.compile("4[/0-9]{4}");
     
+    private static final Pattern LOWEST_PRESS_PREV_HOUR = Pattern.compile("5[/0-9]{4}");
+
     private static final Pattern CONT_WIND_SPEED = Pattern.compile("6[/0-9]{4}");
     
     private static final Pattern CONT_WIND_SPEED_INTERNAL = Pattern
@@ -85,8 +89,19 @@ public class Sec5MaritimeDecoder extends SynopticSec5Decoder {
     
     private static final Pattern TIDE = Pattern.compile("TIDE[/0-9]{4}");
 
+    private static final Pattern LOW_PRESS_TIME = Pattern.compile("7[/0-9]{4}");
+
+    private static final Pattern  CMAN_PEAK_WIND_1_MIN = Pattern.compile("8[/0-9]{5}");
+
+    private static final Pattern PEAK_WIND_1_MIN = Pattern.compile("8[/0-9]{4}");
+
+    private static final Pattern PEAK_WIND_1_MIN_TIME = Pattern.compile("9[/0-9]{4}");
+
     private static final UnitConverter knotsToMSec = NonSI.KNOT
             .getConverterTo(SI.METERS_PER_SECOND);
+
+    private static final UnitConverter daPaToPa = SI.DEKA(SI.PASCAL)
+            .getConverterTo(SI.PASCAL);
 
     private static final int NUM_WINDS = 6;
 
@@ -101,6 +116,22 @@ public class Sec5MaritimeDecoder extends SynopticSec5Decoder {
     private Integer pkWindDirection = null;
 
     private Double pkWindSpeed = null;
+
+    private Integer pkWindTimeHourOneMin = null;
+
+    private Integer pkWindTimeMinuteOneMin = null;
+
+    private Integer pkWindDirectionOneMin = null;
+
+    private Double pkWindSpeedOneMin = null;
+
+    private Boolean pkWindSpeedOneMinInKnots = false;
+
+    private Double lowestPressure = null;
+
+    private Integer lowestPressureTimeHour = null;
+
+    private Integer lowestPressureTimeMinute = null;
 
     private Integer windTimeHour = null;
 
@@ -197,6 +228,19 @@ public class Sec5MaritimeDecoder extends SynopticSec5Decoder {
                         pkWindSpeed = spd.doubleValue();
                     }
                     closeGroup(4);
+                } else if (doGroup(5)
+                        && LOWEST_PRESS_PREV_HOUR.matcher(element).find()) {
+                    // 5plplplpl   plplplpl is the lowest pressure during the previous hour, in tenths of hPa.
+                    // This group shall only be reported when the pressure is less than 1009 hPa. Otherwise,
+                    // the group will be missing. When pressure exceeds 1000 hPa, the leading "1" will be dropped.
+                    // For example, 1004.2 hPa will be coded as 50042.
+                    Integer press = AbstractSfcObsDecoder.getInt(element, 1, 5);
+                    if (press < 1000) {
+                        lowestPressure = daPaToPa.convert((double)press + 10000);
+                    } else {
+                        lowestPressure = daPaToPa.convert((double)press);
+                    }
+                    closeGroup(5);
                 } else if (doGroup(6)
                         && CONT_WIND_SPEED.matcher(element).find()) {
                     // Continuous wind speed data
@@ -231,6 +275,50 @@ public class Sec5MaritimeDecoder extends SynopticSec5Decoder {
                         }
                     }
                     closeGroup(6);
+                } else if (doGroup(7) && LOW_PRESS_TIME.matcher(element).find()) {
+                    // 7hhmm   hhmm is the hour and minute (UTC) of the lowest pressure during the previous hour
+                    lowestPressureTimeHour = AbstractSfcObsDecoder
+                            .getInt(element, 1, 3);
+                    lowestPressureTimeMinute = AbstractSfcObsDecoder.getInt(element, 3,
+                            5);
+                    closeGroup(7);
+                } else if (doGroup(8)
+                        && CMAN_PEAK_WIND_1_MIN.matcher(element).find()) {
+                    // 8ddff or 8ddfff     dd is true direction, in tens of degrees, from which the highest
+                    // peak one minute wind during the previous hour was blowing. For fixed buoys, ff is the
+                    // associated speed, in units indicated by iSubw. For C-MAN reports, fff is the associated
+                    // speed in knots.
+                    pkWindDirectionOneMin = AbstractSfcObsDecoder.getInt(element, 1, 3);
+                    if ((pkWindDirectionOneMin != null) && (pkWindDirectionOneMin >= 0)) {
+                        pkWindDirectionOneMin *= 10;
+                    }
+                    Integer spd = AbstractSfcObsDecoder.getInt(element, 3, 6);
+                    if ((spd != null) && (spd >= 0)) {
+                        pkWindSpeedOneMin = spd.doubleValue();
+                    }
+                    pkWindSpeedOneMinInKnots = true;
+                    closeGroup(8);
+                } else if (doGroup(8) && PEAK_WIND_1_MIN.matcher(element).find()) {
+                    // 8ddff or 8ddfff     dd is true direction, in tens of degrees, from which the highest
+                    // peak one minute wind during the previous hour was blowing. For fixed buoys, ff is the
+                    // associated speed, in units indicated by iSubw.
+                    pkWindDirectionOneMin = AbstractSfcObsDecoder.getInt(element, 1, 3);
+                    if ((pkWindDirectionOneMin != null) && (pkWindDirectionOneMin >= 0)) {
+                        pkWindDirectionOneMin *= 10;
+                    }
+                    Integer spd = AbstractSfcObsDecoder.getInt(element, 3, 5);
+                    if ((spd != null) && (spd >= 0)) {
+                        pkWindSpeedOneMin = spd.doubleValue();
+                    }
+                    closeGroup(8);
+                } else if (doGroup(9) && PEAK_WIND_1_MIN_TIME.matcher(element).find()) {
+                    // 9hhmm   hhmm is the hour and minute (UTC) of the highest peak one-minute wind
+                    // during the previous hour
+                    pkWindTimeHourOneMin = AbstractSfcObsDecoder
+                                .getInt(element, 1, 3);
+                    pkWindTimeMinuteOneMin = AbstractSfcObsDecoder.getInt(element, 3,
+                                5);
+                    closeGroup(9);
                 } else if (TIDE.matcher(element).find()) {
                     // Tidal data in feet.
 
@@ -249,8 +337,13 @@ public class Sec5MaritimeDecoder extends SynopticSec5Decoder {
         pkWindTimeMinute = null;
         pkWindDirection = -9999;
         pkWindSpeed = -9999.0;
+        pkWindTimeHourOneMin = null;
+        pkWindTimeMinuteOneMin = null;
+        pkWindDirectionOneMin = -9999;
+        pkWindSpeedOneMin = -9999.0;
         windSpeeds = null;
         windDirs = null;
+        pkWindSpeedOneMinInKnots = false;
     }
 
     /**
@@ -311,6 +404,36 @@ public class Sec5MaritimeDecoder extends SynopticSec5Decoder {
                 receiver.setPeakWindSpeed(wSpeed);
                 receiver.setPeakWindTime(newT.getTimeInMillis());
             }
+            // One-minute peak wind data
+            if ((pkWindTimeHourOneMin != null) && (pkWindTimeMinuteOneMin != null)) {
+                Calendar obsT = receiver.getTimeObs();
+
+                Integer year = getParent().getHeader().getYear();
+                if (year == -1) {
+                    year = null;
+                }
+                Integer month = getParent().getHeader().getMonth();
+                if (month == -1) {
+                    month = null;
+                }
+
+                Calendar newT = AbstractSynopticDecoder.calculateObsDateTime(
+                        obsT, obsT.get(Calendar.DAY_OF_MONTH), pkWindTimeHourOneMin,
+                        year, month);
+                newT.set(Calendar.MINUTE, pkWindTimeMinuteOneMin);
+                // Now do we have valid speed and direction
+                if (pkWindDirectionOneMin != null) {
+                    receiver.setPeakWindDirOneMin(pkWindDirectionOneMin);
+                }
+                wSpeed = pkWindSpeedOneMin;
+                if (wSpeed > -9999) {
+                    if (inKnots || pkWindSpeedOneMinInKnots) {
+                        wSpeed = knotsToMSec.convert(wSpeed);
+                    }
+                }
+                receiver.setPeakWindSpeedOneMin(wSpeed);
+                receiver.setPeakWindTimeOneMin(newT.getTimeInMillis());
+            }
             // 10 minutes observations.
             if ((windSpeeds != null) && (windDirs != null)) {
                 // Do we need to override the observation time
@@ -359,7 +482,28 @@ public class Sec5MaritimeDecoder extends SynopticSec5Decoder {
                     } // for
                 }
             }
+            // Lowest pressure data
+            if ((lowestPressureTimeHour != null) && (lowestPressureTimeMinute != null)) {
+                Calendar obsT = receiver.getTimeObs();
 
+                Integer year = getParent().getHeader().getYear();
+                if (year == -1) {
+                    year = null;
+                }
+                Integer month = getParent().getHeader().getMonth();
+                if (month == -1) {
+                    month = null;
+                }
+
+                Calendar newT = AbstractSynopticDecoder.calculateObsDateTime(
+                        obsT, obsT.get(Calendar.DAY_OF_MONTH), lowestPressureTimeHour,
+                        year, month);
+                newT.set(Calendar.MINUTE, lowestPressureTimeMinute);
+                if (lowestPressure != null) {
+                    receiver.setLowestPressure(lowestPressure.intValue());
+                }
+                receiver.setLowestPressureTime(newT.getTimeInMillis());
+            }
         }
         return receiver;
     }

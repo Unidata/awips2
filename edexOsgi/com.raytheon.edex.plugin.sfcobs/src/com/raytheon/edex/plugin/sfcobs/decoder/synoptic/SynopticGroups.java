@@ -59,6 +59,7 @@ import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
  * Sep 30, 2014 #3629      mapeters    Replaced {@link AbstractSfcObsDecoder#matchElement()} 
  *                                     calls, added HUMIDITY_PATTERN.
  * May 26, 2015 #4525      mapeters    Fix pressure unit conversion.
+ * Apr 20, 2016 DR18361    MPorricelli Added decoding of snowDepth
  * 
  * </pre>
  * 
@@ -349,6 +350,22 @@ public class SynopticGroups {
                         decodedItem.setDataValue(val.doubleValue());
                     }
                     decodedItem.setDataPeriod(TimeUtil.SECONDS_PER_DAY);
+                }
+            }
+        }
+
+        return decodedItem;
+    }
+
+    public static DataItem decodeSnowDepth(String groupData,
+            int lookingForSect) {
+        DataItem decodedItem = null;
+        if ((groupData != null) && (groupData.length() == 5)) {
+            if ((groupData.charAt(0) == '4') && (lookingForSect == 3)) {
+                Integer val = AbstractSfcObsDecoder.getInt(groupData, 2, 5);
+                if ((val != null) && (val >= 0) && (val < 997)) {
+                    decodedItem = new DataItem("snowDepth");
+                    decodedItem.setDataValue((double)val * 10);
                 }
             }
         }

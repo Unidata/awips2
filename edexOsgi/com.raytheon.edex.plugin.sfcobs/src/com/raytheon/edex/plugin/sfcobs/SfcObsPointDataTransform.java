@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.sfcobs.AncPrecip;
+import com.raytheon.uf.common.dataplugin.sfcobs.AncPressure;
 import com.raytheon.uf.common.dataplugin.sfcobs.InterWinds;
 import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
@@ -54,6 +55,8 @@ import com.raytheon.uf.common.serialization.SerializationException;
  * Apr 04, 2014 2906       bclement    made getDescription() and static constants public
  * Apr 22, 2014 2906       bclement    removed WMO header, timeObs and timeNominal from HDF5 (times still in DB)
  * Dec 17, 2015 5166       kbisanz     Update logging to use SLF4J
+ * Apr 20, 2016 DR18361    MPorricelli Added snowDepth, 24hour pressure change, 3hr precip,
+ *                                     1-minute peak wind, lowest pressure
  * 
  * </pre>
  * 
@@ -105,7 +108,11 @@ public class SfcObsPointDataTransform {
 
     public static final String PRESS_CHANGE_CHAR = "pressChangeChar";
 
+    public static final String PRESS_CHANGE_24HR = "pressChange24Hour";
+
     public static final String PRECIP1_HOUR = "precip1Hour";
+
+    public static final String PRECIP3_HOUR = "precip3Hour";
 
     public static final String PRECIP6_HOUR = "precip6Hour";
 
@@ -114,6 +121,10 @@ public class SfcObsPointDataTransform {
     public static final String PRECIP18_HOUR = "precip18Hour";
 
     public static final String PRECIP24_HOUR = "precip24Hour";
+
+    public static final String SNOW_DEPTH = "snowDepth";
+
+    public static final String STATE_OF_GROUND_WITH_SNOW = "stateOfGroundWithSnow";
 
     public static final String TEMPERATURE = "temperature";
 
@@ -130,6 +141,16 @@ public class SfcObsPointDataTransform {
     public static final String PEAK_WIND_SPEED = "peakWindSpeed";
 
     public static final String PEAK_WIND_SPEED_TIME = "peakWindSpeedTime";
+
+    public static final String PEAK_WIND_DIR_1MIN = "peakWindDirOneMin";
+
+    public static final String PEAK_WIND_SPEED_1MIN = "peakWindSpeedOneMin";
+
+    public static final String PEAK_WIND_SPEED_TIME_1MIN = "peakWindSpeedTimeOneMin";
+
+    public static final String LOWEST_PRESSURE = "lowestPressure";
+
+    public static final String LOWEST_PRESSURE_TIME = "lowestPressureTime";
 
     public static final String SEA_LEVEL_PRESS = "seaLevelPress";
 
@@ -238,11 +259,18 @@ public class SfcObsPointDataTransform {
         sb.append("peakWindDir,");
         sb.append("peakWindSpeed,");
 
+        sb.append("peakWindSpeedTimeOneMin,");
+        sb.append("peakWindDirOneMin,");
+        sb.append("peakWindSpeedOneMin,");
+
+        sb.append("lowestPressure,");
+        sb.append("lowestPressureTime,");
         sb.append("seaLevelPress,");
         sb.append("altimeter,");
         sb.append("stationPress,");
         sb.append("pressChangeChar,");
         sb.append("pressChange3Hour,");
+        sb.append("pressChange24Hour,");
 
         sb.append("visibility,");
         sb.append("wx_past_1,");
@@ -259,9 +287,13 @@ public class SfcObsPointDataTransform {
 
         sb.append("precip1Hour,");
         sb.append("precip6Hour,");
+        sb.append("precip3Hour,");
         sb.append("precip12Hour,");
         sb.append("precip18Hour,");
         sb.append("precip24Hour,");
+
+        sb.append("snowDepth,");
+        sb.append("stateOfGroundWithSnow,");
 
         sb.append("equivWindSpeed10m,");
         sb.append("equivWindSpeed20m,");
@@ -382,6 +414,12 @@ public class SfcObsPointDataTransform {
             pdv.setFloat(PEAK_WIND_SPEED, getFloat(record.getPeakWindSpeed()));
             pdv.setLong(PEAK_WIND_SPEED_TIME, record.getPeakWindTime());
             pdv.setFloat(PEAK_WIND_DIR, getFloat(record.getPeakWindDir()));
+            pdv.setFloat(PEAK_WIND_SPEED_1MIN, getFloat(record.getPeakWindSpeedOneMin()));
+            pdv.setLong(PEAK_WIND_SPEED_TIME_1MIN, record.getPeakWindTimeOneMin());
+            pdv.setFloat(PEAK_WIND_DIR_1MIN, getFloat(record.getPeakWindDirOneMin()));
+
+            pdv.setFloat(LOWEST_PRESSURE, getFloat(record.getLowestPressure()));
+            pdv.setLong(LOWEST_PRESSURE_TIME, record.getLowestPressureTime());
 
             pdv.setFloat(SEA_LEVEL_PRESS,
                     getFloat(record.getPressureSealevel()));
@@ -445,6 +483,10 @@ public class SfcObsPointDataTransform {
                         pdv.setFloat(PRECIP1_HOUR, v);
                         break;
                     }
+                    case 10800: {
+                        pdv.setFloat(PRECIP3_HOUR, v);
+                        break;
+                    }
                     case 21600: {
                         pdv.setFloat(PRECIP6_HOUR, v);
                         break;
@@ -464,8 +506,22 @@ public class SfcObsPointDataTransform {
                     } // switch
                 } // for
             }
-        }
+            pdv.setFloat(SNOW_DEPTH,
+                    getFloat(record.getSnowDepth()));
 
+            pdv.setFloat(STATE_OF_GROUND_WITH_SNOW,
+                    getFloat(record.getStateOfGroundWithSnow()));
+
+            List<AncPressure> pressure = record.getAncPressure();
+            if ((pressure != null) && (pressure.size() > 0)) {
+                for (AncPressure press : pressure) {
+                    float pressValue = press.getValue().floatValue();
+                    if (press.getTimePeriod() == 86400) {
+                        pdv.setFloat(PRESS_CHANGE_24HR, pressValue);
+                    }
+                }
+            }
+        }
         int idx = 0;
         List<InterWinds> winds = record.getInterWinds();
         if ((winds != null) && (winds.size() > 0)) {
@@ -522,6 +578,12 @@ public class SfcObsPointDataTransform {
             obs.setPeakWindSpeed(pdv.getNumber(PEAK_WIND_SPEED).doubleValue());
             obs.setPeakWindTime(pdv.getNumber(PEAK_WIND_SPEED_TIME).longValue());
             obs.setPeakWindDir(pdv.getNumber(PEAK_WIND_DIR).intValue());
+            obs.setPeakWindSpeedOneMin(pdv.getNumber(PEAK_WIND_SPEED_1MIN).doubleValue());
+            obs.setPeakWindTimeOneMin(pdv.getNumber(PEAK_WIND_SPEED_TIME_1MIN).longValue());
+            obs.setPeakWindDirOneMin(pdv.getNumber(PEAK_WIND_DIR_1MIN).intValue());
+
+            obs.setLowestPressure(pdv.getNumber(LOWEST_PRESSURE).intValue());
+            obs.setLowestPressureTime(pdv.getNumber(LOWEST_PRESSURE_TIME).longValue());
 
             obs.setPressureSealevel(pdv.getNumber(SEA_LEVEL_PRESS).intValue());
             obs.setPressureAltimeter(pdv.getNumber(ALTIMETER).intValue());
@@ -573,6 +635,9 @@ public class SfcObsPointDataTransform {
                     .intValue());
             obs.setSecondarySwellWaveHeight(pdv.getNumber(SEC_SWELL_WV_HGT)
                     .doubleValue());
+            obs.setSnowDepth(pdv.getNumber(SNOW_DEPTH).doubleValue());
+
+            obs.setStateOfGroundWithSnow(pdv.getNumber(STATE_OF_GROUND_WITH_SNOW).intValue());
 
             // TODO : Intermediate winds
         }
