@@ -84,10 +84,6 @@
 		</antcall>
 		<antcall target="build">
 			<param name="feature"
-				value="gov.noaa.nws.sr.oun.edex.mping.feature" />
-		</antcall>
-		<antcall target="build">
-			<param name="feature"
 				value="com.raytheon.uf.edex.ncep.nco.feature" />
 		</antcall>
 		<antcall target="build">

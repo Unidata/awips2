@@ -28,23 +28,17 @@
                         definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
                     </reference>
                 </visibleWhen>
-                <separator name="SURFACE" visible="false">
-                </separator>
+                <separator name="SURFACE" visible="true" />
 				<separator name="HAZARDS" visible="true" />
-                <separator name="USPLNPLACEHOLDER" visible="true">
-                </separator>
-				<separator name="MOS" visible="false">
-                </separator>
-				<separator name="MARITIME" visible="false">
-                </separator>
-                <separator name="EndOfMaritime" visible="true">
-                </separator>
-                <separator name="LIGHTNINGPLACEHOLDER"
-                    visible="false" />
-                <separator name="FOGPLACEHOLDER" visible="false" />
-                <separator name="SNOWPLACEHOLDER" visible="false" />
-                <separator name="EndOfHazards" visible="true">
-                </separator>
+				<separator name="CollectionDissemination" visible="true" />
+                <separator name="USPLNPLACEHOLDER" visible="true" />
+				<separator name="MOS" visible="true" />
+				<separator name="MARITIME" visible="true" />
+                <separator name="EndOfMaritime" visible="true" />
+                <separator name="LIGHTNINGPLACEHOLDER" visible="true" />
+                <separator name="FOGPLACEHOLDER" visible="true" />
+                <separator name="SNOWPLACEHOLDER" visible="true" />
+                <separator name="EndOfHazards" visible="true" />
             </menu>
         </menuContribution>
     </extension>

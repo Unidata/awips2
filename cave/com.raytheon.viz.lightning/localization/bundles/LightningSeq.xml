@@ -180,6 +180,7 @@
 					</resourceData>
 				</resource>
 			</descriptor>
+			<numberOfFrames>100</numberOfFrames>
 		</displays>
 	</displayList>
 </bundle>

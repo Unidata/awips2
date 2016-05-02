@@ -1,183 +1,39 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<contribute xsi:type="subMenu" menuText="Sounder Imagery">
-		<!-- West CONUS -->
-		<contribute xsi:type="subMenu" menuText="West CONUS Sounder">
-			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-	                menuText="Sounder 14 micron IR" id="irWindow">
-		        <substitute key="element" value="Sounder 14.06 micron imagery"/>
-		        <substitute key="sector" value="West CONUS"/>
-				<substitute key="entity" value="GOES-15(P)" /> 
-		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
-		    </contribute>
-			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-	                menuText="Sounder 11 micron IR" id="irWindow">
-		        <substitute key="element" value="Sounder 11.03 micron imagery"/>
-		        <substitute key="sector" value="West CONUS"/>
-				<substitute key="entity" value="GOES-15(P)" /> 
-		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
-		    </contribute>
-			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-	                menuText="Sounder 7.5 micron WV" id="irWindow">
-		        <substitute key="element" value="Sounder 7.43 micron imagery"/>
-		        <substitute key="sector" value="West CONUS"/>
-				<substitute key="entity" value="GOES-15(P)" /> 
-		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
-		    </contribute>
-			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-	                menuText="Sounder 7 micron WV" id="irWindow">
-		        <substitute key="element" value="Sounder 7.02 micron imagery"/>
-		        <substitute key="sector" value="West CONUS"/>
-				<substitute key="entity" value="GOES-15(P)" /> 
-		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
-		    </contribute>
-			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-	                menuText="Sounder 6.5 micron WV" id="irWindow">
-		        <substitute key="element" value="Sounder 6.51 micron imagery"/>
-		        <substitute key="sector" value="West CONUS"/>
-				<substitute key="entity" value="GOES-15(P)" /> 
-		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
-		    </contribute>
-			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-	                menuText="Sounder 4.5 micron IR" id="irWindow">
-		        <substitute key="element" value="Sounder 4.45 micron imagery"/>
-		        <substitute key="sector" value="West CONUS"/>
-				<substitute key="entity" value="GOES-15(P)" /> 
-		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
-		    </contribute>
-			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-	                menuText="Sounder 4 micron IR" id="irWindow">
-		        <substitute key="element" value="Sounder 3.98 micron imagery"/>
-		        <substitute key="sector" value="West CONUS"/>
-				<substitute key="entity" value="GOES-15(P)" /> 
-		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
-		    </contribute>
-			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-	                menuText="Derived Lifted Index" id="liftedIndex">
-		        <substitute key="element" value="Sounder Based Derived Lifted Index (LI)"/>
-		        <substitute key="entity" value="GOES-15(P)"/>
-		        <substitute key="sector" value="West CONUS"/>
-		        <substitute key="colormap" value="Sat/Lifted Index/Lifted Index Default"/>
-		    </contribute>
-	        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-	                menuText="Derived Total Precip Water" id="totalPrecipWater">
-		        <substitute key="element" value="Sounder Based Derived Precipitable Water (PW)"/>
-		        <substitute key="entity" value="GOES-15(P)"/>
-		        <substitute key="sector" value="West CONUS"/>
-		        <substitute key="colormap" value="Sat/Precip Water/Precip Water Default"/>
-		    </contribute>
-	        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-	                menuText="Derived Cloud Amount" id="cloud Amount">
-		        <substitute key="element" value="Gridded Cloud Amount"/>
-		        <substitute key="entity" value="GOES-15(P)"/>
-		        <substitute key="sector" value="West CONUS"/>
-		        <substitute key="colormap" value="Sat/Cloud Amount Default"/>
-		    </contribute>
-	        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-	                menuText="Derived Cloud Top Height" id="cloudTopHeight">
-		        <substitute key="element" value="Gridded Cloud Top Pressure or Height"/>
-		        <substitute key="entity" value="GOES-15(P)"/>
-		        <substitute key="sector" value="West CONUS"/>
-		        <substitute key="colormap" value="Sat/Cloud Top Height"/>
-		    </contribute>
-		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-	                menuText="Derived Skin Temperature" id="skinTemp">
-		        <substitute key="element" value="Sounder Based Derived Surface Skin Temp (SFC Skin)"/>
-		        <substitute key="entity" value="GOES-15(P)"/>
-		        <substitute key="sector" value="West CONUS"/>
-		        <substitute key="colormap" value="Sat/Skin Temp/Skin Temp Default"/>
-		    </contribute>
+		<!-- GOES Supernational -->
+    	<contribute xsi:type="bundleItem" file="bundles/BlendedRainRate.xml" 
+	            menuText="Blended Rain Rate" id="rainfallRate">
+	        <substitute key="element" value="Rain fall rate"/>
+	        <substitute key="entity" value="POES-NPOESS"/>
+			<substitute key="sector" value="Supernational"/>
+	        <substitute key="colormap" value="Radar/UPC One Hour Precip"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultCONUSSatellite.xml"
+			menuText="Low Cloud Base" id="lowCloudBase">
+			<substitute key="element" value="Low cloud base imagery" />
+			<substitute key="sector0" value="West CONUS" />
+			<substitute key="sector1" value="East CONUS" />
+			<substitute key="entity" value="GOES%" />
+			<substitute key="colormap" value="Sat/Low Cloud Base" />
 		</contribute>
-		<contribute xsi:type="subMenu" menuText="Hawaii National Sounder">
-			<!-- HAWAII NATIONAL -->
-			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-	                menuText="Sounder 14 micron IR" id="irWindow">
-		        <substitute key="element" value="Sounder 14.06 micron imagery"/>
-		        <substitute key="sector" value="Hawaii National"/>
-				<substitute key="entity" value="GOES-15(P)" /> 
-		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
-		    </contribute>
-			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-	                menuText="Sounder 11 micron IR" id="irWindow">
-		        <substitute key="element" value="Sounder 11.03 micron imagery"/>
-		        <substitute key="sector" value="Hawaii National"/>
-				<substitute key="entity" value="GOES-15(P)" /> 
-		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
-		    </contribute>
-			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-	                menuText="Sounder 7.5 micron WV" id="irWindow">
-		        <substitute key="element" value="Sounder 7.43 micron imagery"/>
-		        <substitute key="sector" value="Hawaii National"/>
-				<substitute key="entity" value="GOES-15(P)" /> 
-		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
-		    </contribute>
-			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-	                menuText="Sounder 7 micron WV" id="irWindow">
-		        <substitute key="element" value="Sounder 7.02 micron imagery"/>
-		        <substitute key="sector" value="Hawaii National"/>
-				<substitute key="entity" value="GOES-15(P)" /> 
-		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
-		    </contribute>
-			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-	                menuText="Sounder 6.5 micron WV" id="irWindow">
-		        <substitute key="element" value="Sounder 6.51 micron imagery"/>
-		        <substitute key="sector" value="Hawaii National"/>
-				<substitute key="entity" value="GOES-15(P)" /> 
-		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
-		    </contribute>
-			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-	                menuText="Sounder 4.5 micron IR" id="irWindow">
-		        <substitute key="element" value="Sounder 4.45 micron imagery"/>
-		        <substitute key="sector" value="Hawaii National"/>
-				<substitute key="entity" value="GOES-15(P)" /> 
-		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
-		    </contribute>
-			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-	                menuText="Sounder 4 micron IR" id="irWindow">
-		        <substitute key="element" value="Sounder 3.98 micron imagery"/>
-		        <substitute key="sector" value="Hawaii National"/>
-				<substitute key="entity" value="GOES-15(P)" /> 
-		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
-		    </contribute>
-			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-	                menuText="Derived Lifted Index" id="liftedIndex">
-		        <substitute key="element" value="Sounder Based Derived Lifted Index (LI)"/>
-		        <substitute key="entity" value="GOES-15(P)"/>
-		        <substitute key="sector" value="Hawaii National"/>
-		        <substitute key="colormap" value="Sat/Lifted Index/Lifted Index Default"/>
-		    </contribute>
-	        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-	                menuText="Derived Total Precip Water" id="totalPrecipWater">
-		        <substitute key="element" value="Sounder Based Derived Precipitable Water (PW)"/>
-		        <substitute key="entity" value="GOES-15(P)"/>
-		        <substitute key="sector" value="Hawaii National"/>
-		        <substitute key="colormap" value="Sat/Precip Water/Precip Water Default"/>
-		    </contribute>
-	        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-	                menuText="Derived Cloud Amount" id="cloud Amount">
-		        <substitute key="element" value="Gridded Cloud Amount"/>
-		        <substitute key="entity" value="GOES-15(P)"/>
-		        <substitute key="sector" value="Hawaii National"/>
-		        <substitute key="colormap" value="Sat/Cloud Amount Default"/>
-		    </contribute>
-	        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-	                menuText="Derived Cloud Top Height" id="cloudTopHeight">
-		        <substitute key="element" value="Gridded Cloud Top Pressure or Height"/>
-		        <substitute key="entity" value="GOES-15(P)"/>
-		        <substitute key="sector" value="Hawaii National"/>
-		        <substitute key="colormap" value="Sat/Cloud Top Height"/>
-		    </contribute>
-		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-	                menuText="Derived Skin Temperature" id="skinTemp">
-		        <substitute key="element" value="Sounder Based Derived Surface Skin Temp (SFC Skin)"/>
-		        <substitute key="entity" value="GOES-15(P)"/>
-		        <substitute key="sector" value="Hawaii National"/>
-		        <substitute key="colormap" value="Sat/Skin Temp/Skin Temp Default"/>
-		    </contribute>
-		</contribute>
-		<contribute xsi:type="titleItem" titleText="------ GOES ------" 
-            id="GOESLine"/>
-    	<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		<!-- SOUNDER/Miscellaneous -->
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Blended Total Precip Water" id="blendedTotalPrecipWater">
+	    	<substitute key="element" value="Sounder Based Derived Precipitable Water (PW)"/>
+			<substitute key="sector" value="Supernational" />     
+	        <substitute key="entity" value="Miscellaneous"/>
+	        <substitute key="colormap" value="Sat/Precip Water/Blended Total Precip Water"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Percent of Normal TPW" id="percentofNormalTPW">
+	        <substitute key="element" value="Percent of Normal TPW"/>
+			<substitute key="sector" value="Supernational" />     
+	        <substitute key="entity" value="Miscellaneous"/>
+	        <substitute key="colormap" value="Sat/Precip Water/Percent of Normal TPW"/>
+	    </contribute>
+		<contribute xsi:type="separator" id="MySeparatorId"/>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
                 menuText="Lifted Index" id="liftedIndex">
 	        <substitute key="element" value="Sounder Based Derived Lifted Index (LI)"/>
 	        <substitute key="entity" value="Composite"/>
@@ -191,6 +47,8 @@
 			<substitute key="sector" value="Supernational"/>
 	        <substitute key="colormap" value="Sat/Precip Water/Precip Water Default"/>
 	    </contribute>
+		
+		
         <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
                 menuText="Cloud Amount" id="cloud Amount">
 	        <substitute key="element" value="Gridded Cloud Amount"/>
@@ -212,53 +70,37 @@
 			<substitute key="sector" value="Supernational"/>
 	        <substitute key="colormap" value="Sat/Skin Temp/Skin Temp Default"/>
 	    </contribute>
-		<contribute xsi:type="bundleItem" file="bundles/DefaultCONUSSatellite.xml"
-			menuText="Low Cloud Base" id="lowCloudBase">
-			<substitute key="element" value="Low cloud base imagery" />
-			<substitute key="sector0" value="West CONUS" />
-			<substitute key="sector1" value="East CONUS" />
-			<substitute key="entity" value="GOES%" />
-			<substitute key="colormap" value="Sat/Low Cloud Base" />
-		</contribute> 
-		
-		
-		
-	    <contribute xsi:type="satBundleItem" file="bundles/DefaultSatellite.xml" 
-	        menuText="Ozone" id="GOES-Sounder-Ozone">
+		<contribute xsi:type="separator" id="MySeparatorId"/>
+	    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	        menuText="CIMSS Derived Ozone" id="GOES-Sounder-Ozone">
 	        <substitute key="element" value="Sounder Based Total Column Ozone"/>
 	        <substitute key="entity" value="SOUNDER" /> 
 	        <substitute key="sector" value="GOES-Sounder" />     
 	        <substitute key="colormap" value="Sat/Ozone/Ozone"/>
 	    </contribute>
-		<contribute xsi:type="satBundleItem" file="bundles/DefaultSatellite.xml" 
-	        menuText="Derived Lifted Index" id="GOES-Sounder-LI">
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	        menuText="CIMSS Derived Precip Water" id="GOES-Sounder-PW">
+	        <substitute key="element" value="Sounder Based Derived Precipitable Water (PW)"/>
+	        <substitute key="entity" value="SOUNDER" /> 
+	        <substitute key="sector" value="GOES-Sounder" />     
+	        <substitute key="colormap" value="Sat/Precip Water/Precip Water Default"/>
+	    </contribute>
+		<contribute xsi:type="separator" id="MySeparatorId"/>
+		<!--
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	        menuText="CIMSS Derived Lifted Index" id="GOES-Sounder-LI">
 	        <substitute key="element" value="Sounder Based Derived Lifted Index (LI)"/>
 	        <substitute key="entity" value="SOUNDER" /> 
 	        <substitute key="sector" value="GOES-Sounder" />     
 	        <substitute key="colormap" value="Sat/Ozone/Ozone"/>
 	    </contribute>
-		<contribute xsi:type="satBundleItem" file="bundles/DefaultSatellite.xml" 
-	        menuText="Precipitable Water" id="GOES-Sounder-PW">
-	        <substitute key="element" value="Sounder Based Derived Precipitable Water (PW)"/>
-	        <substitute key="entity" value="SOUNDER" /> 
-	        <substitute key="sector" value="GOES-Sounder" />     
-	        <substitute key="colormap" value="Sat/Precip Water/Precip Water - Polar"/>
-	    </contribute>
-		<contribute xsi:type="satBundleItem" file="bundles/DefaultSatellite.xml" 
-	        menuText="CAPE" id="GOES-Sounder-Cape">
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	        menuText="CIMSS Derived CAPE" id="GOES-Sounder-Cape">
 	        <substitute key="element" value="CAPE"/>
 	        <substitute key="entity" value="SOUNDER" /> 
 	        <substitute key="sector" value="GOES-Sounder" />     
 	        <substitute key="colormap" value="Sat/IR/IR WV"/>
 	    </contribute>
-		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-	            menuText="Blended Rain Rate" id="rainfallRate">
-	        <substitute key="element" value="Rain fall rate"/>
-	        <substitute key="entity" value="POES-NPOESS"/>
-			<substitute key="sector" value="Supernational"/>
-	        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
-	    </contribute>
-	    <contribute xsi:type="titleItem" titleText="------ DMSP SSM/I ------" id="DMSPLine"/>
 		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
                 menuText="Total Precip Water" id="totalPrecipWater">
 	        <substitute key="element" value="Sounder Based Derived Precipitable Water (PW)"/>
@@ -266,28 +108,215 @@
 			<substitute key="sector" value="Supernational"/>
 	        <substitute key="colormap" value="Sat/Precip Water/Precip Water - Polar)"/>
 	    </contribute>
-	    <contribute xsi:type="titleItem" titleText="------ POES AMSU ------" id="POESAMSULine"/>
 		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-                menuText="Total Precip Water" id="totalPrecipWater">
+                menuText="NPOESS Total Precip Water" id="totalPrecipWater">
 	        <substitute key="element" value="Sounder Based Derived Precipitable Water (PW)"/>
 	        <substitute key="entity" value="POES-NPOESS"/>
 			<substitute key="sector" value="Supernational"/>
 	        <substitute key="colormap" value="Sat/Precip Water/Precip Water - Polar)"/>
 	    </contribute>
-		<contribute xsi:type="separator" id="MySeparatorId"/>
-		<!-- Miscellaneous -->
-		<contribute xsi:type="bundleItem" file="bundles/MiscSatellite.xml" 
+		-->
+	    <!-- West CONUS -->
+		<contribute xsi:type="subMenu" menuText="West CONUS">
+			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="Sounder 14 micron IR" id="irWindow">
+		        <substitute key="element" value="Sounder 14.06 micron imagery"/>
+		        <substitute key="sector" value="West CONUS"/>
+				<substitute key="entity" value="GOES-15(P)" /> 
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="Sounder 11 micron IR" id="irWindow">
+		        <substitute key="element" value="Sounder 11.03 micron imagery"/>
+		        <substitute key="sector" value="West CONUS"/>
+				<substitute key="entity" value="GOES-15(P)" /> 
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="Sounder 7.5 micron WV" id="irWindow">
+		        <substitute key="element" value="Sounder 7.43 micron imagery"/>
+		        <substitute key="sector" value="West CONUS"/>
+				<substitute key="entity" value="GOES-15(P)" /> 
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="Sounder 7 micron WV" id="irWindow">
+		        <substitute key="element" value="Sounder 7.02 micron imagery"/>
+		        <substitute key="sector" value="West CONUS"/>
+				<substitute key="entity" value="GOES-15(P)" /> 
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="Sounder 6.5 micron WV" id="irWindow">
+		        <substitute key="element" value="Sounder 6.51 micron imagery"/>
+		        <substitute key="sector" value="West CONUS"/>
+				<substitute key="entity" value="GOES-15(P)" /> 
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="Sounder 4.5 micron IR" id="irWindow">
+		        <substitute key="element" value="Sounder 4.45 micron imagery"/>
+		        <substitute key="sector" value="West CONUS"/>
+				<substitute key="entity" value="GOES-15(P)" /> 
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="Sounder 4 micron IR" id="irWindow">
+		        <substitute key="element" value="Sounder 3.98 micron imagery"/>
+		        <substitute key="sector" value="West CONUS"/>
+				<substitute key="entity" value="GOES-15(P)" /> 
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>
+		</contribute>
+		<contribute xsi:type="subMenu" menuText="Alaska">
+			<!-- Alaska -->
+			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
                 menuText="Blended Total Precip Water" id="blendedTotalPrecipWater">
-	    	<substitute key="element" value="Sounder Based Derived Precipitable Water (PW)"/>
-	        <substitute key="entity" value="Miscellaneous"/>
-	        <substitute key="colormap" value="Sat/Precip Water/Blended Total Precip Water"/>
-	    </contribute>
-		<contribute xsi:type="bundleItem" file="bundles/MiscSatellite.xml" 
-                menuText="Percent of Normal TPW" id="percentofNormalTPW">
-	        <substitute key="element" value="Percent of Normal TPW"/>
-	        <substitute key="entity" value="Miscellaneous"/>
-	        <substitute key="colormap" value="Sat/Precip Water/Percent of Normal TPW"/>
-	    </contribute>
+		    	<substitute key="element" value="Sounder Based Derived Precipitable Water (PW)"/>
+				<substitute key="sector" value="Alaska National" />     
+		        <substitute key="entity" value="Miscellaneous"/>
+		        <substitute key="colormap" value="Sat/Precip Water/Blended Total Precip Water"/>
+		    </contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="Percent of Normal TPW" id="percentofNormalTPW">
+		        <substitute key="element" value="Percent of Normal TPW"/>
+				<substitute key="sector" value="Alaska National" />     
+		        <substitute key="entity" value="Miscellaneous"/>
+		        <substitute key="colormap" value="Sat/Precip Water/Percent of Normal TPW"/>
+		    </contribute>
+			<contribute xsi:type="bundleItem" file="bundles/BlendedRainRate.xml" 
+	            menuText="Blended Rain Rate" id="rainfallRate">
+		        <substitute key="element" value="Rain fall rate"/>
+		        <substitute key="entity" value="POES-NPOESS"/>
+				<substitute key="sector" value="Alaska National" />     
+		        <substitute key="colormap" value="Radar/UPC One Hour Precip"/>
+		    </contribute>
+		</contribute>
+		<contribute xsi:type="subMenu" menuText="Hawaii">
+			<!-- HAWAII -->
+			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Blended Total Precip Water" id="blendedTotalPrecipWater">
+		    	<substitute key="element" value="Sounder Based Derived Precipitable Water (PW)"/>
+				<substitute key="sector" value="Hawaii National" />     
+		        <substitute key="entity" value="Miscellaneous"/>
+		        <substitute key="colormap" value="Sat/Precip Water/Blended Total Precip Water"/>
+		    </contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="Percent of Normal TPW" id="percentofNormalTPW">
+		        <substitute key="element" value="Percent of Normal TPW"/>
+				<substitute key="sector" value="Hawaii National" />     
+		        <substitute key="entity" value="Miscellaneous"/>
+		        <substitute key="colormap" value="Sat/Precip Water/Percent of Normal TPW"/>
+		    </contribute>
+			<contribute xsi:type="bundleItem" file="bundles/BlendedRainRate.xml" 
+	            menuText="Blended Rain Rate" id="rainfallRate">
+		        <substitute key="element" value="Rain fall rate"/>
+		        <substitute key="entity" value="POES-NPOESS"/>
+				<substitute key="sector" value="Hawaii National" />     
+		        <substitute key="colormap" value="Radar/UPC One Hour Precip"/>
+		    </contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="Sounder 14 micron IR" id="irWindow">
+		        <substitute key="element" value="Sounder 14.06 micron imagery"/>
+		        <substitute key="sector" value="Hawaii National"/>
+				<substitute key="entity" value="GOES-15(P)" /> 
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="Sounder 11 micron IR" id="irWindow">
+		        <substitute key="element" value="Sounder 11.03 micron imagery"/>
+		        <substitute key="sector" value="Hawaii National"/>
+				<substitute key="entity" value="GOES-15(P)" /> 
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="Sounder 7.5 micron WV" id="irWindow">
+		        <substitute key="element" value="Sounder 7.43 micron imagery"/>
+		        <substitute key="sector" value="Hawaii National"/>
+				<substitute key="entity" value="GOES-15(P)" /> 
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="Sounder 7 micron WV" id="irWindow">
+		        <substitute key="element" value="Sounder 7.02 micron imagery"/>
+		        <substitute key="sector" value="Hawaii National"/>
+				<substitute key="entity" value="GOES-15(P)" /> 
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="Sounder 6.5 micron WV" id="irWindow">
+		        <substitute key="element" value="Sounder 6.51 micron imagery"/>
+		        <substitute key="sector" value="Hawaii National"/>
+				<substitute key="entity" value="GOES-15(P)" /> 
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="Sounder 4.5 micron IR" id="irWindow">
+		        <substitute key="element" value="Sounder 4.45 micron imagery"/>
+		        <substitute key="sector" value="Hawaii National"/>
+				<substitute key="entity" value="GOES-15(P)" /> 
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="Sounder 4 micron IR" id="irWindow">
+		        <substitute key="element" value="Sounder 3.98 micron imagery"/>
+		        <substitute key="sector" value="Hawaii National"/>
+				<substitute key="entity" value="GOES-15(P)" /> 
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="Sounder Derived Lifted Index" id="liftedIndex">
+		        <substitute key="element" value="Sounder Based Derived Lifted Index (LI)"/>
+		        <substitute key="entity" value="GOES-15(P)"/>
+		        <substitute key="sector" value="Hawaii National"/>
+		        <substitute key="colormap" value="Sat/Lifted Index/Lifted Index Default"/>
+		    </contribute>
+	        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="Gridded Cloud Amount" id="cloud Amount">
+		        <substitute key="element" value="Gridded Cloud Amount"/>
+		        <substitute key="entity" value="GOES-15(P)"/>
+		        <substitute key="sector" value="Hawaii National"/>
+		        <substitute key="colormap" value="Sat/Cloud Amount Default"/>
+		    </contribute>
+	        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="Gridded Cloud Top Height" id="cloudTopHeight">
+		        <substitute key="element" value="Gridded Cloud Top Pressure or Height"/>
+		        <substitute key="entity" value="GOES-15(P)"/>
+		        <substitute key="sector" value="Hawaii National"/>
+		        <substitute key="colormap" value="Sat/Cloud Top Height"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="Sounder Derived Sfc Skin Temp" id="skinTemp">
+		        <substitute key="element" value="Sounder Based Derived Surface Skin Temp (SFC Skin)"/>
+		        <substitute key="entity" value="GOES-15(P)"/>
+		        <substitute key="sector" value="Hawaii National"/>
+		        <substitute key="colormap" value="Sat/Skin Temp/Skin Temp Default"/>
+		    </contribute>
+		</contribute>
+		<contribute xsi:type="subMenu" menuText="Puerto Rico">
+			<!-- Puerto Rico -->
+			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Blended Total Precip Water" id="blendedTotalPrecipWater">
+		    	<substitute key="element" value="Sounder Based Derived Precipitable Water (PW)"/>
+				<substitute key="sector" value="Puerto Rico National" />     
+		        <substitute key="entity" value="Miscellaneous"/>
+		        <substitute key="colormap" value="Sat/Precip Water/Blended Total Precip Water"/>
+		    </contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="Percent of Normal TPW" id="percentofNormalTPW">
+		        <substitute key="element" value="Percent of Normal TPW"/>
+				<substitute key="sector" value="Puerto Rico National" />     
+		        <substitute key="entity" value="Miscellaneous"/>
+		        <substitute key="colormap" value="Sat/Precip Water/Percent of Normal TPW"/>
+		    </contribute>
+			<contribute xsi:type="bundleItem" file="bundles/BlendedRainRate.xml" 
+	            menuText="Blended Rain Rate" id="rainfallRate">
+		        <substitute key="element" value="Rain fall rate"/>
+		        <substitute key="entity" value="POES-NPOESS"/>
+				<substitute key="sector" value="Puerto Rico National" />     
+		        <substitute key="colormap" value="Radar/UPC One Hour Precip"/>
+		    </contribute>
+		</contribute>
 		<contribute xsi:type="separator" id="MySeparatorId"/>
 		<!-- GOES/POES Soundings -->
 		<contribute xsi:type="bundleItem" file="bundles/SoundingAvailability.xml" 

@@ -25,7 +25,7 @@
 			<substitute key="pluginName" value="nucaps"/>
 			<substitute key="soundingResourceData" value="com.raytheon.uf.viz.npp.nucaps.NucapsNSharpResourceData"/>
 	</contribute>
-    <contribute xsi:type="subMenu" id="UAplots" menuText="UA plots">
+    <contribute xsi:type="subMenu" id="UAplots" menuText="Upper Air plots">
         <contribute xsi:type="titleItem" titleText="------ NCEP ------" />
         <contribute xsi:type="separator" id="NCEPEnd"
             visible="false" />
