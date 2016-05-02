@@ -72,6 +72,10 @@ import com.raytheon.viz.texteditor.util.VtecUtil;
  */
 public class TextSegmentCheck implements IQCCheck {
 
+    /*
+     * In order to keep this pattern simple, it does not exclude empty lines.
+     * The empty line case must be handled separately.
+     */
     private static final Pattern ugcPtrn = Pattern
             .compile("^(?:(?:[A-Z]{2}[CZ]\\d{3}-)?(?:\\d{3}-)*)*(?:\\d{6}-)?$");
 
@@ -192,7 +196,7 @@ public class TextSegmentCheck implements IQCCheck {
             }
 
             m = ugcPtrn.matcher(line);
-            if (m.find()) {
+            if (m.find() && m.start() != m.end()) {
                 ugc += line;
                 countUGC = true;
                 continue;
