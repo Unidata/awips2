@@ -696,6 +696,7 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
             MenuItem item = new MenuItem(mapMenu, SWT.RADIO);
             item.setText(zoom.toString());
             item.setData(zoom);
+            item.setSelection(DEFAULT_ZOOM.equals(zoom));
             item.addSelectionListener(new SelectionAdapter() {
                 @Override
                 public void widgetSelected(SelectionEvent e) {
@@ -706,17 +707,6 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
                 }
             });
         }
-        mapMenu.addMenuListener(new MenuAdapter() {
-
-            @Override
-            public void menuShown(MenuEvent e) {
-                String mapName = ghgSpatialViewer.getCurrentMap();
-                for (MenuItem item : mapMenu.getItems()) {
-                    item.setSelection(item.getText().endsWith(mapName));
-                }
-            }
-
-        });
 
         // Menu Separator
         new MenuItem(mapMenu, SWT.SEPARATOR);
@@ -730,6 +720,28 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
                 MenuItem item = (MenuItem) e.widget;
                 ghgSpatialViewer.setLabelZones(item.getSelection());
             }
+        });
+
+        mapMenu.addMenuListener(new MenuAdapter() {
+
+            @Override
+            public void menuShown(MenuEvent e) {
+                String mapName = ghgSpatialViewer.getCurrentMap();
+                int zoomLevel = (int) Math.round(1.0 / ghgSpatialViewer
+                        .getZoomLevel());
+                for (MenuItem item : mapMenu.getItems()) {
+                    Object data = item.getData();
+                    if (data instanceof String) {
+                        item.setSelection(mapName.equals(data));
+                    } else if (data instanceof ZoomLevel) {
+                        item.setSelection(zoomLevel == ((ZoomLevel) data)
+                                .getZoomLevel());
+                    } else {
+                        item.setSelection(ghgSpatialViewer.isLabelZones());
+                    }
+                }
+            }
+
         });
     }
 
