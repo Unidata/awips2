@@ -56,26 +56,6 @@ if [ ! "${architecture}" = "x86_64" ]; then
    exit 1
 fi
 
-function patchSpecification()
-{
-   # copy the standard rpm feature specification into the
-   # component's project directory
-   cp -v Installer.edex-component/component.spec \
-      Installer.${COMPONENT_NAME}/component.spec
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi   
-
-   # apply the specification patch
-   pushd . > /dev/null 2>&1
-   cd Installer.${COMPONENT_NAME}
-   patch -p1 -i *.patch0
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-   popd > /dev/null 2>&1
-}
-
 function buildRPM()
 {
    # Arguments:
@@ -129,36 +109,16 @@ cd ../
 buildRPM "Installer.edex"
 buildRPM "Installer.edex-configuration"
 
-# build the edex-hazards component
-export COMPONENT_NAME="edex-hazards"
-# Workaround until #5466 is resolved.
-if [ -f ${DIST}/${COMPONENT_NAME}.zip ]; then
-   patchSpecification
-   buildRPM "Installer.edex-hazards"
-fi
-unset COMPONENT_NAME
-
 DIST="${WORKSPACE}/build.edex/edex/dist"
 for edex_zip in `cd ${DIST}; ls -1;`;
 do
    edex_component=`python -c "zipFile='${edex_zip}'; componentName=zipFile.replace('.zip',''); print componentName;"`
-  
-   #Data Delivery and Hazard Services components are built separately
-   if [ ! "${edex_component}" = "edex-datadelivery" ] &&
-      [ ! "${edex_component}" = "common-base" ] &&
-      [ ! "${edex_component}" = "edex-hazards" ]; then
+
+   # Check if component is in the ignore file, do not build an RPM if so. 
+   if ! grep -Fxq "${edex_component}" ${WORKSPACE}/build.edex/component.ignore.txt; then
       export COMPONENT_NAME="${edex_component}"
       buildRPM "Installer.edex-component"
       unset COMPONENT_NAME
    fi
 done
-
-# build the edex-datadelivery rpm
-export COMPONENT_NAME="edex-datadelivery"
-# Workaround until #5466 is resolved.
-if [ -f ${DIST}/${COMPONENT_NAME}.zip ]; then
-   patchSpecification
-   buildRPM "Installer.edex-datadelivery"
-fi
-unset COMPONENT_NAME
 

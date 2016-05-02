@@ -191,6 +191,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Sep 10, 2015 #4782      randerso    Converted inParmEdit to ReentrantLock to force 
  *                                     updates to be run consecutively.
  *                                     Cleaned up TODOs, FIXMEs and deprecations.
+ * Apr 04, 2016 #5539      randerso    Fix unsigned byte issues
  * 
  * </pre>
  * 
@@ -2161,10 +2162,9 @@ public abstract class Parm implements Comparable<Parm> {
                                 .getGridSlice()).getKeys();
                         Grid2DByte grid1 = ((WeatherGridSlice) grids[k]
                                 .getGridSlice()).getWeatherGrid();
-                        WeatherKey tmpKey = key1[grid1.get(i, j)];
+                        WeatherKey tmpKey = key1[0xFF & grid1.get(i, j)];
                         WeatherSubKey gpkeys[] = tmpKey.getSubKeys().toArray(
                                 new WeatherSubKey[tmpKey.getSubKeys().size()]);
-                        // key1[grid1(i, j)].subKeys();
                         for (int m = 0; m < gpkeys.length; m++) {
                             int index = subKeys.indexOf(gpkeys[m]);
                             if (index == -1) {
@@ -2236,8 +2236,7 @@ public abstract class Parm implements Comparable<Parm> {
                                 .getGridSlice()).getKeys();
                         Grid2DByte grid1 = ((DiscreteGridSlice) grids[k]
                                 .getGridSlice()).getDiscreteGrid();
-                        // TextString kv = key1[grid1(i, j)].keyAsString();
-                        DiscreteKey kv = key1[grid1.get(i, j)];
+                        DiscreteKey kv = key1[0xFF & grid1.get(i, j)];
                         // add it to the dictionary
                         MutableInteger cnt = values.get(kv);
                         if (cnt == null) {
@@ -3706,7 +3705,7 @@ public abstract class Parm implements Comparable<Parm> {
                                     .getGridSlice());
                             WeatherKey[] key1 = slice.getKeys();
                             Grid2DByte grid1 = slice.getWeatherGrid();
-                            WeatherKey key1ij = key1[grid1.get(i, j)];
+                            WeatherKey key1ij = key1[0xFF & grid1.get(i, j)];
                             subkeys.addAll(key1ij.getSubKeys());
                         }
 
@@ -3760,7 +3759,7 @@ public abstract class Parm implements Comparable<Parm> {
                                 .getGridSlice()).getKeys();
                         Grid2DByte grid1 = ((DiscreteGridSlice) grids[k]
                                 .getGridSlice()).getDiscreteGrid();
-                        DiscreteKey dkv = key1[grid1.get(i, j)];
+                        DiscreteKey dkv = key1[0xFF & grid1.get(i, j)];
                         String dks = dkv.toString();
                         // add it to the dictionary
                         Integer count = values.get(dks);

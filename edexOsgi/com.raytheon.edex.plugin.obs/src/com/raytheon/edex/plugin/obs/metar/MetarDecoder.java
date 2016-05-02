@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.measure.unit.SI;
+
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.obs.metar.util.VisibilityParser;
@@ -90,6 +92,7 @@ import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
  * Jul 13, 2015 4389        skorolev    Added correction of invalid (NUL) characters in the message.
  * Nov 01, 2015 DR 14741    MPorricelli Modified WIND_VAR_DIR_EXP pattern to prevent its matching
  *                                      some RVR strings
+ * Mar 08, 2016 5345        tgurney     Convert sea level pressure from hPa to Pa
  * 
  * </pre>
  * 
@@ -720,6 +723,8 @@ public class MetarDecoder {
                             // nothing
                         }
                         if (slp != null) {
+                            slp = (float) SI.HECTO(SI.PASCAL)
+                                    .getConverterTo(SI.PASCAL).convert(slp);
                             record.setSeaLevelPress(slp);
                         }
                     }

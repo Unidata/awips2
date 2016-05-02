@@ -35,8 +35,8 @@ import javax.measure.unit.Unit;
 import com.raytheon.edex.plugin.gfe.server.IFPServer;
 import com.raytheon.edex.plugin.gfe.server.database.GridDatabase;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.point.GFEPointDataContainer;
 import com.raytheon.uf.common.dataplugin.gfe.point.GFEPointDataContainers;
@@ -70,6 +70,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jun 13, 2013     #2044  randerso    Refactored to use IFPServer
  * Oct 31, 2013     #2508  randerso    Change to use DiscreteGridSlice.getKeys()
  * Apr 23, 2014     #3006  randerso    Restructured code to work with multi-hour grids
+ * Apr 04, 2016     #5539  randerso    Fixed unsigned byte issues
  * 
  * </pre>
  * 
@@ -209,7 +210,7 @@ public class GetPointDataHandler extends BaseGfeRequestHandler implements
                                     byte discreteValue = discreteSlice
                                             .getDiscreteGrid().get(x, y);
                                     String discreteKey = discreteSlice
-                                            .getKeys()[discreteValue]
+                                            .getKeys()[0xFF & discreteValue]
                                             .toString();
                                     type = Type.STRING;
                                     view.setData(param, type, unit, discreteKey);
@@ -218,7 +219,7 @@ public class GetPointDataHandler extends BaseGfeRequestHandler implements
                                     WeatherGridSlice weatherSlice = (WeatherGridSlice) slice;
                                     byte wxValue = weatherSlice
                                             .getWeatherGrid().get(x, y);
-                                    String wxKey = weatherSlice.getKeys()[wxValue]
+                                    String wxKey = weatherSlice.getKeys()[0xFF & wxValue]
                                             .toString();
                                     type = Type.STRING;
                                     view.setData(param, type, unit, wxKey);

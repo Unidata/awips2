@@ -23,11 +23,14 @@ package com.raytheon.edex.plugin.grib.decoderpostprocessors;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
 
 import javax.xml.bind.JAXBException;
 
@@ -35,7 +38,6 @@ import org.apache.camel.Headers;
 
 import com.raytheon.edex.plugin.grib.decoderpostprocessors.DecoderPostProcessor.PostProcessorType;
 import com.raytheon.edex.plugin.grib.exception.GribException;
-import com.raytheon.edex.plugin.grib.util.GribModelLookup;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.annotations.DataURIUtil;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
@@ -54,11 +56,11 @@ import com.raytheon.uf.common.status.UFStatus;
 /**
  * An implementation to modify a grib record after the initial grid decoding if
  * necessary
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Aug 30, 2010  5875     bphillip    Initial Creation
@@ -72,9 +74,11 @@ import com.raytheon.uf.common.status.UFStatus;
  * Oct 14, 2015  4627     nabowle     Load post processor mappings at each
  *                                    localization level as available, appending
  *                                    only new processors.
- *
+ * Apr 15, 2016  5182     tjensen     Changed processorMap population to be done
+ *                                       during processing instead of up front.
+ * 
  * </pre>
- *
+ * 
  * @author bphillip
  * @version 1
  */
@@ -88,13 +92,15 @@ public class GribPostProcessor {
     private static GribPostProcessor instance;
 
     /** The map containing the currently registered grib post processors */
-    private Map<String, List<DecoderPostProcessor>> processorMap;
+    private Map<String, List<DecoderPostProcessor>> processorMap = new ConcurrentHashMap<>();
 
-    private Map<String, String> knownProcessors = new HashMap<>();
+    private final Map<String, String> knownProcessors = new HashMap<>();;
+
+    private List<PostProcessedModel> postProcessedModels;
 
     /**
      * Gets the singleton instance of GribPostProcessor
-     *
+     * 
      * @return The singleton instance of GribPostProcessor
      */
     public static synchronized GribPostProcessor getInstance() {
@@ -113,7 +119,7 @@ public class GribPostProcessor {
 
     /**
      * Processes the GribRecords to determine if they need post processing
-     *
+     * 
      * @param records
      *            The records to examine
      * @return The GribRecords including any new records created during the post
@@ -122,7 +128,7 @@ public class GribPostProcessor {
      */
     public GridRecord[] process(GridRecord[] records) throws GribException {
         synchronized (this) {
-            if (this.processorMap == null) {
+            if (this.postProcessedModels == null) {
                 initProcessorMap();
             }
         }
@@ -131,10 +137,22 @@ public class GribPostProcessor {
         GridRecord[] results = null;
         List<GridRecord> additionalGrids = null;
         for (int i = 0; i < records.length; i++) {
-            // Check the map to see if this grib record is part of a model for
-            // which post processing is necessary
-            processors = processorMap.get(records[i].getDatasetId());
-            if (processors != null) {
+            String modelName = records[i].getDatasetId();
+
+            /*
+             * If we don't already have a entry in the map, check to see if we
+             * need to add one.
+             */
+            if (processorMap.get(modelName) == null) {
+                lookupModelProcessors(modelName);
+            }
+
+            /*
+             * Check the map to see if this grib record is part of a model for
+             * which post processing is necessary
+             */
+            processors = processorMap.get(modelName);
+            if (processors != null && !processors.isEmpty()) {
                 for (DecoderPostProcessor processor : processors) {
                     // Post processing is not necessary, so we continue
                     if (processor == null
@@ -172,7 +190,7 @@ public class GribPostProcessor {
 
     /**
      * Processes the GridRecords to determine if they need post processing
-     *
+     * 
      * @param notif
      *            A notification of datauri's that have been persisted.
      * @return Only grid records created by the post processors. The records
@@ -244,7 +262,7 @@ public class GribPostProcessor {
     /**
      * Registers the DecoderPostProcessor classes for the supplied
      * fully-qualified classnames.
-     *
+     * 
      * @param fqClassNames
      *            The list of fully-qualified classnames to register.
      */
@@ -288,16 +306,14 @@ public class GribPostProcessor {
     }
 
     /**
-     * Initializes the processor map. Starting at base working to site, the
-     * localization files will be unmarshalled if present and new processors
-     * will be appended to the list of processors for a model. If a processor
-     * has already been configured for a model, it will not be added again.
-     *
-     * It's assumed that every processor will have already been registered under
-     * its simple name, or is fully qualified.
-     *
-     * Other than the first initialization, the processor map will only be
-     * changed if the new value is not an empty map.
+     * Initializes the list of postProcessedModels and the processor map.
+     * Starting at base working to site, the localization files will be
+     * unmarshalled if present and new processors will be appended to the list
+     * of processors for a model. If a processor has already been configured for
+     * a model, it will not be added again.
+     * 
+     * The processor map is initially empty, but will be populated as records
+     * are processed to prevent repeated lookup for the same model.
      */
     private synchronized void initProcessorMap() {
         IPathManager pathMgr = PathManagerFactory.getPathManager();
@@ -310,7 +326,7 @@ public class GribPostProcessor {
                 .getTieredLocalizationFile(LocalizationType.EDEX_STATIC,
                         "/grib/postProcessModels/postProcessedModels.xml");
         PostProcessedModelSet ppModelSet;
-        List<PostProcessedModel> postProcessedModels = new ArrayList<>();
+        postProcessedModels = new ArrayList<>();
         Map<String, Integer> idMap = new HashMap<>();
         for (LocalizationLevel level : levels) {
             processorFile = files.get(level);
@@ -339,7 +355,8 @@ public class GribPostProcessor {
                         Integer idx = idMap.get(ppModel.getId());
                         if (idx == null) {
                             postProcessedModels.add(ppModel);
-                            idMap.put(ppModel.getId(), postProcessedModels.size() - 1);
+                            idMap.put(ppModel.getId(),
+                                    postProcessedModels.size() - 1);
                         } else {
                             postProcessedModels.remove(idx.intValue());
                             postProcessedModels.add(idx.intValue(), ppModel);
@@ -355,64 +372,69 @@ public class GribPostProcessor {
         }
 
         /*
-         * Iterate over post processed models. Determine which models apply to
+         * Initialize processorMap to an empty map. Map will be populated as
+         * records are processed.
+         */
+        this.processorMap.clear();
+    }
+
+    /**
+     * For a given model name, determine if the model applies for each post
+     * processor. If so, update the processor map for this model to prevent
+     * repeated lookup for this model.
+     * 
+     * @param modelName
+     */
+    private synchronized void lookupModelProcessors(String modelName) {
+        /*
+         * Iterate over post processed models. Determine if model applies to
          * each post processor if a regex is present
          */
         String knownProc;
         String classToLoad;
-        List<DecoderPostProcessor> processorInstances;
-        Set<String> modelNames = GribModelLookup.getInstance().getModelNames();
-        Map<String, List<DecoderPostProcessor>> newMap = new HashMap<>();
+        Matcher m;
+        List<DecoderPostProcessor> processorInstances = new ArrayList<>();
         for (PostProcessedModel ppModel : postProcessedModels) {
             if (ppModel.getModelName() == null) {
                 continue;
             }
-            for (String modelName : modelNames) {
-                if (modelName.matches(ppModel.getModelName())) {
-                    processorInstances = newMap.get(modelName);
-                    if (processorInstances == null) {
-                        processorInstances = new ArrayList<DecoderPostProcessor>();
-                        newMap.put(modelName, processorInstances);
+            m = ppModel.getModelNamePattern().matcher(modelName);
+            if (m.matches()) {
+                for (String processor : ppModel.getProcessors()) {
+                    knownProc = this.knownProcessors.get(processor);
+                    if (knownProc != null) {
+                        classToLoad = knownProc;
+                    } else {
+                        classToLoad = processor;
                     }
 
-                    for (String processor : ppModel.getProcessors()) {
-                        knownProc = this.knownProcessors.get(processor);
-                        if (knownProc != null) {
-                            classToLoad = knownProc;
-                        } else {
-                            classToLoad = processor;
-                        }
-
-                        try {
-                            boolean alreadyConfigured = false;
-                            for (DecoderPostProcessor instance : processorInstances) {
-                                if (classToLoad.equals(instance.getClass()
-                                        .getName())) {
-                                    alreadyConfigured = true;
-                                    statusHandler.debug(classToLoad
-                                            + " is already configured for "
-                                            + modelName + ".");
-                                    break;
-                                }
+                    try {
+                        boolean alreadyConfigured = false;
+                        for (DecoderPostProcessor instance : processorInstances) {
+                            if (classToLoad.equals(instance.getClass()
+                                    .getName())) {
+                                alreadyConfigured = true;
+                                statusHandler.debug(classToLoad
+                                        + " is already configured for "
+                                        + modelName + ".");
+                                break;
                             }
-                            if (!alreadyConfigured) {
-                                processorInstances
-                                        .add((DecoderPostProcessor) Class
-                                                .forName(classToLoad)
-                                                .newInstance());
-                            }
-                        } catch (Exception e) {
-                            statusHandler.fatal(
-                                    "Error instantiating grib post processor for "
-                                            + processor, e);
                         }
+                        if (!alreadyConfigured) {
+                            processorInstances.add((DecoderPostProcessor) Class
+                                    .forName(classToLoad).newInstance());
+                        }
+                    } catch (Exception e) {
+                        statusHandler.fatal(
+                                "Error instantiating grib post processor for "
+                                        + processor, e);
                     }
                 }
             }
         }
-
-        if (this.processorMap == null || !newMap.isEmpty()) {
-            this.processorMap = newMap;
+        if (processorInstances.isEmpty()) {
+            processorInstances = Collections.emptyList();
         }
+        processorMap.put(modelName, processorInstances);
     }
 }

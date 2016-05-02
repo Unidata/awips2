@@ -67,6 +67,7 @@ import com.raytheon.uf.common.dataplugin.gfe.request.IscRequestQueryRequest.IscQ
 import com.raytheon.uf.common.dataplugin.gfe.request.LockChangeRequest;
 import com.raytheon.uf.common.dataplugin.gfe.request.SaveGfeGridRequest;
 import com.raytheon.uf.common.dataplugin.gfe.request.SendIscGridRequest;
+import com.raytheon.uf.common.dataplugin.gfe.request.SendWFOMessageRequest;
 import com.raytheon.uf.common.dataplugin.gfe.sample.SampleData;
 import com.raytheon.uf.common.dataplugin.gfe.sample.SampleId;
 import com.raytheon.uf.common.dataplugin.gfe.server.lock.LockTable;
@@ -1100,6 +1101,11 @@ public class IFPClient {
         GetIscSendStatusRequest request = new GetIscSendStatusRequest();
 
         return (ServerResponse<IscSendStatus>) makeRequest(request);
+    }
+
+    public ServerResponse<?> sendWFOMessage(List<String> wfos, String message) {
+        SendWFOMessageRequest request = new SendWFOMessageRequest(wfos, message);
+        return makeRequest(request);
     }
 
     /**
