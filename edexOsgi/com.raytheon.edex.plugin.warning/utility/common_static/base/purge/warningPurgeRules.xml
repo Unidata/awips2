@@ -2,7 +2,7 @@
 <purgeRuleSet>
     <key>phensig</key>
     <defaultRule>
-        <period>01-00:00:00</period>
+        <period>20-00:00:00</period>
     </defaultRule>
     <rule>
         <keyValue>FA.Y</keyValue>
