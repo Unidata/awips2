@@ -138,7 +138,8 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  * Oct 27, 2015 4900       mduff       Don't transmit SHEF files if in DRT.
  * Nov 06, 2015 17846      lbousaidi   change the query so that after QC, the quality_code  
  *                                     is reset from Bad to Good.
- * Mar 17, 2016  5483      randerso    Major GUI cleanup
+ * Mar 17, 2016 5483       randerso    Major GUI cleanup
+ * May 02, 2016 5616       randerso    Fix parsing of duration value
  * 
  * </pre>
  * 
@@ -1301,8 +1302,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                         ts = item.getText(3);
                         pe = item.getText(1);
                         if (pe.equals(siteInfo.getPe())
-                                && item.getText(2).equals(
-                                        String.valueOf(siteInfo.getDur()))
+                                && Integer.parseInt(item.getText(2).trim()) == siteInfo
+                                        .getDur()
                                 && ts.equals(siteInfo.getTs())
                                 && item.getText(4).equals(siteInfo.getExt())) {
                             topDataTable.setSelection(j);
@@ -1371,7 +1372,7 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 
         lid = item.getText(0);
         pe = item.getText(1);
-        dur = item.getText(2);
+        dur = item.getText(2).trim();
         ts = item.getText(3);
         extremum = item.getText(4);
         basisTime = item.getText(5);
