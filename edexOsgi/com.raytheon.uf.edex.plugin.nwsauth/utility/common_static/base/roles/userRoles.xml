@@ -53,6 +53,9 @@
    <permission id="com.raytheon.localization.site/cave_static/gfe/comboData">
    </permission>
 
+   <permission id="com.raytheon.localization.site/cave_static/gfe/combinations">
+   </permission>
+
    <permission id="com.raytheon.localization.site/cave_static/gfe/tcvAdvisories">
    </permission>
 

@@ -35,6 +35,7 @@ import gov.noaa.nws.ost.dataplugin.stq.SpotRequestRecord;
  * Date          Ticket#    Engineer    Description
  * ------------  ---------- ----------- --------------------------
  * July 29, 2015 DCS17366   pwang     	Initial creation
+ * Apr 22,  2016 DCS18916   pwang       Support two STQ formats
  * 
  * </pre>
  * 
@@ -104,7 +105,7 @@ public class SpotRequestParser {
         PROPERTY_PATTERN_MAP.put("SIZE_NAME", "SIZE\\s*\\(ACRES\\)");
         PROPERTY_PATTERN_MAP.put("SITE_NAME", "SITE");
         PROPERTY_PATTERN_MAP.put("OFILE_NAME", "OFILE");
-        PROPERTY_PATTERN_MAP.put("OFILE_VALUE", "\\d{8}\\.\\w{5}\\.\\d{2}");
+        PROPERTY_PATTERN_MAP.put("OFILE_VALUE", "(\\d{8}\\.\\w{5}\\.\\d{2})|(\\d{7}\\.\\d{1,})");
         PROPERTY_PATTERN_MAP.put("TIMEZONE_NAME", "TIMEZONE");
         PROPERTY_PATTERN_MAP.put("TIMEZONE_VALUE", "\\w{3}\\d{1}(\\w{3})?");
     }
@@ -351,10 +352,25 @@ public class SpotRequestParser {
             if (propertyValue.matches(PROPERTY_PATTERN_MAP
                     .get("OFILE_VALUE"))) {
                 String[] ofileArray = propertyValue.split(DOT_DELIMINATER);
-                stgPDO.setOfileKey(ofileArray[1]);
-                stgPDO.setOfileVersion(ofileArray[2]);
+                String stationId = "";
+                if(ofileArray == null || ofileArray.length < 2) {
+                    logger.error("STQ Parser: Invalid OFILE Value or fomat: " + propertyValue);
+                    status = false;
+                }
+                else if(ofileArray.length < 3) {
+                    //New OFILE value format YY#####.UUUU
+                    stgPDO.setOfileKey(ofileArray[0]); 
+                    stgPDO.setOfileVersion(ofileArray[1]);
+                    stationId = ofileArray[0] + ofileArray[1];
+                }
+                else {
+                    //Old format: YYYYMMDD.CCCCC.##
+                    stgPDO.setOfileKey(ofileArray[1]);
+                    stgPDO.setOfileVersion(ofileArray[2]);
+                    stationId = ofileArray[1] + ofileArray[2];
+                }
                 stgPDO.getLocation()
-                        .setStationId(ofileArray[1] + ofileArray[2]);
+                        .setStationId(stationId);
             }
             else {
                 //OFILE is required, return false to discontinue the parsing
