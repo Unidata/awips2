@@ -7,15 +7,22 @@
     ________________________Omaha,_NE_68106 ________________________402.291.0100 
     See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for further_licensing_information. -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <contribute xsi:type="bundleItem" file="bundles/DefaultRadarCodedMessage.xml" 
-        menuText="10km Radar Coded Msg" id="10kmRadarCodedMsg" />
+    <contribute xsi:type="bundleItem"
+        file="bundles/DefaultRadarCodedMessage.xml" menuText="10km Radar Coded Msg"
+        id="10kmRadarCodedMsg" />
     <contribute xsi:type="subinclude" fileName="menus/radar/airportRadars.xml" />
-    <contribute xsi:type="titleItem" titleText="------ Mosaic ------" id="RadarMosaic" />
+    <contribute xsi:type="titleItem" titleText="------ Mosaic ------"
+        id="RadarMosaic" />
     <contribute xsi:type="subinclude" fileName="menus/radar/regionalMosaicMenus.xml" />
     <contribute xsi:type="subinclude" fileName="menus/radar/radarMosaicProductMenu.xml" />
     <contribute xsi:type="separator" id="belowRadarMosaics" />
     <contribute xsi:type="subMenu" menuText="Dial Radars" id="RadarMenuDialRadarsSubMenu">
-        <contribute xsi:type="subinclude" fileName="menus/radar/dialRadars.xml" />
+        <contribute xsi:type="subinclude" subMenu="Local Dial Radars"
+            id="localDialRadar" fileName="menus/radar/dialRadars.xml">
+        </contribute>
+        <contribute xsi:type="subinclude" subMenu="All Dial Radars"
+            id="allDialRadar" fileName="menus/radar/dialAllRadars.xml">
+        </contribute>
     </contribute>
     <contribute xsi:type="subinclude" fileName="menus/radar/baseRadarApplications.xml" />
 </menuTemplate> 
