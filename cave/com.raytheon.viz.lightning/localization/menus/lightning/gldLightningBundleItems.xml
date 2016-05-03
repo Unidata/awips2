@@ -39,11 +39,11 @@
                 <substitute key="negOffset" value="60"/>
                 <substitute key="binRepeatCount" value="5"/>
     </contribute>
-    <contribute xsi:type="bundleItem" file="bundles/TotalLightningPlot.xml"
+    <contribute xsi:type="bundleItem" file="bundles/LightningPlot.xml"
                 menuText="1min plot" id="1MinLightningStrokePlot">
                 <substitute key="negOffset" value="60"/>
     </contribute>
     <contribute xsi:type="bundleItem" file="bundles/LightningSeq.xml" 
-                menuText="1min Lgtng Seq" id="1MinLightningStrokeSeq">
+                menuText="1min Lgtng Seq Plot" id="1MinLightningStrokeSeq">
     </contribute>
 </menuTemplate>
