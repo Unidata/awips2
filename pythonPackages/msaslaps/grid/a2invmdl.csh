@@ -47,7 +47,7 @@
 #    varAbrev - Variable abreviation. (optional)
 #
 #  With the new unified GRIB decoder, instead of gproc ggid, it is best
-#  to supply the srcid, which is like ETA or GFS254; e.g. the directory
+#  to supply the srcid, which is like ETA or GFS-EPAC40; e.g. the directory
 #  under /awips2/edex/data/hdf5/grid where the data is stored.
 #
 #  Note that now for sources with no <grid> tag in the associated <model>

@@ -49,7 +49,7 @@
 		post processor. These models may have some parameters which are incorrectly 
 		labeled Celsius vs. Kelvin. The list of parameters to correct is in temperatureCorrectionParameters.xml -->
 	<postProcessedModel>
-		<modelName>NAM12|GFS40|GFS-95km|AK-NAM-11km|RTOFS-.*</modelName>
+		<modelName>NAM12|GFS40|GFS95|AK-NAM11|RTOFS-.*</modelName>
 		<processorName>TemperatureCorrectionPostProcessor</processorName>
 	</postProcessedModel>
 
@@ -73,14 +73,14 @@
 
 	<!-- Post processor definition for the ETA (NAM80) model -->
 	<postProcessedModel>
-		<modelName>NAM-80km</modelName>
+		<modelName>NAM80</modelName>
 		<processorName>Nam80PostProcessor</processorName>
 	</postProcessedModel>
 
-	<!-- Post processor definition for the RUC236 model -->
+	<!-- Post processor definition for the RAP40 model -->
 	<postProcessedModel>
 		<modelName>RAP40</modelName>
-		<processorName>RUC236GribPostProcessor</processorName>
+		<processorName>RAP40GribPostProcessor</processorName>
 	</postProcessedModel>
 
 	<!-- Post processor definition for the CPCoutlook211 model -->
@@ -106,10 +106,10 @@
 		<processorName>LapsPostProcessor</processorName>
 	</postProcessedModel>
 
-	<!-- Post processor definition for the RUC130 model -->
+	<!-- Post processor definition for the RAP13 model -->
 	<postProcessedModel>
 		<modelName>RAP13</modelName>
-		<processorName>RUC130GribPostProcessor</processorName>
+		<processorName>RAP13GribPostProcessor</processorName>
 	</postProcessedModel>
 	
 	<!-- Post processor definition for HPCqpfNDFD -->
@@ -120,7 +120,7 @@
 	
 	<!-- Post processor definition for the GFS20 model -->
 	<postProcessedModel>
-	    <modelName>GFS215|GFS217|GFS20-*</modelName>
+	    <modelName>GFS20|AK-GFS22|GFS20-*</modelName>
 	    <processorName>gov.noaa.nws.crh.edex.grib.decoderpostprocessor.GFS20PostProcessor</processorName>
 	</postProcessedModel>
 

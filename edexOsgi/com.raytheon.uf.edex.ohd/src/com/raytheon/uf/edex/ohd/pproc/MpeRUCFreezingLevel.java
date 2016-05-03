@@ -91,10 +91,10 @@ public class MpeRUCFreezingLevel {
 
     public File stationFile = null;
 
-    final String RUC2 = "RUC236";
+    final String RUC2 = "RAP40";
 
     // models used by MPE
-    public static String[] models = new String[] { "RUC236" };
+    public static String[] models = new String[] { "RAP40" };
 
     public MpeRUCFreezingLevel() {
     	// DR 15914
@@ -245,7 +245,7 @@ public class MpeRUCFreezingLevel {
 
                     FreezingLevelEntry fle = null;
 
-                    // Does a preference for the first model defined. RUC130
+                    // Does a preference for the first model defined. RAP13
                     // has higher resolution so it gets preference
                     if (fle == null) {
                         if (freezingTimeMap.containsKey(RUC2)) {
@@ -381,7 +381,7 @@ public class MpeRUCFreezingLevel {
         }
 
         // get all data from previously saved data from
-        // mpe/dailyQC/freezing_level/point/RUC236[0,6,12,18]zFreezingLevel.bin
+        // mpe/dailyQC/freezing_level/point/RAP40[0,6,12,18]zFreezingLevel.bin
         // Get other hour files read in
         for (String model : models) {
 

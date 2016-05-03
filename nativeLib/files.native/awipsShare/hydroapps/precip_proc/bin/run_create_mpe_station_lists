@@ -117,7 +117,7 @@ cat $MPE_STATION_LIST_DIR/${MPE_SITE_ID}_freezing_station_list >> $FILENAME
 #
 #   Create the ruc.pl script from the ruc.pl.template file.
 #   This file is responsible for retrieving freezing level
-#   data from the RUC80 model for grid points contained in the
+#   data from the RAP40 model for grid points contained in the
 #   offices MPE forecast area. 
 #
 $RUN_FROM_DIR/run_freezing_station_setup

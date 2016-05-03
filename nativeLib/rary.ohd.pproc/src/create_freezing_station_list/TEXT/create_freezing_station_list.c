@@ -24,7 +24,7 @@
 
 /*******************************************************************************
 * MODULE NAME:  main
-* PURPOSE:      Locate all RUC80 grid points which fall within the
+* PURPOSE:      Locate all RAP40 grid points which fall within the
 *               office's MPE forecast area.  Determine the lat/lon
 *               of these points and assign arbitrary ids starting with
 *               Z0000. Create a file in which each record is a freezing
@@ -94,7 +94,7 @@ int create_freezing_station_list_main ( int argc, const char ** argv )
 	   char num_points [ 10 ];
 
 	   /* Parameters needed in the Lambert Conformal projection converstion
-	        and those common to RUC80 and RUC13 are initialized */
+	        and those common to RAP40 and RAP13 are initialized */
 
 	      float ALAT1 = 16.28119;
 	      float ELON1 = 360.0 - 126.1378;
@@ -204,10 +204,10 @@ int create_freezing_station_list_main ( int argc, const char ** argv )
 
    if(strstr(ruc_model_data_dir_val,"GRID130")!=NULL)
    {
-       /* RUC13 */
+       /* RAP13 */
 
 
-    /* in order to generalize this, need to read the lat00 and lon00 from the NetCDF template file in the RUC 13
+    /* in order to generalize this, need to read the lat00 and lon00 from the NetCDF template file in the RAP13
        NetCDf area on AWIPS.
     */
 
@@ -255,7 +255,7 @@ int create_freezing_station_list_main ( int argc, const char ** argv )
        NX = 175;
        NY = 175;
    }
-   else /* RUC80 */
+   else /* RAP40 */
    {
        DX = 81270.5;
        NX = 76;

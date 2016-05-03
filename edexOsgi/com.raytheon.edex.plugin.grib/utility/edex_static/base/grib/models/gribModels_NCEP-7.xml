@@ -51,7 +51,7 @@
 	</model>
 
 	<model>
-		<name>NAM-80km</name>
+		<name>NAM80</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>211</grid>
@@ -198,7 +198,7 @@
 	</model>
 
 	<model>
-		<name>GFS-95km</name>
+		<name>GFS95</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>213</grid>
@@ -231,7 +231,7 @@
 
 
 	<model>
-		<name>GFS-80km</name>
+		<name>GFS80</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>211</grid>
@@ -254,7 +254,7 @@
 
      <!-- conus 20KM-->
     <model>
-        <name>GFS-20km</name>
+        <name>GFS20</name>
         <center>7</center>
         <subcenter>0</subcenter>
         <grid>215</grid>
@@ -266,7 +266,7 @@
     
     <!-- ak 20KM -->
     <model>
-        <name>AK-GFS-22km</name>
+        <name>AK-GFS22</name>
         <center>7</center>
         <subcenter>0</subcenter>
         <grid>217</grid>
@@ -278,7 +278,7 @@
 
     <!-- pac 20KM -->
     <model>
-        <name>GFS-EPac-20km</name>
+        <name>GFS-EPAC20</name>
         <center>7</center>
         <subcenter>0</subcenter>
         <grid>GFS-PAC-20KM</grid>
@@ -290,7 +290,7 @@
     
     <!-- prico 20KM -->
     <model>
-        <name>PR-GFS-20km</name>
+        <name>PR-GFS20</name>
         <center>7</center>
         <subcenter>0</subcenter>
         <grid>GFS-PRICO-20KM</grid>
@@ -401,7 +401,7 @@
 	</model>
 
 	<model>
-		<name>AK-NAM-95km</name>
+		<name>AK-NAM95</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>207</grid>
@@ -759,7 +759,7 @@
 	</model>
 
 	<model>
-		<name>Hawaii-GFS-80km</name>
+		<name>Hawaii-GFS80</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>225</grid>
@@ -833,7 +833,7 @@
 	</model>
 
 	<model>
-		<name>AK-NAM-45km</name>
+		<name>AK-NAM45</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>216</grid>
@@ -843,7 +843,7 @@
 	</model>
 
 	<model>
-		<name>AK-NAM-22km</name>
+		<name>AK-NAM22</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>217</grid>
@@ -863,7 +863,7 @@
 	</model>
 
 	<model>
-		<name>AK-NAM-11km</name>
+		<name>AK-NAM11</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>242</grid>
@@ -1028,7 +1028,7 @@
 	</model>
 
 	<model>
-		<name>GFS-EPac-40km</name>
+		<name>GFS-EPAC40</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>254</grid>
@@ -2380,7 +2380,7 @@
 	</model>
 
 	<model>
-		<name>SREF-40km</name>
+		<name>SREF40</name>
 		<center>7</center>
 		<subcenter>2</subcenter>
 		<grid>212</grid>
@@ -2393,7 +2393,7 @@
 	</model>
 
 	<model>
-		<name>SREF-40km</name>
+		<name>SREF40</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>212</grid>
@@ -2406,7 +2406,7 @@
 	</model>
 
 	<model>
-		<name>AK-SREF-45km</name>
+		<name>AK-SREF45</name>
 		<center>7</center>
 		<subcenter>2</subcenter>
 		<grid>216</grid>

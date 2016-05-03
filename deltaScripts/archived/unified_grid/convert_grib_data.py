@@ -27,11 +27,11 @@ quadrantGrids = ["ENSEMBLE37", "ENSEMBLE38", "ENSEMBLE39", "ENSEMBLE40",
                  "UKMET40", "UKMET39", "UKMET38", "UKMET37"]
 
 akGrids = ["MOSGuide-AK", "AK-NamDNG5","AK-RTMA", "AKWAVE239", "AKwave10", "AKwave4", "HiResW-NMM-AK", "HiResW-ARW-AK",
-           "ETA242", "mesoEta217", "mesoEta216","ETA207", "AVN203", "MRF203", "GFS160"]
+           "AK-NAM11", "AK-NAM22", "AK-NAM45","AK-NAM95", "AVN203", "MRF203", "AK-GFS"]
 
-prGrids = ["HiResW-NMM-SJU", "HiResW-ARW-SJU", "PR-NamDNG5", "PR-RTMA", "MRF205",  "GFS161", "mesoEta237"]
+prGrids = ["HiResW-NMM-SJU", "HiResW-ARW-SJU", "PR-NamDNG5", "PR-RTMA", "MRF205",  "PR-GFS", "PR-NAM"]
 
-hiGrids = ["HI-NamDNG5", "HI-RTMA", "HiResW-NMM-HI", "HiResW-ARW-HI", "MRF204", "AVN225", "GFS254", "SREF243"]
+hiGrids = ["HI-NamDNG5", "HI-RTMA", "HiResW-NMM-HI", "HiResW-ARW-HI", "MRF204", "AVN225", "GFS-EPAC40", "SREF243"]
 
 guGrids = ["HiResW-NMM-GU", "HiResW-ARW-GU"]
 

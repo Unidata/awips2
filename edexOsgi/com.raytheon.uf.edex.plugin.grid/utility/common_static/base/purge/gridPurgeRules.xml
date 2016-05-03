@@ -7,8 +7,145 @@
         <period>07-00:00:00</period>
     </defaultRule>
 	<rule>
+		<keyValue>AK-NAM11</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>CMC</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>DGEX</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>WaveWatch-ENP</keyValue>
+		<versionsToKeep>1</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>GLERL</keyValue>
+		<versionsToKeep>1</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>WaveWatch-AK</keyValue>
+		<versionsToKeep>1</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>RAP13</keyValue>
+		<versionsToKeep>8</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>RAP20</keyValue>
+		<versionsToKeep>8</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>RAP40</keyValue>
+		<versionsToKeep>8</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>AK-NamDNG5</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
 		<keyValue>AK-RTMA</keyValue>
-		<versionsToKeep>24</versionsToKeep>
+		<versionsToKeep>8</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Aviation</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Aviation-0-252</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>FNMOC-NCODA</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>FNMOC-FAROP</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>FNMOC-WW3</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>GEFS</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>GFS</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>GFS-1p0</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>GFS-NH</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>PR-GFS20</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>GFS40</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>GFS95</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>GFS20</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>AK-GFS22</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>GFSLAMP5</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<!-- Purge rules for the GFSensemble models -->
+	<rule>
+		<keyValue>ENSEMBLE</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>ENSEMBLE37</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>ENSEMBLE38</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>ENSEMBLE39</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>ENSEMBLE40</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>ENSEMBLE41</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>ENSEMBLE42</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>ENSEMBLE43</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>ENSEMBLE44</keyValue>
+		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
 		<keyValue>Hawaii-NamDNG5</keyValue>
@@ -17,6 +154,103 @@
 	<rule>
 		<keyValue>Hawaii-RTMA</keyValue>
 		<versionsToKeep>1</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>HRRR</keyValue>
+		<versionsToKeep>3</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>LAMP2p5</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>MOSGuide-AK</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>NAM4</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>NAM12</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>NAM40</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>NamDNG5</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>NamDNG</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>PR-GFS</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>NAVGEM</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>RTMA</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>URMA25</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>RTMA5</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>SREF40</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<!-- Purge rule for the UKMET (UKMET-Global) model -->
+	<rule>
+		<keyValue>UKMET-Global</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>UKMET-MODEL1</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>UKMET37</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>UKMET38</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>UKMET39</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>UKMET40</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>UKMET41</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>UKMET42</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>UKMET43</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>UKMET44</keyValue>
+		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
 		<keyValue>WaveWatch</keyValue>
@@ -58,6 +292,14 @@
 	<rule>
 		<keyValue>CPCoutlook211</keyValue>
 		<versionsToKeep>14</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>RTGSSTHR</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>NICICE</keyValue>
+		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
 		<keyValue>HPCGuide</keyValue>
@@ -358,11 +600,11 @@
 	<!-- Purge rule for the ESTOFS model -->
 	<rule>
 		<keyValue>ESTOFS</keyValue>
-		<versionsToKeep>1</versionsToKeep>
+		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
 		<keyValue>PR-ESTOFS</keyValue>
-		<versionsToKeep>1</versionsToKeep>
+		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<!-- Purge rule for the GFS199 (Guam-GFSDNG) model -->
 	<rule>

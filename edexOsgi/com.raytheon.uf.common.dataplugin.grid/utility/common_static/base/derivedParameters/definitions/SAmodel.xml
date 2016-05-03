@@ -19,7 +19,7 @@
         further_licensing_information.
     -->
 <DerivedParameter unit="mm" name="Model Run Snow via Thickness" abbreviation="SAmodel" internal="true">
-    <Method name="ModelRun" models="GFS215 GFS217 GFS20-PAC GFS20-PRICO">
+    <Method name="ModelRun" models="GFS20 AK-GFS22 GFS-EPAC20 PR-GFS20">
         <Field abbreviation="SAcc"/>
     </Method>
     <Method name="ModelRun">

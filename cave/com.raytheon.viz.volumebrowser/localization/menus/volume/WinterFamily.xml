@@ -26,7 +26,7 @@
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/WinterFamily.xml"
 				menuText="GFS20" id="gfs20" useReferenceTime="true">
-				<substitute key="modelName" value="GFS-20km"/> 
+				<substitute key="modelName" value="GFS20"/> 
 				<substitute key="TP" value="TP"/>
 				<substitute key="frameCount" value="55"/>
 			</contribute>

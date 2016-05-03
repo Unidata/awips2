@@ -8,7 +8,7 @@
 			</constraints>
 		</source>
 	 -->
-	<source type="grid" displayString="NAM-12km" validTimeInterval="540">
+	<source type="grid" displayString="NAM12" validTimeInterval="540">
 		<constraints>
 			<mapping key="pluginName">
 				<constraint constraintValue="grid"/>
@@ -19,7 +19,7 @@
         </constraints>
 	</source>
 	
-	<source type="grid" displayString="GFS-40km" validTimeInterval="540">
+	<source type="grid" displayString="GFS40" validTimeInterval="540">
 		<constraints>
 			<mapping key="pluginName">
 				<constraint constraintValue="grid"/>

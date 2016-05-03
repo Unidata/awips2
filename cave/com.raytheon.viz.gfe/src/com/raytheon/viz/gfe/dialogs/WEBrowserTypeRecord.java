@@ -297,7 +297,7 @@ public class WEBrowserTypeRecord {
      * 
      * @param modelNames
      *            A list of model runs. Format for the strings should be model
-     *            DD/HH (e.g., "RUC13 03/12" or "GFS40 30/00")
+     *            DD/HH (e.g., "RAP13 03/12" or "GFS40 30/00")
      * @return A single map containing all parms present in the model runs
      *         mapped to all possible pressure values.
      */
@@ -325,7 +325,7 @@ public class WEBrowserTypeRecord {
      * 
      * @param modelNames
      *            A list of model runs. Format for the strings should be model
-     *            DD/HH (e.g., "RUC13 03/12" or "GFS40 30/00")
+     *            DD/HH (e.g., "RAP13 03/12" or "GFS40 30/00")
      * @return A single map containing all parms present in the model runs
      *         mapped to all possible "misc." pressure values.
      */
@@ -352,7 +352,7 @@ public class WEBrowserTypeRecord {
      * 
      * @param model
      *            The model run name and time, specified in "model DD/HH" format
-     *            (e.g., "RUC13 03/12" or "GFS40 30/00").
+     *            (e.g., "RAP13 03/12" or "GFS40 30/00").
      * @param parmName
      *            The parm name (e.g., "t" or "pop").
      * @return An array containing all valid pressure level values for the
@@ -375,7 +375,7 @@ public class WEBrowserTypeRecord {
      * 
      * @param model
      *            The model run name and time, specified in "model DD/HH" format
-     *            (e.g., "RUC13 03/12" or "GFS40 30/00").
+     *            (e.g., "RAP13 03/12" or "GFS40 30/00").
      * @param parmName
      *            The parm name (e.g., "t" or "pop").
      * @return An array containing all valid "misc." pressure level values for

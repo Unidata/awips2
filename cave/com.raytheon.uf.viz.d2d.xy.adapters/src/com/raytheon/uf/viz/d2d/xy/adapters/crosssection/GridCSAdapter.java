@@ -69,7 +69,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Nov 23, 2009           mschenke     Initial creation
  * Feb 04, 2011  7953     bkowal       Fill values will now be placed in the 
  *                                     data array for anything below 300MB for 
- *                                     RUC80.
+ *                                     RAP40.
  * Oct 02, 2012  15259    M.Porricelli Allow plotting when 3 levels available
  *                                     (DGEX)
  * Sep 09, 2013  2277     mschenke     Got rid of ScriptCreator references

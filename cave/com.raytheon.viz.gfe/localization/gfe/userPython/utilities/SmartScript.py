@@ -2407,14 +2407,14 @@ class SmartScript(BaseTool.BaseTool):
     #    value = WxString("Sct RW")
     #    self.assignValue(["Wx"], 0, 12, 'NAM12', value)
 
-    # Example: Copy RUC80 0-12, NAM12 13-48, GFS80 49-72 for T, Wx, and Wind,
+    # Example: Copy RAP40 0-12, NAM12 13-48, GFS80 49-72 for T, Wx, and Wind,
     # and then interpolate from hours 0 - 24.
     #
     #
-    #       self.copy(['T','Wx', 'Wind'], 0, 12, 'RUC80')
+    #       self.copy(['T','Wx', 'Wind'], 0, 12, 'RAP40')
     #       self.copy(['T','Wx', 'Wind'], 13, 48, 'NAM12')
     #       self.copy(['T','Wx', 'Wind'], 49, 72, 'GFS80')
-    #       self.interpolate(['T','Wx', 'Wind'], 0, 24, 'RUC80')
+    #       self.interpolate(['T','Wx', 'Wind'], 0, 24, 'RAP40')
 
     def copyCmd(self, elements, databaseID, timeRange):
         if isinstance(timeRange, TimeRange.TimeRange):
