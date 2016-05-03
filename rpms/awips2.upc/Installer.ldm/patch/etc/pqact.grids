@@ -103,31 +103,31 @@ NGRID	^[YZ].E... KWBC ...... !grib2.*/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
 #
 HDS	^[YZ].Q... KWBC ...... !grib.*/([0-9]{8})([0-9]{4})/(F[0-9]{3})/([^/]*)
 	FILE	-edex -log
-	/awips2/data_store/grid/GFS-80km/GFS-80km_\1_\2_\3_\4-(seq).grib2
+	/awips2/data_store/grid/GFS80/GFS80_\1_\2_\3_\4-(seq).grib2
 #
-# GFS Alaska 95 km (GFS95/GFS213)
+# GFS Alaska 95 km (GFS95)
 #
 NGRID	^[LM].H... KWBC ...... !grib2/[^/]*/[^/]*/#[^/]*/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
 	FILE	-edex -log
-	/awips2/data_store/grid/AK-GFS-95km/AK-GFS-95km\1_\2Z_\3_\4-(seq).grib2
+	/awips2/data_store/grid/AK-GFS95/AK-GFS95\1_\2Z_\3_\4-(seq).grib2
 #
-# GFS CONUS 40km - GFS40/GFS212
+# GFS CONUS 40km (GFS40)
 #
 NGRID	^[LM].R... KWBC ...... !grib2/[^/]*/[^/]*/#212/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
 	FILE	-edex -log
-	/awips2/data_store/grid/GFS-40km/GFS-40km_\1_\2_\3_\4-(seq).grib2
+	/awips2/data_store/grid/GFS40/GFS40_\1_\2_\3_\4-(seq).grib2
 #
 # GFS CONUS 20 km
 #
 NGRID	^[YZ].N... KWBC ...... !grib.*/([0-9]{8})([0-9]{4})/(F[0-9]{3})/([^/]*)
 	FILE	-edex -log
-	/awips2/data_store/grid/GFS-20km/GFS-20km_\1_\2_\3_\4-(seq).grib2
+	/awips2/data_store/grid/GFS20/GFS20_\1_\2_\3_\4-(seq).grib2
 #
 # GFS Alaska 20 km
 #
 NGRID	^[YZ].B... KWBC ...... !grib.*/([0-9]{8})([0-9]{4})/(F[0-9]{3})/([^/]*)
 	FILE	-edex -log
-	/awips2/data_store/grid/AK-GFS-20km/AK-GFS-20km_\1_\2_\3_\4-(seq).grib2
+	/awips2/data_store/grid/AK-GFS20/AK-GFS20_\1_\2_\3_\4-(seq).grib2
 #
 # GFSGuide
 #
@@ -167,17 +167,17 @@ NGRID	^[LM].Q... KWBR ...... !grib2/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(
 #	FILE	-edex -log
 #	/awips2/data_store/grid/NAM12/noaaport/NAM_CONUS_12km_noaaport_\1_\3_\4Z_\5_\6-(seq).grib2
 #
-# NAM Alaska 11 km (AK-NAM-11km)
+# NAM Alaska 11 km (AK-NAM11)
 #
 NGRID	^[LM].S... KWBE ...... !grib.*/([0-9]{8})([0-9]{4})/(F[0-9]{3})/([^/]*)
 	FILE	-edex -log
-	/awips2/data_store/grid/AK-NAM-11km/NAM_Alaska_11km_\1_\2_\3_\4-(seq).grib2
+	/awips2/data_store/grid/AK-NAM11/NAM_Alaska_11km_\1_\2_\3_\4-(seq).grib2
 #
-# NAM Alaska 45 km GRID216 - CONDUIT (AK-NAM-45km)
+# NAM Alaska 45 km GRID216 - CONDUIT (AK-NAM45)
 #
 CONDUIT	^data/nccf/com/nam/prod/nam.*t(..)z.awipak.* !grib2/ncep/NAM_84/#000/(............)(F...)/(.*)/.*
 	FILE	-edex -log
-	/awips2/data_store/grid/AK-NAM-45km/conduit/NAM_Alaska_45km_conduit_\2_\3_\4_\5-(seq).grib2
+	/awips2/data_store/grid/AK-NAM45/conduit/NAM_Alaska_45km_conduit_\2_\3_\4_\5-(seq).grib2
 #
 # NAM CONUS 12 km (NAM12) - CONDUIT
 #
@@ -209,11 +209,11 @@ HDS	^[YZ].M.{1,3} KWBE .......*/#([^/]*)/([0-9]{8})([0-9]{4})/(F[0-9]{3})/([^/]*
 	FILE	-edex -log
 	/awips2/data_store/grid/Regional_NAM-M/GRID\8/Regional_NAM_GRID\8_\2_\3_\4_\5-(seq).grib
 #
-# NAM Alaska 95 km (AK-NAM-95km)
+# NAM Alaska 95 km (AK-NAM95)
 #
 HDS	^[YZ].N... KWBE .......*/m(ETA|NAM) !grib.*/([0-9]{8})([0-9]{4})/(F[0-9]{3})/([^/]*)
 	FILE	-edex -log
-	/awips2/data_store/grid/AK-NAM-95km/noaaport/NAM_Alaska_95km_\2_\3_\4_\5-(seq).grib2
+	/awips2/data_store/grid/AK-NAM95/noaaport/NAM_Alaska_95km_\2_\3_\4_\5-(seq).grib2
 #
 #
 #
@@ -251,11 +251,11 @@ HDS	^[YZ].U... KWB. [0-3][0-9][0-2][0-9].*/m(ETA|NAM) !grib.*/([0-9]{8})([0-9]{4
 	FILE	-edex -log
 	/awips2/data_store/grid/NAM20/NAM_CONUS_20km_\2_\3Z_\4_\5-(seq).\1.grib2
 #
-# NAM Alaska 45 km GRID216 - NOAAport (AK-NAM-45km)
+# NAM Alaska 45 km GRID216 - NOAAport (AK-NAM45)
 #
 #HDS	^[YZ].V... KWB. .......*/m(ETA|NAM) !grib.*/([0-9]{8})([0-9]{4})/(F[0-9]{3})/([^/]*)
 #	FILE	-edex -log
-#	/awips2/data_store/grid/AK-NAM-45km/noaaport/NAM_Alaska_45km_noaaport_\2_\3_\4_\5-(seq).grib2
+#	/awips2/data_store/grid/AK-NAM45/noaaport/NAM_Alaska_45km_noaaport_\2_\3_\4_\5-(seq).grib2
 #
 #
 #
@@ -263,11 +263,11 @@ HDS	^[YZ].W.{1,3} KWBE .......*/#([^/]*)/([0-9]{8})([0-9]{4})/(F[0-9]{3})/([^/]*
 	FILE	-edex -log
 	/awips2/data_store/grid/Regional_NAM-W/GRID\8/Regional_NAM_GRID\8_\2_\3_\4_\5-(seq).grib
 #
-# NAM Alaska 22 km (AK-NAM-22km)
+# NAM Alaska 22 km (AK-NAM22)
 #
 HDS	^[YZ].Y... KWBE .......*/m(ETA|NAM) !grib.*/([0-9]{8})([0-9]{4})/(F[0-9]{3})/([^/]*)
 	FILE	-edex -log
-	/awips2/data_store/grid/AK-NAM-22km/NAM_Alaska_22km_\2_\3_\4_\5-(seq).grib2
+	/awips2/data_store/grid/AK-NAM22/NAM_Alaska_22km_\2_\3_\4_\5-(seq).grib2
 #
 # NAM Puerto Rico Grid 237 (PR-NAM)
 #
@@ -415,26 +415,26 @@ NGRID	Y.C.[0-9][0-9] KWBY ...... !grib2/[^/]*/[^/]*/#[^/]*/([0-9]{12})F(...)/(.*
 #
 NGRID	^[LM].R... KWBL ...... !grib2/[^/]*/[^/]*/#[^/]*/([0-9]{12})F(...)/(.*)/.*
 	FILE	-edex -log
-	/awips2/data_store/grid/SREF-40km/noaaport/SREF_CONUS_40km_ensprod_(\1:yyyy)(\1:mm)\1_\2.grib2
+	/awips2/data_store/grid/SREF40/noaaport/SREF_CONUS_40km_ensprod_(\1:yyyy)(\1:mm)\1_\2.grib2
 #
 # SREF CONUS 40 km Bias Corrected Ensemble Derived Products
 #
 # data/nccf/com/sref/prod/sref.20160309/21/ensprod_biasc/sref.t21z.pgrb212.p10_3hrly.grib2 !grib2/ncep/SREF_113/#000/201603092100F006/UREL/1000 hPa PRES! 000038
 #CONDUIT	^data/nccf/com/sref/prod/sref\........./../(ensprod_biasc)/.*pgrb212.*!grib2/ncep/.*/#000/(............)(F...)/(.*)/.*! (......)
 #	FILE	-edex -log
-#	/awips2/data_store/grid/SREF-40km/conduit/SREF_CONUS_40km_\1_\2_\3_\4_\5-(seq).grib2
+#	/awips2/data_store/grid/SREF40/conduit/SREF_CONUS_40km_\1_\2_\3_\4_\5-(seq).grib2
 #
 # SREF CONUS 40 km Bias Corrected Ensemble Members
 #
 #CONDUIT	^data/nccf/com/sref/prod/sref\.(........)/(..)/(pgrb_biasc)/.*pgrb212.*!grib2/ncep/.*/#000/............(F...)/(.*)/.*! (......)
 #	FILE	-edex -log
-#	/awips2/data_store/grid/SREF-40km/conduit/SREF_CONUS_40km_\3_\1_\200_\4_\5_\6.grib2
+#	/awips2/data_store/grid/SREF40/conduit/SREF_CONUS_40km_\3_\1_\200_\4_\5_\6.grib2
 #
 # SREF Alaska 45 km Ensemble Derived Products
 #
 NGRID	^[LM].V... KWBL .......*!grib.*/[^/]*/[^/]*/#[^/]*/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
 	FILE	-edex -log
-	/awips2/data_store/grid/AK-SREF-45km/SREF_Alaska_45km_ensprod_\1\2_\3_\4-(seq).grib2
+	/awips2/data_store/grid/AK-SREF45/SREF_Alaska_45km_ensprod_\1\2_\3_\4-(seq).grib2
 #
 # SREF Pacific Northeast 0.4 degree Ensemble Derived Products
 #

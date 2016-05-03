@@ -8,7 +8,7 @@
     <info>
         <title>NAM80</title>
         <datasetId>ETA</datasetId>
-        <alias>NAM-80km</alias>
+        <alias>NAM80</alias>
         <dt>6</dt>
     </info>
     <info>
@@ -68,21 +68,21 @@
     </info>
     <info>
         <title>GFS20-CONUS</title>
-        <datasetId>GFS-20km</datasetId>
+        <datasetId>GFS20</datasetId>
         <dt>3</dt>
     </info>
     <info>
         <title>GFS20-AK</title>
-        <datasetId>AK-GFS-22km</datasetId>
+        <datasetId>AK-GFS22</datasetId>
         <dt>3</dt>
     </info>
     <info>
-        <title>GFS-EPac-20km</title>
+        <title>GFS-EPAC20</title>
         <datasetId>GFS-PAC-20KM</datasetId>
         <dt>3</dt>
     </info>
     <info>
-        <title>GFS20-PRICO</title>
+        <title>PR-GFS20</title>
         <datasetId>GFS-PRICO-20KM</datasetId>
         <dt>3</dt>
     </info>
@@ -93,7 +93,7 @@
     </info>
     <info>
         <title>GFS90</title>
-        <datasetId>GFS-95km</datasetId>
+        <datasetId>GFS95</datasetId>
         <dt>6</dt>
     </info>
     <info>
@@ -108,19 +108,19 @@
     </info>
     <info>
         <title>GFS80</title>
-        <datasetId>GFS-80km</datasetId>
+        <datasetId>GFS80</datasetId>
         <dt>6</dt>
     </info>
     <info>
         <title>NAM40</title>
         <datasetId>NAM40</datasetId>
-        <alias>NAM-40km</alias>
+        <alias>NAM40</alias>
         <dt>3</dt>
     </info>
     <info>
         <title>NAM20</title>
         <datasetId>NAM20</datasetId>
-        <alias>NAM-20km</alias>
+        <alias>NAM20</alias>
         <dt>3</dt>
     </info>
     <info>
@@ -160,7 +160,7 @@
     </info>
     <info>
         <title>NAM95</title>
-        <datasetId>AK-NAM-95km</datasetId>
+        <datasetId>AK-NAM95</datasetId>
         <dt>6</dt>
     </info>
     <info>
@@ -255,12 +255,12 @@
     </info>
     <info>
         <title>RAP40</title>
-        <datasetId>RUC236</datasetId>
+        <datasetId>RAP40</datasetId>
         <dt>1</dt>
     </info>
     <info>
         <title>GFS75</title>
-        <datasetId>Hawaii-GFS-80km</datasetId>
+        <datasetId>Hawaii-GFS80</datasetId>
         <dt>6</dt>
     </info>
     <info>
@@ -274,24 +274,23 @@
         <dt>6</dt>
     </info>
     <info>
-        <title>AK-NAM-45km</title>
-        <datasetId>AK-NAM-45km</datasetId>
+        <title>AK-NAM45</title>
+        <datasetId>AK-NAM45</datasetId>
         <dt>6</dt>
     </info>
     <info>
-        <title>AK-NAM20</title>
-        <datasetId>AK-NAM-22km</datasetId>
+        <title>AK-NAM22</title>
+        <datasetId>AK-NAM22</datasetId>
         <dt>6</dt>
     </info>
     <info>
         <title>NAM12</title>
-        <datasetId>ETA218</datasetId>
-        <alias>NAM-12km</alias>
+        <alias>NAM12</alias>
         <dt>3</dt>
     </info>
     <info>
         <title>AK-NAM12</title>
-        <datasetId>AK-NAM-11km</datasetId>
+        <datasetId>AK-NAM11</datasetId>
         <dt>3</dt>
     </info>
     <info>
@@ -346,12 +345,12 @@
     </info>
     <info>
         <title>DGEX</title>
-        <datasetId>AK-DGEX-12km</datasetId>
+        <datasetId>AK-DGEX</datasetId>
         <dt>6</dt>
     </info>
     <info>
         <title>GFS40</title>
-        <datasetId>GFS212</datasetId>
+        <datasetId>GFS40</datasetId>
         <dt>6</dt>
     </info>
     <info>
@@ -361,12 +360,12 @@
     </info>
     <info>
         <title>PR-GFS</title>
-        <datasetId>GFS-EPac-40km</datasetId>
+        <datasetId>GFS-EPAC40</datasetId>
         <dt>6</dt>
     </info>
     <info>
         <title>SJU-GFS</title>
-        <datasetId>GFS161</datasetId>
+        <datasetId>PR-GFS</datasetId>
         <dt>6</dt>
     </info>
     <info>
@@ -376,7 +375,7 @@
     </info>
     <info>
         <title>RAP13</title>
-        <datasetId>RUC130</datasetId>
+        <datasetId>RAP13</datasetId>
         <dt>1</dt>
     </info>
     <info>
@@ -676,7 +675,7 @@
     </info>
     <info>
         <title>AK-SREF</title>
-        <datasetId>AK-SREF-45km</datasetId>
+        <datasetId>AK-SREF45</datasetId>
         <dt>3</dt>
     </info>
     <info>

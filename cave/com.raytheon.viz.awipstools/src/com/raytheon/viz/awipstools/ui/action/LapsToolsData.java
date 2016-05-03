@@ -75,7 +75,7 @@ public class LapsToolsData {
         double minimumArea =   150000.;
 
        	if(areaCoverage > maximumArea) {
-    		System.out.print("LAPS Tools Data: problem with this domain exceeding the RUC 236 background\n");
+    		System.out.print("LAPS Tools Data: problem with this domain exceeding the RAP40 background\n");
             MessageDialog.openWarning(getShell(), "Domain Size Error",
               "The size of new domain would exceed the maximum limits \n\tdefined by model background (the RAP40 grid).\n");
     	} else if(areaCoverage < minimumArea) {

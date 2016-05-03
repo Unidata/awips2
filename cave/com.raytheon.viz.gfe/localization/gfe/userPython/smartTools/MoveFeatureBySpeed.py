@@ -47,12 +47,12 @@ from math import *
 #  Add or delete models according to whether or not they are available at your office.
 #
 
-#sourceList = ["NAM12", "GFS40", "RUC80"]
-sourceList = ["NAM12", "GFS40", "RUC40", "wrfnmm", "wrfarw", "WSETA"]
+#sourceList = ["NAM12", "GFS40", "RAP40"]
+sourceList = ["NAM12", "GFS40", "RAP40", "wrfnmm", "wrfarw", "WSETA"]
 
 threeHour = ["NAM12"]
 sixHour = ["GFS40"]
-RUC = ["RUC13", "RUC40"]
+RUC = ["RAP13", "RAP40"]
 
 resolution = 2.5
 
@@ -86,7 +86,7 @@ class Tool (SmartScript.SmartScript):
         "Extrapolate features foward or backward in time based on observed or model speed"
         self.logToolUse("Smart Tool execution")
 
-        modelList = ["NAM12", "GFS40", "RUC40", "RUC13", "wrfnmm", "wrfarw", "WSETA", "Fcst"]   #####################################################
+        modelList = ["NAM12", "GFS40", "RAP40", "RAP13", "wrfnmm", "wrfarw", "WSETA", "Fcst"]   #####################################################
 
         if varDict["Source:"] not in modelList and varDict["Source:"] != "Observed (enter below)":
             modelList.append((varDict["Source:"]))

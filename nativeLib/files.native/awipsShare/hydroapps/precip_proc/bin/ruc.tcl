@@ -12,7 +12,7 @@
 #  command line argument specifying the number of days to process
 #
 #  March 11, 2008 - Updated to log the names of the files in
-#                   the RUC80. Fixed variable reference typos. 
+#                   the RAP40. Fixed variable reference typos. 
 #
 #  Dec 2009 - Changed date on .E line to be one day earlier
 #
@@ -105,7 +105,7 @@ if { $dqc_preprocessor_basetime == "12z" && $hour < 12 } {
 }
 
 #
-# List the available RUC80 files.
+# List the available RAP40 files.
 
 puts "Contents of $rucdir:"
 
@@ -204,7 +204,7 @@ if { $len0 == 0 && $len1 == 0 && $len2 == 0 && $len3 == 0 } {
 # Process each record.  For each blank freezing level value computed
 # above, see if there was already one in the file from a previous
 # run of this script.  If there is, use it.  This needs to be 
-# done because RUC80 data files are only kept around for 8 hours or
+# done because RAP40 data files are only kept around for 8 hours or
 # so.
 
 if [catch {open $ofile r} fileId] {

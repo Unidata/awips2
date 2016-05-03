@@ -214,12 +214,12 @@ dam | 0.1 | 0.0 | 4 | i5 | X |LH|8000F0FF| | 0 | 6
      </contourLabeling>
   </contourStyle>
 </styleRule>
-<!--  * mesoEta212, GH, GHxSM, 1050MB > 850MB 
+<!--  * NAM40, GH, GHxSM, 1050MB > 850MB 
 m  | 1.0 | 0.0 | 4 | i4 | X |LH|8000F0FF|,,,150 | 0 | 15
 -->  
 <styleRule>
   <paramLevelMatches>
-  	<creatingEntity>mesoEta212</creatingEntity>
+  	<creatingEntity>NAM40</creatingEntity>
   	<creatingEntity>NAM40</creatingEntity>  	
      <parameter>GH</parameter>
      <parameter>GHxSM</parameter>        
@@ -237,12 +237,12 @@ m  | 1.0 | 0.0 | 4 | i4 | X |LH|8000F0FF|,,,150 | 0 | 15
      </contourLabeling>
   </contourStyle>
 </styleRule>
-<!--  * mesoEta212, GH, GHxSM, 875MB > 500MB 
+<!--  * NAM40, GH, GHxSM, 875MB > 500MB 
 dam | 0.1 | 0.0 | 4 | i4 | X |LH|8000F0FF|,,,150 | 0 | 3
 -->  
 <styleRule>
   <paramLevelMatches>
-     <creatingEntity>mesoEta212</creatingEntity>
+     <creatingEntity>NAM40</creatingEntity>
   	<creatingEntity>NAM40</creatingEntity>     
      <parameter>GH</parameter>
      <parameter>GHxSM</parameter>        
@@ -260,12 +260,12 @@ dam | 0.1 | 0.0 | 4 | i4 | X |LH|8000F0FF|,,,150 | 0 | 3
      </contourLabeling>
   </contourStyle>
 </styleRule>
-<!--  * mesoEta212, GH, GHxSM, 475MB > 50MB 
+<!--  * NAM40, GH, GHxSM, 475MB > 50MB 
 dam | 0.1 | 0.0 | 4 | i5 | X |LH|8000F0FF|,,,150 | 0 | 6
 -->  
 <styleRule>
   <paramLevelMatches>
-     <creatingEntity>mesoEta212</creatingEntity>
+     <creatingEntity>NAM40</creatingEntity>
   	<creatingEntity>NAM40</creatingEntity>     
      <parameter>GH</parameter>
      <parameter>GHxSM</parameter>        
@@ -800,14 +800,14 @@ m/s| 1.0 | 0.0 | 4 |    |   |..|8000F0FF| | 0 | 5
 </styleRule>
 
 
-<!--  * mesoEta212,AV,RV
+<!--  * NAM40,AV,RV
 /1e5s   | 1e5 | 0.0 | 4 |    | X |NX|8000F0FF|,,,100 | 0 | 2
 --> 
 <styleRule>
   <paramLevelMatches>
-     <creatingEntity>mesoEta212</creatingEntity>   
+     <creatingEntity>NAM40</creatingEntity>   
      <creatingEntity>NAM40</creatingEntity>
-     <creatingEntity>mesoEta215</creatingEntity>   
+     <creatingEntity>NAM20</creatingEntity>   
      <creatingEntity>NAM20</creatingEntity>       
      <parameter>AV</parameter>     
      <parameter>RV</parameter>
@@ -851,12 +851,12 @@ m/s| 1.0 | 0.0 | 4 |    |   |..|8000F0FF| | 0 | 5
      </contourLabeling>
   </contourStyle>
 </styleRule>
-<!--  * mesoEta212,VAdv, dVAdv
+<!--  * NAM40,VAdv, dVAdv
 /1e9s   | 1e9 | 0.0 | 4 | | |..|8000F0FF|m,,,100| 5 | 1 5 10 20 50
 -->  
 <styleRule>
   <paramLevelMatches>
-     <creatingEntity>mesoEta212</creatingEntity> 
+     <creatingEntity>NAM40</creatingEntity> 
      <creatingEntity>NAM40</creatingEntity>          
      <parameter>VAdv</parameter>     
      <parameter>dVAdv</parameter>
@@ -4068,14 +4068,14 @@ in | .03937 | 0 |  4 |    |   |..|8000F0FF| | 16 | \
   </contourStyle>
 </styleRule>
 <!--
-  * RUC, RUC130, RUC236, PR
+  * RUC, RAP13, RAP40, PR
   in/hr|141.732|.0| 4 | |f5.2|@.|8000F0FF| |7|0.25 0.5 1 2 4 8 16
 -->
 <styleRule>
   <paramLevelMatches>
     <creatingEntity>RUC</creatingEntity>
-    <creatingEntity>RUC130</creatingEntity>
-    <creatingEntity>RUC236</creatingEntity>
+    <creatingEntity>RAP13</creatingEntity>
+    <creatingEntity>RAP40</creatingEntity>
     <parameter>PR</parameter>
   </paramLevelMatches>
   <contourStyle>

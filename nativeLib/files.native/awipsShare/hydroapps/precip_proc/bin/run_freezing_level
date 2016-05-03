@@ -3,7 +3,7 @@
 # run_freezing_level
 #
 # Description:   Runs the scripts which extract freezing level data from
-#                the RUC80 model and store it in a SHEF-formatted
+#                the RAP40 model and store it in a SHEF-formatted
 #                format for use in the MPE Editor GageQC tools.
 #
 #                This script is setup to be run from the cron.  It will
@@ -62,7 +62,7 @@ echo "Running freezing level data retrieval script at $date_string" \
      >> $freezinglog
 
 #
-# Run the scripts to retrieve the freezing level data from the RUC80
+# Run the scripts to retrieve the freezing level data from the RAP40
 # model for the model grid points which are located within the
 # office's MPE forecast area.
 ${RUN_FROM_DIR}/ruc.tcl $RUN_FROM_DIR $number_of_days >> $freezinglog 2>&1

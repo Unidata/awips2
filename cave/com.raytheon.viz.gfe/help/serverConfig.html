@@ -1264,8 +1264,8 @@ NO,&nbsp; NO,&nbsp; 2, 0)<br>
 gfsLR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
 ('gfsLR',&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; GRID,&nbsp;&nbsp;
 '', NO,&nbsp; NO,&nbsp; 2, 0)<br>
-RUC80&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
-('RUC80',&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; GRID,&nbsp;&nbsp;
+RAP40&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
+('RAP40',&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; GRID,&nbsp;&nbsp;
 '', NO,&nbsp; NO,&nbsp; 2, 0)<br>
 AVNMOS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
 ('AVNMOS',&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; GRID,&nbsp;&nbsp; '',
@@ -1418,7 +1418,7 @@ run modules. For example, here is the section in serverConfig.py:
 <p><tt>INITMODULES = {<br>
 &nbsp;&nbsp;&nbsp; "NAM40" : ["NAM40", "NAM20"],<br>
 &nbsp;&nbsp;&nbsp; "NAM80" : ["NAM80"],<br>
-&nbsp;&nbsp;&nbsp; "RUC80" : ["RUC80"],<br>
+&nbsp;&nbsp;&nbsp; "RAP40" : ["RAP40"],<br>
 &nbsp;&nbsp;&nbsp; "gfsLR" : ["gfsLR"],<br>
 &nbsp;&nbsp;&nbsp; "NGM80" : ["NGM80"],<br>
 &nbsp;&nbsp;&nbsp; "NAM12" : ["NAM12"],<br>
@@ -1466,21 +1466,21 @@ serverConfig.py:
 </p>
 <p><tt>INITSKIPS = {</tt>
 <br>
-<tt>&nbsp;&nbsp;&nbsp; "RUC80" :
+<tt>&nbsp;&nbsp;&nbsp; "RAP40" :
 [1,2,4,5,7,8,10,11,13,14,16,17,19,20,22,23],</tt>
 <br>
 <tt>&nbsp;&nbsp;&nbsp; }</tt>
 </p>
 <p>This is standard Python syntax for a dictionary.&nbsp; This line:
 </p>
-<p><tt>"RUC80" : [1,2,4,5,7,8,10,11,13,14,16,17,19,20,22,23],</tt>
+<p><tt>"RAP40" : [1,2,4,5,7,8,10,11,13,14,16,17,19,20,22,23],</tt>
 </p>
-<p>indicates that all runs of the RUC80 will be ignored, except every 3
+<p>indicates that all runs of the RAP40 will be ignored, except every 3
 hours.
 </p>
 <p>The default for serverConfig is to run all of the available model
 runs,
-except for RUC80, which is run only every 3 hours.
+except for RAP40, which is run only every 3 hours.
 </p>
 <hr width="100%">
 <h3><a name="D2DAccumulativeWeatherElements"></a>D2D Accumulative
@@ -1516,7 +1516,7 @@ and</tt>
 &nbsp;&nbsp;&nbsp; "NAM12": ["tp", "cp"],<br>
 &nbsp;&nbsp;&nbsp; "NGM80": ["tp", "cp"],<br>
 &nbsp;&nbsp;&nbsp; "gfsLR": ["tp", "cp"],<br>
-&nbsp;&nbsp;&nbsp; "RUC80": ["tp", "cp"],<br>
+&nbsp;&nbsp;&nbsp; "RAP40": ["tp", "cp"],<br>
 &nbsp;&nbsp;&nbsp; "MSAS": ["tp", "cp"],<br>
 &nbsp;&nbsp;&nbsp; "LAPS": ["pc"],<br>
 &nbsp;&nbsp;&nbsp; "HPCQPF": ["tpHPC"],<br>
@@ -1789,7 +1789,7 @@ database.
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 (NAM80, STD6_MODEL + localNAM80Parms),<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-(RUC80, STD1_MODEL + localRUC80Parms),<br>
+(RAP40, STD1_MODEL + localRAP40Parms),<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 (NGM80, STD6_MODEL + localNGM80Parms),<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;

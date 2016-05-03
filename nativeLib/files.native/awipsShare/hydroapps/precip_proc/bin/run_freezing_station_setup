@@ -5,9 +5,9 @@
 # GENERAL INFORMATION:
 # DESCRIPTION: Using the template ruc.pl.template, this script will
 #              produce a version of ruc.pl which contains the
-#              RUC80 points within the office's MPE forecast area.
+#              RAP40 points within the office's MPE forecast area.
 #              The ruc.pl script is used by ruc.tcl to extract
-#              RUC80 data from the AWIPS netCDF files.
+#              RAP40 data from the AWIPS netCDF files.
 #
 #              This routine reads the freezing station list in the
 #              /awips/hydroapps/precip_proc/local/data/app/MPE/station_lists 
@@ -87,7 +87,7 @@ then
 fi
 
 #
-# Create the list of RUC80 point latitude/longitude coordinates in the format
+# Create the list of RAP40 point latitude/longitude coordinates in the format
 # required by the ruc.pl script. Skip the first record in the freezing
 # station list file.  This is the number of records in the file.
 #

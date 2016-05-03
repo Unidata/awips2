@@ -24,7 +24,7 @@
     <vbSource key="GFS" category="Volume" />
     <vbSource key="GFS-NH" category="Volume" />
     <vbSource key="GFS40" category="Volume" />
-    <vbSource key="GFS-95km" category="Volume" />
+    <vbSource key="GFS95" category="Volume" />
     <vbSource key="GFSGuide" category="Volume" />
     <vbSource key="ECMF-Global" category="Volume" />
     <vbSource key="ENSEMBLE" category="Volume" views="PLANVIEW TIMESERIES" />

@@ -4,9 +4,9 @@
 #
 
 files=$(find /awips2/edex/data/utility/common_static | grep SCANRunSiteConfig.xml)
-echo "Updating all SCANRunSiteConfig.xml files to use HRRR instead of RUC130."
+echo "Updating all SCANRunSiteConfig.xml files to use HRRR instead of RAP13."
 
-old=RUC130
+old=RAP13
 new=HRRR
 
 for f in $files

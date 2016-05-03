@@ -45,7 +45,7 @@
 			</contribute>			
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyD.xml"
 				    menuText="GFS20" id="gfs20" useReferenceTime="true">
-				<substitute key="modelName" value="GFS-20km"/> 
+				<substitute key="modelName" value="GFS20"/> 
 				<substitute key="TP" value="TP"/>
 				<substitute key="frameCount" value="55"/>
 			</contribute>
@@ -98,7 +98,7 @@
 				<substitute key="frameCount" value="41"/>
 			</contribute> -->
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyI.xml" menuText="GFS20" id="gfs20" useReferenceTime="true">
-				<substitute key="modelName" value="GFS-20km"/> 
+				<substitute key="modelName" value="GFS20"/> 
 				<substitute key="TP" value="TP"/>
 				<substitute key="frameCount" value="55"/>
 			</contribute>
@@ -146,7 +146,7 @@
 			</contribute> -->
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyM.xml"
 				    menuText="GFS20" id="gfs20" useReferenceTime="true">
-				<substitute key="modelName" value="GFS-20km"/> 
+				<substitute key="modelName" value="GFS20"/> 
 				<substitute key="TP" value="TP"/>
 				<substitute key="frameCount" value="55"/>
 			</contribute>
@@ -213,7 +213,7 @@
 				<substitute key="frameCount" value="41"/>
 			</contribute>			
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyL.xml" menuText="GFS20" id="gfs20" useReferenceTime="true">
-				<substitute key="modelName" value="GFS-20km"/> 
+				<substitute key="modelName" value="GFS20"/> 
 				<substitute key="TP" value="TP"/>
 				<substitute key="frameCount" value="55"/>
 			</contribute>
@@ -283,7 +283,7 @@
 				<substitute key="frameCount" value="41"/>
 			</contribute> -->
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyE.xml" menuText="GFS20" id="gfs20" useReferenceTime="true">
-				<substitute key="modelName" value="GFS-20km"/> 
+				<substitute key="modelName" value="GFS20"/> 
 				<substitute key="TP" value="TP"/>
 				<substitute key="frameCount" value="55"/>
 			</contribute>
@@ -331,7 +331,7 @@
 				<substitute key="frameCount" value="41"/>
 			</contribute> -->
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyJ.xml" menuText="GFS20" id="gfs20" useReferenceTime="true">
-				<substitute key="modelName" value="GFS-20km"/> 
+				<substitute key="modelName" value="GFS20"/> 
 				<substitute key="TP" value="TP"/>
 				<substitute key="frameCount" value="55"/>
 			</contribute>

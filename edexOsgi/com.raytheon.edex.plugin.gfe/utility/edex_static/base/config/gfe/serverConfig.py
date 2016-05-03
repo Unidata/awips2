@@ -1098,8 +1098,8 @@ GFS80       = ('GFS80',        GRID,   '', NO,  NO,  2, 0)
 GFS190      = ('GFS190',       GRID,   '', NO,  NO,  2, 0)
 GFS75       = ('GFS75',        GRID,   '', NO,  NO,  2, 0)
 gfsLR       = ('gfsLR',        GRID,   '', NO,  NO,  2, 0)
-RUC13       = ('RUC13',        GRID,   '', NO,  NO,  2, 0)
-RUC80       = ('RUC80',        GRID,   '', NO,  NO,  2, 0)
+RAP13       = ('RAP13',        GRID,   '', NO,  NO,  2, 0)
+RAP40       = ('RAP40',        GRID,   '', NO,  NO,  2, 0)
 HPCGrid     = ('HPCGRID',      GRID,   '', NO,  NO,  2, 0)
 AKwave10    = ('AKwave10',     GRID,   '', NO,  NO,  2, 0)
 AKwave4     = ('AKwave4',      GRID,   '', NO,  NO,  2, 0)
@@ -1163,14 +1163,14 @@ D2DDBVERSIONS = {
 #---------------------------------------------------------------------------
 # Alaska OCONUS
 if SID in ALASKA_SITES:
-    D2DMODELS = [('mesoEta216', 'NAM40'),
-                 ('mesoEta217', 'NAM20'),
+    D2DMODELS = [('AK-NAM45', 'NAM40'),
+                 ('AK-NAM22', 'NAM20'),
                  ('AVN203', 'GFS190'),
                  ('MRF203', 'gfsLR'),
                  ('NGM207', 'NGM95'),
-                 ('ETA207', 'NAM95'),
+                 ('AK-NAM95', 'NAM95'),
                  'GWW233',
-                 ('ETA242', 'NAM12'),
+                 ('AK-NAM11', 'NAM12'),
                  'ECMWF-LowRes','ECMWF',
                  'UKMET-NorthernHemisphere', 'UKMET',
                  'ENSEMBLE',
@@ -1200,7 +1200,7 @@ if SID in ALASKA_SITES:
                  'AKHwave10',
                  'AKHwave4',
                  'GLOBHwave',
-                 ('GFS217', 'GFS20'),
+                 ('AK-GFS22', 'GFS20'),
                  ('ETSS-AK', 'ETSS'),
                ]
 
@@ -1228,13 +1228,13 @@ elif SID == "HFO":
                  ('MOSGuide-HI', 'MOSGuide'),
                  ('nwpsCG1', 'nwpsCG1'),
                  ('nwpsTrkngCG0', 'nwpsTrkngCG0'),
-                 ('GFS20-PAC', 'GFS20'),
+                 ('GFS-EPAC20', 'GFS20'),
                ]
 
 # San Juan OCONUS
 elif SID == "SJU":
     D2DMODELS = [('AVN211', 'GFS80'),
-                 ('GFS212', 'GFS40'),
+                 ('GFS40', 'GFS40'),
                  ('ETA', 'NAM80'),
                  ('NGM', 'NGM80'),
                  ('MRF205', 'gfsLR'),
@@ -1259,7 +1259,7 @@ elif SID == "SJU":
                  ('nwpsCG1', 'nwpsCG1'),
                  ('nwpsTrkngCG0', 'nwpsTrkngCG0'),
                  'GLOBHwave',
-                 ('GFS20-PRICO', 'GFS20'),
+                 ('PR-GFS20', 'GFS20'),
                ]
 
 # Guam OCONUS
@@ -1272,23 +1272,23 @@ elif SID == "GUM":
                  'GLOBHwave',
                  ('nwpsCG1', 'nwpsCG1'),
                  ('nwpsTrkngCG0', 'nwpsTrkngCG0'),
-                 ('GFS20-PAC', 'GFS20'),
+                 ('GFS-EPAC20', 'GFS20'),
                  # DCS #17288
                  ('Guam-RTMA', 'RTMA'),
                ]
 
 #CONUS sites
 elif SID in CONUS_EAST_SITES:
-    D2DMODELS = [('GFS212', 'GFS40'),
+    D2DMODELS = [('GFS40', 'GFS40'),
                  ('AVN211', 'GFS80'),
                  ('ETA', 'NAM80'),
                  ('HRRR', 'HRRR'),
                  ('NGM', 'NGM80'),
                  ('MRF', 'gfsLR'),
-                 ('RUC130', 'RUC13'),
-                 ('RUC', 'RUC80'),
-                 ('mesoEta212', 'NAM40'),
-                 ('mesoEta215', 'NAM20'),
+                 ('RAP13', 'RAP13'),
+                 ('RUC', 'RAP40'),
+                 ('NAM40', 'NAM40'),
+                 ('NAM20', 'NAM20'),
                  'MSAS',
                  ('LAPS', 'LAPS'),
                  'GWW233',
@@ -1308,7 +1308,7 @@ elif SID in CONUS_EAST_SITES:
                  'WNAwave4',
                  'HurWind226',
                  ('DGEX185', 'DGEX'),
-                 ('ETA218', 'NAM12'),
+                 ('NAM12', 'NAM12'),
                  'HPCGuide',
                  ('OPCWave180', 'OPCTAFBE'),
                  ('OPCWave181', 'OPCTAFBNW'),
@@ -1338,7 +1338,7 @@ elif SID in CONUS_EAST_SITES:
                  'GLOBHwave',
            #########DR17144
                  'URMA25',
-                 ('GFS215', 'GFS20'),
+                 ('GFS20', 'GFS20'),
                  'ETSS',
                  'GFSLAMPGrid',
                  ('FFG-ALR', 'FFGALR'),
@@ -1358,15 +1358,15 @@ elif SID in CONUS_EAST_SITES:
 
 else:   #######DCS3501 WEST_CONUS
 
-    D2DMODELS = [('GFS212', 'GFS40'),
+    D2DMODELS = [('GFS40', 'GFS40'),
                  ('AVN211', 'GFS80'),
                  ('ETA', 'NAM80'),
                  ('NGM', 'NGM80'),
                  ('MRF', 'gfsLR'),
-                 ('RUC130', 'RUC13'),
-                 ('RUC', 'RUC80'),
-                 ('mesoEta212', 'NAM40'),
-                 ('mesoEta215', 'NAM20'),
+                 ('RAP13', 'RAP13'),
+                 ('RUC', 'RAP40'),
+                 ('NAM40', 'NAM40'),
+                 ('NAM20', 'NAM20'),
                  'MSAS',
                  ('LAPS', 'LAPS'),
                  'GWW233',
@@ -1388,7 +1388,7 @@ else:   #######DCS3501 WEST_CONUS
                  'AKWAVE',
                  'HurWind226',
                  ('DGEX185', 'DGEX'),
-                 ('ETA218', 'NAM12'),
+                 ('NAM12', 'NAM12'),
                  'HPCGuide',
                  ('OPCWave180', 'OPCTAFBE'),
                  ('OPCWave181', 'OPCTAFBNW'),
@@ -1418,7 +1418,7 @@ else:   #######DCS3501 WEST_CONUS
                  ('estofsEP', 'ESTOFS'),
               ############DR17144
                  'URMA25',
-                 ('GFS215', 'GFS20'),
+                 ('GFS20', 'GFS20'),
                  'ETSS',
                  'GFSLAMPGrid',
                  ('FFG-ALR', 'FFGALR'),
@@ -1616,8 +1616,8 @@ elif SID == "SJU":
     INITMODULES = {
 #        "NAM40" : ["NAM40", "NAM20"],
 #        "NAM80" : ["NAM80"],
-        "RUC13" : ["RUC13"],
-        "RUC80" : ["RUC80"],
+        "RAP13" : ["RAP13"],
+        "RAP40" : ["RAP40"],
 #        "gfsLR" : ["gfsLR"],
 #        "NGM80" : ["NGM80"],
         "NAM12" : ["NAM12"],
@@ -1660,8 +1660,8 @@ elif SID == "GUM":
 else:
     #initialization  module to model mappings
     INITMODULES = {
-        "RUC13" : ["RUC13"],
-        "RUC80" : ["RUC80"],
+        "RAP13" : ["RAP13"],
+        "RAP40" : ["RAP40"],
         "NAM12" : ["NAM12"],
         "GFS40" : ["GFS40"],
         "GFS80" : ["GFS80"],
@@ -1700,8 +1700,8 @@ else:
 
 #initialization skip certain model runs
 INITSKIPS = {
-    "RUC13" : [1,2,4,5,7,8,10,11,13,14,16,17,19,20,22,23],
-    "RUC80" : [1,2,4,5,7,8,10,11,13,14,16,17,19,20,22,23]
+    "RAP13" : [1,2,4,5,7,8,10,11,13,14,16,17,19,20,22,23],
+    "RAP40" : [1,2,4,5,7,8,10,11,13,14,16,17,19,20,22,23]
     }
 
 #---------------------------------------------------------------------------
@@ -1728,8 +1728,8 @@ D2DAccumulativeElements= {
     "NGM80": ["tp", "cp"],
     "NGM95": ["tp", "cp"],
     "gfsLR": ["tp", "cp"],
-    "RUC13": ["tp", "cp"],
-    "RUC80": ["tp", "cp"],
+    "RAP13": ["tp", "cp"],
+    "RAP40": ["tp", "cp"],
     "MSAS": ["tp", "cp"],
     "LAPS": ["pc"],
     "DGEX": ["tp"],
@@ -1817,7 +1817,7 @@ AUTO_CONFIGURE_NOTIFYTEXTPROD = 1   #0=off,1=on
 # DO NOT CHANGE THE FOLLOWING SECTION
 #------------------------------------
 # import the local config file
-localParms = localNAM12Parms = localRUC13Parms = localRUC80Parms = localNGM80Parms = []
+localParms = localNAM12Parms = localRAP13Parms = localRAP40Parms = localNGM80Parms = []
 localGFS80Parms = localgfsLRParms = localNAM40Parms = localDBs = []
 localOPCWavEParms = localOPCWavNWParms = localOPCWavSWParms = []
 localMOSGuideParms = localGFS40Parms = []
@@ -1879,8 +1879,8 @@ if not BASELINE and siteImport('localConfig'):
     localNAM40Parms = getattr(localConfig, 'parmsNAM40', localNAM40Parms)
     localNAM80Parms = getattr(localConfig, 'parmsNAM80', localNAM80Parms)
     localNAM95Parms = getattr(localConfig, 'parmsNAM95', localNAM95Parms)
-    localRUC13Parms = getattr(localConfig, 'parmsRUC13', localRUC13Parms)
-    localRUC80Parms = getattr(localConfig, 'parmsRUC80', localRUC80Parms)
+    localRAP13Parms = getattr(localConfig, 'parmsRAP13', localRAP13Parms)
+    localRAP40Parms = getattr(localConfig, 'parmsRAP40', localRAP40Parms)
     localNGM80Parms = getattr(localConfig, 'parmsNGM80', localNGM80Parms)
     localNGM95Parms = getattr(localConfig, 'parmsNGM95', localNGM95Parms)
     localGFS40Parms = getattr(localConfig, 'parmsGFS40', localGFS40Parms)
@@ -2148,8 +2148,8 @@ DATABASES = [(Official, OFFICIALDBS + localParms),
              (TestFcst, OFFICIALDBS + localParms),
              (NAM80, STD6_MODEL + localNAM80Parms),
              (NAM95, STD6_MODEL + localNAM95Parms),
-             (RUC13, STD1_MODEL + localRUC13Parms),
-             (RUC80, STD1_MODEL + localRUC80Parms),
+             (RAP13, STD1_MODEL + localRAP13Parms),
+             (RAP40, STD1_MODEL + localRAP40Parms),
              (NGM80, STD6_MODEL + localNGM80Parms),
              (NGM95, STD6_MODEL + localNGM95Parms),
              (GFS40, STD6_MODEL + localGFS40Parms),

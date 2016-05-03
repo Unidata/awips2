@@ -57,7 +57,7 @@
 								<constraint constraintValue="500.0" constraintType="EQUALS" />
 							</mapping>
 							<mapping key="info.datasetId">
-								<constraint constraintValue="GFS212" constraintType="EQUALS" />
+								<constraint constraintValue="GFS40" constraintType="EQUALS" />
 							</mapping>
 						</metadataMap>
 						<alertParser xsi:type="dataCubeAlertMessageParser" />
@@ -218,7 +218,7 @@
 								<constraint constraintValue="500.0" constraintType="IN" />
 							</mapping>
 							<mapping key="info.datasetId">
-								<constraint constraintValue="ETA218" constraintType="EQUALS" />
+								<constraint constraintValue="NAM12" constraintType="EQUALS" />
 							</mapping>
 						</metadataMap>
 						<alertParser xsi:type="dataCubeAlertMessageParser" />
@@ -338,7 +338,7 @@
 								<constraint constraintValue="500.0" constraintType="IN" />
 							</mapping>
 							<mapping key="info.datasetId">
-								<constraint constraintValue="RUC130" constraintType="EQUALS" />
+								<constraint constraintValue="RAP13" constraintType="EQUALS" />
 							</mapping>
 						</metadataMap>
 						<alertParser xsi:type="dataCubeAlertMessageParser" />

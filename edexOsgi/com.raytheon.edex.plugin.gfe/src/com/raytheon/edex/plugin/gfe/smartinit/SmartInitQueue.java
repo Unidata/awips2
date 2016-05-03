@@ -183,9 +183,9 @@ public class SmartInitQueue {
      * 
      *            <pre>
      *  Examples:
-     *     OAX_GRID_D2D_RUC13_20100923_0900 or
-     *     OAX_GRID_D2D_RUC13_20100923_0900:1 or
-     *     OAX_GRID_D2D_RUC13_20100923_0900:1:myRUC13
+     *     OAX_GRID_D2D_RAP13_20100923_0900 or
+     *     OAX_GRID_D2D_RAP13_20100923_0900:1 or
+     *     OAX_GRID_D2D_RAP13_20100923_0900:1:myRAP13
      * </pre>
      */
     public void addManualInit(String init) {
@@ -285,9 +285,9 @@ public class SmartInitQueue {
                 return rval;
             }
 
-            // OAX_GRID_D2D_RUC13_20100923_0900 or
-            // OAX_GRID_D2D_RUC13_20100923_0900:1 or
-            // OAX_GRID_D2D_RUC13_20100923_0900:1:myRUC13
+            // OAX_GRID_D2D_RAP13_20100923_0900 or
+            // OAX_GRID_D2D_RAP13_20100923_0900:1 or
+            // OAX_GRID_D2D_RAP13_20100923_0900:1:myRAP13
             String[] tokens = initName.split("[:]");
 
             int index = tokens[0].indexOf("_GRID_D2D_");

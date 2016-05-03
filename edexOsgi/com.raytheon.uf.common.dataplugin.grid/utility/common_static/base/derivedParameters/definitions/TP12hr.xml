@@ -25,7 +25,7 @@
     <Method name="Alias">
         <Field abbreviation="2xTP6hr"/>
     </Method>
-    <Method name="Supplement" models="ETA GFS212">
+    <Method name="Supplement" models="ETA GFS40">
         <Field abbreviation="2xTP6hr"/>
     </Method>
 </DerivedParameter>

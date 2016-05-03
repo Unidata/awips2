@@ -7,7 +7,7 @@
         <period>07-00:00:00</period>
     </defaultRule>
 	<rule>
-		<keyValue>AK-NAM-11km</keyValue>
+		<keyValue>AK-NAM11</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
@@ -87,7 +87,7 @@
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<keyValue>GFS20-PRICO</keyValue>
+		<keyValue>PR-GFS20</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
@@ -95,15 +95,15 @@
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<keyValue>GFS-95km</keyValue>
+		<keyValue>GFS95</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<keyValue>GFS-20km</keyValue>
+		<keyValue>GFS20</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<keyValue>AK-GFS-22km</keyValue>
+		<keyValue>AK-GFS22</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
