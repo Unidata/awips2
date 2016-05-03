@@ -218,7 +218,7 @@ public class RadarMenuUtil extends AbstractMenuUtil implements
         radars = RadarsInUseUtil.getSite(getSite(),
                 RadarsInUseUtil.TDWR_CONSTANT);
 
-     // create MenuTemplateFile for the dialRadars.xml
+        // create MenuTemplateFile for the dialRadars.xml
         menuTemplateFile = new MenuTemplateFile();
         menuTemplateFile.contributions = new CommonIncludeMenuContribution[radars
                 .size()];
