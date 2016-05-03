@@ -1,4 +1,5 @@
 #!/bin/bash
+PATH=/awips2/tools/bin:$PATH
 if [[ ${USER} = "root" ]]; then
   return
 fi

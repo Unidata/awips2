@@ -545,6 +545,10 @@ if [ "${1}" = "-hydro" ]; then
    buildRPM "awips2-hydroapps-shared"
 fi
 
+if [ "${1}" = "-version" ]; then
+   buildRPM "awips2"
+fi
+
 if [ "${1}" = "-other" ]; then
    buildRPM "awips2"
    #buildRPM "awips2-cli"

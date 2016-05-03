@@ -41,6 +41,20 @@ if [ -d ${RPM_BUILD_ROOT} ]; then
 fi
 
 %build
+# Build all WFO site localization Map Scales (States.xml, WFO.xml)
+BUILD_DIR=%{_baseline_workspace}/rpms/awips2.core/Installer.localization/
+CAVE_STATIC=%{_baseline_workspace}/localization/utility/cave_static/site
+file=$BUILD_DIR/wfo.dat
+for site in $(cat $file |cut -c -3)
+do
+   lat=$(cat $file |grep $site | cut -f9)
+   lon=$(cat $file |grep $site | cut -f10)
+   mkdir -p $CAVE_STATIC/$site
+   cp -R $BUILD_DIR/XXX/* $CAVE_STATIC/$site/
+   grep -rl 'XXX' $CAVE_STATIC/$site | xargs sed -i 's/XXX/'$site'/g'
+   grep -rl 'LATITUDE' $CAVE_STATIC/$site | xargs sed -i 's/LATITUDE/'$lat'/g'
+   grep -rl 'LONGITUDE' $CAVE_STATIC/$site | xargs sed -i 's/LONGITUDE/'$lon'/g'
+done
 
 %install
 if [ ! -d %{_baseline_workspace}/%{_localization_directory} ]; then
