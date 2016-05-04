@@ -101,6 +101,7 @@ import com.raytheon.uf.edex.decodertools.core.DecoderTools;
  * Aug 04, 2014 3488       bclement    added checkBinRange(), rebin() and finalizeRecords()
  * Mar 08, 2016 18336      amoore      Keep-alive messages should update the legend.
  * Apr 07, 2016 DR18763 mgamazaychikov Switched to using LightningWMOHeader.
+ * May 02, 2016 18336      amoore      BinLightningRecord constructor takes source.
  * 
  * </pre>
  * 
@@ -205,7 +206,6 @@ public class BinLightningDecoder {
                  * and added logic to process both encrypted data and legacy
                  * data
                  */
-
                 Collection<LightningStrikePoint> strikes = decodeBinLightningData(
                         data, pdata, traceId, wmoHdr, baseTime.getTime());
 
@@ -213,17 +213,23 @@ public class BinLightningDecoder {
                  * Done MOD by Wufeng Zhou
                  */
 
-                // post processing data - if not keep-alive record
+                // post processing data
                 BinLightningRecord report = null;
                 if (strikes.size() > 0) {
+                    // not a keep-alive
                     report = LightningGeoFilter.createFilteredRecord(strikes);
                 } else {
+                    // keep-alive, get the source from WMO header
+                    String source = getSourceFromHeader(wmoHdr);
+
                     synchronized (SDF) {
                         logger.info(traceId
                                 + ": found keep-alive record of base time ["
-                                + SDF.format(baseTime.getTime()) + "]");
+                                + SDF.format(baseTime.getTime())
+                                + "] and source [" + source + "]");
                     }
-                    report = new BinLightningRecord(baseTime);
+
+                    report = new BinLightningRecord(baseTime, source);
                 }
 
                 Collection<BinLightningRecord> records = checkBinRange(report,
@@ -395,8 +401,8 @@ public class BinLightningDecoder {
      *         LightningStrikePoint
      */
     public static List<LightningStrikePoint> decodeBinLightningData(
-            byte[] data, byte[] pdata, String traceId, LightningWMOHeader wmoHdr,
-            Date dataDate) {
+            byte[] data, byte[] pdata, String traceId,
+            LightningWMOHeader wmoHdr, Date dataDate) {
         if (pdata == null) { // if data without header not passed, we'll strip
                              // the WMO header here
             LightningWMOHeader header = new LightningWMOHeader(data);
@@ -481,8 +487,8 @@ public class BinLightningDecoder {
                     return new ArrayList<>(0);
                 }
                 /*
-                 * not keep-alive record, then check data validity and decode
-                 * into an ArrayList<LightningStrikePoint> of strikes
+                 * not necessarily keep-alive record, then check data validity
+                 * and decode into an ArrayList<LightningStrikePoint> of strikes
                  */
                 if (BinLightningDecoderUtil
                         .isLightningDataRecords(decryptedData)) {
@@ -563,24 +569,9 @@ public class BinLightningDecoder {
             switch (decoder.getError()) {
             case IBinLightningDecoder.NO_ERROR: {
                 for (LightningStrikePoint strike : decoder) {
-                    /*
-                     * use WMO Header to distinguish NLDN or GLD360 data because
-                     * no bit-shifted data spec available for GLD360.
-                     * 12/24/2013, WZ The WMO header start string is defined in
-                     * BinLightningAESKey.properties file (normally, GLD360 data
-                     * will have WMO header starts with SFPA41, or SFPA99 for
-                     * test data.)
-                     */
-                    String gld360WMOHeaderString = BinLightningAESKey
-                            .getProps().getProperty(
-                                    "binlightning.gld360WMOHeaderStartString",
-                                    "");
-                    if (gld360WMOHeaderString.trim().equals("") == false
-                            && wmoHdr.getWmoHeader().startsWith(
-                                    gld360WMOHeaderString)) {
-                        // GLD360 data based on the setup
-                        strike.setLightSource("GLD");
-                    }
+                    String source = getSourceFromHeader(wmoHdr);
+
+                    strike.setLightSource(source);
                     strikes.add(strike);
                 }
                 break;
@@ -591,6 +582,45 @@ public class BinLightningDecoder {
             }
         }
         return strikes;
+    }
+
+    /**
+     * Get the data source from the given WMO header.
+     * 
+     * @param wmoHdr
+     *            the header.
+     * @return the data source according to text from the header.
+     */
+    private static String getSourceFromHeader(LightningWMOHeader wmoHdr) {
+        /*
+         * use WMO Header to distinguish NLDN or GLD360 data because no
+         * bit-shifted data spec available for GLD360. 12/24/2013, WZ The WMO
+         * header start string is defined in BinLightningAESKey.properties file
+         * (normally, GLD360 data will have WMO header starts with SFPA41, or
+         * SFPA99 for test data.)
+         */
+        /*
+         * continually get the properties locally instead of as a constant
+         * because the properties file could be changed and reloaded by the
+         * user.
+         */
+        String gld360WMOHeaderString = BinLightningAESKey.getProps()
+                .getProperty("binlightning.gld360WMOHeaderStartString", "");
+
+        String source = null;
+
+        if (gld360WMOHeaderString.trim().equals("") == false
+                && wmoHdr.getWmoHeader().startsWith(gld360WMOHeaderString)) {
+            // GLD360 data based on the setup
+            source = "GLD";
+        }
+        /*
+         * default source is NLDN, which is the only other option at this time
+         * for this decoder (5/2/2016, DR 18336). For future sources, add here
+         * and modify BinLightningAESKey.properties.
+         */
+
+        return BinLightningRecord.validateSource(source);
     }
 
     /**
