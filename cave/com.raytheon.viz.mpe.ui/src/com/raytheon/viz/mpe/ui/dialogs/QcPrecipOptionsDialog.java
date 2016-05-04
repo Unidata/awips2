@@ -72,6 +72,8 @@ import com.raytheon.viz.mpe.util.DailyQcUtils;
  *                                     day rollover >18Z occurs.
  * Jan 15, 2016 5054       randerso    Use proper parent shell
  * Apr 11, 2016 5512       bkowal      Fix GUI sizing issues. Cleanup.
+ * May 04, 2016 5054       dgilling    Fix dialog parenting for SaveLevel2Data 
+ *                                     when closing this dialog.
  * </pre>
  * 
  * @author snaples
@@ -301,7 +303,7 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
         DailyQcUtils.qpf_flag = false;
         isfinished = true;
         isOpen = false;
-        SaveLevel2Data s2 = new SaveLevel2Data(getShell());
+        SaveLevel2Data s2 = new SaveLevel2Data(getParent());
         s2.send_dbase_new_area();
         dqc.clearData();
         displayMgr.displayFieldData(df);
