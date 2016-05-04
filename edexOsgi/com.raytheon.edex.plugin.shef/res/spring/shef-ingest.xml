@@ -13,28 +13,6 @@
 
 	<bean id="shefSeparator" class="com.raytheon.edex.plugin.shef.ShefSeparator" />
 
-	<bean id="metarToShef" class="com.raytheon.edex.transform.shef.MetarToShefTransformer">
-		<constructor-arg type="java.lang.String"
-			value=" -a -b -p1 -p6 -p24 -round -w -strip " />
-	</bean>
-
-	<bean id="metarToShefFilter"
-		class="com.raytheon.edex.transform.shef.MetarToShefFilter">
-		<constructor-arg type="java.lang.String" value="metarToShefFilter.xml" />
-		<constructor-arg type="java.lang.String" value="SITE" />
-	</bean>
-
-	<bean id="synopticToShef" class="com.raytheon.edex.transform.shef.SMToShefTransformer">
-		<constructor-arg type="java.lang.String"
-			value=" -a -v -b -p1 -p6 -p24 -round -w -strip " />
-	</bean>
-
-	<bean id="synopticToShefFilter"
-		class="com.raytheon.edex.transform.shef.SynopticToShefFilter">
-		<constructor-arg type="java.lang.String" value="synopticToShefFilter.xml" />
-		<constructor-arg type="java.lang.String" value="SITE" />
-	</bean>
-
 	<bean id="shefDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="shef" />
@@ -95,35 +73,6 @@
 				<constant>shef</constant>
 			</setHeader>
 			<to uri="direct-vm:shefProcessing" />
-		</route>
-
-		<!-- direct-vm will be run under original thread, should this be moved to 
-			a queue?? but will cause message to be serialized to the jms queue... -->
-		<route id="synopticToShefRoute">
-			<from uri="direct-vm:synopticToShef" />
-			<bean ref="synopticToShefFilter" method="filter" />
-			<pipeline>
-				<split streaming="true">
-					<method bean="synopticToShef" method="iterate" />
-					<bean ref="synopticToShef" method="transform" />
-					<to uri="jms-durable:queue:Ingest.ShefStaged" />
-				</split>
-			</pipeline>
-		</route>
-
-		<!-- direct-vm will be run under original thread, should this be moved to 
-			a queue?? but will cause message to be serialized to the jms queue... -->
-		<route id="metarToShefRoute">
-			<from uri="direct-vm:metarToShef" />
-			<bean ref="metarToShefFilter" method="filter" />
-			<pipeline>
-				<split streaming="true">
-					<method bean="metarToShef" method="iterate" />
-					<bean ref="metarToShef" method="transformMetar" />
-					<to
-						uri="jms-durable:queue:Ingest.ShefStaged"/>
-				</split>
-			</pipeline>
 		</route>
 
 		<route id="shefProcessingRoute">

@@ -1,0 +1,23 @@
+<included>
+   <!-- Appenders shared by all EDEX logback files. -->
+   <!-- general application log --> 
+   <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+       <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/>
+   </appender>
+
+   <appender name="asyncConsole" class="ch.qos.logback.classic.AsyncAppender">
+      <appender-ref ref="console" />
+   </appender>
+
+   <!-- Performance log --> 
+   <appender name="PerformanceLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <rollingPolicy class="com.raytheon.uf.common.logback.policy.StdTimeBasedRollingPolicy">
+         <name>performance</name>
+      </rollingPolicy>
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
+   </appender>
+
+   <appender name="PerformanceLogAsync" class="ch.qos.logback.classic.AsyncAppender">            
+      <appender-ref ref="PerformanceLog" />
+   </appender> 
+</included>

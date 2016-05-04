@@ -1,0 +1,49 @@
+<included>
+<!-- Logger's shared by all EDEX logback files. -->
+   <logger name="com.raytheon">
+      <level value="INFO"/>
+   </logger>
+
+   <logger name="PerformanceLogger" additivity="false">
+      <level value="DEBUG"/>
+      <appender-ref ref="PerformanceLogAsync" />
+   </logger>
+
+   <!-- used by c3p0 -->
+   <logger name="com.mchange">
+      <level value="ERROR"/>
+   </logger>
+   <logger name="mx4j">
+      <level value="ERROR"/>
+   </logger>
+   <logger name="org.apache">
+      <level value="INFO"/>
+   </logger>
+   <logger name="org.apache.camel.impl.converter.DefaultTypeConverter">
+      <level value="ERROR"/>
+   </logger>
+   <logger name="org.apache.camel.core.xml">
+      <level value="WARN"/>
+   </logger>
+   <logger name="org.apache.qpid">
+      <level value="INFO"/>
+   </logger>
+   <logger name="org.apache.qpid.client.BasicMessageProducer_0_10">
+      <level value="WARN"/>
+   </logger>
+   <logger name="org.apache.xbean.spring">
+      <level value="WARN"/>
+   </logger>
+   <logger name="org.quartz">
+      <level value="ERROR"/>
+   </logger>
+   <logger name="org.springframework">
+      <level value="ERROR"/>
+   </logger>
+   <logger name="org.geotools">
+      <level value="WARN"/>
+   </logger>
+   <logger name="org.apache.cxf">
+       <level value="ERROR"/>
+   </logger>
+</included>

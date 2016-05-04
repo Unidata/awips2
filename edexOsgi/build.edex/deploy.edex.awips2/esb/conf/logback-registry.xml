@@ -1,0 +1,140 @@
+<configuration debug="false" scan="true">
+   <include file="${edex.home}/conf/logback-edex-properties.xml"/>
+   <include file="${edex.home}/conf/logback-edex-appenders.xml" />
+   
+   <!-- BandwidthManager log --> 
+   <appender name="BandwidthManagerLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <rollingPolicy class="com.raytheon.uf.common.logback.policy.StdTimeBasedRollingPolicy">
+         <name>bandwidth</name>
+      </rollingPolicy>
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
+   </appender> 
+
+   <!-- data delivery log --> 
+   <appender name="DataDeliveryLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <rollingPolicy class="com.raytheon.uf.common.logback.policy.StdTimeBasedRollingPolicy">
+         <name>datadelivery</name>
+      </rollingPolicy>
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
+   </appender> 
+   
+   <!-- data delivery Notification log --> 
+   <appender name="NotificationLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <rollingPolicy class="com.raytheon.uf.common.logback.policy.StdTimeBasedRollingPolicy">
+         <name>notification</name>
+      </rollingPolicy>
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
+   </appender> 
+   
+   <!-- data delivery Retrieval log --> 
+   <appender name="RetrievalLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <rollingPolicy class="com.raytheon.uf.common.logback.policy.StdTimeBasedRollingPolicy">
+         <name>retrieval</name>
+      </rollingPolicy>
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
+   </appender> 
+
+   <!-- Purge log -->
+   <appender name="PurgeLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <rollingPolicy class="com.raytheon.uf.common.logback.policy.StdTimeBasedRollingPolicy">
+         <name>purge</name>
+      </rollingPolicy>
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
+   </appender>
+
+   <appender name="ThreadBasedLog" class="com.raytheon.uf.common.logback.appender.ThreadBasedAppender">
+      <defaultAppenderName>console</defaultAppenderName>
+      <appender-ref ref="console"/>
+   </appender>
+  
+   <include file="${edex.home}/conf/logback-edex-loggers.xml" />
+   <include file="${edex.home}/conf/logback-edex-hibernate-logger.xml" />
+  
+   <logger name="edu">
+      <level value="WARN" />
+   </logger>
+   <logger name="org.apache.cxf">
+         <level value="ERROR"/>
+   </logger>
+   
+  <logger name="org.apache.cxf.interceptor.LoggingOutInterceptor" additivity="false">
+        <level value="WARN"/>
+        <appender-ref ref="DataDeliveryLog"/>
+   </logger>
+
+   <logger name="org.apache.cxf.interceptor.LoggingInInterceptor" additivity="false">
+        <level value="WARN"/>
+        <appender-ref ref="DataDeliveryLog"/>
+   </logger>
+
+   <logger name="com.raytheon.uf.common.datadelivery" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="DataDeliveryLog"/>
+   </logger>
+   
+   <logger name="com.raytheon.uf.edex.datadelivery.service" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="DataDeliveryLog"/>
+   </logger>
+   
+   <logger name="com.raytheon.uf.edex.datadelivery.request" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="DataDeliveryLog"/>
+   </logger>
+   
+   <logger name="com.raytheon.uf.common.datadelivery.event" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="NotificationLog"/>
+   </logger>
+   
+   <logger name="com.raytheon.uf.edex.datadelivery.event" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="NotificationLog"/>
+   </logger>
+   
+   <logger name="com.raytheon.uf.edex.registry.ebxml.services.notification" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="NotificationLog"/>
+   </logger>
+   
+   <logger name="com.raytheon.uf.edex.datadelivery.registry.federation" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="NotificationLog"/>
+   </logger>
+   
+   <logger name="com.raytheon.uf.edex.datadelivery.registry.replication" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="NotificationLog"/>
+   </logger>
+   
+   <logger name="com.raytheon.uf.common.datadelivery.retrieval" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="RetrievalLog"/>
+   </logger>
+   
+   <logger name="com.raytheon.uf.edex.datadelivery.retrieval" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="RetrievalLog"/>
+   </logger>
+
+   <logger name="com.raytheon.uf.common.datadelivery.bandwidth" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="BandwidthManagerLog"/>
+   </logger>
+   
+   <logger name="com.raytheon.uf.edex.datadelivery.bandwidth" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="BandwidthManagerLog"/>
+   </logger>
+
+   <logger name="com.raytheon.uf.edex.datadelivery.harvester.purge" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="PurgeLog"/>
+   </logger>
+
+   <!-- default logging --> 
+   <root> 
+      <level value="INFO"/>
+      <appender-ref ref="ThreadBasedLog"/>
+    </root> 
+</configuration> 

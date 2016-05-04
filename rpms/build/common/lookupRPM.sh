@@ -57,6 +57,10 @@ function lookupRPM()
       export RPM_SPECIFICATION="${python_site__dir}/Installer.jimporter"
       return 0
    fi
+   if [ "${1}" = "awips2-python-gfe" ]; then
+      export RPM_SPECIFICATION="${python_site__dir}/Installer.gfe"
+      return 0
+   fi
    if [ "${1}" = "awips2-python-matplotlib" ]; then
       export RPM_SPECIFICATION="${installer_dir}/matplotlib"
       return 0
