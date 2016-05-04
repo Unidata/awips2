@@ -91,8 +91,8 @@
     <alias base="HurWind250">TPCtpm250</alias>
     <alias base="NICICE">nic218</alias>
     <alias base="AK-NICICE">nic242</alias>
-    <alias base="DGEX185">dgex185</alias>
-    <alias base="AK-DGEX">dgex186</alias>
+    <alias base="DGEX">dgex</alias>
+    <alias base="AK-DGEX">dgexAK</alias>
     <alias base="GFS40">gfs212</alias>
     <alias base="AK-GFS">gfs160</alias>
     <alias base="GFS-EPAC40">gfs254</alias>

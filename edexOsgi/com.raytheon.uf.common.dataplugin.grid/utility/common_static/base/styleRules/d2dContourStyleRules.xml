@@ -2655,13 +2655,13 @@ mb  | 1 | 0.0 | 4 |2:i4|1:i4|LH|8000F0FF| | 0 | 4
      </contourLabeling>
   </contourStyle>
 </styleRule>
-<!--  * DGEX185, GH, 850MB > 500MB 
+<!--  * DGEX, GH, 850MB > 500MB 
 dam | 0.1 | 0.0 | 4 | i4 | X |LH|8000F0FF|,,,80 | 0 | 3
 -->  
 <styleRule>
   <paramLevelMatches> 
      <parameter>GH</parameter>
-     <creatingEntity>DGEX185</creatingEntity>  
+     <creatingEntity>DGEX</creatingEntity>  
      <rangeLevel units="MB">
        <upper>850</upper>
        <lower>500</lower>
@@ -2675,12 +2675,12 @@ dam | 0.1 | 0.0 | 4 | i4 | X |LH|8000F0FF|,,,80 | 0 | 3
      </contourLabeling>
   </contourStyle>
 </styleRule>
-<!--  * DGEX185, GH, 250MB 
+<!--  * DGEX, GH, 250MB 
 dam | 0.1 | 0.0 | 4 | i5 | X |LH|8000F0FF|,,,80 | 0 | 6
 -->  
 <styleRule>
   <paramLevelMatches>
-     <creatingEntity>DGEX185</creatingEntity>  
+     <creatingEntity>DGEX</creatingEntity>  
      <parameter>GH</parameter>   
      <rangeLevel units="MB">
        <upper>250</upper>
@@ -2695,12 +2695,12 @@ dam | 0.1 | 0.0 | 4 | i5 | X |LH|8000F0FF|,,,80 | 0 | 6
      </contourLabeling>
   </contourStyle>
 </styleRule>
-<!--  * DGEX185, msl-P
+<!--  * DGEX, msl-P
 mb  | 1 | 0.0 | 4 |2:i4|1:i4|LH|8000F0FF|,,,80 | 0 | 4
 -->  
 <styleRule>
   <paramLevelMatches>
-     <creatingEntity>DGEX185</creatingEntity>   
+     <creatingEntity>DGEX</creatingEntity>   
      <parameter>PMSL</parameter>       
   </paramLevelMatches>
   <contourStyle>
@@ -2714,7 +2714,7 @@ mb  | 1 | 0.0 | 4 |2:i4|1:i4|LH|8000F0FF|,,,80 | 0 | 4
 </styleRule>
 <styleRule>
   <paramLevelMatches>
-     <creatingEntity>DGEX185</creatingEntity>   
+     <creatingEntity>DGEX</creatingEntity>   
      <parameter>msl-P</parameter> 
   </paramLevelMatches>
   <contourStyle>
@@ -2727,12 +2727,12 @@ mb  | 1 | 0.0 | 4 |2:i4|1:i4|LH|8000F0FF|,,,80 | 0 | 4
      </contourLabeling>
   </contourStyle>
 </styleRule>
-<!--  * DGEX185, T, 850MB > 500MB
+<!--  * DGEX, T, 850MB > 500MB
 C  | 1 |-273.15| 4 |    |   |..|8000F0FF|,,,80 | 0 | 2
 -->  
 <styleRule>
   <paramLevelMatches>
-     <creatingEntity>DGEX185</creatingEntity>   
+     <creatingEntity>DGEX</creatingEntity>   
      <parameter>T</parameter>   
      <rangeLevel units="MB">
        <upper>850</upper>
@@ -2746,12 +2746,12 @@ C  | 1 |-273.15| 4 |    |   |..|8000F0FF|,,,80 | 0 | 2
      </contourLabeling>
   </contourStyle>
 </styleRule>
-<!--  * DGEX185, RH, 850MB > 500MB
+<!--  * DGEX, RH, 850MB > 500MB
 %  | 1.0 | 0.0 | 4 |    |   |..|8000F0FF|,,,80 | 0 | 10
 -->  
 <styleRule>
   <paramLevelMatches>
-     <creatingEntity>DGEX185</creatingEntity>   
+     <creatingEntity>DGEX</creatingEntity>   
      <parameter>RH</parameter>   
      <rangeLevel units="MB">
        <upper>850</upper>
@@ -2766,12 +2766,12 @@ C  | 1 |-273.15| 4 |    |   |..|8000F0FF|,,,80 | 0 | 2
      </contourLabeling>
   </contourStyle>
 </styleRule>
-<!--  * DGEX185, PVV
+<!--  * DGEX, PVV
 -ubar/s | -10 | 0.0 | 4 | | |..|8000F0FF|m,,,80 | 11 | 1 2 3 4 5 6 8 10 12 15 20
 -->  
 <styleRule>
   <paramLevelMatches>
-     <creatingEntity>DGEX185</creatingEntity>   
+     <creatingEntity>DGEX</creatingEntity>   
      <parameter>PVV</parameter>         
   </paramLevelMatches>
   <contourStyle>
@@ -2782,12 +2782,12 @@ C  | 1 |-273.15| 4 |    |   |..|8000F0FF|,,,80 | 0 | 2
      </contourLabeling>
   </contourStyle>
 </styleRule>   
-<!--  * DGEX185, SLI
+<!--  * DGEX, SLI
 C  | 1 | 0 | 4 |  |  |..|8000F0FF|,,,80 | 0 | 2
 -->  
 <styleRule>
   <paramLevelMatches>
-     <creatingEntity>DGEX185</creatingEntity>   
+     <creatingEntity>DGEX</creatingEntity>   
      <parameter>SLI</parameter>        
   </paramLevelMatches>
   <contourStyle>
@@ -2799,12 +2799,12 @@ C  | 1 | 0 | 4 |  |  |..|8000F0FF|,,,80 | 0 | 2
      </contourLabeling>
   </contourStyle>
 </styleRule>
-<!--  * DGEX185, AV
+<!--  * DGEX, AV
 /1e5s   | 1e5 | 0.0 | 4 |    | X |NX|8000F0FF|,,,80 | 0 | 2
 -->  
 <styleRule>
   <paramLevelMatches>
-     <creatingEntity>DGEX185</creatingEntity>   
+     <creatingEntity>DGEX</creatingEntity>   
      <parameter>AV</parameter>        
   </paramLevelMatches>
   <contourStyle>
@@ -2815,13 +2815,13 @@ C  | 1 | 0 | 4 |  |  |..|8000F0FF|,,,80 | 0 | 2
      </contourLabeling>
   </contourStyle>
 </styleRule>
-<!--  * DGEX185, wDiv
+<!--  * DGEX, wDiv
 /1e5s   | 1e5 | 0.0 | 8 |    |   |..|8000F0FF|,,,80|11|1 2 3 4 5 6 8 10 12 15 20
 -->  
   
 <styleRule>
   <paramLevelMatches>
-     <creatingEntity>DGEX185</creatingEntity>   
+     <creatingEntity>DGEX</creatingEntity>   
      <parameter>wDiv</parameter>        
   </paramLevelMatches>
   <contourStyle>
@@ -2832,12 +2832,12 @@ C  | 1 | 0 | 4 |  |  |..|8000F0FF|,,,80 | 0 | 2
      </contourLabeling>
   </contourStyle>
 </styleRule>
-<!--  * DGEX185, VAdv, dVAdv, PIVA
+<!--  * DGEX, VAdv, dVAdv, PIVA
 /1e9s   | 1e9 | 0.0 | 4 | | |..|8000F0FF|,,,80| 5 | 1 5 10 20 50
 -->  
 <styleRule>
   <paramLevelMatches>
-     <creatingEntity>DGEX185</creatingEntity>   
+     <creatingEntity>DGEX</creatingEntity>   
      <parameter>VAdv</parameter>
      <parameter>dVAdv</parameter>
      <parameter>PIVA</parameter>             
@@ -3031,12 +3031,12 @@ kt|1.944| 0.0 | 4 |    |   |..|8000F0FF| | 0 | 10
      </contourLabeling>
   </contourStyle>
 </styleRule>
-<!--  * DGEX185, TAdv
+<!--  * DGEX, TAdv
 C/12hr  |43200| 0.0 | 4 | | | |8000F0FF|,,,80| 5 | 1 5 10 20 50
 -->   
 <styleRule>
   <paramLevelMatches>
-     <creatingEntity>DGEX185</creatingEntity>   
+     <creatingEntity>DGEX</creatingEntity>   
      <parameter>TAdv</parameter>        
   </paramLevelMatches>
   <contourStyle> 
@@ -3047,12 +3047,12 @@ C/12hr  |43200| 0.0 | 4 | | | |8000F0FF|,,,80| 5 | 1 5 10 20 50
      </contourLabeling>
   </contourStyle>
 </styleRule>
-<!--  * DGEX185, MAdv
+<!--  * DGEX, MAdv
 g/Kg/12hr| 43200| 0.0 | 4 | | |..|8000F0FF|,,,80| 8 | 1 2 5 10 20 50 100 200
 --> 
 <styleRule>
   <paramLevelMatches>
-     <creatingEntity>DGEX185</creatingEntity>   
+     <creatingEntity>DGEX</creatingEntity>   
      <parameter>MAdv</parameter>        
   </paramLevelMatches>
   <contourStyle>
@@ -3062,12 +3062,12 @@ g/Kg/12hr| 43200| 0.0 | 4 | | |..|8000F0FF|,,,80| 8 | 1 2 5 10 20 50 100 200
      </contourLabeling>
   </contourStyle>
 </styleRule>
-<!--  * DGEX185, PoTA, EPTA
+<!--  * DGEX, PoTA, EPTA
 C/12hr  |43200| 0.0 | 4 | | | |8000F0FF|,,,80| 5 | 1 5 10 20 50
 -->   
 <styleRule>
   <paramLevelMatches>
-     <creatingEntity>DGEX185</creatingEntity>   
+     <creatingEntity>DGEX</creatingEntity>   
      <parameter>PoTA</parameter>
      <parameter>EPTA</parameter>  
   </paramLevelMatches>
@@ -3078,12 +3078,12 @@ C/12hr  |43200| 0.0 | 4 | | | |8000F0FF|,,,80| 5 | 1 5 10 20 50
      </contourLabeling>
   </contourStyle>
 </styleRule>
-<!--  * DGEX185, MCon
+<!--  * DGEX, MCon
 g/Kg/12hr|43200| 0.0 | 4 | | | |8000F0FF|,,,80| 8 | 1 2 5 10 20 50 100 200
 -->  
 <styleRule>
   <paramLevelMatches>
-     <creatingEntity>DGEX185</creatingEntity>   
+     <creatingEntity>DGEX</creatingEntity>   
      <parameter>MCon</parameter>        
   </paramLevelMatches>
   <contourStyle>
