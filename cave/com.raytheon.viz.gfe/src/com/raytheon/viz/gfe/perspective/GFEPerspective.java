@@ -57,10 +57,8 @@ public class GFEPerspective implements IPerspectiveFactory {
      */
     public void createInitialLayout(IPageLayout layout) {
         IPreferenceStore prefs = Activator.getDefault().getPreferenceStore();
-
         // Get the editor area.
         String editorArea = layout.getEditorArea();
-
         layout.setFixed(false);
 
         int width = prefs.getInt("TimeScale_horizSize");
@@ -92,7 +90,8 @@ public class GFEPerspective implements IPerspectiveFactory {
 
         layout.addStandaloneView(
                 "com.raytheon.viz.gfe.GridManagerView:GridManager", true,
-                relationship, ratio, editorArea);
+                IPageLayout.RIGHT,0.65f, editorArea);
+        
         IViewLayout viewLayout = layout
                 .getViewLayout("com.raytheon.viz.gfe.GridManagerView:GridManager");
         if (viewLayout != null) {

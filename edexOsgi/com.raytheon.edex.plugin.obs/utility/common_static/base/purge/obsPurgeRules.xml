@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <purgeRuleSet>
 	<defaultRule>
-		<versionsToKeep>34</versionsToKeep>
+		<versionsToKeep>100</versionsToKeep>
 		<delta>=00-01:00:00</delta>
 		<round>00-01:00:00</round>
 	</defaultRule>
 	<defaultRule>
-		<versionsToKeep>15</versionsToKeep>
+		<versionsToKeep>100</versionsToKeep>
 		<delta>=00-03:00:00</delta>
 		<round>00-01:00:00</round>
 	</defaultRule>
 	<defaultRule>
-		<versionsToKeep>11</versionsToKeep>
+		<versionsToKeep>100</versionsToKeep>
 		<delta>=00-06:00:00</delta>
 		<round>00-01:00:00</round>
 	</defaultRule>
 	<defaultRule>
-		<versionsToKeep>10</versionsToKeep>
+		<versionsToKeep>100</versionsToKeep>
 		<delta>=01-00:00:00</delta>
 		<round>+00-12:00:00</round>
 	</defaultRule>

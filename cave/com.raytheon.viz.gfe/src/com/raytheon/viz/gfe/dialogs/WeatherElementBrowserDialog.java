@@ -404,32 +404,32 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
      */
     private void createTypesComp(Composite parent) {
 
-        GridData data = new GridData(100, 200);
-        Composite comp = new Composite(parent, SWT.BORDER);
-        comp.setLayoutData(data);
-        comp.setLayout(new GridLayout());
-        Label lab = new Label(comp, SWT.NONE);
-        lab.setText("Types");
-        data = new GridData();
-        data.horizontalAlignment = SWT.CENTER;
-        lab.setLayoutData(data);
+        //GridData data = new GridData(100, 200);
+        //Composite comp = new Composite(parent, SWT.BORDER);
+        //comp.setLayoutData(data);
+        //comp.setLayout(new GridLayout());
+        //Label lab = new Label(comp, SWT.NONE);
+        //lab.setText("Types");
+        //data = new GridData();
+        //data.horizontalAlignment = SWT.CENTER;
+        //lab.setLayoutData(data);
 
         for (final WEBrowserTypeRecord entry : typeEntries) {
-            final Button b = new Button(comp, SWT.RADIO | SWT.BORDER);
-            b.setText(entry.getType());
-            b.addSelectionListener(new SelectionAdapter() {
-                @Override
-                public void widgetSelected(SelectionEvent e) {
-                    if (b.getSelection()) {
-                        selectedType = entry;
-                        setupListsForCurrentType();
-                    }
-                }
-            });
+//            final Button b = new Button(comp, SWT.RADIO | SWT.BORDER);
+//            b.setText(entry.getType());
+//            b.addSelectionListener(new SelectionAdapter() {
+//                @Override
+//                public void widgetSelected(SelectionEvent e) {
+//                    if (b.getSelection()) {
+//                        selectedType = entry;
+//                        setupListsForCurrentType();
+//                    }
+//                }
+//            });
 
-            if (typeEntries.indexOf(entry) == 0) {
+            if (typeEntries.indexOf(entry) == 1) {
                 selectedType = entry;
-                b.setSelection(true);
+                //b.setSelection(true);
             }
         }
     }
@@ -828,16 +828,13 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
      * Creates the source composite.
      */
     private void createSourceComp(Composite parent) {
+    	
         Composite comp = new Composite(parent, SWT.BORDER);
         comp.setLayout(new GridLayout(1, true));
-        GridData data = new GridData(140, 200);
+        GridData data = new GridData(170, 200);
         comp.setLayoutData(data);
-
-        Label lab1 = new Label(comp, SWT.NONE);
-        lab1.setText("Sources");
         data = new GridData();
         data.horizontalAlignment = SWT.LEFT;
-        lab1.setLayoutData(data);
 
         sourceMenu = new Menu(getParentShell(), SWT.POP_UP);
         sourceToolBar = new ToolBar(comp, SWT.NONE);
@@ -880,16 +877,12 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
      * Creates the field composite.
      */
     private void createFieldsComp(Composite parent) {
-        GridData data = new GridData(140, 200);
+        GridData data = new GridData(170, 200);
         Composite comp = new Composite(parent, SWT.BORDER);
         comp.setLayout(new GridLayout());
         comp.setLayoutData(data);
-
-        Label lab = new Label(comp, SWT.NONE);
-        lab.setText("Fields");
         data = new GridData();
         data.horizontalAlignment = SWT.CENTER;
-        lab.setLayoutData(data);
 
         fieldsMenu = new Menu(getParentShell(), SWT.POP_UP);
         fieldsToolBar = new ToolBar(comp, SWT.NONE);
@@ -920,17 +913,13 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
      * Creates the plans composite.
      */
     private void createPlanesComp(Composite parent) {
-        GridData data = new GridData(180, 200);
+        GridData data = new GridData(220, 200);
         Composite comp = new Composite(parent, SWT.BORDER);
         comp.setLayout(new GridLayout(2, false));
         comp.setLayoutData(data);
-        Label lab = new Label(comp, SWT.NONE);
-        lab.setText("Planes");
         data = new GridData();
         data.horizontalAlignment = SWT.CENTER;
         data.horizontalSpan = 2;
-
-        lab.setLayoutData(data);
 
         presMenu = new Menu(getParentShell(), SWT.POP_UP);
         miscMenu = new Menu(getParentShell(), SWT.POP_UP);

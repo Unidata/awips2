@@ -19,7 +19,7 @@
         further_licensing_information.
     -->
 <numericLookupTable id="creatingEntities">
-    <entry index="2" value="Miscellaneous" />
+    <entry index="2" value="SOUNDER" />
     <entry index="3" value="JERS" />
     <entry index="4" value="ERS-QuickSCAT-Scatterometer" />
     <entry index="5" value="POES-NPOESS" />

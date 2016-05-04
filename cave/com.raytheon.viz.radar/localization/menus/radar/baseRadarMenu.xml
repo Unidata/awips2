@@ -47,41 +47,41 @@
         <substitute key="element" value="N1P"/>
         <substitute key="colormap" value="Radar/8-bit STP"/>
 		<substitute key="interpolate" value="true"/>
+    </contribute>
+	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarComposite.xml" 
+                menuText="NTP - Storm-Total Precipitation (4-bit)" id="N1P">
+        <substitute key="element" value="NTP"/>
+        <substitute key="colormap" value="Radar/8-bit STP"/>
+		<substitute key="interpolate" value="true"/>
     </contribute>	
-	<contribute xsi:type="titleItem" titleText="------ 2 Panel Mosaic ------"
+	<contribute xsi:type="titleItem" titleText="------ 2 Panel  ------"
 		id="RadarMosaic" />
-	
-	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaicTwoPanel.xml"
-		menuText="DHR and DSP" id="RadarHybridScanRefl">
-		<substitute key="elevation" value="0" />
-		<substitute key="product1" value="32" />
-		<substitute key="product2" value="138" />
-		<substitute key="name1" value="DHR Digital Hybrid Reflectivity" />
-		<substitute key="name2" value="DSP Storm Total Precipitation" />
+	<contribute xsi:type="bundleItem" file="bundles/RadarCompositeTwoPanel.xml"
+		menuText="DHR and N1P" id="RadarHybridScanRefl">
+		<substitute key="element1" value="DHR"/>
+        <substitute key="colormap1" value="Radar/DHR"/>
+		<substitute key="interpolate1" value="true"/>
+		<substitute key="element2" value="N1P"/>
+        <substitute key="colormap2" value="Radar/8-bit STP"/>
+		<substitute key="interpolate2" value="true"/>
 	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaicTwoPanel.xml"
+	<contribute xsi:type="satBundleItem" file="bundles/RadarCompositeTwoPanel.xml"
 		menuText="DHR and EET" id="RadarHybridScanRefl">
-		<substitute key="elevation" value="0" />
-		<substitute key="product1" value="32" />
-		<substitute key="product2" value="135" />
-		<substitute key="name1" value="DHR Digital Hybrid Reflectivity" />
-		<substitute key="name2" value="EET Enhanced Echo Tops" />
+		<substitute key="element1" value="DHR"/>
+        <substitute key="colormap1" value="Radar/DHR"/>
+		<substitute key="interpolate1" value="true"/>
+		<substitute key="element2" value="EET"/>
+        <substitute key="colormap2" value="Radar/Enhanced Echo Tops"/>
+		<substitute key="interpolate2" value="true"/>
 	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaicTwoPanel.xml"
+	<contribute xsi:type="satBundleItem" file="bundles/RadarCompositeTwoPanel.xml"
 		menuText="DHR and HHC" id="RadarHybridScanRefl">
-		<substitute key="elevation" value="0" />
-		<substitute key="product1" value="32" />
-		<substitute key="product2" value="177" />
-		<substitute key="name1" value="DHR Digital Hybrid Reflectivity" />
-		<substitute key="name2" value="HHC Hybrid Hydrometeor Classification" />
-	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaicTwoPanel.xml"
-		menuText="DVL and DPR" id="RadarHybridScanRefl">
-		<substitute key="elevation" value="0" />
-		<substitute key="product1" value="134" />
-		<substitute key="product2" value="176" />
-		<substitute key="name1" value="DVL Digital Vert Integ Liq" />
-		<substitute key="name2" value="DPR Digital Inst Precip Rate" />
+		<substitute key="element1" value="DHR"/>
+        <substitute key="colormap1" value="Radar/DHR"/>
+		<substitute key="interpolate1" value="true"/>
+		<substitute key="element2" value="HHC"/>
+        <substitute key="colormap2" value="Radar/HHC NEXRCOMP"/>
+		<substitute key="interpolate2" value="false"/>
 	</contribute>
 	
 	
