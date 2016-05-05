@@ -30,6 +30,7 @@ import com.raytheon.uf.viz.npp.sounding.rsc.NPPSoundingMapResourceData;
  * ------------ ---------- ----------- --------------------------
  * Dec 16, 2015      18191 pwang       Initial version.
  * Feb 03, 2016      18588 wkwock      Fix update nucaps data issue.
+ * Apr 14, 2016      18588 wkwock      Improve the performance.
  * 
  * </pre>
  * 
@@ -69,6 +70,10 @@ public class NucapsSoundingMapResource extends NPPSoundingMapResource {
                 "Error adding record from update: "
                     + e.getLocalizedMessage(), e);
        }
+    }
+
+    public synchronized void addRecordsNoUpdate (PluginDataObject... records){
+       super.addRecords(records);
     }
 
     /**
