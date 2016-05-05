@@ -171,4 +171,6 @@ if [ ${RC} -ne 0 ]; then
    exit 1
 fi
 
-java -Xmx32m -XX:MaxPermSize=12m -XX:ReservedCodeCacheSize=4m -jar ${YAJSW_HOME}/wrapper.jar -c ${EDEX_HOME}/conf/${CONF_FILE} ${WRAPPER_ARGS}
+YAJSW_JVM_ARGS="-Xmx32m -XX:MaxPermSize=12m -XX:ReservedCodeCacheSize=4m -Djava.io.tmpdir=${AWIPS2_TEMP}"
+
+java ${YAJSW_JVM_ARGS} -jar ${YAJSW_HOME}/wrapper.jar -c ${EDEX_HOME}/conf/${CONF_FILE} ${WRAPPER_ARGS}
