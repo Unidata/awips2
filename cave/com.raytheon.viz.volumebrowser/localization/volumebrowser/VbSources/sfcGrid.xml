@@ -75,7 +75,11 @@
     <vbSource key="NAHwave15" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="NAHwave10" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="NAHwave4" category="SfcGrid" views="PLANVIEW TIMESERIES" />
-    <vbSource key="NationalBlend" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+    <vbSource key="NationalBlend" category="SfcGrid/NationalBlend" views="PLANVIEW TIMESERIES" />
+    <vbSource key="NationalBlendAK" category="SfcGrid/NationalBlend" views="PLANVIEW TIMESERIES" />
+    <vbSource key="NationalBlendHI" category="SfcGrid/NationalBlend" views="PLANVIEW TIMESERIES" />
+    <vbSource key="NationalBlendPR" category="SfcGrid/NationalBlend" views="PLANVIEW TIMESERIES" />
+    <vbSource key="NationalBlendOC" category="SfcGrid/NationalBlend" views="PLANVIEW TIMESERIES" />
     <vbSource key="NICICE" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="NPHwave15" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="NPHwave10" category="SfcGrid" views="PLANVIEW TIMESERIES" />
