@@ -62,6 +62,7 @@ import com.raytheon.uf.common.wmo.WMOTimeParser;
  * Jun 19, 2014 3226       bclement    added validator callback
  * Jul 07, 2015 4581       skorolev    Corrected decodeStrikes to avoid BufferUnderflowException.
  * Apr 07, 2016 DR18763 mgamazaychikov Switched to using LightningWMOHeader.
+ * Apr 21, 2016 DR18849 mgamazaychikov Decrypt all data in decrypt method.
  * 
  * </pre>
  * 
@@ -200,9 +201,19 @@ public class TotalLightningDecoder {
      */
     private PluginDataObject[] decodeInternal(LightningWMOHeader wmoHdr,
             String fileName, byte[] pdata) throws DecoderException {
-        if (!validFlashPacket(pdata, COMBINATION_PACKET_HEADER_SIZE)) {
-            /* assume data is encrypted if we can't understand it */
-            pdata = decrypt(wmoHdr, fileName, pdata);
+        byte[] pdataPreDecrypt = pdata;
+        // determine if the data is encrypted or not based on comparing
+        // checksums for flash packet
+        pdata = decrypt(wmoHdr, fileName, pdata);
+        boolean isDecryptedValid = validFlashPacket(pdata,
+                COMBINATION_PACKET_HEADER_SIZE);
+        boolean isPreDecryptedValid = validFlashPacket(pdataPreDecrypt,
+                COMBINATION_PACKET_HEADER_SIZE);
+        // assume that all data is encrypted, so decrypt it
+        if (!isDecryptedValid && isPreDecryptedValid) {
+            // this means that data is not encrypted, proceed without
+            // decryption
+            pdata = pdataPreDecrypt;
         }
         List<LightningStrikePoint> strikes = decodeStrikes(fileName, pdata);
         if (!strikes.isEmpty()) {
