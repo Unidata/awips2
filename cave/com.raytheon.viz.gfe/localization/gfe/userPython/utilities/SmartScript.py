@@ -78,6 +78,8 @@
 #    Sep 11, 2015    4858          dgilling       Remove notification processing from publishElements.
 #    Jan 20, 2016    4751          randerso       Fix type of mask returned from getComposite() to work with numpy 1.9.2
 #    02/22/2016      5374          randerso       Added support for sendWFOMessage
+#    05/06/2016      18967         ryu            Fix issue of contours plotted over ProposedWatches grid
+#                                                 when ViewWCL is run.
 #
 ########################################################################
 import types, string, time, sys
@@ -1715,6 +1717,7 @@ class SmartScript(BaseTool.BaseTool):
             fitter = FitToData(self.__dataMgr, parm)
             fitter.fitToData()
         spatialMgr.activateParm(parm)
+        spatialMgr.makeVisible(parm, True, True)
         spatialMgr.setSpatialEditorTime(timeRange.startTime().javaDate())
 
 
