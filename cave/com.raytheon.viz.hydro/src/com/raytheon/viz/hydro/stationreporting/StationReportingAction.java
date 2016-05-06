@@ -23,7 +23,9 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.handlers.HandlerUtil;
+
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * Action for unimplemented features. To be used temporarily until final
@@ -35,8 +37,10 @@ import org.eclipse.ui.PlatformUI;
  * 
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
- * 6/27/06                  lvenable    Initial Creation.
- * 4/16/2013    1790        rferrel     Changes for non-blocking stationReportingDlg.
+ * 06/27/2006               lvenable    Initial Creation.
+ * 04/16/2013   1790        rferrel     Changes for non-blocking stationReportingDlg.
+ * 05/04/2016   5483        dgilling    Updates for updated 
+ *                                      StationReportingStatusDlg.
  * 
  * </pre>
  * 
@@ -50,9 +54,15 @@ public class StationReportingAction extends AbstractHandler {
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
 
         if (stationReportingDlg == null || stationReportingDlg.isDisposed()) {
-            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                    .getShell();
+            Shell shell = HandlerUtil.getActiveShellChecked(arg0);
             stationReportingDlg = new StationReportingStatusDlg(shell);
+            stationReportingDlg.addCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    stationReportingDlg = null;
+                }
+            });
             stationReportingDlg.open();
         } else {
             stationReportingDlg.bringToTop();
