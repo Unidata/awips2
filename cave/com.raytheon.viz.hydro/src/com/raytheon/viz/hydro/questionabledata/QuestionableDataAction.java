@@ -26,11 +26,12 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.handlers.HandlerUtil;
+
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
- * Action for unimplemented features. To be used temporarily until final
- * behavior is implemented.
+ * Action to launch {@link QuestionableBadDataDlg}.
  * 
  * <pre>
  * 
@@ -41,6 +42,7 @@ import org.eclipse.ui.PlatformUI;
  * 6/27/06                  lvenable    Initial Creation.
  * 02/07/2013   1578        rferrel     Changes for non-blocking questionableDlg.
  * 03/27/2013   1790        rferrel     Bug fix for non-blocking dialogs.
+ * 05/06/2016   5483        dgilling    Changes to support updated QuestionableBadDataDlg.
  * </pre>
  * 
  * @author lvenable
@@ -49,19 +51,18 @@ import org.eclipse.ui.PlatformUI;
 public class QuestionableDataAction extends AbstractHandler {
     private QuestionableBadDataDlg questionableDlg;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.core.commands.AbstractHandler#execute(org.eclipse.core.commands
-     * .ExecutionEvent)
-     */
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
         if (questionableDlg == null || questionableDlg.isDisposed()) {
-            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                    .getShell();
+            Shell shell = HandlerUtil.getActiveShellChecked(arg0);
             questionableDlg = new QuestionableBadDataDlg(shell);
+            questionableDlg.addCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    questionableDlg = null;
+                }
+            });
             questionableDlg.open();
         } else {
             questionableDlg.bringToTop();
@@ -69,5 +70,4 @@ public class QuestionableDataAction extends AbstractHandler {
 
         return null;
     }
-
 }

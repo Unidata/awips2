@@ -20,33 +20,58 @@
 
 package com.raytheon.viz.hydro.questionabledata;
 
-import java.util.ArrayList;
+import java.text.DateFormat;
+import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.IFontProvider;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.viewers.TableViewerColumn;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerComparator;
+import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StackLayout;
+import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.FocusListener;
-import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Layout;
-import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
+import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydro.timeseries.TimeSeriesDlg;
-import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 /**
  * This class displays the Questionable and Bad Data dialog for Hydroview.
@@ -60,6 +85,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 							 		   openTabularTimeSeries and openGraphTimeSeries
  * 05 Feb 2013  1578       rferrel     Changes for non-blocking singleton TimeSeriesDlg.
  *                                     Changes for non-blocking dialog.
+ * 06 May 2016  5483       dgilling    Refactor based on CaveJFACEDialog, fix
+ *                                     hi-dpi layout issues, code cleanup.
  * 
  * </pre>
  * 
@@ -67,12 +94,60 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * @version 1.0
  * 
  */
-public class QuestionableBadDataDlg extends CaveSWTDialog {
+public class QuestionableBadDataDlg extends CaveJFACEDialog {
 
-    /**
-     * Font used for list controls.
-     */
-    private Font font;
+    private static abstract class MonospaceColumnLabelProvider extends
+            ColumnLabelProvider implements IFontProvider {
+
+        @Override
+        public Font getFont(Object element) {
+            return JFaceResources.getTextFont();
+        }
+
+        @Override
+        public abstract String getText(Object element);
+    }
+
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(getClass());
+
+    private static final String TABULAR_TS_BUTTON_LABEL = "Tabular Time Series";
+
+    private static final int TABULAR_TS_BUTTON_ID = IDialogConstants.CLIENT_ID + 1;
+
+    private static final String GRAPH_TS_BUTTON_LABEL = "Graph Time Series";
+
+    private static final int GRAPH_TS_BUTTON_ID = IDialogConstants.CLIENT_ID + 2;
+
+    private static final String SET_MISSING_BUTTON_LABEL = "Set Missing";
+
+    private static final int SET_MISSING_BUTTON_ID = IDialogConstants.CLIENT_ID + 3;
+
+    private static final String DELETE_SELECTED_BUTTON_LABEL = "Delete Selected";
+
+    private static final int DELETE_SELECTED_BUTTON_ID = IDialogConstants.CLIENT_ID + 4;
+
+    private static final String[] PHYSICAL_ELEMENTS = { "Agriculture",
+            "Discharge", "Evaporation", "FishCount", "Gate Dam", "Ground",
+            "Height (Stage)", "Ice", "Lake", "Moisture", "Power",
+            "Precipitation (PC)", "Precipitation (PP)",
+            "Precipitation (Other)", "Pressure", "Radiation", "Snow",
+            "Temperature", "WaterQuality", "Weather", "Wind", "YUnique" };
+
+    private static DateFormat OBS_TIME_FORMAT = new SimpleDateFormat(
+            "yyyy-MM-dd HH:mm") {
+        {
+            setTimeZone(TimeUtil.GMT_TIME_ZONE);
+        }
+    };
+
+    private static DateFormat TIME_FORMAT = new SimpleDateFormat("MM-dd HH:mm") {
+        {
+            setTimeZone(TimeUtil.GMT_TIME_ZONE);
+        }
+    };
+
+    private final NumberFormat VALUE_FORMAT;
 
     /**
      * Location check box.
@@ -87,7 +162,7 @@ public class QuestionableBadDataDlg extends CaveSWTDialog {
     /**
      * Physical element combo box.
      */
-    private Combo phsicalElemCbo;
+    private Combo physicalElemCbo;
 
     /**
      * Spinner indicating how many days back to display data.
@@ -117,7 +192,7 @@ public class QuestionableBadDataDlg extends CaveSWTDialog {
     /**
      * List control displaying the bad data.
      */
-    private List dataList;
+    private TableViewer dataTable;
 
     /**
      * QC description text control.
@@ -125,108 +200,75 @@ public class QuestionableBadDataDlg extends CaveSWTDialog {
     private Text qcDescriptionTF;
 
     /**
-     * Collection of questionable data.
+     * Stack composite.
      */
-    private java.util.List<QuestionableData> questionableData;
+    private Composite stackComposite;
 
     /**
-     * Collection of filtered questionable data.
+     * Stack layout.
      */
-    private java.util.List<QuestionableData> filteredQuestionableData;
+    private StackLayout stackLayout;
 
     /**
-     * Listener for sort options
+     * Table composite.
      */
-    private SelectionListener sortByListener;
+    private Composite tableComp;
+
+    /**
+     * No data composite.
+     */
+    private Composite noDataComp;
+
+    private Label noDataLabel;
 
     /**
      * Constructor.
      * 
-     * @param parent
+     * @param parentShell
      *            Parent shell.
      */
-    public QuestionableBadDataDlg(Shell parent) {
-        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
-        setText("Questionable and Bad Data");
+    public QuestionableBadDataDlg(Shell parentShell) {
+        super(parentShell);
+        setBlockOnOpen(false);
+        setShellStyle(SWT.DIALOG_TRIM);
+
+        this.VALUE_FORMAT = NumberFormat.getNumberInstance();
+        this.VALUE_FORMAT.setMinimumFractionDigits(0);
+        this.VALUE_FORMAT.setMaximumFractionDigits(8);
+        this.VALUE_FORMAT.setMaximumIntegerDigits(8);
+        this.VALUE_FORMAT.setMinimumFractionDigits(1);
+        this.VALUE_FORMAT.setGroupingUsed(false);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
-     */
     @Override
-    protected Layout constructShellLayout() {
-        // Create the main layout for the shell.
-        GridLayout mainLayout = new GridLayout(1, true);
-        mainLayout.marginHeight = 1;
-        mainLayout.marginWidth = 1;
-        return mainLayout;
+    protected void configureShell(Shell newShell) {
+        super.configureShell(newShell);
+        newShell.setText("Questionable and Bad Data");
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
-     */
     @Override
-    protected void disposed() {
-        font.dispose();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
-     * .eclipse.swt.widgets.Shell)
-     */
-    @Override
-    protected void initializeComponents(Shell shell) {
-        setReturnValue(false);
-
-        font = new Font(shell.getDisplay(), "Monospace", 11, SWT.NORMAL);
-
-        // Initialize all of the controls and layouts
-        sortByListener = new SelectionListener() {
-            @Override
-            public void widgetDefaultSelected(SelectionEvent e) {
-            }
-
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                getData();
-            }
-        };
-
-        createTopControls();
-        createListLabels();
-        createDataListControl();
-        createDescriptionControl();
-        createBottomButtons();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialog#preOpened()
-     */
-    @Override
-    protected void preOpened() {
-        super.preOpened();
-        getData();
+    protected Control createDialogArea(Composite parent) {
+        Composite composite = (Composite) super.createDialogArea(parent);
+        createTopControls(composite);
+        createStackComposite(composite);
+        createDescriptionControl(composite);
+        return composite;
     }
 
     /**
      * Create the Filter and Sort By controls located at the top of the dialog.
+     * 
+     * @param parent
      */
-    private void createTopControls() {
-        Composite topComp = new Composite(shell, SWT.NONE);
-        GridLayout topGl = new GridLayout(12, false);
-        topComp.setLayout(topGl);
+    private void createTopControls(Composite parent) {
+        Composite topComp = new Composite(parent, SWT.NONE);
+        topComp.setLayout(new GridLayout(12, false));
+        topComp.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
 
-        Label locationLbl = new Label(topComp, SWT.NONE);
-        locationLbl.setText("Filter By:");
+        Label filterLbl = new Label(topComp, SWT.NONE);
+        filterLbl.setText("Filter By:");
+        filterLbl
+                .setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, true));
 
         locationChk = new Button(topComp, SWT.CHECK);
         locationChk.setText("Location");
@@ -237,265 +279,512 @@ public class QuestionableBadDataDlg extends CaveSWTDialog {
                 updateDisplayList();
             }
         });
+        locationChk.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false,
+                true));
 
-        GridData gd = new GridData(80, SWT.DEFAULT);
         locationTF = new Text(topComp, SWT.BORDER);
-        locationTF.setLayoutData(gd);
         locationTF.setEnabled(false);
-        locationTF.addKeyListener(new KeyListener() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-            }
+        locationTF.addModifyListener(new ModifyListener() {
 
             @Override
-            public void keyReleased(KeyEvent e) {
-                filterDisplay();
+            public void modifyText(ModifyEvent e) {
+                updateDisplayList();
             }
         });
+        GC gc = new GC(locationTF);
+        int charWidth = gc.getFontMetrics().getAverageCharWidth();
+        int charHeight = gc.getFontMetrics().getHeight();
+        gc.dispose();
+        GridData gd = new GridData(SWT.LEFT, SWT.CENTER, false, true);
+        gd.widthHint = locationTF.computeTrim(0, 0, charWidth * 8, charHeight).width;
+        locationTF.setLayoutData(gd);
 
-        phsicalElemCbo = new Combo(topComp, SWT.DROP_DOWN | SWT.READ_ONLY);
-        phsicalElemCbo.addSelectionListener(new SelectionListener() {
-            @Override
-            public void widgetDefaultSelected(SelectionEvent e) {
-            }
+        physicalElemCbo = new Combo(topComp, SWT.DROP_DOWN | SWT.READ_ONLY);
+        physicalElemCbo.setItems(PHYSICAL_ELEMENTS);
+        physicalElemCbo.select(6);
+        physicalElemCbo.addSelectionListener(new SelectionAdapter() {
 
             @Override
             public void widgetSelected(SelectionEvent e) {
-                getData();
+                dataTable.setInput(getData());
+                updateStackComposite();
             }
         });
-        fillPhysicalElementCbo();
-        phsicalElemCbo.select(6);
+        physicalElemCbo.setLayoutData(new GridData(SWT.DEFAULT, SWT.CENTER,
+                false, true));
 
-        gd = new GridData(60, SWT.DEFAULT);
         Label lastLbl = new Label(topComp, SWT.RIGHT);
         lastLbl.setText("Last");
-        lastLbl.setLayoutData(gd);
+        lastLbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, true));
 
-        gd = new GridData(35, SWT.DEFAULT);
         daysBackSpnr = new Spinner(topComp, SWT.BORDER);
         daysBackSpnr.setDigits(0);
         daysBackSpnr.setIncrement(1);
         daysBackSpnr.setPageIncrement(5);
         daysBackSpnr.setSelection(1);
         daysBackSpnr.setMinimum(0);
-        daysBackSpnr.setLayoutData(gd);
-        daysBackSpnr.addFocusListener(new FocusListener() {
-            @Override
-            public void focusGained(FocusEvent e) {
-            }
+        daysBackSpnr.setLayoutData(new GridData(SWT.DEFAULT, SWT.CENTER, false,
+                true));
+        daysBackSpnr.addFocusListener(new FocusAdapter() {
 
             @Override
             public void focusLost(FocusEvent e) {
-                getData();
+                dataTable.setInput(getData());
+                updateStackComposite();
             }
         });
 
-        gd = new GridData(60, SWT.DEFAULT);
         Label daysLbl = new Label(topComp, SWT.NONE);
         daysLbl.setText("days");
-        daysLbl.setLayoutData(gd);
+        daysLbl.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true));
 
         Label sortByLbl = new Label(topComp, SWT.RIGHT);
         sortByLbl.setText("Sort By:");
+        sortByLbl
+                .setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, true));
 
-        gd = new GridData(90, SWT.DEFAULT);
         locationRdo = new Button(topComp, SWT.RADIO);
         locationRdo.setText("Location");
-        locationRdo.setLayoutData(gd);
-        locationRdo.addSelectionListener(sortByListener);
+        locationRdo.setLayoutData(new GridData(SWT.DEFAULT, SWT.CENTER, false,
+                true));
+        locationRdo.addSelectionListener(new SelectionAdapter() {
 
-        gd = new GridData(70, SWT.DEFAULT);
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                updateDisplayList();
+            }
+        });
+
         timeRdo = new Button(topComp, SWT.RADIO);
         timeRdo.setText("Time");
-        timeRdo.setLayoutData(gd);
+        timeRdo.setLayoutData(new GridData(SWT.DEFAULT, SWT.CENTER, false, true));
         timeRdo.setSelection(true);
-        timeRdo.addSelectionListener(sortByListener);
+        timeRdo.addSelectionListener(new SelectionAdapter() {
 
-        gd = new GridData(120, SWT.DEFAULT);
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                updateDisplayList();
+            }
+        });
+
         shefQualityRdo = new Button(topComp, SWT.RADIO);
         shefQualityRdo.setText("Shef Quality");
-        shefQualityRdo.setLayoutData(gd);
-        shefQualityRdo.addSelectionListener(sortByListener);
+        shefQualityRdo.setLayoutData(new GridData(SWT.DEFAULT, SWT.CENTER,
+                false, true));
+        shefQualityRdo.addSelectionListener(new SelectionAdapter() {
 
-        gd = new GridData(120, SWT.DEFAULT);
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                updateDisplayList();
+            }
+        });
+
         qualityCodeRdo = new Button(topComp, SWT.RADIO);
         qualityCodeRdo.setText("Quality Code");
-        qualityCodeRdo.setLayoutData(gd);
-        qualityCodeRdo.addSelectionListener(sortByListener);
+        qualityCodeRdo.setLayoutData(new GridData(SWT.DEFAULT, SWT.CENTER,
+                false, true));
+        qualityCodeRdo.addSelectionListener(new SelectionAdapter() {
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                updateDisplayList();
+            }
+        });
     }
 
     /**
-     * Create the label displayed above the "questionable and bad" data list.
+     * Create stack composite that will contain the table of QuestionableData
+     * records or the label saying no records matched the query parameters.
+     * 
+     * @param parent
      */
-    private void createListLabels() {
-        Composite labelComp = new Composite(shell, SWT.NONE);
-        GridLayout labelGl = new GridLayout(1, false);
-        labelComp.setLayout(labelGl);
+    private void createStackComposite(Composite parent) {
+        stackComposite = new Composite(parent, SWT.NONE);
+        stackLayout = new StackLayout();
+        stackComposite.setLayout(stackLayout);
 
-        String fmt = "%s %s                 %s   %s %s %s    %s "
-                + "%s   %s  %s  %s   %s       %s        %s";
+        // create the composites in the stack here
+        tableComp = createDataListControl(stackComposite);
+        noDataComp = createNoDataComposite(stackComposite);
 
-        String text = String.format(fmt, "Location", "Name", "PE", "Dur", "TS",
-                "Ext", "Value", "Observation Time", "RV", "SQ", "QC",
-                "Product", "Time", "Posted");
-
-        GridData gd = new GridData();
-        gd.horizontalIndent = 0;
-        Label listLbl = new Label(labelComp, SWT.NONE);
-        listLbl.setText(text);
-        listLbl.setFont(font);
-        listLbl.setLayoutData(gd);
+        stackLayout.topControl = tableComp;
+        stackComposite.layout();
     }
 
     /**
      * Create the "questionable and bad" data list control.
+     * 
+     * @param parent
      */
-    private void createDataListControl() {
-        GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, false, false);
-        gd.widthHint = 1150;
-        gd.heightHint = 390;
-        dataList = new List(shell, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL);
-        dataList.setLayoutData(gd);
-        dataList.addSelectionListener(new SelectionListener() {
-            @Override
-            public void widgetDefaultSelected(SelectionEvent e) {
-            }
+    private Composite createDataListControl(Composite parent) {
+        Composite comp = new Composite(parent, SWT.NONE);
+        comp.setLayout(new GridLayout(1, false));
+        comp.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
+
+        dataTable = new TableViewer(comp, SWT.MULTI | SWT.FULL_SELECTION
+                | SWT.V_SCROLL | SWT.BORDER);
+        final Table table = dataTable.getTable();
+        table.setHeaderVisible(true);
+        table.setLinesVisible(false);
+        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        gd.heightHint = table.getHeaderHeight() + (table.getItemHeight() * 17);
+        dataTable.getControl().setLayoutData(gd);
+
+        GC gc = new GC(dataTable.getControl());
+        gc.setFont(JFaceResources.getTextFont());
+        int charWidth = gc.getFontMetrics().getAverageCharWidth();
+        gc.dispose();
+
+        TableViewerColumn colLocation = new TableViewerColumn(dataTable,
+                SWT.NONE);
+        colLocation.getColumn().setText("Location");
+        colLocation.getColumn().setWidth(9 * charWidth);
+        colLocation.setLabelProvider(new MonospaceColumnLabelProvider() {
 
             @Override
-            public void widgetSelected(SelectionEvent e) {
-                updateDescription();
+            public String getText(Object element) {
+                QuestionableData data = (QuestionableData) element;
+                return data.getLid();
             }
         });
 
-        dataList.setFont(font);
+        TableViewerColumn colName = new TableViewerColumn(dataTable, SWT.NONE);
+        colName.getColumn().setText("Name");
+        colName.getColumn().setWidth(22 * charWidth);
+        colName.setLabelProvider(new MonospaceColumnLabelProvider() {
+
+            @Override
+            public String getText(Object element) {
+                QuestionableData data = (QuestionableData) element;
+                return data.getName();
+            }
+        });
+
+        TableViewerColumn colPhysElement = new TableViewerColumn(dataTable,
+                SWT.NONE);
+        colPhysElement.getColumn().setText("PE");
+        colPhysElement.getColumn().setWidth(4 * charWidth);
+        colPhysElement.setLabelProvider(new MonospaceColumnLabelProvider() {
+
+            @Override
+            public String getText(Object element) {
+                QuestionableData data = (QuestionableData) element;
+                return data.getPe();
+            }
+        });
+
+        TableViewerColumn colDuration = new TableViewerColumn(dataTable,
+                SWT.NONE);
+        colDuration.getColumn().setText("Dur");
+        colDuration.getColumn().setWidth(6 * charWidth);
+        colDuration.setLabelProvider(new MonospaceColumnLabelProvider() {
+
+            @Override
+            public String getText(Object element) {
+                QuestionableData data = (QuestionableData) element;
+                return Integer.toString(data.getDur());
+            }
+        });
+
+        TableViewerColumn colTs = new TableViewerColumn(dataTable, SWT.NONE);
+        colTs.getColumn().setText("TS");
+        colTs.getColumn().setWidth(4 * charWidth);
+        colTs.setLabelProvider(new MonospaceColumnLabelProvider() {
+
+            @Override
+            public String getText(Object element) {
+                QuestionableData data = (QuestionableData) element;
+                return data.getTs();
+            }
+        });
+
+        TableViewerColumn colExtremum = new TableViewerColumn(dataTable,
+                SWT.NONE);
+        colExtremum.getColumn().setText("Ext");
+        colExtremum.getColumn().setWidth(4 * charWidth);
+        colExtremum.setLabelProvider(new MonospaceColumnLabelProvider() {
+
+            @Override
+            public String getText(Object element) {
+                QuestionableData data = (QuestionableData) element;
+                return data.getExtremum();
+            }
+        });
+
+        TableViewerColumn colValue = new TableViewerColumn(dataTable, SWT.RIGHT);
+        colValue.getColumn().setText("Value");
+        colValue.getColumn().setWidth(10 * charWidth);
+        colValue.setLabelProvider(new MonospaceColumnLabelProvider() {
+
+            @Override
+            public String getText(Object element) {
+                QuestionableData data = (QuestionableData) element;
+                return VALUE_FORMAT.format(data.getValue());
+            }
+        });
+
+        TableViewerColumn colObsTime = new TableViewerColumn(dataTable,
+                SWT.NONE);
+        colObsTime.getColumn().setText("Observation Time");
+        colObsTime.getColumn().setWidth(18 * charWidth);
+        colObsTime.setLabelProvider(new MonospaceColumnLabelProvider() {
+
+            @Override
+            public String getText(Object element) {
+                QuestionableData data = (QuestionableData) element;
+                return OBS_TIME_FORMAT.format(data.getObstime());
+            }
+        });
+
+        TableViewerColumn colRevision = new TableViewerColumn(dataTable,
+                SWT.NONE);
+        colRevision.getColumn().setText("RV");
+        colRevision.getColumn().setWidth(4 * charWidth);
+        colRevision.setLabelProvider(new MonospaceColumnLabelProvider() {
+
+            @Override
+            public String getText(Object element) {
+                QuestionableData data = (QuestionableData) element;
+                return (data.getRevision() == 1) ? "T" : "F";
+            }
+        });
+
+        TableViewerColumn colShefQualCode = new TableViewerColumn(dataTable,
+                SWT.NONE);
+        colShefQualCode.getColumn().setText("SQ");
+        colShefQualCode.getColumn().setWidth(4 * charWidth);
+        colShefQualCode.setLabelProvider(new MonospaceColumnLabelProvider() {
+
+            @Override
+            public String getText(Object element) {
+                QuestionableData data = (QuestionableData) element;
+                return data.getShefQualCode();
+            }
+        });
+
+        TableViewerColumn colQualCode = new TableViewerColumn(dataTable,
+                SWT.NONE);
+        colQualCode.getColumn().setText("QC");
+        colQualCode.getColumn().setWidth(4 * charWidth);
+        colQualCode.setLabelProvider(new MonospaceColumnLabelProvider() {
+
+            @Override
+            public String getText(Object element) {
+                QuestionableData data = (QuestionableData) element;
+                return data.getQualityCodeSymbol();
+            }
+        });
+
+        TableViewerColumn colProduct = new TableViewerColumn(dataTable,
+                SWT.NONE);
+        colProduct.getColumn().setText("Product");
+        colProduct.getColumn().setWidth(12 * charWidth);
+        colProduct.setLabelProvider(new MonospaceColumnLabelProvider() {
+
+            @Override
+            public String getText(Object element) {
+                QuestionableData data = (QuestionableData) element;
+                return data.getProductID();
+            }
+        });
+
+        TableViewerColumn colProdTime = new TableViewerColumn(dataTable,
+                SWT.NONE);
+        colProdTime.getColumn().setText("Time");
+        colProdTime.getColumn().setWidth(13 * charWidth);
+        colProdTime.setLabelProvider(new MonospaceColumnLabelProvider() {
+
+            @Override
+            public String getText(Object element) {
+                QuestionableData data = (QuestionableData) element;
+                Date productTime = data.getProductTime();
+                return (productTime != null) ? TIME_FORMAT.format(productTime)
+                        : "";
+            }
+        });
+
+        TableViewerColumn colPostTime = new TableViewerColumn(dataTable,
+                SWT.NONE);
+        colPostTime.getColumn().setText("Posted");
+        colPostTime.getColumn().setWidth(13 * charWidth);
+        colPostTime.setLabelProvider(new MonospaceColumnLabelProvider() {
+
+            @Override
+            public String getText(Object element) {
+                QuestionableData data = (QuestionableData) element;
+                Date postingTime = data.getPostingTime();
+                return (postingTime != null) ? TIME_FORMAT.format(postingTime)
+                        : "";
+            }
+        });
+
+        dataTable.setContentProvider(ArrayContentProvider.getInstance());
+        dataTable.setInput(getData());
+
+        dataTable.addFilter(new ViewerFilter() {
+
+            @Override
+            public boolean select(Viewer viewer, Object parentElement,
+                    Object element) {
+                if ((locationTF.isEnabled())
+                        && (!locationTF.getText().trim().isEmpty())) {
+                    String searchString = locationTF.getText().trim()
+                            .toUpperCase();
+                    QuestionableData data = (QuestionableData) element;
+                    return data.getLid().contains(searchString);
+                }
+
+                return true;
+            }
+        });
+
+        dataTable.setComparator(new ViewerComparator() {
+
+            @Override
+            public int compare(Viewer viewer, Object e1, Object e2) {
+                QuestionableData data1 = (QuestionableData) e1;
+                QuestionableData data2 = (QuestionableData) e2;
+
+                if (locationRdo.getSelection()) {
+                    int compare = data1.getLid().compareTo(data2.getLid());
+                    if (compare != 0) {
+                        return compare;
+                    }
+
+                    return -data1.getObstime().compareTo(data2.getObstime());
+                } else if (timeRdo.getSelection()) {
+                    int compare = -data1.getObstime().compareTo(
+                            data2.getObstime());
+                    if (compare != 0) {
+                        return compare;
+                    }
+
+                    return data1.getLid().compareTo(data2.getLid());
+                } else if (shefQualityRdo.getSelection()) {
+                    int compare = data1.getShefQualCode().compareTo(
+                            data2.getShefQualCode());
+                    if (compare != 0) {
+                        return compare;
+                    }
+
+                    compare = data1.getLid().compareTo(data2.getLid());
+                    if (compare != 0) {
+                        return compare;
+                    }
+
+                    return -data1.getObstime().compareTo(data2.getObstime());
+                } else {
+                    int compare = -Integer.compare(data1.getQualityCode(),
+                            data2.getQualityCode());
+                    if (compare != 0) {
+                        return compare;
+                    }
+
+                    compare = data1.getLid().compareTo(data2.getLid());
+                    if (compare != 0) {
+                        return compare;
+                    }
+
+                    return -data1.getObstime().compareTo(data2.getObstime());
+                }
+            }
+        });
+
+        dataTable.addSelectionChangedListener(new ISelectionChangedListener() {
+
+            @Override
+            public void selectionChanged(SelectionChangedEvent event) {
+                updateDescription(event);
+            }
+        });
+
+        return comp;
+    }
+
+    /**
+     * Creates the {@link Composite} containing the label that will be displayed
+     * if no data matches the user's query parameters.
+     * 
+     * @param parent
+     * @return
+     */
+    private Composite createNoDataComposite(Composite parent) {
+        Composite comp = new Composite(parent, SWT.NONE);
+        comp.setLayout(new FillLayout());
+
+        noDataLabel = new Label(comp, SWT.WRAP);
+        noDataLabel.setText("Placeholder");
+
+        return comp;
     }
 
     /**
      * Create the QC description label and text control.
+     * 
+     * @param parent
      */
-    private void createDescriptionControl() {
-        GridData mainGD = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        Composite qcComp = new Composite(shell, SWT.NONE);
-        GridLayout gl = new GridLayout(2, false);
-        qcComp.setLayout(gl);
-        qcComp.setLayoutData(mainGD);
+    private void createDescriptionControl(Composite parent) {
+        Composite qcComp = new Composite(parent, SWT.NONE);
+        qcComp.setLayout(new GridLayout(2, false));
+        qcComp.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
 
         Label qcLbl = new Label(qcComp, SWT.NONE);
         qcLbl.setText("QC Description");
+        qcLbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
 
-        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         qcDescriptionTF = new Text(qcComp, SWT.BORDER);
         qcDescriptionTF.setEditable(false);
-        qcDescriptionTF.setLayoutData(gd);
+        qcDescriptionTF.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true,
+                false));
     }
 
-    /**
-     * Create the button at the bottom of the dialog.
-     */
-    private void createBottomButtons() {
-        GridData mainGD = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        Composite buttonComp = new Composite(shell, SWT.NONE);
-        GridLayout buttonGl = new GridLayout(5, false);
-        buttonGl.horizontalSpacing = 10;
-        buttonComp.setLayout(buttonGl);
-        buttonComp.setLayoutData(mainGD);
-
-        GridData gd = new GridData(160, SWT.DEFAULT);
-        Button tabularBtn = new Button(buttonComp, SWT.PUSH);
-        tabularBtn.setText("Tabular Time Series");
-        tabularBtn.setLayoutData(gd);
-        tabularBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                openTabularTimeSeries();
-            }
-        });
-
-        gd = new GridData(160, SWT.DEFAULT);
-        Button graphTimeBtn = new Button(buttonComp, SWT.PUSH);
-        graphTimeBtn.setText("Graph Time Series");
-        graphTimeBtn.setLayoutData(gd);
-        graphTimeBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                openGraphTimeSeries();
-            }
-        });
-
-        gd = new GridData(160, SWT.DEFAULT);
-        Button setMissingBtn = new Button(buttonComp, SWT.PUSH);
-        setMissingBtn.setText("Set Missing");
-        setMissingBtn.setLayoutData(gd);
-        setMissingBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                setMissing();
-            }
-        });
-
-        gd = new GridData(160, SWT.DEFAULT);
-        Button deleteSelectedBtn = new Button(buttonComp, SWT.PUSH);
-        deleteSelectedBtn.setText("Delete Selected");
-        deleteSelectedBtn.setLayoutData(gd);
-        deleteSelectedBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                deleteRecords();
-            }
-        });
-
-        gd = new GridData(SWT.END, SWT.DEFAULT, true, false);
-        gd.widthHint = 100;
-        Button closeBtn = new Button(buttonComp, SWT.PUSH);
-        closeBtn.setText("Close");
-        closeBtn.setLayoutData(gd);
-        closeBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
-            }
-        });
+    @Override
+    protected void createButtonsForButtonBar(Composite parent) {
+        createButton(parent, TABULAR_TS_BUTTON_ID, TABULAR_TS_BUTTON_LABEL,
+                false);
+        createButton(parent, GRAPH_TS_BUTTON_ID, GRAPH_TS_BUTTON_LABEL, false);
+        createButton(parent, SET_MISSING_BUTTON_ID, SET_MISSING_BUTTON_LABEL,
+                false);
+        createButton(parent, DELETE_SELECTED_BUTTON_ID,
+                DELETE_SELECTED_BUTTON_LABEL, false);
+        createButton(parent, IDialogConstants.CLOSE_ID,
+                IDialogConstants.CLOSE_LABEL, false);
     }
 
-    /**
-     * Fill the physical element combo box.
-     */
-    private void fillPhysicalElementCbo() {
-        phsicalElemCbo.add("Agriculture");
-        phsicalElemCbo.add("Discharge");
-        phsicalElemCbo.add("Evaporation");
-        phsicalElemCbo.add("FishCount");
-        phsicalElemCbo.add("Gate Dam");
-        phsicalElemCbo.add("Ground");
-        phsicalElemCbo.add("Height (Stage)");
-        phsicalElemCbo.add("Ice");
-        phsicalElemCbo.add("Lake");
-        phsicalElemCbo.add("Moisture");
-        phsicalElemCbo.add("Power");
-        phsicalElemCbo.add("Precipitation (PC)");
-        phsicalElemCbo.add("Precipitation (PP)");
-        phsicalElemCbo.add("Precipitation (Other)");
-        phsicalElemCbo.add("Pressure");
-        phsicalElemCbo.add("Radiation");
-        phsicalElemCbo.add("Snow");
-        phsicalElemCbo.add("Temperature");
-        phsicalElemCbo.add("WaterQuality");
-        phsicalElemCbo.add("Weather");
-        phsicalElemCbo.add("Wind");
-        phsicalElemCbo.add("YUnique");
+    @Override
+    protected void buttonPressed(int buttonId) {
+        switch (buttonId) {
+        case TABULAR_TS_BUTTON_ID:
+            openTabularTimeSeries(getCurrentlySelectedData(dataTable
+                    .getSelection()));
+            break;
+        case GRAPH_TS_BUTTON_ID:
+            openGraphTimeSeries(getCurrentlySelectedData(dataTable
+                    .getSelection()));
+            break;
+        case SET_MISSING_BUTTON_ID:
+            setMissing(getCurrentlySelectedRange());
+            break;
+        case DELETE_SELECTED_BUTTON_ID:
+            deleteRecords(getCurrentlySelectedRange());
+            break;
+        case IDialogConstants.CLOSE_ID:
+            close();
+            break;
+        default:
+            statusHandler.warn(String.format(
+                    "Unrecognized button [%d] pressed.", buttonId));
+            break;
+        }
     }
 
     /**
      * Retrieves the sorted data from the database
+     * 
+     * @return list of sorted {@link QuestionableData} records matching the
+     *         user's query parameters from the UI.
      */
-    private void getData() {
-        if (questionableData == null) {
-            questionableData = new ArrayList<QuestionableData>();
-        } else {
-            questionableData.clear();
-        }
-
+    private Collection<QuestionableData> getData() {
         String sortCriteria = "";
         if (timeRdo.getSelection()) {
             sortCriteria = timeRdo.getText();
@@ -507,145 +796,125 @@ public class QuestionableBadDataDlg extends CaveSWTDialog {
             sortCriteria = qualityCodeRdo.getText();
         }
 
+        String physElement = physicalElemCbo.getItem(physicalElemCbo
+                .getSelectionIndex());
+
+        int daysBack = daysBackSpnr.getSelection();
+
         // Pass table, days, sort order
-        questionableData = QuestionableDataManager.getInstance()
-                .getQuestionableData(
-                        phsicalElemCbo.getItem(phsicalElemCbo
-                                .getSelectionIndex()),
-                        daysBackSpnr.getSelection(), sortCriteria);
-
-        filterDisplay();
-    }
-
-    /**
-     * Handles the Station Search functionality
-     */
-    private void filterDisplay() {
-        String stationSearch = locationTF.getText().toUpperCase();
-
-        if (filteredQuestionableData == null)
-            filteredQuestionableData = new ArrayList<QuestionableData>();
-        else
-            filteredQuestionableData.clear();
-
-        for (QuestionableData unfilteredLID : questionableData) {
-            if (unfilteredLID.getLid().contains(stationSearch)) {
-                filteredQuestionableData.add(unfilteredLID);
-            }
-        }
-
-        updateDisplayList();
+        return QuestionableDataManager.getInstance().getQuestionableData(
+                physElement, daysBack, sortCriteria);
     }
 
     /**
      * Refreshes the records displayed
      */
     private void updateDisplayList() {
-        dataList.removeAll();
+        dataTable.refresh();
+        updateStackComposite();
+    }
 
-        java.util.List<QuestionableData> dataToDisplay = (locationChk
-                .getSelection() && (filteredQuestionableData != null)) ? filteredQuestionableData
-                : questionableData;
-
-        if (dataToDisplay.size() == 0) {
-            StringBuffer showErrorMsg = new StringBuffer();
+    private void updateStackComposite() {
+        if (dataTable.getTable().getItemCount() > 0) {
+            stackLayout.topControl = tableComp;
+        } else {
+            StringBuilder showErrorMsg = new StringBuilder();
             showErrorMsg
                     .append("No Questionable or Bad data found within the past ");
             showErrorMsg.append(daysBackSpnr.getSelection());
             showErrorMsg.append(" days in table ");
-            showErrorMsg.append(phsicalElemCbo.getItem(phsicalElemCbo
+            showErrorMsg.append(physicalElemCbo.getItem(physicalElemCbo
                     .getSelectionIndex()));
-
             if (locationChk.getSelection()) {
                 showErrorMsg.append(" for location ");
                 showErrorMsg.append(locationTF.getText());
             }
 
-            dataList.add(showErrorMsg.toString());
-
-            qcDescriptionTF.setText("");
-        } else {
-            for (QuestionableData currData : dataToDisplay) {
-                dataList.add(currData.toString());
-            }
+            stackLayout.topControl = noDataComp;
+            noDataLabel.setText(showErrorMsg.toString());
         }
+
+        stackComposite.layout();
     }
 
     /**
      * Updated the QC description for the selected data.
+     * 
+     * @param event
+     *            {@link SelectionChangedEvent} event containing the
+     *            newly-selected record that forced the update to the QC
+     *            description control.
      */
-    private void updateDescription() {
-        QuestionableData selectedData = getCurrentlySelectedData();
-
-        if (selectedData != null) {
-            qcDescriptionTF.setText(QuestionableDataManager.getInstance()
-                    .getDescription(selectedData));
+    private void updateDescription(SelectionChangedEvent event) {
+        String newDescription = "";
+        QuestionableData selected = getCurrentlySelectedData(event
+                .getSelection());
+        if (selected != null) {
+            newDescription = QuestionableDataManager.getInstance()
+                    .getDescription(selected);
         }
+        qcDescriptionTF.setText(newDescription);
     }
 
     /**
      * Remove the selected data records.
      */
-    private void deleteRecords() {
-        java.util.List<QuestionableData> recordsToDelete = getCurrentlySelectedRange();
-
+    private void deleteRecords(List<QuestionableData> recordsToDelete) {
         try {
+            String physElement = physicalElemCbo.getItem(physicalElemCbo
+                    .getSelectionIndex());
             QuestionableDataManager.getInstance().deleteRecords(
-                    recordsToDelete,
-                    phsicalElemCbo.getItem(phsicalElemCbo.getSelectionIndex()));
+                    recordsToDelete, physElement);
+            dataTable.setInput(getData());
+            updateStackComposite();
         } catch (VizException e) {
-            MessageDialog.openConfirm(null, "Unable to delete records.",
+            MessageDialog.openConfirm(getShell(), "Unable to delete records.",
                     "Unable to delete records.");
+            statusHandler.error("Unable to delete records.", e);
         }
-
-        getData();
     }
 
     /**
      * Display the time series graph for the selected record.
      */
-    private void openGraphTimeSeries() {
-        QuestionableData currData = getCurrentlySelectedData();
-
+    private void openGraphTimeSeries(QuestionableData currData) {
         if (currData != null) {
-            shell.setCursor(shell.getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
+            getShell().setCursor(
+                    getShell().getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
             TimeSeriesDlg.getInstance().updateAndOpen(currData.getLid(),
                     currData.getPe(), currData.getTs(), true);
-            shell.setCursor(null);
+            getShell().setCursor(null);
         }
     }
 
     /**
      * Open time series tabular information for the selected record.
      */
-    private void openTabularTimeSeries() {
-        QuestionableData currData = getCurrentlySelectedData();
-
+    private void openTabularTimeSeries(QuestionableData currData) {
         if (currData != null) {
-            shell.setCursor(shell.getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
+            getShell().setCursor(
+                    getShell().getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
             TimeSeriesDlg.getInstance().updateAndOpen(currData.getLid(),
                     currData.getPe(), currData.getTs(), false);
-            shell.setCursor(null);
+            getShell().setCursor(null);
         }
     }
 
     /**
      * The the data record for the selected line.
      * 
+     * @param selection
+     *            Current selection from the {@code dataTable}.
+     * 
      * @return questionableData
      */
-    private QuestionableData getCurrentlySelectedData() {
+    private QuestionableData getCurrentlySelectedData(ISelection selection) {
         QuestionableData rval = null;
 
-        int index = dataList.getSelectionIndex();
-
-        if (index >= 0) {
-            if (locationChk.getSelection()
-                    && (filteredQuestionableData.size() > 0)) {
-                rval = filteredQuestionableData.get(index);
-            } else if (questionableData.size() > 0) {
-                rval = questionableData.get(index);
-            }
+        if ((selection instanceof IStructuredSelection)
+                && (((IStructuredSelection) selection).size() > 0)) {
+            rval = (QuestionableData) ((IStructuredSelection) selection)
+                    .getFirstElement();
         }
 
         return rval;
@@ -656,28 +925,26 @@ public class QuestionableBadDataDlg extends CaveSWTDialog {
      * 
      * @return list
      */
-    private java.util.List<QuestionableData> getCurrentlySelectedRange() {
-        ArrayList<QuestionableData> rval = new ArrayList<QuestionableData>();
+    private List<QuestionableData> getCurrentlySelectedRange() {
+        List<QuestionableData> rval = Collections.emptyList();
 
-        for (int i : dataList.getSelectionIndices()) {
-            rval.add(locationChk.getSelection() ? filteredQuestionableData
-                    .get(i) : questionableData.get(i));
+        ISelection selection = dataTable.getSelection();
+        if ((selection instanceof IStructuredSelection)
+                && (((IStructuredSelection) selection).size() > 0)) {
+            rval = ((IStructuredSelection) selection).toList();
         }
 
         return rval;
     }
 
-    private void setMissing() {
-        java.util.List<QuestionableData> recordsToSetMissing = getCurrentlySelectedRange();
-
+    private void setMissing(List<QuestionableData> recordsToSetMissing) {
         try {
             QuestionableDataManager.getInstance().setMissing(
                     recordsToSetMissing);
+            dataTable.setInput(getData());
+            updateStackComposite();
         } catch (VizException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler.error("Unable to set record as missing.", e);
         }
-
-        getData();
     }
 }
