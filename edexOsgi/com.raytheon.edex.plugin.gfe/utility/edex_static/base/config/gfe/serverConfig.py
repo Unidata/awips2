@@ -82,6 +82,7 @@
 #                                                 Changed D2DModels for CONUS and Alaska to 
 #                                                 namdng25 and AK-NamDNG3
 #    04/01/2016          18777     ryu            Replace NCF ip addresses.
+#    04/22/2016          #18896    wkwock         Add more nationalBlend Model
 #
 ####################################################################################################
 
@@ -2162,6 +2163,7 @@ SREF        = ('SREF',         GRID,   '', NO,   NO,  3, 0)
 ENPwave     = ('ENPwave',      GRID,   '', NO,   NO,  2, 0)
 ETSS        = ('ETSS',         GRID,   '', NO,   NO,  2, 0)
 GFSLAMPGrid = ('GFSLAMPGrid',  GRID,   '', NO,   NO,  3, 0)
+NationalBlend = ('NationalBlend',  GRID,   '', NO,   NO,  2, 0)
 #---------------------------------------------------------------------------
 #
 #  D2D Model Database Version Specification
@@ -2230,7 +2232,7 @@ if SID in groups['ALASKA_SITES']:
                  'PGBlended',
                  'PGBlended-Night',
                  ('NCOM-ALASKA', 'NCOM'),
-                 ('NationalBlend-AK','NationalBlend'),
+                 ('NationalBlendAK','NationalBlend'),
                ]
 
 # Hawaii OCONUS
@@ -2261,7 +2263,7 @@ elif SID == "HFO":
                  'PGBlended',
                  'PGBlended-Night',
                  ('NCOM-HAWAII', 'NCOM'),
-                 ('NationalBlend-HI','NationalBlend'),
+                 ('NationalBlendHI','NationalBlend'),
                ]
 
 # San Juan OCONUS
@@ -2295,7 +2297,7 @@ elif SID == "SJU":
                  'PGBlended',
                  'PGBlended-Night',
                  ('NCOM-AMSEAS', 'NCOMAMSEAS'),
-                 ('NationalBlend-PR','NationalBlend'),
+                 ('NationalBlendPR','NationalBlend'),
                ]
 
 # Guam OCONUS
@@ -2639,6 +2641,7 @@ elif SID in groups['ALASKA_SITES']:
         "AKMOSGuide" : ['MOSGuide'],
         "ESTOFS" : ["ESTOFS"],
         "ETSS" : ["ETSS"],
+        "NationalBlend" : ["NationalBlend"],
         }
 
 # Hawaii OCONUS
@@ -2659,6 +2662,7 @@ elif SID == "HFO":
         "ESTOFS" : ["ESTOFS"],
         "nwpsCG1" : ['nwpsCG1'],
         "nwpsTrkngCG0" : ['nwpsTrkngCG0'],
+        "NationalBlend" : ["NationalBlend"],
         }
 
 # San Juan OCONUS
@@ -2692,6 +2696,7 @@ elif SID == "SJU":
         "ESTOFS" : ["ESTOFS"],
         "nwpsCG1" : ['nwpsCG1'],
         "nwpsTrkngCG0" : ['nwpsTrkngCG0'],
+        "NationalBlend" : ["NationalBlend"],
         }
 
 # Guam OCONUS
@@ -2747,6 +2752,7 @@ else:
         "GFSLAMPGrid" : ["GFSLAMPGrid"],
         "nwpsCG1" : ['nwpsCG1'],
         "nwpsTrkngCG0" : ['nwpsTrkngCG0'],
+        "NationalBlend" : ["NationalBlend"],
         }
 
 #initialization skip certain model runs
@@ -2794,6 +2800,7 @@ D2DAccumulativeElements= {
     "RTMA": ["tp"],
     "URMA25": ["tp"],
     "HPCERP": ["tpHPCndfd"],
+    "NationalBlend": ["pop"],
 #DR20634    "SPC": ["tp"],
 
     #Dummy ones for the transition from Eta to NAM.  These are ignored.
@@ -3088,6 +3095,9 @@ ENPwave_parms = [([WindWaveHeight, WaveHeight, SurfHeight, Wind], TC6),
 # GFSLAMPGrid
 GFSLAMPGridPARMS=[([Temp, Td, Vis, CigHgt, Sky, Wind],TC1)]
 
+NationalBlend_MODEL = [([Temp, Td, RH, Sky, Wind, WindGust, ApparentT], TC3),
+          ([MaxT], MaxTTC), ([MinT], MinTTC),
+          ([PoP],TC12NG), ([QPF,SnowAmt],TC6NG)]
 #---------------------------------------------------------------------------
 # Databases for a site.
 # list of (Database, [parms])
@@ -3148,6 +3158,7 @@ DATABASES = [
              (TPCProb, TPCProbPARMS),
              (ENPwave, ENPwave_parms),
              (GFSLAMPGrid, GFSLAMPGridPARMS),
+             (NationalBlend,NationalBlend_MODEL),
             ]
 
 # Intersite coordination database parameter groupings, based on
