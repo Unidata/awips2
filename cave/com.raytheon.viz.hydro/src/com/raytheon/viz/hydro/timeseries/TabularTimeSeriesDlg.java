@@ -77,6 +77,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.common.util.Pair;
 import com.raytheon.uf.viz.core.VizApp;
@@ -140,6 +141,7 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  *                                     is reset from Bad to Good.
  * Mar 17, 2016 5483       randerso    Major GUI cleanup
  * May 02, 2016 5616       randerso    Fix parsing of duration value
+ * May 11, 2016 5483       bkowal      Fix GUI sizing issues.
  * 
  * </pre>
  * 
@@ -584,14 +586,14 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
      */
     private void initializeComponents() {
         // Get the dummy time
-        dummyTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        dummyTime = TimeUtil.newGmtCalendar();
         Date d = SimulatedTime.getSystemTime().getTime();
         dummyTime.setTime(d);
 
-        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-        prodBasisFmt.setTimeZone(TimeZone.getTimeZone("GMT"));
-        shefDateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-        shefTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+        sdf.setTimeZone(TimeUtil.GMT_TIME_ZONE);
+        prodBasisFmt.setTimeZone(TimeUtil.GMT_TIME_ZONE);
+        shefDateFormat.setTimeZone(TimeUtil.GMT_TIME_ZONE);
+        shefTimeFormat.setTimeZone(TimeUtil.GMT_TIME_ZONE);
 
         createTopTimeLabels();
         createTopListAndGroup();
@@ -768,13 +770,12 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
             @Override
             public void widgetSelected(SelectionEvent event) {
                 if (fcstAttDlg == null) {
-                    String[] sa = new String[2];
-                    sa[0] = "FF";
-                    sa[1] = "FZ";
                     fcstAtt = new ForecastDataAttribute(productIdLbl.getText(),
                             productTimeLbl.getText(), fcstBasisTimeLbl
-                                    .getText(), sa);
-                    fcstAttDlg = new ForecastAttributeDlg(shell, fcstAtt);
+                                    .getText(), new String[] { "FF", "FZ" });
+                    fcstAttDlg = new ForecastAttributeDlg(shell, fcstAtt,
+                            TimeUtil.newCalendar(dummyTime), TimeUtil
+                                    .newCalendar(dummyTime));
                     fcstAttDlg.addListener(TabularTimeSeriesDlg.this);
                     fcstAttDlg.open();
                 } else {
@@ -3286,6 +3287,7 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
     @Override
     public void notifyUpdate(FcstAttUpdateEvent faue) {
         fcstAtt = faue.getFcstAttributes();
+
         productTimeLbl.setText(fcstAtt.getTime());
         productIdLbl.setText(fcstAtt.getProductId());
         fcstBasisTimeLbl.setText(fcstAtt.getBasisTime());
