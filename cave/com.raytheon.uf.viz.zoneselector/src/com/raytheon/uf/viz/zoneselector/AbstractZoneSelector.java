@@ -86,7 +86,16 @@ import com.vividsolutions.jts.geom.Envelope;
  */
 
 public abstract class AbstractZoneSelector extends PaneManager {
+    /**
+     * Interface for zone selection listener
+     */
     public static interface IZoneSelectionListener {
+        /**
+         * Called when a zone is selected
+         * 
+         * @param zone
+         *            selected zone
+         */
         public void zoneSelected(String zone);
     }
 
@@ -161,15 +170,30 @@ public abstract class AbstractZoneSelector extends PaneManager {
         });
     }
 
+    /**
+     * Set the zoomLevel
+     * 
+     * @param zoomLevel
+     */
     public void setZoomLevel(double zoomLevel) {
         this.zoomLevel = zoomLevel;
         updateZoom();
     }
 
+    /**
+     * Get the zoomLevel
+     * 
+     * @return the zoomLevel
+     */
     public double getZoomLevel() {
         return this.zoomLevel;
     }
 
+    /**
+     * Set labelZones
+     * 
+     * @param labelZones
+     */
     public void setLabelZones(boolean labelZones) {
         if (labelZones == this.labelZones) {
             return;
@@ -180,9 +204,23 @@ public abstract class AbstractZoneSelector extends PaneManager {
         }
     }
 
-    // command to limit the set of zones that are allowed to be part of the
-    // zone combinations and maps. If set to None, then all items in
-    // the maps are allowed.
+    /**
+     * Get labelZones
+     * 
+     * @return labelZones
+     */
+    public boolean isLabelZones() {
+        return this.labelZones;
+    }
+
+    /**
+     * Command to limit the set of zones that are allowed to be part of the zone
+     * combinations and maps. If set to None, then all items in the maps are
+     * allowed.
+     * 
+     * @param limitZones
+     *            list of allowable zones
+     */
     public void setLimitZones(List<String> limitZones) {
         if ((this.limitZoneNames == null) && (limitZones == null)) {
             return;

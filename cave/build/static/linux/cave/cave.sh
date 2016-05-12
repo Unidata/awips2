@@ -38,6 +38,7 @@
 # Jul 23, 2015  ASM#13849 D. Friedman Use a unique Eclipse configuration directory
 # Aug 03, 2015  #4694     dlovely     Logback will now add user.home to LOGDIR
 # Sep 16, 2015  #4869     bkowal      Read dynamic CAVE version information at startup.
+# Apr 28, 2016  #5609     bkowal      Specify the location of the java.io.tmpdir as a jvm arg.
 #
 
 
@@ -226,6 +227,7 @@ pid=$!
 export LOGFILE_STARTUP_SHUTDOWN="$FULL_LOGDIR/${PROGRAM_NAME}_${pid}_${curTime}_pid_%PID%_startup-shutdown.log"
 
 createEclipseConfigurationDir
+SWITCHES+=(--launcher.appendVmargs -vmargs -Djava.io.tmpdir=${eclipseConfigurationDir})
 
 # At this point fork so that log files can be set up with the process pid and
 # this process can log the exit status of cave.

@@ -62,6 +62,7 @@ import com.raytheon.uf.common.wmo.WMOTimeParser;
  * Jun 19, 2014 3226       bclement    added validator callback
  * Jul 07, 2015 4581       skorolev    Corrected decodeStrikes to avoid BufferUnderflowException.
  * Apr 07, 2016 DR18763 mgamazaychikov Switched to using LightningWMOHeader.
+ * May 02, 2016 18336      amoore      Keep-alive messages should update the legend.
  * 
  * </pre>
  * 
@@ -205,13 +206,17 @@ public class TotalLightningDecoder {
             pdata = decrypt(wmoHdr, fileName, pdata);
         }
         List<LightningStrikePoint> strikes = decodeStrikes(fileName, pdata);
+
+        BinLightningRecord record;
         if (!strikes.isEmpty()) {
-            BinLightningRecord record = LightningGeoFilter
-                    .createFilteredRecord(strikes);
-            return new PluginDataObject[] { record };
+            record = LightningGeoFilter.createFilteredRecord(strikes);
         } else {
-            return new PluginDataObject[0];
+            // keep-alive record
+            Calendar baseTime = WMOTimeParser.findDataTime(wmoHdr.getYYGGgg(),
+                    fileName);
+            record = new BinLightningRecord(baseTime, DATA_SOURCE);
         }
+        return new PluginDataObject[] { record };
     }
 
     /**
@@ -221,8 +226,8 @@ public class TotalLightningDecoder {
      * @return
      * @throws DecoderException
      */
-    private byte[] decrypt(LightningWMOHeader wmoHdr, String fileName, byte[] pdata)
-            throws DecoderException {
+    private byte[] decrypt(LightningWMOHeader wmoHdr, String fileName,
+            byte[] pdata) throws DecoderException {
         Calendar baseTime = WMOTimeParser.findDataTime(wmoHdr.getYYGGgg(),
                 fileName);
         pdata = EncryptedBinLightningCipher.prepDataForDecryption(pdata,
@@ -236,11 +241,11 @@ public class TotalLightningDecoder {
     }
 
     /**
-     * Extract strike data from raw binary
+     * Extract strike data from raw binary, ignoring keep-alive strikes.
      * 
      * @param fileName
      * @param pdata
-     * @return
+     * @return list of lightning strike points, ignoring keep-alive strikes.
      * @throws DecoderException
      */
     private List<LightningStrikePoint> decodeStrikes(String fileName,

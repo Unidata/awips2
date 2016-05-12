@@ -118,9 +118,10 @@ import com.raytheon.uf.common.time.TimeRange;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 13, 2015  #5129     dgilling     Initial creation
- * Feb 05, 2016  #5242     dgilling     Replace calls to deprecated Localization APIs.
- * Feb 24, 2016  #5129     dgilling     Change how PyFPClient is constructed.
+ * Nov 13, 2015  #5129     dgilling    Initial creation
+ * Feb 05, 2016  #5242     dgilling    Replace calls to deprecated Localization APIs.
+ * Feb 24, 2016  #5129     dgilling    Change how PyFPClient is constructed.
+ * Apr 28, 2016  #5618     randerso    Fix getGridData to handle "chunked" response.
  * 
  * </pre>
  * 
@@ -442,29 +443,51 @@ public class IFPClient {
     /**
      * Retrieves grid data identified by the get grid request.
      * 
-     * @param request
+     * @param getRequest
      *            The get grid request.
      * @return Status of the request as a {@code ServerResponse}. Payload
      *         contains the data as {@code IGridSlice}s.
      */
-    public ServerResponse<List<IGridSlice>> getGridData(GetGridRequest request) {
-        return getGridData(Arrays.asList(request));
-    }
-
-    /**
-     * Retrieves grid data identified by the sequence of get grid requests.
-     * 
-     * @param getRequest
-     *            The get grid requests.
-     * @return Status of the request as a {@code ServerResponse}. Payload
-     *         contains the data as {@code IGridSlice}s.
-     */
     public ServerResponse<List<IGridSlice>> getGridData(
-            List<GetGridRequest> getRequest) {
+            GetGridRequest getRequest) {
         GetGridDataRequest request = new GetGridDataRequest();
-        request.setRequests(getRequest);
+        request.addRequest(getRequest);
 
-        return (ServerResponse<List<IGridSlice>>) makeRequest(request);
+        ServerResponse<List<IGridSlice>> sr = new ServerResponse<>();
+
+        ParmID parmId = getRequest.getParmId();
+        List<TimeRange> gridTimes = getRequest.getTimes();
+        List<IGridSlice> slices = new ArrayList<IGridSlice>(gridTimes.size());
+        while (slices.size() < gridTimes.size()) {
+            @SuppressWarnings("unchecked")
+            ServerResponse<List<IGridSlice>> resp = (ServerResponse<List<IGridSlice>>) makeRequest(request);
+            if (resp.isOkay()) {
+                slices.addAll(resp.getPayload());
+
+                // if no slices returned (shouldn't happen unless server code is
+                // broken)
+                if (slices.isEmpty()) {
+                    String msg = "No data returned from GetGridDataRequest for "
+                            + parmId + " for times:" + getRequest.getTimes();
+                    statusHandler.error(msg);
+                    sr.addMessage(msg);
+                    break;
+                }
+
+                // if not all slices returned
+                if (slices.size() < gridTimes.size()) {
+                    // request remaining times.
+                    getRequest.setTimes(gridTimes.subList(slices.size(),
+                            gridTimes.size()));
+                }
+            } else {
+                sr.addMessages(resp);
+                break;
+            }
+        }
+
+        sr.setPayload(slices);
+        return sr;
     }
 
     /**

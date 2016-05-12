@@ -442,13 +442,14 @@ function createEclipseConfigurationDir()
         fi
         deleteOldEclipseConfigurationDirs "$d"
         if dir=$(mktemp -d --tmpdir="$d" "${id}-XXXX"); then
-            eclipseConfigurationDir=$dir
+            export eclipseConfigurationDir=$dir
             trap deleteEclipseConfigurationDir EXIT
             SWITCHES+=(-configuration "$eclipseConfigurationDir")
             return 0
         fi
     done
     echo "Unable to create a unique Eclipse configuration directory.  Will proceed with default." >&2
+    export eclipseConfigurationDir=$HOME/.cave-eclipse
     return 1
 }
 
