@@ -84,7 +84,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Jul 06, 2015 #14104      lbousaidi   increased textlimit to 15 
  * Nov 30, 2015  14228      wkwock      Update remark limit to 510.
  * Jan 13, 2016 #17652      jingtaoD    use location lat/lon for 1st guess for new River Gage
- * 
+ * May 11, 2016 #18983      jingtaoD    UELE when saving updates of River Gage data
  * </pre>
  * 
  * @author lvenable
@@ -1038,7 +1038,7 @@ public class RiverGageDlg extends CaveSWTDialog implements
      * Populate te display.
      */
     private void updateDisplay() {
-        if (locData != null) {
+        if (riverGageData == null && locData != null) {
             // Lat/Lon
 
             latitudeTF
@@ -1051,10 +1051,23 @@ public class RiverGageDlg extends CaveSWTDialog implements
                             .valueOf(locData.getLongitude()) : "");
             origLon = longitudeTF.getText();
 
-        }
-        if (riverGageData != null) {
+        } else if (riverGageData != null) {
             // Stream
             streamTF.setText(riverGageData.getStream());
+
+            // Lat/Lon
+
+            latitudeTF
+                    .setText((riverGageData.getLatitude() != HydroConstants.MISSING_VALUE) ? String
+                            .valueOf(riverGageData.getLatitude()) : "");
+
+            origLat = latitudeTF.getText();
+
+            longitudeTF
+                    .setText((riverGageData.getLongitude() != HydroConstants.MISSING_VALUE) ? String
+                            .valueOf(riverGageData.getLongitude()) : "");
+
+            origLon = longitudeTF.getText();
 
             // Drainage Area
             drainageAreaTF.setText(HydroDataUtils
@@ -1273,61 +1286,55 @@ public class RiverGageDlg extends CaveSWTDialog implements
 
         // Latitude
         String latTxt = latitudeTF.getText();
-        if (!latTxt.equals(origLat)) {
-            double lat = HydroConstants.MISSING_VALUE;
-            if (!latTxt.equals("")) {
-                boolean invalidLat = false;
 
-                try {
-                    lat = GeoUtil.getInstance().cvt_spaced_format(latTxt, 0);
-                } catch (Exception e) {
-                    invalidLat = true;
-                }
+        double lat = HydroConstants.MISSING_VALUE;
+        if (!latTxt.equals("")) {
+            boolean invalidLat = false;
 
-                if ((lat < -90) || (lat > 90) || invalidLat) {
-                    MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR
-                            | SWT.OK);
-                    mb.setText("Invalid Value");
-                    mb.setMessage("Please enter a VALID (-90 to 90) Latitude\nin the form: DD MM SS");
-                    mb.open();
-
-                    return successful;
-                }
+            try {
+                lat = GeoUtil.getInstance().cvt_spaced_format(latTxt, 0);
+            } catch (Exception e) {
+                invalidLat = true;
+		statusHandler.handle(Priority.PROBLEM,
+                        "Unable to determine latitude ", e);
             }
-            newData.setLatitude(lat);
-        } else {
-            newData.setLatitude(this.riverGageData.getLatitude());
+
+            if ((lat < -90) || (lat > 90) || invalidLat) {
+                MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
+                mb.setText("Invalid Value");
+                mb.setMessage("Please enter a VALID (-90 to 90) Latitude\nin the form: DD MM SS");
+                mb.open();
+
+                return successful;
+            }
         }
+        newData.setLatitude(lat);
 
         // Longitude
         String lonTxt = longitudeTF.getText();
-        if (!lonTxt.equals(origLon)) {
-            double lon = HydroConstants.MISSING_VALUE;
-            if (!lonTxt.equals("")) {
-                boolean invalidLon = false;
 
-                try {
-                    lon = GeoUtil.getInstance().cvt_spaced_format(lonTxt, 0);
-                } catch (Exception e) {
-                    invalidLon = true;
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Unable to determine logitude ", e);
-                }
+        double lon = HydroConstants.MISSING_VALUE;
+        if (!lonTxt.equals("")) {
+            boolean invalidLon = false;
 
-                if ((lon > 180) || (lon < -180) || invalidLon) {
-                    MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR
-                            | SWT.OK);
-                    mb.setText("Invalid Value");
-                    mb.setMessage("Please enter a VALID (-180 to 180) Longitude\nin the form: DD MM SS");
-                    mb.open();
-
-                    return successful;
-                }
+            try {
+                lon = GeoUtil.getInstance().cvt_spaced_format(lonTxt, 0);
+            } catch (Exception e) {
+                invalidLon = true;
+                statusHandler.handle(Priority.PROBLEM,
+                        "Unable to determine logitude ", e);
             }
-            newData.setLongitude(lon);
-        } else {
-            newData.setLongitude(riverGageData.getLongitude());
+
+            if ((lon > 180) || (lon < -180) || invalidLon) {
+                MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
+                mb.setText("Invalid Value");
+                mb.setMessage("Please enter a VALID (-180 to 180) Longitude\nin the form: DD MM SS");
+                mb.open();
+
+                return successful;
+            }
         }
+        newData.setLongitude(lon);
 
         // Remarks
         newData.setRemark(remarksTF.getText());
