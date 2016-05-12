@@ -26,8 +26,6 @@ import java.util.Date;
 import java.util.Map;
 import java.util.TimeZone;
 
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -53,7 +51,6 @@ import com.raytheon.viz.mpe.core.MPEDataManager.MPEDateInfo;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.mpe.ui.TransmitBestEstimateQPEProvider;
 import com.raytheon.viz.mpe.ui.TransmitRFCBiasProvider;
-import com.raytheon.viz.mpe.ui.actions.ClearMPEData;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 import com.raytheon.viz.ui.editor.IMultiPaneEditor;
@@ -75,6 +72,7 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  * Jan 05, 2015   14246   lbousaidi    enable Transmit Best Estimate QPE.
  * Jul 8, 2015   16790    snaples       Updated call to setCurrentEditDate to pass force variable.
  * Sep 29, 2015  17975    snaples      Fixed issue with Hydro date not following the CAVE time when changed.
+ * Apr 11, 2016 5512      bkowal       Cleanup.
  * 
  * </pre>
  * 
@@ -91,11 +89,11 @@ public class ChooseDataPeriodDialog extends CaveJFACEDialog {
     }
 
     private Calendar cal;
-    
+
     private Calendar hydroCal;
 
     public static Date prevDate;
-    
+
     public static Date prevHydDate;
 
     public static String prevArea;
@@ -109,11 +107,11 @@ public class ChooseDataPeriodDialog extends CaveJFACEDialog {
     private Spinner hourSpinner;
 
     private Spinner daysSpinner;
-    
+
     private Text hydyearText;
-    
+
     private Text hydmonthText;
-    
+
     private Spinner hyddaySpinner;
 
     private Map<Date, MPEDateInfo> dateMap;
@@ -141,7 +139,7 @@ public class ChooseDataPeriodDialog extends CaveJFACEDialog {
     private Combo areaCombo;
 
     private static Date currentHydroEndingDate;
-    
+
     public ChooseDataPeriodDialog(Shell parentShell) {
         super(parentShell);
         setBlockOnOpen(false);
@@ -171,10 +169,10 @@ public class ChooseDataPeriodDialog extends CaveJFACEDialog {
         hydroCal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         prevDate = displayMgr.getCurrentEditDate();
         cal.setTime(prevDate);
-            
+
         hydroCal.setTime(displayMgr.getCurrentEditDate());
-            
-        if ( hydroCal.get(Calendar.HOUR_OF_DAY) >= 18 ){
+
+        if (hydroCal.get(Calendar.HOUR_OF_DAY) >= 18) {
             hydroCal.add(Calendar.DATE, 1);
         }
     }
@@ -346,7 +344,7 @@ public class ChooseDataPeriodDialog extends CaveJFACEDialog {
         gageOptionsGroup.setText("6/24 hr gage edit options");
 
         // create ending hydro date area
-        
+
         Label hydrodateLabel = new Label(gageOptionsGroup, SWT.NONE);
         hydrodateLabel.setText("Ending Hydrologic Date: ");
         new Label(gageOptionsGroup, SWT.None);
@@ -387,14 +385,13 @@ public class ChooseDataPeriodDialog extends CaveJFACEDialog {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 int day = hyddaySpinner.getSelection();
-                
+
                 hydroCal.set(Calendar.DAY_OF_MONTH, day);
-               
+
                 updateTimeControls();
             }
 
         });
-
 
         new Label(gageOptionsGroup, SWT.None);
         new Label(gageOptionsGroup, SWT.None);
@@ -457,7 +454,7 @@ public class ChooseDataPeriodDialog extends CaveJFACEDialog {
                 displayMgr.setDqcDays(daysSpinner.getSelection());
                 prevArea = areaCombo.getItem(areaCombo.getSelectionIndex());
                 setCurrentHydroEditDate(getHydroTime());
-                
+
                 if (QcPrecipOptionsDialog.isFinished() == false) {
                     QcPrecipOptionsDialog.destroy(false);
                 }
@@ -486,7 +483,7 @@ public class ChooseDataPeriodDialog extends CaveJFACEDialog {
                 displayMgr.setDqcDays(daysSpinner.getSelection());
                 prevArea = areaCombo.getItem(areaCombo.getSelectionIndex());
                 setCurrentHydroEditDate(getHydroTime());
-                
+
                 if (QcTempOptionsDialog.isFinished() == false) {
                     QcTempOptionsDialog.destroy(false);
                 }
@@ -515,7 +512,7 @@ public class ChooseDataPeriodDialog extends CaveJFACEDialog {
                 displayMgr.setDqcDays(daysSpinner.getSelection());
                 prevArea = areaCombo.getItem(areaCombo.getSelectionIndex());
                 setCurrentHydroEditDate(getHydroTime());
-                
+
                 if (QcFreezeOptionsDialog.isFinished() == false) {
                     QcFreezeOptionsDialog.destroy(false);
                 }
@@ -540,39 +537,38 @@ public class ChooseDataPeriodDialog extends CaveJFACEDialog {
     }
 
     private void updateTimeControls() {
-        
+
         if (cal.getTime().before(dataMgr.getEarliestDate())
                 || cal.getTime().after(dataMgr.getLatestDate())) {
             cal.setTime(prevDate);
         }
-        
+
         Calendar aCal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         aCal.setTime(displayMgr.getCurrentEditDate());
-        
-        if ( aCal.get(Calendar.HOUR_OF_DAY) >= 18 ){
+
+        if (aCal.get(Calendar.HOUR_OF_DAY) >= 18) {
             aCal.add(Calendar.DATE, 1);
         }
-        
+
         prevDate = cal.getTime();
         yearText.setText(Integer.toString(cal.get(Calendar.YEAR)));
         monthText.setText(Integer.toString(cal.get(Calendar.MONTH) + 1));
         daySpinner.setSelection(cal.get(Calendar.DAY_OF_MONTH));
-        
+
         hourSpinner.setSelection(cal.get(Calendar.HOUR_OF_DAY));
-        
-        
+
         hydyearText.setText(Integer.toString(hydroCal.get(Calendar.YEAR)));
-        hydmonthText.setText(Integer.toString(hydroCal.get(Calendar.MONTH) + 1));
-        
-        hyddaySpinner.setSelection( hydroCal.get(Calendar.DAY_OF_MONTH) );
-                
-        
+        hydmonthText
+                .setText(Integer.toString(hydroCal.get(Calendar.MONTH) + 1));
+
+        hyddaySpinner.setSelection(hydroCal.get(Calendar.DAY_OF_MONTH));
+
         if (dateMap.containsKey(cal.getTime()) == false) {
             dateMap = dataMgr.getDateMap(true);
         }
-        
+
         MPEDateInfo dateInfo = dateMap.get(cal.getTime());
-        
+
         if (dateInfo != null) {
             lastSave.setText(sdf.format(dateInfo.getLastSaveTime()));
             lastExec.setText(sdf.format(dateInfo.getLastExecTime()));
@@ -608,19 +604,18 @@ public class ChooseDataPeriodDialog extends CaveJFACEDialog {
     public Date getTime() {
         return cal.getTime();
     }
-    
-    public Date getHydroTime(){
+
+    public Date getHydroTime() {
         return hydroCal.getTime();
     }
-    
+
     private void setCurrentHydroEditDate(Date hydroTime) {
-        currentHydroEndingDate = hydroTime;        
-    }
-    
-    public static Date getCurrentHydroEditDate(){
-        return currentHydroEndingDate;
+        currentHydroEndingDate = hydroTime;
     }
 
+    public static Date getCurrentHydroEditDate() {
+        return currentHydroEndingDate;
+    }
 
     /**
      * Get the selected year;

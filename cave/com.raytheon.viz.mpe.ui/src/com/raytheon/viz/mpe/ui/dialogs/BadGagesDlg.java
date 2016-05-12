@@ -26,6 +26,7 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -49,7 +50,8 @@ import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 4, 2011            lvenable     Initial creation
+ * May 04, 2011 ?          lvenable    Initial creation
+ * Apr 05, 2016 5504       bkowal      Fix GUI sizing issues.
  * 
  * </pre>
  * 
@@ -153,11 +155,18 @@ public class BadGagesDlg extends AbstractMPEDialog {
         listComp.setLayout(new GridLayout(1, false));
         listComp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        gd.widthHint = 200;
-        gd.heightHint = 200;
         gageList = new List(listComp, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL
                 | SWT.H_SCROLL);
+        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        GC gc = new GC(gageList);
+        /*
+         * Ensures that a minimum of approximately 38 characters will be
+         * displayed.
+         */
+        gd.minimumWidth = gc.getFontMetrics().getAverageCharWidth() * 38;
+        gc.dispose();
+        // Ensures that a minimum of ten rows will be displayed.
+        gd.heightHint = gageList.getItemHeight() * 10;
         gageList.setLayoutData(gd);
         gageList.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -170,9 +179,9 @@ public class BadGagesDlg extends AbstractMPEDialog {
             }
         });
 
-        gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
-        gd.widthHint = 160;
         deleteSelectedBtn = new Button(listComp, SWT.PUSH);
+        gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
+        gd.minimumWidth = deleteSelectedBtn.getDisplay().getDPI().x;
         deleteSelectedBtn.setText("Delete Selected Item");
         deleteSelectedBtn.setEnabled(false);
         deleteSelectedBtn.setLayoutData(gd);
@@ -190,13 +199,13 @@ public class BadGagesDlg extends AbstractMPEDialog {
     private void createBottomButtons() {
         Composite buttonComp = new Composite(shell, SWT.NONE);
         buttonComp.setLayout(new GridLayout(2, true));
-        buttonComp.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true,
+        buttonComp.setLayoutData(new GridData(SWT.CENTER, SWT.DEFAULT, true,
                 false));
 
-        int buttonWidth = 80;
+        int minimumButtonWidth = buttonComp.getDisplay().getDPI().x;
 
-        GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
-        gd.widthHint = buttonWidth;
+        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gd.minimumWidth = minimumButtonWidth;
         Button okBtn = new Button(buttonComp, SWT.PUSH);
         okBtn.setText("OK");
         okBtn.setLayoutData(gd);
@@ -208,8 +217,8 @@ public class BadGagesDlg extends AbstractMPEDialog {
             }
         });
 
-        gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
-        gd.widthHint = buttonWidth;
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gd.minimumWidth = minimumButtonWidth;
         Button cancelBtn = new Button(buttonComp, SWT.PUSH);
         cancelBtn.setText("Cancel");
         cancelBtn.setLayoutData(gd);

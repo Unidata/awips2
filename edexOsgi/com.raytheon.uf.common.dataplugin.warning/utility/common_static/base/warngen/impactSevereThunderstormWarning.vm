@@ -9,6 +9,8 @@
 ##        BOOKBINDER    6-15-2015 Corrected bad softball/grapefruit hail sized.    ##
 ##                                Removed redundant tornado watch phrase from CTA  ##
 ##        Bookbinder    10-20-2015 Fixed extraSource var for tornado info          ##
+##        Bookbinder     4-14-2016 Accounted for case where someone inadvertantly  ##
+##                                 de-selected required source                     ##
 #####################################################################################
 ## Impact Statements for IBW templates are contained in impactStatements.vm
 ################################################################
@@ -16,7 +18,8 @@
 #parse("config.vm")
 ##SET SOME INITIAL VARIABLES
 #set($hazard = "")
-#set($source = "")
+#set($source = "!** YOU FAILED TO SELECT A SOURCE. PLEASE TYPE ONE OR REGENERATE THIS WARNING **!")
+#set($reportAuthSVR = "producing") 
 #set($torTag = "")
 #set($pdssvr = "")
 #set($extraSource = "")
@@ -444,11 +447,11 @@ Those attending !**EVENT/VENUE NAME OR LOCATION*! are in the path of this storm 
 ## Comment out #parse command below to pull in Dynamic DSS Event Info
 ## If this feature is utilized, the "specialEvent" bullet (output above) can
 ## likely be commented out from the impactSevereThunderstormWarning.xml file
-##parse("dssEvents.vm")
+## #parse("dssEvents.vm")
 ## parse file command here is to pull in mile marker info
-#parse("mileMarkers.vm")
+## #parse("mileMarkers.vm")
 ## parse file command here is to pull in extra points (venues) info
-##parse("pointMarkers.vm")
+## #parse("pointMarkers.vm")
 
 ##################################
 ######### CALLS TO ACTION ########

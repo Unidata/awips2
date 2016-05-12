@@ -102,7 +102,7 @@ import com.raytheon.viz.ui.dialogs.ModeListener;
  * Jul 24, 2014  3423      randerso    Created eclipse job to get afos command 
  *                                      execution off the UI thread
  * Sep 09, 2014  3580      mapeters    Removed IQueryTransport usage (no longer exists).
- * Mar 30, 2016 5513       randerso    Fixed to display on same monitor as parent,
+ * Mar 30, 2016  5513      randerso    Fixed to display on same monitor as parent,
  *                                     significant code cleanup
  * </pre>
  * 
@@ -224,6 +224,7 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
      * initialization necessary to get alarms/alerts up and running without the
      * user ever having to do more than open the text workstation.
      */
+    // TODO: restructure code to get rid of this abomination
     public void openInvisible() {
         Shell parent = getParent();
 
@@ -385,6 +386,8 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
                 if (dlg == null || dlg.getShell().isDisposed()) {
                     dlg = new AlarmAlertDlg(shell);
                 }
+                // call preOpened() to compute correct location
+                dlg.preOpened();
                 dlg.open();
             }
         });

@@ -71,7 +71,7 @@ import com.raytheon.uf.edex.activetable.ActiveTablePyIncludeUtil;
  * ------------ ---------- ----------- --------------------------
  * Oct 03, 2008            njensen     Initial creation
  * Jul 10, 2009  #2590     njensen     Added multiple site support
- * May 12, 2014  #3157     dgilling     Re-factor based on AbstractWatchNotifierSrv.
+ * May 12, 2014  #3157     dgilling    Re-factor based on AbstractWatchNotifierSrv.
  * Jun 10, 2014  #3268     dgilling    Re-factor based on AbstractWatchNotifierSrv.
  * Oct 08, 2014  #4953     randerso    Refactored AbstractWatchNotifierSrv to allow 
  *                                     subclasses to handle all watches if desired.
@@ -83,6 +83,7 @@ import com.raytheon.uf.edex.activetable.ActiveTablePyIncludeUtil;
  *                                     Added support for sending TCVAdvisory files to 
  *                                     VTEC partners
  * Nov 12, 2015   4834     njensen     Changed LocalizationOpFailedException to LocalizationException
+ * Apr 13, 1016  #5577     randerso    Add support for pre-TCV
  * Jan 27, 2016   5237     tgurney     Replace LocalizationFile with ILocalizationFile
  * 
  * </pre>
@@ -104,30 +105,10 @@ public final class TPCWatchSrv extends AbstractWatchNotifierSrv {
 
     private static final String DEFAULT_TPC_SITE = "KNHC";
 
-    private static final String ALERT_TXT = "Alert: TCV has arrived from TPC. "
+    private static final String ALERT_TXT = "Alert: TCV has arrived from NHC. "
             + "Check for 'red' locks (owned by others) on your Hazard grid and resolve them. "
             + "If hazards are separated into temporary grids, please run Mergehazards. "
             + "Next...save Hazards grid. Finally, select PlotTPCEvents from Hazards menu.";
-
-    private static final Map<String, String> phensigMap;
-
-    private static final Map<String, String> actMap;
-
-    static {
-        Map<String, String> phensigMapTemp = new HashMap<String, String>(5, 1f);
-        phensigMapTemp.put("HU.A", "Hurricane Watch");
-        phensigMapTemp.put("HU.S", "Hurricane Local Statement");
-        phensigMapTemp.put("HU.W", "Hurricane Warning");
-        phensigMapTemp.put("TR.A", "Tropical Storm Watch");
-        phensigMapTemp.put("TR.W", "Tropical Storm Warning");
-        phensigMap = Collections.unmodifiableMap(phensigMapTemp);
-
-        Map<String, String> actMapTemp = new HashMap<String, String>(3, 1f);
-        actMapTemp.put("CON", "Continued");
-        actMapTemp.put("CAN", "Cancelled");
-        actMapTemp.put("NEW", "New");
-        actMap = Collections.unmodifiableMap(actMapTemp);
-    }
 
     private static final ThreadLocal<PythonScript> pythonScript = new ThreadLocal<PythonScript>() {
 
@@ -181,8 +162,8 @@ public final class TPCWatchSrv extends AbstractWatchNotifierSrv {
         boolean practiceMode = (record instanceof PracticeWarningRecord);
         String issuingOffice = record.getOfficeid();
 
-        // if it's a TCV
-        if ("TCV".equals(pil)) {
+        // if it's a TCV or pre-TCV
+        if ("TCV".equals(pil) || "PTC".equals(pil)) {
             super.handleWatch(warningRecs);
         }
 
@@ -431,7 +412,7 @@ public final class TPCWatchSrv extends AbstractWatchNotifierSrv {
 
     private Map<String, Object> loadJSONDictionary(ILocalizationFile lf) {
         if (lf != null) {
-            PythonScript script = this.pythonScript.get();
+            PythonScript script = pythonScript.get();
             if (script != null) {
                 Map<String, Object> args = new HashMap<String, Object>();
                 args.put("localizationType", lf.getContext()
@@ -456,7 +437,7 @@ public final class TPCWatchSrv extends AbstractWatchNotifierSrv {
     private void saveJSONDictionary(ILocalizationFile lf,
             Map<String, Object> dict) {
         if (lf != null) {
-            PythonScript script = this.pythonScript.get();
+            PythonScript script = pythonScript.get();
             if (script != null) {
                 Map<String, Object> args = new HashMap<String, Object>();
                 args.put("localizationType", lf.getContext()
@@ -502,31 +483,6 @@ public final class TPCWatchSrv extends AbstractWatchNotifierSrv {
             return null;
         }
 
-        // create the message
-        StringBuilder msg = new StringBuilder(ALERT_TXT);
-        for (String phensigStorm : phensigStormAct.keySet()) {
-            Collection<String> acts = phensigStormAct.get(phensigStorm);
-            String[] splitKey = phensigStorm.split(":");
-            String phensig = splitKey[0];
-            String storm = splitKey[1];
-
-            String t1 = phensigMap.get(phensig);
-            if (t1 == null) {
-                t1 = phensig;
-            }
-            msg.append(t1 + ": #" + storm + "(");
-            String sep = "";
-            for (String a : acts) {
-                String a1 = actMap.get(a);
-                if (a1 == null) {
-                    a1 = a;
-                }
-                msg.append(sep).append(a1);
-                sep = ",";
-            }
-            msg.append("). ");
-        }
-
-        return msg.toString();
+        return ALERT_TXT;
     }
 }

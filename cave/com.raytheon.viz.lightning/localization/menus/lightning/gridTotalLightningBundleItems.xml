@@ -56,27 +56,44 @@
     
     <contribute xsi:type="bundleItem" file="bundles/GridLightningCGPlot.xml" 
                 menuText="5min cloud to ground density" id="1HrGridLightningCGPlot">
+                <substitute key="negOffset" value="300"/>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/GridLightningCloudFlashPlot.xml" 
+                menuText="5min cloud flash density" id="1HrGridLightningCloudFlashPlot">
+                <substitute key="negOffset" value="300"/>
+    </contribute>
+        <contribute xsi:type="bundleItem" file="bundles/GridLightningTotalFlashPlot.xml" 
+                menuText="5min total flash density" id="1HrGridLightningFlashPlot">
+                <substitute key="negOffset" value="300"/>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/GridLightningPulsePlot.xml" 
+                menuText="5min pulse density" id="1HrGridLightningPulsePlot">
+                <substitute key="negOffset" value="300"/>
+    </contribute>
+
+    <contribute xsi:type="bundleItem" file="bundles/GridLightningCGPlot.xml" 
+                menuText="5min cloud to ground density (1min update)" id="5Min1MinGridLightningCGPlot">
                 <substitute key="negOffset" value="60"/>
                 <substitute key="binRepeatCount" value="5"/>
     </contribute>
     <contribute xsi:type="bundleItem" file="bundles/GridLightningCloudFlashPlot.xml" 
-                menuText="5min cloud flash density" id="1HrGridLightningCloudFlashPlot">
+                menuText="5min cloud flash density (1min update)" id="5Min1MinGridLightningCloudFlashPlot">
                 <substitute key="negOffset" value="60"/>
                 <substitute key="binRepeatCount" value="5"/>
     </contribute>
         <contribute xsi:type="bundleItem" file="bundles/GridLightningTotalFlashPlot.xml" 
-                menuText="5min total flash density" id="1HrGridLightningFlashPlot">
+                menuText="5min total flash density (1min update)" id="5Min1MinGridLightningFlashPlot">
                 <substitute key="negOffset" value="60"/>
                 <substitute key="binRepeatCount" value="5"/>
     </contribute>
     <contribute xsi:type="bundleItem" file="bundles/GridLightningPulsePlot.xml" 
-                menuText="5min pulse density" id="1HrGridLightningPulsePlot">
+                menuText="5min pulse density (1min update)" id="5Min1MinGridLightningPulsePlot">
                 <substitute key="negOffset" value="60"/>
                 <substitute key="binRepeatCount" value="5"/>
     </contribute>
     
     <contribute xsi:type="bundleItem" file="bundles/GridLightningCGPlot.xml"
-                menuText="1min cloud to ground density" id="1HrGridLightningCGPlot">
+                menuText="1min cloud to ground density" id="5Min1MinGridLightningCGPlot">
                 <substitute key="negOffset" value="60"/>
     </contribute>
     <contribute xsi:type="bundleItem" file="bundles/GridLightningCloudFlashPlot.xml"
