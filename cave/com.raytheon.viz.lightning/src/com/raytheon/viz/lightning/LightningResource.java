@@ -96,6 +96,7 @@ import com.raytheon.viz.lightning.cache.LightningFrameRetriever;
  * Sep 10, 2015  4856       njensen     synchronize in remove(DataTime)
  * Sep 25, 2015  4605       bsteffen    repeat binning
  * Nov 05, 2015  5070       randerso    Adjust font sizes for dpi scaling
+ * Apr 26, 2016  5597       bsteffen    Include update interval in legend.
  * 
  * </pre>
  * 
@@ -184,6 +185,9 @@ public class LightningResource extends
         int absTimeInterval = Math.abs(resourceData.getRepeatingBinOffset()
                 .getInterval());
 
+        int updateInterval = Math
+                .abs(resourceData.getBinOffset().getInterval());
+
         // If a virtual offset is provided, it is aged lightning, so use
         // the virtual offset to provide the "Old" time
         int virtualOffset = resourceData.getBinOffset().getVirtualOffset();
@@ -200,6 +204,9 @@ public class LightningResource extends
         String source = resourceData.getSource();
         if (source != null) {
             rval += source + ' ';
+        }
+        if (updateInterval != absTimeInterval) {
+            rval += convertTimeIntervalToString(updateInterval) + "Update ";
         }
         return rval;
     }

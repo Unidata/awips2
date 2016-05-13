@@ -66,6 +66,7 @@ import com.raytheon.viz.mpe.util.DailyQcUtils;
  * Jan 15, 2016 5054       randerso    Use proper parent shell
  * Feb 22, 2016 18599      snaples     Fixed static calls to DailyQCUtils.
  * Apr 05, 2016 18350      snaples     Added method call to dqc.destroy to close instance of DQC Utils when exiting.
+ * Apr 11, 2016 5512       bkowal      Fix GUI sizing issues. Cleanup.
  * 
  * </pre>
  * 
@@ -131,10 +132,6 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
     OtherPrecipOptions opo = new OtherPrecipOptions();
 
     OtherTempOptions oto = new OtherTempOptions();
-
-    // Tdata[] tdata = new Tdata[0];
-
-    // Ts[] ts;
 
     private int time_pos;
 
@@ -323,7 +320,6 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
      * Initialize the dialog components.
      */
     private void initializeComponents() {
-//        tdata = DailyQcUtils.tdata;
         DailyQcUtils.points_flag = 1;
         DailyQcUtils.grids_flag = -1;
         DailyQcUtils.map_flag = -1;
@@ -337,8 +333,6 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
             int qcDays = MPEDisplayManager.getCurrent().getDqcDays();
             // checks to see if area or date has changed since last data load
             dqc_good = dqc.qcDataReload(currDate, QcArea, qcDays, false);
-            // tdata = DailyQcUtils.tdata;
-
         }
         dataSet.clear();
         dataSet.addAll(dataType);
@@ -348,7 +342,6 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
         DailyQcUtils.pcpn_time = 0;
 
         for (i = 0; i < 8; i++) {
-
             if (MPEDisplayManager.pcpn_time_step == 0) {
                 time_pos = 150 + DailyQcUtils.pcp_flag;
             } else if (MPEDisplayManager.pcpn_time_step == 1) {
@@ -362,7 +355,6 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
             }
         }
 
-        // ts = DailyQcUtils.ts;
         this.createDataOptionsGroup();
         this.createPointTypeGroup();
         this.createPointQualityGroup();
@@ -377,7 +369,7 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
     private void createDataOptionsGroup() {
         int i = 0;
         Group dataOptionsGroup = new Group(shell, SWT.NONE);
-        dataOptionsGroup.setText(" Data Options ");
+        dataOptionsGroup.setText("Data Options");
         GridLayout groupLayout = new GridLayout(1, false);
         dataOptionsGroup.setLayout(groupLayout);
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
@@ -393,11 +385,13 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
         maxmTimeCompLayout.marginHeight = 0;
         maxmTimeCompLayout.marginWidth = 0;
         maxmTimeComp.setLayout(maxmTimeCompLayout);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        maxmTimeComp.setLayoutData(gd);
 
         Label maxmTimeLbl = new Label(maxmTimeComp, SWT.CENTER);
         maxmTimeLbl.setText("6 Hour/MaxMin:");
 
-        GridData sd = new GridData(140, SWT.DEFAULT);
+        GridData sd = new GridData(SWT.FILL, SWT.CENTER, true, false);
         maxminTimeCbo = new Combo(maxmTimeComp, SWT.DROP_DOWN | SWT.READ_ONLY);
         maxminTimeCbo.setTextLimit(30);
         maxminTimeCbo.setLayoutData(sd);
@@ -424,7 +418,7 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
         RowLayout timeArrowRl = new RowLayout(SWT.HORIZONTAL);
         timeArrowsComp.setLayout(timeArrowRl);
 
-        RowData rd = new RowData(25, 25);
+        RowData rd = new RowData(SWT.DEFAULT, SWT.DEFAULT);
         upTimeBtn = new Button(timeArrowsComp, SWT.ARROW | SWT.UP);
         upTimeBtn.setLayoutData(rd);
         upTimeBtn.setEnabled(false);
@@ -435,7 +429,7 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
             }
         });
 
-        rd = new RowData(25, 25);
+        rd = new RowData(SWT.DEFAULT, SWT.DEFAULT);
         dnTimeBtn = new Button(timeArrowsComp, SWT.ARROW | SWT.DOWN);
         dnTimeBtn.setLayoutData(rd);
         dnTimeBtn.setEnabled(false);
@@ -446,7 +440,7 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
             }
         });
 
-        GridData dd = new GridData(208, SWT.DEFAULT);
+        GridData dd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
 
         String[] a = new String[dataSet.size()];
         dataDispCbo = new Combo(dataOptionsGroup, SWT.DROP_DOWN | SWT.READ_ONLY);
@@ -471,8 +465,10 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
         renderCompLayout.marginHeight = 0;
         renderCompLayout.marginWidth = 0;
         renderComp.setLayout(renderCompLayout);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        renderComp.setLayoutData(gd);
 
-        gd = new GridData(153, 25);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         renderGridsBtn = new Button(renderComp, SWT.PUSH);
         renderGridsBtn.setText("Render Grids+MATs");
         renderGridsBtn.setLayoutData(gd);
@@ -492,18 +488,11 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
             }
         });
 
-        GridData bd = new GridData(110, 25);
+        GridData bd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         groupEditBtn = new Button(renderComp, SWT.PUSH);
         groupEditBtn.setText("Group Edit");
         groupEditBtn.setLayoutData(bd);
         groupEditBtn.addSelectionListener(new SelectionAdapter() {
-            /*
-             * (non-Javadoc)
-             * 
-             * @see
-             * org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.eclipse
-             * .swt.events.SelectionEvent)
-             */
             @Override
             public void widgetSelected(SelectionEvent e) {
                 GroupEditStationsDialog groupDialog = new GroupEditStationsDialog(
@@ -518,7 +507,7 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
      */
     private void createPointTypeGroup() {
         Group pointTypeGroup = new Group(shell, SWT.NONE);
-        pointTypeGroup.setText(" Point Type ");
+        pointTypeGroup.setText("Point Type");
         GridLayout gl = new GridLayout(1, false);
         pointTypeGroup.setLayout(gl);
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
@@ -604,7 +593,7 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
      */
     private void createPointQualityGroup() {
         Group pointQualGroup = new Group(shell, SWT.NONE);
-        pointQualGroup.setText(" Point Quality ");
+        pointQualGroup.setText("Point Quality");
         GridLayout gl = new GridLayout(1, false);
         gl.marginWidth = 0;
         pointQualGroup.setLayout(gl);
@@ -612,13 +601,10 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
         pointQualGroup.setLayoutData(gd);
 
         int i;
-        // int qflag[] = dqc.qflag;
 
         for (i = 0; i < 10; i++) {
-           DailyQcUtils.qflag[i] = 1;
+            DailyQcUtils.qflag[i] = 1;
         }
-
-        // qflag[5] = -1;
 
         boolean mpe_show_missing_gage_set = false;
         if (dqc.mpe_show_missing_gage.length() > 0) {
@@ -664,7 +650,6 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
                 "Questionable", "Partial", "Estimated", "Bad", "Missing", "All" };
 
         for (i = 0; i < qsbuttons.length / 2; i++) {
-
             final Button b = new Button(ltCkBxComp, SWT.CHECK);
             b.setText(qbnames[i]);
             b.setData(i);
@@ -690,7 +675,6 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
             qsbuttons[5].setEnabled(false);
         }
         for (i = 0; i < 10; i++) {
-
             if (i == 5) {
                 continue;
             }
@@ -704,7 +688,7 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
 
     private void createPointSetComp() {
         Composite pntSetComp = new Composite(shell, SWT.NONE);
-        GridLayout pntSetCompGl = new GridLayout(2, false);
+        GridLayout pntSetCompGl = new GridLayout(2, true);
         pntSetComp.setLayout(pntSetCompGl);
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         pntSetComp.setLayoutData(gd);
@@ -714,6 +698,7 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
 
         DailyQcUtils.plot_view = 4;
 
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         pntDispCbo = new Combo(pntSetComp, SWT.DROP_DOWN | SWT.READ_ONLY);
         pntDispCbo.setTextLimit(30);
         pntDispCbo.setLayoutData(gd);
@@ -744,6 +729,7 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
             i = 2;
         }
 
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         pntScnCbo = new Combo(pntSetComp, SWT.DROP_DOWN | SWT.READ_ONLY);
         pntScnCbo.setTextLimit(30);
         pntScnCbo.setLayoutData(gd);
@@ -757,7 +743,6 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
             }
         });
         pntScnCbo.select(i);
-
     }
 
     private void createPointControlComp() {
@@ -800,7 +785,6 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
             public void mouseUp(MouseEvent e) {
                 opo.refresh_exposure();
             }
-
         });
         pfvalueLabel
                 .setText(String.format("%3d", pntFilter.getSelection() - 50));
@@ -881,7 +865,6 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
                 DailyQcUtils.elevation_filter_value = sel;
                 opo.refresh_exposure();
             }
-
         });
         pevalueLabel.setText(String.format("%d", pntElFilter.getSelection()));
 
@@ -898,7 +881,6 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
         opo.send_expose();
         OtherTempOptions oto = new OtherTempOptions();
         oto.set_temp_arrow_sensitivity();
-
     }
 
     public static float getPointFilterValue() {

@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
@@ -30,18 +32,14 @@ import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.List;
@@ -56,7 +54,6 @@ import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.localization.LocalizationPerspectiveUtils;
 import com.raytheon.uf.viz.localization.service.ILocalizationService;
@@ -104,6 +101,7 @@ import com.raytheon.viz.hydrocommon.lowwaterstatment.LowWaterStatementDlg;
 import com.raytheon.viz.hydrocommon.ratingcurve.RatingCurveDlg;
 import com.raytheon.viz.hydrocommon.textreport.TextReportDataManager;
 import com.raytheon.viz.hydrocommon.textreport.TextReportDlg;
+import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
@@ -167,6 +165,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                      Changes for non-blocking LowWaterStatementDlg.
  *                                      Changes for non-blocking RatingCurveDlg.
  *                                      Changes for non-blocking TextReportDlg.
+ * 04/11/2016   5483       dgilling     Fix hard-coded layouts in HBPasswordDlg.
  * 02/16/2016    5354       bkowal      Prevent the closure of the password dialog from
  *                                      closing all of CAVE.
  * 
@@ -2093,145 +2092,101 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
      * Prompt for the password dialog box.
      */
     protected boolean promptForPassword(Shell shell) {
-        HBPasswordDlg pwDlg = new HBPasswordDlg();
-        return pwDlg.open(shell);
+        HBPasswordDlg dialog = new HBPasswordDlg(shell);
+        int returnCode = dialog.open();
+        return ((returnCode == Window.OK) && (dialog.isVerified()));
     }
 
     /**
      * Inner class for the password dialog.
      */
-    private class HBPasswordDlg {
+    private class HBPasswordDlg extends CaveJFACEDialog {
+
+        private final String password;
+
         private Text text;
 
-        private Shell dialog;
+        private int numTries;
 
-        private int numTries = 0;
+        private boolean verified;
 
-        private boolean verified = false;
+        protected HBPasswordDlg(Shell parentShell) {
+            super(parentShell);
+            setShellStyle(SWT.DIALOG_TRIM);
+            setBlockOnOpen(true);
 
-        private String password = null;
-
-        public HBPasswordDlg() {
-            numTries = 0;
+            this.numTries = 0;
+            this.verified = false;
+            this.password = getPassword();
         }
 
-        public boolean open(final Shell shell) {
-            Display display = shell.getDisplay();
-            password = getPassword();
-            verified = false;
-            if ((password == null) || (password.length() == 0)) {
-                // Show message
-                MessageBox messageBox = new MessageBox(shell, SWT.OK);
-                messageBox.setText("Password");
-                messageBox.setMessage("Please set a password for HydroBase\n"
-                        + "in the Setup/Administration dialog.");
-                messageBox.open();
+        @Override
+        public int open() {
+            if ((password == null) || (password.isEmpty())) {
+                MessageDialog.openInformation(getShell(), "Password",
+                        "Please set a password for HydroBase\n"
+                                + "in the Setup/Administration dialog.");
             }
+            return super.open();
+        }
 
-            dialog = new Shell(shell, SWT.APPLICATION_MODAL | SWT.DIALOG_TRIM);
-            dialog.setText("Enter Password");
+        @Override
+        protected Control createDialogArea(Composite parent) {
+            Composite composite = (Composite) super.createDialogArea(parent);
+            composite.setLayout(new GridLayout(2, false));
 
-            FormLayout formLayout = new FormLayout();
-            formLayout.marginWidth = 10;
-            formLayout.marginHeight = 10;
-            formLayout.spacing = 10;
-            dialog.setLayout(formLayout);
-
-            Label label = new Label(dialog, SWT.NONE);
+            Label label = new Label(composite, SWT.NONE);
             label.setText("Enter Password:");
-            FormData data = new FormData();
-            label.setLayoutData(data);
+            label.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, true));
 
-            Button cancel = new Button(dialog, SWT.PUSH);
-            cancel.setText("Cancel");
-            data = new FormData();
-            data.width = 60;
-            data.right = new FormAttachment(100, 0);
-            data.bottom = new FormAttachment(100, 0);
-            cancel.setLayoutData(data);
-            cancel.addSelectionListener(new SelectionAdapter() {
-                @Override
-                public void widgetSelected(SelectionEvent e) {
-                    // Dispose the dialog instead of closing it. Otherwise, all
-                    // of CAVE is closed.
-                    dialog.dispose();
-                }
-            });
-
-            text = new Text(dialog, SWT.BORDER);
+            text = new Text(composite, SWT.SINGLE | SWT.PASSWORD | SWT.BORDER);
             text.setFocus();
-            data = new FormData();
-            data.width = 200;
-            data.left = new FormAttachment(label, 0, SWT.DEFAULT);
-            data.right = new FormAttachment(100, 0);
-            data.top = new FormAttachment(label, 0, SWT.CENTER);
-            data.bottom = new FormAttachment(cancel, 0, SWT.DEFAULT);
-            text.setLayoutData(data);
-            text.setEchoChar('*');
+            GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+            GC gc = new GC(text);
+            gd.widthHint = gc.getFontMetrics().getAverageCharWidth() * 20;
+            gc.dispose();
+            text.setLayoutData(gd);
 
-            Button ok = new Button(dialog, SWT.PUSH);
-            ok.setText("OK");
-            data = new FormData();
-            data.width = 60;
-            data.right = new FormAttachment(cancel, 0, SWT.DEFAULT);
-            data.bottom = new FormAttachment(100, 0);
-            ok.setLayoutData(data);
-            ok.addSelectionListener(new SelectionAdapter() {
-                @Override
-                public void widgetSelected(SelectionEvent e) {
-                    numTries++;
-                    dialog.setVisible(false);
-                    if (!(text.getText().equals(password))) {
-                        // password invalid, try again
-                        if (numTries == 3) {
-                            // after the 3rd failed attempt, exit
-                            dialog.dispose();
-                            MessageBox messageBox = new MessageBox(shell,
-                                    SWT.OK);
-                            messageBox.setText("ABORTING HydroBase");
-                            messageBox
-                                    .setMessage("Three failed password attempts - exiting HydroBase.");
-                            messageBox.open();
+            return composite;
+        }
 
-                            return;
-                        }
+        @Override
+        protected void okPressed() {
+            numTries++;
+            getShell().setVisible(false);
 
-                        MessageBox messageBox = new MessageBox(shell, SWT.OK);
-                        messageBox.setText("Invalid Password");
-                        messageBox.setMessage("Invalid password entered.\n"
-                                + "      Please try again.");
-                        messageBox.open();
-
-                        // Show the password dialog again
-                        dialog.setVisible(true);
-                    } else {
-                        // Close the password dialog so HydroBase is accessible
-                        dialog.dispose();
-                        verified = true;
-                    }
+            if (text.getText().equals(password)) {
+                verified = true;
+            } else {
+                String dialogTitle;
+                String message;
+                if (numTries < 3) {
+                    dialogTitle = "Invalid Password";
+                    message = "Invalid password entered.\n"
+                            + "\tPlease try again.";
+                } else {
+                    dialogTitle = "ABORTING HydroBase";
+                    message = "Three failed password attempts - exiting HydroBase.";
                 }
-            });
-
-            dialog.addShellListener(new ShellAdapter() {
-                @Override
-                public void shellClosed(ShellEvent event) {
-                    shell.dispose();
-                }
-            });
-
-            dialog.setDefaultButton(ok);
-            dialog.pack();
-            dialog.open();
-
-            while (!dialog.isDisposed()) {
-                if (!display.readAndDispatch())
-                    display.sleep();
+                MessageDialog.openError(getShell(), dialogTitle, message);
+                getShell().setVisible(true);
+                text.setFocus();
             }
 
-            if (dialog.isDisposed() == false) {
-                dialog.dispose();
+            if (verified) {
+                super.okPressed();
+            } else if (numTries == 3) {
+                super.cancelPressed();
             }
+        }
 
+        @Override
+        protected void configureShell(Shell newShell) {
+            super.configureShell(newShell);
+            newShell.setText("Enter Password");
+        }
+
+        public boolean isVerified() {
             return verified;
         }
 
@@ -2240,14 +2195,12 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
             try {
                 java.util.List<AdministrationData> data = HydroDBDataManager
                         .getInstance().getData(AdministrationData.class);
-
-                // if no data is returned, clear the current display data
-                AdministrationData adminData = (data.size() > 0) ? data.get(0)
-                        : null;
-                pw = adminData.getHbPassword();
+                if (!data.isEmpty()) {
+                    pw = data.get(0).getHbPassword();
+                }
             } catch (VizException e) {
-                statusHandler.handle(Priority.PROBLEM, "Data Query:"
-                        + " Error retrirving HB Password.");
+                statusHandler.error("Data Query:"
+                        + " Error retrirving HB Password.", e);
             }
 
             return pw;

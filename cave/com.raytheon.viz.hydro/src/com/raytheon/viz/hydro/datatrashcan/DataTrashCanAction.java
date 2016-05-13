@@ -26,7 +26,9 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.handlers.HandlerUtil;
+
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * Action for unimplemented features. To be used temporarily until final
@@ -41,6 +43,7 @@ import org.eclipse.ui.PlatformUI;
  * 6/27/06                  lvenable    Initial Creation.
  * 2/06/2013    1578        rferrel     Change for non-blocking DataTrashCanDlg.
  * 2/27/2013    1790        rferrel     Bug fix for non-blocking dialogs.
+ * 4/15/2016    5483        dgilling    Support changes to DataTrashCanDlg.
  * 
  * </pre>
  * 
@@ -52,19 +55,18 @@ public class DataTrashCanAction extends AbstractHandler {
     /** The dialog to display */
     private DataTrashCanDlg dataTrashCanDlg;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.core.commands.AbstractHandler#execute(org.eclipse.core.commands
-     * .ExecutionEvent)
-     */
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
         if (dataTrashCanDlg == null || dataTrashCanDlg.isDisposed()) {
-            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                    .getShell();
+            Shell shell = HandlerUtil.getActiveShellChecked(arg0);
             dataTrashCanDlg = new DataTrashCanDlg(shell);
+            dataTrashCanDlg.addCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    dataTrashCanDlg = null;
+                }
+            });
             dataTrashCanDlg.open();
         } else {
             dataTrashCanDlg.bringToTop();

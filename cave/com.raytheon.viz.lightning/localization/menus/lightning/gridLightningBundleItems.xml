@@ -32,5 +32,13 @@
                 menuText="5min cloud to ground density" id="1HrGridLightningCGPlot">
                 <substitute key="negOffset" value="300"/>
     </contribute>
- 
+    <contribute xsi:type="bundleItem" file="bundles/GridLightningCGPlot.xml" 
+                menuText="5min cloud to ground density (1min update)" id="5Min1MinGridLightningCGPlot">
+                <substitute key="negOffset" value="60"/>
+                <substitute key="binRepeatCount" value="5"/>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/GridLightningCGPlot.xml" 
+                menuText="1min cloud to ground density" id="1MinGridLightningCGPlot">
+                <substitute key="negOffset" value="60"/>
+    </contribute>
 </menuTemplate>

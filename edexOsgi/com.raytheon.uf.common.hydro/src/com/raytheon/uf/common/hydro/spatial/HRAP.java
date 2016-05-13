@@ -51,6 +51,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Sep 16, 2008            randerso    Initial creation
  * Mar 31, 2014   2689     mpduff      Log input values on conversion failure.
  * Dec 09, 2015  18391     snaples     Updated gridmapper to use CELL CENTER instead of corner.
+ * Apr 19, 2016  18865     snaples     Updated gridmapper to correct an offset in the grid to point mapping.
+ *                                     Using CELL_CORNER now to fix that issue.
  * 
  * </pre>
  * 
@@ -210,7 +212,7 @@ public class HRAP {
                         false);
 
                 gridMapper = new GridToEnvelopeMapper(gridRange, userRange);
-                gridMapper.setPixelAnchor(PixelInCell.CELL_CENTER);
+                gridMapper.setPixelAnchor(PixelInCell.CELL_CORNER);
                 gridMapper.setReverseAxis(new boolean[] { false, false });
 
             } catch (Exception e) {

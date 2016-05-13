@@ -22,10 +22,12 @@ package com.raytheon.rcm.otrmgr;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
 import com.raytheon.rcm.config.RadarConfig;
+import com.raytheon.rcm.config.RadarType;
 import com.raytheon.rcm.config.RcmUtil;
 import com.raytheon.rcm.event.OtrEvent;
 import com.raytheon.rcm.event.RadarEvent;
@@ -39,6 +41,7 @@ import com.raytheon.rcm.message.MessageFormatException;
 import com.raytheon.rcm.message.MessageInfo;
 import com.raytheon.rcm.message.ProductRequest;
 import com.raytheon.rcm.message.RequestResponse;
+import com.raytheon.rcm.products.ElevationInfo;
 import com.raytheon.rcm.request.Filter;
 import com.raytheon.rcm.request.Request;
 import com.raytheon.rcm.request.Sequence;
@@ -55,9 +58,18 @@ import com.raytheon.rcm.server.RadarServer;
 /**
  * Manages One Time Requests for the RPGs.
  * <p>
- * Does not actually do much except provide a place to queue up requests while
- * waiting to connect to the RPG.  Does do some coalescing of duplicate
- * requests.
+ * Implements a queue for pending requests to the RPGs. Performs some coalescing
+ * of duplicate requests.
+ *
+ * <pre>
+ *  SOFTWARE HISTORY
+ *
+ *  Date         Ticket#     Engineer    Description
+ *  ------------ ----------  ----------- --------------------------
+ *  2009                     dfriedman   Initial version
+ *  2016-04-22   DR 18909    dfriedman   Accurately calculate the number of expected
+ *                                       responses for multiple-elevation requests.
+ * </pre>
  */
 public class OTRManager extends RadarEventAdapter {
 
@@ -69,7 +81,7 @@ public class OTRManager extends RadarEventAdapter {
          */
         protected boolean isReady;
 
-        protected List<Req> requests = new ArrayList<Req>();
+        protected List<Req> requests = new ArrayList<>();
 
         protected GSM lastGSM;
 
@@ -226,7 +238,7 @@ public class OTRManager extends RadarEventAdapter {
 
         private void trySendingRequests() {
             if (isReady()) {
-                ArrayList<Request> requestsToSend = new ArrayList<Request>();
+                ArrayList<Request> requestsToSend = new ArrayList<>();
                 long now = System.currentTimeMillis();
                 synchronized (this.requests) {
                     for (Req r : requests) {
@@ -319,31 +331,55 @@ public class OTRManager extends RadarEventAdapter {
                         && request.getElevationSelection() != Request.SPECIFIC_ELEVATION) {
                     if (lastGSM != null) {
                         if (request.getElevationSelection() == Request.ALL_ELEVATIONS) {
-                            /*
-                             * We do not get information about duplicate
-                             * elevations. Could put in TDWR-specific knowledge.
-                             * If vcp==80 && is-low-elevation...
-                             *
-                             * But probably needs something like.
-                             * nExpectedUnknown = true and (if nExpectedUnknown
-                             * then connMgr.idleDisconnectRadar(...)
-                             */
-                            // if is tdwr and vcp80...
-                            exactCountUnknown = true;
+                            RadarType radarType = RcmUtil.getRadarType(getRadarConfig());
+                            int[] completeElevationList;
 
-                            nElevations = request.getElevationAngle() == 0 ? lastGSM.cuts.length
-                                    : 1;
+                            if (radarType == RadarType.WSR
+                                    || (radarType == RadarType.TDWR && lastGSM.rpgVersion >= 80)) {
+                                /*
+                                 * When MESO-SAILS was added to WSR-88D, the
+                                 * expanded GSM was already available and it
+                                 * contained the complete list of elevations
+                                 * including extra SAILS elevations. Therefore,
+                                 * we can always rely on a WSR-88D's GSM for the
+                                 * list of elevation angles.
+                                 *
+                                 * Later version of the SPG contain the complete
+                                 * list of angles in an expected GSM.
+                                 */
+                                completeElevationList = lastGSM.cuts;
+                            } else if (radarType == RadarType.TDWR && lastGSM.rpgVersion < 80) {
+                                /*
+                                 * Earlier versions of the SPG do not list the
+                                 * extra low angle elevations scans. We can use
+                                 * the static elevation list instead.
+                                 */
+                                completeElevationList = ElevationInfo
+                                        .getInstance().getScanElevations(
+                                                radarID, lastGSM.vcp);
+                            } else {
+                                /*
+                                 * No choice but to guess based on the list of
+                                 * elevations from the GSM.
+                                 */
+                                completeElevationList = lastGSM.cuts;
+                                exactCountUnknown = true;
+                            }
+                            int elevationAngle = request.getElevationAngle();
+                            nElevations = elevationAngle == 0 ? uniqueCount(completeElevationList)
+                                    : matchCount(elevationAngle, completeElevationList);
                         } else if (request.getElevationSelection() == Request.N_ELEVATIONS) {
-                            nElevations = Math.min(lastGSM.cuts.length,
+                            nElevations = Math.min(uniqueCount(lastGSM.cuts),
                                     request.getElevationAngle());
                         } else if (request.getElevationSelection() == Request.LOWER_ELEVATIONS) {
+                            HashSet<Integer> seenAngles = new HashSet<>();
                             nElevations = 0;
                             int reqEA = request.getElevationAngle();
                             for (int ea : lastGSM.cuts) {
-                                if (ea <= reqEA)
+                                if (ea <= reqEA && !seenAngles.contains(ea)) {
                                     ++nElevations;
-                                else
-                                    break;
+                                    seenAngles.add(ea);
+                                }
                             }
                         } else
                             exactCountUnknown = true;
@@ -356,9 +392,41 @@ public class OTRManager extends RadarEventAdapter {
                 nExpected = request.count * nElevations;
             }
 
+            private int uniqueCount(int[] angles) {
+                HashSet<Integer> uniqueAngles = new HashSet<>();
+                for (int a : angles) {
+                    uniqueAngles.add(a);
+                }
+                return uniqueAngles.size();
+            }
+
+            private int matchCount(int angle, int[] angles) {
+                int matchedAngle = findClosestAngle(angle, angles);
+                int count = 0;
+                for (int a : angles) {
+                    if (a == matchedAngle) {
+                        ++count;
+                    }
+                }
+                return count;
+            }
+
+            private int findClosestAngle(int angle, int[] angles) {
+                int result = Integer.MIN_VALUE;
+                int bestDiff = Integer.MAX_VALUE;
+                for (int a : angles) {
+                    int diff = Math.abs(a - angle);
+                    if (result == -1 || diff < bestDiff) {
+                        result = a;
+                        bestDiff = diff;
+                    }
+                }
+                return result;
+            }
+
             public void addHandler(OTRHandler handler) {
                 if (handlers == null)
-                    handlers = new ArrayList<OTRHandler>();
+                    handlers = new ArrayList<>();
                 handlers.add(handler);
             }
 
@@ -387,7 +455,7 @@ public class OTRManager extends RadarEventAdapter {
     RadarServer radarServer;
 
     // ArrayList<Req> requests = new ArrayList<Req>();
-    HashMap<String, RadarStatus> state = new HashMap<String, RadarStatus>();
+    HashMap<String, RadarStatus> state = new HashMap<>();
 
     public OTRManager(RadarServer radarServer) {
         this.radarServer = radarServer;
