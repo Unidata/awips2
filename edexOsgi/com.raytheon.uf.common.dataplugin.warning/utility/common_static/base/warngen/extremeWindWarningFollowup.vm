@@ -89,19 +89,19 @@ THIS IS A TEST MESSAGE. ##
 #set($reportType = "extreme winds")
 #set($reportType2 = "the hurricane eyewall was")
 ##
-#if(${list.contains(${bullets}, "var1")})
+#if(${list.contains(${bullets}, "var2")})
 #set($reportType1 = "associated with a broad area of intense thunderstorms, located")
 #set($reportType = "extreme winds were occuring")
 #set($reportType2 = "this area of thunderstorm winds was")
 #end
 ##
-#if(${list.contains(${bullets}, "var2")})
+#if(${list.contains(${bullets}, "var3")})
 #set($reportType1 = "associated with an intense low pressure area, located")
 #set($reportType = "extreme winds were occuring")
 #set($reportType2 = "this intense low pressure system was")
 #end
 ##
-#if(${list.contains(${bullets}, "var3")})
+#if(${list.contains(${bullets}, "var4")})
 #set($reportType1 = "associated with a downslope windstorm, located")
 #set($reportType = "extreme winds were occuring")
 #set($reportType2 = "this area of downslope winds was")
@@ -226,16 +226,16 @@ THIS IS A TEST MESSAGE. ##
 PRECAUTIONARY/PREPAREDNESS ACTIONS...
 
 #end
-#if(${list.contains(${bullets}, "cta1")})
+#if(${list.contains(${bullets}, "destructiveWindsCTA")})
 Widespread destructive winds of !** **! to !** **! mph will spread across ##
 #headlineLocList(${areas} true true true false), Producing swaths of tornado-like damage.
 
 #end
-#if(${list.contains(${bullets}, "cta2")})
+#if(${list.contains(${bullets}, "takeCoverCTA")})
 Take cover now! Treat these imminent extreme winds as if a tornado was approaching and move immediately to the safe room in your shelter. Take action now to protect your life!
 
 #end
-#if(${list.contains(${bullets}, "cta3")})
+#if(${list.contains(${bullets}, "safePlacesCTA")})
 The safest place to be during a major landfalling hurricane is in a reinforced interior room away from windows. Get under a table or other piece of sturdy furniture. Use mattresses, blankets or pillows to cover your head and body. Remain in place through the passage of these life-threatening conditions.
 
 #end
@@ -258,19 +258,19 @@ The safest place to be during a major landfalling hurricane is in a reinforced i
 #set($reportType = "extreme winds")
 #set($reportType2 = "the hurricane eyewall was")
 ##
-#if(${list.contains(${bullets}, "var1")})
+#if(${list.contains(${bullets}, "var2")})
 #set($reportType1 = "associated with a broad area of intense thunderstorms, located")
 #set($reportType = "extreme winds were occurinG")
 #set($reportType2 = "this area of thunderstorm winds was")
 #end
 ##
-#if(${list.contains(${bullets}, "var2")})
+#if(${list.contains(${bullets}, "var3")})
 #set($reportType1 = "associated with an intense low pressure area, located")
 #set($reportType = "extreme winds were occuring")
 #set($reportType2 = "this intense low pressure system was")
 #end
 ##
-#if(${list.contains(${bullets}, "var3")})
+#if(${list.contains(${bullets}, "var4")})
 #set($reportType1 = "associated with a downslope windstorm, located")
 #set($reportType = "extreme winds were occuring")
 #set($reportType2 = "this area of downslope winds was")
@@ -408,7 +408,7 @@ At ${dateUtil.format(${event}, ${timeFormat.clock}, ${localtimezone})}, ${report
 #if(${movementSpeed} < ${landStationary} || ${stationary})
 . ${reportType2} nearly stationary.##
 #else
-, moving #direction(${movementDirectionRounded}) AT ${mathUtil.roundTo5(${movementSpeed})} mph.##
+, moving #direction(${movementDirectionRounded}) at ${mathUtil.roundTo5(${movementSpeed})} mph.##
 #end
  This is an extremely dangerous and life-threatening situation!
  
