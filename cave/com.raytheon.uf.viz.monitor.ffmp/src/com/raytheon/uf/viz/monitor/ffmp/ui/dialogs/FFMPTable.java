@@ -33,7 +33,6 @@ import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
@@ -63,18 +62,21 @@ import com.raytheon.uf.viz.monitor.ffmp.xml.FFMPTableColumnXML;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 7, 2009            lvenable     Initial creation
- * Mar 15,2012	DR 14406  gzhang       Fixing QPF Column Title Missing 
- * Mar 20,2012	DR 14250  gzhang       Eliminating column Missing values 
- * Aug 01, 2012 14168     mpduff       Only allow filtering if ColorCell is true
- * Jun 04, 2013 #1984     lvenable     Save images instead of disposing them when setting
- *                                     the table column images.  This is to fix the Windows
- *                                     issue on the images being blank and throwing errors.
- *                                     Also cleaned up some code.
- * Jun 11, 2013 2075      njensen      Optimized createTableItems()
- * Nov 07, 2013 DR 16703  gzhang	   Check in code for Lee for FFMP Table line
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Apr 07, 2009           lvenable  Initial creation
+ * Mar 15,2012   4406     gzhang    Fixing QPF Column Title Missing
+ * Mar 20,2012   4250     gzhang    Eliminating column Missing values
+ * Aug 01, 2012  14168    mpduff    Only allow filtering if ColorCell is true
+ * Jun 04, 2013  1984     lvenable  Save images instead of disposing them when
+ *                                  setting the table column images.  This is to
+ *                                  fix the Windows issue on the images being
+ *                                  blank and throwing errors. Also cleaned up
+ *                                  some code.
+ * Jun 11, 2013  2075     njensen   Optimized createTableItems()
+ * Nov 07, 2013  16703    gzhang    Check in code for Lee for FFMP Table line
+ * May 10, 2016  5516     randerso  Lots of GUI clean up
+ * 
  * </pre>
  * 
  * @author lvenable
@@ -84,9 +86,6 @@ public abstract class FFMPTable extends Composite {
     /** Default column width */
     protected static final int DEFAULT_COLUMN_WIDTH = 95;// DR14406: old value:
                                                          // 75 too small
-
-    /** DR14406: For columns with more words */
-    protected static final int EXTRA_COLUMN_WIDTH = 28;
 
     private static final String NAME = "Name";
 
@@ -111,11 +110,6 @@ public abstract class FFMPTable extends Composite {
      * Application name.
      */
     protected CommonConfig.AppName appName = AppName.FFMP;
-
-    /**
-     * Table item font.
-     */
-    private Font tiFont;
 
     /**
      * Table index variable to keep track of the table index.
@@ -145,15 +139,9 @@ public abstract class FFMPTable extends Composite {
 
     private String siteKey;
 
-    protected Font columnFont;
-
     protected int imageWidth = 0;
 
     protected int imageHeight = 0;
-
-    protected int textWidth = 0;
-
-    protected int textHeight = 0;
 
     private ArrayList<Integer> indexArray = new ArrayList<Integer>();
 
@@ -186,11 +174,7 @@ public abstract class FFMPTable extends Composite {
      * Initialize method.
      */
     protected void init() {
-        tiFont = new Font(parent.getDisplay(), "Arial", 10, SWT.NORMAL);
-
         sortColor = new Color(parent.getDisplay(), 133, 104, 190);
-
-        columnFont = new Font(parent.getDisplay(), "Monospace", 9, SWT.NORMAL);
 
         lineColor = new Color(parent.getDisplay(), 80, 80, 80);
         defaultColWidth = getDefaultColWidth();
@@ -216,10 +200,9 @@ public abstract class FFMPTable extends Composite {
         sortTableUsingConfig();
 
         this.addDisposeListener(new DisposeListener() {
+            @Override
             public void widgetDisposed(DisposeEvent arg0) {
-                tiFont.dispose();
                 lineColor.dispose();
-                columnFont.dispose();
                 sortColor.dispose();
                 disposeColumnImages();
             }
@@ -244,13 +227,14 @@ public abstract class FFMPTable extends Composite {
          */
         table.addListener(SWT.PaintItem, new Listener() {
 
+            @Override
             public void handleEvent(Event event) {
 
                 table.deselectAll();
                 event.gc.setForeground(lineColor);
                 event.gc.setLineWidth(1);
                 int currentCol = event.index;
-                
+
                 TableItem ti = (TableItem) event.item;
                 Rectangle rect = ((TableItem) event.item).getBounds(currentCol);
                 event.gc.drawRectangle(rect.x - 1, rect.y - 1, rect.width,
@@ -262,17 +246,17 @@ public abstract class FFMPTable extends Composite {
                 event.gc.setLineWidth(1);
                 event.gc.drawLine(rect.x + rect.width - 2, rect.y - 1, rect.x
                         + rect.width - 2, rect.y - 1 + rect.height);
-                
+
                 // Draw a top line
-                event.gc.drawLine(rect.x, rect.y, rect.x + rect.width, rect.y); 
-                
+                event.gc.drawLine(rect.x, rect.y, rect.x + rect.width, rect.y);
+
                 // Draw a bottom line if this is the last row of the table
                 int index = table.indexOf(ti);
                 if (index == table.getItemCount() - 1) {
                     event.gc.drawLine(rect.x, rect.y + rect.height - 2, rect.x
                             + rect.width, rect.y + rect.height - 2);
                 }
-                
+
                 if ((tableIndex >= 0) && (tableIndex < table.getItemCount())) {
                     event.gc.setForeground(parent.getDisplay().getSystemColor(
                             SWT.COLOR_BLUE));
@@ -286,12 +270,11 @@ public abstract class FFMPTable extends Composite {
         });
 
         table.addListener(SWT.SetData, new Listener() {
+            @Override
             public void handleEvent(Event event) {
                 TableItem item = (TableItem) event.item;
                 int tmpIndex = table.indexOf(item);
                 int index = tableIndexToDataIndex(tmpIndex);
-
-                item.setFont(tiFont);
 
                 FFMPTableCellData[] cellData = tableData.getTableRows()
                         .get(index).getTableCellDataArray();
@@ -338,7 +321,7 @@ public abstract class FFMPTable extends Composite {
              * Left justify the first column and center the remaining columns.
              */
             if (i == 0) {
-                tc = new TableColumn(table, SWT.NONE);
+                tc = new TableColumn(table, SWT.LEFT);
             } else {
                 tc = new TableColumn(table, SWT.CENTER);
             }
@@ -454,7 +437,6 @@ public abstract class FFMPTable extends Composite {
         indexArray.ensureCapacity(rowArray.size());
 
         GC gc = new GC(table);
-        gc.setFont(tiFont);
 
         for (int t = 0; t < rowArray.size(); t++) {
 
@@ -678,29 +660,29 @@ public abstract class FFMPTable extends Composite {
     private void makeImageCalculations() {
         Image image = new Image(this.getDisplay(), 100, 100);
         GC gc = new GC(image);
-        gc.setFont(columnFont);
 
-        int maxTextLength = -1;
+        int maxTextWidth = defaultColWidth;
 
-        textWidth = gc.getFontMetrics().getAverageCharWidth();
-        textHeight = gc.getFontMetrics().getHeight();
+        int textHeight = gc.getFontMetrics().getHeight();
 
         FfmpTableConfigData ffmpTableCfgData = FfmpTableConfig.getInstance()
                 .getTableConfigData(siteKey);
-        String[] colNames = ffmpTableCfgData.getTableColumnKeys();
+        String[] colNameKeys = ffmpTableCfgData.getTableColumnKeys();
 
-        for (String str : colNames) {
-            String colName = ffmpTableCfgData.getTableColumnAttr(str)
-                    .getOriginalName();
+        for (int i = 0; i < colNameKeys.length; i++) {
+            String colName = ffmpTableCfgData
+                    .getTableColumnAttr(colNameKeys[i]).getSplitColumnName();
 
-            String[] nameArray = colName.split(" ");
+            String[] nameArray = colName.split("\n");
 
             for (String tmpStr : nameArray) {
-                maxTextLength = Math.max(maxTextLength, tmpStr.length());
+                maxTextWidth = Math.max(maxTextWidth, gc.textExtent(tmpStr).x);
             }
         }
 
-        imageWidth = maxTextLength * textWidth + EXTRA_COLUMN_WIDTH;
+        int margin = gc.textExtent("    ").x;
+
+        imageWidth = maxTextWidth + margin;
         imageHeight = textHeight * 2;
 
         gc.dispose();
@@ -730,7 +712,7 @@ public abstract class FFMPTable extends Composite {
             Image img = new Image(this.getDisplay(), imageWidth, imageHeight);
 
             GC gc = new GC(img);
-            gc.setFont(columnFont);
+            int textHeight = gc.getFontMetrics().getHeight();
 
             // Set the initial foreground and background colors.
             gc.setForeground(this.getDisplay().getSystemColor(SWT.COLOR_WHITE));
@@ -751,24 +733,19 @@ public abstract class FFMPTable extends Composite {
              */
             int xCoord = 0;
             int yCoord = 0;
-            if (colName.indexOf("\n") > 0) {
-                String[] tmpArray = colName.split("\n");
-
-                for (int j = 0; j < tmpArray.length; j++) {
-
-                    /*
-                     * Fixes for DR14406
-                     */
-                    xCoord = Math.round((imageWidth / 2)
-                            - (tmpArray[j].length() * textWidth / 2));
-                    yCoord = j * (textHeight + 1);
-                    gc.drawText(tmpArray[j], xCoord, yCoord, true);
-                }
-            } else {
-                xCoord = Math.round((imageWidth / 2)
-                        - (colName.length() * textWidth / 2));
+            if (colName.indexOf("\n") == -1) {
                 yCoord = imageHeight / 2 - textHeight / 2 - 1;
-                gc.drawText(colName, xCoord, yCoord, true);
+            }
+            String[] splitName = colName.split("\n");
+            for (String s : splitName) {
+                int textWidth = gc.textExtent(s).x;
+                if (tc.getAlignment() == SWT.CENTER) {
+                    xCoord = (imageWidth - textWidth) / 2;
+                } else {
+                    xCoord = gc.textExtent("  ").x;
+                }
+                gc.drawText(s, xCoord, yCoord, true);
+                yCoord += textHeight;
             }
 
             gc.dispose();
@@ -925,7 +902,7 @@ public abstract class FFMPTable extends Composite {
         if (COLUMN_NAME.QPF.getColumnName().equalsIgnoreCase(col)) {
 
             setColumnImages();
-            tCols.setWidth(defaultColWidth + EXTRA_COLUMN_WIDTH);// 38);
+            tCols.setWidth(defaultColWidth);
 
         }
     }
