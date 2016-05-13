@@ -8,6 +8,7 @@
      Phil Kurimski          09-19-2013 added geospatialConfig.xml
      Mike Dangelo            6/26/2014 added bullets for watch info inclusion (bulletDefault set to true)
      Phil Kurimski          10-20-2015 added campers CTA
+     Evan Bookbinder         4-29-2016 minor fix to storm intensify CTA/parsing
  -->
 <warngenConfig>
 
@@ -98,7 +99,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletText="******** CALLS TO ACTION (CHOOSE 1 OR MORE) *********" bulletType="title"/>
   <bullet bulletName="torrentialRainfallCTA" bulletText="Torrential rainfall" parseString="TORRENTIAL RAINFALL IS ALSO OCCURRING"/>
   <bullet bulletName="lightningCTA" bulletText="Frequent Lightning" parseString="FREQUENT CLOUD TO GROUND LIGHTNING IS OCCURRING"/>
-  <bullet bulletName="stormIntensify" bulletText="Storm(s) May Intensify" parseString="STORMS MAY INTENSIFY...MONITOR TV"/>
+  <bullet bulletName="stormIntensifyCTA" bulletText="Storm(s) May Intensify" parseString="&quot;MAY INTENSIFY&quot;,&quot;POSSIBLE WARNING&quot;"/>
   <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="CONTACT YOUR NEAREST LAW ENFORCEMENT"/>
   <bullet bulletName="boatersCTA" bulletText="Over Lake - Boaters seek shelter" parseString="GET OUT OF THE WATER AND MOVE INDOORS"/>
   <bullet bulletName="camperCTA" bulletText="Campground - Campers seek shelter" parseString="PERSONS IN CAMPGROUNDS"/>
@@ -132,7 +133,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletText="******** CALLS TO ACTION (CHOOSE 1 OR MORE) *********" bulletType="title"/>
   <bullet bulletName="torrentialRainfallCTA" bulletText="Torrential rainfall" parseString="TORRENTIAL RAINFALL IS ALSO OCCURRING"/>
   <bullet bulletName="lightningCTA" bulletText="Frequent Lightning" parseString="FREQUENT CLOUD TO GROUND LIGHTNING IS OCCURRING"/>
-  <bullet bulletName="stormIntensify" bulletText="Storm(s) May Intensify" parseString="STORMS MAY INTENSIFY...MONITOR TV"/>
+  <bullet bulletName="stormIntensifyCTA" bulletText="Storm(s) May Intensify" parseString="&quot;MAY INTENSIFY&quot;,&quot;POSSIBLE WARNING&quot;"/>
   <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="CONTACT YOUR NEAREST LAW ENFORCEMENT"/>
   <bullet bulletName="boatersCTA" bulletText="Over Lake - Boaters seek shelter" parseString="GET OUT OF THE WATER AND MOVE INDOORS"/>
   <bullet bulletName="camperCTA" bulletText="Campground - Campers seek shelter" parseString="PERSONS IN CAMPGROUNDS"/>
