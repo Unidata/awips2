@@ -26,6 +26,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.Validate;
 
@@ -35,6 +42,7 @@ import com.raytheon.uf.common.dataplugin.warning.config.GeospatialConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.config.WarngenConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.gis.GeospatialData;
 import com.raytheon.uf.common.dataplugin.warning.portions.GisUtil;
+import com.raytheon.uf.common.dataplugin.warning.portions.GisUtil.Direction;
 import com.raytheon.uf.common.dataplugin.warning.portions.PortionsUtil;
 import com.raytheon.uf.common.dataplugin.warning.util.CountyUserData;
 import com.raytheon.uf.common.dataplugin.warning.util.GeometryUtil;
@@ -50,11 +58,16 @@ import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
-//import com.raytheon.viz.warngen.gis.GisUtil.Direction;
-import com.raytheon.uf.common.dataplugin.warning.portions.GisUtil.Direction;
 import com.raytheon.viz.warngen.gui.WarngenLayer;
 import com.raytheon.viz.warngen.util.Abbreviation;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.Polygonal;
+import com.vividsolutions.jts.geom.TopologyException;
 import com.vividsolutions.jts.geom.prep.PreparedGeometry;
 
 /**
@@ -90,6 +103,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometry;
  *                                         refactored WarngenLayer::filterArea.
  *    Mar  9, 2014 ASM #17190  D. Friedman Use fipsField and areaField for unique area ID.
  *    May  7, 2015 ASM #17438  D. Friedman Clean up debug and performance logging.
+ *    May 12, 2016 ASM #18789  D. Friedman Improve findInsectingAreas performance.
  * </pre>
  * 
  * @author chammack
@@ -111,6 +125,14 @@ public class Area {
     private static final List<String> SPECIAL_CASE_FE_AREAS = Arrays
             .asList(new String[] { "PA", "MI", "PD", "UP", "BB", "ER", "EU",
                     "SR", "NR", "WU", "DS" });
+
+    private static final int DEFAULT_SUBDIVISION_TRESHOLD = 500;
+
+    private static final int SIMPLE_FEATURE_GEOM_COUNT_THRESHOLD = 4;
+
+    private static final int MAX_SUBDIVISION_DEPTH = 24;
+
+    private static ExecutorService intersectionExecutor;
 
     private PortionsUtil portionsUtil;
 
@@ -326,7 +348,6 @@ public class Area {
             Geometry warnPolygon, Geometry warnArea, String localizedSite,
             WarngenLayer warngenLayer) throws VizException {
         Map<String, Object> areasMap = new HashMap<String, Object>();
-
         try {
             Geometry precisionReducedArea = PolygonUtil
                     .reducePrecision(warnArea);
@@ -339,25 +360,51 @@ public class Area {
 
         String hatchedAreaSource = config.getHatchedAreaSource()
                 .getAreaSource();
+        long t0 = System.currentTimeMillis();
         for (AreaSourceConfiguration asc : config.getAreaSources()) {
+            boolean ignoreUserData = asc.getAreaSource().equals(
+                    hatchedAreaSource) == false;
             if (asc.getType() == AreaType.INTERSECT) {
                 List<Geometry> geoms = new ArrayList<Geometry>();
-                boolean filtered = false;
-                for (GeospatialData f : warngenLayer.getGeodataFeatures(
-                        asc.getAreaSource(), localizedSite)) {
-
-                    boolean ignoreUserData = asc.getAreaSource().equals(
-                            hatchedAreaSource) == false;
-                    Geometry intersect = GeometryUtil.intersection(warnArea,
-                            f.prepGeom, ignoreUserData);
-
-                    filtered = false;
-                    if (!intersect.isEmpty()) {
-                        filtered = warngenLayer.filterArea(f, intersect, asc);
+                if (ignoreUserData) {
+                    synchronized (Area.class) {
+                        if (intersectionExecutor == null) {
+                            intersectionExecutor = new ThreadPoolExecutor(0,
+                                    Runtime.getRuntime().availableProcessors() / 2,
+                                    60, TimeUnit.SECONDS,
+                                    new LinkedBlockingQueue<Runnable>());
+                        }
                     }
-
-                    if (intersect.isEmpty() == false && filtered == true) {
-                        geoms.add(intersect);
+                    Geometry waPoly = toPolygonal(warnArea);
+                    GeospatialData[] features = warngenLayer.getGeodataFeatures(
+                            asc.getAreaSource(), localizedSite);
+                    List<Callable<Geometry>> callables = new ArrayList<>(features.length);
+                    for (GeospatialData f : features) {
+                        callables.add(new FeatureIntersection(waPoly, f));
+                    }
+                    try {
+                        List<Future<Geometry>> futures = intersectionExecutor.invokeAll(callables);
+                        int fi = 0;
+                        for (Future<Geometry> future: futures) {
+                            Geometry intersect = future.get();
+                            if (intersect != null && !intersect.isEmpty()
+                                    && warngenLayer.filterArea(features[fi], intersect, asc)) {
+                                geoms.add(intersect);
+                            }
+                            fi++;
+                        }
+                    } catch (ExecutionException | InterruptedException e) {
+                        throw new VizException("Error finding intersecting areas", e);
+                    }
+                } else {
+                    for (GeospatialData f : warngenLayer.getGeodataFeatures(
+                            asc.getAreaSource(), localizedSite)) {
+                        Geometry intersect = GeometryUtil.intersection(
+                                warnArea, f.prepGeom, ignoreUserData);
+                        if (!intersect.isEmpty()
+                                && warngenLayer.filterArea(f, intersect, asc)) {
+                            geoms.add(intersect);
+                        }
                     }
                 }
 
@@ -368,9 +415,199 @@ public class Area {
                 areasMap.put(asc.getVariable(), affectedAreas);
             }
         }
+        perfLog.logDuration("findIntersectingAreas", System.currentTimeMillis() - t0);
 
         return areasMap;
+    }
 
+    /*
+     * Convert input to Polygon or Multipolygon. This will discard any
+     * non-polygon elements.
+     */
+    private static Geometry toPolygonal(Geometry input) {
+        Geometry result;
+        if (input instanceof Polygonal) {
+            result = input;
+        } else {
+            List<Polygon> pa = new ArrayList<>(input.getNumGeometries() + 63);
+            toPolygonalInner(input, pa);
+            result = input.getFactory().createMultiPolygon(pa.toArray(new Polygon[pa.size()]));
+        }
+        return result;
+    }
+
+    private static void toPolygonalInner(Geometry input, List<Polygon> pa) {
+        int n = input.getNumGeometries();
+        for (int i = 0; i < n; ++i) {
+            Geometry g = input.getGeometryN(i);
+            if (g instanceof Polygon) {
+                pa.add((Polygon) g);
+            } else if (g instanceof GeometryCollection) {
+                toPolygonalInner(g, pa);
+            }
+        }
+    }
+
+    private class FeatureIntersection implements Callable<Geometry> {
+        private Geometry waPoly;
+        private GeospatialData f;
+
+        public FeatureIntersection(Geometry waPoly, GeospatialData f) {
+            this.waPoly = waPoly;
+            this.f = f;
+        }
+
+        @Override
+        public Geometry call() throws Exception {
+            Geometry intersect = null;
+            if (f.prepGeom.intersects(waPoly)) {
+                try {
+                    Geometry fgPoly = toPolygonal(f.geometry);
+                    List<Geometry> out = new ArrayList<Geometry>(64);
+                    subdivIntersect(waPoly, fgPoly, true, out);
+                    intersect = waPoly.getFactory().createGeometryCollection(
+                            out.toArray(new Geometry[out.size()]));
+                    // subdivIntersect loses user data to set it again.
+                    intersect.setUserData(f.geometry.getUserData());
+                } catch (TopologyException e) {
+                    intersect = GeometryUtil.intersection(waPoly,
+                            f.prepGeom, true);
+                }
+            }
+            return intersect;
+        }
+    }
+
+    private void subdivIntersect(Geometry warnArea, Geometry featureGeom,
+            boolean orient, List<Geometry> out) {
+        Envelope env = warnArea.getEnvelopeInternal().intersection(
+                featureGeom.getEnvelopeInternal());
+        if (env.isNull()) {
+            return;
+        }
+        Coordinate[] c = new Coordinate[5];
+        c[0] = new Coordinate(env.getMinX(), env.getMinY());
+        c[1] = new Coordinate(env.getMaxX(), env.getMinY());
+        c[2] = new Coordinate(env.getMaxX(), env.getMaxY());
+        c[3] = new Coordinate(env.getMinX(), env.getMaxY());
+        c[4] = c[0];
+        subdivIntersectInner(c, warnArea, featureGeom, orient, 1, out);
+    }
+
+    private void subdivIntersectInner(Coordinate[] env, Geometry warnArea,
+            Geometry featureGeom, boolean orientation, int depth,
+            List<Geometry> out) {
+        if (warnArea.getNumGeometries() * featureGeom.getNumGeometries() <= DEFAULT_SUBDIVISION_TRESHOLD
+                || depth >= MAX_SUBDIVISION_DEPTH) {
+            out.add(batchIntersect(warnArea, featureGeom));
+        } else if (featureGeom.getNumGeometries() <= SIMPLE_FEATURE_GEOM_COUNT_THRESHOLD) {
+            try {
+                Polygon clipPoly = warnArea.getFactory().createPolygon(env);
+                Geometry clippedWarnArea = clip(clipPoly, warnArea);
+                /*
+                 * Not clipping feature geometry because it is already known to
+                 * have a small geometry count.
+                 */
+                out.add(batchIntersect(clippedWarnArea, featureGeom));
+            } catch (TopologyException e) {
+                // Additional fallback without clipping.
+                statusHandler.handle(Priority.DEBUG,
+                        "Clipped intersection failed.  Will attempt fallback.", e);
+                out.add(GeometryUtil.intersection(warnArea, featureGeom, true));
+            }
+        } else {
+            GeometryFactory gf = warnArea.getFactory();
+            Coordinate[] c = new Coordinate[5];
+            for (int side = 0; side < 2; ++side) {
+                if (side == 0) {
+                    if (orientation) {
+                        // horizontal split
+                        c[0] = env[0];
+                        c[1] = new Coordinate((env[0].x + env[1].x) / 2, env[0].y);
+                        c[2] = new Coordinate(c[1].x, env[2].y);
+                        c[3] = env[3];
+                        c[4] = c[0];
+                    } else {
+                        // vertical split
+                        c[0] = env[0];
+                        c[1] = env[1];
+                        c[2] = new Coordinate(c[1].x, (env[0].y + env[3].y) / 2);
+                        c[3] = new Coordinate(c[0].x, c[2].y);
+                        c[4] = c[0];
+                    }
+                } else {
+                    if (orientation) {
+                        c[0] = c[1];
+                        c[3] = c[2];
+                        c[1] = env[1];
+                        c[2] = env[2];
+                        c[4] = c[0];
+                    } else {
+                        c[0] = c[3];
+                        c[1] = c[2];
+                        c[2] = env[2];
+                        c[3] = env[3];
+                        c[4] = c[0];
+                    }
+                }
+
+                Polygon clipPoly = gf.createPolygon(c);
+                try {
+                    Geometry subWarnArea = clip(clipPoly, warnArea);
+                    Geometry subFeatureGeom = clip(clipPoly, featureGeom);
+                    subdivIntersectInner(c, subWarnArea, subFeatureGeom,
+                            !orientation, depth + 1, out);
+                } catch (TopologyException e) {
+                    // Additional fallback without clipping.
+                    statusHandler.handle(Priority.DEBUG,
+                            "Subdivided intersection failed.  Will attempt fallback.", e);
+                    out.add(GeometryUtil.intersection(warnArea, featureGeom, true));
+                }
+            }
+        }
+    }
+
+    /**
+     * Calculate the intersection of p and g by operating on each element of g.
+     * This is necessary to prevent "side location conflict" errors. By using
+     * envelopes to either filter out elements or bypass
+     * Geometry.intersection(), it also is much faster than p.intersection(g)
+     * would be.
+     *
+     * @param p
+     * @param g must be Polygonal
+     * @return
+     */
+    private static Geometry clip(Polygon p, Geometry g) {
+        Envelope pe = p.getEnvelopeInternal();
+        List<Polygon> out = new ArrayList<>(g.getNumGeometries() * 11 / 10);
+        int n = g.getNumGeometries();
+        for (int i = 0; i < n; ++i) {
+            Geometry gi = g.getGeometryN(i);
+            Envelope ge = gi.getEnvelopeInternal();
+            if (pe.contains(ge)) {
+                out.add((Polygon) gi);
+            } else if (pe.intersects(ge)) {
+                Geometry clipped = p.intersection(gi);
+                int m = clipped.getNumGeometries();
+                for (int j = 0; j < m; ++j) {
+                    Geometry gj = clipped.getGeometryN(j);
+                    if (!gj.isEmpty() && gj instanceof Polygon) {
+                        out.add((Polygon) gj);
+                    }
+                }
+            }
+            // else, discard gi
+        }
+        return g.getFactory().createMultiPolygon(out.toArray(new Polygon[out.size()]));
+    }
+
+    private static Geometry batchIntersect(Geometry warnArea, Geometry featureGeom) {
+        try {
+            return warnArea.intersection(featureGeom);
+        } catch (TopologyException e) {
+            return GeometryUtil.intersection(warnArea, featureGeom, true);
+        }
     }
 
     public static List<String> converFeAreaToPartList(String feArea) {
