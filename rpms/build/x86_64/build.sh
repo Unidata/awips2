@@ -551,7 +551,7 @@ if [ "${1}" = "-version" ]; then
 fi
 
 if [ "${1}" = "-other" ]; then
-   buildRPM "awips2"
+   #buildRPM "awips2"
    #buildRPM "awips2-cli"
    #buildRPM "awips2-gfesuite-client"
    #buildRPM "awips2-gfesuite-server"
@@ -563,13 +563,13 @@ if [ "${1}" = "-other" ]; then
    #buildRPM "awips2-edex-environment"
    #buildRPM "awips2-data.gfe"
    #buildRPM "awips2-data.hdf5-topo"
-   #buildRPM "awips2-alertviz"
+   buildRPM "awips2-alertviz"
    #buildRPM "awips2-notification"
    #buildRPM "awips2-groovy"
 fi
 
 if [ "${1}" = "-viz" ]; then
-   buildRPM "awips2"
+   buildRPM "awips2-common-base"
    buildCAVE
    if [ $? -ne 0 ]; then
       exit 1
@@ -585,7 +585,6 @@ if [ "${1}" = "-shp" ]; then
 fi
 
 if [ "${1}" = "-edex" ]; then
-   buildRPM "awips2-common-base"
    #buildRPM "awips2"
    buildEDEX
    #buildRPM "awips2-data.hdf5-topo"
