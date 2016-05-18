@@ -118,11 +118,5 @@
             <processorName>HPCqpfPostProcessor</processorName>
         </postProcessedModel>
 	
-	<!-- Post processor definition for the GFS20 model -->
-	<postProcessedModel>
-	    <modelName>GFS20|AK-GFS22|GFS20-*</modelName>
-	    <processorName>gov.noaa.nws.crh.edex.grib.decoderpostprocessor.GFS20PostProcessor</processorName>
-	</postProcessedModel>
-
 </postProcessedModels>
 

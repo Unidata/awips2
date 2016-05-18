@@ -22,6 +22,10 @@
 	<contribute xsi:type="bundleItem" file="bundles/ncepHydro/ConvectiveWatchPlot.xml"
              menuText="Convective Watches" id="convectiveWatches">
     </contribute>
+	<contribute xsi:type="bundleItem" file="bundles/AllWarnings.xml" 
+          menuText="All Warnings" id="warnings">
+    </contribute>
+	<contribute xsi:type="separator" id="separator4"/>
 	<contribute xsi:type="bundleItem" file="bundles/Warnings.xml" 
           menuText="TStorm / Tornado Warnings" id="warnings">
     </contribute>

@@ -53,38 +53,7 @@
         <substitute key="element" value="NTP"/>
         <substitute key="colormap" value="Radar/8-bit STP"/>
 		<substitute key="interpolate" value="true"/>
-    </contribute>	
-	<contribute xsi:type="titleItem" titleText="------ 2 Panel  ------"
-		id="RadarMosaic" />
-	<contribute xsi:type="bundleItem" file="bundles/RadarCompositeTwoPanel.xml"
-		menuText="DHR and N1P" id="RadarHybridScanRefl">
-		<substitute key="element1" value="DHR"/>
-        <substitute key="colormap1" value="Radar/DHR"/>
-		<substitute key="interpolate1" value="true"/>
-		<substitute key="element2" value="N1P"/>
-        <substitute key="colormap2" value="Radar/8-bit STP"/>
-		<substitute key="interpolate2" value="true"/>
-	</contribute>
-	<contribute xsi:type="satBundleItem" file="bundles/RadarCompositeTwoPanel.xml"
-		menuText="DHR and EET" id="RadarHybridScanRefl">
-		<substitute key="element1" value="DHR"/>
-        <substitute key="colormap1" value="Radar/DHR"/>
-		<substitute key="interpolate1" value="true"/>
-		<substitute key="element2" value="EET"/>
-        <substitute key="colormap2" value="Radar/Enhanced Echo Tops"/>
-		<substitute key="interpolate2" value="true"/>
-	</contribute>
-	<contribute xsi:type="satBundleItem" file="bundles/RadarCompositeTwoPanel.xml"
-		menuText="DHR and HHC" id="RadarHybridScanRefl">
-		<substitute key="element1" value="DHR"/>
-        <substitute key="colormap1" value="Radar/DHR"/>
-		<substitute key="interpolate1" value="true"/>
-		<substitute key="element2" value="HHC"/>
-        <substitute key="colormap2" value="Radar/HHC NEXRCOMP"/>
-		<substitute key="interpolate2" value="false"/>
-	</contribute>
-	
-	
+    </contribute>
 	<contribute xsi:type="titleItem" titleText="------ Mosaic ------"
 		id="RadarMosaic" />
 	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
@@ -117,19 +86,6 @@
 		<substitute key="elevation" value="0.0" />
 		<substitute key="name" value="DHR - Digital Hybrid Reflectivity" />
 	</contribute>
-	<!-- 
-	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
-		menuText="Composite Refl" id="RadarCompositeRefl">
-		<substitute key="product" value="37" />
-		<substitute key="elevation" value="0.0" />
-		<substitute key="name" value="Composite Refl" />
-	</contribute>
-	
-	<contribute xsi:type="bundleItem"
-		file="bundles/DefaultRadarMosaicVILCompRefl.xml" menuText="VIL/Comp Ref"
-		id="RadarVILCompRef">
-	</contribute>
-	 -->
 	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
 		menuText="DVL - Vert Integrated Liquid" id="RadarVertIntegratedLiquid">
 		<substitute key="product" value="134" />

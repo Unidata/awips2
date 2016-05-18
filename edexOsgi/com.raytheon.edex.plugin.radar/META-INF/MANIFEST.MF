@@ -18,6 +18,7 @@ Require-Bundle: com.raytheon.edex.common;bundle-version="1.14.0",
  com.raytheon.uf.common.comm
 Export-Package: com.raytheon.edex.plugin.radar,
  com.raytheon.edex.plugin.radar.dao,
+ com.raytheon.edex.plugin.radar.handler,
  com.raytheon.edex.plugin.radar.level2
 Import-Package: com.raytheon.uf.common.dataplugin.text.db,
  com.raytheon.uf.common.inventory.tree,

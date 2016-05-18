@@ -19,12 +19,12 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<contribute xsi:type="bundleItem" file="bundles/SurfacePlotWinds.xml"
-			menuText="Wind Barbs" id="MetarPlot">
-    </contribute> 
 	<contribute xsi:type="bundleItem" file="bundles/SurfacePlotMetar.xml"
 			menuText="METAR Station Plot" id="MetarPlot">
-    </contribute> 
+    </contribute>
+	<contribute xsi:type="bundleItem" file="bundles/SurfacePlotWinds.xml"
+			menuText="METAR Winds" id="MetarPlot">
+    </contribute>
 	<contribute xsi:type="bundleItem" file="bundles/MetarPrecipPlot.xml" 
            menuText="METAR 24hr Precip" id="24HrPrecip">
         <substitute key="duration" value="24"/>
@@ -87,6 +87,57 @@
 	        <substitute key="posOffset" value="1800"/>
 	        <substitute key="negOffset" value="1800"/> 	        
 	    </contribute> 
+			
+		<contribute xsi:type="bundleItem" file="bundles/ColoredASOSPlot.xml"
+	            menuText="Colorized SA Station Plot" id="ColoredASOSPlot">
+	            <dataURI>/obs/%</dataURI>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/ColoredStationPlot_Wind.xml" 
+                menuText="Colorized METAR (Wind)" id="ColoredStationPlotWindMETAR">
+	        <substitute key="reptype" value="METAR,SPECI"/>
+	        <substitute key="plgn" value="obs"/>
+	        <substitute key="pkwnd" value="coloredObsPkWindDesign.svg"/>
+	        <substitute key="wnd50P" value="coloredObsWind50PDesign.svg"/>
+	        <substitute key="wnd30T50" value="coloredObsWind30T50Design.svg"/>
+	        <substitute key="wndobslow" value="coloredObsWindLowDesign.svg"/>
+	        <substitute key="wxplot" value="coloredObsWxDesign.svg"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/ColoredStationPlot_CV.xml" 
+		                menuText="Colorized METAR (C/V)" id="ColoredStationPlotCVMETAR">
+		        <substitute key="reptype" value="METAR,SPECI"/>
+		        <substitute key="plgn" value="obs"/>
+		        <substitute key="transsky" value="coloredObsTransCloudDesign.svg"/>
+		        <substitute key="obscvfr" value="coloredObsObscVFRCloudDesign.svg"/>
+		        <substitute key="obscmvfr" value="coloredObsObscMVFRCloudDesign.svg"/>
+		        <substitute key="obscifr" value="coloredObsObscIFRCloudDesign.svg"/>
+		        <substitute key="obsclifr" value="coloredObsObscLIFRCloudDesign.svg"/>
+		        <substitute key="wxplot" value="coloredObsWxDesign.svg"/>
+		        <substitute key="offset" value="900"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/ColoredMaritimePlot_Wind.xml" 
+		                menuText="Colorized Maritime (Wind)" id="ColoredMaritimePlotWind">
+		        <substitute key="reptype" value="1003,1004,1005,1006"/>
+		        <substitute key="plgn" value="sfcobs"/>
+		        <substitute key="pkwnd" value="coloredMaritimePkWindDesign.svg"/>
+		        <substitute key="wnd64P" value="coloredMaritimeWind64PDesign.svg"/>
+		        <substitute key="wnd48T64" value="coloredMaritimeWind48T64Design.svg"/>
+		        <substitute key="wnd34T48" value="coloredMaritimeWind34T48Design.svg"/>
+		        <substitute key="wnd20T34" value="coloredMaritimeWind20T34Design.svg"/>
+		        <substitute key="wndmarlow" value="coloredMaritimeWindLowDesign.svg"/>
+		        <substitute key="wxplot" value="coloredMaritimeWxDesign.svg"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/ColoredStationPlot_CV.xml" 
+		                menuText="Colorized Maritime (C/V)" id="ColoredStationPlotCVMaritime">
+		        <substitute key="reptype" value="1003,1004,1005,1006"/>
+		        <substitute key="plgn" value="sfcobs"/>
+		        <substitute key="transsky" value="coloredMaritimeTransCloudDesign.svg"/>
+		        <substitute key="obscvfr" value="coloredMaritimeObscVFRCloudDesign.svg"/>
+		        <substitute key="obscmvfr" value="coloredMaritimeObscMVFRCloudDesign.svg"/>
+		        <substitute key="obscifr" value="coloredMaritimeObscIFRCloudDesign.svg"/>
+		        <substitute key="obsclifr" value="coloredMaritimeObscLIFRCloudDesign.svg"/>
+		        <substitute key="wxplot" value="coloredMaritimeWxDesign.svg"/>
+		        <substitute key="offset" value="1800"/>
+		</contribute>
         <contribute xsi:type="separator" id="PrecipSeparator"/>
 	    
 	    <contribute xsi:type="titleItem" 
@@ -112,5 +163,9 @@
 	    <contribute xsi:type="titleItem" 
 			titleText="------ MSAS Obs------" id="msasLine"/>
 		<contribute xsi:type="subinclude" fileName="menus/obs/baseMSASObs.xml"/>
+    </contribute>
+	<contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+              menuText="MSLP Analysis" id="MSLPressureAnalysis">
+        <substitute key="wmo" value="PPAA89"/>
     </contribute>
 </menuTemplate>

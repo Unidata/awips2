@@ -199,11 +199,6 @@
 		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.ncep.core.feature" />
 		</antcall>
-		<!--
-		<antcall target="p2.build.repo">
-			<param name="feature" value="com.raytheon.uf.viz.aviation.advisory.feature" />
-		</antcall>
-		-->
 		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.ncep.dataplugins.feature" />
 		</antcall>

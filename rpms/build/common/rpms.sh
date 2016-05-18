@@ -188,8 +188,7 @@ function unpackHttpdPypies()
    awips2_core_directory=${WORKSPACE}/rpms/awips2.core
    httpd_pypies_directory=${awips2_core_directory}/Installer.httpd-pypies
    echo httpd_pypies_directory=${httpd_pypies_directory}
-   #httpd_SOURCES=${httpd_pypies_directory}/src/httpd-2.2.15-SOURCES.tar
-   httpd_SOURCES=${httpd_pypies_directory}/src/httpd-2.4.6-SOURCES.tar
+   httpd_SOURCES=${httpd_pypies_directory}/src/httpd-2.2.15-SOURCES.tar
    #httpd_SOURCES=${httpd_pypies_directory}/src/httpd-2.2.31.tar
    echo httpd_SOURCES=${httpd_SOURCES}
 
