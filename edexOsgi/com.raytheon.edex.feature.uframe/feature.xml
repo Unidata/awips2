@@ -72,13 +72,6 @@
          id="com.raytheon.uf.edex.archive.feature"
          version="0.0.0"/>
 
-   <!-- Comment out this include before checking in. This plugin only for debugging. -->
-   <!--
-   <includes
-         id="com.raytheon.uf.edex.archive.feeder.feature"
-          version="0.0.0"/>
-   -->
-
    <includes
          id="com.raytheon.uf.edex.text.feature"
          version="0.0.0"/>
@@ -142,10 +135,13 @@
    <includes
          id="gov.noaa.nws.sr.oun.edex.mping.feature"
          version="0.0.0"/>
-   
+
    <includes
          id="com.raytheon.uf.edex.goesr.feature"
          version="0.0.0"/>
 
+   <includes
+         id="edu.wisc.ssec.cimss.edex.convectprob.feature"
+         version="0.0.0"/>
 
 </feature>

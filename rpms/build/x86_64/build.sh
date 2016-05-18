@@ -123,7 +123,7 @@ if [ "${1}" = "-pydev" ]; then
    #buildRPM "awips2-python"
    #buildRPM "awips2-python-awips"
    #buildRPM "awips2-python-jep"
-   buildRPM "awips2-python-gfe"
+   #buildRPM "awips2-python-gfe"
    #buildRPM "awips2-python-numpy"
    #buildRPM "awips2-python-pyparsing"
    #buildRPM "awips2-python-six"
@@ -133,7 +133,7 @@ if [ "${1}" = "-pydev" ]; then
 
    #buildRPM "awips2-python-cycler"
    #buildRPM "awips2-python-shapely"
-   #buildRPM "awips2-python-cython"
+   buildRPM "awips2-python-cython"
 
    #buildRPM "awips2-python-metpy"
    #buildRPM "awips2-python-cartopy"
@@ -562,22 +562,31 @@ if [ "${1}" = "-other" ]; then
    #buildRPM "awips2-aviation-shared"
    #buildRPM "awips2-edex-environment"
    #buildRPM "awips2-data.gfe"
-   #buildRPM "awips2-data.hdf5-topo"
-   buildRPM "awips2-alertviz"
+   buildRPM "awips2-data.hdf5-topo"
+   #buildRPM "awips2-alertviz"
    #buildRPM "awips2-notification"
    #buildRPM "awips2-groovy"
 fi
-
 if [ "${1}" = "-viz" ]; then
-   buildRPM "awips2-common-base"
-   buildCAVE
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-   buildRPM "awips2-alertviz"
-   buildRPM "awips2-notification"
+   #buildRPM "awips2"
+   #buildCAVE
+   #if [ $? -ne 0 ]; then
+   #   exit 1
+   #fi
+   #buildRPM "awips2-alertviz"
    exit 0
 fi
+
+#if [ "${1}" = "-viz" ]; then
+#   buildRPM "awips2-common-base"
+#   buildCAVE
+#   if [ $? -ne 0 ]; then
+#      exit 1
+#   fi
+#   buildRPM "awips2-alertviz"
+#   buildRPM "awips2-notification"
+#   exit 0
+#fi
 
 if [ "${1}" = "-shp" ]; then
    buildShapefiles

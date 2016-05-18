@@ -7,7 +7,7 @@
 Summary: Pypies Apache HTTP Server
 Name: awips2-httpd-pypies
 Version: 2.2.15
-Release: 15.11
+Release: 15.14
 URL: http://httpd.apache.org/
 Source0: http://archive.apache.org/dist/httpd/httpd-%{version}.tar.gz
 Source1: index.html
@@ -84,7 +84,7 @@ Provides: httpd-mmn = %{mmn}
 Obsoletes: apache, secureweb, mod_dav, mod_gzip, stronghold-apache
 Obsoletes: stronghold-htdocs, mod_put, mod_roaming
 Conflicts: pcre < 4.0
-Requires: apr-util-ldap
+Requires: apr-util-ldap, mod_ssl
 requires: awips2-pypies
 
 %description

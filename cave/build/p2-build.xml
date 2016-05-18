@@ -188,9 +188,6 @@
 			<param name="feature" value="com.raytheon.uf.viz.kml.export.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
-			<param name="feature" value="com.raytheon.uf.viz.nwsauth.feature" />
-		</antcall>
-		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.viz.gfe.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
@@ -235,9 +232,6 @@
 			<param name="feature" value="com.raytheon.uf.viz.thinclient.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
-			<param name="feature" value="com.raytheon.uf.viz.useradmin.feature" />
-		</antcall>
-		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.registry.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
@@ -259,11 +253,6 @@
                 <antcall target="p2.build.repo">
                 <param name="feature" value="com.raytheon.uf.viz.ncep.npp.feature" />
                 </antcall>
-		<!--
-		<antcall target="p2.build.repo">
-			<param name="feature" value="com.raytheon.viz.avnfps.feature" />
-		</antcall>
-		-->
 		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.dat.feature" />
 		</antcall>
@@ -281,6 +270,9 @@
 		</antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature" value="gov.noaa.gsd.viz.ensemble.feature" />
+		</antcall>
+		<antcall target="p2.build.repo">
+			<param name="feature" value="edu.wisc.ssec.cimss.viz.convectprob.feature" />
 		</antcall>
 		<antcall target="cleanup.features" />
 	</target>

@@ -52,7 +52,7 @@
 #    01/19/2015          #4014     dgilling       Added ETSS.
 #    02/11/2015          #4053     rferrel        Added GLWN and moved GLERL to display only for Great Lakes sites..
 #    01/19/2015          #4014     dgilling       Added ETSS. 
-#    02/24/2015          #16692    byin           Added RTMA. Removed gfsLR and WaveWatch233
+#    02/24/2015          #16692    byin           Added RTMA. Removed gfsLR and GWW233
 #    03/19/2015          #4300     randerso       Remove GUMa as it is obsolete (per Shannon White)
 #    03/30/2015          #17288    bhunder        Added Guam-RTMA to D2D models
 #    03/30/2015          #17206    yteng          Changed some parameters that are not rate parameters
@@ -145,6 +145,7 @@ NO = 0
 # name/DISCRETE/units/description/overlapCapable/keyDef/
 
 # Standard Public Weather Elements
+SID = GFESUITE_SITEID
 Temp =    ("T", SCALAR, "F", "Surface Temperature", 120.0, -80.0, 0, NO)
 Td =      ("Td", SCALAR, "F", "Dewpoint", 120.0, -80.0, 0, NO)
 MaxT =    ("MaxT", SCALAR, "F", "Maximum Temperature", 120.0, -80.0, 0, NO)
@@ -305,8 +306,13 @@ Radar = ("Radar", SCALAR, "dbz", "Radar Reflectivity", 80.0, -20.0, 0, NO)
 
 # RTMA parms
 QPE =     ("QPE", SCALAR, "in", "QPE", 5.0, 0.0, 2, YES)
-TUnc =     ("TUnc", SCALAR, "F", "Temperature Anl Uncertainty", 10.0, 0.0, 0, NO)
-TdUnc =    ("TdUnc", SCALAR, "F", "Dewpoint Anl Uncertainty", 15.0, 0.0, 0, NO)
+#if SID in ALASKA_SITES: - not sure if this needs to be like that
+if SID in ALASKA_SITES or SID in ["HFO", "SJU", "GUM"]:
+    TUnc =     ("TUnc", SCALAR, "F", "Temperature Anl Uncertainty", 20.0, 0.0, 0, NO)
+    TdUnc =    ("TdUnc", SCALAR, "F", "Dewpoint Anl Uncertainty", 25.0, 0.0, 0, NO)
+else:
+    TUnc =     ("TUnc", SCALAR, "F", "Temperature Anl Uncertainty", 10.0, 0.0, 0, NO)
+    TdUnc =    ("TdUnc", SCALAR, "F", "Dewpoint Anl Uncertainty", 15.0, 0.0, 0, NO)
 # DR17144
 SkyUnc  =  ("SkyUnc", SCALAR, "%", "Sky Condition Uncertainty", 100.0, 0.0, 0, NO)
 WSpdUnc =  ("WSpdUnc", SCALAR, "kts", "WSpd Anl Uncertainty", 12.0, 0.0, 0, NO)
@@ -317,7 +323,7 @@ PressUnc = ("PressUnc", SCALAR, "Pa", "Press Anl Uncertainty", 110000.0, 0.0, 2,
 Pressure = ("Pressure", SCALAR, "Pa", "Pressure", 110000.0, 0.0, 2, NO)
 WGustUnc =  ("WGustUnc", SCALAR, "kts", "WGust Anl Uncertainty", 12.0, 0.0, 0, NO)
 
-# NamDNG parms
+# NamDNG5 parms
 QPF3 =     ("QPF3", SCALAR, "in", "3HR QPF", 3.0, 0.0, 2, YES)
 QPF6 =     ("QPF6", SCALAR, "in", "6HR QPF", 5.0, 0.0, 2, YES)
 QPF12 =    ("QPF12", SCALAR, "in", "12HR QPF", 10.0, 0.0, 2, YES)
@@ -787,6 +793,7 @@ SITES = {
     # Experimental combined AFC site
     'AFC' : ([1057, 449], (1.0, 19.00), (66.0, 28.0), 'America/Anchorage',
               Grid214AK, "wfo"),
+
     'ABQ' : ([145, 145], (36.00, 22.00), (9.0, 9.0), 'MST7MDT', Grid211,"wfo"),
     'ABR' : ([145, 145], (45.00, 35.00), (9.0, 9.0), 'CST6CDT', Grid211,"wfo"),
     'AER' : ([369, 337], (44.00, 23.00), (23.0, 21.0), 'America/Anchorage',
@@ -1077,31 +1084,40 @@ ISC         = ('ISC',          GRID,   '', YES, NO,  1, 12)
 LAPS        = ('LAPS',         GRID,   '', YES, NO,  1, 30)
 SAT         = ('SAT',          GRID,   '', YES, NO,  1, 12)
 ESTOFS      = ('ESTOFS',       GRID,   '', NO,  NO,  2, 0)
+nwpsTrkngCG0 = ('nwpsTrkngCG0',GRID,   '', NO,  NO,  2, 0)
+nwpsCG1     = ('nwpsCG1',      GRID,   '', NO,  NO,  2, 0)
 HPCGuide    = ('HPCGuide',     GRID,   '', NO,  NO,  2, 0)
 NAM12       = ('NAM12',        GRID,   '', NO,  NO,  2, 0)
-NAM20       = ('NAM20',        GRID,   '', NO,  NO,  2, 0)
 NAM40       = ('NAM40',        GRID,   '', NO,  NO,  2, 0)
 NAM80       = ('NAM80',        GRID,   '', NO,  NO,  2, 0)
+NAM95       = ('NAM95',        GRID,   '', NO,  NO,  2, 0)
+NGM80       = ('NGM80',        GRID,   '', NO,  NO,  2, 0)
+NGM95       = ('NGM95',        GRID,   '', NO,  NO,  2, 0)
 GFS40       = ('GFS40',        GRID,   '', NO,  NO,  2, 0)
-gfsLR       = ('GFS',          GRID,   '', NO,  NO,  2, 0)
-RAP13       = ('RAP13',        GRID,   '', NO,  NO,  2, 0)
-RAP40       = ('RAP40',        GRID,   '', NO,  NO,  2, 0)
+GFS80       = ('GFS80',        GRID,   '', NO,  NO,  2, 0)
+GFS190      = ('GFS190',       GRID,   '', NO,  NO,  2, 0)
+GFS75       = ('GFS75',        GRID,   '', NO,  NO,  2, 0)
+gfsLR       = ('gfsLR',        GRID,   '', NO,  NO,  2, 0)
+RUC13       = ('RUC13',        GRID,   '', NO,  NO,  2, 0)
+RUC80       = ('RUC80',        GRID,   '', NO,  NO,  2, 0)
 HPCGrid     = ('HPCGRID',      GRID,   '', NO,  NO,  2, 0)
 AKwave10    = ('AKwave10',     GRID,   '', NO,  NO,  2, 0)
 AKwave4     = ('AKwave4',      GRID,   '', NO,  NO,  2, 0)
 EPwave10    = ('EPwave10',     GRID,   '', NO,  NO,  2, 0)
 GlobalWave  = ('GlobalWave',   GRID,   '', NO,  NO,  2, 0)
-GLWM        = ('GLWM',         GRID,   '', NO,  NO,  2, 0)
-HIRESWarw   = ('HIRESWarw',    GRID,   '', NO,  NO,  2, 0)
+GLWM        = ('GLWM',         GRID,   '', NO,  NO,  2, 0)##########DCS3499
+HIRESWarw   = ('HIRESWarw',    GRID,   '', NO,  NO,  2, 0)##########DCS3501
 HIRESWnmm   = ('HIRESWnmm',    GRID,   '', NO,  NO,  2, 0)
 HRRR        = ("HRRR",         GRID,   '', NO,  NO,  3, 0)
+#### SPC         = ('SPC',          GRID,   '', NO,  NO,  2, 0)###DR20634
 WCwave10    = ('WCwave10',     GRID,   '', NO,  NO,  2, 0)
 WCwave4     = ('WCwave4',      GRID,   '', NO,  NO,  2, 0)
 WNAwave10   = ('WNAwave10',    GRID,   '', NO,  NO,  2, 0)
 WNAwave4    = ('WNAwave4',     GRID,   '', NO,  NO,  2, 0)
-WaveWatch   = ('WaveWatch',    GRID,   '', NO,  NO,  2, 0)
+GWW         = ('GWW',          GRID,   '', NO,  NO,  2, 0)
 HPCQPF      = ('HPCQPF',       GRID,   '', NO,   NO,  4, 0)
 RFCQPF      = ('RFCQPF',       GRID,   '', NO,   NO,  4, 0)
+#DR3511 HPCDelta    = ('HPCdelta',     GRID,   '', NO,   NO,  2, 0)
 TPCTCM      = ('TPCtcm',       GRID,   '', NO,   NO,  2, 0)
 MSAS        = ('MSAS',         GRID,   '', YES,  NO,  1, 36)
 GLERL       = ('GLERL',        GRID,   '', NO,   NO,  2, 0)
@@ -1113,9 +1129,10 @@ OPCTAFBNW   = ('OPCTAFBNW',    GRID,   '', NO,   NO,  2, 0)
 OPCTAFBSW   = ('OPCTAFBSW',    GRID,   '', NO,   NO,  2, 0)
 MOSGuide    = ('MOSGuide',     GRID,   '', NO,   NO,  2, 0)
 RTMA        = ('RTMA',         GRID,   '', YES,  NO,  1, 36)
-URMA25      = ('URMA25',       GRID,   '', YES,  NO,  1, 36)
-NamDNG      = ('NamDNG',       GRID,   '', NO,   NO,  2, 0)
+URMA25      = ('URMA25',       GRID,   '', YES,  NO,  1, 36) ####DR17144
+NamDNG5     = ('NamDNG5',      GRID,   '', NO,   NO,  2, 0)
 TPCProb     = ('TPCProb',      GRID,   '', NO,   NO, 30, 0)
+SREF        = ('SREF',         GRID,   '', NO,   NO,  3, 0)
 ENPwave     = ('ENPwave',      GRID,   '', NO,   NO,  2, 0)
 ETSS        = ('ETSS',         GRID,   '', NO,   NO,  2, 0)
 GFSLAMPGrid = ('GFSLAMPGrid',  GRID,   '', NO,   NO,  3, 0)
@@ -1141,46 +1158,288 @@ D2DDBVERSIONS = {
 
 #---------------------------------------------------------------------------
 #
-#  Search path for model files.
+#  Search path for D2D (awips) model files.
 #
 #---------------------------------------------------------------------------
-D2DMODELS = [
-             'DGEX',
-             'ECMF-Global',
-             'ESTOFS',
-             'estofsPR',
-             'ETSS',
-             ('FFG-ALR', 'FFGALR'),
-             ('FFG-FWR', 'FFGFWR'),
-             ('FFG-KRF', 'FFGKRF'),
-             ('FFG-MSR', 'FFGMSR'),
-             ('FFG-ORN', 'FFGORN'),
-             ('FFG-PTR', 'FFGPTR'),
-             ('FFG-RHA', 'FFGRHA'),
-             ('FFG-RSA', 'FFGRSA'),
-             ('FFG-STR', 'FFGSTR'),
-             ('FFG-TAR', 'FFGTAR'),
-             ('FFG-TIR', 'FFGTIR'),
-             ('FFG-TUA', 'FFGTUA'),
-             'GFS',
-             'GFS40',
-             'GLERL',
-             ('HPCqpf', 'HPCQPF'),
-             ('HPCqpfNDFD', 'HPCERP'),
-             ('RFCqpf', 'RFCQPF'),
-             'HRRR',
-             'NAM12',
-             'NAM40',
-             'NAM20',
-             'NamDNG',
-             'RAP13',
-             'RAP20',
-             'RAP40',
-             'RTMA',
-             'UKMET-Global',
-             'URMA25',
-             'WaveWatch',
-           ]
+# Alaska OCONUS
+if SID in ALASKA_SITES:
+    D2DMODELS = [('mesoEta216', 'NAM40'),
+                 ('mesoEta217', 'NAM20'),
+                 ('AVN203', 'GFS190'),
+                 ('MRF203', 'gfsLR'),
+                 ('NGM207', 'NGM95'),
+                 ('ETA207', 'NAM95'),
+                 'GWW233',
+                 ('ETA242', 'NAM12'),
+                 'ECMWF-LowRes','ECMWF',
+                 'UKMET-NorthernHemisphere', 'UKMET',
+                 'ENSEMBLE',
+                 ('DGEX186', 'DGEX'),
+                 ('OPCWave181', 'OPCTAFBNW'),
+                 ('AKWAVE239', 'AKWAVE'),
+                 'AKwave10',
+                 'AKwave4',
+                 'GlobalWave',
+                 ('nwpsCG1', 'nwpsCG1'),
+                 ('nwpsTrkngCG0', 'nwpsTrkngCG0'),
+#                 ('AK-RTMA','RTMA'),
+                 ('AK-RTMA3','RTMA'),  # Only have one RTMA
+                 ('AK-NamDNG5','NamDNG5'),
+                 ('MOSGuide-AK', 'MOSGuide'),
+                 ('HiResW-ARW-AK', 'HIRESWarw'),
+                 ('HiResW-NMM-AK', 'HIRESWnmm'),
+                 ('SPCGuide', 'SPC'),
+                 ('TPCWindProb', 'TPCProb'),
+                 'RTOFS-Alaska',
+                 'RTOFS-Arctic',
+                 'RTOFS-Bering',
+                 'RTOFS-GulfAlaska',
+                 'RTOFS-HudsonBaffin',
+                 ('estofsAK', 'ESTOFS'),
+                 'NPHwave15',
+                 'AKHwave10',
+                 'AKHwave4',
+                 'GLOBHwave',
+                 ('GFS217', 'GFS20'),
+                 ('ETSS-AK', 'ETSS'),
+               ]
+
+# Hawaii OCONUS
+elif SID == "HFO":
+    D2DMODELS = [('MRF204', 'gfsLR'),
+                 ('AVN225', 'GFS75'),
+                 'GWW233',
+                 'GlobalWave',
+                 'EPwave10',
+                 'EPwave4',
+                 ('HI-RTMA','RTMA'),
+                 ('HI-NamDNG5','NamDNG5'),
+                 ('HiResW-ARW-HI', 'HIRESWarw'),
+                 ('HiResW-NMM-HI', 'HIRESWnmm'),
+                 ('SPCGuide', 'SPC'),
+                 ('TPCWindProb', 'TPCProb'),
+                 ('ECMWF-HiRes','ECMWFHiRes'),
+                 'RTOFS-Honolulu',
+                 ('estofsHI', 'ESTOFS'), 
+                 'NPHwave15',
+                 'WPHwave10',
+                 'NPHwave4',
+                 'GLOBHwave',
+                 ('MOSGuide-HI', 'MOSGuide'),
+                 ('nwpsCG1', 'nwpsCG1'),
+                 ('nwpsTrkngCG0', 'nwpsTrkngCG0'),
+                 ('GFS20-PAC', 'GFS20'),
+               ]
+
+# San Juan OCONUS
+elif SID == "SJU":
+    D2DMODELS = [('AVN211', 'GFS80'),
+                 ('GFS212', 'GFS40'),
+                 ('ETA', 'NAM80'),
+                 ('NGM', 'NGM80'),
+                 ('MRF205', 'gfsLR'),
+                 ('OPCWave180', 'OPCTAFBE'),
+                 'HurWind226',
+                 'GWW233',
+                 'GlobalWave',
+                 'WNAwave10',
+                 'WNAwave4',
+                 ('PR-RTMA','RTMA'),
+                 ('PR-NamDNG5','NamDNG5'),
+                 ('HiResW-ARW-SJU', 'HIRESWarw'),
+                 ('HiResW-NMM-SJU', 'HIRESWnmm'),
+                 ('SPCGuide', 'SPC'),
+                 ('TPCWindProb', 'TPCProb'),
+                 ('ECMWF-HiRes','ECMWFHiRes'),
+                 'RTOFS-Atlantic',
+                 ('estofsPR', 'ESTOFS'),
+                 'NAHwave15',
+                 'NAHwave10',
+                 'NAHwave4',
+                 ('nwpsCG1', 'nwpsCG1'),
+                 ('nwpsTrkngCG0', 'nwpsTrkngCG0'),
+                 'GLOBHwave',
+                 ('GFS20-PRICO', 'GFS20'),
+               ]
+
+# Guam OCONUS
+elif SID == "GUM":
+    D2DMODELS = [('AVN225', 'GFS75'),
+                 'GlobalWave',
+                 ('TPCWindProb', 'TPCProb'),
+                 'RTOFS-Guam',
+                 'WPHwave10',
+                 'GLOBHwave',
+                 ('nwpsCG1', 'nwpsCG1'),
+                 ('nwpsTrkngCG0', 'nwpsTrkngCG0'),
+                 ('GFS20-PAC', 'GFS20'),
+                 # DCS #17288
+                 ('Guam-RTMA', 'RTMA'),
+               ]
+
+#CONUS sites
+elif SID in CONUS_EAST_SITES:
+    D2DMODELS = [('GFS212', 'GFS40'),
+                 ('AVN211', 'GFS80'),
+                 ('ETA', 'NAM80'),
+                 ('HRRR', 'HRRR'),
+                 ('NGM', 'NGM80'),
+                 ('MRF', 'gfsLR'),
+                 ('RUC130', 'RUC13'),
+                 ('RUC', 'RUC80'),
+                 ('mesoEta212', 'NAM40'),
+                 ('mesoEta215', 'NAM20'),
+                 'MSAS',
+                 ('LAPS', 'LAPS'),
+                 'GWW233',
+                 ('HPCqpf', 'HPCQPF'),
+                 ('HPCqpfNDFD', 'HPCERP'),
+                 ('RFCqpf', 'RFCQPF'),
+#DR3511                 'HPCdelta',
+                 'WNAWAVE238',
+                 'TPCSurgeProb',
+                 'GlobalWave',
+                 'EPwave10',
+                 'AKwave10',
+                 'AKwave4',
+                 'WCwave10',
+                 'WCwave4',
+                 'WNAwave10',
+                 'WNAwave4',
+                 'HurWind226',
+                 ('DGEX185', 'DGEX'),
+                 ('ETA218', 'NAM12'),
+                 'HPCGuide',
+                 ('OPCWave180', 'OPCTAFBE'),
+                 ('OPCWave181', 'OPCTAFBNW'),
+                 ('OPCWave182', 'OPCTAFBSW'),
+                 ('nwpsCG1', 'nwpsCG1'),
+                 ('nwpsTrkngCG0', 'nwpsTrkngCG0'),
+                 'MOSGuide',
+            ##############DR17144  
+                 ('RTMA25', 'RTMA'),
+                 'NamDNG5',
+                 ('TPCWindProb','TPCProb'),
+                 ('SREF212', 'SREF'),
+               #############DCS3501
+                 ('HiResW-ARW-East', 'HIRESWarw'),
+                 ('HiResW-NMM-East', 'HIRESWnmm'),
+                 ('SPCGuide', 'SPC'),
+                 ('ECMWF-HiRes','ECMWFHiRes'),
+                 ('ENPWAVE253', 'ENPwave'),
+                 ('estofsUS', 'ESTOFS'),
+                 'NAHwave15',
+                 'NAHwave10',
+                 'NAHwave4',
+                 'NPHwave15',
+                 'NPHwave10',
+                 'NPHwave4',
+                 'WPHwave10',
+                 'GLOBHwave',
+           #########DR17144
+                 'URMA25',
+                 ('GFS215', 'GFS20'),
+                 'ETSS',
+                 'GFSLAMPGrid',
+                 ('FFG-ALR', 'FFGALR'),
+                 ('FFG-FWR', 'FFGFWR'),
+                 ('FFG-KRF', 'FFGKRF'),
+                 ('FFG-MSR', 'FFGMSR'),
+                 ('FFG-ORN', 'FFGORN'),
+                 ('FFG-PTR', 'FFGPTR'),
+                 ('FFG-RHA', 'FFGRHA'),
+                 ('FFG-RSA', 'FFGRSA'),
+                 ('FFG-STR', 'FFGSTR'),
+                 ('FFG-TAR', 'FFGTAR'),
+                 ('FFG-TIR', 'FFGTIR'),
+                 ('FFG-TUA', 'FFGTUA'),
+                 'NationalBlend',
+               ]
+
+else:   #######DCS3501 WEST_CONUS
+
+    D2DMODELS = [('GFS212', 'GFS40'),
+                 ('AVN211', 'GFS80'),
+                 ('ETA', 'NAM80'),
+                 ('NGM', 'NGM80'),
+                 ('MRF', 'gfsLR'),
+                 ('RUC130', 'RUC13'),
+                 ('RUC', 'RUC80'),
+                 ('mesoEta212', 'NAM40'),
+                 ('mesoEta215', 'NAM20'),
+                 'MSAS',
+                 ('LAPS', 'LAPS'),
+                 'GWW233',
+                 ('HPCqpf', 'HPCQPF'),
+                 ('HPCqpfNDFD', 'HPCERP'),
+                 ('RFCqpf', 'RFCQPF'),
+                 ('HRRR', 'HRRR'),
+#DR3511                 'HPCdelta',
+                 'WNAWAVE238',
+                 'TPCSurgeProb',
+                 'GlobalWave',
+                 'EPwave10',
+                 'WCwave10',
+                 'WCwave4',
+                 'WNAwave10',
+                 'WNAwave4',
+                 'AKwave10',
+                 'AKwave4',
+                 'AKWAVE',
+                 'HurWind226',
+                 ('DGEX185', 'DGEX'),
+                 ('ETA218', 'NAM12'),
+                 'HPCGuide',
+                 ('OPCWave180', 'OPCTAFBE'),
+                 ('OPCWave181', 'OPCTAFBNW'),
+                 ('OPCWave182', 'OPCTAFBSW'),
+                 ('nwpsCG1', 'nwpsCG1'),
+                 ('nwpsTrkngCG0', 'nwpsTrkngCG0'),
+                 'MOSGuide',
+              #######DR17144
+                 ('RTMA25', 'RTMA'),
+                 'NamDNG5',
+                 ('TPCWindProb','TPCProb'),
+                 ('SREF212', 'SREF'),
+               #############DCS3501
+                 ('HiResW-ARW-West', 'HIRESWarw'),
+                 ('HiResW-NMM-West', 'HIRESWnmm'),
+                 ('SPCGuide', 'SPC'),
+                 ('ECMWF-HiRes','ECMWFHiRes'),
+                 ('ENPWAVE253', 'ENPwave'),
+                 'NAHwave15',
+                 'NAHwave10',
+                 'NAHwave4',
+                 'NPHwave15',
+                 'NPHwave10',
+                 'NPHwave4',
+                 'WPHwave10',
+                 'GLOBHwave',
+                 ('estofsEP', 'ESTOFS'),
+              ############DR17144
+                 'URMA25',
+                 ('GFS215', 'GFS20'),
+                 'ETSS',
+                 'GFSLAMPGrid',
+                 ('FFG-ALR', 'FFGALR'),
+                 ('FFG-FWR', 'FFGFWR'),
+                 ('FFG-KRF', 'FFGKRF'),
+                 ('FFG-MSR', 'FFGMSR'),
+                 ('FFG-ORN', 'FFGORN'),
+                 ('FFG-PTR', 'FFGPTR'),
+                 ('FFG-RHA', 'FFGRHA'),
+                 ('FFG-RSA', 'FFGRSA'),
+                 ('FFG-STR', 'FFGSTR'),
+                 ('FFG-TAR', 'FFGTAR'),
+                 ('FFG-TIR', 'FFGTIR'),
+                 ('FFG-TUA', 'FFGTUA'),
+                 'NationalBlend',
+               ]
+
+if SID in GreatLake_SITES:
+    D2DMODELS.append(('GRLKwave', 'GLWM'))
+    D2DMODELS.append('GLERL')
+    D2DMODELS.append('GLWN')
 
 #---------------------------------------------------------------------------
 #
@@ -1191,65 +1450,260 @@ D2DMODELS = [
 #        New files will not be recognized without a server restart. 
 #
 #---------------------------------------------------------------------------
-NETCDFDIRS = [('/awips2/edex/data/gfe/climo/PRISM'),
-              ('/awips2/edex/data/gfe/climo/NCDC'),
-              ('/awips2/edex/data/gfe/topo/NED3ARCSTOPO','CRMTopo'),
-              ('/awips2/edex/data/gfe/topo/NED3ARCSTOPONEW','NED'),
-              ('/awips2/edex/data/gfe/topo/VDATUMS','VDATUMS'),
-              ]
+# Alaska OCONUS
+if SID in ALASKA_SITES:
+    NETCDFDIRS = []
+    
+# Hawaii OCONUS
+elif SID == "HFO":
+    NETCDFDIRS = [('/awips2/edex/data/gfe/topo/NED3ARCSTOPO','CRMTopo'),
+                  ('/awips2/edex/data/gfe/topo/NED3ARCSTOPONEW','NED'),
+                  ]
+
+# San Juan OCONUS
+elif SID == "SJU":
+    NETCDFDIRS = [('/awips2/edex/data/gfe/topo/NED3ARCSTOPO','CRMTopo'),
+                  ('/awips2/edex/data/gfe/topo/NED3ARCSTOPONEW','NED'),
+                  ('/awips2/edex/data/gfe/topo/VDATUMS','VDATUMS'),
+                  ]
+    
+
+# Guam OCONUS
+elif SID == "GUM":
+    NETCDFDIRS = []
+    
+#CONUS sites
+elif SID in CONUS_EAST_SITES:
+    NETCDFDIRS = [('/awips2/edex/data/gfe/climo/PRISM'),
+                  ('/awips2/edex/data/gfe/climo/NCDC'),
+                  ('/awips2/edex/data/gfe/topo/NED3ARCSTOPO','CRMTopo'),
+                  ('/awips2/edex/data/gfe/topo/NED3ARCSTOPONEW','NED'),
+                  ('/awips2/edex/data/gfe/topo/VDATUMS','VDATUMS'),
+                  ]
+        
+
+else:   #######DCS3501 WEST_CONUS
+    NETCDFDIRS = [('/awips2/edex/data/gfe/climo/PRISM'),
+                  ('/awips2/edex/data/gfe/climo/NCDC'),
+                  ('/awips2/edex/data/gfe/topo/NED3ARCSTOPO','CRMTopo'),
+                  ('/awips2/edex/data/gfe/topo/NED3ARCSTOPONEW','NED'),
+                  ('/awips2/edex/data/gfe/topo/VDATUMS','VDATUMS'),
+                  ]
+    
+
 #---------------------------------------------------------------------------
 #
 # Where to find (and what to call) satellite data.
 #
 #---------------------------------------------------------------------------
 #
+
 # This table contains product ID and weather element names for satellite data
 #
 # A product ID consists of the sector ID and physical element of the
 # satellite product.
 #
-SATDATA = [("West CONUS/Imager Visible", "visibleWest"),
-           ("West CONUS/Imager 11 micron IR", "ir11West"),
-           ("West CONUS/Imager 13 micron (IR)", "ir13West"),
-           ("West CONUS/Imager 3.9 micron IR", "ir39West"),
-           ("West CONUS/Imager 6.7-6.5 micron IR (WV)", "waterVaporWest"),
-           ("East CONUS/Imager Visible", "visibleEast"),
-           ("East CONUS/Imager 11 micron IR", "ir11East"),
-           ("East CONUS/Imager 13 micron (IR)", "ir13East"),
-           ("East CONUS/Imager 3.9 micron IR", "ir39East"),
-           ("East CONUS/Imager 6.7-6.5 micron IR (WV)", "waterVaporEast")]
+# Examples:
+# 
+#   "East CONUS/Imager Visible"
+#   "East CONUS/Imager 11 micron IR"
+#   "East CONUS/Imager 13 micron (IR)"
+#   "East CONUS/Imager 3.9 micron IR"
+#
+
+# Alaska OCONUS
+if SID in ALASKA_SITES:
+    SATDATA = []
+
+# Hawaii OCONUS
+elif SID == "HFO":
+    SATDATA = []
+
+# San Juan OCONUS
+elif SID == "SJU":
+    SATDATA = [("East CONUS/Imager Visible", "visibleEast"),
+               ("East CONUS/Imager 11 micron IR", "ir11East"),
+               ("East CONUS/Imager 13 micron (IR)", "ir13East"),
+               ("East CONUS/Imager 3.9 micron IR", "ir39East"),
+               ("East CONUS/Imager 6.7-6.5 micron IR (WV)", "waterVaporEast")]
+
+# Guam OCONUS
+elif SID == "GUM":
+    SATDATA = []
+
+#CONUS sites
+else:
+    SATDATA = [("West CONUS/Imager Visible", "visibleWest"),
+               ("West CONUS/Imager 11 micron IR", "ir11West"),
+               ("West CONUS/Imager 13 micron (IR)", "ir13West"),
+               ("West CONUS/Imager 3.9 micron IR", "ir39West"),
+               ("West CONUS/Imager 6.7-6.5 micron IR (WV)", "waterVaporWest"),
+               ("East CONUS/Imager Visible", "visibleEast"),
+               ("East CONUS/Imager 11 micron IR", "ir11East"),
+               ("East CONUS/Imager 13 micron (IR)", "ir13East"),
+               ("East CONUS/Imager 3.9 micron IR", "ir39East"),
+               ("East CONUS/Imager 6.7-6.5 micron IR (WV)", "waterVaporEast")]
+
 #---------------------------------------------------------------------------
 #
 #  Smart Initialization Configuration
 #
 #---------------------------------------------------------------------------
 #
+# RFCs
 if SID in RFC_SITES:
     INITMODULES = {}    #disable smart inits for RFCs
-else:
+
+# Alaska OCONUS
+elif SID in ALASKA_SITES:
     INITMODULES = {
-        "RAP13" : ["RAP13"],
-        "RAP40" : ["RAP40"],
+#        "AKNAM40" : ["NAM40", "NAM20"],
+        "AKWAVE" : ['AKWAVE'],
+#        "AKwave4" : ['AKwave4'],
+#        "AKwave10" : ['AKwave10'],
+#        "GlobalWave" : ["GlobalWave"],
+#        "NAM95" : ["NAM95"],
+#        "NGM95" : ["NGM95"],
+#        "gfsLR" : ["gfsLR"],
         "NAM12" : ["NAM12"],
-        "GFS40" : ["GFS40"],
+        "GFS80" : ["GFS80"],
+#        "GFS190" : ["GFS190"],
+#DCS3501 
+        "HIRESWarw" : ["HIRESWarw"],                          
+        "HIRESWnmm" : ["HIRESWnmm"],
+#DR20634        "SPC" : ["SPC"],
+        "LAPS" : ["LAPS"],
         "HPCQPF" : ['HPCQPF'],
         "RFCQPF" : ['RFCQPF'],
+        "MSAS" : ['MSAS'],
+#        "HPCdelta" : ['HPCdelta'],
+        "SAT" : ['Satellite'],
+        "DGEX" : ['DGEX'],
+#        "GWW" : ["GWW"],
+#        "OPCTAFBNW" : ['OPCTAFBNW'],
+        "nwpsCG1" : ['nwpsCG1'],
+        "nwpsTrkngCG0" : ['nwpsTrkngCG0'],
+        "RTMA" : ['RTMA'],
+        "NamDNG5" : ["NamDNG5"],
+        "AKMOSGuide" : ['MOSGuide'],
+        "ESTOFS" : ["ESTOFS"],
+        "ETSS" : ["ETSS"],
+        }
+
+# Hawaii OCONUS
+elif SID == "HFO":
+    INITMODULES= {
+        "GFS75" : ["GFS75"],
+#####DCS3501          
+        "HIRESWarw" : ["HIRESWarw"],
+        "HIRESWnmm" : ["HIRESWnmm"],
+##DR20634        "SPC" : ["SPC"],
+#        "GlobalWave" : ["GlobalWave"],
+#        "EPwave10" : ["EPwEave10"],
+#        "GWW" : ["GWW"],
+#        "gfsLR" : ["gfsLR"],
+        "RTMA" : ['RTMA'],
+        "NamDNG5" : ["NamDNG5"],
+        "MOSGuide" : ['MOSGuide'],
+        "ESTOFS" : ["ESTOFS"], 
+        "nwpsCG1" : ['nwpsCG1'],
+        "nwpsTrkngCG0" : ['nwpsTrkngCG0'],
+        }
+
+# San Juan OCONUS
+elif SID == "SJU":
+    #initialization  module to model mappings
+    INITMODULES = {
+#        "NAM40" : ["NAM40", "NAM20"],
+#        "NAM80" : ["NAM80"],
+        "RUC13" : ["RUC13"],
+        "RUC80" : ["RUC80"],
+#        "gfsLR" : ["gfsLR"],
+#        "NGM80" : ["NGM80"],
+        "NAM12" : ["NAM12"],
+        "GFS80" : ["GFS80"],
+        "GFS40" : ["GFS40"],
+#####DCS3501 
+        "HIRESWarw" : ["HIRESWarw"],
+        "HIRESWnmm" : ["HIRESWnmm"], 
+#DR20634        "SPC" : ["SPC"],
+        "LAPS" : ["LAPS"],
+        "HPCQPF" : ['HPCQPF'],
+        "RFCQPF" : ['RFCQPF'],
+        "MSAS" : ['MSAS'],
+#        "HPCdelta" : ['HPCdelta'],
+        "SAT" : ['Satellite'],
+#        "GWW" : ["GWW"],
+#        "OPCTAFBE" : ['OPCTAFBE'],
+#        "GlobalWave" : ["GlobalWave"],
+#        "EPwave10" : ["EPwEave10"],
+        "RTMA" : ['RTMA'],
+        "NamDNG5" : ["NamDNG5"],
+        "ESTOFS" : ["ESTOFS"],
+        "nwpsCG1" : ['nwpsCG1'],
+        "nwpsTrkngCG0" : ['nwpsTrkngCG0'],
+        }
+
+# Guam OCONUS
+elif SID == "GUM":
+    INITMODULES= {
+        "GFS75" : ["GFS75"],
+#        "GWW" : ["GWW"],
+#        "gfsLR" : ["gfsLR"],
+#        "GlobalWave" : ["GlobalWave"],
+        "RTMA" : ['RTMA'],
+        "nwpsCG1" : ['nwpsCG1'],
+        "nwpsTrkngCG0" : ['nwpsTrkngCG0'],
+        }
+
+#CONUS sites
+else:
+    #initialization  module to model mappings
+    INITMODULES = {
+        "RUC13" : ["RUC13"],
+        "RUC80" : ["RUC80"],
+        "NAM12" : ["NAM12"],
+        "GFS40" : ["GFS40"],
+        "GFS80" : ["GFS80"],
+        "LAPS" : ["LAPS"],
+        "HPCQPF" : ['HPCQPF'],
+        "RFCQPF" : ['RFCQPF'],
+        "MSAS" : ['MSAS'],
         "SAT" : ['Satellite'],
         "DGEX" : ['DGEX'],
         "MOSGuide" : ['MOSGuide'],
         "HPCGuide" : ['HPCGuide'],
         "RTMA" : ['RTMA'],
+   #######DR17144
         "URMA25" : ['URMA25'],
-        "NamDNG" : ["NamDNG"],
+        "NamDNG5" : ["NamDNG5"],
+        "SREF" : ["SREF"],
         "HRRR" : ['HRRR'],
+#########DCS3501
+        "GLWM" : ["GLWM"],
+        "HIRESWarw" : ["HIRESWarw"],
+        "HIRESWnmm" : ["HIRESWnmm"],
+#DR20634        "SPC" : ["SPC"],
+#        "GlobalWave" : ["GlobalWave"],
+#        "EPwave10" : ["EPwave10"],
+#        "WCwave10" : ["WCwave10"],
+#        "WCwave4" : ["WCwave4"],
+#        "WNAwave10" : ["WNAwave10"],
+#        "WNAwave4" : ["WNAwave4"],
+#        "ENPwave": ["ENPwave"],
         "ESTOFS" : ["ESTOFS"],
         "ETSS" : ["ETSS"],
+        "GFSLAMPGrid" : ["GFSLAMPGrid"],
+        "nwpsCG1" : ['nwpsCG1'],
+        "nwpsTrkngCG0" : ['nwpsTrkngCG0'],
         }
+
 #initialization skip certain model runs
 INITSKIPS = {
-    "RAP13" : [1,2,4,5,7,8,10,11,13,14,16,17,19,20,22,23],
-    "RAP40" : [1,2,4,5,7,8,10,11,13,14,16,17,19,20,22,23]
+    "RUC13" : [1,2,4,5,7,8,10,11,13,14,16,17,19,20,22,23],
+    "RUC80" : [1,2,4,5,7,8,10,11,13,14,16,17,19,20,22,23]
     }
+
 #---------------------------------------------------------------------------
 #
 #  D2D Accumulative Weather Elements
@@ -1262,21 +1716,46 @@ INITSKIPS = {
 # going up to but not including the snapshot time.
 D2DAccumulativeElements= {
     "GFS40": ["tp", "cp", "crain", "csnow", "cfrzr", "cicep"],
+    "GFS80": ["tp", "cp"],
+    "GFS75": ["tp", "cp"],
+    "GFS190": ["tp", "cp"],
     "HRRR": ["tp", "crain", "csnow", "cfrzr", "cicep"],
+    "NAM95": ["tp", "cp"],
+    "NAM80": ["tp", "cp"],
     "NAM40": ["tp", "cp"],
     "NAM20": ["tp", "cp"],
     "NAM12": ["tp", "cp", "crain", "csnow", "cfrzr", "cicep"],
-    "RAP13": ["tp", "cp"],
-    "RAP40": ["tp", "cp"],
+    "NGM80": ["tp", "cp"],
+    "NGM95": ["tp", "cp"],
+    "gfsLR": ["tp", "cp"],
+    "RUC13": ["tp", "cp"],
+    "RUC80": ["tp", "cp"],
+    "MSAS": ["tp", "cp"],
+    "LAPS": ["pc"],
     "DGEX": ["tp"],
     "HPCQPF": ["tpHPC"],
     "RFCQPF": ["tpHPC"],
+#DR3511    "HPCdelta": ["pop", "tcc"],
     "HPCGuide": ["pop"],
     'MOSGuide': ['pop12hr', 'pop6hr', 'thp12hr', 'thp3hr', 'thp6hr', 'tcc', 'tp6hr', 'tp12hr', 'wgs'],
+#############DCS3501
+    "HIRESWarw": ["tp"],
+    "HIRESWnmm": ["tp"],
     "RTMA": ["tp"],
     "URMA25": ["tp"],
     "HPCERP": ["tpHPCndfd"], 
+#DR20634    "SPC": ["tp"],
+
+    #Dummy ones for the transition from Eta to NAM.  These are ignored.
+    # These will be removed after OB7.1.
+    #"Eta95": [],
+    #"Eta80": [],
+    #"Eta40": [],
+    #"Eta20": [],
+    #"Eta12": [],
+
     }
+
 #---------------------------------------------------------------------------
 #
 #  Intersite Coordination Configurations
@@ -1328,61 +1807,45 @@ EXTRA_ISC_PARMS = [([QPF,FloodingRainThreat], 'rfc'), ([QPF,FloodingRainThreat],
 #
 #---------------------------------------------------------------------------
 # defines the number of days to keep log files
-LOG_FILE_PURGE_AFTER = 7
+LOG_FILE_PURGE_AFTER = 28
 
 # auto configure NotifyTextProd -- set after OB6
 AUTO_CONFIGURE_NOTIFYTEXTPROD = 1   #0=off,1=on
 
-# import the local config file
-localParms = []
-localDBs = []
 
-localAKwave10Parms = []
-localAKwave4Parms = []
-localAKWAVEParms = []
-localDGEXParms = []
+#-----------------------------------
+# DO NOT CHANGE THE FOLLOWING SECTION
+#------------------------------------
+# import the local config file
+localParms = localNAM12Parms = localRUC13Parms = localRUC80Parms = localNGM80Parms = []
+localGFS80Parms = localgfsLRParms = localNAM40Parms = localDBs = []
+localOPCWavEParms = localOPCWavNWParms = localOPCWavSWParms = []
+localMOSGuideParms = localGFS40Parms = []
+localNAM80Parms = localLAPSParms = localISCParms = localGWWParms = []
+localNAM95Parms = localNGM95Parms = localDGEXParms = []
+localMSASParms = localGLERLParms = localWNAWAVEParms = localAKWAVEParms = []
+localMOSParms = localHPCQPFParms = localRFCQPFParms = []
+#DR3511 localHPCDeltaParms = []
+localTCMParms = localSATParms = localGFS75Parms = localGFS190Parms = []
+localAKwave10Parms = localAKwave4Parms = localEPwave10Parms = localGlobalWaveParms = []
+localWCwave10Parms = localWCwave4Parms = localWNAwave10Parms = localWNAwave4Parms = []
 localENPwaveParms = []
-localEPwave10Parms = []
-localESTOFSParms = []
-localETSSParms = []
-localGFS40Parms = []
-localGFSLAMPGridParms = []
-localgfsLRParms = []
-localGLERLParms = []
-localGlobalWaveParms = []
-localGLWMParms = []
-localGWWParms = []
-localHIRESWarwParms = []
-localHIRESWnmmParms = []
+localGLWMParms = []     #####DCS3499
+localParms = localHIRESWarwParms = localHIRESWnmmParms = []    #######DCS3501
+#DR20634 localParms = localSPCParms = []
 localHPCGuideParms = []
-localHPCQPFParms = []
-localHRRRParms = []
-localISCExtraParms = []
-localISCParms = []
-localLAPSParms = []
-localMOSGuideParms = []
-localMOSParms = []
-localMSASParms = []
-localNAM12Parms = []
-localNAM40Parms = []
-localNamDNGParms = []
-localOPCWavEParms = []
-localOPCWavNWParms = []
-localOPCWavSWParms = []
-localRAP13Parms = []
-localRAP40Parms = []
-localRFCQPFParms = []
 localRTMAParms = []
-localSATParms = []
-localTCMParms = []
+localURMA25Parms = []  ###DR17144
+localNamDNG5Parms = []
+localSREFParms = []
 localTPCProbParms = []
-localURMA25Parms = []
-localWaveWatchParms = []
-localWCwave10Parms = []
-localWCwave4Parms = []
-localWNAwave10Parms = []
-localWNAwave4Parms = []
-localWNAWAVEParms = []
+localGFSLAMPGridParms = []
+localETSSParms = []
+localHRRRParms = []
+localESTOFSParms = []
+localnwpsCG1Parms = []
+localnwpsTrkngCG0Parms = []
+localISCExtraParms = []
 
 myOfficeType = SITES[GFESUITE_SITEID][5]
 
@@ -1402,54 +1865,72 @@ if not BASELINE and siteImport('localConfig'):
     else:
         myOfficeType = SITES[GFESUITE_SITEID]  #probably from localConfig
 
-
-    localAKwave10Parms = getattr(localConfig, 'parmsAKwave10', localAKwave10Parms)
-    localAKwave4Parms = getattr(localConfig, 'parmsAKwave4', localAKwave4Parms)
-    localAKWAVEParms = getattr(localConfig, 'parmsAKWAVE', localAKWAVEParms)
-    localDGEXParms = getattr(localConfig, 'parmsDGEX', localDGEXParms)
-    localENPwaveParms = getattr(localConfig, 'parmsENPwave', localENPwaveParms)
-    localEPwave10Parms = getattr(localConfig, 'parmsEPwave10', localEPwave10Parms)
     localESTOFSParms = getattr(localConfig, 'parmsESTOFS', localESTOFSParms)
     localETSSParms = getattr(localConfig, 'parmsETSS', localETSSParms)
-    localGFS40Parms = getattr(localConfig, 'parmsGFS40', localGFS40Parms)
-    localGFSLAMPGridParms = getattr(localConfig, 'parmsGFSLAMPGrid', localGFSLAMPGridParms)
-    localgfsLRParms = getattr(localConfig, 'parmsgfsLR', localgfsLRParms)
-    localGLERLParms = getattr(localConfig, 'parmsGLERL', localGLERLParms)
-    localGlobalWaveParms = getattr(localConfig, 'parmsGlobalWave', localGlobalWaveParms)
-    localGLWMParms = getattr(localConfig, 'parmsGLWM', localGLWMParms)
-    localGWWParms = getattr(localConfig, 'parmsGWW', localGWWParms)
-    localHIRESWarwParms = getattr(localConfig, 'parmsHIRESWarw', localHIRESWarwParms)
-    localHIRESWnmmParms = getattr(localConfig, 'parmsHIRESWnmm', localHIRESWnmmParms)
-    localHPCGuideParms = getattr(localConfig, 'parmsHPCGuide',localHPCGuideParms)
-    localHPCQPFParms = getattr(localConfig, 'parmsHPCQPF', localHPCQPFParms)
-    localHRRRParms = getattr(localConfig, 'parmsHRRR', localHRRRParms)
-    localISCExtraParms = getattr(localConfig, 'extraISCparms', localISCExtraParms)
-    localISCParms = getattr(localConfig, 'parmsISC', localISCParms)
-    localLAPSParms = getattr(localConfig, 'parmsLAPS', localLAPSParms)
-    localMOSGuideParms = getattr(localConfig, 'parmsMOSGuide',localMOSGuideParms)
-    localMOSParms = getattr(localConfig, 'parmsMOS', localMOSParms)
-    localMSASParms = getattr(localConfig, 'parmsMSAS', localMSASParms)
-    localNAM12Parms = getattr(localConfig, 'parmsNAM12', localNAM12Parms)
-    localNAM40Parms = getattr(localConfig, 'parmsNAM40', localNAM40Parms)
-    localNamDNGParms = getattr(localConfig, 'parmsNamDNG', localNamDNGParms)
-    localOPCWavEParms = getattr(localConfig, 'parmsOPCWavE', localOPCWavEParms)
-    localOPCWavNWParms = getattr(localConfig, 'parmsOPCWavNW',localOPCWavNWParms)
-    localOPCWavSWParms = getattr(localConfig, 'parmsOPCWavSW',localOPCWavSWParms)
+    localnwpsCG1Parms = getattr(localConfig, 'parmsnwpsCG1', localnwpsCG1Parms)
+    localnwpsTrkngCG0Parms = getattr(localConfig, 'parmsnwpsTrkngCG0', localnwpsTrkngCG0Parms)
     localParms = getattr(localConfig, 'parms', localParms)
-    localRAP13Parms = getattr(localConfig, 'parmsRAP13', localRAP13Parms)
-    localRAP40Parms = getattr(localConfig, 'parmsRAP40', localRAP40Parms)
-    localRFCQPFParms = getattr(localConfig, 'parmsRFCQPF', localRFCQPFParms)
-    localRTMAParms = getattr(localConfig, 'parmsRTMA', localRTMAParms)
+    localNAM12Parms = getattr(localConfig, 'parmsNAM12', localNAM12Parms)
+    localOPCWavEParms = getattr(localConfig, 'parmsOPCWavE', localOPCWavEParms)
+    localOPCWavSWParms = getattr(localConfig, 'parmsOPCWavSW',
+                                 localOPCWavSWParms)
+    localOPCWavNWParms = getattr(localConfig, 'parmsOPCWavNW',
+                                 localOPCWavNWParms)
+    localNAM40Parms = getattr(localConfig, 'parmsNAM40', localNAM40Parms)
+    localNAM80Parms = getattr(localConfig, 'parmsNAM80', localNAM80Parms)
+    localNAM95Parms = getattr(localConfig, 'parmsNAM95', localNAM95Parms)
+    localRUC13Parms = getattr(localConfig, 'parmsRUC13', localRUC13Parms)
+    localRUC80Parms = getattr(localConfig, 'parmsRUC80', localRUC80Parms)
+    localNGM80Parms = getattr(localConfig, 'parmsNGM80', localNGM80Parms)
+    localNGM95Parms = getattr(localConfig, 'parmsNGM95', localNGM95Parms)
+    localGFS40Parms = getattr(localConfig, 'parmsGFS40', localGFS40Parms)
+    localGFS80Parms = getattr(localConfig, 'parmsGFS80', localGFS80Parms)
+    localGFS190Parms = getattr(localConfig, 'parmsGFS190', localGFS190Parms)
+    localGFS75Parms = getattr(localConfig, 'parmsGFS75', localGFS75Parms)
+    localgfsLRParms = getattr(localConfig, 'parmsgfsLR', localgfsLRParms)
+    localISCParms = getattr(localConfig, 'parmsISC', localISCParms)
+    localGWWParms = getattr(localConfig, 'parmsGWW', localGWWParms)
+    localGLWMParms = getattr(localConfig, 'parmsGLWM', localGLWMParms)        #########DCS3499
+    localHIRESWarwParms = getattr(localConfig, 'parmsHIRESWarw', localHIRESWarwParms)   ########DCS3501
+    localHIRESWnmmParms = getattr(localConfig, 'parmsHIRESWnmm', localHIRESWnmmParms)
+    localHRRRParms = getattr(localConfig, 'parmsHRRR', localHRRRParms)
+#DR20634    localSPCParms = getattr(localConfig, 'parmsSPC', localSPCParms)
+    localWNAWAVEParms = getattr(localConfig, 'parmsWNAWAVE', localWNAWAVEParms)
+    localAKWAVEParms = getattr(localConfig, 'parmsAKWAVE', localAKWAVEParms)
+    localLAPSParms = getattr(localConfig, 'parmsLAPS', localLAPSParms)
+    localMOSGuideParms = getattr(localConfig, 'parmsMOSGuide',
+                                 localMOSGuideParms)
+    localSREFParms = getattr(localConfig, 'parmsSREF', localSREFParms)
     localSATParms = getattr(localConfig, 'parmsSAT', localSATParms)
+    localMSASParms = getattr(localConfig, 'parmsMSAS', localMSASParms)
+    localGLERLParms = getattr(localConfig, 'parmsGLERL', localGLERLParms)
+    localDBs = getattr(localConfig, 'dbs', localDBs)
+    localMOSParms = getattr(localConfig, 'parmsMOS', localMOSParms)
+    localHPCQPFParms = getattr(localConfig, 'parmsHPCQPF', localHPCQPFParms)
+    localRFCQPFParms = getattr(localConfig, 'parmsRFCQPF', localRFCQPFParms)
+#DR3511    localHPCDeltaParms = getattr(localConfig, 'parmsHPCDelta',
+#DR3511                                 localHPCDeltaParms)
     localTCMParms = getattr(localConfig, 'parmsTCM', localTCMParms)
+    localDGEXParms = getattr(localConfig, 'parmsDGEX', localDGEXParms)
+    localHPCGuideParms = getattr(localConfig, 'parmsHPCGuide',
+      localHPCGuideParms)
+    localRTMAParms = getattr(localConfig, 'parmsRTMA', localRTMAParms)
+    localURMA25Parms = getattr(localConfig, 'parmsURMA25', localURMA25Parms)   ###DR17144
+    localNamDNG5Parms = getattr(localConfig, 'parmsNamDNG5', localNamDNG5Parms)
     localTPCProbParms = getattr(localConfig, 'parmsTPCProb', localTPCProbParms)
-    localURMA25Parms = getattr(localConfig, 'parmsURMA25', localURMA25Parms)
-    localWaveWatchParms = getattr(localConfig, 'parmsWaveWatch', localWaveWatchParms)
+    localAKwave10Parms = getattr(localConfig, 'parmsAKwave10', localAKwave10Parms)
+    localAKwave4Parms = getattr(localConfig, 'parmsAKwave4', localAKwave4Parms)
+    localEPwave10Parms = getattr(localConfig, 'parmsEPwave10', localEPwave10Parms)
+    localGlobalWaveParms = getattr(localConfig, 'parmsGlobalWave', localGlobalWaveParms)
     localWCwave10Parms = getattr(localConfig, 'parmsWCwave10', localWCwave10Parms)
     localWCwave4Parms = getattr(localConfig, 'parmsWCwave4', localWCwave4Parms)
     localWNAwave10Parms = getattr(localConfig, 'parmsWNAwave10', localWNAwave10Parms)
     localWNAwave4Parms = getattr(localConfig, 'parmsWNAwave4', localWNAwave4Parms)
-    localWNAWAVEParms = getattr(localConfig, 'parmsWNAWAVE', localWNAWAVEParms)
+    localENPwaveParms = getattr(localConfig, 'parmsENPwave', localENPwaveParms)
+    localGFSLAMPGridParms = getattr(localConfig, 'parmsGFSLAMPGrid', localGFSLAMPGridParms)
+    #note that extraISCparms are not in the standard format. These
+    #are a list of ([p, p, p, p], officeType)
+    localISCExtraParms = getattr(localConfig, 'extraISCparms', localISCExtraParms)
 
 #---------------------------------------------------------------------------
 # Parm groups.  Combine parms with time constraints
@@ -1552,16 +2033,22 @@ else:
     OFFICIALDBS.append(([WaveHeight, WindWaveHeight, SurfHeight, Swell, Swell2, Period, Period2], TC3NG))
 # End addition for DR 17496
 
+# NWPS
+nwpsCG1_MODEL = [([SwanSwell, Period, WaveHeight, WindWaveHeight, Wind], TC3NG)]
+
+nwpsTrkngCG0_MODEL = [([Wave1, Wave2, Wave3, Wave4, Wave5, Wave6, Wave7, Wave8, Wave9, Wave10, Period1, Period2, Period3, Period4, Period5, Period6,Period7, Period8, Period9, Period10 ], TC3NG)]
+
 # Global Wave Watch III, WNAWAVE, AKWAVE Model database parameter groupings
 WAVEPARMS = [([WindWaveHeight, WaveHeight, SurfHeight, Wind], TC6),
             ([Swell, Swell2, Period, Period2], TC6)]
 
 # GLWM Model database parameter groupings
 GLWMPARMS = [([SigWaveHgt, WindWaveHgt, WindWaveDir, WindWavePeriod], TC1)]
-
+######DCS3501
 # HIRESW database parameter groupings
 HIRESWarwPARMS = [([Temp], TC3)]
 HIRESWnmmPARMS = [([Temp], TC3)]
+#DR20634 SPCPARMS = [([Temp], TC1)]
 
 # LAPS database parameter groupings
 LAPSPARMS = [([Temp, Td, Wind, Weather, Sky, SnowAmt, QPF, Radar], TC1)]
@@ -1589,6 +2076,9 @@ MSASPARMS = [([Temp, Td, Wind], TC1)]
 # GLERL database parameter groupings
 GLERLPARMS = [([WaveHeight, Period, Swell], TC1)]
 
+# SREF database parameter groupings
+SREFPARMS = [([Temp, Td, Wind], TC1)]
+
 HPCQPF_MODEL = [([QPF], TC6NG)]
 RFCQPF_MODEL = [([QPF], TC6NG)]
 
@@ -1606,18 +2096,24 @@ TPCTCM_MODEL = [([HiWind], TC3)]
 # RTMA database parameter groupings
 #if SID in ALASKA_SITES: - not sure if this is right
 # DCS17288/DR17144
-RTMAPARMS = [([Temp,Td,RH,Wind,QPE,Sky,Vis,Pressure,WindGust],TC1),
+if SID in ALASKA_SITES or SID in ["HFO", "SJU", "GUM"]:
+    RTMAPARMS = [([Temp,Td,RH,Wind,Vis,Pressure,WindGust],TC1),
+             ([MinT],MinTTC), ([MaxT],MaxTTC),
+             ([MinRH],MinRHTC), ([MaxRH],MaxRHTC),
+             ([TUnc,TdUnc,WSpdUnc,WDirUnc,VisUnc,PressUnc,WGustUnc],TC1)]
+else:
+    RTMAPARMS = [([Temp,Td,RH,Wind,QPE,Sky,Vis,Pressure,WindGust],TC1),
              ([MinT],MinTTC), ([MaxT],MaxTTC),
              ([MinRH],MinRHTC), ([MaxRH],MaxRHTC),
              ([TUnc,TdUnc,WSpdUnc,WDirUnc,VisUnc,PressUnc,WGustUnc,SkyUnc],TC1)]
 
 URMA25PARMS = [([Temp,Td,RH,Wind,QPE,Sky,Vis,Pressure,WindGust],TC1),
-               ([MinT],MinTTC), ([MaxT],MaxTTC),
-               ([MinRH],MinRHTC), ([MaxRH],MaxRHTC),
-               ([TUnc,TdUnc,WSpdUnc,WDirUnc,VisUnc,PressUnc,WGustUnc,SkyUnc],TC1)]
+             ([MinT],MinTTC), ([MaxT],MaxTTC),
+             ([MinRH],MinRHTC), ([MaxRH],MaxRHTC),
+             ([TUnc,TdUnc,WSpdUnc,WDirUnc,VisUnc,PressUnc,WGustUnc,SkyUnc],TC1)]
 
-# NamDNG database parameter groupings
-NamDNGPARMS = [([Temp, Td, RH, Wind, Sky, WindGust, Vis], TC3),
+# NamDNG5 database parameter groupings
+NamDNG5PARMS = [([Temp, Td, RH, Wind, Sky, WindGust, Vis], TC3),
                 ([MixHgt, TransWind, SnowLevel], TC3),
                 ([MinT], MinTTC), ([MaxT], MaxTTC),
                 ([MinRH], MinRHTC), ([MaxRH], MaxRHTC),
@@ -1650,13 +2146,20 @@ DATABASES = [(Official, OFFICIALDBS + localParms),
              (Fcst, OFFICIALDBS + localParms),
              (Practice, OFFICIALDBS + localParms),
              (TestFcst, OFFICIALDBS + localParms),
-             (RAP13, STD1_MODEL + localRAP13Parms),
-             (RAP40, STD1_MODEL + localRAP40Parms),
+             (NAM80, STD6_MODEL + localNAM80Parms),
+             (NAM95, STD6_MODEL + localNAM95Parms),
+             (RUC13, STD1_MODEL + localRUC13Parms),
+             (RUC80, STD1_MODEL + localRUC80Parms),
+             (NGM80, STD6_MODEL + localNGM80Parms),
+             (NGM95, STD6_MODEL + localNGM95Parms),
              (GFS40, STD6_MODEL + localGFS40Parms),
+             (GFS80, STD6_MODEL + localGFS80Parms),
+             (GFS75, STD6_MODEL + localGFS75Parms),
+             (GFS190, STD6_MODEL + localGFS190Parms),
              (NAM40, STD3_MODEL + localNAM40Parms),
              (NAM12, STD3_MODEL + localNAM12Parms),
              (gfsLR, STD12_MODEL + localgfsLRParms),
-             (WaveWatch, WAVEPARMS + localWaveWatchParms),
+             (GWW, WAVEPARMS + localGWWParms),
              (WNAWAVE, WAVEPARMS + localWNAWAVEParms),
              (AKWAVE, WAVEPARMS + localAKWAVEParms),
              (AKwave10, WAVEPARMS + localAKwave10Parms),
@@ -1664,11 +2167,14 @@ DATABASES = [(Official, OFFICIALDBS + localParms),
              (EPwave10, WAVEPARMS + localEPwave10Parms),
              (ESTOFS, ESTOFSPARMS + localESTOFSParms),
              (ETSS, ETSSPARMS + localETSSParms),
+             (nwpsCG1, nwpsCG1_MODEL + localnwpsCG1Parms),
+             (nwpsTrkngCG0, nwpsTrkngCG0_MODEL + localnwpsTrkngCG0Parms),
              (GlobalWave, WAVEPARMS + localGlobalWaveParms),
-             (GLWM, GLWMPARMS + localGLWMParms),
-             (HIRESWarw, STD3_MODEL + localHIRESWarwParms),
+             (GLWM, GLWMPARMS + localGLWMParms),            #####DCS3499
+             (HIRESWarw, STD3_MODEL + localHIRESWarwParms), #####DCS3501
              (HIRESWnmm, STD3_MODEL + localHIRESWnmmParms),
              (HRRR, HRRRPARMS + localHRRRParms),
+#DR20634             (SPC, SPCPARMS + localSPCParms),
              (WCwave10, WAVEPARMS + localWCwave10Parms),
              (WCwave4, WAVEPARMS + localWCwave4Parms),
              (WNAwave10, WAVEPARMS + localWNAwave10Parms),
@@ -1676,11 +2182,13 @@ DATABASES = [(Official, OFFICIALDBS + localParms),
              (HPCGrid, MOS_MODEL + localMOSParms),
              (HPCQPF, HPCQPF_MODEL + localHPCQPFParms),
              (RFCQPF, RFCQPF_MODEL + localRFCQPFParms),
+#DR3511             (HPCDelta, HPCDELTA_MODEL + localHPCDeltaParms),
              (HPCGuide, HPCGUIDE_MODEL + localHPCGuideParms),
              (TPCTCM, TPCTCM_MODEL + localTCMParms),
              (DGEX, STD6_MODEL + localDGEXParms),
              (LAPS, LAPSPARMS + localLAPSParms),
              (MOSGuide, MOSGuidePARMS + localMOSGuideParms),
+             (SREF, SREFPARMS + localSREFParms),
              (OPCTAFBE, OPCTAFBPARMS + localOPCWavEParms),
              (OPCTAFBNW, OPCTAFBPARMS + localOPCWavNWParms),
              (OPCTAFBSW, OPCTAFBPARMS + localOPCWavSWParms),
@@ -1689,7 +2197,7 @@ DATABASES = [(Official, OFFICIALDBS + localParms),
              (GLERL, GLERLPARMS + localGLERLParms),
              (RTMA, RTMAPARMS + localRTMAParms),
              (URMA25, URMA25PARMS + localURMA25Parms),  ####DR17144
-             (NamDNG, NamDNGPARMS + localNamDNGParms),
+             (NamDNG5, NamDNG5PARMS + localNamDNG5Parms),
              (TPCProb, TPCProbPARMS + localTPCProbParms),
              (ENPwave, ENPwave_parms + localENPwaveParms),
              (GFSLAMPGrid, GFSLAMPGridPARMS + localGFSLAMPGridParms), 

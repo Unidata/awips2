@@ -23,12 +23,8 @@ AutoReq: no
 Requires: awips2-qpid-lib
 requires: awips2-python
 requires: compat-gcc-34-g77
-requires: pax
-requires: gcc
-requires: gcc-c++
-requires: libxml2-devel
-requires: libtool
-requires: libpng-devel
+requires: pax, gcc, libxml2-devel
+requires: libtool, libpng-devel
 provides: awips2-ldm
 
 %description
@@ -74,7 +70,7 @@ fi
 
 _ldm_destination=%{_build_root}/awips2/ldm
 _ldm_destination_source=${_ldm_destination}/SOURCES
-_NATIVELIB_PROJECTS=( 'edexBridge' 'decrypt_file' )
+_NATIVELIB_PROJECTS=( 'decrypt_file' )
 _RPM_directory=%{_baseline_workspace}/rpms
 _Installer_ldm=${_RPM_directory}/awips2.upc/Installer.ldm
 
@@ -146,12 +142,9 @@ if [ -d /tmp/ldm ]; then
    rm -rf /tmp/ldm
 fi
 mkdir -p /tmp/ldm
-for dir in etc;
-do
-   if [ -d /awips2/ldm/${dir} ]; then
-      scp -qrp /awips2/ldm/${dir} /tmp/ldm
-   fi
-done
+if [ -d /awips2/ldm/etc ]; then
+   cp -rp /awips2/ldm/etc /tmp/ldm
+fi
 
 %post
 _ldm_dir=/awips2/ldm
@@ -214,21 +207,21 @@ do
 done
 /bin/chmod a+x ${_ldm_dir}/bin/*
 
-# build decrypt_file & edexBridge
+# build decrypt_file
 cd ${_ldm_dir}/SOURCES
 /bin/tar -xf decrypt_file.tar
 if [ $? -ne 0 ]; then
    echo "FATAL: failed to untar decrypt_file.tar!"
    exit 1
 fi
-/bin/tar -xf edexBridge.tar
-if [ $? -ne 0 ]; then
-   echo "FATAL: failed to untar edexBridge.tar!"
-   exit 1
-fi
+#/bin/tar -xf edexBridge.tar
+#if [ $? -ne 0 ]; then
+#   echo "FATAL: failed to untar edexBridge.tar!"
+#   exit 1
+#fi
 /bin/rm -f *.tar
 if [ $? -ne 0 ]; then
-   echo "FATAL: failed to remove edexBridge.tar and decrypt_file.tar!"
+   echo "FATAL: failed to remove decrypt_file.tar!"
    exit 1
 fi
 cd decrypt_file
@@ -245,26 +238,26 @@ if [ $? -ne 0 ]; then
    echo "FATAL: failed to move built decrypt_file to ldm decoders directory!"
    exit 1
 fi
-cd ../edexBridge
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-g++ edexBridge.cpp -I${_ldm_root_dir}/src/pqact \
-   -I${_ldm_root_dir}/include \
-   -I${_ldm_root_dir}/src \
-   -I/awips2/qpid/include \
-   -L${_ldm_root_dir}/lib \
-   -L/awips2/qpid/lib \
-   -l ldm -l xml2 -l qpidclient -l qpidmessaging -l qpidcommon -l qpidtypes -o edexBridge
-if [ $? -ne 0 ]; then
-   echo "FATAL: failed to build edexBridge!"
-   exit 1
-fi
-/bin/mv edexBridge ${_ldm_dir}/bin/edexBridge
-if [ $? -ne 0 ]; then
-   echo "FATAL: failed to move edexBridge to ldm bin directory!"
-   exit 1
-fi
+#cd ../edexBridge
+#if [ $? -ne 0 ]; then
+#   exit 1
+#fi
+#g++ edexBridge.cpp -I${_ldm_root_dir}/src/pqact \
+#   -I${_ldm_root_dir}/include \
+#   -I${_ldm_root_dir}/src \
+#   -I/awips2/qpid/include \
+#   -L${_ldm_root_dir}/lib \
+#   -L/awips2/qpid/lib \
+#   -l ldm -l xml2 -l qpidclient -l qpidmessaging -l qpidcommon -l qpidtypes -o edexBridge
+#if [ $? -ne 0 ]; then
+#   echo "FATAL: failed to build edexBridge!"
+#   exit 1
+#fi
+#/bin/mv edexBridge ${_ldm_dir}/bin/edexBridge
+#if [ $? -ne 0 ]; then
+#   echo "FATAL: failed to move edexBridge to ldm bin directory!"
+#   exit 1
+#fi
 cd ..
 
 /sbin/ldconfig
@@ -292,6 +285,11 @@ else
   echo "--- you will need to check owner/group/permissions for /awips2/ldm"
   echo "tried to run 'chown -R awips:fxalpha /awips2/ldm; cd /awips2/ldm/src/; make install_setuids'"
   echo ""
+fi
+
+# Copy back local ldm
+if [ -d /tmp/ldm ]; then
+   cp -rp /tmp/ldm /awips2/ldm/etc
 fi
 
 %preun

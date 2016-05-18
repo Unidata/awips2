@@ -3,5 +3,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="/org.jep/jep-3.3.6.jar" sourcepath="/org.jep/jep.src-3.3.6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
