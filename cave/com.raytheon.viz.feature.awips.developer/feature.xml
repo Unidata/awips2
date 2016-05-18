@@ -122,15 +122,7 @@
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.uf.viz.nwsauth.feature"
-         version="0.0.0"/>
-
-   <includes
          id="com.raytheon.uf.viz.thinclient.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="com.raytheon.uf.viz.useradmin.feature"
          version="0.0.0"/>
 
    <includes
@@ -195,14 +187,6 @@
 
    <includes
          id="com.raytheon.uf.viz.alertview.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="com.raytheon.uf.viz.aqi.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="edu.ucar.unidata.viz.feature"
          version="0.0.0"/>
 
    <requires>

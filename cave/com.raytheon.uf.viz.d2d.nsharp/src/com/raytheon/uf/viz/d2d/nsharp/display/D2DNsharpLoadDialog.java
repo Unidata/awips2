@@ -197,7 +197,7 @@ public class D2DNsharpLoadDialog extends Dialog {
         super.configureShell(shell);
         D2DNsharpLoadDialog.shell = shell;
         shell.setSize(getDialogWidth(), DIALOG_HEIGHT);
-        shell.setText("D2DLoad");
+        shell.setText("Load Data");
         mb = new MessageBox(shell, SWT.ICON_WARNING | SWT.OK);
 
         mb.setMessage("User Input Error!");

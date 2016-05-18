@@ -50,8 +50,8 @@
     </include>
 	<include installTo="menu:models" 
              fileName="menus/volume/allFamilies.xml">
-             <substitute key="modelName" value="GFS40" />
-             <substitute key="menuName" value="GFS 40km" />
+             <substitute key="modelName" value="GFS20" />
+             <substitute key="menuName" value="GFS 20km" />
              <substitute key="frameCount" value="41" />
              <substitute key="TP" value="TP"/>
     </include>
@@ -64,22 +64,8 @@
     </include>
 	<include installTo="menu:models" 
              fileName="menus/volume/allFamilies.xml">
-             <substitute key="modelName" value="NAM4" />
-             <substitute key="menuName" value="NAM 4km" />
-             <substitute key="frameCount" value="41" />
-             <substitute key="TP" value="TP3hr"/>
-    </include>
-	<include installTo="menu:models" 
-             fileName="menus/volume/allFamilies.xml">
              <substitute key="modelName" value="NAM12" />
              <substitute key="menuName" value="NAM 12km" />
-             <substitute key="frameCount" value="41" />
-             <substitute key="TP" value="TP3hr"/>
-    </include>
-	<include installTo="menu:models" 
-             fileName="menus/volume/allFamilies.xml">
-             <substitute key="modelName" value="NAM20" />
-             <substitute key="menuName" value="NAM 20km" />
              <substitute key="frameCount" value="41" />
              <substitute key="TP" value="TP3hr"/>
     </include>

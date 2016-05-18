@@ -110,17 +110,10 @@
             <param name="feature"
                 value="com.raytheon.uf.edex.remote.script.feature" />
         </antcall>
-
-		<!-- SPECIAL CASE -->
-		<if>
-			<equals arg1="${lightning}" arg2="true" />
-			<then>
-				<antcall target="build">
-					<param name="feature"
-						value="com.raytheon.uf.edex.binlightning.feature" />
-				</antcall>
-			</then>
-		</if>
+		<antcall target="build">
+			<param name="feature"
+				value="com.raytheon.uf.edex.binlightning.feature" />
+		</antcall>
 	</target>
 
     <!--

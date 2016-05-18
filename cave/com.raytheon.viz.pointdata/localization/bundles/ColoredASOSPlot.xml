@@ -1,0 +1,460 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<bundle>
+	<displayList>
+		<displays xsi:type="d2DMapRenderableDisplay"
+			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			<descriptor xsi:type="mapDescriptor" currentAnimationMode="Temporal">
+<!--CLOUD STUFF -->
+	<!--TRANSPARENT CLOUD STUFF -->
+				<resource>
+                    <loadProperties>
+						<capabilities>
+							<capability xsi:type="colorableCapability" colorAsString="#18D928"/>
+							<capability xsi:type="densityCapability" density="2.0"/>
+							<capability xsi:type="magnificationCapability" magnification="1.0"/>
+						</capabilities>
+					</loadProperties>
+					<properties isSystemResource="false" isBlinking="false"
+						isMapLayer="false" isHoverOn="false"
+						isVisible="true" />
+					<resourceData xsi:type="plotResourceData" plotSource="Transparent Cloud Base"
+						plotModelFile="coloredObsTransCloudDesign.svg" spiFile="basemaps/MTR.spi"
+						retrieveData="false" isUpdatingOnMetadataOnly="false"
+						isRequeryNecessaryOnTimeMatch="true">
+						<binOffset posOffset="900" negOffset="900" virtualOffset="0"/>
+						<metadataMap>
+							<mapping key="reportType">
+								<constraint constraintValue="METAR,SPECI" constraintType="IN" />
+							</mapping>
+							<mapping key="pluginName">
+								<constraint constraintValue="obs" constraintType="EQUALS" />
+							</mapping>
+						</metadataMap>
+					</resourceData>
+				</resource>	
+	<!--OBSCURED CLOUD STUFF -->
+				<resource>
+                    <loadProperties>
+						<capabilities>
+							<capability xsi:type="colorableCapability" colorAsString="#18D928"/>
+							<capability xsi:type="densityCapability" density="2.0"/>
+							<capability xsi:type="magnificationCapability" magnification="1.0"/>
+						</capabilities>
+					</loadProperties>
+					<properties isSystemResource="false" isBlinking="false"
+						isMapLayer="false" isHoverOn="false"
+						isVisible="true" />
+					<resourceData xsi:type="plotResourceData" plotSource="Obscured Cloud Base VFR"
+						plotModelFile="coloredObsObscVFRCloudDesign.svg" spiFile="basemaps/MTR.spi"
+						retrieveData="false" isUpdatingOnMetadataOnly="false"
+						isRequeryNecessaryOnTimeMatch="true">
+						<binOffset posOffset="900" negOffset="900" virtualOffset="0"/>
+						<metadataMap>
+							<mapping key="reportType">
+								<constraint constraintValue="METAR,SPECI" constraintType="IN" />
+							</mapping>
+							<mapping key="pluginName">
+								<constraint constraintValue="obs" constraintType="EQUALS" />
+							</mapping>
+						</metadataMap>
+					</resourceData>
+				</resource>	
+				<resource>
+                    <loadProperties>
+						<capabilities>
+							<capability xsi:type="colorableCapability" colorAsString="#008FFF"/>
+							<capability xsi:type="densityCapability" density="2.0"/>
+							<capability xsi:type="magnificationCapability" magnification="1.25"/>
+						</capabilities>
+					</loadProperties>
+					<properties isSystemResource="false" isBlinking="false"
+						isMapLayer="false" isHoverOn="false"
+						isVisible="true" />
+					<resourceData xsi:type="plotResourceData" plotSource="Obscured Cloud Base MVFR"
+						plotModelFile="coloredObsObscMVFRCloudDesign.svg" spiFile="basemaps/MTR.spi"
+						retrieveData="false" isUpdatingOnMetadataOnly="false"
+						isRequeryNecessaryOnTimeMatch="true">
+						<binOffset posOffset="900" negOffset="900" virtualOffset="0"/>
+						<metadataMap>
+							<mapping key="reportType">
+								<constraint constraintValue="METAR,SPECI" constraintType="IN" />
+							</mapping>
+							<mapping key="pluginName">
+								<constraint constraintValue="obs" constraintType="EQUALS" />
+							</mapping>
+						</metadataMap>
+					</resourceData>
+				</resource>	
+				<resource>
+                    <loadProperties>
+						<capabilities>
+							<capability xsi:type="colorableCapability" colorAsString="#DE1B31"/>
+							<capability xsi:type="densityCapability" density="2.0"/>
+							<capability xsi:type="magnificationCapability" magnification="1.25"/>
+						</capabilities>
+					</loadProperties>
+					<properties isSystemResource="false" isBlinking="false"
+						isMapLayer="false" isHoverOn="false"
+						isVisible="true" />
+					<resourceData xsi:type="plotResourceData" plotSource="Obscured Cloud Base IFR"
+						plotModelFile="coloredObsObscIFRCloudDesign.svg" spiFile="basemaps/MTR.spi"
+						retrieveData="false" isUpdatingOnMetadataOnly="false"
+						isRequeryNecessaryOnTimeMatch="true">
+						<binOffset posOffset="900" negOffset="900" virtualOffset="0"/>
+						<metadataMap>
+							<mapping key="reportType">
+								<constraint constraintValue="METAR,SPECI" constraintType="IN" />
+							</mapping>
+							<mapping key="pluginName">
+								<constraint constraintValue="obs" constraintType="EQUALS" />
+							</mapping>
+						</metadataMap>
+					</resourceData>
+				</resource>
+				<resource>
+                    <loadProperties>
+						<capabilities>
+							<capability xsi:type="colorableCapability" colorAsString="#E31BBE"/>
+							<capability xsi:type="densityCapability" density="2.0"/>
+							<capability xsi:type="magnificationCapability" magnification="1.25"/>
+						</capabilities>
+					</loadProperties>
+					<properties isSystemResource="false" isBlinking="false"
+						isMapLayer="false" isHoverOn="false"
+						isVisible="true" />
+					<resourceData xsi:type="plotResourceData" plotSource="Obscured Cloud Base LIFR"
+						plotModelFile="coloredObsObscLIFRCloudDesign.svg" spiFile="basemaps/MTR.spi"
+						retrieveData="false" isUpdatingOnMetadataOnly="false"
+						isRequeryNecessaryOnTimeMatch="true">
+						<binOffset posOffset="900" negOffset="900" virtualOffset="0"/>
+						<metadataMap>
+							<mapping key="reportType">
+								<constraint constraintValue="METAR,SPECI" constraintType="IN" />
+							</mapping>
+							<mapping key="pluginName">
+								<constraint constraintValue="obs" constraintType="EQUALS" />
+							</mapping>
+						</metadataMap>
+					</resourceData>
+				</resource>	
+<!-- VISIBILITY STUFF -->
+				<resource>
+                    <loadProperties>
+						<capabilities>
+							<capability xsi:type="colorableCapability" colorAsString="#18D928"/>
+							<capability xsi:type="densityCapability" density="2.0"/>
+							<capability xsi:type="magnificationCapability" magnification="1.00"/>
+						</capabilities>
+					</loadProperties>
+					<properties isSystemResource="false" isBlinking="false"
+						isMapLayer="false" isHoverOn="false"
+						isVisible="true" />
+					<resourceData xsi:type="plotResourceData" plotSource="Visibility VFR"
+						plotModelFile="coloredObsVisDesignVFR.svg" spiFile="basemaps/MTR.spi"
+						retrieveData="false" isUpdatingOnMetadataOnly="false"
+						isRequeryNecessaryOnTimeMatch="true">
+						<binOffset posOffset="900" negOffset="900" virtualOffset="0"/>
+						<metadataMap>
+							<mapping key="reportType">
+								<constraint constraintValue="METAR,SPECI" constraintType="IN" />
+							</mapping>
+							<mapping key="pluginName">
+								<constraint constraintValue="obs" constraintType="EQUALS" />
+							</mapping>
+						</metadataMap>
+					</resourceData>
+				</resource>
+				<resource>
+                    <loadProperties>
+						<capabilities>
+							<capability xsi:type="colorableCapability" colorAsString="#008FFF"/>
+							<capability xsi:type="densityCapability" density="2.0"/>
+							<capability xsi:type="magnificationCapability" magnification="1.25"/>
+						</capabilities>
+					</loadProperties>
+					<properties isSystemResource="false" isBlinking="false"
+						isMapLayer="false" isHoverOn="false"
+						isVisible="true" />
+					<resourceData xsi:type="plotResourceData" plotSource="Visibility MVFR"
+						plotModelFile="coloredObsVisDesignMVFR.svg" spiFile="basemaps/MTR.spi"
+						retrieveData="false" isUpdatingOnMetadataOnly="false"
+						isRequeryNecessaryOnTimeMatch="true">
+						<binOffset posOffset="900" negOffset="900" virtualOffset="0"/>
+						<metadataMap>
+							<mapping key="reportType">
+								<constraint constraintValue="METAR,SPECI" constraintType="IN" />
+							</mapping>
+							<mapping key="pluginName">
+								<constraint constraintValue="obs" constraintType="EQUALS" />
+							</mapping>
+						</metadataMap>
+					</resourceData>
+				</resource>
+				<resource>
+                    <loadProperties>
+						<capabilities>
+							<capability xsi:type="colorableCapability" colorAsString="#DE1B31"/>
+							<capability xsi:type="densityCapability" density="2.0"/>
+							<capability xsi:type="magnificationCapability" magnification="1.25"/>
+						</capabilities>
+					</loadProperties>
+					<properties isSystemResource="false" isBlinking="false"
+						isMapLayer="false" isHoverOn="false"
+						isVisible="true" />
+					<resourceData xsi:type="plotResourceData" plotSource="Visibility IFR"
+						plotModelFile="coloredObsVisDesignIFR.svg" spiFile="basemaps/MTR.spi"
+						retrieveData="false" isUpdatingOnMetadataOnly="false"
+						isRequeryNecessaryOnTimeMatch="true">
+						<binOffset posOffset="900" negOffset="900" virtualOffset="0"/>
+						<metadataMap>
+							<mapping key="reportType">
+								<constraint constraintValue="METAR,SPECI" constraintType="IN" />
+							</mapping>
+							<mapping key="pluginName">
+								<constraint constraintValue="obs" constraintType="EQUALS" />
+							</mapping>
+						</metadataMap>
+					</resourceData>
+				</resource>				
+				<resource>
+                    <loadProperties>
+						<capabilities>
+							<capability xsi:type="colorableCapability" colorAsString="#E31BBE"/>
+							<capability xsi:type="densityCapability" density="2.0"/>
+							<capability xsi:type="magnificationCapability" magnification="1.25"/>
+						</capabilities>
+					</loadProperties>
+					<properties isSystemResource="false" isBlinking="false"
+						isMapLayer="false" isHoverOn="false"
+						isVisible="true" />
+					<resourceData xsi:type="plotResourceData" plotSource="Visibility LIFR"
+						plotModelFile="coloredObsVisDesignLIFR.svg" spiFile="basemaps/MTR.spi"
+						retrieveData="false" isUpdatingOnMetadataOnly="false"
+						isRequeryNecessaryOnTimeMatch="true">
+						<binOffset posOffset="900" negOffset="900" virtualOffset="0"/>
+						<metadataMap>
+							<mapping key="reportType">
+								<constraint constraintValue="METAR,SPECI" constraintType="IN" />
+							</mapping>
+							<mapping key="pluginName">
+								<constraint constraintValue="obs" constraintType="EQUALS" />
+							</mapping>
+						</metadataMap>
+					</resourceData>
+				</resource>
+<!--PEAK WIND STUFF -->
+				<resource>
+                    <loadProperties>
+						<capabilities>
+							<capability xsi:type="colorableCapability" colorAsString="#DE1B31"/>
+							<capability xsi:type="densityCapability" density="2.0"/>
+							<capability xsi:type="magnificationCapability" magnification="1.25"/>
+						</capabilities>
+					</loadProperties>
+					<properties isSystemResource="false" isBlinking="false"
+						isMapLayer="false" isHoverOn="false"
+						isVisible="true" />
+					<resourceData xsi:type="plotResourceData" plotSource="Pk Wind > 50 kts"
+						plotModelFile="coloredObsPkWindDesign.svg" spiFile="basemaps/MTR.spi"
+						retrieveData="false" isUpdatingOnMetadataOnly="false"
+						isRequeryNecessaryOnTimeMatch="true"
+						lowerLimit="50">
+						<binOffset posOffset="900" negOffset="900" virtualOffset="0"/>
+						<metadataMap>
+							<mapping key="reportType">
+								<constraint constraintValue="METAR,SPECI" constraintType="IN" />
+							</mapping>
+							<mapping key="pluginName">
+								<constraint constraintValue="obs" constraintType="EQUALS" />
+							</mapping>
+						</metadataMap>
+					</resourceData>
+				</resource>
+				<resource>
+                    <loadProperties>
+						<capabilities>
+							<capability xsi:type="colorableCapability" colorAsString="#FFFF00"/>
+							<capability xsi:type="densityCapability" density="2.0"/>
+							<capability xsi:type="magnificationCapability" magnification="1.25"/>
+						</capabilities>
+					</loadProperties>
+					<properties isSystemResource="false" isBlinking="false"
+						isMapLayer="false" isHoverOn="false"
+						isVisible="true" />
+					<resourceData xsi:type="plotResourceData" plotSource="Pk Wind > 35 kts"
+						plotModelFile="coloredObsPkWindDesign.svg" spiFile="basemaps/MTR.spi"
+						retrieveData="false" isUpdatingOnMetadataOnly="false"
+						isRequeryNecessaryOnTimeMatch="true"
+						lowerLimit="35" upperLimit="49">
+						<binOffset posOffset="900" negOffset="900" virtualOffset="0"/>
+						<metadataMap>
+							<mapping key="reportType">
+								<constraint constraintValue="METAR,SPECI" constraintType="IN" />
+							</mapping>
+							<mapping key="pluginName">
+								<constraint constraintValue="obs" constraintType="EQUALS" />
+							</mapping>
+						</metadataMap>
+					</resourceData>
+				</resource>
+				<resource>
+                    <loadProperties>
+						<capabilities>
+							<capability xsi:type="colorableCapability" colorAsString="#18D928"/>
+							<capability xsi:type="densityCapability" density="2.0"/>
+							<capability xsi:type="magnificationCapability" magnification="1.00"/>
+						</capabilities>
+					</loadProperties>
+					<properties isSystemResource="false" isBlinking="false"
+						isMapLayer="false" isHoverOn="false"
+						isVisible="true" />
+					<resourceData xsi:type="plotResourceData" plotSource="Pk Wind"
+						plotModelFile="coloredObsPkWindDesign.svg" spiFile="basemaps/MTR.spi"
+						retrieveData="false" isUpdatingOnMetadataOnly="false"
+						isRequeryNecessaryOnTimeMatch="true"
+						upperLimit="34">
+						<binOffset posOffset="900" negOffset="900" virtualOffset="0"/>
+						<metadataMap>
+							<mapping key="reportType">
+								<constraint constraintValue="METAR,SPECI" constraintType="IN" />
+							</mapping>
+							<mapping key="pluginName">
+								<constraint constraintValue="obs" constraintType="EQUALS" />
+							</mapping>
+						</metadataMap>
+					</resourceData>
+				</resource>
+<!--WIND & GUST STUFF -->
+				<resource>
+                    <loadProperties>
+						<capabilities>
+							<capability xsi:type="colorableCapability" colorAsString="#DE1B31"/>
+							<capability xsi:type="densityCapability" density="2.0"/>
+							<capability xsi:type="magnificationCapability" magnification="1.25"/>
+						</capabilities>
+					</loadProperties>
+					<properties isSystemResource="false" isBlinking="false"
+						isMapLayer="false" isHoverOn="false"
+						isVisible="true" />
+					<resourceData xsi:type="plotResourceData" plotSource="Wind or Gst > 50 kts"
+						plotModelFile="coloredObsWind50PDesign.svg" spiFile="basemaps/MTR.spi"
+						retrieveData="false" isUpdatingOnMetadataOnly="false"
+						isRequeryNecessaryOnTimeMatch="true">
+						<binOffset posOffset="900" negOffset="900" virtualOffset="0"/>
+						<metadataMap>
+							<mapping key="reportType">
+								<constraint constraintValue="METAR,SPECI" constraintType="IN" />
+							</mapping>
+							<mapping key="pluginName">
+								<constraint constraintValue="obs" constraintType="EQUALS" />
+							</mapping>
+						</metadataMap>
+					</resourceData>
+				</resource>
+				<resource>
+                    <loadProperties>
+						<capabilities>
+							<capability xsi:type="colorableCapability" colorAsString="#FFFF00"/>
+							<capability xsi:type="densityCapability" density="2.0"/>
+							<capability xsi:type="magnificationCapability" magnification="1.25"/>
+						</capabilities>
+					</loadProperties>
+					<properties isSystemResource="false" isBlinking="false"
+						isMapLayer="false" isHoverOn="false"
+						isVisible="true" />
+					<resourceData xsi:type="plotResourceData" plotSource="Wind or Gst > 35 kts"
+						plotModelFile="coloredObsWind30T50Design.svg" spiFile="basemaps/MTR.spi"
+						retrieveData="false" isUpdatingOnMetadataOnly="false"
+						isRequeryNecessaryOnTimeMatch="true">
+						<binOffset posOffset="900" negOffset="900" virtualOffset="0"/>
+						<metadataMap>
+							<mapping key="reportType">
+								<constraint constraintValue="METAR,SPECI" constraintType="IN" />
+							</mapping>
+							<mapping key="pluginName">
+								<constraint constraintValue="obs" constraintType="EQUALS" />
+							</mapping>
+						</metadataMap>
+					</resourceData>
+				</resource>
+				<resource>
+                    <loadProperties>
+						<capabilities>
+							<capability xsi:type="colorableCapability" colorAsString="#18D928"/>
+							<capability xsi:type="densityCapability" density="2.0"/>
+							<capability xsi:type="magnificationCapability" magnification="1.00"/>
+						</capabilities>
+					</loadProperties>
+					<properties isSystemResource="false" isBlinking="false"
+						isMapLayer="false" isHoverOn="false"
+						isVisible="true" />
+					<resourceData xsi:type="plotResourceData" plotSource="Wind"
+						plotModelFile="coloredObsWindLowDesign.svg" spiFile="basemaps/MTR.spi"
+						retrieveData="false" isUpdatingOnMetadataOnly="false"
+						isRequeryNecessaryOnTimeMatch="true">
+						<binOffset posOffset="900" negOffset="900" virtualOffset="0"/>
+						<metadataMap>
+							<mapping key="reportType">
+								<constraint constraintValue="METAR,SPECI" constraintType="IN" />
+							</mapping>
+							<mapping key="pluginName">
+								<constraint constraintValue="obs" constraintType="EQUALS" />
+							</mapping>
+						</metadataMap>
+					</resourceData>
+				</resource>
+<!-- WX STUFF -->
+ 				<resource>
+                    <loadProperties>
+						<capabilities>
+							<capability xsi:type="colorableCapability" colorAsString="#18D928"/>
+							<capability xsi:type="densityCapability" density="2.0"/>
+							<capability xsi:type="magnificationCapability" magnification="1.00"/>
+						</capabilities>
+					</loadProperties>
+					<properties isSystemResource="false" isBlinking="false"
+						isMapLayer="false" isHoverOn="false"
+						isVisible="true" />
+					<resourceData xsi:type="plotResourceData" plotSource="Wx Plot"
+						plotModelFile="coloredObsWxDesign.svg" spiFile="basemaps/MTR.spi"
+						retrieveData="false" isUpdatingOnMetadataOnly="false"
+						isRequeryNecessaryOnTimeMatch="true">
+						<binOffset posOffset="900" negOffset="900" virtualOffset="0"/>
+						<metadataMap>
+							<mapping key="reportType">
+								<constraint constraintValue="METAR,SPECI" constraintType="IN" />
+							</mapping>
+							<mapping key="pluginName">
+								<constraint constraintValue="obs" constraintType="EQUALS" />
+							</mapping>
+						</metadataMap>
+					</resourceData>
+				</resource>					
+			</descriptor>
+		</displays>
+	</displayList>
+</bundle>
+
+
+
+
+				

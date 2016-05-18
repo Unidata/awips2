@@ -83,7 +83,6 @@
       <feature id="com.raytheon.viz.text.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.viz.grib.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.uf.viz.kml.export.feature" version="1.0.0.qualifier"/>
-      <feature id="com.raytheon.uf.viz.nwsauth.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.viz.gfe.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.uf.viz.displays.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.viz.satellite.feature" version="1.0.0.qualifier"/>

@@ -24,8 +24,12 @@
 			<descriptor xsi:type="mapDescriptor">
 				<resource>
                		<loadProperties loadWithoutData="true">
-                   		<capabilities />
-               		</loadProperties>
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <capabilities>
+                            <capability xsi:type="colorableCapability" colorAsString="#ffffff"/>
+                            <capability xsi:type="outlineCapability" outlineWidth="3" outlineOn="true" lineStyle="SOLID"/>
+                        </capabilities>
+                    </loadProperties>
 					<properties isSystemResource="false"
 						isBlinking="false" isMapLayer="false" isHoverOn="false"
 						isVisible="true" />
