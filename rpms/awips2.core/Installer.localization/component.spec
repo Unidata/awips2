@@ -43,17 +43,24 @@ fi
 %build
 # Build all WFO site localization Map Scales (States.xml, WFO.xml)
 BUILD_DIR=%{_baseline_workspace}/rpms/awips2.core/Installer.localization/
-CAVE_STATIC=%{_baseline_workspace}/localization/utility/cave_static/site
+UTIL=%{_baseline_workspace}/localization/utility
 file=$BUILD_DIR/wfo.dat
 for site in $(cat $file |cut -c -3)
 do
    lat=$(cat $file |grep $site | cut -f9)
    lon=$(cat $file |grep $site | cut -f10)
-   mkdir -p $CAVE_STATIC/$site
-   cp -R $BUILD_DIR/XXX/* $CAVE_STATIC/$site/
-   grep -rl 'XXX' $CAVE_STATIC/$site | xargs sed -i 's/XXX/'$site'/g'
-   grep -rl 'LATITUDE' $CAVE_STATIC/$site | xargs sed -i 's/LATITUDE/'$lat'/g'
-   grep -rl 'LONGITUDE' $CAVE_STATIC/$site | xargs sed -i 's/LONGITUDE/'$lon'/g'
+   # CAVE
+   CAVE_DIR=$UTIL/cave_static/site/$site
+   mkdir -p $CAVE_DIR
+   cp -R $BUILD_DIR/utility/cave_static/* $CAVE_DIR
+   grep -rl 'XXX' $CAVE_DIR | xargs sed -i 's/XXX/'$site'/g'
+   grep -rl 'LATITUDE' $CAVE_DIR | xargs sed -i 's/LATITUDE/'$lat'/g'
+   grep -rl 'LONGITUDE' $CAVE_DIR | xargs sed -i 's/LONGITUDE/'$lon'/g'
+   # EDEX
+   EDEX_DIR=$UTIL/edex_static/site/$site
+   mkdir -p $EDEX_DIR
+   cp -R $BUILD_DIR/utility/edex_static/* $EDEX_DIR/
+   grep -rl 'XXX' $EDEX_DIR | xargs sed -i 's/XXX/'$site'/g'
 done
 
 %install
