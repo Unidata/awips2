@@ -272,7 +272,7 @@
         <name>GFS217</name>
         <center>7</center>
         <subcenter>0</subcenter>
-        <grid>217</grid>
+        <grid>GFS-AK-20KM</grid>
         <process>
             <id>81</id>
             <id>96</id>
