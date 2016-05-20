@@ -67,6 +67,8 @@ import com.raytheon.viz.mpe.util.DailyQcUtils;
  * Feb 22, 2016 18599      snaples     Fixed static calls to DailyQCUtils.
  * Apr 05, 2016 18350      snaples     Added method call to dqc.destroy to close instance of DQC Utils when exiting.
  * Apr 11, 2016 5512       bkowal      Fix GUI sizing issues. Cleanup.
+ * May 04, 2016 5054       dgilling    Fix dialog parenting for SaveLevel2Data 
+ *                                     when closing this dialog.
  * 
  * </pre>
  * 
@@ -297,7 +299,7 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
         isfinished = true;
         isOpen = false;
         font.dispose();
-        SaveLevel2Data s2 = new SaveLevel2Data(getShell());
+        SaveLevel2Data s2 = new SaveLevel2Data(getParent());
         s2.send_dbase_new_area();
         dqc.destroy();
         displayMgr.displayFieldData(df);

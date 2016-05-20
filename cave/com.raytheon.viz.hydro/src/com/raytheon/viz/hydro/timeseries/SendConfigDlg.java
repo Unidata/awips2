@@ -25,14 +25,12 @@ import java.util.Arrays;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
@@ -50,7 +48,8 @@ import com.raytheon.viz.hydro.CaveHydroSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 28, 2011            mpduff     Initial creation
- * Feb 06, 2013 1578       rferrel     Code cleanup for non-blocking dialog.
+ * Feb 06, 2013 1578       rferrel    Code cleanup for non-blocking dialog.
+ * May 09, 2016 5483       bkowal     Fix GUI sizing issues.
  * 
  * </pre>
  * 
@@ -59,11 +58,6 @@ import com.raytheon.viz.hydro.CaveHydroSWTDialog;
  */
 
 public class SendConfigDlg extends CaveHydroSWTDialog {
-
-    /**
-     * Font used for the list controls.
-     */
-    private Font font;
 
     /** Manager for handling the shef xml data. */
     private ShefIssueMgr shefIssueMgr;
@@ -96,18 +90,9 @@ public class SendConfigDlg extends CaveHydroSWTDialog {
         shefIssueMgr = ShefIssueMgr.getInstance();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
-     * .eclipse.swt.widgets.Shell)
-     */
     @Override
     protected void initializeComponents(Shell shell) {
         setReturnValue(false);
-
-        font = new Font(shell.getDisplay(), "Monospace", 11, SWT.NORMAL);
 
         // Initialize all of the controls and layouts
         initializeComponents();
@@ -120,21 +105,6 @@ public class SendConfigDlg extends CaveHydroSWTDialog {
         createDistributionGroup();
         createDirectoryGroup();
         createBottomButtons();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
-     */
-    @Override
-    protected Layout constructShellLayout() {
-        // Create the main layout for the shell.
-        GridLayout mainLayout = new GridLayout(1, true);
-        mainLayout.verticalSpacing = 3;
-        mainLayout.marginHeight = 1;
-        mainLayout.marginWidth = 1;
-        return mainLayout;
     }
 
     private void createDistributionGroup() {
@@ -155,12 +125,13 @@ public class SendConfigDlg extends CaveHydroSWTDialog {
         GridLayout gl = new GridLayout(1, false);
         distComp.setLayout(gl);
 
-        gd = new GridData(150, SWT.DEFAULT);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, true, false);
         distChk = new Button(distComp, SWT.CHECK);
         distChk.setText("Distribute Product");
         distChk.setLayoutData(gd);
         distChk.setSelection(selected);
 
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, true, false);
         directoryChk = new Button(distComp, SWT.CHECK);
         directoryChk.setText("Internal Directory");
         directoryChk.setLayoutData(gd);
@@ -174,9 +145,6 @@ public class SendConfigDlg extends CaveHydroSWTDialog {
 
     private void createDirectoryGroup() {
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, true);
-        gd.widthHint = 350;
-        gd.heightHint = 400;
-
         Group dirGroup = new Group(shell, SWT.NONE);
         dirGroup.setText("Distribution Directories");
         GridLayout gridLayout = new GridLayout(1, false);
@@ -188,14 +156,10 @@ public class SendConfigDlg extends CaveHydroSWTDialog {
         dirComp.setLayout(gl);
 
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, true);
-        gd.heightHint = 300;
-
         directoryList = new List(dirGroup, SWT.BORDER | SWT.MULTI
                 | SWT.V_SCROLL | SWT.H_SCROLL);
+        gd.heightHint = directoryList.getItemHeight() * 15;
         directoryList.setLayoutData(gd);
-        directoryList.setFont(font);
-
-        int buttonWidth = 100;
 
         Composite buttonComp = new Composite(dirGroup, SWT.NONE);
 
@@ -203,7 +167,7 @@ public class SendConfigDlg extends CaveHydroSWTDialog {
         gd = new GridData(SWT.CENTER, SWT.DEFAULT, false, false);
         buttonComp.setLayoutData(gd);
 
-        gd = new GridData(buttonWidth, SWT.DEFAULT);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         addBtn = new Button(buttonComp, SWT.PUSH);
         addBtn.setText("Add");
         addBtn.setLayoutData(gd);
@@ -224,7 +188,7 @@ public class SendConfigDlg extends CaveHydroSWTDialog {
             }
         });
 
-        gd = new GridData(buttonWidth, SWT.DEFAULT);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         removeBtn = new Button(buttonComp, SWT.PUSH);
         removeBtn.setText("Remove");
         removeBtn.setLayoutData(gd);
@@ -241,7 +205,7 @@ public class SendConfigDlg extends CaveHydroSWTDialog {
             }
         });
 
-        gd = new GridData(buttonWidth, SWT.DEFAULT);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         removeAllBtn = new Button(buttonComp, SWT.PUSH);
         removeAllBtn.setText("Remove All");
         removeAllBtn.setLayoutData(gd);
@@ -263,9 +227,10 @@ public class SendConfigDlg extends CaveHydroSWTDialog {
         GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, false, false);
         buttonComp.setLayoutData(gd);
 
-        int buttonWidth = 80;
+        final int buttonMinimumWidth = buttonComp.getDisplay().getDPI().x;
 
-        gd = new GridData(buttonWidth, SWT.DEFAULT);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, true, false);
+        gd.minimumWidth = buttonMinimumWidth;
         Button okBtn = new Button(buttonComp, SWT.PUSH);
         okBtn.setText("OK");
         okBtn.setLayoutData(gd);
@@ -277,7 +242,8 @@ public class SendConfigDlg extends CaveHydroSWTDialog {
             }
         });
 
-        gd = new GridData(buttonWidth, SWT.DEFAULT);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, true, false);
+        gd.minimumWidth = buttonMinimumWidth;
         Button applyBtn = new Button(buttonComp, SWT.PUSH);
         applyBtn.setText("Apply");
         applyBtn.setLayoutData(gd);
@@ -288,7 +254,8 @@ public class SendConfigDlg extends CaveHydroSWTDialog {
             }
         });
 
-        gd = new GridData(buttonWidth, SWT.DEFAULT);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, true, false);
+        gd.minimumWidth = buttonMinimumWidth;
         Button cancelBtn = new Button(buttonComp, SWT.PUSH);
         cancelBtn.setText("Cancel");
         cancelBtn.setLayoutData(gd);
@@ -300,11 +267,6 @@ public class SendConfigDlg extends CaveHydroSWTDialog {
         });
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#opened()
-     */
     @Override
     protected void opened() {
         super.opened();
@@ -345,18 +307,9 @@ public class SendConfigDlg extends CaveHydroSWTDialog {
         this.shefIssueMgr.saveXml();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
-     */
     @Override
     protected void disposed() {
         super.disposed();
-
-        if (font.isDisposed() == false) {
-            font.dispose();
-        }
 
         if (shefIssueMgr != null) {
             ShefIssueMgr.recycle();

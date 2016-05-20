@@ -20,21 +20,17 @@
 
 package com.raytheon.viz.hydro.bestestimateqpe;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.TimeZone;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.layout.RowData;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
@@ -44,12 +40,12 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Scale;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IFrameCoordinator.FrameChangeMode;
@@ -59,6 +55,7 @@ import com.raytheon.viz.hydro.Activator;
 import com.raytheon.viz.hydrocommon.HydroDisplayManager;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.widgets.DateTimeSpinner;
 
 /**
  * This class displays the Best Estimate QPE dialog for Hydroview.
@@ -71,6 +68,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 21 May 2009             mpduff      Fixed typo in window title.
  * 24 Aug 2009  2258       mpduff      Implemented dialog functionality.
  * 07 Dec 2012  1353       rferrel     Make dialog non-blocking.
+ * 05 May 2016  5483       bkowal      Fix GUI sizing issues.
  * 
  * </pre>
  * 
@@ -91,36 +89,6 @@ public class BestEstimateQpeDlg extends CaveSWTDialog {
      * QPE source RFC radio button.
      */
     private Button rfcRdo;
-
-    /**
-     * Font used for text controls.
-     */
-    private Font font;
-
-    /**
-     * Arrow button to increase the day.
-     */
-    private Button upDayBtn;
-
-    /**
-     * Arrow button to decrease the day.
-     */
-    private Button dnDayBtn;
-
-    /**
-     * Date & time text control.
-     */
-    private Text dateTimeTF;
-
-    /**
-     * Arrow button to increase the hours.
-     */
-    private Button upHoursBtn;
-
-    /**
-     * Arrow button to decrease the hours.
-     */
-    private Button dnHoursBtn;
 
     /**
      * Accumulate radio button.
@@ -228,14 +196,9 @@ public class BestEstimateQpeDlg extends CaveSWTDialog {
     private Button closeBtn;
 
     /**
-     * Format for the date/time control.
-     */
-    private SimpleDateFormat dateTimeFmt = new SimpleDateFormat("yyyy-MM-dd HH");
-
-    /**
      * Data Date.
      */
-    private Calendar cal = new GregorianCalendar();
+    private Calendar cal = TimeUtil.newGmtCalendar();
 
     /**
      * Constructor.
@@ -246,8 +209,6 @@ public class BestEstimateQpeDlg extends CaveSWTDialog {
     public BestEstimateQpeDlg(Shell parent) {
         super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Display Best Estimate QPE");
-        cal.setTimeZone(TimeZone.getTimeZone("GMT"));
-        dateTimeFmt.setTimeZone(TimeZone.getTimeZone("GMT"));
     }
 
     @Override
@@ -260,25 +221,32 @@ public class BestEstimateQpeDlg extends CaveSWTDialog {
 
     @Override
     protected void disposed() {
-        font.dispose();
-        firstImg.dispose();
-        previousImg.dispose();
-        nextImg.dispose();
-        lastImg.dispose();
-        loopImg.dispose();
+        if (firstImg != null) {
+            firstImg.dispose();
+        }
+        if (previousImg != null) {
+            previousImg.dispose();
+        }
+        if (nextImg != null) {
+            nextImg.dispose();
+        }
+        if (lastImg != null) {
+            lastImg.dispose();
+        }
+        if (loopImg != null) {
+            loopImg.dispose();
+        }
     }
 
     @Override
     protected void initializeComponents(Shell shell) {
         setReturnValue(false);
 
-        font = new Font(shell.getDisplay(), "Courier", 10, SWT.NORMAL);
-
         // Initialize all of the controls and layouts
         getImages();
 
         createQpeSource();
-        createDateTimeAdjust();
+        createDateTimeSelection();
         createAccumTimeLapse();
         createDurationControl();
         createDisplayAsControl();
@@ -287,7 +255,6 @@ public class BestEstimateQpeDlg extends CaveSWTDialog {
 
         Date dataDate = SimulatedTime.getSystemTime().getTime();
         cal.setTime(dataDate);
-        dateTimeTF.setText(dateTimeFmt.format(dataDate));
     }
 
     /**
@@ -297,7 +264,6 @@ public class BestEstimateQpeDlg extends CaveSWTDialog {
         Group qpeSourceGroup = new Group(shell, SWT.NONE);
         qpeSourceGroup.setText(" QPE Source ");
         RowLayout qpeSourceLayout = new RowLayout();
-        qpeSourceLayout.spacing = 5;
         qpeSourceGroup.setLayout(qpeSourceLayout);
 
         localRdo = new Button(qpeSourceGroup, SWT.RADIO);
@@ -308,117 +274,18 @@ public class BestEstimateQpeDlg extends CaveSWTDialog {
         rfcRdo.setText("RFC");
     }
 
-    /**
-     * Create the date and time controls.
-     */
-    private void createDateTimeAdjust() {
-        Composite timeComp = new Composite(shell, SWT.NONE);
-        GridLayout timeGl = new GridLayout(5, false);
-        timeComp.setLayout(timeGl);
+    private void createDateTimeSelection() {
+        Composite dateTimeComp = new Composite(shell, SWT.NONE);
+        GridLayout gl = new GridLayout(2, false);
+        dateTimeComp.setLayout(gl);
 
-        Label dayAdjustLbl = new Label(timeComp, SWT.CENTER);
-        dayAdjustLbl.setText("Day\nAdjust");
+        Label dateTimeLbl = new Label(dateTimeComp, SWT.NONE);
+        dateTimeLbl.setText("Select Date/Time:");
 
-        // Add the time arrow buttons
-        Composite timeArrowsComp = new Composite(timeComp, SWT.NONE);
-        RowLayout timeArrowRl = new RowLayout(SWT.VERTICAL);
-        timeArrowsComp.setLayout(timeArrowRl);
-
-        RowData rd = new RowData(25, 25);
-        upDayBtn = new Button(timeArrowsComp, SWT.ARROW);
-        upDayBtn.setLayoutData(rd);
-        upDayBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                cal.add(Calendar.DAY_OF_MONTH, 1);
-
-                if (cal.getTimeInMillis() > SimulatedTime.getSystemTime()
-                        .getTime().getTime()) {
-                    cal.add(Calendar.DAY_OF_MONTH, -1);
-                    return;
-                }
-                dateTimeTF.setText(dateTimeFmt.format(cal.getTime()));
-            }
-        });
-
-        rd = new RowData(25, 25);
-        dnDayBtn = new Button(timeArrowsComp, SWT.ARROW | SWT.DOWN);
-        dnDayBtn.setLayoutData(rd);
-        dnDayBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                Calendar tmpCal = Calendar.getInstance(TimeZone
-                        .getTimeZone("GMT"));
-                Date d = SimulatedTime.getSystemTime().getTime();
-                tmpCal.setTime(d);
-                tmpCal.add(Calendar.DAY_OF_MONTH, -3);
-
-                cal.add(Calendar.DAY_OF_MONTH, -1);
-
-                if (cal.getTimeInMillis() < tmpCal.getTimeInMillis()) {
-                    cal.add(Calendar.DAY_OF_MONTH, 1);
-                    return;
-                }
-                dateTimeTF.setText(dateTimeFmt.format(cal.getTime()));
-            }
-        });
-
-        // Add the time text field
-        GridData gd = new GridData(160, SWT.DEFAULT);
-        dateTimeTF = new Text(timeComp, SWT.BORDER);
-        dateTimeTF.setFont(font);
-        dateTimeTF.setLayoutData(gd);
-
-        // Add the hours arrows button
-        Composite hoursArrowsComp = new Composite(timeComp, SWT.NONE);
-        RowLayout hoursArrowRl = new RowLayout(SWT.VERTICAL);
-        hoursArrowsComp.setLayout(hoursArrowRl);
-
-        rd = new RowData(25, 25);
-        upHoursBtn = new Button(hoursArrowsComp, SWT.ARROW);
-        upHoursBtn.setLayoutData(rd);
-        upHoursBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                cal.add(Calendar.HOUR_OF_DAY, 1);
-                Date d = SimulatedTime.getSystemTime().getTime();
-                Calendar tmpCal = Calendar.getInstance(TimeZone
-                        .getTimeZone("GMT"));
-                tmpCal.setTime(d);
-                if (cal.getTimeInMillis() > tmpCal.getTimeInMillis()) {
-                    cal.add(Calendar.HOUR_OF_DAY, -1);
-                    return;
-                }
-
-                dateTimeTF.setText(dateTimeFmt.format(cal.getTime()));
-            }
-        });
-
-        rd = new RowData(25, 25);
-        dnHoursBtn = new Button(hoursArrowsComp, SWT.ARROW | SWT.DOWN);
-        dnHoursBtn.setLayoutData(rd);
-        dnHoursBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                Date d = SimulatedTime.getSystemTime().getTime();
-                Calendar tmpCal = Calendar.getInstance(TimeZone
-                        .getTimeZone("GMT"));
-                tmpCal.setTime(d);
-
-                tmpCal.add(Calendar.DAY_OF_MONTH, -3);
-
-                cal.add(Calendar.HOUR_OF_DAY, -1);
-
-                if (cal.getTimeInMillis() < tmpCal.getTimeInMillis()) {
-                    cal.add(Calendar.HOUR_OF_DAY, 1);
-                    return;
-                }
-                dateTimeTF.setText(dateTimeFmt.format(cal.getTime()));
-            }
-        });
-
-        Label hoursAdjustLbl = new Label(timeComp, SWT.CENTER);
-        hoursAdjustLbl.setText("Hour\nAdjust");
+        DateTimeSpinner dateTimeSpinner = new DateTimeSpinner(dateTimeComp,
+                cal, 4);
+        GridData gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, false, false);
+        dateTimeSpinner.setLayoutData(gd);
     }
 
     /**
@@ -427,7 +294,6 @@ public class BestEstimateQpeDlg extends CaveSWTDialog {
     private void createAccumTimeLapse() {
         Composite accumTimeLapseComp = new Composite(shell, SWT.NONE);
         GridLayout accumTimeGl = new GridLayout(7, false);
-        accumTimeGl.horizontalSpacing = 2;
         accumTimeLapseComp.setLayout(accumTimeGl);
 
         // ----------------------------------------------
@@ -435,7 +301,6 @@ public class BestEstimateQpeDlg extends CaveSWTDialog {
         // ----------------------------------------------
         Composite accumComp = new Composite(accumTimeLapseComp, SWT.NONE);
         RowLayout accumRl = new RowLayout(SWT.VERTICAL);
-        accumRl.marginRight = 10;
         accumComp.setLayout(accumRl);
 
         accumRdo = new Button(accumComp, SWT.RADIO);
@@ -461,7 +326,6 @@ public class BestEstimateQpeDlg extends CaveSWTDialog {
         // ----------------------------------------------
         Composite timeLapComp = new Composite(accumTimeLapseComp, SWT.NONE);
         RowLayout timeLapRl = new RowLayout(SWT.VERTICAL);
-        timeLapRl.marginRight = 10;
         timeLapComp.setLayout(timeLapRl);
 
         timeLapseRdo = new Button(timeLapComp, SWT.RADIO);
@@ -580,7 +444,6 @@ public class BestEstimateQpeDlg extends CaveSWTDialog {
                 }
             }
         });
-
     }
 
     /**
@@ -589,13 +452,16 @@ public class BestEstimateQpeDlg extends CaveSWTDialog {
     private void createDurationControl() {
         Composite durationComp = new Composite(shell, SWT.NONE);
         GridLayout durationGl = new GridLayout(3, false);
-        durationGl.horizontalSpacing = 10;
+        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         durationComp.setLayout(durationGl);
+        durationComp.setLayoutData(gd);
 
         Label durationLbl = new Label(durationComp, SWT.NONE);
         durationLbl.setText("Duration:");
+        gd = new GridData(SWT.DEFAULT, SWT.CENTER, false, false);
+        durationLbl.setLayoutData(gd);
 
-        GridData gd = new GridData(250, SWT.DEFAULT);
+        gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
         durationScale = new Scale(durationComp, SWT.HORIZONTAL);
         durationScale.setMinimum(1);
         durationScale.setMaximum(72);
@@ -608,8 +474,11 @@ public class BestEstimateQpeDlg extends CaveSWTDialog {
             }
         });
 
-        gd = new GridData(30, SWT.DEFAULT);
         durationNumLbl = new Label(durationComp, SWT.NONE);
+        gd = new GridData(SWT.DEFAULT, SWT.CENTER, true, false);
+        GC gc = new GC(durationNumLbl);
+        gd.minimumWidth = gc.textExtent("99").x;
+        gc.dispose();
         durationNumLbl.setText(String.valueOf(durationScale.getSelection()));
         durationNumLbl.setLayoutData(gd);
     }
@@ -625,7 +494,7 @@ public class BestEstimateQpeDlg extends CaveSWTDialog {
         Label displayAsLbl = new Label(displayAsComp, SWT.NONE);
         displayAsLbl.setText("Display As:");
 
-        GridData gd = new GridData(130, SWT.DEFAULT);
+        GridData gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, true, false);
         displayAsCbo = new Combo(displayAsComp, SWT.DROP_DOWN | SWT.READ_ONLY);
         displayAsCbo.add("Grid");
         displayAsCbo.add("Basin");
@@ -655,7 +524,6 @@ public class BestEstimateQpeDlg extends CaveSWTDialog {
     private void createAnnotateControls() {
         Composite annotateComp = new Composite(shell, SWT.NONE);
         GridLayout annotateGl = new GridLayout(3, false);
-        annotateGl.horizontalSpacing = 15;
         annotateComp.setLayout(annotateGl);
 
         Label annotateLbl = new Label(annotateComp, SWT.NONE);
@@ -685,15 +553,18 @@ public class BestEstimateQpeDlg extends CaveSWTDialog {
      */
     private void createBottomButtons() {
         Composite buttonComp = new Composite(shell, SWT.NONE);
-        RowLayout layout = new RowLayout();
-        layout.spacing = 18;
-        layout.marginLeft = 5;
-        buttonComp.setLayout(layout);
+        GridLayout gl = new GridLayout(4, true);
+        GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
+        buttonComp.setLayout(gl);
+        buttonComp.setLayoutData(gd);
 
-        RowData rd = new RowData(90, SWT.DEFAULT);
+        final int buttonMinimumWidth = buttonComp.getDisplay().getDPI().x;
+
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, true, false);
+        gd.minimumWidth = buttonMinimumWidth;
         showDataBtn = new Button(buttonComp, SWT.PUSH);
         showDataBtn.setText("Show Data");
-        showDataBtn.setLayoutData(rd);
+        showDataBtn.setLayoutData(gd);
         showDataBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
@@ -701,10 +572,11 @@ public class BestEstimateQpeDlg extends CaveSWTDialog {
             }
         });
 
-        rd = new RowData(90, SWT.DEFAULT);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, true, false);
+        gd.minimumWidth = buttonMinimumWidth;
         endLapseBtn = new Button(buttonComp, SWT.PUSH);
         endLapseBtn.setText("End Lapse");
-        endLapseBtn.setLayoutData(rd);
+        endLapseBtn.setLayoutData(gd);
         endLapseBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
@@ -716,10 +588,11 @@ public class BestEstimateQpeDlg extends CaveSWTDialog {
             }
         });
 
-        rd = new RowData(90, SWT.DEFAULT);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, true, false);
+        gd.minimumWidth = buttonMinimumWidth;
         clearDataBtn = new Button(buttonComp, SWT.PUSH);
         clearDataBtn.setText("Clear Data");
-        clearDataBtn.setLayoutData(rd);
+        clearDataBtn.setLayoutData(gd);
         clearDataBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
@@ -727,10 +600,11 @@ public class BestEstimateQpeDlg extends CaveSWTDialog {
             }
         });
 
-        rd = new RowData(90, SWT.DEFAULT);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, true, false);
+        gd.minimumWidth = buttonMinimumWidth;
         closeBtn = new Button(buttonComp, SWT.PUSH);
         closeBtn.setText("Close");
-        closeBtn.setLayoutData(rd);
+        closeBtn.setLayoutData(gd);
         closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {

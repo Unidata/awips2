@@ -75,19 +75,25 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Nov 21, 2009 #3039      lvenable     Initial creation
- * Apr 26, 2013 #1945      lvenable    Some code cleanup.
- * 06 Jun 2013  #2065      lvenable    Added convenience method to alert the user to use the clear
- *                                     button if they want to close the dialog.
- * Jul 24, 2013 #2218      mpduff      Changed method signature.
- * Jul 26, 2013 #2143      skorolev    Changes for non-blocking dialog.
- * Aug 15, 2013 #2143      mpduff      Change how the dialogs close to prevent ConcurrentModificationException.
- * 04 Dec 2013  #2592      lvenable    Update how the checkboxes are handled
- *                                     (background/foreground colors) since the Redhat
- *                                     6 upgrade causes the check in the checkbox to be
- *                                     colored the same as the background.
+ * 
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Nov 21, 2009  3039     lvenable  Initial creation
+ * Apr 26, 2013  1945     lvenable  Some code cleanup.
+ * Jun 06, 2013  2065     lvenable  Added convenience method to alert the user
+ *                                  to use the clear button if they want to
+ *                                  close the dialog.
+ * Jul 24, 2013  2218     mpduff    Changed method signature.
+ * Jul 26, 2013  2143     skorolev  Changes for non-blocking dialog.
+ * Aug 15, 2013  2143     mpduff    Change how the dialogs close to prevent
+ *                                  ConcurrentModificationException.
+ * Dec 04, 2013  2592     lvenable  Update how the checkboxes are handled
+ *                                  (background/foreground colors) since the
+ *                                  Redhat 6 upgrade causes the check in the
+ *                                  checkbox to be colored the same as the
+ *                                  background.
+ * May 10, 2016  5516     randerso  Lots of GUI clean up
+ * 
  * </pre>
  * 
  * @author lvenable
@@ -701,28 +707,30 @@ public abstract class AbstractTableDlg extends CaveSWTDialog implements
             Color bgColor, Color fgColor, String labelText,
             boolean colorComposite, String toolTipText) {
 
-        GridData gd = new GridData();
+        Composite chkLblComp = new Composite(parentComp, SWT.NONE);
         GridLayout gl = new GridLayout(2, false);
-        gl.marginHeight = 2;
+        gl.marginHeight = 0;
         gl.marginWidth = 2;
         gl.horizontalSpacing = 0;
-
-        Composite chkLblComp = new Composite(parentComp, SWT.NONE);
         chkLblComp.setLayout(gl);
+        GridData gd = new GridData(SWT.DEFAULT, SWT.FILL, false, true);
         chkLblComp.setLayoutData(gd);
 
+        Button chkBox = new Button(chkLblComp, SWT.CHECK);
+        gd = new GridData(SWT.CENTER, SWT.CENTER, false, true);
+        chkBox.setLayoutData(gd);
+
         if (colorComposite) {
+            chkBox.setBackground(bgColor);
             chkLblComp.setBackground(bgColor);
         }
 
-        gd = new GridData(18, SWT.DEFAULT);
-        Button chkBox = new Button(chkLblComp, SWT.CHECK);
-        chkBox.setLayoutData(gd);
-
         Label lbl = new Label(chkLblComp, SWT.NONE);
+        gd = new GridData(SWT.LEFT, SWT.CENTER, false, true);
+        lbl.setLayoutData(gd);
         lbl.setBackground(bgColor);
         lbl.setForeground(fgColor);
-        lbl.setText(" " + labelText);
+        lbl.setText(labelText);
 
         chkBox.setToolTipText(toolTipText);
         lbl.setToolTipText(toolTipText);

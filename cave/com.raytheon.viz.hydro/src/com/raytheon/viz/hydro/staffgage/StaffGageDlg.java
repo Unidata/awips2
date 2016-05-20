@@ -26,14 +26,12 @@ import java.text.SimpleDateFormat;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
@@ -51,8 +49,9 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 29 NOV 2007  373        lvenable    Initial creation
- * 09 FEB 2011  4383	   lbousaidi   changed createStaffGageData
+ * 09 FEB 2011  4383       lbousaidi   changed createStaffGageData
  * 15 MAR 2013  1790       rferrel     Made dialog non-blocking.
+ * 05 May 2016  5483       bkowal      Fix GUI sizing issues.
  * 
  * 
  * </pre>
@@ -62,11 +61,6 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 
  */
 public class StaffGageDlg extends CaveSWTDialog {
-
-    /**
-     * Font used with text controls.
-     */
-    private Font textFont;
 
     /**
      * City name text control.
@@ -108,55 +102,55 @@ public class StaffGageDlg extends CaveSWTDialog {
      */
     private Text stateTF;
 
+    /*
+     * Record ? labels
+     */
+    private Label recordStageLbl;
+
+    private Label recordFlowLbl;
+
+    /*
+     * Major Category ? labels
+     */
+    private Label majorCategoryStageLbl;
+
+    private Label majorCategoryFlowLbl;
+
+    /*
+     * Minor Category ? labels
+     */
+    private Label minorCategoryStageLbl;
+
+    private Label minorCategoryFlowLbl;
+
+    /*
+     * Flood ? labels
+     */
+    private Label floodStageLbl;
+
+    private Label floodFlowLbl;
+
+    /*
+     * Action ? labels
+     */
+    private Label actionStageLbl;
+
+    private Label actionFlowLbl;
+
+    /*
+     * Bankfull stage label
+     */
+    private Label bankfullStageLbl;
+
+    /*
+     * Zero datum label
+     */
+    private Label zeroDatumLbl;
+
     /**
      * Record level label.
      */
     private Label recordLbl;
-
-    /**
-     * Record level text control.
-     */
-    private Text recordTF;
-
-    /**
-     * Major category text control.
-     */
-    private Text majorCatTF;
-
-    /**
-     * Moderate category text control.
-     */
-    private Text modCatTF;
-
-    /**
-     * Minor category text control.
-     */
-    private Text minorCatTF;
-
-    /**
-     * Flood text control.
-     */
-    private Text floodTF;
-
-    /**
-     * Action text control.
-     */
-    private Text actionTF;
-
-    /**
-     * Bank full text control.
-     */
-    private Text bankfullTF;
-
-    /**
-     * Zero datum text control.
-     */
-    private Text zeroDatumTF;
-
-    /**
-     * Record date string.
-     */
-    private String recordDate = "";
 
     /**
      * Gage data class.
@@ -183,43 +177,8 @@ public class StaffGageDlg extends CaveSWTDialog {
         setReturnValue(titleName);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
-     */
-    @Override
-    protected Layout constructShellLayout() {
-        // Create the main layout for the shell.
-        GridLayout mainLayout = new GridLayout(1, true);
-        mainLayout.marginHeight = 3;
-        mainLayout.marginWidth = 3;
-        mainLayout.verticalSpacing = 10;
-        mainLayout.marginTop = 5;
-        return mainLayout;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
-     */
-    @Override
-    protected void disposed() {
-        textFont.dispose();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
-     * .eclipse.swt.widgets.Shell)
-     */
     @Override
     protected void initializeComponents(Shell shell) {
-        textFont = new Font(shell.getDisplay(), "Monospace", 10, SWT.NORMAL);
-
         createStaffGageData();
 
         // Initialize all of the controls and layouts
@@ -230,115 +189,119 @@ public class StaffGageDlg extends CaveSWTDialog {
         updateTextAndLabelControls();
     }
 
-    /**
-     * Create the reference group and controls.
-     */
     private void createReferenceGroup() {
-        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Group refGroup = new Group(shell, SWT.NONE);
-        GridLayout gl = new GridLayout(4, false);
-        gl.horizontalSpacing = 10;
+        GridLayout gl = new GridLayout(2, true);
+        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         refGroup.setLayout(gl);
         refGroup.setLayoutData(gd);
-        refGroup.setText(" Reference ");
+        refGroup.setText("Reference");
 
-        int leftLblWidth = 80;
-        int leftTfWidth = 260;
-        int rightLblWidth = 160;
-        int rightTfWidth = 270;
+        Composite leftComp = new Composite(refGroup, SWT.NONE);
+        gl = new GridLayout(2, false);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        leftComp.setLayout(gl);
+        leftComp.setLayoutData(gd);
 
-        gd = new GridData(leftLblWidth, SWT.DEFAULT);
-        Label nameLbl = new Label(refGroup, SWT.RIGHT);
+        /*
+         * Leftmost Content.
+         */
+        // Name
+        gd = new GridData(SWT.RIGHT, SWT.CENTER, false, false);
+        Label nameLbl = new Label(leftComp, SWT.RIGHT);
         nameLbl.setText("Name");
         nameLbl.setLayoutData(gd);
 
-        gd = new GridData(leftTfWidth, SWT.DEFAULT);
-        nameTF = new Text(refGroup, SWT.BORDER);
+        gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
+        nameTF = new Text(leftComp, SWT.BORDER);
         nameTF.setEditable(false);
         nameTF.setLayoutData(gd);
-        nameTF.setFont(textFont);
 
-        gd = new GridData(rightLblWidth, SWT.DEFAULT);
-        Label latLonLbl = new Label(refGroup, SWT.RIGHT);
-        latLonLbl.setText("Lat/Lon");
-        latLonLbl.setLayoutData(gd);
-
-        gd = new GridData(rightTfWidth, SWT.DEFAULT);
-        latLonTF = new Text(refGroup, SWT.BORDER);
-        latLonTF.setEditable(false);
-        latLonTF.setLayoutData(gd);
-        latLonTF.setFont(textFont);
-
-        gd = new GridData(leftLblWidth, SWT.DEFAULT);
-        Label basinLbl = new Label(refGroup, SWT.RIGHT);
+        // Basin
+        gd = new GridData(SWT.RIGHT, SWT.CENTER, false, false);
+        Label basinLbl = new Label(leftComp, SWT.RIGHT);
         basinLbl.setText("Basin");
         basinLbl.setLayoutData(gd);
 
-        gd = new GridData(leftTfWidth, SWT.DEFAULT);
-        basinTF = new Text(refGroup, SWT.BORDER);
+        gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
+        basinTF = new Text(leftComp, SWT.BORDER);
         basinTF.setEditable(false);
         basinTF.setLayoutData(gd);
-        basinTF.setFont(textFont);
 
-        gd = new GridData(rightLblWidth, SWT.DEFAULT);
-        Label elevationLbl = new Label(refGroup, SWT.RIGHT);
-        elevationLbl.setText("Elevation");
-        elevationLbl.setLayoutData(gd);
-
-        gd = new GridData(rightTfWidth, SWT.DEFAULT);
-        elevationTF = new Text(refGroup, SWT.BORDER);
-        elevationTF.setEditable(false);
-        elevationTF.setLayoutData(gd);
-        elevationTF.setFont(textFont);
-
-        gd = new GridData(leftLblWidth, SWT.DEFAULT);
-        Label streamLbl = new Label(refGroup, SWT.RIGHT);
+        // Stream
+        gd = new GridData(SWT.RIGHT, SWT.CENTER, false, false);
+        Label streamLbl = new Label(leftComp, SWT.RIGHT);
         streamLbl.setText("Stream");
         streamLbl.setLayoutData(gd);
 
-        gd = new GridData(leftTfWidth, SWT.DEFAULT);
-        streamTF = new Text(refGroup, SWT.BORDER);
+        gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
+        streamTF = new Text(leftComp, SWT.BORDER);
         streamTF.setEditable(false);
         streamTF.setLayoutData(gd);
-        streamTF.setFont(textFont);
 
-        gd = new GridData(rightLblWidth, SWT.DEFAULT);
-        Label tidalLbl = new Label(refGroup, SWT.RIGHT);
-        tidalLbl.setText("Tidal Elevation");
-        tidalLbl.setLayoutData(gd);
-
-        gd = new GridData(rightTfWidth, SWT.DEFAULT);
-        tidalTF = new Text(refGroup, SWT.BORDER);
-        tidalTF.setEditable(false);
-        tidalTF.setLayoutData(gd);
-        tidalTF.setFont(textFont);
-
-        gd = new GridData(leftLblWidth, SWT.DEFAULT);
-        Label countyLbl = new Label(refGroup, SWT.RIGHT);
+        // County
+        gd = new GridData(SWT.RIGHT, SWT.CENTER, false, false);
+        Label countyLbl = new Label(leftComp, SWT.RIGHT);
         countyLbl.setText("County");
         countyLbl.setLayoutData(gd);
 
-        gd = new GridData(leftTfWidth, SWT.DEFAULT);
-        countyTF = new Text(refGroup, SWT.BORDER);
+        gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
+        countyTF = new Text(leftComp, SWT.BORDER);
         countyTF.setEditable(false);
         countyTF.setLayoutData(gd);
-        countyTF.setFont(textFont);
 
-        // Filler/Spacer for cell 3 & 4 of the GridLayout
-        // on the same row of the county information.
-        new Label(refGroup, SWT.RIGHT).setText("");
-        new Label(refGroup, SWT.RIGHT).setText("");
-
-        gd = new GridData(leftLblWidth, SWT.DEFAULT);
-        Label stateLbl = new Label(refGroup, SWT.RIGHT);
+        // State
+        gd = new GridData(SWT.RIGHT, SWT.CENTER, false, false);
+        Label stateLbl = new Label(leftComp, SWT.RIGHT);
         stateLbl.setText("State");
         stateLbl.setLayoutData(gd);
 
-        gd = new GridData(leftTfWidth, SWT.DEFAULT);
-        stateTF = new Text(refGroup, SWT.BORDER);
+        gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
+        stateTF = new Text(leftComp, SWT.BORDER);
         stateTF.setEditable(false);
         stateTF.setLayoutData(gd);
-        stateTF.setFont(textFont);
+
+        Composite rightComp = new Composite(refGroup, SWT.NONE);
+        gl = new GridLayout(2, false);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        rightComp.setLayout(gl);
+        rightComp.setLayoutData(gd);
+
+        /*
+         * Rightmost Content.
+         */
+        // Lat/Lon
+        gd = new GridData(SWT.RIGHT, SWT.CENTER, false, false);
+        Label latLonLbl = new Label(rightComp, SWT.RIGHT);
+        latLonLbl.setText("Lat/Lon");
+        latLonLbl.setLayoutData(gd);
+
+        gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
+        latLonTF = new Text(rightComp, SWT.BORDER);
+        latLonTF.setEditable(false);
+        latLonTF.setLayoutData(gd);
+
+        // Elevation
+        gd = new GridData(SWT.RIGHT, SWT.CENTER, false, false);
+        Label elevationLbl = new Label(rightComp, SWT.RIGHT);
+        elevationLbl.setText("Elevation");
+        elevationLbl.setLayoutData(gd);
+
+        gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
+        elevationTF = new Text(rightComp, SWT.BORDER);
+        elevationTF.setEditable(false);
+        elevationTF.setLayoutData(gd);
+
+        // Tidal Elevation
+        gd = new GridData(SWT.RIGHT, SWT.CENTER, false, false);
+        Label tidalLbl = new Label(rightComp, SWT.RIGHT);
+        tidalLbl.setText("Tidal Elevation");
+        tidalLbl.setLayoutData(gd);
+
+        gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
+        tidalTF = new Text(rightComp, SWT.BORDER);
+        tidalTF.setEditable(false);
+        tidalTF.setLayoutData(gd);
     }
 
     /**
@@ -347,14 +310,13 @@ public class StaffGageDlg extends CaveSWTDialog {
     private void createSigStagesGroup() {
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Group refGroup = new Group(shell, SWT.NONE);
-        GridLayout gl = new GridLayout(2, false);
-        gl.horizontalSpacing = 10;
+        GridLayout gl = new GridLayout(2, true);
         refGroup.setLayout(gl);
         refGroup.setLayoutData(gd);
-        refGroup.setText(" Significant Stages ");
+        refGroup.setText("Significant Stages");
 
         setupStageDrawingArea(refGroup);
-        createStageDataArea(refGroup);
+        createStageDataAreaWireframeTable(refGroup);
     }
 
     /**
@@ -373,7 +335,6 @@ public class StaffGageDlg extends CaveSWTDialog {
         Composite canvasComp = new Composite(parent, SWT.NONE);
         canvasComp.setLayout(new GridLayout(1, false));
 
-        // staffGageCanvas = new StaffGageCanvasComp(parent, gageData);
         new StaffGageCanvasComp(parent, gageData);
     }
 
@@ -383,117 +344,150 @@ public class StaffGageDlg extends CaveSWTDialog {
      * @param parent
      *            Parent composite.
      */
-    private void createStageDataArea(Composite parent) {
-        GridData mainGD = new GridData(SWT.DEFAULT, SWT.TOP, false, true);
+    private void createStageDataAreaWireframeTable(Composite parent) {
         Composite stageDataComp = new Composite(parent, SWT.NONE);
-        GridLayout stageDataGl = new GridLayout(2, false);
-        stageDataComp.setLayout(stageDataGl);
-        stageDataComp.setLayoutData(mainGD);
+        GridLayout gl = new GridLayout(1, false);
+        GridData gd = new GridData(SWT.FILL, SWT.TOP, true, true);
+        stageDataComp.setLayout(gl);
+        stageDataComp.setLayoutData(gd);
 
-        int leftSideWidth = 200;
-        int rightSideLrgWidth = 180;
-        int rightSideSmWidth = 80;
+        // Empty Row
 
-        // Filler/Spacer for 1st cell top row
-        new Label(stageDataComp, SWT.RIGHT).setText("");
+        Composite rowsComp = new Composite(stageDataComp, SWT.NONE);
+        gl = new GridLayout(3, true);
+        gl.marginHeight = 0;
+        gd = new GridData(SWT.FILL, SWT.TOP, true, false);
+        rowsComp.setLayout(gl);
+        rowsComp.setLayoutData(gd);
 
-        GridData gd = new GridData(rightSideLrgWidth, SWT.DEFAULT);
-        Label stageFlowLbl = new Label(stageDataComp, SWT.CENTER);
-        stageFlowLbl.setText("Stage               Flow");
-        stageFlowLbl.setLayoutData(gd);
+        // Row Headers
+        Label emptyCell = new Label(rowsComp, SWT.NONE);
+        gd = new GridData(SWT.RIGHT, SWT.CENTER, false, false);
+        emptyCell.setLayoutData(gd);
+        emptyCell.setText("");
 
-        gd = new GridData(leftSideWidth, SWT.DEFAULT);
-        recordLbl = new Label(stageDataComp, SWT.RIGHT);
-        recordLbl.setText("Record " + recordDate + ":");
+        Label stageColumnHeaderLbl = new Label(rowsComp, SWT.NONE);
+        gd = new GridData(SWT.CENTER, SWT.CENTER, true, false);
+        stageColumnHeaderLbl.setLayoutData(gd);
+        stageColumnHeaderLbl.setText("Stage");
+
+        Label flowColumnHeaderLbl = new Label(rowsComp, SWT.NONE);
+        gd = new GridData(SWT.CENTER, SWT.CENTER, true, false);
+        flowColumnHeaderLbl.setLayoutData(gd);
+        flowColumnHeaderLbl.setText("Flow");
+
+        // Record
+        recordLbl = new Label(rowsComp, SWT.NONE);
+        gd = new GridData(SWT.RIGHT, SWT.CENTER, false, false);
         recordLbl.setLayoutData(gd);
+        recordLbl.setText("Record:");
 
-        gd = new GridData(rightSideLrgWidth, SWT.DEFAULT);
-        recordTF = new Text(stageDataComp, SWT.BORDER);
-        recordTF.setFont(textFont);
-        recordTF.setEditable(false);
-        recordTF.setLayoutData(gd);
+        recordStageLbl = new Label(rowsComp, SWT.BORDER);
+        gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
+        recordStageLbl.setLayoutData(gd);
+        recordStageLbl.setAlignment(SWT.CENTER);
 
-        gd = new GridData(leftSideWidth, SWT.DEFAULT);
-        Label majorCatLbl = new Label(stageDataComp, SWT.RIGHT);
-        majorCatLbl.setText("Major Category:");
-        majorCatLbl.setLayoutData(gd);
+        recordFlowLbl = new Label(rowsComp, SWT.BORDER);
+        gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
+        recordFlowLbl.setLayoutData(gd);
+        recordFlowLbl.setAlignment(SWT.CENTER);
 
-        gd = new GridData(rightSideLrgWidth, SWT.DEFAULT);
-        majorCatTF = new Text(stageDataComp, SWT.BORDER);
-        majorCatTF.setFont(textFont);
-        majorCatTF.setEditable(false);
-        majorCatTF.setLayoutData(gd);
+        // Major Category
+        Label majorCategoryHeaderLbl = new Label(rowsComp, SWT.NONE);
+        gd = new GridData(SWT.RIGHT, SWT.CENTER, false, false);
+        majorCategoryHeaderLbl.setLayoutData(gd);
+        majorCategoryHeaderLbl.setText("Major Category:");
 
-        gd = new GridData(leftSideWidth, SWT.DEFAULT);
-        Label modCatLbl = new Label(stageDataComp, SWT.RIGHT);
-        modCatLbl.setText("Moderate Category:");
-        modCatLbl.setLayoutData(gd);
+        majorCategoryStageLbl = new Label(rowsComp, SWT.BORDER);
+        gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
+        majorCategoryStageLbl.setLayoutData(gd);
+        majorCategoryStageLbl.setAlignment(SWT.CENTER);
 
-        gd = new GridData(rightSideLrgWidth, SWT.DEFAULT);
-        modCatTF = new Text(stageDataComp, SWT.BORDER);
-        modCatTF.setFont(textFont);
-        modCatTF.setEditable(false);
-        modCatTF.setLayoutData(gd);
+        majorCategoryFlowLbl = new Label(rowsComp, SWT.BORDER);
+        gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
+        majorCategoryFlowLbl.setLayoutData(gd);
+        majorCategoryFlowLbl.setAlignment(SWT.CENTER);
 
-        gd = new GridData(leftSideWidth, SWT.DEFAULT);
-        Label minorCatLbl = new Label(stageDataComp, SWT.RIGHT);
-        minorCatLbl.setText("Minor Category:");
-        minorCatLbl.setLayoutData(gd);
+        // Minor Category
+        Label minorCategoryHeaderLbl = new Label(rowsComp, SWT.NONE);
+        gd = new GridData(SWT.RIGHT, SWT.CENTER, false, false);
+        minorCategoryHeaderLbl.setLayoutData(gd);
+        minorCategoryHeaderLbl.setText("Minor Category:");
 
-        gd = new GridData(rightSideLrgWidth, SWT.DEFAULT);
-        minorCatTF = new Text(stageDataComp, SWT.BORDER);
-        minorCatTF.setFont(textFont);
-        minorCatTF.setEditable(false);
-        minorCatTF.setLayoutData(gd);
+        minorCategoryStageLbl = new Label(rowsComp, SWT.BORDER);
+        gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
+        minorCategoryStageLbl.setLayoutData(gd);
+        minorCategoryStageLbl.setAlignment(SWT.CENTER);
 
-        gd = new GridData(leftSideWidth, SWT.DEFAULT);
-        Label floodLbl = new Label(stageDataComp, SWT.RIGHT);
-        floodLbl.setText("Flood:");
-        floodLbl.setLayoutData(gd);
+        minorCategoryFlowLbl = new Label(rowsComp, SWT.BORDER);
+        gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
+        minorCategoryFlowLbl.setLayoutData(gd);
+        minorCategoryFlowLbl.setAlignment(SWT.CENTER);
 
-        gd = new GridData(rightSideLrgWidth, SWT.DEFAULT);
-        floodTF = new Text(stageDataComp, SWT.BORDER);
-        floodTF.setFont(textFont);
-        floodTF.setEditable(false);
-        floodTF.setLayoutData(gd);
+        // Flood
+        Label floodHeaderLbl = new Label(rowsComp, SWT.NONE);
+        gd = new GridData(SWT.RIGHT, SWT.CENTER, false, false);
+        floodHeaderLbl.setLayoutData(gd);
+        floodHeaderLbl.setText("Flood:");
 
-        gd = new GridData(leftSideWidth, SWT.DEFAULT);
-        Label actionLbl = new Label(stageDataComp, SWT.RIGHT);
-        actionLbl.setText("Action:");
-        actionLbl.setLayoutData(gd);
+        floodStageLbl = new Label(rowsComp, SWT.BORDER);
+        gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
+        floodStageLbl.setLayoutData(gd);
+        floodStageLbl.setAlignment(SWT.CENTER);
 
-        gd = new GridData(rightSideLrgWidth, SWT.DEFAULT);
-        actionTF = new Text(stageDataComp, SWT.BORDER);
-        actionTF.setFont(textFont);
-        actionTF.setEditable(false);
-        actionTF.setLayoutData(gd);
+        floodFlowLbl = new Label(rowsComp, SWT.BORDER);
+        gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
+        floodFlowLbl.setLayoutData(gd);
+        floodFlowLbl.setAlignment(SWT.CENTER);
 
-        gd = new GridData(leftSideWidth, 20);
-        gd.horizontalSpan = 2;
-        Label filler = new Label(stageDataComp, SWT.RIGHT);
-        filler.setLayoutData(gd);
+        // Action
+        Label actionHeaderLbl = new Label(rowsComp, SWT.NONE);
+        gd = new GridData(SWT.RIGHT, SWT.CENTER, false, false);
+        actionHeaderLbl.setLayoutData(gd);
+        actionHeaderLbl.setText("Action:");
 
-        gd = new GridData(leftSideWidth, SWT.DEFAULT);
-        Label bankfullLbl = new Label(stageDataComp, SWT.RIGHT);
-        bankfullLbl.setText("Bankfull Stage:");
-        bankfullLbl.setLayoutData(gd);
+        actionStageLbl = new Label(rowsComp, SWT.BORDER);
+        gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
+        actionStageLbl.setLayoutData(gd);
+        actionStageLbl.setAlignment(SWT.CENTER);
 
-        gd = new GridData(rightSideSmWidth, SWT.DEFAULT);
-        bankfullTF = new Text(stageDataComp, SWT.BORDER | SWT.RIGHT);
-        bankfullTF.setFont(textFont);
-        bankfullTF.setEditable(false);
-        bankfullTF.setLayoutData(gd);
+        actionFlowLbl = new Label(rowsComp, SWT.BORDER);
+        gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
+        actionFlowLbl.setLayoutData(gd);
+        actionFlowLbl.setAlignment(SWT.CENTER);
 
-        gd = new GridData(leftSideWidth, SWT.DEFAULT);
-        Label zeroDatumLbl = new Label(stageDataComp, SWT.RIGHT);
-        zeroDatumLbl.setText("Zero Datum:");
+        // Empty Row
+        new Label(rowsComp, SWT.NONE);
+        new Label(rowsComp, SWT.NONE);
+        new Label(rowsComp, SWT.NONE);
+
+        // Bankfull Stage
+        Label bankfullStageHeaderLbl = new Label(rowsComp, SWT.NONE);
+        gd = new GridData(SWT.RIGHT, SWT.CENTER, false, false);
+        bankfullStageHeaderLbl.setLayoutData(gd);
+        bankfullStageHeaderLbl.setText("Bankfull Stage:");
+
+        bankfullStageLbl = new Label(rowsComp, SWT.BORDER);
+        gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
+        bankfullStageLbl.setLayoutData(gd);
+        bankfullStageLbl.setAlignment(SWT.CENTER);
+
+        /* Empty Cell */
+        new Label(rowsComp, SWT.NONE);
+
+        // Zero Datum
+        Label zeroDatumHeaderLbl = new Label(rowsComp, SWT.NONE);
+        gd = new GridData(SWT.RIGHT, SWT.CENTER, false, false);
+        zeroDatumHeaderLbl.setLayoutData(gd);
+        zeroDatumHeaderLbl.setText("Zero Datum:");
+
+        zeroDatumLbl = new Label(rowsComp, SWT.BORDER);
+        gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
         zeroDatumLbl.setLayoutData(gd);
+        zeroDatumLbl.setAlignment(SWT.CENTER);
 
-        gd = new GridData(rightSideSmWidth, SWT.DEFAULT);
-        zeroDatumTF = new Text(stageDataComp, SWT.BORDER | SWT.RIGHT);
-        zeroDatumTF.setFont(textFont);
-        zeroDatumTF.setEditable(false);
-        zeroDatumTF.setLayoutData(gd);
+        /* Empty Cell */
+        new Label(rowsComp, SWT.NONE);
     }
 
     /**
@@ -506,7 +500,8 @@ public class StaffGageDlg extends CaveSWTDialog {
         GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         centeredComp.setLayoutData(gd);
 
-        gd = new GridData(70, SWT.DEFAULT);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, true, false);
+        gd.minimumWidth = centeredComp.getDisplay().getDPI().x;
         Button closeBtn = new Button(centeredComp, SWT.NONE);
         closeBtn.setText("Close");
         closeBtn.setLayoutData(gd);
@@ -550,22 +545,19 @@ public class StaffGageDlg extends CaveSWTDialog {
             stateTF.setText(gageData.getState());
         }
 
-        String fmtStr = "%8S %11S";
+        recordStageLbl.setText(gageData.getRecordStage());
+        recordFlowLbl.setText(gageData.getRecordFlow());
+        majorCategoryStageLbl.setText(gageData.getMajorCatStage());
+        majorCategoryFlowLbl.setText(gageData.getMajorCatFlow());
+        minorCategoryStageLbl.setText(gageData.getMinorCatStage());
+        minorCategoryFlowLbl.setText(gageData.getMinorCatFlow());
+        floodStageLbl.setText(gageData.getFloodStage());
+        floodFlowLbl.setText(gageData.getFloodFlow());
+        actionStageLbl.setText(gageData.getActionStage());
+        actionFlowLbl.setText(gageData.getActionFlow());
 
-        recordTF.setText(String.format(fmtStr, gageData.getRecordStage(),
-                gageData.getRecordFlow()));
-        majorCatTF.setText(String.format(fmtStr, gageData.getMajorCatStage(),
-                gageData.getMajorCatFlow()));
-        modCatTF.setText(String.format(fmtStr, gageData.getModCatStage(),
-                gageData.getModCatFlow()));
-        minorCatTF.setText(String.format(fmtStr, gageData.getMinorCatStage(),
-                gageData.getMinorCatFlow()));
-        floodTF.setText(String.format(fmtStr, gageData.getFloodStage(),
-                gageData.getFloodFlow()));
-        actionTF.setText(String.format(fmtStr, gageData.getActionStage(),
-                gageData.getActionFlow()));
-        bankfullTF.setText(gageData.getBankfullStage());
-        zeroDatumTF.setText(gageData.getZeroDatum());
+        bankfullStageLbl.setText(gageData.getBankfullStage());
+        zeroDatumLbl.setText(gageData.getZeroDatum());
     }
 
     /**

@@ -4379,17 +4379,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             textEditor.setText(originalText);
         }
 
-        // if product is a WarnGen product and is not enabled for mixed case
-        // transmission, replace all commas with ellipses
-        StdTextProduct product = TextDisplayModel.getInstance()
-                .getStdTextProduct(token);
-        if (TextEditorCfg.getTextEditorCfg().getReplaceCommasWithEllipses()
-                && product != null && warngenPils.contains(product.getNnnid())
-                && !MixedCaseProductSupport.isMixedCase(product.getNnnid())) {
-            textEditor.setText(textEditor.getText()
-                    .replaceAll(", {0,1}", "..."));
-        }
-
         markUneditableText(textEditor);
 
         // Disable the lockable text listener since the application is no

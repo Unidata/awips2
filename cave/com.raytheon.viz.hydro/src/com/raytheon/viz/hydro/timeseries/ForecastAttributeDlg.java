@@ -19,8 +19,8 @@
  **/
 package com.raytheon.viz.hydro.timeseries;
 
-import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Iterator;
 
 import org.eclipse.swt.SWT;
@@ -30,19 +30,19 @@ import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.viz.hydro.timeseries.table.ForecastDataAttribute;
 import com.raytheon.viz.hydrocommon.HydroConstants;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.widgets.DateTimeSpinner;
 
 /**
  * Dialog to insert forecast data attributes.
@@ -52,8 +52,9 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 26, 2009            mpduff     Initial creation
+ * Mar 26, 2009            mpduff      Initial creation
  * April 16, 2013 1790     rferrel     Make non-blocking dialog.
+ * May 11, 2016   5483     bkowal      Fix GUI sizing issues. Cleanup.
  * 
  * </pre>
  * 
@@ -78,11 +79,21 @@ public class ForecastAttributeDlg extends CaveSWTDialog {
     /** Product ID text field */
     private Text prodIdTF;
 
-    /** Time text field */
-    private Text timeTF;
+    /** Product Time Calendar */
+    private Calendar productTime;
 
-    /** Basis time text field */
-    private Text basisTimeTF;
+    /** Calendar to use when resetting the Product Time */
+    private Calendar resetProductTime;
+
+    private DateTimeSpinner productTimeSpinner;
+
+    /** Basis Time Calendar */
+    private Calendar basisTime;
+
+    /** Calendar to use when resetting the Basis Time */
+    private Calendar resetBasisTime;
+
+    private DateTimeSpinner basisTimeSpinner;
 
     /** Type Source list */
     private List tsList;
@@ -91,7 +102,7 @@ public class ForecastAttributeDlg extends CaveSWTDialog {
     private ForecastDataAttribute fcstDataAtt = null;
 
     /** List of listeners. */
-    private ArrayList<ForecastDataAttributeListener> listenerList = new ArrayList<ForecastDataAttributeListener>();
+    private final java.util.List<ForecastDataAttributeListener> listenerList = new ArrayList<>();
 
     /**
      * Non-blocking constructor.
@@ -100,34 +111,23 @@ public class ForecastAttributeDlg extends CaveSWTDialog {
      * @param fcstDataAtt
      */
     public ForecastAttributeDlg(Shell parentShell,
-            ForecastDataAttribute fcstDataAtt) {
+            ForecastDataAttribute fcstDataAtt, Calendar productTime,
+            Calendar basisTime) {
         super(parentShell, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText(TITLE);
 
         this.fcstDataAtt = fcstDataAtt;
+        this.productTime = productTime;
+        this.basisTime = basisTime;
+        /*
+         * Need to clone based on the current {@link DateTimeSpinner}
+         * implementation so that it will be possible to reset the tracked
+         * date/times.
+         */
+        this.resetProductTime = TimeUtil.newCalendar(productTime);
+        this.resetBasisTime = TimeUtil.newCalendar(basisTime);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
-     */
-    @Override
-    protected Layout constructShellLayout() {
-        // Create the main layout for the shell.
-        GridLayout mainLayout = new GridLayout(1, true);
-        mainLayout.marginHeight = 1;
-        mainLayout.marginWidth = 1;
-        return mainLayout;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
-     * .eclipse.swt.widgets.Shell)
-     */
     @Override
     protected void initializeComponents(Shell shell) {
         setReturnValue(false);
@@ -157,69 +157,43 @@ public class ForecastAttributeDlg extends CaveSWTDialog {
      * Create the text and list widgets.
      */
     private void createTextAreas() {
-        Composite prodIdLblComp = new Composite(shell, SWT.NONE);
-        RowLayout layout = new RowLayout();
-        prodIdLblComp.setLayout(layout);
+        Composite mainComp = new Composite(shell, SWT.NONE);
+        GridLayout gl = new GridLayout(1, false);
+        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        gd.minimumWidth = mainComp.getDisplay().getDPI().x * 3;
+        mainComp.setLayout(gl);
+        mainComp.setLayoutData(gd);
 
-        Label prodIdLbl = new Label(prodIdLblComp, SWT.NONE);
+        Label prodIdLbl = new Label(mainComp, SWT.NONE);
         prodIdLbl.setText(PROD_ID_LBL);
 
-        Composite prodIdComp = new Composite(shell, SWT.NONE);
-        GridLayout prodIdTFLayout = new GridLayout(2, false);
-        prodIdComp.setLayout(prodIdTFLayout);
-
-        Label spacer = new Label(prodIdComp, SWT.NONE);
-        spacer.setText(" ");
-
-        prodIdTF = new Text(prodIdComp, SWT.BORDER);
-        GridData gd = new GridData(275, SWT.DEFAULT);
+        prodIdTF = new Text(mainComp, SWT.BORDER);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         prodIdTF.setLayoutData(gd);
         prodIdTF.setText(fcstDataAtt.getProductId());
 
-        Composite timeComp = new Composite(shell, SWT.NONE);
-        GridLayout timeTFLayout = new GridLayout(2, false);
-        timeComp.setLayout(timeTFLayout);
+        productTimeSpinner = new DateTimeSpinner(mainComp, productTime, 6);
 
-        Label spacer2 = new Label(timeComp, SWT.NONE);
-        spacer2.setText(" ");
-
-        timeTF = new Text(timeComp, SWT.BORDER);
-        timeTF.setLayoutData(gd);
-        timeTF.setText(fcstDataAtt.getTime());
-
-        Composite basisTimeLblComp = new Composite(shell, SWT.NONE);
-        RowLayout basisTimeLblLayout = new RowLayout();
-        basisTimeLblComp.setLayout(basisTimeLblLayout);
-
-        Label basisTimeLbl = new Label(basisTimeLblComp, SWT.NONE);
+        Label basisTimeLbl = new Label(mainComp, SWT.NONE);
         basisTimeLbl.setText(BASIS_TIME_LBL);
 
-        Composite basisTimeComp = new Composite(shell, SWT.NONE);
-        GridLayout basisTimeTFLayout = new GridLayout(2, false);
-        basisTimeComp.setLayout(basisTimeTFLayout);
-
-        Label spacer3 = new Label(basisTimeComp, SWT.NONE);
-        spacer3.setText(" ");
-
-        basisTimeTF = new Text(basisTimeComp, SWT.BORDER);
-        basisTimeTF.setLayoutData(gd);
-        basisTimeTF.setText(fcstDataAtt.getBasisTime());
+        basisTimeSpinner = new DateTimeSpinner(mainComp, basisTime, 6);
 
         Composite tsLblComp = new Composite(shell, SWT.NONE);
         GridLayout tsLblLayout = new GridLayout(2, false);
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         tsLblComp.setLayout(tsLblLayout);
+        tsLblComp.setLayoutData(gd);
 
         Label tsLbl = new Label(tsLblComp, SWT.NONE);
         tsLbl.setText(TYPE_SOURCE_LBL);
 
         tsList = new List(tsLblComp, SWT.BORDER | SWT.SINGLE);
-        gd = new GridData(SWT.BEGINNING, SWT.BEGINNING, true, true, 1, 1);
-        gd.widthHint = 228;
-        gd.heightHint = 100;
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        gd.heightHint = tsList.getItemHeight() * 5;
+
         tsList.setLayoutData(gd);
-        for (String s : fcstDataAtt.getTypeSource()) {
-            tsList.add(s);
-        }
+        tsList.setItems(fcstDataAtt.getTypeSource());
     }
 
     /**
@@ -227,14 +201,15 @@ public class ForecastAttributeDlg extends CaveSWTDialog {
      */
     private void createBtns() {
         Composite btnComp = new Composite(shell, SWT.NONE);
-        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, true);
-        GridLayout buttonGl = new GridLayout(3, false);
+        GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
+        GridLayout buttonGl = new GridLayout(2, true);
         btnComp.setLayoutData(gd);
         btnComp.setLayout(buttonGl);
 
-        int buttonWidth = 125;
+        final int minimumButtonWidth = btnComp.getDisplay().getDPI().x;
 
-        gd = new GridData(buttonWidth, SWT.DEFAULT);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, true, false);
+        gd.minimumWidth = minimumButtonWidth;
         Button cancelBtn = new Button(btnComp, SWT.PUSH);
         cancelBtn.setText("Cancel");
         cancelBtn.setLayoutData(gd);
@@ -246,42 +221,35 @@ public class ForecastAttributeDlg extends CaveSWTDialog {
             }
         });
 
-        gd = new GridData(SWT.END, SWT.DEFAULT, true, false);
-        gd.widthHint = buttonWidth;
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, true, false);
+        gd.minimumWidth = minimumButtonWidth;
         Button saveBtn = new Button(btnComp, SWT.PUSH);
         saveBtn.setText("Save");
         saveBtn.setLayoutData(gd);
         saveBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                shell.setVisible(false);
-                String errMessage = "Invalid Product Time.";
-                try {
-                    HydroConstants.DATE_FORMAT.parse(timeTF.getText());
-                    errMessage = "Invalid Basis Time.";
-                    HydroConstants.DATE_FORMAT.parse(basisTimeTF.getText());
-                    errMessage = "You must select a Type Source.";
-                    if (tsList.getSelectionCount() == 0) {
-                        MessageBox mb = new MessageBox(getParent(),
-                                SWT.ICON_WARNING | SWT.OK);
-                        mb.setText("Invalid Selection");
-                        mb.setMessage(errMessage);
-                        mb.open();
-                        return;
-                    }
-                    fcstDataAtt.setBasisTime(basisTimeTF.getText());
-                    fcstDataAtt.setSelectedTS(tsList.getItem(tsList
-                            .getSelectionIndex()));
-                    fcstDataAtt.setProductId(prodIdTF.getText());
-                    fcstDataAtt.setTime(timeTF.getText());
-                    fireUpdateEvent(new FcstAttUpdateEvent(event, fcstDataAtt));
-                } catch (ParseException e) {
+                if (tsList.getSelectionCount() == 0) {
                     MessageBox mb = new MessageBox(getParent(),
                             SWT.ICON_WARNING | SWT.OK);
-                    mb.setText("Invalid Date Format");
-                    mb.setMessage(errMessage);
+                    mb.setText("Invalid Selection");
+                    mb.setMessage("You must select a Type Source.");
                     mb.open();
+                    return;
                 }
+                shell.setVisible(false);
+                fcstDataAtt.setBasisTime(HydroConstants.DATE_FORMAT
+                        .format(basisTime.getTime()));
+                fcstDataAtt.setSelectedTS(tsList.getItem(tsList
+                        .getSelectionIndex()));
+                fcstDataAtt.setProductId(prodIdTF.getText());
+                fcstDataAtt.setTime(HydroConstants.DATE_FORMAT
+                        .format(productTime.getTime()));
+
+                resetProductTime = TimeUtil.newCalendar(productTime);
+                resetBasisTime = TimeUtil.newCalendar(basisTime);
+
+                fireUpdateEvent(new FcstAttUpdateEvent(event, fcstDataAtt));
             }
         });
     }
@@ -291,8 +259,10 @@ public class ForecastAttributeDlg extends CaveSWTDialog {
      */
     private void reset() {
         prodIdTF.setText(fcstDataAtt.getProductId());
-        timeTF.setText(fcstDataAtt.getTime());
-        basisTimeTF.setText(fcstDataAtt.getBasisTime());
+        productTime.setTimeInMillis(resetProductTime.getTimeInMillis());
+        productTimeSpinner.redraw();
+        basisTime.setTimeInMillis(resetBasisTime.getTimeInMillis());
+        basisTimeSpinner.redraw();
         tsList.deselectAll();
     }
 

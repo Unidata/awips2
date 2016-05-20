@@ -19,99 +19,116 @@
  **/
 package com.raytheon.viz.hydro.timeseries;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.RowLayout;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.viz.hydro.CaveHydroSWTDialog;
 import com.raytheon.viz.hydro.timeseries.util.TraceData;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
- * This class is the popup menu when right/middle click on the Time Series Display.
- * There should be only one toggle time series dialog at a time.
+ * This class is the popup menu when right/middle click on the Time Series
+ * Display. There should be only one toggle time series dialog at a time.
  * 
  * <pre>
+ * 
  * SOFTWARE HISTORY
- * Date       Ticket# Engineer    Description
- * ---------- ------- ----------- --------------------------
- * 1/16/2013  15695   wkwock      Initial                         
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Jan 16, 2013  15695     wkwock      Initial creation
+ * May 06, 2016  #5483     dgilling    Code-cleanup.
+ * 
+ * </pre>
+ * 
  * @author wkwock
  * @version 1.0
- * 
  */
 public class ToggleTimeSeriesDlg extends CaveHydroSWTDialog {
-	private static final String DLG_TITLE="Toggle Time Series";
-	private List<TraceData> traceList=null;
-	private TimeSeriesDisplayCanvas tsDisCanvas=null;
-	private static ToggleTimeSeriesDlg oneTTSD=null; //singleton
-	
-	public static ToggleTimeSeriesDlg getInstance(Shell parentShell,List<TraceData> traceLst, TimeSeriesDisplayCanvas tsdc) {
-		if (oneTTSD!=null){
-			oneTTSD.close();
-			oneTTSD.disposed();
-		}
-		oneTTSD = new ToggleTimeSeriesDlg(parentShell, traceLst, tsdc) ;
-		return oneTTSD;
-	}
-	
-	private ToggleTimeSeriesDlg(Shell parentShell,List<TraceData> traceLst, TimeSeriesDisplayCanvas tsdc) {
-		super(parentShell);
-		this.setText(DLG_TITLE);
-		
-		this.traceList=traceLst;
-		this.tsDisCanvas=tsdc;
-	}
 
-	@Override
-	protected void initializeComponents(Shell shell) {
-	       Composite beginningTimeComp = new Composite(shell, SWT.NONE);
-	        RowLayout topLabelCompRl = new RowLayout();
-	        beginningTimeComp.setLayout(topLabelCompRl);
+    private static final String DLG_TITLE = "Toggle Time Series";
 
-	        Button[] checkBtns = new Button[traceList.size()];
-	    	
-	        for (int i = 0; i < traceList.size(); i++) {
-	            TraceData td = traceList.get(i);
-		    	checkBtns[i] = new Button(shell, SWT.CHECK);
-	            String s = null;
-	            if (td.isForecast()) {
-	                s = this.tsDisCanvas.getFcstPEDTSE(td);
-	            } else {
-	                s = this.tsDisCanvas.getPEDTSE(td);
-	            }
-	            if (td.getLineData()!=null && td.getLineData().length>0) {
-	                if (td.isTraceOn())
-	                    checkBtns[i].setSelection(true);
-	                else
-	                	checkBtns[i].setSelection(false);
-	            } else {
-	            	checkBtns[i].setSelection(false);
-	                s = s.concat("" + "NO DATA");
-	            }
+    private static ToggleTimeSeriesDlg dialogSingleton = null;
 
-		    	checkBtns[i].setText(s);
-		    	checkBtns[i].setLocation(50*i,250);
-		    	checkBtns[i].pack();
-		    	checkBtns[i].setData(td);
-	            
-	            
-		    	checkBtns[i].addListener(SWT.Selection, new Listener() {
-	                public void handleEvent(Event event) {
-	                    handleSelection(event);
-	                }
-	            });
-	        }
-	        // We need to make the menu visible
-	        beginningTimeComp.setVisible(true);
-	    }
+    private final Collection<TraceData> traceList;
 
-	    private void handleSelection(Event event) {
-	    	this.tsDisCanvas.handleSelection(event);
-	    }
+    private final TimeSeriesDisplayCanvas tsDisCanvas;
+
+    public static ToggleTimeSeriesDlg getInstance(Shell parentShell,
+            Collection<TraceData> traceLst, TimeSeriesDisplayCanvas tsdc) {
+        if (dialogSingleton != null) {
+            dialogSingleton.close();
+            dialogSingleton.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    dialogSingleton = null;
+                }
+            });
+        }
+        dialogSingleton = new ToggleTimeSeriesDlg(parentShell, traceLst, tsdc);
+        return dialogSingleton;
+    }
+
+    /**
+     * @param parentShell
+     * @param traceLst
+     * @param tsdc
+     */
+    private ToggleTimeSeriesDlg(Shell parentShell,
+            Collection<TraceData> traceLst, TimeSeriesDisplayCanvas tsdc) {
+        super(parentShell, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.NONE);
+        setText(DLG_TITLE);
+
+        this.traceList = traceLst;
+        this.tsDisCanvas = tsdc;
+    }
+
+    @Override
+    protected void initializeComponents(Shell shell) {
+        Composite beginningTimeComp = new Composite(shell, SWT.NONE);
+        beginningTimeComp.setLayout(new GridLayout(1, false));
+        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        gd.minimumWidth = getDisplay().getDPI().x * 3;
+        beginningTimeComp.setLayoutData(gd);
+
+        for (TraceData td : traceList) {
+            Button checkBox = new Button(beginningTimeComp, SWT.CHECK);
+            checkBox.setData(td);
+
+            StringBuilder sb = new StringBuilder();
+            if (td.isForecast()) {
+                sb.append(tsDisCanvas.getFcstPEDTSE(td));
+            } else {
+                sb.append(tsDisCanvas.getPEDTSE(td));
+            }
+            if ((td.getLineData() != null) && (td.getLineData().length > 0)) {
+                checkBox.setSelection(td.isTraceOn());
+            } else {
+                checkBox.setSelection(false);
+                sb.append("NO DATA");
+            }
+            checkBox.setText(sb.toString());
+
+            checkBox.addSelectionListener(new SelectionAdapter() {
+
+                @Override
+                public void widgetSelected(SelectionEvent e) {
+                    handleSelection(e);
+                }
+            });
+        }
+    }
+
+    private void handleSelection(SelectionEvent e) {
+        this.tsDisCanvas.handleSelection(e);
+    }
 }
