@@ -22,6 +22,17 @@
 
 <gribModelSet>
 
+	<!-- FSL/GSD HRRR GribModel:59:0:83 -->
+	<model>
+		<name>HRRRX</name>
+		<center>59</center>
+		<subcenter>0</subcenter>
+		<grid>17991059001</grid>
+		<process>
+			<id>83</id>
+		</process>
+	</model>
+
 	<!-- SUBCENTER 0 -->
 
 	<model>
