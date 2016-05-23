@@ -4935,6 +4935,7 @@
 			<entry pixelValue="15.239" operator="&gt;" displayValue='50' />
 			<entry pixelValue="18.287" operator="&gt;" displayValue='60' />
 			<entry pixelValue="21.335" operator="&gt;" displayValue='70' />
+			<entry pixelValue="60.96" operator="&gt;" displayValue='200' />
 		</dataMapping>	
 	</imageStyle>
  </styleRule>
@@ -4961,6 +4962,7 @@
 			<entry pixelValue="15239" operator="&gt;" displayValue='50' />
 			<entry pixelValue="18287" operator="&gt;" displayValue='60' />
 			<entry pixelValue="21033.5" operator="&gt;" displayValue='70' />
+			<entry pixelValue="60960" operator="&gt;" displayValue='200' />
 		</dataMapping>
 	</imageStyle>
  </styleRule>
@@ -4993,6 +4995,7 @@
 			<entry pixelValue="7.620" operator="&gt;" displayValue='25' />
 			<entry pixelValue="9.144" operator="&gt;" displayValue='30' />
 			<entry pixelValue="10.667" operator="&gt;" displayValue='35' />
+			<entry pixelValue="30.175" operator="&gt;" displayValue='99' />
 		</dataMapping>
 	</imageStyle>
  </styleRule>
@@ -5031,6 +5034,7 @@
 			<entry pixelValue="40" operator="&gt;" displayValue='40' />
 			<entry pixelValue="45" operator="&gt;" displayValue='45' />
 			<entry pixelValue="50" operator="&gt;" displayValue='50' />
+			<entry pixelValue="999" operator="&gt;" displayValue='999' />
 		</dataMapping>
 	</imageStyle>
  </styleRule>
@@ -5092,6 +5096,7 @@
 			<entry pixelValue="76.142" operator="&gt;" displayValue='3.0' />
 			<entry pixelValue="88.832" operator="&gt;" displayValue='3.5' />
 			<entry pixelValue="101.523" operator="&gt;" displayValue='4.0' />
+			<entry pixelValue="228.601" operator="&gt;" displayValue='9.0' />
 		</dataMapping>		
 	</imageStyle>
  </styleRule>
@@ -5115,27 +5120,31 @@
 	</paramLevelMatches>
 	<imageStyle>
 		<interpolate>false</interpolate>
-		<displayUnits label="*0.001 s^-1">*1</displayUnits>
+		<displayUnits label="s^-1">*1000</displayUnits>
+		<samplePrefs>
+			<formatString>3</formatString>
+		</samplePrefs>
 		<range scale="LINEAR">
 			<minValue>0</minValue>
-			<maxValue>25</maxValue>
+			<maxValue>0.025</maxValue>
 		</range>
 		<defaultColormap>mrms/mrmsRotation</defaultColormap>
 		<dataMapping>
 			<entry pixelValue="0" operator="&lt;" label="" />
-			<entry pixelValue="1" operator="&gt;" displayValue='1' />
-			<entry pixelValue="2" operator="&gt;" displayValue='2' />
-			<entry pixelValue="4" operator="&gt;" displayValue='4' />
-			<entry pixelValue="6" operator="&gt;" displayValue='6' />
-			<entry pixelValue="8" operator="&gt;" displayValue='8' />
-			<entry pixelValue="10" operator="&gt;" displayValue='10' />
-			<entry pixelValue="12" operator="&gt;" displayValue='12' />
-			<entry pixelValue="14" operator="&gt;" displayValue='14' />
-			<entry pixelValue="16" operator="&gt;" displayValue='16' />
-			<entry pixelValue="18" operator="&gt;" displayValue='18' />
-			<entry pixelValue="20" operator="&gt;" displayValue='20' />
-			<entry pixelValue="22" operator="&gt;" displayValue='22' />
-			<entry pixelValue="24" operator="&gt;" displayValue='24' />
+			<entry pixelValue="1" operator="&gt;" displayValue='0.001' />
+			<entry pixelValue="2" operator="&gt;" displayValue='0.002' />
+			<entry pixelValue="4" operator="&gt;" displayValue='0.004' />
+			<entry pixelValue="6" operator="&gt;" displayValue='0.006' />
+			<entry pixelValue="8" operator="&gt;" displayValue='0.008' />
+			<entry pixelValue="10" operator="&gt;" displayValue='0.010' />
+			<entry pixelValue="12" operator="&gt;" displayValue='0.012' />
+			<entry pixelValue="14" operator="&gt;" displayValue='0.014' />
+			<entry pixelValue="16" operator="&gt;" displayValue='0.016' />
+			<entry pixelValue="18" operator="&gt;" displayValue='0.018' />
+			<entry pixelValue="20" operator="&gt;" displayValue='0.020' />
+			<entry pixelValue="22" operator="&gt;" displayValue='0.022' />
+			<entry pixelValue="24" operator="&gt;" displayValue='0.024' />
+			<entry pixelValue="99" operator="&gt;" displayValue='0.099' />
 		</dataMapping>
 	</imageStyle>
  </styleRule>
@@ -5190,6 +5199,7 @@
 			<entry pixelValue="210" operator="&gt;" displayValue='7' />
 			<entry pixelValue="240" operator="&gt;" displayValue='8' />
 			<entry pixelValue="304.568" operator="&gt;" displayValue='12' />
+			<entry pixelValue="305.568" operator="&gt;" displayValue='99' />
 		</dataMapping>
 	</imageStyle>
  </styleRule>
@@ -5318,6 +5328,7 @@
 			<entry pixelValue="268.5" operator="&gt;" displayValue='6' />
 			<entry pixelValue="288.25" operator="&gt;" displayValue='8' />
 			<entry pixelValue="304.57" operator="&gt;" displayValue='12' />
+			<entry pixelValue="305.57" operator="&gt;" displayValue='99' />
 		</dataMapping>
 	</imageStyle>
  </styleRule>
@@ -5380,6 +5391,7 @@
 			<entry pixelValue="390" operator="&gt;" displayValue='390' />
 			<entry pixelValue="420" operator="&gt;" displayValue='420' />
 			<entry pixelValue="450" operator="&gt;" displayValue='450' />
+			<entry pixelValue="999" operator="&gt;" displayValue='999' />
 		</dataMapping>
 	</imageStyle>
  </styleRule>
@@ -5406,6 +5418,7 @@
 			<entry pixelValue="17" operator="&gt;" displayValue='17' />
 			<entry pixelValue="25" operator="&gt;" displayValue='25' />
 			<entry pixelValue="40" operator="&gt;" displayValue='40' />
+			<entry pixelValue="99" operator="&gt;" displayValue='99' />
 		</dataMapping>
 	</imageStyle>
  </styleRule>
@@ -5434,13 +5447,12 @@
 			<entry pixelValue="70" operator="&gt;" displayValue='70' />
 			<entry pixelValue="80" operator="&gt;" displayValue='80' />
 			<entry pixelValue="90" operator="&gt;" displayValue='90' />
+			<entry pixelValue="200" operator="&gt;" displayValue='200' />
 		</dataMapping>
 	</imageStyle>
  </styleRule>
  <styleRule>
-
     <paramLevelMatches>
-      <parameter>SPC</parameter>
       <parameter>OGRD</parameter>
       <parameter>BARO</parameter>
       <parameter>SPBARO</parameter>
@@ -5449,7 +5461,14 @@
       <displayUnits>cm/sec</displayUnits>
     </imageStyle>
   </styleRule>
-
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>SPC</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayUnits>m/s</displayUnits>
+    </imageStyle>
+  </styleRule>
 <!--   15.1 additions below -->
    <styleRule>
     <paramLevelMatches>
