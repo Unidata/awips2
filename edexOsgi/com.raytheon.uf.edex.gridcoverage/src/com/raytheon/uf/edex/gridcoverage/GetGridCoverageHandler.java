@@ -50,9 +50,7 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * Mar 26, 2012           bsteffen    Initial creation
  * Mar 07, 2013  1771     bsteffen    fix gridcoverage duplicate checks.
  * Mar 20, 2013  2910     bsteffen    Commit transaction within cluster locks.
- * 
- * 
- * 
+ * May 10, 2016  5642     rjpeter     Remove transaction nesting.
  * </pre>
  * 
  * @author bsteffen
@@ -73,41 +71,97 @@ public class GetGridCoverageHandler implements
     @Override
     public GridCoverage handleRequest(GetGridCoverageRequest request)
             throws Exception {
-        return checkDatabase(request.getCoverage(), request.getCreate());
+        GridCoverage coverage = request.getCoverage();
+        GridCoverage rval = checkDatabase(coverage, false);
+
+        if ((rval == null) && request.getCreate()) {
+            /*
+             * Get cluster lock to ensure only 1 coverage created for a given
+             * area
+             */
+            ClusterTask ct = null;
+            do {
+                ct = ClusterLockUtils.lock("gridcoverage",
+                        "create" + coverage.getProjectionType(), 120000, true);
+            } while (!LockState.SUCCESSFUL.equals(ct.getLockState()));
+
+            try {
+                rval = checkDatabase(coverage, true);
+            } finally {
+                ClusterLockUtils.deleteLock(ct.getId().getName(), ct.getId()
+                        .getDetails());
+            }
+        }
+
+        return rval;
     }
 
-    private GridCoverage checkDatabase(GridCoverage coverage, boolean create) {
+    private GridCoverage checkDatabase(GridCoverage coverage, boolean create)
+            throws Exception {
         GridCoverage rval = null;
-
         Session sess = null;
         Transaction trans = null;
+
         try {
             sess = dao.getSessionFactory().openSession();
             trans = sess.beginTransaction();
 
-            rval = query(coverage, sess);
-            if (rval == null && create) {
-                ClusterTask ct = null;
-                do {
-                    ct = ClusterLockUtils.lock("gridcoverage", "create"
-                            + coverage.getProjectionType(), 120000, true);
-                } while (!LockState.SUCCESSFUL.equals(ct.getLockState()));
-                try {
-                    rval = query(coverage, sess);
-                    if (rval == null) {
-                        // if it still does not exist, create it if requested
-                        coverage.initialize();
-                        sess.saveOrUpdate(coverage);
-                        rval = coverage;
-                        trans.commit();
-                        trans = null;
-                    }
-                } finally {
-                    ClusterLockUtils.deleteLock(ct.getId().getName(), ct
-                            .getId().getDetails());
+            Criteria crit = sess.createCriteria(coverage.getClass());
+
+            crit.add(Restrictions.eq("nx", coverage.getNx()));
+            crit.add(Restrictions.eq("ny", coverage.getNy()));
+            crit.add(Restrictions.between("dx", coverage.getDx()
+                    - GridCoverage.SPATIAL_TOLERANCE, coverage.getDx()
+                    + GridCoverage.SPATIAL_TOLERANCE));
+            crit.add(Restrictions.between("dy", coverage.getDy()
+                    - GridCoverage.SPATIAL_TOLERANCE, coverage.getDy()
+                    + GridCoverage.SPATIAL_TOLERANCE));
+            crit.add(Restrictions.between("la1", coverage.getLa1()
+                    - GridCoverage.SPATIAL_TOLERANCE, coverage.getLa1()
+                    + GridCoverage.SPATIAL_TOLERANCE));
+            crit.add(Restrictions.between("lo1", coverage.getLo1()
+                    - GridCoverage.SPATIAL_TOLERANCE, coverage.getLo1()
+                    + GridCoverage.SPATIAL_TOLERANCE));
+            List<?> vals = crit.list();
+
+            for (Object val : vals) {
+                if (((GridCoverage) val).spatialEquals(coverage)) {
+                    rval = (GridCoverage) val;
                 }
             }
 
+            if ((rval == null)
+                    && ((Math.abs(coverage.getLo1()) > 179) || (Math
+                            .abs(coverage.getLa1()) > 89))) {
+                /*
+                 * if we got here nothing matches, try a query with no la1, and
+                 * lo1 in case there are world wrap issues.
+                 */
+                crit = sess.createCriteria(coverage.getClass());
+
+                crit.add(Restrictions.eq("nx", coverage.getNx()));
+                crit.add(Restrictions.eq("ny", coverage.getNy()));
+                crit.add(Restrictions.between("dx", coverage.getDx()
+                        - GridCoverage.SPATIAL_TOLERANCE, coverage.getDx()
+                        + GridCoverage.SPATIAL_TOLERANCE));
+                crit.add(Restrictions.between("dy", coverage.getDy()
+                        - GridCoverage.SPATIAL_TOLERANCE, coverage.getDy()
+                        + GridCoverage.SPATIAL_TOLERANCE));
+                vals = crit.list();
+                for (Object val : vals) {
+                    if (((GridCoverage) val).spatialEquals(coverage)) {
+                        return (GridCoverage) val;
+                    }
+                }
+            }
+
+            // if it still does not exist, create it if requested
+            if ((rval == null) && create) {
+                coverage.initialize();
+                sess.saveOrUpdate(coverage);
+                trans.commit();
+                rval = coverage;
+            }
         } catch (Exception e) {
             statusHandler.error("Error occurred looking up GridCoverage["
                     + coverage.getName() + "]", e);
@@ -117,9 +171,11 @@ public class GetGridCoverageHandler implements
                     trans.rollback();
                 } catch (Exception e1) {
                     statusHandler.error(
-                            "Error occurred rolling back transaction", e);
+                            "Error occurred rolling back transaction", e1);
                 }
             }
+
+            throw e;
         } finally {
             if (sess != null) {
                 try {
@@ -130,56 +186,6 @@ public class GetGridCoverageHandler implements
             }
         }
 
-        return rval;
-    }
-
-    private GridCoverage query(GridCoverage coverage, Session sess) {
-        GridCoverage rval = null;
-
-        Criteria crit = sess.createCriteria(coverage.getClass());
-
-        crit.add(Restrictions.eq("nx", coverage.getNx()));
-        crit.add(Restrictions.eq("ny", coverage.getNy()));
-        crit.add(Restrictions.between("dx", coverage.getDx()
-                - GridCoverage.SPATIAL_TOLERANCE, coverage.getDx()
-                + GridCoverage.SPATIAL_TOLERANCE));
-        crit.add(Restrictions.between("dy", coverage.getDy()
-                - GridCoverage.SPATIAL_TOLERANCE, coverage.getDy()
-                + GridCoverage.SPATIAL_TOLERANCE));
-        crit.add(Restrictions.between("la1", coverage.getLa1()
-                - GridCoverage.SPATIAL_TOLERANCE, coverage.getLa1()
-                + GridCoverage.SPATIAL_TOLERANCE));
-        crit.add(Restrictions.between("lo1", coverage.getLo1()
-                - GridCoverage.SPATIAL_TOLERANCE, coverage.getLo1()
-                + GridCoverage.SPATIAL_TOLERANCE));
-        List<?> vals = crit.list();
-        for (Object val : vals) {
-            if (((GridCoverage) val).spatialEquals(coverage)) {
-                rval = (GridCoverage) val;
-            }
-        }
-        if (rval == null
-                && (Math.abs(coverage.getLo1()) > 179 || Math.abs(coverage
-                        .getLa1()) > 89)) {
-            // if we got here nothing matches, try a query with no la1, and
-            // lo1 in case there are world wrap issues.
-            crit = sess.createCriteria(coverage.getClass());
-
-            crit.add(Restrictions.eq("nx", coverage.getNx()));
-            crit.add(Restrictions.eq("ny", coverage.getNy()));
-            crit.add(Restrictions.between("dx", coverage.getDx()
-                    - GridCoverage.SPATIAL_TOLERANCE, coverage.getDx()
-                    + GridCoverage.SPATIAL_TOLERANCE));
-            crit.add(Restrictions.between("dy", coverage.getDy()
-                    - GridCoverage.SPATIAL_TOLERANCE, coverage.getDy()
-                    + GridCoverage.SPATIAL_TOLERANCE));
-            vals = crit.list();
-            for (Object val : vals) {
-                if (((GridCoverage) val).spatialEquals(coverage)) {
-                    return (GridCoverage) val;
-                }
-            }
-        }
         return rval;
     }
 }

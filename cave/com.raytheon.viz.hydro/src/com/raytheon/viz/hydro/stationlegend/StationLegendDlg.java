@@ -23,12 +23,11 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DirectColorModel;
 import java.awt.image.IndexColorModel;
 import java.awt.image.WritableRaster;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.PaletteData;
@@ -38,7 +37,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Listener;
@@ -56,11 +54,13 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 12, 2009            mpduff      Initial creation
- * Mar 15, 2013 1790       rferrel     Changes for non-blocking dialog.
- * 04 Sep 2013  #2324      lvenable    Fixed image memory leaks
+ * 
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- ---------------------------------
+ * Jan 12, 2009           mpduff    Initial creation
+ * Mar 15, 2013  1790     rferrel   Changes for non-blocking dialog.
+ * Sep 04, 2013  2324     lvenable  Fixed image memory leaks
+ * May 16, 2016  5483     randerso  Reworked to fix GUI sizing issues
  * 
  * </pre>
  * 
@@ -69,6 +69,42 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  */
 
 public class StationLegendDlg extends CaveSWTDialog {
+
+    private class LegendData {
+        String displayClass;
+
+        ThreatIndex threatIndex;
+
+        String legend;
+
+        Image image;
+
+        /**
+         * Constructor
+         * 
+         * @param displayClass
+         * @param threatIndex
+         * @param legend
+         */
+        public LegendData(String displayClass, ThreatIndex threatIndex,
+                String legend) {
+            this.displayClass = displayClass;
+            this.threatIndex = threatIndex;
+            this.legend = legend;
+
+            this.image = createImage();
+        }
+
+        private Image createImage() {
+            GageData gd = new GageData();
+            gd.setDispClass(displayClass);
+            gd.setThreatIndex(threatIndex);
+
+            BufferedImage icon = HydroImageMaker.getImage(gd, ImageSize.SMALL);
+            ImageData imageData = convertToSWT(icon);
+            return new Image(getDisplay(), imageData);
+        }
+    }
 
     /** Header for station icon column. */
     private final String STATION_ICON_TEXT = "Station Icons";
@@ -115,25 +151,46 @@ public class StationLegendDlg extends CaveSWTDialog {
     /**
      * The width of the dialog.
      */
-    private final int windowWidth = 775;
+    private int windowWidth;
 
     /**
      * The height of the dialog.
      */
-    private final int windowHeight = 750;
-
-    /** Column offsets. */
-    private final int[] columns = new int[] { 40, 75, 380, 415 };
-
-    /** Row offsets. */
-    private final int[] rows = new int[] { 25, 60, 95, 125, 155, 190, 225, 400,
-            475 };
+    private int windowHeight;
 
     /** The canvas use for the display of icons/titles. */
     private Canvas canvas;
 
-    /** Map holding images displayed on the legend. */
-    private Map<String, Image> imageMap = new HashMap<String, Image>();
+    private String[] columnTitle = { STATION_ICON_TEXT, STATION_COLOR_TEXT };
+
+    private LegendData[][] legendData = {
+            // Column 1
+            {
+                    new LegendData("R", ThreatIndex.THREAT_NONE,
+                            RIVER_POINT_TEXT),
+                    new LegendData("RF", ThreatIndex.THREAT_NONE,
+                            FORECAST_POINT_TEXT),
+                    new LegendData("RD", ThreatIndex.THREAT_NONE,
+                            RESERVOIR_DATA_POINT_TEXT),
+                    new LegendData("RFD", ThreatIndex.THREAT_NONE,
+                            RESERVOIR_FORECAST_POINT_TEXT),
+                    new LegendData("O", ThreatIndex.THREAT_NONE,
+                            MET_STATION_TEXT),
+                    new LegendData("RFO", ThreatIndex.THREAT_NONE,
+                            RIVER_FORECAST_MET_POINT_TEXT), },
+
+            // Column 2
+            {
+                    new LegendData("RF", ThreatIndex.THREAT_MISSING_DATA,
+                            MISSING_DATA_TEXT),
+                    new LegendData("RF", ThreatIndex.THREAT_FLOOD,
+                            FLOOD_STAGE_TEXT),
+                    new LegendData("RF", ThreatIndex.THREAT_ACTION,
+                            ACTION_STAGE_TEXT),
+                    new LegendData("RF", ThreatIndex.THREAT_NONE,
+                            BELOW_ACTION_STAGE_TEXT),
+                    new LegendData("RF", ThreatIndex.THREAT_MISSING_STAGE,
+                            MISSING_STAGE_TEXT) } };
 
     /**
      * Constructor.
@@ -176,6 +233,7 @@ public class StationLegendDlg extends CaveSWTDialog {
      */
     @Override
     protected void initializeComponents(Shell shell) {
+
         createCanvas();
 
         createCloseButton();
@@ -185,11 +243,12 @@ public class StationLegendDlg extends CaveSWTDialog {
 
     @Override
     protected void disposed() {
-        for (Image img : imageMap.values()) {
-            img.dispose();
+        for (LegendData[] column : legendData) {
+            for (LegendData data : column) {
+                data.image.dispose();
+                data.image = null;
+            }
         }
-
-        imageMap.clear();
     }
 
     /**
@@ -197,251 +256,103 @@ public class StationLegendDlg extends CaveSWTDialog {
      */
     private void createCanvas() {
         /* Create the canvas for drawing */
-        GridData gd = new GridData(windowWidth, windowHeight);
         canvas = new Canvas(shell, SWT.BORDER);
-        canvas.setLayoutData(gd);
         canvas.setBackground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
         canvas.setForeground(getDisplay().getSystemColor(SWT.COLOR_WHITE));
 
         canvas.addListener(SWT.Paint, new Listener() {
+            @Override
             public void handleEvent(Event event) {
-                drawDialog(event);
+                drawCanvas(event.gc);
             }
         });
+
+        GC gc = new GC(canvas);
+        drawCanvas(gc);
+        gc.dispose();
+        GridData gd = new GridData(windowWidth, windowHeight);
+        canvas.setLayoutData(gd);
     }
 
     /**
      * Performs the work of displaying the canvas.
      * 
-     * @param evt
+     * @param gc
      */
-    private void drawDialog(Event evt) {
-        int fontHeight = (evt.gc.getFontMetrics().getHeight());
-        int fontAveWidth = evt.gc.getFontMetrics().getAverageCharWidth();
+    private void drawCanvas(GC gc) {
+        int fontHeight = (gc.getFontMetrics().getHeight());
+        int imageWidth = ImageSize.SMALL.getWidth();
+        int imageHeight = ImageSize.SMALL.getHeight();
 
-        int centerPt = windowWidth / 2;
+        int xSpace = gc.textExtent("   ").x;
+        int rowHeight = Math.max(imageHeight, fontHeight * 2);
 
-        /* Shift the y value so the text is centerd on the icon */
-        int yShift = (fontHeight - ImageSize.SMALL.getHeight()) / 2;
-        if (yShift < 0) {
-            yShift *= -1;
+        /* Shift the y value so the text is centered on the icon */
+        int yShift = (imageHeight - fontHeight) / 2;
+
+        gc.setBackground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
+        gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_WHITE));
+
+        int x = xSpace;
+
+        int maxWidth = 0;
+        int maxHeight = 0;
+        for (int column = 0; column < 2; column++) {
+            int y = rowHeight;
+
+            gc.drawString(columnTitle[column], x, y);
+
+            for (LegendData data : legendData[column]) {
+                y += rowHeight;
+                int x1 = x + imageWidth + xSpace;
+
+                maxWidth = Math
+                        .max(maxWidth, x1 + gc.textExtent(data.legend).x);
+                maxHeight = Math.max(maxHeight, y + imageHeight);
+                maxHeight = Math.max(maxHeight, y + yShift + fontHeight);
+
+                gc.drawImage(data.image, x, y);
+                gc.drawString(data.legend, x1, y + yShift);
+            }
+
+            x = maxWidth + xSpace * 2;
         }
 
-        int rowCount = 0;
-
-        evt.gc.setBackground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
-        evt.gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_WHITE));
-
-        evt.gc.fillRectangle(0, 0, windowWidth, windowHeight);
-
-        /* Column 1 Title */
-        evt.gc.drawString(STATION_ICON_TEXT, columns[0], rows[rowCount++]);
-
-        /* Set the data to create the icons for column 1 */
-        GageData gd = new GageData();
-
-        /*
-         * River Data Point
-         */
-        if (imageMap.containsKey(RIVER_POINT_TEXT) == false) {
-            gd.setDispClass("R"); // River point
-            gd.setThreatIndex(ThreatIndex.THREAT_NONE);
-            createImage(evt.display, gd, RIVER_POINT_TEXT);
-        }
-
-        evt.gc.drawImage(imageMap.get(RIVER_POINT_TEXT), columns[0],
-                rows[rowCount]);
-        evt.gc.drawString(RIVER_POINT_TEXT, columns[1], rows[rowCount] + yShift);
-
-        /*
-         * River Forecast Point
-         */
-        if (imageMap.containsKey(FORECAST_POINT_TEXT) == false) {
-            gd.setDispClass("RF"); // River forecast point
-            createImage(evt.display, gd, FORECAST_POINT_TEXT);
-        }
-
-        evt.gc.drawImage(imageMap.get(FORECAST_POINT_TEXT), columns[0],
-                rows[++rowCount]);
-        evt.gc.drawString(FORECAST_POINT_TEXT, columns[1], rows[rowCount]
-                + yShift);
-
-        /*
-         * Reservoir Data Point
-         */
-        if (imageMap.containsKey(RESERVOIR_DATA_POINT_TEXT) == false) {
-            gd.setDispClass("RD"); // Reservoir point
-            createImage(evt.display, gd, RESERVOIR_DATA_POINT_TEXT);
-        }
-        evt.gc.drawImage(imageMap.get(RESERVOIR_DATA_POINT_TEXT), columns[0],
-                rows[++rowCount]);
-        evt.gc.drawString(RESERVOIR_DATA_POINT_TEXT, columns[1], rows[rowCount]
-                + yShift);
-
-        /*
-         * Reservoir Forecast Point
-         */
-        if (imageMap.containsKey(RESERVOIR_FORECAST_POINT_TEXT) == false) {
-            gd.setDispClass("RFD");
-            createImage(evt.display, gd, RESERVOIR_FORECAST_POINT_TEXT);
-        }
-        evt.gc.drawImage(imageMap.get(RESERVOIR_FORECAST_POINT_TEXT),
-                columns[0], rows[++rowCount]);
-        evt.gc.drawString(RESERVOIR_FORECAST_POINT_TEXT, columns[1],
-                rows[rowCount] + yShift);
-
-        /*
-         * Meteorological Station
-         */
-        if (imageMap.containsKey(MET_STATION_TEXT) == false) {
-            gd.setDispClass("O");
-            createImage(evt.display, gd, MET_STATION_TEXT);
-        }
-        evt.gc.drawImage(imageMap.get(MET_STATION_TEXT), columns[0],
-                rows[++rowCount]);
-        evt.gc.drawString(MET_STATION_TEXT, columns[1], rows[rowCount] + yShift);
-
-        /*
-         * River Forecast Point with Meteorological Station
-         */
-        if (imageMap.containsKey(RIVER_FORECAST_MET_POINT_TEXT) == false) {
-            gd.setDispClass("RFO");
-            createImage(evt.display, gd, RIVER_FORECAST_MET_POINT_TEXT);
-        }
-        evt.gc.drawImage(imageMap.get(RIVER_FORECAST_MET_POINT_TEXT),
-                columns[0], rows[++rowCount]);
-        evt.gc.drawString(RIVER_FORECAST_MET_POINT_TEXT, columns[1],
-                rows[rowCount] + yShift);
-
-        rowCount = 0;
-
-        /* Column 2 title */
-        evt.gc.drawString(STATION_COLOR_TEXT, columns[3], rows[rowCount]);
-
-        /* Set the data to create the icons for column 2 */
-
-        /*
-         * River Forecast Point with missing data
-         */
-        if (imageMap.containsKey(MISSING_DATA_TEXT) == false) {
-            gd.setDispClass("RF");
-            gd.setThreatIndex(ThreatIndex.THREAT_MISSING_DATA);
-            createImage(evt.display, gd, MISSING_DATA_TEXT);
-        }
-
-        evt.gc.drawImage(imageMap.get(MISSING_DATA_TEXT), columns[2],
-                rows[++rowCount]);
-        evt.gc.drawString(MISSING_DATA_TEXT, columns[3], rows[rowCount]
-                + yShift);
-
-        /*
-         * River Forecast Point above flood stage
-         */
-        if (imageMap.containsKey(FLOOD_STAGE_TEXT) == false) {
-            gd.setThreatIndex(ThreatIndex.THREAT_FLOOD);
-            createImage(evt.display, gd, FLOOD_STAGE_TEXT);
-        }
-        evt.gc.drawImage(imageMap.get(FLOOD_STAGE_TEXT), columns[2],
-                rows[++rowCount]);
-        evt.gc.drawString(FLOOD_STAGE_TEXT, columns[3], rows[rowCount] + yShift);
-
-        /*
-         * River Forecast Point above action stage
-         */
-        if (imageMap.containsKey(ACTION_STAGE_TEXT) == false) {
-            gd.setThreatIndex(ThreatIndex.THREAT_ACTION);
-            createImage(evt.display, gd, ACTION_STAGE_TEXT);
-        }
-        evt.gc.drawImage(imageMap.get(ACTION_STAGE_TEXT), columns[2],
-                rows[++rowCount]);
-        evt.gc.drawString(ACTION_STAGE_TEXT, columns[3], rows[rowCount]
-                + yShift);
-
-        /*
-         * River Forecast Point below action stage
-         */
-        if (imageMap.containsKey(BELOW_ACTION_STAGE_TEXT) == false) {
-            gd.setThreatIndex(ThreatIndex.THREAT_NONE);
-            createImage(evt.display, gd, BELOW_ACTION_STAGE_TEXT);
-        }
-        evt.gc.drawImage(imageMap.get(BELOW_ACTION_STAGE_TEXT), columns[2],
-                rows[++rowCount]);
-        evt.gc.drawString(BELOW_ACTION_STAGE_TEXT, columns[3], rows[rowCount]
-                + yShift);
-
-        /*
-         * River Forecast Point missing action/flood stage values
-         */
-        if (imageMap.containsKey(MISSING_STAGE_TEXT) == false) {
-            gd.setThreatIndex(ThreatIndex.THREAT_MISSING_STAGE);
-            createImage(evt.display, gd, MISSING_STAGE_TEXT);
-        }
-        evt.gc.drawImage(imageMap.get(MISSING_STAGE_TEXT), columns[2],
-                rows[++rowCount]);
-        evt.gc.drawString(MISSING_STAGE_TEXT, columns[3], rows[rowCount]
-                + yShift);
+        windowWidth = maxWidth + xSpace;
 
         /* Draw the station Data and center the String */
-        int pixelWidth = STATION_DATA_TEXT.length() * fontAveWidth;
-        int startX = centerPt - (pixelWidth / 2);
-        evt.gc.drawString(STATION_DATA_TEXT, startX, rows[rowCount += 2]);
+        int centerX = windowWidth / 2;
+        int y = maxHeight + rowHeight * 2;
+        int textWidth = gc.textExtent(STATION_DATA_TEXT).x;
+        gc.drawString(STATION_DATA_TEXT, centerX - textWidth / 2, y);
 
-        /*
-         * Icon for Station Data
-         */
-        if (imageMap.containsKey(STATION_DATA_TEXT) == false) {
-            gd.setThreatIndex(ThreatIndex.THREAT_NONE);
-            gd.setDispClass("RF");
-            createImage(evt.display, gd, STATION_DATA_TEXT);
-        }
-        startX = centerPt
-                - (imageMap.get(STATION_DATA_TEXT).getImageData().width / 2);
-        evt.gc.drawImage(imageMap.get(STATION_DATA_TEXT), columns[2],
-                rows[++rowCount]);
+        y += fontHeight * 4;
+        gc.drawImage(legendData[0][1].image, centerX - imageWidth / 2, y);
 
         String label = "[Fld Stg/Flow]";
-        startX = centerPt - (label.length() * fontAveWidth) - 10;
-        evt.gc.drawString(label, startX, rows[rowCount] - 17 - fontHeight);
+        x = centerX - gc.textExtent(label).x - xSpace;
+        gc.drawString(label, x, y - fontHeight * 2);
 
         label = "Value";
-        startX = centerPt - (label.length() * fontAveWidth) - 10;
-        evt.gc.drawString(label, startX, rows[rowCount] - fontHeight);
+        x = centerX - gc.textExtent(label).x - xSpace;
+        gc.drawString(label, x, y - fontHeight);
 
         label = "Id";
-        startX = centerPt - (label.length() * fontAveWidth) - 10;
-        evt.gc.drawString(label, startX, rows[rowCount] + 10 + fontHeight);
+        x = centerX - gc.textExtent(label).x - xSpace;
+        gc.drawString(label, x, y + imageHeight);
 
         label = "MM/DD";
-        startX = centerPt + 25;
-        evt.gc.drawString(label, startX, rows[rowCount] - 17 - fontHeight);
+        x = centerX + imageWidth / 2 + xSpace;
+        gc.drawString(label, x, y - fontHeight * 2);
 
         label = "hh:mm";
-        startX = centerPt + 25;
-        evt.gc.drawString(label, startX, rows[rowCount] - fontHeight);
+        gc.drawString(label, x, y - fontHeight);
 
         label = "Name";
-        startX = centerPt + 25;
-        evt.gc.drawString(label, startX, rows[rowCount] + 10 + fontHeight);
+        gc.drawString(label, x, y + imageHeight);
 
-    }
+        windowHeight = y + imageHeight + fontHeight * 3;
 
-    /**
-     * Create an image and put it in the image map.
-     * 
-     * @param display
-     *            Display object.
-     * @param gageData
-     *            Gage data.
-     * @param textId
-     *            Text ID that will be the key into the map.
-     */
-    private void createImage(Display display, GageData gageData, String textId) {
-        BufferedImage icon = HydroImageMaker
-                .getImage(gageData, ImageSize.SMALL);
-        ImageData imageData = convertToSWT(icon);
-        Image swtIcon = new Image(display, imageData);
-
-        imageMap.put(textId, swtIcon);
     }
 
     /**

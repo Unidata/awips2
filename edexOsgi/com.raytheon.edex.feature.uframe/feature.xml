@@ -116,12 +116,4 @@
          id="com.raytheon.uf.edex.remote.script.feature"
          version="0.0.0"/>
 
-   <includes
-         id="gov.nasa.msfc.sport.edex.sportlma.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="gov.nasa.msfc.sport.edex.glmdecoder.feature"
-         version="0.0.0"/>
-
 </feature>

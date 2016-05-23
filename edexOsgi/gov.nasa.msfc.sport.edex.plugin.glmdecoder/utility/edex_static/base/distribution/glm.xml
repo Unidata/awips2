@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-
-<requestPatterns xmlns:ns2="group">
-	<regex>OR_GLM-L2-LCFA_G16</regex>
-	<regex>^IXTR99 KNES</regex>
-</requestPatterns>

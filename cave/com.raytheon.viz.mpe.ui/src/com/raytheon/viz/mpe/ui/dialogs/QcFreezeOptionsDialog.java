@@ -69,6 +69,8 @@ import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
  * Jan 15, 2016 5054       randerso    Use proper parent shell
  * Apr 05, 2015 18350      snaples     Updated static calls to dailyqc utils.
  * Apr 11, 2016 5512       bkowal      Fix GUI sizing issues. Cleanup.
+ * May 04, 2016 5054       dgilling    Fix dialog parenting for SaveLevel2Data 
+ *                                     when closing this dialog.
  * 
  * </pre>
  * 
@@ -309,7 +311,7 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
         isfinished = true;
         isOpen = false;
         font.dispose();
-        SaveLevel2Data s2 = new SaveLevel2Data(getShell());
+        SaveLevel2Data s2 = new SaveLevel2Data(getParent());
         s2.send_dbase_new_area();
         dqc.destroy();
         displayMgr.displayFieldData(df);

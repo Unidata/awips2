@@ -165,8 +165,9 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                      Changes for non-blocking LowWaterStatementDlg.
  *                                      Changes for non-blocking RatingCurveDlg.
  *                                      Changes for non-blocking TextReportDlg.
- * 04/11/2016   5483       dgilling     Fix hard-coded layouts in HBPasswordDlg.
  * 02/16/2016    5354       bkowal      Prevent the closure of the password dialog from
+ * 04/11/2016   5483       dgilling     Fix hard-coded layouts in HBPasswordDlg.
+ * 04/22/2016   5483       dgilling     Code cleanup.
  *                                      closing all of CAVE.
  * 
  * </pre>
@@ -343,7 +344,7 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
     /**
      * Allow one instance per station.
      */
-    private final Map<String, DataSourcesDlg> dataSourcesDlgMap = new HashMap<String, DataSourcesDlg>();
+    private final Map<String, DataSourcesDlg> dataSourcesDlgMap = new HashMap<>();
 
     /**
      * Allow one instance per station.
@@ -781,19 +782,16 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
      * Display data source dialog for selected station.
      */
     private void handleDataSouceDlg() {
-        String lid = getSelectedLocation().getStation();
+        final String lid = getSelectedLocation().getStation();
         DataSourcesDlg dataSourcesDlg = dataSourcesDlgMap.get(lid);
         if (dataSourcesDlg == null || dataSourcesDlg.isDisposed()) {
             dataSourcesDlg = new DataSourcesDlg(shell, getStationAndName(),
                     lid, true);
-            dataSourcesDlg.setCloseCallback(new ICloseCallback() {
+            dataSourcesDlg.addCloseCallback(new ICloseCallback() {
 
                 @Override
                 public void dialogClosed(Object returnValue) {
-                    if (returnValue instanceof String) {
-                        String lid = returnValue.toString();
-                        dataSourcesDlgMap.remove(lid);
-                    }
+                    dataSourcesDlgMap.remove(lid);
                 }
             });
             dataSourcesDlg.open();

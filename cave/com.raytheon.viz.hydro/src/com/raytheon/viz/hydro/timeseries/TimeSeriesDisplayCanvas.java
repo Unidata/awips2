@@ -42,6 +42,7 @@ import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
@@ -143,9 +144,9 @@ import com.raytheon.viz.hydrocommon.util.DbUtils;
  * 24 Jan   2013  15959  lbousaidi    Swap the corner points of the bounding box when zooming.    
  * 22 Oct   2015  13736  xwei         Fixed missing data after zoom, edit, & reset problem
  * 26 Oct,  2015 14217   jwu          Removed MAX_TRACES limitation
- * 
  * Nov 18   2015  5073   skorolev     Fixed drawing PP time series.
- *     
+ * 06 May   2016  5483   dgilling     Change parameter type for handleSelection.
+ * 
  * @author lvenable
  * @version 1.0
  * 
@@ -537,9 +538,9 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                 if (td.isForecast()) {
                     String traceKey = td.getLid() + td.getPe() + td.getTs()
                             + td.getDur() + td.getExtremum();
-                    if (uniqueList.contains(traceKey))
+                    if (uniqueList.contains(traceKey)) {
                         continue;
-                    else {
+                    } else {
                         uniqueList.add(traceKey);
                     }
 
@@ -978,7 +979,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                                         GRAPHBORDER - fontHeight);
                             }
                         } else {
-                            if (td.isTraceOn())
+                            if (td.isTraceOn()) {
                                 gc.drawString(dataString + " min="
                                         + twoDecimalFormat.format(min) + " "
                                         + graphFormat.format(dateMin) + " max="
@@ -988,6 +989,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                                                 + (dataString.length()
                                                         * fontAveWidth * j),
                                         GRAPHBORDER - fontHeight);
+                            }
                         }
                     } else {
                         if (td.isTraceOn()) {
@@ -999,7 +1001,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                                 index += (dataString.length() + 2)
                                         * fontAveWidth;
 
-                            } else
+                            } else {
                                 gc.drawString(dataString + " min="
                                         + twoDecimalFormat.format(min) + " "
                                         + graphFormat.format(dateMin) + " max="
@@ -1009,6 +1011,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                                                 + (dataString.length()
                                                         * fontAveWidth * j),
                                         GRAPHBORDER - fontHeight);
+                            }
                         }
 
                     }
@@ -1138,42 +1141,45 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
             td = gd.getTraceData(i);
             if (td != null && td.isTraceOn()) {
                 TimeSeriesPoint[] points = null;
-                TimeSeriesPoint[] pointsZoomed = null;     
-                
+                TimeSeriesPoint[] pointsZoomed = null;
+
                 if (zoomed) {
                     points = td.getTsData();
-                    pointsZoomed = td.getZoomedTsData();   
+                    pointsZoomed = td.getZoomedTsData();
                 } else {
                     points = td.getTsData();
                 }
 
-                if ( points != null) {
-                    
-                	List<TimeSeriesPoint> pointListZoomed = new ArrayList<TimeSeriesPoint>();      
-                	List<TimeSeriesPoint> pointList = new ArrayList<TimeSeriesPoint>();
-                    
+                if (points != null) {
+
+                    List<TimeSeriesPoint> pointListZoomed = new ArrayList<TimeSeriesPoint>();
+                    List<TimeSeriesPoint> pointList = new ArrayList<TimeSeriesPoint>();
+
                     /* Delete the specified point */
                     if ((deleteList.size() > 0) && (i == selectedTraceId)) {
-                    	
-                    	for (int j = 0; j < points.length; j++) {
+
+                        for (int j = 0; j < points.length; j++) {
                             if (!deleteList.contains(j)) {
-                            	pointList.add(points[j]);                 
-                            } 
-                        }
-                        td.setTsData(pointList.toArray(new TimeSeriesPoint[pointList.size()]));
-                        
-                        if ( zoomed && pointsZoomed != null ) {
-                        
-                        	for (int j = 0; j < pointsZoomed.length; j++) {
-                                if (!deleteList.contains(j)) {
-                                	pointListZoomed.add(pointsZoomed[j]);                 
-                                } 
+                                pointList.add(points[j]);
                             }
-                        	td.setZoomedTsData(pointListZoomed.toArray(new TimeSeriesPoint[pointListZoomed.size()]));
                         }
-                        
+                        td.setTsData(pointList
+                                .toArray(new TimeSeriesPoint[pointList.size()]));
+
+                        if (zoomed && pointsZoomed != null) {
+
+                            for (int j = 0; j < pointsZoomed.length; j++) {
+                                if (!deleteList.contains(j)) {
+                                    pointListZoomed.add(pointsZoomed[j]);
+                                }
+                            }
+                            td.setZoomedTsData(pointListZoomed
+                                    .toArray(new TimeSeriesPoint[pointListZoomed
+                                            .size()]));
+                        }
+
                         deleteIndex = HydroConstants.MISSING_VALUE;
-                        deleteList.clear();                    
+                        deleteList.clear();
                     }
 
                     /* Set missing */
@@ -1183,8 +1189,9 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                                 pointList.add(points[j]);
                             }
                         }
-                        td.setTsData(pointList.toArray(new TimeSeriesPoint[pointList.size()]));
-                        
+                        td.setTsData(pointList
+                                .toArray(new TimeSeriesPoint[pointList.size()]));
+
                         setMissingIndex = HydroConstants.MISSING_VALUE;
                         setMissingList.clear();
                     }
@@ -1221,40 +1228,39 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                                 .toArray(new TimeSeriesPoint[pointList.size()]));
                         insertedPoint = null;
                     }
-            
+
                     TimeSeriesPoint[] pointArray = null;
                     if (zoomed) {
-                    	pointArray = td.getZoomedTsData();
-                    }else{
-                    	pointArray = td.getTsData();
+                        pointArray = td.getZoomedTsData();
+                    } else {
+                        pointArray = td.getTsData();
                     }
-                    
+
                     if (pointArray != null) {
-                            for (int j = 0; j < pointArray.length; j++) {
-                                if (pointArray[j] != null) {
-                                    if (pointArray[j].getY() < yLowest) {
-                                        yLowest = pointArray[j].getY();
-                                        minDate = pointArray[j].getX();
+                        for (int j = 0; j < pointArray.length; j++) {
+                            if (pointArray[j] != null) {
+                                if (pointArray[j].getY() < yLowest) {
+                                    yLowest = pointArray[j].getY();
+                                    minDate = pointArray[j].getX();
 
-                                        // Set the lowest ymin of the graph
-                                        if (gd.getYmin() > yLowest) {
-                                            gd.setYmin(yLowest);
-                                        }
-                                    }
-                                    if (pointArray[j].getY() > yHighest) {
-                                        yHighest = pointArray[j].getY();
-                                        maxDate = pointArray[j].getX();
-
-                                        // Set the highest ymax of the graph
-                                        if (gd.getYmax() < yHighest) {
-                                            gd.setYmax(yHighest);
-                                        }
+                                    // Set the lowest ymin of the graph
+                                    if (gd.getYmin() > yLowest) {
+                                        gd.setYmin(yLowest);
                                     }
                                 }
-                            } // end for
-                    }                
-                    
-                    
+                                if (pointArray[j].getY() > yHighest) {
+                                    yHighest = pointArray[j].getY();
+                                    maxDate = pointArray[j].getX();
+
+                                    // Set the highest ymax of the graph
+                                    if (gd.getYmax() < yHighest) {
+                                        gd.setYmax(yHighest);
+                                    }
+                                }
+                            }
+                        } // end for
+                    }
+
                 }
             }
         } // end for
@@ -1491,7 +1497,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
             statusHandler.handle(Priority.ERROR, "Error retrieving graph data",
                     e);
         }
-        
+
         td.setTsData(points.toArray(new TimeSeriesPoint[points.size()]));
 
         td.setPreviousTsData(pointsbak.toArray(new TimeSeriesPoint[pointsbak
@@ -1542,8 +1548,8 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
         ttsd.open();
     }
 
-    protected void handleSelection(Event event) {
-        Button item = (Button) event.widget;
+    protected void handleSelection(SelectionEvent e) {
+        Button item = (Button) e.widget;
         TraceData trace = (TraceData) item.getData();
         trace.setTraceOn(!trace.isTraceOn());
         if (trace.isTraceOn()) {
@@ -1878,10 +1884,11 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                         double u = ((x - x1) * p2X + (y - y1) * p2Y)
                                 / something;
 
-                        if (u > 1)
+                        if (u > 1) {
                             u = 1;
-                        else if (u < 0)
+                        } else if (u < 0) {
                             u = 0;
+                        }
 
                         double xx = x1 + u * p2X;
                         double yy = y1 + u * p2Y;
@@ -1900,8 +1907,9 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
             }
         }
 
-        if (distance < 20) // if less than 20 pixels away
+        if (distance < 20) {
             return choosingTrace;
+        }
 
         return -999;
     }
@@ -1957,12 +1965,13 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                 }
             }
         } else if (traceSelected && dialog.isDelete()) {
-        	if (precipPE) {
+            if (precipPE) {
                 List<Region> ppl = precipPointList.get(selectedTraceId);
                 for (int i = 0; i < ppl.size(); i++) {
                     if (ppl.get(i).contains(e.x, e.y)) {
                         deleteIndex = i;
-                        deleteList.add( getZoomOffset(selectedTraceId) + deleteIndex ); 
+                        deleteList.add(getZoomOffset(selectedTraceId)
+                                + deleteIndex);
                     }
                 }
             } else {
@@ -1970,20 +1979,21 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                 for (int i = 0; i < prl.size(); i++) {
                     if (prl.get(i).contains(e.x, e.y)) {
                         deleteIndex = i;
-                        deleteList.add( getZoomOffset(selectedTraceId) + deleteIndex ); 
+                        deleteList.add(getZoomOffset(selectedTraceId)
+                                + deleteIndex);
                         break;
                     }
                 }
             }
             TraceData td = graphData.getTraceData(selectedTraceId);
-            
-            TimeSeriesPoint[] points = null;                    
-            if (zoomed) {                                       
-                points = td.getZoomedTsData();                  
-            } else {                                            
-                points = td.getTsData();                        
-            }                                                   
-            
+
+            TimeSeriesPoint[] points = null;
+            if (zoomed) {
+                points = td.getZoomedTsData();
+            } else {
+                points = td.getTsData();
+            }
+
             for (int j = 0; j < points.length; j++) {
                 if (j == deleteIndex) {
 
@@ -2000,7 +2010,8 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                 for (int i = 0; i < ppl.size(); i++) {
                     if (ppl.get(i).contains(e.x, e.y)) {
                         setMissingIndex = i;
-                        setMissingList.add(getZoomOffset(selectedTraceId) + setMissingIndex);   
+                        setMissingList.add(getZoomOffset(selectedTraceId)
+                                + setMissingIndex);
                         break;
                     }
                 }
@@ -2009,7 +2020,8 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                 for (int i = 0; i < prl.size(); i++) {
                     if (prl.get(i).contains(e.x, e.y)) {
                         setMissingIndex = i;
-                        setMissingList.add(getZoomOffset(selectedTraceId) + setMissingIndex);	
+                        setMissingList.add(getZoomOffset(selectedTraceId)
+                                + setMissingIndex);
                         break;
                     }
                 }
@@ -2061,7 +2073,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
      *            Mouse Event
      */
     private void handleMouseUpEvent(MouseEvent e) {
-    	mouseDown = false;
+        mouseDown = false;
 
         /* Null the point string or the last location stays displayed */
         pointString = null;
@@ -2082,7 +2094,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
             dataPts[selectionIndex * 2 + 1] = e.y;
 
             graphData.getTraceData(selectedTraceId).setLineData(dataPts);
-            
+
             setEditData(e.y);
             pointSelected = false;
             getAgain = false;
@@ -2125,38 +2137,39 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                     }
 
                     dialog.addDeletePoint(data);
-                    deleteList.add( getZoomOffset(selectedTraceId) + i ); 
+                    deleteList.add(getZoomOffset(selectedTraceId) + i);
                 }
             }
 
             deleteRect = null;
 
-        } else if (traceSelected && dialog.isSetMissing() && (setMissingRect != null) ) {
-        	
+        } else if (traceSelected && dialog.isSetMissing()
+                && (setMissingRect != null)) {
+
             TraceData td = graphData.getTraces().get(selectedTraceId);
 
-            TimeSeriesPoint[] pointArray = null;            
+            TimeSeriesPoint[] pointArray = null;
             if (!zoomed) {
                 pointArray = td.getTsData();
             } else {
                 pointArray = td.getZoomedTsData();
             }
-            
+
             for (int i = 0; i < pointArray.length; i++) {
                 if (setMissingRect.contains(pointArray[i].getPixelX(),
                         pointArray[i].getPixelY())) {
                     ForecastData data = createPoint(td, pointArray[i]);
                     data.setValue(new Double(HydroConstants.MISSING_VALUE));
                     dialog.addEditPoint(data);
-                    setMissingList.add( getZoomOffset(selectedTraceId) + i );          
+                    setMissingList.add(getZoomOffset(selectedTraceId) + i);
                 }
             }
             setMissingRect = null;
         }
-        
+
         /* Get the data traces */
         traceArray = graphData.getTraces();
-        
+
         // Set true so new regions will be created
         createRegions = true;
 
@@ -2172,13 +2185,13 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
         setZoomed(false);
         dialog.setZoomAction(false);
         traceArray = graphData.getTraces();
-        
+
         // Set true so new regions will be created
         createRegions = true;
 
         setCursor(null);
         redraw();
-        
+
         return;
     }
 
@@ -2204,18 +2217,18 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
             graphData.getTraceData(selectedTraceId).setTsData(pa);
 
         }
-        
+
         // set the value back into the list
         pa[selectionIndex] = tsp;
         ForecastData data = createPoint(td, tsp);
         dialog.addEditPoint(data);
 
         if (zoomed) {
-        	graphData.getTraceData(selectedTraceId).setZoomedTsData(pa);
+            graphData.getTraceData(selectedTraceId).setZoomedTsData(pa);
         } else {
-        	graphData.getTraceData(selectedTraceId).setTsData(pa);
+            graphData.getTraceData(selectedTraceId).setTsData(pa);
         }
-	}
+    }
 
     /**
      * Make the regions around the lines and points
@@ -2269,8 +2282,9 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                                 ia[5] = y2 + (y2 - y1) / 5;
                             } else if (y2 < y1) {
                                 ia[5] = y2 - (y1 - y2) / 5;
-                            } else
+                            } else {
                                 ia[5] = y2 + 10;
+                            }
 
                             ia[6] = x1;
                             ia[7] = y1 + dy;
@@ -2847,14 +2861,14 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
     public void setZoomed(boolean zoomed) {
         this.zoomed = zoomed;
     }
-    
+
     private int getZoomOffset(int pSelectedTraceId) {
-        
-        if (zoomed){
-        	TraceData td = graphData.getTraceData(pSelectedTraceId);
+
+        if (zoomed) {
+            TraceData td = graphData.getTraceData(pSelectedTraceId);
             return td.getZoomIndexOffset();
         }
-        
+
         return 0;
     }
 }

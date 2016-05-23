@@ -87,7 +87,7 @@ plotDelegate = ObsPlotDelegate()
   <text id="pressChngText" plotMode="text" plotParam="pressChange3Hour" plotFormat="%02.0f" plotUnit="Pa" style="text-anchor: start;" x="10px" y="0">018</text>
   <text id="dewText" plotMode="text" plotParam="DpT" plotUnit="°F" plotFormat="%3.0f" style="text-anchor: end;" x="-10px" y="10px">59</text>
   <text id="tempText" plotMode="text" plotParam="T" plotUnit="°F" plotFormat="%3.0f" style="text-anchor: end;" x="-10px" y="-10px">75</text> 
-  <text id="pressure" plotMode="text" plotParam="seaLevelPress" plotUnit="kPa" plotFormat="%5.0f" plotTrim="2" style="text-anchor: start;" x="10px" y="-10px">018</text>
+  <text id="pressure" plotMode="text" plotParam="seaLevelPress" plotUnit="daPa" plotFormat="%5.0f" plotTrim="2" style="text-anchor: start;" x="10px" y="-10px">018</text>
   <text id="cloudText" plotMode="table" class="special" plotFunctionTable="cloud_select.txt" plotLookupTable="cloud_chars.txt" plotParam="skyCover" style="text-anchor: start" x="0" y="0">0</text>
   <text id="presentWxText" plotMode="recursive_translation" class="weather" plotLookupTable="wx_symbol_trans.txt" plotParam="presWeather" style="text-anchor: end" x="-10" y="0">0</text>
   <text id="peakWind" plotMode="text" plotParam="pkwndSpeed" plotUnit="kts" plotFormat="PK%.0f" style="text-anchor: end;" x="-10px" y="20px">59</text>

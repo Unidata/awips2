@@ -20,16 +20,25 @@
 
 package com.raytheon.viz.hydro.pointdatacontrol;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.TimeZone;
+import java.util.List;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -39,24 +48,25 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.graphics.Transform;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.layout.RowData;
-import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.printing.PrintDialog;
 import org.eclipse.swt.printing.Printer;
 import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Layout;
-import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.util.Pair;
+import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.viz.hydro.pointdatacontrol.PDCConstants.QueryMode;
 import com.raytheon.viz.hydro.pointdatacontrol.db.PDCDataManager;
 import com.raytheon.viz.hydro.timeseries.TimeSeriesDlg;
@@ -77,6 +87,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ---------- ----------- --------------------------
  * 29 NOV 2007  373        lvenable    Initial creation
  * 05 Feb 2013  1578       rferrel     Changes for non-blocking singleton TimeSeriesDlg.
+ * 10 May 2016  5483       dgilling    Code cleanup, fix layout on hi-dpi systems.
  * 
  * </pre>
  * 
@@ -85,105 +96,308 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 
  */
 public class TabularDisplayDlg extends CaveSWTDialog {
+
+    private class SaveTabularDataJob extends Job {
+
+        private final Path outputFile;
+
+        private final Collection<GageData> records;
+
+        protected SaveTabularDataJob(Path outputFile,
+                Collection<GageData> records) {
+            super("Save point data tabular data Job");
+            setSystem(true);
+            this.outputFile = outputFile;
+            this.records = records;
+        }
+
+        @Override
+        protected IStatus run(IProgressMonitor monitor) {
+            Collection<Pair<GageData, List<String>>> formattedRecords = formatRecords(
+                    records, true);
+
+            try (Writer out = Files.newBufferedWriter(outputFile,
+                    StandardCharsets.UTF_8)) {
+                for (Pair<GageData, List<String>> record : formattedRecords) {
+                    out.write(StringUtil.join(record.getSecond(), ' '));
+                    out.write(System.getProperty("line.separator"));
+                }
+            } catch (IOException e) {
+                statusHandler.error("saveTable()"
+                        + " Error saving the tabluar data to file", e);
+            }
+
+            return Status.OK_STATUS;
+        }
+    }
+
+    private class PrintTabularDataJob extends Job {
+
+        /** The connection to the printer. */
+        private final Printer printer;
+
+        private final Collection<GageData> records;
+
+        /** Line height for printing. */
+        private int lineHeight = 0;
+
+        /** Tab width for printing. */
+        private int tabWidth = 0;
+
+        /** Printer's left margin. */
+        private int leftMargin;
+
+        /** Printer's right margin. */
+        private int rightMargin;
+
+        /** Printer's top margin. */
+        private int topMargin;
+
+        /** Printer's bottom margin. */
+        private int bottomMargin;
+
+        /** Printer's current horizontal location. */
+        private int x;
+
+        /** Printer's current vertical location. */
+        private int y;
+
+        /**
+         * Index into the text of the current character being processed for
+         * printing.
+         */
+        private int index;
+
+        /** Length of the text being printed. */
+        private int end;
+
+        /** The currently line to send to the printer. */
+        private StringBuilder wordBuffer;
+
+        /** Used to draw the characters for the printer. */
+        private GC gc;
+
+        protected PrintTabularDataJob(Printer printer,
+                Collection<GageData> records) {
+            super("Print point data tabular data Job");
+            setSystem(true);
+            this.printer = printer;
+            this.records = records;
+        }
+
+        @Override
+        protected IStatus run(IProgressMonitor monitor) {
+            Collection<Pair<GageData, List<String>>> formattedRecords = formatRecords(
+                    records, false);
+
+            StringBuilder sb = new StringBuilder();
+            for (Pair<GageData, List<String>> record : formattedRecords) {
+                for (String column : record.getSecond()) {
+                    sb.append(column);
+                    sb.append(' ');
+                }
+                sb.append('\n');
+            }
+
+            try {
+                print(printer, sb.toString());
+            } finally {
+                printer.dispose();
+                if (gc != null) {
+                    gc.dispose();
+                }
+            }
+            return Status.OK_STATUS;
+        }
+
+        /**
+         * Send the text to the printer
+         * 
+         * @param printer
+         *            The printer
+         * @param text
+         *            The text to print
+         */
+        private void print(Printer printer, String text) {
+            if (printer.startJob("Text")) {
+                Font printerFont = null;
+                Color printerForegroundColor = null;
+                Color printerBackgroundColor = null;
+
+                try {
+                    /*
+                     * Get the bounds of the paper for computing margins
+                     */
+                    Rectangle bounds = printer.getBounds();
+                    Point dpi = printer.getDPI();
+
+                    // one inch from left side of paper
+                    leftMargin = dpi.x + bounds.x;
+
+                    // one inch from right side of paper
+                    rightMargin = (bounds.x + bounds.width) - dpi.x;
+
+                    // one inch from top edge of paper
+                    topMargin = dpi.y + bounds.y;
+
+                    // one inch from bottom edge of paper
+                    bottomMargin = (bounds.y + bounds.height) - dpi.y;
+
+                    /* Create a buffer for computing tab width. */
+                    int tabSize = 4; // is tab width a user setting in your UI?
+                    StringBuilder tabBuffer = new StringBuilder(tabSize);
+                    for (int i = 0; i < tabSize; i++) {
+                        tabBuffer.append(' ');
+                    }
+                    String tabs = tabBuffer.toString();
+
+                    /*
+                     * Create printer GC, and create and set the printer font &
+                     * foreground color.
+                     */
+                    gc = new GC(printer);
+
+                    /*
+                     * Get the minimum margins (unprintable area) of the page
+                     */
+                    Rectangle trim = printer.computeTrim(0, 0, 0, 0);
+
+                    /*
+                     * Translate origin of the GC from upper left of the
+                     * printable area to upper left of the paper since margins
+                     * were calculated relative to the edge of the paper.
+                     */
+                    Transform transform = new Transform(gc.getDevice());
+                    transform.translate(trim.x, trim.y);
+                    gc.setTransform(transform);
+
+                    printerFont = new Font(printer, "Monospace", 8, SWT.NORMAL);
+
+                    printerForegroundColor = new Color(printer,
+                            new RGB(0, 0, 0));
+                    printerBackgroundColor = new Color(printer, new RGB(255,
+                            255, 255));
+
+                    gc.setFont(printerFont);
+                    gc.setForeground(printerForegroundColor);
+                    gc.setBackground(printerBackgroundColor);
+                    tabWidth = gc.stringExtent(tabs).x;
+                    lineHeight = gc.getFontMetrics().getHeight();
+
+                    /* Print text to current gc using word wrap */
+                    printText(text);
+
+                    printer.endJob();
+                } finally {
+                    /* Cleanup graphics resources used in printing */
+                    if (printerFont != null) {
+                        printerFont.dispose();
+                    }
+                    if (printerForegroundColor != null) {
+                        printerForegroundColor.dispose();
+                    }
+                    if (printerBackgroundColor != null) {
+                        printerBackgroundColor.dispose();
+                    }
+                }
+            }
+        }
+
+        /**
+         * Print the text
+         * 
+         * @param text
+         *            The text to be printed
+         */
+        private void printText(String text) {
+            printer.startPage();
+            wordBuffer = new StringBuilder();
+            x = leftMargin;
+            y = topMargin;
+            index = 0;
+            end = text.length();
+            while (index < end) {
+                char c = text.charAt(index);
+                index++;
+                if (c != 0) {
+                    if ((c == 0x0a) || (c == 0x0d)) {
+                        if ((c == 0x0d) && (index < end)
+                                && (text.charAt(index) == 0x0a)) {
+                            index++; // if this is cr-lf, skip the lf
+                        }
+                        printWordBuffer();
+                        newline();
+                    } else {
+                        if (c != '\t') {
+                            wordBuffer.append(c);
+                        }
+                        if (Character.isWhitespace(c)) {
+                            printWordBuffer();
+                            if (c == '\t') {
+                                x += tabWidth;
+                            }
+                        }
+                    }
+                }
+            }
+            if (y + lineHeight <= bottomMargin) {
+                printer.endPage();
+            }
+        }
+
+        /**
+         * Word buffer for formating lines on the printed page
+         */
+        private void printWordBuffer() {
+            if (wordBuffer.length() > 0) {
+                String word = wordBuffer.toString();
+                int wordWidth = gc.stringExtent(word).x;
+                if (x + wordWidth > rightMargin) {
+                    /* word doesn't fit on current line, so wrap */
+                    newline();
+                }
+                gc.drawString(word, x, y, false);
+                x += wordWidth;
+                wordBuffer = new StringBuilder();
+            }
+        }
+
+        /**
+         * New line on the printed page
+         */
+        private void newline() {
+            x = leftMargin;
+            y += lineHeight;
+            if (y + lineHeight > bottomMargin) {
+                printer.endPage();
+                if (index + 1 < end) {
+                    y = topMargin;
+                    printer.startPage();
+                }
+            }
+        }
+    }
+
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(TabularDisplayDlg.class);
 
-    /**
-     * Font used by the list control.
-     */
-    private Font font;
+    private static final String ACTION_MSG = " >ACTION!! ";
 
-    /**
-     * Time Series graph button.
-     */
-    private Button timeSeriesGraphBtn;
+    private static final DateFormat DATE_FORMAT = new SimpleDateFormat(
+            "MM-dd HH:mm") {
+        {
+            setTimeZone(TimeUtil.GMT_TIME_ZONE);
+        }
+    };
 
-    /**
-     * Print button.
-     */
-    private Button printBtn;
-
-    /**
-     * Save button.
-     */
-    private Button saveBtn;
-
-    /**
-     * Close button.
-     */
-    private Button closeBtn;
-
-    /**
-     * Time Series table button.
-     */
-    private Button timeSeriesTableBtn;
+    private static final String INVALID_PE_ERROR_FMT = "In routine \"formatRecords\":"
+            + "Error in switch statement which attempts"
+            + "to find a derived stage/flow value." + " Value %s is invalid.";
 
     /**
      * Data list control.
      */
-    private List dataList;
-
-    /**
-     * Is this being formatted for a file?
-     */
-    private boolean isFile = false;
-
-    /**
-     * The currently selected lid.
-     */
-    private String lid = null;
-
-    /**
-     * Buffer to hold data for printing or saving.
-     */
-    private StringBuilder dataBuffer = null;
-
-    /**
-     * List of data records displayed in table.
-     */
-    private java.util.List<GageData> recordList = new ArrayList<GageData>();
-
-    /** The connection to the printer. */
-    private Printer printer;
-
-    /** Line height for printing. */
-    private int lineHeight = 0;
-
-    /** Tab width for printing. */
-    private int tabWidth = 0;
-
-    /** Printer's left margin. */
-    private int leftMargin;
-
-    /** Printer's right margin. */
-    private int rightMargin;
-
-    /** Printer's top margin. */
-    private int topMargin;
-
-    /** Printer's bottom margin. */
-    private int bottomMargin;
-
-    /** Printer's current horizontal location. */
-    private int x;
-
-    /** Printer's current vertical location. */
-    private int y;
-
-    /**
-     * Index into the text of the current character being processed for
-     * printing.
-     */
-    private int index;
-
-    /** Length of the text being printed. */
-    private int end;
-
-    /** The currently line to send to the printer. */
-    private StringBuffer wordBuffer;
-
-    /** Used to draw the characters for the printer. */
-    private GC gc;
+    private Table dataList;
 
     /**
      * Constructor.
@@ -196,109 +410,99 @@ public class TabularDisplayDlg extends CaveSWTDialog {
         setText("Point Data Tabular Display");
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
-     */
-    @Override
-    protected Layout constructShellLayout() {
-        // Create the main layout for the shell.
-        GridLayout mainLayout = new GridLayout(1, true);
-        mainLayout.marginHeight = 5;
-        mainLayout.marginWidth = 5;
-        return mainLayout;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
-     */
-    @Override
-    protected void disposed() {
-        if ((font != null) && (font.isDisposed() == false)) {
-            font.dispose();
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
-     * .eclipse.swt.widgets.Shell)
-     */
     @Override
     protected void initializeComponents(Shell shell) {
         setReturnValue(false);
-        font = new Font(shell.getDisplay(), "Monospace", 10, SWT.NORMAL);
 
-        createDataListControlLabels();
-        createListBoxControl();
+        createDataListControl();
         createBottomButtons();
 
-        getData();
-    }
-
-    /**
-     * Create the labels above the data list controls.
-     */
-    private void createDataListControlLabels() {
-        Composite labelComp = new Composite(shell, SWT.NONE);
-        GridLayout gl = new GridLayout(1, false);
-        labelComp.setLayout(gl);
-        Label label = new Label(labelComp, SWT.NONE);
-
-        label.setFont(font);
-        label.setText(String.format(
-                "%-7s %-20s %s [%s %s] %-13s %-2s %-2s %4s %s [%s %s]",
-                "Station", "Name", "Value", "Stg", "Flow", "Time", "PE", "TS",
-                "Dur", "Extr", "Fld,", "Depart"));
+        Collection<Pair<GageData, List<String>>> formattedRecords = formatRecords(
+                getData(), false);
+        populateDataList(formattedRecords);
     }
 
     /**
      * Create the data list control.
      */
-    private void createListBoxControl() {
+    private void createDataListControl() {
+        dataList = new Table(shell, SWT.BORDER | SWT.SINGLE
+                | SWT.FULL_SELECTION | SWT.V_SCROLL | SWT.H_SCROLL);
+        dataList.setHeaderVisible(true);
+        dataList.setLinesVisible(false);
+
         GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, false, false);
-        gd.widthHint = 900;
-        gd.heightHint = 600;
-        dataList = new List(shell, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL
-                | SWT.H_SCROLL);
+        gd.heightHint = dataList.getHeaderHeight()
+                + (dataList.getItemHeight() * 29);
         dataList.setLayoutData(gd);
 
-        dataList.setFont(font);
+        String[] headerTitles = { "Station", "Name", "Value", "[Stg Flow]", "",
+                "Time", "PE", "TS", "Dur", "Extr", "[Fld, Depart]" };
+        for (String header : headerTitles) {
+            TableColumn column = new TableColumn(dataList, SWT.DEFAULT);
+            column.setText(header);
+        }
+
+        for (TableColumn column : dataList.getColumns()) {
+            column.pack();
+        }
+    }
+
+    private void populateDataList(
+            Collection<Pair<GageData, List<String>>> formattedRecords) {
+        for (Pair<GageData, List<String>> record : formattedRecords) {
+            TableItem tableItem = new TableItem(dataList, SWT.NONE);
+            tableItem.setData(record.getFirst());
+            tableItem.setFont(JFaceResources.getTextFont());
+            tableItem.setText(record.getSecond().toArray(new String[0]));
+        }
+
+        GC gc = new GC(dataList);
+        gc.setFont(JFaceResources.getTextFont());
+        int columnPad = gc.textExtent("  ").x;
+        gc.dispose();
+
+        for (TableColumn column : dataList.getColumns()) {
+            column.pack();
+            column.setWidth(column.getWidth() + columnPad);
+        }
     }
 
     /**
      * Create the buttons at the bottom of the dialog.
      */
     private void createBottomButtons() {
+        Composite buttonComp = new Composite(shell, SWT.NONE);
+        GridLayout gl = new GridLayout(3, false);
+        gl.horizontalSpacing = 30;
+        gl.verticalSpacing = 10;
+        buttonComp.setLayout(gl);
+        buttonComp.setLayoutData(new GridData(SWT.DEFAULT, SWT.DEFAULT, false,
+                false));
+
+        int dpi = getDisplay().getDPI().x;
+
         // -------------------------------
         // Top buttons
         // -------------------------------
-        Composite topBtnComp = new Composite(shell, SWT.NONE);
-        RowLayout topLayout = new RowLayout();
-        topLayout.spacing = 30;
-        topBtnComp.setLayout(topLayout);
-
-        RowData rd = new RowData(150, SWT.DEFAULT);
-        timeSeriesGraphBtn = new Button(topBtnComp, SWT.PUSH);
+        Button timeSeriesGraphBtn = new Button(buttonComp, SWT.PUSH);
         timeSeriesGraphBtn.setText("Time Series Graph");
-        timeSeriesGraphBtn.setLayoutData(rd);
+        GridData gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, true, false);
+        gd.minimumWidth = dpi * 2;
+        timeSeriesGraphBtn.setLayoutData(gd);
         timeSeriesGraphBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                GageData gageData = getSelection();
-                TimeSeriesDlg.getInstance().updateAndOpen(gageData, true);
+                displayTimeSeries(true);
             }
         });
 
-        rd = new RowData(80, SWT.DEFAULT);
-        printBtn = new Button(topBtnComp, SWT.PUSH);
+        Button printBtn = new Button(buttonComp, SWT.PUSH);
         printBtn.setText("Print");
-        printBtn.setLayoutData(rd);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, true, false);
+        gd.horizontalSpan = 2;
+        gd.minimumWidth = dpi * 5 / 4;
+        printBtn.setLayoutData(gd);
         printBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
@@ -308,44 +512,40 @@ public class TabularDisplayDlg extends CaveSWTDialog {
 
         // -------------------------------
         // Bottom buttons
-        // -------------------------------
-        Composite bottomBtnComp = new Composite(shell, SWT.NONE);
-        RowLayout bottomLayout = new RowLayout();
-        bottomLayout.spacing = 30;
-        bottomBtnComp.setLayout(bottomLayout);
-
-        rd = new RowData(150, SWT.DEFAULT);
-        timeSeriesTableBtn = new Button(bottomBtnComp, SWT.PUSH);
+        // -------------------------------;
+        Button timeSeriesTableBtn = new Button(buttonComp, SWT.PUSH);
         timeSeriesTableBtn.setText("Time Series Table");
-        timeSeriesTableBtn.setLayoutData(rd);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, true, false);
+        gd.minimumWidth = dpi * 2;
+        timeSeriesTableBtn.setLayoutData(gd);
         timeSeriesTableBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                GageData gageData = getSelection();
-                TimeSeriesDlg.getInstance().updateAndOpen(gageData, false);
+                displayTimeSeries(false);
             }
         });
 
-        rd = new RowData(80, SWT.DEFAULT);
-        saveBtn = new Button(bottomBtnComp, SWT.PUSH);
+        Button saveBtn = new Button(buttonComp, SWT.PUSH);
         saveBtn.setText("Save");
-        saveBtn.setLayoutData(rd);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, true, false);
+        gd.minimumWidth = dpi * 5 / 4;
+        saveBtn.setLayoutData(gd);
         saveBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                isFile = true;
                 saveTable();
             }
         });
 
-        rd = new RowData(80, SWT.DEFAULT);
-        closeBtn = new Button(bottomBtnComp, SWT.PUSH);
+        Button closeBtn = new Button(buttonComp, SWT.PUSH);
         closeBtn.setText("Close");
-        closeBtn.setLayoutData(rd);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, true, false);
+        gd.minimumWidth = dpi * 5 / 4;
+        closeBtn.setLayoutData(gd);
         closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
     }
@@ -357,20 +557,10 @@ public class TabularDisplayDlg extends CaveSWTDialog {
      *            true if data are displayed in the list, false if save or print
      * @return String[] of formatted data
      */
-    private void getData() {
-        PDCDataManager dataManager = PDCDataManager.getInstance();
+    private Collection<GageData> getData() {
         PDCOptionData pcOptions = PDCOptionData.getInstance();
         PointDataControlManager pdcManager = PointDataControlManager
                 .getInstance();
-        final String actionMsg = " >ACTION!! ";
-        String actionText = "";
-        double floodLevel = 0;
-        double actionLevel = 0;
-        double floodDepart = 0;
-        String stageFlowText = "";
-        String abbrevTime = "";
-        double flow;
-        double stage;
 
         if (pcOptions.getQueryMode() == QueryMode.AD_HOC_MODE.getQueryMode()) {
             pdcManager.scheduleRequest(true,
@@ -380,16 +570,28 @@ public class TabularDisplayDlg extends CaveSWTDialog {
                     PointDataControlManager.REQUEST_TYPE.REQUEST_TIME_STEP);
         }
 
-        java.util.List<GageData> reportList = pdcManager.getObsReportList();
-
+        List<GageData> reportList = pdcManager.getObsReportList();
         Collections.sort(reportList);
 
-        DateFormat tabDateFormat = new SimpleDateFormat("MM-dd HH:mm");
-        tabDateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-        StringBuilder sb = new StringBuilder();
-        dataBuffer = new StringBuilder();
+        return reportList;
+    }
 
-        for (GageData gd : reportList) {
+    private Collection<Pair<GageData, List<String>>> formatRecords(
+            Collection<GageData> records, boolean isForFile) {
+        PDCDataManager dataManager = PDCDataManager.getInstance();
+        PDCOptionData pcOptions = PDCOptionData.getInstance();
+
+        Collection<Pair<GageData, List<String>>> formattedRecords = new ArrayList<>();
+        for (GageData gd : records) {
+            String actionText = "";
+            double floodLevel = 0;
+            double actionLevel = 0;
+            double floodDepart = 0;
+            String stageFlowText = "";
+            String abbrevTime = "";
+            double flow;
+            double stage;
+
             if (gd.isUse()) {
                 if ((gd.getValue() != PDCConstants.MISSING_VALUE)
                         && (pcOptions.getTimeMode() != PDCConstants.TimeModeType.VALUE_CHANGE
@@ -434,7 +636,7 @@ public class TabularDisplayDlg extends CaveSWTDialog {
                     if ((actionLevel != PDCConstants.MISSING_VALUE)
                             && (actionLevel != 0)) {
                         if (gd.getValue() >= actionLevel) {
-                            actionText = actionMsg;
+                            actionText = ACTION_MSG;
                         }
                     }
 
@@ -467,29 +669,24 @@ public class TabularDisplayDlg extends CaveSWTDialog {
                                         .format("[%-6.2f]", stage);
                             }
                         } else {
-                            // TODO Log message
-                            // fprintf ( stderr ,
-                            // "\nIn routine \"load_pointtable\":\n"
-                            // "Error in switch statement which attempts\n"
-                            // "to find a derived stage/flow value.\n"
-                            // "Value %c is invalid.\n" , rPtr->pe [ 0 ] ) ;
+                            String msg = String.format(INVALID_PE_ERROR_FMT,
+                                    gd.getPe());
+                            statusHandler.warn(msg);
                             stageFlowText = "M";
                         }
                     }
                 }
 
-                recordList.add(gd);
-
                 /* format the time */
                 if (gd.getValidtime() != null) {
-                    abbrevTime = tabDateFormat.format(gd.getValidtime());
+                    abbrevTime = DATE_FORMAT.format(gd.getValidtime());
                 }
 
                 /* Shrink the name to fit */
                 String name = gd.getName();
                 if (name == null) {
                     name = "";
-                } else if (isFile) {
+                } else if (isForFile) {
                     if (name.length() > 20) {
                         name = name.substring(0, 20);
                     }
@@ -499,288 +696,124 @@ public class TabularDisplayDlg extends CaveSWTDialog {
                     }
                 }
 
+                List<String> formattedRecord = new ArrayList<>(11);
+
                 /* write the information */
                 if (gd.getValue() == PDCConstants.MISSING_VALUE) {
-                    if (isFile) {
-                        sb.append(String.format("%-7s %-15s %-6s ",
-                                gd.getLid(), name, "m"));
-                    } else {
-                        sb.append(String.format("%-7s %-20s %-6s ",
-                                gd.getLid(), name, "m"));
-                    }
+                    formattedRecord.add(String.format("%-7s", gd.getLid()));
+                    String nameFormat = (isForFile) ? "%-20s" : "%-15s";
+                    formattedRecord.add(String.format(nameFormat, name));
+                    formattedRecord.add(String.format("%-6s", "m"));
                 } else {
                     if ((floodLevel != PDCConstants.MISSING_VALUE)
                             && (pcOptions.getTimeMode() != PDCConstants.TimeModeType.VALUE_CHANGE
                                     .getTimeMode())) {
-                        if (isFile) {
-                            sb.append(String
-                                    .format("%-7s %-15s %-6.2f %-8s %-13s %-2s %-2s %4s %4s [%6.1f %5.1f]",
-                                            gd.getLid(), name, gd.getValue(),
-                                            stageFlowText, abbrevTime,
-                                            gd.getPe(), gd.getTs(),
-                                            gd.getDur(), gd.getExtremum(),
-                                            floodLevel, floodDepart));
+                        formattedRecord.add(String.format("%-7s", gd.getLid()));
+                        String nameFormat = (isForFile) ? "%-20s" : "%-15s";
+                        formattedRecord.add(String.format(nameFormat, name));
+                        formattedRecord.add(String.format("%-6.2f",
+                                gd.getValue()));
+                        formattedRecord.add(String
+                                .format("%-8s", stageFlowText));
+                        formattedRecord.add(String.format("%-13s", abbrevTime));
+                        formattedRecord.add(String.format("%-2s", gd.getPe()));
+                        formattedRecord.add(String.format("%-2s", gd.getTs()));
+                        formattedRecord.add(String.format("%4s", gd.getDur()));
+                        formattedRecord.add(String.format("%4s",
+                                gd.getExtremum()));
+                        formattedRecord.add(String.format("[%6.1f %5.1f]",
+                                floodLevel, floodDepart));
 
-                            if (actionText.length() > 0) {
-                                sb.append(actionText + "\n");
-                            }
-                        } else {
-                            sb.append(String
-                                    .format("%-7s %-20s %-6.2f %-8s %s %-13s %-2s %-2s %4s %4s [%6.1f %5.1f]",
-                                            gd.getLid(), name, gd.getValue(),
-                                            stageFlowText, actionText,
-                                            abbrevTime, gd.getPe(), gd.getTs(),
-                                            gd.getDur(), gd.getExtremum(),
-                                            floodLevel, floodDepart));
-                        }
+                        int actionTextIndex = (isForFile) ? formattedRecord
+                                .size() : 4;
+                        formattedRecord.add(actionTextIndex, actionText);
                     } else {
-                        if (isFile) {
-                            sb.append(String
-                                    .format("%-7s %-15s %-6.2f %-8s %-13s %-2s %-2s %4s %4s",
-                                            gd.getLid(), name, gd.getValue(),
-                                            stageFlowText, abbrevTime,
-                                            gd.getPe(), gd.getTs(),
-                                            gd.getDur(), gd.getExtremum()));
+                        formattedRecord.add(String.format("%-7s", gd.getLid()));
+                        String nameFormat = (isForFile) ? "%-20s" : "%-15s";
+                        formattedRecord.add(String.format(nameFormat, name));
+                        formattedRecord.add(String.format("%-6.2f",
+                                gd.getValue()));
+                        formattedRecord.add(String
+                                .format("%-8s", stageFlowText));
+                        formattedRecord.add(String.format("%-13s", abbrevTime));
+                        formattedRecord.add(String.format("%-2s", gd.getPe()));
+                        formattedRecord.add(String.format("%-2s", gd.getTs()));
+                        formattedRecord.add(String.format("%4s", gd.getDur()));
+                        formattedRecord.add(String.format("%4s",
+                                gd.getExtremum()));
 
-                            if (actionText.length() > 0) {
-                                sb.append(actionText + "\n");
-                            }
-                        } else {
-                            sb.append(String
-                                    .format("%-7s %-20s %-6.2f %-8s %s %-13s %-2s %-2s %4s %4s",
-                                            gd.getLid(), name, gd.getValue(),
-                                            stageFlowText, "", abbrevTime,
-                                            gd.getPe(), gd.getTs(),
-                                            gd.getDur(), gd.getExtremum()));
-                        }
+                        int actionTextIndex = (isForFile) ? formattedRecord
+                                .size() : 4;
+                        formattedRecord.add(actionTextIndex, actionText);
                     }
                 }
-            }
-            if (sb.length() > 0) {
-                dataList.add(sb.toString());
-                dataBuffer.append(sb.toString() + "\n");
-            }
 
-            sb.setLength(0);
-            /* Reset the variables */
-            actionText = "";
-            floodLevel = 0;
-            actionLevel = 0;
-            floodDepart = 0;
-            stageFlowText = "";
-            abbrevTime = "";
+                if (!formattedRecord.isEmpty()) {
+                    formattedRecords.add(new Pair<>(gd, formattedRecord));
+                }
+            }
         }
+
+        return formattedRecords;
     }
 
     /**
      * Handle the print table selection
      */
     private void sendTableToPrinter() {
-        final String text = dataBuffer.toString();
-        if (text != null) {
+        if (dataList.getItemCount() > 0) {
             PrintDialog dialog = new PrintDialog(shell, SWT.NONE);
             PrinterData data = dialog.open();
 
-            if (data == null) {
-                return;
-            }
+            if (data != null) {
+                /*
+                 * Do the printing in a background thread so that spooling does
+                 * not freeze the UI.
+                 */
+                Printer printer = new Printer(data);
 
-            printer = new Printer(data);
-
-            /*
-             * Do the printing in a background thread so that spooling does not
-             * freeze the UI.
-             */
-            Thread printingThread = new Thread("PrintTable") {
-                @Override
-                public void run() {
-                    print(printer, text);
-                    printer.dispose();
+                TableItem[] rows = dataList.getItems();
+                Collection<GageData> records = new ArrayList<>(rows.length);
+                for (TableItem row : rows) {
+                    records.add((GageData) row.getData());
                 }
-            };
-            printingThread.start();
-        }
-    }
 
-    /**
-     * Send the text to the printer
-     * 
-     * @param printer
-     *            The printer
-     * @param text
-     *            The text to print
-     */
-    private void print(Printer printer, String text) {
-        if (printer.startJob("Text")) {
-            Rectangle clientArea = printer.getClientArea();
-            Rectangle trim = printer.computeTrim(0, 0, 0, 0);
-            Point dpi = printer.getDPI();
-
-            // one inch from left side of paper
-            leftMargin = dpi.x + trim.x;
-
-            // one inch from right side of paper
-            rightMargin = clientArea.width - dpi.x + trim.x + trim.width;
-
-            // one inch from top edge of paper
-            topMargin = dpi.y + trim.y;
-
-            // one inch from bottom edge of paper
-            bottomMargin = clientArea.height - dpi.y + trim.y + trim.height;
-
-            /* Create a buffer for computing tab width. */
-            int tabSize = 4; // is tab width a user setting in your UI?
-            StringBuffer tabBuffer = new StringBuffer(tabSize);
-            for (int i = 0; i < tabSize; i++) {
-                tabBuffer.append(' ');
-            }
-            String tabs = tabBuffer.toString();
-
-            /*
-             * Create printer GC, and create and set the printer font &
-             * foreground color.
-             */
-            gc = new GC(printer);
-
-            Font printerFont = new Font(printer, "Monospace", 8, SWT.NORMAL);
-
-            Color printerForegroundColor = new Color(printer, new RGB(0, 0, 0));
-            Color printerBackgroundColor = new Color(printer, new RGB(255, 255,
-                    255));
-
-            gc.setFont(printerFont);
-            gc.setForeground(printerForegroundColor);
-            gc.setBackground(printerBackgroundColor);
-            tabWidth = gc.stringExtent(tabs).x;
-            lineHeight = gc.getFontMetrics().getHeight();
-
-            /* Print text to current gc using word wrap */
-            printText(text);
-
-            printer.endJob();
-
-            /* Cleanup graphics resources used in printing */
-            printerFont.dispose();
-            printerForegroundColor.dispose();
-            printerBackgroundColor.dispose();
-            gc.dispose();
-        }
-    }
-
-    /**
-     * Print the text
-     * 
-     * @param text
-     *            The text to be printed
-     */
-    private void printText(String text) {
-        printer.startPage();
-        wordBuffer = new StringBuffer();
-        x = leftMargin;
-        y = topMargin;
-        index = 0;
-        end = text.length();
-        while (index < end) {
-            char c = text.charAt(index);
-            index++;
-            if (c != 0) {
-                if ((c == 0x0a) || (c == 0x0d)) {
-                    if ((c == 0x0d) && (index < end)
-                            && (text.charAt(index) == 0x0a)) {
-                        index++; // if this is cr-lf, skip the lf
-                    }
-                    printWordBuffer();
-                    newline();
-                } else {
-                    if (c != '\t') {
-                        wordBuffer.append(c);
-                    }
-                    if (Character.isWhitespace(c)) {
-                        printWordBuffer();
-                        if (c == '\t') {
-                            x += tabWidth;
-                        }
-                    }
-                }
-            }
-        }
-        if (y + lineHeight <= bottomMargin) {
-            printer.endPage();
-        }
-    }
-
-    /**
-     * Word buffer for formating lines on the printed page
-     */
-    private void printWordBuffer() {
-        if (wordBuffer.length() > 0) {
-            String word = wordBuffer.toString();
-            int wordWidth = gc.stringExtent(word).x;
-            if (x + wordWidth > rightMargin) {
-                /* word doesn't fit on current line, so wrap */
-                newline();
-            }
-            gc.drawString(word, x, y, false);
-            x += wordWidth;
-            wordBuffer = new StringBuffer();
-        }
-    }
-
-    /**
-     * New line on the printed page
-     */
-    private void newline() {
-        x = leftMargin;
-        y += lineHeight;
-        if (y + lineHeight > bottomMargin) {
-            printer.endPage();
-            if (index + 1 < end) {
-                y = topMargin;
-                printer.startPage();
+                new PrintTabularDataJob(printer, records).schedule();
             }
         }
     }
 
-    /**
-     * Get the selection from the dataList.
-     */
-    private GageData getSelection() {
-        HydroDisplayManager displayManager = HydroDisplayManager.getInstance();
+    private void displayTimeSeries(boolean isGraph) {
+        GageData selectedRecord = null;
+        TableItem[] selectedRows = dataList.getSelection();
+        if (selectedRows.length > 0) {
+            selectedRecord = (GageData) selectedRows[0].getData();
+        }
 
-        String[] array = dataList.getSelection();
-        if (array.length != 1) {
+        if (selectedRecord == null) {
             MessageDialog.openWarning(shell, "Invalid Selection",
                     "A single Station must be selected");
-
-            return null;
         }
-        String[] parts = array[0].split(" ");
-        lid = parts[0];
 
-        displayManager.setCurrentData(lid);
-
-        return recordList.get(dataList.getSelectionIndex());
+        HydroDisplayManager displayManager = HydroDisplayManager.getInstance();
+        displayManager.setCurrentData(selectedRecord.getLid());
+        TimeSeriesDlg.getInstance().updateAndOpen(selectedRecord, isGraph);
     }
 
     /**
      * Save the table data in a text file
      */
     private void saveTable() {
-        String text = dataBuffer.toString();
         FileDialog dialog = new FileDialog(shell, SWT.SAVE);
         String filename = dialog.open();
-        if (filename == null) {
-            return;
-        }
+        if (filename != null) {
+            TableItem[] rows = dataList.getItems();
+            Collection<GageData> records = new ArrayList<>(rows.length);
+            for (TableItem row : rows) {
+                records.add((GageData) row.getData());
+            }
 
-        try {
-            BufferedWriter out = new BufferedWriter(new FileWriter(filename));
-            out.write(text);
-            out.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-            statusHandler.handle(Priority.PROBLEM, "saveTable()"
-                    + " Error saving the tabluar data to file");
+            new SaveTabularDataJob(Paths.get(filename), records).schedule();
         }
     }
 }

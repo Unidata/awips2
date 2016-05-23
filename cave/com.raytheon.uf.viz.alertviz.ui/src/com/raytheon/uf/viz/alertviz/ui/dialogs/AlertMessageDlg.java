@@ -105,6 +105,8 @@ import com.raytheon.uf.viz.alertviz.ui.audio.IAudioAction;
  *                                     Removed duplicate parent shell
  * 25 Jan 2016  5054       randerso    Converted to stand alone window
  * 19 Apr 2016  5517       randerso    Fixed saving/restoring location of AlertViz bar
+ * 10 May 2016  5517       randerso    Fixed AlertViz bar to initially display on monitor containing
+ *                                     cursor after caveData is cleared. Code cleanup.
  * 
  * </pre>
  * 
@@ -228,6 +230,8 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
 
     private Map<String, AlertMonitor> alertMonitors;
 
+    private Shell infoTextShell;
+
     /**
      * Constructor.
      * 
@@ -297,8 +301,21 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
         Rectangle rect = restoreDialogPosition();
         Point shellLoc = new Point(rect.x, rect.y);
 
+        // if previous size and location were set
         if (rect.width > 0 && rect.height > 0) {
             shell.setSize(rect.width, rect.height);
+        } else {
+            // use default size and locate dialog on monitor containing cursor
+            Monitor[] monitors = display.getMonitors();
+
+            Point cursor = display.getCursorLocation();
+            for (int i = 0; i < monitors.length; i++) {
+                if (monitors[i].getBounds().contains(cursor)) {
+                    shellLoc.x = monitors[i].getBounds().x;
+                    shellLoc.y = monitors[i].getBounds().y;
+                    break;
+                }
+            }
         }
         Point shellSize = shell.getSize();
 
@@ -532,6 +549,11 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
         }
     }
 
+    /**
+     * Set maxLogSize
+     * 
+     * @param maxLogSize
+     */
     public void setMaxLogSize(final int maxLogSize) {
         if ((txtMsgCompArray != null) && (txtMsgCompArray.size() > 0)
                 && (maxLogSize != txtMsgCompArray.get(0).getMaxLogSize())) {
@@ -648,9 +670,13 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
         shell.dispose();
     }
 
+    /**
+     * Reset tab control dialog
+     */
     public void resetTabControl() {
-        boolean isOpen = (tabControlDlg != null) && !tabControlDlg.isDisposed()
-                && tabControlDlg.isOpened();
+        // boolean isOpen = (tabControlDlg != null) &&
+        // !tabControlDlg.isDisposed()
+        // && tabControlDlg.isOpened();
         reLayout();
         // TODO: Need to determine which tabs to open and populate them.
         // For now let the user reopen and they will be properly populated.
@@ -662,6 +688,8 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
 
     /**
      * Re-layout the message composites.
+     * 
+     * @return true if AlertVizBar is enabled and visible
      */
     public boolean reLayout() {
         boolean result = false;
@@ -974,7 +1002,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
     /**
      * Is the message dlg enabled
      * 
-     * @return
+     * @return true if dlg is enabled
      */
     public boolean isEnabled() {
         return enabled;
@@ -984,8 +1012,6 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
      * This method will display Alert Visualization Tips
      * 
      */
-
-    Shell infoTextShell;
 
     public void InfoPopUpText() {
 
@@ -1142,6 +1168,11 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
         }
     }
 
+    /**
+     * Add a message to the text message log
+     * 
+     * @param statMsg
+     */
     public void sendToTextMsgLog(StatusMessage statMsg) {
         if (textMsgLog == null) {
             String[] categories = new String[] { "Causes", "Catch", "Error",
@@ -1152,6 +1183,12 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
         textMsgLog.addMessage(statMsg);
     }
 
+    /**
+     * Set background color of errorBtn
+     * 
+     * @param background
+     *            the background color
+     */
     public void setErrorLogBtnBackground(RGB background) {
 
         if (errorBtnBgColor != null) {
@@ -1227,6 +1264,11 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
         return map;
     }
 
+    /**
+     * Get the alert audio manager
+     * 
+     * @return the alert audio manager
+     */
     public AlertAudioMgr getAlertAudioManager() {
         return alertAudioMgr;
     }

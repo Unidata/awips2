@@ -20,8 +20,6 @@
 package com.raytheon.uf.viz.d2d.ui.dialogs;
 
 import java.awt.Color;
-import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.image.ComponentColorModel;
 import java.awt.image.IndexColorModel;
@@ -91,15 +89,15 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Feb 15, 2011            bkowal     Initial creation
- * 08/15/2012         1053 jkorman     Added capability to save/restore user
- * print settings.
- * 10/12/2012         1229 rferrel    Made dialog non-blocking.
- * 12/09/2014   ASM #11982 D. Friedman Fix print-to-file
- * 01/11/2016         5242 kbisanz     Replaced calls to deprecated LocalizationFile methods
- * 
+ * Date          Ticket#  Engineer     Description
+ * ------------- -------- ------------ -----------------------------------------
+ * Feb 15, 2011           bkowal       Initial creation
+ * Aug 15, 2012  1053     jkorman      Added capability to save/restore user
+ *                                     print settings.
+ * Oct 12, 2012  1229     rferrel      Made dialog non-blocking.
+ * Dec 09, 2014  11982    D. Friedman  Fix print-to-file
+ * Jan 11, 2016  5242     kbisanz      Replaced calls to deprecated LocalizationFile methods
+ * May 13, 2016  5653     randerso     Fixed print scaling
  * 
  * </pre>
  * 
@@ -142,6 +140,8 @@ public class PrintDialog extends CaveSWTDialog {
     /* Remaining Settings */
     private Spinner scaleSpinner = null;
 
+    private Button fitToPageBtn;
+
     private Combo magnificationCombo = null;
 
     private Spinner copiesSpinner = null;
@@ -157,8 +157,6 @@ public class PrintDialog extends CaveSWTDialog {
     private MagnificationInformationStorage magnificationInformationStorage = null;
 
     private DensityInformationStorage densityInformationStorage = null;
-
-    private float SCALE_CONST = .89f;
 
     private class MagnificationInformationStorage {
         private double applicationMagnification = 0.0;
@@ -187,11 +185,19 @@ public class PrintDialog extends CaveSWTDialog {
 
         public float scale;
 
+        public boolean fitToPage = false;
+
         public boolean invert = false;
     }
 
-    public PrintDialog(Shell shell) {
-        super(shell, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
+    /**
+     * Constructor
+     * 
+     * @param parent
+     *            parent shell
+     */
+    public PrintDialog(Shell parent) {
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         this.setText("Print");
     }
 
@@ -199,25 +205,11 @@ public class PrintDialog extends CaveSWTDialog {
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
         GridLayout mainLayout = new GridLayout(2, true);
-        mainLayout.marginHeight = 20;
-        mainLayout.verticalSpacing = 2;
-        mainLayout.marginWidth = 15;
         return mainLayout;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
-     * .eclipse.swt.widgets.Shell)
-     */
     @Override
     protected void initializeComponents(Shell shell) {
-        this.initializeComponents();
-    }
-
-    private void initializeComponents() {
         this.saveMagnificationAndDensityByResource();
 
         this.createPrintToGroup();
@@ -231,20 +223,20 @@ public class PrintDialog extends CaveSWTDialog {
     private void createPrintToGroup() {
         ArrayList<String> availablePrinters = this.getAvailablePrinters();
 
-        GridData gridData = new GridData();
-        gridData.horizontalAlignment = GridData.FILL;
-        gridData.heightHint = 70;
-        gridData.horizontalSpan = 2;
-
         Group group = new Group(this.shell, SWT.SHADOW_ETCHED_IN);
+        GridData gridData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gridData.horizontalSpan = 2;
         group.setLayoutData(gridData);
-        group.setLayout(new GridLayout(3, false));
+
+        GridLayout gridLayout = new GridLayout(3, false);
+        group.setLayout(gridLayout);
         group.setText("Print To");
 
         Button button = new Button(group, SWT.RADIO);
         button.setText("Printer");
         button.setSelection(true);
         button.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 if (printerRadioButton.getSelection()) {
                     selectedPrinterCombo.setEnabled(true);
@@ -257,12 +249,10 @@ public class PrintDialog extends CaveSWTDialog {
         });
         this.printerRadioButton = button;
 
-        gridData = new GridData();
-        gridData.widthHint = 195;
-        gridData.horizontalSpan = 2;
-
         Combo combo = new Combo(group, SWT.DROP_DOWN | SWT.READ_ONLY);
+        gridData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         combo.setLayoutData(gridData);
+
         if (availablePrinters != null) {
             Iterator<String> printerIterator = availablePrinters.iterator();
             while (printerIterator.hasNext()) {
@@ -272,9 +262,13 @@ public class PrintDialog extends CaveSWTDialog {
         }
         this.selectedPrinterCombo = combo;
 
+        // filler
+        new Label(group, SWT.NONE);
+
         button = new Button(group, SWT.RADIO);
         button.setText("File");
         button.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 if (fileRadioButton.getSelection()) {
                     selectedPrinterCombo.setEnabled(false);
@@ -285,9 +279,12 @@ public class PrintDialog extends CaveSWTDialog {
         });
         this.fileRadioButton = button;
 
-        gridData = new GridData();
-        gridData.widthHint = 195;
         Text text = new Text(group, SWT.BORDER);
+        gridData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        GC gc = new GC(text);
+        int textWidth = gc.getFontMetrics().getAverageCharWidth() * 30;
+        gc.dispose();
+        gridData.minimumWidth = textWidth;
         text.setLayoutData(gridData);
         text.setEnabled(false);
         this.destinationFileText = text;
@@ -295,6 +292,7 @@ public class PrintDialog extends CaveSWTDialog {
         button = new Button(group, SWT.PUSH);
         button.setText("Browse ...");
         button.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 selectDestinationFile(destinationFileText.getText());
             }
@@ -338,15 +336,25 @@ public class PrintDialog extends CaveSWTDialog {
     }
 
     private void createRemainingPrintingSettingsSection() {
-        Composite composite = new Composite(this.shell, SWT.NONE);
-        composite.setLayout(new GridLayout(2, false));
+        Composite comp = new Composite(this.shell, SWT.BORDER);
+        GridData gridData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gridData.horizontalSpan = 2;
+        comp.setLayoutData(gridData);
+        GridLayout gridLayout = new GridLayout(2, false);
+        comp.setLayout(gridLayout);
 
-        Label label = new Label(composite, SWT.NONE);
-        label.setText("% Scale: ");
+        Composite leftComp = new Composite(comp, SWT.NONE);
+        gridData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        leftComp.setLayoutData(gridData);
+        leftComp.setLayout(new GridLayout(2, false));
 
-        GridData gridData = new GridData();
-        gridData.widthHint = 55;
-        Spinner spinner = new Spinner(composite, SWT.READ_ONLY);
+        Label label = new Label(leftComp, SWT.NONE);
+        gridData = new GridData(SWT.LEFT, SWT.CENTER, false, false);
+        label.setLayoutData(gridData);
+        label.setText("Scale %:");
+
+        Spinner spinner = new Spinner(leftComp, SWT.READ_ONLY | SWT.BORDER);
+        gridData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         spinner.setLayoutData(gridData);
         spinner.setMinimum(0);
         spinner.setMaximum(9999);
@@ -354,15 +362,47 @@ public class PrintDialog extends CaveSWTDialog {
         spinner.setIncrement(1);
         this.scaleSpinner = spinner;
 
-        composite = new Composite(this.shell, SWT.NONE);
-        composite.setLayout(new GridLayout(2, false));
+        this.fitToPageBtn = new Button(leftComp, SWT.CHECK);
+        gridData = new GridData(SWT.RIGHT, SWT.DEFAULT, true, false);
+        gridData.horizontalSpan = 2;
+        this.fitToPageBtn.setLayoutData(gridData);
+        this.fitToPageBtn.setText("Fit to Page");
+        this.fitToPageBtn.addSelectionListener(new SelectionAdapter() {
 
-        label = new Label(composite, SWT.NONE);
-        label.setText("\u0020\u0020\u0020\u0020\u0020Mag: ");
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                scaleSpinner.setEnabled(!fitToPageBtn.getSelection());
+            }
 
-        gridData = new GridData();
-        gridData.widthHint = 110;
-        Combo combo = new Combo(composite, SWT.READ_ONLY | SWT.DROP_DOWN);
+        });
+
+        label = new Label(leftComp, SWT.NONE);
+        gridData = new GridData(SWT.LEFT, SWT.CENTER, false, false);
+        label.setLayoutData(gridData);
+        label.setText("Copies:");
+
+        spinner = new Spinner(leftComp, SWT.READ_ONLY | SWT.BORDER);
+        gridData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        spinner.setLayoutData(gridData);
+
+        spinner.setMinimum(1);
+        spinner.setMaximum(9999);
+        spinner.setSelection(0);
+        spinner.setIncrement(1);
+        this.copiesSpinner = spinner;
+
+        Composite rightComp = new Composite(comp, SWT.NONE);
+        gridData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        rightComp.setLayoutData(gridData);
+        rightComp.setLayout(new GridLayout(2, false));
+
+        label = new Label(rightComp, SWT.NONE);
+        gridData = new GridData(SWT.RIGHT, SWT.CENTER, true, false);
+        label.setLayoutData(gridData);
+        label.setText("Mag:");
+
+        Combo combo = new Combo(rightComp, SWT.READ_ONLY | SWT.DROP_DOWN);
+        gridData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         combo.setLayoutData(gridData);
         /* Get The Magnification Values. */
         for (int i = 0; i < MagnificationPopulator.getMagnifications().length; i++) {
@@ -377,6 +417,7 @@ public class PrintDialog extends CaveSWTDialog {
             }
         }
         combo.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 okButton.setEnabled(false);
                 cancelButton.setEnabled(false);
@@ -387,31 +428,13 @@ public class PrintDialog extends CaveSWTDialog {
         });
         this.magnificationCombo = combo;
 
-        composite = new Composite(this.shell, SWT.NONE);
-        composite.setLayout(new GridLayout(2, false));
+        label = new Label(rightComp, SWT.NONE);
+        gridData = new GridData(SWT.RIGHT, SWT.CENTER, true, false);
+        label.setLayoutData(gridData);
+        label.setText("Density:");
 
-        label = new Label(composite, SWT.NONE);
-        label.setText("\u0020\u0020Copies: ");
-
-        gridData = new GridData();
-        gridData.widthHint = 55;
-        spinner = new Spinner(composite, SWT.READ_ONLY);
-        spinner.setLayoutData(gridData);
-        spinner.setMinimum(1);
-        spinner.setMaximum(9999);
-        spinner.setSelection(0);
-        spinner.setIncrement(1);
-        this.copiesSpinner = spinner;
-
-        composite = new Composite(this.shell, SWT.NONE);
-        composite.setLayout(new GridLayout(2, false));
-
-        label = new Label(composite, SWT.NONE);
-        label.setText("Density: ");
-
-        gridData = new GridData();
-        gridData.widthHint = 110;
-        combo = new Combo(composite, SWT.READ_ONLY | SWT.DROP_DOWN);
+        combo = new Combo(rightComp, SWT.READ_ONLY | SWT.DROP_DOWN);
+        gridData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         combo.setLayoutData(gridData);
         for (int i = 0; i < DensityPopulator.getDensityLabels().length; i++) {
             combo.add(DensityPopulator.getDensityLabels()[i]);
@@ -424,6 +447,7 @@ public class PrintDialog extends CaveSWTDialog {
             }
         }
         combo.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 okButton.setEnabled(false);
                 cancelButton.setEnabled(false);
@@ -434,25 +458,25 @@ public class PrintDialog extends CaveSWTDialog {
         });
         this.densityCombo = combo;
 
-        gridData = new GridData();
+        rightComp = new Composite(comp, SWT.NONE);
+        gridData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         gridData.horizontalSpan = 2;
-        composite = new Composite(this.shell, SWT.NONE);
-        composite.setLayoutData(gridData);
-        composite.setLayout(new GridLayout(2, false));
-        label = new Label(composite, SWT.NONE);
-        label.setText("\u0020\u0020\u0020\u0020\u0020Paper: ");
+        rightComp.setLayoutData(gridData);
+        rightComp.setLayout(new GridLayout(2, false));
+        label = new Label(rightComp, SWT.NONE);
+        label.setText("Paper:");
 
-        gridData = new GridData();
-        gridData.widthHint = 295;
-        combo = new Combo(composite, SWT.READ_ONLY | SWT.DROP_DOWN);
+        combo = new Combo(rightComp, SWT.READ_ONLY | SWT.DROP_DOWN);
+        gridData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         combo.setLayoutData(gridData);
         combo.add("DEFAULT");
         combo.setEnabled(false);
         combo.select(0);
+        // TODO: implement paper settings
 
         gridData = new GridData();
         gridData.horizontalAlignment = SWT.CENTER;
-        Button button = new Button(this.shell, SWT.CHECK);
+        Button button = new Button(comp, SWT.CHECK);
         button.setLayoutData(gridData);
         button.setText("Invert Black/White");
         button.setSelection(true);
@@ -460,20 +484,23 @@ public class PrintDialog extends CaveSWTDialog {
 
         gridData = new GridData();
         gridData.horizontalAlignment = SWT.CENTER;
-        button = new Button(this.shell, SWT.CHECK);
+        button = new Button(comp, SWT.CHECK);
         button.setLayoutData(gridData);
         button.setText("Manual Feed");
         button.setEnabled(false);
+        // TODO: implement manual feed
     }
 
     private void createPrintDialogButtons() {
+        int buttonWidth = getDisplay().getDPI().x * 3 / 2;
         GridData gridData = new GridData();
         gridData.horizontalAlignment = SWT.CENTER;
-        gridData.widthHint = 125;
+        gridData.widthHint = buttonWidth;
         Button button = new Button(this.shell, SWT.PUSH);
         button.setLayoutData(gridData);
         button.setText("OK");
         button.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 okButton.setEnabled(false);
                 cancelButton.setEnabled(false);
@@ -488,11 +515,12 @@ public class PrintDialog extends CaveSWTDialog {
 
         gridData = new GridData();
         gridData.horizontalAlignment = SWT.CENTER;
-        gridData.widthHint = 125;
+        gridData.widthHint = buttonWidth;
         button = new Button(this.shell, SWT.PUSH);
         button.setLayoutData(gridData);
         button.setText("Cancel");
         button.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 okButton.setEnabled(false);
                 cancelButton.setEnabled(false);
@@ -661,10 +689,12 @@ public class PrintDialog extends CaveSWTDialog {
             printerSettings.printInGrayscale = true;
         }
         if (this.landscapeRadioButton.getSelection()) {
+            printerSettings.selectedPrinter.orientation = PrinterData.LANDSCAPE;
             printerSettings.printInLandscape = true;
         }
 
         printerSettings.scale = ((float) this.scaleSpinner.getSelection() / 100);
+        printerSettings.fitToPage = this.fitToPageBtn.getSelection();
 
         if (this.invertCheckbox.getSelection()) {
             printerSettings.invert = true;
@@ -675,42 +705,7 @@ public class PrintDialog extends CaveSWTDialog {
 
     private void print(PrinterSettings printerSettings) {
         AbstractEditor editor = (AbstractEditor) EditorUtil.getActiveEditor();
-
         BufferedImage bi = editor.screenshot();
-        Display display = editor.getActiveDisplayPane().getDisplay();
-        Printer printer = new Printer(printerSettings.selectedPrinter);
-        Point screenDPI = display.getDPI();
-        Point printerDPI = printer.getDPI();
-
-        // Determine the bounds of the entire area of the printer
-        Rectangle printArea = printer.getClientArea();
-        float imageWidth = bi.getWidth() / (float) screenDPI.x;
-        float imageHeight = bi.getHeight() / (float) screenDPI.y;
-        float imageAspect = imageWidth / imageHeight;
-
-        float printerWidth = printArea.width / (float) printerDPI.x;
-        float printerHeight = printArea.height / (float) printerDPI.y;
-        float printerAspect = printerWidth / printerHeight;
-
-        // rotate image if necessary for best fit
-        // NOTE: rotating the image since the SWT Transform appears to have an
-        // error for exact 90 degree rotations
-
-        boolean rotated = false;
-        if (printerSettings.printInLandscape) {
-            if ((imageAspect - 1) * (printerAspect - 1) < 0) {
-                AffineTransform transform = AffineTransform
-                        .getQuadrantRotateInstance(1);
-                transform.concatenate(AffineTransform.getTranslateInstance(0.0,
-                        -bi.getHeight()));
-                AffineTransformOp transformOp = new AffineTransformOp(
-                        transform, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
-                bi = transformOp.filter(bi, new BufferedImage(bi.getHeight(),
-                        bi.getWidth(), bi.getType()));
-                rotated = true;
-            }
-        }
-
         if (printerSettings.invert) {
             // Only invert gray pixels, not colored pixels, awt doesn't not have
             // a good filter for this.
@@ -731,6 +726,7 @@ public class PrintDialog extends CaveSWTDialog {
         Image image = null;
         Image colorImage = null;
 
+        Printer printer = new Printer(printerSettings.selectedPrinter);
         colorImage = new Image(printer, imageData);
         if (!printerSettings.printInGrayscale) {
             image = colorImage;
@@ -740,45 +736,67 @@ public class PrintDialog extends CaveSWTDialog {
             image = grayScaleImage;
         }
 
-        // scale to adjust for difference in pixel aspect
-        float aspectScale = ((float) printerDPI.y / printerDPI.x)
-                / ((float) screenDPI.y / screenDPI.x);
+        Rectangle printArea = printer.getClientArea();
+        Display display = editor.getActiveDisplayPane().getDisplay();
+        Point screenDPI = display.getDPI();
+        Point printerDPI = printer.getDPI();
 
-        // now scale to fill the page
-        Rectangle imageBounds = image.getBounds();
-        float hScale = ((float) printArea.width / imageBounds.width)
-                * printerSettings.scale;
-        float vScale = (printArea.height / (imageBounds.height * aspectScale))
-                * printerSettings.scale;
-        float scaleX = Math.min(hScale, vScale);
-        // float scaleY = (scaleX * aspectScale) * printerSettings.scale;
+        float scale = printerSettings.scale;
 
-        // if rotated shift image to right edge of page
-        Rectangle trim = printer.computeTrim(0, 0, 0, 0);
-        Point offset = new Point(-trim.x, -trim.y);
-        if (rotated) {
-            offset.x += printArea.width - (imageBounds.width) * scaleX;
+        if (printerSettings.fitToPage) {
+            // get image size in inches
+            float imageWidth = bi.getWidth() / (float) screenDPI.x;
+            float imageHeight = bi.getHeight() / (float) screenDPI.y;
+
+            // get print area size in inches
+            float printerWidth = printArea.width / (float) printerDPI.x;
+            float printerHeight = printArea.height / (float) printerDPI.y;
+
+            // compute scale to fit the page
+            float hScale, vScale;
+            hScale = printerWidth / imageWidth;
+            vScale = printerHeight / imageHeight;
+            scale = Math.min(hScale, vScale);
         }
 
+        // compute output image size in printer pixels
+        int scaledImageWidth = Math.round(scale * bi.getWidth() * printerDPI.x
+                / screenDPI.x);
+        int scaledImageHeight = Math.round(scale * bi.getHeight()
+                * printerDPI.y / screenDPI.y);
+
+        Point offset = new Point(0, 0);
+        Point remaining = new Point(scaledImageWidth, scaledImageHeight);
         if (printer.startJob("CAVE")) {
-            if (printer.startPage()) {
-                GC gc = new GC(printer);
-                Transform transform = new Transform(gc.getDevice());
-                transform.translate(offset.x, offset.y);
+            while (remaining.x > 0 && remaining.y > 0) {
+                if (printer.startPage()) {
+                    GC gc = new GC(printer);
+                    gc.setClipping(printArea);
 
-                transform.scale(SCALE_CONST * printerSettings.scale
-                        * printerDPI.x / (float) screenDPI.x, SCALE_CONST
-                        * printerSettings.scale * printerDPI.y
-                        / (float) screenDPI.y);
-                gc.setTransform(transform);
+                    Transform transform = new Transform(gc.getDevice());
+                    transform.translate(offset.x, offset.y);
+                    transform.scale(scale * printerDPI.x / screenDPI.x, scale
+                            * printerDPI.y / screenDPI.y);
 
-                gc.drawImage(image, 0, 0);
+                    gc.setTransform(transform);
 
-                transform.dispose();
-                gc.dispose();
-                printer.endPage();
-                printer.endJob();
+                    gc.drawImage(image, 0, 0);
+
+                    transform.dispose();
+                    gc.dispose();
+                    printer.endPage();
+                }
+
+                remaining.x -= printArea.width;
+                offset.x -= printArea.width;
+                if (remaining.x <= 0) {
+                    remaining.x = scaledImageWidth;
+                    offset.x = 0;
+                    remaining.y -= printArea.height;
+                    offset.y -= printArea.height;
+                }
             }
+            printer.endJob();
         }
 
         image.dispose();
@@ -894,6 +912,7 @@ public class PrintDialog extends CaveSWTDialog {
 
         settings.setCopies(copiesSpinner.getSelection());
         settings.setScale(scaleSpinner.getSelection());
+        settings.setFitToPage(fitToPageBtn.getSelection());
 
         settings.setDensity(densityCombo.getSelectionIndex());
         settings.setMag(magnificationCombo.getSelectionIndex());
@@ -910,10 +929,10 @@ public class PrintDialog extends CaveSWTDialog {
         LocalizationContext ctx = initUserLocalization();
 
         // Get a list of localization files!
-        ILocalizationFile f = PathManagerFactory.getPathManager()
+        ILocalizationFile lf = PathManagerFactory.getPathManager()
                 .getLocalizationFile(ctx, SETTINGS_FILENAME);
 
-        try (SaveableOutputStream strm = f.openOutputStream()) {
+        try (SaveableOutputStream strm = lf.openOutputStream()) {
             JAXB.marshal(settings, strm);
             // Ensure that the file is saved on the server!
             strm.save();
@@ -930,15 +949,14 @@ public class PrintDialog extends CaveSWTDialog {
         LocalizationContext ctx = initUserLocalization();
 
         // Get a list of localization files!
-        ILocalizationFile f = PathManagerFactory.getPathManager()
+        ILocalizationFile lf = PathManagerFactory.getPathManager()
                 .getLocalizationFile(ctx, SETTINGS_FILENAME);
         // If its not there, no previous settings have been saved. Just exit.
-        if (f.exists()) {
+        if (lf.exists()) {
             UserPrintSettings settings = null;
-            try (InputStream strm = f.openInputStream()) {
+            try (InputStream strm = lf.openInputStream()) {
 
-                settings = (UserPrintSettings) JAXB.unmarshal(strm,
-                        UserPrintSettings.class);
+                settings = JAXB.unmarshal(strm, UserPrintSettings.class);
 
             } catch (Exception e) {
                 statusHandler.error(
@@ -970,6 +988,10 @@ public class PrintDialog extends CaveSWTDialog {
                         scaleSpinner.setSelection(settings.getScale());
                     }
                 }
+
+                fitToPageBtn.setSelection(settings.isFitToPage());
+                scaleSpinner.setEnabled(!fitToPageBtn.getSelection());
+
                 n = settings.getDensity();
                 if (n != null) {
                     if ((n >= 0) && (n < densityCombo.getItemCount())) {
@@ -1015,16 +1037,17 @@ public class PrintDialog extends CaveSWTDialog {
      * 
      * @return the initialized localization
      */
-    public static LocalizationContext initUserLocalization() {
+    private static LocalizationContext initUserLocalization() {
         return initLocalization(LocalizationLevel.USER);
     }
 
     /**
      * Initialize a LocalizationContext for the given LocalizationLevel.
      * 
+     * @param level
      * @return the initialized localization
      */
-    public static LocalizationContext initLocalization(LocalizationLevel level) {
+    private static LocalizationContext initLocalization(LocalizationLevel level) {
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext localization = pm.getContext(
                 LocalizationType.COMMON_STATIC, level);
