@@ -86,6 +86,8 @@ import com.raytheon.viz.gfe.core.griddata.IGridData;
  * 06/26/13     #2044      randerso    Fixed error message priority
  * 04/03/2014   #2737      randerso    Moved clientSendStatus from SaveGridRequest to SaveGFEGridRequest
  * 11/17/2015   #5129      dgilling    Support new IFPClient.
+ * 04/28/2016   #5618      randerso    Changed "Unable to get grid" message from INFO to ERROR
+ * 
  * </pre>
  * 
  * @author chammack
@@ -348,8 +350,8 @@ public class DbParm extends Parm {
                 }
             }
             for (IGridData grid : gridsNotReplaced) {
-                statusHandler.handle(Priority.EVENTA, "Unable to get grid for "
-                        + getParmID() + " tr=" + grid.getGridTime()
+                statusHandler.error("Unable to get grid for " + getParmID()
+                        + " tr=" + grid.getGridTime()
                         + ". Temporarily using default data");
                 IGridData g = makeEmptyGrid();
                 g.changeValidTime(grid.getGridTime(), false);

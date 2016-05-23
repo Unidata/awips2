@@ -22,6 +22,10 @@ package com.raytheon.viz.gfe.textformatter;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -38,7 +42,6 @@ import jep.JepException;
 
 import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
 import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
-import com.raytheon.uf.common.dataplugin.gfe.request.SaveCombinationsFileRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.gfe.ifpclient.IFPClient;
 import com.raytheon.uf.common.localization.IPathManager;
@@ -59,8 +62,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
-import com.raytheon.viz.gfe.GFEException;
-import com.raytheon.viz.gfe.core.DataManagerUIFactory;
+import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.viz.gfe.textformatter.CombinationsFileUtil.ComboData.Entry;
 
 /**
@@ -84,6 +86,7 @@ import com.raytheon.viz.gfe.textformatter.CombinationsFileUtil.ComboData.Entry;
  * Nov 12, 2015      4834  njensen     Changed LocalizationOpFailedException to LocalizationException
  * Nov 18, 2015     #5129  dgilling    Support new IFPClient.
  * Feb 05, 2016      5242  dgilling    Remove calls to deprecated Localization APIs.
+ * Apr 25, 2016  #5605     randerso    Switched back to writing combinations file using Localization
  * 
  * </pre>
  * 
@@ -97,7 +100,8 @@ public class CombinationsFileUtil {
 
     private static final int MAX_TRIES = 2;
 
-    public static String COMBO_DIR_PATH = FileUtil.join("gfe", "combinations");
+    public static String COMBINATIONS_DIR_PATH = FileUtil.join("gfe",
+            "combinations");
 
     public static String SAVED_COMBO_DIR = FileUtil.join("gfe", "comboData");
 
@@ -133,8 +137,7 @@ public class CombinationsFileUtil {
         }
 
         public ComboData(Map<String, Integer> comboDict) {
-            this.combos = new ArrayList<CombinationsFileUtil.ComboData.Entry>(
-                    comboDict.size());
+            this.combos = new ArrayList<>(comboDict.size());
             for (java.util.Map.Entry<String, Integer> entry : comboDict
                     .entrySet()) {
                 this.combos.add(new Entry(entry.getKey(), entry.getValue()));
@@ -219,7 +222,7 @@ public class CombinationsFileUtil {
         try (InputStream in = lf.openInputStream()) {
             ComboData comboData = jaxb.unmarshalFromInputStream(in);
 
-            Map<String, Integer> comboDict = new HashMap<String, Integer>(
+            Map<String, Integer> comboDict = new HashMap<>(
                     comboData.combos.size());
             for (Entry entry : comboData.combos) {
                 comboDict.put(entry.zone, entry.group);
@@ -237,18 +240,18 @@ public class CombinationsFileUtil {
         // retrieve combinations file if it's changed
         LocalizationFile lf = pm.getStaticLocalizationFile(
                 LocalizationType.CAVE_STATIC,
-                FileUtil.join(COMBO_DIR_PATH, comboName + ".py"));
+                FileUtil.join(COMBINATIONS_DIR_PATH, comboName + ".py"));
         File pyFile = null;
         if (lf != null) {
             try {
                 // get the local .py file
                 pyFile = lf.getFile(false);
 
-                // delete both the local .py and .pyo files to force retrieval
+                // delete both the local .py and .pyc files to force retrieval
                 // and regeneration
                 pyFile.delete();
-                File pyoFile = new File(pyFile.getPath() + "o");
-                pyoFile.delete();
+                File pycFile = new File(pyFile.getPath() + "c");
+                pycFile.delete();
 
                 // retrieve the .py file
                 pyFile = lf.getFile(true);
@@ -270,14 +273,14 @@ public class CombinationsFileUtil {
                         .getPath(), "CombinationsInterface.py");
 
         List<List<String>> combos = null;
-        HashMap<String, Object> map = new HashMap<String, Object>();
+        HashMap<String, Object> map = new HashMap<>();
         map.put("comboName", comboName);
         for (int retryCount = 0; retryCount < MAX_TRIES; retryCount++) {
             try (PythonScript python = new PythonScript(
                     scriptPath,
                     PyUtil.buildJepIncludePath(
                             GfePyIncludeUtil.getCombinationsIncludePath(),
-                            PythonIncludePathUtil.getCommonPythonIncludePath()),
+                            GfePyIncludeUtil.getCommonPythonIncludePath()),
                     CombinationsFileUtil.class.getClassLoader())) {
                 Object com = python.execute("getCombinations", map);
                 combos = (List<List<String>>) com;
@@ -285,8 +288,8 @@ public class CombinationsFileUtil {
                 // if successfully retrieved break out of the loop
                 break;
             } catch (JepException e) {
-                // remove the .pyo file
-                new File(pyFile.getAbsolutePath() + "o").delete();
+                // remove the .pyc file
+                new File(pyFile.getAbsolutePath() + "c").delete();
 
                 // if not last try, log and try again
                 if (retryCount < (MAX_TRIES - 1)) {
@@ -309,27 +312,53 @@ public class CombinationsFileUtil {
      * Generates combinations files based on just running the formatter
      * 
      * @param zoneGroupList
-     * @param filename
-     * @throws GFEException
+     * @param comboName
+     * @throws Exception
+     * @throws IOException
      */
     public static void generateAutoCombinationsFile(
-            List<List<String>> zoneGroupList, String filename)
-            throws GFEException {
-        IFPClient ifpc = DataManagerUIFactory.getCurrentInstance().getClient();
-        SaveCombinationsFileRequest req = new SaveCombinationsFileRequest();
-        req.setFileName(filename);
-        req.setCombos(zoneGroupList);
+            List<List<String>> zoneGroupList, String comboName)
+            throws Exception {
 
-        statusHandler.info("Saving combinations file: " + filename);
-        ServerResponse<?> sr = ifpc.makeRequest(req);
-        if (sr.isOkay()) {
-            statusHandler.info("Successfully saved combinations file: "
-                    + filename);
-        } else {
-            String message = String.format(
-                    "Error saving combinations file %s: %s", filename,
-                    sr.message());
-            throw new GFEException(message);
+        IPathManager pm = PathManagerFactory.getPathManager();
+        LocalizationContext localization = pm.getContext(
+                LocalizationType.CAVE_STATIC, LocalizationLevel.SITE);
+
+        String fileName = FileUtil.join(COMBINATIONS_DIR_PATH, comboName)
+                + ".py";
+        LocalizationFile lf = pm.getLocalizationFile(localization, fileName);
+
+        try (SaveableOutputStream stream = lf.openOutputStream();
+                Writer outWriter = new OutputStreamWriter(stream)) {
+
+            String zoneComments = "\n# Automatically generated combinations file\n# "
+                    + comboName + "\n\nCombinations = [\n";
+            outWriter.write(zoneComments);
+
+            NumberFormat df = new DecimalFormat("00");
+            for (int i = 0; i < zoneGroupList.size(); i++) {
+                StringBuilder nextLineToWrite = new StringBuilder();
+                List<String> modZGL = new ArrayList<>(zoneGroupList.get(i)
+                        .size());
+                for (String zone : zoneGroupList.get(i)) {
+                    modZGL.add("'" + zone + "'");
+                }
+                nextLineToWrite.append("\t([");
+                nextLineToWrite.append(StringUtil.join(modZGL, ','));
+                nextLineToWrite.append("], ");
+                nextLineToWrite.append("'Region");
+                nextLineToWrite.append(df.format(i + 1));
+                nextLineToWrite.append("' ),\n");
+                outWriter.write(nextLineToWrite.toString());
+            }
+            outWriter.write("]");
+            outWriter.close();
+            stream.save();
+
+        } catch (Exception e) {
+            statusHandler.error("Error saving combinations file: " + fileName,
+                    e);
         }
+
     }
 }

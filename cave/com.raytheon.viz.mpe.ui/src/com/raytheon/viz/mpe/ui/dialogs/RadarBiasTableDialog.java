@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
@@ -35,7 +36,7 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -51,13 +52,14 @@ import com.raytheon.uf.common.dataplugin.shef.tables.Rwbiasstat;
 import com.raytheon.uf.common.dataplugin.shef.tables.Rwradarresult;
 import com.raytheon.uf.common.dataplugin.shef.tables.DAARadarResult;
 import com.raytheon.uf.common.ohd.AppsDefaults;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.whfslib.IHFSDbGenerated;
 import com.raytheon.viz.mpe.core.MPEDataManager;
 import com.raytheon.viz.mpe.core.MPEDataManager.MPERadarData;
 import com.raytheon.viz.mpe.core.MPEDataManager.MPERadarData.RadarAvailability;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
-import com.raytheon.viz.mpe.ui.dialogs.gagetable.GageTableDataManager;
 import com.raytheon.viz.mpe.ui.radartable.ReadBiasTableParam;
 
 /**
@@ -78,6 +80,8 @@ import com.raytheon.viz.mpe.ui.radartable.ReadBiasTableParam;
  * May 8, 2014   DCS167    cgobs       Updated Dialog for DualPol features
  * May 23, 2014  DCS167    cgobs       Resolved merge conflict
  * Jul 29, 2015  17471     snaples     Added logging for radar result table query date value.
+ * Apr 05, 2016  5504      bkowal      Fix GUI sizing issues. Cleanup code - notify users of errors,
+ *                                     use status handler, etc.
  * 
  * </pre>
  * 
@@ -86,6 +90,9 @@ import com.raytheon.viz.mpe.ui.radartable.ReadBiasTableParam;
  */
 
 public class RadarBiasTableDialog extends Dialog {
+
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(getClass());
 
     public static class Zerocoef_Data {
         float mlt_zrcoef;
@@ -97,8 +104,6 @@ public class RadarBiasTableDialog extends Dialog {
 
     private Shell shell;
 
-    private Font font;
-
     private Button applyBtn;
 
     private Button closeBtn;
@@ -107,7 +112,7 @@ public class RadarBiasTableDialog extends Dialog {
 
     private final int retval = 0;
 
-    String[] radIds;
+    private final String[] radIds;
 
     String rid = "";
 
@@ -192,8 +197,9 @@ public class RadarBiasTableDialog extends Dialog {
 
     float[] editedDPBiasValue = new float[60];
 
-    public RadarBiasTableDialog(Shell parentShell) {
+    public RadarBiasTableDialog(Shell parentShell, final String[] radIds) {
         super(parentShell);
+        this.radIds = radIds;
     }
 
     /**
@@ -210,11 +216,9 @@ public class RadarBiasTableDialog extends Dialog {
 
         // Create the main layout for the shell.
         GridLayout mainLayout = new GridLayout(1, true);
-        mainLayout.marginHeight = 1;
-        mainLayout.marginWidth = 1;
+        mainLayout.marginHeight = 0;
+        mainLayout.marginWidth = 0;
         shell.setLayout(mainLayout);
-
-        font = new Font(shell.getDisplay(), "Courier", 10, SWT.NORMAL);
 
         // Initialize all of the controls and layouts
         initializeComponents();
@@ -228,8 +232,6 @@ public class RadarBiasTableDialog extends Dialog {
             }
         }
 
-        font.dispose();
-
         return retval;
     }
 
@@ -237,12 +239,6 @@ public class RadarBiasTableDialog extends Dialog {
      * Initialize the dialog components.
      */
     private void initializeComponents() {
-
-        try {
-            radIds = GageTableDataManager.getInstance().getActiveRadarIds();
-        } catch (VizException e) {
-            e.printStackTrace();
-        }
         String fxa_local_site = appsDefaults.getToken("fxa_local_site");
         String where = "WHERE office_id = '" + fxa_local_site + "'";
         bList = IHFSDbGenerated.GetRWBiasstat(where);
@@ -266,20 +262,15 @@ public class RadarBiasTableDialog extends Dialog {
         applyBtnComp.setLayout(applyBtnCompLayout);
         applyBtnComp.setLayoutData(gd);
 
-        GridData bd = new GridData(110, SWT.DEFAULT);
+        final int minimumButtonWidth = applyBtnComp.getDisplay().getDPI().x;
+
+        GridData bd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        bd.minimumWidth = minimumButtonWidth;
         applyBtn = new Button(applyBtnComp, SWT.PUSH);
         applyBtn.setText("Apply");
         applyBtn.setLayoutData(bd);
         applyBtn.setEnabled(false);
         applyBtn.addSelectionListener(new SelectionAdapter() {
-
-            /*
-             * (non-Javadoc)
-             * 
-             * @see
-             * org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.eclipse
-             * .swt.events.SelectionEvent)
-             */
             @Override
             public void widgetSelected(SelectionEvent e) {
                 applyBiasUpdate(dt);
@@ -288,19 +279,12 @@ public class RadarBiasTableDialog extends Dialog {
             }
         });
 
-        bd = new GridData(110, SWT.DEFAULT);
+        bd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        bd.minimumWidth = minimumButtonWidth;
         closeBtn = new Button(applyBtnComp, SWT.PUSH);
         closeBtn.setText("Close");
         closeBtn.setLayoutData(bd);
         closeBtn.addSelectionListener(new SelectionAdapter() {
-
-            /*
-             * (non-Javadoc)
-             * 
-             * @see
-             * org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.eclipse
-             * .swt.events.SelectionEvent)
-             */
             @Override
             public void widgetSelected(SelectionEvent e) {
                 shell.dispose();
@@ -310,7 +294,6 @@ public class RadarBiasTableDialog extends Dialog {
     }
 
     private void createDateComp() {
-
         GridData bd = new GridData(SWT.LEFT, SWT.CENTER, true, true);
         Composite dtLblComp = new Composite(shell, SWT.NONE);
         GridLayout dtLblCompLayout = new GridLayout(1, false);
@@ -331,7 +314,6 @@ public class RadarBiasTableDialog extends Dialog {
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         bcLblComp = new Composite(shell, SWT.NONE);
         GridLayout bcLblCompLayout = new GridLayout(9, true);
-        bcLblCompLayout.marginWidth = 1;
         bcLblComp.setLayout(bcLblCompLayout);
         bcLblComp.setLayoutData(gd);
         for (int i = 0; i < biasLabelStrings.length; i++) {
@@ -347,23 +329,19 @@ public class RadarBiasTableDialog extends Dialog {
      * Create the data options group and controls.
      */
     private void createBiasListComp() {
-
         final ScrolledComposite biasListScrollComp = new ScrolledComposite(
                 shell, SWT.BORDER | SWT.V_SCROLL);
-        GridLayout gl = new GridLayout(1, false);
-        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, true);
-        gd.heightHint = 300;
-        biasListScrollComp.setLayout(gl);
-        biasListScrollComp.setLayoutData(gd);
         // Create a container to hold the label and the combo box.
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, true);
         final Composite biasListComp = new Composite(biasListScrollComp,
                 SWT.BORDER);
 
         // dual pol version of table has 9 columns; previous table had 7 columns
-        GridLayout biasListCompLayout = new GridLayout(9, true);
+        final int numColumns = 9;
+        GridLayout biasListCompLayout = new GridLayout(numColumns, true);
+        biasListCompLayout.marginWidth = 0;
         biasListComp.setLayout(biasListCompLayout);
-        gd.horizontalSpan = 9;
+        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, true);
+        gd.horizontalSpan = numColumns;
         biasListComp.setLayoutData(gd);
         biasListComp
                 .setSize(biasListComp.computeSize(SWT.DEFAULT, SWT.DEFAULT));
@@ -371,9 +349,11 @@ public class RadarBiasTableDialog extends Dialog {
         Date dt3 = MPEDisplayManager.getCurrent().getCurrentEditDate();
 
         dt = pgsdf.format(dt3);
-        // This lets us know what date is being requested from radar result
-        // tables
-        System.out.println("Radar Bias table query using time: " + dt3);
+        /*
+         * This lets us know what date is being requested from radar result
+         * tables
+         */
+        statusHandler.debug("Radar Bias table query using time: " + dt3);
 
         radarIdToSPDataMap = MPEDataManager.getInstance().readSPRadarData(dt3);
         radarIdToDPDataMap = MPEDataManager.getInstance().readDPRadarData(dt3);
@@ -384,10 +364,28 @@ public class RadarBiasTableDialog extends Dialog {
         spManEditButtonArray = new Button[radIds.length];
         dpManEditButtonArray = new Button[radIds.length];
 
+        int biasRowHeight = 0;
+
+        if (radIds.length == 0) {
+            /*
+             * Display "No Data Available" message.
+             */
+            final Label noDataAvailableLabel = new Label(biasListComp, SWT.NONE);
+            noDataAvailableLabel.setText("No Data Available");
+
+            gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
+            gd.horizontalSpan = numColumns;
+            noDataAvailableLabel.setLayoutData(gd);
+
+            GC gc = new GC(noDataAvailableLabel);
+            biasRowHeight = gc.getFontMetrics().getHeight()
+                    + noDataAvailableLabel.getBorderWidth()
+                    + biasListComp.getBorderWidth() + biasListComp.getSize().y;
+            gc.dispose();
+        }
+
         for (int i = 0; i < radIds.length; i++) {
-
             // get A and B coefficients from SP radar (does not apply to DP )
-
             abzerocoef.mlt_zrcoef = 0.0f;
             abzerocoef.pwr_zrcoef = 0.0f;
 
@@ -412,7 +410,9 @@ public class RadarBiasTableDialog extends Dialog {
                 try {
                     dpaz = ReadBiasTableParam.getDpaadaptcoef(rid, dt);
                 } catch (VizException e1) {
-                    e1.printStackTrace();
+                    statusHandler.error(
+                            "Failed to retrieve the dpaadapt cofficients for radar: "
+                                    + radIds[i] + ". Defaulting to 0.", e1);
                 }
                 if (dpaz.length != 0) {
                     abzerocoef.mlt_zrcoef = dpaz[0];
@@ -422,7 +422,7 @@ public class RadarBiasTableDialog extends Dialog {
 
             // -----------------------------------------------------
 
-            gd = new GridData(SWT.FILL, SWT.DEFAULT, true, true);
+            gd = new GridData(SWT.FILL, SWT.CENTER, true, true);
 
             // radar id button
             final Button ridBtn = new Button(biasListComp, SWT.PUSH);
@@ -431,14 +431,6 @@ public class RadarBiasTableDialog extends Dialog {
             ridBtn.setLayoutData(gd);
 
             ridBtn.addSelectionListener(new SelectionAdapter() {
-
-                /*
-                 * (non-Javadoc)
-                 * 
-                 * @see
-                 * org.eclipse.swt.events.SelectionAdapter#widgetSelected(org
-                 * .eclipse .swt.events.SelectionEvent)
-                 */
                 @Override
                 public void widgetSelected(SelectionEvent e) {
                     RadarSpanDialog rsd = new RadarSpanDialog(shell,
@@ -477,7 +469,6 @@ public class RadarBiasTableDialog extends Dialog {
             lbiasSPTxt.setData(i);
 
             lbiasSPTxt.addModifyListener(new ModifyListener() {
-
                 @Override
                 public void modifyText(ModifyEvent e) {
                     final int ei = (Integer) lbiasSPTxt.getData();
@@ -485,7 +476,6 @@ public class RadarBiasTableDialog extends Dialog {
                         float parsedFloat = Float.parseFloat(lbiasSPTxt
                                 .getText());
                         editedSPBiasValue[ei] = parsedFloat;
-                        // spManEditButtonArray[ei].setSelection(!mbiasSPBtn.getSelection());
                         spManEditButtonArray[ei].setText("YES");
                         lbiasSPTxt.setBackground(getParent().getDisplay()
                                 .getSystemColor(SWT.COLOR_WHITE));
@@ -516,7 +506,6 @@ public class RadarBiasTableDialog extends Dialog {
             // -------------------------------------------------------------
 
             lbiasDPTxt.addModifyListener(new ModifyListener() {
-
                 @Override
                 public void modifyText(ModifyEvent e) {
                     final int ei = (Integer) lbiasDPTxt.getData();
@@ -524,7 +513,6 @@ public class RadarBiasTableDialog extends Dialog {
                         float parsedFloat = Float.parseFloat(lbiasDPTxt
                                 .getText());
                         editedDPBiasValue[ei] = parsedFloat;
-                        // dpManEditButtonArray[ei].setSelection(!mbiasDPBtn.getSelection());
                         dpManEditButtonArray[ei].setText("YES");
                         lbiasDPTxt.setBackground(getParent().getDisplay()
                                 .getSystemColor(SWT.COLOR_WHITE));
@@ -534,7 +522,6 @@ public class RadarBiasTableDialog extends Dialog {
                         lbiasDPTxt.setBackground(getParent().getDisplay()
                                 .getSystemColor(SWT.COLOR_RED));
                         applyBtn.setEnabled(false);
-
                     }
                 }
             });
@@ -551,12 +538,6 @@ public class RadarBiasTableDialog extends Dialog {
             spManEditButtonArray[i] = mbiasSPBtn;
 
             mbiasSPBtn.addSelectionListener(new SelectionAdapter() {
-                /**
-                 * (non-Javadoc)
-                 * 
-                 * @see org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.eclipse
-                 *      .swt.events.SelectionEvent)
-                 */
                 @Override
                 public void widgetSelected(SelectionEvent e) {
                     final int ai = (Integer) mbiasSPBtn.getData();
@@ -583,12 +564,6 @@ public class RadarBiasTableDialog extends Dialog {
             dpManEditButtonArray[i] = mbiasDPBtn;
 
             mbiasDPBtn.addSelectionListener(new SelectionAdapter() {
-                /**
-                 * (non-Javadoc)
-                 * 
-                 * @see org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.eclipse
-                 *      .swt.events.SelectionEvent)
-                 */
                 @Override
                 public void widgetSelected(SelectionEvent e) {
                     final int ai = (Integer) mbiasDPBtn.getData();
@@ -597,8 +572,6 @@ public class RadarBiasTableDialog extends Dialog {
                         editedDPBiasValue[ai] = oldDPBiasValue[ai];
                         dpBiasValueTextArray[ai].setText(String.format(
                                 "%-1.2f", editedDPBiasValue[ai]));
-                        // consider replacing the value in the map instead of
-                        // using put()
                         dpBiasChangeMap.put(radIds[ai], ai);
                         applyBtn.setEnabled(false);
                         dpManEditButtonArray[ai].setText("NO");
@@ -653,8 +626,31 @@ public class RadarBiasTableDialog extends Dialog {
             Label offcLbl = new Label(biasListComp, SWT.CENTER);
             offcLbl.setText(ooffice);
             offcLbl.setLayoutData(gd);
+
+            if (biasRowHeight == 0) {
+                /*
+                 * Calculate the height of a single row.
+                 */
+                biasRowHeight = lbiasDPTxt.getLineHeight()
+                        + lbiasDPTxt.getBorderWidth()
+                        + biasListComp.getBorderWidth()
+                        + biasListComp.getSize().y;
+            }
         }
+
         biasListScrollComp.setContent(biasListComp);
+
+        /*
+         * Minimum number of rows to display in the dialog.
+         */
+        final int minDisplayedRows = 8;
+
+        GridLayout gl = new GridLayout(1, false);
+        gl.marginWidth = 0;
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, true);
+        gd.heightHint = biasRowHeight * minDisplayedRows;
+        biasListScrollComp.setLayout(gl);
+        biasListScrollComp.setLayoutData(gd);
         biasListScrollComp.setExpandVertical(true);
         biasListScrollComp.setExpandHorizontal(true);
         biasListScrollComp.addControlListener(new ControlAdapter() {
@@ -664,6 +660,19 @@ public class RadarBiasTableDialog extends Dialog {
                         SWT.DEFAULT));
             }
         });
+        /*
+         * Set the grid layout on the header row composite to allow for optional
+         * additional right margin to accommodate a scroll bar. The margin will
+         * ensure that all header labels will line up correctly even if a
+         * scrollbar is present.
+         */
+        if (radIds.length > minDisplayedRows
+                && biasListScrollComp.getVerticalBar() != null
+                && biasListScrollComp.getVerticalBar().getSize() != null
+                && bcLblComp.getLayout() instanceof GridLayout) {
+            ((GridLayout) bcLblComp.getLayout()).marginRight = biasListScrollComp
+                    .getVerticalBar().getSize().x;
+        }
     }
 
     private void applyBiasUpdate(String obstime) {
@@ -674,15 +683,14 @@ public class RadarBiasTableDialog extends Dialog {
     private void applySPBiasUpdate(String obstime) {
         String where = "";
         final float memspan = -99.0f;
-        ArrayList<Rwradarresult> rwRadarResultList = new ArrayList<Rwradarresult>();
+        List<Rwradarresult> rwRadarResultList = new ArrayList<>();
         Rwradarresult rwRadarResult = new Rwradarresult();
         Iterator<String> bi = spBiasChangeMap.keySet().iterator();
         while (bi.hasNext()) {
             String rid = bi.next();
             where = String.format("WHERE radid='%s' AND obstime='%s'", rid,
                     obstime);
-            rwRadarResultList = (ArrayList<Rwradarresult>) IHFSDbGenerated
-                    .GetRWRadarResult(where);
+            rwRadarResultList = IHFSDbGenerated.GetRWRadarResult(where);
             if (rwRadarResultList.size() != 0) {
                 rwRadarResult = rwRadarResultList.get(0);
             } else {
@@ -701,7 +709,6 @@ public class RadarBiasTableDialog extends Dialog {
             IHFSDbGenerated.UpdateRWRadarResult(rwRadarResult);
         }
         spBiasChangeMap.clear();
-        return;
     }
 
     // ---------------------------------------------------------------------
@@ -709,15 +716,14 @@ public class RadarBiasTableDialog extends Dialog {
     private void applyDPBiasUpdate(String obstime) {
         String where = "";
         final float memspan = -99.0f;
-        ArrayList<DAARadarResult> daaRadarResultList = new ArrayList<DAARadarResult>();
+        List<DAARadarResult> daaRadarResultList = new ArrayList<>();
         DAARadarResult daaRadarResult = new DAARadarResult();
         Iterator<String> bi = dpBiasChangeMap.keySet().iterator();
         while (bi.hasNext()) {
             String rid = bi.next();
             where = String.format("WHERE radid='%s' AND obstime='%s'", rid,
                     obstime);
-            daaRadarResultList = (ArrayList<DAARadarResult>) IHFSDbGenerated
-                    .GetDAARadarResult(where);
+            daaRadarResultList = IHFSDbGenerated.GetDAARadarResult(where);
             if (daaRadarResultList.size() != 0) {
                 daaRadarResult = daaRadarResultList.get(0);
             } else {
@@ -736,7 +742,6 @@ public class RadarBiasTableDialog extends Dialog {
             IHFSDbGenerated.UpdateDAARadarResult(daaRadarResult);
         }
         dpBiasChangeMap.clear();
-        return;
     }
 
 }

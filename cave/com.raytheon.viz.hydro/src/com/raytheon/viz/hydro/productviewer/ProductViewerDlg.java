@@ -20,36 +20,38 @@
 
 package com.raytheon.viz.hydro.productviewer;
 
-import java.util.ArrayList;
+import java.util.List;
 
+import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.events.VerifyListener;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Layout;
-import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.viz.hydro.productviewer.ProductViewerConstants.ProdListType;
 import com.raytheon.viz.hydro.productviewer.ProductViewerConstants.SortType;
 import com.raytheon.viz.hydrocommon.HydroDisplayManager;
-import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 /**
  * This class displays the Product Viewer dialog for HydroView.
@@ -66,6 +68,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                     in AWIPS 1
  * 02/07/2013   1578       rferrel     Make dialog non-blocking.
  * 06/19/2013   2119       rferrel     Remove no longer needed shouldOpen.
+ * 04/12/2016   5483       dgilling    Refactor based on CaveJFACEDialog, 
+ *                                     cleanup hi-dpi issues.
  * 
  * </pre>
  * 
@@ -73,26 +77,15 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * @version 1.0
  * 
  */
-public class ProductViewerDlg extends CaveSWTDialog {
-    /**
-     * Dialog's location and size.
-     */
-    private static Rectangle bounds;
+public class ProductViewerDlg extends CaveJFACEDialog {
 
-    /**
-     * Font used for the list and text controls.
-     */
-    private Font font;
-
-    /**
-     * Sash form used to allow resizing parts of the dialog.
-     */
-    private SashForm sashForm;
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(getClass());
 
     /**
      * List displaying product information.
      */
-    private List prodInfoListWidget;
+    private Table prodInfoTable;
 
     /**
      * List combo box.
@@ -120,195 +113,129 @@ public class ProductViewerDlg extends CaveSWTDialog {
     private StyledText textViewer;
 
     /**
-     * ProductInfo data structure list.
-     */
-    private java.util.List<ProductInfo> productInfoList = null;
-
-    /**
      * Constructor.
      * 
      * @param parent
      *            Parent shell.
      */
     public ProductViewerDlg(Shell parent) {
-        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
-        setText("Product Viewer");
+        super(parent);
+        setShellStyle(SWT.DIALOG_TRIM);
+        setBlockOnOpen(false);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
-     */
     @Override
-    protected Layout constructShellLayout() {
-        // Create the main layout for the shell.
-        GridLayout mainLayout = new GridLayout(1, false);
-        mainLayout.marginHeight = 3;
-        mainLayout.marginWidth = 3;
-        return mainLayout;
+    protected void configureShell(Shell newShell) {
+        super.configureShell(newShell);
+        newShell.setText("Product Viewer");
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
-     */
     @Override
-    protected void disposed() {
-        font.dispose();
-    }
+    protected Control createDialogArea(Composite parent) {
+        Composite composite = (Composite) super.createDialogArea(parent);
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialog#preOpened()
-     */
-    @Override
-    protected void preOpened() {
-        super.preOpened();
-        shell.addShellListener(new ShellAdapter() {
-            @Override
-            public void shellClosed(ShellEvent e) {
-                bounds = shell.getBounds();
-            }
-        });
-
-        if (bounds != null) {
-            shell.setBounds(bounds);
-        }
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
-     * .eclipse.swt.widgets.Shell)
-     */
-    @Override
-    protected void initializeComponents(Shell shell) {
-        font = new Font(shell.getDisplay(), "Monospace", 10, SWT.NORMAL);
-
-        sashForm = new SashForm(shell, SWT.VERTICAL);
+        SashForm sashForm = new SashForm(composite, SWT.VERTICAL);
         sashForm.setLayout(new FillLayout());
         sashForm.SASH_WIDTH = 10;
 
-        createProductInformationGroup();
+        createProductInformationGroup(sashForm);
 
-        createTextViewerControl();
-
-        createCloseButton();
+        createTextViewerControl(sashForm);
 
         sashForm.setWeights(new int[] { 1, 2 });
 
-        String lid = HydroDisplayManager.getInstance().getCurrentLid();
-        if ((lid != null) && (lid.length() > 0)) {
-            setReturnValue(lid);
-            selectedLocTF.setText(lid);
-        }
-
         loadProductList();
+
+        return composite;
     }
 
     /**
      * Create the Product Information group container.
+     * 
+     * @param parent
      */
-    private void createProductInformationGroup() {
-        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        Group productInfoGroup = new Group(sashForm, SWT.NONE);
-        GridLayout gl = new GridLayout(2, false);
-        productInfoGroup.setLayout(gl);
-        productInfoGroup.setLayoutData(gd);
+    private void createProductInformationGroup(Composite parent) {
+        Group productInfoGroup = new Group(parent, SWT.NONE);
         productInfoGroup.setText("Product Information");
+        productInfoGroup.setLayout(new GridLayout(2, false));
+        productInfoGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
+                true));
 
         // -----------------------------------------------
-        // Create the LEFT side (list box and labels)
+        // Create the LEFT side (TABLE)
         // -----------------------------------------------
-        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        Composite leftComp = new Composite(productInfoGroup, SWT.NONE);
-        gl = new GridLayout(3, false);
-        leftComp.setLayout(gl);
-        leftComp.setLayoutData(gd);
+        prodInfoTable = new Table(productInfoGroup, SWT.SINGLE
+                | SWT.FULL_SELECTION | SWT.V_SCROLL);
+        prodInfoTable.setLinesVisible(false);
+        prodInfoTable.setHeaderVisible(true);
+        String[] headerTitles = new String[] { "Product Id", "Product Time",
+                "Posting Time" };
+        for (String title : headerTitles) {
+            TableColumn column = new TableColumn(prodInfoTable, SWT.LEFT);
+            column.setText(title);
+        }
+        prodInfoTable.addSelectionListener(new SelectionAdapter() {
 
-        gd = new GridData(120, SWT.DEFAULT);
-        Label prodIdLbl = new Label(leftComp, SWT.NONE);
-        prodIdLbl.setText("Product Id");
-        prodIdLbl.setLayoutData(gd);
-
-        gd = new GridData(150, SWT.DEFAULT);
-        Label prodTimeLbl = new Label(leftComp, SWT.NONE);
-        prodTimeLbl.setText("Product Time");
-        prodTimeLbl.setLayoutData(gd);
-
-        gd = new GridData(100, SWT.DEFAULT);
-        Label postTimeLbl = new Label(leftComp, SWT.NONE);
-        postTimeLbl.setText("Posting Time");
-        postTimeLbl.setLayoutData(gd);
-
-        gd = new GridData(SWT.DEFAULT, SWT.FILL, false, true);
-        gd.heightHint = 150;
-        gd.widthHint = 450;
-        gd.horizontalSpan = 3;
-        prodInfoListWidget = new List(leftComp, SWT.BORDER | SWT.SINGLE
-                | SWT.V_SCROLL);
-        prodInfoListWidget.setLayoutData(gd);
-        prodInfoListWidget.setFont(font);
-        prodInfoListWidget.addSelectionListener(new SelectionAdapter() {
             @Override
-            public void widgetSelected(SelectionEvent event) {
-                displaySelectedItem();
+            public void widgetSelected(SelectionEvent e) {
+                // Get the data from the list.
+                ProductInfo prodInfo = (ProductInfo) e.widget.getData();
+                if (prodInfo == null) {
+                    prodInfo = (ProductInfo) prodInfoTable.getItem(
+                            prodInfoTable.getSelectionIndex()).getData();
+                }
+
+                // Get the text product
+                ProductViewerDataManager dataManager = ProductViewerDataManager
+                        .getInstance();
+                String product = dataManager.getTextProduct(prodInfo);
+
+                textViewer.setText(product);
             }
         });
+        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        gd.heightHint = prodInfoTable.getHeaderHeight()
+                + (prodInfoTable.getItemHeight() * 7);
+        GC gc = new GC(prodInfoTable);
+        gc.setFont(JFaceResources.getTextFont());
+        gd.widthHint = gc.getFontMetrics().getAverageCharWidth() * 55;
+        gc.dispose();
+        prodInfoTable.setLayoutData(gd);
 
         // -----------------------------------------------
         // Create the RIGHT side (list box and labels)
         // -----------------------------------------------
-        gd = new GridData(SWT.FILL, SWT.TOP, true, true);
         Composite rightComp = new Composite(productInfoGroup, SWT.NONE);
-        gl = new GridLayout(2, false);
-        gl.verticalSpacing = 10;
-        rightComp.setLayout(gl);
-        rightComp.setLayoutData(gd);
+        rightComp.setLayout(new GridLayout(2, false));
+        rightComp.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, true));
 
-        int labelWidth = 130;
-
-        gd = new GridData(labelWidth, SWT.DEFAULT);
-        Label listLbl = new Label(rightComp, SWT.RIGHT);
+        Label listLbl = new Label(rightComp, SWT.NONE);
         listLbl.setText("List:");
-        listLbl.setLayoutData(gd);
+        listLbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, true));
 
-        gd = new GridData(275, SWT.DEFAULT);
         listCbo = new Combo(rightComp, SWT.DROP_DOWN | SWT.READ_ONLY);
-        listCbo.add(ProdListType.LOCATION.getStringValue());
-        listCbo.add(ProdListType.LATEST.getStringValue());
-        listCbo.add(ProdListType.ALL.getStringValue());
+        for (ProdListType prodType : ProdListType.values()) {
+            listCbo.add(prodType.getStringValue());
+        }
         listCbo.select(0);
-        listCbo.setLayoutData(gd);
         listCbo.addSelectionListener(new SelectionAdapter() {
-            /*
-             * (non-Javadoc)
-             * 
-             * @see
-             * org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.eclipse
-             * .swt.events.SelectionEvent)
-             */
+
             @Override
             public void widgetSelected(SelectionEvent e) {
                 loadProductList();
             }
-
         });
 
-        gd = new GridData(labelWidth, SWT.DEFAULT);
-        Label selectedLocLbl = new Label(rightComp, SWT.RIGHT);
+        Label selectedLocLbl = new Label(rightComp, SWT.NONE);
         selectedLocLbl.setText("Selected Location:");
-        selectedLocLbl.setLayoutData(gd);
+        selectedLocLbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false,
+                true));
 
-        gd = new GridData(110, SWT.DEFAULT);
         selectedLocTF = new Text(rightComp, SWT.BORDER);
-        selectedLocTF.setLayoutData(gd);
+        String lid = HydroDisplayManager.getInstance().getCurrentLid();
+        if ((lid != null) && (!lid.isEmpty())) {
+            selectedLocTF.setText(lid);
+        }
         selectedLocTF.addVerifyListener(new VerifyListener() {
 
             @Override
@@ -316,21 +243,24 @@ public class ProductViewerDlg extends CaveSWTDialog {
                 e.text = e.text.toUpperCase();
             }
         });
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        gc = new GC(selectedLocTF);
+        gd.widthHint = gc.getFontMetrics().getAverageCharWidth() * 8;
+        gc.dispose();
+        selectedLocTF.setLayoutData(gd);
 
         // Add a separator line
-        gd = new GridData(GridData.FILL_HORIZONTAL);
-        gd.horizontalSpan = 4;
         Label sepLbl = new Label(rightComp, SWT.SEPARATOR | SWT.HORIZONTAL);
+        gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
+        gd.horizontalSpan = 2;
         sepLbl.setLayoutData(gd);
 
-        gd = new GridData(labelWidth, SWT.DEFAULT);
-        Label prodIdFilterLbl = new Label(rightComp, SWT.RIGHT);
+        Label prodIdFilterLbl = new Label(rightComp, SWT.NONE);
         prodIdFilterLbl.setText("Product Id Filter:");
-        prodIdFilterLbl.setLayoutData(gd);
+        prodIdFilterLbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER,
+                false, true));
 
-        gd = new GridData(110, SWT.DEFAULT);
         prodIdFilterTF = new Text(rightComp, SWT.BORDER);
-        prodIdFilterTF.setLayoutData(gd);
         prodIdFilterTF.addVerifyListener(new VerifyListener() {
 
             @Override
@@ -338,22 +268,26 @@ public class ProductViewerDlg extends CaveSWTDialog {
                 e.text = e.text.toUpperCase();
             }
         });
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        gc = new GC(prodIdFilterTF);
+        gd.widthHint = gc.getFontMetrics().getAverageCharWidth() * 15;
+        gc.dispose();
+        prodIdFilterTF.setLayoutData(gd);
 
-        gd = new GridData(labelWidth, SWT.DEFAULT);
-        Label sortByLbl = new Label(rightComp, SWT.RIGHT);
+        Label sortByLbl = new Label(rightComp, SWT.NONE);
         sortByLbl.setText("Sort By:");
-        sortByLbl.setLayoutData(gd);
+        sortByLbl
+                .setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, true));
 
-        gd = new GridData(150, SWT.DEFAULT);
         sortByCbo = new Combo(rightComp, SWT.DROP_DOWN | SWT.READ_ONLY);
-        sortByCbo.add(SortType.PROD_ID.getStringValue());
-        sortByCbo.add(SortType.PROD_TIME.getStringValue());
-        sortByCbo.add(SortType.POST_TIME.getStringValue());
+        for (SortType sortType : SortType.values()) {
+            sortByCbo.add(sortType.getStringValue());
+        }
         sortByCbo.select(0);
-        sortByCbo.setLayoutData(gd);
         sortByCbo.addSelectionListener(new SelectionAdapter() {
+
             @Override
-            public void widgetSelected(SelectionEvent event) {
+            public void widgetSelected(SelectionEvent e) {
                 loadProductList();
             }
         });
@@ -361,21 +295,21 @@ public class ProductViewerDlg extends CaveSWTDialog {
 
     /**
      * Create the text viewer control.
+     * 
+     * @param parent
      */
-    private void createTextViewerControl() {
-        GridData gd = new GridData(GridData.FILL_BOTH);
-        Composite textViewerComp = new Composite(sashForm, SWT.NONE);
-        GridLayout gridLayout = new GridLayout(1, false);
-        textViewerComp.setLayout(gridLayout);
-        textViewerComp.setLayoutData(gd);
+    private void createTextViewerControl(Composite parent) {
+        Composite textViewerComp = new Composite(parent, SWT.NONE);
+        textViewerComp.setLayout(new GridLayout(1, false));
 
-        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        gd.heightHint = 400;
         textViewer = new StyledText(textViewerComp, SWT.BORDER | SWT.MULTI
-                | SWT.V_SCROLL | SWT.H_SCROLL);
+                | SWT.READ_ONLY | SWT.V_SCROLL | SWT.H_SCROLL);
+        textViewer.setFont(JFaceResources.getTextFont());
         textViewer.setWordWrap(true);
-        textViewer.setFont(font);
-        textViewer.setEditable(false);
+        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        GC gc = new GC(textViewer);
+        gd.heightHint = gc.getFontMetrics().getHeight() * 25;
+        gc.dispose();
         textViewer.setLayoutData(gd);
     }
 
@@ -391,28 +325,23 @@ public class ProductViewerDlg extends CaveSWTDialog {
         }
     }
 
-    /**
-     * Create the Close button.
-     */
-    private void createCloseButton() {
-        Composite centeredComp = new Composite(shell, SWT.NONE);
-        GridLayout gl = new GridLayout(1, false);
-        centeredComp.setLayout(gl);
-        GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
-        gd.horizontalSpan = 2;
-        centeredComp.setLayoutData(gd);
+    @Override
+    protected void createButtonsForButtonBar(Composite parent) {
+        createButton(parent, IDialogConstants.CLOSE_ID,
+                IDialogConstants.CLOSE_LABEL, false);
+    }
 
-        gd = new GridData(90, SWT.DEFAULT);
-        Button closeBtn = new Button(centeredComp, SWT.NONE);
-        closeBtn.setText("Close");
-        closeBtn.setLayoutData(gd);
-        closeBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                bounds = shell.getBounds();
-                close();
-            }
-        });
+    @Override
+    protected void buttonPressed(int buttonId) {
+        switch (buttonId) {
+        case IDialogConstants.CLOSE_ID:
+            close();
+            break;
+        default:
+            statusHandler.warn(String.format(
+                    "Unrecognized button ID [%d] pressed.", buttonId));
+            break;
+        }
     }
 
     /**
@@ -421,7 +350,6 @@ public class ProductViewerDlg extends CaveSWTDialog {
     private void loadProductList() {
         ProductViewerDataManager dataManager = ProductViewerDataManager
                 .getInstance();
-        SortType sortType = SortType.PROD_TIME;
 
         /*
          * load the list of products based on the user settings. load from the
@@ -431,27 +359,26 @@ public class ProductViewerDlg extends CaveSWTDialog {
 
         String prodFilter = prodIdFilterTF.getText();
 
-        if (sortByCbo.getItem(sortByCbo.getSelectionIndex()).equals(
-                SortType.PROD_TIME.getStringValue())) {
-            sortType = SortType.PROD_TIME;
-        } else if (sortByCbo.getItem(sortByCbo.getSelectionIndex()).equals(
-                SortType.POST_TIME.getStringValue())) {
-            sortType = SortType.POST_TIME;
-        } else if (sortByCbo.getItem(sortByCbo.getSelectionIndex()).equals(
-                SortType.PROD_ID.getStringValue())) {
-            sortType = SortType.PROD_ID;
+        SortType sortType = SortType.PROD_TIME;
+        String selectedSort = sortByCbo.getItem(sortByCbo.getSelectionIndex());
+        for (SortType sort : SortType.values()) {
+            if (sort.getStringValue().equals(selectedSort)) {
+                sortType = sort;
+                break;
+            }
         }
 
         /*
          * if loading products for a given location, load from the ProductLink
          * table
          */
+        List<ProductInfo> productInfoList;
         if (listCbo.getItem(listCbo.getSelectionIndex()).equals(
                 ProdListType.LOCATION.getStringValue())) {
 
-            productInfoList = (ArrayList<ProductInfo>) dataManager
-                    .getProductsByLocation(ProdListType.LOCATION, sortType,
-                            prodFilter, selectedLocTF.getText());
+            productInfoList = dataManager.getProductsByLocation(
+                    ProdListType.LOCATION, sortType, prodFilter,
+                    selectedLocTF.getText());
 
         } else if (listCbo.getItem(listCbo.getSelectionIndex()).equals(
                 ProdListType.LATEST.getStringValue())) {
@@ -459,9 +386,9 @@ public class ProductViewerDlg extends CaveSWTDialog {
              * if loading the latest of the products, load from the PurgeProduct
              * table.
              */
-            productInfoList = (ArrayList<ProductInfo>) dataManager
-                    .getLatestProducts(ProdListType.LATEST, sortType,
-                            prodFilter, selectedLocTF.getText());
+            productInfoList = dataManager.getLatestProducts(
+                    ProdListType.LATEST, sortType, prodFilter,
+                    selectedLocTF.getText());
         } else {
             /*
              * if loading all products, then load from the TextProduct table.
@@ -474,43 +401,22 @@ public class ProductViewerDlg extends CaveSWTDialog {
              * later
              */
 
-            productInfoList = (ArrayList<ProductInfo>) dataManager
-                    .getAllProducts(ProdListType.ALL, sortType, prodFilter,
-                            selectedLocTF.getText());
+            productInfoList = dataManager.getAllProducts(ProdListType.ALL,
+                    sortType, prodFilter, selectedLocTF.getText());
         }
 
-        // Populate the list
-        loadProductListInfo(productInfoList);
-    }
-
-    /**
-     * Load the product information into the widget.
-     * 
-     * @param productInfoList
-     *            List of ProductInfo objects to load into the list widget
-     */
-    private void loadProductListInfo(java.util.List<ProductInfo> productInfoList) {
-        String[] listItems = new String[productInfoList.size()];
-        for (int i = 0; i < productInfoList.size(); i++) {
-            listItems[i] = productInfoList.get(i).toString();
+        prodInfoTable.removeAll();
+        for (ProductInfo info : productInfoList) {
+            TableItem item = new TableItem(prodInfoTable, SWT.NONE);
+            item.setFont(JFaceResources.getTextFont());
+            item.setText(0, info.getProductId());
+            item.setText(1, info.getProductTimeString());
+            item.setText(2, info.getPostingTimeString());
+            item.setData(info);
         }
 
-        prodInfoListWidget.setItems(listItems);
-    }
-
-    /**
-     * Display the selected item.
-     */
-    private void displaySelectedItem() {
-        // Get the data from the list.
-        ProductInfo prodInfo = productInfoList.get(prodInfoListWidget
-                .getSelectionIndex());
-
-        // Get the text product
-        ProductViewerDataManager dataManager = ProductViewerDataManager
-                .getInstance();
-        String product = dataManager.getTextProduct(prodInfo);
-
-        textViewer.setText(product);
+        for (int i = 0; i < prodInfoTable.getColumnCount(); i++) {
+            prodInfoTable.getColumn(i).pack();
+        }
     }
 }

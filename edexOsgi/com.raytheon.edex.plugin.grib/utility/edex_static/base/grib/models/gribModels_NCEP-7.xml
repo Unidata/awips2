@@ -833,12 +833,30 @@
     </model>
 
     <model>
+        <name>HiResW-ARW-East</name>
+        <center>7</center>
+        <subcenter>0</subcenter>
+        <grid>255001</grid>
+        <process>
+            <id>116</id>
+        </process>
+    </model>
+
+    <model>
+        <name>HiResW-ARW-West</name>
+        <center>7</center>
+        <subcenter>0</subcenter>
+        <grid>255002</grid>
+        <process>
+            <id>116</id>
+        </process>
+    </model>
+
+    <model>
         <name>HiResW-ARW-${REGION}</name>
         <center>7</center>
         <subcenter>0</subcenter>
         <grids>
-            <id>255001</id>
-            <id>255002</id>
             <id>255003</id>
             <id>255004</id>
             <id>255005</id>
@@ -851,12 +869,30 @@
     </model>
 
     <model>
+        <name>HiResW-NMM-East</name>
+        <center>7</center>
+        <subcenter>0</subcenter>
+        <grid>255001</grid>
+        <process>
+            <id>112</id>
+        </process>
+    </model>
+
+    <model>
+        <name>HiResW-NMM-West</name>
+        <center>7</center>
+        <subcenter>0</subcenter>
+        <grid>255002</grid>
+        <process>
+            <id>112</id>
+        </process>
+    </model>
+
+    <model>
         <name>HiResW-NMM-${REGION}</name>
         <center>7</center>
         <subcenter>0</subcenter>
         <grids>
-            <id>255001</id>
-            <id>255002</id>
             <id>255003</id>
             <id>255004</id>
             <id>255005</id>

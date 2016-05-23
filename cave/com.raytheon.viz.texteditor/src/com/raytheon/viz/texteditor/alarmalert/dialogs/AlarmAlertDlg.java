@@ -156,6 +156,8 @@ public class AlarmAlertDlg extends CaveSWTDialog {
 
     // Opens the dialog without ever displaying it, doing all the initialization
     // necessary to load the alarm list and get it functioning.
+
+    // TODO: restructure code to get rid of this abomination
     public void openInvisible() {
         Shell parent = getParent();
 
@@ -187,8 +189,6 @@ public class AlarmAlertDlg extends CaveSWTDialog {
                 disposed();
             }
         });
-
-        preOpened();
 
         opened();
 

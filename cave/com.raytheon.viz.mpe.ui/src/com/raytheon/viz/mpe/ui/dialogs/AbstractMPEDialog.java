@@ -36,6 +36,7 @@ import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 28, 2010            mschenke     Initial creation
+ * Apr 20, 2016 5541       dgilling     Fix issues with hide/restore and perspective switching.
  * 
  * </pre>
  * 
@@ -86,8 +87,14 @@ public class AbstractMPEDialog extends Dialog implements
 
     @Override
     public final void hide() {
-        if (shell != null && shell.isDisposed() == false) {
-            wasVisible = shell.isVisible();
+        hide(false);
+    }
+
+    @Override
+    public final void hide(boolean isPerspectiveSwitch) {
+        Shell shell = getShell();
+        if ((shell != null) && (!shell.isDisposed())) {
+            wasVisible = shell.isVisible() && isPerspectiveSwitch;
             lastLocation = shell.getLocation();
             shell.setVisible(false);
         }
@@ -95,10 +102,17 @@ public class AbstractMPEDialog extends Dialog implements
 
     @Override
     public final void restore() {
-        if (shell != null && shell.isDisposed() == false) {
-            shell.setVisible(wasVisible);
-            shell.setLocation(lastLocation);
-        }
+        restore(false);
     }
 
+    @Override
+    public final void restore(boolean isPerspectiveSwitch) {
+        Shell shell = getShell();
+        if ((shell != null) && (!shell.isDisposed())) {
+            if ((isPerspectiveSwitch && wasVisible) || (!isPerspectiveSwitch)) {
+                shell.setVisible(true);
+                shell.setLocation(lastLocation);
+            }
+        }
+    }
 }

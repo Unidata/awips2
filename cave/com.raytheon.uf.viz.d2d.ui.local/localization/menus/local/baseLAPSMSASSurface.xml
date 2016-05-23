@@ -32,7 +32,7 @@
 		<contribute xsi:type="bundleItem" file="bundles/local/SingleGrib.xml"
 			menuText="1500m Pressure" id="1500mp" useReferenceTime="true">
 			<substitute key="param" value="P"/>
-			<substitute key="levelName" value="FHAG"/>
+			<substitute key="levelName" value="FH"/>
 			<substitute key="levelOneVal" value="1500.0"/>
 			<substitute key="model" value="LAPS"/>
 		</contribute>
