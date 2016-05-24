@@ -579,19 +579,6 @@
          </reference>
       </visibleWhen>
             </command>
-   <command
-         commandId="edu.ucar.unidata.viz.radar.radarBrowser"
-         icon="icons/plus.png"
-         label="Radar"
-         mode="FORCE_TEXT"
-         style="push">
-      <visibleWhen>
-         <reference
-               definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
-         </reference>
-      </visibleWhen>
-   </command>
-
 
          </toolbar>
          </menuContribution>
@@ -1043,12 +1030,6 @@
             contextId="com.raytheon.uf.viz.d2d.ui"
             schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="M1+N">
-      </key>
-	  <key
-            commandId="com.raytheon.viz.ui.newPage"
-            contextId="com.raytheon.uf.viz.d2d.ui"
-            schemeId="com.raytheon.viz.ui.cave.scheme"
-            sequence="M1+T">
       </key>
       <key
       		contextId="com.raytheon.uf.viz.d2d.ui"
