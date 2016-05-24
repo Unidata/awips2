@@ -138,12 +138,13 @@ fi
 
 %pre
 # Preserve the user etc directory before upgrading
-if [ -d /tmp/ldm ]; then
-   rm -rf /tmp/ldm
-fi
-mkdir -p /tmp/ldm
-if [ -d /awips2/ldm/etc ]; then
-   cp -rp /awips2/ldm/etc /tmp/ldm
+if [ -f /awips2/ldm/etc/ldmd.conf ]; then
+   if [ -d /tmp/ldm ]; then
+      rm -rf /tmp/ldm
+   fi
+   mkdir -p /tmp/ldm
+   cp -rp /awips2/ldm/etc/ldmd.conf /tmp/ldm/ldmd.old
+   cp -rp /awips2/ldm/etc/pqact.conf /tmp/ldm/pqact.old
 fi
 
 %post
