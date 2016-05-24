@@ -20,6 +20,8 @@
 package com.raytheon.uf.viz.d2d.ui.dialogs;
 
 import java.awt.Color;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.image.ComponentColorModel;
 import java.awt.image.IndexColorModel;
@@ -688,7 +690,10 @@ public class PrintDialog extends CaveSWTDialog {
             printerSettings.printInGrayscale = true;
         }
         if (this.landscapeRadioButton.getSelection()) {
-            printerSettings.selectedPrinter.orientation = PrinterData.LANDSCAPE;
+            // TODO: restore this line if we ever get Landscape printing working
+            // on the LX workstations
+            // printerSettings.selectedPrinter.orientation =
+            // PrinterData.LANDSCAPE;
             printerSettings.printInLandscape = true;
         }
 
@@ -705,6 +710,22 @@ public class PrintDialog extends CaveSWTDialog {
     private void print(PrinterSettings printerSettings) {
         AbstractEditor editor = (AbstractEditor) EditorUtil.getActiveEditor();
         BufferedImage bi = editor.screenshot();
+
+        // TODO: remove this block if we ever get Landscape printing working
+        // on the LX workstations
+        if (printerSettings.printInLandscape) {
+            AffineTransform transform = AffineTransform
+                    .getQuadrantRotateInstance(1);
+            transform.concatenate(AffineTransform.getTranslateInstance(0.0,
+                    -bi.getHeight()));
+            AffineTransformOp transformOp = new AffineTransformOp(transform,
+                    AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+            bi = transformOp.filter(
+                    bi,
+                    new BufferedImage(bi.getHeight(), bi.getWidth(), bi
+                            .getType()));
+        }
+
         if (printerSettings.invert) {
             // Only invert gray pixels, not colored pixels, awt doesn't not have
             // a good filter for this.
@@ -764,13 +785,22 @@ public class PrintDialog extends CaveSWTDialog {
         int scaledImageHeight = Math.round(scale * bi.getHeight()
                 * printerDPI.y / screenDPI.y);
 
-        Point offset = new Point(0, 0);
+        Point initialOffset = new Point(0, 0);
+        int xPages = (int) Math.ceil((double) scaledImageWidth
+                / printArea.width);
+        int yPages = (int) Math.ceil((double) scaledImageHeight
+                / printArea.height);
+
+        // Compute offset to center image in page(s)
+        initialOffset.x = ((xPages * printArea.width) - scaledImageWidth) / 2;
+        initialOffset.y = ((yPages * printArea.height) - scaledImageHeight) / 2;
+
+        Point offset = new Point(initialOffset.x, initialOffset.y);
         Point remaining = new Point(scaledImageWidth, scaledImageHeight);
         if (printer.startJob("CAVE")) {
             while (remaining.x > 0 && remaining.y > 0) {
                 if (printer.startPage()) {
                     GC gc = new GC(printer);
-                    gc.setClipping(printArea);
 
                     Transform transform = new Transform(gc.getDevice());
                     transform.translate(offset.x, offset.y);
@@ -790,7 +820,7 @@ public class PrintDialog extends CaveSWTDialog {
                 offset.x -= printArea.width;
                 if (remaining.x <= 0) {
                     remaining.x = scaledImageWidth;
-                    offset.x = 0;
+                    offset.x = initialOffset.x;
                     remaining.y -= printArea.height;
                     offset.y -= printArea.height;
                 }
