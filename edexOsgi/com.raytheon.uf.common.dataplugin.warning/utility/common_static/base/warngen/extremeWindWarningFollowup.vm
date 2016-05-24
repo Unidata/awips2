@@ -222,7 +222,7 @@ THIS IS A TEST MESSAGE. ##
 #####################
 ## CALL TO ACTIONS ##
 #####################
-#if(${list.contains(${bullets}, "cta1")} || ${list.contains(${bullets}, "cta2")} || ${list.contains(${bullets}, "cta3")})
+#if(${list.contains(${bullets}, "destructiveWindsCTA")} || ${list.contains(${bullets}, "takeCoverCTA")} || ${list.contains(${bullets}, "safePlacesCTA")})
 PRECAUTIONARY/PREPAREDNESS ACTIONS...
 
 #end
