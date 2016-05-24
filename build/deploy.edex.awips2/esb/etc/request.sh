@@ -19,12 +19,8 @@
 # further licensing information.
 ##
 export INIT_MEM=128 # in Meg
-if [ "$EDEX_ARCH" == "64-bit" ]; then
-    export MAX_MEM=4096 # in Meg
-else
-    export MAX_MEM=1376 # in Meg
-fi
-export SERIALIZE_POOL_MAX_SIZE=24
+export MAX_MEM=4096 # in Meg
+export SERIALIZE_POOL_MAX_SIZE=48
 export SERIALIZE_STREAM_INIT_SIZE_MB=2
 export SERIALIZE_STREAM_MAX_SIZE_MB=8
 
