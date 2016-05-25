@@ -30,7 +30,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.bind.JAXB;
@@ -99,6 +99,8 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * Oct 12, 2012  1229     rferrel      Made dialog non-blocking.
  * Dec 09, 2014  11982    D. Friedman  Fix print-to-file
  * May 13, 2016  5653     randerso     Fixed print scaling
+ *                                     Handle empty printer list
+ *                                     Code cleanup
  * 
  * </pre>
  * 
@@ -113,7 +115,7 @@ public class PrintDialog extends CaveSWTDialog {
 
     private final String SETTINGS_FILENAME = "printSettings";
 
-    private ArrayList<PrinterData> printerDataStore = null;
+    private List<PrinterData> printerDataStore = null;
 
     private PrinterData printToFileData = null;
 
@@ -164,7 +166,7 @@ public class PrintDialog extends CaveSWTDialog {
 
         public boolean magnificationAdjusted = false;
 
-        public Map<String, Double> magnificationStore = new HashMap<String, Double>();
+        public Map<String, Double> magnificationStore = new HashMap<>();
     }
 
     private class DensityInformationStorage {
@@ -172,7 +174,7 @@ public class PrintDialog extends CaveSWTDialog {
 
         public boolean densityAdjusted = false;
 
-        public Map<String, Double> densityStore = new HashMap<String, Double>();
+        public Map<String, Double> densityStore = new HashMap<>();
     }
 
     private class PrinterSettings {
@@ -222,7 +224,7 @@ public class PrintDialog extends CaveSWTDialog {
     }
 
     private void createPrintToGroup() {
-        ArrayList<String> availablePrinters = this.getAvailablePrinters();
+        List<String> availablePrinters = this.getAvailablePrinters();
 
         Group group = new Group(this.shell, SWT.SHADOW_ETCHED_IN);
         GridData gridData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
@@ -233,73 +235,72 @@ public class PrintDialog extends CaveSWTDialog {
         group.setLayout(gridLayout);
         group.setText("Print To");
 
-        Button button = new Button(group, SWT.RADIO);
-        button.setText("Printer");
-        button.setSelection(true);
-        button.addSelectionListener(new SelectionAdapter() {
+        printerRadioButton = new Button(group, SWT.RADIO);
+        printerRadioButton.setText("Printer");
+        printerRadioButton.setSelection(true);
+        printerRadioButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 if (printerRadioButton.getSelection()) {
                     selectedPrinterCombo.setEnabled(true);
                     destinationFileText.setEnabled(false);
-                    destinationFileText.setText("");
-                    destinationFileText.setToolTipText("~ NO FILE SELECTED ~");
                     browseButton.setEnabled(false);
+                    okButton.setEnabled(selectedPrinterCombo
+                            .getSelectionIndex() >= 0);
                 }
             }
         });
-        this.printerRadioButton = button;
 
-        Combo combo = new Combo(group, SWT.DROP_DOWN | SWT.READ_ONLY);
+        selectedPrinterCombo = new Combo(group, SWT.DROP_DOWN | SWT.READ_ONLY);
         gridData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        combo.setLayoutData(gridData);
+        selectedPrinterCombo.setLayoutData(gridData);
 
-        if (availablePrinters != null) {
-            Iterator<String> printerIterator = availablePrinters.iterator();
-            while (printerIterator.hasNext()) {
-                combo.add(printerIterator.next());
-            }
-            combo.select(0);
+        for (String printer : availablePrinters) {
+            selectedPrinterCombo.add(printer);
         }
-        this.selectedPrinterCombo = combo;
+        selectedPrinterCombo.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                okButton.setEnabled(selectedPrinterCombo.getSelectionIndex() >= 0);
+            }
+        });
 
         // filler
         new Label(group, SWT.NONE);
 
-        button = new Button(group, SWT.RADIO);
-        button.setText("File");
-        button.addSelectionListener(new SelectionAdapter() {
+        fileRadioButton = new Button(group, SWT.RADIO);
+        fileRadioButton.setText("File");
+        fileRadioButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 if (fileRadioButton.getSelection()) {
                     selectedPrinterCombo.setEnabled(false);
                     destinationFileText.setEnabled(true);
                     browseButton.setEnabled(true);
+                    okButton.setEnabled(!destinationFileText.getText()
+                            .isEmpty());
                 }
             }
         });
-        this.fileRadioButton = button;
 
-        Text text = new Text(group, SWT.BORDER);
+        destinationFileText = new Text(group, SWT.BORDER | SWT.READ_ONLY);
         gridData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        GC gc = new GC(text);
+        GC gc = new GC(destinationFileText);
         int textWidth = gc.getFontMetrics().getAverageCharWidth() * 30;
         gc.dispose();
         gridData.minimumWidth = textWidth;
-        text.setLayoutData(gridData);
-        text.setEnabled(false);
-        this.destinationFileText = text;
+        destinationFileText.setLayoutData(gridData);
+        destinationFileText.setEnabled(false);
 
-        button = new Button(group, SWT.PUSH);
-        button.setText("Browse ...");
-        button.addSelectionListener(new SelectionAdapter() {
+        browseButton = new Button(group, SWT.PUSH);
+        browseButton.setText("Browse ...");
+        browseButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 selectDestinationFile(destinationFileText.getText());
             }
         });
-        button.setEnabled(false);
-        this.browseButton = button;
+        browseButton.setEnabled(false);
     }
 
     private void createPrintInAndOrientationGroups() {
@@ -312,28 +313,24 @@ public class PrintDialog extends CaveSWTDialog {
         group.setLayout(new GridLayout(1, true));
         group.setText("Print In");
 
-        Button button = new Button(group, SWT.RADIO);
-        button.setText("Color");
-        button.setSelection(true);
-        colorRadioButton = button;
+        colorRadioButton = new Button(group, SWT.RADIO);
+        colorRadioButton.setText("Color");
+        colorRadioButton.setSelection(true);
 
-        button = new Button(group, SWT.RADIO);
-        button.setText("Grayscale");
-        this.grayscaleRadioButton = button;
+        grayscaleRadioButton = new Button(group, SWT.RADIO);
+        grayscaleRadioButton.setText("Grayscale");
 
         group = new Group(this.shell, SWT.SHADOW_ETCHED_IN);
         group.setLayoutData(gridData);
         group.setLayout(new GridLayout(1, true));
         group.setText("Orientation");
 
-        button = new Button(group, SWT.RADIO);
-        button.setText("Portrait");
-        button.setSelection(true);
-        portraitRadioButton = button;
+        portraitRadioButton = new Button(group, SWT.RADIO);
+        portraitRadioButton.setText("Portrait");
+        portraitRadioButton.setSelection(true);
 
-        button = new Button(group, SWT.RADIO);
-        button.setText("Landscape");
-        this.landscapeRadioButton = button;
+        landscapeRadioButton = new Button(group, SWT.RADIO);
+        landscapeRadioButton.setText("Landscape");
     }
 
     private void createRemainingPrintingSettingsSection() {
@@ -354,14 +351,10 @@ public class PrintDialog extends CaveSWTDialog {
         label.setLayoutData(gridData);
         label.setText("Scale %:");
 
-        Spinner spinner = new Spinner(leftComp, SWT.READ_ONLY | SWT.BORDER);
+        scaleSpinner = new Spinner(leftComp, SWT.READ_ONLY | SWT.BORDER);
         gridData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        spinner.setLayoutData(gridData);
-        spinner.setMinimum(0);
-        spinner.setMaximum(9999);
-        spinner.setSelection(100);
-        spinner.setIncrement(1);
-        this.scaleSpinner = spinner;
+        scaleSpinner.setLayoutData(gridData);
+        scaleSpinner.setValues(100, 0, 999, 0, 1, 10);
 
         this.fitToPageBtn = new Button(leftComp, SWT.CHECK);
         gridData = new GridData(SWT.RIGHT, SWT.DEFAULT, true, false);
@@ -382,15 +375,10 @@ public class PrintDialog extends CaveSWTDialog {
         label.setLayoutData(gridData);
         label.setText("Copies:");
 
-        spinner = new Spinner(leftComp, SWT.READ_ONLY | SWT.BORDER);
+        copiesSpinner = new Spinner(leftComp, SWT.READ_ONLY | SWT.BORDER);
         gridData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        spinner.setLayoutData(gridData);
-
-        spinner.setMinimum(1);
-        spinner.setMaximum(9999);
-        spinner.setSelection(0);
-        spinner.setIncrement(1);
-        this.copiesSpinner = spinner;
+        copiesSpinner.setLayoutData(gridData);
+        copiesSpinner.setValues(1, 1, 9999, 0, 1, 10);
 
         Composite rightComp = new Composite(comp, SWT.NONE);
         gridData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
@@ -402,22 +390,23 @@ public class PrintDialog extends CaveSWTDialog {
         label.setLayoutData(gridData);
         label.setText("Mag:");
 
-        Combo combo = new Combo(rightComp, SWT.READ_ONLY | SWT.DROP_DOWN);
+        magnificationCombo = new Combo(rightComp, SWT.READ_ONLY | SWT.DROP_DOWN);
         gridData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        combo.setLayoutData(gridData);
+        magnificationCombo.setLayoutData(gridData);
         /* Get The Magnification Values. */
         for (int i = 0; i < MagnificationPopulator.getMagnifications().length; i++) {
-            combo.add(MagnificationPopulator.getMagnifications()[i]);
+            magnificationCombo
+                    .add(MagnificationPopulator.getMagnifications()[i]);
         }
         String currentMagnification = this.getCurrentMagnification();
         for (int i = 0; i < MagnificationPopulator.getMagnifications().length; i++) {
             if (currentMagnification.equals(MagnificationPopulator
                     .getMagnifications()[i])) {
-                combo.select(i);
+                magnificationCombo.select(i);
                 break;
             }
         }
-        combo.addSelectionListener(new SelectionAdapter() {
+        magnificationCombo.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 okButton.setEnabled(false);
@@ -427,27 +416,26 @@ public class PrintDialog extends CaveSWTDialog {
                 cancelButton.setEnabled(true);
             }
         });
-        this.magnificationCombo = combo;
 
         label = new Label(rightComp, SWT.NONE);
         gridData = new GridData(SWT.RIGHT, SWT.CENTER, true, false);
         label.setLayoutData(gridData);
         label.setText("Density:");
 
-        combo = new Combo(rightComp, SWT.READ_ONLY | SWT.DROP_DOWN);
+        densityCombo = new Combo(rightComp, SWT.READ_ONLY | SWT.DROP_DOWN);
         gridData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        combo.setLayoutData(gridData);
+        densityCombo.setLayoutData(gridData);
         for (int i = 0; i < DensityPopulator.getDensityLabels().length; i++) {
-            combo.add(DensityPopulator.getDensityLabels()[i]);
+            densityCombo.add(DensityPopulator.getDensityLabels()[i]);
         }
         String currentDensity = this.getCurrentDensity();
         for (int i = 0; i < DensityPopulator.getDensityLabels().length; i++) {
             if (currentDensity.equals(DensityPopulator.getDensityLabels()[i])) {
-                combo.select(i);
+                densityCombo.select(i);
                 break;
             }
         }
-        combo.addSelectionListener(new SelectionAdapter() {
+        densityCombo.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 okButton.setEnabled(false);
@@ -457,7 +445,6 @@ public class PrintDialog extends CaveSWTDialog {
                 cancelButton.setEnabled(true);
             }
         });
-        this.densityCombo = combo;
 
         rightComp = new Composite(comp, SWT.NONE);
         gridData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
@@ -467,28 +454,27 @@ public class PrintDialog extends CaveSWTDialog {
         label = new Label(rightComp, SWT.NONE);
         label.setText("Paper:");
 
-        combo = new Combo(rightComp, SWT.READ_ONLY | SWT.DROP_DOWN);
+        Combo paperCombo = new Combo(rightComp, SWT.READ_ONLY | SWT.DROP_DOWN);
         gridData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        combo.setLayoutData(gridData);
-        combo.add("DEFAULT");
-        combo.setEnabled(false);
-        combo.select(0);
+        paperCombo.setLayoutData(gridData);
+        paperCombo.add("DEFAULT");
+        paperCombo.setEnabled(false);
+        paperCombo.select(0);
         // TODO: implement paper settings
 
+        invertCheckbox = new Button(comp, SWT.CHECK);
         gridData = new GridData();
         gridData.horizontalAlignment = SWT.CENTER;
-        Button button = new Button(comp, SWT.CHECK);
-        button.setLayoutData(gridData);
-        button.setText("Invert Black/White");
-        button.setSelection(true);
-        this.invertCheckbox = button;
+        invertCheckbox.setLayoutData(gridData);
+        invertCheckbox.setText("Invert Black/White");
+        invertCheckbox.setSelection(true);
 
         gridData = new GridData();
         gridData.horizontalAlignment = SWT.CENTER;
-        button = new Button(comp, SWT.CHECK);
-        button.setLayoutData(gridData);
-        button.setText("Manual Feed");
-        button.setEnabled(false);
+        Button manualFeedCheckbox = new Button(comp, SWT.CHECK);
+        manualFeedCheckbox.setLayoutData(gridData);
+        manualFeedCheckbox.setText("Manual Feed");
+        manualFeedCheckbox.setEnabled(false);
         // TODO: implement manual feed
     }
 
@@ -497,10 +483,10 @@ public class PrintDialog extends CaveSWTDialog {
         GridData gridData = new GridData();
         gridData.horizontalAlignment = SWT.CENTER;
         gridData.widthHint = buttonWidth;
-        Button button = new Button(this.shell, SWT.PUSH);
-        button.setLayoutData(gridData);
-        button.setText("OK");
-        button.addSelectionListener(new SelectionAdapter() {
+        okButton = new Button(this.shell, SWT.PUSH);
+        okButton.setLayoutData(gridData);
+        okButton.setText("OK");
+        okButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 okButton.setEnabled(false);
@@ -512,15 +498,15 @@ public class PrintDialog extends CaveSWTDialog {
                 close();
             }
         });
-        this.okButton = button;
+        okButton.setEnabled(false);
 
         gridData = new GridData();
         gridData.horizontalAlignment = SWT.CENTER;
         gridData.widthHint = buttonWidth;
-        button = new Button(this.shell, SWT.PUSH);
-        button.setLayoutData(gridData);
-        button.setText("Cancel");
-        button.addSelectionListener(new SelectionAdapter() {
+        cancelButton = new Button(this.shell, SWT.PUSH);
+        cancelButton.setLayoutData(gridData);
+        cancelButton.setText("Cancel");
+        cancelButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 okButton.setEnabled(false);
@@ -529,7 +515,6 @@ public class PrintDialog extends CaveSWTDialog {
                 close();
             }
         });
-        this.cancelButton = button;
     }
 
     private void selectDestinationFile(String fileName) {
@@ -564,6 +549,7 @@ public class PrintDialog extends CaveSWTDialog {
         String destinationFile = filterPath + selectedFile;
         this.destinationFileText.setText(destinationFile);
         this.destinationFileText.setToolTipText(destinationFile);
+        this.okButton.setEnabled(true);
     }
 
     private void updateMagnification() {
@@ -853,14 +839,11 @@ public class PrintDialog extends CaveSWTDialog {
         return currentDensity.toString();
     }
 
-    private ArrayList<String> getAvailablePrinters() {
+    private List<String> getAvailablePrinters() {
         PrinterData[] printers = Printer.getPrinterList();
-        if (printers == null || printers.length <= 0) {
-            return null;
-        }
 
-        ArrayList<String> availablePrinters = new ArrayList<String>();
-        this.printerDataStore = new ArrayList<PrinterData>();
+        List<String> availablePrinters = new ArrayList<>(printers.length);
+        this.printerDataStore = new ArrayList<>(printers.length);
         for (int i = 0; i < printers.length; i++) {
             /* Do Not Include "Print to File" In The Printer List. */
             if (printers[i].name.equalsIgnoreCase("print to file")) {
@@ -1053,10 +1036,22 @@ public class PrintDialog extends CaveSWTDialog {
                     }
                     if (idx > -1) {
                         selectedPrinterCombo.select(idx);
+                    } else {
+                        selectedPrinterCombo.deselectAll();
                     }
                 }
-                printerRadioButton.setSelection(!settings.isUsePrinterFile());
-                fileRadioButton.setSelection(settings.isUsePrinterFile());
+
+                if (settings.isUsePrinterFile()) {
+                    printerRadioButton.setSelection(false);
+                    fileRadioButton.setSelection(true);
+                } else {
+                    printerRadioButton.setSelection(true);
+                    fileRadioButton.setSelection(false);
+
+                    if (selectedPrinterCombo.getSelectionIndex() >= 0) {
+                        okButton.setEnabled(true);
+                    }
+                }
             }
         }
     }
