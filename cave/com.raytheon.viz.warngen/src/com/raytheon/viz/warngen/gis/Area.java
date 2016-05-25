@@ -20,12 +20,15 @@
 package com.raytheon.viz.warngen.gis;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -58,6 +61,7 @@ import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.viz.warngen.gui.WarngenLayer;
 import com.raytheon.viz.warngen.util.Abbreviation;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -126,11 +130,13 @@ public class Area {
             .asList(new String[] { "PA", "MI", "PD", "UP", "BB", "ER", "EU",
                     "SR", "NR", "WU", "DS" });
 
-    private static final int DEFAULT_SUBDIVISION_TRESHOLD = 500;
+    private static final int DEFAULT_SUBDIVISION_TRESHOLD = 100;
 
-    private static final int SIMPLE_FEATURE_GEOM_COUNT_THRESHOLD = 4;
+    private static final int SIMPLE_FEATURE_GEOM_COUNT_THRESHOLD = 2;
 
     private static final int MAX_SUBDIVISION_DEPTH = 24;
+
+    private static final String SUBDIVISION_CONFIG_FILE = "subdiv.txt";
 
     private static ExecutorService intersectionExecutor;
 
@@ -360,19 +366,42 @@ public class Area {
 
         String hatchedAreaSource = config.getHatchedAreaSource()
                 .getAreaSource();
+
+        boolean subdivide = true;
+        try {
+            String propertiesText = WarnFileUtil.convertFileContentsToString(
+                    SUBDIVISION_CONFIG_FILE, LocalizationManager.getInstance()
+                            .getCurrentSite(), warngenLayer.getLocalizedSite());
+            if (propertiesText != null) {
+                Properties props = new Properties();
+                props.load(new StringReader(propertiesText));
+                subdivide = Boolean.parseBoolean(props.getProperty("enabled", "true"));
+            }
+        } catch (FileNotFoundException e) {
+            // ignore
+        } catch (IOException e) {
+            statusHandler.handle(Priority.WARN, "Could not load subdivision configuration file", e);
+        }
+        if (!subdivide) {
+            statusHandler.debug("findIntersectingAreas: subdivision is disabled");
+        }
+
         long t0 = System.currentTimeMillis();
         for (AreaSourceConfiguration asc : config.getAreaSources()) {
             boolean ignoreUserData = asc.getAreaSource().equals(
                     hatchedAreaSource) == false;
             if (asc.getType() == AreaType.INTERSECT) {
                 List<Geometry> geoms = new ArrayList<Geometry>();
-                if (ignoreUserData) {
+                if (subdivide && ignoreUserData) {
                     synchronized (Area.class) {
                         if (intersectionExecutor == null) {
-                            intersectionExecutor = new ThreadPoolExecutor(0,
-                                    Runtime.getRuntime().availableProcessors() / 2,
-                                    60, TimeUnit.SECONDS,
+                            int nThreads = Math.max(2,
+                                    Runtime.getRuntime().availableProcessors() / 2);
+                            ThreadPoolExecutor executor = new ThreadPoolExecutor(
+                                    nThreads, nThreads, 60, TimeUnit.SECONDS,
                                     new LinkedBlockingQueue<Runnable>());
+                            executor.allowCoreThreadTimeOut(true);
+                            intersectionExecutor = executor;
                         }
                     }
                     Geometry waPoly = toPolygonal(warnArea);
@@ -448,7 +477,7 @@ public class Area {
         }
     }
 
-    private class FeatureIntersection implements Callable<Geometry> {
+    private static class FeatureIntersection implements Callable<Geometry> {
         private Geometry waPoly;
         private GeospatialData f;
 
@@ -478,7 +507,7 @@ public class Area {
         }
     }
 
-    private void subdivIntersect(Geometry warnArea, Geometry featureGeom,
+    private static void subdivIntersect(Geometry warnArea, Geometry featureGeom,
             boolean orient, List<Geometry> out) {
         Envelope env = warnArea.getEnvelopeInternal().intersection(
                 featureGeom.getEnvelopeInternal());
@@ -494,7 +523,7 @@ public class Area {
         subdivIntersectInner(c, warnArea, featureGeom, orient, 1, out);
     }
 
-    private void subdivIntersectInner(Coordinate[] env, Geometry warnArea,
+    private static void subdivIntersectInner(Coordinate[] env, Geometry warnArea,
             Geometry featureGeom, boolean orientation, int depth,
             List<Geometry> out) {
         if (warnArea.getNumGeometries() * featureGeom.getNumGeometries() <= DEFAULT_SUBDIVISION_TRESHOLD
@@ -518,6 +547,7 @@ public class Area {
         } else {
             GeometryFactory gf = warnArea.getFactory();
             Coordinate[] c = new Coordinate[5];
+            List<Geometry> subOut = new ArrayList<>();
             for (int side = 0; side < 2; ++side) {
                 if (side == 0) {
                     if (orientation) {
@@ -556,14 +586,16 @@ public class Area {
                     Geometry subWarnArea = clip(clipPoly, warnArea);
                     Geometry subFeatureGeom = clip(clipPoly, featureGeom);
                     subdivIntersectInner(c, subWarnArea, subFeatureGeom,
-                            !orientation, depth + 1, out);
+                            !orientation, depth + 1, subOut);
                 } catch (TopologyException e) {
                     // Additional fallback without clipping.
                     statusHandler.handle(Priority.DEBUG,
                             "Subdivided intersection failed.  Will attempt fallback.", e);
                     out.add(GeometryUtil.intersection(warnArea, featureGeom, true));
+                    return;
                 }
             }
+            out.addAll(subOut);
         }
     }
 
@@ -603,11 +635,7 @@ public class Area {
     }
 
     private static Geometry batchIntersect(Geometry warnArea, Geometry featureGeom) {
-        try {
-            return warnArea.intersection(featureGeom);
-        } catch (TopologyException e) {
-            return GeometryUtil.intersection(warnArea, featureGeom, true);
-        }
+        return GeometryUtil.intersection(warnArea, featureGeom, true);
     }
 
     public static List<String> converFeAreaToPartList(String feArea) {
