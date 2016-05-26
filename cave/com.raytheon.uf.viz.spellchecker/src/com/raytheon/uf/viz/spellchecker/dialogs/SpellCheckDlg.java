@@ -84,7 +84,9 @@ import com.raytheon.uf.viz.spellchecker.jobs.SpellCheckJob;
  * 10/23/2014   #3685      randerso    Changes to support mixed case
  * 10/30/2014   #16693     lshi        Add more swear words to the filter
  * 03/30/2015   #4344      dgilling    Make bad word filter configurable.
- * 
+ * 05/25/2016   DR16930    MPorricelli Added suggestionsBlackList to spellCheckJob
+ *                                     for flagging of words that are in
+ *                                     inappropriateWords.txt blacklist
  * </pre>
  * 
  * @author lvenable
@@ -336,6 +338,7 @@ public class SpellCheckDlg extends Dialog implements ISpellingProblemCollector {
         spellCheckJob.setCollector(this);
 
         suggestionsBlacklist = getSuggestionsBlacklist();
+        spellCheckJob.setBlacklist(suggestionsBlacklist);
     }
 
     private Collection<String> getSuggestionsBlacklist() {
