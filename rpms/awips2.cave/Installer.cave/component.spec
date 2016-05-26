@@ -156,9 +156,8 @@ fi
 
 # /awips2/cave must not exist.
 if [ -d /awips2/cave ]; then
-   echo -e "\e[1;31mERROR: the /awips2/cave directory already exists. /awips2/cave\e[m"
-   echo -e "\e[1;31m       must be REMOVED before the installation will proceed.\e[m"
-   exit 1
+   echo -e "Warning: the /awips2/cave directory already exists. Removing and continuing..."
+   rm -rf /awips2/cave
 fi
 
 %post

@@ -77,11 +77,11 @@ public class D2D5Pane implements IPerspectiveFactory {
      * .IPageLayout)
      */
     public void createInitialLayout(IPageLayout layout) {
-        // Get the editor area.
+        // Get the editor area.		
         String editorArea = layout.getEditorArea();
         layout.setFixed(false);
-        layout.addPlaceholder("com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpPaletteWindow", IPageLayout.RIGHT,0.85f, editorArea); 
-        layout.addPlaceholder("edu.ucar.unidata.viz.radar.radarBrowser", IPageLayout.RIGHT,0.65f, editorArea); 
+        //layout.addPlaceholder("com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpPaletteWindow", IPageLayout.RIGHT,0.85f, editorArea); 
+        //layout.addPlaceholder("edu.ucar.unidata.viz.radar.radarBrowser", IPageLayout.RIGHT,0.65f, editorArea); 
         layout.addPlaceholder("gov.noaa.gsd.viz.ensemble.tool.viewer", IPageLayout.RIGHT,0.6f, editorArea); 
 
         List<String> baseViewsToAdd = new ArrayList<String>();
