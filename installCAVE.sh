@@ -25,14 +25,19 @@ fi
 # If CAVE is not installed them make sure /awips2/cave/
 # and /awips2/alertviz/ are removed before installing.
 #
-
 if [[ $(rpm -qa | grep awips2-cave) ]]; then
-  echo "found CAVE installed... removing..."
-  yum groupremove awips2-cave -y
-fi
-
-if [ -d /awips2/cave ]; then
-  rm -rf /awips2/cave 
+  echo "found CAVE installed. Checking version..."
+  caveVersion=$(rpm -qa | grep awips2-cave-1| cut -d"-" -f3 )
+  versionMajor=$(rpm -qa | grep awips2-cave-1| cut -d"-" -f3 | cut -c -2)
+  if [[ ${versionMajor} -lt 16 ]]; then
+    echo "CAVE ${caveVersion} installed. Removing to update..."
+    yum groupremove awips2-cave -y
+    if [ -d /awips2/cave ]; then
+      rm -rf /awips2/cave 
+    fi
+  else
+    echo "CAVE ${caveVersion} installed. Continuing..."
+  fi
 fi
 
 echo ''
