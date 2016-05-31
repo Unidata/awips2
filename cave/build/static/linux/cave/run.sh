@@ -94,11 +94,10 @@ fi
 export apps_dir=${HYDRO_APPS_DIR} 
 
 SWITCHES=($SWITCHES)
-MODE="OPERATIONAL"
-SWITCHES+=(-mode OPERATIONAL)
-export TEXTWS=`hostname | sed -e 's/lx/xt/g'`
-
+MODE="PRACTICE"
+SWITCHES+=(-mode PRACTICE)
 hostName=`hostname -s`
+export TEXTWS=$hostName
 
 #check for gtk-2.0 value
 gtkResource=.gtkrc-2.0
