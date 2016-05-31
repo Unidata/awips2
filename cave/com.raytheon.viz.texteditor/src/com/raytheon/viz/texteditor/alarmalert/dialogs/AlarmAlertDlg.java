@@ -203,13 +203,14 @@ public class AlarmAlertDlg extends CaveSWTDialog {
      * Sets the shell location.
      */
     private void setLocation() {
-        int shellSizeX = getShell().getSize().x;
-        int shellSizeY = getShell().getSize().y;
-        Rectangle bounds = getParent().getMonitor().getBounds();
-        int locationX = bounds.x + bounds.width - shellSizeX;
-        int locationY = bounds.y + bounds.height - shellSizeY;
-        shell.setLocation(locationX, locationY);
-        return;
+        if (shell != null) {
+            int shellSizeX = getShell().getSize().x;
+            int shellSizeY = getShell().getSize().y;
+            Rectangle bounds = getParent().getMonitor().getBounds();
+            int locationX = bounds.x + bounds.width - shellSizeX;
+            int locationY = bounds.y + bounds.height - shellSizeY;
+            shell.setLocation(locationX, locationY);
+        }
     }
 
     @Override
