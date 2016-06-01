@@ -83,6 +83,7 @@ import com.raytheon.uf.edex.plugin.pointset.netcdf.description.TriangulationDesc
  * Aug 11, 2015  4709     bsteffen  Initial creation
  * Jan 21, 2016  5208     bsteffen  Decode scale, offset, units, long_name when
  *                                  they are present and extra validation.
+ * May 20, 2016  5664     bsteffen  Close files.
  * 
  * </pre>
  * 
@@ -109,8 +110,9 @@ public class PointSetNetcdfDecoder {
         if (levelFactory == null) {
             levelFactory = LevelFactory.getInstance();
         }
+        NetcdfFile netcdfFile = null;
         try {
-            NetcdfFile netcdfFile = NetcdfFile.open(file.getAbsolutePath());
+            netcdfFile = NetcdfFile.open(file.getAbsolutePath());
             Map<String, String> locationCache = new HashMap<String, String>();
             List<PointSetRecord> records = new ArrayList<>();
             for (ProductDescription description : descriptions
@@ -131,6 +133,14 @@ public class PointSetNetcdfDecoder {
         } catch (InvalidDescriptionException | IOException | StorageException e) {
             logger.error("Unable to decode pointset from file: {}",
                     file.getName(), e);
+        } finally {
+            if (netcdfFile != null) {
+                try {
+                    netcdfFile.close();
+                } catch (IOException e) {
+                    logger.warn("Error closing file: {}", file.getName());
+                }
+            }
         }
         return EMPTY_POINTSET_ARRAY;
     }
