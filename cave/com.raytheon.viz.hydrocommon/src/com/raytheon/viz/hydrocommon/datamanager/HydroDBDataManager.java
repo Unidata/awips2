@@ -32,6 +32,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.viz.hydrocommon.data.ColorValueData;
 import com.raytheon.viz.hydrocommon.data.HydroDBData;
 import com.raytheon.viz.hydrocommon.util.DbUtils;
 
@@ -47,6 +48,8 @@ import com.raytheon.viz.hydrocommon.util.DbUtils;
  * Nov 03, 2011 11273      lbousaidi   added updateNewData and putNewData.
  * Apr 18, 2013 1790       rferrel     Code cleanup part of non-blocking dialogs.
  * Jan 15, 2016 DCS18180     JingtaoD   code improvement based on code review for DR17935
+ * May 27, 2016 19012      lbousaidi   remove the check for apostrophe when there is a call to
+ *                                     ColorDataValue table class
  * </pre>
  * 
  * @author askripsky
@@ -355,15 +358,29 @@ public class HydroDBDataManager extends HydroDataManager {
         try {
             @SuppressWarnings("unchecked")
             T newDataForQuery = (T) newData.getClass().newInstance();
-            DbUtils.escapeSpecialCharforData(newData, newDataForQuery);
-
-            // Check if it's going to be an update or insert
-            if (checkData(newDataForQuery) > 0) {
-                // Do an update
-                updateData(newDataForQuery);
+            if (newData.getClass().getName().contains(ColorValueData.class.getName()))
+            {
+                  // Check if it's going to be an update or insert
+                if (checkData(newData) > 0) {
+                    // Do an update
+                    updateData(newData);
+                } else {
+                    // Do an insert
+                    insertData(newData);
+                }
+               
             } else {
-                // Do an insert
-                insertData(newDataForQuery);
+           
+                DbUtils.escapeSpecialCharforData(newData, newDataForQuery);
+
+                  // Check if it's going to be an update or insert
+                if (checkData(newDataForQuery) > 0) {
+                  // Do an update
+                    updateData(newDataForQuery);
+                } else {
+                  // Do an insert
+                   insertData(newDataForQuery);
+                }
             }
 
         } catch (InstantiationException | IllegalAccessException e) {

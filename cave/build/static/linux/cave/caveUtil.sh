@@ -42,6 +42,7 @@
 # Sep 16, 2015  #18041    lshi        Purge CAVE logs after 30 days instead of 7
 # Apr 20, 2016  #18910    lshi        Change CAVE log purging to add check for find commands 
 #                                     already running
+# May 27, 2016  ASM#18971 dfriedman   Fix local variable usage in deleteOldEclipseConfigurationDirs
 ########################
 
 source /awips2/cave/iniLookup.sh
@@ -402,7 +403,7 @@ function deleteOldEclipseConfigurationDirs()
 {
     local tmp_dir=$1
     local tmp_dir_pat=$(echo "$tmp_dir" | sed -e 's/|/\\|/g')
-    save_IFS=$IFS
+    local save_IFS=$IFS
     IFS=$'\n'
     # Find directories that are owned by the user and  older than one hour
     local old_dirs=( $(find "$tmp_dir" -mindepth 1 -maxdepth 1 -type d -user "$USER" -mmin +60) )
@@ -412,6 +413,7 @@ function deleteOldEclipseConfigurationDirs()
     fi
     # Determine which of those directories are in use.
     local lsof_args=()
+    local d
     for d in "${old_dirs[@]}"; do
         lsof_args+=('+D')
         lsof_args+=("$d")
@@ -420,9 +422,10 @@ function deleteOldEclipseConfigurationDirs()
     # Run lsof, producing machine readable output, filter the out process IDs,
     # the leading 'n' of any path, and any subpath under a configuration
     # directory.  Then filter for uniq values.
-    in_use_dirs=$(lsof -w -n -l -P -S 10 -F pn "${lsof_args[@]}" | grep -v ^p | \
+    local in_use_dirs=$(lsof -w -n -l -P -S 10 -F pn "${lsof_args[@]}" | grep -v ^p | \
         sed -r -e 's|^n('"$tmp_dir_pat"'/[^/]*).*$|\1|' | uniq)
     IFS=$save_IFS
+    local p
     for p in "${old_dirs[@]}"; do
         if ! echo "$in_use_dirs" | grep -qxF "$p"; then
             rm -rf "$p"
