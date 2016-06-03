@@ -6,7 +6,7 @@ These scripts should be run as *root*:
 
 Download and run `installCAVE.sh`
 
-    wget https://raw.githubusercontent.com/Unidata/awips2/unidata_16.1.4/installCAVE.sh
+    wget http://www.unidata.ucar.edu/software/awips2/installCAVE.sh
     chmod 755 ./installCAVE.sh
     ./installCAVE.sh
 
@@ -14,7 +14,7 @@ Download and run `installCAVE.sh`
 
 Download and run `installEDEX.sh`:
 
-    wget https://raw.githubusercontent.com/Unidata/awips2/unidata_16.1.4/installEDEX.sh
+    wget http://www.unidata.ucar.edu/software/awips2/installEDEX.sh
     chmod 755 ./installEDEX.sh
     ./installEDEX.sh
 
