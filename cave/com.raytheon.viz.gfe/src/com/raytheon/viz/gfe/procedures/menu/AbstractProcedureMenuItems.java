@@ -32,6 +32,7 @@ import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.eclipse.ui.services.IServiceLocator;
 
 import com.raytheon.viz.gfe.core.DataManager;
+import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 
 /**
  * Abstract compound contribution item for dynamically determining the menu
@@ -75,9 +76,9 @@ public abstract class AbstractProcedureMenuItems extends
     @Override
     protected IContributionItem[] getContributionItems() {
 
-        DataManager manager = DataManager.getCurrentInstance();
+        DataManager manager = DataManagerUIFactory.getCurrentInstance();
         if (manager != null) {
-            String[] procs = DataManager.getCurrentInstance()
+            String[] procs = DataManagerUIFactory.getCurrentInstance()
                     .getProcedureInterface().getMenuItems(getMenuName());
             IServiceLocator locate = PlatformUI.getWorkbench()
                     .getActiveWorkbenchWindow();

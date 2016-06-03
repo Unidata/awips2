@@ -17,6 +17,9 @@
         
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
+		
+		See awips2-core/common/com.raytheon.uf.common.derivparam.python/ \
+			utility/common_static/base/derivedParameters/functions/RaobInterleave.py
     -->
 <DerivedParameter abbreviation="Raob" name="Raob Interleaved Data">
     <Method name="RaobInterleave" models="bufrua">
