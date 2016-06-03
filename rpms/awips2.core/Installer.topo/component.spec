@@ -38,28 +38,6 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-# Copies the standard Raytheon licenses into a license directory for the
-# current component.
-function copyLegal()
-{
-   # $1 == Component Build Root
-   
-   COMPONENT_BUILD_DIR=${1}
-   
-   mkdir -p ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
-   
-   # Create a Tar file with our FOSS licenses.
-   tar -cjf %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar \
-      %{_baseline_workspace}/rpms/legal/FOSS_licenses/
-   
-   cp "%{_baseline_workspace}/rpms/legal/Master_Rights_File.pdf" \
-      ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
-   cp %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar \
-      ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
-      
-   rm -f %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar    
-}
-
 TOPO_SRC_DIR="awips2-static/topo/"
 if [ ! -d %{_awipscm_share}/${TOPO_SRC_DIR} ]; then
    file %{_awipscm_share}/${TOPO_SRC_DIR}
@@ -69,37 +47,9 @@ fi
 TOPO_TO_COPY=\
 (\
    'gtopo30.h5'\
-   'srtm30.h5'\
-   #'srtm30_plus.h5'\
    'defaultTopo.h5' \
-   'akTopo.dat.gz' \
-   'caribTopo.dat.gz' \
-   'modelStaticTopo.h5' \
-   'pacTopo.dat.gz' \
-   'defaultTopo.h5'\
-   'staticTopo.h5' \
    'usTopo.dat.gz' \
-   'worldTopo.dat.gz' \
-   #'gmted2010.h5' \
 )
-# Some of these not provided in source code repos
-#
-#TOPO_TO_COPY=\
-#(\
-#   'gtopo30.h5'\
-#   'srtm30.h5'\
-#   'srtm30_plus.h5'\
-#   'defaultTopo.h5' \
-#   'akTopo.dat.gz' \
-#   'caribTopo.dat.gz' \
-#   'modelStaticTopo.h5' \
-#   'pacTopo.dat.gz' \
-#   'staticTopo.h5' \
-#   'usTopo.dat.gz' \
-#   'worldTopo.dat.gz' \
-#   'gmted2010.h5' \
-#)
-# !!!!! WARNING - THIS WILL TAKE A LONG TIME !!!!!
 
 for topoFile in ${TOPO_TO_COPY[*]};
 do
@@ -109,8 +59,6 @@ do
       exit 1
    fi
 done
-
-copyLegal "awips2/edex/data/hdf5/topo"
 
 %pre
 %post
@@ -128,4 +76,3 @@ rm -rf ${RPM_BUILD_ROOT}
 %dir /awips2/edex/data/hdf5
 %dir /awips2/edex/data/hdf5/topo
 /awips2/edex/data/hdf5/topo/*
-%docdir /awips2/edex/data/hdf5/topo/licenses

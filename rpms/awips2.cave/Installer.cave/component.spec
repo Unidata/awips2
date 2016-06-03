@@ -156,9 +156,8 @@ fi
 
 # /awips2/cave must not exist.
 if [ -d /awips2/cave ]; then
-   echo -e "\e[1;31mERROR: the /awips2/cave directory already exists. /awips2/cave\e[m"
-   echo -e "\e[1;31m       must be REMOVED before the installation will proceed.\e[m"
-   exit 1
+   echo -e "Warning: the /awips2/cave directory already exists. Removing and continuing..."
+   rm -rf /awips2/cave
 fi
 
 %post
@@ -319,17 +318,12 @@ rm -rf ${RPM_BUILD_ROOT}
 /awips2/cave/*.ini
 %dir /awips2/cave/configuration
 /awips2/cave/configuration/*
-%doc /awips2/cave/epl-v10.html
 %dir /awips2/cave/features
 /awips2/cave/features/*
-%doc /awips2/cave/notice.html
 %dir /awips2/cave/p2
 /awips2/cave/p2/*
 %dir /awips2/cave/plugins
 /awips2/cave/plugins/*
-%docdir /awips2/cave/readme
-%dir /awips2/cave/readme
-/awips2/cave/readme/*
 /awips2/cave/.eclipseproduct
  
 %defattr(755,awips,fxalpha,755)

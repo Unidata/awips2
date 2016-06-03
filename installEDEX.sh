@@ -35,12 +35,12 @@ echo ''
 yum clean all
 
 if [[ $(rpm -qa | grep awips2-edex) ]]; then
-  echo "found EDEX RPMs installed"
+  echo "found EDEX RPMs installed. Updating..."
 else
   echo "  EDEX RPMs not installled"
   echo ""
-  echo "  cleaning up /awips2/edex/, /awips2/data/"
-  rm -rf /awips2/edex/ /awips2/data/
+  echo "  cleaning up /awips2/data/"
+  rm -rf /awips2/data/
 fi
 
 service edex_camel stop

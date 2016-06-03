@@ -379,18 +379,10 @@ function waitForChildToStart()
 #Delete old CAVE logs DR 15348
 function deleteOldCaveLogs() 
 {
-
     local curDir=$(pwd)
     local mybox=$(hostname)
-
-    echo -e "Cleaning consoleLogs: "
-    echo -e "find $HOME/$BASE_LOGDIR -type f -name "*.log" -mtime +30 -exec rm {} \;"
-
-
     find "$HOME/$BASE_LOGDIR" -type f -name "*.log" -mtime +30 -exec rm {} \;
-
     exit 0
-
 }
 
 # Delete old Eclipse configuration directories that are no longer in use
@@ -436,7 +428,7 @@ function deleteEclipseConfigurationDir()
 function createEclipseConfigurationDir()
 {
     local d dir id=$(hostname)-$(whoami)
-    for d in "/local/cave-eclipse/" "$HOME/.cave-eclipse/"; do
+    for d in "$HOME/.cave-eclipse/"; do
         if [[ $d == $HOME/* ]]; then
             mkdir -p "$d" || continue
         fi

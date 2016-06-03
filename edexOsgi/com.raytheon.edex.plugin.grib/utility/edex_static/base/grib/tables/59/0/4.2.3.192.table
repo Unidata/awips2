@@ -1,0 +1,6 @@
+# Product Discipline 3: Space Products, Parameter Category 192: Forecast Satellite Imagery
+# Revised 07/15/2014
+1:1:Simulated Brightness Temperature for GOES E Water Vapor:K:SBT123
+2:2:Simulated Brightness Temperature for GOES E Infrared:K:SBT124
+7:7:Simulated Brightness Temperature for GOES W Water Vapor:K:SBT113
+8:8:Simulated Brightness Temperature for GOES W Infrared:K:SBT114

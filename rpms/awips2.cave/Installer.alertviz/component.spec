@@ -111,7 +111,7 @@ fi
 
 %post
 echo -e "\nInstalling A2 gdm PostSession Default script"
-scp /etc/gdm/PostSession/awips2VisualizeUtility.sh /etc/gdm/PostSession/Default
+cp /etc/gdm/PostSession/awips2VisualizeUtility.sh /etc/gdm/PostSession/Default
 
 #pushd . > /dev/null 2>&1
 #cd /awips2/alertviz/plugins

@@ -291,10 +291,10 @@ shefdecode_log     : $(shefdecode_dir)/logs/decoder  # daily log files location
 shef_error_dir     : $(shefdecode_dir)/logs/product  # product log files location
 shef_keeperror     : ALWAYS                          # keep product log files (=ALWAYS) or
                                                      # only when errors occur (=IF_ERROR)
-shef_perflog       : ON  # ON/OFF - create a separate performance log file to
+shef_perflog       : OFF  # ON/OFF - create a separate performance log file to
                           #          save internal decoder timing messages for
                           #          monitoring performance
-shef_data_log      : ON   # ON/OFF - include messages in the log file detailing
+shef_data_log      : OFF  # ON/OFF - include messages in the log file detailing
                                      the SHEF records
 dupmess            : ON   # ON/OFF - include messages in the log file about
                           #          duplicate data
@@ -314,7 +314,7 @@ shef_duplicate     : IF_DIFFERENT   # flag for handling duplicate date
                           # IF_DIFFERENT-overwrite if new value is different
                           # IF_DIFFERENT_OR_REVCODE-overwrite if new value is 
                           #           different or revcode is set
-shef_load_ingest   : ON   # ON/OFF - automatically load the IngestFilter table or not
+shef_load_ingest   : OFF  # ON/OFF - automatically load the IngestFilter table or not
                           #          with (station id-PEDTSE) combinations as they
                           #          arrive in the input data flow
 shef_storetext     : OFF  # ON/OFF - post/don't post raw encoded SHEF text messages
@@ -409,8 +409,8 @@ build_hourly_enable    : ON      # Enable the build_hourly application
 # The following tokens are most likely to be customized by the user
 #  (the first 4 MUST be customized at each site in the .Apps_defaults_site file)
 # ----------------------------------------------------------------
-hv_center_lat          : 35.0    # HydroView center latitude
-hv_center_lon          : -97.8   # HydroView center longitude
+hv_center_lat          : 40.0    # HydroView center latitude
+hv_center_lon          : -105.0  # HydroView center longitude
 hv_height_in_pixels    : 900     # Hydroview map height in pixels
 hv_width_in_pixels     : 1200    # Hydroview map width in pixels
 hv_map_width           : 320     # HydroView map width (nautical miles)
@@ -689,7 +689,7 @@ dpa_arch_dir     : $(pproc_local_data)/stage1_archive # DPA archives
 dpa_wind         : 10                        
 
 
-dpa_filter_decode   :  ON             # flag for non-top-of-hour
+dpa_filter_decode   :  OFF            # flag for non-top-of-hour
                                       #   filtering of decoded products
                                       # ON  - filter products for decode
                                       # OFF - do not filter (ie decode all products)

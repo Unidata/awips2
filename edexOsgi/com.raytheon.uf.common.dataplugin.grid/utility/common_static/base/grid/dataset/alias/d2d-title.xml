@@ -63,6 +63,9 @@
 	<alias base="OPCWave181">OPCWave-NE-PAC</alias>
 	<alias base="OPCWave182">OPCWave-TE-PAC</alias>
 	<alias base="RTGSSTHR">RTG-SST-HR-Analysis</alias>
+	<alias base="RAP13">RAP13</alias>
+	<alias base="RAP40">RAP40</alias>
+	<alias base="URMA25">URMA25</alias>
 	<alias base="RTGSST">RTG-SST-Analysis</alias>
 	<alias base="UKMET37">UKMET</alias>
 	<alias base="UKMET38">UKMET</alias>

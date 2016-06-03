@@ -580,7 +580,6 @@
       </visibleWhen>
             </command>
 
-
          </toolbar>
          </menuContribution>
          <menuContribution
@@ -1031,12 +1030,6 @@
             contextId="com.raytheon.uf.viz.d2d.ui"
             schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="M1+N">
-      </key>
-	  <key
-            commandId="com.raytheon.viz.ui.newPage"
-            contextId="com.raytheon.uf.viz.d2d.ui"
-            schemeId="com.raytheon.viz.ui.cave.scheme"
-            sequence="M1+T">
       </key>
       <key
       		contextId="com.raytheon.uf.viz.d2d.ui"

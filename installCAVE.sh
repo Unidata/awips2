@@ -4,10 +4,11 @@
 #                  of AWIPS II CAVE
 #
 # 10/15         mjames@ucar.edu         Creation
+# 05/16         mjames@ucar.edu         Will now remove and install
 #
 
 #
-##  Download awips2.repo from the Unidata web server
+#  Download awips2.repo from the Unidata web server
 # 
 
 if [ ! -f /etc/yum.repos.d/awips2.repo ]; then
@@ -20,18 +21,23 @@ if [ ! -f /etc/yum.repos.d/awips2.repo ]; then
   echo ''
 fi
 
-##
-## If CAVE is not installed them make sure /awips2/cave/
-## and /awips2/alertviz/ are removed before installing.
-##
-
+#
+# If CAVE is not installed them make sure /awips2/cave/
+# and /awips2/alertviz/ are removed before installing.
+#
 if [[ $(rpm -qa | grep awips2-cave) ]]; then
-  echo "found CAVE RPMs installed"
-else
-  echo "  CAVE RPMs not installed"
-  echo ""
-  echo "  cleaning up /awips2/cave/"
-  rm -rf /awips2/cave/ 
+  echo "found CAVE installed. Checking version..."
+  caveVersion=$(rpm -qa | grep awips2-cave-1| cut -d"-" -f3 )
+  versionMajor=$(rpm -qa | grep awips2-cave-1| cut -d"-" -f3 | cut -c -2)
+  if [[ ${versionMajor} -lt 16 ]]; then
+    echo "CAVE ${caveVersion} installed. Removing to update..."
+    yum groupremove awips2-cave -y
+    if [ -d /awips2/cave ]; then
+      rm -rf /awips2/cave 
+    fi
+  else
+    echo "CAVE ${caveVersion} installed. Continuing..."
+  fi
 fi
 
 echo ''

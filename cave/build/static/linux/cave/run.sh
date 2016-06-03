@@ -94,32 +94,10 @@ fi
 export apps_dir=${HYDRO_APPS_DIR} 
 
 SWITCHES=($SWITCHES)
-TESTCHECK="$TMCP_HOME/bin/getTestMode"
-if [ -x ${TESTCHECK} ]; then
-    echo "Calling getTestMode()"
-    ${TESTCHECK}
-    status=${?}
-    if [ $status -eq 11 ]; then
-        MODE="TEST"
-        SWITCHES+=(-mode TEST)
-    elif [ $status -eq 12 ];then
-        MODE="PRACTICE"
-        SWITCHES+=(-mode PRACTICE)
-    elif [ $status -eq 15 ];then
-        MODE="OPERATIONAL"
-        SWITCHES+=(-mode OPERATIONAL)
-    else
-        MODE="OPERATIONAL (no response)"
-    fi
-    echo "getTestMode() returned ${MODE}"
-else
-    MODE="UNKNOWN"
-    echo "getTestMode() not found - going to use defaults"
-fi
-
-export TEXTWS=`hostname | sed -e 's/lx/xt/g'`
-
+MODE="PRACTICE"
+SWITCHES+=(-mode PRACTICE)
 hostName=`hostname -s`
+export TEXTWS=$hostName
 
 #check for gtk-2.0 value
 gtkResource=.gtkrc-2.0

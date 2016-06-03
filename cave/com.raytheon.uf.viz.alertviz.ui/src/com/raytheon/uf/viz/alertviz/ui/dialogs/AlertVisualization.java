@@ -96,6 +96,7 @@ import com.raytheon.uf.viz.core.VizApp;
  * 18 Mar 2015  4234       njensen     Remove reference to non-working python
  * 03 Jun 2015  4473       njensen     Updated for new AlertvizJob API
  * 29 Jun 2015  4311       randerso    Reworking AlertViz dialogs to be resizable.
+ * 29 Dec 2015             mjames      Hide dialog by default.
  * 
  * </pre>
  * 
@@ -241,10 +242,12 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
         this.display = display;
         this.runningStandalone = runningStandalone;
         ConfigurationManager.getInstance().addListener(this);
-        if (Boolean.getBoolean("SystemTray")) {
-            showAlertDlg = Boolean.getBoolean("ShowAlertVizBar");
-            doNotDisturb = true;
-        }
+//        if (Boolean.getBoolean("SystemTray")) {
+//            showAlertDlg = Boolean.getBoolean("ShowAlertVizBar");
+//            doNotDisturb = true;
+//        }
+        showAlertDlg = false;
+        doNotDisturb = true;
         initShell();
     }
 
@@ -328,6 +331,7 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
             @Override
             public void run() {
                 alertMessageDlg.open();
+                alertMessageDlg.showDialog(false);
             }
         });
     }

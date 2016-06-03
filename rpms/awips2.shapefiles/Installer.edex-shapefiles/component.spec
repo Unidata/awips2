@@ -58,12 +58,6 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-mkdir -p %{_build_root}/awips2/edex/data/utility/edex_static/base/shapefiles/WarnGenLoc
-if [ $? -ne 0 ]; then
-   exit 1 
-fi
-
-
 #create a list of all files packaged for /awips2/edex/data/utility
 UTILITY=/awips2/edex/data/utility
 if [ -d %{_build_root}/$UTILITY ]; then

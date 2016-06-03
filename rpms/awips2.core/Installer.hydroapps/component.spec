@@ -41,9 +41,7 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-FILES_NATIVE="%{_baseline_workspace}/files.native"
-
-/bin/cp -rf ${FILES_NATIVE}/awipsShare \
+/bin/cp -rf %{_baseline_workspace}/files.native/awipsShare \
    %{_build_root}/awips2/edex/data/share
 if [ $? -ne 0 ]; then
    exit 1
