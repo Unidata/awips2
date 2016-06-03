@@ -46,7 +46,7 @@ no  = False
 # The gfe configuration file can be hidden in the Start Up Dialog by
 # using the HideConfigFile keyword and setting it to 1, or by commenting
 # out the following line.
-# HideConfigFile = 1
+# #HideConfigFile = 1
 
 #------------------------------------------------------------------------
 # Mutable Parameter and Viewable Database Configurations
