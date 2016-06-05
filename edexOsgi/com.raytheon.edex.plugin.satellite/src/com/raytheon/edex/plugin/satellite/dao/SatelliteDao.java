@@ -176,7 +176,7 @@ public class SatelliteDao extends PluginDao {
                     });
             
             // If these are 1-4km UCAR NEXRCOMP composites, show full res (no tiling)
-            if (satRecord.getCreatingEntity().equals("NEXRCOMP")){
+            if (satRecord.getSectorID().equals("NEXRCOMP")){
             	satRecord.setInterpolationLevels(1);
             } else {
             	satRecord.setInterpolationLevels(levels);

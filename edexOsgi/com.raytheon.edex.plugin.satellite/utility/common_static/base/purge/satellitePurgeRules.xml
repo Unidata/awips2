@@ -6,7 +6,7 @@
 		<versionsToKeep>96</versionsToKeep>
 	</defaultRule>
 	<rule>
-		<keyValue>CONUS</keyValue>
+		<keyValue>NEXRCOMP</keyValue>
 		<versionsToKeep>288</versionsToKeep>
 	</rule>
 	<rule>
