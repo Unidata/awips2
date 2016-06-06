@@ -367,7 +367,7 @@ public class GfePyIncludeUtil extends PythonIncludePathUtil {
         String userDir = getPath(PATH_MANAGER.getContext(
                 LocalizationType.COMMON_STATIC, LocalizationLevel.USER),
                 VCMODULES);
-        return PyUtil.buildJepIncludePath(userDir, siteDir, baseDir);
+        return PyUtil.buildJepIncludePath(userDir, siteDir, baseDir, "/awips2/python/lib/python2.7/site-packages/gfe");
     }
 
     public static String getVCModUtilsIncludePath() {
