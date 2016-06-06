@@ -93,7 +93,7 @@ public class FogDisplayMeteoTab extends TabItemComp implements
         createHeader("Temp(F)", 5, 6, true);
         createHeader("Dewpt(F)", 7, 8, true);
         createHeader("T-Td(F)", 9, 10, true);
-        createHeader("Rel Hum(%)", 11, 12, true);
+        createHeader("Rel Hum\n(%)", 11, 12, true);
     }
 
     /*
