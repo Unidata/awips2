@@ -44,9 +44,10 @@
 							<mapping key="reportType">
 								<constraint constraintValue="METAR" constraintType="EQUALS" />
 							</mapping>
+							<!--
 							<mapping key="T">
                                 <constraint constraintValue="50" constraintType="GREATER_THAN" />
-                            </mapping>
+                            </mapping> -->
 							<mapping key="pluginName">
 								<constraint constraintValue="obs" constraintType="EQUALS" />
 							</mapping>
