@@ -25,6 +25,9 @@
 	<contribute xsi:type="bundleItem" file="bundles/SurfacePlotWinds.xml"
 			menuText="METAR Winds" id="MetarPlot">
     </contribute>
+    	<contribute xsi:type="bundleItem" file="bundles/SurfaceMSLP.xml" 
+               		menuText="METAR MSLP Plots" id="MetarPlot">
+    </contribute> 
 	<contribute xsi:type="bundleItem" file="bundles/MetarPrecipPlot.xml" 
            menuText="METAR 24hr Precip" id="24HrPrecip">
         <substitute key="duration" value="24"/>
