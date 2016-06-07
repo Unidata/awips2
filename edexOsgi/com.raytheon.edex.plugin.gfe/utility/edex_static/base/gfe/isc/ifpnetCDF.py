@@ -43,6 +43,8 @@
 #                                                 NumPy 1.9.
 #    04/07/2016      5539          randerso       Reversed order of parameters/return value in collapseKey 
 #                                                 to match order of Wx/Discrete tuple 
+#    05/27/2016      19014         ryu            Fix rounding issue causing Td to be greater than T
+#                                                 in output netCDF file.
 #
 ##
 
@@ -766,7 +768,7 @@ def storeScalarWE(we, trList, file, timeRange, databaseID,
         if multiplier is not None:
             cube -= offset
             cube *= multiplier
-            numpy.around(cube,out=cube)
+            numpy.floor(cube+0.5, out=cube)
         # normal trim
         else:
             digits = we.getGpi().getPrecision()

@@ -55,6 +55,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Oct 10, 2015 4756        dhladky     Prevent null values from being inserted.
  * Oct 26, 2015 5056        dhladky     Better debugging info.
  * Feb 11, 2016 5273        tjensen     Fixed getAccumValue not tracking latest time.
+ * Jun 03, 2016 19090       dhladky (code checked in by zhao) Fixed a bug in Accum calculation 
  * 
  * </pre>
  * 
@@ -210,9 +211,9 @@ public class FFMPBasin implements Cloneable {
                                 // handle the gap and accumulate the book ends
                                 // of it
                                 factor = ((prevDate.getTime() - (prevDate
-                                        .getTime() - expirationTime)) / TimeUtil.MILLIS_PER_HOUR);
+                                        .getTime() - expirationTime)) / (TimeUtil.MILLIS_PER_HOUR*1.0f));
                             } else {
-                                factor = ((prevDate.getTime() - tdate.getTime()) / TimeUtil.MILLIS_PER_HOUR);
+                                factor = ((prevDate.getTime() - tdate.getTime()) / (TimeUtil.MILLIS_PER_HOUR*1.0f));
                             }
                             // do absolute values so it dosen't matter which way
                             // you traverse the list

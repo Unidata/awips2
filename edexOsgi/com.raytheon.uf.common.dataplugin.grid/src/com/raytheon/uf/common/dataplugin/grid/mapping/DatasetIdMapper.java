@@ -22,6 +22,8 @@ package com.raytheon.uf.common.dataplugin.grid.mapping;
 import javax.xml.bind.JAXBException;
 
 import com.raytheon.uf.common.localization.IPathManager;
+import com.raytheon.uf.common.localization.LocalizationContext;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
@@ -41,6 +43,7 @@ import com.raytheon.uf.common.util.mapping.Mapper;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 30, 2012            bsteffen     Initial creation
+ * May 12, 2016 18984      pwang        Load all levels of datasetid alias files
  * 
  * </pre>
  * 
@@ -55,9 +58,13 @@ public class DatasetIdMapper extends Mapper {
     private DatasetIdMapper() {
         IPathManager pathMgr = PathManagerFactory.getPathManager();
         // read in the namespace map
-        LocalizationFile[] files = pathMgr.listStaticFiles("grid"
+        // Loading all levels of xml files, rather only lowest level
+        LocalizationContext[] contexts = pathMgr
+                .getLocalSearchHierarchy(LocalizationType.COMMON_STATIC);
+        LocalizationFile[] files = pathMgr.listFiles(contexts, "grid"
                 + PathManager.SEPARATOR + "dataset" + IPathManager.SEPARATOR
                 + "alias", new String[] { ".xml" }, true, true);
+
         for (LocalizationFile file : files) {
             try {
                 addAliasList(file.getFile());
