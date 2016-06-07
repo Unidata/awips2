@@ -144,6 +144,10 @@ if [ -f org.eclipse.jface_%{_jface_version}.jar ]; then
       org.eclipse.jface_%{_jface_version}.jar
 fi
 
+# Delete configuration information because it references the jar files that
+# were just deleted.
+rm -rf /awips2/cave/configuration/org.eclipse.osgi
+
 popd > /dev/null 2>&1
 
 # determine if an installation of awips2-common-base is already present
