@@ -7,7 +7,8 @@
 ##          Phil Kurimski   -- Oct 22 2014 Mixed Case            ##
 ##          Richard Barnhill -- Dec 30 2015 Per conversation with##
 ##                              Evan, made default hailCTA ""    ##
-###################################################################
+##          Evan Bookbinder -- Fixed issue setting stormType to null ##
+#######################################################################
 #parse("config.vm")
 ## Set null variables used in the template
 ############################################
@@ -494,7 +495,6 @@ ${area.name}...
 	#set($pathheader = "The ${eventType}")
 	#set($specialEvent = "this ${eventType}")
 	#set($reportType2 = "the ${eventType} was")
-	#set($stormType = "")
 #end
 #######################################################################
 ## Coding for volcanos...this will override all other selections.
@@ -505,7 +505,6 @@ ${area.name}...
 	#set($pathheader = "the ${volcanoPath}")
 	#set($reportType2 = "the ${volcanoPath} was")
 	#set($specialEvent = "the ${volcanoPath}")
-	#set($stormType = "")
 	#set($impacted = "Locations impacted by ${volcanoPath} include...")
 #end
 #######################################################################

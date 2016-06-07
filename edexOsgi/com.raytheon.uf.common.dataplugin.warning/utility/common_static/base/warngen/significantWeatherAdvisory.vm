@@ -12,6 +12,7 @@
 ##    Evan Bookbinder 9/4/15    Replaced flash flooding with localized flooding in  ##
 ##                              torrentainRain CTA so as not to imply need for FFW  ##
 ##    Phil Kurimski 10/20/2015  Fixed line of storms wording/added campers CTA      ##
+##    Evan Bookbinder 4/29/2016 Fixed storm intensify to a CTA                      ##
 ######################################################################################
 ##
 ##SET SOME INITIAL VARIABLES
@@ -291,7 +292,7 @@ Frequent cloud to ground lightning is occurring with this storm. Lightning can s
 #end
 ##
 
-#if(${list.contains(${bullets}, "stormIntensify")})
+#if(${list.contains(${bullets}, "stormIntensifyCTA")})
 #if(${stormType} == "line")
 These storms may intensify, so be certain to monitor local radio stations and available television stations for additional information and possible warnings from the National Weather Service. 
 

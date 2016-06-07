@@ -88,7 +88,9 @@ import com.raytheon.uf.viz.spellchecker.jobs.SpellCheckJob;
  * 08/31/2015   #4781      dgilling    Improve handling of proper nouns in all 
  *                                     caps mode, move override dictionary to
  *                                     SITE level.
- * 
+ * 05/25/2016   DR16930    MPorricelli Added suggestionsBlackList to spellCheckJob
+ *                                     for flagging of words that are in
+ *                                     inappropriateWords.txt blacklist
  * </pre>
  * 
  * @author lvenable
@@ -257,6 +259,7 @@ public class SpellCheckDlg extends Dialog implements ISpellingProblemCollector {
         spellCheckJob.setCollector(this);
 
         suggestionsBlacklist = getSuggestionsBlacklist();
+        spellCheckJob.setBlacklist(suggestionsBlacklist);
     }
 
     private Collection<String> getSuggestionsBlacklist() {
