@@ -93,8 +93,7 @@ public class GfePyIncludeUtil extends PythonIncludePathUtil {
 
     public static final String VCMODULES = FileUtil.join(GFE, "vcmodule");
 
-    public static final String VCMOD_UTILS = FileUtil
-            .join(VCMODULES, "utility");
+    public static final String VCMOD_UTILS = FileUtil.join(GFE, "utility");
 
     public static LocalizationFile getCommonGfeLF(LocalizationContext ctx) {
         return PATH_MANAGER.getLocalizationFile(ctx, COMMON_GFE);

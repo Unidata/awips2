@@ -3108,7 +3108,7 @@ public class ParmManager implements IParmManager, IMessageClient {
         for (LocalizationContext context : contexts) {
             LocalizationFile[] files = pathMgr.listFiles(context,
                     FileUtil.join("gfe", "vcmodule"), new String[] { "py" },
-                    true, true);
+                    false, true);
             for (LocalizationFile lf : files) {
                 try {
                     String modName = lf.getFile(false).getName()
@@ -3118,6 +3118,16 @@ public class ParmManager implements IParmManager, IMessageClient {
                     statusHandler.error(
                             "Error getting local file name for VCModule " + lf,
                             e);
+                }
+            }
+            files = pathMgr.listFiles(context, FileUtil.join(
+            		"gfe"), new String[] { "py" }, 
+            		true, true);
+            for (LocalizationFile lf : files) {
+                try {
+                    lf.getFile(true);
+                } catch (LocalizationException e) {
+                    statusHandler.error("Error getting local file " + lf, e);
                 }
             }
             files = pathMgr.listFiles(context, FileUtil.join(
