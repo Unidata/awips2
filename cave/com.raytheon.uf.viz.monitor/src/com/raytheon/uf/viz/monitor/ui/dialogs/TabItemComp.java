@@ -20,114 +20,119 @@
 package com.raytheon.uf.viz.monitor.ui.dialogs;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.TabFolder;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
 
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
 import com.raytheon.uf.viz.monitor.data.MonitorAreaThresholds;
 import com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr.ThresholdKey;
 
 /**
- * Abstract class is the foundation for a Tab Folders tab item control (Composite).
+ * Abstract class is the foundation for a Tab Folders tab item control
+ * (Composite).
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 6, 2009            lvenable     Initial creation
- * Aug 5, 2010  6396       wkwock      Change the layout of threshold edit dialog
- * Nov 7, 2013  DR 16703   gzhang	   Check in code for Lee for FFMP and Safeseas
+ * 
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Apr 06, 2009           lvenable  Initial creation
+ * Aug 05, 2010  6396     wkwock    Change the layout of threshold edit dialog
+ * Nov 07, 2013  16703    gzhang    Check in code for Lee for FFMP and Safeseas
+ * Jun 02, 2016  5673     randerso  Fixed header alignment in threshold dialogs
  * 
  * </pre>
- *
+ * 
  * @author lvenable
  * @version 1.0
  */
-public abstract class TabItemComp extends Composite
-{
+public abstract class TabItemComp extends Composite {
     /**
      * Parent tabl folder.
      */
     private TabFolder parent;
-    
+
     private boolean involveSwell = false;
+
     protected boolean rankSwellPeriodHigh = false;
+
     /**
-     * Data list control.
+     * Data table control.
      */
-    protected List dataList;
-    
+    protected Table dataTable;
+
     /**
-     * Small font.
+     * Group composite
      */
-    protected Font smFont;
-    
+    private Composite groupComp;
+
     /**
-     * Big font.
+     * Header composite
      */
-    protected Font bigFont;
-    
+    private Composite headerComp;
+
     /**
      * Edit button.
      */
     private Button editBtn;
-    
-    /**
-     * List composite.
-     */
-    private Composite listComp;
-    
+
     protected DataUsageKey duKey;
+
     protected ThresholdKey threshKeyR = ThresholdKey.RED;
+
     protected ThresholdKey threshKeyY = ThresholdKey.YELLOW;
-    
+
     protected String dataFmt = " %5s";
-    protected String areaIdFmt = "%6S   ";
-    
+
     /**
      * Constructor.
-     * @param parent Parent - tab folder.
+     * 
+     * @param parent
+     *            Parent - tab folder.
+     * @param duKey
      */
-    public TabItemComp(TabFolder parent, DataUsageKey duKey)
-    {
+    public TabItemComp(TabFolder parent, DataUsageKey duKey) {
         super(parent, 0);
-        
+
         this.parent = parent;
-        
+
         this.duKey = duKey;
-        
+
         init();
     }
-    
-    public TabItemComp(TabFolder parent, DataUsageKey duKey, Boolean involveSwell) {
-    	super(parent, 0);
-    	this.parent = parent; 
-    	this.duKey = duKey; 
-    	this.involveSwell = involveSwell;
-    	init();
-    }
-    
+
     /**
-     * Initialize method to setup the canvas and the fonts.
+     * Constructor with swell
+     * 
+     * @param parent
+     * @param duKey
+     * @param involveSwell
      */
-    private void init()
-    {
-        smFont = new Font(this.getDisplay(), "Monospace", 9, SWT.NORMAL);
-        bigFont = new Font(this.getDisplay(), "Monospace", 10, SWT.NORMAL);
-        
+    public TabItemComp(TabFolder parent, DataUsageKey duKey,
+            Boolean involveSwell) {
+        super(parent, 0);
+        this.parent = parent;
+        this.duKey = duKey;
+        this.involveSwell = involveSwell;
+        init();
+    }
+
+    /**
+     * Initialize method to setup the data table and control buttons
+     */
+    private void init() {
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         GridLayout gl = new GridLayout(1, false);
         gl.verticalSpacing = 2;
@@ -135,299 +140,285 @@ public abstract class TabItemComp extends Composite
         gl.marginWidth = 2;
         this.setLayout(gl);
         this.setLayoutData(gd);
-        
-        createDataList();
-        if ( involveSwell ) {
-        	createRankSwellPeriodHighLowRadios();
+
+        createDataTable();
+        if (involveSwell) {
+            createRankSwellPeriodHighLowRadios();
         }
         createControlButtons();
-        
-        this.addDisposeListener(new DisposeListener()
-        {
-            public void widgetDisposed(DisposeEvent arg0)
-            {
-                smFont.dispose();
-                bigFont.dispose();
+    }
+
+    private void createRankSwellPeriodHighLowRadios() {
+        GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
+        Composite radioComp = new Composite(this, SWT.NONE);
+        radioComp.setLayout(new GridLayout(1, false));
+        radioComp.setLayoutData(gd);
+
+        Button rankLowRdo = new Button(radioComp, SWT.RADIO);
+        rankLowRdo.setText("Rank Swell Period Low");
+        if (!MonitorAreaThresholds.isRankHighSwellPeriods()) {
+            rankLowRdo.setSelection(true);
+        } else {
+            rankLowRdo.setSelection(false);
+        }
+        rankLowRdo.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                rankSwellPeriodHigh = false;
+                populateTable();
             }
         });
-    }
-    
-    private void createRankSwellPeriodHighLowRadios() {
-    	GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
-		Composite radioComp = new Composite(this, SWT.NONE); 
-		radioComp.setLayout(new GridLayout(1,false));
-		radioComp.setLayoutData(gd);
-		
-		Button rankLowRdo = new Button(radioComp, SWT.RADIO); 
-		rankLowRdo.setText("Rank Swell Period Low");
-		if ( !MonitorAreaThresholds.isRankHighSwellPeriods() ) {
-			rankLowRdo.setSelection(true);
-		} else {
-			rankLowRdo.setSelection(false);
-		}
-		rankLowRdo.addSelectionListener( new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event){
-                rankSwellPeriodHigh = false;
-                populateList();
-            }
-		});
-		
-		Button rankHighRdo = new Button(radioComp, SWT.RADIO); 
-		rankHighRdo.setText("Rank Swell Period High");
-		if ( MonitorAreaThresholds.isRankHighSwellPeriods() ) {
-			rankHighRdo.setSelection(true);
-		} else {
-			rankHighRdo.setSelection(false);
-		}
-		rankHighRdo.addSelectionListener( new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event){
-                rankSwellPeriodHigh = true;
-                populateList();
-            }
-		});
-		
-	}
 
-	/**
-     * Create the threshold data list control.
+        Button rankHighRdo = new Button(radioComp, SWT.RADIO);
+        rankHighRdo.setText("Rank Swell Period High");
+        if (MonitorAreaThresholds.isRankHighSwellPeriods()) {
+            rankHighRdo.setSelection(true);
+        } else {
+            rankHighRdo.setSelection(false);
+        }
+        rankHighRdo.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                rankSwellPeriodHigh = true;
+                populateTable();
+            }
+        });
+
+    }
+
+    /**
+     * Create the threshold data table control.
      */
-    private void createDataList()
-    {
-        listComp = new Composite(this, SWT.NONE);
+    private void createDataTable() {
+        Composite comp = new Composite(this, SWT.NONE);
         GridLayout gl = new GridLayout(1, false);
+        gl.verticalSpacing = 0;
         gl.marginHeight = 0;
         gl.marginWidth = 0;
-        listComp.setLayout(gl);
-        listComp.setLayoutData(new GridData(SWT.CENTER, SWT.DEFAULT, false, false));
-        
-        createListHeader(listComp);
-        
-        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        gd.heightHint = 250;
-        dataList = new List(listComp, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL);
-        dataList.setFont(bigFont); //dataList.setFont(smFont);
-        dataList.setLayoutData(gd);
-        
-        populateList();
+        comp.setLayout(gl);
+        comp.setLayoutData(new GridData(SWT.CENTER, SWT.DEFAULT, false, false));
+
+        groupComp = new Composite(comp, SWT.NONE);
+        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        groupComp.setLayoutData(gd);
+
+        headerComp = new Composite(comp, SWT.NONE);
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        headerComp.setLayoutData(gd);
+
+        dataTable = new Table(comp, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gd.heightHint = dataTable.getItemHeight() * 12;
+        dataTable.setLayoutData(gd);
+        dataTable.setLinesVisible(true);
+
+        populateTable();
+
+        gl = new GridLayout(dataTable.getColumnCount(), false);
+        gl.horizontalSpacing = 0;
+        gl.marginWidth = 0;
+        gl.marginHeight = 0;
+        groupComp.setLayout(gl);
+
+        gl = new GridLayout(dataTable.getColumnCount(), false);
+        gl.horizontalSpacing = 0;
+        gl.marginWidth = 0;
+        gl.marginHeight = 0;
+        headerComp.setLayout(gl);
+
+        createListHeader();
     }
-    
+
     /**
      * Create the Select/Deselect/Edit control buttons.
      */
-    private void createControlButtons()
-    {
+    private void createControlButtons() {
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Composite mainButtonComp = new Composite(this, SWT.NONE);
         mainButtonComp.setLayout(new GridLayout(1, false));
         mainButtonComp.setLayoutData(gd);
-        
+
         gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         Composite buttonComp = new Composite(mainButtonComp, SWT.NONE);
         buttonComp.setLayout(new GridLayout(3, false));
         buttonComp.setLayoutData(gd);
-        
+
         gd = new GridData(120, SWT.DEFAULT);
         Button selectAllBtn = new Button(buttonComp, SWT.PUSH);
         selectAllBtn.setText("Select All");
         selectAllBtn.setLayoutData(gd);
-        selectAllBtn.addSelectionListener(new SelectionAdapter()
-        {
-            public void widgetSelected(SelectionEvent event)
-            {
-                dataList.selectAll();
+        selectAllBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                dataTable.selectAll();
             }
         });
-        
+
         gd = new GridData(120, SWT.DEFAULT);
         Button deselectAllBtn = new Button(buttonComp, SWT.PUSH);
         deselectAllBtn.setText("Deselect All");
         deselectAllBtn.setLayoutData(gd);
-        deselectAllBtn.addSelectionListener(new SelectionAdapter()
-        {
-            public void widgetSelected(SelectionEvent event)
-            {
-                dataList.deselectAll();
+        deselectAllBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                dataTable.deselectAll();
             }
         });
-        
+
         gd = new GridData(170, SWT.DEFAULT);
         editBtn = new Button(buttonComp, SWT.PUSH);
         editBtn.setText("Edit Selected Areas...");
         editBtn.setLayoutData(gd);
-        editBtn.addSelectionListener(new SelectionAdapter()
-        {
-            public void widgetSelected(SelectionEvent event)
-            {
-                if (dataList.getSelectionCount() == 0)
-                {
-                    MessageBox mb = new MessageBox(parent.getShell(), SWT.ICON_WARNING | SWT.OK);
+        editBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                if (dataTable.getSelectionCount() == 0) {
+                    MessageBox mb = new MessageBox(parent.getShell(),
+                            SWT.ICON_WARNING | SWT.OK);
                     mb.setText("Warning");
                     mb.setMessage("Please select data from the list to be edited.");
                     mb.open();
-                    
+
                     return;
                 }
-                
+
                 editDataAction();
             }
         });
     }
-    
+
     /**
-     * Create a composite that will contain groups data.
-     * @param parentComp Parent composite.
-     * @param cols Number of columns.
-     * @param title Group title.
-     * @return Composite to contain a group of thresholds.
+     * Create a group header
+     * 
      */
-    protected Composite createGroupComposite(Composite parentComp, int cols, String title)
-    {
-        Composite dataGroupComp = new Composite(parentComp, SWT.BORDER);
-        GridLayout gl = new GridLayout(cols, false);
-        gl.horizontalSpacing = 0;
-        gl.marginHeight = 0;
-        gl.marginWidth = 0;
-        dataGroupComp.setLayout(gl);
-        
-        if (title != null)
-        {
-            GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-            gd.horizontalSpan = cols;
-            Label topLbl = new Label(dataGroupComp, SWT.CENTER);
-            topLbl.setText(title);
-            topLbl.setFont(bigFont);
-            topLbl.setLayoutData(gd);
+    protected void createGroupHeader(String text, int startCol, int endCol,
+            boolean border) {
+        Composite header = new Composite(groupComp, (border ? SWT.BORDER
+                : SWT.NONE));
+        GridData gd = new GridData(SWT.DEFAULT, SWT.FILL, false, true);
+        int width = 0;
+        for (int c = startCol; c <= endCol; c++) {
+            width += dataTable.getColumn(c).getWidth();
         }
-        
-        return dataGroupComp;
+        Rectangle trim = header.computeTrim(0, 0, 0, 0);
+        gd.widthHint = width - trim.x - trim.width;
+        gd.horizontalSpan = endCol - startCol + 1;
+        header.setLayoutData(gd);
+        header.setLayout(new GridLayout(2, true));
+
+        Label label = new Label(header, SWT.CENTER);
+        label.setText(text);
+        gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
+        gd.horizontalSpan = 2;
+        label.setLayoutData(gd);
     }
-    
+
     /**
-     * Create a title label and the R/Y labels. 
-     * @param parentComp Parent composite.
-     * @param topStr Top label string.
-     * @param bottomStr Bottom label string.
-     * @param isVis Flag indicating if the label is for visibility.
+     * Create a title label and the R/Y labels.
      */
-    protected void createLabelComp(Composite parentComp, String topStr, String bottomStr, boolean isVis)
-    {
-        GridData gd;
-        
-        if (bottomStr.indexOf("\n") == -1)
-        {
-            bottomStr += "\n";
+    protected void createHeader(String text, int startCol, int endCol,
+            boolean border) {
+
+        Composite header = new Composite(headerComp, (border ? SWT.BORDER
+                : SWT.NONE));
+        GridData gd = new GridData(SWT.DEFAULT, SWT.FILL, false, true);
+        int width = 0;
+        for (int c = startCol; c <= endCol; c++) {
+            width += dataTable.getColumn(c).getWidth();
         }
-            
-        
-        if (isVis == true)
-        {
-            gd = new GridData(90, SWT.DEFAULT);
-        }
-        else
-        {
-            gd = new GridData(82, SWT.DEFAULT);
-        }
-        
-        Composite lblComp = new Composite(parentComp, SWT.BORDER);
-        GridLayout gl = new GridLayout(2, true);
-        gl.marginWidth = 2;
-        gl.horizontalSpacing = 2;
-        lblComp.setLayout(gl);
-        lblComp.setLayoutData(gd);
-        
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        Rectangle trim = header.computeTrim(0, 0, 0, 0);
+        gd.widthHint = width - trim.x - trim.width;
+        gd.horizontalSpan = endCol - startCol + 1;
+        header.setLayoutData(gd);
+        header.setLayout(new GridLayout(2, true));
+
+        Label label = new Label(header, SWT.CENTER);
+        label.setText(text);
+        gd = new GridData(SWT.CENTER, SWT.FILL, true, true);
         gd.horizontalSpan = 2;
-        Label topLbl = new Label(lblComp, SWT.CENTER);
-        topLbl.setText(topStr);
-        topLbl.setFont(smFont);
-        topLbl.setLayoutData(gd);
-        
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        gd.horizontalSpan = 2;
-        Label bottomLbl = new Label(lblComp, SWT.CENTER);
-        bottomLbl.setText(bottomStr);
-        bottomLbl.setFont(smFont);
-        bottomLbl.setLayoutData(gd);
-        
-        String colorChar="y";
-        int color = SWT.COLOR_YELLOW;
-        if (bottomStr.indexOf("from") == -1)
-        {	colorChar="r";
-        	color = SWT.COLOR_RED;
+        label.setLayoutData(gd);
+
+        if (!text.isEmpty()) {
+            String[] colorChar;
+            int[] color;
+            if (text.contains("(from)")) {
+                colorChar = new String[] { "y", "r" };
+                color = new int[] { SWT.COLOR_YELLOW, SWT.COLOR_RED };
+            } else {
+                colorChar = new String[] { "r", "y" };
+                color = new int[] { SWT.COLOR_RED, SWT.COLOR_YELLOW };
+            }
+
+            for (int i = 0; i < 2; i++) {
+                gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+                Label lbl = new Label(header, SWT.CENTER);
+                lbl.setText(colorChar[i]);
+                lbl.setBackground(getDisplay().getSystemColor(color[i]));
+                lbl.setLayoutData(gd);
+            }
         }
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        Label rLbl = new Label(lblComp, SWT.CENTER);
-        rLbl.setText(colorChar);
-        rLbl.setBackground(getParent().getDisplay().getSystemColor(color));
-        rLbl.setFont(smFont);
-        rLbl.setLayoutData(gd);
-        
-        colorChar="r";
-        color=SWT.COLOR_RED;
-        if (bottomStr.indexOf("from") == -1)
-        {
-        	colorChar="y";
-        	color=SWT.COLOR_YELLOW;
-        }
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        Label yLbl = new Label(lblComp, SWT.CENTER);
-        yLbl.setText(colorChar);
-        yLbl.setBackground(getParent().getDisplay().getSystemColor(color));
-        yLbl.setFont(smFont);
-        yLbl.setLayoutData(gd);
     }
-    
+
     /**
      * Pack the list controls.
      */
-    protected void packListControls()
-    {
-        listComp.layout();
-        listComp.pack();
-        getParent().getShell().layout();
-        getParent().getShell().pack();
+    protected void packListControls() {
+        for (TableColumn column : dataTable.getColumns()) {
+            column.pack();
+        }
     }
-    
+
     /**
-     * Format and append the red and yellow values to the string builder.
-     * @param sb String builder.
-     * @param rValue Red value.
-     * @param yVal Yellow value.
+     * Format and set the red and yellow values into the table item
+     * 
+     * @param item
+     *            the table item
+     * @param column
+     *            starting column
+     * @param rValue
+     *            Red value.
+     * @param yVal
+     *            Yellow value.
      */
-    protected void appendIntData(StringBuilder sb, double rValue, double yVal)
-    {
-        int intVal = (int)rValue;            
-        sb.append(String.format(dataFmt, String.valueOf(intVal)));
-        
-        intVal = (int)yVal;            
-        sb.append(String.format(dataFmt, String.valueOf(intVal)));
+    protected void appendIntData(TableItem item, int column, double rValue,
+            double yVal) {
+        int intVal = (int) rValue;
+        item.setText(column, String.format(dataFmt, String.valueOf(intVal)));
+
+        intVal = (int) yVal;
+        item.setText(column + 1, String.format(dataFmt, String.valueOf(intVal)));
     }
-    
-    protected void appendDecimalData(StringBuilder sb, double rValue, double yVal)
-    {       
-        sb.append(String.format(dataFmt, String.valueOf(rValue)));
-        
-        sb.append(String.format(dataFmt, String.valueOf(yVal)));
+
+    protected void appendDecimalData(TableItem item, int column, double rValue,
+            double yVal) {
+        item.setText(column, String.format(dataFmt, String.valueOf(rValue)));
+
+        item.setText(column + 1, String.format(dataFmt, String.valueOf(yVal)));
     }
-    
+
     /**
      * Create a list header.
-     * @param comp Composite.
+     * 
      */
-    protected abstract void createListHeader(Composite comp);
-    
+    protected abstract void createListHeader();
+
     /**
      * Action for the edit data button.
      */
     protected abstract void editDataAction();
-    
+
     /**
-     * Populate the data list.
+     * Populate the data table.
      */
-    protected abstract void populateList();
-    
-    public abstract void reloadData();    
+    protected abstract void populateTable();
+
+    /**
+     * Reload data
+     */
+    public abstract void reloadData();
+
+    /**
+     * Commit data to XML
+     */
     public abstract void commitDataToXML();
 }
