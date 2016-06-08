@@ -18,20 +18,19 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<mercatorGridCoverage>
-    <name>GFS-PAC-20KM</name>
-    <description>Mercator Grid Coverage (SP: 20.0, CM: -179.51668009707164)</description>
-    <la1>-45.0</la1>
-    <lo1>110.0</lo1>
+<polarStereoGridCoverage>
+    <name>GFS-AK-20KM</name>
+    <description>Grid over Alaska - Double Resolution grid (polar
+        stereographic)</description>
+    <la1>35.0</la1>
+    <lo1>-190.0</lo1>
     <firstGridPointCorner>LowerLeft</firstGridPointCorner>
-    <nx>837</nx>
-    <ny>725</ny>
-    <dx>20.0</dx>
-    <dy>20.0</dy>
+    <nx>277</nx>
+    <ny>225</ny>
+    <dx>22.5</dx>
+    <dy>22.5</dy>
     <spacingUnit>km</spacingUnit>
     <minorAxis>6371229.0</minorAxis>
     <majorAxis>6371229.0</majorAxis>
-    <latin>20.0</latin>
-    <la2>65.345</la2>
-    <lo2>270.000</lo2>
-</mercatorGridCoverage>
+    <lov>-150.0</lov>
+</polarStereoGridCoverage>

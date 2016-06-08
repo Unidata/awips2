@@ -23,7 +23,15 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Deque;
+import java.util.Iterator;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -56,6 +64,8 @@ import com.raytheon.uf.viz.spellchecker.Activator;
  * 01Mar2010    4765       MW Fegan    Moved from GFE plug-in.
  * 18Oct2010    11237      rferrel     Created readLine in order to compute
  *                                     offsets for start of line correctly.
+ * 25May2016    DR16930    MPorricelli Added flagging of words that are in
+ *                                     inappropriateWords.txt blacklist
  * </pre>
  * 
  * @author wldougher
@@ -91,6 +101,8 @@ public class SpellCheckJob extends Job implements ISpellingProblemCollector {
     private int separatorLen = 0;
 
     private String line;
+
+    private Collection<String> blackList;
 
     private String vtecRegex = new String(
             "/[OTEX]\\.([A-Z]{3})\\.([A-Z]{4})\\.([A-Z]{2})\\."
@@ -220,7 +232,54 @@ public class SpellCheckJob extends Job implements ISpellingProblemCollector {
                 synchronized (this) {
                     service.check(document, regions, context, this, monitor);
                 }
+                // Look in this line for words that are in
+                // inappropriateWords.txt
+                // If one is found and it has not already been flagged by the
+                // Eclipse spell check above, add it to problems
+                Pattern pattern = Pattern.compile("\\w+");
+                Matcher matcher = pattern.matcher(line);
+                while (matcher.find()) {
+                    String currentWord = matcher.group();
+                    if (blackList != null
+                            && blackList.contains(currentWord.toUpperCase())) {
+                        int length = currentWord.length();
+                        int offset = matcher.start();
+                        SpellingProblem blacklistProblem = new AnotherSpellingProblem(
+                                offset, length, currentWord);
+                        if (problems.isEmpty())
+                            problems.add(blacklistProblem);
+                        else {
+                            Boolean problemAlreadyFlagged = false;
+                            Iterator<SpellingProblem> probIter = problems
+                                    .iterator();
+                            while (probIter.hasNext()) {
+                                if (probIter.next().getOffset() == blacklistProblem
+                                        .getOffset()) {
+                                    problemAlreadyFlagged = true;
+                                    break;
+                                }
+                            }
+                            if (!problemAlreadyFlagged)
+                                problems.add(blacklistProblem);
+                        }
+                    }
+                }
             }
+        }
+        // Sort the problems by position (offset) in this line of text
+        List<SpellingProblem> problemsList;
+        problemsList = new ArrayList<SpellingProblem>();
+        if (!problems.isEmpty()) {
+            problemsList.addAll(problems);
+            Collections.sort(problemsList, new Comparator<SpellingProblem>() {
+                @Override
+                public int compare(SpellingProblem sp1, SpellingProblem sp2) {
+                    return Integer.valueOf(sp1.getOffset()).compareTo(
+                            Integer.valueOf(sp2.getOffset()));
+                }
+            });
+            problems.clear();
+            problems.addAll(problemsList);
         }
 
         if (problems.size() > 0) {
@@ -327,6 +386,12 @@ public class SpellCheckJob extends Job implements ISpellingProblemCollector {
             this.collector = collector;
         }
     }
+
+    public void setBlacklist(Collection<String> suggestionsBlacklist) {
+        synchronized (this) {
+            this.blackList = suggestionsBlacklist;
+        }
+    }
 }
 
 /**
@@ -386,5 +451,51 @@ class RevisedProblem extends SpellingProblem {
     @Override
     public ICompletionProposal[] getProposals() {
         return lineProblem.getProposals();
+    }
+}
+
+class AnotherSpellingProblem extends SpellingProblem {
+    int offset;
+    int length;
+    String message;
+
+    AnotherSpellingProblem(int offSet, int wordLength, String word) {
+        super();
+        this.offset = offSet;
+        this.length = wordLength;
+        this.message = "The word '" + word + "' is not correctly spelled";
+    }
+
+    @Override
+    public int getOffset() {
+        return this.offset;
+    }
+
+    public void setOffset(int offSet) {
+        this.offset = offSet;
+    }
+
+    @Override
+    public int getLength() {
+        return this.length;
+    }
+
+    public void setLength(int wordLength) {
+        this.length = wordLength;
+    }
+
+    @Override
+    public String getMessage() {
+        return this.message;
+    }
+
+    public void setMessage(String word) {
+        this.message = "The word '" + word + "' is not correctly spelled";
+    }
+
+    @Override
+    public ICompletionProposal[] getProposals() {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

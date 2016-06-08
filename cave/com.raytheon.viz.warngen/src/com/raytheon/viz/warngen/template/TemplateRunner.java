@@ -156,6 +156,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * Feb  9, 2016 DR18421    D. Friedman Don't call ToolsDataManager.setStormTrackData if there is no storm motion.
  * Feb 17, 2016 DR 17531   Qinglu Lin  Added calStormVelocityAndEventLocation(), updated runTemplate().
  * Mar 10, 2016 5411       randerso    Added productId and mixedCaseEnabled to Velocity context
+ * May 25, 2016 DR18789    D. Friedman Extract timezone calculation to method and add short circuit logic.
  * 
  * </pre>
  * 
@@ -218,6 +219,127 @@ public class TemplateRunner {
                     "WarnGen Error while processing data in : " + octz, e);
         }
         return officeCityTimezone;
+    }
+
+    private static Set<String> determineTimezones(WarngenLayer warngenLayer,
+            AffectedAreas[] areas, Geometry warningArea) throws VizException {
+        Map<String, Double> intersectSize = new HashMap<String, Double>();
+        double minSize = 1.0E-3d;
+        Set<String> timeZones = new HashSet<String>();
+        for (AffectedAreas affectedAreas : areas) {
+            if (affectedAreas.getTimezone() != null) {
+                // Handles counties that span two time zones
+                String oneLetterTimeZones = affectedAreas.getTimezone()
+                        .trim();
+                if (oneLetterTimeZones.length() == 1) {
+                    timeZones.add(String.valueOf(oneLetterTimeZones
+                            .charAt(0)));
+                }
+            }
+        }
+        if (timeZones.size() > 1) {
+            return timeZones;
+        }
+        for (AffectedAreas affectedAreas : areas) {
+            if (affectedAreas.getTimezone() != null) {
+                // Handles counties that span two time zones
+                String oneLetterTimeZones = affectedAreas.getTimezone()
+                        .trim();
+                if (oneLetterTimeZones.length() > 1) {
+                    // Determine if one letter timezone is going to be
+                    // put into timeZones.
+                    Geometry[] poly1, poly2;
+                    int n1, n2;
+                    double size, totalSize;
+                    String[] oneLetterTZ = new String[oneLetterTimeZones.length()];
+                    for (int i = 0; i < oneLetterTimeZones.length(); i++) {
+                        oneLetterTZ[i] = String
+                                .valueOf(oneLetterTimeZones.charAt(i));
+                        Geometry timezoneGeom = warngenLayer
+                                .getTimezoneGeom(oneLetterTZ[i]);
+                        long t0 = System.currentTimeMillis();
+                        poly1 = null;
+                        poly2 = null;
+                        n1 = 0;
+                        n2 = 0;
+                        size = 0.0d;
+                        totalSize = 0.0d;
+                        if ((timezoneGeom != null)
+                                && (warningArea != null)) {
+                            if (intersectSize.get(oneLetterTZ[i]) != null) {
+                                continue;
+                            }
+                            poly1 = new Geometry[warningArea
+                                    .getNumGeometries()];
+                            n1 = warningArea.getNumGeometries();
+                            for (int j = 0; j < n1; j++) {
+                                poly1[j] = warningArea.getGeometryN(j);
+                            }
+                            poly2 = new Geometry[timezoneGeom
+                                    .getNumGeometries()];
+                            n2 = timezoneGeom.getNumGeometries();
+                            for (int j = 0; j < n2; j++) {
+                                poly2[j] = timezoneGeom.getGeometryN(j);
+                            }
+                            // Calculate the total size of intersection
+                            for (Geometry p1 : poly1) {
+                                for (Geometry p2 : poly2) {
+                                    try {
+                                        size = p1.intersection(p2)
+                                                .getArea();
+                                    } catch (TopologyException e) {
+                                        statusHandler
+                                                .handle(Priority.VERBOSE,
+                                                        "Geometry error calculating the total size of intersection.",
+                                                        e);
+                                    }
+                                    if (size > 0.0) {
+                                        totalSize += size;
+                                    }
+                                }
+                                if (totalSize > minSize) {
+                                    break; // save time when the size of
+                                           // poly1 or poly2 is large
+                                }
+                            }
+                            intersectSize
+                                    .put(oneLetterTZ[i], totalSize);
+                        } else {
+                            throw new VizException(
+                                    "Either timezoneGeom or/and warningArea is null. "
+                                            + "Timezone cannot be determined.");
+                        }
+                        perfLog.logDuration(
+                                "runTemplate size computation",
+                                System.currentTimeMillis() - t0);
+                        if (totalSize > minSize) {
+                            timeZones.add(oneLetterTZ[i]);
+                        }
+                    }
+                    // If timeZones has nothing in it when the hatched
+                    // area is very small,
+                    // use the timezone of larger intersection size.
+                    if (timeZones.size() == 0) {
+                        if (intersectSize.size() > 1) {
+                            if (intersectSize.get(oneLetterTZ[0]) > intersectSize
+                                    .get(oneLetterTZ[1])) {
+                                timeZones.add(oneLetterTZ[0]);
+                            } else {
+                                timeZones.add(oneLetterTZ[1]);
+                            }
+                        } else {
+                            throw new VizException(
+                                    "The size of intersectSize is less than 1, "
+                                            + "timezone cannot be determined.");
+                        }
+                    }
+                }
+            } else {
+                throw new VizException(
+                        "Calling to area.getTimezone() returns null.");
+            }
+        }
+        return timeZones;
     }
 
     /**
@@ -335,113 +457,8 @@ public class TemplateRunner {
                 context.put(ia, intersectAreas.get(ia));
             }
 
-            Map<String, Double> intersectSize = new HashMap<String, Double>();
-            String[] oneLetterTZ;
-            double minSize = 1.0E-3d;
             if ((areas != null) && (areas.length > 0)) {
-                Set<String> timeZones = new HashSet<String>();
-                for (AffectedAreas affectedAreas : areas) {
-                    if (affectedAreas.getTimezone() != null) {
-                        // Handles counties that span two time zones
-                        String oneLetterTimeZones = affectedAreas.getTimezone()
-                                .trim();
-                        oneLetterTZ = new String[oneLetterTimeZones.length()];
-                        if (oneLetterTimeZones.length() == 1) {
-                            timeZones.add(String.valueOf(oneLetterTimeZones
-                                    .charAt(0)));
-                        } else {
-                            // Determine if one letter timezone is going to be
-                            // put into timeZones.
-                            Geometry[] poly1, poly2;
-                            int n1, n2;
-                            double size, totalSize;
-                            for (int i = 0; i < oneLetterTimeZones.length(); i++) {
-                                oneLetterTZ[i] = String
-                                        .valueOf(oneLetterTimeZones.charAt(i));
-                                Geometry timezoneGeom = warngenLayer
-                                        .getTimezoneGeom(oneLetterTZ[i]);
-                                t0 = System.currentTimeMillis();
-                                poly1 = null;
-                                poly2 = null;
-                                n1 = 0;
-                                n2 = 0;
-                                size = 0.0d;
-                                totalSize = 0.0d;
-                                if ((timezoneGeom != null)
-                                        && (warningArea != null)) {
-                                    if (intersectSize.get(oneLetterTZ[i]) != null) {
-                                        continue;
-                                    }
-                                    poly1 = new Geometry[warningArea
-                                            .getNumGeometries()];
-                                    n1 = warningArea.getNumGeometries();
-                                    for (int j = 0; j < n1; j++) {
-                                        poly1[j] = warningArea.getGeometryN(j);
-                                    }
-                                    poly2 = new Geometry[timezoneGeom
-                                            .getNumGeometries()];
-                                    n2 = timezoneGeom.getNumGeometries();
-                                    for (int j = 0; j < n2; j++) {
-                                        poly2[j] = timezoneGeom.getGeometryN(j);
-                                    }
-                                    // Calculate the total size of intersection
-                                    for (Geometry p1 : poly1) {
-                                        for (Geometry p2 : poly2) {
-                                            try {
-                                                size = p1.intersection(p2)
-                                                        .getArea();
-                                            } catch (TopologyException e) {
-                                                statusHandler
-                                                        .handle(Priority.VERBOSE,
-                                                                "Geometry error calculating the total size of intersection.",
-                                                                e);
-                                            }
-                                            if (size > 0.0) {
-                                                totalSize += size;
-                                            }
-                                        }
-                                        if (totalSize > minSize) {
-                                            break; // save time when the size of
-                                                   // poly1 or poly2 is large
-                                        }
-                                    }
-                                    intersectSize
-                                            .put(oneLetterTZ[i], totalSize);
-                                } else {
-                                    throw new VizException(
-                                            "Either timezoneGeom or/and warningArea is null. "
-                                                    + "Timezone cannot be determined.");
-                                }
-                                perfLog.logDuration(
-                                        "runTemplate size computation",
-                                        System.currentTimeMillis() - t0);
-                                if (totalSize > minSize) {
-                                    timeZones.add(oneLetterTZ[i]);
-                                }
-                            }
-                            // If timeZones has nothing in it when the hatched
-                            // area is very small,
-                            // use the timezone of larger intersection size.
-                            if (timeZones.size() == 0) {
-                                if (intersectSize.size() > 1) {
-                                    if (intersectSize.get(oneLetterTZ[0]) > intersectSize
-                                            .get(oneLetterTZ[1])) {
-                                        timeZones.add(oneLetterTZ[0]);
-                                    } else {
-                                        timeZones.add(oneLetterTZ[1]);
-                                    }
-                                } else {
-                                    throw new VizException(
-                                            "The size of intersectSize is less than 1, "
-                                                    + "timezone cannot be determined.");
-                                }
-                            }
-                        }
-                    } else {
-                        throw new VizException(
-                                "Calling to area.getTimezone() returns null.");
-                    }
-                }
+                Set<String> timeZones = determineTimezones(warngenLayer, areas, warningArea);
 
                 Map<String, String> officeCityTimezone = createOfficeTimezoneMap();
                 String cityTimezone = null;

@@ -230,7 +230,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
   #if(${stormType} == "line")
       #set($expcanPhrase = "The storms which prompted the warning have weakened below severe limits#commaOrEllipsis()and have exited the warned area. Therefore the warning ${expcanBODYTag}.")
   #else
-      #set($expcanPhrase = "The storm which prompted the warning has weakened below severe limits#commaOrEllipsis()and have exited the warned area. Therefore the warning ${expcanBODYTag}.")
+      #set($expcanPhrase = "The storm which prompted the warning has weakened below severe limits, and has exited the warned area. Therefore, the warning ${expcanBODYTag}.")
   #end
 #end
 #### SVR UPGRADED TO TOR
