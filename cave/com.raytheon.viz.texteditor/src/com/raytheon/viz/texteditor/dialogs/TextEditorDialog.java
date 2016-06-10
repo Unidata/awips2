@@ -386,7 +386,7 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  *                                      specific checks that need it.
  * Mar 17, 2016 RM 18727    D. Friedman Fix use of verification listener when entering and exiting editor.
  * Apr 15, 2016 RM 18870    D. Friedman Replace commas with ellipses only at start of edit and then word-wrap.
- * May 26, 2016 RM 17614 mgamazaychikov Fix loading of product on exit from edit mode.
+ * Jun 14, 2016 RM 17614 mgamazaychikov Fix loading of product on exit from edit mode.
  * 
  * </pre>
  * 
@@ -5149,7 +5149,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                                 "Will NOT increment ETN for this product.");
                     }
                     // Update editor so the proper send times are displayed.
-                    updateTextEditor(prod.getProduct());
+                    textEditor.setText(prod.getProduct());
                 }
 
                 String product = prod.getProduct();
@@ -5186,9 +5186,11 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                                 .isEmpty()) {
                     inEditMode = false;
                 }
+                String practiceProd = TextDisplayModel.getInstance().getProduct(
+                        token);
+                textEditor.setText(practiceProd);
                 SendPracticeProductRequest req = new SendPracticeProductRequest();
-                req.setProductText(TextDisplayModel.getInstance().getProduct(
-                        token));
+                req.setProductText(practiceProd);
                 req.setNotifyGFE(true);
                 req.setDrtString(new SimpleDateFormat("yyyyMMdd_HHmm")
                         .format(SimulatedTime.getSystemTime().getTime()));
@@ -5426,14 +5428,15 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     if (vtecObj != null) {
                         productText = updateVtecTimes(productText, vtecObj, now);
                     }
+                    // Update editor so the proper send times are displayed.
                     String[] b = productText.split("\n");
                     StringBuilder body = new StringBuilder();
                     for (int i = 2; i < b.length; ++i) {
                         body.append(b[i]).append("\n");
                     }
-                    // Update editor so the proper send times are displayed.
                     updateTextEditor(body.toString());
                 }
+
                 storedProduct.setHdrtime(currentDate);
             }
             storedProduct.setRefTime(System.currentTimeMillis());
