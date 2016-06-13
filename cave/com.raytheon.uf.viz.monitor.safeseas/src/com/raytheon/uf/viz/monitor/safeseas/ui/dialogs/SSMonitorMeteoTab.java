@@ -22,11 +22,9 @@ package com.raytheon.uf.viz.monitor.safeseas.ui.dialogs;
 import java.util.ArrayList;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TabFolder;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
 
 import com.raytheon.uf.common.monitor.data.MonitorConfigConstants.SafeSeasMonitor;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
@@ -44,10 +42,11 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.TabItemComp;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Sep 17, 2014 2757       skorolev    Removed unnecessary printouts.
- * Dec 26, 2015 5114       skorolev    Corrected imports and replaced AppName with MonName.
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- -------------------------------
+ * Sep 17, 2014  2757     skorolev  Removed unnecessary printouts.
+ * Dec 26, 2015 5114      skorolev  Corrected imports and replaced AppName with MonName.
+ * Jun 02, 2016  5673     randerso  Fixed header alignment in threshold dialogs
  * 
  * </pre>
  * 
@@ -67,40 +66,30 @@ public class SSMonitorMeteoTab extends TabItemComp implements
     }
 
     @Override
-    protected void createListHeader(Composite parentComp) {
-        Composite lblComp = new Composite(parentComp, SWT.NONE);
-        GridLayout gl = new GridLayout(5, false);
-        gl.horizontalSpacing = 0;
-        gl.marginHeight = 0;
-        gl.marginWidth = 0;
-        lblComp.setLayout(gl);
-
+    protected void createListHeader() {
         /*
          * Create filler label.
          */
-        GridData gd = new GridData(75, SWT.DEFAULT);
-        Label fillerLbl = new Label(lblComp, SWT.CENTER);
-        fillerLbl.setLayoutData(gd);
+        createHeader("", 0, 0, false);
 
         /*
          * Meteo
          */
-        Composite meteoComp = createGroupComposite(lblComp, 5, null);
-        createLabelComp(meteoComp, "Wind", "Speed(kt)", false);
-        createLabelComp(meteoComp, "Peak", "Wind(kt)", false);
-        createLabelComp(meteoComp, "Gust", "Speed(kt)", false);
-        createLabelComp(meteoComp, "Wave", "Height(ft)", false);
-        createLabelComp(meteoComp, "Vis(mi)", "", true);
+        createHeader("Wind\nSpeed(kt)", 1, 2, true);
+        createHeader("Peak\nWind(kt)", 3, 4, true);
+        createHeader("Gust\nSpeed(kt)", 5, 6, true);
+        createHeader("Wave\nHeight(ft)", 7, 8, true);
+        createHeader("Vis(mi)", 9, 10, true);
     }
 
     @Override
-    protected void populateList() {
+    protected void populateTable() {
         if (ssDataArray == null) {
             createDataArray();
         }
 
         boolean update = false;
-        if (dataList.getItemCount() > 0) {
+        if (dataTable.getItemCount() > 0) {
             update = true;
         }
 
@@ -113,60 +102,61 @@ public class SSMonitorMeteoTab extends TabItemComp implements
 
         double visVal = 0.0;
 
-        StringBuilder sb = null;
         SSMonitorMeteoData ssmmd = null;
 
+        int numColumns = 11;
+        new TableColumn(dataTable, SWT.LEFT);
+        for (int c = 1; c < numColumns; c++) {
+            new TableColumn(dataTable, SWT.RIGHT);
+        }
+
         for (int i = 0; i < ssDataArray.size(); i++) {
-            sb = new StringBuilder();
+
+            TableItem item;
+            if (update == true) {
+                item = dataTable.getItem(i);
+            } else {
+                item = new TableItem(dataTable, SWT.NONE);
+            }
 
             ssmmd = ssDataArray.get(i);
 
             currentAreaID = ssmmd.getAreaID();
             areaIDArray.add(currentAreaID);
 
-            sb.append(String.format(areaIdFmt, currentAreaID));
+            item.setText(0, currentAreaID);
 
             /*
              * Wind Speed
              */
-            appendIntData(sb, ssmmd.getWindSpeedR(), ssmmd.getWindSpeedY());
+            appendIntData(item, 1, ssmmd.getWindSpeedR(), ssmmd.getWindSpeedY());
 
             /*
              * Peak Wind
              */
-            appendIntData(sb, ssmmd.getPeakWindR(), ssmmd.getPeakWindY());
+            appendIntData(item, 3, ssmmd.getPeakWindR(), ssmmd.getPeakWindY());
 
             /*
              * Gust Wind
              */
-            appendIntData(sb, ssmmd.getGustSpeedR(), ssmmd.getGustSpeedY());
+            appendIntData(item, 5, ssmmd.getGustSpeedR(), ssmmd.getGustSpeedY());
 
             /*
              * Wave Height
              */
-            appendIntData(sb, ssmmd.getWaveHgtR(), ssmmd.getWaveHgtY());
+            appendIntData(item, 7, ssmmd.getWaveHgtR(), ssmmd.getWaveHgtY());
 
             /*
              * Visibility
              */
             visVal = ssmmd.getVisR();
             tmpVisStr = rangeUtil.getVisString((int) visVal);
-            sb.append(String.format(dataFmt, tmpVisStr));
+            item.setText(9, String.format(dataFmt, tmpVisStr));
 
             visVal = ssmmd.getVisY();
             tmpVisStr = rangeUtil.getVisString((int) visVal);
-            sb.append(String.format(dataFmt, tmpVisStr));
+            item.setText(10, String.format(dataFmt, tmpVisStr));
 
-            /*
-             * Append a space and add the data line to the list.
-             */
-            sb.append(" ");
-
-            if (update == true) {
-                dataList.setItem(i, sb.toString());
-            } else {
-                dataList.add(sb.toString());
-            }
         }
 
         packListControls();
@@ -243,13 +233,13 @@ public class SSMonitorMeteoTab extends TabItemComp implements
     }
 
     private SSMonitorMeteoData getDataAtFirstSelection() {
-        int index = dataList.getSelectionIndex();
+        int index = dataTable.getSelectionIndex();
 
         return ssDataArray.get(index);
     }
 
     private void updateDataArray(SSMonitorMeteoData ssmmd) {
-        int[] dataListIndexes = dataList.getSelectionIndices();
+        int[] dataListIndexes = dataTable.getSelectionIndices();
         int currentIndex = 0;
 
         for (int i = 0; i < dataListIndexes.length; i++) {
@@ -318,11 +308,11 @@ public class SSMonitorMeteoTab extends TabItemComp implements
 
     @Override
     public void reloadData() {
-        dataList.removeAll();
+        dataTable.removeAll();
         ssDataArray.clear();
         ssDataArray = null;
 
-        populateList();
+        populateTable();
     }
 
     @Override
@@ -340,6 +330,6 @@ public class SSMonitorMeteoTab extends TabItemComp implements
     @Override
     public void updateThresholdData(SSMonitorMeteoData ssmmd) {
         updateDataArray(ssmmd);
-        populateList();
+        populateTable();
     }
 }

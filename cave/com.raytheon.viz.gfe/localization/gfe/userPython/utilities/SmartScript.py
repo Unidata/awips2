@@ -80,6 +80,8 @@
 #    Jan 28, 2016    5129          dgilling       Support changes to IFPClient.
 #    Feb 22, 2016    5374          randerso       Added support for sendWFOMessage
 #    Apr 05, 2016    5539          randerso       Added exception when attempting create more than 256 Wx keys
+#    05/06/2016      18967         ryu            Fix issue of contours plotted over ProposedWatches grid
+#                                                 when ViewWCL is run.
 #
 ########################################################################
 import types, string, time, sys
@@ -1720,6 +1722,7 @@ class SmartScript(BaseTool.BaseTool):
             fitter = FitToData(self.__dataMgr, parm)
             fitter.fitToData()
         spatialMgr.activateParm(parm)
+        spatialMgr.makeVisible(parm, True, True)
         spatialMgr.setSpatialEditorTime(timeRange.startTime().javaDate())
 
 

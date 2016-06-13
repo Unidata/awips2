@@ -24,14 +24,14 @@
     <la1>-45.0</la1>
     <lo1>110.0</lo1>
     <firstGridPointCorner>LowerLeft</firstGridPointCorner>
-    <nx>737</nx>
-    <ny>661</ny>
+    <nx>837</nx>
+    <ny>725</ny>
     <dx>20.0</dx>
     <dy>20.0</dy>
     <spacingUnit>km</spacingUnit>
     <minorAxis>6371229.0</minorAxis>
     <majorAxis>6371229.0</majorAxis>
     <latin>20.0</latin>
-    <la2>60.232</la2>
-    <lo2>250.967</lo2>
+    <la2>65.345</la2>
+    <lo2>270.000</lo2>
 </mercatorGridCoverage>

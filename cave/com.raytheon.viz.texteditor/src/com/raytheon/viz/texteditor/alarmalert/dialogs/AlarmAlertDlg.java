@@ -156,6 +156,8 @@ public class AlarmAlertDlg extends CaveSWTDialog {
 
     // Opens the dialog without ever displaying it, doing all the initialization
     // necessary to load the alarm list and get it functioning.
+
+    // TODO: restructure code to get rid of this abomination
     public void openInvisible() {
         Shell parent = getParent();
 
@@ -188,8 +190,6 @@ public class AlarmAlertDlg extends CaveSWTDialog {
             }
         });
 
-        preOpened();
-
         opened();
 
     }
@@ -203,13 +203,14 @@ public class AlarmAlertDlg extends CaveSWTDialog {
      * Sets the shell location.
      */
     private void setLocation() {
-        int shellSizeX = getShell().getSize().x;
-        int shellSizeY = getShell().getSize().y;
-        Rectangle bounds = getParent().getMonitor().getBounds();
-        int locationX = bounds.x + bounds.width - shellSizeX;
-        int locationY = bounds.y + bounds.height - shellSizeY;
-        shell.setLocation(locationX, locationY);
-        return;
+        if (shell != null) {
+            int shellSizeX = getShell().getSize().x;
+            int shellSizeY = getShell().getSize().y;
+            Rectangle bounds = getParent().getMonitor().getBounds();
+            int locationX = bounds.x + bounds.width - shellSizeX;
+            int locationY = bounds.y + bounds.height - shellSizeY;
+            shell.setLocation(locationX, locationY);
+        }
     }
 
     @Override

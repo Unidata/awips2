@@ -22,11 +22,9 @@ package com.raytheon.uf.viz.monitor.safeseas.ui.dialogs;
 import java.util.ArrayList;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TabFolder;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
 
 import com.raytheon.uf.common.monitor.data.MonitorConfigConstants;
 import com.raytheon.uf.common.monitor.data.MonitorConfigConstants.SafeSeasDisplay;
@@ -44,13 +42,15 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.TabItemComp;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Dec 26, 2015 5115       skorolev    Corrected imports.
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * ????                   ????      Initial creation
+ * Dec 26, 2015  5115     skorolev  Corrected imports.
+ * Jun 02, 2016  5673     randerso  Fixed header alignment in threshold dialogs
  * 
  * </pre>
  * 
- * @author skorolev
+ * @author ????
  * @version 1.0
  */
 public class SSDisplaySwellTab extends TabItemComp implements
@@ -66,50 +66,40 @@ public class SSDisplaySwellTab extends TabItemComp implements
     }
 
     @Override
-    protected void createListHeader(Composite parentComp) {
-        Composite lblComp = new Composite(parentComp, SWT.NONE);
-        GridLayout gl = new GridLayout(5, false);
-        gl.horizontalSpacing = 0;
-        gl.marginHeight = 0;
-        gl.marginWidth = 0;
-        lblComp.setLayout(gl);
-
+    protected void createListHeader() {
         /*
          * Create filler label.
          */
-        GridData gd = new GridData(75, SWT.DEFAULT);
-        Label fillerLbl = new Label(lblComp, SWT.CENTER);
-        fillerLbl.setLayoutData(gd);
+        createGroupHeader("", 0, 0, false);
+        createHeader("", 0, 0, false);
 
         /*
          * Primary Swell
          */
-        Composite priSwellComp = createGroupComposite(lblComp, 4,
-                "Primary Swell");
-        createLabelComp(priSwellComp, "Height(ft)", "", false);
-        createLabelComp(priSwellComp, "Periods(s)", "", false);
-        createLabelComp(priSwellComp, "Dir(deg)", "(from)", false);
-        createLabelComp(priSwellComp, "Dir(deg)", "(to)", false);
+        createGroupHeader("Primary Swell", 1, 8, true);
+        createHeader("Height(ft)", 1, 2, true);
+        createHeader("Periods(s)", 3, 4, true);
+        createHeader("Dir(deg)\n(from)", 5, 6, true);
+        createHeader("Dir(deg)\n(to)", 7, 8, true);
 
         /*
          * Secondary Swell
          */
-        Composite secSwellComp = createGroupComposite(lblComp, 4,
-                "Secondary Swell");
-        createLabelComp(secSwellComp, "Height(ft)", "", false);
-        createLabelComp(secSwellComp, "Periods(s)", "", false);
-        createLabelComp(secSwellComp, "Dir(deg)", "(from)", false);
-        createLabelComp(secSwellComp, "Dir(deg)", "(to)", false);
+        createGroupHeader("Secondary Swell", 9, 16, true);
+        createHeader("Height(ft)", 9, 10, true);
+        createHeader("Periods(s)", 11, 12, true);
+        createHeader("Dir(deg)\n(from)", 13, 14, true);
+        createHeader("Dir(deg)\n(to)", 15, 16, true);
     }
 
     @Override
-    protected void populateList() {
+    protected void populateTable() {
         if (ssDataArray == null) {
             createDataArray();
         }
 
         boolean update = false;
-        if (dataList.getItemCount() > 0) {
+        if (dataTable.getItemCount() > 0) {
             update = true;
         }
 
@@ -117,23 +107,34 @@ public class SSDisplaySwellTab extends TabItemComp implements
 
         String currentAreaID;
 
-        StringBuilder sb = null;
         SSDispMonSwellData sssd = null;
 
+        int numColumns = 17;
+        new TableColumn(dataTable, SWT.LEFT);
+        for (int c = 1; c < numColumns; c++) {
+            new TableColumn(dataTable, SWT.RIGHT);
+        }
+
         for (int i = 0; i < ssDataArray.size(); i++) {
-            sb = new StringBuilder();
+
+            TableItem item;
+            if (update == true) {
+                item = dataTable.getItem(i);
+            } else {
+                item = new TableItem(dataTable, SWT.NONE);
+            }
 
             sssd = ssDataArray.get(i);
 
             currentAreaID = sssd.getAreaID();
             areaIDArray.add(currentAreaID);
 
-            sb.append(String.format(areaIdFmt, currentAreaID));
+            item.setText(0, currentAreaID);
 
             /*
              * Primary Swell
              */
-            appendIntData(sb, sssd.getPriSwellHeightR(),
+            appendIntData(item, 1, sssd.getPriSwellHeightR(),
                     sssd.getPriSwellHeightY());
 
             double higherThreshold = Math.max(sssd.getPriSwellPeriodR(),
@@ -149,18 +150,18 @@ public class SSDisplaySwellTab extends TabItemComp implements
                 sssd.setPriSwellPeriodR(lowerThreshold);
                 sssd.setPriSwellPeriodY(higherThreshold);
             }
-            appendIntData(sb, sssd.getPriSwellPeriodR(),
+            appendIntData(item, 3, sssd.getPriSwellPeriodR(),
                     sssd.getPriSwellPeriodY());
 
-            appendIntData(sb, sssd.getPriSwellDirFromY(),
+            appendIntData(item, 5, sssd.getPriSwellDirFromY(),
                     sssd.getPriSwellDirFromR());
-            appendIntData(sb, sssd.getPriSwellDirToR(),
+            appendIntData(item, 7, sssd.getPriSwellDirToR(),
                     sssd.getPriSwellDirToY());
 
             /*
              * Secondary Swell
              */
-            appendIntData(sb, sssd.getSecSwellHeightR(),
+            appendIntData(item, 9, sssd.getSecSwellHeightR(),
                     sssd.getSecSwellHeightY());
 
             higherThreshold = Math.max(sssd.getSecSwellPeriodR(),
@@ -176,23 +177,13 @@ public class SSDisplaySwellTab extends TabItemComp implements
                 sssd.setSecSwellPeriodR(lowerThreshold);
                 sssd.setSecSwellPeriodY(higherThreshold);
             }
-            appendIntData(sb, sssd.getSecSwellPeriodR(),
+            appendIntData(item, 11, sssd.getSecSwellPeriodR(),
                     sssd.getSecSwellPeriodY());
-            appendIntData(sb, sssd.getSecSwellDirFromY(),
+            appendIntData(item, 13, sssd.getSecSwellDirFromY(),
                     sssd.getSecSwellDirFromR());
-            appendIntData(sb, sssd.getSecSwellDirToR(),
+            appendIntData(item, 15, sssd.getSecSwellDirToR(),
                     sssd.getSecSwellDirToY());
 
-            /*
-             * Append a space and add the data line to the list.
-             */
-            sb.append(" ");
-
-            if (update == true) {
-                dataList.setItem(i, sb.toString());
-            } else {
-                dataList.add(sb.toString());
-            }
         }
 
         packListControls();
@@ -278,13 +269,13 @@ public class SSDisplaySwellTab extends TabItemComp implements
     }
 
     private SSDispMonSwellData getDataAtFirstSelection() {
-        int index = dataList.getSelectionIndex();
+        int index = dataTable.getSelectionIndex();
 
         return ssDataArray.get(index);
     }
 
     private void updateDataArray(SSDispMonSwellData sssd) {
-        int[] dataListIndexes = dataList.getSelectionIndices();
+        int[] dataListIndexes = dataTable.getSelectionIndices();
         int currentIndex = 0;
 
         for (int i = 0; i < dataListIndexes.length; i++) {
@@ -365,11 +356,11 @@ public class SSDisplaySwellTab extends TabItemComp implements
 
     @Override
     public void reloadData() {
-        dataList.removeAll();
+        dataTable.removeAll();
         ssDataArray.clear();
         ssDataArray = null;
 
-        populateList();
+        populateTable();
     }
 
     @Override
@@ -388,7 +379,7 @@ public class SSDisplaySwellTab extends TabItemComp implements
     @Override
     public void updateThresholdData(SSDispMonSwellData sssd) {
         updateDataArray(sssd);
-        populateList();
+        populateTable();
 
     }
 }

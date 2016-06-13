@@ -40,7 +40,10 @@
 # Jul 23, 2015  ASM#13849 D. Friedman Use a unique Eclipse configuration directory
 # Aug 03, 2015  #4694     dlovely     Fixed path for log file cleanup
 # Sep 16, 2015  #18041    lshi        Purge CAVE logs after 30 days instead of 7
+# Apr 20, 2016  #18910    lshi        Change CAVE log purging to add check for find commands 
+#                                     already running
 # May 27, 2016  ASM#18971 dfriedman   Fix local variable usage in deleteOldEclipseConfigurationDirs
+########################
 
 source /awips2/cave/iniLookup.sh
 RC=$?
@@ -384,11 +387,12 @@ function deleteOldCaveLogs()
     local curDir=$(pwd)
     local mybox=$(hostname)
 
-    echo -e "Cleaning consoleLogs: "
-    echo -e "find $HOME/$BASE_LOGDIR -type f -name "*.log" -mtime +30 -exec rm {} \;"
-
-
-    find "$HOME/$BASE_LOGDIR" -type f -name "*.log" -mtime +30 -exec rm {} \;
+    pidof /bin/find > /dev/null
+    if [[ $? -ne 0 ]] ; then
+        echo -e "Cleaning consoleLogs: "
+        echo -e "find $HOME/$BASE_LOGDIR -type f -name "*.log" -mtime +30 | xargs rm "
+        find "$HOME/$BASE_LOGDIR" -type f -name "*.log" -mtime +30 | xargs rm
+    fi
 
     exit 0
 

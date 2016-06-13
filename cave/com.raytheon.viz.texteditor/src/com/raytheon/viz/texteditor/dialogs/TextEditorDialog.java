@@ -385,6 +385,7 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  *                                      Moved upper case conversion for QC checks into the 
  *                                      specific checks that need it.
  * Mar 17, 2016 RM 18727    D. Friedman Fix use of verification listener when entering and exiting editor.
+ * Apr 15, 2016 RM 18870    D. Friedman Replace commas with ellipses only at start of edit and then word-wrap.
  * May 26, 2016 RM 17614 mgamazaychikov Fix loading of product on exit from edit mode.
  * 
  * </pre>
@@ -4193,19 +4194,18 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         // section
         setCurrentHeaderAndBody();
 
+        // Mark the uneditable warning text
+        if (markUneditableText(textEditor)) {
+            // Enable listener to monitor attempt to edit locked text
+            verifyUndeditableText = true;
+        }
+
         // if product is a WarnGen product and is not enabled for mixed case
         // transmission, replace all commas with ellipses
         if (TextEditorCfg.getTextEditorCfg().getReplaceCommasWithEllipses()
                 && product != null && warngenPils.contains(product.getNnnid())
                 && !MixedCaseProductSupport.isMixedCase(product.getNnnid())) {
-            textEditor.setText(textEditor.getText()
-                    .replaceAll(", {0,1}", "..."));
-        }
-
-        // Mark the uneditable warning text
-        if (markUneditableText(textEditor)) {
-            // Enable listener to monitor attempt to edit locked text
-            verifyUndeditableText = true;
+            replaceCommasWithEllipses(product);
         }
 
         // Set the menu buttons to reflect the edit mode.
@@ -4233,6 +4233,60 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
         // Edit the header block of the text product.
         editHeader("warning", true);
+    }
+
+    private void replaceCommasWithEllipses(StdTextProduct product) {
+        boolean wasVerifying = verifyUndeditableText;
+        try {
+            verifyUndeditableText = false;
+            /*
+             * Performing wrapping as few times as possible to reduce the
+             * chances of breaking the product format. Also, the location list
+             * does not wrap properly unless all commas in the paragraph have
+             * been changed to ellipses.
+             */
+            Pattern p = Pattern.compile(", {0,1}");
+            int pendingParagraphLineStart = -1;
+            while (true) {
+                String text = textEditor.getText();
+                Matcher m = p.matcher(text);
+                if (! m.find())
+                    break;
+                int line = textEditor.getLineAtOffset(m.start());
+                int paragraphLineStart = findParagraphStart(line);
+                String lineText = textEditor.getLine(line);
+                boolean lineNeedsWrap = lineText.length()
+                        - (m.end() - m.start()) + 3 > charWrapCol;
+                if (pendingParagraphLineStart >= 0
+                        && paragraphLineStart != pendingParagraphLineStart
+                        && lineNeedsWrap) {
+                    wrapWholeParagraphAtLine(pendingParagraphLineStart);
+                    pendingParagraphLineStart = -1;
+                    // Line numbers may have changed so restart.
+                    continue;
+                }
+                textEditor.replaceTextRange(m.start(), m.end() - m.start(), "...");
+                if (lineNeedsWrap) {
+                    pendingParagraphLineStart = paragraphLineStart;
+                }
+            }
+            if (pendingParagraphLineStart >= 0) {
+                wrapWholeParagraphAtLine(pendingParagraphLineStart);
+            }
+        } finally {
+            verifyUndeditableText = wasVerifying;
+        }
+    }
+
+    void wrapWholeParagraphAtLine(int paragraphLineStart) {
+        String line = textEditor.getLine(paragraphLineStart);
+        // Avoid rewrapInternal early bailout check.
+        if (line.length() < charWrapCol
+                && line.indexOf("...") == line.lastIndexOf("...")) {
+            paragraphLineStart++;
+        }
+        int offset = textEditor.getOffsetAtLine(paragraphLineStart);
+        rewrap(offset, offset);
     }
 
     /**
@@ -4334,17 +4388,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             if (originalText != null) {
                 textEditor.setText(originalText);
             }
-        }
-
-        // if product is a WarnGen product and is not enabled for mixed case
-        // transmission, replace all commas with ellipses
-        StdTextProduct product = TextDisplayModel.getInstance()
-                .getStdTextProduct(token);
-        if (TextEditorCfg.getTextEditorCfg().getReplaceCommasWithEllipses()
-                && product != null && warngenPils.contains(product.getNnnid())
-                && !MixedCaseProductSupport.isMixedCase(product.getNnnid())) {
-            textEditor.setText(textEditor.getText()
-                    .replaceAll(", {0,1}", "..."));
         }
 
         markUneditableText(textEditor);
@@ -8017,7 +8060,10 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
         paragraphStart = paragraphStart.toUpperCase();
         // is this the locations paragraph?
-        if (paragraphStart.startsWith("* LOCATIONS")) {
+        if (paragraphStart.startsWith("* LOCATIONS")
+                || paragraphStart.startsWith(("* SOME LOCATIONS"))
+                || paragraphStart.startsWith(("LOCATIONS IMPACTED"))
+                || paragraphStart.startsWith(("SOME LOCATIONS THAT"))) {
             inLocations = true;
         }
 
@@ -8058,7 +8104,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         }
 
         if (line.length() <= charWrapCol) {
-            extendShortLine(lineNumber, padding);
+            extendShortLine(lineNumber, padding, inLocations);
             if (textEditor.getLine(lineNumber).length() <= charWrapCol) {
                 // extended line is still short enough do not wrap
                 if (lineNumber < endWrapLine) {
@@ -8089,8 +8135,9 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * 
      * @param lineNumber
      * @param padding
+     * @param inLocations
      */
-    private void extendShortLine(int lineNumber, final String padding) {
+    private void extendShortLine(int lineNumber, final String padding, boolean inLocations) {
         // if the line is too short move the next line up
         // if there is a next line
         String line = textEditor.getLine(lineNumber);
@@ -8170,10 +8217,12 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     String wordSpace = "";
                     if (noSeparatorPattern.matcher(endLine).matches()
                             && noSeparatorPattern.matcher(startNextLine)
-                                    .matches()) {
+                                    .matches()
+                            && (!inLocations || !line.endsWith("..."))) {
                         // Put a space between words when merging the lines.
                         wordSpace = " ";
                     }
+
                     textEditor.replaceTextRange(newlinePosition, deleteLen,
                             wordSpace);
                     String afterReplace = textEditor.getText();
@@ -8187,7 +8236,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
                     // is this line still too short?
                     if (textEditor.getLine(lineNumber).length() <= charWrapCol) {
-                        extendShortLine(lineNumber, padding);
+                        extendShortLine(lineNumber, padding, inLocations);
                     }
                 }
             }
@@ -8440,7 +8489,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     private void recompileRegex() {
         this.standardWrapRegex = Pattern.compile("(  |..).{1,"
                 + (charWrapCol - 3) + "}(\\s|-)");
-        this.locationsFirstRegex = Pattern.compile("^\\* LOCATIONS [^\\.]{1,"
+        this.locationsFirstRegex = Pattern.compile("^(?:\\* (?:SOME )?LOCATIONS|LOCATIONS IMPACTED|SOME LOCATIONS THAT) [^\\.]{1,"
                 + (charWrapCol - 13) + "}\\s");
         this.locationsBodyRegex = Pattern.compile("((  |..).{1,"
                 + (charWrapCol - 5) + "}\\.\\.\\.)|((  |..).{1,"

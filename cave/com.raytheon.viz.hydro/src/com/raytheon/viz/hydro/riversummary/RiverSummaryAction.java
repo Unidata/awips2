@@ -26,7 +26,9 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.handlers.HandlerUtil;
+
+import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 /**
  * Action for unimplemented features. To be used temporarily until final
@@ -40,6 +42,7 @@ import org.eclipse.ui.PlatformUI;
  * ------------	----------	-----------	--------------------------
  * 6/27/06                  lvenable    Initial Creation.
  * 03/15/2013   1790        rferrel     Changes for non-blocking RiverSummaryDlg.
+ * 04/08/2016   5483        dgilling    Code cleanup.
  * 
  * </pre>
  * 
@@ -47,20 +50,12 @@ import org.eclipse.ui.PlatformUI;
  * 
  */
 public class RiverSummaryAction extends AbstractHandler {
-    private RiverSummaryDlg riverSummaryDlg;
+    private CaveJFACEDialog riverSummaryDlg;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.core.commands.AbstractHandler#execute(org.eclipse.core.commands
-     * .ExecutionEvent)
-     */
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        if (riverSummaryDlg == null || riverSummaryDlg.isDisposed()) {
-            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                    .getShell();
+        if ((riverSummaryDlg == null) || (!riverSummaryDlg.isOpen())) {
+            Shell shell = HandlerUtil.getActiveShellChecked(arg0);
             riverSummaryDlg = new RiverSummaryDlg(shell);
             riverSummaryDlg.open();
         } else {
@@ -69,5 +64,4 @@ public class RiverSummaryAction extends AbstractHandler {
 
         return null;
     }
-
 }

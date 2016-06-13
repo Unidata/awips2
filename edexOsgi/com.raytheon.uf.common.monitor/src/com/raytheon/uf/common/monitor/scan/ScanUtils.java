@@ -78,6 +78,7 @@ import com.vividsolutions.jts.io.WKTWriter;
  * 05/13/2014   3133       njensen    Moved convertStrankValue here from ScanConfig
  * Jun 05, 2014 3226       bclement   BinLightning refactor
  *                                    compare lightning strike type by id instead of ordinal
+ * May 17, 2016 19009      dhladky (code ckecked in by zhao) Modified decodeDPRValue() 
  * </pre>
  * 
  * @author dhladky
@@ -812,10 +813,8 @@ public class ScanUtils {
      * @return
      */
     public static float decodeDPRValue(int dataValue) {
-
         // DPR is shown in 1000th of an inch
-
-        return dataValue / 1000;
+        return (float) (dataValue / 1000.0f);
     }
 
     /**

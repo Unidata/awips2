@@ -101,6 +101,7 @@ import com.raytheon.uf.viz.alertviz.ui.dialogs.ConfigurationFileDlg.Function;
  * 23 Oct 2013   2303      bgonzale    Old patch to fix tool tip layout.
  * 28 Oct 2005   5054      randerso    Removed bar position as it was written but never read
  * 25 Jan 2016   5054      randerso    Converted to stand alone window
+ * 19 Apr 2016   5517      randerso    Fix GUI sizing issues
  * 
  * </pre>
  * 
@@ -855,23 +856,46 @@ public class AlertVisConfigDlg implements IConfigurationChangedListener,
         // Filler
         new Label(prioritiesComp, SWT.NONE);
 
-        gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
-        gd.horizontalSpan = 6;
-        Label priorityLbl = new Label(prioritiesComp, SWT.CENTER);
-        priorityLbl.setText(getPriorityLabelText());
-        priorityLbl.setFont(labelFont);
-        priorityLbl.setLayoutData(gd);
-        priorityLbl.setData(MonitorToolTip.tooltipTextKey,
-                getPrioritiesToolTipText());
+        Label label = new Label(prioritiesComp, SWT.CENTER);
+        label.setFont(labelFont);
+        label.setText("HIGH");
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        label.setLayoutData(gd);
 
-        mttPriorities = new MonitorToolTip(priorityLbl, false);
+        label = new Label(prioritiesComp, SWT.CENTER);
+        label.setFont(labelFont);
+        label.setText("<---");
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        label.setLayoutData(gd);
 
-        priorityLbl.addMouseTrackListener(new MouseTrackAdapter() {
+        label = new Label(prioritiesComp, SWT.CENTER);
+        label.setFont(labelFont);
+        label.setText("PRIORITIES");
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gd.horizontalSpan = 2;
+        label.setLayoutData(gd);
+        label.setData(MonitorToolTip.tooltipTextKey, getPrioritiesToolTipText());
+        mttPriorities = new MonitorToolTip(label, false);
+
+        MouseTrackAdapter hoverListener = new MouseTrackAdapter() {
             @Override
             public void mouseHover(MouseEvent e) {
                 mttPriorities.open();
             }
-        });
+        };
+        label.addMouseTrackListener(hoverListener);
+
+        label = new Label(prioritiesComp, SWT.CENTER);
+        label.setFont(labelFont);
+        label.setText("--->");
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        label.setLayoutData(gd);
+
+        label = new Label(prioritiesComp, SWT.CENTER);
+        label.setFont(labelFont);
+        label.setText("LOW");
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        label.setLayoutData(gd);
 
         // ---------------------------------------------------------
         // Put the priority canvases on the display
@@ -1096,21 +1120,6 @@ public class AlertVisConfigDlg implements IConfigurationChangedListener,
         gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
         defaultConLbl.setLayoutData(gd);
         saveNeeded(false);
-    }
-
-    /**
-     * Get the text for the priorities label.
-     * 
-     * @return Label text.
-     */
-    private String getPriorityLabelText() {
-        String format = "%S";
-
-        String text = "High      <---       PRIORITIES      -->      Low";
-
-        String labelStr = String.format(format, text);
-
-        return labelStr;
     }
 
     /**
@@ -1520,14 +1529,14 @@ public class AlertVisConfigDlg implements IConfigurationChangedListener,
     private String getCommonSettingToolTipText() {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("This are general settings.  The left\n");
+        sb.append("These are general settings.  The left\n");
         sb.append("side describes how the text message\n");
         sb.append("representations will be affected\n");
         sb.append("in the main GUI (if text is turned\n");
-        sb.append(" on for thekey/priority) and the Pop-ups\n");
-        sb.append("and how long thetext blinking and system\n");
-        sb.append("audio execution willlast (again, if turned\n");
-        sb.append("on).  The right side definesother, general\n");
+        sb.append("on for the key/priority) and the Pop-ups\n");
+        sb.append("and how long the text blinking and system\n");
+        sb.append("audio execution will last (again, if turned\n");
+        sb.append("on).  The right side defines other, general\n");
         sb.append("behavior.");
         sb.append("NOTE: to make blinking or audio \n");
         sb.append("responses perpetual, set the duration to 0.");

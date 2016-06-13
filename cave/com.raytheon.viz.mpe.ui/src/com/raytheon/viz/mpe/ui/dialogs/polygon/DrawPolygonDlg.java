@@ -30,13 +30,13 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Scale;
 import org.eclipse.swt.widgets.Shell;
@@ -67,6 +67,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Jan 12, 2015 16993      snaples     Restored code for Substitute Field Combo box.
  * Feb 26, 2015 17209      cgobs       Ensured that there is an initial selection of Substitution field, prevents empty selection.
  * Feb 15, 2016 5338       bkowal      Remove commented code. Cleanup.
+ * Apr 07, 2016 5504       bkowal      Fix GUI sizing issues.
  * 
  * </pre>
  * 
@@ -89,11 +90,6 @@ public class DrawPolygonDlg extends CaveSWTDialog {
      * Bold Font.
      */
     private Font boldFont = null;
-
-    /**
-     * Normal font.
-     */
-    private Font font = null;
 
     /**
      * The field type selection Combo control.
@@ -152,14 +148,13 @@ public class DrawPolygonDlg extends CaveSWTDialog {
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
         GridLayout mainLayout = new GridLayout(1, true);
-        mainLayout.marginHeight = 1;
-        mainLayout.marginWidth = 1;
+        mainLayout.marginHeight = 0;
+        mainLayout.marginWidth = 0;
         return mainLayout;
     }
 
     @Override
     protected void disposed() {
-        font.dispose();
         boldFont.dispose();
         resource.clearPolygons();
     }
@@ -168,8 +163,6 @@ public class DrawPolygonDlg extends CaveSWTDialog {
     protected void initializeComponents(final Shell shell) {
         setReturnValue(false);
 
-        boldFont = new Font(shell.getDisplay(), "Monospace", 10, SWT.BOLD);
-        font = new Font(shell.getDisplay(), "Monospace", 10, SWT.NORMAL);
         // Initialize all of the controls and layoutsendCal
         initializeComponents();
         shell.addControlListener(new ControlAdapter() {
@@ -215,10 +208,14 @@ public class DrawPolygonDlg extends CaveSWTDialog {
     private void createPersistentGroup() {
         // Create adjust group
         Group persistentGroupComp = new Group(shell, SWT.NONE);
+
+        FontData fontData = persistentGroupComp.getFont().getFontData()[0];
+        this.boldFont = new Font(getDisplay(), new FontData(fontData.getName(),
+                fontData.getHeight(), SWT.BOLD));
         persistentGroupComp.setFont(boldFont);
         persistentGroupComp.setText(ADJUST_PRECIP_TEXT);
-        persistentGroupComp.setLayout(new GridLayout(1, true));
-        GridData gd = new GridData(345, SWT.DEFAULT);
+        persistentGroupComp.setLayout(new GridLayout(1, false));
+        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         persistentGroupComp.setLayoutData(gd);
 
         getPersistentChk(persistentGroupComp);
@@ -234,8 +231,8 @@ public class DrawPolygonDlg extends CaveSWTDialog {
         Group subGroup = new Group(shell, SWT.NONE);
         subGroup.setFont(boldFont);
         subGroup.setText(SUBSTITUTE_VALUE_TEXT);
-        subGroup.setLayout(new GridLayout(2, false));
-        GridData gd = new GridData(345, SWT.DEFAULT);
+        subGroup.setLayout(new GridLayout(1, false));
+        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         subGroup.setLayoutData(gd);
 
         createFieldCombo(subGroup);
@@ -243,7 +240,8 @@ public class DrawPolygonDlg extends CaveSWTDialog {
         // Create Substitute button
         final Button subBtn = new Button(subGroup, SWT.PUSH);
         subBtn.setData(PolygonEditAction.SUB);
-        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, false, false, 2, 1);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, true, false);
+        gd.minimumWidth = subBtn.getDisplay().getDPI().x;
         subBtn.setText("Substitute");
         subBtn.setLayoutData(gd);
         subBtn.addSelectionListener(new SelectionAdapter() {
@@ -260,8 +258,8 @@ public class DrawPolygonDlg extends CaveSWTDialog {
     private void createCloseBtn() {
         Button closeBtn = new Button(shell, SWT.PUSH);
         closeBtn.setText("Close");
-        GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, false, false, 1, 1);
-        closeBtn.setAlignment(SWT.CENTER);
+        GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
+        gd.minimumWidth = closeBtn.getDisplay().getDPI().x;
         closeBtn.setLayoutData(gd);
         closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -279,10 +277,9 @@ public class DrawPolygonDlg extends CaveSWTDialog {
      */
     private void getPersistentChk(Group groupComp) {
         persistentChk = new Button(groupComp, SWT.CHECK);
-        GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, false, false);
+        GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         persistentChk.setLayoutData(gd);
         persistentChk.setText(MAKE_PERSISTENT);
-        persistentChk.setFont(font);
     }
 
     /**
@@ -293,9 +290,12 @@ public class DrawPolygonDlg extends CaveSWTDialog {
      */
     private void getSliderComp(Group groupComp) {
         Composite comp = new Composite(groupComp, SWT.NONE);
-        comp.setLayout(new GridLayout(2, false));
+        GridLayout gl = new GridLayout(2, false);
+        comp.setLayout(gl);
+        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        comp.setLayoutData(gd);
 
-        GridData gd = new GridData(250, 30);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         precipSlider = new Scale(comp, SWT.HORIZONTAL);
         precipSlider.setMinimum(0);
         precipSlider.setMaximum(500);
@@ -310,7 +310,7 @@ public class DrawPolygonDlg extends CaveSWTDialog {
 
         // Create the Red color spinner.
         precipSpinner = new Spinner(comp, SWT.BORDER);
-        gd = new GridData(30, SWT.DEFAULT);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, false, false);
         precipSpinner.setLayoutData(gd);
         precipSpinner.setMinimum(0);
         precipSpinner.setMaximum(500);
@@ -333,7 +333,9 @@ public class DrawPolygonDlg extends CaveSWTDialog {
      */
     private void getButtonComp(Group groupComp) {
         Composite comp = new Composite(groupComp, SWT.NONE);
-        comp.setLayout(new GridLayout(5, false));
+        comp.setLayout(new GridLayout(5, true));
+        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        comp.setLayoutData(gd);
 
         PolygonEditAction[] editBtns = new PolygonEditAction[] {
                 PolygonEditAction.SET, PolygonEditAction.RAISE,
@@ -344,7 +346,8 @@ public class DrawPolygonDlg extends CaveSWTDialog {
             Button editBtn = new Button(comp, SWT.PUSH);
             editBtn.setText(action.toPrettyName());
             editBtn.setData(action);
-            editBtn.setLayoutData(new GridData(60, SWT.DEFAULT));
+            gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+            editBtn.setLayoutData(gd);
             editBtn.addSelectionListener(new SelectionAdapter() {
                 @Override
                 public void widgetSelected(SelectionEvent event) {
@@ -366,14 +369,9 @@ public class DrawPolygonDlg extends CaveSWTDialog {
         // Create a container to hold the label and the combo box.
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Composite prodListComp = new Composite(shell, SWT.NONE);
-        GridLayout prodListCompLayout = new GridLayout(2, false);
+        GridLayout prodListCompLayout = new GridLayout(1, false);
         prodListComp.setLayout(prodListCompLayout);
         prodListComp.setLayoutData(gd);
-
-        gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
-        Label fieldTypeLabel = new Label(prodListComp, SWT.CENTER);
-        fieldTypeLabel.setText(SUBSTITUTE_VALUE_TEXT);
-        fieldTypeLabel.setLayoutData(gd);
 
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         fieldTypeCombo = new Combo(groupComp, SWT.LEFT | SWT.DROP_DOWN
@@ -401,7 +399,6 @@ public class DrawPolygonDlg extends CaveSWTDialog {
         displayTypeNameArray = new String[displayFieldDataArray.length];
 
         for (int i = 0; i < displayFieldDataArray.length; i++) {
-
             String fieldName = displayFieldDataArray[i].toString();
             displayTypeNameArray[i] = fieldName;
         }

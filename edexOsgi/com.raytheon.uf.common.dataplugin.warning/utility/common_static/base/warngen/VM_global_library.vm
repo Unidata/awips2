@@ -38,6 +38,7 @@
 #####                                  several DRs related to unique part-of-state codes, watch boxes, etc..
 #####    Bookbinder        10-30-2015  Added several additional fe_area codes and cleaned up watch logic.
 #####    Evan Bookbinder   12-01-2015  Fixed single column output
+#####    Richard Barnhill   5-10-2016  Fixed "OF" to "of" to conform to mixed case
 ##############################################################################################################
 #*
 Mile Marker Test Code                                     
@@ -1760,7 +1761,7 @@ and ${strOutput}
 #capitalize(${ruralPhrase}, 'FIRSTONLY') will remain over mainly open waters.
 #else
 ## NO MAJOR POINTS FOUND. LIST RURAL AREAS
-#capitalize(${ruralPhrase}, 'FIRSTONLY') will remain over ${noLocPhrase} OF #headlineLocList(${areas} true true true false)##
+#capitalize(${ruralPhrase}, 'FIRSTONLY') will remain over ${noLocPhrase} of #headlineLocList(${areas} true true true false)##
 #set($numMinorPoints = ${list.size($otherLocList)})
 #if(${numMinorPoints} == 1)
 , which includes ##

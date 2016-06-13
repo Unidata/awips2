@@ -22,11 +22,9 @@ package com.raytheon.uf.viz.monitor.safeseas.ui.dialogs;
 import java.util.ArrayList;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TabFolder;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
 
 import com.raytheon.uf.common.monitor.data.MonitorConfigConstants.SafeSeasDisplay;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
@@ -43,13 +41,15 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.TabItemComp;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Dec 26, 2015 5115       skorolev    Corrected imports.
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- -----------------
+ * ????                   ????      Initial creation
+ * Dec 26, 2015  5115     skorolev  Corrected imports.
+ * Jun 02, 2016  5673     randerso  Fixed header alignment in threshold dialogs
  * 
  * </pre>
  * 
- * @author skorolev
+ * @author ????
  * @version 1.0
  */
 public class SSDisplayProductTab extends TabItemComp implements
@@ -65,66 +65,55 @@ public class SSDisplayProductTab extends TabItemComp implements
     }
 
     @Override
-    protected void createListHeader(Composite parentComp) {
-        Composite lblComp = new Composite(parentComp, SWT.NONE);
-        GridLayout gl = new GridLayout(5, false);
-        gl.horizontalSpacing = 0;
-        gl.marginHeight = 0;
-        gl.marginWidth = 0;
-        lblComp.setLayout(gl);
-
+    protected void createListHeader() {
         /*
          * Create filler label.
          */
-        GridData gd = new GridData(75, SWT.DEFAULT);
-        Label fillerLbl = new Label(lblComp, SWT.CENTER);
-        fillerLbl.setLayoutData(gd);
+        createGroupHeader("", 0, 0, false);
+        createHeader("", 0, 0, false);
 
         /*
          * Small AirCraft Warning
          */
-        Composite smallAircraftComp = createGroupComposite(lblComp, 4,
-                "Small Craft Advisory");
-        createLabelComp(smallAircraftComp, "Wind", "Speed(kt)", false);
-        createLabelComp(smallAircraftComp, "Gust", "Speed(kt)", false);
-        createLabelComp(smallAircraftComp, "Peak", "Wind(kt)", false);
-        createLabelComp(smallAircraftComp, "Wave", "Height(ft)", false);
+        createGroupHeader("Small Craft Advisory", 1, 8, true);
+        createHeader("Wind\nSpeed(kt)", 1, 2, true);
+        createHeader("Gust\nSpeed(kt)", 3, 4, true);
+        createHeader("Peak\nWind(kt)", 5, 6, true);
+        createHeader("Wave\nHeight(ft)", 7, 8, true);
 
         /*
          * Gale Warning
          */
-        Composite galeWarningComp = createGroupComposite(lblComp, 3,
-                "Gale Warning");
-        createLabelComp(galeWarningComp, "Wind", "Speed(kt)", false);
-        createLabelComp(galeWarningComp, "Gust", "Speed(kt)", false);
-        createLabelComp(galeWarningComp, "Peak", "Wind(kt)", false);
+        createGroupHeader("Gale Warning", 9, 14, true);
+        createHeader("Wind\nSpeed(kt)", 9, 10, true);
+        createHeader("Gust\nSpeed(kt)", 11, 12, true);
+        createHeader("Peak\nWind(kt)", 13, 14, true);
 
         /*
          * Storm Warning
          */
-        Composite stormWarningComp = createGroupComposite(lblComp, 3,
-                "Storm Warning");
-        createLabelComp(stormWarningComp, "Wind", "Speed(kt)", false);
-        createLabelComp(stormWarningComp, "Gust", "Speed(kt)", false);
-        createLabelComp(stormWarningComp, "Peak", "Wind(kt)", false);
+        createGroupHeader("Storm Warning", 15, 20, true);
+        createHeader("Wind\nSpeed(kt)", 15, 16, true);
+        createHeader("Gust\nSpeed(kt)", 17, 18, true);
+        createHeader("Peak\nWind(kt)", 19, 20, true);
 
         /*
          * HFWW (Hurricane Force Wind Warning)
          */
-        Composite hfwwComp = createGroupComposite(lblComp, 3, "HFWW");
-        createLabelComp(hfwwComp, "Wind", "Speed(kt)", false);
-        createLabelComp(hfwwComp, "Gust", "Speed(kt)", false);
-        createLabelComp(hfwwComp, "Peak", "Wind(kt)", false);
+        createGroupHeader("HFWW", 21, 26, true);
+        createHeader("Wind\nSpeed(kt)", 21, 22, true);
+        createHeader("Gust\nSpeed(kt)", 23, 24, true);
+        createHeader("Peak\nWind(kt)", 25, 26, true);
     }
 
     @Override
-    protected void populateList() {
+    protected void populateTable() {
         if (ssDataArray == null) {
             createDataArray();
         }
 
         boolean update = false;
-        if (dataList.getItemCount() > 0) {
+        if (dataTable.getItemCount() > 0) {
             update = true;
         }
 
@@ -132,69 +121,72 @@ public class SSDisplayProductTab extends TabItemComp implements
 
         String currentAreaID;
 
-        StringBuilder sb = null;
         SSDisplayProductData ssdpd = null;
 
+        int numColumns = 27;
+        new TableColumn(dataTable, SWT.LEFT);
+        for (int c = 1; c < numColumns; c++) {
+            new TableColumn(dataTable, SWT.RIGHT);
+        }
+
         for (int i = 0; i < ssDataArray.size(); i++) {
-            sb = new StringBuilder();
+
+            TableItem item;
+            if (update == true) {
+                item = dataTable.getItem(i);
+            } else {
+                item = new TableItem(dataTable, SWT.NONE);
+            }
 
             ssdpd = ssDataArray.get(i);
 
             currentAreaID = ssdpd.getAreaID();
             areaIDArray.add(currentAreaID);
 
-            sb.append(String.format(areaIdFmt, currentAreaID));
+            item.setText(0, currentAreaID);
 
             /*
              * Small Craft Advisory
              */
-            appendIntData(sb, ssdpd.getScaWindSpeedR(),
+            appendIntData(item, 1, ssdpd.getScaWindSpeedR(),
                     ssdpd.getScaWindSpeedY());
-            appendIntData(sb, ssdpd.getScaGustSpeedR(),
+            appendIntData(item, 3, ssdpd.getScaGustSpeedR(),
                     ssdpd.getScaGustSpeedY());
-            appendIntData(sb, ssdpd.getScaPeakWindR(), ssdpd.getScaPeakWindY());
-            appendIntData(sb, ssdpd.getScaWaveHgtR(), ssdpd.getScaWaveHgtY());
+            appendIntData(item, 5, ssdpd.getScaPeakWindR(),
+                    ssdpd.getScaPeakWindY());
+            appendIntData(item, 7, ssdpd.getScaWaveHgtR(),
+                    ssdpd.getScaWaveHgtY());
 
             /*
              * Gale Warning
              */
-            appendIntData(sb, ssdpd.getGaleWindSpeedR(),
+            appendIntData(item, 9, ssdpd.getGaleWindSpeedR(),
                     ssdpd.getGaleWindSpeedY());
-            appendIntData(sb, ssdpd.getGaleGustSpeedR(),
+            appendIntData(item, 11, ssdpd.getGaleGustSpeedR(),
                     ssdpd.getGaleGustSpeedY());
-            appendIntData(sb, ssdpd.getGalePeakWindR(),
+            appendIntData(item, 13, ssdpd.getGalePeakWindR(),
                     ssdpd.getGalePeakWindY());
 
             /*
              * Storm Warning
              */
-            appendIntData(sb, ssdpd.getStormWrnWindSpeedR(),
+            appendIntData(item, 15, ssdpd.getStormWrnWindSpeedR(),
                     ssdpd.getStormWrnWindSpeedY());
-            appendIntData(sb, ssdpd.getStormWrnGustSpeedR(),
+            appendIntData(item, 17, ssdpd.getStormWrnGustSpeedR(),
                     ssdpd.getStormWrnGustSpeedY());
-            appendIntData(sb, ssdpd.getStormWrnPeakWindR(),
+            appendIntData(item, 19, ssdpd.getStormWrnPeakWindR(),
                     ssdpd.getStormWrnPeakWindY());
 
             /*
              * HFWW
              */
-            appendIntData(sb, ssdpd.getHfwwWindSpeedR(),
+            appendIntData(item, 21, ssdpd.getHfwwWindSpeedR(),
                     ssdpd.getHfwwWindSpeedY());
-            appendIntData(sb, ssdpd.getHfwwGustSpeedR(),
+            appendIntData(item, 23, ssdpd.getHfwwGustSpeedR(),
                     ssdpd.getHfwwGustSpeedY());
-            appendIntData(sb, ssdpd.getHfwwPeakWindR(),
+            appendIntData(item, 25, ssdpd.getHfwwPeakWindR(),
                     ssdpd.getHfwwPeakWindY());
 
-            /*
-             * Append a space and add the data line to the list.
-             */
-            sb.append(" ");
-
-            if (update == true) {
-                dataList.setItem(i, sb.toString());
-            } else {
-                dataList.add(sb.toString());
-            }
         }
 
         packListControls();
@@ -316,13 +308,13 @@ public class SSDisplayProductTab extends TabItemComp implements
     }
 
     private SSDisplayProductData getDataAtFirstSelection() {
-        int index = dataList.getSelectionIndex();
+        int index = dataTable.getSelectionIndex();
 
         return ssDataArray.get(index);
     }
 
     private void updateDataArray(SSDisplayProductData ssdpd) {
-        int[] dataListIndexes = dataList.getSelectionIndices();
+        int[] dataListIndexes = dataTable.getSelectionIndices();
         int currentIndex = 0;
 
         for (int i = 0; i < dataListIndexes.length; i++) {
@@ -436,11 +428,11 @@ public class SSDisplayProductTab extends TabItemComp implements
 
     @Override
     public void reloadData() {
-        dataList.removeAll();
+        dataTable.removeAll();
         ssDataArray.clear();
         ssDataArray = null;
 
-        populateList();
+        populateTable();
     }
 
     @Override
@@ -458,7 +450,7 @@ public class SSDisplayProductTab extends TabItemComp implements
     @Override
     public void updateThresholdData(SSDisplayProductData sspdp) {
         updateDataArray(sspdp);
-        populateList();
+        populateTable();
     }
 
 }

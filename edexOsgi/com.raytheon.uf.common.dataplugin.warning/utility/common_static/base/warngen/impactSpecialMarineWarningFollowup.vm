@@ -11,7 +11,8 @@
 ## UPDATED PHIL KURIMSKI -- MAR 23 2015 Mixed Case                    ##
 ##              BOOKBINDER - 9/4/2015 Fixed line of storms grammar    ##
 ##              Kurimski -- Oct 22 2015 Fixed CAN/EXP section combo   ##
-########################################################################
+##              BOOKBINDER 4/29/2016 Fixed issue setting StormType to Null ##
+#############################################################################
 #parse("config.vm")
 ############################################
 ## Set null variables used in the template
@@ -510,7 +511,6 @@ ${area.name}...
 	#set($stormline = "a ${eventType}")
 	#set($pathheader = "The ${eventType}")
 	#set($specialEvent = "This ${eventType}")
-	#set($stormType = "")
 	#set($reportType2 = "The ${eventType} was")
 #end
 #######################################################################
@@ -522,7 +522,6 @@ ${area.name}...
 	#set($pathheader = "The ${volcanoPath}")
 	#set($specialEvent = "The ${volcanoPath}")
 	#set($reportType2 = "The ${volcanoPath} was")
-	#set($stormType = "")
 	#set($impacted = "Locations impacted by ${volcanoPath} include...")
 #end
 ##########################################################################

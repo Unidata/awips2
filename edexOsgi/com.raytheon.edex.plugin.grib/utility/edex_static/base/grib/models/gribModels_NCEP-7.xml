@@ -203,6 +203,30 @@
         </process>
     </model>
 
+    <!-- conus 20KM -->
+    <model>
+        <name>GFS215</name>
+        <center>7</center>
+        <subcenter>0</subcenter>
+        <grid>215</grid>
+        <process>
+            <id>81</id>
+            <id>96</id>
+        </process>
+    </model>
+
+    <!-- ak 20KM -->
+    <model>
+        <name>GFS217</name>
+        <center>7</center>
+        <subcenter>0</subcenter>
+        <grid>GFS-AK-20KM</grid>
+        <process>
+            <id>81</id>
+            <id>96</id>
+        </process>
+    </model>
+
     <!-- pac 20KM -->
     <model>
         <name>GFS20-PAC</name>

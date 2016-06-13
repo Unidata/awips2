@@ -77,6 +77,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.common.util.Pair;
 import com.raytheon.uf.viz.core.VizApp;
@@ -139,7 +140,9 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  * Nov 06, 2015 17846      lbousaidi   change the query so that after QC, the quality_code  
  * Feb 17, 2016 14471      amoore      Update/insert/modify in Latest obs table
  *                                     is reset from Bad to Good.
- * Mar 17, 2016  5483      randerso    Major GUI cleanup
+ * Mar 17, 2016 5483       randerso    Major GUI cleanup
+ * May 02, 2016 5616       randerso    Fix parsing of duration value
+ * May 11, 2016 5483       bkowal      Fix GUI sizing issues.
  * 
  * </pre>
  * 
@@ -584,14 +587,14 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
      */
     private void initializeComponents() {
         // Get the dummy time
-        dummyTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        dummyTime = TimeUtil.newGmtCalendar();
         Date d = SimulatedTime.getSystemTime().getTime();
         dummyTime.setTime(d);
 
-        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-        prodBasisFmt.setTimeZone(TimeZone.getTimeZone("GMT"));
-        shefDateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-        shefTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+        sdf.setTimeZone(TimeUtil.GMT_TIME_ZONE);
+        prodBasisFmt.setTimeZone(TimeUtil.GMT_TIME_ZONE);
+        shefDateFormat.setTimeZone(TimeUtil.GMT_TIME_ZONE);
+        shefTimeFormat.setTimeZone(TimeUtil.GMT_TIME_ZONE);
 
         createTopTimeLabels();
         createTopListAndGroup();
@@ -768,13 +771,12 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
             @Override
             public void widgetSelected(SelectionEvent event) {
                 if (fcstAttDlg == null) {
-                    String[] sa = new String[2];
-                    sa[0] = "FF";
-                    sa[1] = "FZ";
                     fcstAtt = new ForecastDataAttribute(productIdLbl.getText(),
                             productTimeLbl.getText(), fcstBasisTimeLbl
-                                    .getText(), sa);
-                    fcstAttDlg = new ForecastAttributeDlg(shell, fcstAtt);
+                                    .getText(), new String[] { "FF", "FZ" });
+                    fcstAttDlg = new ForecastAttributeDlg(shell, fcstAtt,
+                            TimeUtil.newCalendar(dummyTime), TimeUtil
+                                    .newCalendar(dummyTime));
                     fcstAttDlg.addListener(TabularTimeSeriesDlg.this);
                     fcstAttDlg.open();
                 } else {
@@ -1302,8 +1304,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                         ts = item.getText(3);
                         pe = item.getText(1);
                         if (pe.equals(siteInfo.getPe())
-                                && item.getText(2).equals(
-                                        String.valueOf(siteInfo.getDur()))
+                                && Integer.parseInt(item.getText(2).trim()) == siteInfo
+                                        .getDur()
                                 && ts.equals(siteInfo.getTs())
                                 && item.getText(4).equals(siteInfo.getExt())) {
                             topDataTable.setSelection(j);
@@ -1372,7 +1374,7 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 
         lid = item.getText(0);
         pe = item.getText(1);
-        dur = item.getText(2);
+        dur = item.getText(2).trim();
         ts = item.getText(3);
         extremum = item.getText(4);
         basisTime = item.getText(5);
@@ -3499,6 +3501,7 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
     @Override
     public void notifyUpdate(FcstAttUpdateEvent faue) {
         fcstAtt = faue.getFcstAttributes();
+
         productTimeLbl.setText(fcstAtt.getTime());
         productIdLbl.setText(fcstAtt.getProductId());
         fcstBasisTimeLbl.setText(fcstAtt.getBasisTime());

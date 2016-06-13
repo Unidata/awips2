@@ -110,6 +110,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * Sep 28, 2015  4756       dhladky     Multiple Guidance upgrades.
  * Feb 04, 2016  5311       dhladky     Bug in creation of source bins fixed.
  * Apr 07, 2016  5491       tjensen     Fix NullPointerException from getRawGeometries
+ * May 17, 2016  19009      dhladky (code ckecked in by zhao) Modified DPR calculation in processRADAR() 
  * </pre>
  * 
  * @author dhladky
@@ -1186,17 +1187,8 @@ public class FFMPProcessor {
             }
 
         } else if (radarRec.getMnemonic().equals("DPR")) {
-
             for (int j = 0; j < dataVals.length; j++) {
-
-                float fval = 0.0f;
-
-                if (dataVals[j] > 0) {
-
-                    fval = ScanUtils.decodeDPRValue(dataVals[j]);
-                    val += fval * areas[j];
-                }
-
+                val += ScanUtils.decodeDPRValue(dataVals[j]) * areas[j];
                 area += areas[j];
             }
         }

@@ -3,8 +3,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -35,6 +37,7 @@ import com.raytheon.viz.pointdata.PointDataRequest;
  * ------------ ------- ---------- --------------------------
  * Dec 16, 2015 18191   pwang      Initial creation. Color code dots base on QC value
  * Feb 03, 2016 18588   wkwock     Fix update nucaps data issue.
+ * Apr 14, 2016 18588   wkwock     Improve the performance.
  * 
  * </pre>
  * 
@@ -59,7 +62,7 @@ public class NucapsSoundingMapResourceData extends NPPSoundingMapResourceData {
         NucapsSoundingMapResource resource = new NucapsSoundingMapResource(this,
                 loadProperties);
         if (objects instanceof PluginDataObject[]) {
-            resource.addRecords((PluginDataObject[]) objects);
+            resource.addRecordsNoUpdate((PluginDataObject[]) objects);
         }
         return resource;
     }
@@ -72,7 +75,7 @@ public class NucapsSoundingMapResourceData extends NPPSoundingMapResourceData {
      * @throws VizException
      */
     public PluginDataObject[] updatePluginDataObjects(PluginDataObject[] records) throws VizException {
-        List<DataTime> timesToLoad = new ArrayList<DataTime>();
+        Set<DataTime> timesToLoad = new HashSet<DataTime>();
         for (PluginDataObject record : records){
             timesToLoad.add(record.getDataTime());
         }
