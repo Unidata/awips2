@@ -1,0 +1,21 @@
+[Unit]
+Description=The Apache HTTP Server
+After=network.target remote-fs.target nss-lookup.target
+
+[Service]
+Type=notify
+EnvironmentFile=/etc/sysconfig/httpd
+Environment=LD_LIBRARY_PATH=/awips2/python/lib:$LD_LIBRARY_PATH
+ExecStart=/awips2/httpd_pypies/usr/sbin/httpd $OPTIONS -DFOREGROUND
+ExecReload=/awips2/httpd_pypies/usr/sbin/httpd $OPTIONS -k graceful
+ExecStop=/bin/kill -WINCH ${MAINPID}
+# We want systemd to give httpd some time to finish gracefully, but still want
+# it to kill httpd after TimeoutStopSec if something went wrong during the
+# graceful stop. Normally, Systemd sends SIGTERM signal right after the
+# ExecStop, which would kill httpd. We are sending useless SIGCONT here to give
+# httpd time to finish.
+KillSignal=SIGCONT
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
