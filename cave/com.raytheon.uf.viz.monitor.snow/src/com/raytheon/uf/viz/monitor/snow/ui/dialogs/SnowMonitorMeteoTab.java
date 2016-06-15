@@ -157,11 +157,11 @@ public class SnowMonitorMeteoTab extends TabItemComp implements
              */
             visVal = smmd.getVisR();
             tmpVisStr = rangeUtil.getVisString((int) visVal);
-            item.setText(10, String.format(dataFmt, tmpVisStr));
+            item.setText(11, String.format(dataFmt, tmpVisStr));
 
             visVal = smmd.getVisY();
             tmpVisStr = rangeUtil.getVisString((int) visVal);
-            item.setText(11, String.format(dataFmt, tmpVisStr));
+            item.setText(12, String.format(dataFmt, tmpVisStr));
 
             /*
              * Snow Depth
