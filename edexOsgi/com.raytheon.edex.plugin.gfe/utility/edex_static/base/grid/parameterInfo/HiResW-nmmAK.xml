@@ -476,8 +476,8 @@
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>sli</short_name>
     <long_name>Surface lifted index</long_name>
-    <units>K</units>
-    <udunits>degree_Kelvin</udunits>
+    <units>C</units>
+    <udunits>degree_Celsius</udunits>
     <uiname>LftInd</uiname>
     <valid_range>-20.0</valid_range>
     <valid_range>20.0</valid_range>
