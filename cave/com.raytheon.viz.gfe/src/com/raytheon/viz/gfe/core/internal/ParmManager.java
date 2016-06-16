@@ -148,6 +148,7 @@ import com.raytheon.viz.gfe.types.MutableInteger;
  * 10/30/2014    #3775     randerso    Changed to createMutableDb before getting initial database inventory
  * 01/13/2015    #3955     randerso    Changed getProductDatabase() to return mutableDb for EditTopo
  * 03/12/2015    #4246     randerso    Changes to support VCModules at base, site, and user levels
+ * 06/06/2016              mjames@ucar Force localization of GFE/vcmodule/vtec Python files
  * </pre>
  * 
  * @author chammack
@@ -3088,7 +3089,7 @@ public class ParmManager implements IParmManager, IMessageClient {
     public ParmID fromExpression(String expression) {
         return new ABVParmID(this).parse(expression);
     }
-
+    
     /**
      * @return
      */
@@ -3117,6 +3118,36 @@ public class ParmManager implements IParmManager, IMessageClient {
                     statusHandler.error(
                             "Error getting local file name for VCModule " + lf,
                             e);
+                }
+            }
+            files = pathMgr.listFiles(context, FileUtil.join(
+            		"gfe"), new String[] { "py" }, 
+            		true, true);
+            for (LocalizationFile lf : files) {
+                try {
+                    lf.getFile(true);
+                } catch (LocalizationException e) {
+                    statusHandler.error("Error getting local file " + lf, e);
+                }
+            }
+            files = pathMgr.listFiles(context, FileUtil.join(
+            		"python"), new String[] { "py" }, 
+            		true, true);
+            for (LocalizationFile lf : files) {
+                try {
+                    lf.getFile(true);
+                } catch (LocalizationException e) {
+                    statusHandler.error("Error getting local file " + lf, e);
+                }
+            }
+            files = pathMgr.listFiles(context, FileUtil.join(
+            		"vtec"), new String[] { "py" }, 
+            		true, true);
+            for (LocalizationFile lf : files) {
+                try {
+                    lf.getFile(true);
+                } catch (LocalizationException e) {
+                    statusHandler.error("Error getting local file " + lf, e);
                 }
             }
         }

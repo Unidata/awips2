@@ -44,7 +44,7 @@
 from gfeConfig import *
 
 # Hide this configuration file from users
-HideConfigFile = 1
+#HideConfigFile = 1
 
 DefaultGroup = "NewTerrain"
 

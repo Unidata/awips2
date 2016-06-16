@@ -101,24 +101,79 @@
                    label="Save Bundle"
                    style="push">
              </command>
-             <command
-                   commandId="com.raytheon.viz.ui.saveBundle"
-                   label="Save Bundle Locally"
-                   style="push">
-             </command>
 
-             <separator
-                   name="importExportSeparator"
+       		 <separator
+                   name="importSeparator"
                    visible="true">
              </separator>
-             <menu
-                   id="import"
-                   label="Import">
-             </menu>
-             <menu
-                   id="export"
-                   label="Export">
-             </menu>
+             
+	         <command
+	               commandId="com.raytheon.uf.viz.image.file.rsc"
+	               label="Import Image"
+	               style="push">
+	         </command>
+             <command
+	               commandId="com.raytheon.uf.viz.image.file.rsc"
+	               label="Import Background"
+	               style="push">
+	             <parameter
+	                   name="imageImportMode"
+	                   value="Background">
+	             </parameter>
+	         </command>
+	         <command
+	               commandId="com.raytheon.uf.viz.gisdatastore.actions.ImportGis"
+	               label="Import GIS Data"
+	               style="push">
+	         </command>
+	         <command
+	               commandId="com.raytheon.viz.bcd.openBCD"
+	               label="Import BCD File"
+	               style="push">
+	         </command>
+	         <command
+	               commandId="com.raytheon.viz.geotiff.openGeoTiff"
+	               label="Import GeoTIFF"
+	               style="push">
+	         </command>
+	         <command
+	               commandId="com.raytheon.viz.lpi.openLPI"
+	               label="Import LPI File"
+	               style="push">
+	         </command>
+	         <command
+	               commandId="com.raytheon.viz.spi.openSPI"
+	               label="Import SPI File"
+	               style="push">
+	         </command>
+	         
+             <separator
+                   name="exportSeparator"
+                   visible="true">
+             </separator>
+             
+             <command
+                   commandId="com.raytheon.viz.ui.saveBundle"
+                   label="Export Bundle"
+                   style="push">
+             </command>
+             <command
+	             commandId="com.raytheon.uf.viz.image.export.save"
+	             label="Export Image"
+	             style="push">
+       		 </command>
+             <command
+                   commandId="com.raytheon.uf.viz.kml.export.exportKML"
+                   label="Export KML"
+                   style="push">
+             </command>
+	         <command
+	             commandId="com.raytheon.uf.viz.image.export.print"
+	             label="Print Screen"
+	             style="push">
+	             <parameter name="frameSelection" value="current">
+	             </parameter>
+	         </command>
           </menu>
           <menu
                 id="view"
@@ -573,11 +628,11 @@
                   label="Browser"
 				  mode="FORCE_TEXT"
                   style="push">
-      <visibleWhen>
-         <reference
-               definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
-         </reference>
-      </visibleWhen>
+			      <visibleWhen>
+			         <reference
+			               definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+			         </reference>
+			      </visibleWhen>
             </command>
 
          </toolbar>

@@ -93,8 +93,7 @@ public class GfePyIncludeUtil extends PythonIncludePathUtil {
 
     public static final String VCMODULES = FileUtil.join(GFE, "vcmodule");
 
-    public static final String VCMOD_UTILS = FileUtil
-            .join(VCMODULES, "utility");
+    public static final String VCMOD_UTILS = FileUtil.join(GFE, "utility");
 
     public static LocalizationFile getCommonGfeLF(LocalizationContext ctx) {
         return PATH_MANAGER.getLocalizationFile(ctx, COMMON_GFE);
@@ -367,7 +366,8 @@ public class GfePyIncludeUtil extends PythonIncludePathUtil {
         String userDir = getPath(PATH_MANAGER.getContext(
                 LocalizationType.COMMON_STATIC, LocalizationLevel.USER),
                 VCMODULES);
-        return PyUtil.buildJepIncludePath(userDir, siteDir, baseDir);
+        return PyUtil.buildJepIncludePath(userDir, siteDir, baseDir, 
+        		"/awips2/python/lib/python2.7/site-packages/gfe");
     }
 
     public static String getVCModUtilsIncludePath() {

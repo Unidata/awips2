@@ -44,6 +44,7 @@ echo WORKSPACE is ${WORKSPACE}
 # prepare the baseline
 pushd . > /dev/null 2>&1
 cd ${BASELINE}
+mkdir -p ${WORKSPACE}
 RSYNC_DIRS=`cat $dir/rsync.dirs`
 rsync -ruql --delete --exclude-from=${dir}/excludes ${RSYNC_DIRS} ${WORKSPACE}
 

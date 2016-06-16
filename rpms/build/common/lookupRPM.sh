@@ -42,7 +42,7 @@ function lookupRPM()
       return 0
    fi
    if [ "${1}" = "awips2-python" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/python-2.7.9/"
+      export RPM_SPECIFICATION="${installer_dir}/python-2.7.10/"
       return 0
    fi
    if [ "${1}" = "awips2-python-cherrypy" ]; then
