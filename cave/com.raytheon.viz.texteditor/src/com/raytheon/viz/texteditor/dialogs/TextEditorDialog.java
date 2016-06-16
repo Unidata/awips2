@@ -386,6 +386,7 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  *                                      specific checks that need it.
  * Mar 17, 2016 RM 18727    D. Friedman Fix use of verification listener when entering and exiting editor.
  * Apr 15, 2016 RM 18870    D. Friedman Replace commas with ellipses only at start of edit and then word-wrap.
+ * Jun 14, 2016 RM 17614 mgamazaychikov Fix loading of product on exit from edit mode.
  * 
  * </pre>
  * 
@@ -1421,6 +1422,11 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     private static List<Pattern> paddingPatternList = new ArrayList<Pattern>();
 
     private static final String PARAGRAPH_PADDING_PATTERN_FILENAME = "textws/gui/ParagraphPaddingPattern.txt";
+
+    // derived from /data/fxa/nationalData/textQC.config
+    private static final List<String> updateHeaderTimesPils = Arrays.asList(
+            "EWW", "FFS", "FFW", "FLS", "FLW", "MWS", "NOW", "SMW", "SPS",
+            "SVR", "SVS", "TOR");
 
     /**
      * Constructor with additional cave style rules
@@ -4160,6 +4166,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * Enter the text editor mode.
      */
     private void enterEditor() {
+        // Reset the saved
+        saved = false;
         if (!validateTime()) {
             return;
         }
@@ -4375,8 +4383,11 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             searchReplaceDlg.setEditMode(inEditMode);
         }
 
-        if (originalText != null) {
-            textEditor.setText(originalText);
+        // Only set text to originalText for unsaved products
+        if (!saved) {
+            if (originalText != null) {
+                textEditor.setText(originalText);
+            }
         }
 
         markUneditableText(textEditor);
@@ -5137,14 +5148,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                         statusHandler.handle(Priority.INFO,
                                 "Will NOT increment ETN for this product.");
                     }
-                    /*
-                     * 
-                     * The text product may have had it's VTEC, WMO, and MND time
-                     * modified in saveEditedProduct as well as having it's ETN
-                     * updated. Make sure these changes are reflected in the
-                     * text editor. DR17614
-                     */
-                    updateTextEditor(copyUpdatedProduct(prod.getProduct(), body));
+                    // Update editor so the proper send times are displayed.
+                    textEditor.setText(prod.getProduct());
                 }
 
                 String product = prod.getProduct();
@@ -5181,9 +5186,11 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                                 .isEmpty()) {
                     inEditMode = false;
                 }
+                String practiceProd = TextDisplayModel.getInstance().getProduct(
+                        token);
+                textEditor.setText(practiceProd);
                 SendPracticeProductRequest req = new SendPracticeProductRequest();
-                req.setProductText(TextDisplayModel.getInstance().getProduct(
-                        token));
+                req.setProductText(practiceProd);
                 req.setNotifyGFE(true);
                 req.setDrtString(new SimpleDateFormat("yyyyMMdd_HHmm")
                         .format(SimulatedTime.getSystemTime().getTime()));
@@ -5278,30 +5285,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         req.setProduct(oup);
         req.setUser(UserController.getUserObject());
         return req;
-    }
-
-    private static String copyUpdatedProduct(String productString, String bodyString) {
-
-        /* The productString has already been updated before this function was
-         * called, the purpose here is to remove an extraneous header that is
-         * added. In the future, this function may need to perform updates on the
-         * text added to the text editor but currently it only needs to remove
-         * the header.
-         */
-        String[] bodyStrings = bodyString.split("\n");
-        String[] productStrings = productString.split("\n");
-
-        /* The difference between the bodyStrings and the productStrings
-         * is a header. We begin by coping from the end of the header so
-         * that it is effectively removed from the final String
-         */
-        int textLinesDifference = productStrings.length - bodyStrings.length;
-        StringBuilder updatedBody = new StringBuilder();
-        for (int i = textLinesDifference; i < productStrings.length; ++i) {
-            updatedBody.append(productStrings[i]).append("\n");
-        }
-
-        return updatedBody.toString();
     }
 
     /**
@@ -5438,15 +5421,13 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 } else {
                     productText = replaceDDHHMM(productText, currentDate);
                 }
-                VtecObject vtecObj = VtecUtil.parseMessage(productText);
-                if (warnGenFlag) {
-                    /*
-                     * DR14613 - string currectDate is derived from Date now
-                     * ensuring the same time in WMO heading and in the MND
-                     * heading.
-                     */
-                    productText = updateVtecTimes(productText, vtecObj, now);
+                // Sync VTEC and MND header times with the header time for certain products
+                if (updateHeaderTimesPils.contains(storedProduct.getNnnid())) {
                     productText = updateHeaderTimes(productText, now);
+                    VtecObject vtecObj = VtecUtil.parseMessage(productText);
+                    if (vtecObj != null) {
+                        productText = updateVtecTimes(productText, vtecObj, now);
+                    }
                     // Update editor so the proper send times are displayed.
                     String[] b = productText.split("\n");
                     StringBuilder body = new StringBuilder();
@@ -6187,6 +6168,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * @param isObsUpdated
      */
     public void executeCommand(ICommand command, final boolean isObsUpdated) {
+        // Reset the saved
+        saved = false;
         if (isDisposed()) {
             return;
         }

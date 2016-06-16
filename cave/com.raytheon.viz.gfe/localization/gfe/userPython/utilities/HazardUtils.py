@@ -28,7 +28,7 @@
 # Date         Ticket#    Engineer     Description
 # ------------ ---------- -----------  --------------------------
 # Jan 16, 2015  4006      njensen       create _getUniqueKeys() mask with dtype bool      
-#
+# 06/08/16      19096     ryu           Change mask to boolean data type
 #
 # ----------------------------------------------------------------------------
 
@@ -243,8 +243,7 @@ class HazardUtils(SmartScript.SmartScript):
 
     # returns a Numeric mask where each zone in zoneList is set to 1
     def _makeMask(self, zoneList):
-        gridSize = self.getGridShape()
-        mask = numpy.zeros(gridSize, dtype=numpy.int8)
+        mask = self.empty(dtype=numpy.bool)
         eaList = self.editAreaList()
         for z in zoneList:
             if z in eaList:

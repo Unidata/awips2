@@ -74,7 +74,8 @@ turned on unless the corresponding .vm file is turned on in a given template's .
  <durations>
   <duration>30</duration>
  </durations>
- 
+
+<lockedGroupsOnFollowup>warnReason</lockedGroupsOnFollowup>
 <bulletActionGroups>
 <bulletActionGroup>
  <bullets>

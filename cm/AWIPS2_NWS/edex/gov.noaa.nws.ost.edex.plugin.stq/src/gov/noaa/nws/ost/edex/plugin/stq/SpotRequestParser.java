@@ -94,8 +94,7 @@ public class SpotRequestParser {
         PROPERTY_PATTERN_MAP.put("AGENCY_NAME", "REQUESTING\\s+AGENCY");
         PROPERTY_PATTERN_MAP.put("OFFICIAL_NAME", "REQUESTING\\s+OFFICIAL");
         PROPERTY_PATTERN_MAP.put("PHONE_NAME", "EMERGENCY\\s+PHONE");
-        PROPERTY_PATTERN_MAP
-                .put("PHONE_VALUE", "\\(\\d{3}\\)\\s*\\d{3}-\\d{4}");
+        PROPERTY_PATTERN_MAP.put("PHONE_VALUE", ".{1,30}");
         PROPERTY_PATTERN_MAP.put("STATE_NAME", "STATE");
         PROPERTY_PATTERN_MAP.put("DLAT_NAME", "DLAT");
         PROPERTY_PATTERN_MAP.put("DLON_NAME", "DLON");

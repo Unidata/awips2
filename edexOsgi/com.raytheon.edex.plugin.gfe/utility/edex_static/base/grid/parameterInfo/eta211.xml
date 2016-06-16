@@ -222,8 +222,8 @@
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>bli</short_name>
     <long_name>Best lifted index</long_name>
-    <units>K</units>
-    <udunits>degree_Kelvin</udunits>
+    <units>C</units>
+    <udunits>degree_Celsius</udunits>
     <uiname>bestLftInd</uiname>
     <valid_range>-20.0</valid_range>
     <valid_range>50.0</valid_range>
@@ -298,8 +298,8 @@
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>pli</short_name>
     <long_name>Parcel lifted index</long_name>
-    <units>K</units>
-    <udunits>degree_Kelvin</udunits>
+    <units>C</units>
+    <udunits>degree_Celsius</udunits>
     <uiname>parcLftInd</uiname>
     <valid_range>-20.0</valid_range>
     <valid_range>50.0</valid_range>
