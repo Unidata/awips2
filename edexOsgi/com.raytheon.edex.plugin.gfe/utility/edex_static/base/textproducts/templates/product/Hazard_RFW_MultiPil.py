@@ -758,22 +758,21 @@ class TextProduct(GenericHazards.TextProduct):
 
         ### loop through the bullets and format the output
         for b in bList:
-            if b == self._locationsBullet:
+            b = b.upper()
+            if b == self._locationsBullet.upper():
                 locations = self._getLocationsList(areaDictionary, argDict, eachHazard['seg'])
                 bullets = bullets + StringUtils.StringUtils().indentText(b+"..."+locations, \
                         indentFirstString="* ", indentNextString="  ", \
                         maxWidth=65,breakStrings=[" ","..."]) + "\n\n"
-            elif b == "Extreme grassland fire danger":
+            elif b == "Extreme grassland fire danger".upper():
                 bullets = bullets + "* " + b + "...is forecast.\n\n"
  
-            elif b == "Highest threat": 
+            elif b == "Highest threat".upper(): 
                 bullets = bullets + "|* * " + b + "...is located (optional bullet)*|\n\n"
  
-            elif b == "Impacts":
+            elif b == "Impacts".upper():
                 bullets = bullets + "* " + b + "...any fires that develop will likely spread rapidly."
                 bullets = bullets + " Outdoor burning is not recommended.\n\n"
- 
- 
             else:
                 bullets = bullets + "* " + b + "...|* Enter bullet text *|\n\n"
 
