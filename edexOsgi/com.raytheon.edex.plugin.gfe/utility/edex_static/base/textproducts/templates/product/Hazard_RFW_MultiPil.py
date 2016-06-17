@@ -771,7 +771,7 @@ class TextProduct(GenericHazards.TextProduct):
  
             elif b == "Impacts":
                 bullets = bullets + "* " + b + "...any fires that develop will likely spread rapidly."
-                bullets = bullets + " outdoor burning is not recommended.\n\n"
+                bullets = bullets + " Outdoor burning is not recommended.\n\n"
  
  
             else:
