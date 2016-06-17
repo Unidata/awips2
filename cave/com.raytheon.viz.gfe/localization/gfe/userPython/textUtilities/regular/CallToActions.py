@@ -36,6 +36,7 @@
 # Updated 1/12/11 Shannon to remove HI/TI hazards and fix typos
 # Updated 7/28/15 yteng to change Red Flag Warning CTA language for DR 17777
 # Updated 2/24/16 randerso for mixed case guidelines
+# Updated 6/17/16 dgilling to fix a spelling error.
 # ----------------------------------------------------------------------------
 
 class CallToActions:
@@ -409,7 +410,7 @@ Listen to NOAA Weather Radio or local media for further information.""",
 
     def ctaHFW(self):
         return [
- """A Hurricane Force Wind Warning means winds of 64 knots or greater are imminent or occuring. All vessels should remain in port...or take shelter as soon as possible...until winds and waves subside.""",
+ """A Hurricane Force Wind Warning means winds of 64 knots or greater are imminent or occurring. All vessels should remain in port...or take shelter as soon as possible...until winds and waves subside.""",
         ]
 
     def ctaHTY(self):
