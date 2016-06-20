@@ -19,6 +19,7 @@
  **/
 package com.raytheon.edex.plugin.gfe.server.handler;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,6 +30,7 @@ import com.raytheon.edex.plugin.gfe.server.IFPServer;
 import com.raytheon.uf.common.dataplugin.gfe.request.GetSiteTimeZoneInfoRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
+import com.raytheon.uf.common.util.CollectionUtil;
 
 /**
  * Returns the time zones associated with the given sites. The site must be
@@ -43,6 +45,7 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * Jan 19, 2011            dgilling     Initial creation
  * Feb 26, 2015  #4128     dgilling     Switch to IFPServer.getActiveSites().
  * Nov 17, 2015  #5129     dgilling     Support changes to GetSiteTimeZoneInfoRequest.
+ * Jun 17, 2016  #5703     dgilling     Allow null or empty requestedSiteIDs.
  * 
  * </pre>
  * 
@@ -53,13 +56,6 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 public class GetSiteTimeZoneInfoRequestHandler implements
         IRequestHandler<GetSiteTimeZoneInfoRequest> {
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.serialization.comm.IRequestHandler#handleRequest
-     * (com.raytheon.uf.common.serialization.comm.IServerRequest)
-     */
     @Override
     public ServerResponse<Map<String, String>> handleRequest(
             GetSiteTimeZoneInfoRequest request) throws Exception {
@@ -67,8 +63,12 @@ public class GetSiteTimeZoneInfoRequestHandler implements
         Map<String, String> siteWithTimeZone = new HashMap<String, String>();
 
         Set<String> activeSites = IFPServer.getActiveSites();
+        Collection<String> requestedSites = request.getRequestedSiteIDs();
+        if (CollectionUtil.isNullOrEmpty(requestedSites)) {
+            requestedSites = activeSites;
+        }
 
-        for (String site : request.getRequestedSiteIDs()) {
+        for (String site : requestedSites) {
             if (activeSites.contains(site)) {
                 siteWithTimeZone.put(site, IFPServerConfigManager
                         .getServerConfig(site).getTimeZones().get(0));
