@@ -22,7 +22,6 @@ Packager: Michael James
 AutoReq: no
 Requires: awips2-qpid-lib
 requires: awips2-python
-requires: compat-gcc-34-g77
 requires: pax, gcc, libxml2-devel
 requires: libtool, libpng-devel
 provides: awips2-ldm

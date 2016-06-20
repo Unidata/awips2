@@ -10,7 +10,7 @@
 Name: awips2-alertviz
 Summary: AWIPS II AlertViz
 Version: %{_component_version}
-Release: %{_component_release}
+Release: %{_component_release}%{?dist}
 Group: AWIPSII
 BuildRoot: %{_build_root}
 URL: N/A

@@ -5,7 +5,7 @@
 Name: awips2-groovy
 Summary: AWIPS II Groovy Distribution
 Version: %{_groovy_version}
-Release: %{_component_version}.%{_component_release}
+Release: %{_component_version}.%{_component_release}%{?dist}
 Group: AWIPSII
 BuildRoot: %{_build_root}
 BuildArch: noarch

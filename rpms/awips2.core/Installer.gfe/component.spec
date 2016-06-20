@@ -4,7 +4,7 @@
 Name: awips2-data.gfe
 Summary: AWIPS II gfe Distribution
 Version: %{_component_version}
-Release: %{_component_release}
+Release: %{_component_release}%{?dist}
 Group: AWIPSII
 # We default the buildroot to determine whether or not the user has
 # specified the buildroot.
@@ -62,9 +62,6 @@ rm -rf ${RPM_BUILD_ROOT}
 
 %files
 %defattr(644,awips,fxalpha,755)
-%dir /awips2
-%dir /awips2/edex
 %defattr(775,awips,fxalpha,775)
-%dir /awips2/edex/data
 %dir /awips2/edex/data/gfe
 /awips2/edex/data/gfe/*

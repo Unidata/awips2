@@ -6,7 +6,7 @@
 Name: %{_component_name}
 Summary: AWIPS II Hydroapps Distribution
 Version: %{_component_version}
-Release: %{_component_release}
+Release: %{_component_release}%{?dist}
 Group: AWIPSII
 BuildRoot: /tmp
 URL: N/A
@@ -71,11 +71,6 @@ fi
 rm -rf ${RPM_BUILD_ROOT}
 
 %files
-%defattr(644,awips,fxalpha,775)
-%dir /awips2
-%dir /awips2/edex
-%dir /awips2/edex/data
-%dir /awips2/edex/data/share
 %defattr(777,awips,fxalpha,777)
 %dir /awips2/edex/data/share/hydroapps
 /awips2/edex/data/share/hydroapps/*

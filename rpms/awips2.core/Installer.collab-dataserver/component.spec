@@ -3,7 +3,7 @@
 Name: awips2-collab-dataserver
 Summary: AWIPSII Collaboration HTTP Dataserver
 Version: %{_component_version}
-Release: %{_component_release}
+Release: %{_component_release}%{?dist}
 Group: AWIPSII
 BuildRoot: %{_build_root}
 BuildArch: %{_build_arch}

@@ -8,7 +8,7 @@
 Name: %{_component_name}
 Summary: AWIPS II Database Installation
 Version: %{_component_version}
-Release: %{_component_release}
+Release: %{_component_release}%{?dist}
 Group: AWIPSII
 BuildRoot: /tmp
 BuildArch: noarch
@@ -17,18 +17,16 @@ URL: N/A
 License: N/A
 Distribution: N/A
 Vendor: Raytheon
-Packager: %{_build_site}
+Packager: Bryan Kowal
 
 AutoReq: no
-Provides: awips2-database
-Provides: awips2-static-user
-Requires: libpng
-Requires: awips2-postgresql
-Requires: awips2-psql
-Requires: awips2-database-configuration
-Requires: netcdf = 4.1.2
-Requires: netcdf-devel = 4.1.2
-
+provides: awips2-database
+provides: awips2-static-user
+requires: libpng
+requires: awips2-postgresql
+requires: awips2-psql
+requires: awips2-database-configuration
+#BuildRequires: netcdf
 
 %description
 AWIPS II Database Installation - Sets Up The Basic AWIPS II Database, Creating The

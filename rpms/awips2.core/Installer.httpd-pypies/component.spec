@@ -15,7 +15,7 @@
 Summary: Pypies Apache HTTP Server
 Name: awips2-httpd-pypies
 Version: 2.4.6
-Release: 17.1
+Release: 17.1%{?dist}
 URL: http://httpd.apache.org/
 Source0: http://www.apache.org/dist/httpd/httpd-%{version}.tar.bz2
 Source1: centos-noindex.tar.gz
@@ -77,7 +77,7 @@ License: ASL 2.0
 Group: AWIPSII
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: autoconf, perl, pkgconfig, findutils, xmlto, httpd-devel
-BuildRequires: zlib-devel, libselinux-devel, lua-devel
+BuildRequires: zlib-devel, libselinux-devel, lua-devel, cpp, gcc
 BuildRequires: apr-devel >= 1.4.0, apr-util-devel >= 1.2.0, pcre-devel >= 5.0
 BuildRequires: systemd-devel
 Requires: /etc/mime.types, system-logos >= 7.92.1-1

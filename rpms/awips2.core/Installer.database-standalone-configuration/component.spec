@@ -4,7 +4,7 @@
 Name: awips2-database-standalone-configuration
 Summary: AWIPS II Database Standalone Configuration
 Version: %{_component_version}
-Release: %{_component_release}
+Release: %{_component_release}%{?dist}
 Group: AWIPSII
 BuildRoot: /tmp
 BuildArch: noarch
@@ -61,5 +61,4 @@ rm -rf ${RPM_BUILD_ROOT}
 /awips2/data/postgresql.conf
 
 %defattr(644,awips,fxalpha,700)
-%dir /awips2
 %dir /awips2/data

@@ -8,6 +8,8 @@ Version: %{_component_version}
 Release: %{_component_release}
 Group: AWIPSII
 BuildRoot: /tmp
+BuildRoot: %{_build_root}
+BuildArch: %{_build_arch}
 URL: N/A
 License: N/A
 Distribution: N/A

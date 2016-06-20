@@ -4,7 +4,7 @@
 Name: awips2-edex-configuration
 Summary: AWIPS II Edex
 Version: %{_component_version}
-Release: %{_component_release}
+Release: %{_component_release}%{?dist}
 Group: AWIPSII
 BuildRoot: %{_build_root}
 #BuildArch: noarch
@@ -157,7 +157,7 @@ rm -rf ${RPM_BUILD_ROOT}
 %defattr(644,awips,fxalpha,755)
 %dir /awips2
 %dir /awips2/edex
-%dir /awips2/edex/bin/*
+%dir /awips2/edex/bin
 %dir /awips2/edex/conf
 /awips2/edex/conf/*
 %dir /awips2/edex/data

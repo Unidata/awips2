@@ -21,6 +21,7 @@ Packager: Bryan Kowal
 
 AutoReq: no
 Requires: jasper-libs
+BuildRequires: bison, readline-devel, gcc-c++
 provides: awips2-postgresql
 provides: awips2-base-component
 
@@ -348,7 +349,6 @@ and populate the AWIPS II databases.
 
 %files -n awips2-psql
 %defattr(755,awips,fxalpha,755)
-%dir /awips2
 %dir /awips2/psql
 %dir /awips2/psql/bin
 /awips2/psql/bin/*

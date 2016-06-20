@@ -334,4 +334,8 @@ rm -rf ${RPM_BUILD_ROOT}
 /awips2/cave/*.so
 %dir /awips2/cave/lib%{_build_bits}
 /awips2/cave/lib%{_build_bits}/*
+/awips2/cave/epl-v10.html
+/awips2/cave/notice.html
+/awips2/cave/readme/readme_eclipse.html
+
 

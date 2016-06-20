@@ -33,6 +33,8 @@ logdir=${dir}/../logs
 source ${dir}/buildEnvironment.sh
 
 # prepare the rpm build directory structure
+mkdir -p /awips2/jenkins/build/rpms/awips2_16.1.5/x86_64/
+mkdir -p /awips2/jenkins/build/rpms/awips2_16.1.5/noarch/
 mkdir -p ${AWIPSII_TOP_DIR}/BUILD
 mkdir -p ${AWIPSII_TOP_DIR}/RPMS
 mkdir -p ${AWIPSII_TOP_DIR}/SOURCES

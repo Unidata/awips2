@@ -16,7 +16,7 @@
 Name: %{_component_name}
 Summary: AWIPS II Notification
 Version: %{_component_version}
-Release: %{_component_release}
+Release: %{_component_release}%{?dist}
 Group: AWIPSII
 BuildRoot: /tmp
 BuildArch: %{_build_arch}
@@ -33,8 +33,7 @@ Requires: awips2-qpid-lib
 Provides: awips2-notification
 
 BuildRequires: awips2-java
-BuildRequires: awips2-qpid-lib
-BuildRequires: libuuid-devel
+BuildRequires: awips2-qpid-lib, libcurl-devel, libuuid-devel
 
 %description
 AWIPS II Notification Distribution - the AWIPS II Notification application.

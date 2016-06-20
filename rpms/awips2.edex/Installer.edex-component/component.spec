@@ -9,7 +9,7 @@
 Name: awips2-%{_component_name}
 Summary: awips2-%{_component_name} Installation
 Version: %{_component_version}
-Release: %{_component_release}
+Release: %{_component_release}%{?dist}
 Group: AWIPSII
 BuildRoot: %{_build_root}
 URL: N/A
@@ -24,6 +24,11 @@ requires: awips2-edex-base
 requires: awips2-python
 requires: awips2-java
 requires: awips2-psql
+
+%{?filter_setup:
+%filter_from_requires /guava/d; /raytheon/d; /javax/d; /net\.sf/d; /org\.apache/d; /org\.geotools/d; /org\.codehaus/d; /org\.hibernate/d; /org\.quartz/d; /org\.reflections/d; /org\.slf4j/d; /org\.springframework/d; /ucar\.nc2/d; /org\.opensaml/d; /gov\.nasa\.gsfc\.fits/d; /org\.eclipse\.jetty/d; /com\.sun\.xml\.bind/d; /org\.joda\.time/d; /org\.itadaki/d; /org/\.junit/d; /org\.eclipse\.core\.runtime/d
+%filter_setup
+}
 
 %description
 AWIPS II Edex - Installs AWIPS II Edex Plugins.
@@ -85,6 +90,5 @@ rm -rf ${RPM_BUILD_ROOT}
 
 %files
 %defattr(644,awips,fxalpha,755)
-%dir /awips2
 %dir /awips2/edex
 /awips2/edex/*

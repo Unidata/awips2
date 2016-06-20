@@ -7,10 +7,11 @@
 Name: awips2-yajsw
 Summary: AWIPS II yajsw Distribution
 Version: %{_yajsw_version}
-Release: 3
+Release: %{_component_version}.%{_component_release}%{?dist}
 Group: AWIPSII
 BuildRoot: %{_build_root}
 BuildArch: noarch
+
 URL: N/A
 License: N/A
 Distribution: N/A
@@ -68,7 +69,6 @@ rm -rf ${RPM_BUILD_ROOT}
 
 %files
 %defattr(644,awips,fxalpha,755)
-%dir /awips2
 %dir /awips2/yajsw
 /awips2/yajsw/*.jar
 /awips2/yajsw/*.txt
