@@ -44,7 +44,8 @@ import com.raytheon.uf.edex.plugin.tcs.TropicalCycloneSummaryDao;
  * Adapter for parsing a Tropical Cyclone Forecast/Advisory. TCM is the NNN of
  * the AFOS PIL for Tropical Cyclone Forecast/Advisories. More information on
  * the format of this product can be found at
- * http://www.nhc.noaa.gov/aboutnhcprod.shtml#TCM.
+ * http://www.nhc.noaa.gov/aboutnhcprod.shtml#TCM and
+ * http://www.nws.noaa.gov/directives/sym/pd01006001curr.pdf.
  * 
  * <pre>
  * 
@@ -60,6 +61,7 @@ import com.raytheon.uf.edex.plugin.tcs.TropicalCycloneSummaryDao;
  *                                  TimeTools usage
  * Jul 23, 2014  3410     bclement  location changed to floats
  * Nov 30, 2015  5149     bsteffen  Rename TcsUtil, add class javadoc
+ * Jun 22, 2016  5148     bsteffen  Handle additional cyclone types
  * 
  * </pre>
  * 
@@ -73,7 +75,7 @@ public class TCMData extends TCSDataAdapter {
             .compile("TCM(AT|EP|CP|WP)[1-5]");
 
     private static final Pattern stormNamePtrn = Pattern
-            .compile("(TROPICAL STORM|TROPICAL DEPRESSION|HURRICANE|TYPHOON)\\s{1,}(\\w{1,})");
+            .compile("^(TROPICAL STORM|TROPICAL DEPRESSION|HURRICANE|TYPHOON|SUBTROPICAL DEPRESSION|SUBTROPICAL STORM|POST-TROPICAL CYCLONE|REMNANTS OF)\\s{1,}(\\w{1,})");
 
     private static final Pattern pressurePtrn = Pattern
             .compile("(.*)PRESSURE\\s{1,}(\\d{1,5})(.*)");
