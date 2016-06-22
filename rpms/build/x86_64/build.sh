@@ -124,6 +124,7 @@ if [ "${1}" = "-jep" ]; then
 fi
 if [ "${1}" = "-pydev" ]; then
    #buildRPM "awips2-python"
+   buildRPM "awips2-python-scientific"
    #buildRPM "awips2-python-awips"
    #buildRPM "awips2-python-jep"
    #buildRPM "awips2-python-gfe"
@@ -136,7 +137,7 @@ if [ "${1}" = "-pydev" ]; then
 
    #buildRPM "awips2-python-cycler"
    #buildRPM "awips2-python-shapely"
-   buildRPM "awips2-python-cython"
+   #buildRPM "awips2-python-cython"
 
    #buildRPM "awips2-python-metpy"
    #buildRPM "awips2-python-cartopy"
@@ -577,8 +578,8 @@ if [ "${1}" = "-viz" ]; then
    if [ $? -ne 0 ]; then
       exit 1
    fi
-   buildRPM "awips2-alertviz"
-   buildRPM "awips2-notification"
+   #buildRPM "awips2-alertviz"
+   #buildRPM "awips2-notification"
    exit 0
 fi
 

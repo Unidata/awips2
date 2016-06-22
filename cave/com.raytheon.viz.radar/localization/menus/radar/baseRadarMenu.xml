@@ -43,14 +43,14 @@
 		<substitute key="interpolate" value="false"/>
     </contribute>
 	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarComposite.xml" 
-                menuText="N1P - One-Hour Precipitation (4-bit)" id="N1P">
-        <substitute key="element" value="N1P"/>
+		menuText="DAA - One-Hour Precipitation" id="DAA">
+        <substitute key="element" value="DAA"/>
         <substitute key="colormap" value="Radar/8-bit STP"/>
 		<substitute key="interpolate" value="true"/>
     </contribute>
 	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarComposite.xml" 
-                menuText="NTP - Storm-Total Precipitation (4-bit)" id="N1P">
-        <substitute key="element" value="NTP"/>
+		menuText="DTA - Storm-Total Precipitation" id="DTA">
+        <substitute key="element" value="DTA"/>
         <substitute key="colormap" value="Radar/8-bit STP"/>
 		<substitute key="interpolate" value="true"/>
     </contribute>
