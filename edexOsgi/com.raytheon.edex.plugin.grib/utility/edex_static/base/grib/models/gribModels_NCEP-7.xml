@@ -1902,6 +1902,16 @@
     </model>
 
     <model>
+        <name>estofsEP</name>
+        <center>7</center>
+        <subcenter>4</subcenter>
+        <grid>184</grid>
+        <process>
+            <id>17</id>
+        </process>
+    </model>
+
+    <model>
         <name>estofs${REGION}</name>
         <center>7</center>
         <subcenter>4</subcenter>
@@ -1919,7 +1929,6 @@
         <grids>
            <id>321225001</id>
            <id>825553001</id>
-           <id>184</id>
         </grids>
         <process>
             <id>17</id>
