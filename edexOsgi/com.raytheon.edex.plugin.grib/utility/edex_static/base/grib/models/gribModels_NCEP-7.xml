@@ -493,7 +493,7 @@
     </model>
 
     <model>
-        <name>${REGION}WAVE${COVERAGE}</name>
+        <name>AKWAVE239</name>
         <center>7</center>
         <subcenter>0</subcenter>
         <grid>239</grid>
@@ -764,11 +764,31 @@
     </model>
 
     <model>
+        <name>AKwave10</name>
+        <center>7</center>
+        <subcenter>0</subcenter>
+        <grid>15</grid>
+        <process>
+            <id>11</id>
+        </process>
+    </model>
+
+    <model>
+        <name>AKwave10-2</name>
+        <center>7</center>
+        <subcenter>0</subcenter>
+        <grid>15</grid>
+        <process>
+            <id>255</id>
+        </process>
+    </model>
+
+
+    <model>
         <name>${REGION}wave10</name>
         <center>7</center>
         <subcenter>0</subcenter>
         <grids>
-            <id>15</id>
             <id>14</id>
             <id>13</id>
             <id>12</id>
@@ -783,11 +803,30 @@
         <center>7</center>
         <subcenter>0</subcenter>
         <grids>
-            <id>15</id>
             <id>14</id>
             <id>13</id>
             <id>12</id>
         </grids>
+        <process>
+            <id>255</id>
+        </process>
+    </model>
+    
+    <model>
+        <name>AKwave4</name>
+        <center>7</center>
+        <subcenter>0</subcenter>
+        <grid>16</grid>
+        <process>
+            <id>11</id>
+        </process>
+    </model>
+
+    <model>
+        <name>AKwave4-2</name>
+        <center>7</center>
+        <subcenter>0</subcenter>
+        <grid>16</grid>
         <process>
             <id>255</id>
         </process>
@@ -798,7 +837,6 @@
         <center>7</center>
         <subcenter>0</subcenter>
         <grids>
-            <id>16</id>
             <id>17</id>
             <id>18</id>
         </grids>
@@ -812,7 +850,6 @@
         <center>7</center>
         <subcenter>0</subcenter>
         <grids>
-            <id>16</id>
             <id>17</id>
             <id>18</id>
         </grids>
