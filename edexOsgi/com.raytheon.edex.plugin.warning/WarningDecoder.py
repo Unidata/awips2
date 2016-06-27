@@ -60,7 +60,7 @@ import sys, os, time, re, string, getopt
 import copy
 import calendar
 import LogStream
-from ufpy import TimeUtil
+from awips import TimeUtil
 from com.raytheon.uf.edex.decodertools.time import TimeTools
 from com.raytheon.uf.common.wmo import WMOTimeParser
 

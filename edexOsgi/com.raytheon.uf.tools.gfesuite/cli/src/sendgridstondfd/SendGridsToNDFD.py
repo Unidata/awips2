@@ -41,8 +41,8 @@ import sys
 
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.request import ExportGridsRequest
 
-from ufpy import ThriftClient
-from ufpy import UsageArgumentParser
+from awips import ThriftClient
+from awips import UsageArgumentParser
 
 
 class SendGridsToNDFD:    

@@ -209,7 +209,7 @@ def sendWfoMessage(siteID, msgFile):
     logEvent("Message received from site: %s\n%s" % (siteID, message))
 
     # send to AlertViz
-    from ufpy import NotificationMessage
+    from awips import NotificationMessage
     msg = NotificationMessage.NotificationMessage(port='9581', message=message,
            category='GFE', priority='SIGNIFICANT', source='GFE')
     msg.send()

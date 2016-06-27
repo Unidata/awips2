@@ -27,7 +27,7 @@ import time
 from xml.dom.minidom import parseString
 
 #import stomp
-from ufpy import stomp
+from awips import stomp
 
 def encodeElevation(elev):
     if elev >= 0:

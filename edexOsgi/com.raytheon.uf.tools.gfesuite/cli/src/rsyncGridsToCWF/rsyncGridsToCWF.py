@@ -28,8 +28,8 @@
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.request import RsyncGridsToCWFRequest
 from dynamicserialize.dstypes.com.raytheon.uf.common.message import WsId
 
-from ufpy import ThriftClient
-from ufpy import UsageArgumentParser
+from awips import ThriftClient
+from awips import UsageArgumentParser
 
 import os
 

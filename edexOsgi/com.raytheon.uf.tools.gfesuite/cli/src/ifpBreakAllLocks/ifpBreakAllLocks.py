@@ -32,8 +32,8 @@ import sys
 import os
 import logging
 
-from ufpy import ThriftClient
-from ufpy import UsageArgumentParser
+from awips import ThriftClient
+from awips import UsageArgumentParser
 
 #
 # Provides a command-line utility to break all locks.

@@ -39,7 +39,7 @@ from dynamicserialize.dstypes.com.raytheon.uf.common.message import WsId
 from dynamicserialize.dstypes.com.raytheon.uf.common.plugin.nwsauth.user import User
 from dynamicserialize.dstypes.com.raytheon.uf.common.plugin.nwsauth.user import UserId
 from dynamicserialize.dstypes.com.raytheon.uf.common.site.requests import GetActiveSitesRequest
-from ufpy import ThriftClient
+from awips import ThriftClient
 
 #
 # The ifpServerText program.  Stores, deletes, gets, and inventories text.

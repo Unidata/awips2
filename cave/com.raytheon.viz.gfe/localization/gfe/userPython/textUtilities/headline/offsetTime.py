@@ -30,7 +30,7 @@
 
 import time, string
 import logging
-from ufpy import TimeUtil
+from awips import TimeUtil
 
 offset = 0
 timeStr = ""
