@@ -46,6 +46,7 @@ import com.raytheon.uf.edex.core.dataplugin.PluginRegistry;
  * Dec 16, 2011            rjpeter     Initial creation
  * Nov 05, 2013 2499       rjpeter     Repackaged, updated to use System properties.
  * Dec 11, 2013 2555       rjpeter     archivePath overridable via System properties.
+ * Jun 23, 2016            mjames@ucar Update archive path.
  * </pre>
  * 
  * @author rjpeter
@@ -87,7 +88,7 @@ public class DataArchiver {
         }
 
         // default to /archive
-        archivePath = System.getProperty(PATH_PROPERTY, "/archive");
+        archivePath = System.getProperty(PATH_PROPERTY, "/awips2/archive");
     }
 
     public void archivePlugins() {
