@@ -77,6 +77,7 @@ import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
  * Mar 15, 2016  5281     tjensen     Fix validation prior to prompt
  * Apr 06, 2016  5281     tjensen     Fix validation of JMS when prompt disabled 
  *                                     and using poll method.
+ * Jun 24, 2016           mjames      Simplify dialog for UCAR release.
  * </pre>
  * 
  * @author bsteffen
@@ -158,7 +159,7 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
     private Group dataRefreshGroup;
 
     public ThinClientConnectivityDialog(boolean checkAlertViz) {
-        super(checkAlertViz, "Thin Client Connectivity Preferences");
+        super(checkAlertViz, "AWIPS Connectivity Preferences");
         IPreferenceStore store = Activator.getDefault().getPreferenceStore();
         dataRefreshMethod = store
                 .getString(ThinClientPreferenceConstants.P_DATA_REFRESH_METHOD);
@@ -177,69 +178,7 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
     @Override
     protected void createTextBoxes(Composite textBoxComp) {
         super.createTextBoxes(textBoxComp);
-
-        // Reuse the localization stuff for proxy
-        localizationLabel.setText("Proxy Server:");
-        localizationSrv.setText(proxyAddress == null ? "" : proxyAddress);
-
         new Label(textBoxComp, SWT.NONE);
-        Composite drComp = new Composite(textBoxComp, SWT.NONE);
-        GridLayout gl = new GridLayout(2, false);
-        gl.marginHeight = 0;
-        gl.marginWidth = 0;
-        drComp.setLayout(gl);
-        GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
-        drComp.setLayoutData(gd);
-
-        dataRefreshGroup = new Group(drComp, SWT.BORDER_SOLID);
-        dataRefreshGroup.setText("Data Refresh:");
-        gl = new GridLayout(2, true);
-        gd = new GridData(GridData.HORIZONTAL_ALIGN_FILL
-                | GridData.GRAB_HORIZONTAL);
-        dataRefreshGroup.setLayout(gl);
-        dataRefreshGroup.setLayoutData(gd);
-        autoPullBtn = new Button(dataRefreshGroup, SWT.RADIO);
-        autoPullBtn.setText("Automatic Push");
-        if (ThinClientPreferenceConstants.P_DATA_REFRESH_METHOD_PUSH
-                .equals(dataRefreshMethod)) {
-            autoPullBtn.setSelection(true);
-        }
-        timedPollBtn = new Button(dataRefreshGroup, SWT.RADIO);
-        timedPollBtn.setText("Timed Poll");
-        if (ThinClientPreferenceConstants.P_DATA_REFRESH_METHOD_POLL
-                .equals(dataRefreshMethod)) {
-            timedPollBtn.setSelection(true);
-        }
-        timedPollBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                if (timedPollBtn.getSelection()) {
-                    dataRefreshMethod = ThinClientPreferenceConstants.P_DATA_REFRESH_METHOD_POLL;
-                } else {
-                    dataRefreshMethod = ThinClientPreferenceConstants.P_DATA_REFRESH_METHOD_PUSH;
-                }
-                validate();
-            }
-        });
-        dataRefreshGroup.setToolTipText(dataRefreshTooltip);
-        new Label(textBoxComp, SWT.NONE);
-
-        alwaysPrompt = LocalizationManager
-                .getInstance()
-                .getLocalizationStore()
-                .getBoolean(
-                        LocalizationConstants.P_LOCALIZATION_PROMPT_ON_STARTUP);
-        alwaysPromptCheck = new Button(textBoxComp, SWT.CHECK | SWT.LEFT);
-        alwaysPromptCheck.setText("Prompt for settings on startup");
-        alwaysPromptCheck.setSelection(alwaysPrompt);
-        alwaysPromptCheck.addSelectionListener(new SelectionAdapter() {
-
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                alwaysPrompt = alwaysPromptCheck.getSelection();
-            }
-
-        });
     }
 
     @Override
