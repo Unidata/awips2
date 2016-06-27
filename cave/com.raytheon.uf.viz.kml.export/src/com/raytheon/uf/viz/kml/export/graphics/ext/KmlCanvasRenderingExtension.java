@@ -305,9 +305,9 @@ public class KmlCanvasRenderingExtension extends
                 } else if (HorizontalAlignment.CENTER == string.horizontalAlignment) {
                     realX -= bounds.getWidth() / 2;
                 }
-                if (VerticalAlignment.TOP == string.verticallAlignment) {
+                if (VerticalAlignment.TOP == string.verticalAlignment) {
                     realY -= bounds.getY();
-                } else if (VerticalAlignment.MIDDLE == string.verticallAlignment) {
+                } else if (VerticalAlignment.MIDDLE == string.verticalAlignment) {
                     realY -= bounds.getY() / 2;
                 }
                 if (string.getTextStyles().contains(TextStyle.BLANKED)) {
@@ -444,11 +444,11 @@ public class KmlCanvasRenderingExtension extends
                 bounds.setFrame(bounds.getMinX() - bounds.getWidth() / 2,
                         bounds.getMinY(), bounds.getWidth(), bounds.getHeight());
             }
-            if (VerticalAlignment.BOTTOM == string.verticallAlignment) {
+            if (VerticalAlignment.BOTTOM == string.verticalAlignment) {
                 bounds.setFrame(bounds.getMinX(),
                         bounds.getMinY() - bounds.getHeight(),
                         bounds.getWidth(), bounds.getHeight());
-            } else if (VerticalAlignment.MIDDLE == string.verticallAlignment) {
+            } else if (VerticalAlignment.MIDDLE == string.verticalAlignment) {
                 bounds.setFrame(bounds.getMinX(),
                         bounds.getMinY() - bounds.getHeight() / 2,
                         bounds.getWidth(), bounds.getHeight());

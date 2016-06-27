@@ -322,7 +322,7 @@ public class MPELegendResource extends
                     //    strings.setText(entry.getText(), textColor);
                         strings.setText(entry.getText(), textColor);
                         strings.horizontalAlignment = HorizontalAlignment.CENTER;
-                        strings.verticallAlignment = VerticalAlignment.TOP;
+                        strings.verticalAlignment = VerticalAlignment.TOP;
                         strings.setCoordinates(xLoc, y1);
                         target.drawStrings(strings);
                     }
@@ -376,7 +376,7 @@ public class MPELegendResource extends
                 			double xLoc = xMin + offsetForTypeString + (cbarSize * (index - 2));
                 			strings.setText(typeString, productTypeTextColor);
                 			strings.horizontalAlignment = HorizontalAlignment.CENTER;
-                			strings.verticallAlignment = VerticalAlignment.TOP;
+                			strings.verticalAlignment = VerticalAlignment.TOP;
                 			strings.setCoordinates(xLoc, y1);
                 			target.drawStrings(strings);
                 		}
@@ -404,7 +404,7 @@ public class MPELegendResource extends
                     double xLoc = xMin + padding;
                     strings.setText(qpeString, textColor);
                     strings.horizontalAlignment = HorizontalAlignment.LEFT;
-                    strings.verticallAlignment = VerticalAlignment.TOP;
+                    strings.verticalAlignment = VerticalAlignment.TOP;
                     strings.setCoordinates(xLoc, y1);
                     target.drawStrings(strings);
                 } else {
@@ -413,7 +413,7 @@ public class MPELegendResource extends
                     strings.setText(fieldString, textColor);
                     double xLoc = xMin + padding;
                     strings.horizontalAlignment = HorizontalAlignment.LEFT;
-                    strings.verticallAlignment = VerticalAlignment.TOP;
+                    strings.verticalAlignment = VerticalAlignment.TOP;
                     strings.setCoordinates(xLoc, y1);
                     target.drawStrings(strings);
                 }
@@ -466,7 +466,7 @@ public class MPELegendResource extends
                         double xLoc = xMin + offset + (cbarSize * i);
                         strings.setText(entry.getText(), textColor);
                         strings.horizontalAlignment = HorizontalAlignment.CENTER;
-                        strings.verticallAlignment = VerticalAlignment.TOP;
+                        strings.verticalAlignment = VerticalAlignment.TOP;
                         strings.setCoordinates(xLoc, y1);
                         target.drawStrings(strings);
                     }
@@ -481,7 +481,7 @@ public class MPELegendResource extends
                 strings.setText(rsc.getName(), textColor);
                 double xLoc = xMin + padding;
                 strings.horizontalAlignment = HorizontalAlignment.LEFT;
-                strings.verticallAlignment = VerticalAlignment.TOP;
+                strings.verticalAlignment = VerticalAlignment.TOP;
                 strings.setCoordinates(xLoc, y1);
                 target.drawStrings(strings);
             } else {
@@ -495,7 +495,7 @@ public class MPELegendResource extends
                 strings.setText(DrawDQCStations.qcmode, textColor);
                 double xLoc = xMin + padding;
                 strings.horizontalAlignment = HorizontalAlignment.LEFT;
-                strings.verticallAlignment = VerticalAlignment.TOP;
+                strings.verticalAlignment = VerticalAlignment.TOP;
                 strings.setCoordinates(xLoc, y1);
                 target.drawStrings(strings);
             }
@@ -507,7 +507,7 @@ public class MPELegendResource extends
             strings.setText(DrawDQCStations.qcmode, textColor);
             double xLoc = xMin + padding;
             strings.horizontalAlignment = HorizontalAlignment.LEFT;
-            strings.verticallAlignment = VerticalAlignment.TOP;
+            strings.verticalAlignment = VerticalAlignment.TOP;
             strings.setCoordinates(xLoc, y1);
             target.drawStrings(strings);
         }
@@ -583,7 +583,7 @@ public class MPELegendResource extends
 
             strings.setText("Hrap x, y:  ", textColor);
             strings.horizontalAlignment = HorizontalAlignment.LEFT;
-            strings.verticallAlignment = VerticalAlignment.BOTTOM;
+            strings.verticalAlignment = VerticalAlignment.BOTTOM;
             strings.setCoordinates(x, y);
             target.drawStrings(strings);
             x += target.getStringsBounds(strings).getWidth() * scale;
@@ -591,14 +591,14 @@ public class MPELegendResource extends
             String hrap = String.format("%4s, %4s", hrapX, hrapY);
             strings.setText(hrap, textColor);
             strings.horizontalAlignment = HorizontalAlignment.LEFT;
-            strings.verticallAlignment = VerticalAlignment.BOTTOM;
+            strings.verticalAlignment = VerticalAlignment.BOTTOM;
             strings.setCoordinates(x, y);
             target.drawStrings(strings);
             x += target.getStringsBounds(strings).getWidth() * scale;
 
             strings.setText(" Lat, Lon:  ", textColor);
             strings.horizontalAlignment = HorizontalAlignment.LEFT;
-            strings.verticallAlignment = VerticalAlignment.BOTTOM;
+            strings.verticalAlignment = VerticalAlignment.BOTTOM;
             strings.setCoordinates(x, y);
             target.drawStrings(strings);
             x += target.getStringsBounds(strings).getWidth() * scale;
@@ -606,49 +606,49 @@ public class MPELegendResource extends
             String latlon = String.format("%5s, %7s", lat, lon);
             strings.setText(latlon, textColor);
             strings.horizontalAlignment = HorizontalAlignment.LEFT;
-            strings.verticallAlignment = VerticalAlignment.BOTTOM;
+            strings.verticalAlignment = VerticalAlignment.BOTTOM;
             strings.setCoordinates(x, y);
             target.drawStrings(strings);
             x += target.getStringsBounds(strings).getWidth() * scale;
 
             strings.setText(" Value: ", textColor);
             strings.horizontalAlignment = HorizontalAlignment.LEFT;
-            strings.verticallAlignment = VerticalAlignment.BOTTOM;
+            strings.verticalAlignment = VerticalAlignment.BOTTOM;
             strings.setCoordinates(x, y);
             target.drawStrings(strings);
             x += target.getStringsBounds(strings).getWidth() * scale;
 
             strings.setText(value, textColor);
             strings.horizontalAlignment = HorizontalAlignment.LEFT;
-            strings.verticallAlignment = VerticalAlignment.BOTTOM;
+            strings.verticalAlignment = VerticalAlignment.BOTTOM;
             strings.setCoordinates(x, y);
             target.drawStrings(strings);
             x += target.getStringsBounds(strings).getWidth() * scale;
 
             strings.setText(" County: ", textColor);
             strings.horizontalAlignment = HorizontalAlignment.LEFT;
-            strings.verticallAlignment = VerticalAlignment.BOTTOM;
+            strings.verticalAlignment = VerticalAlignment.BOTTOM;
             strings.setCoordinates(x, y);
             target.drawStrings(strings);
             x += target.getStringsBounds(strings).getWidth() * scale;
 
             strings.setText(county, textColor);
             strings.horizontalAlignment = HorizontalAlignment.LEFT;
-            strings.verticallAlignment = VerticalAlignment.BOTTOM;
+            strings.verticalAlignment = VerticalAlignment.BOTTOM;
             strings.setCoordinates(x, y);
             target.drawStrings(strings);
             x += target.getStringsBounds(strings).getWidth() * scale;
 
             strings.setText(" Basin: ", textColor);
             strings.horizontalAlignment = HorizontalAlignment.LEFT;
-            strings.verticallAlignment = VerticalAlignment.BOTTOM;
+            strings.verticalAlignment = VerticalAlignment.BOTTOM;
             strings.setCoordinates(x, y);
             target.drawStrings(strings);
             x += target.getStringsBounds(strings).getWidth() * scale;
 
             strings.setText(basin, textColor);
             strings.horizontalAlignment = HorizontalAlignment.LEFT;
-            strings.verticallAlignment = VerticalAlignment.BOTTOM;
+            strings.verticalAlignment = VerticalAlignment.BOTTOM;
             strings.setCoordinates(x, y);
             target.drawStrings(strings);
         }

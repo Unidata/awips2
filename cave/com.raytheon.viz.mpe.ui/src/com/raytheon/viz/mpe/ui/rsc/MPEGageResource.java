@@ -458,7 +458,7 @@ public class MPEGageResource extends AbstractMPEInputResource implements
                         string.font = font;
                         string.basics.xOrColors = xor;
                         string.horizontalAlignment = HorizontalAlignment.LEFT;
-                        string.verticallAlignment = VerticalAlignment.BOTTOM;
+                        string.verticalAlignment = VerticalAlignment.BOTTOM;
 
                         string.setCoordinates(
                                 point.x

@@ -504,7 +504,7 @@ public class D2DColorBarResource extends
                 drawable.font = colorBarFont;
                 drawable.setCoordinates(xPos, yPos, zPos);
                 drawable.horizontalAlignment = IGraphicsTarget.HorizontalAlignment.CENTER;
-                drawable.verticallAlignment = IGraphicsTarget.VerticalAlignment.MIDDLE;
+                drawable.verticalAlignment = IGraphicsTarget.VerticalAlignment.MIDDLE;
                 drawable.addTextStyle(TextStyle.BLANKED);
                 drawable.basics.alpha = paintProps.getAlpha();
 

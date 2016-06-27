@@ -199,7 +199,7 @@ public class CWATLocalThreatResource extends CWATResource {
                 ds.font = font;
                 ds.addTextStyle(TextStyle.BOXED);
                 ds.addTextStyle(TextStyle.BLANKED);
-                ds.verticallAlignment = VerticalAlignment.MIDDLE;
+                ds.verticalAlignment = VerticalAlignment.MIDDLE;
                 double[] center = descriptor.worldToPixel(new double[] {
                         loc.getLon(), loc.getLat() });
                 ds.setCoordinates(center[0], center[1]);

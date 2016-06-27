@@ -249,7 +249,7 @@ public class RadarTextResource extends
             dString.setCoordinates(xOffset, yOffset, 0);
             dString.addTextStyle(TextStyle.BLANKED);
             dString.horizontalAlignment = hAlign;
-            dString.verticallAlignment = VerticalAlignment.TOP;
+            dString.verticalAlignment = VerticalAlignment.TOP;
             dString.basics.alpha = pair.alpha;
             stringsToRender.add(dString);
             return (int) Math

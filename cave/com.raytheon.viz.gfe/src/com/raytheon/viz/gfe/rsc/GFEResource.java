@@ -1478,7 +1478,7 @@ public class GFEResource extends
                     Coordinate coord = c.asPixel(descriptor.getGridGeometry());
                     ds.setCoordinates(coord.x, coord.y);
                     ds.horizontalAlignment = HorizontalAlignment.CENTER;
-                    ds.verticallAlignment = VerticalAlignment.MIDDLE;
+                    ds.verticalAlignment = VerticalAlignment.MIDDLE;
                     ds.rotation = 0.0;
                     target.drawStrings(ds);
                 }

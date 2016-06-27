@@ -299,7 +299,7 @@ public class VAAResource extends
                 DrawableString string = new DrawableString(volcanoName, color);
                 string.font = font;
                 string.setCoordinates(loc[0] + 30, loc[1]);
-                string.verticallAlignment = VerticalAlignment.MIDDLE;
+                string.verticalAlignment = VerticalAlignment.MIDDLE;
                 target.drawStrings(string);
             }
 
@@ -323,7 +323,7 @@ public class VAAResource extends
             DrawableString string = new DrawableString(message, color);
             string.font = font;
             string.setCoordinates(x, y);
-            string.verticallAlignment = VerticalAlignment.MIDDLE;
+            string.verticalAlignment = VerticalAlignment.MIDDLE;
             target.drawStrings(string);
         }
         target.setupClippingPlane(paintProps.getView().getExtent());

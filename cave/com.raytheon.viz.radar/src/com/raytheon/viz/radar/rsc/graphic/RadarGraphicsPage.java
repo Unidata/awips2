@@ -1331,7 +1331,7 @@ public class RadarGraphicsPage implements IRenderable {
                     DrawableString string = new DrawableString(str, this.color);
                     string.font = this.font;
                     string.setCoordinates(x, y);
-                    string.verticallAlignment = VerticalAlignment.TOP;
+                    string.verticalAlignment = VerticalAlignment.TOP;
                     target.getExtension(ICanvasRenderingExtension.class)
                             .drawStrings(paintProps, string);
                 }

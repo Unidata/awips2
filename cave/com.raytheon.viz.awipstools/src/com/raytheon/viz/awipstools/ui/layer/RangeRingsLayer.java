@@ -230,7 +230,7 @@ public class RangeRingsLayer extends AbstractMovableToolLayer<RangeRing>
                         string.font = labelFont;
                         string.setCoordinates(labelLoc[0], labelLoc[1]);
                         string.horizontalAlignment = HorizontalAlignment.CENTER;
-                        string.verticallAlignment = VerticalAlignment.TOP;
+                        string.verticalAlignment = VerticalAlignment.TOP;
                         strings.add(string);
                     }
                 }

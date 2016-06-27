@@ -427,7 +427,7 @@ public abstract class AbstractWWAResource extends
                     params.font = warningsFont;
                     params.setCoordinates(d[0], d[1]);
                     params.horizontalAlignment = HorizontalAlignment.RIGHT;
-                    params.verticallAlignment = VerticalAlignment.BOTTOM;
+                    params.verticalAlignment = VerticalAlignment.BOTTOM;
                     params.magnification = getCapability(
                             MagnificationCapability.class).getMagnification();
 

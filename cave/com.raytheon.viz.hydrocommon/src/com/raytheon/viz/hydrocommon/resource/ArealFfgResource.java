@@ -203,7 +203,7 @@ public class ArealFfgResource extends
                 ds.setCoordinates(valueCoor.x, valueCoor.y);
                 ds.font = font;
                 ds.horizontalAlignment = HorizontalAlignment.CENTER;
-                ds.verticallAlignment = VerticalAlignment.MIDDLE;
+                ds.verticalAlignment = VerticalAlignment.MIDDLE;
 
                 stringList.add(ds);
             }

@@ -537,7 +537,7 @@ public abstract class AbstractGraph implements IGraph {
         DrawableString titleString = new DrawableString(title, titleColor);
         titleString.addTextStyle(TextStyle.DROP_SHADOW);
         titleString.horizontalAlignment = HorizontalAlignment.LEFT;
-        titleString.verticallAlignment = VerticalAlignment.BOTTOM;
+        titleString.verticalAlignment = VerticalAlignment.BOTTOM;
         titleString.rotation = 90;
         titleString.magnification = this.currentMagnification;
         int width = target.getStringsBounds(titleString).getBounds().width;
@@ -622,7 +622,7 @@ public abstract class AbstractGraph implements IGraph {
 
             parameters.font = unitsFont;
             parameters.horizontalAlignment = HorizontalAlignment.CENTER;
-            parameters.verticallAlignment = VerticalAlignment.TOP;
+            parameters.verticalAlignment = VerticalAlignment.TOP;
             parameters.magnification = this.currentMagnification;
 
             if (labelsHeight == 0) {
@@ -683,8 +683,8 @@ public abstract class AbstractGraph implements IGraph {
             label2.magnification = this.currentMagnification;
             label1.font = unitsFont;
             label2.font = unitsFont;
-            label1.verticallAlignment = VerticalAlignment.MIDDLE;
-            label2.verticallAlignment = VerticalAlignment.MIDDLE;
+            label1.verticalAlignment = VerticalAlignment.MIDDLE;
+            label2.verticalAlignment = VerticalAlignment.MIDDLE;
             label1.horizontalAlignment = HorizontalAlignment.RIGHT;
             label2.horizontalAlignment = HorizontalAlignment.LEFT;
             Rectangle2D bounds = target.getStringsBounds(label1);
@@ -692,13 +692,13 @@ public abstract class AbstractGraph implements IGraph {
             label1.setCoordinates(coord.x, coord.y, coord.z);
             if (label1.basics.y + bounds.getHeight() / 2 > graphExtent
                     .getMaxY()) {
-                label1.verticallAlignment = VerticalAlignment.BOTTOM;
-                label2.verticallAlignment = VerticalAlignment.BOTTOM;
+                label1.verticalAlignment = VerticalAlignment.BOTTOM;
+                label2.verticalAlignment = VerticalAlignment.BOTTOM;
             }
             if (label1.basics.y - bounds.getHeight() / 2 < graphExtent
                     .getMinY()) {
-                label1.verticallAlignment = VerticalAlignment.TOP;
-                label2.verticallAlignment = VerticalAlignment.TOP;
+                label1.verticalAlignment = VerticalAlignment.TOP;
+                label2.verticalAlignment = VerticalAlignment.TOP;
             }
             if (label1.basics.x - bounds.getWidth() / ratio < viewExtent
                     .getMinX()) {

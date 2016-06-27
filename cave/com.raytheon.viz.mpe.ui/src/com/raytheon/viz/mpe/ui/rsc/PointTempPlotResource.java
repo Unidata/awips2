@@ -631,7 +631,7 @@ public class PointTempPlotResource extends
             string.setText(label, color);
             string.setCoordinates(xLoc, yLoc);
             string.horizontalAlignment = HorizontalAlignment.LEFT;
-            string.verticallAlignment = VerticalAlignment.BOTTOM;
+            string.verticalAlignment = VerticalAlignment.BOTTOM;
             target.drawStrings(string);
             temp++;
         }
