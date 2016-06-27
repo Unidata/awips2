@@ -20,12 +20,5 @@
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	
-    <contribute xsi:type="bundleItem" file="bundles/ncepHydro/ConvectiveWatchPlot.xml"
-             menuText="Convective Watches" id="convectiveWatches">
-    </contribute>
- 	<contribute xsi:type="bundleItem" file="bundles/ncepHydro/SvrWxPlot.xml" 
-               menuText="Svr Wx Plot" id="spcWxPlot">
-	</contribute>
-	
 	<contribute xsi:type="subinclude" fileName="menus/ncepHydro/spc/hazardMenus.xml"/>
 </menuTemplate>

@@ -62,6 +62,7 @@ import com.raytheon.uf.viz.d2d.ui.map.actions.SinglePanelLayoutMenuAction;
 import com.raytheon.uf.viz.d2d.ui.map.actions.SkipFramesAction;
 import com.raytheon.uf.viz.d2d.ui.map.actions.SkipFramesAction.SkipFrameMode;
 import com.raytheon.uf.viz.d2d.ui.map.actions.SwapWithLargePaneAction;
+import com.raytheon.uf.viz.d2d.ui.map.actions.TwoPanelLayoutMenuAction;
 import com.raytheon.viz.ui.actions.SelectPaneAction;
 import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
 import com.raytheon.viz.ui.cmenu.LoopingAction;
@@ -89,6 +90,7 @@ import com.raytheon.viz.ui.statusline.FrameCountDisplay;
  * Mar 21, 2013       1638 mschenke    Changed map scales not tied to d2d
  * Oct 10, 2013       2104 mschenke    Switched to use MapScalesManager
  * Jan 14, 2014       2594 bclement    added low memory notification
+ * Apr 20, 2016            mjames@ucar Added two-column editor panes.
  * </pre>
  * 
  * @author mschenke
@@ -285,6 +287,10 @@ public class D2DPerspectiveManager extends AbstractCAVEPerspectiveManager {
                     rotatePanelLayoutMenuAction.setContainer(container);
                     menuManager.add(rotatePanelLayoutMenuAction);
 
+                    TwoPanelLayoutMenuAction twoPanelLayoutMenuAction = new TwoPanelLayoutMenuAction();
+                    twoPanelLayoutMenuAction.setContainer(container);
+                    menuManager.add(twoPanelLayoutMenuAction);
+                    
                     FourPanelLayoutMenuAction fourPanelLayoutMenuAction = new FourPanelLayoutMenuAction();
                     fourPanelLayoutMenuAction.setContainer(container);
                     menuManager.add(fourPanelLayoutMenuAction);
@@ -294,6 +300,11 @@ public class D2DPerspectiveManager extends AbstractCAVEPerspectiveManager {
                     selectPaneAction.setSelectedRsc(null);
                     menuManager.add(selectPaneAction);
                 } else {
+                	
+                    TwoPanelLayoutMenuAction twoPanelLayoutMenuAction = new TwoPanelLayoutMenuAction();
+                    twoPanelLayoutMenuAction.setContainer(container);
+                    menuManager.add(twoPanelLayoutMenuAction);
+                     
                     FourPanelLayoutMenuAction fourPanelLayoutMenuAction = new FourPanelLayoutMenuAction();
                     fourPanelLayoutMenuAction.setContainer(container);
                     menuManager.add(fourPanelLayoutMenuAction);
@@ -348,6 +359,10 @@ public class D2DPerspectiveManager extends AbstractCAVEPerspectiveManager {
                 menuManager.add(rotatePanelLayoutMenuAction);
 
                 if (editor.displayedPaneCount() == 1) {
+                    TwoPanelLayoutMenuAction twoPanelLayoutMenuAction = new TwoPanelLayoutMenuAction();
+                    twoPanelLayoutMenuAction.setContainer(editor);
+                    menuManager.add(twoPanelLayoutMenuAction);
+                     
                     FourPanelLayoutMenuAction fourPanelLayoutMenuAction = new FourPanelLayoutMenuAction();
                     fourPanelLayoutMenuAction.setContainer(editor);
                     menuManager.add(fourPanelLayoutMenuAction);

@@ -8,7 +8,7 @@
 					<loadProperties loadWithoutData="false">
 						<capabilities>
 							<capability xsi:type="imagingCapability"
-								interpolationState="false" brightness="1.0" contrast="1.0" />
+								interpolationState="true" brightness="1.0" contrast="1.0" />
 							<capability xsi:type="colorMapCapability">
 								<colorMapParameters colorMapName="${colormap}" />
 							</capability>
@@ -27,7 +27,7 @@
 									constraintType="EQUALS" />
 							</mapping>
 							<mapping key="sectorID">
-								<constraint constraintValue="${sector0},${sector1},${sector2},${sector3}"
+								<constraint constraintValue="${sector0},${sector1}"
 									constraintType="IN" />
 							</mapping>
 							<mapping key="creatingEntity">
@@ -36,84 +36,7 @@
 							</mapping>
 						</metadataMap>
 
-						<!--  low res blended satellite -->
-						<resource>
-							<loadProperties loadWithoutData="false" />
-							<properties isSystemResource="false" isBlinking="false"
-								isMapLayer="false" isHoverOn="false" isVisible="true">
-								<pdProps maxDisplayWidth="100000000" minDisplayWidth="10000000" />
-							</properties>
-							<resourceData xsi:type="satBlendedResourceData" timeMatchMode="${timeMatchMode;EVERY_IMAGE}">
-								<resource>
-									<loadProperties loadWithoutData="false" />
-									<properties isSystemResource="false" isBlinking="false"
-										isMapLayer="false" isHoverOn="false" isVisible="true">
-									</properties>
-									<resourceData xsi:type="satResourceData"
-										isUpdatingOnMetadataOnly="false"
-										isRequeryNecessaryOnTimeMatch="true">
-                              <binOffset posOffset="900" negOffset="900" virtualOffset="0"/>
-										<metadataMap>
-											<mapping key="pluginName">
-												<constraint constraintValue="satellite"
-													constraintType="EQUALS" />
-											</mapping>
-											<mapping key="physicalElement">
-												<constraint constraintValue="${element}"
-													constraintType="EQUALS" />
-											</mapping>
-											<mapping key="sectorID">
-												<constraint constraintValue="${sector3}"
-													constraintType="EQUALS" />
-											</mapping>
-											<mapping key="creatingEntity">
-												<constraint constraintValue="${entity}"
-													constraintType="LIKE" />
-											</mapping>
-										</metadataMap>
-									</resourceData>
-								</resource>
-							</resourceData>
-						</resource>
-						<!-- medium res blended satellite -->
-						<resource>
-							<loadProperties loadWithoutData="false" />
-							<properties isSystemResource="false" isBlinking="false"
-								isMapLayer="false" isHoverOn="false" isVisible="true">
-								<pdProps maxDisplayWidth="10000000" minDisplayWidth="6000000" />
-							</properties>
-							<resourceData xsi:type="satBlendedResourceData" timeMatchMode="${timeMatchMode;EVERY_IMAGE}">
-								<resource>
-									<loadProperties loadWithoutData="false" />
-									<properties isSystemResource="false" isBlinking="false"
-										isMapLayer="false" isHoverOn="false" isVisible="true">
-									</properties>
-									<resourceData xsi:type="satResourceData"
-										isUpdatingOnMetadataOnly="false"
-										isRequeryNecessaryOnTimeMatch="true">
-                              <binOffset posOffset="900" negOffset="900" virtualOffset="0"/>
-										<metadataMap>
-											<mapping key="pluginName">
-												<constraint constraintValue="satellite"
-													constraintType="EQUALS" />
-											</mapping>
-											<mapping key="physicalElement">
-												<constraint constraintValue="${element}"
-													constraintType="EQUALS" />
-											</mapping>
-											<mapping key="sectorID">
-												<constraint constraintValue="${sector2}"
-													constraintType="EQUALS" />
-											</mapping>
-											<mapping key="creatingEntity">
-												<constraint constraintValue="${entity}"
-													constraintType="LIKE" />
-											</mapping>
-										</metadataMap>
-									</resourceData>
-								</resource>
-							</resourceData>
-						</resource>
+	
 						<!--  high res blended satellite -->
 						<resource>
 							<loadProperties loadWithoutData="false" />

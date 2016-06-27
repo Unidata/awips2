@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<contribute xsi:type="separator" id="MySeparatorId"/>
+	<!-- REGIONAL -->
+	<contribute xsi:type="subMenu" menuText="Regional Imagery">
+		<!-- ALASKA NATIONAL -->
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Alaska National 11 micron IR" id="irWindow">
+	        <substitute key="element" value="Imager 11 micron IR"/>
+	        <substitute key="sector" value="Alaska National"/>
+			<substitute key="entity" value="GOES-15(P)" /> 
+	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Alaska National 6.7-6.5 micron IR (WV)" id="irWindow">
+	        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
+	        <substitute key="sector" value="Alaska National"/>
+			<substitute key="entity" value="GOES-15(P)" /> 
+	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="Alaska National Visible" id="visible">
+	        <substitute key="element" value="Imager Visible"/>
+	        <substitute key="sector" value="Alaska National"/>
+			<substitute key="entity" value="GOES-15(P)" /> 
+	        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+	    </contribute>
+		<contribute xsi:type="separator" id="MySeparatorId"/>
+		<!-- ALASKA REGIONAL -->
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Alaska Regional 11 micron IR" id="irWindow">
+	        <substitute key="element" value="Imager 11 micron IR"/>
+	        <substitute key="sector" value="Alaska Regional"/>
+			<substitute key="entity" value="GOES-15(P)" /> 
+	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Alaska Regional 3.9 micron IR" id="irWindow">
+	        <substitute key="element" value="Imager 3.9 micron IR"/>
+	        <substitute key="sector" value="Alaska Regional"/>
+			<substitute key="entity" value="GOES-15(P)" /> 
+	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Alaska Regional 6.7-6.5 micron IR (WV)" id="irWindow">
+	        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
+	        <substitute key="sector" value="Alaska Regional"/>
+			<substitute key="entity" value="GOES-15(P)" /> 
+	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="Alaska Regional Visible" id="visible">
+	        <substitute key="element" value="Imager Visible"/>
+	        <substitute key="sector" value="Alaska Regional"/>
+			<substitute key="entity" value="GOES-15(P)" /> 
+	        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+	    </contribute>
+		<contribute xsi:type="separator" id="MySeparatorId"/>
+		<!-- HAWAII NATIONAL -->
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Hawaii National 11 micron IR" id="irWindow">
+	        <substitute key="element" value="Imager 11 micron IR"/>
+	        <substitute key="sector" value="Hawaii National"/>
+			<substitute key="entity" value="GOES-15(P)" /> 
+	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Hawaii National 6.7-6.5 micron IR (WV)" id="irWindow">
+	        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
+	        <substitute key="sector" value="Hawaii National"/>
+			<substitute key="entity" value="GOES-15(P)" /> 
+	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="Hawaii National Visible" id="visible">
+	        <substitute key="element" value="Imager Visible"/>
+	        <substitute key="sector" value="Hawaii National"/>
+			<substitute key="entity" value="GOES-15(P)" /> 
+	        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+	    </contribute>
+		<contribute xsi:type="separator" id="MySeparatorId"/>
+		<!-- HAWAII REGIONAL -->
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Hawaii Regional 11 micron IR" id="irWindow">
+	        <substitute key="element" value="Imager 11 micron IR"/>
+	        <substitute key="sector" value="Hawaii Regional"/>
+			<substitute key="entity" value="GOES-15(P)" /> 
+	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Hawaii Regional 3.9 micron IR" id="irWindow">
+	        <substitute key="element" value="Imager 3.9 micron IR"/>
+	        <substitute key="sector" value="Hawaii Regional"/>
+			<substitute key="entity" value="GOES-15(P)" /> 
+	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Hawaii Regional 6.7-6.5 micron IR (WV)" id="irWindow">
+	        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
+	        <substitute key="sector" value="Hawaii Regional"/>
+			<substitute key="entity" value="GOES-15(P)" /> 
+	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="Hawaii Regional Visible" id="visible">
+	        <substitute key="element" value="Imager Visible"/>
+	        <substitute key="sector" value="Hawaii Regional"/>
+			<substitute key="entity" value="GOES-15(P)" /> 
+	        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+	    </contribute>
+		<contribute xsi:type="separator" id="MySeparatorId"/>
+		<!-- PUERTO RICO NATIONAL -->
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Puerto Rico National 11 micron IR" id="irWindow">
+	        <substitute key="element" value="Imager 11 micron IR"/>
+	        <substitute key="sector" value="Puerto Rico National"/>
+			<substitute key="entity" value="GOES-13(N)" /> 
+	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Puerto Rico National 6.7-6.5 micron IR (WV)" id="irWindow">
+	        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
+	        <substitute key="sector" value="Puerto Rico National"/>
+			<substitute key="entity" value="GOES-13(N)" /> 
+	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="Puerto Rico National Visible" id="visible">
+	        <substitute key="element" value="Imager Visible"/>
+	        <substitute key="sector" value="Puerto Rico National"/>
+			<substitute key="entity" value="GOES-13(N)" /> 
+	        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+	    </contribute>
+		<contribute xsi:type="separator" id="MySeparatorId"/>
+		<!-- PUERTO RICO REGIONAL -->
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Puerto Rico Regional 13 micron IR" id="irWindow">
+	        <substitute key="element" value="Imager 13 micron (IR)"/>
+	        <substitute key="sector" value="Puerto Rico Regional"/>
+			<substitute key="entity" value="GOES-13(N)" /> 
+	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Puerto Rico Regional 11 micron IR" id="irWindow">
+	        <substitute key="element" value="Imager 11 micron IR"/>
+	        <substitute key="sector" value="Puerto Rico Regional"/>
+			<substitute key="entity" value="GOES-13(N)" /> 
+	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Puerto Rico Regional 3.9 micron IR" id="irWindow">
+	        <substitute key="element" value="Imager 3.9 micron IR"/>
+	        <substitute key="sector" value="Puerto Rico Regional"/>
+			<substitute key="entity" value="GOES-13(N)" /> 
+	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Puerto Rico Regional 6.7-6.5 micron WV" id="irWindow">
+	        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
+	        <substitute key="sector" value="Puerto Rico Regional"/>
+			<substitute key="entity" value="GOES-13(N)" /> 
+	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="Puerto Rico Regional Visible" id="visible">
+	        <substitute key="element" value="Imager Visible"/>
+	        <substitute key="sector" value="Puerto Rico Regional"/>
+			<substitute key="entity" value="GOES-13(N)" /> 
+	        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+	    </contribute>
+		<contribute xsi:type="separator" id="MySeparatorId"/>
+		<!-- Arctic -->
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Arctic 12 micron IR" id="irWindow">
+	        <substitute key="element" value="Imager 12 micron IR"/>
+	        <substitute key="sector" value="Arctic"/>
+	        <substitute key="entity" value="COMP" /> 
+	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Arctic 11 micron IR" id="irWindow">
+	        <substitute key="element" value="Imager 11 micron IR"/>
+	        <substitute key="sector" value="Arctic"/>
+	        <substitute key="entity" value="COMP" /> 
+	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Arctic 3.5-4.0 micron IR (Fog)" id="irWindow">
+	        <substitute key="element" value="Imager 3.5-4.0 micron IR (Fog)"/>
+	        <substitute key="sector" value="Arctic"/>
+	        <substitute key="entity" value="COMP" /> 
+	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Arctic 6.7-6.5 micron IR (WV)" id="irWindow">
+	        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
+	        <substitute key="sector" value="Arctic"/>
+	        <substitute key="entity" value="COMP" /> 
+	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="Arctic Visible" id="visible">
+	        <substitute key="element" value="Imager Visible"/>
+	        <substitute key="sector" value="Arctic"/>
+	        <substitute key="entity" value="COMP" /> 
+	        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+	    </contribute>
+		<contribute xsi:type="separator" id="MySeparatorId"/>
+		<!-- Antarctica -->
+	    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	        menuText="Antarctica IR" id="Arctic-IR1">
+	        <substitute key="element" value="Imager 3.5-4.0 micron IR (Fog)"/>
+	        <substitute key="sector" value="Antarctic" />     
+	        <substitute key="entity" value="COMP" /> 
+	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	        menuText="Antarctica Visible" id="Arctic-Vis">
+	        <substitute key="element" value="Imager Visible"/>
+	        <substitute key="sector" value="Antarctic" />     
+	        <substitute key="entity" value="COMP" /> 
+	        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	        menuText="Antarctica WV" id="Arctic-WV">
+	        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
+	        <substitute key="sector" value="Antarctica" />     
+	        <substitute key="entity" value="COMP" /> 
+	        <substitute key="colormap" value="Sat/WV/GEMPAK WV"/>
+	    </contribute>
+	</contribute>
+</menuTemplate>

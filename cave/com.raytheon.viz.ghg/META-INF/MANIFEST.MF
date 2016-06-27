@@ -18,9 +18,12 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.site,
  com.raytheon.uf.viz.core.maps,
  com.raytheon.uf.viz.zoneselector,
- org.apache.commons.lang3;bundle-version="3.4.0"
+ org.apache.commons.lang3;bundle-version="3.4.0",
+ com.raytheon.viz.gfe
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.raytheon.uf.common.activetable,
- com.raytheon.uf.common.python
+ com.raytheon.uf.common.python,
+ com.raytheon.viz.gfe.core,
+ com.raytheon.viz.gfe.rsc
 Bundle-ClassPath: com.raytheon.viz.ghg.jar

@@ -19,20 +19,26 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<contribute xsi:type="titleItem" titleText="------ VIIRS ------" id="ImageryLine"/>
-	<contribute xsi:type="subMenu" menuText="CONUS Imagery" id="CONUSid">
-		<contribute xsi:type="subinclude" fileName="menus/npp/viirs/viirsBundleItems.xml">
-			<substitute key="region" value="CONUS"/>
-		</contribute>
+	<contribute xsi:type="titleItem" titleText="------ NPP VIIRS ------" id="ImageryLine"/>
+	<!-- NCC Near Constant Contrast  -->
+	<contribute xsi:type="bundleItem" file="bundles/npp/viirs/viirsDayNightBandImagery.xml"
+		menuText="Near Constant Contrast (0.7u)" id="NCC0.7">
+		<substitute key="channelType" value="NCC"/>
 	</contribute>
-	<contribute xsi:type="subMenu" menuText="Alaska Imagery" id="Alaskaid">
-		<contribute xsi:type="subinclude" fileName="menus/npp/viirs/viirsBundleItems.xml">
-			<substitute key="region" value="Alaska"/>
-		</contribute>
+	<!-- AK VIIRS bands available on NOAAport -->
+	<contribute xsi:type="bundleItem" file="bundles/npp/viirs/viirsImagery.xml"
+		menuText="Alaska - Imagery Band 1 (0.64u)" id="Img0.64">
+		<substitute key="parameter" value="0.64Ref"/>
+		<substitute key="region" value="Alaska"/>
 	</contribute>
-	<contribute xsi:type="subMenu" menuText="Pacific Imagery" id="Pacificid">
-		<contribute xsi:type="subinclude" fileName="menus/npp/viirs/viirsBundleItems.xml">
-			<substitute key="region" value="Pacific"/>
-		</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/npp/viirs/viirsImagery.xml"
+		menuText="Alaska - Imagery Band 4 (3.74u)" id="Img3.74">
+		<substitute key="parameter" value="3.74BT"/>
+		<substitute key="region" value="Alaska"/>
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/npp/viirs/viirsImagery.xml"
+		menuText="Alaska - Imagery Band 5 (11.45u)" id="Img11.45">
+		<substitute key="parameter" value="11.45BT"/>
+		<substitute key="region" value="Alaska"/>
 	</contribute>
 </menuTemplate>

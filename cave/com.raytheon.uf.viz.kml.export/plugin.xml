@@ -2,17 +2,6 @@
 <?eclipse version="3.4"?>
 <plugin>
 <extension
-      point="org.eclipse.ui.menus">
-   <menuContribution
-         locationURI="menu:export">
-      <command
-            commandId="com.raytheon.uf.viz.kml.export.exportKML"
-            label="KML"
-            style="push">
-      </command>
-   </menuContribution>
-</extension>
-<extension
       point="org.eclipse.ui.commands">
       <command
            id="com.raytheon.uf.viz.kml.export.exportKML"
@@ -52,5 +41,14 @@
 	<graphicsExtension
        class="com.raytheon.uf.viz.kml.export.graphics.ext.KmlCanvasRenderingExtension">
 	</graphicsExtension>
+</extension>
+<extension
+      point="org.eclipse.ui.bindings">
+   <key
+         commandId="com.raytheon.uf.viz.kml.export.exportKML"
+         contextId="com.raytheon.uf.viz.d2d.ui"
+         schemeId="com.raytheon.viz.ui.cave.scheme"
+         sequence="M1+K">
+   </key>
 </extension>
 </plugin>

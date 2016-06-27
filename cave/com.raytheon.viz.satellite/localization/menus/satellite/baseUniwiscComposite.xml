@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<contribute xsi:type="separator" id="MySeparatorId"/>
+	<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="GOES Imager Visible" id="visible">
+        <substitute key="element" value="Imager Visible"/>
+		<substitute key="sector" value="GOES-East"/>
+    	<substitute key="entity" value="GOES13"/>
+        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+    </contribute>
+	<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="GOES Imager 11 micron IR" id="irWindow">
+        <substitute key="element" value="Imager 11 micron IR"/>
+		<substitute key="sector" value="Supernational"/>
+    	<substitute key="entity" value="GOES-13(N)"/>
+        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="GOES Imager 6.7-6.5 micron IR (WV)" id="waterVapor">
+        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
+		<substitute key="sector" value="Supernational"/>
+    	<substitute key="entity" value="GOES-13(N)"/>
+        <substitute key="colormap" value="Sat/WV/RAMSDIS WV"/>
+    </contribute>
+	<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Global Rectilinear 20km IR" id="waterVapor">
+        <substitute key="element" value="Imager 11 micron IR"/>
+		<substitute key="sector" value="Global"/>
+    	<substitute key="entity" value="GOES13"/>
+        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+    </contribute>
+	<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Global Rectilinear 20km WV" id="waterVapor">
+        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
+		<substitute key="sector" value="Global"/>
+    	<substitute key="entity" value="GOES13"/>
+        <substitute key="colormap" value="Sat/WV/RAMSDIS WV"/>
+    </contribute>
+	<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Global Mollweide 30km IR" id="waterVapor">
+        <substitute key="element" value="Imager 11 micron IR"/>
+		<substitute key="sector" value="Mollweide"/>
+    	<substitute key="entity" value="GOES13"/>
+        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+    </contribute>
+	<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Global Mollweide 30km WV" id="waterVapor">
+        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
+		<substitute key="sector" value="Mollweide"/>
+    	<substitute key="entity" value="GOES13"/>
+        <substitute key="colormap" value="Sat/WV/RAMSDIS WV"/>
+    </contribute>
+</menuTemplate>

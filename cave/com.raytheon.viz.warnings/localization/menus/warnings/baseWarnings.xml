@@ -19,221 +19,30 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-
-    <contribute xsi:type="bundleItem" file="bundles/LocalCWAWarnings.xml"
-        menuText="Local CWA Convective Warnings" id="localCWAWarnings" />
-
-    <contribute xsi:type="bundleItem" file="bundles/LocalCWAFloodWarnings.xml"
-        menuText="Local CWA Flood Warnings" id="localCWAFloodWarnings" />
-
-    <contribute xsi:type="bundleItem" file="bundles/LocalCWASPS.xml"
-        menuText="Local CWA Sig Wx Advisories (SPS)" id="localCWASPS" />
-
-    <contribute xsi:type="bundleItem" file="bundles/LocalMarineWarnings.xml"
-        menuText="Local CWA Marine Warnings" id="localmarineWarnings" />
-
-    <contribute xsi:type="bundleItem" file="bundles/AllLocalWarnings.xml"
-        menuText="All Local CWA Warnings" id="alllLocalWarings" />
-
-
-    <contribute xsi:type="subMenu" menuText="Other Regional Warning Displays">
-        <contribute xsi:type="bundleItem"
-            file="bundles/LocalRegionalWarnings.xml" menuText="Regional Convective Warnings"
-            id="localRegionalWarnings" />
-
-        <contribute xsi:type="bundleItem"
-            file="bundles/LocalRegionalFloodWarnings.xml" menuText="Regional Flood Warnings"
-            id="localRegionalFloodWarnings" />
-
-        <contribute xsi:type="bundleItem" file="bundles/LocalRegionalSPS.xml"
-            menuText="Regional Sig Wx Advisories (SPS)" id="localRegionalSPS" />
-
-        <contribute xsi:type="bundleItem"
-            file="bundles/LocalRegionalMarineWarning.xml" menuText="Regional Marine Warnings"
-            id="marineWarnings" />
-
-        <contribute xsi:type="bundleItem"
-            file="bundles/AllRegionalWarnings.xml" menuText="All Regional Warnings"
-            id="allRegionalWarnings" />
-
+	<contribute xsi:type="bundleItem" file="bundles/ncepHydro/ConvectiveWatchPlot.xml"
+             menuText="Convective Watches" id="convectiveWatches">
     </contribute>
-
-    <contribute xsi:type="subMenu" menuText="National Warning Displays">
-        <contribute xsi:type="bundleItem"
-            file="bundles/NationalConvWarnings.xml" menuText="National Convective Warnings"
-            id="nationalWarnings" />
-
-        <contribute xsi:type="bundleItem"
-            file="bundles/NationalFloodWarnings.xml" menuText="National Flood Warnings"
-            id="nationalFloodWarnings" />
-
-        <contribute xsi:type="bundleItem" file="bundles/AllCWASPS.xml"
-            menuText="National Sig Wx Advisories (SPS)" id="allCWASPS" />
-
-        <contribute xsi:type="bundleItem" file="bundles/AllMarineWarnings.xml"
-            menuText="National Marine Warnings" id="marineWarnings" />
-
-        <contribute xsi:type="bundleItem"
-            file="bundles/AllNationalWarnings.xml" menuText="All National Warnings"
-            id="allNationalWarnings" />
+	<contribute xsi:type="bundleItem" file="bundles/AllWarnings.xml" 
+          menuText="All Warnings" id="warnings">
     </contribute>
-
-
-    <contribute xsi:type="subMenu" menuText="NWS Regional Warning Displays">
-        <contribute xsi:type="subMenu" menuText="Alaska Region Warning Displays">
-            <contribute xsi:type="bundleItem"
-                file="bundles/RegionalWarnings-AR.xml" menuText="Alaska Region Convective Warnings"
-                id="AlaskaRegionWarnings" />
-
-            <contribute xsi:type="bundleItem"
-                file="bundles/RegionalFloodWarnings-AR.xml" menuText="Alaska Region Flood Warnings"
-                id="AlaskaRegionalFloodWarnings" />
-
-            <contribute xsi:type="bundleItem" file="bundles/RegionalSPS-AR.xml"
-                menuText="Alaska Region Sig Wx Advisories (SPS)" id="AlaskaCWASPS" />
-
-            <contribute xsi:type="bundleItem"
-                file="bundles/RegionalMarineWarning-AR.xml" menuText="Alaska Region Marine Warnings"
-                id="ARmarineWarnings" />
-
-            <contribute xsi:type="bundleItem"
-                file="bundles/AllRegionalWarnings-AR.xml" menuText="All Alaska Region Warnings"
-                id="allARRegionalWarnings" />
-        </contribute>
-
-        <contribute xsi:type="subMenu"
-            menuText="Central Region Warning Displays">
-            <contribute xsi:type="bundleItem"
-                file="bundles/RegionalWarnings-CR.xml" menuText="Central Region Convective Warnings"
-                id="CentralRegionWarnings" />
-
-            <contribute xsi:type="bundleItem"
-                file="bundles/RegionalFloodWarnings-CR.xml" menuText="Central Region Flood Warnings"
-                id="CentralRegionalFloodWarnings" />
-
-            <contribute xsi:type="bundleItem" file="bundles/RegionalSPS-CR.xml"
-                menuText="Central Region Sig Wx Advisories (SPS)" id="CentralCWASPS" />
-
-            <contribute xsi:type="bundleItem"
-                file="bundles/RegionalMarineWarning-CR.xml" menuText="Central Region Marine Warnings"
-                id="CRmarineWarnings" />
-
-            <contribute xsi:type="bundleItem"
-                file="bundles/AllRegionalWarnings-CR.xml" menuText="All Central Region Warnings"
-                id="allCRRegionalWarnings" />
-        </contribute>
-
-        <contribute xsi:type="subMenu"
-            menuText="Eastern Region Warning Displays">
-            <contribute xsi:type="bundleItem"
-                file="bundles/RegionalWarnings-ER.xml" menuText="Eastern Region Convective Warnings"
-                id="EasternRegionWarnings" />
-
-            <contribute xsi:type="bundleItem"
-                file="bundles/RegionalFloodWarnings-ER.xml" menuText="Eastern Region Flood Warnings"
-                id="EasternRegionalFloodWarnings" />
-
-            <contribute xsi:type="bundleItem" file="bundles/RegionalSPS-ER.xml"
-                menuText="Eastern Region Sig Wx Advisories (SPS)" id="EasternCWASPS" />
-
-            <contribute xsi:type="bundleItem"
-                file="bundles/RegionalMarineWarning-ER.xml" menuText="Eastern Region Marine Warnings"
-                id="ERmarineWarnings" />
-
-            <contribute xsi:type="bundleItem"
-                file="bundles/AllRegionalWarnings-ER.xml" menuText="All Eastern Region Warnings"
-                id="allERRegionalWarnings" />
-        </contribute>
-
-        <contribute xsi:type="subMenu"
-            menuText="Pacific Region Warning Displays">
-            <contribute xsi:type="bundleItem"
-                file="bundles/RegionalWarnings-PR.xml" menuText="Pacific Region Convective Warnings"
-                id="PacificRegionWarnings" />
-
-            <contribute xsi:type="bundleItem"
-                file="bundles/RegionalFloodWarnings-PR.xml" menuText="Pacific Region Flood Warnings"
-                id="PacificRegionalFloodWarnings" />
-
-            <contribute xsi:type="bundleItem" file="bundles/RegionalSPS-PR.xml"
-                menuText="Pacific Region Sig Wx Advisories (SPS)" id="PacificCWASPS" />
-
-            <contribute xsi:type="bundleItem"
-                file="bundles/RegionalMarineWarning-PR.xml" menuText="Pacific Region Marine Warnings"
-                id="PRmarineWarnings" />
-
-            <contribute xsi:type="bundleItem"
-                file="bundles/AllRegionalWarnings-PR.xml" menuText="All Pacific Region Warnings"
-                id="allPRRegionalWarnings" />
-        </contribute>
-
-        <contribute xsi:type="subMenu"
-            menuText="Southern Region Warning Displays">
-            <contribute xsi:type="bundleItem"
-                file="bundles/RegionalWarnings-SR.xml" menuText="Southern Region Convective Warnings"
-                id="SouthernRegionWarnings" />
-
-            <contribute xsi:type="bundleItem"
-                file="bundles/RegionalFloodWarnings-SR.xml" menuText="Southern Region Flood Warnings"
-                id="SouthernRegionalFloodWarnings" />
-
-            <contribute xsi:type="bundleItem" file="bundles/RegionalSPS-SR.xml"
-                menuText="Southern Region Sig Wx Advisories (SPS)" id="SouthernCWASPS" />
-
-            <contribute xsi:type="bundleItem"
-                file="bundles/RegionalMarineWarning-SR.xml" menuText="Southern Region Marine Warnings"
-                id="SRmarineWarnings" />
-
-            <contribute xsi:type="bundleItem"
-                file="bundles/AllRegionalWarnings-SR.xml" menuText="All Southern Region Warnings"
-                id="allSRRegionalWarnings" />
-        </contribute>
-
-        <contribute xsi:type="subMenu"
-            menuText="Western Region Warning Displays">
-            <contribute xsi:type="bundleItem"
-                file="bundles/RegionalWarnings-WR.xml" menuText="Western Region Convective Warnings"
-                id="WesternRegionWarnings" />
-
-            <contribute xsi:type="bundleItem"
-                file="bundles/RegionalFloodWarnings-WR.xml" menuText="Western Region Flood Warnings"
-                id="WesternRegionalFloodWarnings" />
-
-            <contribute xsi:type="bundleItem" file="bundles/RegionalSPS-WR.xml"
-                menuText="Western Region Sig Wx Advisories (SPS)" id="WesternCWASPS" />
-
-            <contribute xsi:type="bundleItem"
-                file="bundles/RegionalMarineWarning-WR.xml" menuText="Western Region Marine Warnings"
-                id="WRmarineWarnings" />
-
-            <contribute xsi:type="bundleItem"
-                file="bundles/AllRegionalWarnings-WR.xml" menuText="All Western Region Warnings"
-                id="allWRRegionalWarnings" />
-        </contribute>
+	<contribute xsi:type="separator" id="separator4"/>
+	<contribute xsi:type="bundleItem" file="bundles/Warnings.xml" 
+          menuText="TStorm / Tornado Warnings" id="warnings">
     </contribute>
-
-    <!-- There is no support in the backend for these reports -->
-    <contribute xsi:type="subMenu" menuText="Local Storm Reports">
-        <contribute xsi:type="bundleItem"
-            file="bundles/LocalStormReportsOffice.xml" menuText="Office"
-            id="office">
-            <substitute key="title" value="Local Storm Reports" />
-        </contribute>
-        <contribute xsi:type="bundleItem"
-            file="bundles/LocalStormReportsLocal.xml" menuText="Local"
-            id="local">
-            <substitute key="title" value="Local Storm Reports" />
-        </contribute>
-        <contribute xsi:type="bundleItem"
-            file="bundles/LocalStormReportsRegion.xml" menuText="Region"
-            id="region">
-            <substitute key="title" value="Local Storm Reports" />
-        </contribute>
-        <contribute xsi:type="bundleItem"
-            file="bundles/LocalStormReportsNational.xml" menuText="National"
-            id="national">
-            <substitute key="title" value="Local Storm Reports" />
-        </contribute>
-
+	<contribute xsi:type="bundleItem" file="bundles/FloodWarnings.xml" 
+          menuText="Flood Warnings" id="FloodWarnings">
     </contribute>
+	<contribute xsi:type="bundleItem" file="bundles/MarineWarning.xml" 
+              menuText="Marine Warnings" id="marineWarnings">
+    </contribute>
+	<contribute xsi:type="bundleItem" file="bundles/WindWarnings.xml" 
+          menuText="Extrene Wind Warnings" id="windWarnings">
+    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SPS.xml" 
+              menuText="SPS / Sig Wx Advisories" id="SPS">
+    </contribute>
+	<contribute xsi:type="bundleItem" file="bundles/ncepHydro/SvrWxPlot.xml" 
+               menuText="SPC Svr Wx Plot" id="spcWxPlot">
+	</contribute>
+
 </menuTemplate>

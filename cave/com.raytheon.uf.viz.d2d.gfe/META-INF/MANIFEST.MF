@@ -25,3 +25,4 @@ Export-Package: com.raytheon.uf.viz.d2d.gfe.browser,
  com.raytheon.uf.viz.d2d.gfe.rsc,
  com.raytheon.uf.viz.d2d.gfe.xy
 Bundle-ClassPath: com.raytheon.uf.viz.d2d.gfe.jar
+Import-Package: org.osgi.framework

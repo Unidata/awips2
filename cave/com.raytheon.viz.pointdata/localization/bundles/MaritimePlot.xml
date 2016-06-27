@@ -28,14 +28,74 @@
 					<properties isSystemResource="false" isBlinking="false"
 						isMapLayer="false" isHoverOn="false"
 						isVisible="true" />
-					<resourceData xsi:type="plotResourceData" plotSource="${legend}"
-						plotModelFile="${svg}"
+					<resourceData xsi:type="plotResourceData" plotSource="Fixed Buoys Plot"
+						plotModelFile="maritimeDesign.svg" 
+						isUpdatingOnMetadataOnly="true" retrieveData="false"
+						isRequeryNecessaryOnTimeMatch="true">
+						<binOffset posOffset="1801" negOffset="1799" virtualOffset="0"/>
+						<metadataMap>
+							<mapping key="reportType">
+							<!-- Moored Buoys and CMAN -->
+								<constraint constraintValue="1004,1005" constraintType="IN" />
+							</mapping>
+							<mapping key="pluginName">
+								<constraint constraintValue="sfcobs" constraintType="EQUALS" />
+							</mapping>
+						</metadataMap>
+					</resourceData>
+				</resource>
+				<resource>
+	                <loadProperties loadWithoutData="false">
+	                    <resourceType>PLAN_VIEW</resourceType>
+	                    <capabilities>
+	                        <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+	                        <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+	                        <capability xsi:type="magnificationCapability" magnification="1.0"/>
+	                        <capability xsi:type="densityCapability" density="1.0"/>
+	                        <capability xsi:type="pointCapability" pointStyle="CROSS"/>
+	                    </capabilities>
+	                </loadProperties>
+	                <properties renderingOrderId="PLOT" isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+	                    <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+	                </properties>
+	                <resourceData xsi:type="spiResourceData">
+	                    <filename>basemaps/BUOY.spi</filename>
+	                    <mapName>Fixed Buoy Locations</mapName>
+	                </resourceData>
+	            </resource>
+				<resource>
+               		<loadProperties loadWithoutData="true"/>
+					<properties isSystemResource="false" isBlinking="false"
+						isMapLayer="false" isHoverOn="false"
+						isVisible="true" />
+					<resourceData xsi:type="plotResourceData" plotSource="Moving MAROB Plot"
+						plotModelFile="maritimeDesign.svg"
 						isUpdatingOnMetadataOnly="true" retrieveData="false"
 						isRequeryNecessaryOnTimeMatch="true">
 						<binOffset posOffset="1800" negOffset="1800" virtualOffset="0"/>
 						<metadataMap>
 							<mapping key="reportType">
-								<constraint constraintValue="${reportType}" constraintType="IN" />
+								<constraint constraintValue="1007" constraintType="EQUALS" />
+							</mapping>
+							<mapping key="pluginName">
+								<constraint constraintValue="sfcobs" constraintType="EQUALS" />
+							</mapping>
+						</metadataMap>
+					</resourceData>
+				</resource>
+				<resource>
+               		<loadProperties loadWithoutData="true"/>
+					<properties isSystemResource="false" isBlinking="false"
+						isMapLayer="false" isHoverOn="false"
+						isVisible="true" />
+					<resourceData xsi:type="plotResourceData" plotSource="Moving Maritime Plot"
+						plotModelFile="maritimeDesign.svg"
+						isUpdatingOnMetadataOnly="true" retrieveData="false"
+						isRequeryNecessaryOnTimeMatch="true">
+						<binOffset posOffset="1800" negOffset="1800" virtualOffset="0"/>
+						<metadataMap>
+							<mapping key="reportType">
+								<constraint constraintValue="1006, 1003" constraintType="IN" />
 							</mapping>
 							<mapping key="pluginName">
 								<constraint constraintValue="sfcobs" constraintType="EQUALS" />

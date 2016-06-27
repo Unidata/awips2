@@ -7,7 +7,7 @@
 					<loadProperties loadWithoutData="false">
 						<capabilities>
 							<capability xsi:type="imagingCapability"
-								interpolationState="false" brightness="1.0" contrast="1.0" />
+								interpolationState="true" brightness="1.0" contrast="1.0" />
 							<capability xsi:type="colorMapCapability" />
 						</capabilities>
 					</loadProperties>
@@ -228,7 +228,7 @@
 					<loadProperties loadWithoutData="false">
 						<capabilities>
 							<capability xsi:type="imagingCapability"
-								interpolationState="false" brightness="1.0" contrast="1.0" />
+								interpolationState="true" brightness="1.0" contrast="1.0" />
 							<capability xsi:type="colorMapCapability"/>
 						</capabilities>
 					</loadProperties>
@@ -449,7 +449,7 @@
 					<loadProperties loadWithoutData="false">
 						<capabilities>
 							<capability xsi:type="imagingCapability"
-								interpolationState="false" brightness="1.0" contrast="1.0" />
+								interpolationState="true" brightness="1.0" contrast="1.0" />
 							<capability xsi:type="colorMapCapability"/>
 						</capabilities>
 					</loadProperties>
@@ -670,7 +670,7 @@
 					<loadProperties loadWithoutData="false">
 						<capabilities>
 							<capability xsi:type="imagingCapability"
-								interpolationState="false" brightness="1.0" contrast="1.0" />
+								interpolationState="true" brightness="1.0" contrast="1.0" />
 							<capability xsi:type="colorMapCapability"/>
 						</capabilities>
 					</loadProperties>

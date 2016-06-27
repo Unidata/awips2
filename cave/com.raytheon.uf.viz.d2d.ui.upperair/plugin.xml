@@ -33,6 +33,12 @@
                       definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
                 </reference>
              </visibleWhen>
+             <command
+                   commandId="com.raytheon.uf.viz.d2d.nsharp.dialog"
+                   id="com.raytheon.uf.viz.d2d.nsharp.dialog"
+                   label="NSHARP Soundings"
+                   style="push">
+             </command>
 
              <command
                    commandId="com.raytheon.viz.ui.actions.titleAction"

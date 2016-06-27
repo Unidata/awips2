@@ -53,7 +53,6 @@
 				id="plugins">
 				<command
 					commandId="com.raytheon.viz.warngen.gui.WarngenAction"
-					icon="icons/warngen.gif"
 					label="Warngen">
 					<visibleWhen>
 					    <and>
@@ -70,7 +69,7 @@
 				</command>
 			</toolbar>
 		</menuContribution>
-		<menuContribution locationURI="menu:tools?after=tools.W">
+		<menuContribution locationURI="menu:tools">
 			<command
 				commandId="com.raytheon.viz.warngen.gui.WarngenAction"
 				label="Warngen">

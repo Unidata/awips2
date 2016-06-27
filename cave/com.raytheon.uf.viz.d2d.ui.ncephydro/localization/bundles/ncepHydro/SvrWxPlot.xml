@@ -27,6 +27,9 @@
                		<loadProperties loadWithoutData="true">
                    		<capabilities>
                        		<capability xsi:type="imagingCapability" interpolationState="false" brightness="1.0" contrast="1.0" alpha="1.0"/>
+							<capability xsi:type="magnificationCapability" magnification="2.0"/>
+                            <capability xsi:type="densityCapability" density="2.5"/>
+							<capability xsi:type="colorableCapability" colorAsString="#99FF99" />
                    		</capabilities>
                		</loadProperties>
 					<properties isSystemResource="false" isBlinking="false"
@@ -56,6 +59,9 @@
                		<loadProperties loadWithoutData="true">
                    		<capabilities>
                        		<capability xsi:type="imagingCapability" interpolationState="false" brightness="1.0" contrast="1.0" alpha="1.0"/>
+							<capability xsi:type="magnificationCapability" magnification="2.0"/>
+                            <capability xsi:type="densityCapability" density="2.5"/>
+							<capability xsi:type="colorableCapability" colorAsString="#FFFFFF" />
                    		</capabilities>
                		</loadProperties>
 					<properties isSystemResource="false" isBlinking="false"
@@ -85,6 +91,9 @@
                		<loadProperties loadWithoutData="true">
                    		<capabilities>
                        		<capability xsi:type="imagingCapability" interpolationState="false" brightness="1.0" contrast="1.0" alpha="1.0"/>
+							<capability xsi:type="magnificationCapability" magnification="2.0"/>
+                            <capability xsi:type="densityCapability" density="2.5"/>
+							<capability xsi:type="colorableCapability" colorAsString="#FF6666" />
                    		</capabilities>
                		</loadProperties>
 					<properties isSystemResource="false" isBlinking="false"

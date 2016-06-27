@@ -33,6 +33,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import javax.measure.unit.Unit;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -48,12 +50,19 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
+import com.raytheon.uf.common.colormap.Color;
+import com.raytheon.uf.common.colormap.ColorMapException;
+import com.raytheon.uf.common.colormap.ColorMapLoader;
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
+import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences;
+import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences.DataMappingEntry;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURIUtil;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
+import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -73,6 +82,7 @@ import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.DensityCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
@@ -101,6 +111,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Mar 11, 2014  2718     randerso  Changes for GeoTools 10.5
  * Nov 05, 2015 5070       randerso    Adjust font sizes for dpi scaling
  * Nov 13, 2015  4903     bsteffen  Extract progressive disclosure
+ * Jun 23, 2016           mjames    Colored plot.
  * 
  * </pre>
  * 
@@ -112,6 +123,28 @@ public class MetarPrecipResource extends
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(MetarPrecipResource.class);
 
+	private RGB color = new RGB(126, 126, 126);
+    
+    public RGB getColorByValue(float value) {
+    	ColorMapParameters parameters = getCapability(ColorMapCapability.class).getColorMapParameters();
+        if (parameters != null) {
+            Color color = parameters.getColorByValue(value);
+            if (color != null) {
+                return new RGB((int) (color.getRed() * 255),
+                        (int) (color.getGreen() * 255),
+                        (int) (color.getBlue() * 255));
+            }
+        }
+        return getColor();
+    }
+
+    public RGB getColor() {
+        return color;
+    }
+
+    public void setColor(RGB color) {
+        this.color = color;
+    }
     private static final int PLOT_PIXEL_SIZE = 30;
 
     private class RenderablePrecipData extends PrecipData implements PlotItem {
@@ -204,7 +237,7 @@ public class MetarPrecipResource extends
         if (precips.isEmpty()) {
             return;
         }
-        RGB color = getCapability(ColorableCapability.class).getColor();
+        //RGB color = getCapability(ColorableCapability.class).getColor();
 
         if (font == null) {
             font = target.initializeFont(Font.DIALOG, 8,
@@ -217,7 +250,7 @@ public class MetarPrecipResource extends
         for (RenderablePrecipData data : precips) {
             // This is easier then changing it when the capability changes.
             data.string.font = this.font;
-            data.string.setText(data.string.getText(), color);
+                //data.string.setText(data.string.getText(), color);
             strings.add(data.string);
         }
 
@@ -239,6 +272,58 @@ public class MetarPrecipResource extends
     protected void initInternal(IGraphicsTarget target) throws VizException {
         dataTimes = new ArrayList<DataTime>();
         dataProcessJob.schedule();
+        ColorMapParameters params = new ColorMapParameters();
+
+        try {
+            params.setColorMap(ColorMapLoader.loadColorMap("Precip Accumulation"));
+        } catch (ColorMapException e) {
+            throw new VizException(e);
+        }
+
+        DataMappingPreferences preferences = new DataMappingPreferences();
+
+        DataMappingEntry entry = new DataMappingEntry();
+        entry.setDisplayValue(0.005);
+        entry.setPixelValue(0.0);
+        preferences.addEntry(entry);
+
+        entry = new DataMappingEntry();
+        entry.setDisplayValue(0.5);
+        entry.setPixelValue(1.0);
+        preferences.addEntry(entry);
+
+        entry = new DataMappingEntry();
+        entry.setDisplayValue(1.0);
+        entry.setPixelValue(2.0);
+        preferences.addEntry(entry);
+
+        entry = new DataMappingEntry();
+        entry.setDisplayValue(1.5);
+        entry.setPixelValue(3.0);
+        preferences.addEntry(entry);
+
+        entry = new DataMappingEntry();
+        entry.setDisplayValue(2.0);
+        entry.setPixelValue(4.0);
+        preferences.addEntry(entry);
+
+        entry = new DataMappingEntry();
+        entry.setDisplayValue(3.0);
+        entry.setPixelValue(5.0);
+        preferences.addEntry(entry);
+
+        entry = new DataMappingEntry();
+        entry.setDisplayValue(20.0);
+        entry.setPixelValue(6.0);
+        preferences.addEntry(entry);
+
+        params.setDisplayUnit(Unit.ONE);
+        params.setDataMapping(preferences);
+        params.setColorMapMin(0);
+        params.setColorMapMax(6);
+
+        getCapability(ColorMapCapability.class).setColorMapParameters(params);
+        
     }
 
     @Override
@@ -547,7 +632,7 @@ public class MetarPrecipResource extends
 
         GenericProgressiveDisclosure<RenderablePrecipData> newPrecips = new GenericProgressiveDisclosure<RenderablePrecipData>();
 
-        RGB color = getCapability(ColorableCapability.class).getColor();
+        //RGB color = getCapability(ColorableCapability.class).getColor();
 
         GridEnvelope2D envelope = GridGeometry2D.wrap(
                 descriptor.getGridGeometry()).getGridRange2D();
@@ -563,8 +648,10 @@ public class MetarPrecipResource extends
                 if (!envelope.contains(px[0], px[1])) {
                     continue;
                 }
+                Float amount = precips.get(i).getPrecipAmt().floatValue();
+                RGB rgbval = getColorByValue(amount);
                 DrawableString string = new DrawableString(formatPrecip(precips
-                        .get(i).getPrecipAmt()), color);
+                        .get(i).getPrecipAmt()), rgbval);
                 string.setCoordinates(px[0], px[1], px[2]);
                 string.verticalAlignment = VerticalAlignment.MIDDLE;
                 string.horizontalAlignment = HorizontalAlignment.CENTER;
@@ -585,25 +672,7 @@ public class MetarPrecipResource extends
         if (precipAmt < -0.005) {
             return "";
         } else if (precipAmt < 0.005) {
-            return "T";
-        } else if (precipAmt < 0.015) {
-            return ".o1";
-        } else if (precipAmt < 0.025) {
-            return ".o2";
-        } else if (precipAmt < 0.035) {
-            return ".o3";
-        } else if (precipAmt < 0.045) {
-            return ".o4";
-        } else if (precipAmt < 0.055) {
-            return ".o5";
-        } else if (precipAmt < 0.065) {
-            return ".o6";
-        } else if (precipAmt < 0.075) {
-            return ".o7";
-        } else if (precipAmt < 0.085) {
-            return ".o8";
-        } else if (precipAmt < 0.095) {
-            return ".o9";
+            return "t";
         } else if (precipAmt < 0.495) {
             return String.format("%4.2f", precipAmt).substring(1);
         } else if (precipAmt < 9.995) {

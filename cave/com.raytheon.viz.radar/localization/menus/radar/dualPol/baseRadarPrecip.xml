@@ -57,6 +57,11 @@
 			id="${icao}PrecipAnalysis4panel">
 			<substitute key="icao" value="${icao}" />
 		</contribute>
+		<contribute xsi:type="bundleItem"
+			file="bundles/DefaultRadarPrecipAnalysis.xml" menuText="Precip Analysis (2panel)"
+			id="${icao}PrecipAnalysis2panel">
+			<substitute key="icao" value="${icao}" />
+		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
 			menuText="Storm Total Accum (STA)" id="${icao}StormTotalAccumSTA">
 			<substitute key="icao" value="${icao}" />

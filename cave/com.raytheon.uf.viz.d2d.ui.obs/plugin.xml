@@ -22,54 +22,23 @@
 <plugin>
     <extension point="org.eclipse.ui.menus">
         <menuContribution locationURI="menu:org.eclipse.ui.main.menu?after=d2d.obsMenu">
-            <menu id="obs" label="Obs" mnemonic="O">
+            <menu id="obs" label="Surface" mnemonic="O">
                 <visibleWhen>
                     <reference
                         definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
                     </reference>
                 </visibleWhen>
-                <separator name="SURFACE" visible="false">
-                </separator>
-                <separator name="EndOfInitial" visible="true">
-                </separator>
-                <command commandId="com.raytheon.viz.ui.actions.titleAction"
-                    label="------ METAR ------">
-                </command>
-                <separator name="METAR" visible="false">
-                </separator>
-                <separator name="EndOfMetar" visible="true">
-                </separator>
-                <command commandId="com.raytheon.viz.ui.actions.titleAction"
-                    label="------ Synoptic ------">
-                </command>
-                <separator name="SYNOPTIC" visible="false">
-                </separator>
-                <separator name="EndOfSynoptic" visible="true">
-                </separator>
-                <command commandId="com.raytheon.viz.ui.actions.titleAction"
-                    label="------ Local data ------">
-                </command>
-                <separator name="LocalData" visible="false">
-                </separator>
-                <separator name="CollectionDissemSep" visible="false">
-                </separator>
-                <separator name="EndOfLocalData" visible="true">
-                </separator>
-                <command commandId="com.raytheon.viz.ui.actions.titleAction"
-                    label="------ Maritime ------" id="MARITIME">
-                </command>
-                <separator name="EndOfMaritime" visible="true">
-                </separator>
-                <command commandId="com.raytheon.viz.ui.actions.titleAction"
-                    label="------ Hazards ------">
-                </command>
-                <separator name="HAZARDS" visible="false" />
-                <separator name="LIGHTNINGPLACEHOLDER"
-                    visible="false" />
-                <separator name="FOGPLACEHOLDER" visible="false" />
-                <separator name="SNOWPLACEHOLDER" visible="false" />
-                <separator name="EndOfHazards" visible="true">
-                </separator>
+                <separator name="SURFACE" visible="true" />
+				<separator name="HAZARDS" visible="true" />
+				<separator name="CollectionDissemination" visible="true" />
+                <separator name="USPLNPLACEHOLDER" visible="true" />
+				<separator name="MOS" visible="true" />
+				<separator name="MARITIME" visible="true" />
+                <separator name="EndOfMaritime" visible="true" />
+                <separator name="LIGHTNINGPLACEHOLDER" visible="true" />
+                <separator name="FOGPLACEHOLDER" visible="true" />
+                <separator name="SNOWPLACEHOLDER" visible="true" />
+                <separator name="EndOfHazards" visible="true" />
             </menu>
         </menuContribution>
     </extension>
