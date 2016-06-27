@@ -25,9 +25,6 @@ import java.util.List;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -37,7 +34,6 @@ import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
-import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.metadata.spatial.PixelOrientation;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
@@ -50,7 +46,6 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.datastructure.LoopProperties;
-import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
@@ -69,15 +64,16 @@ import com.vividsolutions.jts.geom.Envelope;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Aug 23, 2011            randerso    Initial creation
- * May 30, 2013 #2028      randerso    Fixed date line issue with map display
- * Jan 07, 2014 #2662      randerso    Fixed limitZones (subDomainUGCs) support
- * Aug 31, 2015 #4749      njensen     Set selectCB to null on dispose
- * Feb 05, 2016 #5316      randerso    Moved into separate package.
- *                                     Additional changes to support use in GHG Monitor,
- *                                     MakeHazard, and ZoneCombiner
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Aug 23, 2011           randerso  Initial creation
+ * May 30, 2013  2028     randerso  Fixed date line issue with map display
+ * Jan 07, 2014  2662     randerso  Fixed limitZones (subDomainUGCs) support
+ * Aug 31, 2015  4749     njensen   Set selectCB to null on dispose
+ * Feb 05, 2016  5316     randerso  Moved into separate package. Additional
+ *                                  changes to support use in GHG Monitor,
+ *                                  MakeHazard, and ZoneCombiner
+ * Jun 23, 2016  5674     randerso  Change to use mouse-base pan and zoom
  * 
  * </pre>
  * 
@@ -110,7 +106,7 @@ public abstract class AbstractZoneSelector extends PaneManager {
 
     protected IZoneSelectionListener selectCB;
 
-    protected GridLocation gloc;
+    protected final GridLocation gloc;
 
     private LoopProperties loopProperties;
 
@@ -137,8 +133,6 @@ public abstract class AbstractZoneSelector extends PaneManager {
 
     protected ScrollBar vBar;
 
-    protected double zoomLevel = 1;
-
     protected double currShiftX = 0;
 
     protected double currShiftY = 0;
@@ -152,8 +146,9 @@ public abstract class AbstractZoneSelector extends PaneManager {
             IZoneSelectionListener selectCB) {
         super();
         this.parent = parent;
-        this.gloc = gloc;
         this.selectCB = selectCB;
+
+        this.gloc = gloc;
 
         this.loopProperties = new LoopProperties();
         this.mapRscList = new ArrayList<ZoneSelectorResource>();
@@ -176,8 +171,7 @@ public abstract class AbstractZoneSelector extends PaneManager {
      * @param zoomLevel
      */
     public void setZoomLevel(double zoomLevel) {
-        this.zoomLevel = zoomLevel;
-        updateZoom();
+        updateZoom(zoomLevel);
     }
 
     /**
@@ -186,7 +180,10 @@ public abstract class AbstractZoneSelector extends PaneManager {
      * @return the zoomLevel
      */
     public double getZoomLevel() {
-        return this.zoomLevel;
+        IDisplayPane pane = getActiveDisplayPane();
+        IRenderableDisplay rDisplay = pane.getRenderableDisplay();
+        IExtent extent = rDisplay.getExtent();
+        return extent.getScale();
     }
 
     /**
@@ -248,36 +245,16 @@ public abstract class AbstractZoneSelector extends PaneManager {
 
     private void setupCanvas() {
 
-        map = new Composite(parent, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+        map = new Composite(parent, SWT.BORDER);
         map.setLayout(new GridLayout());
         map.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
         initializeComponents(this, map);
-
-        hBar = map.getHorizontalBar();
-        vBar = map.getVerticalBar();
-
-        hBar.setValues(0, 0, SCROLL_MAX, SCROLL_MAX, SCROLL_MAX / 10,
-                SCROLL_MAX);
-        vBar.setValues(0, 0, SCROLL_MAX, SCROLL_MAX, SCROLL_MAX / 10,
-                SCROLL_MAX);
-
-        // Move the map when the user changes the scrollbars
-        SelectionListener scrollbarListener = new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                updateZoom();
-            }
-
-        };
-        hBar.addSelectionListener(scrollbarListener);
-        vBar.addSelectionListener(scrollbarListener);
-
     }
 
     /**
      * 
      */
-    protected void updateZoom() {
+    protected void updateZoom(double zoomLevel) {
         // Resets the map to be full view before performing zoom
         IDisplayPane pane = getActiveDisplayPane();
 
@@ -291,34 +268,14 @@ public abstract class AbstractZoneSelector extends PaneManager {
 
         IRenderableDisplay rDisplay = pane.getRenderableDisplay();
         IExtent extent = rDisplay.getExtent();
-        IDescriptor descriptor = rDisplay.getDescriptor();
-        GridEnvelope gridRange = descriptor.getGridGeometry().getGridRange();
-        int mapWidth = gridRange.getSpan(0);
-        int mapHeight = gridRange.getSpan(1);
 
-        int hSel = hBar.getSelection() + (hBar.getThumb() / 2);
-        int vSel = vBar.getSelection() + (vBar.getThumb() / 2);
-
-        int hThumb = (int) (SCROLL_MAX * zoomLevel);
-        int vThumb = (int) (SCROLL_MAX * zoomLevel);
-
-        hSel -= hThumb / 2;
-        vSel -= vThumb / 2;
-
-        hBar.setValues(hSel, 0, SCROLL_MAX, hThumb, hThumb / 10, hThumb);
-        vBar.setValues(vSel, 0, SCROLL_MAX, vThumb, vThumb / 10, vThumb);
-
-        hSel = hBar.getSelection() + (hBar.getThumb() / 2);
-        vSel = vBar.getSelection() + (vBar.getThumb() / 2);
-
-        double xShift = (((double) hSel / SCROLL_MAX) - 0.5) * mapWidth;
-        double yShift = (((double) vSel / SCROLL_MAX) - 0.5) * mapHeight;
-
-        extent.shift(xShift - currShiftX, yShift - currShiftY);
-        extent.scale(zoomLevel / extent.getScale());
-
-        currShiftX = xShift;
-        currShiftY = yShift;
+        if (zoomLevel == 1.0) {
+            pane.scaleToClientArea();
+            currShiftX = 0;
+            currShiftY = 0;
+        } else {
+            extent.scale(zoomLevel / extent.getScale());
+        }
 
         this.refresh();
     }
@@ -401,7 +358,6 @@ public abstract class AbstractZoneSelector extends PaneManager {
                 pane.setRenderableDisplay(mapRenderableDisplay);
             }
             pane.scaleToClientArea();
-            this.zoomLevel = 1;
 
             for (ZoneSelectorResource mapRsc : mapRscList) {
                 mapRsc.setLabelZones(this.labelZones);
