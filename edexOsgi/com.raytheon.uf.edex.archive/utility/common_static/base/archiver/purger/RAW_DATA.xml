@@ -144,7 +144,7 @@
     <defaultRetentionHours>168</defaultRetentionHours>
     <category>
         <name>Local</name>
-        <selectedRetentionHours>168</selectedRetentionHours>
+        <selectedRetentionHours>1</selectedRetentionHours>
       	<dataSet>
         	<dirPattern>(manual)/grib/(\d{4})(\d{2})(\d{2})/(\d{2})</dirPattern>
             <filePattern>.*(LAPS|MSAS).*</filePattern>
@@ -195,7 +195,7 @@
     </category>
     <category>
         <name>Model</name>
-        <selectedRetentionHours>168</selectedRetentionHours>
+        <selectedRetentionHours>1</selectedRetentionHours>
         <dataSet>
             <dirPattern>(grib|grib2)/(\d{4})(\d{2})(\d{2})/(\d{2})/(.*)</dirPattern>
             <displayLabel>{1} - {6}</displayLabel>
@@ -209,7 +209,7 @@
     </category>
     <category>
         <name>Observation</name>
-        <selectedRetentionHours>168</selectedRetentionHours>
+        <selectedRetentionHours>1</selectedRetentionHours>
         <dataSet>
             <dirPattern>(airep|binlightning|bufrascat|bufrhdw|bufrmthdw|bufrssmi|entlightning|lsr|MAROB|maritime|metar|misc_sfc_obs|pirep|sfcobs|shef|svrwx|synoptic)/(\d{4})(\d{2})(\d{2})/(\d{2})</dirPattern>
             <displayLabel>{1}</displayLabel>
@@ -223,7 +223,7 @@
     </category>
     <category>
         <name>Products</name>
-        <selectedRetentionHours>168</selectedRetentionHours>
+        <selectedRetentionHours>1</selectedRetentionHours>
         <dataSet>
             <dirPattern>(airmet|bufrncwf|bufrsigwx|climate|convsigmet|cwa|fire_wx_spot_fcst_reports|forecast|intlsigmet|misc_adm_messages|nonconvsigmet|redbook|summaries|tcg|tcs|text|wwa|xml)/(\d{4})(\d{2})(\d{2})/(\d{2})</dirPattern>
             <displayLabel>{1}</displayLabel>
@@ -232,7 +232,7 @@
     </category>
     <category>
         <name>radar</name>
-        <selectedRetentionHours>168</selectedRetentionHours>
+        <selectedRetentionHours>1</selectedRetentionHours>
         <dataSet>
             <dirPattern>radar/(\d{4})(\d{2})(\d{2})/(\d{2})/(.*)</dirPattern>
             <displayLabel>{5}</displayLabel>
@@ -241,7 +241,7 @@
     </category>
     <category>
         <name>Radar (Local)</name>   
-        <selectedRetentionHours>168</selectedRetentionHours>
+        <selectedRetentionHours>1</selectedRetentionHours>
         <dataSet>
             <dirPattern>radar/([k|t|e|f]\w{3})/.*</dirPattern>    <!-- one level like GSM or HI -->  <!-- e and f are for FAA ASR and ARSR radars -->
             <dirPattern>radar/(k...|t...|e...|f...)/.*/.*</dirPattern>  <!-- two levels like ML -->
@@ -261,7 +261,7 @@
     </category>
     <category>
         <name>Satellite</name>
-        <selectedRetentionHours>168</selectedRetentionHours>
+        <selectedRetentionHours>1</selectedRetentionHours>
         <dataSet>
             <dirPattern>sat/(\d{4})(\d{2})(\d{2})/(\d{2})/(.*)</dirPattern>
             <displayLabel>{5}</displayLabel>
@@ -270,7 +270,7 @@
     </category>
     <category>
         <name>Profiles</name>
-        <selectedRetentionHours>168</selectedRetentionHours>
+        <selectedRetentionHours>1</selectedRetentionHours>
         <dataSet>
             <dirPattern>(bufrua|goessounding|poessounding|profiler|raobs|upperair)/(\d{4})(\d{2})(\d{2})/(\d{2})</dirPattern>
             <displayLabel>{1}</displayLabel>
