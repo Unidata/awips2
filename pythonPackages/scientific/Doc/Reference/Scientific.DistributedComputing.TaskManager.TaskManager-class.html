@@ -1,0 +1,1030 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Scientific.DistributedComputing.TaskManager.TaskManager</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="Scientific-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://dirac.cnrs-orleans.fr/ScientificPython/">Scientific Python</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="Scientific-module.html">Package&nbsp;Scientific</a> ::
+        <a href="Scientific.DistributedComputing-module.html">Package&nbsp;DistributedComputing</a> ::
+        <a href="Scientific.DistributedComputing.TaskManager-module.html">Module&nbsp;TaskManager</a> ::
+        Class&nbsp;TaskManager
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="Scientific.DistributedComputing.TaskManager.TaskManager-class.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<!-- ==================== CLASS DESCRIPTION ==================== -->
+<h1 class="epydoc">Class TaskManager</h1><p class="nomargin-top"></p>
+<pre class="base-tree">
+Pyro.core.ObjBase --+
+                    |
+                   <strong class="uidshort">TaskManager</strong>
+</pre>
+
+<hr />
+<p>Manager for computational tasks.</p>
+  <p>A TaskManager accepts task requests and hands them out to other 
+  processes. It stores the results that can then be picked up by the 
+  requester. A TaskManager also keeps track of its compute processes. If a 
+  process disappears, its running tasks are re-scheduled for execution by 
+  another compute process. TaskManangers are thread-safe.</p>
+
+<!-- ==================== INSTANCE METHODS ==================== -->
+<a name="section-InstanceMethods"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td align="left" colspan="2" class="table-header">
+    <span class="table-header">Instance Methods</span></td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.DistributedComputing.TaskManager.TaskManager-class.html#__init__" class="summary-sig-name">__init__</a>(<span class="summary-sig-arg">self</span>)</span></td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type"><code>str</code></span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.DistributedComputing.TaskManager.TaskManager-class.html#activeProcessInfo" class="summary-sig-name">activeProcessInfo</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">pid</span>)</span><br />
+      Returns:
+      information about the active process number pid</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type"><code>str</code></span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.DistributedComputing.TaskManager.TaskManager-class.html#addTaskRequest" class="summary-sig-name">addTaskRequest</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">tag</span>,
+        <span class="summary-sig-arg">parameters</span>,
+        <span class="summary-sig-arg">process_id</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Returns:
+      the task id</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.DistributedComputing.TaskManager.TaskManager-class.html#deleteData" class="summary-sig-name">deleteData</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">label</span>)</span></td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type"><code>tuple</code>
+      <p>Returns the result of an arbitrary finished task. The task is 
+      removed from the list of finished tasks.</p></span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.DistributedComputing.TaskManager.TaskManager-class.html#getAnyResult" class="summary-sig-name">getAnyResult</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Returns:
+      the task id, the task tag, and the result of the task</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type"><code>tuple</code>
+      <p>Returns a waiting task of arbitrary tag. The task is removed from 
+      the list of waiting tasks and added to the list of running tasks.</p></span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.DistributedComputing.TaskManager.TaskManager-class.html#getAnyTask" class="summary-sig-name">getAnyTask</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">process_id</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Returns:
+      the task id, the task tag, and the parameters</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type"><code>tuple</code>
+      <p>Returns the result of a finished task that has the given tag. The 
+      task is removed from the list of finished tasks.</p></span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.DistributedComputing.TaskManager.TaskManager-class.html#getResultWithTag" class="summary-sig-name">getResultWithTag</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">tag</span>)</span><br />
+      Returns:
+      the task id and the result of the task</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type"><code>tuple</code>
+      <p>Returns a waiting task with the given tag. The task is removed 
+      from the list of waiting tasks and added to the list of running 
+      tasks.</p></span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.DistributedComputing.TaskManager.TaskManager-class.html#getTaskWithTag" class="summary-sig-name">getTaskWithTag</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">tag</span>,
+        <span class="summary-sig-arg">process_id</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Returns:
+      the task id and the parameters</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type"><code>int</code></span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.DistributedComputing.TaskManager.TaskManager-class.html#numberOfActiveProcesses" class="summary-sig-name">numberOfActiveProcesses</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Returns:
+      the number of active processes</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type"><code>tuple</code></span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.DistributedComputing.TaskManager.TaskManager-class.html#numberOfTasks" class="summary-sig-name">numberOfTasks</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Returns:
+      a tuple of dictionaries containing the number of waiting tasks, the 
+      number of running tasks, and the number of results waiting to be 
+      retrieved.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.DistributedComputing.TaskManager.TaskManager-class.html#ping" class="summary-sig-name">ping</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">process_id</span>)</span></td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type"><code>int</code>
+      <p>Registers a process with the task manager. All processes must call
+      this method before making any other task manager calls.</p></span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.DistributedComputing.TaskManager.TaskManager-class.html#registerProcess" class="summary-sig-name">registerProcess</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">watchdog_period</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">info</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Returns:
+      a unique process id</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.DistributedComputing.TaskManager.TaskManager-class.html#retrieveData" class="summary-sig-name">retrieveData</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">label</span>)</span></td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.DistributedComputing.TaskManager.TaskManager-class.html#returnTask" class="summary-sig-name">returnTask</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">task_id</span>)</span></td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.DistributedComputing.TaskManager.TaskManager-class.html#storeData" class="summary-sig-name">storeData</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">**kw</span>)</span></td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.DistributedComputing.TaskManager.TaskManager-class.html#storeException" class="summary-sig-name">storeException</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">task_id</span>,
+        <span class="summary-sig-arg">exception</span>,
+        <span class="summary-sig-arg">traceback</span>)</span></td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.DistributedComputing.TaskManager.TaskManager-class.html#storeResult" class="summary-sig-name">storeResult</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">task_id</span>,
+        <span class="summary-sig-arg">result</span>)</span></td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.DistributedComputing.TaskManager.TaskManager-class.html#terminate" class="summary-sig-name">terminate</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Signals that no more tasks or results will be requested.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.DistributedComputing.TaskManager.TaskManager-class.html#unregisterProcess" class="summary-sig-name">unregisterProcess</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">process_id</span>)</span></td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" class="summary">
+    <p class="indent-wrapped-lines"><b>Inherited from <code>Pyro.core.ObjBase</code></b>:
+      <code>GUID</code>,
+      <code>Pyro_dyncall</code>,
+      <code>delegateTo</code>,
+      <code>getAttrProxy</code>,
+      <code>getDaemon</code>,
+      <code>getLocalStorage</code>,
+      <code>getProxy</code>,
+      <code>remote_retrieve_code</code>,
+      <code>remote_supply_code</code>,
+      <code>setCodeValidator</code>,
+      <code>setDaemon</code>,
+      <code>setGUID</code>
+      </p>
+    </td>
+  </tr>
+</table>
+<!-- ==================== METHOD DETAILS ==================== -->
+<a name="section-MethodDetails"></a>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td align="left" colspan="2" class="table-header">
+    <span class="table-header">Method Details</span></td>
+</tr>
+</table>
+<a name="__init__"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">__init__</span>(<span class="sig-arg">self</span>)</span>
+    <br /><em class="fname">(Constructor)</em>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Overrides:
+        Pyro.core.ObjBase.__init__
+    </dt>
+  </dl>
+</td></tr></table>
+</div>
+<a name="activeProcessInfo"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">activeProcessInfo</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">pid</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>pid</code></strong> (<code>int</code>) - the number of an active process</li>
+    </ul></dd>
+    <dt>Returns: <code>str</code></dt>
+        <dd>information about the active process number pid</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="addTaskRequest"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">addTaskRequest</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">tag</span>,
+        <span class="sig-arg">parameters</span>,
+        <span class="sig-arg">process_id</span>=<span class="sig-default">None</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>tag</code></strong> (<code>str</code>) - the tag of the task being requested</li>
+        <li><strong class="pname"><code>parameters</code></strong> - the parameters to be passed to the task</li>
+        <li><strong class="pname"><code>process_id</code></strong> (<code>int</code>) - the id of the requesting process (optional)</li>
+    </ul></dd>
+    <dt>Returns: <code>str</code></dt>
+        <dd>the task id</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="deleteData"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">deleteData</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">label</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>label</code></strong> (<code>str</code>) - the label of the data item to be deleted</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="getAnyResult"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">getAnyResult</span>(<span class="sig-arg">self</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Returns: <code>tuple</code>
+      <p>Returns the result of an arbitrary finished task. The task is 
+      removed from the list of finished tasks.</p></dt>
+        <dd>the task id, the task tag, and the result of the task</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="getAnyTask"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">getAnyTask</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">process_id</span>=<span class="sig-default">None</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>process_id</code></strong> (<code>int</code>) - the id of the retrieving process (optional)</li>
+    </ul></dd>
+    <dt>Returns: <code>tuple</code>
+      <p>Returns a waiting task of arbitrary tag. The task is removed from 
+      the list of waiting tasks and added to the list of running tasks.</p></dt>
+        <dd>the task id, the task tag, and the parameters</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="getResultWithTag"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">getResultWithTag</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">tag</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>tag</code></strong> - a task tag</li>
+    </ul></dd>
+    <dt>Returns: <code>tuple</code>
+      <p>Returns the result of a finished task that has the given tag. The 
+      task is removed from the list of finished tasks.</p></dt>
+        <dd>the task id and the result of the task</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="getTaskWithTag"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">getTaskWithTag</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">tag</span>,
+        <span class="sig-arg">process_id</span>=<span class="sig-default">None</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>tag</code></strong> (<code>str</code>) - a task tag</li>
+        <li><strong class="pname"><code>process_id</code></strong> (<code>int</code>) - the id of the retrieving process (optional)</li>
+    </ul></dd>
+    <dt>Returns: <code>tuple</code>
+      <p>Returns a waiting task with the given tag. The task is removed 
+      from the list of waiting tasks and added to the list of running 
+      tasks.</p></dt>
+        <dd>the task id and the parameters</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="numberOfActiveProcesses"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">numberOfActiveProcesses</span>(<span class="sig-arg">self</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Returns: <code>int</code></dt>
+        <dd>the number of active processes</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="numberOfTasks"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">numberOfTasks</span>(<span class="sig-arg">self</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Returns: <code>tuple</code></dt>
+        <dd>a tuple of dictionaries containing the number of waiting tasks, 
+          the number of running tasks, and the number of results waiting to
+          be retrieved. Each dictionary contains the count for each tag.</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="ping"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">ping</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">process_id</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>process_id</code></strong> (<code>int</code>
+          <p>Tells the task manager that a process is still alive.</p>) - the id of the process</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="registerProcess"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">registerProcess</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">watchdog_period</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">info</span>=<span class="sig-default">None</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>watchdog_period</code></strong> (<code>int</code> or <code>NoneType</code>) - the period at which the registering process promises to ping the 
+          task manager to signal that is still alive. If <code>None</code>,
+          no pings are expected.</li>
+        <li><strong class="pname"><code>info</code></strong> (<code>str</code>) - an information string telling something about the machine running
+          the process</li>
+    </ul></dd>
+    <dt>Returns: <code>int</code>
+      <p>Registers a process with the task manager. All processes must call
+      this method before making any other task manager calls.</p></dt>
+        <dd>a unique process id</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="retrieveData"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">retrieveData</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">label</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>label</code></strong> (<code>str</code>) - the label of the data item to be retrieved</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="returnTask"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">returnTask</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">task_id</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>task_id</code></strong> (<code>str</code>
+          <p>Removes a task from the list of running tasks and put its back
+          at the beginning of the list of waiting tasks. This method should
+          be called by a process that has obtained a task but cannot handle
+          it.</p>) - the id of the task for which the result is provided</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="storeData"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">storeData</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">**kw</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>kw</code></strong> (<code>dict</code>
+          <p>This routine permits processes to exchange arbitrary data 
+          items through the task manager.</p>) - a keyword list of data items to be stored</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="storeException"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">storeException</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">task_id</span>,
+        <span class="sig-arg">exception</span>,
+        <span class="sig-arg">traceback</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>task_id</code></strong> (<code>str</code>) - the id of the task for which the result is provided</li>
+        <li><strong class="pname"><code>exception</code></strong> - the exception raised by the task</li>
+        <li><strong class="pname"><code>traceback</code></strong> (<code>str</code>
+          <p>Stores the exception associated with the task. The task is 
+          removed from the list of running tasks and added to the list of 
+          finished tasks. When the result is retrieved by another process, 
+          <a 
+          href="Scientific.DistributedComputing.TaskManager.TaskRaisedException-class.html"
+          class="link">TaskRaisedException</a> is raised.</p>) - a text version of the stack traceback at the time of the 
+          exception</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="storeResult"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">storeResult</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">task_id</span>,
+        <span class="sig-arg">result</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>task_id</code></strong> (<code>str</code>) - the id of the task for which the result is provided</li>
+        <li><strong class="pname"><code>result</code></strong> - the result of the task
+          <p>Stores the result associated with the task. The task is 
+          removed from the list of running tasks and added to the list of 
+          finished tasks.</p></li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="terminate"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">terminate</span>(<span class="sig-arg">self</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Signals that no more tasks or results will be requested. All waiting 
+  threads will be terminated by raising <a 
+  href="Scientific.DistributedComputing.TaskManager.TaskManagerTermination-class.html"
+  class="link">TaskManagerTermination</a>.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="unregisterProcess"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">unregisterProcess</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">process_id</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>process_id</code></strong> (<code>int</code>
+          <p>Removes the process from the task manager's process list. All 
+          processes should unregister when they are no longer available for
+          accepting tasks. The task manager will also unregister processes 
+          itself if they do not ping the task manager at the promised 
+          frequency.</p>) - the id of the process</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="Scientific-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://dirac.cnrs-orleans.fr/ScientificPython/">Scientific Python</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0 on Tue Oct 28 14:16:03 2008
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

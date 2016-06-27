@@ -3,24 +3,20 @@
 import inspect
 import itertools
 import logging
+import stat
 import os
 import re
 import sys
 import types
 import unittest
-from types import ClassType, TypeType
+from nose.pyversion import ClassType, TypeType, isgenerator, ismethod
 
-try:
-    from compiler.consts import CO_GENERATOR
-except ImportError:
-    # IronPython doesn't have a complier module
-    CO_GENERATOR=0x20
-    
+
 log = logging.getLogger('nose')
 
 ident_re = re.compile(r'^[A-Za-z_][A-Za-z0-9_.]*$')
 class_types = (ClassType, TypeType)
-skip_pattern = r"(?:\.svn)|(?:[^.]+\.py[co])|(?:.*~)|(?:.*\$py\.class)"
+skip_pattern = r"(?:\.svn)|(?:[^.]+\.py[co])|(?:.*~)|(?:.*\$py\.class)|(?:__pycache__)"
 
 try:
     set()
@@ -147,19 +143,6 @@ def file_like(name):
             or not ident_re.match(os.path.splitext(name)[0]))
 
 
-def cmp_lineno(a, b):
-    """Compare functions by their line numbers.
-
-    >>> cmp_lineno(isgenerator, ispackage)
-    -1
-    >>> cmp_lineno(ispackage, isgenerator)
-    1
-    >>> cmp_lineno(isgenerator, isgenerator)
-    0
-    """
-    return cmp(func_lineno(a), func_lineno(b))
-
-
 def func_lineno(func):
     """Get the line number of a function. First looks for
     compat_co_firstlineno, then func_code.co_first_lineno.
@@ -181,11 +164,6 @@ def isclass(obj):
     return obj_type in class_types or issubclass(obj_type, type)
 
 
-def isgenerator(func):
-    try:
-        return func.func_code.co_flags & CO_GENERATOR != 0
-    except AttributeError:
-        return False
 # backwards compat (issue #64)
 is_generator = isgenerator
 
@@ -244,11 +222,11 @@ def getfilename(package, relativeTo=None):
     if relativeTo is None:
         relativeTo = os.getcwd()
     path = os.path.join(relativeTo, os.sep.join(package.split('.')))
-    suffixes = ('/__init__.py', '.py')
-    for suffix in suffixes:
-        filename = path + suffix
-        if os.path.exists(filename):
-            return filename
+    if os.path.exists(path + '/__init__.py'):
+        return path
+    filename = path + '.py'
+    if os.path.exists(filename):
+        return filename
     return None
 
 
@@ -283,7 +261,7 @@ def getpackage(filename):
     'nose.plugins'
     """
     src_file = src(filename)
-    if not src_file.endswith('.py') and not ispackage(src_file):
+    if (os.path.isdir(src_file) or not src_file.endswith('.py')) and not ispackage(src_file):
         return None
     base, ext = os.path.splitext(os.path.basename(src_file))
     if base == '__init__':
@@ -308,7 +286,7 @@ def ln(label):
     '---------------------------- hello there -----------------------------'
     """
     label_len = len(label) + 2
-    chunk = (70 - label_len) / 2
+    chunk = (70 - label_len) // 2
     out = '%s %s %s' % ('-' * chunk, label, '-' * chunk)
     pad = 70 - len(out)
     if pad > 0:
@@ -387,7 +365,7 @@ def split_test_name(test):
                 # nonsense like foo:bar:baz
                 raise ValueError("Test name '%s' could not be parsed. Please "
                                  "format test names as path:callable or "
-                                 "module:callable.")
+                                 "module:callable." % (test,))
     elif not tail:
         # this is a case like 'foo:bar/'
         # : must be part of the file path, so ignore it
@@ -431,17 +409,19 @@ def test_address(test):
                 file = os.path.abspath(file)
         call = getattr(test, '__name__', None)
         return (src(file), module, call)
-    if t == types.InstanceType:
-        return test_address(test.__class__)
     if t == types.MethodType:
         cls_adr = test_address(test.im_class)
         return (src(cls_adr[0]), cls_adr[1],
                 "%s.%s" % (cls_adr[2], test.__name__))
     # handle unittest.TestCase instances
     if isinstance(test, unittest.TestCase):
-        if hasattr(test, '_FunctionTestCase__testFunc'):
+        if (hasattr(test, '_FunctionTestCase__testFunc') # pre 2.7
+            or hasattr(test, '_testFunc')):              # 2.7
             # unittest FunctionTestCase
-            return test_address(test._FunctionTestCase__testFunc)
+            try:
+                return test_address(test._FunctionTestCase__testFunc)
+            except AttributeError:
+                return test_address(test._testFunc)
         # regular unittest.TestCase
         cls_adr = test_address(test.__class__)
         # 2.5 compat: __testMethodName changed to _testMethodName
@@ -451,6 +431,9 @@ def test_address(test):
             method_name = test._testMethodName
         return (src(cls_adr[0]), cls_adr[1],
                 "%s.%s" % (cls_adr[2], method_name))
+    if (hasattr(test, '__class__') and
+            test.__class__.__module__ not in ('__builtin__', 'builtins')):
+        return test_address(test.__class__)
     raise TypeError("I don't know what %s is (%s)" % (test, t))
 test_address.__test__ = False # do not collect
 
@@ -465,11 +448,12 @@ def try_run(obj, names):
         if func is not None:
             if type(obj) == types.ModuleType:
                 # py.test compatibility
-                try:
-                    args, varargs, varkw, defaults = inspect.getargspec(func)
-                except TypeError:
+                if isinstance(func, types.FunctionType):
+                    args, varargs, varkw, defaults = \
+                        inspect.getargspec(func)
+                else:
                     # Not a function. If it's callable, call it anyway
-                    if hasattr(func, '__call__'):
+                    if hasattr(func, '__call__') and not inspect.ismethod(func):
                         func = func.__call__
                     try:
                         args, varargs, varkw, defaults = \
@@ -502,23 +486,24 @@ def src(filename):
     return filename
 
 
-def match_last(a, b, regex):
-    """Sort compare function that puts items that match a
+def regex_last_key(regex):
+    """Sort key function factory that puts items that match a
     regular expression last.
 
     >>> from nose.config import Config
+    >>> from nose.pyversion import sort_list
     >>> c = Config()
     >>> regex = c.testMatch
     >>> entries = ['.', '..', 'a_test', 'src', 'lib', 'test', 'foo.py']
-    >>> entries.sort(lambda a, b: match_last(a, b, regex))
+    >>> sort_list(entries, regex_last_key(regex))
     >>> entries
     ['.', '..', 'foo.py', 'lib', 'src', 'a_test', 'test']
     """
-    if regex.search(a) and not regex.search(b):
-        return 1
-    elif regex.search(b) and not regex.search(a):
-        return -1
-    return cmp(a, b)
+    def k(obj):
+        if regex.search(obj):
+            return (1, obj)
+        return (0, obj)
+    return k
 
 
 def tolist(val):
@@ -626,8 +611,13 @@ def transplant_func(func, module):
 
     """
     from nose.tools import make_decorator
-    def newfunc(*arg, **kw):
-        return func(*arg, **kw)
+    if isgenerator(func):
+        def newfunc(*arg, **kw):
+            for v in func(*arg, **kw):
+                yield v
+    else:
+        def newfunc(*arg, **kw):
+            return func(*arg, **kw)
 
     newfunc = make_decorator(func)(newfunc)
     newfunc.__module__ = module
@@ -665,7 +655,14 @@ def safe_str(val, encoding='utf-8'):
                              for arg in val])
         return unicode(val).encode(encoding)
 
-    
+
+def is_executable(file):
+    if not os.path.exists(file):
+        return False
+    st = os.stat(file)
+    return bool(st.st_mode & (stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH))
+
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()

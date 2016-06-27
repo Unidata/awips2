@@ -1,0 +1,370 @@
+Scientific.MPI
+import_mpi
+PyMPI
+_MPI_MODULE
+
+type
+PyMPICommunicator
+
+type
+PyMPIRequest
+
+function
+PyObject *
+PyMPI_DuplicateCommunicator
+(PyMPICommunicatorObject *comm)
+
+function
+PyObject *
+PyMPI_SubsetCommunicator
+(PyMPICommunicatorObject *comm, PyArrayObject *array)
+
+function
+int
+PyMPI_Barrier
+(PyMPICommunicatorObject *comm)
+
+function
+int
+PyMPI_Send
+(PyMPICommunicatorObject *comm, void *data, int mpi_type, int len, int dest, int tag)
+
+function
+int
+PyMPI_SendArray
+(PyMPICommunicatorObject *comm, PyArrayObject *array, int dest, int tag)
+
+function
+int
+PyMPI_SendString
+(PyMPICommunicatorObject *comm, PyStringObject *string, int dest, int tag)
+
+function
+PyObject *
+PyMPI_SendArrayNonBlocking
+(PyMPICommunicatorObject *comm, PyArrayObject *array, int dest, int tag)
+
+function
+PyObject *
+PyMPI_SendStringNonBlocking
+(PyMPICommunicatorObject *comm, PyStringObject *string, int dest, int tag)
+
+function
+int
+PyMPI_Receive
+(PyMPICommunicatorObject *comm, void *buffer, int mpi_type, int len, int source, int tag, int *sourcep, int *tagp, int *lenp)
+
+function
+int
+PyMPI_ReceiveArray
+(PyMPICommunicatorObject *comm, PyArrayObject *array, int source, int tag, int *sourcep, int *tagp, int *lenp)
+
+function
+PyObject *
+PyMPI_ReceiveString
+(PyMPICommunicatorObject *comm, int source, int tag, int *sourcep, int *tagp)
+
+function
+PyObject *
+PyMPI_ReceiveArrayNonBlocking
+(PyMPICommunicatorObject *comm, PyArrayObject *array, int source, int tag)
+
+function
+int
+PyMPI_ProbeNonBlocking
+(PyMPICommunicatorObject *comm, int source, int tag, int *flagp, int *sourcep, int *tagp)
+
+function
+int
+PyMPI_Broadcast
+(PyMPICommunicatorObject *comm, void *buffer, int mpi_type, int count, int root)
+
+function
+int
+PyMPI_BroadcastArray
+(PyMPICommunicatorObject *comm, PyArrayObject *array, int root)
+
+function
+int
+PyMPI_Share
+(PyMPICommunicatorObject *comm, void *send, void *receive, int mpi_type, int count)
+
+function
+int
+PyMPI_ShareArray
+(PyMPICommunicatorObject *comm, PyArrayObject *send, PyArrayObject *receive)
+
+function
+int
+PyMPI_Abort
+(PyMPICommunicatorObject *comm, int err)
+
+function
+int
+PyMPI_Reduce
+(PyMPICommunicatorObject *comm, void *sendbuf, void *recvbuf, int count, int datatype, PyMPIOperationObject *op, int root)
+
+function
+int
+PyMPI_Allreduce
+(PyMPICommunicatorObject *comm, void *sendbuf, void *recvbuf, int count, int datatype, PyMPIOperationObject *op)
+
+function
+int
+PyMPI_ReduceArray
+(PyMPICommunicatorObject *comm, PyArrayObject *send, PyArrayObject *receive, PyMPIOperationObject *op, int root)
+
+function
+int
+PyMPI_AllreduceArray
+(PyMPICommunicatorObject *comm, PyArrayObject *send, PyArrayObject *receive, PyMPIOperationObject *op)
+
+function
+int
+PyMPI_Wait
+(PyMPIRequestObject *comm, void *s)
+
+function
+int
+PyMPI_Test
+(PyMPIRequestObject *comm, int *flag, void *s)
+
+exportfunc
+int
+MPI_Abort
+(MPI_Comm comm, int errorcode)
+
+exportfunc
+int
+MPI_Allgather
+(void *sendbuffer, int sendcount, MPI_Datatype sendtype, void *recvbuf, int recvcount, MPI_Datatype recvtype, MPI_Comm comm)
+
+exportfunc
+int
+MPI_Allgatherv
+(void *sendbuffer, int sendcount, MPI_Datatype sendtype, void *recvbuf, int *recvcount, int *displs, MPI_Datatype recvtype, MPI_Comm comm)
+
+exportfunc
+int
+MPI_Allreduce
+(void *sendbuf, void *recvbuf, int count, MPI_Datatype datatype, MPI_Op op, MPI_Comm comm)
+
+exportfunc
+int
+MPI_Alltoall
+(void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, int recvcount, MPI_Datatype recvtype, MPI_Comm comm)
+
+exportfunc
+int
+MPI_Alltoallv
+(void *sendbuf, int *sendcounts, int *sdispls, MPI_Datatype sendtype, void *recvbuf, int *recvcounts, int *rdispls, MPI_Datatype recvtype, MPI_Comm comm)
+
+exportfunc
+int
+MPI_Barrier
+(MPI_Comm comm)
+
+exportfunc
+int
+MPI_Bcast
+(void *buffer, int count, MPI_Datatype datatype, int root, MPI_Comm comm)
+
+exportfunc
+int
+MPI_Bsend
+(void *buf, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm)
+
+exportfunc
+int
+MPI_Comm_dup
+(MPI_Comm comm, MPI_Comm *newcomm)
+
+exportfunc
+int
+MPI_Comm_group
+(MPI_Comm comm, MPI_Group *group)
+
+exportfunc
+int
+MPI_Group_incl
+(MPI_Group group, int n, int *ranks, MPI_Group *newgroup)
+
+exportfunc
+int
+MPI_Comm_create
+(MPI_Comm comm, MPI_Group group, MPI_Comm *newcomm)
+
+exportfunc
+int
+MPI_Group_free
+(MPI_Group *group)
+
+exportfunc
+int
+MPI_Comm_free
+(MPI_Comm *comm)
+
+exportfunc
+int
+MPI_Comm_rank
+(MPI_Comm comm, int *rank)
+
+exportfunc
+int
+MPI_Comm_size
+(MPI_Comm comm, int *size)
+
+exportfunc
+int
+MPI_Error_string
+(int errorcode, char *string, int *resultlen)
+
+exportfunc
+int
+MPI_Finalize
+(void)
+
+exportfunc
+int
+MPI_Gather
+(void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, int recvcount, MPI_Datatype recvtype, int root, MPI_Comm comm)
+
+exportfunc
+int
+MPI_Gatherv
+(void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, int *recvcounts, int *displs, MPI_Datatype recvtype, int root, MPI_Comm comm)
+
+exportfunc
+int
+MPI_Get_count
+(MPI_Status *status, MPI_Datatype datatype, int *count)
+
+exportfunc
+int
+MPI_Ibsend
+(void *buf, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm, MPI_Request *request)
+
+exportfunc
+int
+MPI_Init
+(int *argc, char ***argv)
+
+exportfunc
+int
+MPI_Initialized
+(int *flag)
+
+exportfunc
+int
+MPI_Iprobe
+(int source, int tag, MPI_Comm comm, int *flag, MPI_Status *status)
+
+exportfunc
+int
+MPI_Irecv
+(void *buf, int count, MPI_Datatype datatype, int source, int tag, MPI_Comm comm, MPI_Request *request)
+
+exportfunc
+int
+MPI_Irsend
+(void *buf, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm, MPI_Request *request)
+
+exportfunc
+int
+MPI_Isend
+(void *buf, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm, MPI_Request *request)
+
+exportfunc
+int
+MPI_Issend
+(void *buf, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm, MPI_Request *request)
+
+exportfunc
+int
+MPI_Probe
+(int source, int tag, MPI_Comm comm, MPI_Status *status)
+
+exportfunc
+int
+MPI_Recv
+(void *buf, int count, MPI_Datatype datatype, int source, int tag, MPI_Comm comm, MPI_Status *status)
+
+exportfunc
+int
+MPI_Reduce
+(void *sendbuf, void *recvbuf, int count, MPI_Datatype datatype, MPI_Op op, int root, MPI_Comm comm)
+
+exportfunc
+int
+MPI_Reduce_scatter
+(void *sendbuf, void *recvbuf, int *recvcounts, MPI_Datatype datatype, MPI_Op op, MPI_Comm comm)
+
+exportfunc
+int
+MPI_Rsend
+(void *buf, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm)
+
+exportfunc
+int
+MPI_Scatter
+(void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, int recvcount, MPI_Datatype recvtype, int root, MPI_Comm comm)
+
+exportfunc
+int
+MPI_Scatterv
+(void *sendbuf, int *sendcounts, int *displs, MPI_Datatype sendtype, void *recvbuf, int recvcount, MPI_Datatype recvtype, int root, MPI_Comm comm)
+
+exportfunc
+int
+MPI_Send
+(void *buf, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm)
+
+exportfunc
+int
+MPI_Sendrecv
+(void *sendbuf, int sendcount, MPI_Datatype sendtype, int dest, int sendtag, void *recvbuf, int recvcount, MPI_Datatype recvtype, int source, int recvtag, MPI_Comm comm, MPI_Status *status)
+
+exportfunc
+int
+MPI_Ssend
+(void *buf, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm)
+
+exportfunc
+int
+MPI_Test
+(MPI_Request *request, int *flag, MPI_Status *status)
+
+exportfunc
+int
+MPI_Testall
+(int count, MPI_Request *array_of_requests, int *flag, MPI_Status *array_of_statuses)
+
+exportfunc
+int
+MPI_Testany
+(int count, MPI_Request *array_of_requests, int *index, int *flag, MPI_Status *status)
+
+exportfunc
+int
+MPI_Wait
+(MPI_Request *request, MPI_Status *status)
+
+exportfunc
+int
+MPI_Waitall
+(int count, MPI_Request *array_of_requests, MPI_Status *array_of_statuses)
+
+exportfunc
+int
+MPI_Waitany
+(int count, MPI_Request *array_of_requests, int *index, MPI_Status *array_of_statuses)
+
+exportfunc
+double
+MPI_Wtick
+(void)
+
+exportfunc
+double
+MPI_Wtime
+(void)

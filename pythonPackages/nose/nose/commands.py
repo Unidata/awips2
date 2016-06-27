@@ -52,7 +52,7 @@ section of your setup()::
 
   setup(
       # ...
-      setup_requires=['nose>=0.11']
+      setup_requires=['nose>=1.0']
       )
 
 This will direct setuptools to download and activate nose during the setup
@@ -97,7 +97,7 @@ else:
             """create the member variables, but change hyphens to
             underscores
             """
-            
+
             self.option_to_cmds = {}
             for opt in self.__parser.option_list:
                 cmd_name = opt._long_opts[0][2:]
@@ -113,11 +113,31 @@ else:
         def run(self):
             """ensure tests are capable of being run, then
             run nose.main with a reconstructed argument list"""
-            self.run_command('egg_info')
+            if getattr(self.distribution, 'use_2to3', False):
+                # If we run 2to3 we can not do this inplace:
 
-            # Build extensions in-place
-            self.reinitialize_command('build_ext', inplace=1)
-            self.run_command('build_ext')
+                # Ensure metadata is up-to-date
+                build_py = self.get_finalized_command('build_py')
+                build_py.inplace = 0
+                build_py.run()
+                bpy_cmd = self.get_finalized_command("build_py")
+                build_path = bpy_cmd.build_lib
+
+                # Build extensions
+                egg_info = self.get_finalized_command('egg_info')
+                egg_info.egg_base = build_path
+                egg_info.run()
+
+                build_ext = self.get_finalized_command('build_ext')
+                build_ext.inplace = 0
+                build_ext.run()
+            else:
+                self.run_command('egg_info')
+
+                # Build extensions in-place
+                build_ext = self.get_finalized_command('build_ext')
+                build_ext.inplace = 1
+                build_ext.run()
 
             if self.distribution.install_requires:
                 self.distribution.fetch_build_eggs(
@@ -126,7 +146,8 @@ else:
                 self.distribution.fetch_build_eggs(
                     self.distribution.tests_require)
 
-            argv = ['nosetests'] 
+            ei_cmd = self.get_finalized_command("egg_info")
+            argv = ['nosetests', '--where', ei_cmd.egg_base] 
             for (option_name, cmd_name) in self.option_to_cmds.items():
                 if option_name in option_blacklist:
                     continue
@@ -138,9 +159,14 @@ else:
 
         def cfgToArg(self, optname, value):
             argv = []
-            if flag(value):
+            long_optname = '--' + optname
+            opt = self.__parser.get_option(long_optname)
+            if opt.action in ('store_true', 'store_false'):
+                if not flag(value):
+                    raise ValueError("Invalid value '%s' for '%s'" % (
+                        value, optname))
                 if _bool(value):
-                    argv.append('--' + optname)
+                    argv.append(long_optname)
             else:
-                argv.extend(['--' + optname, value])
+                argv.extend([long_optname, value])
             return argv

@@ -82,32 +82,32 @@ file contains the bad option name or value
     ...                            os.path.join(support, "invalid_value.cfg"),
     ...                            os.path.join(support, "b.cfg")])
     ... # doctest: +ELLIPSIS
-    error: Error reading config file '.../invalid_value.cfg': option 'verbosity': invalid integer value: 'spam'
+    error: Error reading config file '...invalid_value.cfg': option 'verbosity': invalid integer value: 'spam'
 
 
 Invalid config files
 
 (file-like object)
 
-    >>> options, args = parse([], StringIO("spam"))
+    >>> options, args = parse([], StringIO("spam")) # doctest: +ELLIPSIS
     error: Error reading config file '<???>': File contains no section headers.
-    file: <???>, line: 1
+    file: ...<???>..., line: 1
     'spam'
 
 (filename)
 
     >>> options, args = parse([], os.path.join(support, "invalid.cfg"))
     ... # doctest: +ELLIPSIS
-    error: Error reading config file '.../invalid.cfg': File contains no section headers.
-    file: .../invalid.cfg, line: 1
+    error: Error reading config file '...invalid.cfg': File contains no section headers.
+    file: ...invalid.cfg..., line: 1
     'spam\n'
 
 (filenames, length == 1)
 
     >>> options, args = parse([], [os.path.join(support, "invalid.cfg")])
     ... # doctest: +ELLIPSIS
-    error: Error reading config file '.../invalid.cfg': File contains no section headers.
-    file: .../invalid.cfg, line: 1
+    error: Error reading config file '...invalid.cfg': File contains no section headers.
+    file: ...invalid.cfg..., line: 1
     'spam\n'
 
 (filenames, length > 1)
@@ -119,8 +119,8 @@ file is bad
     ...                            os.path.join(support, "invalid.cfg"),
     ...                            os.path.join(support, "b.cfg")])
     ... # doctest: +ELLIPSIS
-    error: Error reading config file '.../invalid.cfg': File contains no section headers.
-    file: .../invalid.cfg, line: 1
+    error: Error reading config file '...invalid.cfg': File contains no section headers.
+    file: ...invalid.cfg..., line: 1
     'spam\n'
 
 

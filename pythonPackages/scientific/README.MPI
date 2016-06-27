@@ -1,0 +1,108 @@
+This release of ScientificPython contains support for parallelization
+via the Message Passing Interface (MPI). If you don't know what that
+is, you probably don't need it, so don't read the following, and go on
+with installation. In the following I will assume that you do know
+what MPI is, and how to compile and link MPI programs on your
+platform.
+
+MPI support in ScientificPython does not pretend to be complete, it
+gives access to only the most important MPI function. The strong point
+of ScientificPython's interface (compared to other MPI interfaces for
+Python) is the integration into Python: communicators are Python
+objects, all communication happens via methods defined on communicator
+objects, support is provided for sending and receiving both string and
+NumPy array objects. Moreover, Python scripts can rather easily be
+written in such a way that they work both with and without MPI
+support, of course using only a single processor when no MPI is
+available. Finally, there is a full C API as well, which means that
+other C modules can make use of MPI without having to link to the MPI
+library, which is particularly useful for dynamic library modules. It
+also facilitates packaging of MPI-based code, which doesn't need to
+know anything at all about the MPI library.
+
+The module Scientific.MPI is documented in the ScientificPython
+manual. The main purpose of this file is to explain how to install
+ScientificPython with MPI support. It works on a couple of platforms
+without modifications, but that's no guarantee that it will work
+immediately on yours as well.
+
+
+Here is what you have to do to get MPI support in Scientific Python:
+
+1) Build and install Scientific Python as usual (i.e.
+   "python setup.py install" in most cases).
+
+2) Go to the directory Src/MPI.
+
+3) Type "python compile.py".
+
+4) Move the resulting executable "mpipython" to a directory on your
+   system's execution path.
+
+This should work under the condition that your MPI implementation
+provides a script or executable called "mpicc" which compiles C
+programs using MPI and does not require any explicitly mentioned
+libraries. If such a script exists, but with a different name, change
+the name in the beginning of compile.py. If no such script exists,
+study compile.py and adapt it as needed... However, all MPI
+implementations I have used do provide such a script.
+
+
+For running Python code that uses MPI, you must use mpipython, not the
+standard Python executable. If you use the standard python version,
+a dummy MPI module is used which behaves much like MPI with a single
+processor.
+
+To test your installation, execute the program Examples/mpi.py
+using more than one processor.
+
+If you use mpipython as the low-level support for the parallelization
+module Scientific.BSP, you can profit from the interactive parallel
+console, which is highly recommended for program development. It is
+used much like the standard Python interpreter, and is in fact
+sufficiently similar that it can be used instead of standard Python
+with the Emacs mode for Python. That combination is at the moment the
+best development environment for parallel Python code. The interactive
+parallel console is a small executable script called "impipython", to
+be found in the Src/MPI directory. It contains two hardcoded paths
+that you must adapt to your installation: the path to the mpipython
+executable, and the path to the script Concole.py in the
+ScientificPython installation. You can also change the number of
+processors to any value you wish, or add other options depending on
+your MPI installation.
+
+
+
+In case you wonder why a special Python executable is required, here is
+some background information:
+
+First of all, the MPI interface does not work with a standard Python
+interpreter. The reason is that MPI (at least some implementations,
+including MPICH) requires access to the command line parameters
+*before* Python takes over and puts them into sys.argv. Therefore
+MPI_Init() must be called before the Python main loop is entered, and
+it is also advisable to put MPI_Finalize() into a place where it is
+guaranteed to be executed even if the program crashes. The file
+Src/mpipython.c takes care of these two calls; it is in fact nothing
+but a slightly modified version of the python interpreter program,
+python.c. (In case you wonder why it's so small: all the real work is
+done in the Python library functions that are called.)
+
+The second problem is dynamic library support. If your MPI
+implementation comes as a dynamic library, then you shouldn't have any
+problems. If it doesn't, then it might be impossible to use the MPI
+interface module as a dynamic library, because the interpreter and the
+module would use different copies of the MPI code, which will probably
+create problems if MPI uses global variables. The safest bet is to
+link the interface module, Scientific_mpi, together with the mpipython
+executable. However, on my system (Linux/MPICH), it works fine as a
+dynamic library as well, so you might want to try it.
+
+
+Konrad Hinsen
+Centre de Biophysique Moleculaire (CNRS)
+Rue Charles Sadron
+45071 Orleans Cedex 2
+France
+
+E-Mail: hinsen@cnrs-orleans.fr

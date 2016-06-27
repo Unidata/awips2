@@ -3,7 +3,7 @@ Writing tests
 
 As with py.test_, nose tests need not be subclasses of
 :class:`unittest.TestCase`. Any function or class that matches the configured
-testMatch regular expression (``(?:^|[\\b_\\.-])[Tt]est)`` by default -- that
+testMatch regular expression (``(?:^|[\\b_\\.-])[Tt]est`` by default -- that
 is, has test or Test at a word boundary or following a - or _) and lives in a
 module that also matches that expression will be run as a test. For the sake
 of compatibility with legacy unittest test cases, nose will also load tests
@@ -127,7 +127,7 @@ example from nose's selftest suite is probably the best explanation::
   def check_even(n, nn):
       assert n % 2 == 0 or nn % 2 == 0
 
-This will result in four tests. nose will iterate the generator, creating a
+This will result in five tests. nose will iterate the generator, creating a
 function test case wrapper for each tuple it yields. As in the example, test
 generators must yield tuples, the first element of which must be a callable
 and the remaining elements the arguments to be passed to the callable.

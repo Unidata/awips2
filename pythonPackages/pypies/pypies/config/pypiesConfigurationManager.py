@@ -30,6 +30,8 @@
 #    01/10/13                      bkowal         Initial Creation.
 #    01/17/13        #1490         bkowal         The location of pypies.cfg is
 #                                                 now retrieved from the environment.
+#    05/20/16                      mjames         Remove print on finding pypies.cfg
+#                                                 which was incorrectly logged as an error.
 # 
 
 import os, ConfigParser
@@ -50,8 +52,6 @@ class PypiesConfigurationManager:
         if not os.path.exists(self.__configLoc):
             print "Unable to find pypies.cfg at ", self.__configLoc
             self.__configLoc = None
-        else:
-            print "Found pypies.cfg at ", self.__configLoc        
         
     def __loadConfig(self):
         self.__scp = ConfigParser.SafeConfigParser()

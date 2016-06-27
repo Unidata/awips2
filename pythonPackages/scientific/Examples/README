@@ -1,0 +1,11 @@
+Examples for the use of the package Scientific
+==============================================
+
+netcdf_demo.py
+  shows how the netCDF interface is used from Python.
+
+demomodule.c
+  shows how the netCDF interface is used from C extension modules.
+
+BSP/*
+  the examples from the BSP tutorial
