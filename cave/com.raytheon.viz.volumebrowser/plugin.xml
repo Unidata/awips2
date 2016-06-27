@@ -69,12 +69,13 @@
     <extension
          point="org.eclipse.ui.menus">
       <menuContribution
-            locationURI="menu:volume?after=top">
+            locationURI="menu:models?after=top">
              <command
                    commandId="com.raytheon.viz.volumebrowser.volumeBrowserRef"
-                   label="Browser...">
+                   label="Volume Browser">
              </command>
              <separator name="afterVB" visible="false"/>
+             <separator name="ensemble" visible="false"/>
              <separator name="VolumeBundles" visible="true"/>
              <separator name="ComparisonFamilies" visible="true"/>
              <separator name="SurfaceFamilies" visible="false"/>

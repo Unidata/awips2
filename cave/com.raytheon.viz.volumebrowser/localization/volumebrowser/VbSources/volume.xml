@@ -19,85 +19,42 @@
         further_licensing_information.
     -->
 <vbSourceList>
-    <vbSource key="GFS160" category="Volume" />
-    <vbSource key="ETA242" category="Volume" />
-    <vbSource key="mesoEta216" category="Volume" />
-    <vbSource key="SREF216" category="Volume" />
-    <vbSource key="Aviation" category="Volume" views="PLANVIEW TIMESERIES" />
-    <vbSource key="DGEX185" category="Volume" />
-    <vbSource key="DGEX186" category="Volume" />
-    <vbSource key="ECMWF-HiRes" category="Volume" />
-    <vbSource key="ECMF-NorthernHemisphere" category="Volume" />
-    <vbSource key="GFS212" category="Volume" />
-    <!-- Old version being replaced by GFS229
-    <vbSource key="AVN225" category="Volume" />
-    <vbSource key="GFS213" category="Volume" />
-    <vbSource key="MRF204" category="Volume" />
-    <vbSource key="MRF205" category="Volume" />
-    -->
-    <vbSource key="GFS229" category="Volume" />
-    <!-- Old version being replaced by GFS229
-    <vbSource key="AVN203" category="Volume" />
-    -->
-    <vbSource key="GFS217" category="Volume/GFS20" />
-    <vbSource key="GFS215" category="Volume/GFS20" />
-    <vbSource key="GFS20-PAC" category="Volume/GFS20" />
-    <vbSource key="GFS20-PRICO" category="Volume/GFS20" />
+    <vbSource key="CMC" category="Volume" />
+    <vbSource key="DGEX" category="Volume" />
+    <vbSource key="GFS" category="Volume" />
+    <vbSource key="GFS-NH" category="Volume" />
+    <vbSource key="GFS40" category="Volume" />
+    <vbSource key="GFS95" category="Volume" />
+    <vbSource key="GFSGuide" category="Volume" />
+    <vbSource key="ECMF-Global" category="Volume" />
     <vbSource key="ENSEMBLE" category="Volume" views="PLANVIEW TIMESERIES" />
-    <vbSource key="AVN-NorthernHemisphere" category="Volume" />
-    <vbSource key="HFR-EAST_6KM" category="Volume/HFR" views="PLANVIEW TIMESERIES" />
-    <vbSource key="HFR-US_EAST_DELAWARE_1KM" category="Volume/HFR" views="PLANVIEW TIMESERIES" />
-    <vbSource key="HFR-US_EAST_FLORIDA_2KM" category="Volume/HFR" views="PLANVIEW TIMESERIES" />
-    <vbSource key="HFR-US_EAST_NORTH_2KM" category="Volume/HFR" views="PLANVIEW TIMESERIES" />
-    <vbSource key="HFR-US_EAST_SOUTH_2KM" category="Volume/HFR" views="PLANVIEW TIMESERIES" />
-    <vbSource key="HFR-US_EAST_VIRGINIA_1KM" category="Volume/HFR"  views="PLANVIEW TIMESERIES" />
-    <vbSource key="HFR-US_HAWAII_1KM" category="Volume/HFR" views="PLANVIEW TIMESERIES" />
-    <vbSource key="HFR-US_HAWAII_2KM" category="Volume/HFR" views="PLANVIEW TIMESERIES" />
-    <vbSource key="HFR-WEST_6KM" category="Volume/HFR" views="PLANVIEW TIMESERIES" />
-    <vbSource key="HFR-US_WEST_CENCAL_2KM" category="Volume/HFR" views="PLANVIEW TIMESERIES" />
-    <vbSource key="HFR-US_WEST_NORTH_2KM" category="Volume/HFR" views="PLANVIEW TIMESERIES" />
-    <vbSource key="HFR-US_WEST_SANFRAN_1KM" category="Volume/HFR" views="PLANVIEW TIMESERIES" />
-    <vbSource key="HFR-US_WEST_SOCAL_2KM" category="Volume/HFR" views="PLANVIEW TIMESERIES" />
-    <vbSource key="HFR-US_WEST_LOSANGELES_1KM" category="Volume/HFR" views="PLANVIEW TIMESERIES" />
-    <vbSource key="HFR-US_WEST_LOSOSOS_1KM" category="Volume/HFR" views="PLANVIEW TIMESERIES" />
-    <vbSource key="HiResW-ARW-AK" category="Volume/HiResW" />
-    <vbSource key="HiResW-ARW-East" category="Volume/HiResW" />
-    <vbSource key="HiResW-ARW-GU" category="Volume/HiResW" />
-    <vbSource key="HiResW-ARW-HI" category="Volume/HiResW" />
-    <vbSource key="HiResW-ARW-SJU" category="Volume/HiResW" />
-    <vbSource key="HiResW-ARW-West" category="Volume/HiResW" />
-    <vbSource key="HiResW-NMM-AK" category="Volume/HiResW" />
-    <vbSource key="HiResW-NMM-East" category="Volume/HiResW" />
-    <vbSource key="HiResW-NMM-GU" category="Volume/HiResW" />
-    <vbSource key="HiResW-NMM-HI" category="Volume/HiResW" />
-    <vbSource key="HiResW-NMM-SJU" category="Volume/HiResW" />
-    <vbSource key="HiResW-NMM-West" category="Volume/HiResW" />
     <vbSource key="HRRR" category="Volume" />
-    <vbSource key="HWRF" category="Volume" />
-    <vbSource key="LAMPQPF" category="Volume" />
-    <vbSource key="LAPS" category="Volume" />
-    <vbSource key="ETA218" category="Volume" />
-    <vbSource key="mesoEta215" category="Volume" />
-    <vbSource key="mesoEta212" category="Volume" />
-    <vbSource key="ETA" category="Volume" />
-    <vbSource key="ETA207" category="Volume" />
-    <vbSource key="nogaps" name="NAVGEM" category="Volume" />
-    <vbSource key="RUC130" category="Volume" />
-    <vbSource key="RAP200" category="Volume" />
-    <vbSource key="RUC236" category="Volume" />
-    <vbSource key="GFS254" category="Volume" />
-    <vbSource key="SREF243" category="Volume" />
-    <vbSource key="RSM" category="Volume" />
-    <vbSource key="GFS161" category="Volume" />
-    <vbSource key="SREF212" category="Volume" views="PLANVIEW TIMESERIES" />
-    <vbSource key="UKMET-NorthernHemisphere" category="Volume" />
-    <vbSource key="radar" name="Radar" category="Volume" />
-    <vbSource key="GEFS" category="Volume" />
-    <vbSource key="NCOM-ALASKA" category="Volume/NCOM" views="PLANVIEW TIMESERIES" />
-    <vbSource key="NCOM-AMSEAS" category="Volume/NCOM" views="PLANVIEW TIMESERIES" />
-    <vbSource key="NCOM-HAWAII" category="Volume/NCOM" views="PLANVIEW TIMESERIES" />
-    <vbSource key="NCOM-SOCAL" category="Volume/NCOM" views="PLANVIEW TIMESERIES" />
-    <vbSource key="NCOM-USEAST" category="Volume/NCOM" views="PLANVIEW TIMESERIES" />
-    <vbSource key="GEFS" name="GEFS" category="Ensemble" views="PLANVIEW TIMESERIES" />
-    <vbSource key="SREF212" name="SREF" category="Ensemble" views="PLANVIEW TIMESERIES"/>
+    <vbSource key="NAM4" category="Volume" />
+    <vbSource key="NAM12" category="Volume" />
+    <vbSource key="NAM20" category="Volume" />
+    <vbSource key="NAM40" category="Volume" />
+    <vbSource key="NAM90" category="Volume" />
+    <vbSource key="NAM90" category="Volume" />
+    <vbSource key="NamDNG" category="Volume" />
+    <vbSource key="NamDNG5" category="Volume" />
+    <vbSource key="NAVGEM" category="Volume" />
+    <vbSource key="NDFD" category="Volume" />
+    <vbSource key="RTMA" category="Volume" />
+    <vbSource key="RTMA5" category="Volume" />
+    <vbSource key="URMA25" category="Volume" />    
+    <vbSource key="RAP13" category="Volume" />
+    <vbSource key="RAP20" category="Volume" />
+    <vbSource key="RAP32" category="Volume" />
+    <vbSource key="RAP40" category="Volume" />
+    <vbSource key="NOHRSC-SNOW" category="Volume" />
+    <vbSource key="FNMOC-FAROP" category="Volume" />
+    <vbSource key="FNMOC-NCODA" category="Volume" />
+    <vbSource key="FNMOC-WW3" category="Volume" />
+    <vbSource key="WaveWatch" category="Volume" />
+    <vbSource key="GLERL" category="Volume" />
+    <vbSource key="WaveWatch-WNA-Hurr" category="Volume" />
+    <vbSource key="WaveWatch-ENP-Hurr" category="Volume" />
+    <vbSource key="WaveWatch-WNA" category="Volume" />
+    <vbSource key="WaveWatch-ENP" category="Volume" />
+    <vbSource key="WaveWatch-AK" category="Volume" />
 </vbSourceList>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<contribute xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="subMenu" 
+	menuText="Comparison Families" id="ComparisonFamiliesLine">
+		<contribute xsi:type="bundleItem" file="bundles/volume/HeightComparison.xml"
+			menuText="850MB Height" id="850hgt" useReferenceTime="true">
+				<substitute key="level" value="850.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/HeightComparison.xml"
+			menuText="700MB Height" id="700hgt" useReferenceTime="true">
+				<substitute key="level" value="700.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/HeightComparison.xml"
+			menuText="500MB Height" id="500hgt" useReferenceTime="true">
+				<substitute key="level" value="500.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/HeightComparison.xml"
+			menuText="250MB Height" id="250hgt" useReferenceTime="true">
+				<substitute key="level" value="250.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/MSLPComparison.xml"
+			menuText="MSLP" id="mslPress" useReferenceTime="true">
+		</contribute>
+	</contribute>
+	<contribute xsi:type="titleItem" titleText="------ Ocean Products ------"
+		id="OceanModelsLine" />
+	<contribute xsi:type="bundleItem" file="bundles/volume/HFR.xml"
+		menuText="High Frequency Radar (HFR) Ocean Surface Winds" id="hfr" useReferenceTime="true">
+	</contribute>
+</menuTemplate>

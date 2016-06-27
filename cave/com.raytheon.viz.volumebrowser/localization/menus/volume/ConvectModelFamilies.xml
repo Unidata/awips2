@@ -31,7 +31,7 @@
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyC.xml"
 				    menuText="GFS20" id="gfs20" useReferenceTime="true">
-				<substitute key="modelName" value="GFS215"/> 
+				<substitute key="modelName" value="GFS20"/> 
 				<substitute key="TP" value="TP"/>
 				<substitute key="frameCount" value="55"/>
 			</contribute>
@@ -89,7 +89,7 @@
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/HeavyRainFamily.xml"
 				    menuText="GFS20" id="gfs20" useReferenceTime="true">
-				<substitute key="modelName" value="GFS215"/> 
+				<substitute key="modelName" value="GFS20"/> 
 				<substitute key="TP" value="TP"/>
 				<substitute key="frameCount" value="55"/>
 			</contribute>
@@ -147,7 +147,7 @@
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyX.xml"
 				    menuText="GFS20" id="gfs20" useReferenceTime="true">
-				<substitute key="modelName" value="GFS215"/> 
+				<substitute key="modelName" value="GFS20"/> 
 				<substitute key="TP" value="TP"/>
 				<substitute key="frameCount" value="55"/>
 			</contribute>
@@ -203,7 +203,7 @@
 			</contribute> -->
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyA.xml"
 				    menuText="GFS20" id="gfs20" useReferenceTime="true">
-				<substitute key="modelName" value="GFS215"/> 
+				<substitute key="modelName" value="GFS20"/> 
 				<substitute key="TP" value="TP"/>
 				<substitute key="frameCount" value="55"/>
 			</contribute>
@@ -261,7 +261,7 @@
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyH.xml"
 				    menuText="GFS20" id="gfs20" useReferenceTime="true">
-				<substitute key="modelName" value="GFS215"/> 
+				<substitute key="modelName" value="GFS20"/> 
 				<substitute key="TP" value="TP"/>
 				<substitute key="frameCount" value="55"/>
 			</contribute>
@@ -319,7 +319,7 @@
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyB.xml"
 				    menuText="GFS20" id="gfs20" useReferenceTime="true">
-				<substitute key="modelName" value="GFS215"/> 
+				<substitute key="modelName" value="GFS20"/> 
 				<substitute key="TP" value="TP"/>
 				<substitute key="frameCount" value="55"/>
 			</contribute>
@@ -406,7 +406,7 @@
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyV.xml"
 				    menuText="GFS20" id="gfs20" useReferenceTime="true">
-				<substitute key="modelName" value="GFS215"/> 
+				<substitute key="modelName" value="GFS20"/> 
 				<substitute key="TP" value="TP"/>
 				<substitute key="frameCount" value="55"/>
 			</contribute>
@@ -464,7 +464,7 @@
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyW.xml"
 				    menuText="GFS20" id="gfs20" useReferenceTime="true">
-				<substitute key="modelName" value="GFS215"/> 
+				<substitute key="modelName" value="GFS20"/> 
 				<substitute key="TP" value="TP"/>
 				<substitute key="frameCount" value="55"/>
 			</contribute>
@@ -521,7 +521,7 @@
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyYY.xml"
 				    menuText="GFS20" id="gfs20" useReferenceTime="true">
-				<substitute key="modelName" value="GFS215"/> 
+				<substitute key="modelName" value="GFS20"/> 
 				<substitute key="TP" value="TP"/>
 				<substitute key="frameCount" value="55"/>
 			</contribute>
@@ -578,7 +578,7 @@
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyY.xml"
 				    menuText="GFS20" id="gfs20" useReferenceTime="true">
-				<substitute key="modelName" value="GFS215"/> 
+				<substitute key="modelName" value="GFS20"/> 
 				<substitute key="TP" value="TP"/>
 				<substitute key="frameCount" value="55"/>
 			</contribute>

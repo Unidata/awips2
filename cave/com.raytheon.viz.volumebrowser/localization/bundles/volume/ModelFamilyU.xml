@@ -40,7 +40,7 @@ ModFamU| |N|Briefing Family| |OTHER | | \
 			    <resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 				    <metadataMap>
 					    <mapping key="info.parameter.abbreviation">
-						    <constraint constraintValue="${TP}" constraintType="EQUALS"/>
+						    <constraint constraintValue="TP" constraintType="EQUALS"/>
 					    </mapping>
 					    <mapping key="info.datasetId">
 						    <constraint constraintValue="${modelName}" constraintType="EQUALS"/>
