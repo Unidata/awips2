@@ -27,6 +27,8 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.RowData;
+import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
@@ -58,7 +60,9 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                    format does not support all options.
  * Dec 04, 2014  DR16713  jgerth      Support for date/time selection
  * Jul 07, 2015  4607     bsteffen    Prompt to save as GeoTIFF
+ * Jan 18, 2016  ----     mjames@ucar datetimeButton selected by default
  * Mar 15, 2016  5485     randerso    Fix GUI sizing issues
+ * Apr 04, 2016  ----     mjames@ucar Reconfig Animate/Current button
  * 
  * </pre>
  * 
@@ -119,6 +123,18 @@ public class ImageExportDialog extends CaveSWTDialog {
         buttonComposite.setLayoutData(gridData);
         initializeButtons(buttonComposite);
 
+        animatedButton.addSelectionListener(new SelectionAdapter() {
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                frameDelayText.setEnabled(animatedButton.getSelection());
+                firstFrameDwellText.setEnabled(animatedButton.getSelection());
+                lastFrameDwellText.setEnabled(animatedButton.getSelection());
+                datetimeButton.setEnabled(!animatedButton.getSelection());
+                datetimeButton.setSelection(false);
+            }
+        });
+        
         shell.pack();
         shell.setMinimumSize(shell.getSize());
     }
@@ -128,7 +144,7 @@ public class ImageExportDialog extends CaveSWTDialog {
         group.setText("Export Location");
         locationText = new Text(group, SWT.BORDER);
         GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, true);
-        gridData.widthHint = 250;
+        gridData.widthHint = 350;
         locationText.setLayoutData(gridData);
         locationText.setText(options.getFileLocation().getAbsolutePath());
         Button button = new Button(group, SWT.PUSH);
@@ -140,11 +156,9 @@ public class ImageExportDialog extends CaveSWTDialog {
             }
         });
         datetimeButton = new Button(group, SWT.CHECK);
-        gridData = new GridData(SWT.DEFAULT, SWT.DEFAULT);
         datetimeButton.setLayoutData(gridData);
-        datetimeButton.setText("Include date and time in file name");
-        datetimeButton
-                .setSelection(options.getDateTimeSelection() == DateTimeSelection.DATETIME);
+        datetimeButton.setText("Include product date/time in file name");
+        datetimeButton.setSelection(true);
         datetimeButton
                 .setToolTipText("Append the date and time to the file name when Animate is not selected.");
     }
@@ -154,53 +168,58 @@ public class ImageExportDialog extends CaveSWTDialog {
         group.setText("Frame Selection");
 
         allFramesButton = new Button(group, SWT.RADIO);
-        allFramesButton.setText("All Frames");
+        allFramesButton.setText("All");
         GridData gridData = new GridData();
-        gridData.horizontalSpan = 5;
+        gridData.horizontalSpan = 1;
         allFramesButton.setLayoutData(gridData);
 
         currentFramesButton = new Button(group, SWT.RADIO);
-        currentFramesButton.setText("Current Frame");
+        currentFramesButton.setText("Current");
         gridData = new GridData();
-        gridData.horizontalSpan = 5;
+        gridData.horizontalSpan = 1;
         currentFramesButton.setLayoutData(gridData);
 
         selectedFramesButton = new Button(group, SWT.RADIO);
-        selectedFramesButton.setText("Frames");
-        gridData = new GridData();
-        selectedFramesButton.setLayoutData(gridData);
+        selectedFramesButton.setText("From");
 
         switch (options.getFrameSelection()) {
-        case ALL:
-            allFramesButton.setSelection(true);
-            break;
-        case CURRENT:
-            currentFramesButton.setSelection(true);
-            break;
-        case USER:
-            selectedFramesButton.setSelection(true);
+	        case ALL:
+	            allFramesButton.setSelection(true);
+	            break;
+	        case CURRENT:
+	            currentFramesButton.setSelection(true);
+	            break;
+	        case USER:
+	            selectedFramesButton.setSelection(true);
         }
 
-        new Label(group, SWT.NONE).setText("from:");
         framesFromText = new Text(group, SWT.BORDER);
-        GC gc = new GC(framesFromText);
-        int textWidth = gc.textExtent("99").x;
-        gc.dispose();
         gridData = new GridData();
-        gridData.widthHint = textWidth;
+        gridData.widthHint = 24;
         framesFromText.setLayoutData(gridData);
         framesFromText.setEnabled(selectedFramesButton.getSelection());
         framesFromText
                 .setText(String.valueOf(options.getFirstFrameIndex() + 1));
-        new Label(group, SWT.NONE).setText("to:");
         framesToText = new Text(group, SWT.BORDER);
         gridData = new GridData();
-        gridData.widthHint = textWidth;
+        gridData.widthHint = 24;
         framesToText.setLayoutData(gridData);
         framesToText.setEnabled(selectedFramesButton.getSelection());
         framesToText.setText(String.valueOf(options.getLastFrameIndex() + 1));
-        selectedFramesButton.addSelectionListener(new SelectionAdapter() {
+        currentFramesButton.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+            	animatedButton.setSelection(false);
+            	animatedButton.setEnabled(!currentFramesButton.getSelection());
+            	frameDelayText.setEnabled(false);
+                firstFrameDwellText.setEnabled(false);
+                lastFrameDwellText.setEnabled(false);
+                datetimeButton.setEnabled(true);
+                datetimeButton.setSelection(true);
+            }
 
+        });
+        selectedFramesButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 framesToText.setEnabled(selectedFramesButton.getSelection());
@@ -208,13 +227,8 @@ public class ImageExportDialog extends CaveSWTDialog {
             }
 
         });
-    }
-
-    protected void initializeAnimationGroup(Group group) {
-        group.setLayout(new GridLayout(3, false));
-        group.setText("Animation Options");
         animatedButton = new Button(group, SWT.CHECK);
-        GridData gridData = new GridData();
+        gridData = new GridData();
         gridData.horizontalSpan = 3;
         animatedButton.setLayoutData(gridData);
         animatedButton.setText("Animate");
@@ -222,41 +236,29 @@ public class ImageExportDialog extends CaveSWTDialog {
                 .setSelection(options.getImageFormat() == ImageFormat.ANIMATION);
         animatedButton
                 .setToolTipText("Generate an animated gif, without this a new file is generated for each frame.");
-        animatedButton.addSelectionListener(new SelectionAdapter() {
+        animatedButton.setEnabled(false);
 
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                frameDelayText.setEnabled(animatedButton.getSelection());
-                firstFrameDwellText.setEnabled(animatedButton.getSelection());
-                lastFrameDwellText.setEnabled(animatedButton.getSelection());
+    }
 
-                datetimeButton.setEnabled(!animatedButton.getSelection());
-                datetimeButton.setSelection(false);
-            }
-        });
+    protected void initializeAnimationGroup(Group group) {
+        group.setLayout(new GridLayout(3, false));
 
-        new Label(group, SWT.NONE).setText("Frame Delay:");
+        GridData gridData = new GridData();
+        gridData.widthHint = 36;
+        new Label(group, SWT.NONE).setText("Frame Delay");
         frameDelayText = new Text(group, SWT.BORDER);
-        GC gc = new GC(frameDelayText);
-        int textWidth = gc.textExtent("99.99").x;
-        gc.dispose();
-        gridData = new GridData(textWidth, SWT.DEFAULT);
         frameDelayText.setLayoutData(gridData);
         frameDelayText.setEnabled(animatedButton.getSelection());
         frameDelayText.setText(millisToText(options.getFrameDelay()));
         new Label(group, SWT.NONE).setText("seconds");
-
-        new Label(group, SWT.NONE).setText("First Frame Dwell:");
+        new Label(group, SWT.NONE).setText("First Frame Dwell");
         firstFrameDwellText = new Text(group, SWT.BORDER);
-        gridData = new GridData(textWidth, SWT.DEFAULT);
         firstFrameDwellText.setLayoutData(gridData);
         firstFrameDwellText.setEnabled(animatedButton.getSelection());
         firstFrameDwellText.setText(millisToText(options.getFirstFrameDwell()));
         new Label(group, SWT.NONE).setText("seconds");
-
-        new Label(group, SWT.NONE).setText("Last Frame Dwell:");
+        new Label(group, SWT.NONE).setText("Last Frame Dwell");
         lastFrameDwellText = new Text(group, SWT.BORDER);
-        gridData = new GridData(textWidth, SWT.DEFAULT);
         lastFrameDwellText.setLayoutData(gridData);
         lastFrameDwellText.setEnabled(animatedButton.getSelection());
         lastFrameDwellText.setText(millisToText(options.getLastFrameDwell()));
@@ -264,10 +266,10 @@ public class ImageExportDialog extends CaveSWTDialog {
     }
 
     protected void initializeButtons(Composite comp) {
-        comp.setLayout(new GridLayout(2, true));
+        comp.setLayout(new RowLayout(SWT.HORIZONTAL));
         Button okButton = new Button(comp, SWT.PUSH);
         okButton.setText("OK");
-        okButton.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
+        okButton.setLayoutData(new RowData(100, SWT.DEFAULT));
         okButton.addSelectionListener(new SelectionAdapter() {
 
             @Override
@@ -279,8 +281,7 @@ public class ImageExportDialog extends CaveSWTDialog {
 
         Button cancelButton = new Button(comp, SWT.PUSH);
         cancelButton.setText("Cancel");
-        cancelButton.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true,
-                false));
+        cancelButton.setLayoutData(new RowData(100, SWT.DEFAULT));
         cancelButton.addSelectionListener(new SelectionAdapter() {
 
             @Override
@@ -299,8 +300,7 @@ public class ImageExportDialog extends CaveSWTDialog {
         FileDialog fileDialog = new FileDialog(this.shell, SWT.SAVE);
         File file = new File(locationText.getText());
         fileDialog.setFileName(file.getName());
-        if ((file.getParentFile() != null)
-                && file.getParentFile().isDirectory()) {
+        if (file.getParentFile() != null && file.getParentFile().isDirectory()) {
             fileDialog.setFilterPath(file.getParent());
         }
         int index = 0;

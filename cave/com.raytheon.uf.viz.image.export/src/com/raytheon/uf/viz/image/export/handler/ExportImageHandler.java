@@ -56,7 +56,9 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * Jan 20, 2014  2312     bsteffen    Move to image export plugin, animation.
  * Dec 04, 2014  DR16713  jgerth      Support for date and time in file name
  * Jul 07, 2015  4607     bsteffen    Extract SaveImagesJob and allow GeoTIFF export.
- * 
+ * Jan 18, 2016  ----     mjames@ucar Append yyyy.MM.dd.HH.mm.ss to image filename
+ * Apr 04, 2016  ----     mjames@ucar Reconfig Animate/Current button, add 
+ *                                    timestamp to animation GIFs
  * 
  * </pre>
  * 
@@ -66,6 +68,8 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
 public class ExportImageHandler extends AbstractImageCaptureHandler {
     public static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ExportImageHandler.class);
+
+    private static final String DATE_TIME_FORMAT = "yyyyMMdd_HHmmss";
 
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {

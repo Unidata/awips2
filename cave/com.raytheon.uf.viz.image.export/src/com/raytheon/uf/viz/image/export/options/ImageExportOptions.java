@@ -20,6 +20,8 @@
 package com.raytheon.uf.viz.image.export.options;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.imageio.ImageIO;
 
@@ -45,6 +47,10 @@ import com.raytheon.uf.viz.core.drawables.IDescriptor;
  * Oct 28, 2014  3767     bsteffen    Change default name to screenCapture.png
  * Dec 04, 2014  DR16713  jgerth      Support for date/time selection
  * Jul 07, 2015  4607     bsteffen    Add georeferenced option.
+ * Jan 18, 2016  ----     mjames@ucar Save images to /awips2/export/<username> rather than
+ *                                    /awips2/eclipse (and avoid guessing that /home/awips exists)
+ * Apr 04, 2016  ----     mjames@ucar Reconfig Animate/Current button, add 
+ *                                    timestamp to all image filenames.
  * 
  * </pre>
  * 
@@ -91,7 +97,9 @@ public class ImageExportOptions {
 
     }
 
-    private File fileLocation = new File("screenCapture.png");
+    String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date()); 
+
+    private File fileLocation = new File("/awips2/export/" + System.getProperty("user.name") + "/screenCapture-" + timeStamp +  ".png");
 
     private ImageFormat imageFormat = ImageFormat.SEQUENCE;
 
