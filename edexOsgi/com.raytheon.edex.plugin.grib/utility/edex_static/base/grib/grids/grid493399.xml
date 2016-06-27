@@ -18,9 +18,19 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-    
-<compositeModel>
-	<modelName>UKMET-Global</modelName>
-	<grid>289145</grid>
-	<componentModels>UKMET37:UKMET38:UKMET39:UKMET40:UKMET41:UKMET42:UKMET43:UKMET44</componentModels>
-</compositeModel>
+<polarStereoGridCoverage>
+	<name>493399</name>
+	<description>CMC GEM model (Polar Stereographic)</description>
+	<la1>32.548976</la1>
+	<lo1>-134.619584</lo1>
+	<firstGridPointCorner>LowerLeft</firstGridPointCorner>
+	<nx>493</nx>
+	<ny>399</ny>
+	<dx>15</dx>
+	<dy>15</dy>
+	<spacingUnit>km</spacingUnit>
+	<minorAxis>6371229.0</minorAxis>
+	<majorAxis>6371229.0</majorAxis>
+	<lad>60</lad>
+	<lov>-111.0</lov>
+</polarStereoGridCoverage>

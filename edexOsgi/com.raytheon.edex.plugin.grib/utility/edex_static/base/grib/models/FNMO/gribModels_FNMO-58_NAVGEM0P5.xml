@@ -21,22 +21,13 @@
 
 <gribModelSet>
 	<model>
-		<name>ETSS</name>
-		<center>7</center>
-		<subcenter>14</subcenter>
-		<grid>184</grid>
+		<name>navgem0p5</name>
+		<center>58</center>
+		<subcenter>0</subcenter>
+		<grid>720361001</grid>
 		<process>
-			<id>12</id>
-		</process>
-	</model>
-
-	<model>
-		<name>ETSS-AK</name>
-		<center>7</center>
-		<subcenter>14</subcenter>
-		<grid>1023</grid>
-		<process>
-			<id>12</id>
+			<id>58</id>
+			<id>18</id>
 		</process>
 	</model>
 </gribModelSet>

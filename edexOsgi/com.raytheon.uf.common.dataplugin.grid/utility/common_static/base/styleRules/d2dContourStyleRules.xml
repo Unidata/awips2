@@ -214,12 +214,12 @@ dam | 0.1 | 0.0 | 4 | i5 | X |LH|8000F0FF| | 0 | 6
      </contourLabeling>
   </contourStyle>
 </styleRule>
-<!--  * mesoEta212, GH, GHxSM, 1050MB > 850MB 
+<!--  * NAM40, GH, GHxSM, 1050MB > 850MB 
 m  | 1.0 | 0.0 | 4 | i4 | X |LH|8000F0FF|,,,150 | 0 | 15
 -->  
 <styleRule>
   <paramLevelMatches>
-  	<creatingEntity>mesoEta212</creatingEntity>
+  	<creatingEntity>NAM40</creatingEntity>
   	<creatingEntity>NAM40</creatingEntity>  	
      <parameter>GH</parameter>
      <parameter>GHxSM</parameter>        
@@ -237,12 +237,12 @@ m  | 1.0 | 0.0 | 4 | i4 | X |LH|8000F0FF|,,,150 | 0 | 15
      </contourLabeling>
   </contourStyle>
 </styleRule>
-<!--  * mesoEta212, GH, GHxSM, 875MB > 500MB 
+<!--  * NAM40, GH, GHxSM, 875MB > 500MB 
 dam | 0.1 | 0.0 | 4 | i4 | X |LH|8000F0FF|,,,150 | 0 | 3
 -->  
 <styleRule>
   <paramLevelMatches>
-     <creatingEntity>mesoEta212</creatingEntity>
+     <creatingEntity>NAM40</creatingEntity>
   	<creatingEntity>NAM40</creatingEntity>     
      <parameter>GH</parameter>
      <parameter>GHxSM</parameter>        
@@ -260,12 +260,12 @@ dam | 0.1 | 0.0 | 4 | i4 | X |LH|8000F0FF|,,,150 | 0 | 3
      </contourLabeling>
   </contourStyle>
 </styleRule>
-<!--  * mesoEta212, GH, GHxSM, 475MB > 50MB 
+<!--  * NAM40, GH, GHxSM, 475MB > 50MB 
 dam | 0.1 | 0.0 | 4 | i5 | X |LH|8000F0FF|,,,150 | 0 | 6
 -->  
 <styleRule>
   <paramLevelMatches>
-     <creatingEntity>mesoEta212</creatingEntity>
+     <creatingEntity>NAM40</creatingEntity>
   	<creatingEntity>NAM40</creatingEntity>     
      <parameter>GH</parameter>
      <parameter>GHxSM</parameter>        
@@ -800,14 +800,14 @@ m/s| 1.0 | 0.0 | 4 |    |   |..|8000F0FF| | 0 | 5
 </styleRule>
 
 
-<!--  * mesoEta212,AV,RV
+<!--  * NAM40,AV,RV
 /1e5s   | 1e5 | 0.0 | 4 |    | X |NX|8000F0FF|,,,100 | 0 | 2
 --> 
 <styleRule>
   <paramLevelMatches>
-     <creatingEntity>mesoEta212</creatingEntity>   
+     <creatingEntity>NAM40</creatingEntity>   
      <creatingEntity>NAM40</creatingEntity>
-     <creatingEntity>mesoEta215</creatingEntity>   
+     <creatingEntity>NAM20</creatingEntity>   
      <creatingEntity>NAM20</creatingEntity>       
      <parameter>AV</parameter>     
      <parameter>RV</parameter>
@@ -851,12 +851,12 @@ m/s| 1.0 | 0.0 | 4 |    |   |..|8000F0FF| | 0 | 5
      </contourLabeling>
   </contourStyle>
 </styleRule>
-<!--  * mesoEta212,VAdv, dVAdv
+<!--  * NAM40,VAdv, dVAdv
 /1e9s   | 1e9 | 0.0 | 4 | | |..|8000F0FF|m,,,100| 5 | 1 5 10 20 50
 -->  
 <styleRule>
   <paramLevelMatches>
-     <creatingEntity>mesoEta212</creatingEntity> 
+     <creatingEntity>NAM40</creatingEntity> 
      <creatingEntity>NAM40</creatingEntity>          
      <parameter>VAdv</parameter>     
      <parameter>dVAdv</parameter>
@@ -1204,20 +1204,33 @@ mb  | 1 | 0.0 | 4 |2:i4|1:i4|LH|8000F0FF| | 0 | 2
      </contourLabeling>
   </contourStyle>
 </styleRule>
+<!--  * SLI
+C  | 1 | 0 | 4 |  |  |..|8000F0FF| | 0 | 2
+-->  
 <styleRule>
-  <paramLevelMatches>
-    <parameter>SLI</parameter>
+  <paramLevelMatches>    
     <parameter>PLI</parameter>
-    <parameter>BLI</parameter>
   </paramLevelMatches>
-    <contourStyle>
-     <displayUnits label="C">K</displayUnits>
+  	<contourStyle>
+     <displayUnits>C</displayUnits>  
+     <contourLabeling labelSpacing="4">
+        <increment>2</increment>
+     </contourLabeling>
+  </contourStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>    
+    <parameter>SLI</parameter>
+  </paramLevelMatches>
+  	<contourStyle>
+     <displayUnits>C</displayUnits>  
      <displayFlags>NoPlane</displayFlags>
      <contourLabeling labelSpacing="4">
         <increment>2</increment>
      </contourLabeling>
   </contourStyle>
 </styleRule>
+
 <!--  * SLI, Laps
 C  | 1 | 0 | 4 |  |  |..|8000F0FF|,900| 0 | 2
 -->  
@@ -1229,6 +1242,20 @@ C  | 1 | 0 | 4 |  |  |..|8000F0FF|,900| 0 | 2
   <contourStyle>
      <displayUnits>C</displayUnits>  
      <displayFlags>NoPlane</displayFlags>
+     <contourLabeling labelSpacing="4">
+        <increment>2</increment>
+     </contourLabeling>
+  </contourStyle>
+</styleRule>
+<!--  * BLI
+C  | 1 | 0 | 4 |  |  |..|8000F0FF| | 0 | 2
+-->  
+<styleRule>
+  <paramLevelMatches>    
+     <parameter>BLI</parameter>
+     </paramLevelMatches>
+  <contourStyle>
+     <displayUnits>C</displayUnits>  
      <contourLabeling labelSpacing="4">
         <increment>2</increment>
      </contourLabeling>
@@ -2399,11 +2426,7 @@ F  | 1.8 |-459.67| 4 |    |   |..|8000F0FF| | 0 | 5
      <parameter>MxT6hr</parameter>    
      <parameter>MxT12hr</parameter>  
      <parameter>MnT12hr</parameter>   
-     <singleLevel units="SURFACE"></singleLevel>
-     <rangeLevel units="HEIGHT_AGL">
-         <upper>10</upper>
-         <lower>0</lower>
-     </rangeLevel>
+      <singleLevel units="SURFACE"></singleLevel>       
   </paramLevelMatches>
   <contourStyle>
      <displayUnits>F</displayUnits>    
@@ -2632,13 +2655,13 @@ mb  | 1 | 0.0 | 4 |2:i4|1:i4|LH|8000F0FF| | 0 | 4
      </contourLabeling>
   </contourStyle>
 </styleRule>
-<!--  * DGEX185, GH, 850MB > 500MB 
+<!--  * DGEX, GH, 850MB > 500MB 
 dam | 0.1 | 0.0 | 4 | i4 | X |LH|8000F0FF|,,,80 | 0 | 3
 -->  
 <styleRule>
   <paramLevelMatches> 
      <parameter>GH</parameter>
-     <creatingEntity>DGEX185</creatingEntity>  
+     <creatingEntity>DGEX</creatingEntity>  
      <rangeLevel units="MB">
        <upper>850</upper>
        <lower>500</lower>
@@ -2652,12 +2675,12 @@ dam | 0.1 | 0.0 | 4 | i4 | X |LH|8000F0FF|,,,80 | 0 | 3
      </contourLabeling>
   </contourStyle>
 </styleRule>
-<!--  * DGEX185, GH, 250MB 
+<!--  * DGEX, GH, 250MB 
 dam | 0.1 | 0.0 | 4 | i5 | X |LH|8000F0FF|,,,80 | 0 | 6
 -->  
 <styleRule>
   <paramLevelMatches>
-     <creatingEntity>DGEX185</creatingEntity>  
+     <creatingEntity>DGEX</creatingEntity>  
      <parameter>GH</parameter>   
      <rangeLevel units="MB">
        <upper>250</upper>
@@ -2672,12 +2695,12 @@ dam | 0.1 | 0.0 | 4 | i5 | X |LH|8000F0FF|,,,80 | 0 | 6
      </contourLabeling>
   </contourStyle>
 </styleRule>
-<!--  * DGEX185, msl-P
+<!--  * DGEX, msl-P
 mb  | 1 | 0.0 | 4 |2:i4|1:i4|LH|8000F0FF|,,,80 | 0 | 4
 -->  
 <styleRule>
   <paramLevelMatches>
-     <creatingEntity>DGEX185</creatingEntity>   
+     <creatingEntity>DGEX</creatingEntity>   
      <parameter>PMSL</parameter>       
   </paramLevelMatches>
   <contourStyle>
@@ -2691,7 +2714,7 @@ mb  | 1 | 0.0 | 4 |2:i4|1:i4|LH|8000F0FF|,,,80 | 0 | 4
 </styleRule>
 <styleRule>
   <paramLevelMatches>
-     <creatingEntity>DGEX185</creatingEntity>   
+     <creatingEntity>DGEX</creatingEntity>   
      <parameter>msl-P</parameter> 
   </paramLevelMatches>
   <contourStyle>
@@ -2704,12 +2727,12 @@ mb  | 1 | 0.0 | 4 |2:i4|1:i4|LH|8000F0FF|,,,80 | 0 | 4
      </contourLabeling>
   </contourStyle>
 </styleRule>
-<!--  * DGEX185, T, 850MB > 500MB
+<!--  * DGEX, T, 850MB > 500MB
 C  | 1 |-273.15| 4 |    |   |..|8000F0FF|,,,80 | 0 | 2
 -->  
 <styleRule>
   <paramLevelMatches>
-     <creatingEntity>DGEX185</creatingEntity>   
+     <creatingEntity>DGEX</creatingEntity>   
      <parameter>T</parameter>   
      <rangeLevel units="MB">
        <upper>850</upper>
@@ -2723,12 +2746,12 @@ C  | 1 |-273.15| 4 |    |   |..|8000F0FF|,,,80 | 0 | 2
      </contourLabeling>
   </contourStyle>
 </styleRule>
-<!--  * DGEX185, RH, 850MB > 500MB
+<!--  * DGEX, RH, 850MB > 500MB
 %  | 1.0 | 0.0 | 4 |    |   |..|8000F0FF|,,,80 | 0 | 10
 -->  
 <styleRule>
   <paramLevelMatches>
-     <creatingEntity>DGEX185</creatingEntity>   
+     <creatingEntity>DGEX</creatingEntity>   
      <parameter>RH</parameter>   
      <rangeLevel units="MB">
        <upper>850</upper>
@@ -2743,12 +2766,12 @@ C  | 1 |-273.15| 4 |    |   |..|8000F0FF|,,,80 | 0 | 2
      </contourLabeling>
   </contourStyle>
 </styleRule>
-<!--  * DGEX185, PVV
+<!--  * DGEX, PVV
 -ubar/s | -10 | 0.0 | 4 | | |..|8000F0FF|m,,,80 | 11 | 1 2 3 4 5 6 8 10 12 15 20
 -->  
 <styleRule>
   <paramLevelMatches>
-     <creatingEntity>DGEX185</creatingEntity>   
+     <creatingEntity>DGEX</creatingEntity>   
      <parameter>PVV</parameter>         
   </paramLevelMatches>
   <contourStyle>
@@ -2759,29 +2782,29 @@ C  | 1 |-273.15| 4 |    |   |..|8000F0FF|,,,80 | 0 | 2
      </contourLabeling>
   </contourStyle>
 </styleRule>   
-<!--  * DGEX185, SLI
+<!--  * DGEX, SLI
 C  | 1 | 0 | 4 |  |  |..|8000F0FF|,,,80 | 0 | 2
 -->  
 <styleRule>
   <paramLevelMatches>
-     <creatingEntity>DGEX185</creatingEntity>   
+     <creatingEntity>DGEX</creatingEntity>   
      <parameter>SLI</parameter>        
   </paramLevelMatches>
   <contourStyle>
      <smoothingDistance>80</smoothingDistance>
-     <displayUnits label="C">K</displayUnits>
+     <displayUnits>C</displayUnits>    
      <displayFlags>NoPlane</displayFlags>
      <contourLabeling labelSpacing="4">
         <increment>2</increment>
      </contourLabeling>
   </contourStyle>
 </styleRule>
-<!--  * DGEX185, AV
+<!--  * DGEX, AV
 /1e5s   | 1e5 | 0.0 | 4 |    | X |NX|8000F0FF|,,,80 | 0 | 2
 -->  
 <styleRule>
   <paramLevelMatches>
-     <creatingEntity>DGEX185</creatingEntity>   
+     <creatingEntity>DGEX</creatingEntity>   
      <parameter>AV</parameter>        
   </paramLevelMatches>
   <contourStyle>
@@ -2792,13 +2815,13 @@ C  | 1 | 0 | 4 |  |  |..|8000F0FF|,,,80 | 0 | 2
      </contourLabeling>
   </contourStyle>
 </styleRule>
-<!--  * DGEX185, wDiv
+<!--  * DGEX, wDiv
 /1e5s   | 1e5 | 0.0 | 8 |    |   |..|8000F0FF|,,,80|11|1 2 3 4 5 6 8 10 12 15 20
 -->  
   
 <styleRule>
   <paramLevelMatches>
-     <creatingEntity>DGEX185</creatingEntity>   
+     <creatingEntity>DGEX</creatingEntity>   
      <parameter>wDiv</parameter>        
   </paramLevelMatches>
   <contourStyle>
@@ -2809,12 +2832,12 @@ C  | 1 | 0 | 4 |  |  |..|8000F0FF|,,,80 | 0 | 2
      </contourLabeling>
   </contourStyle>
 </styleRule>
-<!--  * DGEX185, VAdv, dVAdv, PIVA
+<!--  * DGEX, VAdv, dVAdv, PIVA
 /1e9s   | 1e9 | 0.0 | 4 | | |..|8000F0FF|,,,80| 5 | 1 5 10 20 50
 -->  
 <styleRule>
   <paramLevelMatches>
-     <creatingEntity>DGEX185</creatingEntity>   
+     <creatingEntity>DGEX</creatingEntity>   
      <parameter>VAdv</parameter>
      <parameter>dVAdv</parameter>
      <parameter>PIVA</parameter>             
@@ -3008,12 +3031,12 @@ kt|1.944| 0.0 | 4 |    |   |..|8000F0FF| | 0 | 10
      </contourLabeling>
   </contourStyle>
 </styleRule>
-<!--  * DGEX185, TAdv
+<!--  * DGEX, TAdv
 C/12hr  |43200| 0.0 | 4 | | | |8000F0FF|,,,80| 5 | 1 5 10 20 50
 -->   
 <styleRule>
   <paramLevelMatches>
-     <creatingEntity>DGEX185</creatingEntity>   
+     <creatingEntity>DGEX</creatingEntity>   
      <parameter>TAdv</parameter>        
   </paramLevelMatches>
   <contourStyle> 
@@ -3024,12 +3047,12 @@ C/12hr  |43200| 0.0 | 4 | | | |8000F0FF|,,,80| 5 | 1 5 10 20 50
      </contourLabeling>
   </contourStyle>
 </styleRule>
-<!--  * DGEX185, MAdv
+<!--  * DGEX, MAdv
 g/Kg/12hr| 43200| 0.0 | 4 | | |..|8000F0FF|,,,80| 8 | 1 2 5 10 20 50 100 200
 --> 
 <styleRule>
   <paramLevelMatches>
-     <creatingEntity>DGEX185</creatingEntity>   
+     <creatingEntity>DGEX</creatingEntity>   
      <parameter>MAdv</parameter>        
   </paramLevelMatches>
   <contourStyle>
@@ -3039,12 +3062,12 @@ g/Kg/12hr| 43200| 0.0 | 4 | | |..|8000F0FF|,,,80| 8 | 1 2 5 10 20 50 100 200
      </contourLabeling>
   </contourStyle>
 </styleRule>
-<!--  * DGEX185, PoTA, EPTA
+<!--  * DGEX, PoTA, EPTA
 C/12hr  |43200| 0.0 | 4 | | | |8000F0FF|,,,80| 5 | 1 5 10 20 50
 -->   
 <styleRule>
   <paramLevelMatches>
-     <creatingEntity>DGEX185</creatingEntity>   
+     <creatingEntity>DGEX</creatingEntity>   
      <parameter>PoTA</parameter>
      <parameter>EPTA</parameter>  
   </paramLevelMatches>
@@ -3055,12 +3078,12 @@ C/12hr  |43200| 0.0 | 4 | | | |8000F0FF|,,,80| 5 | 1 5 10 20 50
      </contourLabeling>
   </contourStyle>
 </styleRule>
-<!--  * DGEX185, MCon
+<!--  * DGEX, MCon
 g/Kg/12hr|43200| 0.0 | 4 | | | |8000F0FF|,,,80| 8 | 1 2 5 10 20 50 100 200
 -->  
 <styleRule>
   <paramLevelMatches>
-     <creatingEntity>DGEX185</creatingEntity>   
+     <creatingEntity>DGEX</creatingEntity>   
      <parameter>MCon</parameter>        
   </paramLevelMatches>
   <contourStyle>
@@ -4045,14 +4068,14 @@ in | .03937 | 0 |  4 |    |   |..|8000F0FF| | 16 | \
   </contourStyle>
 </styleRule>
 <!--
-  * RUC, RUC130, RUC236, PR
+  * RUC, RAP13, RAP40, PR
   in/hr|141.732|.0| 4 | |f5.2|@.|8000F0FF| |7|0.25 0.5 1 2 4 8 16
 -->
 <styleRule>
   <paramLevelMatches>
     <creatingEntity>RUC</creatingEntity>
-    <creatingEntity>RUC130</creatingEntity>
-    <creatingEntity>RUC236</creatingEntity>
+    <creatingEntity>RAP13</creatingEntity>
+    <creatingEntity>RAP40</creatingEntity>
     <parameter>PR</parameter>
   </paramLevelMatches>
   <contourStyle>
@@ -4230,20 +4253,13 @@ in | .03937 | 0 |  4 |    |   |..|8000F0FF| | 16 | \
 
 <styleRule>
     <paramLevelMatches>
+      <parameter>SPC</parameter>
       <parameter>OGRD</parameter>
       <parameter>BARO</parameter>
       <parameter>SPBARO</parameter>
     </paramLevelMatches>
     <contourStyle>
       <displayUnits>cm/sec</displayUnits>
-    </contourStyle>
-</styleRule>
-<styleRule>
-    <paramLevelMatches>
-      <parameter>SPC</parameter>
-    </paramLevelMatches>
-    <contourStyle>
-      <displayUnits>m/s</displayUnits>
     </contourStyle>
 </styleRule>
 
@@ -4763,155 +4779,6 @@ in | .03937 | 0 |  4 |    |   |..|8000F0FF| | 16 | \
     </paramLevelMatches>
     <contourStyle>
       <displayUnits>ft</displayUnits>
-    </contourStyle>
-  </styleRule>
-
-<!-- WPC Probablistic Winter Prediction Forecast (PWPF) -->
-  <styleRule>
-    <paramLevelMatches>
-      <parameter>TOTSN5pct12hr</parameter>
-      <parameter>TOTSN10pct12hr</parameter>
-      <parameter>TOTSN25pct12hr</parameter>
-      <parameter>TOTSN50pct12hr</parameter>
-      <parameter>TOTSN75pct12hr</parameter>
-      <parameter>TOTSN90pct12hr</parameter>
-      <parameter>TOTSN95pct12hr</parameter>
-
-      <parameter>TOTSN5pct24hr</parameter>
-      <parameter>TOTSN10pct24hr</parameter>
-      <parameter>TOTSN25pct24hr</parameter>
-      <parameter>TOTSN50pct24hr</parameter>
-      <parameter>TOTSN75pct24hr</parameter>
-      <parameter>TOTSN90pct24hr</parameter>
-      <parameter>TOTSN95pct24hr</parameter>
-
-      <parameter>TOTSN5pct48hr</parameter>
-      <parameter>TOTSN10pct48hr</parameter>
-      <parameter>TOTSN25pct48hr</parameter>
-      <parameter>TOTSN50pct48hr</parameter>
-      <parameter>TOTSN75pct48hr</parameter>
-      <parameter>TOTSN90pct48hr</parameter>
-      <parameter>TOTSN95pct48hr</parameter>
-
-      <parameter>TOTSN5pct72hr</parameter>
-      <parameter>TOTSN10pct72hr</parameter>
-      <parameter>TOTSN25pct72hr</parameter>
-      <parameter>TOTSN50pct72hr</parameter>
-      <parameter>TOTSN75pct72hr</parameter>
-      <parameter>TOTSN90pct72hr</parameter>
-      <parameter>TOTSN95pct72hr</parameter>
-    </paramLevelMatches>
-    <contourStyle>
-      <displayUnits label="in">in</displayUnits>
-      <contourLabeling labelSpacing="4">
-        <values>1 2 4 6 8 10 12 15 18 21 24 27 30 33 36 42 48</values>
-     </contourLabeling>
-    </contourStyle>
-  </styleRule>
-
-  <styleRule>
-    <paramLevelMatches>
-      <parameter>FRZR5pct12hr</parameter>
-      <parameter>FRZR10pct12hr</parameter>
-      <parameter>FRZR25pct12hr</parameter>
-      <parameter>FRZR50pct12hr</parameter>
-      <parameter>FRZR75pct12hr</parameter>
-      <parameter>FRZR90pct12hr</parameter>
-      <parameter>FRZR95pct12hr</parameter>
-
-      <parameter>FRZR5pct24hr</parameter>
-      <parameter>FRZR10pct24hr</parameter>
-      <parameter>FRZR25pct24hr</parameter>
-      <parameter>FRZR50pct24hr</parameter>
-      <parameter>FRZR75pct24hr</parameter>
-      <parameter>FRZR90pct24hr</parameter>
-      <parameter>FRZR95pct24hr</parameter>
-
-      <parameter>FRZR5pct48hr</parameter>
-      <parameter>FRZR10pct48hr</parameter>
-      <parameter>FRZR25pct48hr</parameter>
-      <parameter>FRZR50pct48hr</parameter>
-      <parameter>FRZR75pct48hr</parameter>
-      <parameter>FRZR90pct48hr</parameter>
-      <parameter>FRZR95pct48hr</parameter>
-
-      <parameter>FRZR5pct72hr</parameter>
-      <parameter>FRZR10pct72hr</parameter>
-      <parameter>FRZR25pct72hr</parameter>
-      <parameter>FRZR50pct72hr</parameter>
-      <parameter>FRZR75pct72hr</parameter>
-      <parameter>FRZR90pct72hr</parameter>
-      <parameter>FRZR95pct72hr</parameter>
-    </paramLevelMatches>
-    <contourStyle>
-      <displayUnits label="in">in</displayUnits>
-      <contourLabeling labelSpacing="4">
-        <values>.01 .1 .25 .5 .75 1 1.5 2 2.5 3 4 5 6 7 8 9 10</values>
-     </contourLabeling>
-    </contourStyle>
-  </styleRule>
-
-  <styleRule>
-    <paramLevelMatches>
-      <parameter>FRZR0.01in12hr</parameter>
-      <parameter>FRZR0.1in12hr</parameter>
-      <parameter>FRZR0.25in12hr</parameter>
-      <parameter>FRZR0.5in12hr</parameter>
-      <parameter>FRZR1in12hr</parameter>
-
-      <parameter>FRZR0.01in24hr</parameter>
-      <parameter>FRZR0.1in24hr</parameter>
-      <parameter>FRZR0.25in24hr</parameter>
-      <parameter>FRZR0.5in24hr</parameter>
-      <parameter>FRZR1in24hr</parameter>
-
-      <parameter>FRZR0.1in48hr</parameter>
-      <parameter>FRZR0.25in48hr</parameter>
-      <parameter>FRZR0.5in48hr</parameter>
-      <parameter>FRZR1in48hr</parameter>
-
-      <parameter>FRZR0.1in72hr</parameter>
-      <parameter>FRZR0.25in72hr</parameter>
-      <parameter>FRZR0.5in72hr</parameter>
-      <parameter>FRZR1in72hr</parameter>
-
-      <parameter>TOTSN1in12hr</parameter>
-      <parameter>TOTSN2in12hr</parameter>
-      <parameter>TOTSN4in12hr</parameter>
-      <parameter>TOTSN6in12hr</parameter>
-      <parameter>TOTSN8in12hr</parameter>
-      <parameter>TOTSN12in12hr</parameter>
-      <parameter>TOTSN18in12hr</parameter>
-
-      <parameter>TOTSN1in24hr</parameter>
-      <parameter>TOTSN2in24hr</parameter>
-      <parameter>TOTSN4in24hr</parameter>
-      <parameter>TOTSN6in24hr</parameter>
-      <parameter>TOTSN8in24hr</parameter>
-      <parameter>TOTSN12in24hr</parameter>
-      <parameter>TOTSN18in24hr</parameter>
-
-      <parameter>TOTSN2in48hr</parameter>
-      <parameter>TOTSN4in48hr</parameter>
-      <parameter>TOTSN8in48hr</parameter>
-      <parameter>TOTSN12in48hr</parameter>
-      <parameter>TOTSN18in48hr</parameter>
-      <parameter>TOTSN24in48hr</parameter>
-      <parameter>TOTSN30in48hr</parameter>
-
-      <parameter>TOTSN2in72hr</parameter>
-      <parameter>TOTSN4in72hr</parameter>
-      <parameter>TOTSN8in72hr</parameter>
-      <parameter>TOTSN12in72hr</parameter>
-      <parameter>TOTSN18in72hr</parameter>
-      <parameter>TOTSN24in72hr</parameter>
-      <parameter>TOTSN30in72hr</parameter>
-    </paramLevelMatches>
-    <contourStyle>
-      <displayUnits label="%">%/100</displayUnits>
-      <contourLabeling labelSpacing="4">
-        <values>1 5 10 20 30 40 50 60 70 80 90 95</values>
-     </contourLabeling>
     </contourStyle>
   </styleRule>
 </styleRuleset>

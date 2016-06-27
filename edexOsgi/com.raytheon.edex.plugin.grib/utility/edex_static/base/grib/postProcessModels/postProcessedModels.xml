@@ -59,14 +59,14 @@
 
     <!-- Post processor definition for the ETA (NAM80) model -->
     <postProcessedModel id="ETA">
-        <modelName>ETA</modelName>
+        <modelName>NAM80</modelName>
         <processorName>PrecipAccumPostProcessor</processorName>
     </postProcessedModel>
 
-    <!-- Post processor definition for the RUC236 model -->
-    <postProcessedModel id="RUC236">
-        <modelName>RUC236</modelName>
-        <processorName>RUC236GribPostProcessor</processorName>
+	<!-- Post processor definition for the RAP40 model -->
+	<postProcessedModel id="RAP40">
+		<modelName>RAP40</modelName>
+		<processorName>RAP40GribPostProcessor</processorName>
     </postProcessedModel>
 
     <!-- Post processor definition for the CPCoutlook211 model -->
@@ -81,8 +81,8 @@
         <processorName>PrecipAccumPostProcessor</processorName>
     </postProcessedModel>
 
-    <postProcessedModel id="Canadian-Reg">
-        <modelName>Canadian-Reg</modelName>
+    <postProcessedModel id="CMC">
+        <modelName>CMC</modelName>
         <processorName>PrecipAccumPostProcessor</processorName>
     </postProcessedModel>
 
@@ -92,10 +92,10 @@
         <processorName>LapsPostProcessor</processorName>
     </postProcessedModel>
 
-    <!-- Post processor definition for the RUC130 model -->
-    <postProcessedModel id="RUC130">
-        <modelName>RUC130</modelName>
-        <processorName>RUC130GribPostProcessor</processorName>
+	<!-- Post processor definition for the RAP13 model -->
+	<postProcessedModel id="RAP13">
+		<modelName>RAP13</modelName>
+		<processorName>RAP13GribPostProcessor</processorName>
     </postProcessedModel>
 
     <!-- Post processor definition for HPCqpfNDFD -->
