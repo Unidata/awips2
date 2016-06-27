@@ -20,6 +20,8 @@
 
 package com.raytheon.edex.util.satellite;
 
+import java.awt.geom.Rectangle2D;
+
 import org.geotools.geometry.DirectPosition2D;
 import org.opengis.referencing.crs.ProjectedCRS;
 import org.opengis.referencing.operation.MathTransform;
@@ -29,6 +31,8 @@ import com.raytheon.edex.plugin.satellite.dao.SatMapCoverageDao;
 import com.raytheon.uf.common.dataplugin.satellite.SatMapCoverage;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.io.WKTReader;
 
 /**
  * 
@@ -47,6 +51,8 @@ import com.vividsolutions.jts.geom.Envelope;
  * Sep 15, 2014  17303    jgerth      Support for second standard latitude
  * Nov 05, 2014  2714     bclement    replaced DecoderException with SatelliteDecoderException
  * Nov 05, 2014  3788     bsteffen    use getOrCreateCoverage in place of queryByMapId
+ * May 11, 2015           mjames         South polar stereogrpahic support added.
+ * May 19, 2015           mjames      Added GVAR native projection support.
  * 
  * 
  * </pre>
@@ -62,6 +68,8 @@ public class SatSpatialFactory {
     public static final int PROJ_LAMBERT = 3;
 
     public static final int PROJ_POLAR = 5;
+    
+    public static final int PROJ_GVAR = 7585;
 
     public static final int PROJ_CYLIN_EQUIDISTANT = 7;
 
@@ -209,6 +217,58 @@ public class SatSpatialFactory {
         return getCoverageSingleCorner(crsType, nx, ny, lov, latin, latin, la1, lo1, dx, dy);
     }
 
+    
+    public SatMapCoverage getCoverageNative(int crsType, int nx, int ny,
+            double reflon, int upperLeftElement, int upperLeftLine, 
+            int xres, int yres, ProjectedCRS crs) 
+                       throws SatelliteDecoderException {
+        try {
+               
+            // Construct the polygon constructor String
+            StringBuffer buffer = new StringBuffer();
+            buffer.append("POLYGON((");
+            buffer.append(reflon - 90. + " -90.0,");
+            buffer.append(reflon + 90. + " -90.0,");
+            buffer.append(reflon + 90. + " 90.0,");
+            buffer.append(reflon - 90. + " 90.0,");
+            buffer.append(reflon - 90. + " -90.0");
+            buffer.append("))");
+            // Create the geometry from the constructed String
+            Geometry geometry = new WKTReader().read(buffer.toString()); 
+            
+            // Construct rectangle
+            double minX = upperLeftElement;
+            int maxX = upperLeftElement + (nx * xres);
+            double minY = upperLeftLine + (ny * yres);
+            minY = -minY;
+            int maxY = -1 * upperLeftLine;
+            Rectangle2D rect = new Rectangle2D.Double(minX,
+                    minY, maxX, maxY);
+               
+            SatMapCoverage coverage = createCoverageFromNative(crsType, nx, ny, 
+                       reflon, upperLeftElement, upperLeftLine,
+                    xres, yres, crs, geometry );
+
+            return checkPersisted(coverage);
+            
+        } catch (Exception e) {
+            StringBuilder buf = new StringBuilder();
+            buf.append(
+                    "Error getting or constructing SatMapCoverage for values: ")
+                    .append("\n\t");
+            buf.append("crsType=" + crsType).append("\n\t");
+            buf.append("nx=" + nx).append("\n\t");
+            buf.append("ny=" + ny).append("\n\t");
+            buf.append("reflon=" + reflon).append("\n\t");
+            buf.append("upperLeftElement=" + upperLeftElement).append("\n\t");
+            buf.append("upperLeftLine=" + upperLeftLine).append("\n\t");
+            buf.append("xres=" + xres).append("\n\t");
+            buf.append("yres=" + yres).append("\n\t");
+            throw new SatelliteDecoderException(buf.toString(), e);
+        }
+    }
+
+    
     /**
      * 
      * Create a {@link SatMapCoverage} with an area defined by two corners. The
@@ -310,6 +370,24 @@ public class SatSpatialFactory {
     }
 
     /**
+     * Create a SatMapCoverage from native projection
+     */
+    private static SatMapCoverage createCoverageFromNative(Integer crsType, 
+               Integer nx, Integer ny, double reflon, int upperLeftElement, 
+               int upperLeftLine, int xres, int yres, ProjectedCRS crs, 
+               Geometry geometry) {
+        float dx = 999999.f;
+        float dy = 999999.f;
+        double minX, minY;
+        minX = upperLeftElement;
+        minY = upperLeftLine + (ny * yres);
+        minY = -minY;
+        return new SatMapCoverage(crsType, minX, minY, nx, ny, 
+                       dx, dy, upperLeftElement, upperLeftLine, 
+                       xres, yres, crs, geometry);
+    }
+
+    /**
      * Create a {@link ProjectedCRS} from a crsType and some parameters.
      * 
      * @param crsType
@@ -336,6 +414,11 @@ public class SatSpatialFactory {
         switch (crsType) {
         case PROJ_MERCATOR:
             return createMercatorCrs(latin, cm);
+        case PROJ_POLAR:
+            if (latin >= 0.)
+                    return createNorthPolarStereoCrs(lov);
+            else
+                    return createSouthPolarStereoCrs(latin, lov);
         case PROJ_LAMBERT:
             return createLambertCrs(latin, latin2, lov);
         case PROJ_CYLIN_EQUIDISTANT:
@@ -364,6 +447,11 @@ public class SatSpatialFactory {
     private static ProjectedCRS createNorthPolarStereoCrs(double lov) {
         return MapUtil.constructNorthPolarStereo(MapUtil.AWIPS_EARTH_RADIUS,
                 MapUtil.AWIPS_EARTH_RADIUS, 60, lov);
+    }
+    
+    private static ProjectedCRS createSouthPolarStereoCrs(double latin, double lov) {
+            return MapUtil.constructSouthPolarStereo(MapUtil.AWIPS_EARTH_RADIUS,
+                    MapUtil.AWIPS_EARTH_RADIUS, latin, lov);
     }
 
 }

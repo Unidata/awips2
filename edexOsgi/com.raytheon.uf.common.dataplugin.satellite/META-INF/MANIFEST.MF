@@ -24,3 +24,4 @@ Export-Package: com.raytheon.uf.common.dataplugin.satellite,
  com.raytheon.uf.common.dataplugin.satellite.units.goes.convert,
  com.raytheon.uf.common.dataplugin.satellite.units.ir,
  com.raytheon.uf.common.dataplugin.satellite.units.water
+Import-Package: org.apache.commons.lang.builder

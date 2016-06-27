@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<areaNames>
+<map>
+	<entry><key>7101</key><value>Arctic</value></entry>
+	<entry><key>1000</key><value>Antarctic</value></entry>
+	<entry><key>2000</key><value>Antarctic</value></entry>
+	<entry><key>3000</key><value>Antarctic</value></entry>
+	<entry><key>10</key><value>GOES-Sounder</value></entry>
+	<entry><key>11</key><value>GOES-Sounder</value></entry>
+	<entry><key>12</key><value>GOES-Sounder</value></entry>
+	<entry><key>13</key><value>GOES-Sounder</value></entry>
+	<entry><key>14</key><value>GOES-Sounder</value></entry>
+	<entry><key>15</key><value>GOES-Sounder</value></entry>
+	<entry><key>1161</key><value>GOES-West</value></entry>
+	<entry><key>1261</key><value>GOES-East</value></entry>
+	<entry><key>3100</key><value>Global</value></entry>
+	<entry><key>3101</key><value>Global</value></entry>
+	<entry><key>601</key><value>Mollweide</value></entry>
+	<entry><key>701</key><value>Mollweide</value></entry>
+	<entry><key>9050</key><value>GOES-East-West</value></entry>
+	<entry><key>9053</key><value>GOES-East-West</value></entry>
+	<entry><key>9056</key><value>GOES-East-West</value></entry>
+	<entry><key>9059</key><value>GOES-East-West</value></entry>
+	<entry><key>9062</key><value>GOES-East-West</value></entry>
+</map>
+</areaNames>

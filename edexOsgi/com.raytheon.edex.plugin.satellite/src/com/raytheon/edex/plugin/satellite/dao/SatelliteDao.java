@@ -25,6 +25,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.geotools.coverage.grid.GridGeometry2D;
+
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
@@ -70,6 +72,9 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * Jul 07, 2015  4279     rferrel     Override delete to clean up orphan entries in satellite_spatial table.
  * Aug 11, 2015  4673     rjpeter     Remove use of executeNativeSql.
  * Sep 17, 2015  4279     rferrel     Do not purge the newest satellite_spatial entries.
+ * Apr 29, 2016  ----     mjames      Force 1 interpolationLevels for NEXRCOMP products
+ *                                    since def. (5) is pixeled and load time is similar.
+ * 
  * </pre>
  * 
  * @author bphillip
@@ -165,8 +170,14 @@ public class SatelliteDao extends PluginDao {
                         }
 
                     });
-            // set the number of levels in the 'parent' satellite data.
-            satRecord.setInterpolationLevels(levels);
+            
+            // If these are 1-4km UCAR NEXRCOMP composites, show full res (no tiling)
+            if (satRecord.getSectorID().equals("NEXRCOMP")){
+            	satRecord.setInterpolationLevels(1);
+            } else {
+            	satRecord.setInterpolationLevels(levels);
+            }
+
         }
         return dataStore;
     }
