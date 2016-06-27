@@ -25,7 +25,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IViewSite;
+import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
 import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
@@ -57,6 +59,11 @@ public class D2DNSharpPaletteWindow extends NsharpPaletteWindow {
 
     private AbstractModalTool lastTool = null;
 
+    Shell shell = PlatformUI.getWorkbench()
+            .getActiveWorkbenchWindow().getShell();
+    
+	D2DNsharpLoadDialog loadDia = D2DNsharpLoadDialog.getInstance(shell);
+	
     @Override
     public void init(IViewSite site) {
         super.init(site);
@@ -101,9 +108,11 @@ public class D2DNSharpPaletteWindow extends NsharpPaletteWindow {
 
             @Override
             public void handleEvent(Event event) {
-                D2DNsharpHandleArchiveFile.openArchiveFile(getViewSite()
-                        .getShell());
+                if (loadDia != null) {
+                    loadDia.open();
             }
+            }
+            
         });
 
     }

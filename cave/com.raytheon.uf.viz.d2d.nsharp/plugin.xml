@@ -14,7 +14,7 @@
          point="org.eclipse.ui.views">
            <view 
             category="com.raytheon.viz.ui"
-            allowMultiple="false"
+            allowMultiple="true"
             restorable="false"
             class="com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpPaletteWindow"
             id="com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpPaletteWindow"
@@ -69,6 +69,10 @@
     		</not>
          </enabledWhen>
   </handler>
+   <handler
+         class="com.raytheon.uf.viz.d2d.nsharp.D2DNsharpViewAction"
+         commandId="com.raytheon.uf.viz.d2d.nsharp.dialog">
+   </handler>
 </extension>
 <extension
   point="com.raytheon.uf.viz.core.classContext">
@@ -87,5 +91,13 @@
          resourceType="sounding">
    </productCreator>
 </extension>
+<extension
+      point="org.eclipse.ui.commands">
+   <command
+         id="com.raytheon.uf.viz.d2d.nsharp.dialog"
+         name="D2DNsharp">
+   </command>
+</extension>
+
       
 </plugin>
