@@ -46,6 +46,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ---------- ----------- --------------------------
  * Apr 7, 2010  #4473     rjpeter     Initial creation
  * Mar 04, 2015  3959     rjpeter     Update for grid based subgridding.
+ * Jun 24, 2016  ASM18440 dfriedman   Fix spatial tolerance for degree values.
  * </pre>
  * 
  * @author rjpeter
@@ -151,9 +152,9 @@ public class StereographicGridCoverage extends GridCoverage {
     public boolean spatialEquals(GridCoverage other) {
         if (super.spatialEquals(other)) {
             StereographicGridCoverage otherStereo = (StereographicGridCoverage) other;
-            if (Math.abs(lad - otherStereo.lad) > SPATIAL_TOLERANCE) {
+            if (Math.abs(lad - otherStereo.lad) > SPATIAL_TOLERANCE_DEG) {
                 return false;
-            } else if (Math.abs(lov - otherStereo.lov) > SPATIAL_TOLERANCE) {
+            } else if (Math.abs(lov - otherStereo.lov) > SPATIAL_TOLERANCE_DEG) {
                 return false;
             }
             return true;

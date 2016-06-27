@@ -88,6 +88,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Oct 01, 2015  4868     rjpeter     Reject subGrids that don't meet minimum
  *                                    coverage percent.
  * Feb 26, 2016  5414     rjpeter      Fix subgrids along boundary.
+ * Jun 24, 2016  ASM18440 dfriedman   Fix spatial tolerance for degree values.
  * </pre>
  * 
  * @author bphillip
@@ -109,7 +110,9 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
 
     protected static final String SUBGRID_TOKEN = "SubGrid-";
 
-    public static final double SPATIAL_TOLERANCE = 0.1;
+    public static final double SPATIAL_TOLERANCE_KM = 0.1;
+
+    public static final double SPATIAL_TOLERANCE_DEG = 0.0025;
 
     /** The id for this grid. This value is generated in the initialize method **/
     @Id
@@ -887,17 +890,32 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
         if (firstGridPointCorner != other.firstGridPointCorner) {
             return false;
         }
-        if (Math.abs(dx - other.dx) > SPATIAL_TOLERANCE) {
+        double spacingUnitTolerance = getSpacingUnitTolerance();
+        if (Math.abs(dx - other.dx) > spacingUnitTolerance) {
             return false;
-        } else if (Math.abs(dy - other.dy) > SPATIAL_TOLERANCE) {
+        } else if (Math.abs(dy - other.dy) > spacingUnitTolerance) {
             return false;
-        } else if (Math.abs(la1 - other.la1) > SPATIAL_TOLERANCE) {
+        } else if (Math.abs(la1 - other.la1) > SPATIAL_TOLERANCE_DEG) {
             return false;
         } else if (Math.abs(MapUtil.correctLon(lo1)
-                - MapUtil.correctLon(other.lo1)) > SPATIAL_TOLERANCE) {
+                - MapUtil.correctLon(other.lo1)) > SPATIAL_TOLERANCE_DEG) {
             return false;
         }
         return true;
+    }
+
+    public double getSpacingUnitTolerance() {
+        if ("degree".equals(spacingUnit)) {
+            return SPATIAL_TOLERANCE_DEG;
+        } else {
+            Unit<?> spacingUnitObj = Unit.valueOf(spacingUnit);
+            if (spacingUnitObj.isCompatible(SI.KILOMETER)) {
+                UnitConverter converter = SI.KILOMETER.getConverterTo(spacingUnitObj);
+                return converter.convert(SPATIAL_TOLERANCE_KM);
+            } else {
+                return SPATIAL_TOLERANCE_KM;
+            }
+        }
     }
 
     /**

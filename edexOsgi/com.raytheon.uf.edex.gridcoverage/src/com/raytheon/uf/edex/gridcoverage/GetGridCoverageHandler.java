@@ -51,6 +51,7 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * Mar 07, 2013  1771     bsteffen    fix gridcoverage duplicate checks.
  * Mar 20, 2013  2910     bsteffen    Commit transaction within cluster locks.
  * May 10, 2016  5642     rjpeter     Remove transaction nesting.
+ * Jun 24, 2016  ASM18440 dfriedman   Fix spatial tolerance for degree values.
  * </pre>
  * 
  * @author bsteffen
@@ -107,21 +108,22 @@ public class GetGridCoverageHandler implements
             trans = sess.beginTransaction();
 
             Criteria crit = sess.createCriteria(coverage.getClass());
+            double spacingUnitTolerance = coverage.getSpacingUnitTolerance();
 
             crit.add(Restrictions.eq("nx", coverage.getNx()));
             crit.add(Restrictions.eq("ny", coverage.getNy()));
             crit.add(Restrictions.between("dx", coverage.getDx()
-                    - GridCoverage.SPATIAL_TOLERANCE, coverage.getDx()
-                    + GridCoverage.SPATIAL_TOLERANCE));
+                    - spacingUnitTolerance, coverage.getDx()
+                    + spacingUnitTolerance));
             crit.add(Restrictions.between("dy", coverage.getDy()
-                    - GridCoverage.SPATIAL_TOLERANCE, coverage.getDy()
-                    + GridCoverage.SPATIAL_TOLERANCE));
+                    - spacingUnitTolerance, coverage.getDy()
+                    + spacingUnitTolerance));
             crit.add(Restrictions.between("la1", coverage.getLa1()
-                    - GridCoverage.SPATIAL_TOLERANCE, coverage.getLa1()
-                    + GridCoverage.SPATIAL_TOLERANCE));
+                    - GridCoverage.SPATIAL_TOLERANCE_DEG, coverage.getLa1()
+                    + GridCoverage.SPATIAL_TOLERANCE_DEG));
             crit.add(Restrictions.between("lo1", coverage.getLo1()
-                    - GridCoverage.SPATIAL_TOLERANCE, coverage.getLo1()
-                    + GridCoverage.SPATIAL_TOLERANCE));
+                    - GridCoverage.SPATIAL_TOLERANCE_DEG, coverage.getLo1()
+                    + GridCoverage.SPATIAL_TOLERANCE_DEG));
             List<?> vals = crit.list();
 
             for (Object val : vals) {
@@ -142,11 +144,11 @@ public class GetGridCoverageHandler implements
                 crit.add(Restrictions.eq("nx", coverage.getNx()));
                 crit.add(Restrictions.eq("ny", coverage.getNy()));
                 crit.add(Restrictions.between("dx", coverage.getDx()
-                        - GridCoverage.SPATIAL_TOLERANCE, coverage.getDx()
-                        + GridCoverage.SPATIAL_TOLERANCE));
+                        - spacingUnitTolerance, coverage.getDx()
+                        + spacingUnitTolerance));
                 crit.add(Restrictions.between("dy", coverage.getDy()
-                        - GridCoverage.SPATIAL_TOLERANCE, coverage.getDy()
-                        + GridCoverage.SPATIAL_TOLERANCE));
+                        - spacingUnitTolerance, coverage.getDy()
+                        + spacingUnitTolerance));
                 vals = crit.list();
                 for (Object val : vals) {
                     if (((GridCoverage) val).spatialEquals(coverage)) {
