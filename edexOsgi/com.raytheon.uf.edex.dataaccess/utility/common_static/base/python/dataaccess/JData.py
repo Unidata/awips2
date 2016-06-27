@@ -32,7 +32,7 @@
 # 
 #
 
-from ufpy.dataaccess import IData
+from awips.dataaccess import IData
 import JUtil, DataTime
 
 class JData(IData, JUtil.JavaWrapperClass):

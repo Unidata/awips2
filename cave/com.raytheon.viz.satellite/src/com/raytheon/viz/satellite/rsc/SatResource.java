@@ -44,6 +44,7 @@ import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters.PersistedParameters;
 import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataplugin.satellite.SatMapCoverage;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.Request;
@@ -134,6 +135,7 @@ import com.raytheon.viz.satellite.tileset.SatRenderable.InterrogationResult;
  *  Feb 17, 2015  4135      bsteffen    Set no data value for derived products.
  *  Mar 3, 2015   DCS 14960 jgerth      Retrieve legend from style rules if available
  *  Apr 15, 2014  4388      bsteffen    Use fill value from record.
+ *  Jun 24, 2015            mjames@ucar Mute interrogating raw data error.
  *  Jul 28, 2015  4633      bsteffen    Create tileset in resource so it can be
  *                                      overridden for daylight transition.
  *  Oct 08, 2015  4937      bsteffen    Move SatRenderable to new class.
@@ -386,7 +388,7 @@ public class SatResource extends
                             .getRecord().getCoverage());
                 }
             } catch (Exception e) {
-                throw new VizException("Error interrogating raw data", e);
+                //throw new VizException("Error interrogating raw data", e);
             }
         }
 

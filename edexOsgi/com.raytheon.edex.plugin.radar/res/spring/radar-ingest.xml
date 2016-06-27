@@ -66,15 +66,12 @@
 				<constant>radar</constant>
 			</setHeader>
 			<doTry>
-				<multicast>
-					<pipeline>
-						<bean ref="stringToFile" />
-						<bean ref="radarDecompressor" method="decompress" />
-						<bean ref="radarDecoder" method="decode" />
-						<to uri="direct-vm:persistIndexAlert" />
-					</pipeline>
-					<to uri="jms-generic:queue:fsiRadar" />
-				</multicast>
+				<pipeline>
+					<bean ref="stringToFile" />
+					<bean ref="radarDecompressor" method="decompress" />
+					<bean ref="radarDecoder" method="decode" />
+					<to uri="direct-vm:persistIndexAlert" />
+				</pipeline>
 				<doCatch>
 				    <exception>com.raytheon.uf.common.dataplugin.exception.MalformedDataException</exception>
 				    <to uri="direct-vm:logFailureAsInfo" />

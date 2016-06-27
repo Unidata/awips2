@@ -29,7 +29,7 @@ import lib.Util as util
 import conf.SMConfig as config
 import collections
 
-from ufpy import ThriftClient
+from awips import ThriftClient
 from dynamicserialize.dstypes.com.raytheon.uf.common.message import Message, Header, Property
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.text.subscription.request import SubscriptionRequest
 ##############################################################################

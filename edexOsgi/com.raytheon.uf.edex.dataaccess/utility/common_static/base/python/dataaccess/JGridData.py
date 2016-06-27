@@ -36,7 +36,7 @@
 # 
 #
 
-from ufpy.dataaccess import IGridData
+from awips.dataaccess import IGridData
 import JData
 import numpy as np
 

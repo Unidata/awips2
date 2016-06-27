@@ -41,7 +41,7 @@ import os
 #    07/27/15        4654          skorolev       Added level filters. Added input test.
 #
 
-from ufpy import NotificationMessage 
+from awips import NotificationMessage 
 
 def usage():
   print ''

@@ -32,13 +32,13 @@ import os, socket
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    09/30/08                      chammack       Initial Creation.
-#    10/22/10        5849          cjeanbap       Updated to use AlertVizMessage.		
-#    12/08/10        7656          cjeanbap       Retrieve environment variable.
+#    10/22/10		 5849		   cjeanbap		  Updated to use AlertVizMessage.		
+#    12/08/10		 7656		   cjeanbap 	  Retrieve environment variable.
 #    05/03/11        5149          cjeanbap       Updated usage statement.
 #    07/27/15        4654          skorolev       Added filters and input test.
 #
 
-from ufpy import NotificationMessage
+from awips import NotificationMessage
 
 class PrintHelpOnErrorParser(ArgumentParser):
    def error(self, message):

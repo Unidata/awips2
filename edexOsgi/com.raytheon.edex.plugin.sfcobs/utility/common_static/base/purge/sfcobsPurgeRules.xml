@@ -4,13 +4,13 @@
 	<!-- Synoptic fixed land -->
 	<rule>
 		<keyValue>1001</keyValue>
-		<versionsToKeep>13</versionsToKeep>
+		<versionsToKeep>50</versionsToKeep>
 		<delta>=00-01:00:00</delta>
 		<round>00-01:00:00</round>
 	</rule>
 	<rule>
 		<keyValue>1001</keyValue>
-		<versionsToKeep>14</versionsToKeep>
+		<versionsToKeep>50</versionsToKeep>
 		<delta>=01-00:00:00</delta>
 		<round>+00-12:00:00</round>
 	</rule>
@@ -19,13 +19,13 @@
 	<!-- Synoptic mobile land -->
 	<rule>
 		<keyValue>1002</keyValue>
-		<versionsToKeep>13</versionsToKeep>
+		<versionsToKeep>50</versionsToKeep>
 		<delta>=00-01:00:00</delta>
 		<round>00-01:00:00</round>
 	</rule>
 	<rule>
 		<keyValue>1002</keyValue>
-		<versionsToKeep>14</versionsToKeep>
+		<versionsToKeep>50</versionsToKeep>
 		<delta>=01-00:00:00</delta>
 		<round>+00-12:00:00</round>
 	</rule>
@@ -33,25 +33,25 @@
 	<!-- Synoptic ship -->
 	<rule>
 		<keyValue>1003</keyValue>
-		<versionsToKeep>34</versionsToKeep>
+		<versionsToKeep>50</versionsToKeep>
 		<delta>=00-01:00:00</delta>
 		<round>00-01:00:00</round>
 	</rule>
 	<rule>
 		<keyValue>1003</keyValue>
-		<versionsToKeep>15</versionsToKeep>
+		<versionsToKeep>50</versionsToKeep>
 		<delta>=00-03:00:00</delta>
 		<round>00-01:00:00</round>
 	</rule>
 	<rule>
 		<keyValue>1003</keyValue>
-		<versionsToKeep>11</versionsToKeep>
+		<versionsToKeep>50</versionsToKeep>
 		<delta>=00-06:00:00</delta>
 		<round>00-01:00:00</round>
 	</rule>
 	<rule>
 		<keyValue>1003</keyValue>
-		<versionsToKeep>10</versionsToKeep>
+		<versionsToKeep>50</versionsToKeep>
 		<delta>=01-00:00:00</delta>
 		<round>+00-12:00:00</round>
 	</rule>
@@ -59,25 +59,25 @@
 	<!-- Synoptic cman -->
 	<rule>
 		<keyValue>1004</keyValue>
-		<versionsToKeep>34</versionsToKeep>
+		<versionsToKeep>50</versionsToKeep>
 		<delta>=00-01:00:00</delta>
 		<round>00-01:00:00</round>
 	</rule>
 	<rule>
 		<keyValue>1004</keyValue>
-		<versionsToKeep>15</versionsToKeep>
+		<versionsToKeep>50</versionsToKeep>
 		<delta>=00-03:00:00</delta>
 		<round>00-01:00:00</round>
 	</rule>
 	<rule>
 		<keyValue>1004</keyValue>
-		<versionsToKeep>11</versionsToKeep>
+		<versionsToKeep>50</versionsToKeep>
 		<delta>=00-06:00:00</delta>
 		<round>00-01:00:00</round>
 	</rule>
 	<rule>
 		<keyValue>1004</keyValue>
-		<versionsToKeep>10</versionsToKeep>
+		<versionsToKeep>50</versionsToKeep>
 		<delta>=01-00:00:00</delta>
 		<round>+00-12:00:00</round>
 	</rule>
@@ -85,25 +85,25 @@
 	<!-- Synoptic moored buoy -->
 	<rule>
 		<keyValue>1005</keyValue>
-		<versionsToKeep>34</versionsToKeep>
+		<versionsToKeep>50</versionsToKeep>
 		<delta>=00-01:00:00</delta>
 		<round>00-01:00:00</round>
 	</rule>
 	<rule>
 		<keyValue>1005</keyValue>
-		<versionsToKeep>15</versionsToKeep>
+		<versionsToKeep>50</versionsToKeep>
 		<delta>=00-03:00:00</delta>
 		<round>00-01:00:00</round>
 	</rule>
 	<rule>
 		<keyValue>1005</keyValue>
-		<versionsToKeep>11</versionsToKeep>
+		<versionsToKeep>50</versionsToKeep>
 		<delta>=00-06:00:00</delta>
 		<round>00-01:00:00</round>
 	</rule>
 	<rule>
 		<keyValue>1005</keyValue>
-		<versionsToKeep>10</versionsToKeep>
+		<versionsToKeep>50</versionsToKeep>
 		<delta>=01-00:00:00</delta>
 		<round>+00-12:00:00</round>
 	</rule>
@@ -111,25 +111,25 @@
 	<!-- Drifting Buoy -->
 	<rule>
 		<keyValue>1006</keyValue>
-		<versionsToKeep>34</versionsToKeep>
+		<versionsToKeep>50</versionsToKeep>
 		<delta>=00-01:00:00</delta>
 		<round>00-01:00:00</round>
 	</rule>
 	<rule>
 		<keyValue>1006</keyValue>
-		<versionsToKeep>15</versionsToKeep>
+		<versionsToKeep>50</versionsToKeep>
 		<delta>=00-03:00:00</delta>
 		<round>00-01:00:00</round>
 	</rule>
 	<rule>
 		<keyValue>1006</keyValue>
-		<versionsToKeep>11</versionsToKeep>
+		<versionsToKeep>50</versionsToKeep>
 		<delta>=00-06:00:00</delta>
 		<round>00-01:00:00</round>
 	</rule>
 	<rule>
 		<keyValue>1006</keyValue>
-		<versionsToKeep>10</versionsToKeep>
+		<versionsToKeep>50</versionsToKeep>
 		<delta>=01-00:00:00</delta>
 		<round>+00-12:00:00</round>
 	</rule>
@@ -137,25 +137,25 @@
 	<!-- Synoptic marob -->
 	<rule>
 		<keyValue>1007</keyValue>
-		<versionsToKeep>34</versionsToKeep>
+		<versionsToKeep>50</versionsToKeep>
 		<delta>=00-01:00:00</delta>
 		<round>00-01:00:00</round>
 	</rule>
 	<rule>
 		<keyValue>1007</keyValue>
-		<versionsToKeep>15</versionsToKeep>
+		<versionsToKeep>50</versionsToKeep>
 		<delta>=00-03:00:00</delta>
 		<round>00-01:00:00</round>
 	</rule>
 	<rule>
 		<keyValue>1007</keyValue>
-		<versionsToKeep>11</versionsToKeep>
+		<versionsToKeep>50</versionsToKeep>
 		<delta>=00-06:00:00</delta>
 		<round>00-01:00:00</round>
 	</rule>
 	<rule>
 		<keyValue>1007</keyValue>
-		<versionsToKeep>10</versionsToKeep>
+		<versionsToKeep>50</versionsToKeep>
 		<delta>=01-00:00:00</delta>
 		<round>+00-12:00:00</round>
 	</rule>

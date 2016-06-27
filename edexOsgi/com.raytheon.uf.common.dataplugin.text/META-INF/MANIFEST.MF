@@ -18,7 +18,8 @@ Import-Package: com.raytheon.uf.common.dataplugin.persist,
  com.raytheon.uf.common.status,
  com.raytheon.uf.common.util,
  com.raytheon.uf.common.wmo,
- javax.persistence
+ javax.persistence,
+ org.apache.commons.lang.builder
 Export-Package: com.raytheon.uf.common.dataplugin.text;uses:="com.raytheon.uf.common.dataplugin.text.db,com.raytheon.uf.common.serialization",
  com.raytheon.uf.common.dataplugin.text.alarms,
  com.raytheon.uf.common.dataplugin.text.db;uses:="com.raytheon.uf.common.dataplugin.persist,com.raytheon.uf.common.wmo,com.raytheon.uf.common.serialization",

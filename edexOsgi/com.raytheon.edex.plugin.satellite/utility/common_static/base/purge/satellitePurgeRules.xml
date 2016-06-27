@@ -3,16 +3,44 @@
 	<key>sectorID</key>
 	<key>physicalElement</key>
 	<defaultRule>
-		<period>01-00:00:00</period>
+		<versionsToKeep>96</versionsToKeep>
 	</defaultRule>
-	<rule regex="true">
-		<keyValue>.*</keyValue>
-		<keyValue>.*Visible.*</keyValue>
-		<period>00-18:00:00</period>
+	<rule>
+		<keyValue>NEXRCOMP</keyValue>
+		<versionsToKeep>288</versionsToKeep>
 	</rule>
-	<rule regex="true">
-		<keyValue>.*</keyValue>
-		<keyValue>Sounder.*</keyValue>
-		<period>00-12:00:00</period>
+	<rule>
+		<keyValue>Alaska National</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>GOES-East-West</keyValue>
+		<versionsToKeep>120</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Hawaii National</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>NH Composite - Meteosat-GOES E-GOES W-GMS</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Northern Hemisphere Composite</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Puerto Rico National</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Gridded Cloud Amount</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Gridded Cloud Top Pressure or Height</keyValue>
+		<versionsToKeep>48</versionsToKeep>
 	</rule>
 </purgeRuleSet>

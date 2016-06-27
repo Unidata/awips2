@@ -14,7 +14,8 @@ Require-Bundle: org.apache.commons.lang3;bundle-version="3.4.0",
  com.raytheon.uf.edex.archive,
  com.raytheon.uf.edex.ndm;bundle-version="1.0.0",
  com.raytheon.uf.common.localization;bundle-version="1.14.0",
- com.raytheon.uf.common.dataplugin.text
+ com.raytheon.uf.common.dataplugin.text,
+ org.slf4j
 Export-Package: com.raytheon.uf.edex.plugin.text,
  com.raytheon.uf.edex.plugin.text.dao,
  com.raytheon.uf.edex.plugin.text.db,

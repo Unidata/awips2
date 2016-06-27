@@ -15,4 +15,5 @@ Import-Package: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.serialization.annotations,
  com.raytheon.uf.common.time.util,
  com.raytheon.uf.common.wmo,
+ org.apache.commons.lang.builder,
  org.hibernate.annotations
