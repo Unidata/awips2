@@ -19,12 +19,7 @@
 # further licensing information.
 ##
 
-export MAX_MEM=1536 # in Meg
-
-if [ $HIGH_MEM == "on" ]; then
-    export MAX_MEM=2048
-fi
-
+export MAX_MEM=2048
 export EDEX_DEBUG_PORT=5009
 export EDEX_JMX_PORT=1620
 export LOG_CONF=logback-registry.xml

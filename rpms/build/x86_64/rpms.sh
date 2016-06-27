@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -vf
 
 function buildRPM()
 {
@@ -66,6 +66,7 @@ function buildEDEX()
 function buildCAVE()
 {
    cd ${WORKSPACE}/rpms/awips2.cave/deploy.builder
+   echo "in ${WORKSPACE}/rpms/awips2.cave/deploy.builder"
    if [ $? -ne 0 ]; then
       echo "ERROR: Failed to build the cave rpms."
       exit 1

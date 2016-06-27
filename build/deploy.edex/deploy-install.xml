@@ -1,12 +1,12 @@
 <project default="main" basedir=".">
-	<property name="localization.sites" value="" />
+	<property name="localization.sites" value="BOU" />
 	<property name="deploy.python" value="true" />
 	<!-- 
 		The python packages to deploy - provided that 
 		deploy.python is true 
 	-->
 	<property name="python.packages" 
-		value="pypies:ufpy:dynamicserialize" />
+		value="pypies" />
 	<!-- EDEX root directory - defaults to /awips2/edex -->
 	<property name="edex.root" value="/awips2/edex" />
 	<!-- Python root directory - defaults to /awips2/python -->
@@ -18,17 +18,10 @@
 	<property name="groovy.path" value="" />
 	<property name="architecture" value="x86_64" />
 	
-	<condition property="requiredPropertiesSet">
-		<and>
-			<isset property="workspace_loc" />
-		</and>
-	</condition>
-	
 	<available property="groovyPathSet" 
 		file="${groovy.path}/groovy" type="file" />
 	
 	<target name="main">
-		<antcall target="usage" />
 		<antcall target="deploy-using-specific-groovy" />
 		<antcall target="deploy-using-environment-groovy" />
 	</target>

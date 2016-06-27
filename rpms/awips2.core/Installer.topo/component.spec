@@ -48,14 +48,7 @@ TOPO_TO_COPY=\
 (\
    'gtopo30.h5'\
    'defaultTopo.h5' \
-   'akTopo.dat.gz' \
-   'caribTopo.dat.gz' \
-   'modelStaticTopo.h5' \
-   'pacTopo.dat.gz' \
-   'staticTopo.h5' \
    'usTopo.dat.gz' \
-   'worldTopo.dat.gz' \
-   'gmted2010.h5' \
 )
 # !!!!! WARNING - THIS WILL TAKE A LONG TIME !!!!!
 

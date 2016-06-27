@@ -13,11 +13,11 @@
 	
 
 	<target name="main" depends="init, setup">
-		<property name="esb.directory" value="${repo.dir}/build/deploy.edex.awips2/esb" />
+		<property name="esb.directory" value="${basedir}/esb" />
 		<!-- deploy esb {optionally: data, web} -->
-		<ant antfile="${repo.dir}/build/deploy.edex.awips2/deploy/deploy-esb.xml" />
+		<ant antfile="${basedir}/../../build/deploy.edex.awips2/deploy/deploy-esb.xml" />
 		<!-- deploy esb configuration -->
-		<ant antfile="${repo.dir}/build/deploy.edex.awips2/deploy/deploy-esb-configuration.xml" />
+		<ant antfile="${basedir}/../../build/deploy.edex.awips2/deploy/deploy-esb-configuration.xml" />
 		<!-- optionally: deploy gfesuite -->
 		<if>
 			<equals arg1="${deploy.gfesuite}" arg2="true" />
@@ -63,13 +63,7 @@
 			</sequential>
 		</for>
 
-		<!-- optionally: deploy raytheon python -->
-		<if>
-			<equals arg1="${deploy.python}" arg2="true" />
-			<then>
-				<antcall target="deploy.python" />
-			</then>
-		</if>
+
 		<!-- optionally: deploy site localization -->
 		<if>
 			<not>
@@ -180,72 +174,17 @@
 		</sequential>
 	</macrodef>
 
-	<target name="deploy.python">
-		<property name="site-package.directory" value="${python.root.directory}/lib/${python.version.dir}/site-packages" />
-
-		<echo message="Deploying the Raytheon python site-packages." />
-		<deploy.python.site-package site.package="ufpy" />
-		<deploy.python.site-package site.package="dynamicserialize" />
-		<deploy.python.site-package site.package="pypies" />
-	</target>
-
 	<target name="deploy.localization">
-		<for list="${localization.sites}" param="site" delimiter="${path.separator}">
-			<sequential>
-				<echo message="Deploying localization for site: @{site}" />
+		<echo message="Deploying localization" />
 
-				<!-- determine which directory the localization
-				     project should be in. -->
-				<var name="localization.path" value="" />
-				<if>
-					<available file="${awips.baseline.directory}/localization.@{site}" type="dir" />
-					<then>
-						<var name="localization.path" value="${awips.baseline.directory}/localization.@{site}" />
-					</then>
-					<else>
-						<var name="localization.path" value="${awips.baseline.directory}/${localization.directory}/localization.@{site}" />
-					</else>
-				</if>
-
-				<!-- copy the localization files. -->
-				<copy todir="${edex.root.directory}/data/utility" overwrite="true">
-					<fileset dir="${localization.path}/utility" includes="*/**" />
-				</copy>
-			</sequential>
-		</for>
+		<!-- determine which directory the localization
+		     project should be in. -->
+		<var name="localization.path" value="${awips.baseline.directory}/localization/localization" />
+		<!-- copy the localization files. -->
+		<copy todir="${edex.root.directory}/data/utility" overwrite="true">
+			<fileset dir="${localization.path}/utility" includes="*/**" />
+		</copy>
 	</target>
-
-	<!-- private -->
-	<macrodef name="deploy.python.site-package">
-		<attribute name="site.package" />
-
-		<sequential>
-			<echo message="Deploying @{site.package} ..." />
-			<if>
-				<available file="${site-package.directory}/@{site.package}" type="dir" />
-				<then>
-					<delete dir="${site-package.directory}/@{site.package}" includeemptydirs="true">
-						<fileset dir="${site-package.directory}" includes="@{site.package}/**" />
-					</delete>
-				</then>
-			</if>
-
-			<if>
-				<equals arg1="@{site.package}" arg2="pypies" />
-				<then>
-					<!-- custom rule for pypies due to alternate directory layout -->
-					<copy todir="${site-package.directory}">
-						<fileset dir="${awips.baseline.directory}/pythonPackages/pypies" includes="@{site.package}/**" />
-					</copy>
-				</then>
-				<else>
-					<copy todir="${site-package.directory}">
-						<fileset dir="${awips.baseline.directory}/pythonPackages" includes="@{site.package}/**" />
-					</copy>
-				</else>
-			</if>
-		</sequential>
-	</macrodef>
 
 	<!-- static -->
 	<taskdef name="includegen" classname="com.raytheon.uf.anttasks.includesgen.GenerateIncludesFromFeature" classpathref="ant.classpath" />

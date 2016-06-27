@@ -127,7 +127,7 @@ if [ -f "${SETUP_ENV_NEW}" ]; then
    updateSetupEnv "${DC_DB_NAME}" "DC_DB_NAME" "dc_ob7oax"
    updateSetupEnv "${FXA_DB_NAME}" "FXA_DB_NAME" "fxatext"
    updateSetupEnv "${HM_DB_NAME}" "HM_DB_NAME" "hmdb"
-   updateSetupEnv "${IH_DB_NAME}" "IH_DB_NAME" "hd_ob83oax"
+   updateSetupEnv "${IH_DB_NAME}" "IH_DB_NAME" "hd_ob92oax"
    updateSetupEnv "${DATA_ARCHIVE_ROOT}" "DATA_ARCHIVE_ROOT" "/tmp/sbn"
    updateSetupEnv "${DB_ADDR}" "DB_ADDR" "localhost"
    updateSetupEnv "${DB_PORT}" "DB_PORT" "5432"

@@ -126,42 +126,27 @@ function buildRPM()
 function buildLocalizationRPMs()
 {
    BUILDROOT_DIR=/tmp/awips-component
-   # Find all of the localization.${site} directories, if there are any.
-   ls ${WORKSPACE_DIR}/localization.* > /dev/null 2>&1
-   RC=$?
-   if [ ${RC} -ne 0 ]; then
-      # There are not any localization projects.
-      echo "INFO: There are not any localization projects."
-      return 0
-   fi
-
-   for dir in `cd ${WORKSPACE_DIR}; ls -1d localization.*`; do
-      site=`perl extractSite.pl ${dir}`
-      export LOCALIZATION_DIRECTORY="${dir}"
-      export COMPONENT_NAME="awips2-localization-${site}"
-      echo ${site}
-      export site="${site}"
-
+   export LOCALIZATION_DIRECTORY="localization"
+   export COMPONENT_NAME="awips2-localization"
       rm -rf ${BUILDROOT_DIR}
 
       rpmbuild -bb \
-         --define '_topdir %(echo ${RPM_TOP_DIR})' \
-         --define '_component_version %(echo ${AWIPSII_VERSION})' \
-         --define '_component_release %(echo ${AWIPSII_RELEASE})' \
-         --define '_component_name %(echo ${COMPONENT_NAME})' \
-         --define '_baseline_workspace %(echo ${WORKSPACE_DIR})' \
+      --define '_topdir %(echo ${RPM_TOP_DIR})' \
+      --define '_component_version %(echo ${AWIPSII_VERSION})' \
+      --define '_component_release %(echo ${AWIPSII_RELEASE})' \
+      --define '_component_name %(echo ${COMPONENT_NAME})' \
+      --define '_baseline_workspace %(echo ${WORKSPACE_DIR})' \
          --define '_localization_site %(echo ${site})' \
-         --define '_localization_directory %(echo ${LOCALIZATION_DIRECTORY})' \
+      --define '_localization_directory %(echo ${LOCALIZATION_DIRECTORY})' \
          --define '_build_site %(echo ${AWIPSII_BUILD_SITE})' \
-         --buildroot ${BUILDROOT_DIR} \
-         ../Installer.localization/component.spec
-      RC=$?
-      unset LOCALIZATION_DIRECTORY
-      unset COMPONENT_NAME
-      if [ ${RC} -ne 0 ]; then
-         exit 1
-      fi
-   done
+      --buildroot ${BUILDROOT_DIR} \
+      ../Installer.localization/component.spec
+   RC=$?
+   unset LOCALIZATION_DIRECTORY
+   unset COMPONENT_NAME
+   if [ ${RC} -ne 0 ]; then
+      exit 1
+   fi
 }
 
 # Get A List Of The RPM Directories (Excluding This One)
@@ -177,7 +162,6 @@ buildRPM "Installer.version"
 buildRPM "Installer.gfesuite-client"
 buildRPM "Installer.gfesuite-server"
 buildRPM "Installer.database-standalone-configuration"
-buildRPM "Installer.database-server-configuration"
 buildRPM "Installer.adapt-native"
 buildRPM "Installer.alertviz"
 buildRPM "Installer.aviation"

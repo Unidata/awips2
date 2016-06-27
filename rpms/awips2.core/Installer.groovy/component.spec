@@ -44,15 +44,10 @@ mkdir -p %{_build_root}/awips2
 if [ $? -ne 0 ]; then
    exit 1
 fi
-mkdir -p %{_build_root}/etc/profile.d
-if [ $? -ne 0 ]; then
-   exit 1
-fi
 
 RPMS_DIRECTORY="%{_baseline_workspace}/rpms"
 INSTALLER_GROOVY="${RPMS_DIRECTORY}/awips2.core/Installer.groovy"
 
-_profile_scripts="${INSTALLER_GROOVY}/scripts/profile.d"
 _groovy_dist="${INSTALLER_GROOVY}/src/groovy-binary-%{_groovy_version}.zip"
 
 unzip ${_groovy_dist} -d %{_build_root}/awips2
@@ -65,18 +60,11 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-cp ${_profile_scripts}/* %{_build_root}/etc/profile.d
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-
 %clean
 rm -rf ${RPM_BUILD_ROOT}
 
 %files
 %defattr(644,awips,fxalpha,755)
-%attr(755,root,root) /etc/profile.d/awips2Groovy.csh
-%attr(755,root,root) /etc/profile.d/awips2Groovy.sh
 
 %dir /awips2/groovy
 %dir /awips2/groovy/conf

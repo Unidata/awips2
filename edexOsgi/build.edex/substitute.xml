@@ -137,7 +137,7 @@
     </condition>
 
     <!-- Set the ihfs database -->
-    <property name="def.ih.db.name" value="hd_ob83oax"/>
+    <property name="def.ih.db.name" value="hd_ob92oax"/>
     <condition property="ih.db.name" value="%ihDbName" else="${def.ih.db.name}">
     	<isset property="installer"/>
     </condition>

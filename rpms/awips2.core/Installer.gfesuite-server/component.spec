@@ -45,10 +45,6 @@ mkdir -p ${RPM_BUILD_ROOT}/awips2/GFESuite
 if [ $? -ne 0 ]; then
    exit 1
 fi
-mkdir -p ${RPM_BUILD_ROOT}/etc/profile.d
-if [ $? -ne 0 ]; then
-   exit 1
-fi
 
 GFESUITE_PROJECT="com.raytheon.uf.tools.gfesuite"
 GFESUITE_DEPLOY_SCRIPT="%{_baseline_workspace}/${GFESUITE_PROJECT}/deploy.xml"
@@ -80,17 +76,11 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-
-# Copy the profile.d scripts.
-PROFILE_D_DIR="rpms/common/environment/awips2-gfesuite/profile.d"
-cp %{_baseline_workspace}/${PROFILE_D_DIR}/* ${RPM_BUILD_ROOT}/etc/profile.d
-
 %clean
 rm -rf ${RPM_BUILD_ROOT}
 
 %files
 %defattr(644,root,root,-)
-/etc/profile.d/*
 %defattr(644,awips,fxalpha,755)
 %dir /awips2
 %dir /awips2/GFESuite

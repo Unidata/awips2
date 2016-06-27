@@ -20,15 +20,15 @@ Vendor: Raytheon
 Packager: %{_build_site}
 
 AutoReq: no
-BuildRequires: awips2-postgresql = 9.3.9
-BuildRequires: wxGTK >= 2.8.12-1
-BuildRequires: wxGTK-devel >= 2.8.12-1
+BuildRequires: awips2-postgresql
+BuildRequires: wxGTK
+BuildRequires: wxGTK-devel
 BuildRequires: libxml2
 BuildRequires: libxslt
 
 Provides: awips2-pgadmin3
-Requires: awips2-psql >= 9.2.3
-Requires: wxGTK >= 2.8.12-1
+Requires: awips2-psql
+Requires: wxGTK
 
 %description
 AWIPS II pgadmin3 Distribution - A custom compilation of the pgadmin3 client compatible with

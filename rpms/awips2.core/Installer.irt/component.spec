@@ -64,7 +64,7 @@ function copyLegal()
       
    rm -f %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar    
 }
-cp -r %{_awipscm_share}/packages/irt-server/* ${RPM_BUILD_ROOT}/irt
+cp -r %{_static_files}/packages/irt-server/* ${RPM_BUILD_ROOT}/irt
 
 # Copy The Configuration File To The Appropriate Directory.
 IRT_CONFIG_FILE="IRT_Config.txt"

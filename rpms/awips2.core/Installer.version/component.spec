@@ -29,6 +29,7 @@ Packager: %{_build_site}
 AutoReq: no
 provides: %{_component_name}
 requires: awips2-base-component
+requires: wget unzip bc
 
 %description
 %{_component_desc}
@@ -47,6 +48,13 @@ mkdir -p ${RPM_BUILD_ROOT}
 %build
 
 %install
+mkdir -p ${RPM_BUILD_ROOT}/etc/profile.d
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
+PROFILE_D_DIR="rpms/awips2.core/Installer.version/scripts/profile.d"
+cp %{_baseline_workspace}/${PROFILE_D_DIR}/* ${RPM_BUILD_ROOT}/etc/profile.d
 
 %pre
 
@@ -137,6 +145,8 @@ fi
 %postun
 
 %files
+%attr(755,root,root) /etc/profile.d/awips2.csh
+%attr(755,root,root) /etc/profile.d/awips2.sh
 
 %clean
 rm -rf ${RPM_BUILD_ROOT}

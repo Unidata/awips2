@@ -9,5 +9,4 @@ bin-test/
 *.pyo
 *.pyc
 *.o
-*.orig
-
+*.log

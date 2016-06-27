@@ -1,0 +1,362 @@
+# Release 
+submenu: "US Western"
+ productButton:  9508 # 72798 Skewt
+ productButton:  9544 # 74606 Skewt
+ productButton:  9145 # K1Y7 Skewt
+ productButton:  9146 # K1Y8 Skewt
+ productButton:  9147 # K1Y9 Skewt
+ productButton:  9167 # KABQ Skewt
+ productButton:  9249 # KBOI Skewt
+ productButton:  9206 # KDNR Skewt
+ productButton:  9336 # KDRA Skewt
+ productButton:  9169 # KEDW Skewt
+ productButton:  9306 # KFGZ Skewt
+ productButton:  9256 # KGGW Skewt
+ productButton:  9207 # KGJT Skewt
+ productButton:  9305 # KLKN Skewt
+ productButton:  9240 # KMFR Skewt
+ productButton:  9149 # KNKX Skewt
+ productButton:  9433 # KNSI Skewt
+ productButton:  9435 # KNTD Skewt
+ productButton:  9213 # KOAK Skewt
+ productButton:  9259 # KOTX Skewt
+ productButton:  9541 # KPSR Skewt
+ productButton:  9212 # KREV Skewt
+ productButton:  9304 # KRIW Skewt
+ productButton:  9235 # KSLC Skewt
+ productButton:  9250 # KSLE Skewt
+ productButton:  9258 # KTFX Skewt
+ productButton:  9144 # KTWC Skewt
+ productButton:  9261 # KUIL Skewt
+ productButton:  9175 # KVBG Skewt
+ productButton:  9555 # KVEF Skewt
+ productButton:  9141 # KWSD Skewt
+ productButton:  9545 # KYUM Skewt
+endSubmenu # US Western
+
+submenu: "US Central"
+ productButton:  9247 # KABR Skewt
+ productButton:  9166 # KAMA Skewt
+ productButton:  9254 # KBIS Skewt
+ productButton:  9132 # KBRO Skewt
+ productButton:  9133 # KCRP Skewt
+ productButton:  9202 # KDDC Skewt
+ productButton:  9137 # KDRT Skewt
+ productButton:  9318 # KDVN Skewt
+ productButton:  9309 # KEPZ Skewt
+ productButton:  9131 # KFWD Skewt
+ productButton:  9244 # KGRB Skewt
+ productButton:  9431 # KHLR Skewt
+ productButton:  9268 # KILX Skewt
+ productButton:  9253 # KINL Skewt
+ productButton:  9233 # KLBF Skewt
+ productButton:  9158 # KLZK Skewt
+ productButton:  9138 # KMAF Skewt
+ productButton:  9302 # KMPX Skewt
+ productButton:  9231 # KOAX Skewt
+ productButton:  9165 # KOUN Skewt
+ productButton:  9303 # KSGF Skewt
+ productButton:  9204 # KTOP Skewt
+ productButton:  9248 # KUNR Skewt
+endSubmenu # US Central
+
+submenu: "US Eastern"
+ productButton:  9219 # KALY Skewt
+ productButton:  9547 # KAPG Skewt
+ productButton:  9311 # KAPX Skewt
+ productButton:  9123 # KBMX Skewt
+ productButton:  9223 # KBUF Skewt
+ productButton:  9330 # KCAR Skewt
+ productButton:  9266 # KCHH Skewt
+ productButton:  9110 # KCHS Skewt
+ productButton:  9242 # KDTX Skewt
+ productButton:  9108 # KKEY Skewt
+ productButton:  9115 # KFFC Skewt
+ productButton:  9156 # KGSO Skewt
+ productButton:  9264 # KGYX Skewt
+ productButton:  9307 # KILN Skewt
+ productButton:  9126 # KJAN Skewt
+ productButton:  9313 # KJAX Skewt
+ productButton:  9128 # KLCH Skewt
+ productButton:  9357 # KLIX Skewt
+ productButton:  9188 # KIAD Skewt
+ productButton:  9314 # KMFL Skewt
+ productButton:  9153 # KMHX Skewt
+ productButton:  9157 # KOHX Skewt
+ productButton:  9215 # KOKX Skewt
+ productButton:  9221 # KPBZ Skewt
+ productButton:  9310 # KRNK Skewt
+ productButton:  9319 # KSHV Skewt
+ productButton:  9114 # KTAE Skewt
+ productButton:  9112 # KTBW Skewt
+ productButton:  9117 # KVPS Skewt
+ productButton:  9177 # KWAL Skewt
+ productButton:  9274 # KXMR Skewt
+endSubmenu # US Eastern
+
+submenu: "Canada North"
+ productButton:  9096 # CWEU Skewt
+ productButton:  9099 # CYBK Skewt
+ productButton:  9098 # CYCB Skewt
+ productButton:  9106 # CYEV Skewt
+ productButton:  9093 # CYFB Skewt
+ productButton:  9030 # CYLT Skewt
+ productButton:  9097 # CYRB Skewt
+ productButton:  9102 # CYSM Skewt
+ productButton:  9029 # CYUX Skewt
+ productButton:  9024 # CYVQ Skewt
+ productButton:  9107 # CYXY Skewt
+ productButton:  9095 # CYZS Skewt
+endSubmenu # Canada North
+
+submenu: "Canada Western"
+ productButton:  9034 # CWSE Skewt
+ productButton:  9520 # CWLW Skewt
+ productButton:  9035 # CYOD Skewt
+ productButton:  9090 # CWXS Skewt
+ productButton:  9104 # CYYE Skewt
+ productButton:  9312 # CYZT Skewt
+endSubmenu # Canada Western
+
+submenu: "Canada Central"
+ productButton:  9076 # CWLO Skewt
+ productButton:  9072 # CYPL Skewt
+ productButton:  9081 # CYQD Skewt
+ productButton:  9094 # CYYQ Skewt
+endSubmenu # Canada Central
+
+submenu: "Canada Eastern"
+ productButton:  9060 # CAYT Skewt
+ productButton:  9056 # CWMW Skewt
+ productButton:  9043 # CYSA Skewt
+ productButton:  9071 # CWZC Skewt
+ productButton:  9067 # CYAH Skewt
+ productButton:  9050 # CYCX Skewt
+ productButton:  9065 # CYJT Skewt
+ productButton:  9092 # CYPH Skewt
+ productButton:  9044 # CYQI Skewt
+ productButton:  9091 # CYVP Skewt
+ productButton:  9066 # CYYR Skewt
+ #productButton:  9060 # CYYT Skewt
+ productButton:  9064 # CYZV Skewt
+endSubmenu # Canada Eastern
+
+submenu: "Mexico"
+ productButton:  9556 # 76596 Skewt
+ productButton:  9557 # 76743 Skewt
+ productButton:  9558 # 76526 Skewt
+ productButton:  9525 # MACA Skewt
+ productButton:  9527 # MISC Skewt
+ productButton:  9537 # MLAP Skewt
+ productButton:  9276 # MMCU Skewt
+ productButton:  9543 # MMGL Skewt
+ productButton:  9542 # MMGM Skewt
+ productButton:  9400 # MMMD Skewt
+ productButton:  9530 # MMMX Skewt
+ productButton:  9282 # MMMY Skewt
+ productButton:  9284 # MMMZ Skewt
+ productButton:  9528 # MMVR Skewt
+ productButton:  9532 # MMZO Skewt
+ productButton:  9522 # MTAP Skewt
+endSubmenu # Mexico
+
+submenu: "Atlantic"
+ productButton:  9551 # GOOY Skewt
+ productButton:  9552 # GVAC Skewt
+ productButton:  9554 # MABK Skewt
+ productButton:  9390 # MACC Skewt
+ productButton:  9391 # TNCM Skewt
+ productButton:  9392 # SKSP Skewt
+ productButton:  9393 # MDSD Skewt
+ productButton:  9394 # MWCR Skewt
+ productButton:  9395 # MKJP Skewt
+ productButton:  9396 # TBPB Skewt
+ productButton:  9397 # TTPP Skewt
+ productButton:  9441 # MPHO Skewt
+ productButton:  9440 # MUGM Skewt
+ productButton:  9290 # MYNN Skewt
+ productButton:  9404 # MZBZ Skewt
+ productButton:  9553 # SKRH Skewt
+ productButton:  9549 # SOCA Skewt
+ productButton:  9550 # TFFR Skewt
+ productButton:  9379 # TJSJ Skewt
+ productButton:  9546 # TXKF Skewt
+endSubmenu # Atlantic
+
+submenu: "Japan/South Asia"
+ productButton:  9499 # 47600 Skewt
+ productButton:  9498 # 47646 Skewt
+ productButton:  9493 # 47778 Skewt
+ productButton:  9320 # 47807 Skewt
+ productButton:  9380 # 54374 Skewt
+ productButton:  9322 # 99025 Skewt
+ productButton:  9442 # DJDG Skewt
+ productButton:  9429 # RCGM Skewt
+ productButton:  9418 # RCMJ Skewt
+ productButton:  9446 # RCSS Skewt
+ productButton:  9403 # RJAO Skewt
+ productButton:  9402 # RJAW Skewt
+ productButton:  9408 # RJCO Skewt
+ productButton:  9439 # RJFF Skewt
+ productButton:  9438 # RJFK Skewt
+ productButton:  9469 # RJNH Skewt
+ productButton:  9437 # RJOS Skewt
+ productButton:  9501 # RJSK Skewt
+ productButton:  9449 # RJSM Skewt
+ productButton:  9500 # RJSS Skewt
+ productButton:  9411 # RKJJ Skewt
+ productButton:  9410 # RKPM Skewt
+ productButton:  9413 # RKSO Skewt
+ productButton:  9414 # RKSS Skewt
+ productButton:  9412 # RKTH Skewt
+ productButton:  9430 # ROAH Skewt
+ productButton:  9432 # RODN Skewt
+ productButton:  9434 # ROIG Skewt
+ productButton:  9407 # ROMD Skewt
+ productButton:  9323 # RPMK Skewt
+ productButton:  9417 # ZKKK Skewt
+endSubmenu # Japan/South Asia
+
+submenu: "Australia"
+ productButton:  9350 # 94299 Skewt
+ productButton:  9347 # 94335 Skewt
+ productButton:  9343 # 94461 Skewt
+ productButton:  9341 # 94527 Skewt
+ productButton:  9338 # 94638 Skewt
+ productButton:  9331 # 94711 Skewt
+ productButton:  9354 # AHHC Skewt
+ productButton:  9349 # YBAS Skewt
+ productButton:  9340 # YBBN Skewt
+ productButton:  9352 # YBCS Skewt
+ productButton:  9342 # YBCV Skewt
+ productButton:  9344 # YBGL Skewt
+ productButton:  9346 # YBLR Skewt
+ productButton:  9348 # YBMA Skewt
+ productButton:  9345 # YBMK Skewt
+ productButton:  9351 # YBTL Skewt
+ productButton:  9353 # YDTC Skewt
+ productButton:  9332 # YMMI Skewt
+ productButton:  9333 # YPAD Skewt
+ productButton:  9355 # YPBR Skewt
+ productButton:  9335 # YPCD Skewt
+ productButton:  9356 # YPDN Skewt
+ productButton:  9337 # YPFT Skewt
+ productButton:  9339 # YPKG Skewt
+ productButton:  9334 # YPWR Skewt
+ productButton:  9326 # YSCH Skewt
+ productButton:  9329 # YSNW Skewt
+ productButton:  9328 # YSSY Skewt
+ productButton:  9327 # YSWM Skewt
+endSubmenu # Australia
+
+submenu: "China"
+ productButton:  9398 # 50557 Skewt
+ productButton:  9388 # 50774 Skewt
+ productButton:  9386 # 54094 Skewt
+ productButton:  9385 # 54135 Skewt
+ productButton:  9383 # 54292 Skewt
+ productButton:  9382 # 54337 Skewt
+ productButton:  9378 # 54497 Skewt
+ productButton:  9376 # 54776 Skewt
+ productButton:  9374 # 58150 Skewt
+ productButton:  9371 # 58666 Skewt
+ productButton:  9372 # ZSHC Skewt
+ productButton:  9375 # ZSQD Skewt
+ productButton:  9373 # ZSSS Skewt
+ productButton:  9384 # ZYCC Skewt
+ productButton:  9387 # ZYHB Skewt
+ productButton:  9389 # ZYQQ Skewt
+ productButton:  9377 # ZYTL Skewt
+ productButton:  9381 # ZYYY Skewt
+endSubmenu # China
+
+submenu: "Russia"
+ productButton:  9503 # 25399 Skewt
+ productButton:  9475 # 31004 Skewt
+ productButton:  9474 # 31088 Skewt
+ productButton:  9473 # 31168 Skewt
+ productButton:  9416 # 31369 Skewt
+ productButton:  9415 # 31510 Skewt
+ productButton:  9468 # 31538 Skewt
+ productButton:  9467 # 31561 Skewt
+ productButton:  9466 # 31707 Skewt
+ productButton:  9464 # 31770 Skewt
+ productButton:  9463 # 31873 Skewt
+ productButton:  9462 # 31909 Skewt
+ productButton:  9460 # 32061 Skewt
+ productButton:  9459 # 32098 Skewt
+ productButton:  9454 # 32165 Skewt
+ productButton:  9453 # 32186 Skewt
+ productButton:  9452 # 32217 Skewt
+ productButton:  9451 # 32389 Skewt
+ productButton:  9450 # 32477 Skewt
+ productButton:  9447 # 32618 Skewt
+ productButton:  9406 # RUHB Skewt
+ productButton:  9455 # RUSH Skewt
+ productButton:  9519 # RUTS Skewt
+ productButton:  9481 # UHMA Skewt
+ productButton:  9504 # UHMD Skewt
+ productButton:  9478 # UHMM Skewt
+ productButton:  9471 # UHPB Skewt
+ productButton:  9448 # UHPP Skewt
+ productButton:  9461 # UHWW Skewt
+endSubmenu # Russia
+
+submenu: "Pacific East"
+ productButton:  9516 # 91948 Skewt
+ productButton:  9517 # 91958 Skewt
+ productButton:  9505 # NCRG Skewt
+ productButton:  9405 # NSTU Skewt
+ productButton:  9513 # NTMN Skewt
+ productButton:  9515 # NTTO Skewt
+ productButton:  9514 # NTTT Skewt
+ productButton:  9518 # NZRN Skewt
+ productButton:  9512 # PCIS Skewt
+ productButton:  9420 # PHLI Skewt
+ productButton:  9422 # PHTO Skewt
+ productButton:  9511 # PJON Skewt
+ productButton:  9510 # PMDY Skewt
+endSubmenu # Pacific East
+
+submenu: "Pacific West"
+ productButton:  9321 # 99027 Skewt
+ productButton:  9364 # AGGH Skewt
+ productButton:  9325 # ASLH Skewt
+ productButton:  9359 # AYLA Skewt
+ productButton:  9358 # AYPY Skewt
+ productButton:  9360 # NFFN Skewt
+ productButton:  9548 # NGFU Skewt
+ productButton:  9361 # NGTA Skewt
+ productButton:  9363 # NHHH Skewt
+ productButton:  9362 # NWWN Skewt
+ productButton:  9367 # PGAC Skewt
+ productButton:  9366 # PGUA Skewt
+ productButton:  9419 # PGUM Skewt
+ productButton:  9365 # PKMA Skewt
+ productButton:  9445 # PKWA Skewt
+ productButton:  9423 # PKMR Skewt
+ productButton:  9424 # PTKK Skewt
+ productButton:  9425 # PTPN Skewt
+ productButton:  9426 # PTRO Skewt
+ productButton:  9427 # PTYA Skewt
+ productButton:  9428 # PWAK Skewt
+ productButton:  9401 # RJAM Skewt
+ productButton:  9324 # YSNF Skewt
+endSubmenu # Pacific West
+
+submenu: "Alaska"
+ productButton:  9006 # PABE Skewt
+ productButton:  9300 # PABR Skewt
+ productButton:  9017 # PACD Skewt
+ productButton:  9019 # PADQ Skewt
+ productButton:  9009 # PAFA Skewt
+ productButton:  9014 # PAFC Skewt
+ productButton:  9018 # PAKN Skewt
+ productButton:  9008 # PAMC Skewt
+ productButton:  9021 # PANT Skewt
+ productButton:  9005 # PAOM Skewt
+ productButton:  9002 # PAOT Skewt
+ productButton:  9016 # PASN Skewt
+ productButton:  9022 # PASY Skewt
+ productButton:  9020 # PAYA Skewt
+endSubmenu # Alaska

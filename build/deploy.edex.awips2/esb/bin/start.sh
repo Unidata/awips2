@@ -72,13 +72,6 @@ source ${dir}/setup.env
 
 #source /awips2/edex/bin/yajsw/bin/setenv.sh
 
-### AWIPS 1 support ###
-if [ -f /etc/rc.config.d/AWIPS ]; then
-   . /etc/rc.config.d/AWIPS
-fi
-export SHLIB_PATH=$PROJECT/sharedlib
-### End AWIPS 1 support ###
-
 export HOSTNAME=`hostname`
 export SHORT_HOSTNAME=`hostname -s`
 
@@ -92,23 +85,13 @@ export PATH=$PATH:$awips_home/GFESuite/bin:$awips_home/GFESuite/ServiceBackup/sc
 export PATH=$PATH:$PROJECT/bin
 
 export JAVA_HOME="${JAVA_INSTALL}"
-export LD_LIBRARY_PATH=$EDEX_HOME/lib/native/linux32/awips1:${JAVA_INSTALL}/lib:${PYTHON_INSTALL}/lib:${PYTHON_INSTALL}/lib/python2.7/site-packages/jep:${PSQL_INSTALL}/lib:$PROJECT/sharedLib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$EDEX_HOME/lib/native/linux32/awips1:${JAVA_INSTALL}/lib:${PYTHON_INSTALL}/lib:${PSQL_INSTALL}/lib:$PROJECT/sharedLib:$LD_LIBRARY_PATH
 
 export FXA_DATA=$EDEX_HOME/data/fxa
 export ALLOW_ARCHIVE_DATA="false"
 
 # setup environment for HPE
 export AMQP_SPEC=$awips_home/python/share/amqp/amqp.0-10.xml
-
-
-# get total memory on system in bytes
-MEM_IN_MEG=( `free -m | grep "Mem:"` )
-export MEM_IN_MEG=${MEM_IN_MEG[1]}
-HIGH_MEM=off
-
-if [ $MEM_IN_MEG -gt 12288 ]; then
-    HIGH_MEM=on
-fi
 
 #-------------------------------------------------------------------------
 #read and interpret the command line arguments
@@ -122,10 +105,9 @@ RUN_MODE=
 for arg in $@
 do
   case $arg in
-    -b|-d|-debug|-db|-bd) DEBUG_FLAG=on;;
-    -p|-profiler) PROFILE_FLAG=on;;
-    -h|-highmem) HIGH_MEM=on;;
-    -noHighmem) HIGH_MEM=off;;
+    -b|-d|--debug|-db|-bd) DEBUG_FLAG=on;;
+    -p|--profiler) PROFILE_FLAG=on;;
+    -h|--highmem) ;;  # does nothing, only here to prevent issues if someone still uses -h
     -noConsole) CONSOLE_FLAG=off;;
     *) RUN_MODE=$arg;;
   esac
@@ -134,12 +116,10 @@ done
 export EDEX_RUN_MODE=$RUN_MODE
 
 if [ $CONSOLE_FLAG == "off" ]; then
-    CONSOLE_LOGLEVEL=NONE
+	CONSOLE_LOGLEVEL=NONE
 fi
 
 export CONSOLE_LOGLEVEL
-
-
 
 # source environment files
 . $EDEX_HOME/etc/default.sh

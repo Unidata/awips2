@@ -90,10 +90,6 @@ mkdir -p ${RPM_BUILD_ROOT}/awips2/notification
 if [ $? -ne 0 ]; then
    exit 1
 fi
-mkdir -p ${RPM_BUILD_ROOT}/etc/profile.d
-if [ $? -ne 0 ]; then
-   exit 1
-fi
 
 BUILD_NATIVE="%{_baseline_workspace}/build.native"
 mkdir -p %{_cdt_build_loc}
@@ -110,9 +106,6 @@ if [ $? -ne 0 ]; then
 fi
 popd > /dev/null 2>&1
 
-PROFILE_D_DIR="rpms/awips2.core/Installer.notification/scripts/profile.d"
-cp %{_baseline_workspace}/${PROFILE_D_DIR}/* ${RPM_BUILD_ROOT}/etc/profile.d
-
 copyLegal "awips2/notification"
 
 %pre
@@ -125,8 +118,6 @@ rm -rf %{_cdt_build_loc}
 
 %files
 %defattr(644,awips,fxalpha,755)
-%attr(755,root,root) /etc/profile.d/awips2Notification.csh
-%attr(755,root,root) /etc/profile.d/awips2Notification.sh
 %dir /awips2/notification
 %dir /awips2/notification/include
 /awips2/notification/include/*

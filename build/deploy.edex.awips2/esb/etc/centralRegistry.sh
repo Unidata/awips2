@@ -19,12 +19,7 @@
 # further licensing information.
 ##
 
-export MAX_MEM=2048 # in Meg
-
-if [ $HIGH_MEM == "on" ]; then
-    export MAX_MEM=3072
-fi
-
+export MAX_MEM=3072
 export MAX_PERM_SIZE=192m
 export EDEX_DEBUG_PORT=5011
 export EDEX_JMX_PORT=1622

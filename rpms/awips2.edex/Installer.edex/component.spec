@@ -71,11 +71,6 @@ cp -v ${EDEX_BASE}/scripts/init.d/* \
 if [ $? -ne 0 ]; then
    exit 1
 fi
-# rename the script to prevent naming conflicts during installation
-pushd . > /dev/null 2>&1
-cd %{_build_root}/etc/init.d
-mv edexServiceList edexServiceList-edex
-popd > /dev/null 2>&1
 
 # copy versions.sh.
 UTILITY="${INSTALLER_RPM}/utility"
@@ -97,19 +92,6 @@ fi
 %pre
 
 %post
-# replace the service list script with the edex service list script
-if [ ! -f /etc/init.d/edexServiceList-datadelivery ]; then
-   if [ -f /etc/init.d/edexServiceList ]; then
-      mv /etc/init.d/edexServiceList /etc/init.d/edexServiceList.orig
-      if [ $? -ne 0 ]; then
-         exit 1
-      fi
-   fi
-   cp /etc/init.d/edexServiceList-edex /etc/init.d/edexServiceList
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-fi
 
 # We need to create a link to the python shared library if it does not exist.
 pushd . > /dev/null 2>&1
@@ -149,6 +131,78 @@ if [ -d $UTILITY ] && [ -f $UTIL_FILENAME ]; then
       touch "$UTILITY/$fileName"
    done < $UTIL_FILENAME
    rm -f $UTIL_FILENAME
+fi
+
+
+# From 15.1.1 deltaScripts
+#
+# New column volumeScanNumber for plugin Radar
+POSTGRESQL_INSTALL="/awips2/postgresql"
+DATABASE_INSTALL="/awips2/database"
+AWIPS2_DATA_DIRECTORY="/awips2/data"
+PSQL_INSTALL="/awips2/psql"
+POSTMASTER="${POSTGRESQL_INSTALL}/bin/postmaster"
+PG_CTL="${POSTGRESQL_INSTALL}/bin/pg_ctl"
+DROPDB="${POSTGRESQL_INSTALL}/bin/dropdb"
+PSQL="${PSQL_INSTALL}/bin/psql"
+#DB_OWNER=`ls -ld ${AWIPS2_DATA_DIRECTORY} | grep -w 'data' | awk '{print $3}'`
+DB_OWNER="awips"
+
+# Determine if PostgreSQL is running.
+I_STARTED_POSTGRESQL="NO"
+su ${DB_OWNER} -c \
+   "${PG_CTL} status -D ${AWIPS2_DATA_DIRECTORY} > /dev/null 2>&1"
+RC="$?"
+
+# Start PostgreSQL if it is not running.
+if [ ! "${RC}" = "0" ]; then
+   echo "Starting PostgreSQL As User - ${DB_OWNER}..."
+   su ${DB_OWNER} -c \
+      "${POSTMASTER} -D ${AWIPS2_DATA_DIRECTORY} > /dev/null 2>&1 &"
+   RC="$?"
+   if [ ! "${RC}" = "0" ]; then
+      echo "Error - failed to start the PostgreSQL Server."
+      printFailureMessage
+   fi
+   sleep 5
+   I_STARTED_POSTGRESQL="YES"
+else
+   echo "Found Running PostgreSQL Server..."
+   su ${DB_OWNER} -c \
+      "${PG_CTL} status -D ${AWIPS2_DATA_DIRECTORY}"
+fi
+
+
+echo "15.1.1 Updating radar table to include volume scan number."
+
+SQL="
+DO \$\$
+BEGIN
+    ALTER TABLE radar ADD COLUMN volumescannumber integer;
+EXCEPTION
+    WHEN duplicate_column THEN RAISE NOTICE 'column volumescannumber already exists in radar.';
+END;
+\$\$
+"
+/awips2/psql/bin/psql -U ${DB_OWNER} -d metadata -c "${SQL}"
+if [[ $? != 0 ]]
+then
+    echo "Radar update not needed. Continuing..."
+else
+  /awips2/psql/bin/psql -U ${DB_OWNER} -d metadata -c "UPDATE radar SET volumescannumber=0 WHERE volumescannumber IS NULL;"
+  echo "Done"
+fi
+
+# stop PostgreSQL if we started it.
+if [ "${I_STARTED_POSTGRESQL}" = "YES" ]; then
+   echo "Stopping PostgreSQL As User - ${DB_OWNER}..."
+   su ${DB_OWNER} -c \
+      "${PG_CTL} stop -D /awips2/data"
+   RC="$?"
+   if [ ! "${RC}" = "0" ]; then
+      echo "Warning: Failed to shutdown PostgreSQL."
+   fi
+   sleep 10
 fi
 
 

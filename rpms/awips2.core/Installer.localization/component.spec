@@ -16,6 +16,7 @@ Packager: %{_build_site}
 
 AutoReq: no
 Provides: %{_component_name}
+Obsoletes: awips2-localization-OAX < 16.1.4
 
 %description
 AWIPS II Site Localization.
@@ -40,6 +41,27 @@ if [ -d ${RPM_BUILD_ROOT} ]; then
 fi
 
 %build
+# Build all WFO site localization Map Scales (States.xml, WFO.xml)
+BUILD_DIR=%{_baseline_workspace}/rpms/awips2.core/Installer.localization/
+UTIL=%{_baseline_workspace}/localization/utility
+file=$BUILD_DIR/wfo.dat
+for site in $(cat $file |cut -c -3)
+do
+   lat=$(cat $file |grep $site | cut -f9)
+   lon=$(cat $file |grep $site | cut -f10)
+   # CAVE
+   CAVE_DIR=$UTIL/cave_static/site/$site
+   mkdir -p $CAVE_DIR
+   cp -R $BUILD_DIR/utility/cave_static/* $CAVE_DIR
+   grep -rl 'XXX' $CAVE_DIR | xargs sed -i 's/XXX/'$site'/g'
+   grep -rl 'LATITUDE' $CAVE_DIR | xargs sed -i 's/LATITUDE/'$lat'/g'
+   grep -rl 'LONGITUDE' $CAVE_DIR | xargs sed -i 's/LONGITUDE/'$lon'/g'
+   # EDEX
+   EDEX_DIR=$UTIL/edex_static/site/$site
+   mkdir -p $EDEX_DIR
+   cp -R $BUILD_DIR/utility/edex_static/* $EDEX_DIR/
+   grep -rl 'XXX' $EDEX_DIR | xargs sed -i 's/XXX/'$site'/g'
+done
 
 %install
 if [ ! -d %{_baseline_workspace}/%{_localization_directory} ]; then
@@ -52,8 +74,8 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-# Copy the localization.
-cp -rv %{_baseline_workspace}/%{_localization_directory}/utility/* \
+# Copy the localization files
+cp -rv %{_baseline_workspace}/localization/utility/* \
    ${RPM_BUILD_ROOT}/awips2/edex/data/utility
 if [ $? -ne 0 ]; then
    exit 1
@@ -81,7 +103,7 @@ if [ ! -d /awips2/data/maps ] ||
    exit 0
 fi
 
-localization_db_log="localization_db-%{_localization_site}.log"
+localization_db_log="localization_db.log"
 log_file="/awips2/database/sqlScripts/share/sql/${localization_db_log}"
 if [ -f ${log_file} ]; then
    /bin/rm -f ${log_file}
@@ -154,13 +176,15 @@ function restartPostgreSQL()
 
 function importShapefiles()
 {   
-   local site_directory="${edex_utility}/edex_static/site/%{_localization_site}"
+   local site_directory="${edex_utility}/edex_static/site/OAX"
    
-   # determine if we include ffmp shapefiles
+   # determine if we include shapefiles
    local ffmp_shp_directory="${site_directory}/shapefiles/FFMP"
+   local wg_shp_directory="${site_directory}/shapefiles/warngen"
    
    # if we do not, halt
    if [ ! -d ${ffmp_shp_directory} ]; then
+      echo "${ffmp_shp_directory} does not exist, returning ..." >> ${log_file}   
       return 0
    fi
    
@@ -172,6 +196,14 @@ function importShapefiles()
    if [ ! -f ${ffmp_shp_directory}/FFMP_aggr_basins.shp ] ||
       [ ! -f ${ffmp_shp_directory}/FFMP_ref_sl.shp ]; then
       # if they are not, exit
+      echo "ffmp_shp_directory files do not exist, returning ..." >> ${log_file}   
+      return 0
+   fi
+  
+   # verify the warngen location shapefile exists
+   if [ ! -f ${wg_shp_directory}/wg23fe15.shp ]; then
+      # if it does not, exit
+      echo "warngenloc files do not exist, returning ..." >> ${log_file}   
       return 0
    fi
    
@@ -182,12 +214,13 @@ function importShapefiles()
       [ ! -f ${ffmp_shp_directory}/FFMP_ref_sl.dbf ] ||
       [ ! -f ${ffmp_shp_directory}/FFMP_ref_sl.shx ]; then
       # if they are not, exit
+      echo "ffmp basin files do not exist, returning ..." >> ${log_file}   
       return 0
    fi
    
    local a2_shp_script="/awips2/database/sqlScripts/share/sql/maps/importShapeFile.sh"
    
-   echo "Importing the FFMP Shapefiles ... Please Wait."
+   echo "Importing the FFMP and WarnGen Shapefiles ... Please Wait."
    /bin/date >> ${log_file}
    echo "Preparing to import the FFMP shapefiles ..." >> ${log_file}   
    
@@ -214,8 +247,16 @@ function importShapefiles()
       return 0
    fi
    
+    # import the warngen boundaries for OAX
+   /bin/bash ${a2_shp_script} \
+      ${wg_shp_directory}/wg23fe15.shp mapdata warngenloc >> ${log_file} 2>&1 
+   if [ $? -ne 0 ]; then
+      echo "FATAL: failed to import the WarnGen locations." >> ${log_file}
+      return 0
+   fi
+
    # indicate success
-   echo "INFO: The FFMP shapefiles were successfully imported." >> ${log_file}
+   echo "INFO: The FFMP and WarnGen shapefiles were successfully imported." >> ${log_file}
    return 0
 }
 
@@ -224,8 +265,7 @@ function removeHydroDbDirectory()
    # remove the hydro db directory since it is not officially part
    # of the localization.
 
-   local site_directory="${edex_utility}/common_static/site/%{_localization_site}"
-   local hydro_db_directory="${site_directory}/hydro/db"
+   local hydro_db_directory="${edex_utility}/common_static/site/OAX/hydro/db"
    
    if [ -d ${hydro_db_directory} ]; then
       rm -rf ${hydro_db_directory}
@@ -240,12 +280,8 @@ function removeHydroDbDirectory()
 
 function restoreHydroDb()
 {
-   local site_directory="${edex_utility}/common_static/site/%{_localization_site}"
+   local hydro_db_directory="${edex_utility}/common_static/site/OAX/hydro/db"
    
-   # determine if we include the hydro databases
-   local hydro_db_directory="${site_directory}/hydro/db"
-   
-   # if we do not, halt
    if [ ! -d ${hydro_db_directory} ]; then
       return 0
    fi
@@ -281,7 +317,7 @@ function restoreHydroDb()
    # update pg_hba.conf
    
    local default_damcat="dc_ob7oax"
-   local default_ihfs="hd_ob83oax"
+   local default_ihfs="hd_ob92oax"
    local pg_hba_conf="/awips2/data/pg_hba.conf"
    
    # update the entry for the damcat database
@@ -328,7 +364,7 @@ function restoreHydroDb()
    echo "INFO: The Hydro databases were successfully restored." >> ${log_file}
 }
 
-importShapefiles
+#importShapefiles
 restoreHydroDb
 removeHydroDbDirectory
 

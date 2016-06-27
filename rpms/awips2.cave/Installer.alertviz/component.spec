@@ -84,8 +84,6 @@ fi
 # install the alertviz autostart script.
 viz_rpm_dir="%{_baseline_workspace}/rpms/awips2.cave"
 alertviz_project="${viz_rpm_dir}/Installer.alertviz"
-script_="${alertviz_project}/scripts/autostart/awips2-alertviz.desktop"
-/bin/cp ${script_} %{_build_root}/etc/xdg/autostart
 
 # install the gnome session kill script for cave and alertviz
 script_="%{_baseline_workspace}/build/static/linux/cave/awips2VisualizeUtility.sh"
@@ -104,25 +102,27 @@ fi
 
 %post
 echo -e "\nInstalling A2 gdm PostSession Default script"
-scp /etc/gdm/PostSession/awips2VisualizeUtility.sh /etc/gdm/PostSession/Default
+cp /etc/gdm/PostSession/awips2VisualizeUtility.sh /etc/gdm/PostSession/Default
 
-pushd . > /dev/null 2>&1
-cd /awips2/alertviz/plugins
+#pushd . > /dev/null 2>&1
+#cd /awips2/alertviz/plugins
 # Forcefully unzip: org.eclipse.swt.gtk.linux.x86_64_*.jar
 # : if x86_64
-if [ -f org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}.jar ]; then
-   mkdir org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}
-   unzip -qq org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}.jar \
-      -d org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}
-   rm -f org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}.jar
-   mv org.eclipse.swt.gtk.linux.x86_64_%{_swt_version} \
-      org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}.jar
-fi
-
-popd > /dev/null 2>&1
+#if [ -f org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}.jar ]; then
+#   mkdir org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}
+#   unzip -qq org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}.jar \
+#      -d org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}
+#   rm -f org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}.jar
+#   mv org.eclipse.swt.gtk.linux.x86_64_%{_swt_version} \
+#      org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}.jar
+#fi
+#
+#popd > /dev/null 2>&1
 
 %preun
+rm -rf org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}.jar
 %postun
+rm -rf org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}.jar
 
 %clean
 rm -rf ${RPM_BUILD_ROOT}
@@ -151,5 +151,4 @@ rm -rf ${RPM_BUILD_ROOT}
 /awips2/alertviz/*.so
 /awips2/alertviz/*.sh
 
-%attr(644,root,root) /etc/xdg/autostart/awips2-alertviz.desktop
 %attr(644,root,root) /etc/gdm/PostSession/awips2VisualizeUtility.sh

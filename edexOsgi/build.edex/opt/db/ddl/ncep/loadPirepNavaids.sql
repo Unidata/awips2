@@ -2511,6 +2511,7 @@ LSN;LOS_BANOS                       ;CA;US;36.98;-120.88;0;0
 LSO;KELSO                           ;--;--;46.16;-122.91;0;0
 LSQ;NEWARK                          ;NJ;US;40.70;-74.17;0;0
 LST;LONE_STAR                       ;--;--;32.93;-94.74;0;0
+LSU;BATON_ROUGE                     ;--;--;30.49;-91.29;0;0
 LSV;NELLIS_AFB                      ;NV;US;36.25;-115.03;0;0
 LSW;DETROIT                         ;MI;US;42.23;-83.53;0;0
 LTA;LAKE_TAHOE_-VOR-                ;CA;US;39.15;-120.23;0;0
