@@ -14,6 +14,28 @@ function buildRPM()
 
    return 0
 }
+function unpackHttpdPypies()
+{
+   # This function will unpack the httpd-pypies SOURCES
+   # into the: ${AWIPSII_TOP_DIR}/SOURCES directory.
+   awips2_core_directory=${WORKSPACE}/rpms/awips2.core
+   httpd_pypies_directory=${awips2_core_directory}/Installer.httpd-pypies
+   echo httpd_pypies_directory=${httpd_pypies_directory}
+   httpd_SOURCES=${httpd_pypies_directory}/src/httpd-2.2.15-SOURCES.tar
+   #httpd_SOURCES=${httpd_pypies_directory}/src/httpd-2.2.31.tar
+   echo httpd_SOURCES=${httpd_SOURCES}
+
+   /bin/tar -xvf ${httpd_SOURCES} -C ${AWIPSII_TOP_DIR}/SOURCES
+   if [ $? -ne 0 ]; then
+      return 1
+   fi
+   cp -vf ${httpd_pypies_directory}/SOURCES/* ${AWIPSII_TOP_DIR}/SOURCES
+   if [ $? -ne 0 ]; then
+      return 1
+   fi
+
+   return 0
+}
 
 # Arguments
 #   ${1} == The Directory With The Specs File And Possibly Other Custom

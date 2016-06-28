@@ -305,10 +305,10 @@ fi
 
 if [ "${1}" = "-database" ]; then
    #buildRPM "awips2-pypies"
-   buildRPM "awips2-database"
-   buildRPM "awips2-database-standalone-configuration"
-   buildRPM "awips2-maps-database"
-   buildRPM "awips2-ncep-database"
+   #buildRPM "awips2-database"
+   #buildRPM "awips2-database-standalone-configuration"
+   #buildRPM "awips2-maps-database"
+   #buildRPM "awips2-ncep-database"
    buildRPM "awips2-python-pytz"
    buildRPM "awips2-python-setuptools"
    buildRPM "awips2-maven"
