@@ -189,6 +189,7 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  * 02/24/2016   5411       randerso    Leave issue times in mixed case.
  * 03/01/2016  14775       ryu         Initialize product definition for product correction; 
  *                                     modified saveFile() and getDir().
+ * 06/28/2016   5578       bsteffen    Prevent getTimeZones from calling python while synced with the UI thread.
  * </pre>
  * 
  * @author lvenable
@@ -440,6 +441,12 @@ public class ProductEditorComp extends Composite implements
     private String prdDir = "/tmp";
 
     private String prodEditorDirectory = null;
+
+    /**
+     * Zones don't change so save the time zone for each segment to save trips
+     * to python when time is updated.
+     */
+    private final Map<List<String>, Collection<String>> zonesToTimeZones = new HashMap<>();
 
     private final DataManager dm;
 
@@ -1076,7 +1083,27 @@ public class ProductEditorComp extends Composite implements
     }
 
     private void updateExpireTimeFromTimer() {
-        VizApp.runAsync(new Runnable() {
+        /*
+         * Calling into python on the UI thread can result in a deadlock if the
+         * python thread is using the UI thread to open a dialog. To get around
+         * this get(and cache) the time zones on this thread amd then actually
+         * update the times on the UIThread which will use the cached time
+         * zones.
+         */
+        ProductDataStruct pds = textComp.getProductDataStruct();
+        if (pds == null) {
+            return;
+        }
+        String officeTimeZone = dm.getParmManager().compositeGridLocation()
+                .getTimeZone();
+        for (SegmentData segment : pds.getSegmentsArray()) {
+            if (segment.getSementMap().containsKey("nwstime")) {
+                getTimeZones(decodeUGCs(segment), officeTimeZone);
+            }
+        }
+
+
+        VizApp.runSync(new Runnable() {
             @Override
             public void run() {
                 updateExpireTime();
@@ -2072,35 +2099,37 @@ public class ProductEditorComp extends Composite implements
                             textComp.replaceText(tip, expireTimeStr);
                         }
 
-                        // we make this replacement last since purge time and
-                        // vtecs are fixed length and this is variable length,
-                        // which ensures we only need to reParse() once per
-                        // segment
-                        List<String> zones = decodeUGCs(pds.getSegmentsArray()
-                                .get(i));
-                        Collection<String> timeZones = dm.getTextProductMgr()
-                                .getTimeZones(zones, officeTimeZone);
-
-                        StringBuilder sb = new StringBuilder();
-                        for (String tz : timeZones) {
-                            String issueTime;
-                            if (tz.equals(officeTimeZone)) {
-                                issueTime = officeIssueTime;
-                            } else {
-                                fmt.setTimeZone(TimeZone.getTimeZone(tz));
-                                issueTime = fmt.format(now);
-                            }
-                            if (sb.length() > 0) {
-                                sb.append(" /");
-                                sb.append(issueTime);
-                                sb.append("/");
-                            } else {
-                                sb.append(issueTime);
-                            }
-                        }
-
                         tip = segMap.get("nwstime");
                         if (tip != null) {
+                            /*
+                             * we make this replacement last since purge time
+                             * and vtecs are fixed length and this is variable
+                             * length, which ensures we only need to reParse()
+                             * once per segment
+                             */
+                            List<String> zones = decodeUGCs(pds
+                                    .getSegmentsArray().get(i));
+                            Collection<String> timeZones = getTimeZones(zones,
+                                            officeTimeZone);
+
+                            StringBuilder sb = new StringBuilder();
+                            for (String tz : timeZones) {
+                                String issueTime;
+                                if (tz.equals(officeTimeZone)) {
+                                    issueTime = officeIssueTime;
+                                } else {
+                                    fmt.setTimeZone(TimeZone.getTimeZone(tz));
+                                    issueTime = fmt.format(now);
+                                }
+                                if (sb.length() > 0) {
+                                    sb.append(" /");
+                                    sb.append(issueTime);
+                                    sb.append("/");
+                                } else {
+                                    sb.append(issueTime);
+                                }
+                            }
+
                             textComp.replaceText(tip, sb.toString());
                         }
                         textComp.endUpdate();
@@ -2114,6 +2143,16 @@ public class ProductEditorComp extends Composite implements
                 textComp.endUpdate();
             }
         }
+    }
+
+    private Collection<String> getTimeZones(List<String> zones,
+            String officeTimeZone) {
+        Collection<String> result = zonesToTimeZones.get(zones);
+        if (result == null) {
+            result = dm.getTextProductMgr().getTimeZones(zones, officeTimeZone);
+            zonesToTimeZones.put(zones, result);
+        }
+        return result;
     }
 
     /**
