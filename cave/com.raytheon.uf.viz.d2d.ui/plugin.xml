@@ -335,14 +335,42 @@
                       definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
                 </reference>
              </visibleWhen>
-             <separator
-                   name="tools.start"
-                   visible="false">
-             </separator>
-             <separator
-                   name="D2D.Tools.Additions"
-                   visible="false">
-             </separator>
+             <separator name="tools.A" visible="false" />
+             <separator name="tools.B" visible="false" />
+             <separator name="tools.C" visible="false" />
+             <separator name="tools.Da" visible="false" />
+             <separator name="tools.Di" visible="false" />
+             <separator name="tools.E" visible="false" />
+             <separator name="tools.Fa" visible="false" />
+             <separator name="tools.Fe" visible="false" />
+             <separator name="tools.Fs" visible="false" />
+             <separator name="tools.G" visible="false" />
+             <separator name="tools.H" visible="false" />
+             <separator name="tools.I" visible="false" />
+             <separator name="tools.J" visible="false" />
+             <separator name="tools.K" visible="false" />
+             <separator name="tools.L" visible="false" />
+             <separator name="tools.M" visible="false" />
+             <separator name="tools.N" visible="false" />
+             <separator name="tools.O" visible="false" />
+             <separator name="tools.Pa" visible="false" />
+             <separator name="tools.Pg" visible="false" />
+             <separator name="tools.Po" visible="false" />
+             <separator name="tools.Pu" visible="false" />
+             <separator name="tools.Q" visible="false" />
+             <separator name="tools.Raa" visible="false" />
+             <separator name="tools.Rad" visible="false" />
+             <separator name="tools.Ran" visible="false" />
+             <separator name="tools.S" visible="false" />
+             <separator name="tools.Ta" visible="false" />
+             <separator name="tools.Te" visible="false" />
+             <separator name="tools.Ti" visible="false" />
+             <separator name="tools.U" visible="false" />
+             <separator name="tools.V" visible="false" />
+             <separator name="tools.W" visible="false" />
+             <separator name="tools.X" visible="false" />
+             <separator name="tools.Y" visible="false" />
+             <separator name="tools.Z" visible="false" />
           </menu>
           <menu
                 id="models"
@@ -497,6 +525,9 @@
                      value="PREVIOUS">
                </parameter>
             </command>
+            <separator
+                  name="tools.toolbar" visible="false">
+            </separator>
             <command
                   commandId="com.raytheon.viz.ui.tools.looping.frameTool"
                   icon="icons/play-right.png"

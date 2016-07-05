@@ -60,7 +60,7 @@
    <includes
          id="com.raytheon.viz.radar.feature"
          version="0.0.0"/>
-         
+
    <includes
          id="com.raytheon.uf.viz.radarapps.feature"
          version="0.0.0"/>
@@ -216,10 +216,14 @@
    <includes
          id="com.raytheon.uf.viz.ncep.npp.feature"
          version="0.0.0"/>
-         
+
    <includes
          id="com.raytheon.uf.viz.alertview.feature"
-         version="0.0.0"/>         
+         version="0.0.0"/>
+
+   <includes
+         id="gov.noaa.nws.mdl.viz.boundaryTool.common.feature"
+         version="0.0.0"/>
 
    <requires>
       <import feature="com.raytheon.uf.viz.application.feature" version="1.0.0.qualifier"/>
