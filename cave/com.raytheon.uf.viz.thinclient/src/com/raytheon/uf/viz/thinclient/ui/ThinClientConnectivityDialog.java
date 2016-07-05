@@ -243,7 +243,7 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
         // preference value.
         if (localizationSrv != null) {
             // validate proxy
-            proxyAddress = localizationSrv.getText();
+            proxyAddress = fullServerName(localizationSrv.getText().trim());
         }
 
         if (proxyAddress != null && proxyAddress.length() > 0) {
@@ -252,11 +252,11 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
         } else {
             servicesGood = false;
             pypiesGood = false;
-            status = "Please enter a thin client proxy server address";
+            status = "";
         }
 
         if (localizationSrv != null && !localizationSrv.widget.isDisposed()) {
-            localizationSrv.widget.setBackground(getTextColor(servicesGood
+            localizationSrv.widget.setForeground(getTextColor(servicesGood
                     && pypiesGood));
         }
 
@@ -268,7 +268,7 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
         }
         super.validateSite();
         if (siteText != null && !siteText.isDisposed()) {
-            siteText.setBackground(getTextColor(isSiteGood()));
+            siteText.setForeground(getTextColor(isSiteGood()));
         }
 
         // validate alertviz
