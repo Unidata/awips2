@@ -29,7 +29,7 @@ done
 JAVA_BIN=/awips2/java/jre/bin/java
 
 securityDir=/awips2/edex/conf/security
-securityPropertiesDir=/awips2/edex/conf/resources/site/$AW_SITE_IDENTIFIER
+securityPropertiesDir=/awips2/edex/conf/resources
 securityProps=$securityPropertiesDir/security.properties
 publicKeyFile=PublicKey.cer
 keystore=keystore.jks

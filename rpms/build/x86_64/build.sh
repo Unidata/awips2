@@ -108,8 +108,8 @@ if [ "${1}" = "-jep" ]; then
 fi
 if [ "${1}" = "-pydev" ]; then
    #buildRPM "awips2-python"
-   buildRPM "awips2-python-scientific"
-   #buildRPM "awips2-python-awips"
+   #buildRPM "awips2-python-scientific"
+   buildRPM "awips2-python-awips"
    #buildRPM "awips2-python-jep"
    #buildRPM "awips2-python-gfe"
    #buildRPM "awips2-python-numpy"
@@ -305,14 +305,18 @@ fi
 
 if [ "${1}" = "-database" ]; then
    #buildRPM "awips2-pypies"
-   #buildRPM "awips2-database"
-   #buildRPM "awips2-database-standalone-configuration"
-   #buildRPM "awips2-maps-database"
-   #buildRPM "awips2-ncep-database"
-   buildRPM "awips2-python-pytz"
-   buildRPM "awips2-python-setuptools"
-   buildRPM "awips2-maven"
-   buildRPM "awips2-eclipse"
+   buildRPM "awips2-database"
+   buildRPM "awips2-database-standalone-configuration"
+   buildRPM "awips2-maps-database"
+   buildRPM "awips2-ncep-database"
+   buildRPM "awips2-gfesuite-client"
+   buildRPM "awips2-gfesuite-server"
+   buildRPM "awips2-data.hdf5-topo"
+   buildRPM "awips2-data.gfe"
+   #buildRPM "awips2-python-pytz"
+   #buildRPM "awips2-python-setuptools"
+   #buildRPM "awips2-maven"
+   #buildRPM "awips2-eclipse"
 
    exit 0
 fi
