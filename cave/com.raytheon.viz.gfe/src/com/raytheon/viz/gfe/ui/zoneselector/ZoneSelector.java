@@ -28,6 +28,7 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
@@ -36,6 +37,7 @@ import org.eclipse.swt.widgets.Event;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.RGBColors;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.uf.viz.zoneselector.AbstractZoneSelector;
 import com.raytheon.uf.viz.zoneselector.ZoneSelectorResource;
@@ -43,6 +45,7 @@ import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.PythonPreferenceStore;
 import com.raytheon.viz.gfe.dialogs.formatterlauncher.IZoneCombiner;
 import com.raytheon.viz.ui.input.InputAdapter;
+import com.raytheon.viz.ui.input.PanHandler;
 
 /**
  * Zone Selector
@@ -51,12 +54,13 @@ import com.raytheon.viz.ui.input.InputAdapter;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Aug 11, 2011            randerso    Initial creation
- * Aug 31, 2015  4749      njensen     Overrode dispose()
- * Feb 05, 2016 5316       randerso    Moved AbstractZoneSelector to separate project
- *                                     Code cleanup
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Aug 11, 2011           randerso  Initial creation
+ * Aug 31, 2015  4749     njensen   Overrode dispose()
+ * Feb 05, 2016  5316     randerso  Moved AbstractZoneSelector to separate
+ *                                  project Code cleanup
+ * Jun 23, 2016  5674     randerso  Change to use mouse-base pan and zoom
  * 
  * </pre>
  * 
@@ -80,33 +84,44 @@ public class ZoneSelector extends AbstractZoneSelector {
         private static final int MB2 = 2;
 
         @Override
-        public boolean handleDoubleClick(int x, int y, int button) {
-            return false;
-        }
+        public boolean handleMouseDown(Event e) {
+            if ((e.stateMask & SWT.SHIFT) != 0) {
+                return false;
+            }
 
-        @Override
-        public boolean handleMouseDown(int x, int y, int mouseButton) {
-            switch (mouseButton) {
+            switch (e.button) {
             case MB1:
-                button1Press(x, y);
+                button1Press(e.x, e.y);
                 break;
 
             case MB2:
-                button2Press(x, y);
+                button2Press(e.x, e.y);
                 break;
 
             default:
-                // do nothing
+                return false;
             }
 
             return true;
         }
 
         @Override
-        public boolean handleMouseDownMove(int x, int y, int mouseButton) {
-            switch (mouseButton) {
-            case MB1:
-                button1Drag(x, y);
+        public boolean handleMouseDownMove(Event e) {
+            if ((e.stateMask & SWT.SHIFT) != 0) {
+                VizApp.runAsync(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        updateZoom(getZoomLevel());
+                    }
+                });
+                return false;
+            }
+
+            int button = e.stateMask & SWT.BUTTON_MASK;
+            switch (button) {
+            case SWT.BUTTON1:
+                button1Drag(e.x, e.y);
             default:
                 // do nothing
             }
@@ -114,20 +129,10 @@ public class ZoneSelector extends AbstractZoneSelector {
         }
 
         @Override
-        public boolean handleMouseHover(int x, int y) {
-            return false;
-        }
-
-        @Override
-        public boolean handleMouseMove(int x, int y) {
-            return false;
-        }
-
-        @Override
-        public boolean handleMouseUp(int x, int y, int mouseButton) {
-            switch (mouseButton) {
+        public boolean handleMouseUp(Event e) {
+            switch (e.button) {
             case MB1:
-                button1Release(x, y);
+                button1Release(e.x, e.y);
             default:
                 // do nothing
             }
@@ -135,10 +140,16 @@ public class ZoneSelector extends AbstractZoneSelector {
         }
 
         @Override
-        public boolean handleMouseWheel(Event event, int x, int y) {
-            return true;
-        }
+        public boolean handleMouseWheel(Event e) {
+            VizApp.runAsync(new Runnable() {
 
+                @Override
+                public void run() {
+                    updateZoom(getZoomLevel());
+                }
+            });
+            return false;
+        }
     };
 
     protected static class ZoneInfo {
@@ -217,6 +228,7 @@ public class ZoneSelector extends AbstractZoneSelector {
     protected void registerHandlers(IDisplayPane pane) {
         super.registerHandlers(pane);
 
+        registerMouseHandler(new PanHandler(this));
         registerMouseHandler(theMouseListener);
     }
 
@@ -408,29 +420,31 @@ public class ZoneSelector extends AbstractZoneSelector {
 
     // callback when the button 1 is released, check for "click" event
     private void button1Release(int x, int y) {
-        int diff = Math.abs(x - this.pressLocation.x)
-                + Math.abs(y - this.pressLocation.y);
+        if (this.pressLocation != null) {
+            int diff = Math.abs(x - this.pressLocation.x)
+                    + Math.abs(y - this.pressLocation.y);
 
-        // click
-        if (diff < 10) {
-            List<String> zones = this.selectedZones(x, y);
-            if (!zones.isEmpty()) {
-                for (String zone : zones) {
-                    // get the current and pickupzone information
-                    ZoneInfo info = this.getZoneInfo(zone); // existing
-                    if (this.pickUpZone != null) {
-                        ZoneInfo puInfo = this.getZoneInfo(this.pickUpZone);
-                        // complicated logic, toggles between pickup value
-                        // and not included value
-                        if (info.group != puInfo.group) {
-                            this.assignCombo(zone, puInfo.group, true);
-                        } else if (this.includeAllZones) {
-                            this.assignCombo(zone, puInfo.group, true);
+            // click
+            if (diff < 10) {
+                List<String> zones = this.selectedZones(x, y);
+                if (!zones.isEmpty()) {
+                    for (String zone : zones) {
+                        // get the current and pickupzone information
+                        ZoneInfo info = this.getZoneInfo(zone); // existing
+                        if (this.pickUpZone != null) {
+                            ZoneInfo puInfo = this.getZoneInfo(this.pickUpZone);
+                            // complicated logic, toggles between pickup value
+                            // and not included value
+                            if (info.group != puInfo.group) {
+                                this.assignCombo(zone, puInfo.group, true);
+                            } else if (this.includeAllZones) {
+                                this.assignCombo(zone, puInfo.group, true);
+                            } else {
+                                this.assignCombo(zone, NO_GROUP, true);
+                            }
                         } else {
                             this.assignCombo(zone, NO_GROUP, true);
                         }
-                    } else {
-                        this.assignCombo(zone, NO_GROUP, true);
                     }
                 }
             }

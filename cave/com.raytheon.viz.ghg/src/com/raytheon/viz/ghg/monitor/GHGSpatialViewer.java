@@ -34,8 +34,6 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.zoneselector.AbstractZoneSelector;
@@ -43,6 +41,7 @@ import com.raytheon.uf.viz.zoneselector.ZoneSelectorResource;
 import com.raytheon.viz.ghg.monitor.event.AbstractGhgMonitorEvent.GhgEventListener;
 import com.raytheon.viz.ghg.monitor.event.GhgMonitorZoneSelectionEvent;
 import com.raytheon.viz.ui.input.InputAdapter;
+import com.raytheon.viz.ui.input.PanHandler;
 
 /**
  * GHG Spatial Viewer
@@ -51,12 +50,13 @@ import com.raytheon.viz.ui.input.InputAdapter;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Aug 23, 2011            randerso    Initial creation
- * Feb 05, 2016 #5316      randerso    Fleshed out implementation
- * Mar 03, 2016 #5316      randerso    Added code to switch to appropriate map
- *                                     when product selected from table
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Aug 23, 2011           randerso  Initial creation
+ * Feb 05, 2016  5316     randerso  Fleshed out implementation
+ * Mar 03, 2016  5316     randerso  Added code to switch to appropriate map when
+ *                                  product selected from table
+ * Jun 23, 2016  5674     randerso  Change to use mouse-base pan and zoom
  * 
  * </pre>
  * 
@@ -65,9 +65,6 @@ import com.raytheon.viz.ui.input.InputAdapter;
  */
 
 public class GHGSpatialViewer extends AbstractZoneSelector {
-
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(GHGSpatialViewer.class);
 
     /**
      * Enumeration defining the available zoom level.
@@ -108,6 +105,9 @@ public class GHGSpatialViewer extends AbstractZoneSelector {
             return displayName;
         }
 
+        /**
+         * @return the current zoom level
+         */
         public int getZoomLevel() {
             return level;
         }
@@ -248,6 +248,7 @@ public class GHGSpatialViewer extends AbstractZoneSelector {
                 return false;
             }
         });
+        registerMouseHandler(new PanHandler(this));
     }
 
     /**

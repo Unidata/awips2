@@ -29,7 +29,7 @@
                 <constant>qc</constant>
             </setHeader>
             <setHeader headerName="ingestFileName">
-                <simple>${body.args[0].[last].ncSet}(${body.args[0].[last].ncIndex})</simple>
+                <simple>${body[last].ncSet}(${body[last].ncIndex})</simple>
             </setHeader>
             <to uri="direct-vm:indexAlert" pattern="InOnly"/>
         </route>
