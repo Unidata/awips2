@@ -21,8 +21,8 @@
 <polarStereoGridCoverage>
     <name>240156</name>
     <description>HRAP Grid for KRF (Missouri Basin RFC Pleasant Hill, Missouri)</description>
-    <la1>37.296</la1>
-    <lo1>-112.690</lo1>
+    <la1>37.274</la1>
+    <lo1>-112.710</lo1>
     <firstGridPointCorner>LowerLeft</firstGridPointCorner>
     <nx>485</nx>
     <ny>325</ny>
