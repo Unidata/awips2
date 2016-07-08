@@ -46,6 +46,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * Jul 23, 2014 3410       bclement    location changed to floats
  * Sep 18, 2015 3873       skorolev    Fixed assigning timeObs for maritime record.
  * Dec 02, 2015 3873       dhladky     Added missing point data params.
+ * Jul 08, 2016 5733       tgurney     Convert metar sea level pressure to mbar
  * 
  * </pre>
  * 
@@ -343,7 +344,10 @@ public class FSSObsDataTransform {
         fssr.setTimeObs(pdv.getCalendar(TIME_OBS));
         fssr.setRefHour(TimeTools.roundToNearestHour(fssr.getTimeObs()));
         // in mbar
-        fssr.setSeaLevelPress(pdv.getNumber(SEA_LEVEL_PRESS).floatValue());
+        float seaLevelPress = pdv.getNumber(SEA_LEVEL_PRESS).floatValue();
+        if (seaLevelPress != MISSING) {
+            fssr.setSeaLevelPress(seaLevelPress / 100.0f);
+        }
         // in mmHg
         fssr.setPressureAltimeter(pdv.getNumber(ALTIMETER).floatValue());
         fssr.setPressChange3Hour(pdv.getNumber(PRESS_CHANGE3_HOUR).floatValue());
