@@ -55,10 +55,7 @@ _build_xml=build.xml
 BUILD_EDEX=%{_baseline_workspace}/build.edex
 EDEX_DIST=${BUILD_EDEX}/edex/dist
 
-_pde_build_arch=x86
-if [ "%{_build_arch}" = "x86_64" ]; then
-   _pde_build_arch=%{_build_arch}
-fi
+_pde_build_arch=x86_64
 
 cd ${BUILD_EDEX}
 /awips2/ant/bin/ant -f ${_build_xml} \

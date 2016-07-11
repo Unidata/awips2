@@ -39,11 +39,11 @@ truststore=truststore.jks
 encryptionKey=encrypt
 
 defaultPassword=password
-defaultOrg=NOAA
-defaultOrgUnit=NWS
-defaultLoc=Silver_Spring
-defaultState=MD
-defaultSAN=ip:$(hostname --ip-address)
+defaultOrg=UCAR
+defaultOrgUnit=Unidata
+defaultLoc=Boulder
+defaultState=CO
+defaultSAN=ip:$(hostname --ip-address|head -1)
 infoCorrect=
 
 function resetVariables {

@@ -30,3 +30,7 @@ export EDEX_JMX_PORT=1616
 export LOG_CONF=logback-request.xml
 export MGMT_PORT=9601
 export HTTP_PORT=9581
+# from data delivery centralRegistry.sh
+export METADATA_POOL_TIMEOUT=60
+export CLUSTER_ID=NCF
+export SOFT_REF_LRU_POLICY_MS_PER_MB=50

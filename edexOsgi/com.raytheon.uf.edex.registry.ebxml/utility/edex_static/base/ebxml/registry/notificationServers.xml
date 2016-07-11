@@ -7,4 +7,5 @@ OAX, DMX, BCQ, etc.
 <NotificationServers>
 <!--     <registry>Registry ID 1</registry> -->
 <!--     <registry>Registry ID 2</registry> -->
+     <registry>OAX</registry>
 </NotificationServers>

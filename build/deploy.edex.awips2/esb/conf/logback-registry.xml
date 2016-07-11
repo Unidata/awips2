@@ -57,7 +57,7 @@
          <level value="ERROR"/>
    </logger>
    
-  <logger name="org.apache.cxf.interceptor.LoggingOutInterceptor" additivity="false">
+   <logger name="org.apache.cxf.interceptor.LoggingOutInterceptor" additivity="false">
         <level value="WARN"/>
         <appender-ref ref="DataDeliveryLog"/>
    </logger>
