@@ -40,6 +40,7 @@ import com.raytheon.uf.viz.core.RGBColors;
  *                                     I ran across a group config file using a color not in 
  *                                     the list which caused errors.
  * May 08, 2012 14958      wkwock      prevent go over the list in getGroupModeColor
+ * Jul 11, 2016 19166      ksteinfeld  Prevent TS_COLOR_LIST array index exceeding max array size 
  *
  * </pre>
  *
@@ -61,7 +62,8 @@ public class HydroUtils {
             initializeColorList();
         }
         
-        return TS_COLOR_LIST.get(index);
+        // make sure the index does not exceed max array size 
+        return TS_COLOR_LIST.get(index % TS_COLOR_LIST.size()); 
     }
     public static RGB getGroupModeColor(int index) {
         if (TS_GROUP_COLOR_LIST == null) {
