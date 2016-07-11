@@ -588,8 +588,8 @@ if [ "${1}" = "-shp" ]; then
 fi
 
 if [ "${1}" = "-edex" ]; then
-   buildRPM "awips2"
-   buildRPM "awips2-common-base"
+   #buildRPM "awips2"
+   #buildRPM "awips2-common-base"
    buildEDEX
    #buildRPM "awips2-data.hdf5-topo"
    #if [ $? -ne 0 ]; then
