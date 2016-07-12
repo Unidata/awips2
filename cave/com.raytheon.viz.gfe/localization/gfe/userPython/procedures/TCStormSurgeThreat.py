@@ -28,8 +28,9 @@
 #
 # April 14, 2016: Lefebvre/Santos: Added multabledb to restore ISC option
 #
-# Last Modified: 
 # 6/20/2016 - Santos: Added code to fix issue of old grid not being deleted when running Manual/Add option.
+# Last Modified: 
+# 7/12/2016 DR19157 lshi: Add 3 foot option for Inundation Height for TCStormSurgeThreat values
 
 # ----------------------------------------------------------------------------
 # The MenuItems list defines the GFE menu item(s) under which the
@@ -675,7 +676,7 @@ class Procedure (SmartScript.SmartScript):
                             timeRange, precision=2)
 
         # Make the grid. Start with the existing grid if we have one otherwise zeros
-        coastalThreat = self.empty()
+        coastalThreat = self.empty(np.int8)
         
         self.createGrid(mutableID, "InundationMax", "SCALAR", surgePctGrid, timeRange, precision=2)          
  
