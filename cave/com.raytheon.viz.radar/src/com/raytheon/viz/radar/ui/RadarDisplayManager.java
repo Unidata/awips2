@@ -47,6 +47,7 @@ import com.raytheon.viz.radar.rsc.image.RadarSRMResource.SRMSource;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 13, 2015 4461       bsteffen    Add option for sails.
+ * Jul 13, 2016 ASM #18863 D. Friedman Synchronize getInstance.
  * 
  * </pre>
  * 
@@ -120,7 +121,7 @@ public class RadarDisplayManager {
 
     private RadarDisplayControls currentValues;
 
-    private static RadarDisplayManager manager = null;
+    private static volatile RadarDisplayManager manager = null;
 
     private RadarDisplayManager() {
         configListeners = new ArrayList<IRadarConfigListener>();
@@ -142,11 +143,17 @@ public class RadarDisplayManager {
      * @return
      */
     public static RadarDisplayManager getInstance() {
-        if (manager == null) {
-            manager = new RadarDisplayManager();
-            manager.retrieveDefaultSettings();
+        RadarDisplayManager result = manager;
+        if (result == null) {
+            synchronized (RadarDisplayManager.class) {
+                result = manager;
+                if (result == null) {
+                    result = manager = new RadarDisplayManager();
+                    result.retrieveDefaultSettings();
+                }
+            }
         }
-        return manager;
+        return result;
     }
 
     /**
