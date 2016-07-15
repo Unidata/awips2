@@ -45,7 +45,7 @@ fi
 cp -r %{_baseline_workspace}/build.edex/opt/db/ddl/maps/* \
    ${RPM_BUILD_ROOT}/awips2/database/sqlScripts/share/sql/maps
 
-PATH_TO_STATIC_DDL="/home/awips/awips2-static/maps/db"
+PATH_TO_STATIC_DDL=%{_static_files}/maps/db
 if [ ! -d ${PATH_TO_STATIC_DDL} ]; then
    echo "File ${PATH_TO_STATIC_DDL} not found!"
    exit 1

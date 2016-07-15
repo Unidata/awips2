@@ -197,6 +197,10 @@ function lookupRPM()
       export RPM_SPECIFICATION="${awips2_core_dir}/Installer.database"
       return 0
    fi
+   if [ "${1}" = "awips2-edex-configuration" ]; then
+      export RPM_SPECIFICATION="${awips2_edex_dir}/Installer.edex-configuration"
+      return 0
+   fi
    if [ "${1}" = "awips2-database-standalone-configuration" ]; then
       export RPM_SPECIFICATION="${awips2_core_dir}/Installer.database-standalone-configuration"
       return 0

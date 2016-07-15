@@ -15,7 +15,7 @@ export BUILD_WORKSPACE=${BUILD_DIR}/workspace
 # baseline is...
 export BASELINE="${JENKINS_WORKSPACE}"
 export AWIPSII_VERSION="16.2.2"
-export AWIPSII_RELEASE="2"
+export AWIPSII_RELEASE="1"
 
 export AWIPSII_TOP_DIR="${BUILD_WORKSPACE}/tmp/rpms_built_dir"
 
@@ -23,9 +23,7 @@ export AWIPSII_TOP_DIR="${BUILD_WORKSPACE}/tmp/rpms_built_dir"
 export WORKSPACE="${BUILD_WORKSPACE}/AWIPS2-UPC_build/baseline"
 
 export UFRAME_ECLIPSE="/awips2/eclipse"
-
-export AWIPSII_STATIC_FILES="/awips2/repo"
-export AWIPSII_STATIC_FILES="/home/awips/awips2-static"
+export AWIPSII_STATIC_FILES="/home/${USER}/awips2-static"
 export AWIPSII_BUILD_ROOT="${BUILD_WORKSPACE}/tmp/${USER}/awips-component"
 export REPO_DEST="${BUILD_WORKSPACE}/tmp/${USER}/repo"
 

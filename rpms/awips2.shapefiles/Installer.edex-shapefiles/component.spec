@@ -46,7 +46,7 @@ if [ $? -ne 0 ]; then
    exit 1 
 fi
 
-SHAPEFILES=%{_static_files}/awips2-static/maps/shapefiles
+SHAPEFILES=%{_static_files}/maps/shapefiles
 if [ ! -d ${SHAPEFILES} ]; then
    file ${SHAPEFILES}
    exit 1

@@ -151,4 +151,30 @@ function buildLocalizationRPMs()
 
    return 0
 }
+function buildShapefiles()
+{
+   cd ${WORKSPACE}/rpms/awips2.shapefiles/deploy.builder
+   if [ $? -ne 0 ]; then
+      echo "ERROR: Failed to build the edex shapefile rpm."
+      return 1
+   fi
+
+   # Determine the build architecture.
+   export EDEX_BUILD_ARCH=`uname -i`
+   if [ "${EDEX_BUILD_ARCH}" = "i386" ]; then
+      export EDEX_BUILD_ARCH="x86"
+   fi
+
+   if [ $? -ne 0 ]; then
+      echo "ERROR: Failed to determine the architecture."
+      return 1
+   fi
+   /bin/bash build.sh
+   if [ $? -ne 0 ]; then
+      echo "ERROR: Failed to build the edex shapefile rpm."
+      return 1
+   fi
+
+   return 0
+}
 
