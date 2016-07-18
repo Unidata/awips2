@@ -45,8 +45,8 @@ options=( 'status' 'start' 'stop' 'log' 'setup' 'purge' 'users')
 nopts=${options[@]}
 
 # find interface for routeable IPs
-usedev=`netstat -rn | egrep "^0.0.0.0" | awk '{print $8}'`
-IP=`/sbin/ifconfig $usedev | grep "inet addr" |  awk '{ print $2 }' | cut -d: -f2`
+usedev=`netstat -rn | egrep "^0.0.0.0" | awk '{print $8}'| head -1`
+IP=`/sbin/ifconfig $usedev | grep -v "inet6" | grep "inet" | awk '{ print $2 }' | cut -d: -f2`
 
 # truncate
 IP_CIDR="${IP%.*}"

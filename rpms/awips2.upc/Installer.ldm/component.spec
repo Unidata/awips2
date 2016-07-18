@@ -50,10 +50,6 @@ fi
 if [ $? -ne 0 ]; then
    exit 1
 fi
-/bin/mkdir -p %{_build_root}/etc/ld.so.conf.d
-if [ $? -ne 0 ]; then
-   exit 1
-fi
 /bin/mkdir -p %{_build_root}/etc/logrotate.d
 if [ $? -ne 0 ]; then
    exit 1
@@ -118,10 +114,6 @@ do
 done
 
 # copy environment scripts to their destination
-/bin/cp ld.so.conf.d/* %{_build_root}/etc/ld.so.conf.d
-if [ $? -ne 0 ]; then
-   exit 1
-fi
 /bin/cp logrotate.d/* %{_build_root}/etc/logrotate.d
 if [ $? -ne 0 ]; then
    exit 1
@@ -150,8 +142,8 @@ fi
 %post
 _ldm_dir=/awips2/ldm
 _ldm_root_dir=${_ldm_dir}/ldm-%{_ldm_version}
-_myHost=`hostname`
-_myHost=`echo ${_myHost} | cut -f1 -d'-'`
+_myHost=`hostname -f`
+_myHostShort=`hostname`
 
 # Remove old ldm dir
 rm -rf ${_ldm_root_dir}
@@ -192,20 +184,65 @@ if [ $? -ne 0 ]; then
    echo "FATAL: root-actions has failed!"
    exit 1
 fi
+#g++ edexBridge.cpp -I${_ldm_root_dir}/src/pqact \
+#   -I${_ldm_root_dir}/include \
+#   -I${_ldm_root_dir}/src \
+#   -I/awips2/qpid/include \
+#   -L${_ldm_root_dir}/lib \
+#   -L/awips2/qpid/lib \
+#   -l ldm -l xml2 -l qpidclient -l qpidmessaging -l qpidcommon -l qpidtypes -o edexBridge
+
+/awips2/ldm/bin/regutil -s ${_myHost} /hostname
+#sed -i 's/EDEX_HOSTNAME/'$_myHostShort'/' ${_ldm_dir}/etc/ldmd.conf
+#sed -i 's/<size>500M<\/size>/<size>1500M<\/size>/' ${_ldm_dir}/etc/registry.xml
+
+if [ ! -h /awips2/ldm/logs ]; then
+  ln -s /awips2/ldm/var/logs /awips2/ldm/
+fi
+if [ ! -h /awips2/ldm/data ]; then
+  ln -s /awips2/ldm/var/data /awips2/ldm/
+fi
+if [ ! -d /awips2/data_store ]; then
+  mkdir -p /awips2/data_store
+fi
+if [ ! -h /data_store ]; then
+  ln -s /awips2/data_store /data_store
+fi
+
 # Unpack patch tar files
 cd ${_ldm_dir}/SOURCES
-_PATCH_DIRS=( 'bin' 'decoders' 'etc' )
-for patchDir in ${_PATCH_DIRS[*]};
+_patch_dirs=( 'decoders' 'etc' )
+for patchdir in ${_patch_dirs[*]};
 do
-   /bin/tar -xf ${patchDir}.tar -C ${_ldm_dir}
+   /bin/tar -xf ${patchdir}.tar -C ${_ldm_dir}
    if [ $? -ne 0 ]; then
       exit 1
    fi
-   /bin/rm -f ${patchDir}.tar
+   /bin/rm -f ${patchdir}.tar
    if [ $? -ne 0 ]; then
       exit 1
    fi
 done
+/bin/tar -xf bin.tar -C ${_ldm_dir}/ldm-%{_ldm_version}
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+/bin/rm -f bin.tar
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
+if getent passwd awips &>/dev/null; then
+  /bin/chown -R awips:fxalpha ${_ldm_dir} /awips2/data_store
+  cd /awips2/ldm/src/
+  make install_setuids
+else
+  echo "--- Warning: group fxalpha does not exist"
+  echo "--- you will need to check owner/group/permissions for /awips2/ldm"
+  echo "tried to run 'chown -R awips:fxalpha /awips2/ldm; cd /awips2/ldm/src/; make install_setuids'"
+  echo ""
+fi
+
 /bin/chmod a+x ${_ldm_dir}/bin/*
 
 # build decrypt_file
@@ -215,11 +252,6 @@ if [ $? -ne 0 ]; then
    echo "FATAL: failed to untar decrypt_file.tar!"
    exit 1
 fi
-#/bin/tar -xf edexBridge.tar
-#if [ $? -ne 0 ]; then
-#   echo "FATAL: failed to untar edexBridge.tar!"
-#   exit 1
-#fi
 /bin/rm -f *.tar
 if [ $? -ne 0 ]; then
    echo "FATAL: failed to remove decrypt_file.tar!"
@@ -239,53 +271,12 @@ if [ $? -ne 0 ]; then
    echo "FATAL: failed to move built decrypt_file to ldm decoders directory!"
    exit 1
 fi
-#cd ../edexBridge
-#if [ $? -ne 0 ]; then
-#   exit 1
-#fi
-#g++ edexBridge.cpp -I${_ldm_root_dir}/src/pqact \
-#   -I${_ldm_root_dir}/include \
-#   -I${_ldm_root_dir}/src \
-#   -I/awips2/qpid/include \
-#   -L${_ldm_root_dir}/lib \
-#   -L/awips2/qpid/lib \
-#   -l ldm -l xml2 -l qpidclient -l qpidmessaging -l qpidcommon -l qpidtypes -o edexBridge
-#if [ $? -ne 0 ]; then
-#   echo "FATAL: failed to build edexBridge!"
-#   exit 1
-#fi
-#/bin/mv edexBridge ${_ldm_dir}/bin/edexBridge
-#if [ $? -ne 0 ]; then
-#   echo "FATAL: failed to move edexBridge to ldm bin directory!"
-#   exit 1
-#fi
-cd ..
 
 /sbin/ldconfig
 
 /bin/rm -rf ${_ldm_dir}/SOURCES
 if [ $? -ne 0 ]; then
    exit 1
-fi
-# TODO: change to use regutil
-sed -i 's/EDEX_HOSTNAME/'${_myHost}'/' ${_ldm_dir}/etc/ldmd.conf
-#sed -i 's/<size>500M<\/size>/<size>1500M<\/size>/' ${_ldm_dir}/etc/registry.xml
-
-if [ ! -h /awips2/ldm/logs ]; then
-  ln -s /awips2/ldm/var/logs /awips2/ldm/
-fi
-if [ ! -h /awips2/ldm/data ]; then
-  ln -s /awips2/ldm/var/data /awips2/ldm/
-fi
-if getent passwd awips &>/dev/null; then
-  /bin/chown -R awips:fxalpha ${_ldm_dir} /awips2/data_store
-  cd /awips2/ldm/src/
-  make install_setuids
-else
-  echo "--- Warning: group fxalpha does not exist"
-  echo "--- you will need to check owner/group/permissions for /awips2/ldm"
-  echo "tried to run 'chown -R awips:fxalpha /awips2/ldm; cd /awips2/ldm/src/; make install_setuids'"
-  echo ""
 fi
 
 # Copy back local ldm
@@ -308,5 +299,4 @@ rm -rf ${RPM_BUILD_ROOT}
 /awips2/ldm/SOURCES/*
 %attr(755,root,root) /etc/init.d/edex_ldm
 %attr(600,awips,fxalpha) /var/spool/cron/awips
-%attr(755,root,root) /etc/ld.so.conf.d/awips2-ldm.conf
 %attr(755,root,root) /etc/logrotate.d/ldm.log

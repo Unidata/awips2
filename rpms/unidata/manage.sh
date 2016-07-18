@@ -1,4 +1,5 @@
 #!/bin/bash
+export LD_LIBRARY_PATH=/usr/lib:/lib:/usr/lib64:/lib64
 if [ -z "$1" ]
   then
   exit 1

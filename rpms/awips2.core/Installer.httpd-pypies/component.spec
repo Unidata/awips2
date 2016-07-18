@@ -27,7 +27,6 @@ Source7: action-graceful.sh
 Source8: action-configtest.sh
 Source10: httpd.conf
 Source11: 00-base.conf
-Source12: 00-mpm.conf
 Source13: 00-lua.conf
 Source14: 01-cgi.conf
 Source15: 00-dav.conf
@@ -323,7 +322,7 @@ mkdir -p $RPM_BUILD_ROOT/awips2/httpd_pypies%{_sysconfdir}/httpd/conf.d \
       $RPM_BUILD_ROOT/awips2/httpd_pypies%{_sysconfdir}/httpd/conf.modules.d
 install -m 644 $RPM_SOURCE_DIR/README.confd \
     $RPM_BUILD_ROOT/awips2/httpd_pypies%{_sysconfdir}/httpd/conf.d/README
-for f in 00-base.conf 00-mpm.conf 00-lua.conf 01-cgi.conf 00-dav.conf \
+for f in 00-base.conf 00-lua.conf 01-cgi.conf 00-dav.conf \
          00-proxy.conf 00-ssl.conf 01-ldap.conf 00-proxyhtml.conf \
          01-ldap.conf 00-systemd.conf 01-session.conf; do
   install -m 644 -p $RPM_SOURCE_DIR/$f \

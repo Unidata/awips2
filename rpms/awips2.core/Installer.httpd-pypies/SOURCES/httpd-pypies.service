@@ -6,6 +6,7 @@ After=network.target remote-fs.target nss-lookup.target
 Type=notify
 EnvironmentFile=/etc/sysconfig/httpd
 Environment=LD_LIBRARY_PATH=/awips2/python/lib:$LD_LIBRARY_PATH
+Environment=PYPIES_CFG=/awips2/pypies/conf/pypies.cfg
 ExecStart=/awips2/httpd_pypies/usr/sbin/httpd $OPTIONS -DFOREGROUND
 ExecReload=/awips2/httpd_pypies/usr/sbin/httpd $OPTIONS -k graceful
 ExecStop=/bin/kill -WINCH ${MAINPID}
