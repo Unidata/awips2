@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html itemscope itemtype="http://schema.org/Organization">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="chrome=1" />
+<meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1">
+<meta name="google-site-verification" content="k0e8DrbD40s54xHNBqwIsRrSSAkZoprwtEYDnNY06bU" />
+<meta name="google-site-verification" content="pnjjbQFvjPwaWhEXY6nSyaS9iyghmH-M_yLHBveDX2M">
+<meta itemprop="name" content="AWIPS II - AWIPS Data Delivery">
+<meta itemprop="description" content="Polymer is a library that uses the latest web technologies to let you create custom HTML elements. Build anything from a button to a complete application as an encapsulated, reusable element that works across desktop and mobile.">
+
+
+<meta itemprop="image" content="https://www.polymer-project.org/images/instacod.png">
+
+
+<title>
+  
+    AWIPS Data Delivery -
+   AWIPS II
+</title>
+<link rel="publisher" href="https://plus.google.com/107187849809354688692">
+<link rel="shortcut icon" href="http://www.unidata.ucar.edu/favicon.ico">
+<link href="//fonts.googleapis.com/css?family=RobotoDraft:300,400,500|Source+Code+Pro:400,500,700" rel="stylesheet">
+<link href="/awips2/css/site2.css?20160718" rel="stylesheet">
+<link href="/awips2/css/site2_sd_rules.css?20160718" rel="stylesheet" shim-shadowdom>
+
+
+
+<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20160718"></script>
+<!-- TODO: remove when https://github.com/Polymer/polymer/issues/391 is fixed -->
+<link rel="import" href="/awips2/components/polymer/polymer.html">
+<link rel="stylesheet" href="/awips2/css/elements/docs-menu.css">
+<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20160718">
+
+
+</head>
+<body id="awips-data-delivery">
+
+<main id="content-container" class="polymer-content">
+  <app-drawer id="sidebar" unresolved>
+    <div layout vertical id="sidebar-content">
+      <div id="logo-container" layout horizontal center>
+        <a href="/awips2/" class="logo"><img src="/awips2/images/logos/awips2.png" alt="AWIPS II User Guide"></a>
+      </div>
+
+      <docs-menu unresolved flex
+		 baseurl='/awips2'
+                 coreElements='{"core-header-panel":"components/core-header-panel/core-header-panel.html","core-transition-pages":"components/core-animated-pages/transitions/core-transition-pages.html","core-animated-pages":"components/core-animated-pages/core-animated-pages.html","core-overlay":"components/core-overlay/core-overlay.html","core-toolbar":"components/core-toolbar/core-toolbar.html","core-image":"components/core-image/core-image.html","core-shared-lib":"components/core-shared-lib/core-shared-lib.html","core-a11y-keys":"components/core-a11y-keys/core-a11y-keys.html","core-menu-button":"components/core-menu-button/core-menu-button.html","core-icon":"components/core-icon/core-icon.html","core-selection":"components/core-selection/core-selection.html","core-style":"components/core-style/core-style.html","core-menu":"components/core-menu/core-menu.html","core-submenu":"components/core-menu/core-submenu.html","core-list":"components/core-list/core-list.html","core-dropdown-menu":"components/core-dropdown-menu/core-dropdown-menu.html","core-input":"components/core-input/core-input.html","core-iconset-svg":"components/core-iconset-svg/core-iconset-svg.html","core-field":"components/core-field/core-field.html","core-selector":"components/core-selector/core-selector.html","core-media-query":"components/core-media-query/core-media-query.html","core-animation-group":"components/core-animation/core-animation-group.html","core-animation":"components/core-animation/core-animation.html","core-animation-keyframe":"components/core-animation/core-animation.html","core-animation-prop":"components/core-animation/core-animation.html","core-dropdown":"components/core-dropdown/core-dropdown.html","core-dropdown-base":"components/core-dropdown/core-dropdown-base.html","core-pages":"components/core-pages/core-pages.html","core-meta":"components/core-meta/core-meta.html","core-splitter":"components/core-splitter/core-splitter.html","core-scroll-header-panel":"components/core-scroll-header-panel/core-scroll-header-panel.html","core-tooltip":"components/core-tooltip/core-tooltip.html","core-localstorage":"components/core-localstorage/core-localstorage.html","core-scroll-threshold":"components/core-scroll-threshold/core-scroll-threshold.html","core-drag-drop":"components/core-drag-drop/core-drag-drop.html","core-iconset":"components/core-iconset/core-iconset.html","core-label":"components/core-label/core-label.html","core-signals":"components/core-signals/core-signals.html","core-transition":"components/core-transition/core-transition.html","core-scaffold":"components/core-scaffold/core-scaffold.html","core-drawer-panel":"components/core-drawer-panel/core-drawer-panel.html","core-range":"components/core-range/core-range.html","core-collapse":"components/core-collapse/core-collapse.html","core-xhr":"components/core-ajax/core-xhr.html","core-ajax":"components/core-ajax/core-ajax.html","core-icon-button":"components/core-icon-button/core-icon-button.html","core-item":"components/core-item/core-item.html"}'
+                 paperElements='{"paper-dropdown":"components/paper-dropdown/paper-dropdown.html","paper-dropdown-transition":"components/paper-dropdown/paper-dropdown-transition.html","paper-item":"components/paper-item/paper-item.html","paper-dropdown-menu":"components/paper-dropdown-menu/paper-dropdown-menu.html","paper-checkbox":"components/paper-checkbox/paper-checkbox.html","paper-button":"components/paper-button/paper-button.html","paper-button-base":"components/paper-button/paper-button-base.html","paper-menu-button":"components/paper-menu-button/paper-menu-button.html","paper-radio-group":"components/paper-radio-group/paper-radio-group.html","paper-toast":"components/paper-toast/paper-toast.html","paper-char-counter":"components/paper-input/paper-char-counter.html","paper-autogrow-textarea":"components/paper-input/paper-autogrow-textarea.html","paper-input":"components/paper-input/paper-input.html","paper-input-decorator":"components/paper-input/paper-input-decorator.html","paper-slider":"components/paper-slider/paper-slider.html","paper-toggle-button":"components/paper-toggle-button/paper-toggle-button.html","paper-fab":"components/paper-fab/paper-fab.html","paper-ripple":"components/paper-ripple/paper-ripple.html","paper-icon-button":"components/paper-icon-button/paper-icon-button.html","paper-tabs":"components/paper-tabs/paper-tabs.html","paper-tab":"components/paper-tabs/paper-tab.html","paper-shadow":"components/paper-shadow/paper-shadow.html","paper-radio-button":"components/paper-radio-button/paper-radio-button.html","paper-dialog":"components/paper-dialog/paper-dialog.html","paper-action-dialog":"components/paper-dialog/paper-action-dialog.html","paper-dialog-base":"components/paper-dialog/paper-dialog-base.html","paper-dialog-transition":"components/paper-dialog/paper-dialog-transition.html","paper-spinner":"components/paper-spinner/paper-spinner.html","paper-progress":"components/paper-progress/paper-progress.html"}'></docs-menu>
+    </div>
+  </app-drawer>
+
+  <scroll-area sidebar unresolved class="scrolling">
+    <site-banner type="guide" shortname="Docs" unresolved>
+      
+<app-bar theme="light" class="bar fixed">
+</app-bar>
+
+      <header class="shrink">
+        <h1>
+        
+          Data Subscription Management
+        : AWIPS Data Delivery
+        </h1>
+      </header>
+    </site-banner>
+
+    
+    
+
+    <article class="show-permalinks">
+
+      <header class="onlyonmobile">
+        <h1>
+          
+          Data Subscription Management
+          : AWIPS Data Delivery
+        </h1>
+      </header>
+
+      
+<!--TOC_START-->
+<ul id="markdown-toc">
+  <li><a href="#spring-enabled-plugins" id="markdown-toc-spring-enabled-plugins">Spring-enabled Plugins:</a></li>
+  <li><a href="#ncf-registry-havestercrawler" id="markdown-toc-ncf-registry-havestercrawler">NCF registry (havester/crawler)</a></li>
+  <li><a href="#site-subscribe" id="markdown-toc-site-subscribe">Site (subscribe)</a>    <ul>
+      <li><a href="#registry-configuration" id="markdown-toc-registry-configuration">Registry Configuration</a></li>
+    </ul>
+  </li>
+</ul>
+<!--TOC_END-->
+
+<p>PDA: ESPDS Product Distribution &amp; Access
+ESPDS: NOAA/NESDIS Environmental Satellite Processing and Distribution System
+DPA: Data Provider Agent</p>
+
+<ul>
+  <li>need to run keygenutil once and then copy keystore files to edex src directories for deployment</li>
+  <li>“securityConfiguration” is so ingrained into data delivery that you cannot harvest from open servers (GRADS, THREDDS) without having a security config (which is only used to connect to ESPDS PDA server).</li>
+  <li>need to specify opendap/grads server in existing file, and add TDS file for the same with a catalog DOD URL:</li>
+</ul>
+
+<constant name="SUBSET_REQUEST_URL" value="https://pda.espds.com" />
+
+<pre><code>&lt;mode name="centralRegistry"&gt;
+    &lt;!-- Central Registry production mode --&gt;
+    &lt;includeMode&gt;dataDeliveryTemplate&lt;/includeMode&gt;
+    &lt;includeMode&gt;ebxmlRegistry&lt;/includeMode&gt;
+    &lt;include&gt;bandwidth-datadelivery-.*-ncf.xml&lt;/include&gt;
+    &lt;!--&lt;exclude&gt;.*datadelivery.*-wfo.*&lt;/exclude&gt;--&gt;
+    &lt;!--&lt;exclude&gt;.*edex-security.*&lt;/exclude&gt; --&gt;
+    &lt;exclude&gt;.*datadelivery.*-monolithic.*&lt;/exclude&gt;
+&lt;/mode&gt;
+</code></pre>
+
+<h2 id="spring-enabled-plugins">Spring-enabled Plugins:</h2>
+<p>bandwidth-datadelivery, 
+bandwidth-datadelivery-daos, 
+bandwidth-datadelivery-edex-impl, 
+bandwidth-datadelivery-edex-impl-wfo, 
+bandwidth-datadelivery-eventbus, 
+bandwidth-datadelivery-schedule-route, 
+bandwidth-datadelivery-wfo, 
+bandwidth-datadelivery-wfo-router, 
+bandwidth-graph-datadelivery, 
+crawler-datadelivery, 
+dataaccess-common, 
+database-common, 
+datadelivery-common, 
+datadelivery-cron, 
+datadelivery-handlers, 
+datadelivery-handlers-impl, 
+datadelivery-router, 
+datadelivery-service, 
+datadelivery-service-handlers, 
+datadelivery-subscription-verification, 
+datadelivery-wfo-cron, 
+datadelivery-wfo-retrieval-process, 
+ebxml, 
+ebxml-constants, 
+ebxml-eventbus, 
+ebxml-federation-monitors, 
+ebxml-garbagecollector-edex-impl, 
+ebxml-impl, 
+ebxml-jaxb, 
+ebxml-querytypes, 
+ebxml-registry-common, 
+ebxml-registry-dao, 
+ebxml-registry-init, 
+ebxml-request-router, 
+ebxml-subscription, 
+ebxml-thrift-client, 
+ebxml-validator-plugins, 
+ebxml-webserver, 
+ebxml-webservices, 
+ebxml-xacml, 
+edex-security, 
+event-common, 
+event-datadelivery, 
+event-datadelivery-common, 
+event-datadelivery-ingest, 
+eventbus-common, 
+fssobs-common, 
+geo-common, 
+goessounding-common, 
+grid-common, 
+grid-metadata, 
+gridcoverage-common, 
+harvester-datadelivery, 
+harvester-datadelivery-registry, 
+jaxb-datadelivery-registry, 
+level-common, 
+levelhandler-common, 
+madis-common, 
+nwsauth-request, 
+obs-common, 
+parameter-common, 
+persist-ingest, 
+pointdata-common, 
+purge-logs, 
+registry-federation-datadelivery, 
+request-service, 
+request-service-common, 
+retrieval-datadelivery,
+retrieval-datadelivery-daos, 
+retrieval-datadelivery-ncf, 
+retrieval-datadelivery-wfo, 
+satellite-common, 
+satellite-dataplugin-common, 
+sfcobs-common, stats-common, 
+system-status-datadelivery, 
+thrift-bandwidth, 
+time-common, 
+topo-dataaccess-common, 
+utility-common, 
+utility-request</p>
+
+<p>acars-common, acars-common-dataaccess, acarssounding-common, activetable-common, activetable-request, airep-common, airep-common-dataaccess, airmet-common, alertviz-request, archiveadmim-request, atcf-common, auth-request, awipstools-request, aww-common, binlightning-common, binlightning-common-dataaccess, bufrascat-common, bufrhdw-common, bufrmos-common, bufrmos-common-dataaccess, bufrmthdw-common, bufrncwf-common, bufrsigwx-common, bufrssmi-common, bufrua-common, bufrua-common-dataaccess, bufrua-request, ccfp-common, climate-common-dataaccess, climate-hmdb-common, convectprob-common, convsigmet-common, cwa-common, cwat-common, damagepath-request, dat-request, dataaccess-common, dataaccess-request, database-common, database-request, datadelivery-common, dd-request-router, dissemination-request, dmw-common, ebxml-registry-common, ebxml-request-router, edex-message-common, edex-request, event-common, event-datadelivery-common, eventbus-common, ffg-common, ffmp-common, ffmp-dataplugin-common, fog-common, fssobs-common, gempak-common, gempak-request, geo-common, geomag-common, geomag-request, gfe-common, gfe-dataplugin-common, gfe-request, ghcd-common, ghcd-request, goessounding-common, gpd-common, gpd-request, grid-common, grid-dataplugin-common, grid-request, gridcoverage-common, hpe-request, hydro-common, idft-common, intlsigmet-common, ldad-common, ldadhydro-common, ldadmanual-common, ldadmesonet-common, ldadmesonet-common-dataaccess, ldadprofiler-common, level-common, levelhandler-common, localization-http-request, lsr-common, madis-common, manualIngest-common, manualIngest-request, maps-dataplugin-common, mcidas-common, menus-request, message-common, modelsounding-common, modelsounding-common-dataaccess, modis-common, mosaic-common, mping-common, ncep-common, ncgrib-request, ncpafm-common, ncscat-common, nctaf-common, nctext-common, ncuair-common, nonconvsigmet-common, ntrans-common, nucaps-common, obs-common, obs-common-dataaccess, obs-message-common, obstation-dataplugin-common, ohd-common, ohd-common-database, ohd-request, parameter-common, persist-request, pgen-common, pgen-request, pirep-common, pirep-common-dataaccess, poessounding-common, pointdata-common, pointdata-request, pointset-common, preciprate-common, profiler-common, profiler-common-dataaccess, qc-common, qpf-common, radar-common, radar-dataplugin-common, radar-request, redbook-common, remotescript-request, request-service, request-service-common, rpgenvdata-request, satellite-common, satellite-dataplugin-common, satellite-request, scan-common, sfcobs-common, sfcobs-common-dataaccess, sgwh-common, sgwhv-common, shef-common, site-common, site-request, solarimage-common, soundingrequest-request, ssha-common, stats-common, stats-request, stormtrack-common, stq-common, svrwx-common, taf-common, tcg-common, tcm-common, tcs-common, text-common, text-dbsrv-common, text-dbsrv-request, text-request, text-subscription-common, text-subscription-request, time-common, topo-dataaccess-common, uengine-request, units-common, useradmin-common, useradmin-request, utility-common, utility-request, vaa-common, viirs-common, vil-common, warning-common, warning-common-dataaccess, warning-request, wcp-common</p>
+
+<p>diff request.sh centralRegistry.sh
+21,25d20
+&lt; export INIT_MEM=128 # in Meg
+&lt; export MAX_MEM=2048 # in Meg
+&lt; export SERIALIZE_POOL_MAX_SIZE=48
+&lt; export SERIALIZE_STREAM_INIT_SIZE_MB=2
+&lt; export SERIALIZE_STREAM_MAX_SIZE_MB=8
+26a22,27
+&gt; export MAX_MEM=3072
+&gt; export MAX_PERM_SIZE=192m
+&gt; export EDEX_DEBUG_PORT=5011
+&gt; export EDEX_JMX_PORT=1622
+&gt; export LOG_CONF=logback-registry.xml
+&gt; export MGMT_PORT=9607
+28,32c29,32
+&lt; export EDEX_DEBUG_PORT=5005
+&lt; export EDEX_JMX_PORT=1616
+&lt; export LOG_CONF=logback-request.xml
+&lt; export MGMT_PORT=9601
+&lt; export HTTP_PORT=9581
+—
+&gt; export METADATA_POOL_TIMEOUT=60
+&gt; export CLUSTER_ID=NCF
+&gt; 
+&gt; export SOFT_REF_LRU_POLICY_MS_PER_MB=50</p>
+
+<ul>
+  <li>can not run centralRegistry and request JVM, Address already in use java.net.BindException: Address already in use ( 9581 ?)</li>
+</ul>
+
+<p>[edex status]
+ EDEXregistry :: running :: pid 13445 17181</p>
+
+<p>[awips@senne awips2-data-delivery]$ netstat -l -p|grep 13445
+tcp        0      0 <em>:telelpathattack           *:</em>                         LISTEN      13445/java
+tcp        0      0 <em>:us-cli                    *:</em>                         LISTEN      13445/java
+tcp        0      0 <em>:9581                      *:</em>                         LISTEN      13445/java</p>
+
+<p>awips    13410  0.0  0.0 106100  1212 pts/8    S+   10:18   0:00 /bin/bash ./dev centralRegistry
+awips    13411  0.0  0.0 106104  1312 pts/8    S+   10:18   0:00 /bin/bash /awips2/edex/bin/start.sh -b centralRegistry
+awips    13423  0.3  0.1 2028300 57628 pts/8   Sl+  10:18   0:05 java -Xmx32m -XX:MaxPermSize=12m -XX:ReservedCodeCacheSize=4m -Djava.io.tmpdir=/awips2/tmp -jar /awips2/yajs
+awips    13445  7.3  2.5 8121576 821904 ?      SNsl 10:18   1:59 /awips2/java/bin/java -Dedex.run.mode=centralRegistry -Daw.site.identifier=OAX -Dedex.home=/awips2/edex -XX:</p>
+
+<p>awips    19546  0.0  0.0 106100  1212 pts/8    S+   10:58   0:00 /bin/bash ./dev centralRegistry
+awips    19547  0.0  0.0 106104  1312 pts/8    S+   10:58   0:00 /bin/bash /awips2/edex/bin/start.sh -b centralRegistry
+awips    19580 24.5  2.4 8136208 795500 ?      SNsl 10:58   1:23 /awips2/java/bin/java -Dedex.run.mode=centralRegistry -Daw.site.identifier=OAX -Dedex.home=/awips2/edex -XX:MaxPermSize=192m -Dorg.apache.camel.jmx.disabled=true -Duser.timezone=GMT -Djava.io.tmpdir=/awips2/tmp -XX:+UseConcMarkSweepGC -XX:+CMSIncrementalMode -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/data/fxa/cave/senne/ -XX:SoftRefLRUPolicyMSPerMB=50 -Dqpid.dest_syntax=BURL -Ddb.addr=localhost -Ddb.port=5432 -Ddc.db.name=dc_ob7oax -Dfxa.db.name=fxatext -Dhm.db.name=hmdb -Dih.db.name=hd_ob92oax -Ddb.metadata.pool.max=50 -Ddb.metadata.pool.timeout=60 -Ddata.archive.root=/awips2/data_store -Djava.util.logging.config.file=/awips2/edex/conf/logging.properties -Dthrift.stream.maxsize=200  -Xms512m -Xmx3072m -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5011 -DMAX_PERM_SIZE=192m -DHM_DB_NAME=hmdb -DMAX_MEM=3072 -DJAVA_HOME=/awips2/java -DAW_SITE_IDENTIFIER=OAX -DSHORT_HOSTNAME=senne -DDATA_ARCHIVE_ROOT=/awips2/data_store -DIH_DB_NAME=hd_ob92oax -DDB_ADDR=localhost -DHOSTNAME=senne -DEDEX_HOME=/awips2/edex -DPROFILER_PARAM_1= -DINIT_MEM=512 -DFXA_DB_NAME=fxatext -DDC_DB_NAME=dc_ob7oax -DMETADATA_POOL_TIMEOUT=60 -DLOG_CONF=logback-registry.xml -DMETADATA_POOL_MAX=50 -DHOME=/home/awips -DSOFT_REF_LRU_POLICY_MS_PER_MB=50 -DAWIPS2_TEMP=/awips2/tmp -DDB_PORT=5432 -DWRAPPER_ON_EXIT_ACTION=RESTART -DCONSOLE_LOGLEVEL=DEBUG -classpath …
+awips    20819  0.0  0.0 103256   876 pts/15   S+   11:04   0:00 grep centralReg
+[awips@senne awips2-data-delivery]$ netstat -l -p|grep 19580
+(Not all processes could be identified, non-owned process info
+ will not be shown, you would have to be root to see it all.)
+tcp        0      0 <em>:telelpathattack           *:</em>                         LISTEN      19580/java        <br />
+tcp        0      0 <em>:us-cli                    *:</em>                         LISTEN      19580/java        <br />
+tcp        0      0 <em>:9581                      *:</em>                         LISTEN      19580/java</p>
+
+<h1 id="ncf-registry-havestercrawler">NCF registry (havester/crawler)</h1>
+
+<p>the Harvester only runs at the Central Registry. As a
+result, the WFO’s no longer need to be concerned with the configuration of the Harvester.
+The NCF (Central Registry) handles the maintenance of the Crawler.</p>
+
+<p>/etc/init.d/edex_camel start centralRegistry</p>
+
+<h1 id="site-subscribe">Site (subscribe)</h1>
+
+<p>/etc/init.d/edex_camel start registry</p>
+
+<p>Data Delivery has been implemented into the AWIPS(II) baseline to provide access to data that is not resident locally at a Weather Forecast Office, River Forecast Center, or National Center. Data Delivery gives users the ability to create queries (One Time Requests) and
+subscriptions to data sets (provided by the NOAA Operational Model Archive and Distribution System (NOMADS) data provider).</p>
+
+<p>## Start and Stop</p>
+
+<p>There are two different scripts to start the registry, and the script that gets executed  depends on whether or not you are at the NCF (Central Registry), which runs the  Crawler/Harvester, or an intermediary or node registry.</p>
+
+<p>Start the registry for site:</p>
+
+<pre><code>/etc/init.d/edex_camel start registry
+</code></pre>
+
+<p>Start the registry for the NCF along with the Crawler/Harvester:</p>
+
+<pre><code>/etc/init.d/edex_camel start centralRegistry 
+</code></pre>
+
+<h2 id="registry-configuration">Registry Configuration</h2>
+
+<p>In operational use by the NWS, the Data Delivery federation Harvester is only run at the Central Registry. As a result, WFO’s no longer need to  configure the Harvester, and the NCF (Central Registry) handles the maintenance of the Crawler.</p>
+
+<p>Data Delivery employs HTTPS secure transfers for registry-to-registry and some provider-to-registry communications. This means that Certificates for each registry node that directly connects to another registry node must be loaded into the trust store of each connecting node. This can be accomplished using a new utility located in the <code>/awips2/edex/conf/security</code> directory. The tool is called the <code>keystoreUtil.sh</code>.</p>
+
+<p>Another configuration file of note new (starting 14.4.1) is the “security.properties”. It is
+also located in the “/awips2/edex/conf/resources” directory but under the further
+directories of “/site/${SITE}”
+Where, ${SITE} is your local WFO/ClusterID. It is written by the “keystoreUtil.sh” and
+is read by the running system to gather each federation nodes SSL credentials for
+communicating with other nodes. Manual editing of this file should be unnecessary.
+Example…</p>
+
+<p>#The following configuration items are used with the wss4j in/out interceptors
+ org.apache.ws.security.crypto.merlin.keystore.file=security/keystore.jks
+ org.apache.ws.security.crypto.merlin.keystore.password=
+ org.apache.ws.security.crypto.merlin.keystore.type=JKS
+ org.apache.ws.security.crypto.merlin.keystore.alias=OAX</p>
+
+<p>## Registry Federation Configuration</p>
+
+<p>The following files must be present for a NCF registry to participate in the federation and receive replicated objects:</p>
+
+<p>federationConfig.xml Located at: /awips2/edex/data/utility/edex_static/ebxml/federation/federationConfig.xml</p>
+
+<p>A sample of this file is provided:</p>
+
+<pre><code>&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;
+&lt;federationProperties&gt;
+ &lt;conformanceProfile&gt;RegistryFull&lt;/conformanceProfile&gt;
+ &lt;specificationVersion&gt;4.0&lt;/specificationVersion&gt;
+ &lt;catalogingLatency&gt;PT0.000S&lt;/catalogingLatency&gt;
+ &lt;replicationSyncLatency&gt;PT0.000S&lt;/replicationSyncLatency&gt;
+ &lt;siteIdentifier&gt;NCF&lt;/siteIdentifier&gt;
+ &lt;siteDescription&gt;AWIPS Network Control Facility&lt;/siteDescription&gt;
+ &lt;sitePrimaryContactFirstName&gt;National&lt;/sitePrimaryContactFirstName&gt;
+ &lt;sitePrimaryContactMiddleName&gt;Weather&lt;/sitePrimaryContactMiddleName&gt;
+ &lt;sitePrimaryContactLastName&gt;Service&lt;/sitePrimaryContactLastName&gt;
+ &lt;siteAddressStreetNumber&gt;1325&lt;/siteAddressStreetNumber&gt;
+ &lt;siteAddressStreet&gt;East West Highway&lt;/siteAddressStreet&gt;
+ &lt;siteAddressCity&gt;Silver Spring&lt;/siteAddressCity&gt;
+ &lt;siteAddressState&gt;MD&lt;/siteAddressState&gt;
+ &lt;siteAddressCountry&gt;USA&lt;/siteAddressCountry&gt;
+ &lt;siteAddressPostalCode&gt;20910&lt;/siteAddressPostalCode&gt;
+&lt;/federationProperties&gt; 
+</code></pre>
+
+
+    </article>
+
+    <footer>
+  <div>
+    <div class="links">
+      <a href="https://www.facebook.com/unidata" title="Unidata on Facebook" tabindex="-1"><paper-button><core-icon icon="social:post-facebook"></core-icon>Facebook</paper-button></a>
+      <a href="https://twitter.com/intent/follow?screen_name=unidata" data-twitter-follow title="Follow @Unidata on Twitter" tabindex="-1"><paper-button><core-icon icon="social:post-twitter"></core-icon>Twitter</paper-button></a>
+      <a href="https://github.com/Unidata/awips2"><paper-button class="github" tabindex="-1"><core-icon icon="social:post-github"></core-icon>GitHub</paper-button></a>
+      <a href="https://github.com/Unidata/awips2/issues/new" tabindex="-1"><paper-button><core-icon icon="bug-report"></core-icon>File a bug</paper-button></a>
+    </div>
+
+  </div>
+</footer>
+
+
+
+
+
+<script src="/awips2/js/prettify/prettify.js"></script>
+
+<!-- <script src="/awips2/js/bower_components/smoothscroll/smoothscroll.js"></script> -->
+<script src="/awips2/js/app.js?20160718"></script>
+
+
+  </scroll-area>
+
+</main>
+
+</body>
+</html>

@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html itemscope itemtype="http://schema.org/Organization">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="chrome=1" />
+<meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1">
+<meta name="google-site-verification" content="k0e8DrbD40s54xHNBqwIsRrSSAkZoprwtEYDnNY06bU" />
+<meta name="google-site-verification" content="pnjjbQFvjPwaWhEXY6nSyaS9iyghmH-M_yLHBveDX2M">
+<meta itemprop="name" content="AWIPS II - Unidata AWIPS II">
+<meta itemprop="description" content="Polymer is a library that uses the latest web technologies to let you create custom HTML elements. Build anything from a button to a complete application as an encapsulated, reusable element that works across desktop and mobile.">
+
+
+<meta itemprop="image" content="https://www.polymer-project.org/images/instacod.png">
+
+
+<title>
+  
+    Unidata AWIPS II -
+   AWIPS II
+</title>
+<link rel="publisher" href="https://plus.google.com/107187849809354688692">
+<link rel="shortcut icon" href="http://www.unidata.ucar.edu/favicon.ico">
+<link href="//fonts.googleapis.com/css?family=RobotoDraft:300,400,500|Source+Code+Pro:400,500,700" rel="stylesheet">
+<link href="/awips2/css/site2.css?20160718" rel="stylesheet">
+<link href="/awips2/css/site2_sd_rules.css?20160718" rel="stylesheet" shim-shadowdom>
+
+
+
+<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20160718"></script>
+<!-- TODO: remove when https://github.com/Polymer/polymer/issues/391 is fixed -->
+<link rel="import" href="/awips2/components/polymer/polymer.html">
+<link rel="stylesheet" href="/awips2/css/elements/docs-menu.css">
+<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20160718">
+
+
+</head>
+<body id="unidata-awips-ii">
+
+<main id="content-container" class="polymer-content">
+  <app-drawer id="sidebar" unresolved>
+    <div layout vertical id="sidebar-content">
+      <div id="logo-container" layout horizontal center>
+        <a href="/awips2/" class="logo"><img src="/awips2/images/logos/awips2.png" alt="AWIPS II User Guide"></a>
+      </div>
+
+      <docs-menu unresolved flex
+		 baseurl='/awips2'
+                 coreElements='{"core-header-panel":"components/core-header-panel/core-header-panel.html","core-transition-pages":"components/core-animated-pages/transitions/core-transition-pages.html","core-animated-pages":"components/core-animated-pages/core-animated-pages.html","core-overlay":"components/core-overlay/core-overlay.html","core-toolbar":"components/core-toolbar/core-toolbar.html","core-image":"components/core-image/core-image.html","core-shared-lib":"components/core-shared-lib/core-shared-lib.html","core-a11y-keys":"components/core-a11y-keys/core-a11y-keys.html","core-menu-button":"components/core-menu-button/core-menu-button.html","core-icon":"components/core-icon/core-icon.html","core-selection":"components/core-selection/core-selection.html","core-style":"components/core-style/core-style.html","core-menu":"components/core-menu/core-menu.html","core-submenu":"components/core-menu/core-submenu.html","core-list":"components/core-list/core-list.html","core-dropdown-menu":"components/core-dropdown-menu/core-dropdown-menu.html","core-input":"components/core-input/core-input.html","core-iconset-svg":"components/core-iconset-svg/core-iconset-svg.html","core-field":"components/core-field/core-field.html","core-selector":"components/core-selector/core-selector.html","core-media-query":"components/core-media-query/core-media-query.html","core-animation-group":"components/core-animation/core-animation-group.html","core-animation":"components/core-animation/core-animation.html","core-animation-keyframe":"components/core-animation/core-animation.html","core-animation-prop":"components/core-animation/core-animation.html","core-dropdown":"components/core-dropdown/core-dropdown.html","core-dropdown-base":"components/core-dropdown/core-dropdown-base.html","core-pages":"components/core-pages/core-pages.html","core-meta":"components/core-meta/core-meta.html","core-splitter":"components/core-splitter/core-splitter.html","core-scroll-header-panel":"components/core-scroll-header-panel/core-scroll-header-panel.html","core-tooltip":"components/core-tooltip/core-tooltip.html","core-localstorage":"components/core-localstorage/core-localstorage.html","core-scroll-threshold":"components/core-scroll-threshold/core-scroll-threshold.html","core-drag-drop":"components/core-drag-drop/core-drag-drop.html","core-iconset":"components/core-iconset/core-iconset.html","core-label":"components/core-label/core-label.html","core-signals":"components/core-signals/core-signals.html","core-transition":"components/core-transition/core-transition.html","core-scaffold":"components/core-scaffold/core-scaffold.html","core-drawer-panel":"components/core-drawer-panel/core-drawer-panel.html","core-range":"components/core-range/core-range.html","core-collapse":"components/core-collapse/core-collapse.html","core-xhr":"components/core-ajax/core-xhr.html","core-ajax":"components/core-ajax/core-ajax.html","core-icon-button":"components/core-icon-button/core-icon-button.html","core-item":"components/core-item/core-item.html"}'
+                 paperElements='{"paper-dropdown":"components/paper-dropdown/paper-dropdown.html","paper-dropdown-transition":"components/paper-dropdown/paper-dropdown-transition.html","paper-item":"components/paper-item/paper-item.html","paper-dropdown-menu":"components/paper-dropdown-menu/paper-dropdown-menu.html","paper-checkbox":"components/paper-checkbox/paper-checkbox.html","paper-button":"components/paper-button/paper-button.html","paper-button-base":"components/paper-button/paper-button-base.html","paper-menu-button":"components/paper-menu-button/paper-menu-button.html","paper-radio-group":"components/paper-radio-group/paper-radio-group.html","paper-toast":"components/paper-toast/paper-toast.html","paper-char-counter":"components/paper-input/paper-char-counter.html","paper-autogrow-textarea":"components/paper-input/paper-autogrow-textarea.html","paper-input":"components/paper-input/paper-input.html","paper-input-decorator":"components/paper-input/paper-input-decorator.html","paper-slider":"components/paper-slider/paper-slider.html","paper-toggle-button":"components/paper-toggle-button/paper-toggle-button.html","paper-fab":"components/paper-fab/paper-fab.html","paper-ripple":"components/paper-ripple/paper-ripple.html","paper-icon-button":"components/paper-icon-button/paper-icon-button.html","paper-tabs":"components/paper-tabs/paper-tabs.html","paper-tab":"components/paper-tabs/paper-tab.html","paper-shadow":"components/paper-shadow/paper-shadow.html","paper-radio-button":"components/paper-radio-button/paper-radio-button.html","paper-dialog":"components/paper-dialog/paper-dialog.html","paper-action-dialog":"components/paper-dialog/paper-action-dialog.html","paper-dialog-base":"components/paper-dialog/paper-dialog-base.html","paper-dialog-transition":"components/paper-dialog/paper-dialog-transition.html","paper-spinner":"components/paper-spinner/paper-spinner.html","paper-progress":"components/paper-progress/paper-progress.html"}'></docs-menu>
+    </div>
+  </app-drawer>
+
+  <scroll-area sidebar unresolved class="scrolling">
+    <site-banner type="guide" shortname="" unresolved>
+      
+<app-bar theme="light" class="bar fixed">
+</app-bar>
+
+      <header class="shrink">
+        <h1>
+        
+          EDEX Data Plugins
+        : Unidata AWIPS II
+        </h1>
+      </header>
+    </site-banner>
+
+    
+    
+
+    <article class="show-permalinks">
+
+      <header class="onlyonmobile">
+        <h1>
+          
+          EDEX Data Plugins
+          : Unidata AWIPS II
+        </h1>
+      </header>
+
+      <h1 id="edex-data-decoder-plugins">EDEX Data Decoder Plugins</h1>
+<p>|  NAME  |  DESCRIPTION  |
+|:——-|:————–|
+|  acars  |  Aircraft Communications Addressing and Reporting System observations  |
+|  acarssounding  |  Vertical profiles derived from ACARS data  |
+|  airep  |  Automated Aircraft Reports  |
+|  airmet  |  “Airmen’s Meteorological Information”: aviation weather advisories for potentially hazardous, but non-severe weather   |
+|  arealffgGenerator  |  Creates a mosaic of gridded ffg fields generated by RFCs for a WFO’s area  |
+|  arealQpeGen  |  Creates a mosaic of gridded QPE for a WFO’s area  |
+|  atcf  |  Automated Tropical Cyclone Forecast  |
+|  aww  |  Airport Weather Warning  |
+|  binlightning  |  Lightning data from the National Lightning Detection Network  |
+|  bufrascat  |  Advanced Scatterometer wind data  |
+|  bufrhdw  |  GOES High Density Winds  |
+|  bufrmos  |  Model Output Statistics  |
+|  bufrmthdw  |  MTSAT (Japanese Multi-Functional Transport Satellite) High Density Winds  |
+|  bufrncwf  |  National Convective Weather Forecast for Aviation  |
+|  bufrobs  |  BUFR formatted surface and sea obs  |
+|  bufrquikscat  |  NASA QuikSCAT (Quick Scatterometer) satellite carrying the SeaWinds scatterometer (OOS 2009)  |
+|  bufrsigwx  |  Aviation Significant Weather  |
+|  bufrssmi  |  Special Sensor Microwave/Imager data from DMSP (Defesne Meteorological Satellite Program) satellites  |
+|  bufrua  |  Upper air radiosonde data  |
+|  ccfp  |  Aviation Collaborative Convective Forecast Product  |
+|  climate-hmdb  |  Climate text products  |
+|  convectprob  |  NOAA/CIMSS Prob Severe Model  |
+|  convsigmet  |  Aviation Significant Meteorological Information for convective weather  |
+|  crimss  |  NPP/NPOESS CrIMSS (Cross Track Infrared and Microwave Sounding Suite) soundings  |
+|  cwa  |  Aviation Center Weather Advisory, issued by CWSUs (Center Weather Service Units)  |
+|  cwat  |  County Warning Area Threat produced by SCAN. CWAT was formerly called SCAN Convective Threat Index (SCTI). Raw data inputs include radar, cloud-to-ground lightning from the NLDN, and a few RUC130 fields. Radar data [with WSR-88D product mnemonics and numbers] needed for CWAT are 1 km Composite Reflectivity [CZ, 37]; 4 km Vertically Integrated Liquid [VIL, 57]; Storm Track [STI, 58]; Mesocyclone Detections [MD, 141]; and Tornadic Vortex Signatures [TVS, 61]. RUC130 fields include 700 mb Wind, Freezing Level, 1000-500 mb Thickness and 500 mb Wind as specified in the SCANRunSiteConfig.xml file.)  |
+|  dmw  |  GOES-R Derived Motion Winds  |
+|  ffg  |  Flash flood guidance metadata (countybased ffg from RFCs) |
+|  ffmp  |  Flash Flood Monitoring and Prediction data. Raw data inputs: radar, gridded flash flood guidance from River Forecast Centers, highresolution precipitation estimates [HPE] and nowcasts [HPN], QPF from SCAN and gage data from the IHFS [Integrated Hydrologic Forecast System] database. Radar data [with WSR-88D product mnemonics and numbers] needed for FFMP are Digital Hybrid Reflectivity [DHR, 32] and Digital Precipitation Rate [DPR, 176]. The raw GRIB files containing RFC Flash Flood Guidance are identified in the tables in Part 2 of this document as NWS_151 or FFG-XXX, where XXX is an RFC identifier such as TUA, KRF, or ALR.   |
+|  fog  |  Fog Monitor. Raw data inputs: METAR, Mesonet, maritime, buoys, MAROBs, and satellite [visible, 3.9 µm, and 10.7 µm])  |
+|  freezingLevel  |  MPE Rapid Refresh Freezing Level scheduled process (MpeRUCFreezingLevel)  |
+|  fssobs  |  Observations for the Fog monitor, SNOW, and SAFESEAS. Raw data inputs: METAR, Mesonet, maritime, buoys, MAROBs.  |
+|  gaff  |  Generate Areal Flash Flood Guidance  |
+|  geomag  |  NCEP SWPC Geomagnetic Data  |
+|  gfe  |  Graphical Forecast Editor grids  |
+|  ghcd  |  NCEP Generic High Cadence Data  |
+|  goesr  |  Plugins to decode and display GOES-R products  |
+|  goessounding  |  GOES Satellite Soundings  |
+|  gpd  |  NCEP Generic Point Data  |
+|  grid  |  Binary gridded data grib1/grib2  |
+|  idft  |  Ice Drift Forecasts  |
+|  intlsigmet  |  International Significant Meteorological Information for Aviation  |
+|  ldad  |  Local Data Acquisition and Dissemination  |
+|  ldadhydro  |  Local Data Acquisition and Dissemination Hydro data files  |
+|  ldadmanual  |  Local Data Acquisition and Dissemination Manual Ingest  |
+|  ldadmesonet  |  Local Data Acquisition and Dissemination Mesonet data files  |
+|  ldadprofiler  |  Local Data Acquisition and Dissemination Profiler data files  |
+|  lma  |  Lightning Mapping Array  |
+|  loctables  |  Location Tables Ingest  |
+|  lsr  |  Local Storm Reports  |
+|  madis  |  Meteorological Assimilation Data Ingest System  |
+|  manualIngest  |  Manual data ingest plugin  |
+|  mcidas  |  NCEP decoder for McIDAS AREA files  |
+|  metartohmdb  |  Adds metar records to the Verification and Climate database  |
+|  modelsounding  |  Individual grid point soundings from the GFS and NAM models  |
+|  modis  |  NASA Moderate-resolution Imaging Spectroradiometer  |
+|  mosaic  |  NCEP Radar mosaic data files  |
+|  mping  |  mPING Crowdsourced weather reports (http://mping.nssl.noaa.gov/)  |
+|  ncpafm  |  NCEP Point/Area Forecast Matrices data  |
+|  ncscat  |  NCEP ASCAT/Quikscat records  |
+|  nctaf  |  NCEP Terminal Aerodrome Forecasts  |
+|  nctext  |  NCEP Text decoders  |
+|  ncuair  |  NCEP Upper Air decoder  |
+|  ndm  |  National Dataset Maintenance ingester  |
+|  nonconvsigmet  |  Aviation Significant Meteorological Information for non-convective weather  |
+|  ntrans  |  NCCEP Ntrans Metafiles  |
+|  nucaps  |  Soundings from NOAA Unique CrIS/ATMS Processing System from NPP (National Polar-Orbiting Partnership) Satellites  |
+|  obs  |  Surface observations from METARs  |
+|  pgen  |  NCEP NAWIPS PGEN decoder  |
+|  pirep  |  Pilot Reports  |
+|  poessounding  |  Polar Operational Environmental Satellite soundings  |
+|  preciprate  |  Precipitation Rate from SCAN. Raw data input: radar data [with WSR-88D product mnemonic and number] needed for preciprate are Digital Hybrid Reflectivity [DHR, 32])  |
+|  profiler  |  Wind Profiler data  |
+|  q2FileProcessor  |  Q2 Verification System gzipped files  |
+|  qc  |  QC mesonet data  |
+|  qpf  |  Quantitative Precipitation Forecast from SCAN  (raw data inputs: radar and some RUC130 fields. Radar data [with WSR-88D product mnemonics and numbers] needed for SCAN’s QPF are 0.5 degree Base Reflectivity [Z, 19], 4 km Vertically Integrated Liquid [VIL, 57], and Storm Track [STI, 58]. The RUC130 field needed is 700 mb Wind, as defined in the SCANRunSiteConfig.xml file.)  |
+|  radar  |  WSR-88D and TDWR data  |
+|  redbook  |  “Redbook” graphics  |
+|  regionalsat  |  Decoder implementation for netcdf3 files generated by the Alaska Region and GOES-R Proving Ground  |
+|  satellite-gini  |  GINI-formatted satellite imagery (GOES, POES, VIIRS, FNEXRAD)  |
+|  satellite-mcidas  |  McIDAS area files (Raytheon/D2D-developed)  |
+|  satpre  |  Satellite-estimated Pecipiration (hydroApps)  |
+|  scan  |  SCAN (System for Convection Analysis and Nowcasting) (Inputs for the SCAN Table include radar, cloud-toground lightning from the NLDN, fields from RUC130, and CWAT. Specific radar products [with WSR-88D product mnemonics and numbers] are: 1 km Composite Reflectivity [CZ, 37]; 0.5 degree Base Reflectivity [Z, 19]; 4 km Vertically Integrated Liquid [VIL, 57]; Storm Track [STI, 58]; Mesocyclone Detections [MD, 141]; and Tornadic Vortex Signature [TVS, 61]. The SCAN Digital Mesocyclone Detection Table uses the WSR-88D DMD product [number 149]. RUC130 fields used for SCAN include CAPE, 0-3 km Storm Relative Helicity, 700 mb Wind, Freezing Level, 1000-500 mb Thickness, and 500 mb Wind.)   |
+|  sfcobs  |  Surface observations other than METAR format including buoys  |
+|  sgwh  |  NCEP BUFR Significant Wave Height data - SGWH (Jason-1), SGWHA (Altika), SGWHC (CryoSat), SGWHE (Envisat), SGWHG (GFO), or SGWH2 (Jason-2)  |
+|  shef  |  Standard Hydrometeorological Exchange Format data.   |
+|  solarimage  |  NCEP SWPC Solar imagery  |
+|  ssha  |  NCEP Sea Surface Height Anomaly BUFR data  |
+|  stormtrack  |  NCEP StormTrack Plug-In (Automatic Tropical Cyclone Forecast &amp; Ensemble cyclones)  |
+|  svrwx  |  SPC Local Storm Report Summaries  |
+|  taf  |  Terminal Aerodrome Forecasts  |
+|  tcg  |  Tropical Cyclone Guidance  |
+|  tcm  |  Tropical Cyclone Forecast/Advisory  |
+|  tcs  |  Tropical Cyclone Forecast/Advisory  |
+|  text  |  Various Text Products  |
+|  textlightning  |  Text lightning data  |
+|  vaa  |  Volcanic ash advisories  |
+|  viirs  |  Visible Infrared Imaging Radiometer Suite data  |
+|  vil  |  Cell-based Vertically Integrated Liquid from SCAN (System for Convection Analysis and Nowcasting)   |
+|  warning  |  Watches, Warnings, and Advisories   |
+|  wcp  |  SPC Convective Watches  |</p>
+
+<h1 id="edex-dataaccess-plugins">EDEX DataAccess Plugins</h1>
+
+<p>EDEX plugins which provide access to datasets via the Data Access Framework (including the python-awips client):</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">Data Type</th>
+      <th style="text-align: left">Plugin Name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">ACARS</td>
+      <td style="text-align: left">acars-dataaccess</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">AIREPs</td>
+      <td style="text-align: left">airep-dataaccess</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">Lightning</td>
+      <td style="text-align: left">binlightning-dataaccess</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">BUFR MOS</td>
+      <td style="text-align: left">bufrmos-dataaccess</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">BURF UA</td>
+      <td style="text-align: left">bufrua-dataaccess</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">Climate DB</td>
+      <td style="text-align: left">climate-dataaccess</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">LDAD mesonet</td>
+      <td style="text-align: left">ldadmesonet-dataaccess</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">Model Soundings</td>
+      <td style="text-align: left">modelsounding-dataaccess</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">METAR</td>
+      <td style="text-align: left">obs-dataaccess</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">PIREPs</td>
+      <td style="text-align: left">pirep-dataaccess</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">Wine Profiler</td>
+      <td style="text-align: left">profiler-dataaccess</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">Synop/Marine Obs</td>
+      <td style="text-align: left">sfcobs-dataaccess</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">Warnings</td>
+      <td style="text-align: left">warning-dataaccess</td>
+    </tr>
+  </tbody>
+</table>
+
+
+    </article>
+
+    <footer>
+  <div>
+    <div class="links">
+      <a href="https://www.facebook.com/unidata" title="Unidata on Facebook" tabindex="-1"><paper-button><core-icon icon="social:post-facebook"></core-icon>Facebook</paper-button></a>
+      <a href="https://twitter.com/intent/follow?screen_name=unidata" data-twitter-follow title="Follow @Unidata on Twitter" tabindex="-1"><paper-button><core-icon icon="social:post-twitter"></core-icon>Twitter</paper-button></a>
+      <a href="https://github.com/Unidata/awips2"><paper-button class="github" tabindex="-1"><core-icon icon="social:post-github"></core-icon>GitHub</paper-button></a>
+      <a href="https://github.com/Unidata/awips2/issues/new" tabindex="-1"><paper-button><core-icon icon="bug-report"></core-icon>File a bug</paper-button></a>
+    </div>
+
+  </div>
+</footer>
+
+
+
+
+
+<script src="/awips2/js/prettify/prettify.js"></script>
+
+<!-- <script src="/awips2/js/bower_components/smoothscroll/smoothscroll.js"></script> -->
+<script src="/awips2/js/app.js?20160718"></script>
+
+
+  </scroll-area>
+
+</main>
+
+</body>
+</html>

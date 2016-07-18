@@ -21,16 +21,16 @@
 <link rel="publisher" href="https://plus.google.com/107187849809354688692">
 <link rel="shortcut icon" href="http://www.unidata.ucar.edu/favicon.ico">
 <link href="//fonts.googleapis.com/css?family=RobotoDraft:300,400,500|Source+Code+Pro:400,500,700" rel="stylesheet">
-<link href="/awips2/css/site2.css?20160424" rel="stylesheet">
-<link href="/awips2/css/site2_sd_rules.css?20160424" rel="stylesheet" shim-shadowdom>
+<link href="/awips2/css/site2.css?20160718" rel="stylesheet">
+<link href="/awips2/css/site2_sd_rules.css?20160718" rel="stylesheet" shim-shadowdom>
 
 
 
-<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20160424"></script>
+<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20160718"></script>
 <!-- TODO: remove when https://github.com/Polymer/polymer/issues/391 is fixed -->
 <link rel="import" href="/awips2/components/polymer/polymer.html">
 <link rel="stylesheet" href="/awips2/css/elements/docs-menu.css">
-<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20160424">
+<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20160718">
 
 
 </head>
@@ -81,7 +81,9 @@
       
 <!--TOC_START-->
 <ul id="markdown-toc">
-  <li><a href="#ingesting-grib-files" id="markdown-toc-ingesting-grib-files">Ingesting Grib Files</a>    <ul>
+  <li><a href="#awips-hdf5-gridded-data" id="markdown-toc-awips-hdf5-gridded-data">AWIPS HDF5 Gridded Data</a></li>
+  <li><a href="#unknown-grids" id="markdown-toc-unknown-grids">Unknown Grids</a></li>
+  <li><a href="#ingest-grib-and-grib2-files" id="markdown-toc-ingest-grib-and-grib2-files">Ingest grib and grib2 files</a>    <ul>
       <li><a href="#data-distribution-file" id="markdown-toc-data-distribution-file">Data distribution file</a></li>
       <li><a href="#important-files-and-directories" id="markdown-toc-important-files-and-directories">Important files and directories</a></li>
       <li><a href="#default-feed-types-in-awips2ldmetcldmdconf" id="markdown-toc-default-feed-types-in-awips2ldmetcldmdconf">Default feed types in /awips2/ldm/etc/ldmd.conf</a></li>
@@ -105,7 +107,44 @@
 </ul>
 <!--TOC_END-->
 
-<h1 id="ingesting-grib-files">Ingesting Grib Files</h1>
+<h1 id="awips-hdf5-gridded-data">AWIPS HDF5 Gridded Data</h1>
+
+<p>Gridded data (forecast models, real-time analysis, MRMS, HFR ocean currents, etc.) are stored in <code>/awips2/edex/data/hdf5/grid/</code></p>
+
+<pre><code>ls /awips2/edex/data/hdf5/grid/
+AK-GFS-22km  ECMF9          FFG-TUA              Hawaii-NamDNG5              HFR-US_WEST_SOCAL_2KM       MPE-Local-TAR   NCWF          QPE-XNAV-FWR  UKMET39
+AK-NAM-45km  ECMF-Global    FNMOC-FAROP          HFR-EAST_6KM                HFR-US_WEST_WASHINGTON_1KM  MPE-Local-TIR   NOHRSC-SNOW   QPE-XNAV-KRF  UKMET40
+AK-NamDNG5   ECMF-Tropical  fnmocWave            HFR-EAST_PR_6KM             HFR-WEST_6KM                MPE-Mosaic-ALR  PR-GFS-20km   QPE-XNAV-MSR  UKMET41
+AUTOSPE      ESTOFS         gefs                 HFR-US_EAST_DELAWARE_1KM    HPCGuide                    MPE-Mosaic-FWR  PR-NAM        QPE-XNAV-ORN  UKMET42
+CMC          estofsPR       GFS                  HFR-US_EAST_FLORIDA_2KM     HPCqpf                      MPE-Mosaic-MSR  PR-NamDNG5    QPE-XNAV-RHA  UKMET43
+DGEX         ETSS           GFS25                HFR-US_EAST_NORTH_2KM       HPCqpfNDFD                  MPE-Mosaic-ORN  QPE-ALR       QPE-XNAV-SJU  UKMET44
+ECMF1        FFG-ALR        GFS40                HFR-US_EAST_SOUTH_2KM       HRRR                        MPE-Mosaic-RHA  QPE-Auto-TUA  QPE-XNAV-TAR  UKMET-Global
+ECMF10       FFG-FWR        GFS-95km             HFR-US_EAST_VIRGINIA_1KM    LAMP2p5                     MPE-Mosaic-SJU  QPE-FWR       QPE-XNAV-TIR  UKMET-MODEL1
+ECMF11       FFG-KRF        GFS-EPac-40km        HFR-US_HAWAII_1KM           MOSGuide                    MPE-Mosaic-TAR  QPE-KRF       QPE-XNAV-TUA  URMA25
+ECMF12       FFG-MSR        GFSGuide             HFR-US_HAWAII_2KM           MOSGuideExtended            MPE-Mosaic-TIR  QPE-MSR       RAP13         WaveWatch
+ECMF2        FFG-ORN        GFSLAMP5             HFR-US_HAWAII_6KM           MPE-Local-ALR               MRMS_1000       QPE-ORN       RAP40         WaveWatch-AK
+ECMF3        FFG-PTR        GLERL                HFR-US_WEST_500M            MPE-Local-MSR               NAM12           QPE-RFC-PTR   RCM           WaveWatch-ENP
+ECMF4        FFG-RHA        GribModel:58:0:135   HFR-US_WEST_CENCAL_2KM      MPE-Local-ORN               NAM40           QPE-RFC-RSA   RFCqpf        WaveWatch-ENP-Hurr
+ECMF5        FFG-RSA        GribModel:58:0:18    HFR-US_WEST_LOSANGELES_1KM  MPE-Local-RHA               NAM90           QPE-RFC-STR   RTMA          WaveWatch-WNA
+ECMF6        FFG-STR        GribModel:58:0:78    HFR-US_WEST_LOSOSOS_1KM     MPE-Local-RSA               NamDNG          QPE-TIR       RTMA5         WaveWatch-WNA-Hurr
+ECMF7        FFG-TAR        GribModel:9:151:172  HFR-US_WEST_NORTH_2KM       MPE-Local-SJU               NamDNG5         QPE-TUA       UKMET37
+ECMF8        FFG-TIR        GribModel:98:0:146   HFR-US_WEST_SANFRAN_1KM     MPE-Local-STR               NAVGEM          QPE-XNAV-ALR  UKMET38
+</code></pre>
+
+<p>The directory names correspond to the names used in the Volume Browser, the Models Menu bundles, the Python AWIPS Data Access Framework, and the D2D Product Browser.  For each HDF5 grid file there are corresponsing PostgreSQL and PostGIS metadata records (you can query the tables with <code>psql metadata</code> - just be careful and sure of what you’re doing).</p>
+
+<h1 id="unknown-grids">Unknown Grids</h1>
+
+<p>Folders with names like <strong>GribModel:9:151:172</strong> and <strong>GribModel:98:0:146</strong> are created by the grid decoder when it can not find name and projection information.</p>
+
+<h1 id="ingest-grib-and-grib2-files">Ingest grib and grib2 files</h1>
+
+<p>Simply drop files ending in “<em>.grib” or “</em>.grib2” into <code>/awips2/edex/data/manual/</code></p>
+
+<pre><code>cp HRRR_CONUS_2p5km_201604291900.grib2 /awips2/edex/data/manual/
+</code></pre>
+
+<p>and watch for <strong>Ingest.GribDecode</strong></p>
 
 <p>You can ingest entire Grib file archives from a tarball with a single command:</p>
 
@@ -261,7 +300,7 @@
 <script src="/awips2/js/prettify/prettify.js"></script>
 
 <!-- <script src="/awips2/js/bower_components/smoothscroll/smoothscroll.js"></script> -->
-<script src="/awips2/js/app.js?20160424"></script>
+<script src="/awips2/js/app.js?20160718"></script>
 
 
   </scroll-area>
