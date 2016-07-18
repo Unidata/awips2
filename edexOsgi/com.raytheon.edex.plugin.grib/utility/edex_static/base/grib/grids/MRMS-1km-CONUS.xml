@@ -2,8 +2,8 @@
 <latLonGridCoverage>
     <name>10000</name>
     <description>CONUS domain for MRMS 1km products</description>
-    <la1>55</la1>
-    <lo1>230</lo1>
+    <la1>54.995</la1>
+    <lo1>230.005</lo1>
     <firstGridPointCorner>UpperLeft</firstGridPointCorner>
     <nx>7000</nx>
     <ny>3500</ny>
