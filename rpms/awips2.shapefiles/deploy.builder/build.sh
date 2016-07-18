@@ -51,10 +51,6 @@ function prepareBuildEnvironment()
    if [ "${UFRAME_ECLIPSE}" = "" ]; then
       export UFRAME_ECLIPSE="${VAR_UFRAME_ECLIPSE}"
    fi
-
-   if [ "${AWIPSII_STATIC_FILES}" = "" ]; then
-      export AWIPSII_STATIC_FILES="/awips2/repo"
-   fi
 }
 
 function setTargetArchitecture()

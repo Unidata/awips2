@@ -107,31 +107,31 @@ if [ "${1}" = "-jep" ]; then
    buildRPM "awips2-python-jep"
 fi
 if [ "${1}" = "-pydev" ]; then
-   #buildRPM "awips2-python"
-   #buildRPM "awips2-python-scientific"
+   buildRPM "awips2-python"
+   buildRPM "awips2-python-scientific"
    buildRPM "awips2-python-awips"
-   #buildRPM "awips2-python-jep"
-   #buildRPM "awips2-python-gfe"
-   #buildRPM "awips2-python-numpy"
-   #buildRPM "awips2-python-pyparsing"
-   #buildRPM "awips2-python-six"
-   #buildRPM "awips2-python-nose"
-   #buildRPM "awips2-python-h5py"
+   buildRPM "awips2-python-jep"
+   buildRPM "awips2-python-gfe"
+   buildRPM "awips2-python-numpy"
+   buildRPM "awips2-python-pyparsing"
+   buildRPM "awips2-python-six"
+   buildRPM "awips2-python-nose"
+   buildRPM "awips2-python-h5py"
    #buildRPM "awips2-pypies"
 
-   #buildRPM "awips2-python-cycler"
-   #buildRPM "awips2-python-shapely"
-   #buildRPM "awips2-python-cython"
+   buildRPM "awips2-python-cycler"
+   buildRPM "awips2-python-shapely"
+   buildRPM "awips2-python-cython"
 
-   #buildRPM "awips2-python-metpy"
-   #buildRPM "awips2-python-cartopy"
-   #buildRPM "awips2-python-scipy"
-   #buildRPM "awips2-python-matplotlib"
-   #buildRPM "awips2-python-basemap"
+   buildRPM "awips2-python-metpy"
+   buildRPM "awips2-python-cartopy"
+   buildRPM "awips2-python-scipy"
+   buildRPM "awips2-python-matplotlib"
+   buildRPM "awips2-python-basemap"
 
    # DONE
-   #buildRPM "awips2-python-pint"
-   #buildRPM "awips2-python-dateutil"
+   buildRPM "awips2-python-pint"
+   buildRPM "awips2-python-dateutil"
    exit 0
 
 fi
@@ -295,7 +295,7 @@ if [ "${1}" = "-httpd" ]; then
    exit 0
 fi
 if [ "${1}" = "-postgres" ]; then
-   buildRPM "awips2-postgres"
+   buildRPM "awips2-postgresql" # this builds awips2-psql too
    exit 0
 fi
 if [ "${1}" = "-maps" ]; then
@@ -305,14 +305,19 @@ fi
 
 if [ "${1}" = "-database" ]; then
    #buildRPM "awips2-pypies"
-   buildRPM "awips2-database"
-   buildRPM "awips2-database-standalone-configuration"
-   buildRPM "awips2-maps-database"
-   buildRPM "awips2-ncep-database"
-   buildRPM "awips2-gfesuite-client"
-   buildRPM "awips2-gfesuite-server"
-   buildRPM "awips2-data.hdf5-topo"
-   buildRPM "awips2-data.gfe"
+   #buildRPM "awips2-cli"
+   #buildRPM "awips2-edex-environment"
+   #buildRPM "awips2-edex-configuration"
+   buildRPM "awips2-tools"
+   #buildRPM "awips2-notification"
+   #buildRPM "awips2-database"
+   #buildRPM "awips2-database-standalone-configuration"
+   #buildRPM "awips2-maps-database"
+   #buildRPM "awips2-ncep-database"
+   #buildRPM "awips2-gfesuite-client"
+   #buildRPM "awips2-gfesuite-server"
+   #buildRPM "awips2-data.hdf5-topo"
+   #buildRPM "awips2-data.gfe"
    #buildRPM "awips2-python-pytz"
    #buildRPM "awips2-python-setuptools"
    #buildRPM "awips2-maven"
@@ -588,8 +593,8 @@ if [ "${1}" = "-shp" ]; then
 fi
 
 if [ "${1}" = "-edex" ]; then
-   #buildRPM "awips2"
-   #buildRPM "awips2-common-base"
+   buildRPM "awips2"
+   buildRPM "awips2-common-base"
    buildEDEX
    #buildRPM "awips2-data.hdf5-topo"
    #if [ $? -ne 0 ]; then

@@ -18,6 +18,11 @@
 		value="org.eclipse.equinox.launcher_1.3.0.v20120522-1813.jar" />
 	
 	<target name="main-build" depends="clean">
+		<!--
+		<antcall target="build">
+		    <param name="feature"
+		        value="com.raytheon.uf.edex.datadelivery.feature" />
+		</antcall>-->
 		<antcall target="build">
 			<param name="feature"
 				value="com.raytheon.uf.common.base.feature" />
@@ -110,20 +115,18 @@
             <param name="feature"
                 value="com.raytheon.uf.edex.remote.script.feature" />
         </antcall>
-	<antcall target="build">
-	    <param name="feature"
-	        value="edu.wisc.ssec.cimss.edex.convectprob.feature" />
-	</antcall>
-	<antcall target="build">
-		<param name="feature"
-			value="com.raytheon.uf.edex.binlightning.feature" />
-	</antcall>
-	<!--
-	<antcall target="build">
-		<param name="feature"
-			value="gov.nasa.msfc.sport.edex.sportlma.feature" />
-	</antcall>
-	-->
+		<antcall target="build">
+		    <param name="feature"
+		        value="edu.wisc.ssec.cimss.edex.convectprob.feature" />
+		</antcall>
+		<antcall target="build">
+			<param name="feature"
+				value="com.raytheon.uf.edex.binlightning.feature" />
+		</antcall>
+		<antcall target="build">
+			<param name="feature"
+				value="gov.nasa.msfc.sport.edex.sportlma.feature" />
+		</antcall>
 	</target>
 
     <!--
@@ -215,7 +218,38 @@
 			</classpath>
 		</java>
 	</target>
+    <target name="buildHybrid" depends="clean">
+            <echo message="feature=com.raytheon.uf.common.base.feature" />
+            <java
+                    classname="org.eclipse.core.launcher.Main"
+                    fork="true"
+                    failonerror="true">
 
+                    <arg value="-application" />
+                    <arg value="org.eclipse.ant.core.antRunner" />
+                    <arg value="-buildfile" />
+                    <arg value="${uframe.eclipse}/plugins/${pde.build.script}" />
+                    <arg value="-DbaseLocation=${uframe.eclipse}" />
+                    <arg value="-Dbuilder=${basedir}/edex" />
+                    <arg value="-DbuildDirectory=${basedir}/edex/tmp" />
+                    <arg value="-DtopLevelElementId=com.raytheon.uf.common.base.feature" />
+                    <arg value="-Dbase=${basedir}/edex" />
+                    <arg value="-Dconfigs=${build.os},${build.ws},${build.arch}" />
+
+                    <arg value="-Dgenerate.p2.metadata=true" />
+                    <arg value="-Dp2.metadata.repo=file:/${basedir}/edex/postBuild/awips2/cave/.repository" />
+                    <arg value="-Dp2.artifact.repo=file:/${basedir}/edex/postBuild/awips2/cave/.repository" />
+                    <arg value="-Dp2.publish.artifacts=true" />
+                    <arg value="-DgenerateVersionsList=true" />
+
+                    <classpath>
+                            <pathelement 
+                                    location="${uframe.eclipse}/plugins/${eclipse.launcher.jar}" />
+                    </classpath>
+            </java>
+
+            <antcall target="clean" />
+    </target>
 	<target name="clean">
 		<if>
 			<available file="${basedir}/edex/includes"
