@@ -288,11 +288,6 @@
                    style="toggle">
              </command>
              <command
-                   commandId="com.raytheon.uf.viz.d2d.ui.actions.dataScaleAction"
-                   label="Data Scale"
-                   style="toggle">
-             </command>
-             <command
                    commandId="com.raytheon.uf.viz.d2d.ui.actions.imageCombination"
                    label="Image Combination"
                    style="toggle">
@@ -908,10 +903,6 @@
        id="com.raytheon.uf.viz.d2d.ui.map.actions"
        point="org.eclipse.ui.handlers">
          <handler
-               class="com.raytheon.uf.viz.d2d.ui.actions.DataScaleAction"
-               commandId="com.raytheon.uf.viz.d2d.ui.actions.dataScaleAction">
-         </handler>
-         <handler
                class="com.raytheon.uf.viz.d2d.ui.actions.ChangeLegendModeHandler"
                commandId="com.raytheon.uf.viz.d2d.ui.actions.changeLegendMode">
          </handler>
@@ -1425,12 +1416,6 @@
                name="loadMode"
                optional="false">
          </commandParameter>
-      </command>
-      <command
-            id="com.raytheon.uf.viz.d2d.ui.actions.dataScaleAction"
-            categoryId="com.raytheon.uf.viz.d2d.ui"
-            description="Toggle the data scale enabled option"
-            name="Toggle Data Scale">
       </command>
       <command
             id="com.raytheon.uf.viz.d2d.ui.actions.changeLegendMode"

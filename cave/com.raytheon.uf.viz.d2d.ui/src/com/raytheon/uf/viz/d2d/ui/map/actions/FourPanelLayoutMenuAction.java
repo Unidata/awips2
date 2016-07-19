@@ -65,7 +65,8 @@ public class FourPanelLayoutMenuAction extends AbstractRightClickAction {
     @Override
     public void run() {
         if (getContainer() instanceof IMultiPaneEditor == false
-                || getContainer().getDisplayPanes()[0].getRenderableDisplay() instanceof ID2DRenderableDisplay == false) {
+                || getContainer().getDisplayPanes()[0].getRenderableDisplay() 
+                instanceof ID2DRenderableDisplay == false) {
             return;
         }
         IMultiPaneEditor editor = (IMultiPaneEditor) getContainer();
