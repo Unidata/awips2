@@ -1,5 +1,5 @@
 <project default="main" basedir=".">
-	<property name="localization.sites" value="OAX" />
+	<property name="localization.sites" value="BOU" />
 	<property name="deploy.python" value="true" />
 	<!-- 
 		The python packages to deploy - provided that 

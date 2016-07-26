@@ -143,7 +143,7 @@
     </condition>
     
     <!-- Set the edex localization site -->
-    <property name="def.site.identifier" value="OAX"/>
+    <property name="def.site.identifier" value="BOU"/>
     <condition property="site.identifier" value="%siteIdentifier" else="${def.site.identifier}">
     	<isset property="installer"/>
     </condition>

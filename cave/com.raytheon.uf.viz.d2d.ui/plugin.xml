@@ -273,6 +273,7 @@
                    name="afterLayoutGroup"
                    visible="true">
              </separator>
+             <dynamic class="com.raytheon.viz.ui.actions.ToggleToolbarContributionItem" id="com.raytheon.uf.viz.d2d.ui.actions.ToggleToolbarContributionItem"/>
           </menu>
           <menu
                 id="options"
@@ -411,6 +412,12 @@
              </visibleWhen>
             <separator name="RADAR_MENU_START" visible="false"/>
          </menu>
+         <menu id="scan" mnemonic="C" label="SCAN">
+         	<visibleWhen>
+         		<reference definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet"></reference>
+         	</visibleWhen>
+         	<separator name="SCAN_MENU_START" visible="false"></separator>
+         </menu>
 
          <menu
                id="D2Dmaps"
@@ -427,8 +434,22 @@
              </dynamic>
          </menu>
        </menuContribution>
-         <menuContribution
-               locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+		<menuContribution
+			locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+			<toolbar id="d2d-1">
+			   	<command
+			   		commandId="com.raytheon.uf.viz.d2d.ui.actions.loadmodebutton"
+			   		id="com.raytheon.uf.viz.d2d.ui.actions.loadmode"
+			   		label="Load Mode"
+			   		style="pulldown"
+			   		tooltip="Load Mode">
+			   		<visibleWhen>
+			   			<reference
+			   				definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+			   			</reference>
+			   		</visibleWhen>
+			   	</command>
+			</toolbar>
              <toolbar
                   id="mapControls">
                <command
@@ -464,21 +485,6 @@
                      </reference>
                   </visibleWhen>
                </command>
-            </toolbar>
-            <toolbar
-                  id="d2d-1">
-                <command
-                   commandId="com.raytheon.uf.viz.d2d.ui.actions.loadmodebutton"
-                   id="com.raytheon.uf.viz.d2d.ui.actions.loadmode"
-                   label="Load Mode"
-                   style="pulldown"
-                   tooltip="Load Mode">
-                <visibleWhen>
-                   <reference
-                         definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
-                   </reference>
-                </visibleWhen>
-                </command>
             </toolbar>
             <toolbar
                   id="loopControls">
@@ -972,7 +978,7 @@
                class="com.raytheon.uf.viz.d2d.ui.map.actions.ToggleResourceHandler"
                commandId="com.raytheon.viz.ui.actions.toggleResource">
             <activeWhen>
-               <reference
+               <reference	
                      definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
                </reference>
             </activeWhen>
@@ -992,6 +998,10 @@
          <handler
                class="com.raytheon.uf.viz.d2d.ui.actions.ImageCombinationAction"
                commandId="com.raytheon.uf.viz.d2d.ui.actions.imageCombination">
+         </handler>
+         <handler
+         		class="com.raytheon.uf.viz.d2d.ui.actions.ShowHistoryList"
+         		commandId="com.raytheon.viz.ui.showHistoryList">
          </handler>
 	     <handler
 	           class="com.raytheon.uf.viz.d2d.ui.actions.AddAWIPSProcedure"
@@ -1512,6 +1522,12 @@
             categoryId="com.raytheon.uf.viz.d2d.ui"
             description="Toggle the image combination option"
             name="Image Combination">
+      </command>
+      <command
+      		id="com.raytheon.viz.ui.showHistoryList"
+      		categoryId="com.raytheon.uf.viz.d2d.ui"
+      		description="Show the d2d history list"
+      		name="Show History List">
       </command>
       <command
             id="com.raytheon.viz.ui.openAWIPSProcedure"

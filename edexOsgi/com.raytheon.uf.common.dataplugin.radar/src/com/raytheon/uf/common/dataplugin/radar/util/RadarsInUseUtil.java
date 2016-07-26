@@ -52,7 +52,6 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * ------------ ---------- ----------- --------------------------
  * Jul 14, 2010            mnash       Initial creation
  * Feb 15, 2016 5244       nabowle     Replace deprecated LocalizationFile methods.
- * Jun 23, 2016            mjames@ucar Add TDWR radars
  * 
  *
  * </pre>
@@ -75,8 +74,6 @@ public class RadarsInUseUtil {
     public static final String ARSR_CONSTANT = "ARSR_RADARS";
 
     public static final String MOSAIC_CONSTANT = "MOSAIC_RADARS";
-
-    public static final String TDWR_CONSTANT = "TDWR_RADARS";
 
     private static final IUFStatusHandler handler = UFStatus
             .getHandler(RadarsInUseUtil.class);

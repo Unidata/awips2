@@ -41,7 +41,7 @@ if [ -d ${RPM_BUILD_ROOT} ]; then
 fi
 
 %build
-# Build all WFO site localization Map Scales (States.xml, WFO.xml)
+# Build all WFO site localization Map Scales (Regional.xml, States.xml, WFO.xml)
 BUILD_DIR=%{_baseline_workspace}/rpms/awips2.core/Installer.localization/
 UTIL=%{_baseline_workspace}/localization/utility
 file=$BUILD_DIR/wfo.dat

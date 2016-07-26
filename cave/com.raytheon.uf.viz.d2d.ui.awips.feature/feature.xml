@@ -26,12 +26,6 @@
    </requires>
 
    <plugin
-         id="com.raytheon.uf.viz.d2d.ui.local"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
          id="com.raytheon.uf.viz.d2d.ui.ncephydro"
          download-size="0"
          install-size="0"

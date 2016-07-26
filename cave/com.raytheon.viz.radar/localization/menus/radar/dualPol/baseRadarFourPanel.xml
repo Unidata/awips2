@@ -19,6 +19,12 @@
 		further_licensing_information.
 	-->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<contribute xsi:type="bundleItem"
+		file="bundles/DefaultRadarFourPanel.xml" menuText="4-Panel Z+DVL/SRM+V/KDP+HC/EET"
+		id="05dualpolbasedata">
+		<substitute key="icao" value="${icao}" />
+		<substitute key="elevation" value="0.0--0.5" />
+	</contribute>
 	<contribute xsi:type="titleItem" id="${icao}4PanelZ+SRMZDR+VKDP+HCCC+SW"
 		titleText="------ 4-Panel Z+SRM/ZDR+V/KDP+HC/CC ------" />
 	<contribute xsi:type="bundleItem"

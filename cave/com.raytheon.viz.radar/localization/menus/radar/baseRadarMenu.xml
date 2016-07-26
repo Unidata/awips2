@@ -7,15 +7,19 @@
 	________________________Omaha,_NE_68106 ________________________402.291.0100 
 	See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for further_licensing_information. -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<contribute xsi:type="subMenu" menuText="NEXRAD Stations"
+	<contribute xsi:type="subMenu" menuText="NEXRAD - Local"
 		id="RadarMenuDialRadarsSubMenu">
 		<contribute xsi:type="subinclude" fileName="menus/radar/dialRadars.xml" />
+	</contribute>
+	<contribute xsi:type="subMenu" menuText="NEXRAD - All"
+		id="RadarMenuDialAllRadarsSubMenu">
+		<contribute xsi:type="subinclude" fileName="menus/radar/dialAllRadars.xml" />
 	</contribute>
 	<contribute xsi:type="subMenu" menuText="TDWR Stations"
 		id="RadarMenuTwdrRadarsSubMenu">
 		<contribute xsi:type="subinclude" fileName="menus/radar/tdwrRadars.xml" />
 	</contribute>
-	<contribute xsi:type="titleItem" titleText="------ FNEXRAD Composites ------"
+	<contribute xsi:type="titleItem" titleText="------ CONUS Composites ------"
 		id="RadarMosaic" />
 	<!--  Unidata Composite -->
 	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarComposite.xml" 
@@ -54,7 +58,7 @@
         <substitute key="colormap" value="Radar/8-bit STP"/>
 		<substitute key="interpolate" value="true"/>
     </contribute>
-	<contribute xsi:type="titleItem" titleText="------ Mosaic ------"
+	<contribute xsi:type="titleItem" titleText="------ Local Mosaic ------"
 		id="RadarMosaic" />
 	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
 		menuText="N0Q - Base Reflectivity" id="Radar05Reflectivity">
