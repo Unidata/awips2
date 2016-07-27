@@ -131,7 +131,7 @@ Public_createGrids = [
         ("Fcst", "IceAccum", "SCALAR", 12, 24, 0, "all"),
         ("Fcst", "IceAccum", "SCALAR", 24, 36, 3, "all"),
         ("Fcst", "IceAccum", "SCALAR", 36, 48, 5, "all"),
-        ("Fcst", "IceAccum", "SCALAR", 48, 60, 10, "all"),
+        ("Fcst", "IceAccum", "SCALAR", 48, 60, 5, "all"),
         ("Fcst", "IceAccum", "SCALAR", 60, 72, 0, "all"),
         ("Fcst", "IceAccum", "SCALAR", 72, 84, 2, "all"),
         ("Fcst", "IceAccum", "SCALAR", 84, 96, 4, "all"),

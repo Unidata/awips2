@@ -86,10 +86,10 @@ public class ProcedureUtil {
         req.setPreview(pi);
         req.setRefSet(pi.getEditAction().getRefSet());
         req.setTimeRange(pi.getEditAction().getTimeRange());
+        req.setVarDict(varDict);
 
         final int[] returnCode = new int[1];
-        if (varDict != null) {
-            req.setVarDict(varDict);
+        if (varDict != null && (!varDict.isEmpty())) {
             returnCode[0] = IDialogConstants.OK_ID;
         } else {
             VizApp.runSync(new Runnable() {
@@ -97,7 +97,7 @@ public class ProcedureUtil {
                 public void run() {
                     List<FieldDefinition> varList = dm.getProcedureInterface()
                             .getVarDictWidgets(procName);
-                    if ((varList != null) && (varList.size() > 0)) {
+                    if ((varList != null) && (!varList.isEmpty())) {
                         /*
                          * The SelectionDlg changes based on the procedure.
                          * Since it is non-modal several dialogs may be

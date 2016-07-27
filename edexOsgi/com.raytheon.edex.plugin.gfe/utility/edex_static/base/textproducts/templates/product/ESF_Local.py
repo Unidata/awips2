@@ -33,6 +33,7 @@
 # Date            Ticket#        Engineer    Description
 # ------------    ----------     ----------- --------------------------
 # Oct 20, 2014    #3685          randerso    Changed to support mixed case
+# Jul 27, 2016    #5769          randerso    Fixed case of MND header
 #
 ##
 
@@ -105,9 +106,9 @@ class TextProduct(GenericReport.TextProduct):
         #
         # First, generate WMO lines
         #
-
-        fcst = self._wmoID + " " + self._fullStationID + " " + \
-               self._ddhhmmTime + "\n" + self._pil + "\n"
+        s = self._wmoID + " " + self._fullStationID + " " + \
+            self._ddhhmmTime + "\n" + self._pil + "\n"
+        fcst = s.upper() 
 
         #
         # Next, add the non-segmented UGC data
@@ -131,7 +132,7 @@ class TextProduct(GenericReport.TextProduct):
         s = productName + "\n" + \
                "National Weather Service " + self._wfoCityState + \
                "\n" + issuedByString + self._timeLabel + "\n\n"
-        fcst = fcst + s.upper()
+        fcst = fcst + s
         return fcst
 
     def _makeProduct(self, fcst, editArea, areaLabel, argDict):
