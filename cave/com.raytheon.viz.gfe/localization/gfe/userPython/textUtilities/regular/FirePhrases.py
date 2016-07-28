@@ -145,7 +145,7 @@ class FirePhrases(ScalarPhrases.ScalarPhrases, VectorRelatedPhrases.VectorRelate
         node.set("trendElement", trendElement)
         node.set("descriptor", "")
         if indent == 1:
-            node.set("indentLabel", "   24 HR TREND......")            
+            node.set("indentLabel", "   24 hr trend......")            
         return self.DONE()
 
     def trend_DayOrNight_words(self, tree, node):

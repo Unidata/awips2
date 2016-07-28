@@ -261,9 +261,9 @@ scripts = [
         "Areas of blowing snow.","Patchy fog.","Lows in the mid 60s.","Highs around 80.",
         "Southwest winds around 65 mph.", 
 
-        "Tide Information...",
+        "TIDE INFORMATION...",
 
-        "At Venice Inlet...",
+        "AT VENICE INLET...",
 
         "High tide at 2:34 AM",
         "Low tide at 10:18 AM",
@@ -298,16 +298,16 @@ scripts = [
         "Rip current risk....Moderate. A moderate risk of rip currents means wind and or wave conditions support stronger or more frequent rip currents. Always have a flotation device with you in the water.", 
         "Waterspout threat...Very slight chance of waterspouts.",  
         ".OUTLOOK...",
-        "Tide Information...",
+        "TIDE INFORMATION...",
 
-        "At Cedar Key...",
+        "AT CEDAR KEY...",
 
         "High tide 3.1 feet at 4:27 AM",
         "Low tide 0.0 feet at 11:15 AM",
         "High tide 3.0 feet at 5:42 PM",
         "Low tide 0.9 feet at 11:42 PM",
 
-        "At Venice Inlet...",
+        "AT VENICE INLET...",
 
         "High tide 1.6 feet at 2:34 AM",
         "Low tide -0.1 feet at 10:18 AM",
