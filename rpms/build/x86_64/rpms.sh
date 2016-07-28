@@ -102,8 +102,38 @@ function buildCAVE()
 
    return 0
 }
-
 function buildLocalizationRPMs()
+{
+   awips2_core_directory=${WORKSPACE}/rpms/awips2.core
+   installer_localization_directory="${awips2_core_directory}/Installer.localization"
+   localization_SPECIFICATION="${installer_localization_directory}/component.spec"
+
+   export LOCALIZATION_DIRECTORY="localization"
+   export COMPONENT_NAME="awips2-localization"
+
+   echo "Building localization rpm"
+
+   rpmbuild -ba \
+      --define '_topdir %(echo ${AWIPSII_TOP_DIR})' \
+      --define '_component_version %(echo ${AWIPSII_VERSION})' \
+      --define '_component_release %(echo ${AWIPSII_RELEASE})' \
+      --define '_component_name %(echo ${COMPONENT_NAME})' \
+      --define '_baseline_workspace %(echo ${WORKSPACE})' \
+      --define '_localization_directory %(echo ${LOCALIZATION_DIRECTORY})' \
+      --define '_build_site %(echo ${AWIPSII_BUILD_SITE})' \
+      --buildroot ${AWIPSII_BUILD_ROOT} \
+      ${localization_SPECIFICATION}
+   RC=$?
+   unset LOCALIZATION_DIRECTORY
+   unset COMPONENT_NAME
+   if [ ${RC} -ne 0 ]; then
+      return 1
+   fi
+
+   return 0
+}
+
+function buildLocalizationRPMs2()
 {
    awips2_core_directory=${WORKSPACE}/rpms/awips2.core
    extract_site_pl="${awips2_core_directory}/deploy.builder/extractSite.pl"

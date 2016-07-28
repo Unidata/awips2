@@ -136,9 +136,8 @@ function buildLocalizationRPMs()
       --define '_component_release %(echo ${AWIPSII_RELEASE})' \
       --define '_component_name %(echo ${COMPONENT_NAME})' \
       --define '_baseline_workspace %(echo ${WORKSPACE_DIR})' \
-         --define '_localization_site %(echo ${site})' \
       --define '_localization_directory %(echo ${LOCALIZATION_DIRECTORY})' \
-         --define '_build_site %(echo ${AWIPSII_BUILD_SITE})' \
+      --define '_build_site %(echo ${AWIPSII_BUILD_SITE})' \
       --buildroot ${BUILDROOT_DIR} \
       ../Installer.localization/component.spec
    RC=$?

@@ -49,6 +49,13 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
+FILES_STATIC="%{_static_files}/hydroapps"
+/bin/cp -rf ${FILES_STATIC}/* \
+   %{_build_root}/awips2/edex/data/share/hydroapps/lib/native/linux32/
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
 /usr/bin/find %{_build_root}/awips2/edex/data/share -name .gitignore -exec rm -rf {} \;
 if [ $? -ne 0 ]; then
    exit 1

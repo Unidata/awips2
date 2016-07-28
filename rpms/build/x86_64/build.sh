@@ -107,31 +107,31 @@ if [ "${1}" = "-jep" ]; then
    buildRPM "awips2-python-jep"
 fi
 if [ "${1}" = "-pydev" ]; then
-   buildRPM "awips2-python"
-   buildRPM "awips2-python-scientific"
+   #buildRPM "awips2-python"
+   #buildRPM "awips2-python-scientific"
    buildRPM "awips2-python-awips"
-   buildRPM "awips2-python-jep"
-   buildRPM "awips2-python-gfe"
-   buildRPM "awips2-python-numpy"
-   buildRPM "awips2-python-pyparsing"
-   buildRPM "awips2-python-six"
-   buildRPM "awips2-python-nose"
-   buildRPM "awips2-python-h5py"
+   #buildRPM "awips2-python-jep"
+   #buildRPM "awips2-python-gfe"
+   #buildRPM "awips2-python-numpy"
+   #buildRPM "awips2-python-pyparsing"
+   #buildRPM "awips2-python-six"
+   #buildRPM "awips2-python-nose"
+   #buildRPM "awips2-python-h5py"
    #buildRPM "awips2-pypies"
 
-   buildRPM "awips2-python-cycler"
-   buildRPM "awips2-python-shapely"
-   buildRPM "awips2-python-cython"
+   #buildRPM "awips2-python-cycler"
+   #buildRPM "awips2-python-shapely"
+   #buildRPM "awips2-python-cython"
 
-   buildRPM "awips2-python-metpy"
-   buildRPM "awips2-python-cartopy"
-   buildRPM "awips2-python-scipy"
-   buildRPM "awips2-python-matplotlib"
-   buildRPM "awips2-python-basemap"
+   #buildRPM "awips2-python-metpy"
+   #buildRPM "awips2-python-cartopy"
+   #buildRPM "awips2-python-scipy"
+   #buildRPM "awips2-python-matplotlib"
+   #buildRPM "awips2-python-basemap"
 
    # DONE
-   buildRPM "awips2-python-pint"
-   buildRPM "awips2-python-dateutil"
+   #buildRPM "awips2-python-pint"
+   #buildRPM "awips2-python-dateutil"
    exit 0
 
 fi

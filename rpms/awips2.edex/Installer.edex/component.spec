@@ -20,6 +20,7 @@ requires: awips2-python
 requires: awips2-java
 requires: awips2-psql
 requires: awips2-yajsw
+Obsoletes: awips2-edex-grib < 16.1.6
 
 %description
 AWIPS II Edex Installation - Installs and configures AWIPS II Edex.
