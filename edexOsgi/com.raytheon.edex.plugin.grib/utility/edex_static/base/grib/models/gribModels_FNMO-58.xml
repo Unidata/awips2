@@ -10,6 +10,111 @@
 
 <gribModelSet>
 
+	<!-- Unidata Additions -->
+
+	<model>
+		<name>NAVGEM</name>
+		<center>58</center>
+		<subcenter>0</subcenter>
+		<grid>720361001</grid>
+		<process>
+			<id>58</id>
+			<id>18</id>
+		</process>
+	</model>
+
+	<model>
+		<name>COAMPS-Europe</name>
+		<center>58</center>
+		<subcenter>0</subcenter>
+		<grid>301188</grid>
+		<process>
+			<id>13</id>
+		</process>
+	</model>
+
+	<model> 
+		<name>COAMPS-WesternAtlantic</name>
+		<center>58</center>
+		<subcenter>0</subcenter>
+		<grid>301254</grid>
+		<process>
+			<id>13</id>
+		</process>
+	</model>
+
+	<model> 
+		<name>COAMPS-NortheastPacific</name>
+		<center>58</center>
+		<subcenter>0</subcenter>
+		<grid>271151</grid>
+		<process>
+			<id>13</id>
+		</process>
+	</model>
+
+	<model> 
+		<name>COAMPS-CentralAmerica</name>
+		<center>58</center>
+		<subcenter>0</subcenter>
+		<grid>461298</grid>
+		<process>
+			<id>13</id>
+		</process>
+	</model>
+
+	<model> 
+		<name>COAMPS-SouthernCalifornia</name>
+		<center>58</center>
+		<subcenter>0</subcenter>
+		<grid>128141</grid>
+		<process>
+			<id>13</id>
+		</process>
+	</model>
+
+	<model>
+		<name>FNMOC-WW3</name>
+		<center>58</center>
+		<subcenter>0</subcenter>
+		<grid>360181</grid>
+		<process>
+			<id>110</id>
+		</process>
+	</model>
+
+	<model> 
+		<name>FNMOC-WW3-Europe</name>
+		<center>58</center>
+		<subcenter>0</subcenter>
+		<grid>301188</grid>
+		<process>
+			<id>11</id>
+		</process>
+	</model>
+
+	<model> 
+		<name>FNMOC-FAROP</name>
+		<center>58</center>
+		<subcenter>0</subcenter>
+		<grid>360181001</grid>
+		<process>
+			<id>135</id>
+		</process>
+	</model>
+	<model>
+		<name>FNMOC-NCODA</name>
+		<center>58</center>
+		<subcenter>0</subcenter>
+		<grid>1440721</grid>
+		<process>
+			<id>78</id>
+		</process>
+	</model>
+
+
+	<!-- END Unidata Additions -->
+	
 	<!-- SUBCENTER 20 -->
 
 	<model>
@@ -118,7 +223,7 @@
 	</model>
 
 	<model>
-		<name>fnmocWave</name>
+		<name>FNMOC-WW3</name>
 		<center>58</center>
 		<subcenter>0</subcenter>
 		<grid>2291</grid>
@@ -137,27 +242,4 @@
 		</process>
 	</model>
 
-	<model>
-		<name>NOGAPS</name>
-		<center>58</center>
-		<subcenter>20</subcenter>
-		<grid>218</grid>
-		<process>
-			<id>120</id>
-		</process>
-	</model>
-
-	<model>
-		<name>AK-NOGAPS</name>
-		<center>58</center>
-		<subcenter>20</subcenter>
-		<grid>242</grid>
-		<process>
-			<id>120</id>
-		</process>
-	</model>
-
-
-
-	<!-- END SUBCENTER 20 -->
 </gribModelSet>

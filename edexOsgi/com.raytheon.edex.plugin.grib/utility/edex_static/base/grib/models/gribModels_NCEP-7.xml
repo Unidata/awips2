@@ -1650,7 +1650,7 @@
 
         <!-- 0.25 degree GFS -->
         <model>
-                <name>GFS25</name>
+                <name>GFS</name>
                 <center>7</center>
                 <subcenter>0</subcenter>
                 <grid>193</grid>
@@ -1663,7 +1663,7 @@
 
 	<!-- 0.5 degree GFS -->
 	<model>
-		<name>GFS</name>
+		<name>gfsP5</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>4</grid>
@@ -1710,7 +1710,7 @@
 	</model>
 
 	<model>
-		<name>GFS</name>
+		<name>GFS-1p0</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>228</grid>
@@ -1722,7 +1722,7 @@
 	</model>
 
 	<model>
-		<name>GFS</name>
+		<name>GFS-1p0</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>361181001</grid>
@@ -1735,7 +1735,7 @@
 	</model>
 
 	<model>
-		<name>GFS</name>
+		<name>GFS-1p0</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>372</grid>
@@ -1756,7 +1756,7 @@
 	</model>
 
 	<model>
-		<name>gfs</name>
+		<name>GFS-1p0</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>372</grid>
@@ -1766,7 +1766,7 @@
 	</model>
 
 	<model>
-		<name>GFS</name>
+		<name>GFS-1p0</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>145073001</grid>
@@ -1778,7 +1778,7 @@
 	</model>
 
 	<model>
-		<name>GFS</name>
+		<name>GFS-1p0</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>375</grid>
