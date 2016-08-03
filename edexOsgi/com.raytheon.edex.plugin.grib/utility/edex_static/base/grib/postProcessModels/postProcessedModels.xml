@@ -4,7 +4,7 @@
     <!-- Post Processor definitions for models containing grids needing to be 
         stitched together -->
     <postProcessedModel id="Ensemble">
-        <modelName>UKMET[0-9]{2}|ECMF[0-9]|ENSEMBLE[0-9]{2}|AVN[0-9]{2}
+        <modelName>UKMET[0-9]{2}|ECMF[0-9]|ENSEMBLE[0-9]{2}
         </modelName>
         <processorName>EnsembleGridAssembler</processorName>
     </postProcessedModel>
@@ -13,7 +13,7 @@
         containing identical metadata. This data is primarily from RFCs. The overwrite 
         post processor is used to prevent updated data from being discarded as duplicates. -->
     <postProcessedModel id="Overwrite">
-        <modelName>HPCqpfNDFD|RFCqpf|HPCqpf|MPE-.*|QPE-.*|URMA25|</modelName>
+        <modelName>HPCqpfNDFD|RFCqpf|HPCqpf|MPE-.*|QPE-.*|URMA25</modelName>
         <processorName>OverwriteGribPostProcessor</processorName>
     </postProcessedModel>
 
@@ -34,7 +34,7 @@
     </postProcessedModel>
 
     <postProcessedModel id="LiftedIndex">
-        <modelName>GFS.*|ETA.*|DGEX.*|HiResW.*</modelName>
+        <modelName>GFS.*|NAM.*|DGEX.*|HiResW.*</modelName>
         <processorName>LiftedIndexPostProcessor</processorName>
     </postProcessedModel>
 
@@ -63,10 +63,10 @@
         <processorName>PrecipAccumPostProcessor</processorName>
     </postProcessedModel>
 
-	<!-- Post processor definition for the RAP40 model -->
-	<postProcessedModel id="RAP40">
-		<modelName>RAP40</modelName>
-		<processorName>RAP40GribPostProcessor</processorName>
+    <!-- Post processor definition for the RAP40 model -->
+    <postProcessedModel id="RAP40">
+	<modelName>RAP40</modelName>
+	<processorName>RAP40GribPostProcessor</processorName>
     </postProcessedModel>
 
     <!-- Post processor definition for the CPCoutlook211 model -->
@@ -92,21 +92,21 @@
         <processorName>LapsPostProcessor</processorName>
     </postProcessedModel>
 
-	<!-- Post processor definition for the RAP13 model -->
-	<postProcessedModel id="RAP13">
-		<modelName>RAP13</modelName>
-		<processorName>RAP13GribPostProcessor</processorName>
+    <!-- Post processor definition for the RAP13 model -->
+    <postProcessedModel id="RAP13">
+	<modelName>RAP13</modelName>
+	<processorName>RAP13GribPostProcessor</processorName>
     </postProcessedModel>
 
     <!-- Post processor definition for HPCqpfNDFD -->
     <postProcessedModel id="HPCqpfNDFD">
         <modelName>HPCqpfNDFD</modelName>
-            <processorName>HPCqpfPostProcessor</processorName>
-        </postProcessedModel>
+        <processorName>HPCqpfPostProcessor</processorName>
+    </postProcessedModel>
 
     <!-- Post processor definition for the GFS20 model -->
     <postProcessedModel id="GFS20">
-        <modelName>GFS215|GFS217|GFS20-.*</modelName>
+        <modelName>GFS20.*</modelName>
         <processorName>PrecipAccumPostProcessor</processorName>
     </postProcessedModel>
 
