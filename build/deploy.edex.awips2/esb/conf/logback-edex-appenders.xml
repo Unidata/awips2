@@ -10,6 +10,7 @@
    </appender>
 
    <!-- Performance log --> 
+   <!--
    <appender name="PerformanceLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
       <rollingPolicy class="com.raytheon.uf.common.logback.policy.StdTimeBasedRollingPolicy">
          <name>performance</name>
@@ -20,4 +21,5 @@
    <appender name="PerformanceLogAsync" class="ch.qos.logback.classic.AsyncAppender">            
       <appender-ref ref="PerformanceLog" />
    </appender> 
+   -->
 </included>
