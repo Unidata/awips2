@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<svg width="80" height="80" 
+viewBox="0 0 80 80" 
+overflow="visible" 
+xmlns="http://www.w3.org/2000/svg" 
+xmlns:xlink="http://www.w3.org/1999/xlink" style="stroke: rgb(255,255,255);">
+   <defs>
+<script type="text/python" plotDelegate="plotDelegate">
+import re
+
+class ObsPlotDelegate(PlotDelegate):
+    def __init__(self):
+        PlotDelegate.__init__(self)
+
+    def getSampleText(self, rec):
+        sampleString = rec.getString("rawMETAR")
+        #strip WMO header
+        sampleString = re.sub("(\\s|\\S)+(METAR)", "\\2", sampleString)
+        #strip all multiple spaces and replace newlines with spaces
+        sampleString = re.sub("(\\s)+", " ", sampleString)
+
+        return sampleString
+
+plotDelegate = ObsPlotDelegate()
+
+</script>
+<style type="text/css">
+<![CDATA[
+        @font-face { font-family: "StandardFont";
+                src: url(Standard.svg#Standard); }
+
+        text.text
+            {
+                fill: none;
+                font-size: 1em;
+                stroke-width: 1px;
+                font-family: StandardFont;
+                font-size: 1em;
+            }
+]]>
+</style>
+
+<symbol overflow="visible" id="plotData" class="info">
+  <text id="pressure" plotMode="text" plotParam="seaLevelPress" plotUnit="dPa" plotFormat="%5.0f" style="text-anchor: start;" x="0px" y="0px">75</text>
+</symbol>
+</defs>
+<use id="mslp" x="40" y="40" width="80" height="80" visibility="visible" xlink:href="#plotData"/>
+</svg>
