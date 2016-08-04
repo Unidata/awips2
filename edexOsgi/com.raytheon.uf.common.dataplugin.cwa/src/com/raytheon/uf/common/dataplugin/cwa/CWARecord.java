@@ -29,8 +29,6 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
-import org.hibernate.annotations.Index;
-
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
@@ -61,22 +59,16 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jul 23, 2015 2360       rferrel     Add name to unique constraint.
  * Jan 25, 2016 5254       tgurney     Remove dataURI column and update unique
  *                                     constraint.
+ * Aug 04, 2016 5783       tgurney     Add forecasttime to unique constraint
  * 
  * </pre>
  * 
  * @author jsanchez
- * @version 1.0
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "cwaseq")
 @Table(name = "cwa", uniqueConstraints = { @UniqueConstraint(name = "uk_cwa_datauri_fields", columnNames = {
-        "refTime", "eventId" }) })
-/*
- * Both refTime and forecastTime are included in the refTimeIndex since
- * forecastTime is unlikely to be used.
- */
-@org.hibernate.annotations.Table(appliesTo = "cwa", indexes = { @Index(name = "cwa_refTimeIndex", columnNames = {
-        "refTime", "forecastTime" }) })
+        "refTime", "forecastTime", "eventId" }) })
 @DynamicSerialize
 public class CWARecord extends PersistablePluginDataObject implements
         IPointData, IPersistable {

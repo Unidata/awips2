@@ -3,17 +3,19 @@
 #            multi-column unique constraint
 
 TABLE=tcg
+DBUSER=awips
 
 PSQL="/awips2/psql/bin/psql"
 
 echo "INFO: Altering table ${TABLE}"
 
-${PSQL} -U awips -d metadata << EOF
+${PSQL} -U ${DBUSER} -d metadata << EOF
 begin transaction;
 alter table ${TABLE}
     drop constraint if exists uk_${TABLE}_datauri_fields,
     drop column if exists datauri,
     add constraint uk_${TABLE}_datauri_fields unique
-        (reftime, producttype, modelname, latitude, longitude, stationid);
+        (reftime, forecasttime, producttype, modelname, latitude, longitude, stationid);
+drop index if exists tcg_refTimeIndex;
 commit transaction;
 EOF
