@@ -23,7 +23,7 @@
 			menuText="METAR Station Plot" id="MetarPlot">
     </contribute>
 	<contribute xsi:type="bundleItem" file="bundles/SurfaceColorTemp.xml" 
-		menuText="METAR Sfc Temps" id="MetarPlot">
+		menuText="METAR Color Temps" id="MetarPlot">
 	</contribute> 
 	<contribute xsi:type="bundleItem" file="bundles/SurfacePlotWinds.xml"
 			menuText="METAR Winds" id="MetarPlot">

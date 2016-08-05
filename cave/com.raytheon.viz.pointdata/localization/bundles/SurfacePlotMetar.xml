@@ -42,7 +42,7 @@
 								plotModelFile="stdObsDesign.svg" spiFile="basemaps/MTR.spi"
 								isUpdatingOnMetadataOnly="true" retrieveData="false"
 								isRequeryNecessaryOnTimeMatch="true" isTopOfTheHour="true" pixelSizeHint="45">
-								<binOffset posOffset="1800" negOffset="1800" virtualOffset="0"/>
+								<binOffset posOffset="600" negOffset="600" virtualOffset="0"/>
 								<metadataMap>
 									<mapping key="reportType">
 										<constraint constraintValue="METAR" constraintType="EQUALS" />
