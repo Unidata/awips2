@@ -23,6 +23,7 @@ alter table ${TABLE}
     alter key set not null,
     add constraint uk_${TABLE}_datauri_fields unique
         (reftime, forecasttime, wxLayer, wxType, key);
-drop index if exists bufrsigwx_refTimeIndex;
+-- "bufrswigwx" not a typo. name was misspelled when the index was created.
+drop index if exists bufrswigwx_refTimeIndex;
 commit transaction;
 EOF
