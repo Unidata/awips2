@@ -42,8 +42,6 @@ import jep.JepException;
 
 import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
 import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
-import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
-import com.raytheon.uf.common.gfe.ifpclient.IFPClient;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -54,7 +52,6 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.python.PyUtil;
-import com.raytheon.uf.common.python.PythonIncludePathUtil;
 import com.raytheon.uf.common.python.PythonScript;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
@@ -70,23 +67,31 @@ import com.raytheon.viz.gfe.textformatter.CombinationsFileUtil.ComboData.Entry;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jul 25, 2008            mnash       Initial creation
- * Aug 07, 2013       1561 njensen     Use pm.listFiles() instead of pm.listStaticFiles()
- * Sep 05, 2013     #2329  randerso    Moved genereateAutoCombinationsFile here
- *                                     Cleaned up error handling
- * Sep 30, 2013      2361  njensen     Use JAXBManager for XML
- * Feb 05, 2014     #2591  randerso    Forced retrieval of combinations file
- *                                     Implemented retry on error
- * Aug 27, 2014     #3561  randerso    Yet another attempt to fix combinations file updating
- * Sep 08, 2014     #3592  randerso    Changed to use only list site level files as all 
- *                                     combo files are saved to the site level
- * Oct 07, 2015     #4695  dgilling    Code cleanup to remove compile warnings.
- * Nov 12, 2015      4834  njensen     Changed LocalizationOpFailedException to LocalizationException
- * Nov 18, 2015     #5129  dgilling    Support new IFPClient.
- * Feb 05, 2016      5242  dgilling    Remove calls to deprecated Localization APIs.
- * Apr 25, 2016  #5605     randerso    Switched back to writing combinations file using Localization
+ * 
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Jul 25, 2008           mnash     Initial creation
+ * Aug 07, 2013  1561     njensen   Use pm.listFiles() instead of
+ *                                  pm.listStaticFiles()
+ * Sep 05, 2013  2329     randerso  Moved genereateAutoCombinationsFile here
+ *                                  Cleaned up error handling
+ * Sep 30, 2013  2361     njensen   Use JAXBManager for XML
+ * Feb 05, 2014  2591     randerso  Forced retrieval of combinations file
+ *                                  Implemented retry on error
+ * Aug 27, 2014  3561     randerso  Yet another attempt to fix combinations file
+ *                                  updating
+ * Sep 08, 2014  3592     randerso  Changed to use only list site level files as
+ *                                  all combo files are saved to the site level
+ * Oct 07, 2015  4695     dgilling  Code cleanup to remove compile warnings.
+ * Nov 12, 2015  4834     njensen   Changed LocalizationOpFailedException to
+ *                                  LocalizationException
+ * Nov 18, 2015  5129     dgilling  Support new IFPClient.
+ * Feb 05, 2016  5242     dgilling  Remove calls to deprecated Localization
+ *                                  APIs.
+ * Apr 25, 2016  5605     randerso  Switched back to writing combinations file
+ *                                  using Localization
+ * Aug 10, 2016  5828     randerso  Fix file dead lock when loading updated
+ *                                  combinations file
  * 
  * </pre>
  * 
@@ -244,15 +249,6 @@ public class CombinationsFileUtil {
         File pyFile = null;
         if (lf != null) {
             try {
-                // get the local .py file
-                pyFile = lf.getFile(false);
-
-                // delete both the local .py and .pyc files to force retrieval
-                // and regeneration
-                pyFile.delete();
-                File pycFile = new File(pyFile.getPath() + "c");
-                pycFile.delete();
-
                 // retrieve the .py file
                 pyFile = lf.getFile(true);
             } catch (LocalizationException e) {
@@ -276,8 +272,7 @@ public class CombinationsFileUtil {
         HashMap<String, Object> map = new HashMap<>();
         map.put("comboName", comboName);
         for (int retryCount = 0; retryCount < MAX_TRIES; retryCount++) {
-            try (PythonScript python = new PythonScript(
-                    scriptPath,
+            try (PythonScript python = new PythonScript(scriptPath,
                     PyUtil.buildJepIncludePath(
                             GfePyIncludeUtil.getCombinationsIncludePath(),
                             GfePyIncludeUtil.getCommonPythonIncludePath()),
@@ -327,6 +322,10 @@ public class CombinationsFileUtil {
         String fileName = FileUtil.join(COMBINATIONS_DIR_PATH, comboName)
                 + ".py";
         LocalizationFile lf = pm.getLocalizationFile(localization, fileName);
+
+        // delete the local .pyc file to force regeneration
+        File pycFile = new File(lf.getFile(false).getPath() + "c");
+        pycFile.delete();
 
         try (SaveableOutputStream stream = lf.openOutputStream();
                 Writer outWriter = new OutputStreamWriter(stream)) {
