@@ -24,25 +24,25 @@ if [ $ID_AWIPS != 0 ]; then
 fi
 
 #
-# Check for existence of group fxalpha 
+# Check for existence of group awips 
 # 
-getent group fxalpha >/dev/null
+getent group awips >/dev/null
 GROUP_FXALPHA=$?
 if [ $GROUP_FXALPHA != 0 ]; then
-  echo "The fxalpha group does not exist on this system"
+  echo "The awips group does not exist on this system"
   echo "As root:"
-  echo "  groupadd fxalpha"
+  echo "  groupadd awips"
   exit
 fi 
 
 #
-# Check for user awips in group fxalpha
+# Check for user awips in group awips
 #
-AWIPS_IN_FXALPHA=`groups awips | grep fxalpha`
+AWIPS_IN_FXALPHA=`groups awips | grep awips`
 if [ "${AWIPS_IN_FXALPHA}" = "0" ]; then
-  echo "The awips user must be in the fxalpha group on this system"
+  echo "The awips user must be in the awips group on this system"
   echo "As root:"
-  echo "  usermod -a -G fxalpha awips"
+  echo "  usermod -a -G awips awips"
   exit
 fi
 

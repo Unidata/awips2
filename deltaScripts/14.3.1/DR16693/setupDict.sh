@@ -66,7 +66,7 @@ create () {
     [ $run_type == 1 ] && ( 
         cp $stddict $1
         chown awips $1
-        chgrp fxalpha $1
+        chgrp awips $1
         chmod 644 $1
     )
     echo "$1, created the standard dictionary"

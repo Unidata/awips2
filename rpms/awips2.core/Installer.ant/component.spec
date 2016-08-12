@@ -94,22 +94,22 @@ fi
 rm -rf ${RPM_BUILD_ROOT}
 
 %files
-%defattr(-,awips,fxalpha,-)
+%defattr(-,awips,awips,-)
 %dir /awips2/ant
 %dir /awips2/ant/bin
-%attr(755,awips,fxalpha) /awips2/ant/bin/ant
-%attr(644,awips,fxalpha) /awips2/ant/bin/ant.bat
-%attr(644,awips,fxalpha) /awips2/ant/bin/ant.cmd
-%attr(644,awips,fxalpha) /awips2/ant/bin/antenv.cmd
-%attr(755,awips,fxalpha) /awips2/ant/bin/antRun
-%attr(644,awips,fxalpha) /awips2/ant/bin/antRun.bat
-%attr(755,awips,fxalpha) /awips2/ant/bin/antRun.pl
-%attr(755,awips,fxalpha) /awips2/ant/bin/complete-ant-cmd.pl
-%attr(644,awips,fxalpha) /awips2/ant/bin/envset.cmd
-%attr(644,awips,fxalpha) /awips2/ant/bin/lcp.bat
-%attr(755,awips,fxalpha) /awips2/ant/bin/runant.pl
-%attr(755,awips,fxalpha) /awips2/ant/bin/runant.py
-%attr(644,awips,fxalpha) /awips2/ant/bin/runrc.cmd
+%attr(755,awips,awips) /awips2/ant/bin/ant
+%attr(644,awips,awips) /awips2/ant/bin/ant.bat
+%attr(644,awips,awips) /awips2/ant/bin/ant.cmd
+%attr(644,awips,awips) /awips2/ant/bin/antenv.cmd
+%attr(755,awips,awips) /awips2/ant/bin/antRun
+%attr(644,awips,awips) /awips2/ant/bin/antRun.bat
+%attr(755,awips,awips) /awips2/ant/bin/antRun.pl
+%attr(755,awips,awips) /awips2/ant/bin/complete-ant-cmd.pl
+%attr(644,awips,awips) /awips2/ant/bin/envset.cmd
+%attr(644,awips,awips) /awips2/ant/bin/lcp.bat
+%attr(755,awips,awips) /awips2/ant/bin/runant.pl
+%attr(755,awips,awips) /awips2/ant/bin/runant.py
+%attr(644,awips,awips) /awips2/ant/bin/runrc.cmd
 %docdir /awips2/ant/docs
 /awips2/ant/docs
 /awips2/ant/etc

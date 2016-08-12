@@ -55,7 +55,7 @@ class Procedure (SmartScript.SmartScript):
 # file name so that a browser can properly interpret it as a kml file to be open with Google
 # Earth or equivalent application.
 
-# Also, make sure the ownership of the kml.txt files created below is fxa:fxalpha with permissions set
+# Also, make sure the ownership of the kml.txt files created below is fxa:awips with permissions set
 # to 666.
 
 # You can test the kml files created by copying them outside AWIPS and renaming them .kml. Then open them with

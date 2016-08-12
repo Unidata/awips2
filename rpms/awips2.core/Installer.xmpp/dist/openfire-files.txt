@@ -1,4 +1,4 @@
-%defattr(644,awips,fxalpha,755)
+%defattr(644,awips,awips,755)
 %dir /awips2/openfire
 %dir /awips2/openfire/bin
 %dir /awips2/openfire/conf
@@ -45,7 +45,7 @@
 
 
 # executable files
-%defattr(755,awips,fxalpha,755)
+%defattr(755,awips,awips,755)
 /awips2/openfire/bin/openfire
 /awips2/openfire/bin/extra/embedded-db-viewer.sh
 /awips2/openfire/bin/extra/openfired

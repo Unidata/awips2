@@ -77,12 +77,17 @@ function lookupRPM()
       export RPM_SPECIFICATION="${installer_dir}/pyparsing/"
       return 0
    fi
+   if [ "${1}" = "awips2-python-gfe" ]; then
+      export RPM_SPECIFICATION="${python_site__dir}/Installer.gfe"
+      return 0
+   fi
    if [ "${1}" = "awips2-python-nose" ]; then
       export RPM_SPECIFICATION="${python_site__dir}/Installer.nose"
       return 0
    fi
    if [ "${1}" = "awips2-python-numpy" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/numpy/"
+      #export RPM_SPECIFICATION="${installer_dir}/numpy/"
+      export RPM_SPECIFICATION="${python_site__dir}/Installer.numpy"
       return 0
    fi
    if [ "${1}" = "awips2-python-jep" ]; then
@@ -91,6 +96,10 @@ function lookupRPM()
    fi
    if [ "${1}" = "awips2-python-pmw" ]; then
       export RPM_SPECIFICATION="${python_site__dir}/Installer.pmw"
+      return 0
+   fi
+   if [ "${1}" = "awips2-python-pil" ]; then
+      export RPM_SPECIFICATION="${python_site__dir}/Installer.pil"
       return 0
    fi
    if [ "${1}" = "awips2-python-pupynere" ]; then
@@ -141,12 +150,6 @@ function lookupRPM()
       export RPM_SPECIFICATION="${python_site__dir}/Installer.cycler"
       return 0
    fi
-   if [ "${1}" = "awips2-python-dateutil" ]; then
-      export RPM_SPECIFICATION="${python_site__dir}/Installer.dateutil"
-      return 0
-   fi
-
-
    if [ "${1}" = "awips2-python-tables" ]; then
       export RPM_SPECIFICATION="${python_site__dir}/Installer.tables"
       return 0

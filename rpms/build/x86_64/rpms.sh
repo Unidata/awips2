@@ -14,6 +14,75 @@ function buildRPM()
 
    return 0
 }
+function buildJava()
+{
+   pushd . > /dev/null 2>&1
+
+   cd ${WORKSPACE}/rpms/awips2.core/Installer.java
+   /bin/bash build.sh
+   if [ $? -ne 0 ]; then
+      return 1
+   fi
+
+   popd > /dev/null 2>&1
+}
+
+function buildQPID()
+{
+   # Arguments:
+   #   ${1} == optionally -ade
+
+   pushd . > /dev/null 2>&1
+
+   # ensure that the destination rpm directories exist
+   if [ ! -d ${AWIPSII_TOP_DIR}/RPMS/noarch ]; then
+      mkdir -p ${AWIPSII_TOP_DIR}/RPMS/noarch
+      if [ $? -ne 0 ]; then
+         exit 1
+      fi
+   fi
+
+   # ensure that the destination rpm directories exist
+   if [ ! -d ${AWIPSII_TOP_DIR}/RPMS/x86_64 ]; then
+      mkdir -p ${AWIPSII_TOP_DIR}/RPMS/x86_64
+      if [ $? -ne 0 ]; then
+         exit 1
+      fi
+   fi
+
+   cd ${WORKSPACE}/installers/RPMs/qpid-lib
+   if [ $? -ne 0 ]; then
+      echo "ERROR: Failed to build the qpid rpms."
+      return 1
+   fi
+   pwd
+
+   /bin/bash build.sh
+   if [ $? -ne 0 ]; then
+      echo "ERROR: Failed to build the qpid rpms."
+      return 1
+   fi
+
+   #build 
+   export AWIPS_II_TOP_DIR
+   cd ${WORKSPACE}/installers/RPMs/qpid-java-broker/
+   if [ $? -ne 0 ]; then
+      echo "ERROR: Failed to build Qpid Broker"
+      echo "could not cd to ${WORKSPACE}/installers/RPMs/qpid-java-broker/"
+      return 1
+   fi
+   /bin/bash build.sh
+   if [ $? -ne 0 ]; then
+      echo "ERROR: Failed to build Qpid Broker"
+      echo "build.sh failed"
+      return 1
+   fi
+
+   popd > /dev/null 2>&1
+
+   return 0
+}
+
 function unpackHttpdPypies()
 {
    # This function will unpack the httpd-pypies SOURCES

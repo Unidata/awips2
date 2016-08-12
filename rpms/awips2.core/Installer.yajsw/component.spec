@@ -68,13 +68,13 @@ fi
 rm -rf ${RPM_BUILD_ROOT}
 
 %files
-%defattr(644,awips,fxalpha,755)
+%defattr(644,awips,awips,755)
 %dir /awips2/yajsw
 /awips2/yajsw/*.jar
 /awips2/yajsw/*.txt
 %dir /awips2/yajsw/lib
 /awips2/yajsw/lib/*
 
-%defattr(755,awips,fxalpha,755)
+%defattr(755,awips,awips,755)
 %dir /awips2/yajsw/scripts
 /awips2/yajsw/scripts/*.sh

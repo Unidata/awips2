@@ -1,7 +1,7 @@
 # database ownership
 POSTGRESQL_PORT=5432
 POSTGRESQL_USER=awips
-AWIPS_DEFAULT_GROUP="fxalpha"
+AWIPS_DEFAULT_GROUP="awips"
 
 # AWIPS II installations
 POSTGRESQL_INSTALL="/awips2/postgresql"

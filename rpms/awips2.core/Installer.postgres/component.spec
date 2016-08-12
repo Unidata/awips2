@@ -328,10 +328,10 @@ This is just the postgresql application. There is a separate rpm that will initi
 and populate the AWIPS II databases.
 
 %files
-%defattr(644,awips,fxalpha,755)
+%defattr(644,awips,awips,755)
 %attr(755,root,root) /etc/ld.so.conf.d/awips2-postgresql-%{_build_arch}.conf
 %attr(744,root,root) /etc/init.d/edex_postgres
-%attr(700,awips,fxalpha) /awips2/data
+%attr(700,awips,awips) /awips2/data
 %dir /awips2/postgresql
 %dir /awips2/postgresql/include
 /awips2/postgresql/include/*
@@ -343,16 +343,16 @@ and populate the AWIPS II databases.
 %dir /awips2/postgresql/share
 /awips2/postgresql/share/*
 
-%defattr(755,awips,fxalpha,755)
+%defattr(755,awips,awips,755)
 %dir /awips2/postgresql/bin
 /awips2/postgresql/bin/*
 
 %files -n awips2-psql
-%defattr(755,awips,fxalpha,755)
+%defattr(755,awips,awips,755)
 %dir /awips2/psql
 %dir /awips2/psql/bin
 /awips2/psql/bin/*
 
-%defattr(644,awips,fxalpha,755)
+%defattr(644,awips,awips,755)
 %dir /awips2/psql/lib
 /awips2/psql/lib/*

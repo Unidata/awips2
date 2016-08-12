@@ -46,15 +46,15 @@ selinux should be **disabled** [(read more about selinux at redhat.com)](https:/
 
     wget -O /etc/yum.repos.d/awips2.repo http://www.unidata.ucar.edu/software/awips2/doc/awips2.repo
 
-####  create user `awips` and group `fxalpha` 
+####  create user `awips` and group `awips` 
         
-    groupadd fxalpha
-    useradd -G fxalpha awips
+    groupadd awips
+    useradd -G awips awips
         
-#### create /awips2 and set owner to awips:fxalpha
+#### create /awips2 and set owner to awips:awips
 
     mkdir -p /awips2/data_store 
-    chown -R awips:fxalpha /awips2
+    chown -R awips:awips /awips2
 
 #### edit /etc/security/limits.conf
  

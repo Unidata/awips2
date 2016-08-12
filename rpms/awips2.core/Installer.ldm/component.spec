@@ -178,7 +178,7 @@ rm -f %{_ldm_src_tar}
 if [ $? -ne 0 ]; then
    exit 1
 fi
-chown -R ldm:fxalpha ${_ldm_dir}
+chown -R ldm:awips ${_ldm_dir}
 
 # create .bash_profile
 if [ ! -f /usr/local/ldm/.bash_profile ]; then
@@ -188,7 +188,7 @@ if [ ! -f /usr/local/ldm/.bash_profile ]; then
       /usr/local/ldm/.bash_profile
    echo 'export MANPATH=$HOME/share/man:/usr/share/man' >> \
       /usr/local/ldm/.bash_profile
-   /bin/chown ldm:fxalpha /usr/local/ldm/.bash_profile
+   /bin/chown ldm:awips /usr/local/ldm/.bash_profile
 fi
 
 pushd . > /dev/null 2>&1
@@ -242,8 +242,8 @@ do
    fi
 done
 /bin/chmod a+x ${_ldm_dir}/bin/*
-/bin/chown ldm:fxalpha ${_ldm_root_dir}/bin
-/bin/chown -R ldm:fxalpha ${_ldm_dir}/etc ${_ldm_dir}/decoders
+/bin/chown ldm:awips ${_ldm_root_dir}/bin
+/bin/chown -R ldm:awips ${_ldm_dir}/etc ${_ldm_dir}/decoders
 popd > /dev/null 2>&1
 
 # construct pqact
@@ -294,7 +294,7 @@ if [ $? -ne 0 ]; then
    echo "FATAL: failed to remove edexBridge.tar and decrypt_file.tar!"
    exit 1
 fi
-/bin/chown -R ldm:fxalpha ${_ldm_dir}/SOURCES
+/bin/chown -R ldm:awips ${_ldm_dir}/SOURCES
 if [ $? -ne 0 ]; then
    echo "FATAL: failed to change owner of ldm SOURCES directory."
    exit 1
@@ -427,7 +427,7 @@ fi
 rm -rf ${RPM_BUILD_ROOT}
 
 %files
-%defattr(-,ldm,fxalpha,-)
+%defattr(-,ldm,awips,-)
 %dir /usr/local/ldm
 %dir /usr/local/ldm/SOURCES
 /usr/local/ldm/SOURCES/*

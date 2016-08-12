@@ -176,14 +176,14 @@ rm -rf ${RPM_BUILD_ROOT}
 /etc/profile.d/awips2Cave.csh
 /etc/profile.d/awips2Cave.sh
 
-%defattr(644,awips,fxalpha,755)
+%defattr(644,awips,awips,755)
 %dir /awips2
 %dir /awips2/cave
 /awips2/cave/*.ini
 %dir /awips2/cave/etc
 /awips2/cave/etc/*
 
-%defattr(755,awips,fxalpha,755)
+%defattr(755,awips,awips,755)
 %dir /awips2/cave/caveEnvironment
 /awips2/cave/caveEnvironment/*
 /awips2/cave/*.sh

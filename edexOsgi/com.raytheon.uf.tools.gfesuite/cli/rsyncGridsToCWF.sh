@@ -187,12 +187,12 @@ export LOG_FILE="${DXwrkDir}/log/${currdate}/netcdf_rsync.log"
 if [ ! -d  ${DXwrkDir}/log ] ;then
    mkdir -p ${DXwrkDir}/log
    chmod 777 ${DXwrkDir}/log
-   chown awips:fxalpha ${DXwrkDir}/log
+   chown awips:awips ${DXwrkDir}/log
 fi
 if [ ! -d  ${DXwrkDir}/log/${currdate} ] ;then
    mkdir -p ${DXwrkDir}/log/${currdate}
    chmod 777 ${DXwrkDir}/log/${currdate}
-   chown awips:fxalpha ${DXwrkDir}/log/${currdate}
+   chown awips:awips ${DXwrkDir}/log/${currdate}
 fi
 
 # Log file header
@@ -211,7 +211,7 @@ if [ ! -d ${WRKDIR} ] ;then
    echo "  changing permissions of ${WRKDIR} directory..." >> $LOG_FILE
    chmod 777 ${WRKDIR}
    echo "  changing ownership of ${WRKDIR} directory to fxa..." >> $LOG_FILE
-   chown awips:fxalpha ${WRKDIR}
+   chown awips:awips ${WRKDIR}
 else
    echo "  ${WRKDIR} directory exists!" >> $LOG_FILE
 fi

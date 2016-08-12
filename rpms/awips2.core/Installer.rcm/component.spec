@@ -128,7 +128,7 @@ fi
 rm -rf ${RPM_BUILD_ROOT}
 
 %files
-%defattr(644,awips,fxalpha,755)
+%defattr(644,awips,awips,755)
 %dir /awips2/rcm
 %dir /awips2/rcm/data
 /awips2/rcm/data/*
@@ -140,7 +140,7 @@ rm -rf ${RPM_BUILD_ROOT}
 %dir /awips2/rcm/licenses
 /awips2/rcm/licenses/*
 
-%defattr(755,awips,fxalpha,755)
+%defattr(755,awips,awips,755)
 %dir /awips2/rcm/bin
 /awips2/rcm/bin/*
 %dir /awips2/rcm/lib

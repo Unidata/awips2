@@ -394,6 +394,6 @@ exit 0
 rm -rf ${RPM_BUILD_ROOT}
 
 %files
-%defattr(755,awips,fxalpha,755)
+%defattr(755,awips,awips,755)
 %dir /awips2/edex/data/utility
 /awips2/edex/data/utility/*

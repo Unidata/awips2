@@ -13,7 +13,7 @@ for f in $* ; do
     mv $f ${f}.bak
     mv ${f}.$$ $f
     chmod 664 $f
-    chown awips:fxalpha $f
+    chown awips:awips $f
     echo "converted $f"
   else 
     echo "No conversion needed for $f"

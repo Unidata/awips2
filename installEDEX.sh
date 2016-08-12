@@ -54,7 +54,7 @@ service qpidd stop
 if [ ! -d /awips2/data_store ]; then
   mkdir -p /awips2/data_store
 fi
-chown -R awips:fxalpha /awips2/data_store
+chown -R awips:awips /awips2/data_store
 
 if [[ $1 -eq "reinstall" ]]; then
   echo ''

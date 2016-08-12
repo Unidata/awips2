@@ -26,8 +26,8 @@ Optional: [if /usr/local/viz or /awips2 do not exist]
 	mkdir /usr/local/viz
 	mkdir /awips2
 
-	chown awips:fxalpha /usr/local/viz
-	chown awips:fxalpha /awips2
+	chown awips:awips /usr/local/viz
+	chown awips:awips /awips2
 **************************************************************
 
 	umount /awipsShare-nightly

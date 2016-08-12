@@ -128,7 +128,7 @@ function printFailureMessage()
 
 AWIPS_DEFAULT_OWNER="awips"
 AWIPS_DEFAULT_USER="awips"
-AWIPS_DEFAULT_GROUP="fxalpha"
+AWIPS_DEFAULT_GROUP="awips"
 AWIPS_DEFAULT_PORT="5432"
 
 # This Is The Log File That We Will Use To Log All SQL Interactions.
@@ -299,7 +299,7 @@ copy_addl_config
 rm -rf ${RPM_BUILD_ROOT}
 
 %files
-%defattr(644,awips,fxalpha,755)
+%defattr(644,awips,awips,755)
 %dir /awips2
 %dir /awips2/database
 %dir /awips2/database/sqlScripts
@@ -307,7 +307,7 @@ rm -rf ${RPM_BUILD_ROOT}
 /awips2/database/sqlScripts/share/sql/sql_install.log
 /awips2/database/sqlScripts/share/sql/pg_hba.conf
 
-%defattr(755,awips,fxalpha,755)
+%defattr(755,awips,awips,755)
 %dir /awips2/database/sqlScripts/share/sql
 /awips2/database/sqlScripts/share/sql/*.sql
 /awips2/database/sqlScripts/share/sql/*.sh

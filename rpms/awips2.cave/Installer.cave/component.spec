@@ -307,7 +307,7 @@ fi
 rm -rf ${RPM_BUILD_ROOT}
 
 %files
-%defattr(644,awips,fxalpha,755)
+%defattr(644,awips,awips,755)
 %dir /awips2
 %dir /awips2/cave
 %docdir /awips2/cave/about_files
@@ -326,7 +326,7 @@ rm -rf ${RPM_BUILD_ROOT}
 /awips2/cave/plugins/*
 /awips2/cave/.eclipseproduct
  
-%defattr(755,awips,fxalpha,755)
+%defattr(755,awips,awips,755)
 %dir /awips2/cave/caveEnvironment
 /awips2/cave/caveEnvironment/*
 /awips2/cave/cave

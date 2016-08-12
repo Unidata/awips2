@@ -245,7 +245,7 @@ edex_ipexit() { # abandon ip editing, post msg to guide manual edits
    #echo -e ' fully-qualified hostname of your machine.\n'
    echo -e ' Special notes:'
    echo -e ' '$PG_FILE' *must* contain your subdomain.'
-   echo -e ' '$PY_FILE' *must* contain "Group fxalpha", not "Group awips"'
+   echo -e ' '$PY_FILE' *must* contain "Group awips", not "Group awips"'
    echo ''
 }
 
