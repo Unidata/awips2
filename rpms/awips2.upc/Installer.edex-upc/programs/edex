@@ -209,8 +209,8 @@ edit_pg() { # edex pg_hba.conf
 }
 
 edit_ldm() { # edex ldmd.conf and registry.xml
-   sed -i.setup_$YMD 's/EDEX_HOSTNAME/'$HOSTNAME'/g' $LDMD_CONF
-   echo '[edit] Hostname '$HOSTNAME' added to '$LDMD_CONF
+   sed -i.setup_$YMD 's/EDEX_HOSTNAME/localhost/g' $LDMD_CONF
+   echo '[edit] Hostname localhost added to '$LDMD_CONF
 }
 
 

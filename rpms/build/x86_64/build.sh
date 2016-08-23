@@ -607,23 +607,23 @@ if [ "${1}" = "-el7" ]; then
       exit 1
    fi
    buildRPM "awips2-httpd-pypies"
-   exit 0
-   #buildRPM "awips2-postgresql"
-   #buildRPM "awips2-cli"
-   #buildRPM "awips2-yajsw"
-   #buildRPM "awips2-edex-environment"
-   #buildRPM "awips2-edex-configuration"
-   #buildRPM "awips2-tools"
-   #buildRPM "awips2-notification"
+   buildRPM "awips2-postgresql"
+   buildRPM "awips2-cli"
+   buildRPM "awips2-yajsw"
+   buildRPM "awips2-edex-environment"
+   buildRPM "awips2-edex-configuration"
+   buildRPM "awips2-tools"
+   buildRPM "awips2-notification"
    
-   #buildRPM "awips2-database"
-   #buildRPM "awips2-database-standalone-configuration"
-   #buildRPM "awips2-maps-database"
-   #buildRPM "awips2-ncep-database"
-   #buildRPM "awips2-gfesuite-client"
-   #buildRPM "awips2-gfesuite-server"
-   #buildRPM "awips2-data.hdf5-topo"
-   #buildRPM "awips2-data.gfe"
+   buildRPM "awips2-database"
+   buildRPM "awips2-database-standalone-configuration"
+   buildRPM "awips2-maps-database"
+   buildRPM "awips2-ncep-database"
+   buildRPM "awips2-gfesuite-client"
+   buildRPM "awips2-gfesuite-server"
+   buildRPM "awips2-data.hdf5-topo"
+   buildRPM "awips2-data.gfe"
+   buildRPM "awips2-hydroapps-shared"
 
    buildRPM "awips2-python"
    buildRPM "awips2-python-awips"
@@ -657,8 +657,8 @@ if [ "${1}" = "-el7" ]; then
    buildRPM "awips2-edex-upc"
    buildRPM "awips2"
    buildRPM "awips2-common-base"
-   #buildEDEX
-   #buildShapefiles
+   buildEDEX
+   buildShapefiles
    #buildRPM "awips2-maven"
    #buildRPM "awips2-eclipse"
    exit 0
@@ -713,7 +713,7 @@ if [ "${1}" = "-py" ]; then
    #buildRPM "awips2-python-six"
    #buildRPM "awips2-python-h5py"
    #buildRPM "awips2-python-jep"
-   #buildRPM "awips2-python-awips"
+   buildRPM "awips2-python-awips"
    #buildRPM "awips2-python-pyparsing"
 fi
 

@@ -179,11 +179,12 @@ if [ $? -ne 0 ]; then
    echo "FATAL: make install has failed!"
    exit 1
 fi
-make root-actions LDMHOME=/awips2/ldm > root-actions.log 2>&1
-if [ $? -ne 0 ]; then
-   echo "FATAL: root-actions has failed!"
-   exit 1
-fi
+# Don't make root actions or else edexBridge will not run on el7
+#make root-actions LDMHOME=/awips2/ldm > root-actions.log 2>&1
+#if [ $? -ne 0 ]; then
+#   echo "FATAL: root-actions has failed!"
+#   exit 1
+#fi
 #g++ edexBridge.cpp -I${_ldm_root_dir}/src/pqact \
 #   -I${_ldm_root_dir}/include \
 #   -I${_ldm_root_dir}/src \
@@ -193,6 +194,7 @@ fi
 #   -l ldm -l xml2 -l qpidclient -l qpidmessaging -l qpidcommon -l qpidtypes -o edexBridge
 
 /awips2/ldm/bin/regutil -s ${_myHost} /hostname
+/awips2/ldm/bin/regutil -s 1500M /queue/size
 #sed -i 's/EDEX_HOSTNAME/'$_myHostShort'/' ${_ldm_dir}/etc/ldmd.conf
 #sed -i 's/<size>500M<\/size>/<size>1500M<\/size>/' ${_ldm_dir}/etc/registry.xml
 
@@ -234,8 +236,8 @@ fi
 
 if getent passwd awips &>/dev/null; then
   /bin/chown -R awips:awips ${_ldm_dir} /awips2/data_store
-  cd /awips2/ldm/src/
-  make install_setuids
+  #cd /awips2/ldm/src/
+  #make install_setuids
 else
   echo "--- Warning: group awips does not exist"
   echo "--- you will need to check owner/group/permissions for /awips2/ldm"
