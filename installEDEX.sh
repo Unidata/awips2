@@ -9,11 +9,17 @@
 #
 # Download yum repo file from Unidata
 #
+
+
 if [ ! -f /etc/yum.repos.d/awips2.repo ]; then
   echo ''
   echo 'Downloading awips2repo yum file to /etc/yum.repos.d/awips2.repo'
   echo ''
-  wget -O /etc/yum.repos.d/awips2.repo http://www.unidata.ucar.edu/software/awips2/doc/awips2.repo
+  if [[ $(grep "release 7" /etc/redhat-release) ]]; then
+    wget -O /etc/yum.repos.d/awips2.repo http://www.unidata.ucar.edu/software/awips2/doc/el7.repo
+  else
+    wget -O /etc/yum.repos.d/awips2.repo http://www.unidata.ucar.edu/software/awips2/doc/awips2.repo
+  fi
 fi
 
 #
