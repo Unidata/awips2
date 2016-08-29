@@ -23,21 +23,20 @@
       <a href="{{ baseurl }}/"></a>
     </core-item>
 
-    <core-submenu label="Install" icon="chevron-right">
+    <core-submenu label="Download and Install" icon="chevron-right">
       <core-item label="Install CAVE"><a href="{{ baseurl }}/docs/install/install-cave.html"></a></core-item>
       <core-item label="Install EDEX"><a href="{{ baseurl }}/docs/install/install-edex.html"></a></core-item>
       <core-item label="System Requirements"><a href="{{ baseurl }}/docs/install/system-requirements.html"></a></core-item>
-      <core-item label="Run EDEX"><a href="{{ baseurl }}/docs/install/start-edex.html"></a></core-item>
-      <core-item label="Start EDEX Manually"><a href="{{ baseurl }}/docs/install/starting-services.html"></a></core-item>
     </core-submenu>
 
-    <core-submenu label="EDEX Admin" icon="chevron-right">
+    <core-submenu label="EDEX User Guide" icon="chevron-right">
+      <core-item label="EDEX Start and Stop"><a href="{{ baseurl }}/docs/install/start-edex.html"></a></core-item>
       <core-item label="LDM feeds"><a href="{{ baseurl }}/docs/edex/ldm.html"></a></core-item>
-      <core-item label="Linux tools"><a href="{{ baseurl }}/docs/devguide/linux-tools.html"></a></core-item>
-      <core-item label="Data flow"><a href="{{ baseurl }}/docs/devguide/data-flow.html"></a></core-item>
-      <core-item label="File system"><a href="{{ baseurl }}/docs/devguide/file-system.html"></a></core-item>
+        <core-item label="EDEX Data Plugins"><a href="{{ baseurl }}/docs/edex/data-plugins.html"></a></core-item>
+        <core-item label="Python Data Access Framework"><a href="{{ baseurl }}/docs/edex/data-access-plugins.html"></a></core-item>
       <core-item label="Regular expressions"><a href="{{ baseurl }}/docs/devguide/regular-expressions.html"></a></core-item>
       <core-item label="Data distribution files"><a href="{{ baseurl }}/docs/devguide/data-distribution-files.html"></a></core-item>
+      <core-item label="Data Purging"><a href="{{ baseurl }}/docs/edex/data-purge.html"></a></core-item>
       <core-item label="Monitoring Users"><a href="{{ baseurl }}/docs/edex/edex-users.html"></a></core-item>
 
     </core-submenu>
@@ -59,9 +58,17 @@
     </core-submenu>
 
     <core-submenu label="D2D User Guide" icon="chevron-right">
-      <core-item label="Introduction"><a href="{{ baseurl }}/docs/cave/d2d-intro.html"></a></core-item>
 
-      <core-item label="System Menus"><a href="{{ baseurl }}/docs/cave/d2d-system-menus.html"></a></core-item>
+        <!--
+
+        * The D2D Perspective
+        * Saving Bundles
+        *
+
+        -->
+      <core-item label="The D2D Perspective"><a href="{{ baseurl }}/docs/cave/d2d-intro.html"></a></core-item>
+
+      <core-item label="Maps, Projections, and Bundles"><a href="{{ baseurl }}/docs/cave/d2d-system-menus.html"></a></core-item>
       <!--
       <core-submenu label="System Menus">
         <core-item label="NCEP NCP"><a href="{{ baseurl }}/docs/cave/d2d-system-menus.html"></a></core-item>
@@ -69,8 +76,8 @@
       -->
       <core-item label="Gridded Model Display"><a href="{{ baseurl }}/docs/cave/d2d-grids.html"></a></core-item>
       <core-item label="Surface Obs"><a href="{{ baseurl }}/docs/cave/d2d-obs.html"></a></core-item>
-      <core-item label="Satellite"><a href="{{ baseurl }}/docs/cave/d2d-satellite.html"></a></core-item>
-      <core-item label="Radar"><a href="{{ baseurl }}/docs/cave/d2d-radar.html"></a></core-item>
+      <core-item label="Satellite Products"><a href="{{ baseurl }}/docs/cave/d2d-satellite.html"></a></core-item>
+      <core-item label="Radar Data"><a href="{{ baseurl }}/docs/cave/d2d-radar.html"></a></core-item>
       <core-item label="Upper air"><a href="{{ baseurl }}/docs/cave/d2d-uair.html"></a></core-item>
       <core-item label="NCEP/Hydro"><a href="{{ baseurl }}/docs/cave/d2d-hydro.html"></a></core-item>
       <!--<core-item label="Lightning"><a href="{{ baseurl }}/docs/cave/d2d-lightning.html"></a></core-item>-->
@@ -85,11 +92,11 @@
 
     </core-submenu>
 
-    <!--
-    <core-submenu label="NCP User Guide" icon="description">
+
+    <core-submenu label="NCP User Guide" icon="chevron-right">
       <core-item label="NCEP NCP"><a href="{{ baseurl }}/docs/cave/ncp.html"></a></core-item>
     </core-submenu>
-    -->
+
 
     <core-submenu label="Appendix" icon="list">
 

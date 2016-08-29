@@ -21,16 +21,16 @@
 <link rel="publisher" href="https://plus.google.com/107187849809354688692">
 <link rel="shortcut icon" href="http://www.unidata.ucar.edu/favicon.ico">
 <link href="//fonts.googleapis.com/css?family=RobotoDraft:300,400,500|Source+Code+Pro:400,500,700" rel="stylesheet">
-<link href="/awips2/css/site2.css?20160718" rel="stylesheet">
-<link href="/awips2/css/site2_sd_rules.css?20160718" rel="stylesheet" shim-shadowdom>
+<link href="/awips2/css/site2.css?20160829" rel="stylesheet">
+<link href="/awips2/css/site2_sd_rules.css?20160829" rel="stylesheet" shim-shadowdom>
 
 
 
-<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20160718"></script>
+<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20160829"></script>
 <!-- TODO: remove when https://github.com/Polymer/polymer/issues/391 is fixed -->
 <link rel="import" href="/awips2/components/polymer/polymer.html">
 <link rel="stylesheet" href="/awips2/css/elements/docs-menu.css">
-<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20160718">
+<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20160829">
 
 
 </head>
@@ -80,11 +80,32 @@
 
       <h1 id="d2d-toolbar">D2D Toolbar</h1>
 
-<p>D2D (Display 2-Dimensions) is the default AWIPS II CAVE perspective, designed to mimmic the look and feel of the legacy AWIPS I system. Frame control, map projection, image properties, and a few featured applications make up the the primary D2D toolbar.</p>
+<p>D2D (Display 2-Dimensions) is the default AWIPS II CAVE perspective, designed to mimmic the look and feel of the legacy AWIPS I system.</p>
+
+<ul>
+  <li>
+    <p>System menus include <strong>CAVE</strong>, <strong>File</strong>, <strong>View</strong>, <strong>Options</strong>, <strong>Tools</strong>, and <strong>Help</strong> (far right)</p>
+  </li>
+  <li>
+    <p>Data menus include <strong><a href="d2d-grids.html">Models</a></strong>, <strong><a href="d2d-obs.html">Surface</a></strong>, <strong><a href="d2d-hydro.html">NCEP/Hydro</a></strong>, <strong><a href="d2d-uair.html">Upper Air</a></strong>, <strong><a href="d2d-satellite.html">Satellite</a></strong>, <strong><a href="d2d-radar.html">Radar</a></strong>, <strong><a href="d2d-mrms.html">MRMS</a></strong>, and <strong><a href="d2d-maps.html">Maps</a></strong>.</p>
+  </li>
+</ul>
+
+<p>Frame control, map projection, image properties, and a few featured applications (<strong>Warngen</strong>, <strong>Nsharp</strong>, <strong>Ncdata</strong>, and <strong>Browser</strong>) make up the the primary D2D toolbar.</p>
 
 <p><img src="../images/iuNDS6J.png" alt="image" /></p>
 
+<h1 id="preferences">Preferences</h1>
+
+<p><strong>CAVE &gt; Preferences</strong></p>
+
+<p>Set the Localization Site and/or derver for the workstation; configure mouse operations, change performance levels, font magnification, and text workstation hostname.</p>
+
+<p><img src="../images/ymFRs6S.png" alt="image" /></p>
+
 <h1 id="switching-perspectives">Switching Perspectives</h1>
+
+<p><strong>CAVE &gt; Perspective</strong></p>
 
 <p>D2D is one of many available CAVE perspectives.  By selecting the <strong>CAVE</strong> &gt; <strong>Perspective</strong> menu you can switch into the <strong>GFE</strong>, <strong>Hydro</strong>, <strong>Localization</strong>, <strong>MPE</strong>, or <strong>National Centers Perspective</strong> (which is available in the <strong>Other…</strong> submenu. Nobody seems to know why the NCP is not listed with the other perspectives, or how to make it appear with them).</p>
 
@@ -120,6 +141,81 @@
 
 <p><img src="../images/vPeaMsn9ZT.gif" alt="image" /></p>
 
+<h1 id="switch-pane-layouts">Switch Pane Layouts</h1>
+
+<p>will switch between the single page (default) view and the 5-panel WFO view (centered on OAX by default).</p>
+
+<h1 id="time-options-ctrl--t">Time Options (Ctrl + T)</h1>
+
+<p>This check button enables/disables the ability to select the time interval between frames of real-time or model data. This feature has the added benefit of allowing you to view extended amounts of data (temporally) but stay within the limits of 64 frames. For example, METAR surface plots, which typically display every hour, can be set to display every three hours via the Select Valid Time and Time Resolution Dialog Box.</p>
+
+<p>When the Time Options check button is selected, the next product you choose to display in the Main Display Pane launches either the Select Valid Time and Time Resolution dialog box or the Select
+Offset and Tolerance dialog box.</p>
+
+<ul>
+  <li>
+    <p>When you are loading data to an empty display and the Time Options check button is enabled, the Select Valid Time and Time Resolution dialog box opens.</p>
+
+    <ul>
+      <li>
+        <p><strong>Valid Time:</strong> In this column of dates/times, you may choose the one that will be the first frame loaded onto the Large Display Pane. The Default option is the most recent data.</p>
+      </li>
+      <li>
+        <p><strong>Time Resolution:</strong> This column contains various time increments in which the data can be displayed. Once you make a selection, the Valid Time Column indents the exact times that will
+be displayed. The Default resolution displays the most recent frames available.</p>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p>With the Time Options check button enabled for a display that already contains data, when you choose the data to be overlaid in the Main Display Pane, the Select Offset and Tolerance dialog
+box appears, providing the following options:</p>
+
+    <ul>
+      <li>
+        <p><strong>Offset</strong>: This column contains various time increments at intervals before, at, or after the time you selected for the first product that is displayed in the Main Display Pane.</p>
+      </li>
+      <li>
+        <p><strong>Tolerance</strong>: The options in this column refer to how strict the time matching is. “None” means an exact match, while “Infinite” will put the closest match in each frame, regardless of how
+far off it is.</p>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="data-scale-ctrl--s">Data Scale (Ctrl + S)</h1>
+
+<p>This check button enables/disables the ability to display data on its native scale. For example, if you enable Data Scaling and select a product from an alternate radar, the data will be displayed with that radar in the center of the screen. Other data can be overlaid on this “dynamic” scale until the Main Display Pane is cleared or a non-plan-view product is loaded.</p>
+
+<h1 id="image-combination-insert">Image Combination (Insert)</h1>
+
+<p>This check button enables/disables the ability to display two images at once. You can also enable/disable the ability to combine images by using the Toggle Image Combination iconified button on the Toolbar.</p>
+
+<p>Combined-image displays have been improved by removing the valid time for non-forecast products and removing the date string (time is kept) from the left side of the legend. In particular, this
+makes All-Tilts radar legends more usable.</p>
+
+<h1 id="display-properties">Display Properties</h1>
+
+<p>This menu option opens the Display Properties dialog box. All the options available in this dialog box are also available on the Toolbar.</p>
+
+<p><img src="../images/x9uQNAI.png" alt="image" /></p>
+
+<h1 id="loop-properties-ctrl--l">Loop Properties (Ctrl + L)</h1>
+
+<p>Loop Properties is another dialog box that can be opened from the Options menu or from the Loop Properties iconified button on the D2D Toolbar, or by using the Ctrl + L keyboard shortcut. The dialog allows you to adjust the forward and backward speeds, with 0 = off and 10 = maximum speed. You can set the duration of the first and last frame dwell times to between zero and 2.5 seconds.</p>
+
+<p>You can turn looping on or off by checking the Looping check button. There is also a Looping button located on the Toolbar that enables/disables the animation in the large display pane. Finally, you can turn looping on and increase/decrease forward speed by pressing Page Up/Page Down on your keyboard, and turn looping off with the Left or Right Arrow keys. On the toolbar, you can use the button to start/stop looping.</p>
+
+<h1 id="image-properties-ctrl--i">Image Properties (Ctrl + I)</h1>
+
+<p>The Image Properties dialog box can be opened here or by using the Image Properties iconified button on the D2D Toolbar, or using using the Ctrl + I keyboard shortcut. This dialog box provides options that allow you to change the color table; adjust the brightness, contrast, and alpha of either a single image or combined images; fade between combined images; and/or interpolate the displayed data.</p>
+
+<h1 id="set-time">Set Time</h1>
+
+<p>This option allows you to set the CAVE clock, located on the bottom of the screen, to an earlier time for reviewing archived data.</p>
+
+<h1 id="set-background-color">Set Background Color</h1>
+
+<p>You can now set the background display color on your workstation. You can also set the background display color for a single pane via mouse Button 3 (B3).</p>
 
     </article>
 
@@ -142,7 +238,7 @@
 <script src="/awips2/js/prettify/prettify.js"></script>
 
 <!-- <script src="/awips2/js/bower_components/smoothscroll/smoothscroll.js"></script> -->
-<script src="/awips2/js/app.js?20160718"></script>
+<script src="/awips2/js/app.js?20160829"></script>
 
 
   </scroll-area>

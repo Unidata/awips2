@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1">
 <meta name="google-site-verification" content="k0e8DrbD40s54xHNBqwIsRrSSAkZoprwtEYDnNY06bU" />
 <meta name="google-site-verification" content="pnjjbQFvjPwaWhEXY6nSyaS9iyghmH-M_yLHBveDX2M">
-<meta itemprop="name" content="AWIPS II - System Menus">
+<meta itemprop="name" content="AWIPS II - CAVE Menus">
 <meta itemprop="description" content="Polymer is a library that uses the latest web technologies to let you create custom HTML elements. Build anything from a button to a complete application as an encapsulated, reusable element that works across desktop and mobile.">
 
 
@@ -15,26 +15,26 @@
 
 <title>
   
-    System Menus -
+    CAVE Menus -
    AWIPS II
 </title>
 <link rel="publisher" href="https://plus.google.com/107187849809354688692">
 <link rel="shortcut icon" href="http://www.unidata.ucar.edu/favicon.ico">
 <link href="//fonts.googleapis.com/css?family=RobotoDraft:300,400,500|Source+Code+Pro:400,500,700" rel="stylesheet">
-<link href="/awips2/css/site2.css?20160718" rel="stylesheet">
-<link href="/awips2/css/site2_sd_rules.css?20160718" rel="stylesheet" shim-shadowdom>
+<link href="/awips2/css/site2.css?20160829" rel="stylesheet">
+<link href="/awips2/css/site2_sd_rules.css?20160829" rel="stylesheet" shim-shadowdom>
 
 
 
-<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20160718"></script>
+<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20160829"></script>
 <!-- TODO: remove when https://github.com/Polymer/polymer/issues/391 is fixed -->
 <link rel="import" href="/awips2/components/polymer/polymer.html">
 <link rel="stylesheet" href="/awips2/css/elements/docs-menu.css">
-<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20160718">
+<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20160829">
 
 
 </head>
-<body id="system-menus">
+<body id="cave-menus">
 
 <main id="content-container" class="polymer-content">
   <app-drawer id="sidebar" unresolved>
@@ -59,8 +59,8 @@
       <header class="shrink">
         <h1>
         
-          D2D User Guide
-        : System Menus
+          Maps, Projections, and Bundles
+        : CAVE Menus
         </h1>
       </header>
     </site-banner>
@@ -73,90 +73,88 @@
       <header class="onlyonmobile">
         <h1>
           
-          D2D User Guide
-          : System Menus
+          Maps, Projections, and Bundles
+          : CAVE Menus
         </h1>
       </header>
 
-      <h1 id="cave-menu">CAVE Menu</h1>
+      <h1 id="maps">Maps</h1>
 
-<h2 id="awips-statistics">AWIPS Statistics</h2>
+<p>The default <strong>CONUS</strong> polar stereographic projection can be changed by selecting the Map Scales menu at top-left (click <strong>CONUS to expand)</strong>…</p>
 
-<p>captures system performance and analyzes statistics. The captured data is viewable via a graph or .csv file.</p>
+<p><img src="../images/mapscales.jpg" alt="image" /></p>
 
-<p><img src="../images/w3wBYzm.png" alt="image" /></p>
+<p><strong>File &gt; New Map</strong></p>
 
-<h2 id="preferences">Preferences</h2>
-
-<p>allows the user to set the Base Maps and Server Data directories; set the Database Connection String, Config Directory, and Log Directory for the Hydro applications; set the Localization Site and/or Server for the workstation; configure the Mouse operations; change the Performance Levels; set the Radar Server; set the Font Magnification; and set the Text Workstation hostname.</p>
-
-<p><img src="../images/ymFRs6S.png" alt="image" /></p>
-
-<h1 id="file">File</h1>
+<p>Opens a new map editor tab with the default projection (CONUS Polar Stereographic).</p>
 
 <p><img src="../images/67Wwz3L.png" alt="image" /></p>
 
-<h2 id="new-map">New Map</h2>
-
-<p>opens a new blank map editor tab.  This can also be done by <strong>right-click</strong> on any tab and selecting <strong>New Editor</strong></p>
+<p>This can also be done by <strong>right-click</strong> on any tab and selecting <strong>New Editor</strong></p>
 
 <p><img src="../images/Sd3qL6LJ55.gif" alt="image" /></p>
 
-<h2 id="new-projection">New Projection</h2>
+<h1 id="projections">Projections</h1>
 
-<p>allows users to create a new map projection.</p>
+<p><strong>File &gt; New Projection</strong></p>
+
+<p>Create a new map projection.</p>
 
 <p><img src="../images/VANzMW2.png" alt="image" /></p>
 
-<h2 id="load-bundle">Load Bundle</h2>
+<h1 id="bundles">Bundles</h1>
 
-<p>provides the ability to load a previously-saved bundle from within the AWIPS II system.</p>
+<p><strong>File &gt; Save Bundle</strong></p>
 
-<p><img src="../images/VWiGMHp.png" alt="image" /></p>
-
-<h2 id="save-bundle">Save Bundle</h2>
-
-<p>provides the ability to save a product display within the AWIPS II system, synching the bundle between CAVE and the EDEX server.</p>
+<p>Save a product display within the AWIPS II system, synching the bundle between CAVE and the EDEX server.</p>
 
 <p><img src="../images/xl53gG4.png" alt="image" /></p>
 
-<h2 id="delete-bundle">Delete Bundle</h2>
+<p><strong>File &gt; Load Bundle</strong></p>
 
-<p>provides the ability to select and remove a saved bundle.</p>
+<p>Load a previously-saved bundle from within the AWIPS II system.</p>
+
+<p><img src="../images/VWiGMHp.png" alt="image" /></p>
+
+<p><strong>File &gt; Delete Bundle</strong></p>
+
+<p>Select and remove a saved bundle.</p>
 
 <p><img src="../images/eRqHZpD.png" alt="image" /></p>
 
-<h2 id="load-bundle-from-disk">Load Bundle from Disk</h2>
+<p><strong>File &gt; Load Bundle from Disk</strong></p>
 
-<p>provides the ability to load a previously-saved display from a path within the file directory of the workstation.</p>
+<p>Load a previously-saved display from a path within the file directory of the workstation.</p>
 
-<h2 id="save-bundle-to-disk">Save Bundle to Disk</h2>
+<p><strong>File &gt; Save Bundle to Disk</strong></p>
 
-<p>provides the ability to save a product display to a path within the file directory of the workstation.</p>
+<p>Save a product display to a path within the file directory of the workstation.</p>
 
-<h2 id="load-map-from-disk">Load Map from Disk</h2>
+<p><strong>File &gt; Load Map from Disk</strong></p>
 
-<p>provides the ability to load a map or product display from a path within the file directory of the workstation.</p>
+<p>Load a map or product display from a path within the file directory of the workstation.</p>
 
-<h2 id="save-map-to-disk">Save Map to Disk</h2>
+<p><strong>File &gt; Save Map to Disk</strong></p>
 
-<p>provides the ability to save a map or product display to a path within the file directory of the workstation.</p>
+<p>Save a map or product display to a path within the file directory of the workstation.</p>
 
-<h2 id="import">Import</h2>
+<h1 id="import--export">Import / Export</h1>
 
-<p>allows the user to import GIS Data, BCD File, GeoTIFF, LPI File, Shapefile, SPI File, or a D2D Display. The “GIS Data” option opens the GIS application, which provides the ability to import geospatial data from varying GIS data sources. The GIS application has been incorporated into CAVE for use with FX-Net.</p>
+<p><strong>File &gt; Import</strong></p>
 
-<h2 id="export-gt-image">Export &gt; Image</h2>
+<p>Import GIS Data, BCD File, GeoTIFF, LPI File, Shapefile, SPI File, or a D2D Display. The “GIS Data” option opens the GIS application, which provides the ability to import geospatial data from varying GIS data sources. The GIS application has been incorporated into CAVE for use with FX-Net.</p>
+
+<p><strong>File &gt; Export &gt; Image</strong></p>
 
 <p>which captures a screenshot of the current view</p>
 
 <p><img src="../images/UxmboZS.png" alt="image" /></p>
 
-<h2 id="export-gt-print-screen">Export &gt; Print Screen</h2>
+<p><strong>File &gt; Export &gt; Print Screen</strong></p>
 
 <p>will bring up the workstation print dialog.</p>
 
-<h2 id="export-gt-kml">Export &gt; KML</h2>
+<p><strong>File &gt; Export &gt; KML</strong></p>
 
 <p>The displays can then be used in other applications or sent to other users for analysis. The “Export” submenu also includes a “KML” option, which allows users to save D2D displays in the KML (Keyhole Markup Language) file format (actually as a compressed KMZ), which can be used in applications such as Google Earth.</p>
 
@@ -181,87 +179,6 @@ tiles when loaded in Google Earth.</p>
   </li>
 </ul>
 
-<h1 id="options">Options</h1>
-
-<h2 id="clear-data">Clear Data</h2>
-
-<p>will remove all non-system resources from the current view (this will preserve any maps that you loaded).</p>
-
-<h2 id="pane--5-pane-layout">1 Pane / 5 Pane Layout</h2>
-
-<p>will switch between the single page (default) view and the 5-panel WFO view (centered on OAX by default).</p>
-
-<h2 id="time-options-ctrl--t">Time Options (Ctrl + T)</h2>
-
-<p>This check button enables/disables the ability to select the time interval between frames of real-time or model data. This feature has the added benefit of allowing you to view extended amounts of data (temporally) but stay within the limits of 64 frames. For example, METAR surface plots, which typically display every hour, can be set to display every three hours via the Select Valid Time and Time Resolution Dialog Box.</p>
-
-<p>When the Time Options check button is selected, the next product you choose to display in the Main Display Pane launches either the Select Valid Time and Time Resolution dialog box or the Select
-Offset and Tolerance dialog box.</p>
-
-<ul>
-  <li>
-    <p>When you are loading data to an empty display and the Time Options check button is enabled, the Select Valid Time and Time Resolution dialog box opens.</p>
-
-    <ul>
-      <li>
-        <p><strong>Valid Time:</strong> In this column of dates/times, you may choose the one that will be the first frame loaded onto the Large Display Pane. The Default option is the most recent data.</p>
-      </li>
-      <li>
-        <p><strong>Time Resolution:</strong> This column contains various time increments in which the data can be displayed. Once you make a selection, the Valid Time Column indents the exact times that will
-be displayed. The Default resolution displays the most recent frames available.</p>
-      </li>
-    </ul>
-  </li>
-  <li>
-    <p>With the Time Options check button enabled for a display that already contains data, when you choose the data to be overlaid in the Main Display Pane, the Select Offset and Tolerance dialog
-box appears, providing the following options:</p>
-
-    <ul>
-      <li>
-        <p><strong>Offset</strong>: This column contains various time increments at intervals before, at, or after the time you selected for the first product that is displayed in the Main Display Pane.</p>
-      </li>
-      <li>
-        <p><strong>Tolerance</strong>: The options in this column refer to how strict the time matching is. “None” means an exact match, while “Infinite” will put the closest match in each frame, regardless of how
-far off it is.</p>
-      </li>
-    </ul>
-  </li>
-</ul>
-
-<h2 id="data-scale-ctrl--s">Data Scale (Ctrl + S)</h2>
-
-<p>This check button enables/disables the ability to display data on its native scale. For example, if you enable Data Scaling and select a product from an alternate radar, the data will be displayed with that radar in the center of the screen. Other data can be overlaid on this “dynamic” scale until the Main Display Pane is cleared or a non-plan-view product is loaded.</p>
-
-<h2 id="image-combination-insert">Image Combination (Insert)</h2>
-
-<p>This check button enables/disables the ability to display two images at once. You can also enable/disable the ability to combine images by using the Toggle Image Combination iconified button on the Toolbar.</p>
-
-<p>Combined-image displays have been improved by removing the valid time for non-forecast products and removing the date string (time is kept) from the left side of the legend. In particular, this
-makes All-Tilts radar legends more usable.</p>
-
-<h2 id="display-properties">Display Properties</h2>
-
-<p>This menu option opens the Display Properties dialog box. All the options available in this dialog box are also available on the Toolbar.</p>
-
-<p><img src="../images/x9uQNAI.png" alt="image" /></p>
-
-<h2 id="loop-properties-ctrl--l">Loop Properties (Ctrl + L)</h2>
-
-<p>Loop Properties is another dialog box that can be opened from the Options menu or from the Loop Properties iconified button on the D2D Toolbar, or by using the Ctrl + L keyboard shortcut. The dialog allows you to adjust the forward and backward speeds, with 0 = off and 10 = maximum speed. You can set the duration of the first and last frame dwell times to between zero and 2.5 seconds.</p>
-
-<p>You can turn looping on or off by checking the Looping check button. There is also a Looping button located on the Toolbar that enables/disables the animation in the large display pane. Finally, you can turn looping on and increase/decrease forward speed by pressing Page Up/Page Down on your keyboard, and turn looping off with the Left or Right Arrow keys. On the toolbar, you can use the button to start/stop looping.</p>
-
-<h2 id="image-properties-ctrl--i">Image Properties (Ctrl + I)</h2>
-
-<p>The Image Properties dialog box can be opened here or by using the Image Properties iconified button on the D2D Toolbar, or using using the Ctrl + I keyboard shortcut. This dialog box provides options that allow you to change the color table; adjust the brightness, contrast, and alpha of either a single image or combined images; fade between combined images; and/or interpolate the displayed data.</p>
-
-<h2 id="set-time">Set Time</h2>
-
-<p>This option allows you to set the CAVE clock, located on the bottom of the screen, to an earlier time for reviewing archived data.</p>
-
-<h2 id="set-background-color">Set Background Color</h2>
-
-<p>You can now set the background display color on your workstation. You can also set the background display color for a single pane via mouse Button 3 (B3).</p>
 
     </article>
 
@@ -284,7 +201,7 @@ makes All-Tilts radar legends more usable.</p>
 <script src="/awips2/js/prettify/prettify.js"></script>
 
 <!-- <script src="/awips2/js/bower_components/smoothscroll/smoothscroll.js"></script> -->
-<script src="/awips2/js/app.js?20160718"></script>
+<script src="/awips2/js/app.js?20160829"></script>
 
 
   </scroll-area>

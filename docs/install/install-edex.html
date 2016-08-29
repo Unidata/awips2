@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1">
 <meta name="google-site-verification" content="k0e8DrbD40s54xHNBqwIsRrSSAkZoprwtEYDnNY06bU" />
 <meta name="google-site-verification" content="pnjjbQFvjPwaWhEXY6nSyaS9iyghmH-M_yLHBveDX2M">
-<meta itemprop="name" content="AWIPS II - Install EDEX">
+<meta itemprop="name" content="AWIPS II - EDEX Install and Config">
 <meta itemprop="description" content="Polymer is a library that uses the latest web technologies to let you create custom HTML elements. Build anything from a button to a complete application as an encapsulated, reusable element that works across desktop and mobile.">
 
 
@@ -15,26 +15,26 @@
 
 <title>
   
-    Install EDEX -
+    EDEX Install and Config -
    AWIPS II
 </title>
 <link rel="publisher" href="https://plus.google.com/107187849809354688692">
 <link rel="shortcut icon" href="http://www.unidata.ucar.edu/favicon.ico">
 <link href="//fonts.googleapis.com/css?family=RobotoDraft:300,400,500|Source+Code+Pro:400,500,700" rel="stylesheet">
-<link href="/awips2/css/site2.css?20160718" rel="stylesheet">
-<link href="/awips2/css/site2_sd_rules.css?20160718" rel="stylesheet" shim-shadowdom>
+<link href="/awips2/css/site2.css?20160829" rel="stylesheet">
+<link href="/awips2/css/site2_sd_rules.css?20160829" rel="stylesheet" shim-shadowdom>
 
 
 
-<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20160718"></script>
+<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20160829"></script>
 <!-- TODO: remove when https://github.com/Polymer/polymer/issues/391 is fixed -->
 <link rel="import" href="/awips2/components/polymer/polymer.html">
 <link rel="stylesheet" href="/awips2/css/elements/docs-menu.css">
-<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20160718">
+<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20160829">
 
 
 </head>
-<body id="install-edex">
+<body id="edex-install-and-config">
 
 <main id="content-container" class="polymer-content">
   <app-drawer id="sidebar" unresolved>
@@ -58,9 +58,7 @@
 
       <header class="shrink">
         <h1>
-        
-          Install & Config
-        : Install EDEX
+         EDEX Install and Config
         </h1>
       </header>
     </site-banner>
@@ -72,81 +70,150 @@
 
       <header class="onlyonmobile">
         <h1>
-          
-          Install & Config
-          : Install EDEX
+          : EDEX Install and Config
         </h1>
       </header>
 
       <p><a href="http://www.unidata.ucar.edu/software/awips2/installEDEX.sh"><paper-button raised="" role="button" tabindex="0"><core-icon icon="file-download" aria-label="file-download" role="img"></core-icon>64-bit Linux</paper-button></a></p>
 
-<p><br /></p>
+<blockquote>
+  <p>CentOS/RHEL 6 is required to install Unidata AWIPS EDEX!</p>
+</blockquote>
 
-<h1 id="centos-6-setup">CentOS 6 Setup</h1>
+<hr />
 
-<ol>
+<h1 id="centos-6-one-time-setup">CentOS 6 One-Time Setup</h1>
+
+<p>To begin, first create user and group <strong>awips:fxalpha</strong>.  IP tables will need to be configured to allow specific TCP connections for EDEX: ports <strong>5672</strong>, <strong>9581</strong> and <strong>9582</strong>.</p>
+
+<ul>
   <li>
-    <p>create user <code>awips</code> and group <code>fxalpha</code> and create AWIPS II directories</p>
+    <p><code>groupadd fxalpha &amp;&amp; useradd -G fxalpha awips</code></p>
+  </li>
+  <li>
+    <p><code>mkdir -p /awips2/data_store</code></p>
+  </li>
+  <li>
+    <p><code>vi /etc/sysconfig/iptables</code></p>
 
-    <pre><code> groupadd fxalpha &amp;&amp; useradd -G fxalpha awips
- mkdir -p /awips2/data_store
+    <pre><code> # Firewall configuration written by system-config-firewall
+ # Manual customization of this file is not recommended.
+ *filter
+ :INPUT ACCEPT [0:0]
+ :FORWARD ACCEPT [0:0]
+ :OUTPUT ACCEPT [0:0]
+ -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+ -A INPUT -p icmp -j ACCEPT
+ -A INPUT -i lo -j ACCEPT
+ -A INPUT -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT
+ -A INPUT -m state --state NEW -m tcp -p tcp --dport 5672 -j ACCEPT
+ -A INPUT -m state --state NEW -m tcp -p tcp --dport 9581 -j ACCEPT
+ -A INPUT -m state --state NEW -m tcp -p tcp --dport 9582 -j ACCEPT
+ -A INPUT -j REJECT --reject-with icmp-host-prohibited
+ -A FORWARD -j REJECT --reject-with icmp-host-prohibited
+ COMMIT
 </code></pre>
   </li>
   <li>
-    <p><code>/etc/security/limits.conf</code></p>
+    <p><code>service iptables restart</code></p>
+  </li>
+  <li>
+    <p><code>vi /etc/sysconfig/selinux</code></p>
 
-    <p>Qpid is known to crash on some systems which have not defined a higher security limit for user processes and files. To be sure that Qpid can handle the high number of messages from edexBridge, add the following two lines to <code>/etc/security/limits.conf</code></p>
-
-    <pre><code> awips soft nproc 65536
- awips soft nofile 65536
-</code></pre>
-
-    <p>or with the command</p>
-
-    <pre><code> printf "awips soft nproc 65536\nawips soft nofile 65536\n" &gt;&gt; /etc/security/limits.conf
+    <pre><code>  # This file controls the state of SELinux on the system.
+  # SELINUX= can take one of these three values:
+  #     enforcing - SELinux security policy is enforced.
+  #     permissive - SELinux prints warnings instead of enforcing.
+  #     disabled - No SELinux policy is loaded.
+  SELINUX=disabled
+  # SELINUXTYPE= can take one of these two values:
+  #     targeted - Targeted processes are protected,
+  #     mls - Multi Level Security protection.
+  SELINUXTYPE=targeted
 </code></pre>
   </li>
   <li>
-    <p><code>/etc/sysconfig/iptables</code></p>
+    <p><code>reboot</code></p>
 
-    <p>To serve data from an EDEX server, iptables must allow TCP connections on ports <strong>5672</strong>, <strong>9581</strong> and <strong>9582</strong>. The following lines added to <code>/etc/sysconfig/iptables</code>, followed by the command <code>service iptables restart</code>, will configure iptables for EDEX.</p>
-
-    <pre><code> -A INPUT -p tcp -m tcp --dport 5672 -j ACCEPT
- -A INPUT -p tcp -m tcp --dport 9581 -j ACCEPT
- -A INPUT -p tcp -m tcp --dport 9582 -j ACCEPT
-</code></pre>
+    <p>Only required if iptables was updated in step 5.</p>
   </li>
   <li>
-    <p>Mount SSD to /awips2/edex/data (optional)</p>
-  </li>
-</ol>
+    <p><code>df -h</code></p>
 
-<p>For better performance and to increase the decoding capacity of your EDEX server, mount an SSD to <code>/awips2/edex/data</code> (or to the entire <code>/awips2</code> folder if your SSD is larger than 500GB).</p>
+    <p>Make sure you have 15GB of storage on <code>/</code> for the <code>/awips2</code> software, and then ensure you have 500GB (or more) of fast IO file storage (SSD or NFS) available to mount the directories <code>/awips2/edex/data/hdf5</code> and <code>/awips2/data_store</code>.</p>
 
-<h1 id="linux-download">Linux Download</h1>
+    <ul>
+      <li>
+        <p>All of <code>/awips2</code> on an SSD</p>
 
-<p>For 64-bit RHEL/CentOS 5 and 6, download and run the script <a href="http://www.unidata.ucar.edu/software/awips2/installEDEX.sh">installEDEX.sh</a>:</p>
+        <p>For example:</p>
 
-<pre><code>wget http://www.unidata.ucar.edu/software/awips2/installEDEX.sh
-chmod 755 ./installEDEX.sh
-./installEDEX.sh
+        <pre><code>  Filesystem      Size  Used Avail Use% Mounted on
+  /dev/sda1        30G  2.5G   26G   9% /
+  tmpfs            28G     0   28G   0% /dev/shm
+  /dev/sdc1       788G   81G  667G  11% /awips2
+  /dev/sdb1       788G   69M  748G   1% /mnt/resource
 </code></pre>
+      </li>
+      <li>
+        <p><code>/awips2/edex/data/hdf5</code> on an SSD</p>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<hr />
+
+<h1 id="edex-install">EDEX Install</h1>
+
+<ul>
+  <li>
+    <p><code>wget http://www.unidata.ucar.edu/software/awips2/installEDEX.sh</code></p>
+  </li>
+  <li>
+    <p><code>chmod 755 ./installEDEX.sh</code></p>
+  </li>
+  <li>
+    <p><code>./installEDEX.sh</code></p>
+  </li>
+</ul>
 
 <p>This will install to <code>/awips2/edex</code>, <code>/awips2/data</code> and other directories.</p>
 
 <blockquote>
-  <p>CentOS/RHEL 5 and 6 are the only supported operating systems for EDEX (Though you may have luck with Fedora Core 12 to 14 and Scientific Linux). Not supported for EDEX: Debian, Ubuntu, SUSE, Solaris, OS X, Fedora 15+, CentOS/RHEL 7, Windows</p>
+  <p>64-bit CentOS/RHEL 6 is the only supported operating systems for EDEX (Though you may have luck with CentOS/RHEL 5, Fedora Core 12 to 14 and Scientific Linux). Not supported for EDEX: Debian, Ubuntu, SUSE, Solaris, OS X, Fedora 15+, CentOS/RHEL 7, Windows</p>
 </blockquote>
 
-<p>selinux should be <strong>disabled</strong> <a href="https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Security-Enhanced_Linux/sect-Security-Enhanced_Linux-Enabling_and_Disabling_SELinux-Disabling_SELinux.html">(read more about selinux at redhat.com)</a></p>
-
-<h1 id="what-does-installedexsh-do">What does installEDEX.sh do?</h1>
+<h2 id="what-does-installedexsh-do">What does installEDEX.sh do?</h2>
 
 <ol>
   <li>Downloads <a href="http://www.unidata.ucar.edu/software/awips2/doc/awips2.repo">http://www.unidata.ucar.edu/software/awips2/doc/awips2.repo</a> to <code>/etc/yum.repos.d/awips2.repo</code></li>
   <li>Runs <code>yum clean all</code></li>
   <li>Runs <code>yum groupinstall awips2-server</code></li>
 </ol>
+
+<hr />
+
+<h1 id="be-aware">Be Aware…</h1>
+
+<ul>
+  <li>
+    <p><code>/awips2/edex/bin/setup.env</code> should contain the <strong>fully-qualified domain name</strong> which can be externally resolved (localhost will not work). The command <code>edex setup</code> attempts to add the domain name of your EDEX machine to the file, but you should <strong>always confirm this manually</strong>.</p>
+  </li>
+  <li>
+    <p>selinux should be <strong>disabled</strong> <a href="https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Security-Enhanced_Linux/sect-Security-Enhanced_Linux-Enabling_and_Disabling_SELinux-Disabling_SELinux.html">(read more about selinux at redhat.com)</a></p>
+  </li>
+  <li>
+    <p>Security Limits - <strong>/etc/security/limits.conf</strong></p>
+
+    <p>Qpid is known to crash on systems without a high security limit for user processes and files. The file <code>/etc/security/limits.conf</code> defines the number of each for the awips user (This is automatically configured by the <code>installEDEX.sh</code> script).</p>
+
+    <pre><code>  awips soft nproc 65536
+  awips soft nofile 65536
+</code></pre>
+  </li>
+</ul>
+
 
     </article>
 
@@ -169,7 +236,7 @@ chmod 755 ./installEDEX.sh
 <script src="/awips2/js/prettify/prettify.js"></script>
 
 <!-- <script src="/awips2/js/bower_components/smoothscroll/smoothscroll.js"></script> -->
-<script src="/awips2/js/app.js?20160718"></script>
+<script src="/awips2/js/app.js?20160829"></script>
 
 
   </scroll-area>

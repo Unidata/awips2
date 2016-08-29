@@ -21,16 +21,16 @@
 <link rel="publisher" href="https://plus.google.com/107187849809354688692">
 <link rel="shortcut icon" href="http://www.unidata.ucar.edu/favicon.ico">
 <link href="//fonts.googleapis.com/css?family=RobotoDraft:300,400,500|Source+Code+Pro:400,500,700" rel="stylesheet">
-<link href="/awips2/css/site2.css?20160718" rel="stylesheet">
-<link href="/awips2/css/site2_sd_rules.css?20160718" rel="stylesheet" shim-shadowdom>
+<link href="/awips2/css/site2.css?20160829" rel="stylesheet">
+<link href="/awips2/css/site2_sd_rules.css?20160829" rel="stylesheet" shim-shadowdom>
 
 
 
-<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20160718"></script>
+<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20160829"></script>
 <!-- TODO: remove when https://github.com/Polymer/polymer/issues/391 is fixed -->
 <link rel="import" href="/awips2/components/polymer/polymer.html">
 <link rel="stylesheet" href="/awips2/css/elements/docs-menu.css">
-<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20160718">
+<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20160829">
 
 
 </head>
@@ -77,23 +77,44 @@
       <h1 id="cave">CAVE</h1>
 
 <ul>
-  <li>64-bit CentOS/RHEL 5 or 6 (including the latest 6.7) (or Mac)</li>
-  <li>8GB memory</li>
-  <li>1.5GB disk space (you should be prepared for more with caching datasets in <code>~/caveData</code>)</li>
-  <li>2GB video ram and OpenGL 2.0</li>
-  <li><a href="http://www.nvidia.com/Download/index.aspx?lang=en-us">Latest NVIDIA driver</a> for your graphics card.</li>
-  <li>All package dependencies should be resolved by yum.  Packages such as libXp, libXt, and openmotif will be picked up and installed along with CAVE.</li>
+  <li><strong>CentOS/RHEL 6, OS X, Windows</strong></li>
+  <li><strong>8GB</strong> memory</li>
+  <li><strong>1.5GB</strong> disk space (you should be prepared for more with caching datasets in <code>~/caveData</code>)</li>
+  <li><strong>2GB</strong> video ram and OpenGL 2.0</li>
+  <li><a href="http://www.nvidia.com/Download/index.aspx?lang=en-us"><strong>Latest NVIDIA driver</strong></a> for your graphics card.</li>
 </ul>
 
 <h1 id="edex">EDEX</h1>
 
 <ul>
-  <li>64-bit CentOS/RHEL 5 or 6 (including the latest 6.7).</li>
-  <li>4 CPU cores minimum, 8+ recommended (EDEX can scale to any system limitations by reducing the amount of incoming data and/or turning off certain decoders).</li>
-  <li>8GB memory minimum, 24GB and 32GB recommended to process more IDD data feeds</li>
-  <li>250GB minimum footprint, 400GB with full IDD ingest, more if you plan to build a data archive (100 GB/day for 3 months = 10TB)</li>
-  <li>A <strong>Solid State Drive</strong> is recommended if you want to process high volume feeds such as NEXRAD3 and CONDUIT.</li>
+  <li><strong>64-bit CentOS/RHEL 6</strong></li>
+  <li><strong>8 CPU</strong> cores minimum, <strong>16</strong> recommended.</li>
+  <li><strong>16GB</strong> RAM minimum, <strong>32GB+</strong> recommended for large servers processing more of the IDD.</li>
+  <li><strong>500GB</strong> minimum footprint, more if you plan to build a data archive</li>
+  <li>An <strong>SSD</strong> mounted to <code>/awips2</code> contain the entire software system and data files.</li>
 </ul>
+
+<blockquote>
+  <h2 id="notes">Notes</h2>
+  <ul>
+    <li>EDEX can scale to any system by reducing the volume of incoming data and/or turning off certain decoders (for example, with 4 cores you will only have 4 parallelized decoders running at any one time, which will not be able to handle CONDUIT and NEXRAD3 feeds).</li>
+    <li>As of AWIPS 16.2.2, scouring of <code>/awips2/data_store</code> is performed at 30 minutes past every hour, and the default retention rate is <strong>1 hour</strong>. Previous releases used <code>ldmadmin scour</code> which had a minimum retention period of 1 day.</li>
+  </ul>
+</blockquote>
+
+<h3 id="edex-linux-file-systems">EDEX Linux File Systems</h3>
+
+<ul>
+  <li><strong>/awips2</strong> - This folder contains all of the installed AWIPS software.</li>
+  <li><strong>/awips2/edex/data/hdf5</strong> - Contains the HDF5 component of the data store and shared static data and hydro apps.</li>
+  <li><strong>/awips2/edex/data/utility</strong> - Contains localization store and EDEX configuration files.</li>
+  <li><strong>/awips2/ldm</strong> - LDM account home directory.</li>
+  <li><strong>/awips2/ldm/etc</strong> - Location of <em>ldmd.conf</em> and <em>pqact.conf</em>.</li>
+  <li><strong>/awips2/ldm/logs</strong> - Location of LDM logs.</li>
+  <li><strong>/awips2/data_store</strong> - Raw Data Store File System</li>
+  <li><strong>/awips2/GFESuite</strong> - Contains scripts and data relating to inter site coordination (ISC) and service backup.</li>
+</ul>
+
 
     </article>
 
@@ -116,7 +137,7 @@
 <script src="/awips2/js/prettify/prettify.js"></script>
 
 <!-- <script src="/awips2/js/bower_components/smoothscroll/smoothscroll.js"></script> -->
-<script src="/awips2/js/app.js?20160718"></script>
+<script src="/awips2/js/app.js?20160829"></script>
 
 
   </scroll-area>

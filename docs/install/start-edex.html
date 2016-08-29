@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1">
 <meta name="google-site-verification" content="k0e8DrbD40s54xHNBqwIsRrSSAkZoprwtEYDnNY06bU" />
 <meta name="google-site-verification" content="pnjjbQFvjPwaWhEXY6nSyaS9iyghmH-M_yLHBveDX2M">
-<meta itemprop="name" content="AWIPS II - The EDEX Service Manager">
+<meta itemprop="name" content="AWIPS II - EDEX Start and Stop">
 <meta itemprop="description" content="Polymer is a library that uses the latest web technologies to let you create custom HTML elements. Build anything from a button to a complete application as an encapsulated, reusable element that works across desktop and mobile.">
 
 
@@ -15,26 +15,26 @@
 
 <title>
   
-    The EDEX Service Manager -
+    EDEX Start and Stop -
    AWIPS II
 </title>
 <link rel="publisher" href="https://plus.google.com/107187849809354688692">
 <link rel="shortcut icon" href="http://www.unidata.ucar.edu/favicon.ico">
 <link href="//fonts.googleapis.com/css?family=RobotoDraft:300,400,500|Source+Code+Pro:400,500,700" rel="stylesheet">
-<link href="/awips2/css/site2.css?20160718" rel="stylesheet">
-<link href="/awips2/css/site2_sd_rules.css?20160718" rel="stylesheet" shim-shadowdom>
+<link href="/awips2/css/site2.css?20160829" rel="stylesheet">
+<link href="/awips2/css/site2_sd_rules.css?20160829" rel="stylesheet" shim-shadowdom>
 
 
 
-<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20160718"></script>
+<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20160829"></script>
 <!-- TODO: remove when https://github.com/Polymer/polymer/issues/391 is fixed -->
 <link rel="import" href="/awips2/components/polymer/polymer.html">
 <link rel="stylesheet" href="/awips2/css/elements/docs-menu.css">
-<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20160718">
+<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20160829">
 
 
 </head>
-<body id="the-edex-service-manager">
+<body id="edex-start-and-stop">
 
 <main id="content-container" class="polymer-content">
   <app-drawer id="sidebar" unresolved>
@@ -58,7 +58,7 @@
 
       <header class="shrink">
         <h1>
-         The EDEX Service Manager
+         EDEX Start and Stop
         </h1>
       </header>
     </site-banner>
@@ -70,19 +70,23 @@
 
       <header class="onlyonmobile">
         <h1>
-          : The EDEX Service Manager
+          : EDEX Start and Stop
         </h1>
       </header>
 
-      <h1 id="the-edex-service-manager">The EDEX Service Manager</h1>
+      <h1 id="quick-start">Quick Start</h1>
 
-<p>The four EDEX services (<strong>postgres</strong>, <strong>httpd-pypies</strong>, <strong>qpidd</strong>, and <strong>edex_camel</strong>) will run at boot once they are installed, as defined in the header of each file by the same name in <code>/etc/init.d</code>.  The LDM does not start automatically on boot.</p>
+<p>(as root)</p>
 
-<h1 id="edex-status">edex status</h1>
+<ul>
+  <li><code>edex start</code></li>
+  <li><code>edex log ldm</code> - watch for live incoming data</li>
+  <li><code>edex log</code>  - watch for active data decoding messages</li>
+</ul>
 
-<p>Type <code>edex status</code> (or simply <code>edex</code>) to list the EDEX processes and their statuses.</p>
+<p>AWIPS EDEX services are managed by the <code>edex</code> program</p>
 
-<pre><code>edex
+<pre><code>&gt; edex
 
 [edex status]
  postgres    :: not running
@@ -96,34 +100,20 @@
  edex (status|start|stop|setup|log|purge|users)
 </code></pre>
 
-<p>The last line are the other available commands (<a href="#edex-start">edex start</a>, <a href="#edex-stop">edex stop</a>, <a href="#edex-setup">edex setup</a>, <a href="#edex-log">edex log</a>, <a href="#edex-purge">edex purge</a>, <a href="#edex-users">edex users</a>).</p>
+<p>The list of available commands is shown at the botton of the command output (<a href="#edex-start">edex start</a>, <a href="#edex-stop">edex stop</a>, <a href="#edex-setup">edex setup</a>, <a href="#edex-log">edex log</a>, <a href="#edex-purge">edex purge</a>, <a href="#edex-users">edex users</a>).</p>
 
 <h1 id="edex-start">edex start</h1>
 
 <pre><code>edex start
 
-Starting EDEX PostgreSQL: 
-Starting logging service:                                  [  OK  ]
-Starting httpd: nohup: redirecting stderr to stdout       [  OK  ]
-Starting QPID
-QPID is running (PID  7911)
+Starting EDEX PostgreSQL:                                  [  OK  ]
+Starting httpd:                                            [  OK  ]
+Starting QPID                                              [  OK  ]
 Starting EDEX Camel (request): 
 Starting EDEX Camel (ingest): 
 Starting EDEX Camel (ingestGrib): 
-EDEX Camel (ingest) is running (wrapper PID 8175)
-EDEX Camel (ingest) is running (java PID 8376)
-EDEX Camel (request) is running (wrapper PID 8176)
-EDEX Camel (request) is running (java PID 8258)
-EDEX Camel (ingestGrib) is running (wrapper PID 8177)
-EDEX Camel (ingestGrib) is running (java PID 8318)
-Cleaning LDM:	                                           [  OK  ]
-Deleting the ldm queue:	                                   [  OK  ]
-Creating the ldm queue:	                                   [  OK  ]
 Starting AWIPS II LDM:The product-queue is OK.
-Checking pqact(1) configuration-file(s)...
-    /awips2/ldm/etc/pqact.conf: syntactically correct
-Checking LDM configuration-file (/awips2/ldm/etc/ldmd.conf)...
-Starting the LDM server...
+...
 </code></pre>
 
 <h1 id="edex-stop">edex stop</h1>
@@ -133,21 +123,14 @@ Starting the LDM server...
 Stopping EDEX Camel (request): 
 Stopping EDEX Camel (ingest): 
 Stopping EDEX Camel (ingestGrib): 
-EDEX request shutdown
-EDEX ingestGrib shutdown
-Waiting for EDEX ingest to shutdown
-EDEX ingest shutdown
-Stopping QPID
-Session terminated, killing shell... ...killed.
-Stopping httpd: 
-Stopping logging service:                                  [  OK  ]
-Stopping EDEX PostgreSQL: 
+Stopping QPID                                              [  OK  ]
+Stopping httpd:                                            [  OK  ]
+Stopping EDEX PostgreSQL:                                  [  OK  ]
 Stopping AWIPS II LDM:Stopping the LDM server...
-Waiting for the LDM server to terminate...
+...
 </code></pre>
 
 <h1 id="edex-setup">edex setup</h1>
-<p>to configure (or confirm) that the EDEX hostname and IP address definitions exist.  If these definitions are missing, <code>edex start</code> will run <code>edex setup</code> for you.</p>
 
 <pre><code>edex setup
 
@@ -159,8 +142,13 @@ Waiting for the LDM server to terminate...
 [done]
 </code></pre>
 
+<p>This command configures and/or confirms that the EDEX hostname and IP address definitions exist (<code>edex setup</code> is run by <code>edex start</code>).</p>
+
+<blockquote>
+  <p>If your EDEX server is running but you see the message “Connectivity Error: Unable to validate localization preferences” in CAVE, it may mean that the domain name defined in <code>/awips2/edex/bin/setup.env</code> can not be resolved from <em>outside</em> the server.  Some machines have different <strong>internally-resolved</strong> and <strong>externally-resolved</strong> domain names (cloud-based especially). The name defined in <code>setup.env</code> must be <strong>externally-resolvable</strong>.</p>
+</blockquote>
+
 <h1 id="edex-log">edex log</h1>
-<p>to view the Ingest JVM log (default) and others such as <code>edex log grib</code>, <code>edex log request</code>, <code>edex log ldm</code>.</p>
 
 <pre><code>edex log
 
@@ -171,14 +159,62 @@ Waiting for the LDM server to terminate...
 
 INFO  2015-12-09 18:34:42,825 [Ingest.binlightning-1] Ingest: EDEX: Ingest - binlightning:: /awips2/data_store/entlightning/20151209/18/SFPA42_KWBC_091833_38031177.2015120918 processed in: 0.0050 (sec) Latency: 0.0550 (sec)
 Time spent in persist: 68
-INFO  2015-12-09 18:34:45,951 [Ingest.obs-1] Ingest: EDEX: Ingest - obs:: /awips2/data_store/metar/20151209/18/SAIN31_VABB_091830_131392869.2015120918 processed in: 0.0810 (sec) Latency: 0.1800 (sec)
+INFO  2015-12-09 18:34:45,951 [Ingest.obs-1] Ingest: EDEX: Ingest - obs:: /awips2/data_store/metar/20151209/18/SAIN31_VABB_091830_131392869.2015120918 processed in: 0.0810 (sec) Latency: 0.1800 (sec)\
+</code></pre>
+
+<p>More edex logs…</p>
+
+<pre><code>edex log grib
+edex log request
+edex log ldm
+edex log radar
+edex log satellite
+edex log text
 </code></pre>
 
 <h1 id="edex-users">edex users</h1>
-<p>to view user information for your EDEX server (account username and domain name are recorded by each edex server for localization purposes).</p>
+
+<p>To see a list of clients connecting to your EDEX server, use the <code>edex users [YYYYMMDD]</code> command, where <code>YYYYMMDD</code> is the optional date string.</p>
+
+<pre><code>edex users
+
+ -- EDEX Users 20160826 --
+user@101.253.20.225
+user@192.168.1.67
+awips@0.0.0.0
+awips@sdsmt.edu
+...
+</code></pre>
 
 <h1 id="edex-purge">edex purge</h1>
 <p>to view any stuck purge jobs in PortgreSQL (a rare but serious problem if your disk fills up).  The solution to this is to run <code>edex purge reset</code>.</p>
+
+<h1 id="etcinitd-scripts"><code>/etc/init.d</code> scripts</h1>
+
+<p>There are four EDEX services which run on boot:</p>
+
+<pre><code>service postgres start
+service httpd-pypies start
+service qpidd start
+service edex_camel start
+</code></pre>
+
+<p>There is also an LDM init script called <code>edex_ldm</code> which does <strong>not run at boot</strong> (to prevent filling up disk space without EDEX processing or scouring):</p>
+
+<pre><code>service edex_ldm start
+</code></pre>
+
+<p>The service config files are located in <code>/etc/init.d/</code> and can be edited by <strong>root</strong>:</p>
+
+<pre><code>ls -la /etc/init.d/ |grep -e edex -e pypies -e qpid
+
+-rwxr--r--   1 root  root     6693 Nov  7 17:53 edex_camel
+-rwxr-xr-x   1 root  root     1422 Oct 29 15:28 edex_ldm
+-rwxr--r--   1 root  root     2416 Sep  7 15:48 edex_postgres
+-rwxr-xr-x   1 root  root     5510 Aug 26 13:05 httpd-pypies
+-rwxr-xr-x   1 root  root     3450 Aug 26 13:04 qpidd
+</code></pre>
+
 
     </article>
 
@@ -201,7 +237,7 @@ INFO  2015-12-09 18:34:45,951 [Ingest.obs-1] Ingest: EDEX: Ingest - obs:: /awips
 <script src="/awips2/js/prettify/prettify.js"></script>
 
 <!-- <script src="/awips2/js/bower_components/smoothscroll/smoothscroll.js"></script> -->
-<script src="/awips2/js/app.js?20160718"></script>
+<script src="/awips2/js/app.js?20160829"></script>
 
 
   </scroll-area>

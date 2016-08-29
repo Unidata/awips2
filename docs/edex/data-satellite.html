@@ -21,16 +21,16 @@
 <link rel="publisher" href="https://plus.google.com/107187849809354688692">
 <link rel="shortcut icon" href="http://www.unidata.ucar.edu/favicon.ico">
 <link href="//fonts.googleapis.com/css?family=RobotoDraft:300,400,500|Source+Code+Pro:400,500,700" rel="stylesheet">
-<link href="/awips2/css/site2.css?20160718" rel="stylesheet">
-<link href="/awips2/css/site2_sd_rules.css?20160718" rel="stylesheet" shim-shadowdom>
+<link href="/awips2/css/site2.css?20160829" rel="stylesheet">
+<link href="/awips2/css/site2_sd_rules.css?20160829" rel="stylesheet" shim-shadowdom>
 
 
 
-<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20160718"></script>
+<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20160829"></script>
 <!-- TODO: remove when https://github.com/Polymer/polymer/issues/391 is fixed -->
 <link rel="import" href="/awips2/components/polymer/polymer.html">
 <link rel="stylesheet" href="/awips2/css/elements/docs-menu.css">
-<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20160718">
+<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20160829">
 
 
 </head>
@@ -81,18 +81,30 @@
       
 <!--TOC_START-->
 <ul id="markdown-toc">
-  <li><a href="#satellite-imagery" id="markdown-toc-satellite-imagery">Satellite Imagery</a></li>
+  <li><a href="#satellite-imagery" id="markdown-toc-satellite-imagery">Satellite Imagery</a>    <ul>
+      <li><a href="#noaaport-gini-images" id="markdown-toc-noaaport-gini-images">NOAAport GINI Images</a></li>
+      <li><a href="#uniwisc-goes-eastwest-northern-hemisphere-composites" id="markdown-toc-uniwisc-goes-eastwest-northern-hemisphere-composites">UNIWISC GOES-East/West Northern Hemisphere Composites</a></li>
+      <li><a href="#km-rectilinear-global-composites" id="markdown-toc-km-rectilinear-global-composites">20km Rectilinear Global Composites</a></li>
+      <li><a href="#km-mollweide-global-composites" id="markdown-toc-km-mollweide-global-composites">30km Mollweide Global Composites</a></li>
+      <li><a href="#arctic-composite-imagery" id="markdown-toc-arctic-composite-imagery">Arctic Composite Imagery</a></li>
+      <li><a href="#antarctic-composite-imagery" id="markdown-toc-antarctic-composite-imagery">Antarctic Composite Imagery</a></li>
+      <li><a href="#goes-sounder-derived-imagery" id="markdown-toc-goes-sounder-derived-imagery">GOES Sounder Derived Imagery</a></li>
+    </ul>
+  </li>
 </ul>
 <!--TOC_END-->
 
-<h3 id="satellite-imagery">Satellite Imagery</h3>
+<h1 id="satellite-imagery">Satellite Imagery</h1>
 
-<pre><code># NOAAPORT GINI images
-NIMAGE  ^satz/ch[0-9]/.*/(.*)/([12][0-9])([0-9][0-9])([01][0-9])([0-3][0-9]) ([0-2][0-9])([0-5][0-9])/(.*)/(.*km)/
+<h2 id="noaaport-gini-images">NOAAport GINI Images</h2>
+
+<pre><code>NIMAGE  ^satz/ch[0-9]/.*/(.*)/([12][0-9])([0-9][0-9])([01][0-9])([0-3][0-9]) ([0-2][0-9])([0-5][0-9])/(.*)/(.*km)/
         FILE    -close -overwrite -edex /awips2/data_store/sat/\8/\9/\1_\2\3\4\5_\6\7
+</code></pre>
 
-# -------- GOES-East/West Northern Hemisphere Composites --------
-# GOES-East/West VIS composites
+<h2 id="uniwisc-goes-eastwest-northern-hemisphere-composites">UNIWISC GOES-East/West Northern Hemisphere Composites</h2>
+
+<pre><code># GOES-East/West VIS composites
 UNIWISC ^pnga2area Q. (CV) (.*) (.*) (.*) (.*) (........) (....)
         PIPE    -close -log
         pnga2area -vl logs/pnga2area.log
@@ -117,8 +129,11 @@ UNIWISC ^pnga2area Q. (CL) (.*) (.*) (.*) (.*) (........) (....)
         PIPE    -close -log
         pnga2area -vl logs/pnga2area.log
         /awips2/edex/data/manual/uniwisc_GEWCOMP_\5_13.3_13.3_\6_\7
-# ------------------- SSEC Global Composites -------------------
-# Global WV composite
+</code></pre>
+
+<h2 id="km-rectilinear-global-composites">20km Rectilinear Global Composites</h2>
+
+<pre><code># Global WV composite
 UNIWISC ^pnga2area Q. (GW) (.*) (.*) (.*) (.*) (........) (....)
         PIPE    -close -log
         pnga2area -vl logs/pnga2area.log
@@ -128,8 +143,11 @@ UNIWISC ^pnga2area Q. (GI) (.*) (.*) (.*) (.*) (........) (....)
         PIPE    -close -log
         pnga2area -vl logs/pnga2area.log
         /awips2/edex/data/manual/uniwisc_GLOBAL_\5_IR_IRCOMP_\6_\7
-# ----------------- Mollweide Global Composites -----------------
-# Mollweide Global Water Vapor
+</code></pre>
+
+<h2 id="km-mollweide-global-composites">30km Mollweide Global Composites</h2>
+
+<pre><code># Mollweide Global Water Vapor
 UNIWISC ^pnga2area Q. (UY) (.*) (.*)_IMG (.*)um (.*) (........) (....)
         PIPE    -close -log
         pnga2area -vl logs/pnga2area.log
@@ -160,12 +178,19 @@ UNIWISC ^pnga2area Q. (UD|UE|U7|U8|) (.*) (.*)_IMG (.*)um (.*) (........) (....)
         PIPE    -close -log
         pnga2area -vl logs/pnga2area.log
         /awips2/edex/data/manual/uniwisc_\1_\3_\5_\4_\6_\7
-# Arctic
-UNIWISC ^pnga2area Q. (U[LNGHO]) (.*) (.*) (.*)um (.*) (........) (....)
+</code></pre>
+
+<h2 id="arctic-composite-imagery">Arctic Composite Imagery</h2>
+
+<pre><code>UNIWISC ^pnga2area Q. (U[LNGHO]) (.*) (.*) (.*)um (.*) (........) (....)
         PIPE    -close -log
         pnga2area -vl logs/pnga2area.log
         /awips2/edex/data/manual/uniwisc_ARCTIC_4km_\4_\6_\7
-# Antarctic VIS Composite
+</code></pre>
+
+<h2 id="antarctic-composite-imagery">Antarctic Composite Imagery</h2>
+
+<pre><code># Antarctic VIS Composite
 UNIWISC ^pnga2area Q. (UJ) (.*) (.*)_IMG (.*) (.*) (........) (....)
         PIPE    -close -log
         pnga2area -vl logs/pnga2area.log
@@ -185,8 +210,11 @@ UNIWISC ^pnga2area Q. (U1) (.*) (.*)_IMG (.*) (.*) (........) (....)
         PIPE    -close -log
         pnga2area -vl logs/pnga2area.log
         /awips2/edex/data/manual/uniwisc_ANTARCTIC_4km_IR_\3_\4_\6_\7
-# GOES Sounder Derived Image Products from University of Wisconsin CIMSS
-# CIMSS CAPE - McIDAS product code CE
+</code></pre>
+
+<h2 id="goes-sounder-derived-imagery">GOES Sounder Derived Imagery</h2>
+
+<pre><code># CIMSS CAPE - McIDAS product code CE
 UNIWISC ^pnga2area Q0 CE .... (.*) (.*) (.*) (........) (....)
         PIPE    -close -log
         pnga2area -vl logs/pnga2area.log
@@ -249,7 +277,7 @@ UNIWISC ^pnga2area Q0 CH (.*) (.*) (.*) (.*) (........) (....)
 <script src="/awips2/js/prettify/prettify.js"></script>
 
 <!-- <script src="/awips2/js/bower_components/smoothscroll/smoothscroll.js"></script> -->
-<script src="/awips2/js/app.js?20160718"></script>
+<script src="/awips2/js/app.js?20160829"></script>
 
 
   </scroll-area>
