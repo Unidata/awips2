@@ -44,15 +44,39 @@ fi
 # Build all WFO site localization Map Scales (Regional.xml, States.xml, WFO.xml)
 BUILD_DIR=%{_baseline_workspace}/rpms/awips2.core/Installer.localization/
 UTIL=%{_baseline_workspace}/localization/utility
-file=$BUILD_DIR/wfo.dat
+#file=$BUILD_DIR/wfo.dat
+file=$BUILD_DIR/coords.dat
+#<gridGeometry rangeX="LOWX HIGHX" rangeY="LOWY HIGHY" envelopeMinX="MINX" envelopeMaxX="MAXX" envelopeMinY="MINY" envelopeMaxY="MAXY">
+
 for site in $(cat $file |cut -c -3)
 do
-   lat=$(cat $file |grep $site | cut -f9)
-   lon=$(cat $file |grep $site | cut -f10)
+   lat=$(cat $file |grep $site | cut -d"," -f2)
+   lon=$(cat $file |grep $site | cut -d"," -f3)
+
+   # <gridGeometry rangeX="LOWX HIGHX" rangeY="LOWY HIGHY" envelopeMinX="MINX" envelopeMaxX="MAXX" envelopeMinY="MINY" envelopeMaxY="MAXY">
+   lowx=$(cat $file |grep $site | cut -d"," -f4)
+   highx=$(cat $file |grep $site | cut -d"," -f5)
+   lowy=$(cat $file |grep $site | cut -d"," -f6)
+   highy=$(cat $file |grep $site | cut -d"," -f7)
+   minx=$(cat $file |grep $site | cut -d"," -f8)
+   maxx=$(cat $file |grep $site | cut -d"," -f9)
+   miny=$(cat $file |grep $site | cut -d"," -f10)
+   maxy=$(cat $file |grep $site | cut -d"," -f11)
+
    # CAVE
    CAVE_DIR=$UTIL/cave_static/site/$site
    mkdir -p $CAVE_DIR
    cp -R $BUILD_DIR/utility/cave_static/* $CAVE_DIR
+   
+   grep -rl 'LOWX' $CAVE_DIR | xargs sed -i 's/LOWX/'$lowx'/g'
+   grep -rl 'HIGHX' $CAVE_DIR | xargs sed -i 's/HIGHX/'$highx'/g'
+   grep -rl 'LOWY' $CAVE_DIR | xargs sed -i 's/LOWY/'$lowy'/g'
+   grep -rl 'HIGHY' $CAVE_DIR | xargs sed -i 's/HIGHY/'$highy'/g'
+   grep -rl 'MINX' $CAVE_DIR | xargs sed -i 's/MINX/'$minx'/g'
+   grep -rl 'MAXX' $CAVE_DIR | xargs sed -i 's/MAXX/'$maxx'/g'
+   grep -rl 'MINY' $CAVE_DIR | xargs sed -i 's/MINY/'$miny'/g'
+   grep -rl 'MAXY' $CAVE_DIR | xargs sed -i 's/MAXY/'$maxy'/g'
+
    grep -rl 'XXX' $CAVE_DIR | xargs sed -i 's/XXX/'$site'/g'
    grep -rl 'LATITUDE' $CAVE_DIR | xargs sed -i 's/LATITUDE/'$lat'/g'
    grep -rl 'LONGITUDE' $CAVE_DIR | xargs sed -i 's/LONGITUDE/'$lon'/g'
