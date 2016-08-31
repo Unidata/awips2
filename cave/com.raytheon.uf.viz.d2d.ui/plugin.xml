@@ -436,20 +436,6 @@
        </menuContribution>
 		<menuContribution
 			locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
-			<toolbar id="d2d-1">
-			   	<command
-			   		commandId="com.raytheon.uf.viz.d2d.ui.actions.loadmodebutton"
-			   		id="com.raytheon.uf.viz.d2d.ui.actions.loadmode"
-			   		label="Load Mode"
-			   		style="pulldown"
-			   		tooltip="Load Mode">
-			   		<visibleWhen>
-			   			<reference
-			   				definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
-			   			</reference>
-			   		</visibleWhen>
-			   	</command>
-			</toolbar>
              <toolbar
                   id="mapControls">
                <command
@@ -486,6 +472,21 @@
                   </visibleWhen>
                </command>
             </toolbar>
+             <toolbar
+                   id="d2d-1">
+                <command
+                      commandId="com.raytheon.uf.viz.d2d.ui.actions.loadmodebutton"
+                      id="com.raytheon.uf.viz.d2d.ui.actions.loadmode"
+                      label="Load Mode"
+                      style="pulldown"
+                      tooltip="Load Mode">
+                   <visibleWhen>
+                      <reference
+                            definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+                      </reference>
+                   </visibleWhen>
+                </command>
+             </toolbar>
             <toolbar
                   id="loopControls">
             <command

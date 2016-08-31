@@ -1,10 +1,11 @@
-bin/
 .metadata/
+.gitignore
 ldm/Debug
 test-bin/
 testbin/
 testBin/
 bin-test/
+bin
 *.class
 *.pyo
 *.pyc

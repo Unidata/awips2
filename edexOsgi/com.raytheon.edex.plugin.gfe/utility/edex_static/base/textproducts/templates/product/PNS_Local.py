@@ -33,6 +33,7 @@
 # Date            Ticket#        Engineer    Description
 # ------------    ----------     ----------- --------------------------
 # Oct 20, 2014    #3685          randerso    Changed to support mixed case
+# Jul 27, 2016    #5769          randerso    Changed headline to all caps
 #
 ##
 
@@ -123,7 +124,7 @@ class TextProduct(GenericReport.TextProduct):
         return fcst
 
     def _makeProduct(self, fcst, editArea, areaLabel, argDict):
-        fcst = fcst + "...Public Information Statement...\n\n"
+        fcst = fcst + "...PUBLIC INFORMATION STATEMENT...\n\n"
         fcst = fcst + "|* Information goes here *|\n\n"
         return fcst
 

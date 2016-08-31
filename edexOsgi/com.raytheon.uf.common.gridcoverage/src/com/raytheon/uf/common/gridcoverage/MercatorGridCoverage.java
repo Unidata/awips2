@@ -55,6 +55,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 09/10/2012   DR 15270    D. Friedman Fix subgrid model name handling.
  * Jan 17, 2014 2125        rjpeter     Removed invalid @Table annotation.
  * Mar 04, 2015 3959        rjpeter     Update for grid based subgridding.
+ * Jun 24, 2016  ASM18440 dfriedman   Fix spatial tolerance for degree values.
  * </pre>
  * 
  * @author bphillip
@@ -338,7 +339,7 @@ public class MercatorGridCoverage extends GridCoverage {
     public boolean spatialEquals(GridCoverage other) {
         if (super.spatialEquals(other)) {
             MercatorGridCoverage otherMercator = (MercatorGridCoverage) other;
-            if (Math.abs(latin - otherMercator.latin) > SPATIAL_TOLERANCE) {
+            if (Math.abs(latin - otherMercator.latin) > SPATIAL_TOLERANCE_DEG) {
                 return false;
             }
             return true;

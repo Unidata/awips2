@@ -33,6 +33,7 @@ import com.raytheon.viz.hydrocommon.HydroConstants;
  * ------------	----------	-----------	--------------------------
  * Dec 12, 2008	1787    	askripsky	Initial creation
  * Aug 07, 2015 4500        rjpeter     Fix type case.
+ * JUN 29, 2016 19149       amoore      Fix PK statement based on table joining.
  * </pre>
  * 
  * @author askripsky
@@ -241,9 +242,9 @@ public class DataIngestFilterData extends HydroDBData implements IHydroDBData {
 
     @Override
     public String getPKStatement() {
-        return "lid='" + getLid() + "' AND pe='" + getPe() + "' AND dur="
-                + getDBString(getDuration()) + " AND ts='" + getTypeSource()
-                + "' AND extremum='" + getExtremum() + "'";
+        return "ingestfilter.lid='" + getLid() + "' AND pe='" + getPe()
+                + "' AND dur=" + getDBString(getDuration()) + " AND ts='"
+                + getTypeSource() + "' AND extremum='" + getExtremum() + "'";
     }
 
     @Override

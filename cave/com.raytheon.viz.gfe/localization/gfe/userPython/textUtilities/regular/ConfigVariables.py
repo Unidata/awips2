@@ -121,7 +121,7 @@ class ConfigVariables(TextUtils.TextUtils):
             "up to": "up to",
                # Fire Weather labels
             "Sky/weather.........":"Sky/weather.........",
-            "   24 HR TREND......":"   24 HR TREND......",
+            "   24 hr trend......":"   24 hr trend......",
             "unchanged":"unchanged",
             "missing":"MISSING",
             "MinT":"lows",

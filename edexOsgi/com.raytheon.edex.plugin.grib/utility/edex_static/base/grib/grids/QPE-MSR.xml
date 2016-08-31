@@ -18,17 +18,19 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<latLonGridCoverage>
-    <name>161</name>
-    <description>Lat/Lon grid for Puerto Rico</description>
-    <la1>50.75</la1>
-    <lo1>271.75</lo1>
-    <firstGridPointCorner>UpperLeft</firstGridPointCorner>
-    <nx>137</nx>
-    <ny>102</ny>
-    <dx>0.5</dx>
-    <dy>0.5</dy>
-    <spacingUnit>degree</spacingUnit>
-    <la2>-0.25</la2>
-    <lo2>340.25</lo2>
-</latLonGridCoverage>
+<polarStereoGridCoverage>
+    <name>250157</name>
+    <description>QPF Grid for MSR (North Central RFC Chanhassen, Minnesota)</description>
+    <la1>37.889</la1>
+    <lo1>-105.492</lo1>
+    <firstGridPointCorner>LowerLeft</firstGridPointCorner>
+    <nx>450</nx>
+    <ny>350</ny>
+    <dx>4.7625</dx>
+    <dy>4.7625</dy>
+    <spacingUnit>km</spacingUnit>
+    <minorAxis>6371229.0</minorAxis>
+    <majorAxis>6371229.0</majorAxis>
+    <lov>-105.0</lov>
+    <lad>60</lad>
+</polarStereoGridCoverage>

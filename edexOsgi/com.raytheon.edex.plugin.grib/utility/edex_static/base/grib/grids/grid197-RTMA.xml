@@ -18,17 +18,20 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<latLonGridCoverage>
-    <name>161</name>
-    <description>Lat/Lon grid for Puerto Rico</description>
-    <la1>50.75</la1>
-    <lo1>271.75</lo1>
-    <firstGridPointCorner>UpperLeft</firstGridPointCorner>
-    <nx>137</nx>
-    <ny>102</ny>
-    <dx>0.5</dx>
-    <dy>0.5</dy>
-    <spacingUnit>degree</spacingUnit>
-    <la2>-0.25</la2>
-    <lo2>340.25</lo2>
-</latLonGridCoverage>
+<lambertConformalGridCoverage>
+    <name>197-RTMA</name>
+    <description> Grid over the contiguous United States - 16X Resolution (5 km) for RTMA</description>
+    <la1>20.192</la1>
+    <lo1>-121.554</lo1>
+    <firstGridPointCorner>LowerLeft</firstGridPointCorner>
+    <nx>1073</nx>
+    <ny>689</ny>
+    <dx>5.079</dx>
+    <dy>5.079</dy>
+    <spacingUnit>km</spacingUnit>
+    <minorAxis>6371229.0</minorAxis>
+    <majorAxis>6371229.0</majorAxis>
+    <lov>-95.0</lov>
+    <latin1>25.0</latin1>
+    <latin2>25.0</latin2>
+</lambertConformalGridCoverage>

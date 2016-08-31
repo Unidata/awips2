@@ -27,8 +27,6 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
-import org.hibernate.annotations.Index;
-
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.bufrsigwx.common.SigWxLayer;
@@ -58,23 +56,17 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Oct 14, 2013 2361       njensen     Removed XML annotations and IDecoderGettable
  * Jul 23, 2015 2360       rferrel     Add name to unique constraint.
- * Feb 04, 2015 5309       tgurney     Drop dataURI column and update unique constraint.
+ * Feb 04, 2016 5309       tgurney     Drop dataURI column and update unique constraint.
+ * Aug 04, 2016 5783       tgurney     Add forecasttime to unique constraint
  * 
  * </pre>
  * 
  * @author jkorman
- * @version 1.0
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "bufrsigwxseq")
 @Table(name = "bufrsigwx", uniqueConstraints = { @UniqueConstraint(name = "uk_bufrsigwx_datauri_fields", columnNames = {
-        "refTime", "wxLayer", "wxType", "key" }) })
-/*
- * Both refTime and forecastTime are included in the refTimeIndex since
- * forecastTime is unlikely to be used.
- */
-@org.hibernate.annotations.Table(appliesTo = "bufrsigwx", indexes = { @Index(name = "bufrswigwx_refTimeIndex", columnNames = {
-        "refTime", "forecastTime" }) })
+        "refTime", "forecastTime", "wxLayer", "wxType", "key" }) })
 @DynamicSerialize
 public class SigWxData extends PersistablePluginDataObject implements
         IPointData, IPersistable {

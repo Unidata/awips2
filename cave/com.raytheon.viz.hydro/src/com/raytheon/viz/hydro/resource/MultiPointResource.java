@@ -138,6 +138,7 @@ import com.vividsolutions.jts.index.strtree.STRtree;
  * Oct 05, 2015 17978       lbousaidi   Enable TimeStep GUI to display multiple values and Parameter Codes for a given lid
  * Nov 05, 2015 5070        randerso    Adjust font sizes for dpi scaling
  * Dec 05, 2015 18357       xwei        Fixed error in opening Timeseries for Timesteps
+ * Jul 11, 2016 19175       lbousaidi   changed the fontSize to 9 to match the default one. 
  * 
  * </pre>
  * 
@@ -332,7 +333,7 @@ public class MultiPointResource extends
             container.registerMouseHandler(inputManager);
         }
 
-        fontSize = 8;
+        fontSize = 9;
         font = target.initializeFont("Dialog", fontSize, null);
         font.setSmoothing(false);
 

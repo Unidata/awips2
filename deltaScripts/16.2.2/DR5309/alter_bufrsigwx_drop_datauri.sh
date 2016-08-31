@@ -3,12 +3,13 @@
 #            new multi-column unique constraint
 
 TABLE=bufrsigwx
+DBUSER=awips
 
 PSQL="/awips2/psql/bin/psql"
 
 echo "INFO: Altering table ${TABLE}"
 
-${PSQL} -U awips -d metadata << EOF
+${PSQL} -U ${DBUSER} -d metadata << EOF
 begin transaction;
 delete from ${TABLE}
     where wxLayer is null
@@ -21,6 +22,8 @@ alter table ${TABLE}
     alter wxType set not null,
     alter key set not null,
     add constraint uk_${TABLE}_datauri_fields unique
-        (reftime, wxLayer, wxType, key);
+        (reftime, forecasttime, wxLayer, wxType, key);
+-- "bufrswigwx" not a typo. name was misspelled when the index was created.
+drop index if exists bufrswigwx_refTimeIndex;
 commit transaction;
 EOF
