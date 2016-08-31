@@ -164,11 +164,6 @@
 			<substitute key="posOffset" value="0"/>
 		    <substitute key="negOffset" value="43200"/> 
 		</contribute>
-		
-	    <contribute xsi:type="separator" id="msasSeparator"/>
-	    <contribute xsi:type="titleItem" 
-			titleText="------ MSAS Obs------" id="msasLine"/>
-		<contribute xsi:type="subinclude" fileName="menus/obs/baseMSASObs.xml"/>
     </contribute>
 	<contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
               menuText="MSLP Analysis" id="MSLPressureAnalysis">

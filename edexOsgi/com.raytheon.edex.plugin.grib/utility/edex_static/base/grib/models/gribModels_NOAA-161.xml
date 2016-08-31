@@ -31,6 +31,15 @@
 		</process>
 	</model>
 
+	<model>
+		<name>MRMS</name>
+		<center>161</center>
+		<subcenter>0</subcenter>
+		<grid>10003</grid>
+		<process>
+			<id>97</id>
+		</process>
+	</model>
 	<!-- END SUBCENTER 0 -->
 
 

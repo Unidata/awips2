@@ -1187,7 +1187,7 @@
 	</model>
 
 	<model>
-		<name>AKwave10</name>
+		<name>WW3-Alaska</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>15</grid>
@@ -1207,7 +1207,7 @@
 	</model>
 
 	<model>
-		<name>AKwave4</name>
+		<name>WW3-Coastal-Alaska</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>16</grid>
@@ -1227,7 +1227,7 @@
 	</model>
 
 	<model>
-		<name>EPwave10</name>
+		<name>WW3-EasternPacific</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>14</grid>
@@ -1247,7 +1247,7 @@
 	</model>
 
 	<model>
-		<name>WCwave10</name>
+		<name>WW3-US-West</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>13</grid>
@@ -1267,7 +1267,7 @@
 	</model>
 
 	<model>
-		<name>WCwave4</name>
+		<name>WW3-Coastal-West</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>17</grid>
@@ -1286,7 +1286,7 @@
 	</model>
 
 	<model>
-		<name>WNAwave10</name>
+		<name>WW3-US-East</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>12</grid>
@@ -1306,7 +1306,7 @@
 	</model>
 
 	<model>
-		<name>WNAwave4</name>
+		<name>WW3-Coastal-East</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>18</grid>
