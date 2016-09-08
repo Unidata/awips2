@@ -46,7 +46,12 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.8.0",
  com.raytheon.uf.common.inventory;bundle-version="1.14",
  com.raytheon.viz.core.contours;bundle-version="1.14",
  com.raytheon.uf.viz.core.point;bundle-version="1.15.0",
- com.raytheon.uf.viz.productbrowser.datalisting;bundle-version="1.15.0"
-Import-Package: com.raytheon.viz.core.rsc,
- com.raytheon.viz.core.rsc.jts
+ com.raytheon.uf.viz.productbrowser.datalisting;bundle-version="1.15.0",
+ gov.noaa.nws.ncep.viz.common;bundle-version="1.15.0"
+Import-Package: com.raytheon.uf.viz.core.maps.rsc,
+ com.raytheon.viz.core.rsc,
+ com.raytheon.viz.core.rsc.jts,
+ gov.noaa.nws.ncep.ui.pgen.display,
+ gov.noaa.nws.ncep.ui.pgen.elements,
+ gov.noaa.nws.ncep.ui.pgen.tools
 Bundle-ClassPath: com.raytheon.viz.radar.jar

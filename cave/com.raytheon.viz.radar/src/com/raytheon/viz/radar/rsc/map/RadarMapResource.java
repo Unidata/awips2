@@ -85,16 +85,28 @@ public class RadarMapResource extends
         
     private static List<RadarStation> points = new ArrayList<RadarStation>();
     
-    private List<RadarStation> pickedPoint = new ArrayList<RadarStation>();
+    private RadarStation pickedPoint = new RadarStation();
     
     public void setPickedPoint(RadarStation point) {
-        this.pickedPoint.add(point);
+    	this.pickedPoint = null;
+        this.pickedPoint = point;
     }
 
     public List<RadarStation> getPoints() {
         return points;
     }
     
+    public void setPoints(List<RadarStation> points) {
+        if (points == null) {
+            this.pickedPoint = null;
+            symbolToMark = null;
+            symbolSet = null;
+            this.points.clear();
+        } else {
+            this.points = points;
+        }
+    }
+
     public void addPoint(RadarStation point) {
         points.add(point);
     }
@@ -102,9 +114,9 @@ public class RadarMapResource extends
     protected RadarMapResource(RadarMapResourceData radarMapResourceData,
     		LoadProperties loadProperties) {
     	super(radarMapResourceData, loadProperties);
-    	// set the editable capability
+    	
         getCapability(EditableCapability.class).setEditable(true);
-        
+
         this.radarMapResourceData = radarMapResourceData;
     }
 
@@ -126,6 +138,7 @@ public class RadarMapResource extends
     }
     
     private static void createMapEditor() {
+    	deleteRadarMapResource();
         try {
         	mapEditor = (AbstractEditor) EditorUtil.getActiveEditor();
         } catch (Exception ve) {
@@ -162,12 +175,11 @@ public class RadarMapResource extends
     * 
     * @return the MapResource
     */
-    
    public static RadarMapResource getOrCreateRadarMapResource() {
 	   
        if (mapRsc == null) {
            if (mapEditor == null) {
-           	createMapEditor();
+        	   createMapEditor();
            }
            if (mapEditor != null) {
                IMapDescriptor desc = (IMapDescriptor) mapEditor
@@ -177,10 +189,11 @@ public class RadarMapResource extends
                    if (mapRscData == null)
                        mapRscData = new RadarMapResourceData();
                    mapRsc = mapRscData.construct(new LoadProperties(), desc);
+                   
+                   createRadarMapMarkers();
+                   
                    desc.getResourceList().add(mapRsc);
                    mapRsc.init(mapEditor.getActiveDisplayPane().getTarget());
-
-                   // register mouse handler
                    mouseHandler = getMouseHandler();
                    mapEditor
                            .registerMouseHandler((IInputHandler) mouseHandler);
@@ -190,14 +203,11 @@ public class RadarMapResource extends
                }
            }
        }
-
        return mapRsc;
    }
    
-   
-   private static void queryAndMark() {
-	   //RadarMapResource mapRsc = RadarMapResource.getOrCreateRadarMapResource();
-       String query = "SELECT lat, lon, rda_id FROM radar_spatial;";
+   private static void createRadarMapMarkers() {
+       String query = "SELECT lat, lon, rda_id FROM radar_spatial where rda_id like 'K%' ;";
        List<Object[]> rows = null;
        try {
     	   rows = DirectDbQuery.executeQuery(query, "metadata",
@@ -214,21 +224,8 @@ public class RadarMapResource extends
     	   pnt.setLon((Float) pntObject[1]);
     	   pnt.setName((String) pntObject[2]);
     	   pnt.setRdaId((String) pntObject[2]);
-    	   //pnt.setLat();
-    	   //Object pntObject2 = rows.get(i);
-    	   System.out.println(pnt.getLat() + ", " + pnt.getLon() + ", " + pnt.getName());
     	   mapRsc.addPoint(pnt);
        }
-              
-       // .soundingStnInfoQuery(currentSndType.toString(), selectTimetr);
-//       if (stationList != null ) {
-//
-//           for (int i = 0; i < rows.size(); i++) {
-//               points.add(rows.get(i));
-//               mapRsc.addPoint(rows.get);
-//           }
-//           RadarMapResource.bringMapEditorToTop();
-//       }
    }
    
    public static void deleteRadarMapResource() {
@@ -237,7 +234,6 @@ public class RadarMapResource extends
            mapRsc.dispose();
            mapRsc = null;
        }
-	   
    }
    
    /**
@@ -253,7 +249,7 @@ public class RadarMapResource extends
            mapEditor = null;
        }
        pickedPoint = null;
-       points = null;
+       //points = null;
        symbolSet = null;
        symbolToMark = null;
        mapRsc = null;
@@ -272,7 +268,7 @@ public class RadarMapResource extends
    
    @Override
    public String getName() {
-       return "NEXRAD Display";
+       return "NEXRAD Stations";
    }
 
    @Override
@@ -297,11 +293,8 @@ public class RadarMapResource extends
        if (points.isEmpty() == true) {
            symbolSet = null;
        } else {
-           // SymbolLocationSet constructor requires a positive-length array of
-           // Coordinate
            Coordinate[] locations = new Coordinate[points.size()];
-           Color[] colors = new Color[] { new Color(0,255,0) };
-           // System.out.println( "generateSymbolSet: size ="+ points.size());
+           Color[] colors = new Color[] { new Color(255,255,255) };
            int i = 0;
            for (RadarStation p : points) {
                double lon, lat;
@@ -310,23 +303,21 @@ public class RadarMapResource extends
                locations[i++] = new Coordinate(lon, lat);
            }
            type = radarMapResourceData.getMarkerType().toString();
-           // System.out.println( "generateSymbolSet done size ="+ i);
            symbolSet = new SymbolLocationSet(null, colors, lineWidth,
                    sizeScale, clear, locations, category, type);
 
        }
-       // generate symbol for picked stn to mark X
-       if (pickedPoint != null && pickedPoint.size() > 0) {
-           Coordinate[] locations = new Coordinate[pickedPoint.size()];
-           int i = 0;
-           for (RadarStation p : pickedPoint) {
-               double lon, lat;
-               lon = p.getLon();
-               lat = p.getLat();
-               locations[i++] = new Coordinate(lon, lat);
-           }
+
+       // generate symbol for picked stn to mark X       
+       if (this.pickedPoint.getLon() != null) {
+           Coordinate[] locations = new Coordinate[0];
+           double lon, lat;
+           lon = this.pickedPoint.getLon();
+           lat = this.pickedPoint.getLat();
+           locations[0] = new Coordinate(lon, lat);
+           
            type = radarMapResourceData.getStnMarkerType().toString();
-           Color[] colors = new Color[] { new Color(255,255,0) };
+           Color[] colors = new Color[] { new Color(0,255,0) };
            symbolToMark = new SymbolLocationSet(null, colors, lineWidth,
                    sizeScale * 2, clear, locations, category, type);
        } else
@@ -336,12 +327,10 @@ public class RadarMapResource extends
    @Override
    public void paintInternal(IGraphicsTarget target, PaintProperties paintProps)
            throws VizException {
-
 	   
 	   getOrCreateRadarMapResource();
-	   queryAndMark();
-	   
        generateSymbolForDrawing();
+       
        DisplayElementFactory df = new DisplayElementFactory(target,
                this.descriptor);
        if (symbolSet != null) {
@@ -384,11 +373,6 @@ public class RadarMapResource extends
            mouseHandler = new RadarMapMouseHandler();
        }
        return mouseHandler;
-   }
-
-   @Override
-   public boolean okToUnload() {
-       return false;
    }
    
    @Override

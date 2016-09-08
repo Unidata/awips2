@@ -15,7 +15,7 @@ public class RadarMapResourceData extends AbstractResourceData {
 
     private MarkerType markerType = MarkerType.DIAMOND;
 
-    private Float markerSize = 1f;
+    private Float markerSize = 1.5f;
 
     private Integer markerWidth = 2;
 

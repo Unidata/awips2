@@ -1,18 +1,49 @@
 package com.raytheon.viz.radar.rsc.map;
 
-import java.util.ArrayList;
+import java.io.File;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Cursor;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.geotools.referencing.GeodeticCalculator;
 
 import com.raytheon.uf.common.dataplugin.radar.RadarStation;
+import com.raytheon.uf.common.localization.ILocalizationFile;
+import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.LocalizationUtil;
+import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.DescriptorMap;
+import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
+import com.raytheon.uf.viz.core.procedures.Bundle;
+import com.raytheon.uf.viz.core.procedures.BundleUtil;
+import com.raytheon.uf.viz.core.procedures.Procedure;
+import com.raytheon.uf.viz.core.procedures.ProcedureXmlManager;
+import com.raytheon.uf.viz.core.procedures.BundleUtil.BundleDataItem;
+import com.raytheon.uf.viz.d2d.ui.dialogs.procedures.ProcedureDlg;
+import com.raytheon.viz.ui.BundleLoader;
+import com.raytheon.viz.ui.BundleProductLoader;
+import com.raytheon.viz.ui.UiUtil;
+import com.raytheon.viz.ui.VizWorkbenchManager;
+import com.raytheon.viz.ui.BundleLoader.BundleInfoType;
+import com.raytheon.viz.ui.actions.LoadBundleHandler;
+import com.raytheon.viz.ui.actions.LoadPerspectiveHandler;
 import com.raytheon.viz.ui.editor.AbstractEditor;
+import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
+import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
 import com.vividsolutions.jts.geom.Coordinate;
 
 import gov.noaa.nws.ncep.ui.pgen.tools.InputHandlerDefaultImpl;
@@ -26,6 +57,8 @@ public class RadarMapMouseHandler extends InputHandlerDefaultImpl {
 		instance = this;
 	}
 
+	private static final double RadarMinDistance = 45000;
+	
 	private static RadarMapMouseHandler instance;
 	
 	private double lat, lon;
@@ -67,7 +100,35 @@ public class RadarMapMouseHandler extends InputHandlerDefaultImpl {
     }
 
     @Override
-    public boolean handleMouseMove(int x, int y) {
+    public boolean handleMouseMove(Event e) {
+    	int x = e.x;
+    	int y = e.y;
+    	AbstractEditor mapEditor = RadarMapResource.getMapEditor();
+        
+    	if (mapEditor != null) {
+            
+        	Coordinate loc = mapEditor.translateClick(x, y);
+            if (loc == null)
+                return false;
+            
+            List<RadarStation> pts = RadarMapResource
+        			.getOrCreateRadarMapResource().getPoints();
+            
+            RadarStation pt = getPtWithinMinDist(pts, loc);
+            
+            Shell shell = ((Control) e.widget).getShell();
+            Cursor cursor = null;
+            
+            if (pt != null) {
+            	cursor = new Cursor(Display.getCurrent(), SWT.CURSOR_HAND);
+            } else {
+            	cursor = new Cursor(Display.getCurrent(), SWT.CURSOR_ARROW);
+            }
+            
+        	shell.setCursor(cursor);
+        	
+        }
+    	
         return false;
     }
     
@@ -82,37 +143,48 @@ public class RadarMapMouseHandler extends InputHandlerDefaultImpl {
     public boolean handleMouseUp(int x, int y, int button) {
         if (!RadarMapResource.getMapRsc().isEditable())
             return false;
-        // button 1 is left mouse button
-        if (button == 1) {
+        
+        if (button == 1) { // button 1 is left mouse button
             AbstractEditor mapEditor = RadarMapResource.getMapEditor();
             if (mapEditor != null) {
-                // Check if mouse is in geographic extent
+            	
                 Coordinate loc = mapEditor.translateClick(x, y);
                 if (loc == null)
                     return false;
-               
-                List<RadarStation> points = RadarMapResource
-                        .getOrCreateRadarMapResource().getPoints();
-                if (points.isEmpty() == false) {
-
-                    // get the stn close to loc "enough" and retrieve report for it
-                    List<RadarStation> stnPtDataLineLst = getPtWithinMinDist(
-                            points, loc);
-                    if (stnPtDataLineLst != null) {                            
-                        /*
-                         * do something here
-                         * 
-                        obsQry.getObservedSndData(stnPtDataLineLst,
-                                loadDia.getObsDialog().isRawData(),
-                                soundingLysLstMap);
-                        */
-                    }
+                
+                List<RadarStation> pts = RadarMapResource
+            			.getOrCreateRadarMapResource().getPoints();
+                RadarStation pt = getPtWithinMinDist(pts, loc);
+                
+                if (pt != null) {
+	                try {
+	                	
+	                	IWorkbenchWindow window = VizWorkbenchManager.getInstance()
+	                            .getCurrentWindow();
+	                	AbstractVizPerspectiveManager mgr = VizPerspectiveListener.getInstance(
+	                            window).getActivePerspectiveManager();
+	
+	                    if (mgr != null) {
+	                        //mgr.openNewEditor();
+	                        
+	                        Map<String, String> variableSubstitutions = new HashMap<>();
+	                        // TODO: dynamically select this from some control
+	                        variableSubstitutions.put("product1", "94");
+	                        variableSubstitutions.put("product2", "99");
+	                        
+	                        new LoadBundleHandler("bundles/site/Radar_" + pt.getName().toLowerCase() + ".xml", 
+	                        		variableSubstitutions, null, true).execute(null);
+	                        return true;
+	                    }
+						
+					} catch (ExecutionException e) {
+						e.printStackTrace();
+						return false;
+					}
                 }
-                
-                
             }
         }
-
+        
         return false;
     }
     
@@ -124,16 +196,15 @@ public class RadarMapMouseHandler extends InputHandlerDefaultImpl {
      *            element
      * @param pt
      *            input point
-     * @return
+     * @return 
      */
-    private List<RadarStation> getPtWithinMinDist(
-            List<RadarStation> points, Coordinate pt) {
-
+    private RadarStation getPtWithinMinDist(
+    		List<RadarStation> points, Coordinate pt) {
+    	
         RadarStation thePoint = null;
+        double minDistance = RadarMinDistance;
         
-        double minDistance = 45000;
         GeodeticCalculator gc;
-        List<RadarStation> thePoints = new ArrayList<RadarStation>();
         // can't assume this is a map Editor/MapDescriptor
         AbstractEditor mapEditor = RadarMapResource.getMapEditor();
         if (mapEditor != null) {
@@ -142,44 +213,27 @@ public class RadarMapMouseHandler extends InputHandlerDefaultImpl {
                     .getDescriptor();
             gc = new GeodeticCalculator(desc.getCRS());
             gc.setStartingGeographicPoint(pt.x, pt.y);
-            for (Object point : points) {
+            for (RadarStation selectPoint : points) {
 
-                gc.setDestinationGeographicPoint(((RadarStation) point).getLon(),
-                        ((RadarStation) point).getLat());
+                gc.setDestinationGeographicPoint(selectPoint.getLon(),
+                		selectPoint.getLat());
                 double dist;
                 try {
                     dist = gc.getOrthodromicDistance();
                     if (dist < minDistance) {
-
                         minDistance = dist;
-                        thePoint = (RadarStation) point;
+                        thePoint = selectPoint;
                     }
                 } catch (Exception e) {
-                    statusHandler.handle(Priority.ERROR,
-                                    "RadarMapMouseHandler: getOrthodromicDistance exception.",
-                                    e);
+                    statusHandler.handle(
+                    		Priority.ERROR,"getOrthodromicDistance exception.",e);
                 }
             }
-            // Chin, there may be more than one point for a selected stn. As
-            // user may selected more than one data time,
-            // For same stn, each data time will have one point to represent it.
-            // So, a stn may have more than one points
-            if (thePoint != null) {
-                for (Object point : points) {
-                    if ((thePoint.getLat() == ((RadarStation) point).getLat())
-                            && (thePoint.getLon() == ((RadarStation) point).getLon())) {
-                        thePoints.add((RadarStation) point);
-                    }
-                }
-
-                // marked X on selected point
-                RadarMapResource.getOrCreateRadarMapResource()
-                        .setPickedPoint(thePoint);
-
-            }
-
+           
+            RadarMapResource.getOrCreateRadarMapResource()
+            .setPickedPoint(thePoint);
         }
-        return thePoints;
+        return thePoint;
 
     }
     
