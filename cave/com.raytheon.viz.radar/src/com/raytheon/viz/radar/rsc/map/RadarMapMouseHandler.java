@@ -27,6 +27,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.DescriptorMap;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.globals.VizGlobalsManager;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.procedures.Bundle;
 import com.raytheon.uf.viz.core.procedures.BundleUtil;
@@ -141,10 +142,16 @@ public class RadarMapMouseHandler extends InputHandlerDefaultImpl {
      */
     @Override
     public boolean handleMouseUp(int x, int y, int button) {
+    	
+    	boolean returnStatus = false;
+    	
         if (!RadarMapResource.getMapRsc().isEditable())
             return false;
         
-        if (button == 1) { // button 1 is left mouse button
+        
+        
+        // left mouse button
+        if (button == 1) {
             AbstractEditor mapEditor = RadarMapResource.getMapEditor();
             if (mapEditor != null) {
             	
@@ -174,7 +181,7 @@ public class RadarMapMouseHandler extends InputHandlerDefaultImpl {
 	                        
 	                        new LoadBundleHandler("bundles/site/Radar_" + pt.getName().toLowerCase() + ".xml", 
 	                        		variableSubstitutions, null, true).execute(null);
-	                        return true;
+	                        returnStatus = true;
 	                    }
 						
 					} catch (ExecutionException e) {
@@ -184,8 +191,8 @@ public class RadarMapMouseHandler extends InputHandlerDefaultImpl {
                 }
             }
         }
-        
-        return false;
+     
+        return returnStatus;
     }
     
     

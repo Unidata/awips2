@@ -10,6 +10,8 @@
 	<contribute xsi:type="bundleItem" file="bundles/nexradAvailability.xml"
 			menuText="NEXRAD Sites" id="NEXRADSites">
 	</contribute>
+	<contribute xsi:type="titleItem" titleText="------ NEXRAD Stations ------"
+		id="RadarMosaic" />
 	<contribute xsi:type="subMenu" menuText="NEXRAD - Local"
 		id="RadarMenuDialRadarsSubMenu">
 		<contribute xsi:type="subinclude" fileName="menus/radar/dialRadars.xml" />

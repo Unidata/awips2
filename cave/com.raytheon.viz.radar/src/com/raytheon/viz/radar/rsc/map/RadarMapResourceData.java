@@ -21,7 +21,7 @@ public class RadarMapResourceData extends AbstractResourceData {
 
     private MarkerTextSize markerTextSize = MarkerTextSize.MEDIUM;
 
-    private String mapName = "NEXRAD Sites";
+    private String mapName = "NEXRAD";
 
     private MarkerType stnMarkerType = MarkerType.LARGE_X;
 
