@@ -621,7 +621,25 @@
                   </reference>
                </visibleWhen>
             </command>
+            <!--
+            <command
+                  commandId="com.raytheon.viz.radar.rsc.map.dialog"
+                  icon="icons/nsharp.png"
+                  id="com.raytheon.viz.radar.rsc.map.dialog"
+                  label="NEXRAD"
+                  mode="FORCE_TEXT"
+                  style="push"
+                  tooltip="NEXRAD">
+               <visibleWhen>
+                  <reference
+                        definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+                  </reference>
+               </visibleWhen>
+            </command>
+            -->
 			<!--
+			com.raytheon.viz.radar.rsc.map.RadarMapResource
+			
             <command
                   commandId="gov.noaa.nws.ncep.ui.nsharp.palette"
                   icon="icons/nsharp.png"
@@ -810,10 +828,24 @@
                      value="10">
                </parameter>
             </command>
+            <command
+                  commandId="com.raytheon.viz.ui.actions.setframes">
+               <parameter
+                     name="frameCount"
+                     value="15">
+               </parameter>
+            </command>
             <command commandId="com.raytheon.viz.ui.actions.setframes">
                <parameter
                      name="frameCount"
                      value="20">
+               </parameter>
+            </command>
+            <command
+                  commandId="com.raytheon.viz.ui.actions.setframes">
+               <parameter
+                     name="frameCount"
+                     value="25">
                </parameter>
             </command>
             <command commandId="com.raytheon.viz.ui.actions.setframes">

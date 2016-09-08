@@ -18,7 +18,7 @@
             restorable="false"
             class="com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpPaletteWindow"
             id="com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpPaletteWindow"
-            name="NSHARP(D2D)"/>
+            name="NSHARP"/>
    </extension> 
 
 <extension point="org.eclipse.ui.perspectiveExtensions">
