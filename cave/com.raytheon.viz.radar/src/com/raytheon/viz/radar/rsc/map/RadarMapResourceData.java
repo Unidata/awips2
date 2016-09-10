@@ -13,7 +13,7 @@ public class RadarMapResourceData extends AbstractResourceData {
 
 	private MarkerState markerState = MarkerState.MARKER_ONLY;
 
-    private MarkerType markerType = MarkerType.DIAMOND;
+    private MarkerType markerType = MarkerType.OCTAGON;
 
     private Float markerSize = 1.5f;
 

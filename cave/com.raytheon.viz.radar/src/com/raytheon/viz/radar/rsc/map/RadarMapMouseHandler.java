@@ -1,8 +1,6 @@
 package com.raytheon.viz.radar.rsc.map;
 
-import java.io.File;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -17,31 +15,12 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.geotools.referencing.GeodeticCalculator;
 
 import com.raytheon.uf.common.dataplugin.radar.RadarStation;
-import com.raytheon.uf.common.localization.ILocalizationFile;
-import com.raytheon.uf.common.localization.LocalizationFile;
-import com.raytheon.uf.common.localization.LocalizationUtil;
-import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.DescriptorMap;
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.globals.VizGlobalsManager;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
-import com.raytheon.uf.viz.core.procedures.Bundle;
-import com.raytheon.uf.viz.core.procedures.BundleUtil;
-import com.raytheon.uf.viz.core.procedures.Procedure;
-import com.raytheon.uf.viz.core.procedures.ProcedureXmlManager;
-import com.raytheon.uf.viz.core.procedures.BundleUtil.BundleDataItem;
-import com.raytheon.uf.viz.d2d.ui.dialogs.procedures.ProcedureDlg;
-import com.raytheon.viz.ui.BundleLoader;
-import com.raytheon.viz.ui.BundleProductLoader;
-import com.raytheon.viz.ui.UiUtil;
 import com.raytheon.viz.ui.VizWorkbenchManager;
-import com.raytheon.viz.ui.BundleLoader.BundleInfoType;
 import com.raytheon.viz.ui.actions.LoadBundleHandler;
-import com.raytheon.viz.ui.actions.LoadPerspectiveHandler;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
 import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;

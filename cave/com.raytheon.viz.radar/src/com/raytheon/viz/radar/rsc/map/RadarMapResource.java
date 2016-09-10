@@ -1,21 +1,18 @@
 package com.raytheon.viz.radar.rsc.map;
 
-import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
-import gov.noaa.nws.ncep.ui.pgen.display.DisplayElementFactory;
-import gov.noaa.nws.ncep.ui.pgen.display.IDisplayable;
-import gov.noaa.nws.ncep.ui.pgen.elements.SymbolLocationSet;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Cursor;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.dataplugin.radar.RadarStation;
+import com.raytheon.uf.viz.core.DrawableCircle;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
@@ -30,10 +27,10 @@ import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList.RemoveListener;
 import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
+import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.input.EditableManager;
-import com.vividsolutions.jts.geom.Coordinate;
 
 public class RadarMapResource extends
 		AbstractVizResource<RadarMapResourceData, MapDescriptor> implements
@@ -53,7 +50,6 @@ public class RadarMapResource extends
     private static boolean mouseHandlerRegistered = false;
     
     public static void bringMapEditorToTop() {
-    	// get current map editor, if non existent create one.
         try {
             if (mapEditor != null
                     && PlatformUI.getWorkbench() != null
@@ -78,10 +74,8 @@ public class RadarMapResource extends
     
     private RadarMapResourceData radarMapResourceData;
     
-    /** The set of symbols with similar attributes across many locations */
-    private SymbolLocationSet symbolSet = null;
-
-    private SymbolLocationSet symbolToMark = null;
+    /** The set of symbols */
+    List<DrawableCircle> circles = null;
         
     private static List<RadarStation> points = new ArrayList<RadarStation>();
     
@@ -99,8 +93,6 @@ public class RadarMapResource extends
     public void setPoints(List<RadarStation> points) {
         if (points == null) {
             this.pickedPoint = null;
-            symbolToMark = null;
-            symbolSet = null;
             this.points.clear();
         } else {
             this.points = points;
@@ -249,9 +241,6 @@ public class RadarMapResource extends
            mapEditor = null;
        }
        pickedPoint = null;
-       //points = null;
-       symbolSet = null;
-       symbolToMark = null;
        mapRsc = null;
        mapRscData = null;
        if (waitCursor != null)
@@ -283,45 +272,44 @@ public class RadarMapResource extends
    }
    
    private void generateSymbolForDrawing() {
-       String type;
-       float lineWidth = radarMapResourceData.getMarkerWidth();
-       Boolean clear = false;
-
-       String category = new String("Marker");
-       double sizeScale = radarMapResourceData.getMarkerSize();
+	   	   
+	   circles = new ArrayList<DrawableCircle>(mapRsc.getPoints().size());
 
        if (points.isEmpty() == true) {
-           symbolSet = null;
+           circles = null;
        } else {
-           Coordinate[] locations = new Coordinate[points.size()];
-           Color[] colors = new Color[] { new Color(255,255,255) };
+           RGB color = new RGB (200,200,200);
            int i = 0;
            for (RadarStation p : points) {
                double lon, lat;
                lon = p.getLon();
                lat = p.getLat();
-               locations[i++] = new Coordinate(lon, lat);
+               double[] pixel = descriptor.worldToPixel(new double[] { lon, lat });
+               DrawableCircle circle = new DrawableCircle();
+               circle.setCoordinates(pixel[0], pixel[1]);
+               circle.lineWidth = 1;
+               circle.screenRadius = getRadius()*1.4;
+               circle.numberOfPoints = (int) (circle.screenRadius * 4);
+               circle.basics.color = color;
+               circle.filled = false;
+               circles.add(circle);
            }
-           type = radarMapResourceData.getMarkerType().toString();
-           symbolSet = new SymbolLocationSet(null, colors, lineWidth,
-                   sizeScale, clear, locations, category, type);
-
+           
        }
 
+       /*
        // generate symbol for picked stn to mark X       
        if (this.pickedPoint.getLon() != null) {
-           Coordinate[] locations = new Coordinate[0];
            double lon, lat;
            lon = this.pickedPoint.getLon();
            lat = this.pickedPoint.getLat();
-           locations[0] = new Coordinate(lon, lat);
-           
-           type = radarMapResourceData.getStnMarkerType().toString();
-           Color[] colors = new Color[] { new Color(0,255,0) };
-           symbolToMark = new SymbolLocationSet(null, colors, lineWidth,
-                   sizeScale * 2, clear, locations, category, type);
-       } else
-           symbolToMark = null;
+       } 
+       */
+   }
+   
+   protected double getRadius() {
+       return 5 * getCapability(MagnificationCapability.class)
+               .getMagnification();
    }
    
    @Override
@@ -329,34 +317,10 @@ public class RadarMapResource extends
            throws VizException {
 	   
 	   getOrCreateRadarMapResource();
-       generateSymbolForDrawing();
        
-       DisplayElementFactory df = new DisplayElementFactory(target,
-               this.descriptor);
-       if (symbolSet != null) {
-           ArrayList<IDisplayable> elements = df.createDisplayElements(
-                   symbolSet, paintProps);
-           for (IDisplayable each : elements) {
-               try {
-                   each.draw(target, paintProps);
-                   each.dispose();
-               } catch (Exception e) {
-                   e.printStackTrace();
-               }
-           }
-       }
-       if (symbolToMark != null) {
-           ArrayList<IDisplayable> elements = df.createDisplayElements(
-                   symbolToMark, paintProps);
-           for (IDisplayable each : elements) {
-               try {
-                   each.draw(target, paintProps);
-                   each.dispose();
-               } catch (Exception e) {
-                   e.printStackTrace();
-               }
-           }
-       }
+	   generateSymbolForDrawing();
+       target.drawCircle(circles.toArray(new DrawableCircle[0]));
+       
    }
    
    public boolean isProjectable(CoordinateReferenceSystem mapData) {
