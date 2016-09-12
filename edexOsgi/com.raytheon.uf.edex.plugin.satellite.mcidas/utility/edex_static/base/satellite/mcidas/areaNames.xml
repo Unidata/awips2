@@ -22,5 +22,8 @@
 	<entry><key>9056</key><value>GOES-East-West</value></entry>
 	<entry><key>9059</key><value>GOES-East-West</value></entry>
 	<entry><key>9062</key><value>GOES-East-West</value></entry>
+	<entry><key>5931</key><value>HIMAWARI-8 Full Disk</value></entry>
+	<entry><key>2101</key><value>SSMIS</value></entry>
+	<entry><key>2100</key><value>WINDSAT</value></entry>
 </map>
 </areaNames>
