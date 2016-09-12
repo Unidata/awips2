@@ -22,13 +22,13 @@ import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.viz.ui.VizWorkbenchManager;
 import com.raytheon.viz.ui.actions.LoadBundleHandler;
 import com.raytheon.viz.ui.editor.AbstractEditor;
+import com.raytheon.viz.ui.input.InputAdapter;
 import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
 import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
 import com.vividsolutions.jts.geom.Coordinate;
 
-import gov.noaa.nws.ncep.ui.pgen.tools.InputHandlerDefaultImpl;
 
-public class RadarMapMouseHandler extends InputHandlerDefaultImpl {
+public class RadarMapMouseHandler extends InputAdapter {
 
 	private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(RadarMapMouseHandler.class);
