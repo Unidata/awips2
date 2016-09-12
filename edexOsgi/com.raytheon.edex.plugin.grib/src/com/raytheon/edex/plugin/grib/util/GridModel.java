@@ -23,6 +23,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -48,6 +49,7 @@ import com.raytheon.uf.common.gridcoverage.exception.GridCoverageException;
  * Oct 15, 2013  2473     bsteffen    Remove deprecated ISerializableObject.
  * Dec 16, 2015  5182     tjensen     Added fileName and support for meta 
  *                                    characters in the model name.
+ * Jul 08, 2016  5748     bsteffen    Fix COVERAGE names when name is not in DB.
  * 
  * </pre>
  * 
@@ -209,11 +211,13 @@ public class GridModel {
          */
         Matcher covMatch = covRegex.matcher(retval);
         if (covMatch.find()) {
-            if (GribSpatialCache.getInstance().getGribCoverageNames(gc).size() != 1) {
+            Set<String> names = GribSpatialCache.getInstance()
+                    .getGribCoverageNames(gc);
+            if (names.size() != 1) {
                 throw new GridCoverageException(
                         "Unable to determine model name for spatial coverage");
             }
-            retval = covMatch.replaceAll(gc.getName());
+            retval = covMatch.replaceAll(names.iterator().next());
         }
 
         /*

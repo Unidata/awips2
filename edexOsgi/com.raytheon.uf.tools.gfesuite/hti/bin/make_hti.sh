@@ -3,9 +3,9 @@
 # Tested Operating System(s): RHEL 3, 4, 5, 6
 # Tested Run Level(s): 3, 5
 # Shell Used: BASH shell
-# Original Author(s): Douglas.Gaer@noaa.gov
+# Original Author(s): Joseph.Maloney@noaa.gov
 # File Creation Date: 01/27/2009
-# Date Last Modified: 02/20/2015
+# Date Last Modified: 06/15/2016
 #
 # Contributors:
 # Joe Maloney (MFL), Pablo Santos (MFL)
@@ -36,6 +36,10 @@
 # 20 FEB 2015 - jcm - modified ifpIMAGE line to use ssh -x px2f; fixed
 #                     LOG_FILE at end of script; corrected $site variable
 #                     for kml rsync.
+# 10 JUN 2016 - jcm - brought back ghls_active.txt because apparently
+#                     NIDS is using this file in their KML mosiacking
+#                     code instead of just looking at the timestamps
+#                     of the KML files themselves.
 #
 ########################################################################
 #  CHECK TO SEE IF SITE ID WAS PASSED AS ARGUMENT
@@ -127,6 +131,39 @@ ssh -x px2f "unset DISPLAY; ${GFEBINdir}/runProcedure -site ${SITE} -n TCImpactG
 
 # Create legends for KML
 ${HTI_HOME}/bin/kml_legend.sh
+
+########################################################################
+# 2016-06-10  Because it is too challenging for NIDS / IDG to modify 
+# their script to stop using a file that was discontinued after the 2014 
+# season, and instead check the age of the kml files directly, and NCO 
+# will not allow them to divert ONE person to do this the right way,  
+# every coastal WFO will now have to send up the old ghls_active file  
+# (even though the ghls is LONG DEAD now)
+########################################################################
+
+# get storm number from VTEC in TCV
+stormnum=`grep "/O..........................T....Z-......T....Z/" /awips2/edex/data/fxa/trigger/*TCV${SITE} | head -1|cut -c 20-21`
+# get storm name from header in TCV
+stormname=`grep LOCAL /awips2/edex/data/fxa/trigger/*TCV${SITE} | head -1 | sed -e "s/ LOCAL .*//"`
+# get two-digit year
+stormyr=`date +%y`
+
+## TEST
+#echo "STORM NAME IS:  $stormname"
+#echo "STORM NUMBER AND YEAR:  ${stormnum}${stormyr}"
+## TEST
+
+# Trigger the Web side PHP script to display the ACTIVE GHLS logo
+date +%s > ${PRODUCTdir}/ghls_active.txt
+echo ${stormnum} >> ${PRODUCTdir}/ghls_active.txt
+echo ${stormname} >> ${PRODUCTdir}/ghls_active.txt
+echo ${stormyr} >> ${PRODUCTdir}/ghls_active.txt
+
+########################################################################
+# need to rename two kml's for mosaic code to work
+cp ${PRODUCTdir}/StormSurgeThreat.kml.txt ${PRODUCTdir}/CoastalThreat.kml.txt
+cp ${PRODUCTdir}/FloodingRainThreat.kml.txt ${PRODUCTdir}/InlandThreat.kml.txt
+########################################################################
 
 echo "Copying image and kml files to LDAD for WEB processing" >> $LOG_FILE
 /usr/bin/ssh -o stricthostkeychecking=no -x ${LDADuser}@${LDADserver} mkdir -p ${LDAD_DATA} &> /dev/null

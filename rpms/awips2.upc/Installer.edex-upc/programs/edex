@@ -209,8 +209,8 @@ edit_pg() { # edex pg_hba.conf
 }
 
 edit_ldm() { # edex ldmd.conf and registry.xml
-   sed -i.setup_$YMD 's/EDEX_HOSTNAME/'$HOSTNAME'/g' $LDMD_CONF
-   echo '[edit] Hostname '$HOSTNAME' added to '$LDMD_CONF
+   sed -i.setup_$YMD 's/EDEX_HOSTNAME/localhost/g' $LDMD_CONF
+   echo '[edit] Hostname localhost added to '$LDMD_CONF
 }
 
 
@@ -241,11 +241,8 @@ edex_ipexit() { # abandon ip editing, post msg to guide manual edits
    echo -e ' You may need to MANUALLY EDIT the following files'
    echo -e '\n'$editCom
    echo -e ' for EDEX to work properly. \n'
-   #echo -e ' All instances of "localhost" should be replaced with the'
-   #echo -e ' fully-qualified hostname of your machine.\n'
    echo -e ' Special notes:'
    echo -e ' '$PG_FILE' *must* contain your subdomain.'
-   echo -e ' '$PY_FILE' *must* contain "Group fxalpha", not "Group awips"'
    echo ''
 }
 

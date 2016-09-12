@@ -50,6 +50,7 @@ import com.raytheon.viz.hydrocommon.util.DbUtils;
  * Jan 15, 2016 DCS18180     JingtaoD   code improvement based on code review for DR17935
  * May 27, 2016 19012      lbousaidi   remove the check for apostrophe when there is a call to
  *                                     ColorDataValue table class
+ * Jul 07, 2016 19155      lbousaidi   Don't check for special Character for ColorMager for MPE and Hydro                           
  * </pre>
  * 
  * @author askripsky
@@ -106,13 +107,21 @@ public class HydroDBDataManager extends HydroDataManager {
             @SuppressWarnings("unchecked")
             T recordToDeleteForQuery = (T) recordToDelete.getClass()
                     .newInstance();
-
-            DbUtils.escapeSpecialCharforData(recordToDelete,
-                    recordToDeleteForQuery);
-
-            String deleteQuery = (String) recordToDelete.getClass()
-                    .getMethod("getDeleteStatement")
-                    .invoke(recordToDeleteForQuery);
+            
+            String deleteQuery="";
+            
+            if (!recordToDelete.getClass().getName().contains(ColorValueData.class.getName())){
+                      DbUtils.escapeSpecialCharforData(recordToDelete,
+                                             recordToDeleteForQuery);
+                      deleteQuery = (String) recordToDelete.getClass()
+                              .getMethod("getDeleteStatement")
+                              .invoke(recordToDeleteForQuery);
+            } else {
+                      deleteQuery = (String) recordToDelete.getClass()
+                        .getMethod("getDeleteStatement")
+                        .invoke(recordToDelete);
+            }
+            
 
             runStatement(deleteQuery);
         } catch (Exception e) {

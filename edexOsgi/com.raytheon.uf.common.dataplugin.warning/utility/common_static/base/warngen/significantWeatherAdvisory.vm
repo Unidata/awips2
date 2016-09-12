@@ -20,11 +20,11 @@
 #if(${stormType} == "line")
   #set($report = "strong thunderstorms were reported")
   #set($reportType1 = "strong thunderstorms")
-  #set($reportType2 = "these storms were")
+  #set($reportType2 = "These storms were")
 #else
   #set($report = "a strong thunderstorm was reported")
   #set($reportType1 = "a strong thunderstorm")
-  #set($reportType2 = "this storm was")
+  #set($reportType2 = "This storm was")
 #end
 #set($windThreat = "")
 #set($hailThreat = "")

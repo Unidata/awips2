@@ -1589,7 +1589,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         if labels == []:
             return fcst
             
-        fcst = fcst + "\nTide Information...\n"
+        fcst = fcst + "\nTIDE INFORMATION...\n"
         # Get day/month/year
         creationTime = time.localtime(argDict["creationTime"])
         currentDate = time.strftime("%m/%d/%Y", creationTime)
@@ -1600,7 +1600,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
                 # Add error message to fcst
                 fcst = fcst + tideTable
                 continue
-            fcst = fcst + "\nAt " + label + "...\n\n"
+            fcst = fcst + "\nAT " + label.upper() + "...\n\n"
             for line in tideTable:
                 if line.find(currentDate) == 0:
                     # Get the tide info 

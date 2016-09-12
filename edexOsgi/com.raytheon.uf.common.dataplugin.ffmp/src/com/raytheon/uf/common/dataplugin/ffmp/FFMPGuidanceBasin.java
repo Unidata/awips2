@@ -26,6 +26,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 01/17/13      1478        D. Hladky  Removed un-needed XML attributes
  * Aug 08, 2015 4722        dhladky     Dynamic serialize imp not needed.
  * Oct 26, 2015  5056       dhladky     Simplified Guidance interpolator.
+ * Jun 21, 2016  5704       dhladky     Updated getClosest() logic to include 0.0f checks.
  * 
  * </pre>
  * 
@@ -248,7 +249,7 @@ public class FFMPGuidanceBasin extends FFMPBasin {
 
                 if (guidValues.get(checkDate).containsKey(sourceName)) {
                     float val = guidValues.get(checkDate).get(sourceName);
-                    if (val != FFMPUtils.MISSING) {
+                    if (val != FFMPUtils.MISSING && val != 0.0f) {
 
                         long time1 = markerDate.getTime();
                         long time2 = checkDate.getTime();
@@ -284,7 +285,7 @@ public class FFMPGuidanceBasin extends FFMPBasin {
 
                     float val = guidValues.get(date).get(sourceName);
 
-                    if (val != FFMPUtils.MISSING) {
+                    if (val != FFMPUtils.MISSING && val != 0.0f) {
                         rdate = date;
                     }
                 }
@@ -299,7 +300,7 @@ public class FFMPGuidanceBasin extends FFMPBasin {
 
                         float val2 = guidValues.get(checkDate).get(sourceName);
 
-                        if (val2 != FFMPUtils.MISSING) {
+                        if (val2 != FFMPUtils.MISSING && val2 != 0.0f) {
 
                             long time2 = checkDate.getTime();
                             // as long as it is +- expiration from orig date,

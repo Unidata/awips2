@@ -88,6 +88,8 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 23, 2008 1644       mpduff      Initial creation
+ * Jul 11, 2016 19175      lbousaidi   changed the fontSize to 9 to match
+ *                                     the one in the plugin.xml 
  * </pre>
  * 
  * @author mpduff
@@ -111,7 +113,7 @@ public class HydroDisplayManager {
     private boolean drawStation = false;
 
     /** Font size */
-    private int fontSize = 10;
+    private int fontSize = 9;
 
     /** List of dam data */
     private List<DamMaster> damList = null;

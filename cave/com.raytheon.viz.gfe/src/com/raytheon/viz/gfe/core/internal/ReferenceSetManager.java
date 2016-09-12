@@ -116,6 +116,8 @@ import com.vividsolutions.jts.geom.Envelope;
  * Nov 18, 2015       5129  dgilling    Use new IFPClient for get/save/delete 
  *                                      of reference data.
  * Dec 14, 2015       4816  dgilling    Support refactored PythonJobCoordinator API.
+ * Jun 30, 2016      #5723  dgilling    Move safety check from saveRefSet to 
+ *                                      IFPClient.saveReferenceData.
  * 
  * </pre>
  * 
@@ -835,13 +837,6 @@ public class ReferenceSetManager implements IReferenceSetManager,
                 "SaveRefSet id=" + orefData.getId());
 
         ReferenceData refData = new ReferenceData(orefData);
-
-        if (!refData.isQuery()) {
-            refData.getPolygons(CoordinateType.LATLON);
-        } else {
-            refData.setPolygons(null, CoordinateType.LATLON);
-        }
-
         ServerResponse<?> sr = dataManager.getClient().saveReferenceData(
                 Arrays.asList(refData));
         if (!sr.isOkay()) {

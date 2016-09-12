@@ -21,6 +21,7 @@
 <!-- Source: http://www.ssec.wisc.edu/mcidas/doc/users_guide/current/app_c-1.html -->
 <creatingEntities>
 	<map>
+	  <entry><key>3</key><value>SOUNDER</value></entry>
 	  <entry><key>9</key><value>COMP</value></entry>
 	  <entry><key>10</key><value>SOUNDER</value></entry>
 	  <entry><key>12</key><value>GMS</value></entry>

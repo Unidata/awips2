@@ -30,8 +30,6 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
-import org.hibernate.annotations.Index;
-
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.annotations.NullString;
@@ -63,22 +61,17 @@ import com.vividsolutions.jts.geom.Geometry;
  * Jul 23, 2014 3410       bclement    location changed to floats
  * Jul 28, 2015 4360       rferrel     Named unique constraint. Made productType non-nullable.
  * Jan 27, 2016 5285       tgurney     Remove dataURI column and update unique constraint.
+ * Aug 04, 2016 5783       tgurney     Add forecasttime to unique constraint
  * 
  * </pre>
  * 
  * @author jsanchez
- * @version 1.0
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "tcsseq")
 @Table(name = "tcs", uniqueConstraints = { @UniqueConstraint(name = "uk_tcs_datauri_fields", columnNames = {
-        "refTime", "productType", "latitude", "longitude", "stationId" }) })
-/*
- * Both refTime and forecastTime are included in the refTimeIndex since
- * forecastTime is unlikely to be used.
- */
-@org.hibernate.annotations.Table(appliesTo = "tcs", indexes = { @Index(name = "tcs_refTimeIndex", columnNames = {
-        "refTime", "forecastTime" }) })
+        "refTime", "forecastTime", "productType", "latitude", "longitude",
+        "stationId" }) })
 @DynamicSerialize
 public class TropicalCycloneSummary extends PersistablePluginDataObject
         implements ISpatialEnabled, IPointData {

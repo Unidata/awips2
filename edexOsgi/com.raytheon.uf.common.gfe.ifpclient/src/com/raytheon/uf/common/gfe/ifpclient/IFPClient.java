@@ -37,6 +37,7 @@ import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteDefinition;
 import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteKey;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData;
+import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData.CoordinateType;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceID;
 import com.raytheon.uf.common.dataplugin.gfe.request.AbstractGfeRequest;
 import com.raytheon.uf.common.dataplugin.gfe.request.CommitGridsRequest;
@@ -122,6 +123,7 @@ import com.raytheon.uf.common.time.TimeRange;
  * Feb 05, 2016  #5242     dgilling    Replace calls to deprecated Localization APIs.
  * Feb 24, 2016  #5129     dgilling    Change how PyFPClient is constructed.
  * Apr 28, 2016  #5618     randerso    Fix getGridData to handle "chunked" response.
+ * Jun 30, 2016  #5723     dgilling    Add safety check to saveReferenceData.
  * 
  * </pre>
  * 
@@ -691,6 +693,16 @@ public class IFPClient {
         LocalizationContext ctx = pm.getContext(LocalizationType.COMMON_STATIC,
                 LocalizationLevel.USER);
         for (ReferenceData refData : referenceData) {
+            /*
+             * A safety check to ensure our XML-format ReferenceData has only
+             * either the polygons or query field populated.
+             */
+            if (!refData.isQuery()) {
+                refData.getPolygons(CoordinateType.LATLON);
+            } else {
+                refData.setPolygons(null, CoordinateType.LATLON);
+            }
+
             ILocalizationFile lf = pm.getLocalizationFile(ctx, EDIT_AREAS_DIR
                     + IPathManager.SEPARATOR + refData.getId().getName()
                     + ".xml");

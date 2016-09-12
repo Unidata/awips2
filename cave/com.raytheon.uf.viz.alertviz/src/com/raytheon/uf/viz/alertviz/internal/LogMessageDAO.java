@@ -54,6 +54,8 @@ import com.raytheon.uf.viz.core.localization.LocalizationManager;
  * ------------ ---------- ----------- --------------------------
  * Sep 11, 2008 1433       chammack    Initial creation
  * Feb 11, 2016 5314       dgilling    Add loadByRowOffset.
+ * Jul 11, 2016 5746       dgilling    Better control multi-threaded access to 
+ *                                     Connection.
  * </pre>
  * 
  * @author chammack
@@ -240,83 +242,80 @@ public class LogMessageDAO {
         oldDir.renameTo(newDir);
     }
 
-    public void save(StatusMessage sm) throws AlertvizException {
+    public synchronized void save(StatusMessage sm) throws AlertvizException {
         Container.logInternal(sm);
-        synchronized (this) {
-            boolean errorOccurred = false;
-            ResultSet rs = null;
-            try {
-                Connection conn = getConnection();
-                if (saveStatement == null) {
-                    saveStatement = conn
-                            .prepareStatement(INSERT_PREPARED_STATEMENT);
-                }
 
-                saveStatement.setTimestamp(1, new Timestamp(sm.getEventTime()
-                        .getTime()));
-                saveStatement.setString(2, sm.getCategory());
-                saveStatement.setInt(3, sm.getPriority().ordinal());
-                saveStatement.setString(4, sm.getMessage());
-                saveStatement.setString(5, sm.getDetails());
-                saveStatement.setString(6, sm.getSourceKey());
-                saveStatement.executeUpdate();
+        boolean errorOccurred = false;
+        ResultSet rs = null;
+        try {
+            Connection conn = getConnection();
+            if (saveStatement == null) {
+                saveStatement = conn
+                        .prepareStatement(INSERT_PREPARED_STATEMENT);
+            }
 
-                if (getLastStatement == null) {
-                    getLastStatement = conn
-                            .prepareStatement(SELECT_LAST_INSERT_ID);
-                }
+            saveStatement.setTimestamp(1, new Timestamp(sm.getEventTime()
+                    .getTime()));
+            saveStatement.setString(2, sm.getCategory());
+            saveStatement.setInt(3, sm.getPriority().ordinal());
+            saveStatement.setString(4, sm.getMessage());
+            saveStatement.setString(5, sm.getDetails());
+            saveStatement.setString(6, sm.getSourceKey());
+            saveStatement.executeUpdate();
 
-                rs = getLastStatement.executeQuery();
-                if (rs.next()) {
-                    int id = rs.getInt(1);
-                    sm.setPk(id);
-                }
-                conn.commit();
-            } catch (Exception e) {
-                errorOccurred = true;
-                throw new AlertvizException("Save failed", e);
-            } finally {
-                if (errorOccurred) {
-                    closeStatement(saveStatement);
-                    saveStatement = null;
-                    closeStatement(getLastStatement);
-                    getLastStatement = null;
-                    closeConnection();
-                }
+            if (getLastStatement == null) {
+                getLastStatement = conn.prepareStatement(SELECT_LAST_INSERT_ID);
+            }
+
+            rs = getLastStatement.executeQuery();
+            if (rs.next()) {
+                int id = rs.getInt(1);
+                sm.setPk(id);
+            }
+            conn.commit();
+        } catch (Exception e) {
+            errorOccurred = true;
+            throw new AlertvizException("Save failed", e);
+        } finally {
+            if (errorOccurred) {
+                closeStatement(saveStatement);
+                saveStatement = null;
+                closeStatement(getLastStatement);
+                getLastStatement = null;
+                closeConnection();
             }
         }
     }
 
-    public void acknowledge(StatusMessage sm, String username)
+    public synchronized void acknowledge(StatusMessage sm, String username)
             throws AlertvizException {
         PreparedStatement updateStatement = null;
-        synchronized (this) {
-            boolean errorOccurred = false;
-            try {
-                Connection conn = getConnection();
-                updateStatement = conn.prepareStatement(ACKNOWLEDGE);
+        boolean errorOccurred = false;
+        try {
+            Connection conn = getConnection();
+            updateStatement = conn.prepareStatement(ACKNOWLEDGE);
 
-                long ackTime = System.currentTimeMillis();
-                updateStatement.setTimestamp(1, new Timestamp(ackTime));
-                updateStatement.setString(2, username);
-                updateStatement.setInt(3, sm.getPk());
-                updateStatement.executeUpdate();
-                sm.setAcknowledgedBy(username);
-                sm.setAcknowledgedAt(new Date(ackTime));
-                conn.commit();
-            } catch (SQLException e) {
-                errorOccurred = true;
-                throw new AlertvizException("Acknowledge Failed", e);
-            } finally {
-                closeStatement(updateStatement);
-                if (errorOccurred) {
-                    closeConnection();
-                }
+            long ackTime = System.currentTimeMillis();
+            updateStatement.setTimestamp(1, new Timestamp(ackTime));
+            updateStatement.setString(2, username);
+            updateStatement.setInt(3, sm.getPk());
+            updateStatement.executeUpdate();
+            sm.setAcknowledgedBy(username);
+            sm.setAcknowledgedAt(new Date(ackTime));
+            conn.commit();
+        } catch (SQLException e) {
+            errorOccurred = true;
+            throw new AlertvizException("Acknowledge Failed", e);
+        } finally {
+            closeStatement(updateStatement);
+            if (errorOccurred) {
+                closeConnection();
             }
+
         }
     }
 
-    public StatusMessage loadByPk(int pk) throws AlertvizException {
+    public synchronized StatusMessage loadByPk(int pk) throws AlertvizException {
         ResultSet rs = null;
         PreparedStatement statement = null;
         boolean errorOccurred = false;
@@ -355,7 +354,8 @@ public class LogMessageDAO {
      *             If an error occurred retrieving the message from the message
      *             store.
      */
-    public StatusMessage loadByRowOffset(int index) throws AlertvizException {
+    public synchronized StatusMessage loadByRowOffset(int index)
+            throws AlertvizException {
         ResultSet rs = null;
         PreparedStatement statement = null;
         boolean errorOccurred = false;
@@ -383,7 +383,8 @@ public class LogMessageDAO {
         }
     }
 
-    public StatusMessage[] load(int count) throws AlertvizException {
+    public synchronized StatusMessage[] load(int count)
+            throws AlertvizException {
         ResultSet rs = null;
         Statement statement = null;
         boolean errorOccurred = false;
@@ -406,8 +407,8 @@ public class LogMessageDAO {
         }
     }
 
-    public StatusMessage[] load(int count, Timestamp filter, Order order)
-            throws AlertvizException {
+    public synchronized StatusMessage[] load(int count, Timestamp filter,
+            Order order) throws AlertvizException {
         ResultSet rs = null;
         PreparedStatement statement = null;
         boolean errorOccurred = false;
@@ -441,7 +442,7 @@ public class LogMessageDAO {
         }
     }
 
-    public StatusMessage[] load(int count, Category[] filter)
+    public synchronized StatusMessage[] load(int count, Category[] filter)
             throws AlertvizException {
         ResultSet rs = null;
         Statement statement = null;
@@ -480,7 +481,8 @@ public class LogMessageDAO {
         }
     }
 
-    public Collection<Integer> purge(Timestamp filter) throws AlertvizException {
+    public synchronized Collection<Integer> purge(Timestamp filter)
+            throws AlertvizException {
         boolean errorOccurred = false;
         Connection conn = getConnection();
 
@@ -514,7 +516,7 @@ public class LogMessageDAO {
      * 
      * @return Total number of messages.
      */
-    public int getMessageCount() throws AlertvizException {
+    public synchronized int getMessageCount() throws AlertvizException {
         ResultSet rs = null;
         Statement statement = null;
         boolean errorOccurred = false;

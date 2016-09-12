@@ -281,6 +281,7 @@ scripts = [
     "name": "GHG_Complex1_6",
     "productType": "Hazard_WSW_Local",
     "deleteGrids": [],
+    "decodeVTEC": 0,
     "checkStrings": [
       "WWUS42 KTBW 010000",
       "WSWTBW",

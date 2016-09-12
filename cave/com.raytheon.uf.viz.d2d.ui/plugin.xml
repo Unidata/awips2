@@ -436,20 +436,6 @@
        </menuContribution>
 		<menuContribution
 			locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
-			<toolbar id="d2d-1">
-			   	<command
-			   		commandId="com.raytheon.uf.viz.d2d.ui.actions.loadmodebutton"
-			   		id="com.raytheon.uf.viz.d2d.ui.actions.loadmode"
-			   		label="Load Mode"
-			   		style="pulldown"
-			   		tooltip="Load Mode">
-			   		<visibleWhen>
-			   			<reference
-			   				definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
-			   			</reference>
-			   		</visibleWhen>
-			   	</command>
-			</toolbar>
              <toolbar
                   id="mapControls">
                <command
@@ -486,6 +472,21 @@
                   </visibleWhen>
                </command>
             </toolbar>
+             <toolbar
+                   id="d2d-1">
+                <command
+                      commandId="com.raytheon.uf.viz.d2d.ui.actions.loadmodebutton"
+                      id="com.raytheon.uf.viz.d2d.ui.actions.loadmode"
+                      label="Load Mode"
+                      style="pulldown"
+                      tooltip="Load Mode">
+                   <visibleWhen>
+                      <reference
+                            definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+                      </reference>
+                   </visibleWhen>
+                </command>
+             </toolbar>
             <toolbar
                   id="loopControls">
             <command
@@ -620,7 +621,25 @@
                   </reference>
                </visibleWhen>
             </command>
+            <!--
+            <command
+                  commandId="com.raytheon.viz.radar.rsc.map.dialog"
+                  icon="icons/nsharp.png"
+                  id="com.raytheon.viz.radar.rsc.map.dialog"
+                  label="NEXRAD"
+                  mode="FORCE_TEXT"
+                  style="push"
+                  tooltip="NEXRAD">
+               <visibleWhen>
+                  <reference
+                        definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+                  </reference>
+               </visibleWhen>
+            </command>
+            -->
 			<!--
+			com.raytheon.viz.radar.rsc.map.RadarMapResource
+			
             <command
                   commandId="gov.noaa.nws.ncep.ui.nsharp.palette"
                   icon="icons/nsharp.png"
@@ -809,10 +828,24 @@
                      value="10">
                </parameter>
             </command>
+            <command
+                  commandId="com.raytheon.viz.ui.actions.setframes">
+               <parameter
+                     name="frameCount"
+                     value="15">
+               </parameter>
+            </command>
             <command commandId="com.raytheon.viz.ui.actions.setframes">
                <parameter
                      name="frameCount"
                      value="20">
+               </parameter>
+            </command>
+            <command
+                  commandId="com.raytheon.viz.ui.actions.setframes">
+               <parameter
+                     name="frameCount"
+                     value="25">
                </parameter>
             </command>
             <command commandId="com.raytheon.viz.ui.actions.setframes">

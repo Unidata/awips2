@@ -51,6 +51,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Jan 17, 2014  2125     rjpeter     Removed invalid @Table annotation.
  * Jun 05, 2014  3243     bsteffen    Remove deprecated lambert conformal call.
  * Mar 04, 2015  3959     rjpeter     Update for grid based subgridding.
+ * Jun 24, 2016  ASM18440 dfriedman   Fix spatial tolerance for degree values.
  * </pre>
  * 
  * @author bphillip
@@ -269,11 +270,11 @@ public class LambertConformalGridCoverage extends GridCoverage {
     public boolean spatialEquals(GridCoverage other) {
         if (super.spatialEquals(other)) {
             LambertConformalGridCoverage otherLambert = (LambertConformalGridCoverage) other;
-            if (Math.abs(latin1 - otherLambert.latin1) > SPATIAL_TOLERANCE) {
+            if (Math.abs(latin1 - otherLambert.latin1) > SPATIAL_TOLERANCE_DEG) {
                 return false;
-            } else if (Math.abs(latin2 - otherLambert.latin2) > SPATIAL_TOLERANCE) {
+            } else if (Math.abs(latin2 - otherLambert.latin2) > SPATIAL_TOLERANCE_DEG) {
                 return false;
-            } else if (Math.abs(lov - otherLambert.lov) > SPATIAL_TOLERANCE) {
+            } else if (Math.abs(lov - otherLambert.lov) > SPATIAL_TOLERANCE_DEG) {
                 return false;
             }
             return true;

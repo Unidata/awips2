@@ -78,6 +78,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * 07/15/2013   2088        rferrel     Make dialog non-blocking
  * 04/22/2016   5483        dgilling    Correct fixed pixel layouts, refactor 
  *                                      based on CaveJFACEDialog.
+ * 07/12/2016   19182       xwei        Fixed issue with opening Data Sources in hydro database manager                                     
  * 
  * </pre>
  * 
@@ -1566,7 +1567,10 @@ public class DataSourcesDlg extends CaveJFACEDialog {
      */
     private void updateDialogState(boolean isDataAvailable) {
         if (fullControls) {
-            getButton(DELETE_ID).setEnabled(isDataAvailable);
+        	Button aButton =  getButton(DELETE_ID);
+        	if (aButton != null){
+            	aButton.setEnabled(isDataAvailable);
+            }  
         }
     }
 
