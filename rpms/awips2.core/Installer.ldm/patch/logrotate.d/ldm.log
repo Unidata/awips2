@@ -4,7 +4,7 @@
         notifempty
         daily
         rotate 5
-        create 0660 root fxalpha
+        create 0660 root awips
         postrotate
         /bin/kill -HUP `cat /var/run/syslogd.pid 2> /dev/null` 2> /dev/null || true
         endscript

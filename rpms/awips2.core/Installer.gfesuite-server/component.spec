@@ -80,39 +80,13 @@ fi
 rm -rf ${RPM_BUILD_ROOT}
 
 %files
-%defattr(644,root,root,-)
-%defattr(644,awips,fxalpha,755)
-%dir /awips2
+%defattr(644,awips,awips,755)
 %dir /awips2/GFESuite
-/awips2/GFESuite/*
-%defattr(644,awips,fxalpha,775)
-%dir /awips2/GFESuite/nwps
 /awips2/GFESuite/nwps/*
-%defattr(775,awips,fxalpha,775)
-%dir /awips2/GFESuite/hti
-/awips2/GFESuite/hti/*
-%dir /awips2/GFESuite/nwps/bin
-/awips2/GFESuite/nwps/bin/*
-%dir /awips2/GFESuite/nwps/etc
-/awips2/GFESuite/nwps/etc/*
-%dir /awips2/GFESuite/nwps/domains
-/awips2/GFESuite/nwps/domains/*
-%defattr(755,awips,fxalpha,755)
-%dir /awips2/GFESuite/bin
+%defattr(775,awips,awips,775)
+/awips2/GFESuite/hti*
+%defattr(755,awips,awips,755)
 /awips2/GFESuite/bin/*
-%dir /awips2/GFESuite/hti/bin
-/awips2/GFESuite/hti/bin/*
-%defattr(755,awips,fxalpha,777)
-%dir /awips2/GFESuite/hti/etc
-/awips2/GFESuite/hti/etc/*
-%defattr(644,awips,fxalpha,755)
-%dir /awips2/GFESuite/bin/src
-/awips2/GFESuite/bin/src/*
 %dir /awips2/GFESuite/exportgrids
-/awips2/GFESuite/exportgrids/*
-%defattr(755,awips,fxalpha,777)
-%dir /awips2/GFESuite/ServiceBackup/scripts
-/awips2/GFESuite/ServiceBackup/scripts/*
-%defattr(644,awips,fxalpha,775)
-%dir /awips2/GFESuite/products
-/awips2/GFESuite/products/*
+%defattr(755,awips,awips,777)
+/awips2/GFESuite/ServiceBackup*

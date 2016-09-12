@@ -61,7 +61,7 @@ fi
 rm -rf ${RPM_BUILD_ROOT}
 
 %files
-%defattr(644,awips,fxalpha,755)
-%defattr(775,awips,fxalpha,775)
+%defattr(644,awips,awips,755)
+%defattr(775,awips,awips,775)
 %dir /awips2/edex/data/gfe
 /awips2/edex/data/gfe/*

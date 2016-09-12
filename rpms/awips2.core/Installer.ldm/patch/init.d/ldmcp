@@ -50,7 +50,7 @@ function handle_ramdisk() {
 		fi
 	fi
 	echo -ne "Fixing Permissions:\t"
-	if ! chown -R ldm:fxalpha /data/ldm/data && failure 
+	if ! chown -R ldm:awips /data/ldm/data && failure 
 	then
 		echo
 		return 1

@@ -96,16 +96,15 @@ fi
 rm -rf ${RPM_BUILD_ROOT}
 
 %files
-%defattr(644,awips,fxalpha,755)
+%defattr(644,awips,awips,755)
 %dir /awips2/fxa
 %docdir /awips2/fxa/licenses
 %dir /awips2/fxa/licenses
 /awips2/fxa/licenses/*
-%defattr(755,awips,fxalpha,755)
+%defattr(755,awips,awips,755)
 %dir /awips2/fxa/bin
 %dir /awips2/fxa/data
 %dir /awips2/fxa/nationalData
-%attr(755,awips,fxalpha) /awips2/fxa/bin/*
-%attr(755,awips,fxalpha) /awips2/fxa/data/*
-%attr(755,awips,fxalpha) /awips2/fxa/nationalData/*
-%config(noreplace) /awips2/fxa/bin/setup.env
+%attr(755,awips,awips) /awips2/fxa/bin/*
+%attr(755,awips,awips) /awips2/fxa/data/*
+%attr(755,awips,awips) /awips2/fxa/nationalData/*

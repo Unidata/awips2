@@ -7,7 +7,7 @@ DXwrkDir=$IFPS_DATA/rsyncGridsToCWF  # must be a non-nas1 drive with enough spac
 if [ ! -d  ${DXwrkDir} ] ;then
    mkdir -p ${DXwrkDir}
    chmod 777 ${DXwrkDir}
-   chown awips:fxalpha ${DXwrkDir}
+   chown awips:awips ${DXwrkDir}
 fi
 
 ### Turn On/Off certain script functionality. ###

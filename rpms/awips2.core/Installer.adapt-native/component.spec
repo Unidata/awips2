@@ -61,13 +61,13 @@ fi
 rm -rf ${RPM_BUILD_ROOT}
 
 %files
-%defattr(644,awips,fxalpha,755)
+%defattr(644,awips,awips,755)
 %dir /awips2/adapt
 %dir /awips2/adapt/climate
 %dir /awips2/adapt/climate/data
 /awips2/adapt/climate/data/*
 %dir /awips2/adapt/climate/bin
 
-%defattr(755,awips,fxalpha,755)
+%defattr(755,awips,awips,755)
 %dir /awips2/adapt/climate/bin/Linux
 /awips2/adapt/climate/bin/Linux/*

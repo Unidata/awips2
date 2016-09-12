@@ -109,7 +109,7 @@ fi
 
 RPM_PROJECT="%{_baseline_workspace}/rpms"
 POSTGRES_INITD="%{_baseline_workspace}/rpms/awips2.core/Installer.postgres/scripts/init.d/edex_postgres"
-QPID_INITD="%{_baseline_workspace}/foss/qpid-java-broker-0.32/src/patch/qpid-java-broker/wrapper/qpidd"
+QPID_INITD="%{_baseline_workspace}/foss/qpid-java-broker-0.32/src/patch/qpid-java-broker-0.32/wrapper/qpidd"
 EDEX_INITD="${RPM_PROJECT}/awips2.edex/Installer.edex/scripts/init.d/edex_camel"
 HTTPD_PYPIES_INITD="%{_baseline_workspace}/rpms/awips2.core/Installer.httpd-pypies/configuration/etc/init.d/httpd-pypies"
 
@@ -156,7 +156,7 @@ fi
 %postun
 
 %files
-%defattr(644,awips,fxalpha,755)
+%defattr(644,awips,awips,755)
 %dir /awips2
 
 %dir /usr/local/edex-environment

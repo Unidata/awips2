@@ -6,6 +6,15 @@
 %define vstring CentOS
 %define mpms worker event
 
+%define HTTP_FOSS_DIR "%{_baseline_workspace}/foss/%{HTTP_PACKAGE_NAME}/packaged/"
+%define HTTP_PACKAGE_NAME "httpd-%{version}"
+%define HTTP_PATCHES_TAR "%{HTTP_PACKAGE_NAME}-SOURCES.tar"
+%define HTTP_PATCHES_RPM "httpd-%{version}-%{release}_7.src.rpm"
+%define HTTP_SOURCE_TAR "%{HTTP_PACKAGE_NAME}.tar.gz"
+%define RPMBUILD_PYPIES_DIR "%{_baseline_workspace}/rpmbuild/BUILD/httpd-pypies"
+%define RPMBUILD_HTTP_DIR %RPMBUILD_PYPIES_DIR/%HTTP_PACKAGE_NAME
+
+
 # Drop automatic provides for module DSOs
 %{?filter_setup:
 %filter_provides_in /awips2/httpd_pypies%{_libdir}/httpd/modules/.*\.so$
@@ -618,7 +627,7 @@ echo "cleaning"
 rm -rf $RPM_BUILD_ROOT
 
 %files
-%defattr(-,awips,fxalpha)
+%defattr(-,awips,awips)
 
 %doc ABOUT_APACHE README CHANGES LICENSE VERSIONING NOTICE
 
@@ -696,11 +705,11 @@ rm -rf $RPM_BUILD_ROOT
 /awips2/httpd_pypies%{contentdir}/error/include/*.html
 /awips2/httpd_pypies%{contentdir}/noindex/*
 
-#%attr(0710,awips,fxalpha) %dir /awips2/httpd_pypies/run/httpd
-%attr(0700,awips,fxalpha) %dir /awips2/httpd_pypies%{_localstatedir}/log/httpd
-%attr(0700,awips,fxalpha) %dir /awips2/httpd_pypies%{_localstatedir}/lib/dav
-%attr(0700,awips,fxalpha) %dir /awips2/httpd_pypies%{_localstatedir}/cache/httpd
-%attr(0700,awips,fxalpha) %dir /awips2/httpd_pypies%{_localstatedir}/cache/httpd/proxy
+#%attr(0710,awips,awips) %dir /awips2/httpd_pypies/run/httpd
+%attr(0700,awips,awips) %dir /awips2/httpd_pypies%{_localstatedir}/log/httpd
+%attr(0700,awips,awips) %dir /awips2/httpd_pypies%{_localstatedir}/lib/dav
+%attr(0700,awips,awips) %dir /awips2/httpd_pypies%{_localstatedir}/cache/httpd
+%attr(0700,awips,awips) %dir /awips2/httpd_pypies%{_localstatedir}/cache/httpd/proxy
 
 %{_unitdir}/*.service
 

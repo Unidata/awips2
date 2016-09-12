@@ -28,7 +28,7 @@ function change()
 			   	mv index.xml.bak index.xml
 			   	
 			   	# change permissions and ownership
-	    	    chown awips.fxalpha index.xml ../../../../site/$site/menus/radar/index.xml
+	    	    chown awips.awips index.xml ../../../../site/$site/menus/radar/index.xml
 
 				# create backup of the original file	    	
 				cp dialRadars.xml dialRadars.xml.bak
@@ -42,7 +42,7 @@ function change()
 		    	mv dialRadars.xml.bak dialRadars.xml
 		    	
 			   	# change permissions and ownership
-	    	    chown awips.fxalpha dialRadars.xml ../../../../site/$site/menus/radar/dialRadars.xml
+	    	    chown awips.awips dialRadars.xml ../../../../site/$site/menus/radar/dialRadars.xml
 	    	
 		    	# move back to original directory
 	    		popd > /dev/null
@@ -63,14 +63,14 @@ function change()
 		    	mv index.xml ../../../../site/$site/menus/radar/index.xml
 		    	mv index.xml.bak index.xml
 		    	
-		    	chown awips.fxalpha index.xml ../../../../site/$site/menus/radar/index.xml
+		    	chown awips.awips index.xml ../../../../site/$site/menus/radar/index.xml
 	
 		    	cp dialRadars.xml dialRadars.xml.bak
 		    	sed -i 's/dualPol\/baseLocalRadarMenu.xml/baseLocalRadarMenu.xml/g' dialRadars.xml
 	    		sed -i 's/dualPol\/baseTerminalLocalRadarMenu.xml/baseTerminalLocalRadarMenu.xml/g' dialRadars.xml
 		    	mv dialRadars.xml ../../../../site/$site/menus/radar/dialRadars.xml
 		    	mv dialRadars.xml.bak dialRadars.xml
-		    	chown awips.fxalpha dialRadars.xml ../../../../site/$site/menus/radar/dialRadars.xml
+		    	chown awips.awips dialRadars.xml ../../../../site/$site/menus/radar/dialRadars.xml
 	    		popd > /dev/null
 			else
 				echo "Menus not configured for $site"

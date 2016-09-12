@@ -1,7 +1,7 @@
 #!/bin/bash -v
 set -xe
 
-export JENKINS_WORKSPACE=/awips2/repo/awips2-builds
+export JENKINS_WORKSPACE=/home/${USER}/awips2-builds
 
 # determine where we are ...
 path_to_script=`readlink -f $0`
@@ -33,8 +33,6 @@ logdir=${dir}/../logs
 source ${dir}/buildEnvironment.sh
 
 # prepare the rpm build directory structure
-mkdir -p /awips2/jenkins/build/rpms/awips2_16.1.5/x86_64/
-mkdir -p /awips2/jenkins/build/rpms/awips2_16.1.5/noarch/
 mkdir -p ${AWIPSII_TOP_DIR}/BUILD
 mkdir -p ${AWIPSII_TOP_DIR}/RPMS
 mkdir -p ${AWIPSII_TOP_DIR}/SOURCES
@@ -82,10 +80,10 @@ popd > /dev/null 2>&1
 export rpm_end_dir="${AWIPSII_VERSION}-${AWIPSII_RELEASE}"
 
 if [ "$(ls -A ${AWIPSII_TOP_DIR}/RPMS/x86_64/)" ]; then
-   mv ${AWIPSII_TOP_DIR}/RPMS/x86_64/* /awips2/jenkins/build/rpms/awips2_${AWIPSII_VERSION}/x86_64/
+   mv ${AWIPSII_TOP_DIR}/RPMS/x86_64/* /awips2/jenkins/build/awips2_${AWIPSII_VERSION}/x86_64/
 fi
 if [ "$(ls -A ${AWIPSII_TOP_DIR}/RPMS/noarch/)" ]; then
-   mv ${AWIPSII_TOP_DIR}/RPMS/noarch/* /awips2/jenkins/build/rpms/awips2_${AWIPSII_VERSION}/noarch/
+   mv ${AWIPSII_TOP_DIR}/RPMS/noarch/* /awips2/jenkins/build/awips2_${AWIPSII_VERSION}/noarch/
 fi
 
 END_TIME=`date "+%s"`

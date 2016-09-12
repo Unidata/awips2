@@ -14,14 +14,14 @@ if [ "$myhost" = "cpsbn" ]; then
   else
     mknod /dev/p_LOG p
   fi
-  chmod 664 /dev/p_LOG && chgrp fxalpha /dev/p_LOG
+  chmod 664 /dev/p_LOG && chgrp awips /dev/p_LOG
 
   if [ -p /dev/p_LOST ];then
     echo "Pipe /dev/p_LOST exists"
   else
     mknod /dev/p_LOST p
   fi
-  chmod 664 /dev/p_LOST && chgrp fxalpha /dev/p_LOST
+  chmod 664 /dev/p_LOST && chgrp awips /dev/p_LOST
 
   if [ -f /etc/profile.d/AWIPS.sh ];then
    . /etc/profile.d/awips2.sh

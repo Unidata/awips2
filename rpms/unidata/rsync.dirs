@@ -21,12 +21,6 @@ javaUtilities/* rpms pythonPackages nativeLib/*
 ../awips2-cimss/features/* 
 ../awips2-cimss/common/* 
 ../awips2-cimss/edex/*
-../awips2-collaboration/viz/*
-../awips2-collaboration/features/*
-../awips2-collaboration/common/*
-../awips2-collaboration/openfire/*
-../awips2-collaboration/rpms-Collaboration
-../awips2-collaboration/foss
 ../awips2-ogc/edex/*
 ../awips2-ogc/features/*
 ../awips2-ogc/foss/*

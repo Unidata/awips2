@@ -188,10 +188,10 @@ echo "Files successfully copied!"
 echo "Changing ownership of received configuration"
 if [ $USER = "root" ]
 then 
-	chown -R awips:fxalpha ${LOCALIZATION_PATH}/edex_static/site/${SITE_ID_CAPS}
-	chown -R awips:fxalpha ${LOCALIZATION_PATH}/common_static/site/${SITE_ID_CAPS}
-	chown -R awips:fxalpha ${LOCALIZATION_PATH}/cave_static/site/${SITE_ID_CAPS}
-    chown -R awips:fxalpha /awips2/GFESuite/ServiceBackup/data    # DR 16464
+	chown -R awips:awips ${LOCALIZATION_PATH}/edex_static/site/${SITE_ID_CAPS}
+	chown -R awips:awips ${LOCALIZATION_PATH}/common_static/site/${SITE_ID_CAPS}
+	chown -R awips:awips ${LOCALIZATION_PATH}/cave_static/site/${SITE_ID_CAPS}
+    chown -R awips:awips /awips2/GFESuite/ServiceBackup/data    # DR 16464
 elif [ $USER = "awips" ]
 then
 	echo "Files already owned by awips"

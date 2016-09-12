@@ -80,12 +80,12 @@ export LOG_FILE="${HTI_HOME}/logs/${currdate}/make_hti.log"
 if [ ! -d  ${HTI_HOME}/logs ] ;then
    mkdir -p ${HTI_HOME}/logs
    chmod 777 ${HTI_HOME}/logs
-   chown awips:fxalpha ${HTI_HOME}/logs
+   chown awips:awips ${HTI_HOME}/logs
 fi
 if [ ! -d  ${HTI_HOME}/logs/${currdate} ] ;then
    mkdir -p ${HTI_HOME}/logs/${currdate}
    chmod 777 ${HTI_HOME}/logs/${currdate}
-   chown awips:fxalpha ${HTI_HOME}/logs/${currdate}
+   chown awips:awips ${HTI_HOME}/logs/${currdate}
 fi
 
 # Log file header
@@ -104,7 +104,7 @@ if [ ! -d ${PRODUCTdir} ]; then
    echo " **** Changing permissions of ${PRODUCTdir} directory..." >> $LOG_FILE
    chmod 777 $PRODUCTdir
    echo " **** Changing ownership of ${PRODUCTdir} directory..." >> $LOG_FILE
-   chown awips:fxalpha $PRODUCTdir
+   chown awips:awips $PRODUCTdir
 else
    echo "  ${PRODUCTdir} exists." >> $LOG_FILE
 fi
@@ -213,7 +213,7 @@ then
        echo "  Changing permissions on ${PRODUCTdir}/archive..." >> $LOG_FILE
        chmod 777 ${PRODUCTdir}/archive
        echo "  Changing ownership on ${PRODUCTdir}/archive..." >> $LOG_FILE
-       chown awips:fxalpha ${PRODUCTdir}/archive
+       chown awips:awips ${PRODUCTdir}/archive
     else
        echo "  ${PRODUCTdir}/archive directory exists!" >> $LOG_FILE
     fi

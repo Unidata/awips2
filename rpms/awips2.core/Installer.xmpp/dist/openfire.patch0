@@ -51,7 +51,7 @@ diff -crB openfire-a/bin/extra/redhat-postinstall.sh openfire-b/bin/extra/redhat
 ! OPENFIRE_HOME=/awips2/openfire
    
 ! OPENFIRE_USER="awips"
-! OPENFIRE_GROUP="fxalpha"
+! OPENFIRE_GROUP="awips"
   
   if [ ! $OPENFIRE_HOME ]; then
   	if [ -d "/opt/openfire" ]; then

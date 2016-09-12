@@ -35,5 +35,5 @@ echo -e '        <substitute key="ARsites" value="PAFC, PAFG, PAJK" />
 </menuContributionFile>
 ' >> $f.tmp
 mv -f ${f}.tmp $f
-chown awips:fxalpha $f; chmod 664 $f
+chown awips:awips $f; chmod 664 $f
 done

@@ -128,7 +128,7 @@ rm -rf org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}.jar
 rm -rf ${RPM_BUILD_ROOT}
 
 %files
-%defattr(644,awips,fxalpha,755)
+%defattr(644,awips,awips,755)
 %dir /awips2
 %dir /awips2/alertviz
 /awips2/alertviz/.eclipseproduct
@@ -146,7 +146,7 @@ rm -rf ${RPM_BUILD_ROOT}
 %dir /awips2/alertviz/plugins
 /awips2/alertviz/plugins/*
 
-%defattr(755,awips,fxalpha,755)
+%defattr(755,awips,awips,755)
 /awips2/alertviz/alertviz
 /awips2/alertviz/*.so
 /awips2/alertviz/*.sh

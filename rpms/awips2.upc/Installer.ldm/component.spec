@@ -9,7 +9,7 @@
 Name: awips2-ldm
 Summary: AWIPS II LDM Distribution
 Version: %{_component_version}.%{_component_release}
-Release: %{_ldm_version}
+Release: %{_ldm_version}%{?dist}
 Group: AWIPSII
 BuildRoot: /tmp
 BuildArch: noarch
@@ -179,11 +179,12 @@ if [ $? -ne 0 ]; then
    echo "FATAL: make install has failed!"
    exit 1
 fi
-make root-actions LDMHOME=/awips2/ldm > root-actions.log 2>&1
-if [ $? -ne 0 ]; then
-   echo "FATAL: root-actions has failed!"
-   exit 1
-fi
+# Don't make root actions or else edexBridge will not run on el7
+#make root-actions LDMHOME=/awips2/ldm > root-actions.log 2>&1
+#if [ $? -ne 0 ]; then
+#   echo "FATAL: root-actions has failed!"
+#   exit 1
+#fi
 #g++ edexBridge.cpp -I${_ldm_root_dir}/src/pqact \
 #   -I${_ldm_root_dir}/include \
 #   -I${_ldm_root_dir}/src \
@@ -193,6 +194,7 @@ fi
 #   -l ldm -l xml2 -l qpidclient -l qpidmessaging -l qpidcommon -l qpidtypes -o edexBridge
 
 /awips2/ldm/bin/regutil -s ${_myHost} /hostname
+/awips2/ldm/bin/regutil -s 1500M /queue/size
 #sed -i 's/EDEX_HOSTNAME/'$_myHostShort'/' ${_ldm_dir}/etc/ldmd.conf
 #sed -i 's/<size>500M<\/size>/<size>1500M<\/size>/' ${_ldm_dir}/etc/registry.xml
 
@@ -233,13 +235,13 @@ if [ $? -ne 0 ]; then
 fi
 
 if getent passwd awips &>/dev/null; then
-  /bin/chown -R awips:fxalpha ${_ldm_dir} /awips2/data_store
-  cd /awips2/ldm/src/
-  make install_setuids
+  /bin/chown -R awips:awips ${_ldm_dir} /awips2/data_store
+  #cd /awips2/ldm/src/
+  #make install_setuids
 else
-  echo "--- Warning: group fxalpha does not exist"
+  echo "--- Warning: group awips does not exist"
   echo "--- you will need to check owner/group/permissions for /awips2/ldm"
-  echo "tried to run 'chown -R awips:fxalpha /awips2/ldm; cd /awips2/ldm/src/; make install_setuids'"
+  echo "tried to run 'chown -R awips:awips /awips2/ldm; cd /awips2/ldm/src/; make install_setuids'"
   echo ""
 fi
 
@@ -293,10 +295,10 @@ fi
 rm -rf ${RPM_BUILD_ROOT}
 
 %files
-%defattr(-,awips,fxalpha,-)
+%defattr(-,awips,awips,-)
 %dir /awips2/ldm
 %dir /awips2/ldm/SOURCES
 /awips2/ldm/SOURCES/*
 %attr(755,root,root) /etc/init.d/edex_ldm
-%attr(600,awips,fxalpha) /var/spool/cron/awips
+%attr(600,awips,awips) /var/spool/cron/awips
 %attr(755,root,root) /etc/logrotate.d/ldm.log
