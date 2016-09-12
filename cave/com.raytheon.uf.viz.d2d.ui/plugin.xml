@@ -412,12 +412,6 @@
              </visibleWhen>
             <separator name="RADAR_MENU_START" visible="false"/>
          </menu>
-         <menu id="scan" mnemonic="C" label="SCAN">
-         	<visibleWhen>
-         		<reference definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet"></reference>
-         	</visibleWhen>
-         	<separator name="SCAN_MENU_START" visible="false"></separator>
-         </menu>
 
          <menu
                id="D2Dmaps"
