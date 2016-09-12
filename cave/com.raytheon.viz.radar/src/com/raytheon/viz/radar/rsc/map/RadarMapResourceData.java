@@ -1,9 +1,5 @@
 package com.raytheon.viz.radar.rsc.map;
 
-import gov.noaa.nws.ncep.viz.common.ui.Markers.MarkerState;
-import gov.noaa.nws.ncep.viz.common.ui.Markers.MarkerTextSize;
-import gov.noaa.nws.ncep.viz.common.ui.Markers.MarkerType;
-
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
@@ -11,24 +7,12 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 
 public class RadarMapResourceData extends AbstractResourceData {
 
-	private MarkerState markerState = MarkerState.MARKER_ONLY;
-
-    private MarkerType markerType = MarkerType.OCTAGON;
-
     private Float markerSize = 1.5f;
 
     private Integer markerWidth = 2;
 
-    private MarkerTextSize markerTextSize = MarkerTextSize.MEDIUM;
-
     private String mapName = "NEXRAD";
 
-    private MarkerType stnMarkerType = MarkerType.LARGE_X;
-
-    public MarkerType getStnMarkerType() {
-        return stnMarkerType;
-    }
-    
 	public RadarMapResourceData() {
 		super();
 	}
@@ -57,31 +41,11 @@ public class RadarMapResourceData extends AbstractResourceData {
         if (obj == null || !(obj instanceof RadarMapResourceData))
             return false;
         RadarMapResourceData rdata = (RadarMapResourceData) obj;
-        if (this.markerState.equals(rdata.getMarkerState())
-                && this.markerType.equals(rdata.getMarkerType())
-                && this.markerSize.equals(rdata.getMarkerSize())
-                && this.markerWidth.equals(rdata.getMarkerWidth())
-                && this.markerTextSize.equals(rdata.getMarkerTextSize())
-                && this.stnMarkerType.equals(rdata.getStnMarkerType()))
+        if (this.markerSize.equals(rdata.getMarkerSize())
+                && this.markerWidth.equals(rdata.getMarkerWidth()))
             return true;
 
         return false;
-    }
-
-    public MarkerState getMarkerState() {
-        return markerState;
-    }
-
-    public void setMarkerState(MarkerState markerState) {
-        this.markerState = markerState;
-    }
-
-    public MarkerType getMarkerType() {
-        return markerType;
-    }
-
-    public void setMarkerType(MarkerType markerType) {
-        this.markerType = markerType;
     }
 
     public Float getMarkerSize() {
@@ -98,14 +62,6 @@ public class RadarMapResourceData extends AbstractResourceData {
 
     public void setMarkerWidth(Integer markerWidth) {
         this.markerWidth = markerWidth;
-    }
-
-    public MarkerTextSize getMarkerTextSize() {
-        return markerTextSize;
-    }
-
-    public void setMarkerTextSize(MarkerTextSize markerTextSize) {
-        this.markerTextSize = markerTextSize;
     }
 
     public String getMapName() {
