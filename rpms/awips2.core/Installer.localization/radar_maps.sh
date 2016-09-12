@@ -38,3 +38,11 @@ done
 
 
 cp $CAVE_DIR/* /home/awips/awips2-builds/cave/com.raytheon.viz.radar/localization/bundles/site/
+rm -rf /home/awips/awips2-builds/cave/com.raytheon.viz.radar/localization/bundles/site/Radar_comp.xml
+rm -rf /home/awips/awips2-builds/cave/com.raytheon.viz.radar/localization/bundles/site/Radar_info.xml
+rm -rf /home/awips/awips2-builds/cave/com.raytheon.viz.radar/localization/bundles/site/Radar_proc.xml
+
+#	com.raytheon.viz.radar/localization/bundles/site/Radar_comp.xml
+#	com.raytheon.viz.radar/localization/bundles/site/Radar_info.xml
+#	com.raytheon.viz.radar/localization/bundles/site/Radar_proc.xml
+

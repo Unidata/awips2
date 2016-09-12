@@ -8,9 +8,9 @@
 	See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for further_licensing_information. -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<contribute xsi:type="bundleItem" file="bundles/nexradAvailability.xml"
-			menuText="NEXRAD Sites" id="NEXRADSites">
+			menuText="NEXRAD Display" id="NEXRADDisplay">
 	</contribute>
-	<contribute xsi:type="titleItem" titleText="------ NEXRAD Stations ------"
+	<contribute xsi:type="titleItem" titleText="------ Stations ------"
 		id="RadarMosaic" />
 	<contribute xsi:type="subMenu" menuText="NEXRAD - Local"
 		id="RadarMenuDialRadarsSubMenu">
@@ -24,7 +24,7 @@
 		id="RadarMenuTwdrRadarsSubMenu">
 		<contribute xsi:type="subinclude" fileName="menus/radar/tdwrRadars.xml" />
 	</contribute>
-	<contribute xsi:type="titleItem" titleText="------ CONUS Composites ------"
+	<contribute xsi:type="titleItem" titleText="------ FNEXRAD Composites ------"
 		id="RadarMosaic" />
 	<!--  Unidata Composite -->
 	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarComposite.xml" 

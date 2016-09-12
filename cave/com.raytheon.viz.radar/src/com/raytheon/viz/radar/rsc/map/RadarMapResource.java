@@ -257,7 +257,7 @@ public class RadarMapResource extends
    
    @Override
    public String getName() {
-       return "NEXRAD Stations";
+       return "NEXRAD Display";
    }
 
    @Override
