@@ -250,26 +250,6 @@
                    style="toggle">
              </command>
              <separator
-                   name="beforeLayoutGroup"
-                   visible="true">
-             </separator>
-             <command
-                   commandId="com.raytheon.uf.viz.d2d.ui.actions.changeD2DLayout"
-                   label="1 Pane Layout">
-                <parameter
-                      name="sideViews"
-                      value="4">
-                </parameter>
-             </command>
-             <command
-                   commandId="com.raytheon.uf.viz.d2d.ui.actions.changeD2DLayout"
-                   label="5 Pane Layout">
-                <parameter
-                      name="sideViews"
-                      value="0">
-                </parameter>
-             </command>
-             <separator
                    name="afterLayoutGroup"
                    visible="true">
              </separator>

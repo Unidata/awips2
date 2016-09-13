@@ -26,7 +26,7 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 import javax.measure.unit.Unit;
-import javax.media.opengl.GL;
+import com.jogamp.opengl.GL2;
 
 import com.raytheon.uf.common.colormap.image.ColorMapData;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
@@ -83,6 +83,7 @@ import com.vividsolutions.jts.geom.Triangle;
  * ------------- -------- --------- ---------------------------------
  * Aug 24, 2015  4709     bsteffen  Initial creation
  * Dec 04, 2015  5146     bsteffen  Rewind attrib buffer before use.
+ * Sep 13, 2016           mjames@ucar jogamp refactor for osx
  * 
  * </pre>
  * 
@@ -196,35 +197,35 @@ public class GLTriangulatedImage implements ITriangulatedImage {
         if (this.indexBuffer == null) {
             stage();
         }
-        GL gl = target.getGl();
+        GL2 gl = target.getGl();
 
         target.pushGLState();
         try {
-            gl.glPolygonMode(GL.GL_BACK, GL.GL_FILL);
-            gl.glPolygonMode(GL.GL_FRONT, GL.GL_FILL);
+            gl.glPolygonMode(GL2.GL_BACK, GL2.GL_FILL);
+            gl.glPolygonMode(GL2.GL_FRONT, GL2.GL_FILL);
 
-            gl.glEnable(GL.GL_BLEND);
-            gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
+            gl.glEnable(GL2.GL_BLEND);
+            gl.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
 
             GLTextureObject cmapTexture = target
                     .getColorMapTexture(colorMapParameters);
 
-            gl.glActiveTexture(GL.GL_TEXTURE1);
-            cmapTexture.bind(gl, GL.GL_TEXTURE_1D);
+            gl.glActiveTexture(GL2.GL_TEXTURE1);
+            cmapTexture.bind(gl, GL2.GL_TEXTURE_1D);
 
             if (colorMapParameters.isInterpolate()) {
-                gl.glTexParameteri(GL.GL_TEXTURE_1D, GL.GL_TEXTURE_MIN_FILTER,
-                        GL.GL_LINEAR);
-                gl.glTexParameteri(GL.GL_TEXTURE_1D, GL.GL_TEXTURE_MAG_FILTER,
-                        GL.GL_LINEAR);
+                gl.glTexParameteri(GL2.GL_TEXTURE_1D, GL2.GL_TEXTURE_MIN_FILTER,
+                        GL2.GL_LINEAR);
+                gl.glTexParameteri(GL2.GL_TEXTURE_1D, GL2.GL_TEXTURE_MAG_FILTER,
+                        GL2.GL_LINEAR);
             } else {
-                gl.glTexParameteri(GL.GL_TEXTURE_1D, GL.GL_TEXTURE_MIN_FILTER,
-                        GL.GL_NEAREST);
-                gl.glTexParameteri(GL.GL_TEXTURE_1D, GL.GL_TEXTURE_MAG_FILTER,
-                        GL.GL_NEAREST);
+                gl.glTexParameteri(GL2.GL_TEXTURE_1D, GL2.GL_TEXTURE_MIN_FILTER,
+                        GL2.GL_NEAREST);
+                gl.glTexParameteri(GL2.GL_TEXTURE_1D, GL2.GL_TEXTURE_MAG_FILTER,
+                        GL2.GL_NEAREST);
             }
 
-            setupDataMapping(gl, GL.GL_TEXTURE3, GL.GL_TEXTURE4);
+            setupDataMapping(gl, GL2.GL_TEXTURE3, GL2.GL_TEXTURE4);
 
             GLShaderProgram program = GLSLFactory.getInstance()
                     .getShaderProgram(gl, "copyValueVertexShader",
@@ -244,9 +245,9 @@ public class GLTriangulatedImage implements ITriangulatedImage {
             GLSLStructFactory.createColorModifiers(program, "modifiers",
                     paintProps.getAlpha(), brightness, contrast);
 
-            gl.glEnableClientState(GL.GL_VERTEX_ARRAY);
+            gl.glEnableClientState(GL2.GL_VERTEX_ARRAY);
             vertexBuffer.rewind();
-            gl.glVertexPointer(2, GL.GL_FLOAT, 0, vertexBuffer);
+            gl.glVertexPointer(2, GL2.GL_FLOAT, 0, vertexBuffer);
 
             Buffer attribBufferData = attribBuffer.getData();
             attribBufferData.rewind();
@@ -254,23 +255,23 @@ public class GLTriangulatedImage implements ITriangulatedImage {
                     attribBuffer.getTextureType(), attribBufferData);
 
             indexBuffer.rewind();
-            gl.glDrawElements(GL.GL_TRIANGLES, indexBuffer.capacity(),
-                    GL.GL_UNSIGNED_INT, indexBuffer);
+            gl.glDrawElements(GL2.GL_TRIANGLES, indexBuffer.capacity(),
+                    GL2.GL_UNSIGNED_INT, indexBuffer);
 
             program.endShader();
-            gl.glDisableClientState(GL.GL_VERTEX_ARRAY);
+            gl.glDisableClientState(GL2.GL_VERTEX_ARRAY);
 
-            gl.glActiveTexture(GL.GL_TEXTURE1);
-            gl.glBindTexture(GL.GL_TEXTURE_1D, 0);
+            gl.glActiveTexture(GL2.GL_TEXTURE1);
+            gl.glBindTexture(GL2.GL_TEXTURE_1D, 0);
 
-            gl.glDisable(GL.GL_BLEND);
+            gl.glDisable(GL2.GL_BLEND);
         } finally {
             target.popGLState();
         }
 
     }
 
-    protected void setupDataMapping(GL gl,
+    protected void setupDataMapping(GL2 gl,
             int dataMappedTexBinding, int colorMappedTexBinding)
             throws VizException {
         if (dataMapping == null && colorMapParameters.getColorMap() != null) {
