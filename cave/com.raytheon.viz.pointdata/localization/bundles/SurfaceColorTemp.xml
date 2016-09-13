@@ -28,22 +28,14 @@
                    		<capabilities>
 						    <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="DEFAULT"/>
 						    <capability xsi:type="magnificationCapability" magnification="1.5"/>
-<<<<<<< HEAD
-						    <capability xsi:type="densityCapability" density="2"/>
-=======
 						    <capability xsi:type="densityCapability" density="99999.0"/>
->>>>>>> origin/unidata_16.2.2
 						    <capability xsi:type="colorableCapability" colorAsString="white"/>
 						</capabilities>
                		</loadProperties>
 					<properties isSystemResource="false" isBlinking="false"
 						isMapLayer="false" isHoverOn="false"
 						isVisible="true" />
-<<<<<<< HEAD
-					<resourceData xsi:type="plotResourceData" plotSource="Sfc Temp"
-=======
 					<resourceData xsi:type="metarTempResourceData" plotSource="Sfc Temp"
->>>>>>> origin/unidata_16.2.2
 						plotModelFile="colorTemp.svg" spiFile="basemaps/MTR.spi"
 						isUpdatingOnMetadataOnly="true" retrieveData="false"
 						isRequeryNecessaryOnTimeMatch="true" isTopOfTheHour="true" pixelSizeHint="45">
@@ -52,12 +44,6 @@
 							<mapping key="reportType">
 								<constraint constraintValue="METAR" constraintType="EQUALS" />
 							</mapping>
-<<<<<<< HEAD
-							<mapping key="T">
-                                <constraint constraintValue="50" constraintType="GREATER_THAN" />
-                            </mapping>
-=======
->>>>>>> origin/unidata_16.2.2
 							<mapping key="pluginName">
 								<constraint constraintValue="obs" constraintType="EQUALS" />
 							</mapping>

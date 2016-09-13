@@ -29,11 +29,7 @@
                             <capability xsi:type="colorableCapability" colorAsString="#ffffff"/>
                             <capability xsi:type="outlineCapability" outlineWidth="3" outlineOn="true" lineStyle="SOLID"/>
                         </capabilities>
-<<<<<<< HEAD
-                    </loadProperties>
-=======
                		</loadProperties>
->>>>>>> origin/unidata_16.2.2
 					<properties isSystemResource="false"
 						isBlinking="false" isMapLayer="false" isHoverOn="false"
 						isVisible="true" />

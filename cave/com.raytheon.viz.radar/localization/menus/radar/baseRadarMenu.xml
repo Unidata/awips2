@@ -7,12 +7,6 @@
 	________________________Omaha,_NE_68106 ________________________402.291.0100 
 	See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for further_licensing_information. -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-<<<<<<< HEAD
-	<contribute xsi:type="subMenu" menuText="NEXRAD Stations"
-		id="RadarMenuDialRadarsSubMenu">
-		<contribute xsi:type="subinclude" fileName="menus/radar/dialRadars.xml" />
-	</contribute>
-=======
 	<contribute xsi:type="bundleItem" file="bundles/nexradAvailability.xml"
 			menuText="NEXRAD Display" id="NEXRADDisplay">
 	</contribute>
@@ -26,7 +20,6 @@
 		id="RadarMenuDialAllRadarsSubMenu">
 		<contribute xsi:type="subinclude" fileName="menus/radar/dialAllRadars.xml" />
 	</contribute>
->>>>>>> origin/unidata_16.2.2
 	<contribute xsi:type="subMenu" menuText="TDWR Stations"
 		id="RadarMenuTwdrRadarsSubMenu">
 		<contribute xsi:type="subinclude" fileName="menus/radar/tdwrRadars.xml" />
@@ -70,11 +63,7 @@
         <substitute key="colormap" value="Radar/8-bit STP"/>
 		<substitute key="interpolate" value="true"/>
     </contribute>
-<<<<<<< HEAD
-	<contribute xsi:type="titleItem" titleText="------ Mosaic ------"
-=======
 	<contribute xsi:type="titleItem" titleText="------ Local Mosaic ------"
->>>>>>> origin/unidata_16.2.2
 		id="RadarMosaic" />
 	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
 		menuText="N0Q - Base Reflectivity" id="Radar05Reflectivity">
@@ -105,7 +94,6 @@
 		<substitute key="product" value="32,33" />
 		<substitute key="elevation" value="0.0" />
 		<substitute key="name" value="DHR - Digital Hybrid Reflectivity" />
-<<<<<<< HEAD
 	</contribute>
 	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
 		menuText="DVL - Vert Integrated Liquid" id="RadarVertIntegratedLiquid">
@@ -126,28 +114,6 @@
 		<substitute key="name" value="OHA - One Hour Precip" />
 	</contribute>
 	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
-=======
-	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
-		menuText="DVL - Vert Integrated Liquid" id="RadarVertIntegratedLiquid">
-		<substitute key="product" value="134" />
-		<substitute key="elevation" value="0.0" />
-		<substitute key="name" value="DVL - Vert Integrated Liquid" />
-	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
-		menuText="DSP - Storm Total Precip" id="RadarStormTotalPrecip">
-		<substitute key="product" value="138" />
-		<substitute key="elevation" value="0.0" />
-		<substitute key="name" value="DSP - Storm Total Precip" />
-	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
-		menuText="OHA - One Hour Precip" id="RadarOneHourPrecip">
-		<substitute key="product" value="169" />
-		<substitute key="elevation" value="0.0" />
-		<substitute key="name" value="OHA - One Hour Precip" />
-	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
->>>>>>> origin/unidata_16.2.2
 		menuText="N3P - Three Hour Precip" id="RadarThreeHourPrecip">
 		<substitute key="product" value="79" />
 		<substitute key="elevation" value="0.0" />

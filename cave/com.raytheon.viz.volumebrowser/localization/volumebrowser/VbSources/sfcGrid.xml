@@ -46,8 +46,6 @@
     <vbSource key="NAM12" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="NAM40" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="RFCqpf" category="SfcGrid" views="PLANVIEW TIMESERIES" />
-<<<<<<< HEAD
-=======
     <vbSource key="RTGSST" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="RTGSSTHR" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="RTMA25" category="SfcGrid" views="PLANVIEW TIMESERIES" />
@@ -111,7 +109,6 @@
         subCategory="Global" views="PLANVIEW TIMESERIES" />
     <vbSource key="RTOFS-Now-WestConus" category="SfcGrid/RTOFS/nowcast"
         subCategory="Global" views="PLANVIEW TIMESERIES" />
->>>>>>> origin/unidata_16.2.2
     <vbSource key="RTMA" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="SeaIce" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="SPCGuide" category="SfcGrid" views="PLANVIEW TIMESERIES" />

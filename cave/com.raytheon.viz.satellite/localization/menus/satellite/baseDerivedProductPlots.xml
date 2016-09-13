@@ -152,16 +152,6 @@
 			<substitute key="between" value="90100--105000" />
 		</contribute>
 	</contribute>
-<<<<<<< HEAD
-	<!--
-	<contribute xsi:type="bundleItem" file="bundles/Scatterometer_quikscat.xml"
-		menuText="QuikSCAT 12.5 km" id="QuikSCAT">
-        <substitute key="legend" value="QUIKSCAT"/>
-        <substitute key="svg" value="quikScatPlotDesign.svg"/>
-        <substitute key="plugin" value="bufrquikscat"/>
-        <substitute key="posOffset" value="0"/>
-        <substitute key="negOffset" value="5400"/>
-=======
 	<contribute xsi:type="subMenu" menuText="MTSAT High Density Winds">
 		<contribute xsi:type="titleItem"
 			titleText="------ Satellite-Derived Winds  ------" id="SatDerivedWindLine" />
@@ -292,7 +282,11 @@
         <substitute key="pluginName" value="goessounding"/>
         <substitute key="plotSource" value="GOES Sounding Availability"/>
         <substitute key="offset" value="1800"/>
->>>>>>> origin/unidata_16.2.2
     </contribute>
-    -->
+	<contribute xsi:type="bundleItem" file="bundles/SoundingAvailability.xml" 
+               menuText="POES Sounding Availability" id="poesSoundingAvailability">
+        <substitute key="pluginName" value="poessounding"/>
+        <substitute key="plotSource" value="POES Sounding Availability"/>
+        <substitute key="offset" value="1800"/>
+    </contribute>   
 </menuTemplate>

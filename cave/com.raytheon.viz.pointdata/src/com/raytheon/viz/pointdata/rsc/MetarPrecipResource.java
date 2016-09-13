@@ -122,7 +122,7 @@ public class MetarPrecipResource extends
         AbstractVizResource<MetarPrecipResourceData, IMapDescriptor> {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(MetarPrecipResource.class);
-	
+
 	private RGB color = new RGB(126, 126, 126);
     
     public RGB getColorByValue(float value) {
@@ -137,32 +137,6 @@ public class MetarPrecipResource extends
         }
         return getColor();
     }
-
-    public RGB getColor() {
-        return color;
-    }
-
-<<<<<<< HEAD
-    public void setColor(RGB color) {
-        this.color = color;
-    }
-    private static final int PLOT_PIXEL_SIZE = 30;
-=======
-	private RGB color = new RGB(126, 126, 126);
-    
-    public RGB getColorByValue(float value) {
-    	ColorMapParameters parameters = getCapability(ColorMapCapability.class).getColorMapParameters();
-        if (parameters != null) {
-            Color color = parameters.getColorByValue(value);
-            if (color != null) {
-                return new RGB((int) (color.getRed() * 255),
-                        (int) (color.getGreen() * 255),
-                        (int) (color.getBlue() * 255));
-            }
-        }
-        return getColor();
-    }
->>>>>>> origin/unidata_16.2.2
 
     public RGB getColor() {
         return color;
@@ -251,12 +225,7 @@ public class MetarPrecipResource extends
             dataProcessJob.schedule();
             return;
         }
-<<<<<<< HEAD
-
-        //RGB color = getCapability(ColorableCapability.class).getColor();
-=======
         IExtent extent = paintProps.getView().getExtent();
->>>>>>> origin/unidata_16.2.2
         Double magnification = getCapability(MagnificationCapability.class)
                 .getMagnification();
         Double density = getCapability(DensityCapability.class).getDensity();
@@ -279,23 +248,10 @@ public class MetarPrecipResource extends
         List<DrawableString> strings = new ArrayList<DrawableString>();
 
         for (RenderablePrecipData data : precips) {
-<<<<<<< HEAD
-            if (!extent.contains(new double[] { data.string.basics.x,
-                    data.string.basics.y })) {
-                continue;
-            }
-            if (data.distValue >= threshold) {
-                // This is easier then changing it when the capability changes.
-                data.string.font = this.font;
-                //data.string.setText(data.string.getText(), color);
-                strings.add(data.string);
-            }
-=======
             // This is easier then changing it when the capability changes.
             data.string.font = this.font;
                 //data.string.setText(data.string.getText(), color);
             strings.add(data.string);
->>>>>>> origin/unidata_16.2.2
         }
 
         target.drawStrings(strings);
@@ -694,34 +650,12 @@ public class MetarPrecipResource extends
                 }
                 Float amount = precips.get(i).getPrecipAmt().floatValue();
                 RGB rgbval = getColorByValue(amount);
-<<<<<<< HEAD
-                data.string = new DrawableString(formatPrecip(precips.get(i)
-                        .getPrecipAmt()), rgbval);
-                data.string.setCoordinates(px[0], px[1], px[2]);
-                data.string.verticalAlignment = VerticalAlignment.MIDDLE;
-                data.string.horizontalAlignment = HorizontalAlignment.CENTER;
-            }
-            double bestDist = Double.MAX_VALUE;
-            for (RenderablePrecipData exist : newPrecips) {
-                double xDist = exist.string.basics.x - data.string.basics.x;
-                double yDist = exist.string.basics.y - data.string.basics.y;
-                double dist = Math.hypot(xDist, yDist);
-                if (dist < bestDist) {
-                    bestDist = dist;
-                }
-            }
-            data.distValue = bestDist;
-            // this checks removes duplicates
-            if (bestDist > 0) {
-                newPrecips.add(data);
-=======
                 DrawableString string = new DrawableString(formatPrecip(precips
                         .get(i).getPrecipAmt()), rgbval);
                 string.setCoordinates(px[0], px[1], px[2]);
                 string.verticalAlignment = VerticalAlignment.MIDDLE;
                 string.horizontalAlignment = HorizontalAlignment.CENTER;
                 data = new RenderablePrecipData(precip, string);
->>>>>>> origin/unidata_16.2.2
             }
             newPrecips.add(data);
         }

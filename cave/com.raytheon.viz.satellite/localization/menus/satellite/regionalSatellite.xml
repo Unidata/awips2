@@ -16,11 +16,7 @@
 	        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
 	        <substitute key="sector" value="Alaska National"/>
 			<substitute key="entity" value="GOES-15(P)" /> 
-<<<<<<< HEAD
-	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
-=======
 	        <substitute key="colormap" value="Sat/WV/RAMSDIS WV"/>
->>>>>>> origin/unidata_16.2.2
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
 	                menuText="Alaska National Visible" id="visible">
@@ -50,11 +46,7 @@
 	        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
 	        <substitute key="sector" value="Alaska Regional"/>
 			<substitute key="entity" value="GOES-15(P)" /> 
-<<<<<<< HEAD
-	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
-=======
 	        <substitute key="colormap" value="Sat/WV/RAMSDIS WV"/>
->>>>>>> origin/unidata_16.2.2
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
 	                menuText="Alaska Regional Visible" id="visible">
@@ -77,11 +69,7 @@
 	        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
 	        <substitute key="sector" value="Hawaii National"/>
 			<substitute key="entity" value="GOES-15(P)" /> 
-<<<<<<< HEAD
-	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
-=======
 	        <substitute key="colormap" value="Sat/WV/RAMSDIS WV"/>
->>>>>>> origin/unidata_16.2.2
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
 	                menuText="Hawaii National Visible" id="visible">
@@ -111,11 +99,7 @@
 	        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
 	        <substitute key="sector" value="Hawaii Regional"/>
 			<substitute key="entity" value="GOES-15(P)" /> 
-<<<<<<< HEAD
-	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
-=======
 	        <substitute key="colormap" value="Sat/WV/RAMSDIS WV"/>
->>>>>>> origin/unidata_16.2.2
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
 	                menuText="Hawaii Regional Visible" id="visible">
@@ -138,11 +122,7 @@
 	        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
 	        <substitute key="sector" value="Puerto Rico National"/>
 			<substitute key="entity" value="GOES-13(N)" /> 
-<<<<<<< HEAD
-	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
-=======
 	        <substitute key="colormap" value="Sat/WV/RAMSDIS WV"/>
->>>>>>> origin/unidata_16.2.2
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
 	                menuText="Puerto Rico National Visible" id="visible">
@@ -175,19 +155,11 @@
 	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
 	    </contribute>
 		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-<<<<<<< HEAD
-                menuText="Puerto Rico Regional 6.7-6.5 micron WV" id="irWindow">
-	        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
-	        <substitute key="sector" value="Puerto Rico Regional"/>
-			<substitute key="entity" value="GOES-13(N)" /> 
-	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
-=======
                 menuText="Puerto Rico Regional 6.7-6.5 micron IR (WV)" id="irWindow">
 	        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
 	        <substitute key="sector" value="Puerto Rico Regional"/>
 			<substitute key="entity" value="GOES-13(N)" /> 
 	        <substitute key="colormap" value="Sat/WV/RAMSDIS WV"/>
->>>>>>> origin/unidata_16.2.2
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
 	                menuText="Puerto Rico Regional Visible" id="visible">
@@ -224,11 +196,7 @@
 	        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
 	        <substitute key="sector" value="Arctic"/>
 	        <substitute key="entity" value="COMP" /> 
-<<<<<<< HEAD
-	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
-=======
 	        <substitute key="colormap" value="Sat/WV/RAMSDIS WV"/>
->>>>>>> origin/unidata_16.2.2
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
 	                menuText="Arctic Visible" id="visible">
@@ -258,11 +226,7 @@
 	        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
 	        <substitute key="sector" value="Antarctica" />     
 	        <substitute key="entity" value="COMP" /> 
-<<<<<<< HEAD
-	        <substitute key="colormap" value="Sat/WV/GEMPAK WV"/>
-=======
 	        <substitute key="colormap" value="Sat/WV/RAMSDIS WV"/>
->>>>>>> origin/unidata_16.2.2
 	    </contribute>
 	</contribute>
 </menuTemplate>

@@ -72,10 +72,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Sep 04, 2014 3220       skorolev    Updated configUpdate method and added updateMonitoringArea.
  * Sep 18, 2015 3873       skorolev    Removed common definitions. Replaced deprecated NotificationMessage.
  * Dec 17, 2015 3873       dhladky     Abstracted handling of dialogTime and Zone dialog events.
- * <<<<<<< HEAD
- * =======
  * Jan 04, 2016 5115       skorolev    Corrected imports and replaced AppName with MonName.
- * >>>>>>> Omaha #5115 - Added AlertViz image management for FSSObs data.
  * 
  * </pre>
  * 

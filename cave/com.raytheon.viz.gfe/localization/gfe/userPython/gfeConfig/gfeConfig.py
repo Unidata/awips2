@@ -47,7 +47,7 @@ no  = False
 # The gfe configuration file can be hidden in the Start Up Dialog by
 # using the HideConfigFile keyword and setting it to 1, or by commenting
 # out the following line.
-# #HideConfigFile = 1
+# HideConfigFile = 1
 
 #------------------------------------------------------------------------
 # Mutable Parameter and Viewable Database Configurations
@@ -636,13 +636,7 @@ HistoryOriginColor_Other = "gray75"
 # listed here, then the HistoryOriginText_Populated and
 # HistoryOriginColor_Populated is used.
 HistoryModelColor_gfsLR = '#30df10'
-<<<<<<< HEAD
-HistoryModelColor_NGM80 = 'orange'
-HistoryModelColor_NGM95 = 'orange'
-HistoryModelColor_RAP40 = '#00ffff'
-=======
 HistoryModelColor_RUC80 = '#00ffff'
->>>>>>> origin/unidata_16.2.2
 HistoryModelColor_MAVMOS = '#e6c8a1'
 HistoryModelColor_GFSMOS = '#e6d8a1'
 HistoryModelColor_METMOS = '#e6b8a1'
@@ -674,13 +668,7 @@ HistoryModelColor_NamDNG5 = '#808000'
 HistoryModelText_GFS80 = 'GFS'
 HistoryModelText_GFS40 = 'GFS'
 HistoryModelText_GFS190 = 'GFS'
-<<<<<<< HEAD
-HistoryModelText_NGM80 = 'NGM'
-HistoryModelText_NGM95 = 'NGM'
-HistoryModelText_RAP40 = 'RUC'
-=======
 HistoryModelText_RUC80 = 'RUC'
->>>>>>> origin/unidata_16.2.2
 HistoryModelText_GFSMOS = 'GFSMOS'
 HistoryModelText_MEXMOS = 'MEXMOS'
 HistoryModelText_MAVMOS = 'MAVMOS'

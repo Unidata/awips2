@@ -112,9 +112,6 @@
         indentText="false" />
     <contribute xsi:type="menuItem" textLookup="LevelMapping"
         key="0BSS" indentText="false" />
-<<<<<<< HEAD
-  
-=======
     <contribute xsi:type="toolbarSubMenu" menuText="Below Sea Surface">  
         <contribute xsi:type="menuItem" textLookup="LevelMapping" key="2BSS" indentText="false" />
         <contribute xsi:type="menuItem" textLookup="LevelMapping" key="4BSS" indentText="false" />
@@ -158,5 +155,4 @@
      </contribute> 
     <contribute xsi:type="menuItem" textLookup="LevelMapping"
         key="NTAT" indentText="false" />
->>>>>>> origin/unidata_16.2.2
 </menuTemplate>

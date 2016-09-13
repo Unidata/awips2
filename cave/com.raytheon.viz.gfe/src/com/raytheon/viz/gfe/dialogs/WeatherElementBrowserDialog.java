@@ -407,32 +407,6 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
      */
     private void createTypesComp(Composite parent) {
 
-<<<<<<< HEAD
-        //GridData data = new GridData(100, 200);
-        //Composite comp = new Composite(parent, SWT.BORDER);
-        //comp.setLayoutData(data);
-        //comp.setLayout(new GridLayout());
-        //Label lab = new Label(comp, SWT.NONE);
-        //lab.setText("Types");
-        //data = new GridData();
-        //data.horizontalAlignment = SWT.CENTER;
-        //lab.setLayoutData(data);
-
-        for (final WEBrowserTypeRecord entry : typeEntries) {
-//            final Button b = new Button(comp, SWT.RADIO | SWT.BORDER);
-//            b.setText(entry.getType());
-//            b.addSelectionListener(new SelectionAdapter() {
-//                @Override
-//                public void widgetSelected(SelectionEvent e) {
-//                    if (b.getSelection()) {
-//                        selectedType = entry;
-//                        setupListsForCurrentType();
-//                    }
-//                }
-//            });
-
-            if (typeEntries.indexOf(entry) == 1) {
-=======
         Group group = new Group(parent, SWT.BORDER);
         GridData layoutData = new GridData(SWT.DEFAULT, SWT.FILL, false, true);
         group.setLayoutData(layoutData);
@@ -455,9 +429,8 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
             });
 
             if (typeEntries.indexOf(entry) == 0) {
->>>>>>> origin/unidata_16.2.2
                 selectedType = entry;
-                //b.setSelection(true);
+                b.setSelection(true);
             }
         }
     }
@@ -856,21 +829,11 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
      * Creates the source composite.
      */
     private void createSourceComp(Composite parent) {
-<<<<<<< HEAD
-    	
-        Composite comp = new Composite(parent, SWT.BORDER);
-        comp.setLayout(new GridLayout(1, true));
-        GridData data = new GridData(170, 200);
-        comp.setLayoutData(data);
-        data = new GridData();
-        data.horizontalAlignment = SWT.LEFT;
-=======
         Group group = new Group(parent, SWT.BORDER);
         group.setLayout(new GridLayout(1, true));
         GridData layoutData = new GridData(SWT.FILL, SWT.FILL, true, true);
         group.setLayoutData(layoutData);
         group.setText("Sources");
->>>>>>> origin/unidata_16.2.2
 
         sourceMenu = new Menu(getParentShell(), SWT.POP_UP);
         sourceToolBar = new ToolBar(group, SWT.NONE);
@@ -918,20 +881,11 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
      * Creates the field composite.
      */
     private void createFieldsComp(Composite parent) {
-<<<<<<< HEAD
-        GridData data = new GridData(170, 200);
-        Composite comp = new Composite(parent, SWT.BORDER);
-        comp.setLayout(new GridLayout());
-        comp.setLayoutData(data);
-        data = new GridData();
-        data.horizontalAlignment = SWT.CENTER;
-=======
         Group group = new Group(parent, SWT.BORDER);
         group.setLayout(new GridLayout());
         GridData layoutData = new GridData(SWT.FILL, SWT.FILL, true, true);
         group.setLayoutData(layoutData);
         group.setText("Fields");
->>>>>>> origin/unidata_16.2.2
 
         fieldsMenu = new Menu(getParentShell(), SWT.POP_UP);
         fieldsToolBar = new ToolBar(group, SWT.NONE);
@@ -969,21 +923,11 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
      * Creates the plans composite.
      */
     private void createPlanesComp(Composite parent) {
-<<<<<<< HEAD
-        GridData data = new GridData(220, 200);
-        Composite comp = new Composite(parent, SWT.BORDER);
-        comp.setLayout(new GridLayout(2, false));
-        comp.setLayoutData(data);
-        data = new GridData();
-        data.horizontalAlignment = SWT.CENTER;
-        data.horizontalSpan = 2;
-=======
         Group group = new Group(parent, SWT.BORDER);
         group.setLayout(new GridLayout(2, false));
         GridData layoutData = new GridData(SWT.FILL, SWT.FILL, true, true);
         group.setLayoutData(layoutData);
         group.setText("Planes");
->>>>>>> origin/unidata_16.2.2
 
         presMenu = new Menu(getParentShell(), SWT.POP_UP);
         miscMenu = new Menu(getParentShell(), SWT.POP_UP);

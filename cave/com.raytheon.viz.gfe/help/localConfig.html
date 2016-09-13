@@ -717,17 +717,8 @@ models and the Python object name that is required:
       </td>
     </tr>
     <tr>
-<<<<<<< HEAD
-      <td>NGM80</td>
-      <td>parmsNGM80</td>
-    </tr>
-    <tr>
-      <td>RAP40</td>
-      <td>parmsRAP40</td>
-=======
       <td>RUC80</td>
       <td>parmsRUC80</td>
->>>>>>> origin/unidata_16.2.2
     </tr>
     <tr>
       <td>GFS80<br>
@@ -1470,11 +1461,11 @@ the correct statement for the model.&nbsp; Refer to the table under <a
 a New Weather Element</a> for the proper syntax for the parm groupings
 for the models.
 </p>
-<p>For example, if you wanted to modify the RAP40 T (temperature) and
+<p>For example, if you wanted to modify the RUC80 T (temperature) and
 Td
 (dew point) time constraint to TC1, then you would do the following.
 </p>
-<p><tt>parmsRAP40 = [([T,Td], TC1)]</tt>
+<p><tt>parmsRUC80 = [([T,Td], TC1)]</tt>
 </p>
 <p></p>
 <hr width="100%">
@@ -1639,7 +1630,7 @@ MyNAM.
 <br>
 <tt>&nbsp;&nbsp;&nbsp; "NAM40" : ["NAM40", "NAM20"],</tt>
 <br>
-<tt>&nbsp;&nbsp;&nbsp; "RAP40" : ["RAP40"],</tt>
+<tt>&nbsp;&nbsp;&nbsp; "RUC80" : ["RUC80"],</tt>
 <br>
 <tt>&nbsp;&nbsp;&nbsp; "GFS40" : ["GFS40"],</tt>
 <br>
@@ -1708,7 +1699,7 @@ skiptime2],</tt>
 <p>Note that unlike the INITMODULES, the key in this dictionary is the
 modelname, and not the module name. An example is shown in the
 following
-example, where the RAP40 initialization is skipped except for every 3
+example, where the RUC80 initialization is skipped except for every 3
 hours,
 and the NAM40/NAM20 run is skipped for the 00z run:
 </p>
@@ -1718,7 +1709,7 @@ and the NAM40/NAM20 run is skipped for the 00z run:
 <br>
 <tt>&nbsp;&nbsp;&nbsp; "NAM20" : [0],</tt>
 <br>
-<tt>&nbsp;&nbsp;&nbsp; "RAP40" :
+<tt>&nbsp;&nbsp;&nbsp; "RUC80" :
 [1,2,4,5,7,8,10,11,13,14,16,17,19,20,22,23],</tt>
 <br>
 <tt>&nbsp;&nbsp;&nbsp; }</tt>
@@ -1819,13 +1810,7 @@ modify entries, rather than redefining the entire dictionary.<br>
 <br>
 <tt>&nbsp;&nbsp;&nbsp; "NAM80": ["tp", "cp"],</tt>
 <br>
-<<<<<<< HEAD
-<tt>&nbsp;&nbsp;&nbsp; "NGM80": ["tp", "cp"],</tt>
-<br>
-<tt>&nbsp;&nbsp;&nbsp; "RAP40": ["tp", "cp"],</tt>
-=======
 <tt>&nbsp;&nbsp;&nbsp; "RUC80": ["tp", "cp"],</tt>
->>>>>>> origin/unidata_16.2.2
 <br>
 <tt>&nbsp;&nbsp;&nbsp; "NAM40": ["tp", "cp"],</tt>
 <br>
