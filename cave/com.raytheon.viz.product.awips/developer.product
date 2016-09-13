@@ -14,7 +14,7 @@
    </configIni>
 
    <launcherArgs>
-      <programArgs>-data @user.home/caveData -user @user.home/caveData -clean -consoleLog -component thinclient -alertviz</programArgs>
+      <programArgs>-data @user.home/Library/CAVE -user @user.home/Library/CAVE -clean -consoleLog -component thinclient -alertviz</programArgs>
       <vmArgs>-Xmx3536M
 -XX:+UseG1GC
 -Dosgi.instance.area.readOnly=true
@@ -53,6 +53,7 @@
    </launcher>
 
    <vm>
+      <macos include="true">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7</macos>
       <windows include="true">jdk1.7.0</windows>
    </vm>
 
