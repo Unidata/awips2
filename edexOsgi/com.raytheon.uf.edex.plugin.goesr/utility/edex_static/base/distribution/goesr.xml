@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<requestPatterns xmlns:ns2="group">
-	<regex>^TI[SR]</regex>
-    <!-- This pattern is intended to match standardized Level 2 filenames, it will not be used over LDM -->
-    <!--  IT_ABI-L2-CMIPF-M3C05_G16_s2005155201500_e2005155203700_c2014058132255.nc -->
-    <regex>^IT_ABI-L2.*</regex>
-    <regex>^OR_ABI-L2-\w{3,5}(C|F|M1|M2)-M[34]_G\d\d_s\d{14}_e\d{14}_c\d{14}.nc$</regex>
-</requestPatterns>
