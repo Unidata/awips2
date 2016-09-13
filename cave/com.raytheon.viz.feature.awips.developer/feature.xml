@@ -178,10 +178,6 @@
          version="0.0.0"/>
 
    <includes
-         id="gov.noaa.gsd.viz.hazards.feature"
-         version="0.0.0"/>
-
-   <includes
          id="com.raytheon.uf.viz.ncep.npp.feature"
          version="0.0.0"/>
 
